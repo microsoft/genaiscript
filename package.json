@@ -14,15 +14,15 @@
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "package": "cd packages/vscode && yarn package",
-        "release": "npx release-it --yes"
+        "release:draft": "npx release-it --yes",
+        "release:vsix": "npx release-it --yes --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/coarch.vsix --no-github.draft",
+        "release": "yarn compile && yarn package && yarn release:draft && yarn compile && yarn package && yarn release:vsix"
     },
     "release-it": {
         "github": {
             "release": true,
             "releaseName": "v${version}",
-            "assets": [
-                "packages/vscode/coarch.vsix"
-            ]
+            "draft": true
         }
     }
 }
