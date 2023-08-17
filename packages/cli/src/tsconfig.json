@@ -1,0 +1,13 @@
+{
+    "extends": "../../../tsconfig-base.json",
+    "compilerOptions": {
+        "types": [
+            "node"
+        ],
+        "declarationDir": "../built/types",
+        "outDir": "../built"
+    },
+    "include": [
+        "."
+, "../../core/src/chat.ts"    ]
+}

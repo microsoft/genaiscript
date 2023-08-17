@@ -1,0 +1,18 @@
+{
+    "name": "coarch",
+    "version": "1.0.0",
+    "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile",
+        "compile-cli": "yarn --cwd packages/cli run compile",
+        "compile": "yarn compile-ext && yarn compile-cli",
+        "go": "cd packages/cli && yarn go",
+        "token": "cd packages/sample && yarn token",
+        "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
+        "package": "cd packages/vscode && yarn package"
+    }
+}

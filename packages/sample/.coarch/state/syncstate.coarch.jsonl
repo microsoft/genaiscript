@@ -1,0 +1,40 @@
+{"type":"fragment","hash":"f13bc61509665a4c","id":"#UV61","text":"## Parse command line arguments {#UV61}\nExtract file name, size, and output file name from the command line input."}
+{"type":"fragment","hash":"959be56df715246e","id":"#UV61","text":"// Parse command line arguments {#UV61}\nconst [inputFile, size, outputFile] = process.argv.slice(2);\n\n"}
+{"type":"edge","hash":"f13bc61509665a4c","children":["959be56df715246e"],"state":"sync"}
+{"type":"fragment","hash":"b9e8cccece371aa0","id":"#QY23","text":"## Validate Input {#QY23}\nEnsure all arguments are present.\nVerify the input file exists and is in a valid image format. Validate the dimensions and output file name."}
+{"type":"fragment","hash":"359ea27ce40c6511","id":"#QY23","text":"// Validate input {#QY23}\nif (!fs.existsSync(inputFile)) {\n  console.error('Input file does not exist.');\n  process.exit(1);\n}\n\nconst validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];\nconst inputExtension = path.extname(inputFile).toLowerCase();\n\nif (!validExtensions.includes(inputExtension)) {\n  console.error('Invalid image format.');\n  process.exit(1);\n}\n\nconst [width, height] = size.split('x').map(Number);\nif (isNaN(width) || isNaN(height)) {\n  console.error('Invalid size format. Use WIDTHxHEIGHT.');\n  process.exit(1);\n}\n\n"}
+{"type":"edge","hash":"b9e8cccece371aa0","children":["359ea27ce40c6511"],"state":"sync"}
+{"type":"fragment","hash":"cf7755ed717353d0","id":"#MD29","text":"## Load image {#MD29}\nUse a suitable library to load the image from the input file."}
+{"type":"fragment","hash":"89cd6fd6affcc278","id":"#MD29","text":"// Load image {#MD29}\nconst image = sharp(inputFile);\n\n"}
+{"type":"edge","hash":"cf7755ed717353d0","children":["89cd6fd6affcc278"],"state":"sync"}
+{"type":"fragment","hash":"2e9de6e93b82cbc6","id":"#OI62","text":"# Image resize {#OI62}\n\nA command line that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS."}
+{"type":"fragment","hash":"97724ac59e97b580","id":"#DE00","text":"## Parse arguments `x`, `y` **z** #2 {#DE00}\n\nRead the `filename: string`, `size: number` and `outputfilename: string`\nfrom the command line arguments. `filename` and `size` are mandatory and `outputfilename` is optional.\n\n-   [feature](./test/feature.DE00.feature)"}
+{"type":"fragment","hash":"e5cc8fc6c2ccd37d","id":"#HJ77","text":"## Create and Fill Buffer {#HJ77}\n\nCreate a buffer, then fill it with binary data from an image file."}
+{"type":"fragment","hash":"d1048732ef280fd7","id":"#SB87","text":"## Resize image {#SB87}\n\nUsing image library to resize image using the best algorithm."}
+{"type":"fragment","hash":"70e352ab370c7495","id":"#LT55","text":"## Save Image {#LT55}\n\nInitialize File API, load image, create output file, save image to output file, and close output file.\n\n-   [feature](./test/feature.LT55.feature)"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"sync"}
+{"type":"fragment","hash":"e90966d04048c7c8","id":"#LM14","text":"### Read command line arguments {#LM14}\n\nExtract `filename`, `size`, and `outputfilename` from the command line arguments.\n\n-   [feature](./test/feature.LM14.feature)"}
+{"type":"fragment","hash":"de1a35c5808d1dae","id":"#RF43","text":"### Validate mandatory arguments {#RF43}\n\nEnsure `filename` and `size` are provided.\n\n-   [feature](./test/feature.RF43.feature)"}
+{"type":"fragment","hash":"7fc1dea7d363b5fa","id":"#ND68","text":"### Set default outputfilename if not provided {#ND68}\n\nIf `outputfilename` is not provided, set a default value."}
+{"type":"fragment","hash":"ffc50b68bf651513","id":"#UL21","text":"### Parse arguments {#UL21}\n\nParse `filename` as a string, `size` as a number, and `outputfilename` as a string."}
+{"type":"fragment","hash":"1b5412c37c4c718b","id":"#NK12","text":"### Handle parsing errors {#NK12}\n\nCatch any errors that occur during the parsing process and display an appropriate error message."}
+{"type":"edge","hash":"97724ac59e97b580","children":["e90966d04048c7c8","de1a35c5808d1dae","7fc1dea7d363b5fa","ffc50b68bf651513","1b5412c37c4c718b"],"state":"sync"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"mod"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"sync"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"mod"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"sync"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"mod"}
+{"type":"edge","hash":"2e9de6e93b82cbc6","children":["97724ac59e97b580","e5cc8fc6c2ccd37d","d1048732ef280fd7","70e352ab370c7495"],"state":"sync"}
+{"type":"fragment","hash":"2bce072cabf20200","id":"#YU34","text":"# Image resize {#YU34}\n\nA command line application that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS.\n\n-   [node](./image.mjs)"}
+{"type":"fragment","hash":"f2953a668ef879b5","id":"#UV61","text":"## Parse command line arguments {#UV61}\nExtract file name, size, and output file name from the command line input."}
+{"type":"fragment","hash":"f815d9528c622718","id":"#QY23","text":"## Validate Input {#QY23}\nEnsure all arguments are present.\nVerify the input file exists and is in a valid image format. Validate the dimensions and output file name."}
+{"type":"fragment","hash":"0b514b0a9d505e6a","id":"#MD29","text":"## Load image {#MD29}\nUse a suitable library to load the image from the input file."}
+{"type":"fragment","hash":"c2220eaab396fcaa","id":"#KU58","text":"## Determine Optimal Algorithm {#KU58}\nSelect the most suitable resizing algorithm considering the input image and target size."}
+{"type":"fragment","hash":"8dd5f8b05875c2bd","id":"#OR24","text":"## Resize image {#OR24}\nApply the chosen algorithm to resize the image to the specified size."}
+{"type":"fragment","hash":"69bf94d8c61ba465","id":"#IA42","text":"## Save resized image {#IA42}\nSave the resized image to the output file name provided."}
+{"type":"fragment","hash":"c42711bec6e9065e","id":"#DT13","text":"## Display success message {#DT13}\nInform the user that the resizing process is complete and provide the output file name."}
+{"type":"edge","hash":"2bce072cabf20200","children":["f2953a668ef879b5","f815d9528c622718","0b514b0a9d505e6a","c2220eaab396fcaa","8dd5f8b05875c2bd","69bf94d8c61ba465","c42711bec6e9065e"],"state":"sync"}
+{"type":"fragment","hash":"2db1bd25cefdf7bf","id":"#UV61","text":"// Parse command line arguments {#UV61}\nconst [inputFile, size, outputFile] = process.argv.slice(2);\n\n"}
+{"type":"edge","hash":"f2953a668ef879b5","children":["2db1bd25cefdf7bf"],"state":"sync"}
+{"type":"fragment","hash":"9280057c0cba19df","id":"#IA42","text":"// Save resized image {#IA42}\nimage.toFile(outputFile, (err) => {\n  if (err) {\n    console.error('Error saving resized image:', err);\n    process.exit(1);\n  }\n\n"}
+{"type":"edge","hash":"69bf94d8c61ba465","children":["9280057c0cba19df"],"state":"sync"}

@@ -1,14 +1,17 @@
-# Project
+# CoArch: A Refinement Copilot
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+CoArch stands for Co-pilot for End-to-end Design and Development with AI Refinement.
 
-As the maintainer of this project, please make a few updates:
+-   **Read the [Visual Studio Code Extension README](./packages/vscode/README.md) for user documentation.**
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+## Install manually
+
+These are the instructions to install the latest build of the extension manually in Visual Studio Code.
+
+-   download the `coarch.vsix` file
+-   open Visual Studio Code
+-   open the command palette and type **Extensions: Install from VSIX...**
+-   load the `coarch.vsix` file
 
 ## Contributing
 

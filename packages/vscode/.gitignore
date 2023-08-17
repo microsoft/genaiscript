@@ -1,0 +1,4 @@
+.vscode-test-web
+dist
+built
+*.vsix

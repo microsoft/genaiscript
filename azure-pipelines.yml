@@ -1,0 +1,49 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+    branches:
+        include:
+            - "*"
+
+pool:
+    vmImage: ubuntu-latest
+
+variables:
+    YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
+
+steps:
+    - task: NodeTool@0
+      inputs:
+          versionSpec: "18.x"
+      displayName: "Install Node.js"
+    - task: Cache@2
+      inputs:
+          key: '"yarn" | "$(Agent.OS)" | yarn.lock'
+          restoreKeys: |
+              "yarn" | "$(Agent.OS)"
+              "yarn"
+          path: $(YARN_CACHE_FOLDER)
+      displayName: cache yarn packages
+    - script: yarn install --frozen-lockfile
+      displayName: "install dependencies"
+    - script: yarn typecheck
+      displayName: "typecheck"
+    - script: yarn compile
+      displayName: "compile"
+    - script: yarn package
+      displayName: "package vsix"
+    - task: CopyFiles@2
+      inputs:
+          sourceFolder: "$(Build.SourcesDirectory)"
+          contents: packages/vscode/*.vsix
+          targetFolder: "$(Build.ArtifactStagingDirectory)"
+      displayName: "copy artifacts"
+    - task: PublishPipelineArtifact@1
+      inputs:
+          artifactName: vsix
+          targetPath: "$(Build.ArtifactStagingDirectory)"
+          publishLocation: "pipeline"
+      displayName: "publish artifacts"
