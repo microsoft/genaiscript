@@ -1,0 +1,226 @@
+{
+    "name": "coarch-vscode",
+    "publisher": "Microsoft",
+    "displayName": "CoArch for Visual Studio Code",
+    "description": "Copilot for Architecture Design",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.79.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "license": "MIT",
+    "extensionKind": [
+        "ui",
+        "workspace"
+    ],
+    "activationEvents": [
+        "workspaceContains:**/*.coarch.md",
+        "workspaceContains:**/*.prompt.js"
+    ],
+    "main": "./built/extension.js",
+    "browser": "./built/extension.js",
+    "repository": {
+        "url": "https://dev.azure.com/risecodeai/coarch/_git/coarch",
+        "directory": "packages/vscode"
+    },
+    "contributes": {
+        "colors": [
+            {
+                "id": "coarch.fragment.id.before",
+                "description": "Before color for CoArch fragment ids.",
+                "defaults": {
+                    "dark": "#FFFF0066",
+                    "light": "#00008066"
+                }
+            },
+            {
+                "id": "coarch.fragment.id.border",
+                "description": "Border color for CoArch fragment ids.",
+                "defaults": {
+                    "dark": "#FFFF0066",
+                    "light": "#00008066"
+                }
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "coarch",
+                    "title": "CoArch",
+                    "icon": "./images/robot.svg"
+                }
+            ]
+        },
+        "views": {
+            "coarch": [
+                {
+                    "id": "coarch.fragments",
+                    "name": "Fragments"
+                },
+                {
+                    "id": "coarch.prompts",
+                    "name": "Prompts"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "coarch.fragments",
+                "contents": "Create a CoArch markdown file(.coarch.md) to start generating tasks and code."
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "coarch.fragment.audit",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.fragment.unaudited",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.fragment.reveal",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.prompt.fork",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.prompt.unbuiltin",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.prompt.navigate",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.request.open",
+                    "when": "false"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "coarch.fragment.prompt",
+                    "when": "view == coarch.fragments && viewItem  =~ /^fragment/",
+                    "group": "inline"
+                },
+                {
+                    "command": "coarch.fragment.audit",
+                    "when": "view == coarch.fragments && viewItem  =~ /^fragment/ && viewItem =~ /mod/",
+                    "group": "inline"
+                },
+                {
+                    "command": "coarch.fragment.unaudited",
+                    "when": "view == coarch.fragments && viewItem =~ /^fragment.node/ && !(viewItem =~ /mod/)",
+                    "group": "inline"
+                },
+                {
+                    "command": "coarch.prompt.fork",
+                    "when": "view == coarch.prompts && viewItem  =~ /^prompt/"
+                },
+                {
+                    "command": "coarch.prompt.unbuiltin",
+                    "when": "view == coarch.prompts && viewItem  =~ /^prompt.builtin/"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "coarch.openai.token.clear",
+                "title": "Clear OpenAI token",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.openai.cancel",
+                "title": "Cancel OpenAI request",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.fragment.navigate",
+                "title": "Navigate to fragment",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.fragment.reveal",
+                "title": "Reveal fragment in tree",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.fragment.audit",
+                "title": "✓ Audit",
+                "category": "CoArch",
+                "icon": "$(check)"
+            },
+            {
+                "command": "coarch.fragment.unaudited",
+                "title": "⚠ Mark unaudited",
+                "category": "CoArch",
+                "icon": "$(unverified)"
+            },
+            {
+                "command": "coarch.fragment.prompt",
+                "title": "Query a copilot AI to do a task on the node",
+                "category": "CoArch",
+                "shortTitle": "Prompt...",
+                "icon": "$(lightbulb)"
+            },
+            {
+                "command": "coarch.prompt.navigate",
+                "title": "Navigate to prompt",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.prompt.fork",
+                "title": "Fork",
+                "category": "CoArch",
+                "icon": "$(repo-forked)"
+            },
+            {
+                "command": "coarch.prompt.unbuiltin",
+                "title": "Move builtin to project",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.request.open",
+                "title": "Open request or response",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.assignIds",
+                "title": "Assign fragment IDs",
+                "category": "CoArch"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run compile",
+        "compile": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node18 --outfile=built/extension.js --external:vscode",
+        "lint": "eslint src --ext ts",
+        "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
+        "typecheck": "tsc -p .",
+        "package": "vsce package --dependencies --out coarch.vsix --yarn"
+    },
+    "devDependencies": {
+        "@types/isomorphic-fetch": "^0.0.36",
+        "@types/mocha": "^10.0.1",
+        "@types/vscode": "^1.79.0",
+        "@typescript-eslint/eslint-plugin": "^5.59.8",
+        "@typescript-eslint/parser": "^5.59.8",
+        "@vscode/test-web": "^0.0.44",
+        "assert": "^2.0.0",
+        "coarch-core": "*",
+        "eslint": "^8.41.0",
+        "isomorphic-fetch": "^3.0.0",
+        "json5": "^2.2.3",
+        "mocha": "^10.2.0",
+        "process": "^0.11.10",
+        "ts-loader": "^9.4.3",
+        "typescript": "^5.1.3",
+        "vsce": "^2.15.0",
+        "vscode-uri": "^3.0.7"
+    }
+}

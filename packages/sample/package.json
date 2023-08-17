@@ -1,0 +1,17 @@
+{
+  "name": "coarch-sample",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "go": "node ../cli/built/main.js src/sample.ts",
+    "token": "mkdir -p .coarch/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .coarch/tmp/request.txt",
+    "typecheck": "tsc -p src"
+  },
+  "dependencies": {
+    "sharp": "^0.32.2"
+  }
+}

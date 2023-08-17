@@ -1,0 +1,23 @@
+{
+  "name": "coarch-cli",
+  "version": "1.0.0",
+  "main": "built/main.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "esbuild": "^0.17.18",
+    "fs-extra": "^11.1.1",
+    "openai": "^3.2.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
+    "@types/node": "^18.16.3",
+    "coarch-core": "*"
+  },
+  "scripts": {
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/main.js",
+    "go": "yarn compile && node built/main.js",
+    "typecheck": "tsc -p src"
+  }
+}
