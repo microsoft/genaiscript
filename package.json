@@ -19,7 +19,10 @@
     "release-it": {
         "github": {
             "release": true,
-            "releaseName": "v${version}"
+            "releaseName": "v${version}",
+            "assets": [
+                "packages/coarch/coarch.vsix"
+            ]
         }
     }
 }
