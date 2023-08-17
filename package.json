@@ -21,7 +21,7 @@
             "release": true,
             "releaseName": "v${version}",
             "assets": [
-                "packages/coarch/coarch.vsix"
+                "packages/vscode/coarch.vsix"
             ]
         }
     }
