@@ -15,5 +15,10 @@
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "package": "cd packages/vscode && yarn package",
         "release": "npx release-it --yes"
+    },
+    "release-it": {
+        "github": {
+            "release": true
+        }
     }
 }
