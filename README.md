@@ -53,5 +53,5 @@ yarn install --frozen-lockfile
 Run the `release` script.
 
 ```bash
-yarn
+yarn release
 ```
