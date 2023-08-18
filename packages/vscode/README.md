@@ -300,12 +300,6 @@ ${env.fence}
 
 When the markdown references to a local file, the link name and content will be available through `env.links`
 
-For example, this snippet links to
-
-```md
-Bla bla, from the [docs](./docs/index.md).
-```
-
 ```js
 Use documentation from DOCS.
 
