@@ -225,6 +225,7 @@ prompt({
     audit: "fragment",
 })
 ```
+
 #### LLM parameters
 
 These are taken from prompt, or from system prompt, or set to default.
@@ -256,6 +257,7 @@ When you apply a prompt to a given fragment, a number of variables are set inclu
 -   `env.children` (body of direct children of the current fragment)
 -   `env.subtree` (the current fragment and all its recursive children).
 -   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
+-   `env.links` set of linked files and content
 
 > For a full list with values, run any prompt, click on the "CoArch" in the status bar and look at prompt expansion trace.
 
@@ -292,6 +294,22 @@ ${env.fence}
 ${env.fragment}
 ${env.fence}
 `
+```
+
+#### Linked files
+
+When the markdown references to a local file, the link name and content will be available through `env.links`
+
+For example, this snippet links to
+
+```md
+Bla bla, from the [docs](./docs/index.md).
+```
+
+```js
+Use documentation from DOCS.
+
+def("DOCS", env.links["docs"].content)
 ```
 
 ### Conditional expansion
