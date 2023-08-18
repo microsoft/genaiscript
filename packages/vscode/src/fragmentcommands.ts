@@ -6,6 +6,7 @@ import {
     assignIds,
     groupBy,
     isRequestError,
+    templateGroup,
 } from "coarch-core"
 import { ExtensionState } from "./state"
 import { applyEdits } from "./edit"
@@ -190,9 +191,9 @@ export function activateFragmentCommands(state: ExtensionState) {
                 },
                 fragment.children?.length > 0
                     ? {
-                          label: "Mark Self and Children Audited",
-                          action: "auditedtree",
-                      }
+                        label: "Mark Self and Children Audited",
+                        action: "auditedtree",
+                    }
                     : undefined,
             ].filter((a) => !!a),
         })
@@ -244,7 +245,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 }
 
 function templatesToQuickPickItems(templates: globalThis.PromptTemplate[]) {
-    const cats = groupBy(templates, (t) => t.categories?.[0] || "")
+    const cats = groupBy(templates, templateGroup)
     const items: vscode.QuickPickItem[] = []
     for (const cat in cats) {
         items.push(<vscode.QuickPickItem>{

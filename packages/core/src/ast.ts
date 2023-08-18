@@ -145,6 +145,11 @@ export function allChildren(fragment: Fragment): Fragment[] {
     return res
 }
 
+export function templateGroup(template: PromptTemplate) {
+    return template.categories?.[0]
+        || (/^system/i.test(template.id) ? "system" : "") || "unassigned"
+}
+
 export const eofPosition: Position = [0x3fffffff, 0]
 
 export interface CoArchJson {
@@ -197,7 +202,7 @@ export class TextFile {
         public readonly project: CoArchProject,
         public readonly filename: string,
         public readonly content: string
-    ) {}
+    ) { }
 
     relativeName() {
         const prj = host.projectFolder()
