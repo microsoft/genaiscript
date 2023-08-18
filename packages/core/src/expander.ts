@@ -64,6 +64,7 @@ function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
             return v
         },
     })
+    let logs = ""
     try {
         evalPrompt(
             {
@@ -83,7 +84,10 @@ function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                 prompt: () => {},
                 systemPrompt: () => {},
             },
-            r.jsSource
+            r.jsSource,
+            (msg) => {
+                logs += msg + "\n"
+            }
         )
     } catch (e) {
         success = false
@@ -91,7 +95,7 @@ function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
         const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
         errors += `-  ${e.name}: ${e.message}${info}\n`
     }
-    return { errors, success, text: promptText }
+    return { logs, errors, success, text: promptText }
 }
 
 function expandTemplate(
@@ -134,6 +138,10 @@ ${numberedPrompt}
     errors += prompt.errors
 
     info += cat.info
+
+    info += `\n## console.log() output from prompt\n`
+    info += fenceMD(prompt.logs)
+
     info += "\n## Expanded prompt\n"
     info += fenceMD(prompt.text)
     info += traceVars()
