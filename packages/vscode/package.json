@@ -100,6 +100,10 @@
                 {
                     "command": "coarch.request.open",
                     "when": "false"
+                },
+                {
+                    "command": "coarch.request.status",
+                    "when": "false"
                 }
             ],
             "view/item/context": [
@@ -187,6 +191,11 @@
             {
                 "command": "coarch.request.open",
                 "title": "Open request or response",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.request.status",
+                "title": "Show information message about OpenAI request status",
                 "category": "CoArch"
             },
             {
