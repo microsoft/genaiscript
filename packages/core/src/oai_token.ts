@@ -5,7 +5,7 @@ import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 let cfg: OAIToken
 
 function validateTokenCore(token: string, quiet = false) {
-    if (token.startsWith("oaip_")) return
+    if (!token.startsWith("ey")) return
 
     let timeleft = 0
     const p = token.split(".")[1]
@@ -49,6 +49,17 @@ export async function initToken(force = false) {
     const f = await host.askToken()
     if (f === undefined) throwError("token not specified", true)
     if (!f) throw new Error("token not specified")
+
+    if (f.startsWith("sk-")) {
+        // OpenAI token
+        cfg = {
+            url: "https://api.openai.com/v1/",
+            token: f,
+            isOpenAI: true,
+        }
+        await host.setSecretToken(cfg)
+        return cfg
+    }
 
     let m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
     if (m) {
