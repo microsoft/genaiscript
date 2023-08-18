@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { CHANGE, ExtensionState } from "./state"
-import { PromptTemplate } from "coarch-core"
+import { PromptTemplate, groupBy, templateGroup } from "coarch-core"
 
 type PromptTreeNode = string | PromptTemplate
 
@@ -74,21 +74,12 @@ ${text}
         const templates = this.state.project?.templates || []
         if (!element) {
             // collect and sort all categories
-            const cats = new Set<string>()
-            templates
-                .map((t) => t.categories)
-                .forEach((c) => c?.forEach((c) => cats.add(c)))
-            const categories: string[] = [...new Set(cats)].sort()
-            categories.push("system", "")
-            return categories
+            const cats = Object.keys(groupBy(templates, templateGroup))
+            return [...cats.filter(t => t !== "system"), "system"]
         } else if (typeof element === "string") {
             const templates = this.state.project?.templates || []
             return templates.filter(
-                (t) =>
-                    t.categories?.includes(element) ||
-                    (element === "system" && /^system\.?/.test(t.id)) ||
-                    (!t.categories?.length && element === "")
-            )
+                (t) => templateGroup(t) === element)
         } else {
             return undefined
         }

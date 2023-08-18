@@ -9,17 +9,17 @@ export function activateStatusBar(state: ExtensionState) {
         vscode.StatusBarAlignment.Right,
         120
     )
-    statusBarItem.command = "coarch.request.open"
+    statusBarItem.command = "coarch.request.status"
     const updateStatusBar = () => {
-        const { computing, progress, template, fragments, response } =
+        const { computing, progress, template, fragments } =
             state.aiRequest || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
             tokensSoFar > 0
                 ? `(${tokensSoFar} tokens)`
                 : computing
-                ? `$(loading~spin)`
-                : undefined,
+                    ? `$(loading~spin)`
+                    : undefined,
             "CoArch",
             template?.title
         )
@@ -32,9 +32,6 @@ export function activateStatusBar(state: ExtensionState) {
                     (fragment) =>
                         `-  fragment: ${fragment.title} (#${fragment.id || ""})`
                 ) || []),
-                tokensSoFar > 0 ? `-  tokens: ${tokensSoFar}` : undefined,
-                response?.text ? `-  generated text` : undefined,
-                toFencedCodeBlock(response?.text, "markdown")
             )
         )
         statusBarItem.tooltip = md

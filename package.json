@@ -1,6 +1,6 @@
 {
     "name": "coarch",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "license": "MIT",
     "private": true,
     "workspaces": [
@@ -14,8 +14,8 @@
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "package": "cd packages/vscode && yarn package",
-        "release:draft": "npx release-it --yes",
-        "release:vsix": "npx release-it --yes --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/coarch.vsix --no-github.draft",
+        "release:draft": "npx --yes release-it",
+        "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/coarch.vsix --no-github.draft",
         "release": "yarn compile && yarn package && yarn release:draft && yarn compile && yarn package && yarn release:vsix"
     },
     "release-it": {

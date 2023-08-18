@@ -5,6 +5,7 @@ import {
     Position,
     PromptTemplate,
 } from "./ast"
+import { consoleLogFormat } from "./logging"
 import { randomRange } from "./util"
 
 function templateIdFromFileName(filename: string) {
@@ -150,11 +151,15 @@ class Checker<T extends PromptLike> {
 
 // fills missing utility functions
 export type BasePromptContext = Omit<PromptContext, "fence" | "def" | "$">
-export function evalPrompt(ctx0: BasePromptContext, jstext: string) {
+export function evalPrompt(
+    ctx0: BasePromptContext,
+    jstext: string,
+    logCb?: (msg: string) => void
+) {
     const { text, env } = ctx0
     const dontuse = (name: string) =>
         `${env.error} ${name}() should not be used inside of \${ ... }\n`
-    const ctx: PromptContext = {
+    const ctx: PromptContext & { console: Partial<typeof console> } = {
         ...ctx0,
         $(strings, ...args) {
             let r = ""
@@ -182,6 +187,19 @@ export function evalPrompt(ctx0: BasePromptContext, jstext: string) {
             ctx.def("", body)
             return dontuse("fence")
         },
+        console: {
+            log: log,
+            warn: log,
+            debug: log,
+            error: log,
+            info: log,
+            trace: log,
+        },
+    }
+
+    function log(...args: any[]) {
+        const line = consoleLogFormat(...args)
+        logCb?.(line)
     }
 
     // in principle we could cache this function (but would have to do that based on hashed body or sth)
@@ -190,6 +208,7 @@ export function evalPrompt(ctx0: BasePromptContext, jstext: string) {
         Object.keys(ctx).join(", "),
         "'use strict'; " + jstext
     )
+
     return fn(...Object.values(ctx))
 }
 

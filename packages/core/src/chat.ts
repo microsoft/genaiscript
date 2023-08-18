@@ -63,35 +63,37 @@ export async function getChatCompletions(
 
     const cfg = await initToken()
     const r2 = { ...req }
-    delete r2.model
+
+    const model = req.model.replace("-35-", "-3.5-")
+
+    let url = ""
+
+    if (cfg.isOpenAI) {
+        url = cfg.url + "/chat/completions"
+    } else {
+        delete r2.model
+        url =
+            cfg.url +
+            model.replace(/\./g, "") +
+            "/chat/completions?api-version=2023-03-15-preview"
+    }
+
     r2.stream = true
     let numTokens = 0
 
-    logVerbose(`query ${req.model}`)
+    logVerbose(`query ${model} at ${url}`)
 
-    const r = await fetch(
-        cfg.url +
-            req.model +
-            "/chat/completions?api-version=2023-03-15-preview",
-        {
-            headers: {
-                accept: "*/*",
-                "accept-language": "en-US,en;q=0.9",
-                authorization: `bearer ${cfg.token}`,
-                "content-type": "application/json",
-                "openai-internal-allowanyoutput": "1",
-                "openai-internal-allowchatcompletion": "true",
-                "openai-internal-allowedspecialtokens":
-                    "<|im_start|>,<|im_sep|>,<|im_end|>",
-                "x-ms-useragent": "AzureOpenAI.Studio/1.0.02313.522",
-                Referer: "https://oai.azure.com/",
-                ...(headers || {}),
-            },
-            body: JSON.stringify(r2),
-            method: "POST",
-            ...(rest || {}),
-        }
-    )
+    const r = await fetch(url, {
+        headers: {
+            authorization: `Bearer ${cfg.token}`,
+            "user-agent": "coarch",
+            "content-type": "application/json",
+            ...(headers || {}),
+        },
+        body: JSON.stringify(r2),
+        method: "POST",
+        ...(rest || {}),
+    })
 
     if (r.status != 200)
         throw new RequestError(

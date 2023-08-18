@@ -10,23 +10,25 @@ while taking into account the tree structure of your documents.
 CoArch tightly integrate the prompt engineering cycle inside Visual Studio Code
 infrastructure to provide a augmented, tooled, prompting experience.
 
-### Prompts as files
+### Prompt Files
 
-CoArch parses `*.coarch.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
+CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`prompts/*.prompt.js`) in your project.
 
-Since prompts are stored as files in the
-project, they can be shared, versioned, collaborated on by the entire development team
+CoArch comes with builtin prompts and allows you to fork and customize the AI prompts to your project specific needs.
+This leverages VSCode language support (completion, coloring, error checking)
+while remaining friendly to people not very familiar with JavaScript.
+CoArch also provides detailed expansion logs to help you debug your templates.
+
+Since prompts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of prompts and share them as libraries on their favorite package manager.
 
-### Customizable prompts
+### Specification Files
 
-CoArch also allows you to fork and customize the AI prompts to your project specific needs.
-CoArch prompts use stylized JavaScript with minimal syntax.
-This leverages VSCode language support (completion, coloring, error checking)
-while remaining friendly to people not very familiar with JavaScript.
-CoArch also provides detailed expansion logs to help you debug your templates.
+CoArch parses `*.coarch.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
+
+Once the specification files are parsed, CoArch will automatically suggest which prompt can be applied to each fragment.
 
 ### Editor integration
 
@@ -108,6 +110,9 @@ prompt({
 // this appends text to the prompt
 $`Shorten the following SUMMARY. Limit changes to minimum.`
 
+// you can debug the generation using goo'old logs
+console.log({ fragment: env.fragment })
+
 // this is similar to $`SUMMARY: ${env.fragment}`
 // but the variable is appropriately delimited
 def("SUMMARY", env.fragment)
@@ -120,6 +125,17 @@ $`Respond with the new SUMMARY.`
 
 Prompts use `prompt({ ... })` function call
 to configure the title and other user interface elements.
+
+```js
+prompt({
+    title: "Shorten", // displayed in UI
+    // also displayed, but grayed out:
+    description:
+        "A prompt that shrinks the size of text without losing meaning",
+    replaces: "fragment", // what happens with AI output
+    categories: ["shorten"], // see Inline prompts later
+})
+```
 
 #### title: string
 
@@ -227,6 +243,10 @@ These are taken from prompt, or from system prompt, or set to default.
 
 See `prompt_template.ts` in the sources for details.
 
+### Logging
+
+Use `console.log` and friends to debug your prompts.
+
 ### Variable Expansion
 
 Variables are referenced and injected using `env.variableName` syntax.
@@ -237,6 +257,7 @@ When you apply a prompt to a given fragment, a number of variables are set inclu
 -   `env.children` (body of direct children of the current fragment)
 -   `env.subtree` (the current fragment and all its recursive children).
 -   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
+-   `env.links` set of linked files and content
 
 > For a full list with values, run any prompt, click on the "CoArch" in the status bar and look at prompt expansion trace.
 
@@ -273,6 +294,16 @@ ${env.fence}
 ${env.fragment}
 ${env.fence}
 `
+```
+
+#### Linked files
+
+When the markdown references to a local file, the link name and content will be available through `env.links`
+
+```js
+Use documentation from DOCS.
+
+def("DOCS", env.links["docs"].content)
 ```
 
 ### Conditional expansion
