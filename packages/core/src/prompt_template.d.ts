@@ -201,6 +201,11 @@ interface ExpansionVariables {
     refChildren: string
 
     /**
+     * List of linked files parsed in context
+     */
+    links: Record<string, { filename: string, content: string }>
+
+    /**
      * If the contents of this variable occurs in output, it will generate an error.
      */
     error: string
