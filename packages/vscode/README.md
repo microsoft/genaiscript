@@ -10,23 +10,25 @@ while taking into account the tree structure of your documents.
 CoArch tightly integrate the prompt engineering cycle inside Visual Studio Code
 infrastructure to provide a augmented, tooled, prompting experience.
 
-### Prompts as files
+### Prompt Files
 
-CoArch parses `*.coarch.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
+CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`prompts/*.prompt.js`) in your project.
 
-Since prompts are stored as files in the
-project, they can be shared, versioned, collaborated on by the entire development team
+CoArch comes with builtin prompts and allows you to fork and customize the AI prompts to your project specific needs.
+This leverages VSCode language support (completion, coloring, error checking)
+while remaining friendly to people not very familiar with JavaScript.
+CoArch also provides detailed expansion logs to help you debug your templates.
+
+Since prompts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of prompts and share them as libraries on their favorite package manager.
 
-### Customizable prompts
+### Specification Files
 
-CoArch also allows you to fork and customize the AI prompts to your project specific needs.
-CoArch prompts use stylized JavaScript with minimal syntax.
-This leverages VSCode language support (completion, coloring, error checking)
-while remaining friendly to people not very familiar with JavaScript.
-CoArch also provides detailed expansion logs to help you debug your templates.
+CoArch parses `*.coarch.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
+
+Once the specification files are parsed, CoArch will automatically suggest which prompt can be applied to each fragment.
 
 ### Editor integration
 
