@@ -22,6 +22,7 @@ export enum LogLevel {
 export interface OAIToken {
     url: string
     token: string
+    isOpenAI?: boolean
 }
 
 export interface Host {
