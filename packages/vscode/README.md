@@ -110,6 +110,9 @@ prompt({
 // this appends text to the prompt
 $`Shorten the following SUMMARY. Limit changes to minimum.`
 
+// you can debug the generation using goo'old logs
+console.log({ fragment: env.fragment })
+
 // this is similar to $`SUMMARY: ${env.fragment}`
 // but the variable is appropriately delimited
 def("SUMMARY", env.fragment)
@@ -122,6 +125,17 @@ $`Respond with the new SUMMARY.`
 
 Prompts use `prompt({ ... })` function call
 to configure the title and other user interface elements.
+
+```js
+prompt({
+    title: "Shorten", // displayed in UI
+    // also displayed, but grayed out:
+    description:
+        "A prompt that shrinks the size of text without losing meaning",
+    replaces: "fragment", // what happens with AI output
+    categories: ["shorten"], // see Inline prompts later
+})
+```
 
 #### title: string
 
@@ -211,7 +225,6 @@ prompt({
     audit: "fragment",
 })
 ```
-
 #### LLM parameters
 
 These are taken from prompt, or from system prompt, or set to default.
@@ -228,6 +241,10 @@ These are taken from prompt, or from system prompt, or set to default.
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
 See `prompt_template.ts` in the sources for details.
+
+### Logging
+
+Use `console.log` and friends to debug your prompts.
 
 ### Variable Expansion
 
