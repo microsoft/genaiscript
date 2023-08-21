@@ -3,15 +3,9 @@ prompt({
     replaces: "nothing",
 })
 
-$`
-You are a export technical writer. Summarize the CONTENT below.
-`
+$`You are a export technical writer. Summarize the files below.`
 
-def(
-    "CONTENT",
-    Object.values(env.links)
-        .map((f) => f.content)
-        .join("\n\n")
-)
+// defFiles(env.links.filter(f => f.filename.endsWith(".md")))
+defFiles(env.links)
 
 $`Answer in markdown.`

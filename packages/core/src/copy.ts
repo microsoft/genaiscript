@@ -13,12 +13,13 @@ export async function copyPrompt(
 ) {
     await host.createDirectory(promptPath(null))
 
-    let fn = promptPath(options?.name || t.id)
+    const n = options?.name || t.id
+    let fn = promptPath(n)
 
     if (options.fork) {
         let suff = 2
         for (;;) {
-            fn = promptPath(t.id + "_" + suff)
+            fn = promptPath(n + "_" + suff)
             if (await fileExists(fn)) {
                 suff++
                 continue

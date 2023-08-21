@@ -20,7 +20,7 @@ import {
     Range,
 } from "./ast"
 import { getFragmentState } from "./tree_state"
-import { defaultLinks, defaultPrompts } from "./default_prompts"
+import { defaultFileTypes, defaultPrompts } from "./default_prompts"
 import { builtinPrefix, parsePromptTemplate, parseFileType } from "./template"
 import { host } from "./host"
 
@@ -303,10 +303,10 @@ async function fragmentHash(t: Fragment) {
 export async function parseProject(options: {
     coarchFiles: string[]
     promptFiles: string[]
-    linkFiles: string[]
+    fileTypeFiles: string[]
     coarchJsonFiles: string[]
 }) {
-    const { coarchFiles, promptFiles, linkFiles, coarchJsonFiles } = options
+    const { coarchFiles, promptFiles, fileTypeFiles, coarchJsonFiles } = options
     const prj = new CoArchProject()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
@@ -319,14 +319,14 @@ export async function parseProject(options: {
         if (cfg) Object.assign(prj.coarchJson, cfg)
     }
 
-    const deflLnks = Object.assign({}, defaultLinks)
-    for (const f of linkFiles) {
+    const deflFTs = Object.assign({}, defaultFileTypes)
+    for (const f of fileTypeFiles) {
         const lnk = parseFileType(f, await readText(f), prj)
         if (!lnk) continue
-        delete deflLnks[lnk.id]
+        delete deflFTs[lnk.id]
         prj.fileTypes.push(lnk)
     }
-    for (const [id, v] of Object.entries(deflLnks)) {
+    for (const [id, v] of Object.entries(deflFTs)) {
         prj.fileTypes.push(parseFileType(builtinPrefix + id, v, prj))
     }
     runFinalizers()
