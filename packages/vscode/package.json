@@ -111,6 +111,10 @@
                     "command": "coarch.prompt.create",
                     "when": "view == coarch.prompts",
                     "group": "navigation"
+                },
+                {
+                    "command": "coarch.openai.token.clear",
+                    "when": "view == coarch.prompts"
                 }
             ],
             "view/item/context": [

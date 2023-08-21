@@ -35,7 +35,10 @@ export async function activate(context: ExtensionContext) {
         }),
         vscode.commands.registerCommand(
             "coarch.openai.token.clear",
-            async () => await clearToken()
+            async () => {
+                await clearToken()
+                await vscode.window.showInformationMessage("CoArch - OpenAI token cleared.")
+            }
         ),
         vscode.commands.registerCommand("coarch.assignIds", async () => {
             if (state.project) {
