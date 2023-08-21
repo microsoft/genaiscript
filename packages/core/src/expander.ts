@@ -6,7 +6,13 @@ import {
 import { Fragment, PromptTemplate, eofPosition, rangeOfFragments } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, concatArrays, fileExists, randomRange, readText } from "./util"
+import {
+    assert,
+    concatArrays,
+    fileExists,
+    readText,
+    relativePath,
+} from "./util"
 import { evalPrompt, extractFenced, removeFence, staticVars } from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
@@ -301,7 +307,7 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
         if (file)
             links.push({
                 label: ref.name,
-                filename: file.filename,
+                filename: relativePath(host.projectFolder(), file.filename),
                 content: file.content,
             })
     }

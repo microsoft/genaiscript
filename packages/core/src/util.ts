@@ -156,6 +156,14 @@ export function dotCoarchPath(...segments: string[]) {
     return host.resolvePath(host.projectFolder(), coarchFolder, ...segments)
 }
 
+export function relativePath(root: string, path: string) {
+    if (path.startsWith(root)) {
+        path = path.slice(root.length)
+        return path.replace(/^[\/\\]+/, "")
+    }
+    return path
+}
+
 export function logInfo(msg: string) {
     host.log(LogLevel.Info, msg)
 }
