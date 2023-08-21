@@ -9,6 +9,7 @@ import { commentAttributes, stringToPos } from "./parser"
 import { assert, concatArrays, fileExists, randomRange, readText } from "./util"
 import { evalPrompt, extractFenced, removeFence, staticVars } from "./template"
 import { host } from "./host"
+import { inspect } from "./logging"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -81,8 +82,8 @@ function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                         throw new Error(msg)
                     }
                 },
-                prompt: () => { },
-                systemPrompt: () => { },
+                prompt: () => {},
+                systemPrompt: () => {},
             },
             r.jsSource,
             (msg) => {
@@ -107,7 +108,7 @@ function expandTemplate(
     for (const [k, v] of Object.entries(vars)) {
         if (!varName[v]) varName[v] = k
     }
-    const varMap = vars as any as Record<string, string | Record<string, string>>
+    const varMap = vars as any as Record<string, string | any[]>
 
     const numberedPrompt = fenceMD(
         template.jsSource
@@ -138,10 +139,10 @@ ${numberedPrompt}
 
     info += cat.info
 
-    if (prompt.logs) {
-        info += `\n## console.log() output from prompt\n`
-        info += fenceMD(prompt.logs)
-    }
+    // always append, even if empty - should help with discoverability:
+    // "Oh, so I can console.log() from prompt!"
+    info += `\n## console.log() output from prompt\n`
+    info += fenceMD(prompt.logs)
 
     info += "\n## Expanded prompt\n"
     info += fenceMD(prompt.text)
@@ -203,7 +204,12 @@ ${numberedPrompt}
     function isComplex(k: string) {
         const v = varMap[k]
         if (typeof v === "string" && varName[v] != k) return false
-        return typeof v !== "string" || v.length > 40 || v.trim().includes("\n") || v.includes("`")
+        return (
+            typeof v !== "string" ||
+            v.length > 40 ||
+            v.trim().includes("\n") ||
+            v.includes("`")
+        )
     }
 
     function traceVars() {
@@ -222,7 +228,10 @@ ${numberedPrompt}
         for (const k of Object.keys(vars)) {
             if (!isComplex(k)) continue
             const v = varMap[k]
-            info += `-   env.**${k}**${fenceMD(typeof v === "string" ? v : JSON.stringify(v, null, 2), typeof v === "string" ? "" : "json")}\n`
+            info += `-   env.**${k}**${fenceMD(
+                typeof v === "string" ? v : inspect(v),
+                typeof v === "string" ? "" : "js"
+            )}\n`
         }
 
         return info
@@ -263,8 +272,8 @@ You are concise.
 
         const prefs = template.categories?.length
             ? concatArrays(
-                ...template.categories.map((s) => prefixes("@prompt." + s))
-            )
+                  ...template.categories.map((s) => prefixes("@prompt." + s))
+              )
             : ["@prompt"]
         for (const pref of prefs) {
             if (used.has(pref)) continue
@@ -285,10 +294,16 @@ You are concise.
 
 function fragmentVars(template: PromptTemplate, frag: Fragment) {
     const prj = frag.file.project
-    const links: Record<string, { filename: string, content: string }> = {}
+
+    const links: LinkedFile[] = []
     for (const ref of frag.references) {
-        const { filename, content } = prj.allFiles.find(f => f.filename === ref.filename)
-        links[ref.name] = { filename, content }
+        const file = prj.allFiles.find((f) => f.filename === ref.filename)
+        if (file)
+            links.push({
+                label: ref.name,
+                filename: file.filename,
+                content: file.content,
+            })
     }
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
@@ -297,7 +312,7 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
         fragment: fragmentMD(frag),
         children: frag.sameFileChildren().map(fragmentMD).join("\n\n"),
         subtree: subtreeMD(frag),
-        links
+        links,
     }
 
     let refChildren = ""
@@ -550,8 +565,9 @@ export async function runTemplate(
         }
 
         if (!curr) {
-            const link = `-   [${template.outputLinkName ?? template.id
-                }](./${filename.replace(/.*[\\\/]/, "")})`
+            const link = `-   [${
+                template.outputLinkName ?? template.id
+            }](./${filename.replace(/.*[\\\/]/, "")})`
             // TODO: include links as part of AST
             edits.push({
                 ...obj,

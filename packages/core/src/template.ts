@@ -150,7 +150,10 @@ class Checker<T extends PromptLike> {
 }
 
 // fills missing utility functions
-export type BasePromptContext = Omit<PromptContext, "fence" | "def" | "$">
+export type BasePromptContext = Omit<
+    PromptContext,
+    "fence" | "def" | "defFiles" | "$"
+>
 export function evalPrompt(
     ctx0: BasePromptContext,
     jstext: string,
@@ -182,6 +185,10 @@ export function evalPrompt(
                         env.fence
                 )
             return dontuse("def")
+        },
+        defFiles(files) {
+            for (const f of files) ctx.def("File " + f.filename, f.content)
+            return dontuse("defFiles")
         },
         fence(body) {
             ctx.def("", body)
@@ -258,6 +265,7 @@ function errorId() {
 
 export function staticVars() {
     return {
+        links: [] as LinkedFile[],
         fence: promptFence,
         error: errorId(),
     }

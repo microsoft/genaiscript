@@ -165,6 +165,31 @@ interface FileType extends PromptLike {
 }
 
 /**
+ * Represent a file linked from a .coarch document.
+ */
+interface LinkedFile {
+    /**
+     * If file is linked through `[foo](./path/to/file)` then this is "foo"
+     */
+    label: string
+
+    /**
+     * Name of the file, relative to project root.
+     */
+    filename: string
+
+    /**
+     * Content of the file.
+     */
+    content: string
+
+    /**
+     * Either built-in, or user-defined file type.
+     */
+    // TODO filetype: FileType
+}
+
+/**
  * A set of text extracted from the context of the prompt execution
  */
 interface ExpansionVariables {
@@ -203,10 +228,10 @@ interface ExpansionVariables {
     /**
      * List of linked files parsed in context
      */
-    links: Record<string, { filename: string, content: string }>
+    links: LinkedFile[]
 
     /**
-     * If the contents of this variable occurs in output, it will generate an error.
+     * If the contents of this variable occurs in output, an error message will be shown to the user.
      */
     error: string
 }
@@ -226,5 +251,6 @@ interface PromptContext {
     systemPrompt(options: PromptArgs): void
     fence(body: string): void
     def(name: string, body: string): void
+    defFiles(files: LinkedFile[]): void
     env: ExpansionVariables
 }
