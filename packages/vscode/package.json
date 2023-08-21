@@ -56,12 +56,12 @@
         "views": {
             "coarch": [
                 {
-                    "id": "coarch.fragments",
-                    "name": "Fragments"
-                },
-                {
                     "id": "coarch.prompts",
                     "name": "Prompts"
+                },
+                {
+                    "id": "coarch.fragments",
+                    "name": "Fragments"
                 }
             ]
         },
@@ -104,6 +104,13 @@
                 {
                     "command": "coarch.request.status",
                     "when": "false"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "coarch.prompt.create",
+                    "when": "view == coarch.prompts",
+                    "group": "navigation"
                 }
             ],
             "view/item/context": [
@@ -175,6 +182,12 @@
             {
                 "command": "coarch.prompt.navigate",
                 "title": "Navigate to prompt",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.prompt.create",
+                "title": "Create new prompt file",
+                "icon": "$(add)",
                 "category": "CoArch"
             },
             {
