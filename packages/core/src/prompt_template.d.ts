@@ -243,14 +243,16 @@ type PromptArgs = MakeOptional<
     "replaces"
 >
 
+type StringLike = string | LinkedFile | LinkedFile[]
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     prompt(options: PromptArgs): void
     systemPrompt(options: PromptArgs): void
-    fence(body: string): void
-    def(name: string, body: string): void
+    fence(body: StringLike): void
+    def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
     env: ExpansionVariables
 }
