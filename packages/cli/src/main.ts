@@ -11,7 +11,7 @@ async function main() {
     const x = parseProject({
         coarchFiles: ["../sample/test.coarch.md"],
         promptFiles: [],
-        linkFiles: [],
+        fileTypeFiles: [],
         coarchJsonFiles: [],
     })
     // writeFileSync("built/out.json", JSON.stringify(x));
