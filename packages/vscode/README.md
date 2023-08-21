@@ -303,7 +303,7 @@ When the markdown references to a local file, the link name and content will be 
 ```js
 Use documentation from DOCS.
 
-def("DOCS", env.links["docs"].content)
+def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
 
 ### Conditional expansion

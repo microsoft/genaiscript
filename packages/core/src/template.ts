@@ -173,6 +173,9 @@ export function evalPrompt(
             text(r)
         },
         def(name, body) {
+            if (Array.isArray(body))
+                body = body.map((f) => f.content).join("\n\n")
+            else if (typeof body != "string") body = body.content
             body = body.replace(/\n*$/, "")
             if (body) body += "\n"
             text(

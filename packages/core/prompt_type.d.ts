@@ -6,24 +6,24 @@
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .prompt.js file.
  */
-declare function prompt(options: PromptArgs): void;
+declare function prompt(options: PromptArgs): void
 
 /**
  * Equivalent of prompt() for system prompts.
  */
-declare function systemPrompt(options: PromptArgs): void;
+declare function systemPrompt(options: PromptArgs): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function text(body: string): void;
+declare function text(body: string): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
-declare function $(strings: TemplateStringsArray, ...args: any[]): string;
+declare function $(strings: TemplateStringsArray, ...args: any[]): string
 
 /**
  * Appends given (often multi-line) string to the prompt, surrounded in fences.
@@ -31,7 +31,7 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string;
  *
  * @param body string to be fenced
  */
-declare function fence(body: string): void;
+declare function fence(body: StringLike): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
@@ -40,7 +40,7 @@ declare function fence(body: string): void;
  * @param name name of defined entity, eg. "SUMMARY" or "This is text before SUMMARY"
  * @param body string to be fenced/defined
  */
-declare function def(name: string, body: string): void;
+declare function def(name: string, body: StringLike): void
 
 /**
  * Inline supplied files in the prompt.
@@ -48,9 +48,9 @@ declare function def(name: string, body: string): void;
  *
  * @param files files to define, eg. `env.links` or a subset thereof
  */
-declare function defFiles(files: LinkedFile[]): void;
+declare function defFiles(files: LinkedFile[]): void
 
 /**
  * Variables coming from the fragment on which the prompt is operating.
  */
-declare var env: ExpansionVariables;
+declare var env: ExpansionVariables
