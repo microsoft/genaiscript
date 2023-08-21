@@ -43,6 +43,14 @@ declare function fence(body: string): void;
 declare function def(name: string, body: string): void;
 
 /**
+ * Inline supplied files in the prompt.
+ * Similar to `for (const f in files) { def("File " + f.filename, f.contents) }`
+ *
+ * @param files files to define, eg. `env.links` or a subset thereof
+ */
+declare function defFiles(files: LinkedFile[]): void;
+
+/**
  * Variables coming from the fragment on which the prompt is operating.
  */
 declare var env: ExpansionVariables;
