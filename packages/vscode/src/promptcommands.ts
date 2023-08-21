@@ -13,6 +13,33 @@ export function activatePromptCommands(state: ExtensionState) {
     }
 
     subscriptions.push(
+        vscode.commands.registerCommand("coarch.prompt.create", async () => {
+            const name = await vscode.window.showInputBox({
+                title: "Pick a name for the new prompt file.",
+            })
+            if (name === undefined) return
+            await showPrompt(
+                await copyPrompt(
+                    {
+                        id: "",
+                        title: "New prompt template",
+                        text: "New prompt template",
+                        replaces: "node",
+                        jsSource: `prompt({
+    title: "${name}",
+})
+
+// use $ to output formatted text to the prompt
+$\`You are a helpful assistant.\`
+
+// use def to emit and reference chunks of text
+def("TEXT", env.fragment)
+                `,
+                    },
+                    { fork: false, name }
+                )
+            )
+        }),
         vscode.commands.registerCommand(
             "coarch.prompt.fork",
             async (template: PromptTemplate) => {
