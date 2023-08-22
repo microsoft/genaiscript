@@ -3,7 +3,7 @@ prompt({
     replaces: "children",
     system: "system.tasks",
     description: "Generate or update sub tasks based on the summary.",
-    categories: ["generate"],
+    categories: ["samples"],
 })
 
 $`Split SUMMARY into tasks as STEPS.

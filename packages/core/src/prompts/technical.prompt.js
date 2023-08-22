@@ -2,7 +2,7 @@ prompt({
     title: "Technical proofreading",
     description: "Review the text as a technical document writer.",
     replaces: "fragment",
-    categories: ["technical"],
+    categories: ["samples"],
     system: ["system.technical"],
 })
 

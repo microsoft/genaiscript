@@ -20,21 +20,21 @@ export async function writeFile(
     folder: vscode.Uri,
     fileName: string,
     fileContent: string,
-    options?: { open?: boolean }
+    options?: { open?: boolean, column?: vscode.ViewColumn }
 ): Promise<vscode.Uri> {
     const file = vscode.Uri.joinPath(folder, fileName)
     await vscode.workspace.fs.writeFile(
         file,
         new TextEncoder().encode(fileContent)
     )
-    if (options?.open) await openFileEditor(folder, fileName)
+    if (options?.open) await openFileEditor(folder, fileName, options?.column)
     return file
 }
 
-export async function openFileEditor(folder: vscode.Uri, fileName: string) {
+export async function openFileEditor(folder: vscode.Uri, fileName: string, column?: vscode.ViewColumn) {
     const file = vscode.Uri.joinPath(folder, fileName)
     const document = await vscode.workspace.openTextDocument(file)
-    await vscode.window.showTextDocument(document)
+    await vscode.window.showTextDocument(document, column)
 }
 
 export async function readFileText(

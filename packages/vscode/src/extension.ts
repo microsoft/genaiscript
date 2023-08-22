@@ -4,8 +4,7 @@ import { ExtensionState } from "./state"
 import { activateFragmentTreeDataProvider } from "./fragmenttree"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { concatArrays } from "coarch-core"
-import { applyEdits } from "./edit"
+import { initToken, isCancelError } from "coarch-core"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateDecorators } from "./decorators"
@@ -40,6 +39,18 @@ export async function activate(context: ExtensionContext) {
                 await vscode.window.showInformationMessage(
                     "CoArch - OpenAI token cleared."
                 )
+            }
+        ),
+        vscode.commands.registerCommand(
+            "coarch.openai.token.update",
+            async () => {
+                try {
+                    await clearToken()
+                    await initToken(true)
+                } catch (e) {
+                    if (isCancelError(e)) return
+                    throw e
+                }
             }
         ),
         vscode.commands.registerCommand("coarch.request.status", async () => {
