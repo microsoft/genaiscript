@@ -214,11 +214,6 @@
                 "command": "coarch.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "CoArch"
-            },
-            {
-                "command": "coarch.assignIds",
-                "title": "Assign fragment IDs",
-                "category": "CoArch"
             }
         ]
     },

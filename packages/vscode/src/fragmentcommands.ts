@@ -3,7 +3,6 @@ import {
     Fragment,
     PromptTemplate,
     allChildren,
-    assignIds,
     groupBy,
     isRequestError,
     templateGroup,
@@ -80,32 +79,8 @@ export function activateFragmentCommands(state: ExtensionState) {
             await vscode.workspace.saveAll()
             await state.parseWorkspace()
 
-            if (fragment.file.filesyntax === "markdown") {
-                const ids = assignIds(fragment.file)
-                if (ids.length) {
-                    await applyEdits(ids)
-                    await vscode.workspace.saveAll()
-                    await state.parseWorkspace()
-                }
-            }
-
-            if (!fragment.id) {
-                await vscode.window.showErrorMessage(
-                    "Fragment had no ID. Please try again."
-                )
-                return
-            }
-
-            fragment = state.project.fragmentByFullId[fragment.fullId]
-
-            // have update fragment to refer to the current project
-            if (!fragment) {
-                await vscode.window.showErrorMessage(
-                    "Something wrong with IDs. Please try again."
-                )
-                return
-            }
-
+            fragment =
+                state.project.fragmentByFullId[fragment.fullId] ?? fragment
             const template = fragment.file.project.getTemplate(templateId)
 
             const res = await state.startAIRequest({
@@ -191,9 +166,9 @@ export function activateFragmentCommands(state: ExtensionState) {
                 },
                 fragment.children?.length > 0
                     ? {
-                        label: "Mark Self and Children Audited",
-                        action: "auditedtree",
-                    }
+                          label: "Mark Self and Children Audited",
+                          action: "auditedtree",
+                      }
                     : undefined,
             ].filter((a) => !!a),
         })
