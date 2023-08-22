@@ -1,25 +1,25 @@
-# Blackjack Project Plan {#PA21}
-Idea: Create a command line application that allows users to play blackjack with it. It should allow the user to place a bet, be dealt multiple hands, and finally quit. Implement the blackjack dealer by always standing on 17 and above and drawing on anything less. The program should handle how much money the player has and print out the actions of the dealer and how much money the player has after each round.
+# Command Line Blackjack Application
 
--   [SA-planning](./blackjack1.saplan.coarch.md)
+-   [SA-planning](./repro4.saplan.coarch.md)
 
 
-## Instructions for Software Architect (SA) {#YC52}
-- Design a modular architecture for the command line application
-- Identify the main components such as user interface, game logic, and player/dealer management
-- Define APIs for interaction between components
-- Ensure the architecture supports the game rules and requirements mentioned in the idea
+## Idea
+Create a command line application that allows users to play blackjack with it. It should allow the user to place a bet, be dealt multiple hands, and finally quit. Implement the blackjack dealer by always standing on 17 and above and drawing on anything less. The program should handle how much money the player has and print out the actions of the dealer and how much money the player has after each round.
 
-## Instructions for Software Developer (SDE) {#PZ84}
-- Implement the code for each component based on the architecture and APIs provided by the SA
-- Ensure the command line interface is user-friendly and intuitive
-- Implement the game logic, including betting, dealing hands, and quitting
-- Implement the dealer's behavior as specified in the idea
-- Manage the player's money and display it after each round
+## Instructions for Software Architect (SA)
+1. Design a modular architecture for the command line blackjack application.
+2. Define APIs for user input, game logic, and output display.
+3. Determine how components will interact with each other, such as user input, game logic, and output display.
+4. Ensure the architecture supports the dealer's rules (standing on 17 and above, drawing on anything less) and player's actions (placing bets, being dealt multiple hands, and quitting).
 
-## Instructions for Quality Assurance Engineer (QA) {#RM25}
-- Write test cases to cover all possible scenarios and edge cases in the game
-- Test the command line interface for usability and user experience
-- Verify the game logic implementation, including the dealer's behavior and player's money management
-- Ensure the application meets the requirements specified in the idea
+## Instructions for Software Developer (SDE)
+1. Implement the command line interface for user input, allowing players to place bets, be dealt hands, and quit the game.
+2. Develop the game logic, including the dealer's rules (standing on 17 and above, drawing on anything less) and handling player's actions (placing bets, being dealt multiple hands, and quitting).
+3. Create output display components to show the dealer's actions and the player's money after each round.
+4. Integrate all components and ensure they interact correctly according to the software architecture.
 
+## Instructions for Quality Assurance Engineer (QA)
+1. Write test cases to validate the functionality of the command line interface, game logic, and output display.
+2. Test the dealer's rules (standing on 17 and above, drawing on anything less) and player's actions (placing bets, being dealt multiple hands, and quitting).
+3. Verify that the application handles player's money correctly and displays the dealer's actions and player's money after each round.
+4. Ensure the application meets the requirements stated in the idea and performs as expected.
