@@ -189,7 +189,7 @@ const parseMdFile: Parser = (
             text: sourceRange(md, [elt.header, ...elt.body]),
         })
         newelt.text.replace(
-            /^-\s+\[(?<name>[^\]]+)\]\((?<file>\.\/[^\)]+)\)/gm,
+            /^(?:-|\*)\s+\[(?<name>[^\]]+)\]\((?<file>\.\/[^\)]+)\)/gm,
             (_, name, file) => {
                 newelt.references.push({
                     name,
@@ -359,7 +359,7 @@ export async function parseProject(options: {
         const ext = /\.[^\.]+$/.exec(f)?.[0]
         let parser = parsers[ext ?? ""]
         if (!parser) {
-            console.log(`unknown file type: ${f}`)
+            console.debug(`unknown file type: ${f}`)
             parser = parseGeneric
         }
         if (!(await fileExists(f))) {
