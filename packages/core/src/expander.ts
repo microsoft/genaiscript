@@ -299,11 +299,12 @@ You are concise.
 }
 
 function fragmentVars(template: PromptTemplate, frag: Fragment) {
-    const prj = frag.file.project
+    const { file } = frag
+    const project = file.project
 
     const links: LinkedFile[] = []
     for (const ref of frag.references) {
-        const file = prj.allFiles.find((f) => f.filename === ref.filename)
+        const file = project.allFiles.find((f) => f.filename === ref.filename)
         if (file)
             links.push({
                 label: ref.name,
@@ -318,12 +319,17 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
         fragment: fragmentMD(frag),
         children: frag.sameFileChildren().map(fragmentMD).join("\n\n"),
         subtree: subtreeMD(frag),
+        file: {
+            filename: file.filename,
+            label: "current",
+            content: file.content,
+        },
         links,
     }
 
     let refChildren = ""
     for (const e of frag.references) {
-        const rt = prj.resolve(e.filename)
+        const rt = project.resolve(e.filename)
         if (!rt) continue
         const ext = e.filename.replace(/.*\./, "")
         if (ext === "md") {
