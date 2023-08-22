@@ -2,6 +2,9 @@
 
 -   [SDE-coding](./repro4.saplan.py)
 
+-   [QA-coding](./blackjack.saplan.test.py)
+
+
 
 ## Language and Framework
 - Programming Language: Python
