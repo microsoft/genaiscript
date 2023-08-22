@@ -5,7 +5,7 @@
     "description": "Copilot for Architecture Design",
     "version": "0.0.1",
     "engines": {
-        "vscode": "^1.79.0"
+        "vscode": "^1.81.0"
     },
     "categories": [
         "Other"
