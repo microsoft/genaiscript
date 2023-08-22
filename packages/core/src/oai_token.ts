@@ -33,7 +33,7 @@ export async function initToken(force = false) {
         try {
             validateTokenCore(cfg.token, true)
             return cfg
-        } catch {}
+        } catch { }
     }
 
     cfg = await host.getSecretToken()

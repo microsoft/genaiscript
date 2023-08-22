@@ -65,7 +65,7 @@ interface PromptTemplate extends PromptLike {
      * - replaces children of the current fragment ("children")
      * - is shown to the user ("nothing")
      */
-    replaces: "node" | "fragment" | "children" | "nothing"
+    replaces: "fragment" | "children" | "nothing" | "node"
 
     /**
      * If this is `["a", "b.c"]` then the prompt will include values of variables:
@@ -224,6 +224,11 @@ interface ExpansionVariables {
 
     // this needs some love
     refChildren: string
+
+    /**
+     * Current file
+     */
+    file: LinkedFile
 
     /**
      * List of linked files parsed in context

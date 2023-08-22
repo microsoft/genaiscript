@@ -4,7 +4,7 @@ import { ExtensionState } from "./state"
 import { activateFragmentTreeDataProvider } from "./fragmenttree"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { PromptTemplate, assignIds, concatArrays } from "coarch-core"
+import { concatArrays } from "coarch-core"
 import { applyEdits } from "./edit"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
@@ -35,16 +35,13 @@ export async function activate(context: ExtensionContext) {
         }),
         vscode.commands.registerCommand(
             "coarch.openai.token.clear",
-            async () => await clearToken()
-        ),
-        vscode.commands.registerCommand("coarch.assignIds", async () => {
-            if (state.project) {
-                const edits = concatArrays(
-                    ...state.project.allFiles.map((f) => assignIds(f))
+            async () => {
+                await clearToken()
+                await vscode.window.showInformationMessage(
+                    "CoArch - OpenAI token cleared."
                 )
-                await applyEdits(edits)
             }
-        }),
+        ),
         vscode.commands.registerCommand("coarch.request.status", async () => {
             const { computing, template } = state.aiRequest || {}
             if (!computing)
@@ -52,7 +49,11 @@ export async function activate(context: ExtensionContext) {
             else {
                 const cancel = "Cancel"
                 const trace = "Show Trace"
-                const res = await vscode.window.showInformationMessage(`CoArch - running ${template.title}`, trace, cancel)
+                const res = await vscode.window.showInformationMessage(
+                    `CoArch - running ${template.title}`,
+                    trace,
+                    cancel
+                )
                 if (res === cancel)
                     vscode.commands.executeCommand("coarch.request.cancel")
                 else if (res === trace)
