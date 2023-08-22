@@ -61,7 +61,8 @@
                 },
                 {
                     "id": "coarch.fragments",
-                    "name": "Fragments"
+                    "name": "Fragments",
+                    "visibility": "collapsed"
                 }
             ]
         },
