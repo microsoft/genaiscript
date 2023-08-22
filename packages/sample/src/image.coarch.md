@@ -2,7 +2,7 @@
 
 A command line application that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS.
 
--   [node](./image.mjs)
+*   [node](./image.mjs)
 
 ## Parse command line arguments {#UV61}
 Extract file name, size, and output file name from the command line input.
