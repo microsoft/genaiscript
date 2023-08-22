@@ -1,10 +1,12 @@
 prompt({ title: "QA-coding", 
          output: ".test.py", 
          maxTokens: 4000,
+         model: "gpt-4-32k",
+         system: ["system.code", "system.concise", "system.multifile"],
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
-def("CODE", env.output)
+def("TEST", env.output)
 
 $`
 You are an expert on writing tests for software, including for Python applications.
@@ -21,16 +23,19 @@ all the code in the output TEST.
 If the code in TEST already exists, then update it accordingly but make only necessary changes.  
 If TEST is incomplete, complete it.
 
-Separate the code for each testing component with a visible block comment that includes the name of the component
-and that it is a test for that component.
+Generate test code for each of the files mentioned in SUMMARY.
 Make sure that the testing code is well documented and that the code is easy to read and understand.
 Make sure that the comments follow the Python commenting conventions.
 Make sure that the testing code tests all the APIs mentioned in SUMMARY.
 Make sure that the testing code is modular and easy to maintain.
 
-Define a single command line interface for running all the tests.
+Define a single command line interface for running all the tests that 
+will do the following:
+Print out what test is being run
+Indicate which tests pass and which fail.
+Print out a summary of the test results.
 
-Respond with the new CODE.
+Respond with the new TEST.
 Limit changes to existing code to minimum.
-Always ensure that CODE is well-formed Python code that can be run.  Do not generate markdown.
+Always ensure that TEST is well-formed Python code that can be run.  Do not generate markdown.
 `
