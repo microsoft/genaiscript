@@ -25,5 +25,7 @@ Generation steps:
 3. Run the SA-planning prompt over the same file to generate the file ```game.saplanning.coarch.md```
 4. Run the SDE-planning prompt over the saplanning file to generate a set of Python files that implement the application.
 5. Test the application, edit the files as needed, and rerun the prompts as needed.
-6. QA-coding is not yet implemented.
+6. To create unit tests for the python files generated for the application, 
+run the QA-coding prompt over the ```game.saplanning.coarch.md``` file.  This should
+generate parallel test files to the previous .py files as well as a file that can run all the tests from the command line.
 
