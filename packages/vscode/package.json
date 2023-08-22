@@ -114,6 +114,10 @@
                     "group": "navigation"
                 },
                 {
+                    "command": "coarch.openai.token.update",
+                    "when": "view == coarch.prompts"
+                },
+                {
                     "command": "coarch.openai.token.clear",
                     "when": "view == coarch.prompts"
                 }
@@ -148,6 +152,11 @@
             {
                 "command": "coarch.openai.token.clear",
                 "title": "Clear OpenAI token",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.openai.token.update",
+                "title": "Update OpenAI token",
                 "category": "CoArch"
             },
             {

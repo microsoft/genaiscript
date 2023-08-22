@@ -38,7 +38,7 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async askToken(): Promise<string> {
         const t = await window.showInputBox({
-            placeHolder: "Copy OpenAI token",
+            placeHolder: "Paste OpenAI token",
             prompt: "CoArch - Please enter your OpenAI token (sk-...). It will be stored in the workspace secrets.",
         })
         return t

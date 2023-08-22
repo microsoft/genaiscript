@@ -2,7 +2,7 @@ prompt({
     title: "↑ Summarize",
     replaces: "fragment",
     children: "present",
-    categories: ["summarize"],
+    categories: ["samples"],
     description:
         "Update the introductory paragraph to match the context of the children.",
 })

@@ -3,7 +3,7 @@ prompt({
     description: "Generate a Gherkin feature file from the node and children.",
     output: ".feature",
     system: "system.concise",
-    categories: ["feature"],
+    categories: ["samples"],
 })
 
 $`
