@@ -370,10 +370,6 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     infoCb?: (partialResponse: FragmentTransformResponse) => void
 }
 
-function arrayify<T>(value: T | T[]): T[] {
-    return Array.isArray(value) ? value : [value]
-}
-
 export async function runTemplate(
     template: PromptTemplate,
     fragment: Fragment,
