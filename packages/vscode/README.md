@@ -306,6 +306,10 @@ Use documentation from DOCS.
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
 
+#### Current file
+
+The current file is also available as a linked file through, `env.file`
+
 ### Conditional expansion
 
 You can use regular JavaScript `if` statements.
