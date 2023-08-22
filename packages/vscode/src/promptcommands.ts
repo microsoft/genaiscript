@@ -3,13 +3,17 @@ import { ExtensionState } from "./state"
 import { PromptTemplate, copyPrompt } from "coarch-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 
+const promptViewColumn = vscode.ViewColumn.Two
+
 export function activatePromptCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
     async function showPrompt(fn: string) {
         await state.parseWorkspace()
-        await vscode.window.showTextDocument(vscode.Uri.file(fn))
+        await vscode.window.showTextDocument(vscode.Uri.file(fn), {
+            viewColumn: promptViewColumn,
+        })
     }
 
     subscriptions.push(
@@ -66,7 +70,9 @@ def("TEXT", env.fragment)
                 const uri = prompt.filename
                     ? vscode.Uri.file(prompt.filename)
                     : builtinPromptUri(prompt.id)
-                const editor = await vscode.window.showTextDocument(uri)
+                const editor = await vscode.window.showTextDocument(uri, {
+                    viewColumn: promptViewColumn,
+                })
             }
         )
     )
