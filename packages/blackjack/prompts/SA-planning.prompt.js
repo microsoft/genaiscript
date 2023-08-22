@@ -1,7 +1,6 @@
 prompt({ title: "SA-planning", 
          output: ".saplan.coarch.md", 
          maxTokens: 4000,
-         temperature: 0.6,
          model: "gpt-4-32k",
          categories: ["appdev"]  })
 
@@ -23,7 +22,7 @@ can write test cases from your descriptions.
 Separate sections of your output into markdown subsections.
 
 First, choose a programming language and a framework to implement the product.
-Next, describe the a directory structure for the product.
+Next, show the directory structure for the code using bullet points in markdown.
 Next include the instructions for the software developer from SUMMARY in your output and
 Next make suggestions for invariants that are related to the application domain.  For example,
 for the game of blackjack, the player or the dealer cannot win if the sum of their cards is greater than 21.
@@ -38,6 +37,6 @@ Make sure that your instructions are clear, concise, and unambiguous.
 
 Respond with the new CODE.
 
-Limit changes to existing code to minimum.
+Limit changes to CODE.
 Generate markdown, do not generate Python code.
 `

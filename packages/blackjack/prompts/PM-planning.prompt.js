@@ -1,6 +1,7 @@
 prompt({ title: "PM-planning", 
          replaces: "node", 
          maxTokens: 4000,
+         model: "gpt-4-32k",
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
