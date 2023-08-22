@@ -5,7 +5,7 @@
     "description": "Copilot for Architecture Design",
     "version": "0.0.1",
     "engines": {
-        "vscode": "^1.79.0"
+        "vscode": "^1.81.0"
     },
     "categories": [
         "Other"
@@ -61,7 +61,8 @@
                 },
                 {
                     "id": "coarch.fragments",
-                    "name": "Fragments"
+                    "name": "Fragments",
+                    "visibility": "collapsed"
                 }
             ]
         },
@@ -214,11 +215,6 @@
                 "command": "coarch.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "CoArch"
-            },
-            {
-                "command": "coarch.assignIds",
-                "title": "Assign fragment IDs",
-                "category": "CoArch"
             }
         ]
     },
@@ -233,7 +229,7 @@
     "devDependencies": {
         "@types/isomorphic-fetch": "^0.0.36",
         "@types/mocha": "^10.0.1",
-        "@types/vscode": "^1.79.0",
+        "@types/vscode": "^1.81.0",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
         "@vscode/test-web": "^0.0.44",

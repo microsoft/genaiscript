@@ -450,8 +450,8 @@ export function templateAppliesTo(
 
     const chlen = fragment.sameFileChildren().length
 
-    if (template.children == "present" && chlen == 0) return false
-    if (template.children == "absent" && chlen > 0) return false
+    if (template.children === "present" && chlen == 0) return false
+    if (template.children === "absent" && chlen > 0) return false
 
     return true
 }
