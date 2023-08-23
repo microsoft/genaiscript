@@ -166,7 +166,6 @@ const parseMdFile: Parser = (
             })
             if (id) lastChild.value = newVal.replace(/\s*$/, "")
         }
-        if (!id) file.hasMissingIds = true
 
         const cmt: Content[] = []
         for (;;) {
@@ -241,7 +240,6 @@ export function stringToPos(str: string): Position {
 
 const parseGeneric: Parser = (prj, filename, content) => {
     const file = new TextFile(prj, filename, content)
-    file.hasMissingIds = true
 
     const ext = filename.replace(/.*\./, "")
     file.filesyntax = extToType[ext] ?? ext

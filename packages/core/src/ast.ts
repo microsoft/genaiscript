@@ -195,7 +195,6 @@ export class TextFile {
     readonly fragments: Fragment[] = []
     isStructured = false
     frontMatter = ""
-    hasMissingIds = false
     filesyntax = "markdown"
 
     constructor(

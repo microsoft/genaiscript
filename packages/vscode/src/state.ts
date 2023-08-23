@@ -11,12 +11,15 @@ import {
     runTemplate,
     groupBy,
     DiagnosticSeverity,
+    promptDefinitions,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { markSyncedFragment } from "coarch-core"
 import { toRange } from "./edit"
+import { Utils } from "vscode-uri"
+import { readFileText, writeFile } from "./fs"
 
 export const CHANGE = "change"
 export const FRAGMENTS_CHANGE = "fragmentsChange"
@@ -172,6 +175,7 @@ export class ExtensionState extends EventTarget {
     private initWatcher() {
         const handleChange = debounceAsync(async () => {
             console.log(`coarch: watch changed`)
+            await this.fixPromptDefinitions()
             await this.parseWorkspace()
         }, 1000)
 
@@ -186,7 +190,22 @@ export class ExtensionState extends EventTarget {
     async activate() {
         console.log(`coarch: activate`)
         this.initWatcher()
+        await this.fixPromptDefinitions()
         await this.parseWorkspace()
+    }
+
+    async fixPromptDefinitions() {
+        const prompts = await vscode.workspace.findFiles("**/*.prompt.js")
+        const folders = new Set(prompts.map((f) => Utils.dirname(f)))
+        for (const folder of folders) {
+            for (const [defName, defContent] of Object.entries(
+                promptDefinitions
+            )) {
+                const current = await readFileText(folder, defName)
+                if (current !== defContent)
+                    await writeFile(folder, defName, defContent)
+            }
+        }
     }
 
     async parseWorkspace() {
@@ -195,10 +214,12 @@ export class ExtensionState extends EventTarget {
                 (f) => f.fsPath
             )
         }
+
         const coarchFiles = await findFiles("**/*.coarch.md")
         const promptFiles = await findFiles("**/*.prompt.js")
         const fileTypeFiles = await findFiles("**/*.filetype.js")
         const coarchJsonFiles = await findFiles("**/coarch.json")
+
         this.project = await parseProject({
             coarchFiles,
             promptFiles,
@@ -207,10 +228,6 @@ export class ExtensionState extends EventTarget {
         })
 
         this.setDiagnostics()
-
-        if (this.project.allFiles.some((f) => f.hasMissingIds)) {
-            // do something?
-        }
     }
 
     private setDiagnostics() {

@@ -1,14 +1,13 @@
 {
-    // for now, drop this file in prompt folder
-    // in future, we'll add a TS Server plugin that will fake this file presence
     "compilerOptions": {
-        "lib": ["ES2022"],
+        "lib": [
+            "ES2022"
+        ],
         "checkJs": true,
         "allowJs": true
     },
     "include": [
         "*.js",
-        "*.ts",
-        "../../core/prompt_type.d.ts"
+        "./prompt.d.ts"
     ]
 }
