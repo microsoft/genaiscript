@@ -298,20 +298,28 @@ You are concise.
     return { info, text }
 }
 
-function fragmentVars(template: PromptTemplate, frag: Fragment) {
+function fragmentVars(
+    template: PromptTemplate,
+    frag: Fragment,
+    promptOptions: { ignoreOutput?: boolean } & any
+) {
     const { file } = frag
     const project = file.project
+    const ignoreOutput = !!promptOptions?.ignoreOutput
 
     const links: LinkedFile[] = []
-    for (const ref of frag.references) {
-        const file = project.allFiles.find((f) => f.filename === ref.filename)
-        if (file)
-            links.push({
-                label: ref.name,
-                filename: relativePath(host.projectFolder(), file.filename),
-                content: file.content,
-            })
-    }
+    if (!ignoreOutput)
+        for (const ref of frag.references) {
+            const file = project.allFiles.find(
+                (f) => f.filename === ref.filename
+            )
+            if (file)
+                links.push({
+                    label: ref.name,
+                    filename: relativePath(host.projectFolder(), file.filename),
+                    content: file.content,
+                })
+        }
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
         heading: "#".repeat(frag.depth),
@@ -325,6 +333,7 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
             content: file.content,
         },
         links,
+        promptOptions,
     }
 
     let refChildren = ""
@@ -339,7 +348,7 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
                 refChildren += rt.roots.map(fragmentMD).join("\n\n")
             }
         } else {
-            if (template.output) {
+            if (template.output && !ignoreOutput) {
                 if (e.filename.endsWith(template.output))
                     vars.output = rt.content
             }
@@ -351,7 +360,7 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
         const { pre, post } = frag.prePostText()
         vars.subtreePre = pre
         vars.subtreePost = post
-        if (template.output)
+        if (template.output && !ignoreOutput)
             for (const ch of frag.children) {
                 if (ch.file.filename.endsWith(template.output)) {
                     const { pre, self, post } = ch.prePostText()
@@ -368,6 +377,7 @@ function fragmentVars(template: PromptTemplate, frag: Fragment) {
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
     infoCb?: (partialResponse: FragmentTransformResponse) => void
+    promptOptions?: any
 }
 
 export async function runTemplate(
@@ -375,7 +385,11 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { vars, outputFragment } = fragmentVars(template, fragment)
+    const { vars, outputFragment } = fragmentVars(
+        template,
+        fragment,
+        options.promptOptions
+    )
     let {
         expanded,
         success,
