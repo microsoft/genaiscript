@@ -14,9 +14,12 @@ export function isCancelError(e: Error) {
 }
 
 export function isTokenError(e: Error) {
-    return e instanceof RequestError && e.status === 403
+    return isRequestError(e, 403)
 }
 
-export function isRequestError(e: Error) {
-    return e instanceof RequestError
+export function isRequestError(e: Error, statusCode?: number) {
+    return (
+        e instanceof RequestError &&
+        (statusCode === undefined || statusCode === e.status)
+    )
 }
