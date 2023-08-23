@@ -1,4 +1,4 @@
-# Image resize {#YU34}
+# Image resize
 
 A command line application that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS.
 

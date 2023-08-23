@@ -1,4 +1,4 @@
-# Snake Game {#VV65}
+# Snake Game
 
 Sources:
 * [index.js](src/index.js) - the main file
