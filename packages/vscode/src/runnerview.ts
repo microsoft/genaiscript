@@ -23,15 +23,7 @@ class RunnerViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
 
         webviewView.webview.onDidReceiveMessage((data) => {
-            switch (
-                data.type
-                //case 'colorSelected':
-                //	{
-                //		vscode.window.activeTextEditor?.insertSnippet(new vscode.SnippetString(`#${data.value}`));
-                //		break;
-                //	}
-            ) {
-            }
+            console.log({ data })
         })
     }
 
