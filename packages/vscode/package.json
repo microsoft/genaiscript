@@ -60,6 +60,11 @@
                     "name": "Prompts"
                 },
                 {
+                    "id": "coarch.runner",
+                    "type": "webview",
+                    "name": "Context"
+                },
+                {
                     "id": "coarch.fragments",
                     "name": "Fragments",
                     "visibility": "collapsed"
@@ -229,7 +234,9 @@
     },
     "scripts": {
         "vscode:prepublish": "yarn run compile",
-        "compile": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node18 --outfile=built/extension.js --external:vscode",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node18 --outfile=built/extension.js --external:vscode",
+        "compile:webview": "esbuild src/webview/main.ts --sourcemap --bundle --format=esm --platform=node --target=es2020 --outfile=built/webview.js --external:vscode",
+        "compile": "yarn compile:extension && yarn compile:webview",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
         "typecheck": "tsc -p .",
@@ -242,6 +249,7 @@
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
         "@vscode/test-web": "^0.0.44",
+        "@vscode/webview-ui-toolkit": "^1.2.2",
         "assert": "^2.0.0",
         "coarch-core": "*",
         "eslint": "^8.41.0",

@@ -271,6 +271,7 @@ export function staticVars() {
         links: [] as LinkedFile[],
         fence: promptFence,
         error: errorId(),
+        promptOptions: {},
     }
 }
 
