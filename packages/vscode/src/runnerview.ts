@@ -68,7 +68,7 @@ class RunnerViewProvider implements vscode.WebviewViewProvider {
             <title>CoArch Prompt Context</title>
           </head>
           <body>
-                <vscode-checkbox id="ignore-outputs">Ignore outputs</vscode-checkbox>
+                <vscode-checkbox id="ignore-output">Ignore output</vscode-checkbox>
                 <script type="module" nonce="${nonce}" src="${webviewUri}"></script>
           </body>
         </html>`

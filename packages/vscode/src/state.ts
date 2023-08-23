@@ -32,7 +32,7 @@ export interface AIRequestOptions {
 }
 
 export interface AIRequestContextOptions {
-    ignoreOutputs?: boolean
+    ignoreOutput?: boolean
 }
 
 export class FragmentsEvent extends Event {
@@ -110,6 +110,7 @@ export class ExtensionState extends EventTarget {
                 r.response = data
                 reqChange()
             },
+            promptOptions: this.aiRequestContext,
         })
         // clear on completion
         r.request

@@ -17,17 +17,17 @@ const vscode = acquireVsCodeApi()
 window.addEventListener("load", main)
 
 interface PromptContextState {
-    ignoreOutputs: boolean
+    ignoreOutput: boolean
 }
 
 function main() {
-    const ignoreOutputs = document.getElementById("ignore-outputs") as Checkbox
+    const ignoreOutput = document.getElementById("ignore-output") as Checkbox
 
     const sendState = () => {
         vscode.postMessage({
             command: "state",
             state: <PromptContextState>{
-                ignoreOutputs: !!ignoreOutputs.checked,
+                ignoreOutput: !!ignoreOutput.checked,
             },
         })
     }
@@ -37,12 +37,12 @@ function main() {
     }) => {
         const { command, state } = data
         if (command === "state" && state) {
-            ignoreOutputs.checked = !!state.ignoreOutputs
+            ignoreOutput.checked = !!state.ignoreOutput
         }
     }
 
     window.addEventListener("message", (msg) => receiveState(msg.data), false)
-    ignoreOutputs.addEventListener("change", sendState, false)
+    ignoreOutput.addEventListener("change", sendState, false)
 
     vscode.postMessage({ command: "ready" })
 }
