@@ -31,6 +31,10 @@ export interface AIRequestOptions {
     fragments: Fragment[]
 }
 
+export interface AIRequestContextOptions {
+    ignoreOutputs?: boolean
+}
+
 export class FragmentsEvent extends Event {
     constructor(readonly fragments?: Fragment[]) {
         super(FRAGMENTS_CHANGE)
@@ -52,6 +56,8 @@ export class ExtensionState extends EventTarget {
     private _aiRequest: AIRequest = undefined
     private _watcher: vscode.FileSystemWatcher | undefined
     private _diagColl: vscode.DiagnosticCollection
+
+    readonly aiRequestContext: AIRequestContextOptions = {}
 
     constructor(public readonly context: ExtensionContext) {
         super()

@@ -62,7 +62,7 @@
                 {
                     "id": "coarch.runner",
                     "type": "webview",
-                    "name": "Runner"
+                    "name": "Context"
                 },
                 {
                     "id": "coarch.fragments",

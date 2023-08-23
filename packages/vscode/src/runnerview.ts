@@ -14,16 +14,32 @@ class RunnerViewProvider implements vscode.WebviewViewProvider {
         token: vscode.CancellationToken
     ): void | Thenable<void> {
         this._view = webviewView
-
-        webviewView.webview.options = {
+        this._view.webview.options = {
             enableScripts: true,
             localResourceRoots: [this.state.context.extensionUri],
         }
-
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
-
-        webviewView.webview.onDidReceiveMessage((data) => {
+        this._view.webview.html = this._getHtmlForWebview(webviewView.webview)
+        this._view.webview.onDidReceiveMessage((data) => {
             console.log({ data })
+            const { command = "" } = data
+            switch (command) {
+                case "ready": {
+                    this.sendState()
+                    break
+                }
+                case "state": {
+                    const { state } = data
+                    Object.assign(this.state.aiRequestContext, state)
+                    break
+                }
+            }
+        })
+    }
+
+    private sendState() {
+        this._view?.webview.postMessage({
+            command: "state",
+            state: this.state.aiRequestContext,
         })
     }
 
@@ -43,18 +59,17 @@ class RunnerViewProvider implements vscode.WebviewViewProvider {
         // Use a nonce to only allow a specific script to be run.
         const nonce = getNonce()
 
-        return `      <!DOCTYPE html>
+        return `<!DOCTYPE html>
         <html lang="en">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';">
-            <title>Hello World!</title>
+            <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';">
+            <title>CoArch Prompt Context</title>
           </head>
           <body>
-            <h1>Hello World!</h1>
-                      <vscode-button id="howdy">Howdy!</vscode-button>
-                      <script type="module" nonce="${nonce}" src="${webviewUri}"></script>
+                <vscode-checkbox id="ignore-outputs">Ignore outputs</vscode-checkbox>
+                <script type="module" nonce="${nonce}" src="${webviewUri}"></script>
           </body>
         </html>`
     }
