@@ -129,10 +129,10 @@ export function activateFragmentCommands(state: ExtensionState) {
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e)) {
                 const trace = "Open Trace"
-                const res = await vscode.window.showWarningMessage(
-                    e.message,
-                    trace
-                )
+                const msg = isRequestError(e, 404)
+                    ? `OpenAI model not found (404). Does your token support the selected model?`
+                    : e.message
+                const res = await vscode.window.showWarningMessage(msg, trace)
                 if (res === trace)
                     vscode.commands.executeCommand(
                         "coarch.request.open",
