@@ -214,7 +214,12 @@ interface ExpansionVariables {
     fragment: string
     children: string
 
+    /**
+     * Content of the generated file from the last prompt execution.
+     * This variable is empty for multi-file output.
+     */
     output: string
+
     outputPre: string
     outputPost: string
 
