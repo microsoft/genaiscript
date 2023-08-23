@@ -3,7 +3,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run Extension",
+            "name": "Run Extension - sample",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
@@ -11,9 +11,24 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/sample"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile-ext",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
             ],
+            "cwd": "${workspaceFolder}/packages/vscode"
+        },
+        {
+            "name": "Run Extension - blackjack",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/packages/blackjack"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -31,9 +46,7 @@
                 "--extensionDevelopmentKind=web",
                 "--extensionTestsPath=${workspaceFolder}/dist/test/suite/index"
             ],
-            "outFiles": [
-                "${workspaceFolder}/dist/**/*.js"
-            ],
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
             "preLaunchTask": "npm: compile-web",
             "cwd": "${workspaceFolder}/packages/vscode"
         }
