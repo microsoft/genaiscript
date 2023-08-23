@@ -12,11 +12,13 @@ import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentp
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands } from "./promptcommands"
 import { clearToken } from "coarch-core"
+import { activateRunnerView } from "./runnerview"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activateFragmentTreeDataProvider(state)
     activatePrompTreeDataProvider(state)
+    activateRunnerView(state)
     activateStatusBar(state)
     activateCodeActions(state)
     activateFragmentCommands(state)
