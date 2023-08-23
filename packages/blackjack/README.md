@@ -1,6 +1,6 @@
 # Exploring CoArch with the Blackjack Sample
 
-# Prompts
+## Prompts
 
 There are 4 general prompts in this directory that are intended to reflect 4 personas associated with software development.  These prompts appear in the "appdev" folder of the prompts menu.
 
@@ -9,7 +9,7 @@ There are 4 general prompts in this directory that are intended to reflect 4 per
 - **SDE-Coding** - This prompt takes a detailed explanation of the application, including descriptions of the files and the interfaces between them, and generates Python code to implement the application.
 - **QA-coding.js** - This prompt takes the contents of the blackjack.saplan.coarch.md, and generates a set of test files that test the components of the application as specified by the architect.
 
-# CoArch Workflow
+## CoArch Workflow
 
 We start the workflow from a simple heading and short description. In this example, we are building a command line blackjack game but the prompts are general and can work for other applications as well.  Here is the starting point for the blackjack application.
 
@@ -29,7 +29,7 @@ Generation steps:
 run the QA-coding prompt over the ```game.saplanning.coarch.md``` file.  This should
 generate parallel test files to the previous .py files as well as a file that can run all the tests from the command line.
 
-# Running the application
+## Running the application
 
 The Python files in the application directory were generated using the process above and edited either by hand or by rewriting the architecture document and rerunning the SDE prompts. The file 
 ```main.py``` in the sample directory was generated using the process above and it implements a command line version of Wordle.  You run it with:
