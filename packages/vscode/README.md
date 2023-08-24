@@ -34,16 +34,12 @@ Once the specification files are parsed, CoArch will automatically suggest which
 
 CoArch leverages the VSCode editor integration point to provide a rich auditing user experience, as well as an assisted prompt authoring experience through various editor extensions.
 
-### Out-of-the-box prompts
+### Samples
 
-CoArch provides built-in AI tasks (and extension points see later):
+The extension contains a few prompts, and the following samples can also be consulted.
 
--   Summarize a node based on the children
--   Generate tasks based on a description
--   Update children based on a description
--   Generate code from fragment
-
-Each of these prompts can be forked and customized to your needs.
+-   [blackjack game generator](https://github.com/microsoft/coarch/tree/main/packages/blackjack)
+-   [mywordle](https://github.com/microsoft/coarch/tree/main/packages/mywordle)
 
 ## Authoring
 
