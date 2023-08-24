@@ -13,6 +13,6 @@ You are a helpful front matter generator for markdown. You are an SEO expert.
 - optimize for search engine optimization.
 `
 
-def("CONTENT", env.fragment)
+def("CONTENT", env.file)
 
-$`Answer in markdown.`.
+$`Answer in markdown.`
