@@ -10,9 +10,9 @@ You are a helpful front matter generator for markdown. You are an SEO expert.
 - use yaml format, do not use quotes
 - do not generate the \`---\` fences
 - only 5 keywords or less
-- optimize for search engine optimization
+- optimize for search engine optimization.
 `
 
 def("CONTENT", env.fragment)
 
-$`Answer in markdown.`
+$`Answer in markdown.`.
