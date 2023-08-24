@@ -7,7 +7,7 @@
         "allowJs": true
     },
     "include": [
-        "*.js",
+        "**/*.js",
         "./prompt.d.ts"
     ]
 }

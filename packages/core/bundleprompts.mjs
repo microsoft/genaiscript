@@ -22,7 +22,7 @@ const promptDefs = {
                 checkJs: true,
                 allowJs: true,
             },
-            include: ["*.js", "./prompt.d.ts"],
+            include: ["**/*.js", "./prompt.d.ts"],
         },
         null,
         4

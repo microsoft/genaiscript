@@ -21,13 +21,11 @@ Extract `filename`, `size`, and `outputfilename` from the command line arguments
 
 -   [feature](./test/feature.LM14.feature)
 
-
 ### Validate mandatory arguments {#RF43}
 
 Ensure `filename` and `size` are provided.
 
 -   [feature](./test/feature.RF43.feature)
-
 
 ### Set default outputfilename if not provided {#ND68}
 
@@ -51,7 +49,6 @@ Create a buffer, then fill it with binary data from an image file.
 
 -   [feature](./test/feature.YI54.feature)
 
-
 ## Resize image {#SB87}
 
 Using image library to resize image using the best algorithm.
@@ -61,7 +58,6 @@ Using image library to resize image using the best algorithm.
 Initialize File API, load image, create output file, save image to output file, and close output file.
 
 -   [feature](./test/feature.LT55.feature)
-
 
 ### Initialize File API {#EN19}
 
