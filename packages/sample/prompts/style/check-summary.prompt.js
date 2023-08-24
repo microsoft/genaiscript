@@ -4,7 +4,7 @@ prompt({
     children: "present",
     categories: ["check"],
     description: "Evaluates if the summary still matches the tasks.",
-    audit: true,
+    audit: true
 })
 
 $`You are an expert document reviewer.`

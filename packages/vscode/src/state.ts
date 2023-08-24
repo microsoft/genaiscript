@@ -18,7 +18,7 @@ import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { markSyncedFragment } from "coarch-core"
 import { toRange } from "./edit"
-import { Utils } from "vscode-uri"
+import { URI, Utils } from "vscode-uri"
 import { readFileText, writeFile } from "./fs"
 
 export const CHANGE = "change"
@@ -203,14 +203,23 @@ export class ExtensionState extends EventTarget {
 
     async fixPromptDefinitions() {
         const prompts = await vscode.workspace.findFiles("**/*.prompt.js")
-        const folders = new Set(prompts.map((f) => Utils.dirname(f)))
+        const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
+        let roots: string[] = []
         for (const folder of folders) {
+            roots = roots.filter(
+                (root) => folder.startsWith(root) && !root.startsWith(folder)
+            )
+            if (!roots.find((root) => folder.startsWith(root)))
+                roots.push(folder)
+        }
+        for (const folder of roots) {
+            const f = vscode.Uri.file(folder)
             for (const [defName, defContent] of Object.entries(
                 promptDefinitions
             )) {
-                const current = await readFileText(folder, defName)
+                const current = await readFileText(f, defName)
                 if (current !== defContent)
-                    await writeFile(folder, defName, defContent)
+                    await writeFile(f, defName, defContent)
             }
         }
     }
