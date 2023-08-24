@@ -512,7 +512,19 @@ export async function runTemplate(
     if (m && text.endsWith(m[1]))
         text = text.slice(m[0].length, -m[1].length).trim()
 
-    if (template.replaces == "children") {
+    if (template.replaces === "file") {
+        const numlines = fragment.file.content.replace(/[^\n]/g, "").length
+        edits.push({
+            ...obj,
+            filename: fragment.file.filename,
+            type: "replace",
+            range: [
+                [0, 0],
+                [numlines + 1, 0],
+            ],
+            text: text.trim(),
+        })
+    } else if (template.replaces == "children") {
         if (fragment.sameFileChildren().length)
             edits.push({
                 ...obj,
@@ -527,7 +539,7 @@ export async function runTemplate(
                 pos: fragment.endPos,
                 text: "\n\n" + text,
             })
-    } else if (template.replaces == "node" || template.replaces == "fragment") {
+    } else if (template.replaces == "fragment") {
         edits.push({
             ...obj,
             type: "replace",

@@ -1,6 +1,6 @@
 prompt({
     title: "Title and Description",
-    replaces: "fragment",
+    replaces: "file",
     categories: ["style"],
     system: []
 })
