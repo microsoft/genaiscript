@@ -5,6 +5,10 @@ import { builtinPrefix, defaultPrompts } from "coarch-core"
 
 const SCHEME = "coarch-md"
 
+const noRequest = `
+No CoArch request found yet. Please run a CoArch prompt to populate this file.
+`
+
 class MarkdownTextDocumentContentProvider
     implements vscode.TextDocumentContentProvider
 {
@@ -36,15 +40,15 @@ class MarkdownTextDocumentContentProvider
         const res = aiRequest?.response
         switch (uri.path) {
             case "airequest.dialogtext.md":
-                return res?.dialogText
+                return res?.dialogText ?? noRequest
             case "airequest.text.md":
-                return res?.text
+                return res?.text ?? noRequest
             case "airequest.info.md":
-                return res?.info
+                return res?.info ?? noRequest
             case "airesponse.text.md":
-                return res?.text
+                return res?.text ?? noRequest
             case "airesponse.info.md":
-                return res?.info
+                return res?.info ?? noRequest
         }
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
