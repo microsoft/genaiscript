@@ -479,11 +479,12 @@ export async function runTemplate(
     for (const [name, val] of Object.entries(extr.vars)) {
         if (name.startsWith("File ")) {
             delete extr.vars[name]
-            const fn = host.resolvePath(
-                fragment.file.filename,
-                "..",
-                name.slice(5).trim()
-            )
+            const n = name.slice(5).trim()
+            const fn = host.resolvePath(fragment.file.filename, "..", n)
+            const curr = fragment.references.find(
+                (r) => host.resolvePath(r.filename) === fn
+            )?.filename
+
             if (await fileExists(fn)) {
                 const content = await readText(fn)
                 edits.push({
@@ -500,6 +501,17 @@ export async function runTemplate(
                     type: "createfile",
                     text: val,
                     overwrite: true,
+                })
+            }
+
+            if (!curr) {
+                const link = `-   [${n}](./${n})`
+                // TODO: include links as part of AST
+                edits.push({
+                    ...obj,
+                    type: "insert",
+                    pos: fragment.endPos,
+                    text: `\n\n${link}\n`,
                 })
             }
         }

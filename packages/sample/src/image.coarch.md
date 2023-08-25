@@ -15,6 +15,9 @@ A command line application that takes a file name, a size, and an output file na
 
 *   [node](./image.mjs)
 
+-   [genfiles.node/image.mjs](./genfiles.node/image.mjs)
+
+
 ## Parse command line arguments {#UV61}
 Extract file name, size, and output file name from the command line input.
 
