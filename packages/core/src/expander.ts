@@ -334,6 +334,7 @@ function fragmentVars(
         },
         links,
         promptOptions,
+        template: template.id,
     }
 
     let refChildren = ""

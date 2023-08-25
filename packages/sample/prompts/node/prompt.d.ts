@@ -213,6 +213,9 @@ interface ExpansionVariables {
      * Full text of the current fragment
      */
     fragment: string
+    /**
+     * Immediate descendants of the current fragment, without the whole tree
+     */
     children: string
 
     /**
@@ -255,6 +258,11 @@ interface ExpansionVariables {
          */
         ignoreOutput?: boolean
     } & Record<string, string | boolean>
+
+    /**
+     * name of the prompt template running
+     */
+    template: string
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
