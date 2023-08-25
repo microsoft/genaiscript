@@ -176,7 +176,8 @@ ${numberedPrompt}
             assert(!!system)
         }
 
-        systemText += system.text + "\n"
+        const sysex = callExpander(system, vars).text
+        systemText += sysex + "\n"
 
         model = model ?? system.model
         temperature = temperature ?? system.temperature
@@ -334,7 +335,7 @@ function fragmentVars(
         },
         links,
         promptOptions,
-        template: template.id,
+        template: template.outputLinkName ?? template.id,
     }
 
     let refChildren = ""
