@@ -408,7 +408,7 @@ export async function parseProject(options: {
     prj.forEachFragment((t) => {
         const pref = t.file.relativeName()
         if (t.id) t.fullId = pref + t.id
-        else t.fullId = pref + t.startPos.join(":")
+        else t.fullId = pref + ":" + t.startPos.join(":")
         prj.fragmentByFullId[t.fullId] = t
     })
 
