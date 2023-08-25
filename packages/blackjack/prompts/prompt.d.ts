@@ -213,6 +213,9 @@ interface ExpansionVariables {
      * Full text of the current fragment
      */
     fragment: string
+    /**
+     * Immediate descendants of the current fragment, without the whole tree
+     */
     children: string
 
     /**
@@ -245,6 +248,21 @@ interface ExpansionVariables {
      * If the contents of this variable occurs in output, an error message will be shown to the user.
      */
     error: string
+
+    /**
+     * Prompt execution options specified in the UI
+     */
+    promptOptions: {
+        /**
+         * Ignore existing output
+         */
+        ignoreOutput?: boolean
+    } & Record<string, string | boolean>
+
+    /**
+     * current prompt template
+     */
+    template: PromptTemplate
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
