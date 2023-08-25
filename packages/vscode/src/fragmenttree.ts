@@ -7,7 +7,7 @@ import {
 } from "./state"
 import { Fragment, concatArrays } from "coarch-core"
 
-type FragmentTreeNode = Fragment
+type FragmentTreeNode = Fragment & { reference?: string }
 
 class FragmentsTreeDataProvider
     implements vscode.TreeDataProvider<FragmentTreeNode>
@@ -24,11 +24,21 @@ class FragmentsTreeDataProvider
     }
 
     async getTreeItem(element: FragmentTreeNode): Promise<vscode.TreeItem> {
-        const { fullId, id, title, children, file, state, parent, references } =
-            element
+        const {
+            fullId,
+            id,
+            title,
+            children,
+            file,
+            state,
+            parent,
+            references,
+            reference,
+        } = element
         const ai = this.state.aiRequest
         const hasChildren =
-            children.length > 0 || Object.keys(references ?? {}).length > 0
+            !reference &&
+            (children.length > 0 || Object.keys(references ?? {}).length > 0)
         const { computing, fragments, progress } = ai || {}
         const sync = state === "sync"
         const generating = computing && fragments?.includes(element)
@@ -39,8 +49,10 @@ class FragmentsTreeDataProvider
                 ? vscode.TreeItemCollapsibleState.Expanded
                 : vscode.TreeItemCollapsibleState.None
         )
-        item.id = `coarch.frag.${fullId}`
-        item.contextValue = `fragment ${hasChildren ? `node` : `leaf`} ${state}`
+        item.id = `coarch.frag.${fullId}${reference ? `<${reference}` : ""}`
+        item.contextValue = `fragment ${
+            hasChildren ? `node` : `leaf`
+        } ${state} ${reference ? `ref` : ""}`
         item.description = `${id.slice(1)}${
             generating
                 ? `, ${progress?.tokensSoFar || 0} tokens`
@@ -55,6 +67,7 @@ class FragmentsTreeDataProvider
         }
         item.resourceUri = vscode.Uri.file(file.filename)
         if (generating) item.iconPath = new vscode.ThemeIcon(`loading~spin`)
+        else if (reference) item.iconPath = new vscode.ThemeIcon(`references`)
         else if (!sync) item.iconPath = new vscode.ThemeIcon("unverified")
         else item.iconPath = vscode.ThemeIcon.File
         return item
@@ -66,15 +79,21 @@ class FragmentsTreeDataProvider
         if (!element) {
             const fragments = this.state.rootFragments
             return fragments
+        } else if (element.reference) {
+            return []
         } else {
             const prj = element.file.project
-            const otherFragments = concatArrays(
+            const otherFragments: FragmentTreeNode[] = concatArrays(
                 ...element.references
                     .map((f) => prj.resolve(f.filename))
                     .filter(Boolean)
                     .map((e) => e.roots)
+            ).map(
+                (obj: Fragment) =>
+                    <FragmentTreeNode>{ ...obj, reference: element.fullId }
             )
-            return element.children.concat(otherFragments)
+            const res = element.children.concat(otherFragments)
+            return res
         }
     }
 
