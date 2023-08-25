@@ -22,7 +22,7 @@ export async function activate(context: ExtensionContext) {
     activateStatusBar(state)
     activateCodeActions(state)
     activateFragmentCommands(state)
-    activateDecorators(state)
+    //activateDecorators(state)
     //activateCodeLens(state);
     activateMarkdownTextDocumentContentProvider(state)
     activatePromptCommands(state)
