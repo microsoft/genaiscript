@@ -56,6 +56,15 @@ const fence = "`````"
 function fenceMD(t: string, contentType = "markdown") {
     return `\n${fence}${contentType}\n${trimNewlines(t)}\n${fence}\n`
 }
+function numberedFenceMD(t: string, contentType = "js") {
+    return fenceMD(
+        t
+            .split(/\r?\n/)
+            .map((l, i) => ("" + (i + 1)).padStart(3) + ": " + l)
+            .join("\n"),
+        contentType
+    )
+}
 
 function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
     let promptText = ""
@@ -116,14 +125,6 @@ function expandTemplate(
     }
     const varMap = vars as any as Record<string, string | any[]>
 
-    const numberedPrompt = fenceMD(
-        template.jsSource
-            .split(/\r?\n/)
-            .map((l, i) => ("" + (i + 1)).padStart(3) + ": " + l)
-            .join("\n"),
-        "js"
-    )
-
     // we put errors on top so they draw attention
     let info = `
 # Prompt trace
@@ -131,7 +132,7 @@ function expandTemplate(
 @@errors@@
 
 ## Prompt template "${template.title}" (\`${template.id}\`)
-${numberedPrompt}
+${numberedFenceMD(template.jsSource)}
 
 `
 
@@ -183,14 +184,16 @@ ${numberedPrompt}
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
 
-        info += `-  template: \`${systemTemplate}\`\n`
+        info += `###  template: \`${systemTemplate}\`\n`
         if (system.model) info += `-  model: \`${system.model || ""}\`\n`
         if (system.temperature !== undefined)
             info += `-  temperature: ${system.temperature || ""}\n`
         if (system.maxTokens !== undefined)
             info += `-  max tokens: ${system.maxTokens || ""}\n`
 
-        info += fenceMD(system.text)
+        info += numberedFenceMD(system.jsSource)
+        info += "#### Expanded system prompt"
+        info += fenceMD(sysex)
     }
 
     model = model ?? fragment.project.coarchJson.model ?? defaultModel
