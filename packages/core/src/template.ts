@@ -377,7 +377,7 @@ export function parsePromptTemplate(
             c.checkString("model")
             c.checkString("children", ["present", "absent"])
             c.checkString("replaces", [
-                "node",
+                "file",
                 "fragment",
                 "children",
                 "nothing",
@@ -407,7 +407,6 @@ export function parsePromptTemplate(
         if (r.output) {
             if (!r.output.startsWith(".")) r.output = "." + r.output
         }
-        if (r.replaces == "node") r.replaces = "fragment"
     })
 }
 

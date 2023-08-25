@@ -1,3 +1,14 @@
+---
+title: Image Resize Command Line Application
+description: Discover how to develop a command line app for resizing images using Node.js LTS, optimal algorithms, and validation techniques.
+keywords:
+  - image resize
+  - command line app
+  - Node.js
+  - image processing
+  - resizing algorithm
+---
+
 # Image resize
 
 A command line application that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS.
