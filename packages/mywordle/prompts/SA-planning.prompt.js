@@ -7,10 +7,10 @@ prompt({ title: "SA-planning",
 
 def("SUMMARY", env.subtree)
 def("CODE", env.output)
-def("DOCS", env.links)
+def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 
 $`
-You are an expert software architect.
+You are an expert software architect and developer.
 You have been given a product idea in DOCS and your job is to define a plan to implement the product.
 
 The instructions contain the high level idea and specific directions from the product manager for you to follow.
