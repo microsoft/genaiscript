@@ -183,7 +183,7 @@ prompt({
 })
 ```
 
-#### system: prompt_template_id
+#### system: prompt_template_id[]
 
 Override the system prompt with a custom prompt.
 There is no variable expansion in system prompts.
@@ -302,6 +302,10 @@ Use documentation from DOCS.
 
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
+
+#### Multiple file output
+
+Add the `system.multifile` system prompt to enable multiple file generation.
 
 #### Current file
 
