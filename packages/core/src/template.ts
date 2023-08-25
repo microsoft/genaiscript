@@ -282,6 +282,32 @@ function endFance(text: string) {
     return null
 }
 
+/**
+ * Parse output of LLM similar to output of coarch def() function.
+ * 
+ * Expect text to look something like this:
+ * 
+ * Foo bar:
+ * ```js
+ * var x = 1
+ * ...
+ * ```
+ * 
+ * Baz qux:
+ * """
+ * Also supported.
+ * ...
+ * """
+ * 
+ * Returns a map, like this:
+ * 
+ * {
+ *   "Foo bar": "var x = 1\n...",
+ *   "Baz qux": "Also supported.\n..."
+ * }
+ * 
+ * Note that outside we can treat keys like "File some/thing.js" specially.
+ */
 export function extractFenced(text: string) {
     let currLbl = ""
     let currText = ""
