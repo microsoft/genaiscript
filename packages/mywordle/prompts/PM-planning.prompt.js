@@ -1,10 +1,11 @@
 prompt({ title: "PM-planning", 
-         replaces: "node", 
+         output: ".pm.coarch.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
+def("PLAN", env.output)
 
 $`
 You are an expert product manager with years of experience in the industry selling software products.
@@ -20,18 +21,15 @@ the code will be organized, what the APIs are, and how the different components 
 will implement the code for that component;
 --- (QA) the quality assurance engineer, who will write test cases for the product to make sure it works correctly;
 Use the SUMMARY as input and generate high-level instructions for each of your team members.
+--- (DOC) the technical writer, who will write the documentation for the product.
+--- (UX) the user experience designer, who will design the user interface for the product.
 
-The first subheader of the SUMMARY contains the idea indicated by the subheader heading "Idea".
+SUMMARY contains the high level idea for the application.
 
-The rest of the SUMMARY should contain the instructions for each of the team members each listed under 
-a new markdown subsection.
+If the rest of the PLAN already exists, check to make sure that it is complete and the contents accurately reflect the idea 
+and update them if necessary, making the minimal necessary changes. 
 
-If there are already instructions, make sure that the instructions are consistent with the idea and make
-minimal changes to the instructions if necessary.
+The if rest of the PLAN is not present, then create the SUMMARY and make sure that it accurately reflects the idea.
 
-If there are no instructions, then create instructions for each of the team members.
-
-Make sure that your instructions are clear, concise, and unambiguous.
-
-Include the original idea subsection as the first subsection of the output.
+Make sure that your instructions are clear, concise, concrete, and unambiguous.
 `

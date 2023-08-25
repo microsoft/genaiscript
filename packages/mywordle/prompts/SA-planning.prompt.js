@@ -2,15 +2,19 @@ prompt({ title: "SA-planning",
          output: ".saplan.coarch.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
+         system: ["system.concise"],
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
 def("CODE", env.output)
+def("DOCS", env.links)
 
 $`
 You are an expert software architect.
-You have been given a product idea and your job is to define a plan to implement the product.
+You have been given a product idea in DOCS and your job is to define a plan to implement the product.
+
 The instructions contain the high level idea and specific directions from the product manager for you to follow.
+
 Use the SUMMARY as input and generate the architecture for the product.
 
 Encapsulate each component in a separate module and define the APIs for each component.
