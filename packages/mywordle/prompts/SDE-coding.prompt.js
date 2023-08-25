@@ -7,7 +7,7 @@ prompt({ title: "SDE-coding",
 
 def("SUMMARY", env.subtree)
 def("CODE", env.output)
-def("DOCS", env.links)
+def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 
 $`
 Use documentation from DOCS.  Pay specific attention to the instructions from for the UX designer.
@@ -28,9 +28,6 @@ instructions in SUMMARY.
 Generate code for all files mentioned in SUMMARY.
 For each of the Python files listed in SUMMARY, implement the code for the component and place
 the code in a separate file using the file name used in SUMMARY.
-
-When generating files with this syntax: "File file1.py", be sure that the syntax is in a Python comment and 
-not markdown.
 
 Make sure that the code is well documented and that the code is easy to read and understand.
 Make sure that the comments follow the Python commenting conventions.
