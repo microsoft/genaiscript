@@ -338,7 +338,7 @@ function fragmentVars(
         },
         links,
         promptOptions,
-        template: template.outputLinkName ?? template.id,
+        template,
     }
 
     let refChildren = ""

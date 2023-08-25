@@ -260,9 +260,9 @@ interface ExpansionVariables {
     } & Record<string, string | boolean>
 
     /**
-     * name of the prompt template running
+     * current prompt template
      */
-    template: string
+    template: PromptTemplate
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
