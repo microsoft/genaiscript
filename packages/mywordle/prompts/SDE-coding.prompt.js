@@ -7,8 +7,11 @@ prompt({ title: "SDE-coding",
 
 def("SUMMARY", env.subtree)
 def("CODE", env.output)
+def("DOCS", env.links)
 
 $`
+Use documentation from DOCS.  Pay specific attention to the instructions from for the UX designer.
+
 You are an expert software developer with years of experience implementing Python applications.
 You always write syntactically correct code that is easy to read and understand. 
  

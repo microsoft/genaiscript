@@ -7,8 +7,14 @@ prompt({ title: "SDE-update",
 
 def("SUMMARY", env.subtree)
 def("CODE", env.output)
+def("DOCS", env.links)
+def("BUGS", env.links.filter(f => f.filename.startsWith("bug")))
 
 $`
+Use documentation from DOCS.  
+
+Pay specific attention to the instructions from for the UX designer and the feedback in BUGS.
+
 You are an expert software developer with years of experience implementing Python applications.
 You always write syntactically correct code that is easy to read and understand. 
  
@@ -34,6 +40,8 @@ Make sure that the code is modular and that a quality assurance engineer can
 write test cases for each component.
 Make sure that you can run the client component on the command line for demonstration and testing purposes.
 Include assertions in your code to ensure that the code is correct.
+
+Make sure to summarize the changes you made to the code in the update file mentioned in SUMMARY.
 
 Respond with the new CODE.
 Limit changes to existing code to minimum.
