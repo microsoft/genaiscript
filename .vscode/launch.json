@@ -37,6 +37,23 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
+            "name": "Run Extension - mywordle",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/packages/mywordle"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile-ext",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/vscode"
+        },
+        {
             "name": "Extension Tests",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
