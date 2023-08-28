@@ -2,8 +2,8 @@ systemPrompt({ title: "Setup for multi-file generation" })
 
 $`When generating files you will use the following syntax:`
 
-const id = env.template.id
-def(`File ${id}/file1.ts`, `What goes in\n${id}/file1.ts.`)
-def(`File ${id}/file2.md`, `What goes in\n${id}/file2.md.`)
+const folder = env.template.outputFolder || "."
+def(`File ${folder}/file1.ts`, `What goes in\n${folder}/file1.ts.`)
+def(`File ${folder}/file2.md`, `What goes in\n${folder}/file2.md.`)
 
-$`Generate files in a folder "${id}".`
+$`Generate files in a folder "${folder}".`
