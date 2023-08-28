@@ -3,7 +3,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run Extension - sample",
+            "name": "Run - sample",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
@@ -20,7 +20,7 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
-            "name": "Run Extension - blackjack",
+            "name": "Run - blackjack",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
@@ -37,7 +37,7 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
-            "name": "Run Extension - mywordle",
+            "name": "Run - mywordle",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
