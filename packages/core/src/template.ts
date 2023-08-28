@@ -412,6 +412,7 @@ export function parsePromptTemplate(
             c.checkString("output")
             c.checkString("outputLinkName")
             c.checkString("outputContentType")
+            c.checkString("outputFolder")
 
             c.checkBool("unlisted")
             c.checkBool("prePost")

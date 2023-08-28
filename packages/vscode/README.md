@@ -210,6 +210,8 @@ Forces to store the output in a nested file `./filenameN.ext`. This is useful to
 CoArch will automatically mangle the prompt id, and extension to create a unique file name
 that is cross linked to the source.
 
+You can specify an output folder using `outputFolder`.
+
 #### audit: true | false
 
 Specifies that the prompt is an auditing prompt and should produce `VALID` or `ERROR` in the output.
