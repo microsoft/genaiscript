@@ -273,6 +273,7 @@ export function staticVars() {
         fence: promptFence,
         error: errorId(),
         promptOptions: {},
+        vars: {} as Record<string, string>,
     }
 }
 

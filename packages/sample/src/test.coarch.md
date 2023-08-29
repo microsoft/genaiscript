@@ -8,6 +8,12 @@ Use the writing style of software technical writer.
 
 -->
 
+<!-- @system.multifile.outputFolder
+
+mysrc
+
+-->
+
 ## Parse arguments `x`, `y` **z** #2 {#DE00}
 
 Read the `filename: string`, `size: number` and `outputfilename: string`

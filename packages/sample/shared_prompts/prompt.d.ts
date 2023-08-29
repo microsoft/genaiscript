@@ -268,6 +268,11 @@ interface ExpansionVariables {
      * current prompt template
      */
     template: PromptTemplate
+
+    /**
+     * User defined variables
+     */
+    vars: Record<string, string>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

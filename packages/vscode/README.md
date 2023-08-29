@@ -308,6 +308,15 @@ def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 #### Multiple file output
 
 Add the `system.multifile` system prompt to enable multiple file generation.
+You can specify the output folder using `system.multifile.outputFolder` variable.
+
+```markdown
+<!-- @system.multifile.outputFolder
+
+mysrc
+
+-->
+```
 
 #### Current file
 
@@ -319,6 +328,27 @@ You can use regular JavaScript `if` statements.
 
 ```js
 if (env.output) def("CODE", env.output)
+```
+
+````
+
+### Inline variable
+
+You can inject custom variables in the process by authoring them as markdown comments in your `.coarch.md` files. The variable are accessible through the `env.vars` field.
+
+```markdown
+Lorem ipsum...
+
+<!-- @myvar
+
+myvalue
+-->
+```
+
+And somewhere in the prompt
+
+```js
+const myvalue = env.vars["myvar"]
 ```
 
 ### Inline prompts
@@ -364,3 +394,4 @@ Use the writing style of software technical writer.
 
 -->
 ```
+````
