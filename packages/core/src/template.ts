@@ -345,6 +345,8 @@ export function extractFenced(text: string) {
         vars[currLbl] = (vars[currLbl] ?? "") + currText
     }
 
+    remaining = remaining?.trim()
+
     return { vars, remaining }
 }
 
