@@ -138,8 +138,11 @@ ${numberedFenceMD(template.jsSource)}
 
     let errors = ``
 
-    const cat = categoryPrefix(template, fragment)
+    const attrs = commentAttributes(fragment)
+    const cat = categoryPrefix(template, fragment, attrs)
     const prompt = callExpander(template, vars)
+
+    console.log({ attrs, cat, vars, prompt })
 
     const expanded = cat.text + "\n" + prompt.text
     errors += prompt.errors
@@ -259,11 +262,14 @@ function subtreeMD(t: Fragment): string {
     return [hd, ...ch.map(subtreeMD)].join("\n\n")
 }
 
-function categoryPrefix(template: PromptTemplate, frag: Fragment) {
+function categoryPrefix(
+    template: PromptTemplate,
+    frag: Fragment,
+    attrs: Record<string, string>
+) {
     let text = ""
     let info = ""
     const used = new Set<string>()
-    const attrs = commentAttributes(frag)
     if (template.categories?.length || attrs["@prompt"]) {
         info += "\n## Inline prompts\n"
 
@@ -324,6 +330,8 @@ function fragmentVars(
                     content: file.content,
                 })
         }
+    const attrs = commentAttributes(frag)
+
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
         heading: "#".repeat(frag.depth),
@@ -339,6 +347,7 @@ function fragmentVars(
         links,
         promptOptions,
         template,
+        vars: attrs,
     }
 
     let refChildren = ""
