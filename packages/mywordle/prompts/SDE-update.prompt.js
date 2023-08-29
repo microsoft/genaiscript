@@ -1,6 +1,7 @@
 prompt({ title: "SDE-update", 
          output: ".py", 
          maxTokens: 4000,
+         outputFolder: "src",
          model: "gpt-4-32k",
          system: ["system.code", "system.concise", "system.multifile"],
          categories: ["appdev"]  })
@@ -48,5 +49,5 @@ Make sure to summarize the changes you made to the code in the update file menti
 
 Respond with the new CODE.
 Limit changes to existing code to minimum.
-Always ensure that code you generate is well-formed Python code that can be run.  Do not generate markdown.
+Always ensure that code you generate is well-formed Python code that can be run.  
 `
