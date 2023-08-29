@@ -1,7 +1,16 @@
 # Notes on bugs in the code
 
-The the logic that computes the unguessed letters is incorrect.
-It should not include letters from the secret word, it should be initiated to the alphabet, and the letters in the words already guessed should be removed from it.
+When I run python main.py, I get the following error:
 
-The user should only have 6 turns and then the game should end and the secret word should be revealed. 
-The interface should show how many guesses are left at the beginning of each turn.
+PS C:\projects\coarch\packages\mywordle\src> python.exe .\main.py
+Traceback (most recent call last):
+  File "C:\projects\coarch\packages\mywordle\src\main.py", line 2, in <module>
+    from wordle_game import WordleGame
+  File "C:\projects\coarch\packages\mywordle\src\wordle_game.py", line 2, in <module>
+    from word_dictionary import WordDictionary
+  File "C:\projects\coarch\packages\mywordle\src\word_dictionary.py", line 3, in <module>
+    class WordDictionary:
+  File "C:\projects\coarch\packages\mywordle\src\word_dictionary.py", line 7, in WordDictionary
+    def load_words(self) -> List[str]:
+NameError: name 'List' is not defined. Did you mean: 'list'?
+PS C:\projects\coarch\packages\mywordle\src> cat .\main.py
