@@ -476,6 +476,7 @@ export async function runTemplate(
         text: extr.remaining,
     }
 
+    const links: string[] = []
     for (const [name, val] of Object.entries(extr.vars)) {
         if (name.startsWith("File ")) {
             delete extr.vars[name]
@@ -504,16 +505,7 @@ export async function runTemplate(
                 })
             }
 
-            if (!curr) {
-                const link = `-   [${n}](./${n})`
-                // TODO: include links as part of AST
-                edits.push({
-                    ...obj,
-                    type: "insert",
-                    pos: fragment.endPos,
-                    text: `\n\n${link}\n`,
-                })
-            }
+            if (!curr) links.push(`-   [${n}](./${n})`)
         }
     }
 
@@ -619,18 +611,21 @@ export async function runTemplate(
             const link = `-   [${
                 template.outputLinkName ?? template.id
             }](./${filename.replace(/.*[\\\/]/, "")})`
-            // TODO: include links as part of AST
-            edits.push({
-                ...obj,
-                type: "insert",
-                pos: fragment.endPos,
-                text: `\n\n${link}\n`,
-            })
+            links.push(link)
         }
+        if (Object.keys(extr.vars).length == 0) res.dialogText = extr.remaining
     } else {
         if (Object.keys(extr.vars).length == 0) res.dialogText = extr.remaining
         else res.dialogText = text
     }
+
+    if (links.length)
+        edits.push({
+            ...obj,
+            type: "insert",
+            pos: fragment.endPos,
+            text: `\n\n${links.join("\n")}`,
+        })
 
     return res
 }
