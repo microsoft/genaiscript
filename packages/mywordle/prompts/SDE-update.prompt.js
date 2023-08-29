@@ -45,9 +45,11 @@ write test cases for each component.
 Make sure that you can run the client component on the command line for demonstration and testing purposes.
 Include assertions in your code to ensure that the code is correct.
 
-Make sure to summarize the changes you made to the code in the update file mentioned in SUMMARY.
+It is very important that when generating multiple files, do not use triple backquote to separate the files.
+Never use triple backquotes to separate files in the generated code.
 
-Respond with the new CODE.
+Respond only with the new CODE.
+Do not provide any other output.
 Limit changes to existing code to minimum.
 Always ensure that code you generate is well-formed Python code that can be run.  
 `
