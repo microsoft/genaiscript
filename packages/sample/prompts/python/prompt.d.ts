@@ -115,6 +115,11 @@ interface PromptTemplate extends PromptLike {
     outputContentType?: string
 
     /**
+     * Specifies a folder to create output files into
+     */
+    outputFolder?: string
+
+    /**
      * If true, include `subtreePre`, `subtreePost`, and possibly `outputPre` and `outputPost` variables.
      */
     prePost?: boolean
