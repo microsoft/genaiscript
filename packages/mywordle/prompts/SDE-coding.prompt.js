@@ -1,5 +1,6 @@
 prompt({ title: "SDE-coding", 
          output: ".py", 
+         outputFolder: "src",
          maxTokens: 4000,
          model: "gpt-4-32k",
          system: ["system.code", "system.concise", "system.multifile"],
@@ -36,7 +37,10 @@ Make sure that the code is modular and that a quality assurance engineer can
 write test cases for each component.
 Make sure that you can run the client component on the command line for demonstration and testing purposes.
 Include assertions in your code to ensure that the code is correct.
-
+Do not include docstrings in your code.
+When generating multiple files, do not use triple backquote to separate the files.
+Assume all the files for the project will be located in the same folder and that you will invoke the application 
+from that folder.
 
 Respond with the new CODE.
 Limit changes to existing code to minimum.
