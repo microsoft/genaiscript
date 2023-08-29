@@ -254,8 +254,9 @@ function parseMeta(r: PromptTemplate) {
     return { meta, text }
 }
 
-const promptFence = '"""'
-const promptRx = /"{3,}(\r?\n)?/g
+const promptFence = "|||"
+const promptFenceRx = /\|{3,}(\r?\n)?/g
+const promptFenceEndRx = /^\|{3,}$/
 
 function errorId() {
     let r = "ERROR-"
@@ -275,8 +276,8 @@ export function staticVars() {
     }
 }
 
-function endFance(text: string) {
-    if (/^"""+$/.test(text)) return text
+function endFence(text: string) {
+    if (promptFenceEndRx.test(text)) return text
     const m = /^(```+)[\w\-]*\s*$/.exec(text)
     if (m) return m[1]
     return null
@@ -284,28 +285,28 @@ function endFance(text: string) {
 
 /**
  * Parse output of LLM similar to output of coarch def() function.
- * 
+ *
  * Expect text to look something like this:
- * 
+ *
  * Foo bar:
  * ```js
  * var x = 1
  * ...
  * ```
- * 
+ *
  * Baz qux:
- * """
+ * |||
  * Also supported.
  * ...
- * """
- * 
+ * |||
+ *
  * Returns a map, like this:
- * 
+ *
  * {
  *   "Foo bar": "var x = 1\n...",
  *   "Baz qux": "Also supported.\n..."
  * }
- * 
+ *
  * Note that outside we can treat keys like "File some/thing.js" specially.
  */
 export function extractFenced(text: string) {
@@ -327,12 +328,12 @@ export function extractFenced(text: string) {
                 currText += line + "\n"
             }
         } else {
-            if (line.endsWith(":") && endFance(lines[i + 1])) {
+            if (line.endsWith(":") && endFence(lines[i + 1])) {
                 currLbl = line.slice(0, -1)
-                currFance = endFance(lines[i + 1])
+                currFance = endFence(lines[i + 1])
                 i++
-            } else if (endFance(line)) {
-                currFance = endFance(line)
+            } else if (endFence(line)) {
+                currFance = endFence(line)
                 currLbl = "*"
             } else {
                 remaining += line + "\n"
@@ -348,7 +349,7 @@ export function extractFenced(text: string) {
 }
 
 export function removeFence(text: string) {
-    return text.replace(promptRx, "")
+    return text.replace(promptFenceRx, "")
 }
 
 function parsePromptTemplateCore(
