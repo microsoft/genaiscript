@@ -218,11 +218,49 @@ prompt({
 
 #### output: .ext
 
-Forces to store the output in a nested file `./filenameN.ext`. This is useful to store the output in a different format than markdown.
+Forces to store the output in a **single** nested file `./filenameN.ext`. This is useful to store the output in a different format than markdown.
 CoArch will automatically mangle the prompt id, and extension to create a unique file name
 that is cross linked to the source.
 
 You can specify an output folder using `outputFolder`.
+
+```js
+prompt({
+    output: ".py",
+    outputFolder: "src",
+})
+```
+
+#### Multiple file output
+
+If you add the `system.multifile` system prompt, it will enable multiple file generation,
+and disable the `output` parameter.
+
+```js
+prompt({
+    system: [..., "system.multifiles"]
+})
+```
+
+You can specify the output folder using `system.multifile.outputFolder` variable.
+
+```markdown
+<!-- @system.multifile.outputFolder
+
+mysrc
+
+-->
+```
+
+#### Generation note
+
+Add the `system.notes` to tell the LLM to explain why it generated content.
+
+```js
+prompt({
+    system: [..., "system.notes"]
+})
+```
 
 #### audit: true | false
 
@@ -316,21 +354,6 @@ Use documentation from DOCS.
 
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
-
-#### Multiple file output
-
-Add the `system.multifile` system prompt to enable multiple file generation.
-You can specify the output folder using `system.multifile.outputFolder` variable.
-
-```markdown
-<!-- @system.multifile.outputFolder
-
-mysrc
-
--->
-```
-
-The `output` configuration is ignored with multifiles.
 
 #### Current file
 
