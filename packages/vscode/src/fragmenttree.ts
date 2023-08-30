@@ -49,7 +49,9 @@ class FragmentsTreeDataProvider
                 ? vscode.TreeItemCollapsibleState.Expanded
                 : vscode.TreeItemCollapsibleState.None
         )
-        item.id = `coarch.frag.${fullId}${reference ? `<${reference}` : ""}`
+        item.id = `coarch.frag.${file.filename}${fullId}${
+            reference ? `<${reference}` : ""
+        }`
         item.contextValue = `fragment ${
             hasChildren ? `node` : `leaf`
         } ${state} ${reference ? `ref` : ""}`
