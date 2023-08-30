@@ -3,7 +3,7 @@ import {
     RequestError,
     getChatCompletions,
 } from "./chat"
-import { Fragment, PromptTemplate, eofPosition, rangeOfFragments } from "./ast"
+import { Fragment, PromptTemplate, eofPosition, rangeOfFragments, rootFragment } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
 import {
@@ -397,6 +397,8 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
+    if (template.context === "root") 
+        fragment = rootFragment(fragment)
     const { vars, outputFragment } = fragmentVars(
         template,
         fragment,

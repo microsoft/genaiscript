@@ -12,6 +12,7 @@ import {
     groupBy,
     DiagnosticSeverity,
     promptDefinitions,
+    RunTemplateOptions,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -101,7 +102,9 @@ export class ExtensionState extends EventTarget {
             reqChange()
         }
         this.aiRequest = r
-        r.request = runTemplate(options.template, options.fragments[0], {
+        const { template, fragments } = options
+        const fragment = fragments[0]
+        const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
             partialCb,
             infoCb: (data) => {
@@ -111,7 +114,8 @@ export class ExtensionState extends EventTarget {
                 reqChange()
             },
             promptOptions: this.aiRequestContext,
-        })
+        }
+        r.request = runTemplate(template, fragment, runOptions)
         // clear on completion
         r.request
             .then((resp) => {

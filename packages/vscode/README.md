@@ -183,6 +183,18 @@ prompt({
 })
 ```
 
+#### context: current | root
+
+When the context is specified as `root`. coarch will always find the root fragment
+in the current file and apply the prompt to that fragment.
+
+```js
+prompt({
+    description: "Do something on the whole file",
+    context: "root",
+})
+```
+
 #### system: prompt_template_id[]
 
 Override the system prompt with a custom prompt.
