@@ -134,6 +134,11 @@ export class Fragment {
     }
 }
 
+export function rootFragment(fragment: Fragment): Fragment {
+    if (fragment.parent) return rootFragment(fragment.parent)
+    else return fragment
+}
+
 export function allChildren(fragment: Fragment): Fragment[] {
     const res = []
     const todo = fragment.children
@@ -146,8 +151,11 @@ export function allChildren(fragment: Fragment): Fragment[] {
 }
 
 export function templateGroup(template: PromptTemplate) {
-    return template.categories?.[0]
-        || (/^system/i.test(template.id) ? "system" : "") || "unassigned"
+    return (
+        template.categories?.[0] ||
+        (/^system/i.test(template.id) ? "system" : "") ||
+        "unassigned"
+    )
 }
 
 export const eofPosition: Position = [0x3fffffff, 0]
@@ -201,7 +209,7 @@ export class TextFile {
         public readonly project: CoArchProject,
         public readonly filename: string,
         public readonly content: string
-    ) { }
+    ) {}
 
     relativeName() {
         const prj = host.projectFolder()

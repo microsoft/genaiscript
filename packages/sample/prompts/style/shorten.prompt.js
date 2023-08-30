@@ -1,4 +1,4 @@
-prompt({ title: "Shorten", replaces: "fragment" })
+prompt({ title: "Shorten", replaces: "fragment", context: "root" })
 
 $`Shorten the following SUMMARY. Limit changes to minimum.`
 
