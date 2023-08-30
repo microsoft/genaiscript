@@ -486,8 +486,10 @@ export async function runTemplate(
     }
 
     const links: string[] = []
+    let hasFiles = false
     for (const [name, val] of Object.entries(extr.vars)) {
         if (name.startsWith("File ")) {
+            hasFiles = true
             delete extr.vars[name]
             const n = name.slice(5).trim()
             const fn = host.resolvePath(fragment.file.filename, "..", n)
@@ -572,7 +574,7 @@ export async function runTemplate(
             range: [outputFragment.startPos, outputFragment.endPos],
             text: text.trim(),
         })
-    } else if (template.output) {
+    } else if (template.output && !hasFiles) {
         const ext = template.output
         const curr = fragment.references.find((r) =>
             r.filename.endsWith(ext)

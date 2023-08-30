@@ -36,11 +36,7 @@ export class RequestError extends Error {
         public readonly statusText: string,
         readonly retryAfter: number
     ) {
-        super(
-            `OpenAI error (${status}): ${statusText}${
-                !isNaN(retryAfter) ? `, retry in ${retryAfter}s` : ""
-            }`
-        )
+        super(`OpenAI error (${status}): ${statusText}`)
     }
 }
 
@@ -53,7 +49,7 @@ export async function getChatCompletions(
     const cache = getCache()
     const cached = testMode ? "Test-mode enabled" : await cache.get(req)
     if (cached !== undefined) {
-        await delay(1000) // artificial delay for UI testing
+        if (testMode) await delay(1000) // artificial delay for UI testing
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),
             responseSoFar: cached,
