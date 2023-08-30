@@ -3,7 +3,13 @@ import {
     RequestError,
     getChatCompletions,
 } from "./chat"
-import { Fragment, PromptTemplate, eofPosition, rangeOfFragments, rootFragment } from "./ast"
+import {
+    Fragment,
+    PromptTemplate,
+    eofPosition,
+    rangeOfFragments,
+    rootFragment,
+} from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
 import {
@@ -149,8 +155,9 @@ ${numberedFenceMD(template.jsSource)}
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
-    info += `\n## console.log() output from prompt\n`
-    info += fenceMD(prompt.logs)
+    info += `\n## console output\n`
+    if (prompt.logs?.length) info += fenceMD(prompt.logs)
+    else info += `> tip: use \`console.log()\` from prompt.js files`
 
     info += "\n## Expanded prompt\n"
     info += fenceMD(prompt.text)
@@ -397,8 +404,7 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    if (template.context === "root") 
-        fragment = rootFragment(fragment)
+    if (template.context === "root") fragment = rootFragment(fragment)
     const { vars, outputFragment } = fragmentVars(
         template,
         fragment,
@@ -483,12 +489,16 @@ export async function runTemplate(
         edits,
         info,
         text: extr.remaining,
+        dialogText: "",
     }
 
     const links: string[] = []
     let hasFiles = false
     for (const [name, val] of Object.entries(extr.vars)) {
-        if (name.startsWith("File ")) {
+        if (/^\s*Note\s*$/.test(name)) {
+            delete extr.vars[name]
+            res.dialogText += `### Note\n\n` + val + "\n"
+        } else if (name.startsWith("File ")) {
             hasFiles = true
             delete extr.vars[name]
             const n = name.slice(5).trim()
@@ -624,9 +634,9 @@ export async function runTemplate(
             }](./${filename.replace(/.*[\\\/]/, "")})`
             links.push(link)
         }
-        if (Object.keys(extr.vars).length == 0) res.dialogText = extr.remaining
+        if (Object.keys(extr.vars).length == 0) res.dialogText += extr.remaining
     } else {
-        if (Object.keys(extr.vars).length == 0) res.dialogText = extr.remaining
+        if (Object.keys(extr.vars).length == 0) res.dialogText += extr.remaining
         else res.dialogText = text
     }
 
