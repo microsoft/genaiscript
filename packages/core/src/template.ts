@@ -154,7 +154,7 @@ export type BasePromptContext = Omit<
     PromptContext,
     "fence" | "def" | "defFiles" | "$"
 >
-export function evalPrompt(
+export async function evalPrompt(
     ctx0: BasePromptContext,
     jstext: string,
     logCb?: (msg: string) => void
@@ -219,7 +219,7 @@ export function evalPrompt(
         "'use strict'; " + jstext
     )
 
-    return fn(...Object.values(ctx))
+    return await fn(...Object.values(ctx))
 }
 
 function parseMeta(r: PromptTemplate) {
