@@ -66,7 +66,7 @@ function numberedFenceMD(t: string, contentType = "js") {
     )
 }
 
-function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
+async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
     let promptText = ""
     let errors = ""
     let success = true
@@ -82,7 +82,7 @@ function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
     })
     let logs = ""
     try {
-        evalPrompt(
+        await evalPrompt(
             {
                 env,
                 text: (body) => {
@@ -114,7 +114,7 @@ function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
     return { logs, errors, success, text: promptText }
 }
 
-function expandTemplate(
+async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
     vars: ExpansionVariables
@@ -140,9 +140,7 @@ ${numberedFenceMD(template.jsSource)}
 
     const attrs = commentAttributes(fragment)
     const cat = categoryPrefix(template, fragment, attrs)
-    const prompt = callExpander(template, vars)
-
-    console.log({ attrs, cat, vars, prompt })
+    const prompt = await callExpander(template, vars)
 
     const expanded = cat.text + "\n" + prompt.text
     errors += prompt.errors
@@ -180,7 +178,7 @@ ${numberedFenceMD(template.jsSource)}
             assert(!!system)
         }
 
-        const sysex = callExpander(system, vars).text
+        const sysex = (await callExpander(system, vars)).text
         systemText += sysex + "\n"
 
         model = model ?? system.model
@@ -412,7 +410,7 @@ export async function runTemplate(
         temperature,
         max_tokens,
         systemText,
-    } = expandTemplate(template, fragment, vars as ExpansionVariables)
+    } = await expandTemplate(template, fragment, vars as ExpansionVariables)
     options?.infoCb?.({ edits: [], info, text: "Computing..." })
 
     info += "\n\n## Final prompt\n\n"
