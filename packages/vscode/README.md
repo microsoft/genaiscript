@@ -318,6 +318,8 @@ mysrc
 -->
 ```
 
+The `output` configuration is ignored with multifiles.
+
 #### Current file
 
 The current file is also available as a linked file through, `env.file`
