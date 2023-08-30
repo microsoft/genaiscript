@@ -15,6 +15,7 @@ for (const prompt of prompts) {
         ftMap[prompt.replace(/\.filetype\.js$/, "")] = text
 }
 const promptDefs = {
+    ".gitattributes": "prompt.d.ts -diff merge=ours linguist-generated",
     "jsconfig.json": JSON.stringify(
         {
             compilerOptions: {

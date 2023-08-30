@@ -115,6 +115,11 @@ interface PromptTemplate extends PromptLike {
     outputContentType?: string
 
     /**
+     * Specifies a folder to create output files into
+     */
+    outputFolder?: string
+
+    /**
      * If true, include `subtreePre`, `subtreePost`, and possibly `outputPre` and `outputPost` variables.
      */
     prePost?: boolean
@@ -263,6 +268,11 @@ interface ExpansionVariables {
      * current prompt template
      */
     template: PromptTemplate
+
+    /**
+     * User defined variables
+     */
+    vars: Record<string, string>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
