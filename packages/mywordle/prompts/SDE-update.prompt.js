@@ -1,4 +1,5 @@
 prompt({ title: "SDE-update", 
+         description: "Based on changes to the spec and a bugnotes.md file, updates code for an application based on a specification of the specific files and APIs provided in a .saplan.coarch.md file",
          maxTokens: 4000,
          outputFolder: "src",
          model: "gpt-4-32k",

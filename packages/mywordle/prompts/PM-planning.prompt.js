@@ -1,4 +1,5 @@
 prompt({ title: "PM-planning", 
+         description: "Generates a plan for a product based on a product idea and a set of requirements",
          output: ".pm.coarch.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",

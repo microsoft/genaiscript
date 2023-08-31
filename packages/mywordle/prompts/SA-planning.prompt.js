@@ -1,4 +1,5 @@
 prompt({ title: "SA-planning", 
+         description: "Given a high level idea and specific directions from the product manager, generates a plan for a software architect to implement the product",
          output: ".saplan.coarch.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
