@@ -1,5 +1,4 @@
 prompt({ title: "SDE-coding", 
-         output: ".py", 
          outputFolder: "src",
          maxTokens: 4000,
          model: "gpt-4-32k",
@@ -42,7 +41,9 @@ When generating multiple files, do not use triple backquote to separate the file
 Assume all the files for the project will be located in the same folder and that you will invoke the application 
 from that folder.
 
+Avoid the use of extra packages if you can.  Try to keep the solution as simple as possible.
+
 Respond with the new CODE.
-Limit changes to existing code to minimum.
-Always ensure that code you generate is well-formed Python code that can be run.  Do not generate markdown.
+If there is existing code, limit changes to existing code to minimum.
+Always ensure that code you generate is well-formed Python code that can be run.  
 `
