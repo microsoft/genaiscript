@@ -1,4 +1,5 @@
 prompt({ title: "SDE-coding", 
+         description: "Generates the first version of code for an application based on a specification of the specific files and APIs provided in a .saplan.coarch.md file",
          outputFolder: "src",
          maxTokens: 4000,
          model: "gpt-4-32k",
