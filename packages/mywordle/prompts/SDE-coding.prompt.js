@@ -3,7 +3,7 @@ prompt({ title: "SDE-coding",
          outputFolder: "src",
          maxTokens: 4000,
          model: "gpt-4-32k",
-         system: ["system.code", "system.concise", "system.multifile"],
+         system: ["system.code", "system.concise", "system.multifile", "system.notes"],
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
