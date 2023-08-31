@@ -335,6 +335,16 @@ function fragmentVars(
                     content: file.content,
                 })
         }
+    const parents: LinkedFile[] = []
+    if (frag.parent)
+        parents.push({
+            label: frag.parent.title,
+            filename: relativePath(
+                host.projectFolder(),
+                frag.parent.file.filename
+            ),
+            content: frag.parent.file.content,
+        })
     const attrs = commentAttributes(frag)
 
     const vars: Partial<ExpansionVariables> = {
@@ -350,6 +360,7 @@ function fragmentVars(
             content: file.content,
         },
         links,
+        parents,
         promptOptions,
         template,
         vars: attrs,

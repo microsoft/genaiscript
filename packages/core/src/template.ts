@@ -270,6 +270,7 @@ function errorId() {
 export function staticVars() {
     return {
         links: [] as LinkedFile[],
+        parents: [] as LinkedFile[],
         fence: promptFence,
         error: errorId(),
         promptOptions: {},

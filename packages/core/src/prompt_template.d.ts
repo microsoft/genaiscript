@@ -255,6 +255,11 @@ interface ExpansionVariables {
     links: LinkedFile[]
 
     /**
+     * List of files pointing to this fragment
+     */
+    parents: LinkedFile[]
+
+    /**
      * If the contents of this variable occurs in output, an error message will be shown to the user.
      */
     error: string
