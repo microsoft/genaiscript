@@ -1,9 +1,8 @@
 prompt({ title: "SDE-update", 
-         output: ".py", 
          maxTokens: 4000,
          outputFolder: "src",
          model: "gpt-4-32k",
-         system: ["system.code", "system.concise", "system.multifile"],
+         system: ["system.code", "system.concise", "system.multifile", "system.notes"],
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
@@ -13,7 +12,6 @@ def("BUGS", env.links.filter(f => f.filename.startsWith("bug")))
 
 $`
 Use documentation from DOCS.  
-
 
 You are an expert software developer with years of experience implementing Python applications.
 You always write syntactically correct code that is easy to read and understand. 
@@ -37,6 +35,8 @@ the component which is in a separate file using the file name used in SUMMARY.
 Update the only the CODE for files mentioned in SUMMARY that require changes to 
 address any updates to SUMMARY or any issues mentioned in BUGS.
 
+Modify as few files as possible and only generate the code for the files that need to be changed.
+
 Make sure that the code is well documented and that the code is easy to read and understand.
 Make sure that the comments follow the Python commenting conventions.
 Make sure that the code follows all the APIs specified in SUMMARY.
@@ -45,11 +45,11 @@ write test cases for each component.
 Make sure that you can run the client component on the command line for demonstration and testing purposes.
 Include assertions in your code to ensure that the code is correct.
 
-It is very important that when generating multiple files, do not use triple backquote to separate the files.
-Never use triple backquotes to separate files in the generated code.
-
 Respond only with the new CODE.
-Do not provide any other output.
-Limit changes to existing code to minimum.
+
+Limit changes to existing code to minimum.  Avoid making changes that only change the method or variable names.
+For example avoid renaming ui.display_illegal_word() to ui.display_illegal_word_message()
+and avoid renaming ui.display_illegal_word() to ui.display_incorrect_word() if no other changes are required.
+
 Always ensure that code you generate is well-formed Python code that can be run.  
 `
