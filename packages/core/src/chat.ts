@@ -26,6 +26,7 @@ export interface ChatCompletionsProgressReport {
 }
 
 export type ChatCompletionsOptions = {
+    disableCache?: boolean
     partialCb?: (progres: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
 }
@@ -44,12 +45,15 @@ export async function getChatCompletions(
     req: CreateChatCompletionRequest,
     options?: ChatCompletionsOptions
 ) {
-    const { requestOptions, partialCb } = options || {}
+    const { requestOptions, partialCb, disableCache } = options || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getCache()
-    const cached = testMode ? "Test-mode enabled" : await cache.get(req)
+    const cached = testMode
+        ? "Test-mode enabled"
+        : disableCache
+        ? undefined
+        : await cache.get(req)
     if (cached !== undefined) {
-        if (testMode) await delay(1000) // artificial delay for UI testing
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),
             responseSoFar: cached,
