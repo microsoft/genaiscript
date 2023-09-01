@@ -1,16 +1,19 @@
 # Notes on bugs in the code
 
-When I run python main.py, I get the following error:
+## Past issues
+The file dictionary.txt contains all the 5-letter words that can be chosen.
 
-PS C:\projects\coarch\packages\mywordle\src> python.exe .\main.py
-Traceback (most recent call last):
-  File "C:\projects\coarch\packages\mywordle\src\main.py", line 2, in <module>
-    from wordle_game import WordleGame
-  File "C:\projects\coarch\packages\mywordle\src\wordle_game.py", line 2, in <module>
-    from word_dictionary import WordDictionary
-  File "C:\projects\coarch\packages\mywordle\src\word_dictionary.py", line 3, in <module>
-    class WordDictionary:
-  File "C:\projects\coarch\packages\mywordle\src\word_dictionary.py", line 7, in WordDictionary
-    def load_words(self) -> List[str]:
-NameError: name 'List' is not defined. Did you mean: 'list'?
-PS C:\projects\coarch\packages\mywordle\src> cat .\main.py
+The game should use the following symbols to show the user the results of their guess:
+-   `*` for a letter that is in the hidden word but not in the correct position
+-   the letter itself for a letter that is in the hidden word and in the correct position
+-  `_` for a letter that is not in the hidden word
+
+For example, if the hidden word is table, then the user's guess of `apple` should be displayed as `*__le`.
+And the remaining letters should be shown as: `cdfghijkmnopqrsuvwxyz`.
+
+The game should show the letters of the dictionary not used in any 
+guesses after each guess.
+## New issues
+
+After each turn, the application should print the number of guesses remaining.
+
