@@ -24,7 +24,8 @@ class PromptTreeDataProvider
         } else {
             const { id, title, children, text, description = "" } = element
             const ai = this.state.aiRequest
-            const { computing, template, progress } = ai || {}
+            const { computing, options, progress } = ai || {}
+            const { template } = options || {}
             const generating = computing && template === element
             const item = new vscode.TreeItem(
                 title,
@@ -75,11 +76,10 @@ ${text}
         if (!element) {
             // collect and sort all categories
             const cats = Object.keys(groupBy(templates, templateGroup))
-            return [...cats.filter(t => t !== "system"), "system"]
+            return [...cats.filter((t) => t !== "system"), "system"]
         } else if (typeof element === "string") {
             const templates = this.state.project?.templates || []
-            return templates.filter(
-                (t) => templateGroup(t) === element)
+            return templates.filter((t) => templateGroup(t) === element)
         } else {
             return undefined
         }

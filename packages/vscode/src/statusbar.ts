@@ -11,15 +11,15 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "coarch.request.status"
     const updateStatusBar = () => {
-        const { computing, progress, template, fragments } =
-            state.aiRequest || {}
+        const { computing, progress, options } = state.aiRequest || {}
+        const { template, fragments } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
             tokensSoFar > 0
                 ? `(${tokensSoFar} tokens)`
                 : computing
-                    ? `$(loading~spin)`
-                    : undefined,
+                ? `$(loading~spin)`
+                : undefined,
             "CoArch",
             template?.title
         )
@@ -31,7 +31,7 @@ export function activateStatusBar(state: ExtensionState) {
                 ...(fragments?.map(
                     (fragment) =>
                         `-  fragment: ${fragment.title} (#${fragment.id || ""})`
-                ) || []),
+                ) || [])
             )
         )
         statusBarItem.tooltip = md
