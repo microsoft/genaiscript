@@ -21,7 +21,7 @@ class FragmentsTreeDataProvider
             const fragments = this.state.aiRequest?.options?.fragments
             if (fragments) this.refresh(fragments)
         })
-        vscode.window.onDidChangeActiveTextEditor(() => {
+        vscode.window.onDidChangeVisibleTextEditors(() => {
             this.refresh()
         })
     }
@@ -94,10 +94,21 @@ class FragmentsTreeDataProvider
             const res = fragments.filter(
                 (f) =>
                     efs.has(vscode.workspace.asRelativePath(f.file.filename)) ||
-                    allChildren(f).some((c) =>
-                        efs.has(
-                            vscode.workspace.asRelativePath(c.file.filename)
-                        )
+                    f.references.some((ref) =>
+                        efs.has(vscode.workspace.asRelativePath(ref.filename))
+                    ) ||
+                    allChildren(f).some(
+                        (c) =>
+                            efs.has(
+                                vscode.workspace.asRelativePath(c.file.filename)
+                            ) ||
+                            c.references.some((ref) =>
+                                efs.has(
+                                    vscode.workspace.asRelativePath(
+                                        ref.filename
+                                    )
+                                )
+                            )
                     )
             )
             return res
