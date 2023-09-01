@@ -188,7 +188,7 @@ const parseMdFile: Parser = (
             text: sourceRange(md, [elt.header, ...elt.body]),
         })
         newelt.text.replace(
-            /^(?:-|\*)\s+\[(?<name>[^\]]+)\]\((?<file>\.\/[^\)]+)\)/gm,
+            /^(?:-|\*)\s+\[(?<name>[^\]]+)\]\((?<file>(?:\.\/)?[^\)]+)\)/gm,
             (_, name, file) => {
                 newelt.references.push({
                     name,

@@ -69,77 +69,18 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentExecute = async (
         fragment: Fragment,
         label: string,
-        templateId: string,
-        options?: {
-            audit?: boolean
-        }
+        templateId: string
     ) => {
         if (!fragment) return
-        try {
-            await vscode.workspace.saveAll()
-            await state.parseWorkspace()
 
-            fragment =
-                state.project.fragmentByFullId[fragment.fullId] ?? fragment
-            const template = fragment.file.project.getTemplate(templateId)
+        fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
+        const template = fragment.file.project.getTemplate(templateId)
 
-            const res = await state.startAIRequest({
-                fragments: [fragment],
-                template,
-                label,
-            })
-            const { edits, dialogText } = res
-            if (dialogText)
-                vscode.commands.executeCommand(
-                    "coarch.request.open",
-                    "airequest.dialogtext.md"
-                )
-            if (edits) await applyEdits(edits, { needsConfirmation: true })
-            if (options?.audit) {
-                const valid = /\bVALID\b/.test(dialogText)
-                const error = /\bERROR\b/.test(dialogText)
-                if (valid && error)
-                    // something went wrong
-                    throw new Error("Audit prompt generated an mixed answer.")
-                else if (valid) {
-                    const r = await vscode.window.showInformationMessage(
-                        "AI validated fragment, mark as audited?",
-                        "Audited"
-                    )
-                    if (r) await state.markSyncedFragment(fragment, "sync")
-                } else if (error) {
-                    await state.markSyncedFragment(fragment, "mod")
-                }
-            }
-        } catch (e) {
-            if (isCancelError(e)) return
-            else if (isTokenError(e)) {
-                const fix = "Fix Token"
-                const trace = "Open Trace"
-                const res = await vscode.window.showErrorMessage(
-                    "OpenAI token refused (403).",
-                    fix,
-                    trace
-                )
-                if (res === trace)
-                    vscode.commands.executeCommand(
-                        "coarch.request.open",
-                        "airequest.info.md"
-                    )
-                else if (res === fix) await initToken(true)
-            } else if (isRequestError(e)) {
-                const trace = "Open Trace"
-                const msg = isRequestError(e, 404)
-                    ? `OpenAI model not found (404). Does your token support the selected model?`
-                    : e.message
-                const res = await vscode.window.showWarningMessage(msg, trace)
-                if (res === trace)
-                    vscode.commands.executeCommand(
-                        "coarch.request.open",
-                        "airequest.info.md"
-                    )
-            } else throw e
-        }
+        await state.requestAI({
+            fragments: [fragment],
+            template,
+            label,
+        })
     }
 
     const fragmentPrompt = async (
@@ -182,9 +123,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             }
         } else {
             const template = res as PromptTemplate
-            await fragmentExecute(fragment, template.title, template.id, {
-                audit: true,
-            })
+            await fragmentExecute(fragment, template.title, template.id)
         }
     }
     const fragmentUnaudited = async (fragment: Fragment) => {

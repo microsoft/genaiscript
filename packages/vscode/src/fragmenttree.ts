@@ -5,7 +5,7 @@ import {
     FRAGMENTS_CHANGE,
     FragmentsEvent,
 } from "./state"
-import { Fragment, concatArrays } from "coarch-core"
+import { Fragment, allChildren, concatArrays } from "coarch-core"
 
 type FragmentTreeNode = Fragment & { reference?: string }
 
@@ -18,8 +18,11 @@ class FragmentsTreeDataProvider
             this.refresh(fragments)
         })
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
-            const fragments = this.state.aiRequest?.fragments
+            const fragments = this.state.aiRequest?.options?.fragments
             if (fragments) this.refresh(fragments)
+        })
+        vscode.window.onDidChangeVisibleTextEditors(() => {
+            this.refresh()
         })
     }
 
@@ -39,7 +42,8 @@ class FragmentsTreeDataProvider
         const hasChildren =
             !reference &&
             (children.length > 0 || Object.keys(references ?? {}).length > 0)
-        const { computing, fragments, progress } = ai || {}
+        const { computing, options, progress } = ai || {}
+        const { fragments } = options || {}
         const sync = state === "sync"
         const generating = computing && fragments?.includes(element)
         const item = new vscode.TreeItem(
@@ -80,7 +84,34 @@ class FragmentsTreeDataProvider
     ): Promise<FragmentTreeNode[]> {
         if (!element) {
             const fragments = this.state.rootFragments
-            return fragments
+            const editors = vscode.window.visibleTextEditors
+            if (!editors?.length) return []
+            const efs = new Set<string>(
+                editors.map((editor) =>
+                    vscode.workspace.asRelativePath(editor.document.fileName)
+                )
+            )
+            const res = fragments.filter(
+                (f) =>
+                    efs.has(vscode.workspace.asRelativePath(f.file.filename)) ||
+                    f.references.some((ref) =>
+                        efs.has(vscode.workspace.asRelativePath(ref.filename))
+                    ) ||
+                    allChildren(f).some(
+                        (c) =>
+                            efs.has(
+                                vscode.workspace.asRelativePath(c.file.filename)
+                            ) ||
+                            c.references.some((ref) =>
+                                efs.has(
+                                    vscode.workspace.asRelativePath(
+                                        ref.filename
+                                    )
+                                )
+                            )
+                    )
+            )
+            return res
         } else if (element.reference) {
             return []
         } else {

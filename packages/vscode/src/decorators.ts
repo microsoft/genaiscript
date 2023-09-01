@@ -44,8 +44,8 @@ export function activateDecorators(state: ExtensionState) {
         const fragments = state.project.allFragments.filter(
             (fragment) => fragment.file.filename === file
         )
-        const { computing: aiComputing, fragments: aiFragments } =
-            state.aiRequest || {}
+        const { computing: aiComputing, options } = state.aiRequest || {}
+        const { fragments: aiFragments } = options || {}
         const decorations: vscode.DecorationOptions[] = []
         for (const fragment of fragments) {
             const { state } = fragment

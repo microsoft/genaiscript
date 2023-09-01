@@ -13,12 +13,17 @@ import {
     DiagnosticSeverity,
     promptDefinitions,
     RunTemplateOptions,
+    isCancelError,
+    isTokenError,
+    initToken,
+    isRequestError,
+    delay,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { markSyncedFragment } from "coarch-core"
-import { toRange } from "./edit"
+import { applyEdits, toRange } from "./edit"
 import { URI, Utils } from "vscode-uri"
 import { readFileText, writeFile } from "./fs"
 
@@ -42,7 +47,8 @@ export class FragmentsEvent extends Event {
     }
 }
 
-export interface AIRequest extends AIRequestOptions {
+export interface AIRequest {
+    options: AIRequestOptions
     controller: AbortController
     request?: Promise<FragmentTransformResponse>
     response?: FragmentTransformResponse
@@ -79,13 +85,84 @@ export class ExtensionState extends EventTarget {
         )
     }
 
-    startAIRequest(
+    async retryAIRequest(): Promise<void> {
+        const options = this.aiRequest?.options
+        await this.cancelAiRequest()
+        await delay(100 + Math.random() * 1000)
+        return options ? this.requestAI(options) : undefined
+    }
+
+    async requestAI(options: AIRequestOptions): Promise<void> {
+        try {
+            const fragment = options.fragments[0]
+            const res = await this.startAIRequest(options)
+            const { edits, dialogText } = res
+            if (dialogText)
+                vscode.commands.executeCommand(
+                    "coarch.request.open",
+                    "airequest.dialogtext.md"
+                )
+            if (edits) await applyEdits(edits, { needsConfirmation: true })
+            if (options.template.audit) {
+                const valid = /\bVALID\b/.test(dialogText)
+                const error = /\bERROR\b/.test(dialogText)
+                if (valid && error)
+                    // something went wrong
+                    throw new Error("Audit prompt generated an mixed answer.")
+                else if (valid) {
+                    const r = await vscode.window.showInformationMessage(
+                        "AI validated fragment, mark as audited?",
+                        "Audited"
+                    )
+                    if (r) await this.markSyncedFragment(fragment, "sync")
+                } else if (error) {
+                    await this.markSyncedFragment(fragment, "mod")
+                }
+            }
+        } catch (e) {
+            if (isCancelError(e)) return
+            else if (isTokenError(e)) {
+                const fix = "Fix Token"
+                const trace = "Open Trace"
+                const res = await vscode.window.showErrorMessage(
+                    "OpenAI token refused (403).",
+                    fix,
+                    trace
+                )
+                if (res === trace)
+                    vscode.commands.executeCommand(
+                        "coarch.request.open",
+                        "airequest.info.md"
+                    )
+                else if (res === fix) await initToken(true)
+            } else if (isRequestError(e)) {
+                const trace = "Open Trace"
+                const retry = "Retry"
+                const msg = isRequestError(e, 404)
+                    ? `OpenAI model not found (404). Does your token support the selected model?`
+                    : e.message
+                const res = await vscode.window.showWarningMessage(
+                    msg,
+                    trace,
+                    retry
+                )
+                if (res === trace)
+                    vscode.commands.executeCommand(
+                        "coarch.request.open",
+                        "airequest.info.md"
+                    )
+                else if (res === retry) await await this.retryAIRequest()
+            } else throw e
+        }
+    }
+
+    private startAIRequest(
         options: AIRequestOptions
     ): Promise<FragmentTransformResponse> {
         const controller = new AbortController()
         const signal = controller.signal
         const r: AIRequest = {
-            ...options,
+            options,
             controller,
             request: null,
             computing: true,
@@ -144,8 +221,10 @@ export class ExtensionState extends EventTarget {
 
     cancelAiRequest() {
         const a = this.aiRequest
-        a?.controller?.abort("user cancelled")
-        this.aiRequest = undefined
+        if (a) {
+            a.controller?.abort("user cancelled")
+            this.aiRequest = undefined
+        }
     }
 
     get project() {
