@@ -5,7 +5,7 @@ import {
     FRAGMENTS_CHANGE,
     FragmentsEvent,
 } from "./state"
-import { Fragment, concatArrays } from "coarch-core"
+import { Fragment, allChildren, concatArrays } from "coarch-core"
 
 type FragmentTreeNode = Fragment & { reference?: string }
 
@@ -20,6 +20,9 @@ class FragmentsTreeDataProvider
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
             const fragments = this.state.aiRequest?.options?.fragments
             if (fragments) this.refresh(fragments)
+        })
+        vscode.window.onDidChangeActiveTextEditor(() => {
+            this.refresh([])
         })
     }
 
@@ -81,7 +84,16 @@ class FragmentsTreeDataProvider
     ): Promise<FragmentTreeNode[]> {
         if (!element) {
             const fragments = this.state.rootFragments
-            return fragments
+            const editor = vscode.window.activeTextEditor
+            const editorFile = editor?.document?.fileName
+            if (!editorFile) return []
+            const ef = vscode.workspace.asRelativePath(editorFile)
+            // only show active fragments
+            return fragments.filter(
+                (f) =>
+                    f.file.filename === ef ||
+                    allChildren(f).some((c) => c.file.filename === ef)
+            )
         } else if (element.reference) {
             return []
         } else {
