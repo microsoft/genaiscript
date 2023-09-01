@@ -1,5 +1,5 @@
 prompt({ title: "SA-planning", 
-         description: "Given a high level idea and specific directions from the product manager, generates a plan for a software architect to implement the product",
+         description: "Generates a SW architecture plan for the application",
          output: ".saplan.coarch.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
@@ -17,6 +17,8 @@ You have been given a product idea in DOCS and your job is to define a plan to i
 The instructions contain the high level idea and specific directions from the product manager for you to follow.
 
 Use the SUMMARY as input and generate the architecture for the product.
+
+Begin with a top-level header that describes the content of the document.
 
 Encapsulate each component in a separate module and define the APIs for each component.
 Make sure that the components are loosely coupled, they can be easily tested and that the APIs are well defined.
