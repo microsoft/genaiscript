@@ -19,7 +19,7 @@ mysrc
 Read the `filename: string`, `size: number` and `outputfilename: string`
 from the command line arguments. `filename` and `size` are mandatory and `outputfilename` is optional.
 
--   [feature](./test/feature.DE00.feature)
+-   [feature](test/feature.DE00.feature)
 
 ### Read command line arguments {#LM14}
 
