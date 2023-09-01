@@ -84,18 +84,20 @@ class FragmentsTreeDataProvider
     ): Promise<FragmentTreeNode[]> {
         if (!element) {
             const fragments = this.state.rootFragments
-            const editor = vscode.window.activeTextEditor
-            const editorFile = editor?.document?.fileName
-            if (!editorFile) return []
-            const ef = vscode.workspace.asRelativePath(editorFile)
-            // only show active fragments
+            const editors = vscode.window.visibleTextEditors
+            if (!editors?.length) return []
+            const efs = new Set<string>(
+                editors.map((editor) =>
+                    vscode.workspace.asRelativePath(editor.document.fileName)
+                )
+            )
             const res = fragments.filter(
                 (f) =>
-                    vscode.workspace.asRelativePath(f.file.filename) === ef ||
-                    allChildren(f).some(
-                        (c) =>
-                            vscode.workspace.asRelativePath(c.file.filename) ===
-                            ef
+                    efs.has(vscode.workspace.asRelativePath(f.file.filename)) ||
+                    allChildren(f).some((c) =>
+                        efs.has(
+                            vscode.workspace.asRelativePath(c.file.filename)
+                        )
                     )
             )
             return res
