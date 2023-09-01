@@ -453,6 +453,7 @@ export function parsePromptTemplate(
             c.checkStringArray("categories")
 
             c.checkBool("audit")
+            c.checkBool("isSystem")
         })
 
         const r = c.template
