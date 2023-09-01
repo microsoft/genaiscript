@@ -3,7 +3,7 @@ prompt({ title: "SDE-update",
          maxTokens: 4000,
          outputFolder: "src",
          model: "gpt-4-32k",
-         system: ["system.code", "system.concise", "system.multifile", "system.notes"],
+         system: ["system.multifile", "system.notes"],
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
@@ -40,6 +40,7 @@ address any updates to SUMMARY or any issues mentioned in BUGS.
 Modify as few files as possible and only generate the code for the files that need to be changed.
 
 Respond only with the new CODE.
+Be sure to include the file name for each file in CODE even if only one file is changed.
 
 Limit changes to existing code to minimum. 
 
