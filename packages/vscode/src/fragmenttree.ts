@@ -22,7 +22,7 @@ class FragmentsTreeDataProvider
             if (fragments) this.refresh(fragments)
         })
         vscode.window.onDidChangeActiveTextEditor(() => {
-            this.refresh([])
+            this.refresh()
         })
     }
 
@@ -89,11 +89,16 @@ class FragmentsTreeDataProvider
             if (!editorFile) return []
             const ef = vscode.workspace.asRelativePath(editorFile)
             // only show active fragments
-            return fragments.filter(
+            const res = fragments.filter(
                 (f) =>
-                    f.file.filename === ef ||
-                    allChildren(f).some((c) => c.file.filename === ef)
+                    vscode.workspace.asRelativePath(f.file.filename) === ef ||
+                    allChildren(f).some(
+                        (c) =>
+                            vscode.workspace.asRelativePath(c.file.filename) ===
+                            ef
+                    )
             )
+            return res
         } else if (element.reference) {
             return []
         } else {
