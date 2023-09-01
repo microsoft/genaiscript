@@ -56,12 +56,21 @@ export async function activate(context: ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand("coarch.request.status", async () => {
-            const { computing, template } = state.aiRequest || {}
-            if (!computing)
-                vscode.commands.executeCommand("coarch.request.open")
-            else {
+            const r = state.aiRequest
+            const { computing, options } = r || {}
+            if (!computing) {
+                if (r) {
+                    const retry = "Retry"
+                    const res = await vscode.commands.executeCommand(
+                        "coarch.request.open",
+                        retry
+                    )
+                    if (res === retry) state.retryAIRequest()
+                } else vscode.commands.executeCommand("coarch.request.open")
+            } else {
+                const { template } = options || {}
                 const cancel = "Cancel"
-                const trace = "Show Trace"
+                const trace = "Open Trace"
                 const res = await vscode.window.showInformationMessage(
                     `CoArch - running ${template.title}`,
                     trace,

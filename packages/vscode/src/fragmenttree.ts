@@ -18,7 +18,7 @@ class FragmentsTreeDataProvider
             this.refresh(fragments)
         })
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
-            const fragments = this.state.aiRequest?.fragments
+            const fragments = this.state.aiRequest?.options?.fragments
             if (fragments) this.refresh(fragments)
         })
     }
@@ -39,7 +39,8 @@ class FragmentsTreeDataProvider
         const hasChildren =
             !reference &&
             (children.length > 0 || Object.keys(references ?? {}).length > 0)
-        const { computing, fragments, progress } = ai || {}
+        const { computing, options, progress } = ai || {}
+        const { fragments } = options || {}
         const sync = state === "sync"
         const generating = computing && fragments?.includes(element)
         const item = new vscode.TreeItem(
