@@ -173,15 +173,38 @@ export async function evalPrompt(
             text(r)
         },
         def(name, body) {
-            if (Array.isArray(body))
-                body = body.map((f) => f.content).join("\n\n")
-            else if (typeof body != "string") body = body.content
-            body = body.replace(/\n*$/, "")
-            if (body) body += "\n"
-            text(
-                (name ? name + ":\n" : "") + env.fence + "\n" + body + env.fence
-            )
-            if (body.includes(env.fence))
+            let error = false
+            const norm = (s: string) => {
+                s = s.replace(/\n*$/, "")
+                if (s) s += "\n"
+                if (s.includes(env.fence)) error = true
+                return s
+            }
+            const df = (file: LinkedFile) => {
+                text(
+                    (name ? name + ":\n" : "") +
+                        env.fence +
+                        ` file=${file.filename}\n` +
+                        norm(file.content) +
+                        env.fence
+                )
+            }
+
+            if (Array.isArray(body)) body.forEach(df)
+            else if (typeof body != "string") df(body as LinkedFile)
+            else {
+                body = norm(body)
+                text(
+                    (name ? name + ":\n" : "") +
+                        env.fence +
+                        "\n" +
+                        body +
+                        env.fence
+                )
+                if (body.includes(env.fence)) error = true
+            }
+
+            if (error)
                 text(
                     env.error +
                         " fenced body already included fence: " +
@@ -430,6 +453,7 @@ export function parsePromptTemplate(
             c.checkStringArray("categories")
 
             c.checkBool("audit")
+            c.checkBool("isSystem")
         })
 
         const r = c.template
