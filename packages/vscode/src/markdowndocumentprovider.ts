@@ -66,15 +66,28 @@ class MarkdownTextDocumentContentProvider
             
             Request \`${sha}\` not found in cache.
             `
-            return `# Request
+            return `# Cached Request Response
 
 -   \`${sha}\`
 
 ## Request
 
-\`\`\`\`\`json
-${JSON.stringify(key, null, 2)}
+${Object.entries(key)
+    .filter(([, value]) => typeof value !== "object")
+    .map(([k, v]) => `-  ${k}: \`${JSON.stringify(v, null, 2)}\``)
+    .join("\n")}
+
+### Messages
+
+${key.messages
+    .map(
+        (msg) => `-   **${msg.role}:**
 \`\`\`\`\`
+${msg.content?.trim() || ""}
+\`\`\`\`\`
+`
+    )
+    .join("\n")}
 
 ## Response
 
@@ -82,7 +95,7 @@ ${JSON.stringify(key, null, 2)}
 ${val}
 \`\`\`\`\`
 
-            `
+`
         }
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
