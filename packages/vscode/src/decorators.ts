@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
-import { CHANGE, ExtensionState } from "./state"
-import { fragmentRange, toRange } from "./edit"
-import { fragmentIdRange } from "coarch-core"
+import { ExtensionState } from "./state"
+import { toRange } from "./edit"
+import { CHANGE, fragmentIdRange } from "coarch-core"
 
 export function activateDecorators(state: ExtensionState) {
     const { context } = state

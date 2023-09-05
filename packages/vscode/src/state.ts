@@ -18,6 +18,7 @@ import {
     initToken,
     isRequestError,
     delay,
+    CHANGE,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -27,7 +28,6 @@ import { applyEdits, toRange } from "./edit"
 import { URI, Utils } from "vscode-uri"
 import { readFileText, writeFile } from "./fs"
 
-export const CHANGE = "change"
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 

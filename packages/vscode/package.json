@@ -68,13 +68,18 @@
                     "id": "coarch.fragments",
                     "name": "Fragments",
                     "visibility": "collapsed"
+                },
+                {
+                    "id": "coarch.openai.requests",
+                    "name": "Requests",
+                    "visibility": "collapsed"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "coarch.fragments",
-                "contents": "Create a CoArch markdown file(.coarch.md) to start generating tasks and code."
+                "contents": "Create a CoArch markdown file (.coarch.md) to start generating tasks and code."
             }
         ],
         "menus": {
