@@ -53,6 +53,10 @@ export class Cache<K, V> extends EventTarget {
         await this.initialize()
         return Object.values(this._entries).map((e) => ({ ...e }))
     }
+    async getEntryBySha(sha: string) {
+        await this.initialize()
+        return this._entries[sha]
+    }
     async get(key: K): Promise<V> {
         await this.initialize()
         const sha = await keySHA(key)

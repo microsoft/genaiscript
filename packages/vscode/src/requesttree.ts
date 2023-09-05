@@ -1,20 +1,14 @@
 import * as vscode from "vscode"
-import {
-    AI_REQUEST_CHANGE,
-    ExtensionState,
-    FRAGMENTS_CHANGE,
-    FragmentsEvent,
-} from "./state"
+import { ExtensionState } from "./state"
 import {
     CHANGE,
     CacheEntry,
-    Fragment,
-    allChildren,
-    concatArrays,
+    cachedRequestPrefix,
     getChatCompletionCache,
 } from "coarch-core"
 import type { CreateChatCompletionRequest } from "openai"
 import { Cache } from "coarch-core"
+import { infoUri } from "./markdowndocumentprovider"
 
 type RequestTreeNode = CacheEntry<CreateChatCompletionRequest, string>
 
@@ -34,6 +28,11 @@ class RequestTreeDataProvider
             vscode.TreeItemCollapsibleState.None
         )
         item.id = sha
+        item.command = {
+            command: "markdown.showPreview",
+            arguments: [infoUri(cachedRequestPrefix + sha + ".md")],
+            title: "Show Preview",
+        }
         return item
     }
 
