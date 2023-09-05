@@ -16,6 +16,7 @@ function templateIdFromFileName(filename: string) {
 }
 
 export const builtinPrefix = "_builtin/"
+export const cachedRequestPrefix = "airequest.cached/"
 
 type KeysOfType<T, S> = {
     [K in keyof T]: T[K] extends S ? K : never

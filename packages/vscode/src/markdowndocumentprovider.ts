@@ -1,7 +1,12 @@
 import * as vscode from "vscode"
 import { AI_REQUEST_CHANGE, ExtensionState } from "./state"
 import { showMarkdownPreview } from "./markdown"
-import { builtinPrefix, defaultPrompts } from "coarch-core"
+import {
+    builtinPrefix,
+    cachedRequestPrefix,
+    defaultPrompts,
+    getChatCompletionCache,
+} from "coarch-core"
 
 const SCHEME = "coarch-md"
 
@@ -49,6 +54,48 @@ class MarkdownTextDocumentContentProvider
                 return res?.text ?? noRequest
             case "airesponse.info.md":
                 return res?.info ?? noRequest
+        }
+        if (uri.path.startsWith(cachedRequestPrefix)) {
+            const sha = uri.path
+                .slice(cachedRequestPrefix.length)
+                .replace(/\.md$/, "")
+            const cache = getChatCompletionCache()
+            const { key, val } = (await cache.getEntryBySha(sha)) || {}
+            if (!key)
+                return `## Oops
+            
+            Request \`${sha}\` not found in cache.
+            `
+            return `# Cached Request Response
+
+-   \`${sha}\`
+
+## Request
+
+${Object.entries(key)
+    .filter(([, value]) => typeof value !== "object")
+    .map(([k, v]) => `-  ${k}: \`${JSON.stringify(v, null, 2)}\``)
+    .join("\n")}
+
+### Messages
+
+${key.messages
+    .map(
+        (msg) => `-   **${msg.role}:**
+\`\`\`\`\`
+${msg.content?.trim() || ""}
+\`\`\`\`\`
+`
+    )
+    .join("\n")}
+
+## Response
+
+\`\`\`\`\`
+${val}
+\`\`\`\`\`
+
+`
         }
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path

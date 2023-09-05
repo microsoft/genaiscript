@@ -13,12 +13,14 @@ import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands } from "./promptcommands"
 import { clearToken } from "coarch-core"
 import { activateRunnerView } from "./runnerview"
+import { activateRequestTreeDataProvider } from "./requesttree"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
-    activateFragmentTreeDataProvider(state)
     activatePrompTreeDataProvider(state)
+    activateFragmentTreeDataProvider(state)
     activateRunnerView(state)
+    activateRequestTreeDataProvider(state)
     activateStatusBar(state)
     activateCodeActions(state)
     activateFragmentCommands(state)

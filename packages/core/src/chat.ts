@@ -16,7 +16,7 @@ interface Choice extends CreateChatCompletionResponseChoicesInner {
     }
 }
 
-function getCache() {
+export function getChatCompletionCache() {
     return Cache.byName<CreateChatCompletionRequest, string>("openai")
 }
 
@@ -47,7 +47,7 @@ export async function getChatCompletions(
 ) {
     const { requestOptions, partialCb, disableCache } = options || {}
     const { headers, ...rest } = requestOptions || {}
-    const cache = getCache()
+    const cache = getChatCompletionCache()
     const cached = testMode
         ? "Test-mode enabled"
         : disableCache
