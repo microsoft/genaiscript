@@ -6,3 +6,6 @@ package-lock.json
 temp/
 .vscode/settings.json
 .env
+packages/mywordle/__pycache__/
+packages/mywordle/src/__pycache__/
+packages/mywordle/gamedemo/__pycache__/
