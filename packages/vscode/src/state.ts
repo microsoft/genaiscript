@@ -151,7 +151,7 @@ export class ExtensionState extends EventTarget {
                         "coarch.request.open",
                         "airequest.info.md"
                     )
-                else if (res === retry) await await this.retryAIRequest()
+                else if (res === retry) await this.retryAIRequest()
             } else throw e
         }
     }
