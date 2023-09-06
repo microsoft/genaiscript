@@ -21,7 +21,7 @@ Your goal is to make the story entertaining and interesting to read with
 frequent elements of humor and surprise.
 You should write concisely and include quirky and interesting details in the style of a Neal Stevenson novel.
 
-Your goal is to write the first chapter of the story.  It should be 500-1000 words long.
+Your goal is to write the first chapter of the story in a file.  It should be 500-1000 words long.
 It should introduce the characters and the setting, providing many concrete
 details that make the reader feel that they are there in the story.
 
