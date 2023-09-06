@@ -30,10 +30,10 @@ export async function activate(context: ExtensionContext) {
     activatePromptCommands(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("coarch.openai.cancel", async () => {
-            state.cancelAiRequest()
+        vscode.commands.registerCommand("coarch.request.cancel", async () => {
+            await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
-                "CoArch - OpenAI request cancelled."
+                "CoArch - request cancelled."
             )
         }),
         vscode.commands.registerCommand(
