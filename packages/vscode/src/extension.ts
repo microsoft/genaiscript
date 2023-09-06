@@ -15,6 +15,8 @@ import { clearToken } from "coarch-core"
 import { activateRunnerView } from "./runnerview"
 import { activateRequestTreeDataProvider } from "./requesttree"
 
+export const COARCH_EXTENSION_ID = "coarch.coarch-vscode"
+
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePrompTreeDataProvider(state)
@@ -76,7 +78,44 @@ export async function activate(context: ExtensionContext) {
                 else if (res === trace)
                     vscode.commands.executeCommand("coarch.request.open")
             }
-        })
+        }),
+        vscode.commands.registerCommand(
+            "coarch.openIssueReporter",
+            async () => {
+                const issueBody: string[] = [
+                    `## Describe the issue`,
+                    `A clear and concise description of what the bug is.`,
+                    ``,
+                    `## To Reproduce`,
+                    `Steps to reproduce the behavior`,
+                    ``,
+                    `## Expected behavior`,
+                    `A clear and concise description of what you expected to happen.`,
+                    ``,
+                    `## Environment`,
+                    ``,
+                ]
+                issueBody.push(`vscode: ${vscode.version}`)
+                issueBody.push(
+                    `extension: ${
+                        context.extension?.packageJSON?.version || "?"
+                    }`
+                )
+                if (state.aiRequest?.response) {
+                    issueBody.push(`## Request`)
+                    issueBody.push("`````")
+                    issueBody.push(state.aiRequest.response.info)
+                    issueBody.push("`````")
+                }
+                await vscode.commands.executeCommand(
+                    "workbench.action.openIssueReporter",
+                    {
+                        extensionId: COARCH_EXTENSION_ID,
+                        issueBody: issueBody.join("\n"),
+                    }
+                )
+            }
+        )
     )
 
     await state.activate()
