@@ -221,10 +221,8 @@ export class ExtensionState extends EventTarget {
 
     cancelAiRequest() {
         const a = this.aiRequest
-        if (a) {
+        if (a && a.computing && !a?.controller?.signal?.aborted)
             a.controller?.abort("user cancelled")
-            this.aiRequest = undefined
-        }
     }
 
     get project() {

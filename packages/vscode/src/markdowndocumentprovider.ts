@@ -59,14 +59,27 @@ class MarkdownTextDocumentContentProvider
             const sha = uri.path
                 .slice(cachedRequestPrefix.length)
                 .replace(/\.md$/, "")
-            const cache = getChatCompletionCache()
-            const { key, val } = (await cache.getEntryBySha(sha)) || {}
-            if (!key)
-                return `## Oops
-            
-            Request \`${sha}\` not found in cache.
-            `
-            return `# Cached Request Response
+            return previewCacheEntry(sha)
+        }
+        if (uri.path.startsWith(builtinPrefix)) {
+            const id = uri.path
+                .slice(builtinPrefix.length)
+                .replace(/\.prompt\.js$/, "")
+            return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
+        }
+        return ""
+    }
+}
+
+async function previewCacheEntry(sha: string) {
+    const cache = getChatCompletionCache()
+    const { key, val } = (await cache.getEntryBySha(sha)) || {}
+    if (!key)
+        return `## Oops
+    
+    Request \`${sha}\` not found in cache.
+    `
+    return `# Cached Request Response
 
 -   \`${sha}\`
 
@@ -96,15 +109,6 @@ ${val}
 \`\`\`\`\`
 
 `
-        }
-        if (uri.path.startsWith(builtinPrefix)) {
-            const id = uri.path
-                .slice(builtinPrefix.length)
-                .replace(/\.prompt\.js$/, "")
-            return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
-        }
-        return ""
-    }
 }
 
 export function infoUri(path: string) {
