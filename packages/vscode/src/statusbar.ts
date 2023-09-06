@@ -16,13 +16,10 @@ export function activateStatusBar(state: ExtensionState) {
         const { template, fragments } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
-            tokensSoFar > 0
-                ? `(${tokensSoFar} tokens)`
-                : computing
-                ? `$(loading~spin)`
-                : undefined,
             "CoArch",
-            template?.title
+            template ? `, ${template.title}` : undefined,
+            computing && !tokensSoFar ? `$(loading~spin)` : undefined,
+            tokensSoFar ? `, ${tokensSoFar} tokens` : undefined
         )
         const md = new vscode.MarkdownString(
             toMarkdownString(
