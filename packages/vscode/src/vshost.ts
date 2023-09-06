@@ -1,6 +1,13 @@
-import { Host, LogLevel, OAIToken, defaultLog, setHost } from "coarch-core"
+import {
+    CHANGE,
+    Host,
+    LogLevel,
+    OAIToken,
+    defaultLog,
+    setHost,
+} from "coarch-core"
 import { Uri, window, workspace } from "vscode"
-import { CHANGE, ExtensionState } from "./state"
+import { ExtensionState } from "./state"
 
 const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 

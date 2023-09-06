@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { CHANGE, ExtensionState } from "./state"
-import { PromptTemplate, groupBy, templateGroup } from "coarch-core"
+import { ExtensionState } from "./state"
+import { CHANGE, PromptTemplate, groupBy, templateGroup } from "coarch-core"
 
 type PromptTreeNode = string | PromptTemplate
 

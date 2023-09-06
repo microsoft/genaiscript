@@ -18,6 +18,7 @@ import {
     initToken,
     isRequestError,
     delay,
+    CHANGE,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -27,7 +28,6 @@ import { applyEdits, toRange } from "./edit"
 import { URI, Utils } from "vscode-uri"
 import { readFileText, writeFile } from "./fs"
 
-export const CHANGE = "change"
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
@@ -151,7 +151,7 @@ export class ExtensionState extends EventTarget {
                         "coarch.request.open",
                         "airequest.info.md"
                     )
-                else if (res === retry) await await this.retryAIRequest()
+                else if (res === retry) await this.retryAIRequest()
             } else throw e
         }
     }
@@ -221,10 +221,8 @@ export class ExtensionState extends EventTarget {
 
     cancelAiRequest() {
         const a = this.aiRequest
-        if (a) {
+        if (a && a.computing && !a?.controller?.signal?.aborted)
             a.controller?.abort("user cancelled")
-            this.aiRequest = undefined
-        }
     }
 
     get project() {

@@ -16,7 +16,7 @@ interface Choice extends CreateChatCompletionResponseChoicesInner {
     }
 }
 
-function getCache() {
+export function getChatCompletionCache() {
     return Cache.byName<CreateChatCompletionRequest, string>("openai")
 }
 
@@ -46,8 +46,9 @@ export async function getChatCompletions(
     options?: ChatCompletionsOptions
 ) {
     const { requestOptions, partialCb, disableCache } = options || {}
+    const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
-    const cache = getCache()
+    const cache = getChatCompletionCache()
     const cached = testMode
         ? "Test-mode enabled"
         : disableCache
@@ -111,13 +112,16 @@ export async function getChatCompletions(
 
     if (r.body.getReader) {
         const reader = r.body.getReader()
-        while (true) {
+        while (!signal?.aborted) {
             const { done, value } = await reader.read()
             if (done) break
             doChunk(value)
         }
     } else {
-        for await (const value of r.body as any) doChunk(value)
+        for await (const value of r.body as any) {
+            if (signal?.aborted) break
+            doChunk(value)
+        }
     }
 
     if (seenDone) {
