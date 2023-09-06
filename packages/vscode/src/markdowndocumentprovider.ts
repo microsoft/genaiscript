@@ -5,6 +5,7 @@ import {
     builtinPrefix,
     cachedRequestPrefix,
     defaultPrompts,
+    extractFenced,
     getChatCompletionCache,
 } from "coarch-core"
 
@@ -79,6 +80,8 @@ async function previewCacheEntry(sha: string) {
     
     Request \`${sha}\` not found in cache.
     `
+
+    const extr = extractFenced(val)
     return `# Cached Request
 
 -   \`${sha}\`
@@ -102,7 +105,27 @@ ${msg.content?.trim() || ""}
     )
     .join("\n")}
 
-## Response
+## Extracted variables
+
+${Object.entries(extr.vars)
+    .map(
+        ([k, v]) => `-   \`${k}\`
+\`\`\`\`\`${/^Note/ ? "markdown" : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""}
+${v}
+\`\`\`\`\`
+`
+    )
+    .join("")}
+${
+    extr.remaining
+        ? `-   remaining
+\`\`\`\`\`
+${extr.remaining || ""}
+\`\`\`\`\``
+        : ""
+}
+
+## Raw Response
 
 \`\`\`\`\`
 ${val}
