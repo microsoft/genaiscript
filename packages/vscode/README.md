@@ -40,6 +40,7 @@ The extension contains a few prompts, and the following samples can also be cons
 
 -   [blackjack game generator](https://github.com/microsoft/coarch/tree/main/packages/blackjack)
 -   [mywordle](https://github.com/microsoft/coarch/tree/main/packages/mywordle)
+-   [mystory](https://github.com/microsoft/coarch/tree/main/packages/mystory)
 
 ## Authoring
 
