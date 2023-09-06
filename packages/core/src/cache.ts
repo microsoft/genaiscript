@@ -1,12 +1,15 @@
 import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
 import { host, coarchExt } from "./host"
 import { dotCoarchPath, sha256string } from "./util"
+import { CHANGE } from "./constants"
 
-type Entry<K, V> = { sha: string; key: K; val: V }
+export type CacheEntry<K, V> = { sha: string; key: K; val: V }
 
-export class Cache<K, V> {
-    private entries: Record<string, Entry<K, V>>
-    private constructor(public name: string) {}
+export class Cache<K, V> extends EventTarget {
+    private _entries: Record<string, CacheEntry<K, V>>
+    private constructor(public name: string) {
+        super()
+    }
 
     static byName<K, V>(name: string): Cache<K, V> {
         const key = "cacheKV." + name
@@ -23,37 +26,50 @@ export class Cache<K, V> {
         return host.resolvePath(this.folder(), this.name + coarchExt)
     }
     private async initialize() {
-        if (this.entries) return
-        this.entries = {}
+        if (this._entries) return
+        this._entries = {}
         await host.createDirectory(this.folder())
-        const objs: Entry<K, V>[] = await readJSONL(this.path())
+        const objs: CacheEntry<K, V>[] = await readJSONL(this.path())
         let numdup = 0
         for (const obj of objs) {
-            if (this.entries[obj.sha]) numdup++
-            this.entries[obj.sha] = obj
+            if (this._entries[obj.sha]) numdup++
+            this._entries[obj.sha] = obj
         }
         if (2 * numdup > objs.length) {
             // if too many duplicates, rewrite the file
             // keep the order of entries
             await writeJSONL(
                 this.path(),
-                objs.filter((o) => this.entries[o.sha] === o)
+                objs.filter((o) => this._entries[o.sha] === o)
             )
         }
     }
 
+    async keys(): Promise<K[]> {
+        await this.initialize()
+        return Object.values(this._entries).map((kv) => kv.key)
+    }
+    async entries(): Promise<CacheEntry<K, V>[]> {
+        await this.initialize()
+        return Object.values(this._entries).map((e) => ({ ...e }))
+    }
+    async getEntryBySha(sha: string) {
+        await this.initialize()
+        return this._entries[sha]
+    }
     async get(key: K): Promise<V> {
         await this.initialize()
         const sha = await keySHA(key)
-        return this.entries[sha]?.val
+        return this._entries[sha]?.val
     }
     async set(key: K, val: V) {
         const sha = await keySHA(key)
         const ent = { sha, key, val }
-        const ex = this.entries[sha]
+        const ex = this._entries[sha]
         if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return
-        this.entries[sha] = ent
+        this._entries[sha] = ent
         await appendJSONL(this.path(), [ent])
+        this.dispatchEvent(new Event(CHANGE))
     }
 }
 async function keySHA(key: any) {

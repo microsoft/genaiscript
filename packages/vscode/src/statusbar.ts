@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
-import { CHANGE, ExtensionState } from "./state"
-import { toFencedCodeBlock, toMarkdownString, toStringList } from "./markdown"
+import { ExtensionState } from "./state"
+import { toMarkdownString, toStringList } from "./markdown"
+import { CHANGE } from "coarch-core"
 
 export function activateStatusBar(state: ExtensionState) {
     const { context } = state

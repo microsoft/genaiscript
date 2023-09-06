@@ -416,6 +416,8 @@ export async function runTemplate(
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
     if (template.context === "root") fragment = rootFragment(fragment)
+    const { requestOptions = {} } = options || {}
+    const { signal } = requestOptions
     const { vars, outputFragment } = fragmentVars(
         template,
         fragment,
@@ -477,6 +479,12 @@ export async function runTemplate(
             info += error.statusText + "\n\n"
             info += `-   status: ${error.status}`
             options.infoCb({ edits: [], info, text: "Request error" })
+        } else if (signal?.aborted) {
+            info += `## Request cancelled
+            
+The user requested to cancel the request.
+`
+            options.infoCb({ edits: [], info, text: "Request cancelled" })
         }
         throw error
     }

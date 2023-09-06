@@ -68,13 +68,18 @@
                     "id": "coarch.fragments",
                     "name": "Fragments",
                     "visibility": "collapsed"
+                },
+                {
+                    "id": "coarch.openai.requests",
+                    "name": "Requests",
+                    "visibility": "collapsed"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "coarch.fragments",
-                "contents": "Create a CoArch markdown file(.coarch.md) to start generating tasks and code."
+                "contents": "Create a CoArch markdown file (.coarch.md) to start generating tasks and code."
             }
         ],
         "menus": {
@@ -165,7 +170,7 @@
                 "category": "CoArch"
             },
             {
-                "command": "coarch.openai.cancel",
+                "command": "coarch.request.cancel",
                 "title": "Cancel OpenAI request",
                 "category": "CoArch"
             },
@@ -228,6 +233,11 @@
             {
                 "command": "coarch.request.status",
                 "title": "Show information message about OpenAI request status",
+                "category": "CoArch"
+            },
+            {
+                "command": "coarch.openIssueReporter",
+                "title": "Report Issue...",
                 "category": "CoArch"
             }
         ]
