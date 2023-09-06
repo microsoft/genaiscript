@@ -61,14 +61,7 @@ export async function activate(context: ExtensionContext) {
             const r = state.aiRequest
             const { computing, options } = r || {}
             if (!computing) {
-                if (r) {
-                    const retry = "Retry"
-                    const res = await vscode.commands.executeCommand(
-                        "coarch.request.open",
-                        retry
-                    )
-                    if (res === retry) state.retryAIRequest()
-                } else vscode.commands.executeCommand("coarch.request.open")
+                vscode.commands.executeCommand("coarch.request.open")
             } else {
                 const { template } = options || {}
                 const cancel = "Cancel"
