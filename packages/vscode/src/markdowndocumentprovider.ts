@@ -79,7 +79,7 @@ async function previewCacheEntry(sha: string) {
     
     Request \`${sha}\` not found in cache.
     `
-    return `# Cached Request Response
+    return `# Cached Request
 
 -   \`${sha}\`
 
