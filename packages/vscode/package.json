@@ -234,6 +234,11 @@
                 "command": "coarch.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "CoArch"
+            },
+            {
+                "command": "coarch.openIssueReporter",
+                "title": "Report Issue...",
+                "category": "CoArch"
             }
         ]
     },
