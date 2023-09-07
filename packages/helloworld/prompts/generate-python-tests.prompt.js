@@ -1,9 +1,11 @@
 prompt({
     title: "Generate python tests",
     output: ".tests.py",
-    model: "gpt-4-32k",
     replaces: "nothing",
+    model: "gpt-4",
+    temperature: 0.05,
     description: "Given a task and code, generate tests",
+    system: ["system.code"],
     categories: ["tutorial"],
 })
 
