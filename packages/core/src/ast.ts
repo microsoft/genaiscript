@@ -139,8 +139,12 @@ export function rootFragment(fragment: Fragment): Fragment {
     else return fragment
 }
 
-export function allChildren(fragment: Fragment): Fragment[] {
+export function allChildren(
+    fragment: Fragment,
+    includeSelf = false
+): Fragment[] {
     const res = []
+    if (includeSelf) res.push(fragment)
     const todo = fragment.children
     while (todo.length) {
         const f = todo.pop()

@@ -6,7 +6,7 @@ import {
 import {
     Fragment,
     PromptTemplate,
-    eofPosition,
+    allChildren,
     rangeOfFragments,
     rootFragment,
 } from "./ast"
@@ -19,7 +19,7 @@ import {
     readText,
     relativePath,
 } from "./util"
-import { evalPrompt, extractFenced, removeFence, staticVars } from "./template"
+import { evalPrompt, extractFenced, staticVars } from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
 
@@ -323,18 +323,22 @@ function fragmentVars(
     const ignoreOutput = !!promptOptions?.ignoreOutput
 
     const links: LinkedFile[] = []
-    if (!ignoreOutput)
-        for (const ref of frag.references) {
-            const file = project.allFiles.find(
-                (f) => f.filename === ref.filename
-            )
-            if (file)
-                links.push({
-                    label: ref.name,
-                    filename: relativePath(host.projectFolder(), file.filename),
-                    content: file.content,
-                })
+    if (!ignoreOutput) {
+        for (const fr of allChildren(frag, true)) {
+            for (const ref of fr.references) {
+                const file = project.allFiles.find(
+                    (f) => f.filename === ref.filename
+                )
+                const fn = relativePath(host.projectFolder(), file.filename)
+                if (file && !links.find((lk) => lk.filename === fn))
+                    links.push({
+                        label: ref.name,
+                        filename: fn,
+                        content: file.content,
+                    })
+            }
         }
+    }
     const parents: LinkedFile[] = []
     if (frag.parent)
         parents.push({
