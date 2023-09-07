@@ -1,7 +1,7 @@
 {
     "name": "coarch-vscode",
     "publisher": "Microsoft",
-    "displayName": "CoArch for Visual Studio Code",
+    "displayName": "CoArch",
     "description": "Copilot for Architecture Design",
     "version": "0.0.1",
     "engines": {
@@ -12,7 +12,6 @@
     ],
     "license": "MIT",
     "extensionKind": [
-        "ui",
         "workspace"
     ],
     "activationEvents": [
