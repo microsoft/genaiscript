@@ -86,7 +86,8 @@ export async function getChatCompletions(
 
     const r = await fetch(url, {
         headers: {
-            authorization: `Bearer ${cfg.token}`,
+            authorization: cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
+            "api-key": cfg.isOpenAI ? undefined : cfg.token,
             "user-agent": "coarch",
             "content-type": "application/json",
             ...(headers || {}),
