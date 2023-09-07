@@ -612,7 +612,7 @@ The user requested to cancel the request.
 
         if (!filename) {
             const rootPath = fragment.file.filename.replace(
-                /(\.coarch)?\.mdx?$/,
+                /(\.coarch)?\.md$/,
                 ""
             )
             filename = rootPath + ext

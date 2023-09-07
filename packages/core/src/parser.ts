@@ -291,7 +291,6 @@ const parseGeneric: Parser = (prj, filename, content) => {
 
 const parsers: Record<string, Parser> = {
     ".md": parseMdFile,
-    ".mdx": parseMdFile,
 }
 
 async function fragmentHash(t: Fragment) {
