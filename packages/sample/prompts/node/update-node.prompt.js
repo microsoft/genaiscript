@@ -1,6 +1,6 @@
 prompt({
     title: "Update Node.js Code",
-    output: ".mjs",
+    output: ".node.mjs",
     prePost: true,
     system: "system.code",
     temperature: 0.01,

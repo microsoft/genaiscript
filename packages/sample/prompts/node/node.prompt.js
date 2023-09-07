@@ -1,6 +1,6 @@
 prompt({
     title: "Generate Node.js Code",
-    output: ".mjs",
+    output: ".node.mjs",
     system: ["system.code", "system.concise"],
     temperature: 0.01,
     categories: ["code.js.node"],

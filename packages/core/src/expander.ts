@@ -621,12 +621,7 @@ The user requested to cancel the request.
                 /(\.coarch)?\.md$/,
                 ""
             )
-            filename = rootPath + `.` + template.id + ext
-            let i = 1
-            while (await fileExists(filename)) {
-                filename = rootPath + `.` + template.id + i + ext
-                i++
-            }
+            filename = rootPath + ext
         }
 
         if (await fileExists(filename)) {
