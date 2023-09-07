@@ -63,6 +63,7 @@ export class Cache<K, V> extends EventTarget {
         return this._entries[sha]?.val
     }
     async set(key: K, val: V) {
+        await this.initialize()
         const sha = await keySHA(key)
         const ent = { sha, key, val }
         const ex = this._entries[sha]
