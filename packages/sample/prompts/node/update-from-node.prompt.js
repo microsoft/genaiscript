@@ -1,6 +1,6 @@
 prompt({
     title: "Update summary based on Node.js Code",
-    output: ".mjs",
+    output: ".node.mjs",
     replaces: "fragment",
     prePost: true,
     system: "system.code",

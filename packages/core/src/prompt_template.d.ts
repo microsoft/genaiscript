@@ -104,7 +104,10 @@ interface PromptTemplate extends PromptLike {
     input?: string
 
     /**
-     * If present, the generate text will serialized in a file `./{md-base-file-name}{number}.{output}`
+     * output file extension.
+     *
+     * If present, the generate text will serialized in a file `./{md-base-file-name}{output}`.
+     * Ensure that your generated file is unique by using longer extension like `.mytool.py`.
      */
     output?: string
 
