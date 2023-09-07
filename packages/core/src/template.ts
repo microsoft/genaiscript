@@ -348,7 +348,10 @@ export function extractFenced(text: string) {
         if (currFence) {
             if (line === currFence) {
                 currFence = ""
-                vars[currLbl] = (vars[currLbl] ?? "") + currText
+                vars[currLbl] = normalize(
+                    currLbl,
+                    (vars[currLbl] ?? "") + currText
+                )
                 currText = ""
             } else {
                 currText += line + "\n"
@@ -368,12 +371,28 @@ export function extractFenced(text: string) {
     }
 
     if (currText != "") {
-        vars[currLbl] = (vars[currLbl] ?? "") + currText
+        vars[currLbl] = normalize(currLbl, (vars[currLbl] ?? "") + currText)
     }
 
     remaining = remaining?.trim()
 
     return { vars, remaining }
+
+    function normalize(label: string, text: string) {
+        /** handles situtions like this:
+
+||| file=problem1.py
+```python
+import re
+...
+ */
+        if (/file=\w+\.\w+/.test(label)) {
+            const m = /^\s*\`{3,}\w*\r?\n((.|\s)*)\r?\n\`{3,}\s*$/.exec(text)
+            if (m) return m[1]
+        }
+
+        return text
+    }
 }
 
 export function removeFence(text: string) {
