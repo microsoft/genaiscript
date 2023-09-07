@@ -7,6 +7,7 @@ import { Cache } from "./cache"
 import { initToken } from "./oai_token"
 import { delay, logError, logVerbose } from "./util"
 import { host } from "./host"
+import { MAX_CACHED_TEMPERATURE } from "./constants"
 
 let testMode = false
 
@@ -45,13 +46,14 @@ export async function getChatCompletions(
     req: CreateChatCompletionRequest,
     options?: ChatCompletionsOptions
 ) {
+    const { temperature } = req
     const { requestOptions, partialCb, disableCache } = options || {}
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
     const cached = testMode
         ? "Test-mode enabled"
-        : disableCache
+        : disableCache || temperature > MAX_CACHED_TEMPERATURE
         ? undefined
         : await cache.get(req)
     if (cached !== undefined) {

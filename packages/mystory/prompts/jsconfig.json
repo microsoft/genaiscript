@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "lib": [
+            "ES2022"
+        ],
+        "checkJs": true,
+        "allowJs": true
+    },
+    "include": [
+        "*.js",
+        "./prompt.d.ts"
+    ]
+}
