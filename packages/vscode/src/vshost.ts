@@ -54,7 +54,7 @@ export class VSCodeHost extends EventTarget implements Host {
         this.lastToken = t
 
         // looks like a token, missing endpoint
-        if (/^[a-z0-9]{32,}$/i.test(t)) {
+        if (/^[a-z0-9]{32,}$/i.test(t) && !/sk-/.test(t)) {
             const endpoint = await window.showInputBox({
                 placeHolder: "Paste deployment endpoint",
                 prompt: "The token looks like an Azure AI service token. Please paste de Azure AI endpoint or leave empty to ignore.",
