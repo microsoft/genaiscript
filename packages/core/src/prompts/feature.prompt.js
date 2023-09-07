@@ -4,6 +4,7 @@ prompt({
     output: ".feature",
     system: "system.concise",
     categories: ["samples"],
+    temperature: 0.5
 })
 
 $`

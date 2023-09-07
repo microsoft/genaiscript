@@ -4,6 +4,7 @@ prompt({
     system: "system.tasks",
     description: "Generate or update sub tasks based on the summary.",
     categories: ["samples"],
+    temperature: 0.25,
 })
 
 $`Split SUMMARY into tasks as STEPS.
