@@ -4,6 +4,7 @@ prompt({
     replaces: "fragment",
     categories: ["samples"],
     system: ["system.technical"],
+    temperature: 0
 })
 
 $`You are reviewing TEXT to fix grammatical errors, 
