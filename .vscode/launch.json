@@ -71,6 +71,23 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
+            "name": "Run - helloworld",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/packages/helloworld"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile-ext",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/vscode"
+        },        
+        {
             "name": "Extension Tests",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
