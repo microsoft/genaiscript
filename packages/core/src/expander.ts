@@ -329,8 +329,10 @@ function fragmentVars(
                 const file = project.allFiles.find(
                     (f) => f.filename === ref.filename
                 )
+                if (!file) continue
+
                 const fn = relativePath(host.projectFolder(), file.filename)
-                if (file && !links.find((lk) => lk.filename === fn))
+                if (!links.find((lk) => lk.filename === fn))
                     links.push({
                         label: ref.name,
                         filename: fn,
