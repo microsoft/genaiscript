@@ -338,16 +338,16 @@ function endFence(text: string) {
 export function extractFenced(text: string) {
     let currLbl = ""
     let currText = ""
-    let currFance = ""
+    let currFence = ""
     let remaining = ""
     const vars: Record<string, string> = {}
     const lines = text.split(/\r?\n/)
     for (let i = 0; i < lines.length; ++i) {
         const line = lines[i]
 
-        if (currFance) {
-            if (line === currFance) {
-                currFance = ""
+        if (currFence) {
+            if (line === currFence) {
+                currFence = ""
                 vars[currLbl] = (vars[currLbl] ?? "") + currText
                 currText = ""
             } else {
@@ -356,10 +356,10 @@ export function extractFenced(text: string) {
         } else {
             if (line.endsWith(":") && endFence(lines[i + 1])) {
                 currLbl = line.slice(0, -1)
-                currFance = endFence(lines[i + 1])
+                currFence = endFence(lines[i + 1])
                 i++
             } else if (endFence(line)) {
-                currFance = endFence(line)
+                currFence = endFence(line)
                 currLbl = "*"
             } else {
                 remaining += line + "\n"
