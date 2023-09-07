@@ -43,11 +43,28 @@ export class VSCodeHost extends EventTarget implements Host {
         if (segments.length) r = Uri.joinPath(r, ...segments)
         return r.fsPath
     }
+
+    private lastToken: string
     async askToken(): Promise<string> {
-        const t = await window.showInputBox({
+        let t = await window.showInputBox({
             placeHolder: "Paste OpenAI token",
-            prompt: "CoArch - Please enter your OpenAI token (sk-...). It will be stored in the workspace secrets.",
+            prompt: "CoArch - Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets.",
+            value: this.lastToken,
         })
+        this.lastToken = t
+
+        // looks like a token, missing endpoint
+        if (/^[a-z0-9]{32,}$/i.test(t)) {
+            const endpoint = await window.showInputBox({
+                placeHolder: "Paste deployment endpoint",
+                prompt: "The token looks like an Azure AI service token. Please paste de Azure AI endpoint or leave empty to ignore.",
+            })
+            if (endpoint && /^https:\/\//.test(endpoint)) {
+                t = `${endpoint}#key=${t}`
+                this.lastToken = undefined
+            } else t = undefined // don't know how to handle this token
+        }
+
         return t
     }
     log(level: LogLevel, msg: string): void {
