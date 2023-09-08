@@ -19,7 +19,12 @@ import {
     readText,
     relativePath,
 } from "./util"
-import { evalPrompt, extractFenced, staticVars } from "./template"
+import {
+    evalPrompt,
+    extractFenced,
+    renderFencedVariables,
+    staticVars,
+} from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
 
@@ -509,6 +514,13 @@ The user requested to cancel the request.
         )
 
     const extr = extractFenced(text)
+
+    info += `
+
+### Extracted Variables
+
+${renderFencedVariables(extr)}
+`
 
     const res: FragmentTransformResponse = {
         edits,

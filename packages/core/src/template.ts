@@ -395,6 +395,34 @@ import re
     }
 }
 
+export function renderFencedVariables(extr: {
+    vars: Record<string, string>
+    remaining: string
+}) {
+    return `${Object.entries(extr.vars)
+        .map(
+            ([k, v]) => `-   \`${k}\`
+\`\`\`\`\`${
+                /^Note/.test(k)
+                    ? "markdown"
+                    : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""
+            }
+${v}
+\`\`\`\`\`
+`
+        )
+        .join("")}
+${
+    extr.remaining
+        ? `-   remaining
+\`\`\`\`\`
+${extr.remaining || ""}
+\`\`\`\`\``
+        : ""
+}    
+`
+}
+
 export function removeFence(text: string) {
     return text.replace(promptFenceRx, "")
 }

@@ -7,6 +7,7 @@ import {
     defaultPrompts,
     extractFenced,
     getChatCompletionCache,
+    renderFencedVariables,
 } from "coarch-core"
 
 const SCHEME = "coarch-md"
@@ -105,25 +106,9 @@ ${msg.content?.trim() || ""}
     )
     .join("\n")}
 
-## Extracted variables
+## Extracted variables    
 
-${Object.entries(extr.vars)
-    .map(
-        ([k, v]) => `-   \`${k}\`
-\`\`\`\`\`${/^Note/ ? "markdown" : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""}
-${v}
-\`\`\`\`\`
-`
-    )
-    .join("")}
-${
-    extr.remaining
-        ? `-   remaining
-\`\`\`\`\`
-${extr.remaining || ""}
-\`\`\`\`\``
-        : ""
-}
+${renderFencedVariables(extr)}
 
 ## Raw Response
 
