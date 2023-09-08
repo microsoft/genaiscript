@@ -37,7 +37,7 @@ interface PromptTemplate extends PromptLike {
      *
      * @default gpt-4
      */
-    model?: string
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo-0613" | string
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
