@@ -2,6 +2,7 @@ import type {
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     CreateChatCompletionResponseChoicesInner,
+    ModelError,
 } from "openai"
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
@@ -36,9 +37,12 @@ export class RequestError extends Error {
     constructor(
         public readonly status: number,
         public readonly statusText: string,
+        public readonly body: ModelError,
         readonly retryAfter: number
     ) {
-        super(`OpenAI error (${status}): ${statusText}`)
+        super(
+            `OpenAI error: ${body ? body.message : `${statusText} (${status})`}`
+        )
     }
 }
 
@@ -99,12 +103,16 @@ export async function getChatCompletions(
         ...(rest || {}),
     })
 
-    if (r.status != 200)
+    if (r.status != 200) {
+        const b = (await r.json()) as { error: ModelError }
+        const body = b?.error
         throw new RequestError(
             r.status,
             r.statusText,
+            body,
             parseInt(r.headers.get("retry-after"))
         )
+    }
 
     let seenDone = false
     let chatResp = ""

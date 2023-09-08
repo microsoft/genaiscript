@@ -487,8 +487,12 @@ export async function runTemplate(
     } catch (error: unknown) {
         if (error instanceof RequestError) {
             info += `## Request error\n\n`
-            info += error.statusText + "\n\n"
-            info += `-   status: ${error.status}`
+            if (error.body) {
+                info += `\n> ${error.body.message}\n\n`
+                info += `-  type: \`${error.body.type}\`\n`
+                info += `-  code: \`${error.body.code}\`\n`
+            }
+            info += `-   status: \`${error.status}\`, ${error.statusText}\n`
             options.infoCb({ edits: [], info, text: "Request error" })
         } else if (signal?.aborted) {
             info += `## Request cancelled
