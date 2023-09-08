@@ -5,8 +5,7 @@ prompt({ title: "Prompt critic",
          model: "gpt-4",
          categories: ["tutorial"]  })
 
-def("SUMMARY", env.subtree)
-def("CRITIQUE", env.output)
+def("SUMMARY", env.file)
 
 $`
 You are an writer of large language model prompts and you have been given a file in SUMMARY which has 2 sections.  A section that describes the goals of the prompt and a section that contains the prompt.
