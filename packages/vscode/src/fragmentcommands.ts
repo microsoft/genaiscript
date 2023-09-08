@@ -4,13 +4,9 @@ import {
     PromptTemplate,
     allChildren,
     groupBy,
-    isRequestError,
     templateGroup,
 } from "coarch-core"
 import { ExtensionState } from "./state"
-import { applyEdits } from "./edit"
-import { isCancelError, isTokenError } from "coarch-core"
-import { initToken } from "coarch-core"
 
 type TemplateQuickPickItem = {
     template: PromptTemplate
