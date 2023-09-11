@@ -330,13 +330,13 @@ export async function parseProject(options: {
 
     const deflPr = Object.assign({}, defaultPrompts)
     for (const f of promptFiles) {
-        const tmpl = parsePromptTemplate(f, await readText(f), prj)
+        const tmpl = await parsePromptTemplate(f, await readText(f), prj)
         if (!tmpl) continue
         delete deflPr[tmpl.id]
         prj.templates.push(tmpl)
     }
     for (const [id, v] of Object.entries(deflPr)) {
-        prj.templates.push(parsePromptTemplate(builtinPrefix + id, v, prj))
+        prj.templates.push(await parsePromptTemplate(builtinPrefix + id, v, prj))
     }
     runFinalizers()
 
