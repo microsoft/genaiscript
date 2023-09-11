@@ -32,10 +32,10 @@ export async function activate(context: ExtensionContext) {
     activatePromptCommands(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("coarch.request.cancel", async () => {
+        vscode.commands.registerCommand("coarch.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
-                "CoArch - request cancelled."
+                "CoArch - request aborted."
             )
         }),
         vscode.commands.registerCommand(
@@ -66,15 +66,15 @@ export async function activate(context: ExtensionContext) {
                 vscode.commands.executeCommand("coarch.request.open")
             } else {
                 const { template } = options || {}
-                const cancel = "Cancel"
+                const abort = "Abort"
                 const trace = "Open Trace"
                 const res = await vscode.window.showInformationMessage(
                     `CoArch - running ${template.title}`,
                     trace,
-                    cancel
+                    abort
                 )
-                if (res === cancel)
-                    vscode.commands.executeCommand("coarch.request.cancel")
+                if (res === abort)
+                    vscode.commands.executeCommand("coarch.request.abort")
                 else if (res === trace)
                     vscode.commands.executeCommand("coarch.request.open")
             }
