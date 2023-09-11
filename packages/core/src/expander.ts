@@ -318,6 +318,16 @@ You are concise.
     return { info, text }
 }
 
+function matchesOutput(template: PromptTemplate, filename: string) {
+    return (
+        filename.endsWith(template.output) &&
+        !filename
+            .slice(0, -template.output.length)
+            .replace(/.*\//, "")
+            .includes(".")
+    )
+}
+
 function fragmentVars(
     template: PromptTemplate,
     frag: Fragment,
@@ -390,7 +400,7 @@ function fragmentVars(
             }
         } else {
             if (template.output && !ignoreOutput) {
-                if (e.filename.endsWith(template.output))
+                if (matchesOutput(template, e.filename))
                     vars.output = rt.content
             }
         }
@@ -403,7 +413,7 @@ function fragmentVars(
         vars.subtreePost = post
         if (template.output && !ignoreOutput)
             for (const ch of frag.children) {
-                if (ch.file.filename.endsWith(template.output)) {
+                if (matchesOutput(template, ch.file.filename)) {
                     const { pre, self, post } = ch.prePostText()
                     vars.outputPre = pre
                     vars.output = self
@@ -626,9 +636,8 @@ ${renderFencedVariables(extr)}
             text: text.trim(),
         })
     } else if (template.output && !hasFiles) {
-        const ext = template.output
         const curr = fragment.references.find((r) =>
-            r.filename.endsWith(ext)
+            matchesOutput(template, r.filename)
         )?.filename
         let filename = curr
 
@@ -637,7 +646,7 @@ ${renderFencedVariables(extr)}
                 /(\.coarch)?\.md$/,
                 ""
             )
-            filename = rootPath + ext
+            filename = rootPath + template.output
         }
 
         if (await fileExists(filename)) {
