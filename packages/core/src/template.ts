@@ -238,22 +238,25 @@ export async function evalPrompt(
 
     // in principle we could cache this function (but would have to do that based on hashed body or sth)
     // but probably little point
-    const fn = new Function(
-        Object.keys(ctx).join(", "),
-        "'use strict'; " + jstext
+    const fn = (0, eval)(
+        "async (" +
+            Object.keys(ctx).join(", ") +
+            ") => { 'use strict'; " +
+            jstext +
+            "\n}"
     )
 
     return await fn(...Object.values(ctx))
 }
 
-function parseMeta(r: PromptTemplate) {
+async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
     let text = ""
     function prompt(m: PromptArgs) {
         if (meta !== null) throw new Error(`more than one prompt() call`)
         meta = m
     }
-    evalPrompt(
+    await evalPrompt(
         {
             env: new Proxy<ExpansionVariables>(staticVars() as any, {
                 get: (target: any, prop, recv) => {
@@ -427,7 +430,7 @@ export function removeFence(text: string) {
     return text.replace(promptFenceRx, "")
 }
 
-function parsePromptTemplateCore(
+async function parsePromptTemplateCore(
     filename: string,
     content: string,
     prj: CoArchProject,
@@ -442,7 +445,7 @@ function parsePromptTemplateCore(
     if (!filename.startsWith(builtinPrefix)) r.filename = filename
 
     try {
-        const obj = parseMeta(r)
+        const obj = await parseMeta(r)
         const checker = new Checker<PromptTemplate>(
             r,
             filename,
@@ -467,12 +470,12 @@ function parsePromptTemplateCore(
     }
 }
 
-export function parsePromptTemplate(
+export async function parsePromptTemplate(
     filename: string,
     content: string,
     prj: CoArchProject
 ) {
-    return parsePromptTemplateCore(filename, content, prj, (c) => {
+    return await parsePromptTemplateCore(filename, content, prj, (c) => {
         const obj = c.validateKV(() => {
             c.checkString("title")
             c.checkString("description")
