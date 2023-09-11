@@ -20,6 +20,9 @@ const promptDefs = {
         {
             compilerOptions: {
                 lib: ["ES2022"],
+                target: "ES2022",
+                module: "ES2022",
+                moduleDetection: "force",
                 checkJs: true,
                 allowJs: true,
             },
