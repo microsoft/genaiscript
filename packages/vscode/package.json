@@ -169,8 +169,8 @@
                 "category": "CoArch"
             },
             {
-                "command": "coarch.request.cancel",
-                "title": "Cancel OpenAI request",
+                "command": "coarch.request.abort",
+                "title": "Abort OpenAI request",
                 "category": "CoArch"
             },
             {
