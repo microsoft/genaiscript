@@ -18,6 +18,7 @@ import {
     fileExists,
     readText,
     relativePath,
+    splitPath,
 } from "./util"
 import {
     evalPrompt,
@@ -319,13 +320,14 @@ You are concise.
 }
 
 function matchesOutput(template: PromptTemplate, filename: string) {
-    return (
-        filename.endsWith(template.output) &&
-        !filename
-            .slice(0, -template.output.length)
-            .replace(/.*\//, "")
-            .includes(".")
-    )
+    if (!template.output) return false
+    const [pref, suff] = template.output.split("*")
+    const [_dir, fn] = splitPath(filename)
+    if (fn.startsWith(pref) && fn.endsWith(suff)) {
+        const mid = fn.slice(pref.length, -suff.length)
+        return !mid.includes(".") && !mid.startsWith("test_") // TODO hack!
+    }
+    return false
 }
 
 function fragmentVars(
@@ -399,9 +401,8 @@ function fragmentVars(
                 refChildren += rt.roots.map(fragmentMD).join("\n\n")
             }
         } else {
-            if (template.output && !ignoreOutput) {
-                if (matchesOutput(template, e.filename))
-                    vars.output = rt.content
+            if (!ignoreOutput && matchesOutput(template, e.filename)) {
+                vars.output = rt.content
             }
         }
     }
@@ -524,7 +525,7 @@ The user requested to cancel the request.
         "\n\n## AI Output\n\n" +
         fenceMD(
             text,
-            template.outputContentType ?? template.output?.replace(/^\./, "")
+            template.outputContentType ?? template.output?.replace(/.*\./, "")
         )
 
     const extr = extractFenced(text)
@@ -646,7 +647,8 @@ ${renderFencedVariables(extr)}
                 /(\.coarch)?\.md$/,
                 ""
             )
-            filename = rootPath + template.output
+            const [dir, file] = splitPath(rootPath)
+            filename = dir + "/" + template.output.replace("*", file)
         }
 
         if (await fileExists(filename)) {

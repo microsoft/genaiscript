@@ -104,7 +104,7 @@ interface PromptTemplate extends PromptLike {
     input?: string
 
     /**
-     * output file extension.
+     * Output file extension like '.py', '.test.js' or a pattern like 'test_*.py'.
      *
      * If present, the generate text will serialized in a file `./{md-base-file-name}{output}`.
      * Ensure that your generated file is unique by using longer extension like `.mytool.py`.

@@ -24,7 +24,7 @@ export function assert(
     debugData?: any
 ) {
     if (!cond) {
-        if (debugData) console.debug(`assertion failed ${msg}`, debugData)
+        if (debugData) console.error(`assertion failed ${msg}`, debugData)
         // eslint-disable-next-line no-debugger
         debugger
         throw new Error(msg)
@@ -154,6 +154,17 @@ export function toBase64(data: Uint8Array): string {
 
 export function dotCoarchPath(...segments: string[]) {
     return host.resolvePath(host.projectFolder(), coarchFolder, ...segments)
+}
+
+export function splitPath(path: string) {
+    let dirname = "."
+    let filename = path
+    path.replace(/(.*)[\/\\](.*)/, (_, a, b) => {
+        dirname = a
+        filename = b
+        return ""
+    })
+    return [dirname, filename]
 }
 
 export function relativePath(root: string, path: string) {

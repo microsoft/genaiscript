@@ -512,8 +512,12 @@ export async function parsePromptTemplate(
 
         if (!r.replaces) r.replaces = "nothing"
         if (!r.input) r.input = ".md"
-        if (r.output) {
-            if (!r.output.startsWith(".")) r.output = "." + r.output
+        if (r.output && !r.output.includes("*")) {
+            if (r.output.startsWith(".")) r.output = "*" + r.output
+            else r.output = "*." + r.output
+        }
+        if (/\*.*\*/.test(r.output)) {
+            c.error("output", "multiple * in output:")
         }
     })
 }
