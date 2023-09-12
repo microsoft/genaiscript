@@ -6,6 +6,8 @@ import {
     assert,
     fileExists,
     last,
+    logVerbose,
+    logWarn,
     readText,
     sha256string,
     strcmp,
@@ -304,6 +306,7 @@ export async function parseProject(options: {
     coarchJsonFiles: string[]
 }) {
     const { coarchFiles, promptFiles, fileTypeFiles, coarchJsonFiles } = options
+    logVerbose("parseProject")
     const prj = new CoArchProject()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
@@ -336,7 +339,9 @@ export async function parseProject(options: {
         prj.templates.push(tmpl)
     }
     for (const [id, v] of Object.entries(deflPr)) {
-        prj.templates.push(await parsePromptTemplate(builtinPrefix + id, v, prj))
+        prj.templates.push(
+            await parsePromptTemplate(builtinPrefix + id, v, prj)
+        )
     }
     runFinalizers()
 
@@ -356,11 +361,11 @@ export async function parseProject(options: {
         const ext = /\.[^\.]+$/.exec(f)?.[0]
         let parser = parsers[ext ?? ""]
         if (!parser) {
-            console.debug(`unknown file type: ${f}`)
+            logVerbose(`unknown file type: ${f}`)
             parser = parseGeneric
         }
         if (!(await fileExists(f))) {
-            console.warn(`file not found: ${f}`)
+            logWarn(`file not found: ${f}`)
             continue
         } else {
             const text = await readText(f)
