@@ -157,6 +157,18 @@
                 }
             ]
         },
+        "configuration": [
+            {
+                "title": "CoArch",
+                "properties": {
+                    "coarch.maxCachedTemperature": {
+                        "type": "number",
+                        "default": 0.1,
+                        "description": "Maximum prompt temperature to be cached."
+                    }
+                }
+            }
+        ],
         "commands": [
             {
                 "command": "coarch.openai.token.clear",

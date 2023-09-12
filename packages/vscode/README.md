@@ -433,3 +433,12 @@ Use the writing style of software technical writer.
 -->
 ```
 ````
+
+## Settings
+
+The Visual Studio Code extension has various configuration settings:
+
+### `max cached temperature`
+
+This setting controls the threshold to disable caching for prompts with high temperature; since the temperature increases the randomness
+of the response. Default is `0.1`.

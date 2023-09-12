@@ -160,6 +160,8 @@ export class ExtensionState extends EventTarget {
         options: AIRequestOptions
     ): Promise<FragmentTransformResponse> {
         const controller = new AbortController()
+        const config = vscode.workspace.getConfiguration("coarch")
+        const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const signal = controller.signal
         const r: AIRequest = {
             options,
@@ -191,6 +193,7 @@ export class ExtensionState extends EventTarget {
                 reqChange()
             },
             promptOptions: this.aiRequestContext,
+            maxCachedTemperature,
         }
         r.request = runTemplate(template, fragment, runOptions)
         // clear on completion
