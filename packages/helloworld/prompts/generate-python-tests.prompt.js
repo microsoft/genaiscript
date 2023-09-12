@@ -1,6 +1,6 @@
 prompt({
     title: "Generate python tests",
-    output: ".pyt",
+    output: "test_*.py",
     replaces: "nothing",
     model: "gpt-4",
     description: "Given a task and code, generate tests",
@@ -10,7 +10,12 @@ prompt({
 
 def("TESTS", env.output)
 def("TASK", env.file)
-def("CODE", env.links.filter(f => f.filename.endsWith(".py")))
+def(
+    "CODE",
+    env.links.filter(
+        (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
+    )
+)
 
 $`Python has been written for the task in TASK. The code is in CODE.
 Generate 5 tests for the code in CODE in a separate file.
