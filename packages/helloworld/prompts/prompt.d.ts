@@ -37,7 +37,7 @@ interface PromptTemplate extends PromptLike {
      *
      * @default gpt-4
      */
-    model?: string
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -104,7 +104,10 @@ interface PromptTemplate extends PromptLike {
     input?: string
 
     /**
-     * If present, the generate text will serialized in a file `./{md-base-file-name}{number}.{output}`
+     * Output file extension like '.py', '.test.js' or a pattern like 'test_*.py'.
+     *
+     * If present, the generate text will serialized in a file `./{md-base-file-name}{output}`.
+     * Ensure that your generated file is unique by using longer extension like `.mytool.py`.
      */
     output?: string
 
