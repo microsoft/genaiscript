@@ -17,6 +17,16 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
+    const checkSaved = () => {
+        if (vscode.workspace.textDocuments.some((doc) => doc.isDirty)) {
+            vscode.window.showErrorMessage(
+                "CoArch cancelled. Please save all files before running CoArch."
+            )
+            return false
+        }
+        return true
+    }
+
     const pickTemplate = async (
         fragment: Fragment,
         options?: {
@@ -83,6 +93,8 @@ export function activateFragmentCommands(state: ExtensionState) {
         frag: Fragment | string,
         template: PromptTemplate
     ) => {
+        if (!checkSaved()) return
+
         const fragment = state.project.resolveFragment(frag)
         if (!fragment) return
         if (!template) {
@@ -92,6 +104,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         await fragmentExecute(fragment, template.title, template.id)
     }
     const fragmentAudit = async (fragment: Fragment) => {
+        if (!checkSaved()) return
         if (!fragment) return
 
         const res = await pickTemplateOrAction(fragment, {
