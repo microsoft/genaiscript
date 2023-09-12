@@ -430,6 +430,7 @@ function fragmentVars(
 export type RunTemplateOptions = ChatCompletionsOptions & {
     infoCb?: (partialResponse: FragmentTransformResponse) => void
     promptOptions?: any
+    maxCachedTemperature?: number
 }
 
 export async function runTemplate(

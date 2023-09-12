@@ -28,9 +28,9 @@ export interface ChatCompletionsProgressReport {
 }
 
 export type ChatCompletionsOptions = {
-    disableCache?: boolean
     partialCb?: (progres: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
+    maxCachedTemperature?: number
 }
 
 export class RequestError extends Error {
@@ -51,13 +51,17 @@ export async function getChatCompletions(
     options?: ChatCompletionsOptions
 ) {
     const { temperature } = req
-    const { requestOptions, partialCb, disableCache } = options || {}
+    const {
+        requestOptions,
+        partialCb,
+        maxCachedTemperature = MAX_CACHED_TEMPERATURE,
+    } = options || {}
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
     const cached = testMode
         ? "Test-mode enabled"
-        : disableCache || temperature > MAX_CACHED_TEMPERATURE
+        : temperature > maxCachedTemperature
         ? undefined
         : await cache.get(req)
     if (cached !== undefined) {
