@@ -73,7 +73,7 @@ When an AI transformation is computed, a code preview will be shown to confirm t
 
 You can accept or cancel the changes using the buttons at the bottom of the view. CoArch does **not** apply any changes to your content automatically; all changes have to be reviewed and approved by the user.
 
-### OpenAI Token
+### OpenAI or Llama Token
 
 CoArch will automatically ask you for a token when needed and will store it in the workspace secret storage. The token is **never** stored in the clear or shared outside the project.
 
@@ -82,6 +82,16 @@ CoArch will automatically ask you for a token when needed and will store it in t
 The token will be cleared once we detect it expired; but you can also _forget_ the token by using the `CoArch: Clear OpenAI Token` command.
 
 <!-- Command to clear the token](./images/cleartoken.png) -->
+
+Following token formats are supported:
+
+- `sk-???` will use https://api.openai.com/v1/
+- `https://???.openai.azure.com#key=???` will use Azure OpenAI endpoint
+- in fact, `https://???.???#key=???` will also assume Azure OpenAI endpoint
+- you can also paste a `curl` or similar invocation and we'll try to parse it out
+- if you use `https://???.???#tgikey=???` we'll assume
+  [HuggingFace Text Generation Inference](https://github.com/huggingface/text-generation-inference),
+  currently only Llama Instruct models are supported; the key is sent as `api-key` header
 
 ## Custom prompt templates
 
