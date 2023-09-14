@@ -46,6 +46,36 @@ export class RequestError extends Error {
     }
 }
 
+function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
+    return (
+        req.messages
+            .map((msg) => {
+                switch (msg.role) {
+                    case "user":
+                        return `[INST]\n${msg.content}\n[/INST]`
+                    case "system":
+                        return `[INST] <<SYS>>\n${msg.content}\n<</SYS>>\n[/INST]`
+                    case "assistant":
+                        return msg.content
+                    case "function":
+                        return "???function"
+                }
+            })
+            .join("\n")
+            .replace(/\[\/INST\]\n\[INST\]/g, "\n") + "\n"
+    )
+}
+
+interface TGIResponse {
+    token: {
+        id: number
+        text: string
+        logprob: number
+        special: boolean
+    }
+    generated_text: string | null
+}
+
 export async function getChatCompletions(
     req: CreateChatCompletionRequest,
     options?: ChatCompletionsOptions
@@ -74,14 +104,28 @@ export async function getChatCompletions(
 
     const cfg = await initToken()
     const r2 = { ...req }
+    let postReq: any = r2
 
-    const model = req.model.replace("-35-", "-3.5-")
+    let model = req.model.replace("-35-", "-3.5-")
 
     let url = ""
 
-    if (cfg.isOpenAI) {
+    if (cfg.isTGI) {
+        model = "TGI-model"
+        url = cfg.url + "/generate_stream"
+        postReq = {
+            parameters: {
+                temperature: req.temperature,
+                return_full_text: false,
+                max_new_tokens: req.max_tokens,
+            },
+            inputs: encodeMessagesForLlama(req),
+        }
+    } else if (cfg.isOpenAI) {
+        r2.stream = true
         url = cfg.url + "/chat/completions"
     } else {
+        r2.stream = true
         delete r2.model
         url =
             cfg.url +
@@ -89,7 +133,6 @@ export async function getChatCompletions(
             "/chat/completions?api-version=2023-03-15-preview"
     }
 
-    r2.stream = true
     let numTokens = 0
 
     logVerbose(`query ${model} at ${url}`)
@@ -102,7 +145,7 @@ export async function getChatCompletions(
             "content-type": "application/json",
             ...(headers || {}),
         },
-        body: JSON.stringify(r2),
+        body: JSON.stringify(postReq),
         method: "POST",
         ...(rest || {}),
     })
@@ -140,7 +183,7 @@ export async function getChatCompletions(
     }
 
     if (seenDone) {
-        await cache.set(req, chatResp)
+        if (!cfg.isTGI) await cache.set(req, chatResp)
         return chatResp
     } else {
         throw new Error(`invalid response: ${pref}`)
@@ -152,7 +195,7 @@ export async function getChatCompletions(
 
         chunk = pref + chunk
         const ch0 = chatResp
-        chunk = chunk.replace(/^data: (.*)[\r\n]+/gm, (_, json) => {
+        chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
             if (json == "[DONE]") {
                 seenDone = true
                 return ""
@@ -161,17 +204,29 @@ export async function getChatCompletions(
                 logError(`tokens after done! '${json}'`)
                 return ""
             }
-            try {
-                const obj: CreateChatCompletionResponse = JSON.parse(json)
-                if (obj.choices?.length != 1) throw new Error()
-                const ch = obj.choices[0] as Choice
-                if (typeof ch?.delta?.content == "string") {
-                    numTokens++
-                    chatResp += ch.delta.content
+            if (cfg.isTGI)
+                try {
+                    const obj: TGIResponse = JSON.parse(json)
+                    if (typeof obj.token.text == "string") {
+                        numTokens++
+                        chatResp += obj.token.text
+                    }
+                    if (obj.generated_text != null) seenDone = true
+                } catch {
+                    logError(`invalid json in chat response: ${json}`)
                 }
-            } catch {
-                logError(`invalid json in chat response: ${json}`)
-            }
+            else
+                try {
+                    const obj: CreateChatCompletionResponse = JSON.parse(json)
+                    if (obj.choices?.length != 1) throw new Error()
+                    const ch = obj.choices[0] as Choice
+                    if (typeof ch?.delta?.content == "string") {
+                        numTokens++
+                        chatResp += ch.delta.content
+                    }
+                } catch {
+                    logError(`invalid json in chat response: ${json}`)
+                }
             return ""
         })
         const progress = chatResp.slice(ch0.length)
