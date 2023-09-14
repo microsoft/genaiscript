@@ -33,7 +33,7 @@ export async function initToken(force = false) {
         try {
             validateTokenCore(cfg.token, true)
             return cfg
-        } catch { }
+        } catch {}
     }
 
     cfg = await host.getSecretToken()
@@ -67,6 +67,15 @@ export async function initToken(force = false) {
         const token = m[2]
         validateTokenCore(token)
         cfg = { url, token }
+        await host.setSecretToken(cfg)
+        return cfg
+    }
+
+    m = /(https:\/\/[\-\w\.]+)\S*#tgikey=(\w+)/.exec(f)
+    if (m) {
+        const url = m[1]
+        const token = m[2]
+        cfg = { url, token, isTGI: true }
         await host.setSecretToken(cfg)
         return cfg
     }
