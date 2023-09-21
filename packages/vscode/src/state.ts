@@ -102,7 +102,10 @@ export class ExtensionState extends EventTarget {
                     "coarch.request.open",
                     "airequest.dialogtext.md"
                 )
-            if (edits) await applyEdits(edits, { needsConfirmation: true })
+            if (edits) {
+                const applied = await applyEdits(edits, { needsConfirmation: true })
+                console.log({ edits, applied })
+            }
             if (options.template.audit) {
                 const valid = /\bVALID\b/.test(dialogText)
                 const error = /\bERROR\b/.test(dialogText)
