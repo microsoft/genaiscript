@@ -1,9 +1,9 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { toMarkdownString, toStringList } from "./markdown"
+import { toMarkdownString } from "./markdown"
 import { CHANGE } from "coarch-core"
 
-export function toStringList(...token: string[]) {
+function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join(", ")
     return md
 }
