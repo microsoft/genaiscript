@@ -3,6 +3,11 @@ import { ExtensionState } from "./state"
 import { toMarkdownString, toStringList } from "./markdown"
 import { CHANGE } from "coarch-core"
 
+export function toStringList(...token: string[]) {
+    const md = token.filter((l) => l !== undefined && l !== null).join(", ")
+    return md
+}
+
 export function activateStatusBar(state: ExtensionState) {
     const { context } = state
 
@@ -12,14 +17,16 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "coarch.request.status"
     const updateStatusBar = () => {
-        const { computing, progress, options } = state.aiRequest || {}
+        const { computing, progress, options, editsApplied } =
+            state.aiRequest || {}
         const { template, fragments } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
             "CoArch",
-            template ? `, ${template.title}` : undefined,
+            template ? template.title : undefined,
             computing && !tokensSoFar ? `$(loading~spin)` : undefined,
-            tokensSoFar ? `, ${tokensSoFar} tokens` : undefined
+            tokensSoFar ? `${tokensSoFar} tokens` : undefined,
+            editsApplied === null ? `refactoring pending...` : undefined
         )
         const md = new vscode.MarkdownString(
             toMarkdownString(
