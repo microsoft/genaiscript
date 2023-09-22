@@ -1,10 +1,5 @@
 import * as vscode from "vscode"
 
-export function toStringList(...token: string[]) {
-    const md = token.filter((l) => l !== undefined && l !== null).join(" ")
-    return md
-}
-
 export function toMarkdownString(...lines: string[]) {
     const md = lines.filter((l) => l !== undefined && l !== null).join("\n")
     return md

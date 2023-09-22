@@ -55,6 +55,7 @@ export interface AIRequest {
     computing?: boolean
     error?: any
     progress?: ChatCompletionsProgressReport
+    editsApplied?: boolean // null = waiting, false, true
 }
 
 export class ExtensionState extends EventTarget {
@@ -95,17 +96,24 @@ export class ExtensionState extends EventTarget {
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
             const fragment = options.fragments[0]
-            const res = await this.startAIRequest(options)
-            const { edits, dialogText } = res
+            const req = await this.startAIRequest(options)
+            const res = await req?.request
+            const { edits, dialogText } = res || {}
             if (dialogText)
                 vscode.commands.executeCommand(
                     "coarch.request.open",
                     "airequest.dialogtext.md"
                 )
+
             if (edits) {
-                const applied = await applyEdits(edits, { needsConfirmation: true })
-                console.log({ edits, applied })
+                req.editsApplied = null
+                this.dispatchChange()
+                req.editsApplied = await applyEdits(edits, {
+                    needsConfirmation: true,
+                })
+                this.dispatchChange()
             }
+
             if (options.template.audit) {
                 const valid = /\bVALID\b/.test(dialogText)
                 const error = /\bERROR\b/.test(dialogText)
@@ -159,9 +167,7 @@ export class ExtensionState extends EventTarget {
         }
     }
 
-    private startAIRequest(
-        options: AIRequestOptions
-    ): Promise<FragmentTransformResponse> {
+    private startAIRequest(options: AIRequestOptions): AIRequest {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration("coarch")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
@@ -171,6 +177,7 @@ export class ExtensionState extends EventTarget {
             controller,
             request: null,
             computing: true,
+            editsApplied: undefined,
         }
         const reqChange = () => {
             if (this._aiRequest === r) {
@@ -210,7 +217,7 @@ export class ExtensionState extends EventTarget {
                 r.error = e
             })
             .then(reqChange)
-        return r?.request
+        return r
     }
 
     get aiRequest() {
