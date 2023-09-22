@@ -111,6 +111,12 @@ export class ExtensionState extends EventTarget {
                 req.editsApplied = await applyEdits(edits, {
                     needsConfirmation: true,
                 })
+                if (req.editsApplied) // TODO: only files touched by edit
+                    await Promise.all(
+                        vscode.workspace.textDocuments
+                            .filter((doc) => doc.isDirty)
+                            .map((doc) => doc.save())
+                    )
                 this.dispatchChange()
             }
 
