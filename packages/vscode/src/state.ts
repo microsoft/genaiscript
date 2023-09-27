@@ -163,8 +163,8 @@ export class ExtensionState extends EventTarget {
                     : e.message
                 const res = await vscode.window.showWarningMessage(
                     msg,
-                    trace,
-                    retry
+                    retry,
+                    trace
                 )
                 if (res === trace)
                     vscode.commands.executeCommand(
