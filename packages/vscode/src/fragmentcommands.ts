@@ -38,7 +38,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         if (!templates.length) return undefined
 
         const picked = await vscode.window.showQuickPick(
-            templatesToQuickPickItems(templates)
+            templatesToQuickPickItems(templates),
+            {
+                title: `Pick a prompt to apply to ${fragment.title}`,
+            }
         )
         return (picked as TemplateQuickPickItem)?.template
     }
@@ -95,8 +98,20 @@ export function activateFragmentCommands(state: ExtensionState) {
     ) => {
         if (!checkSaved()) return
 
+        // "next logic"
+        if (frag === undefined && state.aiRequest) {
+            const previous = state.aiRequest.options.fragments?.[0]
+            // TODO fragment might have moved
+            frag = previous?.fullId
+        }
+
         const fragment = state.project.resolveFragment(frag)
-        if (!fragment) return
+        if (!fragment) {
+            vscode.window.showErrorMessage(
+                "CoArch - sorry, we could not find where to apply the prompt. Please try to launch CoArch from the editor."
+            )
+            return
+        }
         if (!template) {
             template = await pickTemplate(fragment)
             if (!template) return

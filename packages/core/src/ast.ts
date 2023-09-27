@@ -196,7 +196,7 @@ export class CoArchProject {
     resolveFragment(fragment: Fragment | string) {
         if (typeof fragment === "string")
             fragment =
-                this.fragmentByFullId[fragment] ??
+                this.fragmentByFullId[fragment] ||
                 this.fragmentById[fragment]?.[0]
         return fragment
     }

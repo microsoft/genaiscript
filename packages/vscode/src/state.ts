@@ -106,21 +106,6 @@ export class ExtensionState extends EventTarget {
                     "airequest.dialogtext.md"
                 )
 
-            if (edits) {
-                req.editsApplied = null
-                this.dispatchChange()
-                req.editsApplied = await applyEdits(edits, {
-                    needsConfirmation: true,
-                })
-                if (req.editsApplied) // TODO: only files touched by edit
-                    await Promise.all(
-                        vscode.workspace.textDocuments
-                            .filter((doc) => doc.isDirty)
-                            .map((doc) => doc.save())
-                    )
-                this.dispatchChange()
-            }
-
             if (options.template.audit) {
                 const valid = /\bVALID\b/.test(dialogText)
                 const error = /\bERROR\b/.test(dialogText)
@@ -136,6 +121,23 @@ export class ExtensionState extends EventTarget {
                 } else if (error) {
                     await this.markSyncedFragment(fragment, "mod")
                 }
+            }
+
+            if (edits) {
+                req.editsApplied = null
+                this.dispatchChange()
+                req.editsApplied = await applyEdits(edits, {
+                    needsConfirmation: true,
+                })
+                if (req.editsApplied)
+                    // TODO: only files touched by edit
+                    await Promise.all(
+                        vscode.workspace.textDocuments
+                            .filter((doc) => doc.isDirty)
+                            .map((doc) => doc.save())
+                    )
+                this.dispatchChange()
+                vscode.commands.executeCommand("coarch.request.status")
             }
         } catch (e) {
             if (isCancelError(e)) return
