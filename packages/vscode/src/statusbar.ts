@@ -9,18 +9,19 @@ function toStringList(...token: string[]) {
 }
 
 export function activateStatusBar(state: ExtensionState) {
-    const { context } = state
+    const { context, host } = state
 
     const statusBarItem = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Right,
         120
     )
     statusBarItem.command = "coarch.request.status"
-    const updateStatusBar = () => {
+    const updateStatusBar = async () => {
         const { computing, progress, options, editsApplied } =
             state.aiRequest || {}
         const { template, fragments } = options || {}
         const { tokensSoFar } = progress || {}
+        const token = await host.getSecretToken()
         statusBarItem.text = toStringList(
             "CoArch",
             template ? template.title : undefined,
@@ -36,9 +37,16 @@ export function activateStatusBar(state: ExtensionState) {
                 ...(fragments?.map(
                     (fragment) =>
                         `-  fragment: ${fragment.title} (#${fragment.id || ""})`
-                ) || [])
-            )
+                ) || []),
+                `-   OpenAI token: ${
+                    token
+                        ? `${token.url} [clear](command:coarch.openai.token.clear)`
+                        : "not configured"
+                }`
+            ),
+            true
         )
+        md.isTrusted = true
         statusBarItem.tooltip = md
     }
 
