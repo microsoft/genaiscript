@@ -1,5 +1,6 @@
 prompt({
     title: "Summarize links",
+    description: "Expands contents from links and summarizes them",
     replaces: "nothing",
 })
 

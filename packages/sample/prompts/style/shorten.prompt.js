@@ -1,5 +1,6 @@
 prompt({
     title: "Shorten",
+    description: "Shorten the summary of the fragment.",
     replaces: "fragment",
     context: "root",
     system: ["system.notes"],
