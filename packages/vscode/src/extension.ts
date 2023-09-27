@@ -17,6 +17,11 @@ import { activateRequestTreeDataProvider } from "./requesttree"
 
 export const COARCH_EXTENSION_ID = "coarch.coarch-vscode"
 
+function toStringList(...token: string[]) {
+    const md = token.filter((l) => l !== undefined && l !== null).join("\n")
+    return md
+}
+
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePrompTreeDataProvider(state)
@@ -60,24 +65,42 @@ export async function activate(context: ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand("coarch.request.status", async () => {
-            const r = state.aiRequest
-            const { computing, options } = r || {}
-            if (!computing) {
+            const request = state.aiRequest
+            const { computing, options, editsApplied, response } = request || {}
+            const { dialogText } = response || {}
+            const { template } = options || {}
+            const abort = "Abort"
+            const output = "Open Output"
+            const trace = "Open Trace"
+            const next = "Next Prompt..."
+            const cmds: string[] = []
+            if (computing) cmds.push(abort)
+            else if (request && editsApplied !== null) cmds.push(next)
+            if (dialogText) cmds.push(output)
+            if (request) cmds.push(trace)
+
+            const res = await vscode.window.showInformationMessage(
+                toStringList(
+                    computing
+                        ? `CoArch - running ${template.title}`
+                        : template
+                        ? `CoArch - ${template.title}`
+                        : "CoArch",
+                    template ? template.title : undefined
+                ),
+                ...cmds
+            )
+            if (res === abort)
+                vscode.commands.executeCommand("coarch.request.abort")
+            else if (res === trace)
                 vscode.commands.executeCommand("coarch.request.open")
-            } else {
-                const { template } = options || {}
-                const abort = "Abort"
-                const trace = "Open Trace"
-                const res = await vscode.window.showInformationMessage(
-                    `CoArch - running ${template.title}`,
-                    trace,
-                    abort
+            else if (res === output)
+                vscode.commands.executeCommand(
+                    "coarch.request.open",
+                    "airequest.dialogtext.md"
                 )
-                if (res === abort)
-                    vscode.commands.executeCommand("coarch.request.abort")
-                else if (res === trace)
-                    vscode.commands.executeCommand("coarch.request.open")
-            }
+            else if (res === next)
+                vscode.commands.executeCommand("coarch.fragment.prompt")
         }),
         vscode.commands.registerCommand(
             "coarch.openIssueReporter",
