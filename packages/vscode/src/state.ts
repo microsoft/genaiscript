@@ -70,6 +70,7 @@ export class ExtensionState extends EventTarget {
     constructor(public readonly context: ExtensionContext) {
         super()
         this.host = new VSCodeHost(this)
+        this.host.addEventListener(CHANGE, this.dispatchChange.bind(this))
         const { subscriptions } = context
         subscriptions.push(this)
 
