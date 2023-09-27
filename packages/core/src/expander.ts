@@ -332,6 +332,7 @@ function matchesOutput(template: PromptTemplate, filename: string) {
 
 function fragmentVars(
     template: PromptTemplate,
+    templates: PromptDefinition[],
     frag: Fragment,
     promptOptions: { ignoreOutput?: boolean } & any
 ) {
@@ -386,6 +387,7 @@ function fragmentVars(
         parents,
         promptOptions,
         template,
+        templates,
         vars: attrs,
     }
 
@@ -435,6 +437,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
 
 export async function runTemplate(
     template: PromptTemplate,
+    templates: PromptDefinition[],
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
@@ -443,6 +446,7 @@ export async function runTemplate(
     const { signal } = requestOptions
     const { vars, outputFragment } = fragmentVars(
         template,
+        templates,
         fragment,
         options.promptOptions
     )

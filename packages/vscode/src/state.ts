@@ -214,7 +214,18 @@ export class ExtensionState extends EventTarget {
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
         }
-        r.request = runTemplate(template, fragment, runOptions)
+        const templates = fragment
+            .applicableTemplates()
+            .filter((t) => !t.unlisted && !t.isSystem)
+            .map(
+                (t) =>
+                    <PromptDefinition>{
+                        id: t.id,
+                        title: t.title,
+                        description: t.description,
+                    }
+            )
+        r.request = runTemplate(template, templates, fragment, runOptions)
         // clear on completion
         r.request
             .then((resp) => {

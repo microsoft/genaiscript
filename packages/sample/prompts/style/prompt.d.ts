@@ -1,13 +1,8 @@
-interface PromptLike {
+interface PromptDefinition {
     /**
      * Based on file name.
      */
     id: string
-
-    /**
-     * File where the prompt comes from (if any).
-     */
-    filename?: string
 
     /**
      * Something like "Summarize children", show in UI.
@@ -18,6 +13,13 @@ interface PromptLike {
      * Longer description of the prompt. Shows in UI grayed-out.
      */
     description?: string
+}
+
+interface PromptLike extends PromptDefinition {
+    /**
+     * File where the prompt comes from (if any).
+     */
+    filename?: string
 
     /**
      * The text of the prompt JS source code.
@@ -281,6 +283,11 @@ interface ExpansionVariables {
      * current prompt template
      */
     template: PromptTemplate
+
+    /**
+     * Available prompt templates in project
+     */
+    templates: PromptDefinition[]
 
     /**
      * User defined variables
