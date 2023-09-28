@@ -257,17 +257,6 @@ ${numberedFenceMD(template.jsSource)}
     }
 }
 
-function fragmentMD(t: Fragment) {
-    return t.text
-}
-
-function subtreeMD(t: Fragment): string {
-    const hd = fragmentMD(t)
-    const ch = t.sameFileChildren()
-    if (ch.length == 0) return hd
-    return [hd, ...ch.map(subtreeMD)].join("\n\n")
-}
-
 function categoryPrefix(
     template: PromptTemplate,
     frag: Fragment,
@@ -536,7 +525,8 @@ ${renderFencedVariables(extr)}
                 })
             }
 
-            if (!curr) links.push(`-   [${n}](./${n})`)
+            if (!curr && host.resolvePath(fragment.file.filename) !== fn)
+                links.push(`-   [${n}](./${n})`)
         }
     }
 
