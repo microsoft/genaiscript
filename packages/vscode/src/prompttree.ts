@@ -22,7 +22,7 @@ class PromptTreeDataProvider
             item.id = `coarch.promptCategory.${element}`
             return item
         } else {
-            const { id, title, children, text, description = "" } = element
+            const { id, title, text, description = "" } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
             const { template } = options || {}
@@ -48,7 +48,6 @@ class PromptTreeDataProvider
 ${description}
 
 -  id: \`${id}\`
--  children: ${children || ""}
 
 ### Prompt
 

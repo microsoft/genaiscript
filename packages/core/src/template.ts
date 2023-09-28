@@ -481,22 +481,13 @@ export async function parsePromptTemplate(
             c.checkString("title")
             c.checkString("description")
             c.checkString("model")
-            c.checkString("children", ["present", "absent"])
-            c.checkString("replaces", [
-                "file",
-                "fragment",
-                "children",
-                "nothing",
-            ])
             c.checkString("input")
             c.checkString("output")
             c.checkString("outputLinkName")
             c.checkString("outputContentType")
             c.checkString("outputFolder")
-            c.checkString("context", ["current", "root"])
 
             c.checkBool("unlisted")
-            c.checkBool("prePost")
 
             c.checkNat("maxTokens")
             c.checkNumber("temperature")
@@ -511,7 +502,6 @@ export async function parsePromptTemplate(
         const r = c.template
         Object.assign(r, obj)
 
-        if (!r.replaces) r.replaces = "nothing"
         if (!r.input) r.input = ".md"
         if (r.output && !r.output.includes("*")) {
             if (r.output.startsWith(".")) r.output = "*" + r.output
@@ -560,11 +550,6 @@ export function templateAppliesTo(
     if (/^system\./.test(template.id)) return false
 
     if (!fragment.file.filename.endsWith(template.input)) return false
-
-    const chlen = fragment.sameFileChildren().length
-
-    if (template.children === "present" && chlen == 0) return false
-    if (template.children === "absent" && chlen > 0) return false
 
     return true
 }
