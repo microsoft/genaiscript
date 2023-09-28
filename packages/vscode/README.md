@@ -170,7 +170,7 @@ There is no variable expansion in system prompts.
 ```js
 prompt({
     title: "Generate code",
-    system: "system.code",
+    system: ["system.code"],
 })
 ```
 
@@ -199,15 +199,6 @@ prompt({
 ```
 
 #### Multiple file output
-
-If you add the `system.multifile` system prompt, it will enable multiple file generation,
-and disable the `output` parameter.
-
-```js
-prompt({
-    system: [..., "system.multifiles"]
-})
-```
 
 You can specify the output folder using `system.multifile.outputFolder` variable.
 

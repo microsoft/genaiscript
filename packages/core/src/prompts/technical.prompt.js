@@ -2,7 +2,7 @@ prompt({
     title: "Technical proofreading",
     description: "Review the text as a technical document writer.",
     categories: ["samples"],
-    system: ["system.multifile", "system.technical"],
+    system: ["system.technical"],
     temperature: 0
 })
 

@@ -1,10 +1,11 @@
-prompt({ title: "story-writing", 
-         description: "Given characters, a plot, and a framing, write a story",
-         outputFolder: "aidiscovery",
-         maxTokens: 4000,
-         model: "gpt-4-32k",
-         system: ["system.multifile"],
-         categories: ["fiction"]  })
+prompt({
+    title: "story-writing",
+    description: "Given characters, a plot, and a framing, write a story",
+    outputFolder: "aidiscovery",
+    maxTokens: 4000,
+    model: "gpt-4-32k",
+    categories: ["fiction"]
+})
 
 def("SUMMARY", env.subtree)
 def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.coarch.md")))

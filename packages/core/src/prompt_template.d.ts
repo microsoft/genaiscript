@@ -77,9 +77,9 @@ interface PromptTemplate extends PromptLike {
     isSystem?: boolean
 
     /**
-     * Template identifiers for the system prompts (concatenated). Defaults to `system` if not found.
+     * Template identifiers for the system prompts (concatenated).
      */
-    system?: string | string[]
+    system?: string[]
 
     /**
      * File extension this prompt applies to; if present. Defaults to `.md`.

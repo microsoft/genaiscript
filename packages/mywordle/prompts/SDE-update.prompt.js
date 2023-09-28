@@ -3,7 +3,6 @@ prompt({ title: "SDE-update",
          maxTokens: 4000,
          outputFolder: "src",
          model: "gpt-4-32k",
-         system: ["system.multifile"],
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)

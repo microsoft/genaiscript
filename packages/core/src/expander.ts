@@ -173,7 +173,8 @@ ${numberedFenceMD(template.jsSource)}
 
     trace += `## System prompt\n`
 
-    const systems = template.system ?? ["system", "system.multifiles"]
+    const systems = (template.system ?? []).slice(0)
+    if (!systems.includes("system")) systems.unshift("system")
     for (let i = 0; i < systems.length; ++i) {
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
