@@ -1,6 +1,5 @@
 prompt({ title: "Code review", 
          description: "Given a problem desciption and code, write a code review",
-         replaces: "nothing",
          maxTokens: 4000,
          model: "gpt-4",
          categories: ["tutorial"]  })

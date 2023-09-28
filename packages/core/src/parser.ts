@@ -21,7 +21,6 @@ import {
     Fragment,
     Range,
 } from "./ast"
-import { getFragmentState } from "./tree_state"
 import { defaultFileTypes, defaultPrompts } from "./default_prompts"
 import { builtinPrefix, parsePromptTemplate, parseFileType } from "./template"
 import { host } from "./host"
@@ -417,12 +416,6 @@ export async function parseProject(options: {
     })
 
     for (const t of prj.allFragments) t.hash = await fragmentHash(t)
-
-    for (const t of prj.allFragments) {
-        if (t.children.length) {
-            t.state = (await getFragmentState(t)) ?? "mod"
-        }
-    }
 
     return prj
 }
