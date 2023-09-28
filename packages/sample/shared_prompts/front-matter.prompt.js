@@ -1,6 +1,5 @@
 prompt({
     title: "Title and Description",
-    replaces: "file",
     categories: ["style"],
     system: []
 })

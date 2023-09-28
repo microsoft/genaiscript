@@ -1,6 +1,5 @@
 prompt({
     title: "Generate Project Structure",
-    replaces: "children",
     system: "system.tasks",
     description: "Generate project structure.",
     categories: ["generate"],
@@ -19,5 +18,5 @@ View:
 - [style.css](css/style.css) stylesheet
 `)
 
-def("SUMMARY", env.fragment)
+def("SUMMARY", env.file)
 
