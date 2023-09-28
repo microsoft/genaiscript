@@ -249,9 +249,6 @@ Variables are referenced and injected using `env.variableName` syntax.
 
 When you apply a prompt to a given fragment, a number of variables are set including
 
--   `env.fragment` (the body of the current fragment),
--   `env.children` (body of direct children of the current fragment)
--   `env.subtree` (the current fragment and all its recursive children).
 -   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
 -   `env.links` set of linked files and content
 
