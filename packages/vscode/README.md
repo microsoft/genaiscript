@@ -219,16 +219,6 @@ mysrc
 -->
 ```
 
-#### Generation note
-
-Add the `system.notes` to tell the LLM to explain why it generated content.
-
-```js
-prompt({
-    system: [..., "system.notes"]
-})
-```
-
 #### audit: true | false
 
 Specifies that the prompt is an auditing prompt and should produce `VALID` or `ERROR` in the output.

@@ -281,9 +281,9 @@ async function parseMeta(r: PromptTemplate) {
     return { meta, text }
 }
 
-const promptFence = "|||"
-const promptFenceRx = /\|{3,}(\r?\n)?/g
-const promptFenceEndRx = /^\|{3,}$/
+const promptFence = "`````"
+const promptFenceRx = /`{5,}(\r?\n)?/g
+const promptFenceEndRx = /^`{5,}$/
 
 function errorId() {
     let r = "ERROR-"
@@ -325,10 +325,10 @@ function endFence(text: string) {
  * ```
  *
  * Baz qux:
- * |||
+ * `````
  * Also supported.
  * ...
- * |||
+ * `````
  *
  * Returns a map, like this:
  *
@@ -343,7 +343,6 @@ export function extractFenced(text: string) {
     let currLbl = ""
     let currText = ""
     let currFence = ""
-    let remaining = ""
     const vars: Record<string, string> = {}
     const lines = text.split(/\r?\n/)
     for (let i = 0; i < lines.length; ++i) {
@@ -368,8 +367,6 @@ export function extractFenced(text: string) {
             } else if (endFence(line)) {
                 currFence = endFence(line)
                 currLbl = "*"
-            } else {
-                remaining += line + "\n"
             }
         }
     }
@@ -378,14 +375,12 @@ export function extractFenced(text: string) {
         vars[currLbl] = normalize(currLbl, (vars[currLbl] ?? "") + currText)
     }
 
-    remaining = remaining?.trim()
-
-    return { vars, remaining }
+    return { vars }
 
     function normalize(label: string, text: string) {
         /** handles situtions like this:
 
-||| file=problem1.py
+````` file=problem1.py
 ```python
 import re
 ...
@@ -399,11 +394,8 @@ import re
     }
 }
 
-export function renderFencedVariables(extr: {
-    vars: Record<string, string>
-    remaining: string
-}) {
-    return `${Object.entries(extr.vars)
+export function renderFencedVariables(extr: { vars: Record<string, string> }) {
+    return Object.entries(extr.vars)
         .map(
             ([k, v]) => `-   \`${k}\`
 \`\`\`\`\`${
@@ -415,16 +407,7 @@ ${v}
 \`\`\`\`\`
 `
         )
-        .join("")}
-${
-    extr.remaining
-        ? `-   remaining
-\`\`\`\`\`
-${extr.remaining || ""}
-\`\`\`\`\``
-        : ""
-}    
-`
+        .join("\n")
 }
 
 export function removeFence(text: string) {

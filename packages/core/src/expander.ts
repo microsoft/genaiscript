@@ -59,7 +59,7 @@ function prefixes(w: string) {
 function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
-const fence = "`````"
+const fence = "```````````````"
 function fenceMD(t: string, contentType = "markdown") {
     return `\n${fence}${contentType}\n${trimNewlines(t)}\n${fence}\n`
 }
@@ -173,7 +173,7 @@ ${numberedFenceMD(template.jsSource)}
 
     trace += `## System prompt\n`
 
-    const systems = template.system ?? ["system"]
+    const systems = template.system ?? ["system", "system.multifiles"]
     for (let i = 0; i < systems.length; ++i) {
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
