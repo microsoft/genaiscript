@@ -16,8 +16,6 @@ export type Position = [number, number]
  */
 export type Range = [Position, Position]
 
-export type FragmentState = "mod" | "sync"
-
 export interface FileReference {
     name: string
     filename: string
@@ -32,7 +30,7 @@ export interface Diagnostic {
 }
 
 export type FragmentInit = Partial<
-    Pick<Fragment, "children" | "depth" | "references" | "state">
+    Pick<Fragment, "children" | "depth" | "references">
 > &
     Pick<Fragment, "id" | "title" | "startPos" | "endPos" | "text">
 
@@ -66,11 +64,6 @@ export class Fragment {
      * Collision-resistant hash of content, including title, body and id (but not children).
      */
     hash: string = ""
-
-    /**
-     * Indicates synchronization state of this node with its children.
-     */
-    state: FragmentState = "sync"
 
     /**
      * The file where this fragment is defined.
@@ -120,13 +113,6 @@ export class Fragment {
         return this.file.project.templates.filter((t) =>
             templateAppliesTo(t, this)
         )
-    }
-
-    prePostText() {
-        const pre = this.file.textOfRange([0, 0], this.startPos)
-        const self = this.file.textOfRange(this.startPos, this.endPos)
-        const post = this.file.textOfRange(this.endPos, eofPosition)
-        return { pre, self, post }
     }
 
     get project() {

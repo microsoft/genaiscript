@@ -3,7 +3,6 @@ prompt({ title: "chapter1",
          outputFolder: "aidiscovery",
          maxTokens: 4000,
          model: "gpt-4-32k",
-         system: ["system.multifile", "system.notes"],
          categories: ["fiction"]  })
 
 def("SUMMARY", env.subtree)

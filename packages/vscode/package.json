@@ -84,14 +84,6 @@
         "menus": {
             "commandPalette": [
                 {
-                    "command": "coarch.fragment.audit",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.fragment.unaudited",
-                    "when": "false"
-                },
-                {
                     "command": "coarch.fragment.reveal",
                     "when": "false"
                 },
@@ -135,16 +127,6 @@
                 {
                     "command": "coarch.fragment.prompt",
                     "when": "view == coarch.fragments && viewItem  =~ /^fragment/",
-                    "group": "inline"
-                },
-                {
-                    "command": "coarch.fragment.audit",
-                    "when": "view == coarch.fragments && viewItem  =~ /^fragment/ && viewItem =~ /mod/",
-                    "group": "inline"
-                },
-                {
-                    "command": "coarch.fragment.unaudited",
-                    "when": "view == coarch.fragments && viewItem =~ /^fragment.node/ && !(viewItem =~ /mod/)",
                     "group": "inline"
                 },
                 {

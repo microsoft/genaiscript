@@ -4,6 +4,7 @@ import {
     PromptTemplate,
     allChildren,
     groupBy,
+    rootFragment,
     templateGroup,
 } from "coarch-core"
 import { ExtensionState } from "./state"
@@ -86,7 +87,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const template = fragment.file.project.getTemplate(templateId)
 
         await state.requestAI({
-            fragments: [fragment],
+            fragment,
             template,
             label,
         })
@@ -100,12 +101,12 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         // "next logic"
         if (frag === undefined && state.aiRequest) {
-            const previous = state.aiRequest.options.fragments?.[0]
+            const previous = state.aiRequest.options.fragment
             // TODO fragment might have moved
             frag = previous?.fullId
         }
 
-        const fragment = state.project.resolveFragment(frag)
+        const fragment = rootFragment(state.project.resolveFragment(frag))
         if (!fragment) {
             vscode.window.showErrorMessage(
                 "CoArch - sorry, we could not find where to apply the prompt. Please try to launch CoArch from the editor."
@@ -117,42 +118,6 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (!template) return
         }
         await fragmentExecute(fragment, template.title, template.id)
-    }
-    const fragmentAudit = async (fragment: Fragment) => {
-        if (!checkSaved()) return
-        if (!fragment) return
-
-        const res = await pickTemplateOrAction(fragment, {
-            filter: (p) => p.audit,
-            actions: [
-                {
-                    label: "Mark Audited",
-                    action: "audited",
-                },
-                fragment.children?.length > 0
-                    ? {
-                          label: "Mark Self and Children Audited",
-                          action: "auditedtree",
-                      }
-                    : undefined,
-            ].filter((a) => !!a),
-        })
-        if (!res) return
-        else if (typeof res === "string") {
-            if (res === "audited")
-                await state.markSyncedFragment(fragment, "sync")
-            else if (res === "auditedtree") {
-                const children = allChildren(fragment)
-                await state.markSyncedFragment([fragment, ...children], "sync")
-            }
-        } else {
-            const template = res as PromptTemplate
-            await fragmentExecute(fragment, template.title, template.id)
-        }
-    }
-    const fragmentUnaudited = async (fragment: Fragment) => {
-        if (!fragment) return
-        await state.markSyncedFragment(fragment, "mod")
     }
     const fragmentNavigate = async (fragment: Fragment | string) => {
         fragment = state.project.resolveFragment(fragment)
@@ -174,11 +139,6 @@ export function activateFragmentCommands(state: ExtensionState) {
             "coarch.fragment.navigate",
             fragmentNavigate
         ),
-        vscode.commands.registerCommand(
-            "coarch.fragment.unaudited",
-            fragmentUnaudited
-        ),
-        vscode.commands.registerCommand("coarch.fragment.audit", fragmentAudit)
     )
 }
 

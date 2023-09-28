@@ -28,7 +28,6 @@ export function activatePromptCommands(state: ExtensionState) {
                         id: "",
                         title: "New prompt template",
                         text: "New prompt template",
-                        replaces: "file",
                         jsSource: `prompt({
     title: "${name}",
 })

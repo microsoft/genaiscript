@@ -1,5 +1,4 @@
 prompt({ title: "PM-planning", 
-         replaces: "fragment", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["appdev"]  })

@@ -3,7 +3,6 @@ import {
     ChatCompletionsProgressReport,
     CoArchProject,
     Fragment,
-    FragmentState,
     PromptTemplate,
     concatArrays,
     parseProject,
@@ -23,7 +22,6 @@ import {
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
-import { markSyncedFragment } from "coarch-core"
 import { applyEdits, toRange } from "./edit"
 import { URI, Utils } from "vscode-uri"
 import { readFileText, writeFile } from "./fs"
@@ -34,7 +32,7 @@ export const AI_REQUEST_CHANGE = "aiRequestChange"
 export interface AIRequestOptions {
     label: string
     template: PromptTemplate
-    fragments: Fragment[]
+    fragment: Fragment
 }
 
 export interface AIRequestContextOptions {
@@ -96,32 +94,15 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
-            const fragment = options.fragments[0]
+            const { fragment } = options
             const req = await this.startAIRequest(options)
             const res = await req?.request
-            const { edits, dialogText } = res || {}
-            if (dialogText)
+            const { edits, text } = res || {}
+            if (text)
                 vscode.commands.executeCommand(
                     "coarch.request.open",
-                    "airequest.dialogtext.md"
+                    "airequest.text.md"
                 )
-
-            if (options.template.audit) {
-                const valid = /\bVALID\b/.test(dialogText)
-                const error = /\bERROR\b/.test(dialogText)
-                if (valid && error)
-                    // something went wrong
-                    throw new Error("Audit prompt generated an mixed answer.")
-                else if (valid) {
-                    const r = await vscode.window.showInformationMessage(
-                        "AI validated fragment, mark as audited?",
-                        "Audited"
-                    )
-                    if (r) await this.markSyncedFragment(fragment, "sync")
-                } else if (error) {
-                    await this.markSyncedFragment(fragment, "mod")
-                }
-            }
 
             if (edits) {
                 req.editsApplied = null
@@ -152,7 +133,7 @@ export class ExtensionState extends EventTarget {
                 if (res === trace)
                     vscode.commands.executeCommand(
                         "coarch.request.open",
-                        "airequest.info.md"
+                        "airequest.trace.md"
                     )
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e)) {
@@ -169,7 +150,7 @@ export class ExtensionState extends EventTarget {
                 if (res === trace)
                     vscode.commands.executeCommand(
                         "coarch.request.open",
-                        "airequest.info.md"
+                        "airequest.trace.md"
                     )
                 else if (res === retry) await this.retryAIRequest()
             } else throw e
@@ -200,8 +181,7 @@ export class ExtensionState extends EventTarget {
             reqChange()
         }
         this.aiRequest = r
-        const { template, fragments } = options
-        const fragment = fragments[0]
+        const { template, fragment } = options
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
             partialCb,
@@ -225,6 +205,11 @@ export class ExtensionState extends EventTarget {
                         description: t.description,
                     }
             )
+
+        vscode.commands.executeCommand(
+            "coarch.request.open",
+            "airequest.text.md"
+        )
         r.request = runTemplate(template, templates, fragment, runOptions)
         // clear on completion
         r.request
@@ -266,17 +251,6 @@ export class ExtensionState extends EventTarget {
         return this._project
             ? concatArrays(...this._project.rootFiles.map((p) => p.roots))
             : []
-    }
-
-    async markSyncedFragment(
-        fragment: Fragment | Fragment[],
-        fragmentState: FragmentState
-    ) {
-        if (!Array.isArray(fragment)) fragment = [fragment]
-        await Promise.all(
-            fragment.map((f) => markSyncedFragment(f, fragmentState))
-        )
-        this.dispatchFragments(fragment)
     }
 
     private set project(prj: CoArchProject) {

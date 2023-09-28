@@ -21,13 +21,7 @@ class MarkdownTextDocumentContentProvider
 {
     constructor(readonly state: ExtensionState) {
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
-            ;[
-                "airequest.dialogtext.md",
-                "airequest.text.md",
-                "airequest.info.md",
-                "airesponse.text.md",
-                "airesponse.info.md",
-            ]
+            ;["airequest.text.md", "airequest.trace.md"]
                 .map((path) => infoUri(path))
                 .forEach((uri) => {
                     this._onDidChange.fire(uri)
@@ -46,16 +40,10 @@ class MarkdownTextDocumentContentProvider
         const aiRequest = this.state.aiRequest
         const res = aiRequest?.response
         switch (uri.path) {
-            case "airequest.dialogtext.md":
-                return res?.dialogText ?? noRequest
             case "airequest.text.md":
                 return res?.text ?? noRequest
-            case "airequest.info.md":
-                return res?.info ?? noRequest
-            case "airesponse.text.md":
-                return res?.text ?? noRequest
-            case "airesponse.info.md":
-                return res?.info ?? noRequest
+            case "airequest.trace.md":
+                return res?.trace ?? noRequest
         }
         if (uri.path.startsWith(cachedRequestPrefix)) {
             const sha = uri.path
@@ -142,7 +130,7 @@ export function activateMarkdownTextDocumentContentProvider(
             "coarch.request.open",
             async (id: string) => {
                 if (state.aiRequest) {
-                    const uri = infoUri(id || "airesponse.info.md")
+                    const uri = infoUri(id || "airequest.trace.md")
                     await showMarkdownPreview(uri)
                 }
             }

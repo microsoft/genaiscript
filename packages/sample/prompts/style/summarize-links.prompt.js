@@ -1,7 +1,6 @@
 prompt({
     title: "Summarize links",
     description: "Expands contents from links and summarizes them",
-    replaces: "nothing",
 })
 
 $`You are a export technical writer. Summarize the files below.`
