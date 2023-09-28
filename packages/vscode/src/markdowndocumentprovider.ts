@@ -130,7 +130,7 @@ export function activateMarkdownTextDocumentContentProvider(
             "coarch.request.open",
             async (id: string) => {
                 if (state.aiRequest) {
-                    const uri = infoUri(id || "airesponse.info.md")
+                    const uri = infoUri(id || "airequest.info.md")
                     await showMarkdownPreview(uri)
                 }
             }
