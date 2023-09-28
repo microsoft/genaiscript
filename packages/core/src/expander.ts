@@ -42,17 +42,12 @@ export interface FragmentTransformResponse {
     /**
      * MD-formatted trace.
      */
-    info: string
+    trace: string
 
     /**
      * LLM output.
      */
     text: string
-
-    /**
-     * MD-formatted text to show user if any.
-     */
-    dialogText?: string
 }
 
 // 'foo.bar.baz' -> [ 'foo', 'foo.bar', 'foo.bar.baz' ]
@@ -64,7 +59,7 @@ function prefixes(w: string) {
 function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
-const fence = "`````"
+const fence = "```````````````"
 function fenceMD(t: string, contentType = "markdown") {
     return `\n${fence}${contentType}\n${trimNewlines(t)}\n${fence}\n`
 }
@@ -138,7 +133,7 @@ async function expandTemplate(
     const varMap = vars as any as Record<string, string | any[]>
 
     // we put errors on top so they draw attention
-    let info = `
+    let trace = `
 # Prompt trace
 
 @@errors@@
@@ -157,34 +152,35 @@ ${numberedFenceMD(template.jsSource)}
     const expanded = cat.text + "\n" + prompt.text
     errors += prompt.errors
 
-    info += cat.info
+    trace += cat.info
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
-    info += `\n## console output\n`
-    if (prompt.logs?.length) info += fenceMD(prompt.logs)
-    else info += `> tip: use \`console.log()\` from prompt.js files`
+    trace += `\n## console output\n`
+    if (prompt.logs?.length) trace += fenceMD(prompt.logs)
+    else trace += `> tip: use \`console.log()\` from prompt.js files`
 
-    info += "\n## Expanded prompt\n"
-    info += fenceMD(prompt.text)
-    info += traceVars()
+    trace += "\n## Expanded prompt\n"
+    trace += fenceMD(prompt.text)
+    trace += traceVars()
 
-    info = info.replace("@@errors@@", errors)
+    trace = trace.replace("@@errors@@", errors)
 
     let systemText = ""
     let model = template.model
     let temperature = template.temperature
     let max_tokens = template.maxTokens
 
-    info += `## System prompt\n`
+    trace += `## System prompt\n`
 
-    const systems = template.system ?? ["system"]
+    const systems = (template.system ?? []).slice(0)
+    if (!systems.includes("system")) systems.unshift("system")
     for (let i = 0; i < systems.length; ++i) {
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
         if (!system) {
             if (systemTemplate)
-                info += `\n** error: \`${systemTemplate}\` not found\n`
+                trace += `\n** error: \`${systemTemplate}\` not found\n`
             if (i > 0) continue
             systemTemplate = "system"
             system = fragment.file.project.getTemplate(systemTemplate)
@@ -198,16 +194,16 @@ ${numberedFenceMD(template.jsSource)}
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
 
-        info += `###  template: \`${systemTemplate}\`\n`
-        if (system.model) info += `-  model: \`${system.model || ""}\`\n`
+        trace += `###  template: \`${systemTemplate}\`\n`
+        if (system.model) trace += `-  model: \`${system.model || ""}\`\n`
         if (system.temperature !== undefined)
-            info += `-  temperature: ${system.temperature || ""}\n`
+            trace += `-  temperature: ${system.temperature || ""}\n`
         if (system.maxTokens !== undefined)
-            info += `-  max tokens: ${system.maxTokens || ""}\n`
+            trace += `-  max tokens: ${system.maxTokens || ""}\n`
 
-        info += numberedFenceMD(system.jsSource)
-        info += "#### Expanded system prompt"
-        info += fenceMD(sysex)
+        trace += numberedFenceMD(system.jsSource)
+        trace += "#### Expanded system prompt"
+        trace += fenceMD(sysex)
     }
 
     model = model ?? fragment.project.coarchJson.model ?? defaultModel
@@ -217,7 +213,7 @@ ${numberedFenceMD(template.jsSource)}
     return {
         expanded,
         errors,
-        info,
+        trace,
         success: prompt.success,
         model,
         temperature,
@@ -260,17 +256,6 @@ ${numberedFenceMD(template.jsSource)}
 
         return info
     }
-}
-
-function fragmentMD(t: Fragment) {
-    return t.text
-}
-
-function subtreeMD(t: Fragment): string {
-    const hd = fragmentMD(t)
-    const ch = t.sameFileChildren()
-    if (ch.length == 0) return hd
-    return [hd, ...ch.map(subtreeMD)].join("\n\n")
 }
 
 function categoryPrefix(
@@ -373,11 +358,6 @@ function fragmentVars(
 
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
-        heading: "#".repeat(frag.depth),
-        subheading: "#".repeat(frag.depth + 1),
-        fragment: fragmentMD(frag),
-        children: frag.sameFileChildren().map(fragmentMD).join("\n\n"),
-        subtree: subtreeMD(frag),
         file: {
             filename: file.filename,
             label: "current",
@@ -390,43 +370,7 @@ function fragmentVars(
         templates,
         vars: attrs,
     }
-
-    let refChildren = ""
-    for (const e of frag.references) {
-        const rt = project.resolve(e.filename)
-        if (!rt) continue
-        const ext = e.filename.replace(/.*\./, "")
-        if (ext === "md") {
-            const root = rt.roots?.[0]
-            if (root) {
-                if (refChildren) refChildren += "\n\n"
-                refChildren += rt.roots.map(fragmentMD).join("\n\n")
-            }
-        } else {
-            if (!ignoreOutput && matchesOutput(template, e.filename)) {
-                vars.output = rt.content
-            }
-        }
-    }
-    if (refChildren) vars.refChildren = refChildren
-    let outputFragment: Fragment = undefined
-    if (template.prePost) {
-        const { pre, post } = frag.prePostText()
-        vars.subtreePre = pre
-        vars.subtreePost = post
-        if (template.output && !ignoreOutput)
-            for (const ch of frag.children) {
-                if (matchesOutput(template, ch.file.filename)) {
-                    const { pre, self, post } = ch.prePostText()
-                    vars.outputPre = pre
-                    vars.output = self
-                    vars.outputPost = post
-                    outputFragment = ch
-                    break
-                }
-            }
-    }
-    return { vars, outputFragment }
+    return { vars }
 }
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
@@ -441,10 +385,9 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    if (template.context === "root") fragment = rootFragment(fragment)
     const { requestOptions = {} } = options || {}
     const { signal } = requestOptions
-    const { vars, outputFragment } = fragmentVars(
+    const { vars } = fragmentVars(
         template,
         templates,
         fragment,
@@ -453,30 +396,30 @@ export async function runTemplate(
     let {
         expanded,
         success,
-        info,
+        trace,
         model,
         temperature,
         max_tokens,
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
-    options?.infoCb?.({ edits: [], info, text: "Computing..." })
+    options?.infoCb?.({ edits: [], trace, text: "Computing..." })
 
-    info += "\n\n## Final prompt\n\n"
+    trace += "\n\n## Final prompt\n\n"
 
-    if (model) info += `-  model: \`${model || ""}\`\n`
+    if (model) trace += `-  model: \`${model || ""}\`\n`
     if (temperature !== undefined)
-        info += `-  temperature: ${temperature || ""}\n`
-    if (max_tokens !== undefined) info += `-  max tokens: ${max_tokens || ""}\n`
+        trace += `-  temperature: ${temperature || ""}\n`
+    if (max_tokens !== undefined)
+        trace += `-  max tokens: ${max_tokens || ""}\n`
 
-    info += fenceMD(expanded)
+    trace += fenceMD(expanded)
 
     // if the expansion failed, show the user the trace
     if (!success) {
         return {
-            info,
-            dialogText: "# Template failed\nSee info below.\n" + info,
+            trace,
+            text: "# Template failed\nSee info below.\n" + trace,
             edits: [],
-            text: "None",
         }
     }
 
@@ -502,20 +445,24 @@ export async function runTemplate(
         )
     } catch (error: unknown) {
         if (error instanceof RequestError) {
-            info += `## Request error\n\n`
+            trace += `## Request error\n\n`
             if (error.body) {
-                info += `\n> ${error.body.message}\n\n`
-                info += `-  type: \`${error.body.type}\`\n`
-                info += `-  code: \`${error.body.code}\`\n`
+                trace += `\n> ${error.body.message}\n\n`
+                trace += `-  type: \`${error.body.type}\`\n`
+                trace += `-  code: \`${error.body.code}\`\n`
             }
-            info += `-   status: \`${error.status}\`, ${error.statusText}\n`
-            options.infoCb({ edits: [], info, text: "Request error" })
+            trace += `-   status: \`${error.status}\`, ${error.statusText}\n`
+            options.infoCb({ edits: [], trace, text: "Request error" })
         } else if (signal?.aborted) {
-            info += `## Request cancelled
+            trace += `## Request cancelled
             
 The user requested to cancel the request.
 `
-            options.infoCb({ edits: [], info, text: "Request cancelled" })
+            options.infoCb({
+                edits: [],
+                trace,
+                text: "Request cancelled",
+            })
         }
         throw error
     }
@@ -526,7 +473,7 @@ The user requested to cancel the request.
         filename: fragment.file.filename,
     }
 
-    info +=
+    trace +=
         "\n\n## AI Output\n\n" +
         fenceMD(
             text,
@@ -535,7 +482,7 @@ The user requested to cancel the request.
 
     const extr = extractFenced(text)
 
-    info += `
+    trace += `
 
 ### Extracted Variables
 
@@ -544,18 +491,14 @@ ${renderFencedVariables(extr)}
 
     const res: FragmentTransformResponse = {
         edits,
-        info,
-        text: extr.remaining,
-        dialogText: "",
+        trace,
+        text,
     }
 
     const links: string[] = []
     let hasFiles = false
     for (const [name, val] of Object.entries(extr.vars)) {
-        if (/^\s*Note\s*$/.test(name)) {
-            delete extr.vars[name]
-            res.dialogText += `### Note\n\n` + val + "\n"
-        } else if (name.startsWith("File ")) {
+        if (name.startsWith("File ")) {
             hasFiles = true
             delete extr.vars[name]
             const n = name.slice(5).trim()
@@ -583,7 +526,8 @@ ${renderFencedVariables(extr)}
                 })
             }
 
-            if (!curr) links.push(`-   [${n}](./${n})`)
+            if (!curr && host.resolvePath(fragment.file.filename) !== fn)
+                links.push(`-   [${n}](./${n})`)
         }
     }
 
@@ -599,49 +543,7 @@ ${renderFencedVariables(extr)}
     if (m && text.endsWith(m[1]))
         text = text.slice(m[0].length, -m[1].length).trim()
 
-    if (template.replaces === "file") {
-        const numlines = fragment.file.content.replace(/[^\n]/g, "").length
-        edits.push({
-            ...obj,
-            filename: fragment.file.filename,
-            type: "replace",
-            range: [
-                [0, 0],
-                [numlines + 1, 0],
-            ],
-            text: text.trim(),
-        })
-    } else if (template.replaces == "children") {
-        if (fragment.sameFileChildren().length)
-            edits.push({
-                ...obj,
-                type: "replace",
-                range: rangeOfFragments(...fragment.sameFileChildren()),
-                text,
-            })
-        else
-            edits.push({
-                ...obj,
-                type: "insert",
-                pos: fragment.endPos,
-                text: "\n\n" + text,
-            })
-    } else if (template.replaces == "fragment") {
-        edits.push({
-            ...obj,
-            type: "replace",
-            range: rangeOfFragments(fragment),
-            text,
-        })
-    } else if (outputFragment) {
-        edits.push({
-            ...obj,
-            filename: outputFragment.file.filename,
-            type: "replace",
-            range: [outputFragment.startPos, outputFragment.endPos],
-            text: text.trim(),
-        })
-    } else if (template.output && !hasFiles) {
+    if (template.output && !hasFiles) {
         const curr = fragment.references.find((r) =>
             matchesOutput(template, r.filename)
         )?.filename
@@ -686,10 +588,6 @@ ${renderFencedVariables(extr)}
             }](./${filename.replace(/.*[\\\/]/, "")})`
             links.push(link)
         }
-        if (Object.keys(extr.vars).length == 0) res.dialogText += extr.remaining
-    } else {
-        if (Object.keys(extr.vars).length == 0) res.dialogText += extr.remaining
-        else res.dialogText = text
     }
 
     if (links.length)

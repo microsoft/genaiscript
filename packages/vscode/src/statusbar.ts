@@ -19,7 +19,7 @@ export function activateStatusBar(state: ExtensionState) {
     const updateStatusBar = async () => {
         const { computing, progress, options, editsApplied } =
             state.aiRequest || {}
-        const { template, fragments } = options || {}
+        const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
         const token = await host.getSecretToken()
         statusBarItem.text = toStringList(
@@ -34,10 +34,9 @@ export function activateStatusBar(state: ExtensionState) {
                 template
                     ? `-  template: ${template.title} (${template.id})`
                     : undefined,
-                ...(fragments?.map(
-                    (fragment) =>
-                        `-  fragment: ${fragment.title} (#${fragment.id || ""})`
-                ) || []),
+                fragment
+                    ? `-  fragment: ${fragment.title} (#${fragment.id || ""})`
+                    : undefined,
                 `-   OpenAI token: ${
                     token
                         ? `${token.url} [clear](command:coarch.openai.token.clear)`

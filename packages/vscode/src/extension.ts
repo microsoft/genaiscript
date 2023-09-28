@@ -7,7 +7,6 @@ import "isomorphic-fetch"
 import { initToken, isCancelError } from "coarch-core"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
-import { activateDecorators } from "./decorators"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands } from "./promptcommands"
@@ -31,8 +30,6 @@ export async function activate(context: ExtensionContext) {
     activateStatusBar(state)
     activateCodeActions(state)
     activateFragmentCommands(state)
-    //activateDecorators(state)
-    //activateCodeLens(state);
     activateMarkdownTextDocumentContentProvider(state)
     activatePromptCommands(state)
 
@@ -67,7 +64,7 @@ export async function activate(context: ExtensionContext) {
         vscode.commands.registerCommand("coarch.request.status", async () => {
             const request = state.aiRequest
             const { computing, options, editsApplied, response } = request || {}
-            const { dialogText } = response || {}
+            const { text } = response || {}
             const { template } = options || {}
             const abort = "Abort"
             const output = "Open Output"
@@ -76,7 +73,7 @@ export async function activate(context: ExtensionContext) {
             const cmds: string[] = []
             if (computing) cmds.push(abort)
             else if (request && editsApplied !== null) cmds.push(next)
-            if (dialogText) cmds.push(output)
+            if (text) cmds.push(output)
             if (request) cmds.push(trace)
 
             const res = await vscode.window.showInformationMessage(
@@ -97,7 +94,7 @@ export async function activate(context: ExtensionContext) {
             else if (res === output)
                 vscode.commands.executeCommand(
                     "coarch.request.open",
-                    "airequest.dialogtext.md"
+                    "airequest.text.md"
                 )
             else if (res === next)
                 vscode.commands.executeCommand("coarch.fragment.prompt")
@@ -127,7 +124,7 @@ export async function activate(context: ExtensionContext) {
                 if (state.aiRequest?.response) {
                     issueBody.push(`## Request`)
                     issueBody.push("`````")
-                    issueBody.push(state.aiRequest.response.info)
+                    issueBody.push(state.aiRequest.response.trace)
                     issueBody.push("`````")
                 }
                 await vscode.commands.executeCommand(

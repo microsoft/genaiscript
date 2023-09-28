@@ -18,8 +18,8 @@ class FragmentsTreeDataProvider
             this.refresh(fragments)
         })
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
-            const fragments = this.state.aiRequest?.options?.fragments
-            if (fragments) this.refresh(fragments)
+            const fragment = this.state.aiRequest?.options?.fragment
+            this.refresh(fragment)
         })
         vscode.window.onDidChangeVisibleTextEditors(() => {
             this.refresh()
@@ -33,7 +33,6 @@ class FragmentsTreeDataProvider
             title,
             children,
             file,
-            state,
             parent,
             references,
             reference,
@@ -43,9 +42,8 @@ class FragmentsTreeDataProvider
             !reference &&
             (children.length > 0 || Object.keys(references ?? {}).length > 0)
         const { computing, options, progress } = ai || {}
-        const { fragments } = options || {}
-        const sync = state === "sync"
-        const generating = computing && fragments?.includes(element)
+        const { fragment } = options || {}
+        const generating = computing && fragment === element
         const item = new vscode.TreeItem(
             // title,
             parent ? title : vscode.workspace.asRelativePath(file.filename),
@@ -56,15 +54,11 @@ class FragmentsTreeDataProvider
         item.id = `coarch.frag.${file.filename}${fullId}${
             reference ? `<${reference}` : ""
         }`
-        item.contextValue = `fragment ${
-            hasChildren ? `node` : `leaf`
-        } ${state} ${reference ? `ref` : ""}`
+        item.contextValue = `fragment ${hasChildren ? `node` : `leaf`} ${
+            reference ? `ref` : ""
+        }`
         item.description = `${id.slice(1)}${
-            generating
-                ? `, ${progress?.tokensSoFar || 0} tokens`
-                : sync
-                ? ""
-                : `, unaudited`
+            generating ? `, ${progress?.tokensSoFar || 0} tokens` : ""
         }`
         item.command = {
             command: "coarch.fragment.navigate",
@@ -74,7 +68,6 @@ class FragmentsTreeDataProvider
         item.resourceUri = vscode.Uri.file(file.filename)
         if (generating) item.iconPath = new vscode.ThemeIcon(`loading~spin`)
         else if (reference) item.iconPath = new vscode.ThemeIcon(`references`)
-        else if (!sync) item.iconPath = new vscode.ThemeIcon("unverified")
         else item.iconPath = vscode.ThemeIcon.File
         return item
     }

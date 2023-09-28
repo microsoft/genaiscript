@@ -1,7 +1,7 @@
 prompt({
     title: "Generate Python Code",
     output: ".py",
-    system: "system.code",
+    system: ["system.code"],
     temperature: 0.01,
     categories: ["code.python"],
 })
@@ -11,7 +11,7 @@ You are an expert system designer that writes Python code.
 Update the following CODE to match SUMMARY.
 `
 
-def("SUMMARY", env.subtree)
+def("SUMMARY", env.file)
 def("CODE", env.output)
 
 $`
