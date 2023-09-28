@@ -205,6 +205,11 @@ export class ExtensionState extends EventTarget {
                         description: t.description,
                     }
             )
+
+        vscode.commands.executeCommand(
+            "coarch.request.open",
+            "airequest.text.md"
+        )
         r.request = runTemplate(template, templates, fragment, runOptions)
         // clear on completion
         r.request
