@@ -85,13 +85,13 @@ The token will be cleared once we detect it expired; but you can also _forget_ t
 
 Following token formats are supported:
 
-- `sk-???` will use https://api.openai.com/v1/
-- `https://???.openai.azure.com#key=???` will use Azure OpenAI endpoint
-- in fact, `https://???.???#key=???` will also assume Azure OpenAI endpoint
-- you can also paste a `curl` or similar invocation and we'll try to parse it out
-- if you use `https://???.???#tgikey=???` we'll assume
-  [HuggingFace Text Generation Inference](https://github.com/huggingface/text-generation-inference),
-  currently only Llama Instruct models are supported; the key is sent as `api-key` header
+-   `sk-???` will use https://api.openai.com/v1/
+-   `https://???.openai.azure.com#key=???` will use Azure OpenAI endpoint
+-   in fact, `https://???.???#key=???` will also assume Azure OpenAI endpoint
+-   you can also paste a `curl` or similar invocation and we'll try to parse it out
+-   if you use `https://???.???#tgikey=???` we'll assume
+    [HuggingFace Text Generation Inference](https://github.com/huggingface/text-generation-inference),
+    currently only Llama Instruct models are supported; the key is sent as `api-key` header
 
 ## Custom prompt templates
 
@@ -223,7 +223,7 @@ This setting also supports multiple template names:
 ```js
 prompt({
     title: "Generate code",
-    system: ["system.code", "system.concise"],
+    system: ["system.code"],
 })
 ```
 

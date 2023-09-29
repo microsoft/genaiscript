@@ -3,10 +3,10 @@ prompt({ title: "QA-coding",
          output: ".test.py", 
          maxTokens: 4000,
          model: "gpt-4-32k",
-         system: ["system.code", "system.concise"],
+         system: ["system.code"],
          categories: ["appdev"]  })
 
-def("SUMMARY", env.subtree)
+def("SUMMARY", env.file)
 def("TEST", env.output)
 
 $`
