@@ -23,11 +23,28 @@ import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
-import { URI, Utils } from "vscode-uri"
+import { Utils } from "vscode-uri"
 import { readFileText, writeFile } from "./fs"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
+
+export const REQUEST_OUTPUT_FILENAME = "CoArch Output.md"
+export const REQUEST_TRACE_FILENAME = "CoArch Trace.md"
+
+export async function openRequestOutput() {
+    return vscode.commands.executeCommand(
+        "coarch.request.open",
+        REQUEST_OUTPUT_FILENAME
+    )
+}
+
+export async function openRequestTrace() {
+    return vscode.commands.executeCommand(
+        "coarch.request.open",
+        REQUEST_TRACE_FILENAME
+    )
+}
 
 export interface AIRequestOptions {
     label: string
@@ -98,11 +115,7 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text)
-                vscode.commands.executeCommand(
-                    "coarch.request.open",
-                    "airequest.text.md"
-                )
+            if (text) openRequestOutput()
 
             if (edits) {
                 req.editsApplied = null
@@ -130,11 +143,7 @@ export class ExtensionState extends EventTarget {
                     fix,
                     trace
                 )
-                if (res === trace)
-                    vscode.commands.executeCommand(
-                        "coarch.request.open",
-                        "airequest.trace.md"
-                    )
+                if (res === trace) openRequestTrace()
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e)) {
                 const trace = "Open Trace"
@@ -147,11 +156,7 @@ export class ExtensionState extends EventTarget {
                     retry,
                     trace
                 )
-                if (res === trace)
-                    vscode.commands.executeCommand(
-                        "coarch.request.open",
-                        "airequest.trace.md"
-                    )
+                if (res === trace) openRequestTrace()
                 else if (res === retry) await this.retryAIRequest()
             } else throw e
         }
@@ -206,10 +211,7 @@ export class ExtensionState extends EventTarget {
                     }
             )
 
-        vscode.commands.executeCommand(
-            "coarch.request.open",
-            "airequest.text.md"
-        )
+        openRequestOutput()
         r.request = runTemplate(template, templates, fragment, runOptions)
         // clear on completion
         r.request
