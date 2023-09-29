@@ -1,6 +1,6 @@
-prompt({ title: "generate-introduction", 
+prompt({ title: "gen to non-coarch file", 
          description: "Given files about a project and the goal of writing a white paper, write an introduction for the white paper",
-         output: ".intro.coarch.md", 
+         output: ".intro.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          system: ["system.minimal-update"],
