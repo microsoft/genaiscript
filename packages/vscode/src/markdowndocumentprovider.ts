@@ -15,10 +15,10 @@ import {
     renderFencedVariables,
 } from "coarch-core"
 
-const SCHEME = "coarch-md"
+const SCHEME = "coarch"
 
 const noRequest = `
-No CoArch request found yet. Please run a CoArch prompt to populate this file.
+No CoArch request found yet. Please run a CoArch prompt.
 `
 
 class MarkdownTextDocumentContentProvider
@@ -43,12 +43,24 @@ class MarkdownTextDocumentContentProvider
         token: vscode.CancellationToken
     ): Promise<string> {
         const aiRequest = this.state.aiRequest
+        const computing = !!aiRequest?.computing
         const res = aiRequest?.response
+        const wrap = (md: string) => {
+            if (!md) return noRequest
+            return `${
+                computing
+                    ? `> **AI Request in progress. To abort, click on the CoArch status bar.**\n`
+                    : ""
+            } 
+${md}    
+            `
+        }
+
         switch (uri.path) {
             case REQUEST_OUTPUT_FILENAME:
-                return res?.text ?? noRequest
+                return wrap(res?.text)
             case REQUEST_TRACE_FILENAME:
-                return res?.trace ?? noRequest
+                return wrap(res?.trace)
         }
         if (uri.path.startsWith(cachedRequestPrefix)) {
             const sha = uri.path
