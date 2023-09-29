@@ -2,10 +2,10 @@ prompt({ title: "SDE-Coding",
          output: ".py", 
          maxTokens: 4000,
          model: "gpt-4-32k",
-         system: ["system.code", "system.concise"],
+         system: ["system.code"],
          categories: ["appdev"]  })
 
-def("SUMMARY", env.subtree)
+def("SUMMARY", env.file)
 def("CODE", env.output)
 
 $`To respond, refer to the PMDOC from the product manager, and the SADOC from the software architect.`

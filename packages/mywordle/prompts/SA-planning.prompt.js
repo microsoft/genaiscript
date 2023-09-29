@@ -3,10 +3,9 @@ prompt({ title: "SA-planning",
          output: ".saplan.coarch.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
-         system: ["system.concise"],
          categories: ["appdev"]  })
 
-def("SUMMARY", env.subtree)
+def("SUMMARY", env.file)
 def("CODE", env.output)
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 

@@ -2,7 +2,6 @@ prompt({
     title: "Generate BDD scenarios (.feature)",
     description: "Generate a Gherkin feature file from the node and children.",
     output: ".feature",
-    system: ["system.concise"],
     categories: ["samples"],
     temperature: 0.5
 })

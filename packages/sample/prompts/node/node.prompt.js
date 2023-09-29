@@ -1,7 +1,7 @@
 prompt({
     title: "Generate Node.js Code",
     output: ".node.mjs",
-    system: ["system.code", "system.concise"],
+    system: ["system.code"],
     temperature: 0.01,
     categories: ["code.js.node"],
 })
@@ -14,7 +14,7 @@ if (env.output) {
     $`Generate CODE for the given SUMMARY.`
 }
 
-def("SUMMARY", env.subtree)
+def("SUMMARY", env.file)
 def("CODE", env.output)
 
 $`

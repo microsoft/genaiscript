@@ -179,7 +179,7 @@ This setting also supports multiple template names:
 ```js
 prompt({
     title: "Generate code",
-    system: ["system.code", "system.concise"],
+    system: ["system.code"],
 })
 ```
 
