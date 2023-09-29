@@ -1,21 +1,21 @@
 prompt({
     title: "Generate Python Code",
-    output: ".py",
     system: ["system.code"],
     temperature: 0.01,
     categories: ["code.python"],
 })
 
+const pythonFileName = env.file?.filename?.replace(".coarch.md", ".coarch.py")
+const python = env.links.find(lk => lk.filename === pythonFileName)
+
 $`
 You are an expert system designer that writes Python code.
-Update the following CODE to match SUMMARY.
 `
 
 def("SUMMARY", env.file)
-def("CODE", env.output)
-
-$`
-Respond with the new CODE.
-Limit changes to existing code to minimum.
-Generate plain Python syntax, do not generate markdown.
-`
+if (python) {
+    $`Update the following CODE to match SUMMARY. Limit changes to existing code to minimum.`
+    def("CODE", python)
+}
+else
+    $`Generate python code to match SUMMARY. Save the generated python in the ${pythonFileName} file.`
