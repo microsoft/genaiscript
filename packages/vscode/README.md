@@ -302,8 +302,7 @@ def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 In the coarch files, those link you be part of a bulletted list
 
 ```md
--   [my file](./myfile.txt)
--   [my file2](./myfile2.txt)
+-   [package.json](./package.json)
 ```
 
 #### Current file
