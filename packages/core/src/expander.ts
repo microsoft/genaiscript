@@ -304,17 +304,6 @@ You are concise.
     return { info, text }
 }
 
-function matchesOutput(template: PromptTemplate, filename: string) {
-    if (!template.output) return false
-    const [pref, suff] = template.output.split("*")
-    const [_dir, fn] = splitPath(filename)
-    if (fn.startsWith(pref) && fn.endsWith(suff)) {
-        const mid = fn.slice(pref.length, -suff.length)
-        return !mid.includes(".") && !mid.startsWith("test_") // TODO hack!
-    }
-    return false
-}
-
 function fragmentVars(
     template: PromptTemplate,
     templates: PromptDefinition[],
@@ -473,12 +462,7 @@ The user requested to cancel the request.
         filename: fragment.file.filename,
     }
 
-    trace +=
-        "\n\n## AI Output\n\n" +
-        fenceMD(
-            text,
-            template.outputContentType ?? template.output?.replace(/.*\./, "")
-        )
+    trace += "\n\n## AI Output\n\n" + fenceMD(text)
 
     const extr = extractFenced(text)
 
@@ -542,53 +526,6 @@ ${renderFencedVariables(extr)}
     const m = /^(```+)(\w*)\n/.exec(text)
     if (m && text.endsWith(m[1]))
         text = text.slice(m[0].length, -m[1].length).trim()
-
-    if (template.output && !hasFiles) {
-        const curr = fragment.references.find((r) =>
-            matchesOutput(template, r.filename)
-        )?.filename
-        let filename = curr
-
-        if (!filename) {
-            const rootPath = fragment.file.filename.replace(
-                /(\.coarch)?\.md$/,
-                ""
-            )
-            const [dir, file] = splitPath(rootPath)
-            filename = dir + "/" + template.output.replace("*", file)
-        }
-
-        if (await fileExists(filename)) {
-            const prev = await readText(filename)
-            const numlines = prev.replace(/[^\n]/g, "").length
-            edits.push({
-                ...obj,
-                filename,
-                type: "replace",
-                range: [
-                    [0, 0],
-                    [numlines + 1, 0],
-                ],
-                text: text.trim(),
-            })
-        } else {
-            edits.push({
-                ...obj,
-                filename,
-                type: "createfile",
-                overwrite: curr ? true : false,
-                ignoreIfExists: false,
-                text: text.trim(),
-            })
-        }
-
-        if (!curr) {
-            const link = `-   [${
-                template.outputLinkName ?? template.id
-            }](./${filename.replace(/.*[\\\/]/, "")})`
-            links.push(link)
-        }
-    }
 
     if (links.length)
         edits.push({

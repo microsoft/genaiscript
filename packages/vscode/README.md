@@ -183,17 +183,12 @@ prompt({
 })
 ```
 
-#### output: .ext
-
-Forces to store the output in a **single** nested file `./filenameN.ext`. This is useful to store the output in a different format than markdown.
-CoArch will automatically mangle the prompt id, and extension to create a unique file name
-that is cross linked to the source.
+#### output
 
 You can specify an output folder using `outputFolder`.
 
 ```js
 prompt({
-    output: ".py",
     outputFolder: "src",
 })
 ```
@@ -233,8 +228,6 @@ These are taken from prompt, or from system prompt, or set to default.
 #### Other parameters
 
 -   `prePost: true`, if `true`, include `subtreePre`, `subtreePost`, and possibly `outputPre` and `outputPost` variables if `output` is set.
--   `outputLinkName: Output`, sets the name of the link to the output file
--   `outputContentType: ...` sets the content type of the output file when rendered in the markdown log. Defaults to the output file extension or `markdown`.
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
 See `prompt_template.ts` in the sources for details.
