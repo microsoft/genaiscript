@@ -465,9 +465,6 @@ export async function parsePromptTemplate(
             c.checkString("description")
             c.checkString("model")
             c.checkString("input")
-            c.checkString("output")
-            c.checkString("outputLinkName")
-            c.checkString("outputContentType")
             c.checkString("outputFolder")
 
             c.checkBool("unlisted")
@@ -486,13 +483,6 @@ export async function parsePromptTemplate(
         Object.assign(r, obj)
 
         if (!r.input) r.input = ".md"
-        if (r.output && !r.output.includes("*")) {
-            if (r.output.startsWith(".")) r.output = "*" + r.output
-            else r.output = "*." + r.output
-        }
-        if (/\*.*\*/.test(r.output)) {
-            c.error("output", "multiple * in output:")
-        }
     })
 }
 

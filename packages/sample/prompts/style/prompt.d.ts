@@ -87,25 +87,6 @@ interface PromptTemplate extends PromptLike {
     input?: string
 
     /**
-     * Output file extension like '.py', '.test.js' or a pattern like 'test_*.py'.
-     *
-     * If present, the generate text will serialized in a file `./{md-base-file-name}{output}`.
-     * Ensure that your generated file is unique by using longer extension like `.mytool.py`.
-     */
-    output?: string
-
-    /**
-     * Name of link to `output`
-     */
-    outputLinkName?: string
-
-    /**
-     * Content type of the `output` fenced section in the AI generation log.
-     * Defaults to the output file extension or `markdown`.
-     */
-    outputContentType?: string
-
-    /**
      * Specifies a folder to create output files into
      */
     outputFolder?: string
@@ -190,12 +171,6 @@ interface ExpansionVariables {
      * `fence(X)` is preferred (equivalent to `` $`${env.fence}\n${X}\n${env.fence}` ``)
      */
     fence: string
-
-    /**
-     * Content of the generated file from the last prompt execution.
-     * This variable is empty for multi-file output.
-     */
-    output: string
 
     /**
      * Current file
