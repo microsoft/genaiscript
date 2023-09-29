@@ -299,11 +299,7 @@ Use documentation from DOCS.
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
 
-In the coarch files, those link you be part of a bulletted list
-
-```md
--   [package.json](./package.json)
-```
+In the coarch files, those link you be part of a bulletted list.
 
 #### Current file
 
