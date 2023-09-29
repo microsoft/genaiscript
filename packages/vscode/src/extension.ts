@@ -1,6 +1,9 @@
 import * as vscode from "vscode"
 import { ExtensionContext } from "vscode"
-import { ExtensionState } from "./state"
+import {
+    ExtensionState,
+    openRequestOutput,
+} from "./state"
 import { activateFragmentTreeDataProvider } from "./fragmenttree"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
@@ -91,11 +94,7 @@ export async function activate(context: ExtensionContext) {
                 vscode.commands.executeCommand("coarch.request.abort")
             else if (res === trace)
                 vscode.commands.executeCommand("coarch.request.open")
-            else if (res === output)
-                vscode.commands.executeCommand(
-                    "coarch.request.open",
-                    "airequest.text.md"
-                )
+            else if (res === output) openRequestOutput()
             else if (res === next)
                 vscode.commands.executeCommand("coarch.fragment.prompt")
         }),

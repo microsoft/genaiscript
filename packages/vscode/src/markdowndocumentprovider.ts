@@ -1,5 +1,10 @@
 import * as vscode from "vscode"
-import { AI_REQUEST_CHANGE, ExtensionState } from "./state"
+import {
+    AI_REQUEST_CHANGE,
+    ExtensionState,
+    REQUEST_OUTPUT_FILENAME,
+    REQUEST_TRACE_FILENAME,
+} from "./state"
 import { showMarkdownPreview } from "./markdown"
 import {
     builtinPrefix,
@@ -21,7 +26,7 @@ class MarkdownTextDocumentContentProvider
 {
     constructor(readonly state: ExtensionState) {
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
-            ;["airequest.text.md", "airequest.trace.md"]
+            ;[REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME]
                 .map((path) => infoUri(path))
                 .forEach((uri) => {
                     this._onDidChange.fire(uri)
@@ -40,9 +45,9 @@ class MarkdownTextDocumentContentProvider
         const aiRequest = this.state.aiRequest
         const res = aiRequest?.response
         switch (uri.path) {
-            case "airequest.text.md":
+            case REQUEST_OUTPUT_FILENAME:
                 return res?.text ?? noRequest
-            case "airequest.trace.md":
+            case REQUEST_TRACE_FILENAME:
                 return res?.trace ?? noRequest
         }
         if (uri.path.startsWith(cachedRequestPrefix)) {
@@ -130,7 +135,7 @@ export function activateMarkdownTextDocumentContentProvider(
             "coarch.request.open",
             async (id: string) => {
                 if (state.aiRequest) {
-                    const uri = infoUri(id || "airequest.trace.md")
+                    const uri = infoUri(id || REQUEST_TRACE_FILENAME)
                     await showMarkdownPreview(uri)
                 }
             }
