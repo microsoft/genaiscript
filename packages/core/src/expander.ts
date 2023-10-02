@@ -28,6 +28,7 @@ import {
 } from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
+import { initToken } from "./oai_token"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -391,7 +392,6 @@ export async function runTemplate(
         max_tokens,
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
-    options?.infoCb?.({ edits: [], trace, text: "Computing..." })
 
     trace += "\n\n## Final prompt\n\n"
 
@@ -414,6 +414,8 @@ export async function runTemplate(
 
     let text: string
     try {
+        await initToken()
+        options?.infoCb?.({ edits: [], trace, text: "> Waiting for response..." })
         text = await getChatCompletions(
             {
                 model,
