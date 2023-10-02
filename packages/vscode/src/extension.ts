@@ -1,9 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionContext } from "vscode"
-import {
-    ExtensionState,
-    openRequestOutput,
-} from "./state"
+import { ExtensionState, openRequestOutput } from "./state"
 import { activateFragmentTreeDataProvider } from "./fragmenttree"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
@@ -16,6 +13,7 @@ import { activatePromptCommands } from "./promptcommands"
 import { clearToken } from "coarch-core"
 import { activateRunnerView } from "./runnerview"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
+import { activateAIRequestTreeDataProvider } from "./airequesttree"
 
 export const COARCH_EXTENSION_ID = "coarch.coarch-vscode"
 
@@ -26,15 +24,16 @@ function toStringList(...token: string[]) {
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
-    activatePrompTreeDataProvider(state)
-    activateFragmentTreeDataProvider(state)
-    activateRunnerView(state)
-    activateOpenAIRequestTreeDataProvider(state)
-    activateStatusBar(state)
-    activateCodeActions(state)
+    activatePromptCommands(state)
     activateFragmentCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
-    activatePromptCommands(state)
+    activatePrompTreeDataProvider(state)
+    activateFragmentTreeDataProvider(state)
+    activateAIRequestTreeDataProvider(state)
+    activateOpenAIRequestTreeDataProvider(state)
+    activateRunnerView(state)
+    activateStatusBar(state)
+    activateCodeActions(state)
 
     context.subscriptions.push(
         vscode.commands.registerCommand("coarch.request.abort", async () => {

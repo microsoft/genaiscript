@@ -63,14 +63,16 @@ export class FragmentsEvent extends Event {
     }
 }
 export interface AIRequestSnapshotKey {
-    template: string
+    template: {
+        id: string
+        title: string
+    }
     fragment: {
         fullId: string
         hash: string
     }
 }
 export interface AIRequestSnapshot {
-    key: AIRequestSnapshotKey
     response?: FragmentTransformResponse
     error?: any
 }
@@ -86,16 +88,24 @@ export interface AIRequest {
     editsApplied?: boolean // null = waiting, false, true
 }
 
+export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
+    const { options, response, error } = r
+    const key = {
+        template: {
+            id: options.template.id,
+            title: options.template.title,
+        },
+        fragment: {
+            fullId: options.fragment.fullId,
+            hash: options.fragment.hash,
+        },
+    }
+    return key
+}
+
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
     const { options, response, error } = r
     const snapshot = structuredClone({
-        key: {
-            template: options.template.id,
-            fragment: {
-                fullId: options.fragment.fullId,
-                hash: options.fragment.hash,
-            },
-        },
         response,
         error,
     })
@@ -112,7 +122,8 @@ export class ExtensionState extends EventTarget {
     private _aiRequest: AIRequest = undefined
     private _watcher: vscode.FileSystemWatcher | undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _cache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> = undefined
+    private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
+        undefined
 
     readonly aiRequestContext: AIRequestContextOptions = {}
 
@@ -126,7 +137,7 @@ export class ExtensionState extends EventTarget {
         this._diagColl = vscode.languages.createDiagnosticCollection("CoArch")
         subscriptions.push(this._diagColl)
 
-        this._cache = getAIRequestCache()
+        this._aiRequestCache = getAIRequestCache()
 
         // clear errors when file edited (remove me?)
         vscode.workspace.onDidChangeTextDocument(
@@ -136,6 +147,10 @@ export class ExtensionState extends EventTarget {
             undefined,
             subscriptions
         )
+    }
+
+    aiRequestCache() {
+        return this._aiRequestCache
     }
 
     async retryAIRequest(): Promise<void> {
@@ -159,8 +174,9 @@ export class ExtensionState extends EventTarget {
                     needsConfirmation: true,
                 })
                 if (req.editsApplied) {
+                    const key = snapshotAIRequestKey(req)
                     const snapshot = snapshotAIRequest(req)
-                    await this._cache.set(snapshot.key, snapshot)
+                    await this._aiRequestCache.set(key, snapshot)
                     await Promise.all(
                         vscode.workspace.textDocuments
                             .filter((doc) => doc.isDirty)

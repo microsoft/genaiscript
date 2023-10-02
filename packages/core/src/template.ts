@@ -16,7 +16,8 @@ function templateIdFromFileName(filename: string) {
 }
 
 export const builtinPrefix = "_builtin/"
-export const cachedRequestPrefix = "airequest.cached/"
+export const cachedOpenAIRequestPrefix = "cache.openai.request/"
+export const cachedAIRequestPrefix = "cache.ai.request/"
 
 type KeysOfType<T, S> = {
     [K in keyof T]: T[K] extends S ? K : never

@@ -3,7 +3,7 @@ import { ExtensionState } from "./state"
 import {
     CHANGE,
     CacheEntry,
-    cachedRequestPrefix,
+    cachedOpenAIRequestPrefix,
     getChatCompletionCache,
 } from "coarch-core"
 import type { CreateChatCompletionRequest } from "openai"
@@ -32,7 +32,7 @@ class OpenAIRequestTreeDataProvider
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
-            arguments: [infoUri(cachedRequestPrefix + sha + ".md")],
+            arguments: [infoUri(cachedOpenAIRequestPrefix + sha + ".md")],
             title: "Show Preview",
         }
         return item
