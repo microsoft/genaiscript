@@ -18,6 +18,7 @@ import {
     isRequestError,
     delay,
     CHANGE,
+    Cache,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -61,6 +62,18 @@ export class FragmentsEvent extends Event {
         super(FRAGMENTS_CHANGE)
     }
 }
+export interface AIRequestSnapshotKey {
+    template: string
+    fragment: {
+        fullId: string
+        hash: string
+    }
+}
+export interface AIRequestSnapshot {
+    key: AIRequestSnapshotKey
+    response?: FragmentTransformResponse
+    error?: any
+}
 
 export interface AIRequest {
     options: AIRequestOptions
@@ -73,12 +86,33 @@ export interface AIRequest {
     editsApplied?: boolean // null = waiting, false, true
 }
 
+export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
+    const { options, response, error } = r
+    const snapshot = structuredClone({
+        key: {
+            template: options.template.id,
+            fragment: {
+                fullId: options.fragment.fullId,
+                hash: options.fragment.hash,
+            },
+        },
+        response,
+        error,
+    })
+    return snapshot
+}
+
+function getAIRequestCache() {
+    return Cache.byName<AIRequestSnapshotKey, AIRequestSnapshot>("airequests")
+}
+
 export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
     private _project: CoArchProject = undefined
     private _aiRequest: AIRequest = undefined
     private _watcher: vscode.FileSystemWatcher | undefined
     private _diagColl: vscode.DiagnosticCollection
+    private _cache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> = undefined
 
     readonly aiRequestContext: AIRequestContextOptions = {}
 
@@ -91,6 +125,8 @@ export class ExtensionState extends EventTarget {
 
         this._diagColl = vscode.languages.createDiagnosticCollection("CoArch")
         subscriptions.push(this._diagColl)
+
+        this._cache = getAIRequestCache()
 
         // clear errors when file edited (remove me?)
         vscode.workspace.onDidChangeTextDocument(
@@ -111,7 +147,6 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
-            const { fragment } = options
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
@@ -123,13 +158,15 @@ export class ExtensionState extends EventTarget {
                 req.editsApplied = await applyEdits(edits, {
                     needsConfirmation: true,
                 })
-                if (req.editsApplied)
-                    // TODO: only files touched by edit
+                if (req.editsApplied) {
+                    const snapshot = snapshotAIRequest(req)
+                    await this._cache.set(snapshot.key, snapshot)
                     await Promise.all(
                         vscode.workspace.textDocuments
                             .filter((doc) => doc.isDirty)
                             .map((doc) => doc.save())
                     )
+                }
                 this.dispatchChange()
                 vscode.commands.executeCommand("coarch.request.status")
             }
