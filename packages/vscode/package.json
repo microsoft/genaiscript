@@ -70,7 +70,7 @@
                 },
                 {
                     "id": "coarch.openai.requests",
-                    "name": "Requests",
+                    "name": "OpenAI Requests",
                     "visibility": "collapsed"
                 }
             ]
