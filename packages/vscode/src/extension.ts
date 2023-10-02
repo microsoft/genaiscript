@@ -15,7 +15,7 @@ import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands } from "./promptcommands"
 import { clearToken } from "coarch-core"
 import { activateRunnerView } from "./runnerview"
-import { activateRequestTreeDataProvider } from "./requesttree"
+import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 
 export const COARCH_EXTENSION_ID = "coarch.coarch-vscode"
 
@@ -29,7 +29,7 @@ export async function activate(context: ExtensionContext) {
     activatePrompTreeDataProvider(state)
     activateFragmentTreeDataProvider(state)
     activateRunnerView(state)
-    activateRequestTreeDataProvider(state)
+    activateOpenAIRequestTreeDataProvider(state)
     activateStatusBar(state)
     activateCodeActions(state)
     activateFragmentCommands(state)
