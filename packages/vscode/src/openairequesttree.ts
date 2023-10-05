@@ -3,17 +3,17 @@ import { ExtensionState } from "./state"
 import {
     CHANGE,
     CacheEntry,
-    cachedRequestPrefix,
+    cachedOpenAIRequestPrefix,
     getChatCompletionCache,
 } from "coarch-core"
 import type { CreateChatCompletionRequest } from "openai"
 import { Cache } from "coarch-core"
 import { infoUri } from "./markdowndocumentprovider"
 
-type RequestTreeNode = CacheEntry<CreateChatCompletionRequest, string>
+type OpenAIRequestTreeNode = CacheEntry<CreateChatCompletionRequest, string>
 
-class RequestTreeDataProvider
-    implements vscode.TreeDataProvider<RequestTreeNode>
+class OpenAIRequestTreeDataProvider
+    implements vscode.TreeDataProvider<OpenAIRequestTreeNode>
 {
     cache: Cache<CreateChatCompletionRequest, string>
     constructor(readonly state: ExtensionState) {
@@ -21,7 +21,9 @@ class RequestTreeDataProvider
         this.cache.addEventListener(CHANGE, () => this.refresh())
     }
 
-    async getTreeItem(element: RequestTreeNode): Promise<vscode.TreeItem> {
+    async getTreeItem(
+        element: OpenAIRequestTreeNode
+    ): Promise<vscode.TreeItem> {
         const { sha, key, val } = element
         const item = new vscode.TreeItem(
             sha,
@@ -30,15 +32,15 @@ class RequestTreeDataProvider
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
-            arguments: [infoUri(cachedRequestPrefix + sha + ".md")],
+            arguments: [infoUri(cachedOpenAIRequestPrefix + sha + ".md")],
             title: "Show Preview",
         }
         return item
     }
 
     async getChildren(
-        element?: RequestTreeNode | undefined
-    ): Promise<RequestTreeNode[]> {
+        element?: OpenAIRequestTreeNode | undefined
+    ): Promise<OpenAIRequestTreeNode[]> {
         if (!element) {
             const entries = await this.cache.entries()
             return entries
@@ -48,28 +50,30 @@ class RequestTreeDataProvider
 
     async resolveTreeItem?(
         item: vscode.TreeItem,
-        element: RequestTreeNode,
+        element: OpenAIRequestTreeNode,
         token: vscode.CancellationToken
     ) {
         return item
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
-        void | RequestTreeNode | RequestTreeNode[]
-    > = new vscode.EventEmitter<void | RequestTreeNode | RequestTreeNode[]>()
+        void | OpenAIRequestTreeNode | OpenAIRequestTreeNode[]
+    > = new vscode.EventEmitter<
+        void | OpenAIRequestTreeNode | OpenAIRequestTreeNode[]
+    >()
     readonly onDidChangeTreeData: vscode.Event<
-        void | RequestTreeNode | RequestTreeNode[]
+        void | OpenAIRequestTreeNode | OpenAIRequestTreeNode[]
     > = this._onDidChangeTreeData.event
 
-    refresh(treeItem?: RequestTreeNode | RequestTreeNode[]): void {
+    refresh(treeItem?: OpenAIRequestTreeNode | OpenAIRequestTreeNode[]): void {
         this._onDidChangeTreeData.fire(treeItem)
     }
 }
 
-export function activateRequestTreeDataProvider(state: ExtensionState) {
+export function activateOpenAIRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
-    const treeDataProvider = new RequestTreeDataProvider(state)
+    const treeDataProvider = new OpenAIRequestTreeDataProvider(state)
     const treeView = vscode.window.createTreeView("coarch.openai.requests", {
         treeDataProvider,
     })

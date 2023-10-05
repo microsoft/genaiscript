@@ -8,7 +8,8 @@ import {
 import { showMarkdownPreview } from "./markdown"
 import {
     builtinPrefix,
-    cachedRequestPrefix,
+    cachedAIRequestPrefix,
+    cachedOpenAIRequestPrefix,
     defaultPrompts,
     extractFenced,
     getChatCompletionCache,
@@ -62,11 +63,17 @@ ${md}
             case REQUEST_TRACE_FILENAME:
                 return wrap(res?.trace)
         }
-        if (uri.path.startsWith(cachedRequestPrefix)) {
+        if (uri.path.startsWith(cachedOpenAIRequestPrefix)) {
             const sha = uri.path
-                .slice(cachedRequestPrefix.length)
+                .slice(cachedOpenAIRequestPrefix.length)
                 .replace(/\.md$/, "")
-            return previewCacheEntry(sha)
+            return previewOpenAICacheEntry(sha)
+        }
+        if (uri.path.startsWith(cachedAIRequestPrefix)) {
+            const sha = uri.path
+                .slice(cachedAIRequestPrefix.length)
+                .replace(/\.md$/, "")
+            return this.previewAIRequest(sha)
         }
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
@@ -76,9 +83,21 @@ ${md}
         }
         return ""
     }
+
+    private async previewAIRequest(sha: string) {
+        const cache = this.state.aiRequestCache()
+        const { key, val } = (await cache.getEntryBySha(sha)) || {}
+        if (!key)
+            return `## Oops
+        
+        Request \`${sha}\` not found in cache.
+        `
+
+        return val.response?.trace
+    }
 }
 
-async function previewCacheEntry(sha: string) {
+async function previewOpenAICacheEntry(sha: string) {
     const cache = getChatCompletionCache()
     const { key, val } = (await cache.getEntryBySha(sha)) || {}
     if (!key)

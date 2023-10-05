@@ -41,6 +41,11 @@ export interface FragmentTransformResponse {
     edits: Edits[]
 
     /**
+     * A map of file updates
+     */
+    fileEdits: Record<string, { before: string; after: string }>
+
+    /**
      * MD-formatted trace.
      */
     trace: string
@@ -409,13 +414,19 @@ export async function runTemplate(
             trace,
             text: "# Template failed\nSee info below.\n" + trace,
             edits: [],
+            fileEdits: {},
         }
     }
 
     let text: string
     try {
         await initToken()
-        options?.infoCb?.({ edits: [], trace, text: "> Waiting for response..." })
+        options?.infoCb?.({
+            edits: [],
+            trace,
+            text: "> Waiting for response...",
+            fileEdits: {},
+        })
         text = await getChatCompletions(
             {
                 model,
@@ -443,7 +454,12 @@ export async function runTemplate(
                 trace += `-  code: \`${error.body.code}\`\n`
             }
             trace += `-   status: \`${error.status}\`, ${error.statusText}\n`
-            options.infoCb({ edits: [], trace, text: "Request error" })
+            options.infoCb({
+                edits: [],
+                trace,
+                text: "Request error",
+                fileEdits: {},
+            })
         } else if (signal?.aborted) {
             trace += `## Request cancelled
             
@@ -453,6 +469,7 @@ The user requested to cancel the request.
                 edits: [],
                 trace,
                 text: "Request cancelled",
+                fileEdits: {},
             })
         }
         throw error
@@ -477,9 +494,11 @@ ${renderFencedVariables(extr)}
 
     const res: FragmentTransformResponse = {
         edits,
+        fileEdits: {},
         trace,
         text,
     }
+    const { fileEdits } = res
 
     const links: string[] = []
     let hasFiles = false
@@ -495,6 +514,7 @@ ${renderFencedVariables(extr)}
 
             if (await fileExists(fn)) {
                 const content = await readText(fn)
+                fileEdits[fn] = { before: content, after: val }
                 edits.push({
                     label: `Update ${fn}`,
                     filename: fn,
@@ -503,6 +523,7 @@ ${renderFencedVariables(extr)}
                     text: val,
                 })
             } else {
+                fileEdits[fn] = { before: null, after: val }
                 edits.push({
                     label: `Create ${fn}`,
                     filename: fn,
