@@ -476,7 +476,6 @@ export async function parsePromptTemplate(
             c.checkStringArray("system")
             c.checkStringArray("categories")
 
-            c.checkBool("audit")
             c.checkBool("isSystem")
         })
 
