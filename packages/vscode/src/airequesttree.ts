@@ -4,9 +4,10 @@ import {
     AIRequestSnapshotKey,
     ExtensionState,
 } from "./state"
-import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "coarch-core"
+import { CHANGE, CacheEntry, cachedAIRequestPrefix, fenceMD } from "coarch-core"
 import { Cache } from "coarch-core"
 import { infoUri } from "./markdowndocumentprovider"
+import { toMarkdownString } from "./markdown"
 
 type AIRequestTreeNode = CacheEntry<AIRequestSnapshotKey, AIRequestSnapshot>
 
@@ -40,6 +41,7 @@ class AIRequestTreeDataProvider
     ): Promise<AIRequestTreeNode[]> {
         if (!element) {
             const entries = await this.cache.entries()
+            entries.reverse()
             return entries
         }
         return undefined
@@ -50,6 +52,18 @@ class AIRequestTreeDataProvider
         element: AIRequestTreeNode,
         token: vscode.CancellationToken
     ) {
+        const entry = await this.cache.getEntryBySha(element.sha)
+        if (entry && token.isCancellationRequested) {
+            const { key, val } = entry
+            item.tooltip = new vscode.MarkdownString(
+                toMarkdownString(
+                    val.response?.summary ||
+                        val.response?.text.slice(0, 100) ||
+                        ""
+                )
+            )
+        }
+
         return item
     }
 

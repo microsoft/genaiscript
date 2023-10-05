@@ -182,9 +182,9 @@ export class ExtensionState extends EventTarget {
                             .filter((doc) => doc.isDirty)
                             .map((doc) => doc.save())
                     )
+                    vscode.commands.executeCommand("coarch.request.status")
                 }
                 this.dispatchChange()
-                vscode.commands.executeCommand("coarch.request.status")
             }
         } catch (e) {
             if (isCancelError(e)) return
