@@ -69,8 +69,13 @@
                     "visibility": "collapsed"
                 },
                 {
+                    "id": "coarch.prompts.requests",
+                    "name": "Prompt Requests",
+                    "visibility": "collapsed"
+                },
+                {
                     "id": "coarch.openai.requests",
-                    "name": "Requests",
+                    "name": "OpenAI Requests",
                     "visibility": "collapsed"
                 }
             ]
