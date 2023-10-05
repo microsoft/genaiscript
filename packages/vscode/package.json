@@ -183,18 +183,6 @@
                 "category": "CoArch"
             },
             {
-                "command": "coarch.fragment.audit",
-                "title": "✓ Audit",
-                "category": "CoArch",
-                "icon": "$(check)"
-            },
-            {
-                "command": "coarch.fragment.unaudited",
-                "title": "⚠ Mark unaudited",
-                "category": "CoArch",
-                "icon": "$(unverified)"
-            },
-            {
                 "command": "coarch.fragment.prompt",
                 "title": "Query a copilot AI to do a task on the node",
                 "category": "CoArch",

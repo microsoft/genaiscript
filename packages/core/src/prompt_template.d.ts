@@ -90,12 +90,6 @@ interface PromptTemplate extends PromptLike {
      * Specifies a folder to create output files into
      */
     outputFolder?: string
-
-    /**
-     * This prompt emits a VALID, INVALID answer in the output and will be suggested for auditing
-     * operations.
-     */
-    audit?: boolean
 }
 
 interface FileType extends PromptLike {

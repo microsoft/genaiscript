@@ -205,18 +205,6 @@ mysrc
 -->
 ```
 
-#### audit: true | false
-
-Specifies that the prompt is an auditing prompt and should produce `VALID` or `ERROR` in the output.
-Auditing prompts can be batch executed over the entire repository to automate the process of auditing nodes.
-
-```js
-prompt({
-    ...
-    audit: true,
-})
-```
-
 #### LLM parameters
 
 These are taken from prompt, or from system prompt, or set to default.
