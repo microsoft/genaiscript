@@ -1,25 +1,16 @@
 # email address and URL recognizer 
 
--   [generate-python](./problem.py)
+Write a function that takes a string argument and returns true if the whole string is a valid email address or URL, false otherwise.
 
--   [generate-python-tests](./problem.pyt)
+-   [./email_recognizer.py](././email_recognizer.py)
 
-## Write a function that takes a string argument and returns true if the whole string is a valid email address or URL, false otherwise.
+-   [./test_email_recognizer.py](././test_email_recognizer.py)
 
-- Include a way to call the function from the command line
+## Code Review
 
-## Pay attention to these issues
-
-Issue: 
-  File "C:\projects\coarch\packages\helloworld\problem.py", line 11, in <module>
-    email = sys.argv[1]
-  IndexError: list index out of range
-
-Make sure this URLs cant contain a dollar sign.
-  FAIL: test_invalid_url_special_characters (__main__.TestIsValidEmailOrUrl)
-  ----------------------------------------------------------------------
-  Traceback (most recent call last):
-    File "C:\projects\coarch\packages\helloworld\problem.pyt", line 31, in test_invalid_url_special_characters
-      self.assertFalse(is_valid_email_or_url("https://www.exa$mple.com"))
-  AssertionError: True is not false
-
+1. Add docstring to the `is_valid_email` function to explain its purpose and parameters.
+2. Use a more descriptive variable name instead of `pattern` for the regex pattern.
+3. Consider using a more comprehensive regex pattern to cover edge cases and improve email validation.
+4. Add unit tests in `test_email_recognizer.py` to ensure the function works as expected.
+5. The function only checks for email addresses, not URLs. Update the function to also validate URLs.
+6. Rename the function to better reflect its purpose, e.g., `is_valid_email_or_url`.
