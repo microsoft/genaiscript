@@ -95,6 +95,12 @@ interface PromptTemplate extends PromptLike {
      * Apply edits automatically instead of showing the refactoring UI.
      */
     autoApplyEdits?: boolean
+
+    /**
+     * The prompt will use the clipboard contents as input. Using this prompt might trigger
+     * a system prompt asking for clipboard access.
+     */
+    readClipboard?: boolean
 }
 
 /**
