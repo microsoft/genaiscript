@@ -368,13 +368,11 @@ export class ExtensionState extends EventTarget {
 
         const coarchFiles = await findFiles("**/*.coarch.md")
         const promptFiles = await findFiles("**/*.prompt.js")
-        const fileTypeFiles = await findFiles("**/*.filetype.js")
         const coarchJsonFiles = await findFiles("**/coarch.json")
 
         this.project = await parseProject({
             coarchFiles,
             promptFiles,
-            fileTypeFiles,
             coarchJsonFiles,
         })
 

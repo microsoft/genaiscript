@@ -486,34 +486,6 @@ export async function parsePromptTemplate(
     })
 }
 
-export function parseFileType(
-    filename: string,
-    content: string,
-    prj: CoArchProject
-) {
-    return undefined as FileType
-    /*
-    return parsePromptLike<FileType>(filename, content, prj, (c) => {
-        const obj = c.validateKV(() => {
-            c.checkString("title");
-            c.checkString("description");
-
-            c.checkString("glob");
-            c.checkString("globExclude");
-            c.checkString("language");
-            c.checkString("lineComment");
-
-            c.checkBool("tree");
-        });
-
-        const r = c.template;
-        Object.assign(r, obj);
-
-        if (!r.glob) c.verror("glob required");
-    });
-    */
-}
-
 export function templateAppliesTo(
     template: PromptTemplate,
     fragment: Fragment
