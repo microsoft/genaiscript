@@ -6,6 +6,7 @@ prompt({
     categories: ["tutorial"],
     system: ["system.summary"],
     autoApplyEdits: true,
+    nextTemplateAfterApplyEdits: "generate-python",
     readClipboard: true
 })
 

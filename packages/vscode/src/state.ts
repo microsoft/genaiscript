@@ -186,6 +186,21 @@ export class ExtensionState extends EventTarget {
                     vscode.commands.executeCommand("coarch.request.status")
                 }
                 this.dispatchChange()
+
+                const nextTemplate =
+                    req.editsApplied &&
+                    edits.length > 0 &&
+                    this.project.templates.find(
+                        (t) =>
+                            t.id ===
+                            options.template.nextTemplateAfterApplyEdits
+                    )
+                if (nextTemplate)
+                    vscode.commands.executeCommand(
+                        "coarch.fragment.prompt",
+                        options.fragment,
+                        nextTemplate
+                    )
             }
         } catch (e) {
             if (isCancelError(e)) return
