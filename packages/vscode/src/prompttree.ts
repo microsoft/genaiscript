@@ -22,7 +22,7 @@ class PromptTreeDataProvider
             item.id = `coarch.promptCategory.${element}`
             return item
         } else {
-            const { id, title, text, description = "" } = element
+            const { id, title, description = "", autoApplyEdits } = element
             const ai = this.state.aiRequest
             const { computing, options, progress } = ai || {}
             const { template } = options || {}
@@ -48,12 +48,7 @@ class PromptTreeDataProvider
 ${description}
 
 -  id: \`${id}\`
-
-### Prompt
-
-\`\`\`
-${text}
-\`\`\`
+-  auto apply edits: ${autoApplyEdits ? "yes" : "no"}
 `,
                 true
             )
