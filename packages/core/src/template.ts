@@ -478,6 +478,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("isSystem")
             c.checkBool("autoApplyEdits")
+            c.checkBool("readClipboard")
         })
 
         const r = c.template

@@ -2,6 +2,9 @@ import unittest
 from email_recognizer import is_valid_email_or_url
 
 class TestEmailRecognizer(unittest.TestCase):
+    def test_valid_email_null(self):
+        self.assertFalse(is_valid_email_or_url(None))
+
     def test_valid_email(self):
         self.assertTrue(is_valid_email_or_url("user@example.com"))
 

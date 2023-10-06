@@ -95,6 +95,12 @@ interface PromptTemplate extends PromptLike {
      * Apply edits automatically instead of showing the refactoring UI.
      */
     autoApplyEdits?: boolean
+
+    /**
+     * The prompt will use the clipboard contents as input. Using this prompt might trigger
+     * a system prompt asking for clipboard access.
+     */
+    readClipboard?: boolean
 }
 
 /**
@@ -171,6 +177,11 @@ interface ExpansionVariables {
      * User defined variables
      */
     vars: Record<string, string>
+
+    /**
+     * Clipboard content if the prompt declare `readClipboard: true`
+     */
+    clipboard?: string
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

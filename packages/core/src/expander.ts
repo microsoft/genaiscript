@@ -375,6 +375,7 @@ function fragmentVars(
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
     infoCb?: (partialResponse: FragmentTransformResponse) => void
+    readClipboard?: () => Promise<string>
     promptOptions?: any
     maxCachedTemperature?: number
 }
@@ -393,6 +394,8 @@ export async function runTemplate(
         fragment,
         options.promptOptions
     )
+    if (vars.vars && template.readClipboard && options?.readClipboard)
+        vars.clipboard = await options.readClipboard()
     let {
         expanded,
         success,

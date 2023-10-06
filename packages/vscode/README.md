@@ -189,6 +189,7 @@ You can specify an output folder using `outputFolder`.
 
 ```js
 prompt({
+    ...,
     outputFolder: "src",
 })
 ```
@@ -199,7 +200,19 @@ Automatically apply file changes suggested by the LLM. **Warning, the refectorin
 
 ```js
 prompt({
+    ...,
     autoApplyEdits: true,
+})
+```
+
+#### readClipboard
+
+The prompt will read the clipboard and use it as the input. Running the prompt might trigger a dialog to request clipboard access.
+
+```js
+prompt({
+    ...,
+    readClipboard: true,
 })
 ```
 
