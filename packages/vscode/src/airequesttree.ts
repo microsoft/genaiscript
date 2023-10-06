@@ -23,10 +23,10 @@ class AIRequestTreeDataProvider
     async getTreeItem(element: AIRequestTreeNode): Promise<vscode.TreeItem> {
         const { sha, key } = element
         const item = new vscode.TreeItem(
-            key.template.title,
+            key.fragment.fullId,
             vscode.TreeItemCollapsibleState.None
         )
-        item.description = key.fragment.fullId
+        item.description = key.template.title
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
@@ -53,7 +53,7 @@ class AIRequestTreeDataProvider
         token: vscode.CancellationToken
     ) {
         const entry = await this.cache.getEntryBySha(element.sha)
-        if (entry && token.isCancellationRequested) {
+        if (entry && !token.isCancellationRequested) {
             const { key, val } = entry
             item.tooltip = new vscode.MarkdownString(
                 toMarkdownString(
