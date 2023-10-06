@@ -478,6 +478,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("isSystem")
             c.checkBool("autoApplyEdits")
+            c.checkString("nextTemplateAfterApplyEdits")
             c.checkBool("readClipboard")
         })
 

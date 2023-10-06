@@ -205,6 +205,17 @@ prompt({
 })
 ```
 
+#### nextTemplateAfterApplyEdits
+
+When set, automatically start the next template request after applying edits. Combined with `autoApplyEdits`, this could create execution loops, be careful.
+
+```js
+prompt({
+    ...,
+    nextTemplateAfterApplyEdits: 'generate-python',
+})
+```
+
 #### readClipboard
 
 The prompt will read the clipboard and use it as the input. Running the prompt might trigger a dialog to request clipboard access.
