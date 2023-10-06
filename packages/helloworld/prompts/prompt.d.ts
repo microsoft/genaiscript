@@ -97,6 +97,11 @@ interface PromptTemplate extends PromptLike {
     autoApplyEdits?: boolean
 
     /**
+     * If set, the next prompt template will be used after the edits are applied.
+     */
+    nextTemplateAfterApplyEdits?: string
+
+    /**
      * The prompt will use the clipboard contents as input. Using this prompt might trigger
      * a system prompt asking for clipboard access.
      */

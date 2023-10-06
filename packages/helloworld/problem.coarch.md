@@ -13,4 +13,3 @@ Write a function that takes a string argument and returns true if the whole stri
 3. Handle the case when the input string is `None` or not a string type.
 4. Add docstrings to explain the purpose and usage of the function.
 5. Update the function to handle the case when the input is `None` and return `False`. To fix the runtime error, add a condition to check if the input is a string before performing the regex match.
-
