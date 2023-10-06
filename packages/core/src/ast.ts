@@ -162,7 +162,6 @@ export class CoArchProject {
     readonly fragmentByFullId: Record<string, Fragment> = {}
     readonly allFragments: Fragment[] = []
     readonly templates: PromptTemplate[] = []
-    readonly fileTypes: FileType[] = []
     readonly diagnostics: Diagnostic[] = []
 
     _finalizers: (() => void)[] = []
