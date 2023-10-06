@@ -1,13 +1,14 @@
 prompt({
     title: "Generate python code",
-    output: ".py",
     model: "gpt-4",
     description: "Given a task, generate python code.",
-    system: ["system.code"],
+    system: ["system.code", "system.summary"],
     categories: ["tutorial"],
 })
 
-def("CODE", env.output)
+def("CODE", env.links.filter(
+    (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
+))
 def("TASK", env.file)
 
 $`You are an expert python programmer.
