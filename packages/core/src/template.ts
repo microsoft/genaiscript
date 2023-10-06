@@ -477,6 +477,7 @@ export async function parsePromptTemplate(
             c.checkStringArray("categories")
 
             c.checkBool("isSystem")
+            c.checkBool("autoApplyEdits")
         })
 
         const r = c.template

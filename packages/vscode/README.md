@@ -183,13 +183,23 @@ prompt({
 })
 ```
 
-#### output
+#### outputFolder
 
 You can specify an output folder using `outputFolder`.
 
 ```js
 prompt({
     outputFolder: "src",
+})
+```
+
+#### autoApplyEdits
+
+Automatically apply file changes suggested by the LLM. **Warning, the refectoring UI will not be used when this flag is enabled.**
+
+```js
+prompt({
+    autoApplyEdits: true,
 })
 ```
 

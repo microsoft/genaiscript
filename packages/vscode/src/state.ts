@@ -170,8 +170,9 @@ export class ExtensionState extends EventTarget {
             if (edits) {
                 req.editsApplied = null
                 this.dispatchChange()
+                const autoApplyEdits = !!options.template.autoApplyEdits
                 req.editsApplied = await applyEdits(edits, {
-                    needsConfirmation: true,
+                    needsConfirmation: !autoApplyEdits,
                 })
                 if (req.editsApplied) {
                     const key = snapshotAIRequestKey(req)
