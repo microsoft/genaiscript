@@ -480,7 +480,6 @@ The user requested to cancel the request.
         throw error
     }
 
-    let summary = ""
     const edits: Edits[] = []
     const obj = {
         label: template.title,
@@ -503,7 +502,6 @@ ${renderFencedVariables(extr)}
         fileEdits: {},
         trace,
         text,
-        summary,
     }
     const { fileEdits } = res
 
@@ -545,7 +543,7 @@ ${renderFencedVariables(extr)}
                 links.push(`-   [${n}](./${n})`)
         }
         if (name === "SUMMARY") {
-            summary = val
+            res.summary = val
             delete extr.vars[name]
         }
     }

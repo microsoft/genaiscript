@@ -90,51 +90,6 @@ interface PromptTemplate extends PromptLike {
      * Specifies a folder to create output files into
      */
     outputFolder?: string
-
-    /**
-     * This prompt emits a VALID, INVALID answer in the output and will be suggested for auditing
-     * operations.
-     */
-    audit?: boolean
-}
-
-interface FileType extends PromptLike {
-    /**
-     * Pattern for the file type.
-     * Always uses '/' as path separator.
-     * If there is no '/' in the pattern, '**\/' is prepended.
-     * This docstring sometimes uses '\/' for '/' to avoid finishing the doc-comment!
-     *
-     * @example "*.coarch.md", "*.{tsx,ts}", "client/**\/*.ts"
-     */
-    glob: string
-
-    /**
-     * Patterns of files to exclude if any.
-     * Some files (including `node_modules`) are globally excluded.
-     */
-    globExclude?: string
-
-    /**
-     * File type to use in ``` markdown fences.
-     *
-     * @example "js", "ts", "c", "cpp", "markdown", "python", "text"
-     */
-    language: string
-
-    /**
-     * Single-line comment syntax to use in the file.
-     * Default depends on `language`, or "#" if unknown.
-     *
-     * @example "#", "//", "--"
-     */
-    lineComment?: string
-
-    /**
-     * Whether to try to extract a tree structure of fragments when parsing.
-     * Currently only works for "markdown" language.
-     */
-    tree?: boolean
 }
 
 /**
@@ -155,11 +110,6 @@ interface LinkedFile {
      * Content of the file.
      */
     content: string
-
-    /**
-     * Either built-in, or user-defined file type.
-     */
-    // TODO filetype: FileType
 }
 
 /**
