@@ -21,8 +21,8 @@ import {
     Fragment,
     Range,
 } from "./ast"
-import { defaultFileTypes, defaultPrompts } from "./default_prompts"
-import { builtinPrefix, parsePromptTemplate, parseFileType } from "./template"
+import { defaultPrompts } from "./default_prompts"
+import { builtinPrefix, parsePromptTemplate } from "./template"
 import { host } from "./host"
 
 const extToType: Record<string, string> = {
@@ -301,10 +301,9 @@ async function fragmentHash(t: Fragment) {
 export async function parseProject(options: {
     coarchFiles: string[]
     promptFiles: string[]
-    fileTypeFiles: string[]
     coarchJsonFiles: string[]
 }) {
-    const { coarchFiles, promptFiles, fileTypeFiles, coarchJsonFiles } = options
+    const { coarchFiles, promptFiles, coarchJsonFiles } = options
     logVerbose("parseProject")
     const prj = new CoArchProject()
     const runFinalizers = () => {
@@ -318,16 +317,6 @@ export async function parseProject(options: {
         if (cfg) Object.assign(prj.coarchJson, cfg)
     }
 
-    const deflFTs = Object.assign({}, defaultFileTypes)
-    for (const f of fileTypeFiles) {
-        const lnk = parseFileType(f, await readText(f), prj)
-        if (!lnk) continue
-        delete deflFTs[lnk.id]
-        prj.fileTypes.push(lnk)
-    }
-    for (const [id, v] of Object.entries(deflFTs)) {
-        prj.fileTypes.push(parseFileType(builtinPrefix + id, v, prj))
-    }
     runFinalizers()
 
     const deflPr = Object.assign({}, defaultPrompts)
