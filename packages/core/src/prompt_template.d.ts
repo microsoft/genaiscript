@@ -177,6 +177,11 @@ interface ExpansionVariables {
      * User defined variables
      */
     vars: Record<string, string>
+
+    /**
+     * Clipboard content if the prompt declare `readClipboard: true`
+     */
+    clipboard?: string
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

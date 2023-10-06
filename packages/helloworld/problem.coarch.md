@@ -8,9 +8,9 @@ Write a function that takes a string argument and returns true if the whole stri
 
 ## Code Review
 
-1. Add docstring to the `is_valid_email` function to explain its purpose and parameters.
-2. Use a more descriptive variable name instead of `pattern` for the regex pattern.
-3. Consider using a more comprehensive regex pattern to cover edge cases and improve email validation.
-4. Add unit tests in `test_email_recognizer.py` to ensure the function works as expected.
-5. The function only checks for email addresses, not URLs. Update the function to also validate URLs.
-6. Rename the function to better reflect its purpose, e.g., `is_valid_email_or_url`.
+1. Add type hinting for the input argument and return type of the function.
+2. Use more descriptive variable names for the regex patterns.
+3. Handle the case when the input string is `None` or not a string type.
+4. Add docstrings to explain the purpose and usage of the function.
+5. Update the function to handle the case when the input is `None` and return `False`. To fix the runtime error, add a condition to check if the input is a string before performing the regex match.
+
