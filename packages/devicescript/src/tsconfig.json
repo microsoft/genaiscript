@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "target": "es2022",
+        "module": "es2022",
+        "lib": [],
+        "strict": true,
+        "strictNullChecks": false,
+        "strictFunctionTypes": true,
+        "sourceMap": false,
+        "declaration": false,
+        "experimentalDecorators": true,
+        "preserveConstEnums": true,
+        "noImplicitThis": true,
+        "isolatedModules": true,
+        "noImplicitAny": true,
+        "moduleDetection": "force",
+        "forceConsistentCasingInFileNames": true,
+        "types": [],
+        "jsx": "preserve"
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "../node_modules/@devicescript/core/src/*.ts"
+    ]
+}
