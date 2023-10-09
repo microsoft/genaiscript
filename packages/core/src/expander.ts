@@ -510,7 +510,6 @@ ${renderFencedVariables(extr)}
 
     const links: string[] = []
     for (const [name, val] of Object.entries(extr.vars)) {
-        console.log({ name })
         if (name.startsWith("File ")) {
             delete extr.vars[name]
             const n = name.slice(5).trim().replace(/^\.\//, "")

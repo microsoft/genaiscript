@@ -121,6 +121,7 @@ export class Fragment {
 }
 
 export function rootFragment(fragment: Fragment): Fragment {
+    if (!fragment) return undefined
     if (fragment.parent) return rootFragment(fragment.parent)
     else return fragment
 }
