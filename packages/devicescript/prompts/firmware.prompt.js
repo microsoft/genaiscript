@@ -5,6 +5,7 @@ prompt({
 })
 
 def("SPEC", env.file)
+def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.
 Using the information provided in SPEC, generate a DeviceScript driver for the peripherical.`
@@ -103,6 +104,8 @@ export abstract class I2CDriver {
 
 $`Generate a README.md file (with filename starting with 'main${env.file.filename.replace(`.coarch.md`, '')}') that uses the driver 
 and displays meaningful information to the console. Generate the list of sources used to generate the code.`
+
+$`Minimize changes to the existing CODE files.`
 
 $`
 TypeScript style guidance:
