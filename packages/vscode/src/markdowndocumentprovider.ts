@@ -21,6 +21,9 @@ const SCHEME = "coarch"
 const noRequest = `
 No CoArch request found yet. Please run a CoArch prompt.
 `
+const noResponse = `
+Waiting for CoArch response...
+`
 
 class MarkdownTextDocumentContentProvider
     implements vscode.TextDocumentContentProvider
@@ -47,7 +50,8 @@ class MarkdownTextDocumentContentProvider
         const computing = !!aiRequest?.computing
         const res = aiRequest?.response
         const wrap = (md: string) => {
-            if (!md) return noRequest
+            if (!aiRequest) return noRequest
+            if (!md) return noResponse
             return `${
                 computing
                     ? `> **AI Request in progress. To abort, click on the CoArch status bar.**\n`
