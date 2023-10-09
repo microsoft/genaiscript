@@ -22,7 +22,7 @@ Idea: Create a command line application that allows users to play blackjack with
 Generation steps:
 1. Place the description above in ```game.coarch.md```
 2. Run the PM-planning prompt over the file to expand the description.
-3. Run the SA-planning prompt over the same file to generate the file ```game.saplanning.coarch.md```
+3. Run the SA-planning prompt over the same file to generate the file ```game.saplan.coarch.md```
 4. Run the SDE-planning prompt over the saplanning file to generate a set of Python files that implement the application.
 5. Test the application, edit the files as needed, and rerun the prompts as needed.
 6. To create unit tests for the python files generated for the application, 

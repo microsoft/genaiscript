@@ -1,9 +1,10 @@
-prompt({ title: "PM-planning", 
-         maxTokens: 4000,
-         model: "gpt-4-32k",
-         categories: ["appdev"]  })
+prompt({
+    title: "Product Manager - planning",
+    description: "An expert product manager creates tasks for the team.",
+    categories: ["appdev"]
+})
 
-def("SUMMARY", env.subtree)
+def("SPEC", env.file)
 
 $`
 You are an expert product manager with years of experience in the industry selling software products.
@@ -18,10 +19,9 @@ the code will be organized, what the APIs are, and how the different components 
 --- (SDE) the software developer, who, given a description of what a software component should do and what the API is
 will implement the code for that component;
 --- (QA) the quality assurance engineer, who will write test cases for the product to make sure it works correctly;
-Use the SUMMARY as input and generate high-level instructions for each of your team members.
 
-The first part of the SUMMARY contains the idea indicated by the text "Idea:".
-The rest of the SUMMARY should contain the instructions for each of the team members.
+Generate and update high-level instructions for each of your team members in file ${env.file.filename}
+in a level 2 'Tasks' section. The level 2 section "Idea" contains the idea.
 
 If there are already instructions, make sure that the instructions are consistent with the idea.
 If there are no instructions, then create instructions for each of the team members.
