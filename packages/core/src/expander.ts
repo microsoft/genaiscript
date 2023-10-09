@@ -513,7 +513,7 @@ ${renderFencedVariables(extr)}
         console.log({ name })
         if (name.startsWith("File ")) {
             delete extr.vars[name]
-            const n = name.slice(5).trim()
+            const n = name.slice(5).trim().replace(/^\.\//, "")
             const fn = host.resolvePath(fragment.file.filename, "..", n)
             const curr = fragment.references.find(
                 (r) => host.resolvePath(r.filename) === fn
