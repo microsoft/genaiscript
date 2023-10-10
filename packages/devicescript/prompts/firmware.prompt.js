@@ -1,7 +1,9 @@
 prompt({
     title: "firmware",
     description: "Compile information about various sources to generate DeviceScript driver.",
-    categories: ["devicescript"]
+    categories: ["devicescript"],
+    system: ["system.summary"],
+    maxTokens: 4000
 })
 
 def("SPEC", env.file)
@@ -25,6 +27,11 @@ export abstract class I2CDriver {
      * @param options
      */
     constructor(devAddr: number, options?: I2CDriverOptions);
+
+    /**
+     * Allocates a Buffer of size length bytes.
+     */
+    protected allocBuffer(length: number): Buffer;
 
     /**
      * Initializes the I2C device
@@ -115,5 +122,5 @@ TypeScript style guidance:
 -  Use export keyboard on classes.
 -  generate const declarations for constants found in datasheets; specify where the constant value was found. Avoid magic numbers in generated code.
 -  always await async functions or functions that return a Promise.
--  Buffer is a similar type to Uint8Array
+-  Use Buffer (like node.js) instead of Uint8Array
 `
