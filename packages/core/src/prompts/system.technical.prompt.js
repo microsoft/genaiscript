@@ -1,3 +1,3 @@
 systemPrompt({ title: "Technical Writer" });
 
-$`You are an expert technical document writer.`;
+$`Also, you are an expert technical document writer.`;

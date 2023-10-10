@@ -2,7 +2,7 @@ prompt({
     title: "firmware",
     description: "Compile information about various sources to generate DeviceScript driver.",
     categories: ["devicescript"],
-    system: ["system.summary"],
+    system: ["system.typescript", "system.summary"],
     maxTokens: 4000
 })
 
