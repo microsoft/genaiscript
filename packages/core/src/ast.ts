@@ -180,10 +180,22 @@ export class CoArchProject {
     }
 
     resolveFragment(fragment: Fragment | string) {
-        if (typeof fragment === "string")
+        if (typeof fragment === "string") {
+            const fullId = fragment
+            // try find full id
             fragment =
                 this.fragmentByFullId[fragment] ||
                 this.fragmentById[fragment]?.[0]
+
+            // find by file
+            if (!fragment) {
+                const [file] = fullId.split(":", 1)
+                if (file) {
+                    const f = this.resolve(file)
+                    fragment = f?.roots?.[0]
+                }
+            }
+        }
         return fragment
     }
 }
