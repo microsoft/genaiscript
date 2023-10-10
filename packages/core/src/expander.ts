@@ -333,20 +333,23 @@ function fragmentVars(
                 // what about URLs?
 
                 // check for existing file
-                const file = project.allFiles.find(
+                const projectFile = project.allFiles.find(
                     (f) => f.filename === ref.filename
                 )
-                if (!file) {
+                if (!projectFile) {
                     console.debug(`reference ${ref.filename} not found`)
                     continue
                 }
 
-                const fn = relativePath(host.projectFolder(), file.filename)
+                const fn = relativePath(
+                    host.projectFolder(),
+                    projectFile.filename
+                )
                 if (!links.find((lk) => lk.filename === fn))
                     links.push({
                         label: ref.name,
                         filename: fn,
-                        content: file.content,
+                        content: projectFile.content,
                     })
             }
         }
@@ -363,7 +366,7 @@ function fragmentVars(
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
         file: {
-            filename: file.filename,
+            filename: relativePath(host.projectFolder(), file.filename),
             label: "current",
             content: file.content,
         },
