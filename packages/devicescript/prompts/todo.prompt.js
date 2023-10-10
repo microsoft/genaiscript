@@ -1,12 +1,11 @@
 prompt({
-    title: "firmware",
-    description: "Compile information about various sources to generate DeviceScript driver.",
+    title: "TODOs",
+    description: "Try to implement TODOs found in source code.",
     categories: ["devicescript"]
 })
 
 def("SPEC", env.file)
 def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
-def("README", env.links.filter(f => f.filename.endsWith("README.md")))
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.
 Using the information provided in SPEC, generate a DeviceScript driver for the peripherical.`
@@ -103,12 +102,20 @@ export abstract class I2CDriver {
 
 `
 
-$`Generate a README.md file (with filename starting with 'main${env.file.filename.replace(`.coarch.md`, '')}') that uses the driver 
-and displays meaningful information to the console. Generate the list of sources used to generate the code.`
+$`In CODE, when you encounter a comment starting by "// TODO: ", generate code for the TODO comment.
+Do not respond with full files content; instead respond with the following format:
 
-$`Minimize changes to the existing CODE files.`
+TODO: this is the TODO text found in the comment
+${env.fence} file=the_source_filename.ts
+This is the generated code.
+${env.fence}
 
-$`In CODE, when you encounter a comment starting by "// TODO: ", replace comment with generated code for the TODO comment.`
+TODO: this is another TODO text
+${env.fence} file=the_other_source_filename.ts
+This is the generated code for the other comment.
+${env.fence}
+
+`
 
 $`
 TypeScript style guidance:

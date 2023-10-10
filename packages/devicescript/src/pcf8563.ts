@@ -38,4 +38,8 @@ export class PCF8563 extends I2CDriver {
 
         return new Date(year, month - 1, day, hours, minutes, seconds)
     }
+
+    async writeTime(date: Date) {
+        // TODO: write date to REG_TIME register
+    }
 }
