@@ -17,7 +17,6 @@ async function main() {
 main();
 ```
 
-## Sources
-
-- [Datasheet](https://files.seeedstudio.com/wiki/round_display_for_xiao/RTC-PCF8563-datasheet.pdf)
+Sources:
+- [datasheet](https://files.seeedstudio.com/wiki/round_display_for_xiao/RTC-PCF8563-datasheet.pdf)
 - [Adafruit CircuitPython](https://github.com/adafruit/Adafruit_CircuitPython_PCF8563)
