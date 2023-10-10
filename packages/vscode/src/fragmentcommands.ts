@@ -102,7 +102,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
             const previous = state.aiRequest.options.fragment
-            // TODO fragment might have moved
             frag = previous?.fullId
         }
 
