@@ -324,15 +324,22 @@ function fragmentVars(
     const { file } = frag
     const project = file.project
     const ignoreOutput = !!promptOptions?.ignoreOutput
+    const prjFolder = host.projectFolder()
 
     const links: LinkedFile[] = []
     if (!ignoreOutput) {
         for (const fr of allChildren(frag, true)) {
             for (const ref of fr.references) {
+                // what about URLs?
+
+                // check for existing file
                 const file = project.allFiles.find(
                     (f) => f.filename === ref.filename
                 )
-                if (!file) continue
+                if (!file) {
+                    console.debug(`reference ${ref.filename} not found`)
+                    continue
+                }
 
                 const fn = relativePath(host.projectFolder(), file.filename)
                 if (!links.find((lk) => lk.filename === fn))
@@ -348,10 +355,7 @@ function fragmentVars(
     if (frag.parent)
         parents.push({
             label: frag.parent.title,
-            filename: relativePath(
-                host.projectFolder(),
-                frag.parent.file.filename
-            ),
+            filename: relativePath(prjFolder, frag.parent.file.filename),
             content: frag.parent.file.content,
         })
     const attrs = commentAttributes(frag)
@@ -508,15 +512,21 @@ ${renderFencedVariables(extr)}
     }
     const { fileEdits } = res
 
+    const projFolder = host.projectFolder()
     const links: string[] = []
+    const fp = fragment.file.filename
+    const fragn = /^.\//.test(fp)
+        ? host.resolvePath(projFolder, fragment.file.filename)
+        : fp
+    const ff = host.resolvePath(fp, "..")
+    const refs = fragment.references
     for (const [name, val] of Object.entries(extr.vars)) {
         if (name.startsWith("File ")) {
             delete extr.vars[name]
-            const n = name.slice(5).trim().replace(/^\.\//, "")
-            const fn = host.resolvePath(fragment.file.filename, "..", n)
-            const curr = fragment.references.find(
-                (r) => host.resolvePath(r.filename) === fn
-            )?.filename
+            const n = name.slice(5).trim()
+            const fn = /^.\//.test(n) ? host.resolvePath(projFolder, n) : n
+            const ffn = relativePath(ff, fn)
+            const curr = refs.find((r) => r.filename === fn)?.filename
 
             if (await fileExists(fn)) {
                 const content = await readText(fn)
@@ -541,8 +551,7 @@ ${renderFencedVariables(extr)}
                 })
             }
 
-            if (!curr && host.resolvePath(fragment.file.filename) !== fn)
-                links.push(`-   [${n}](./${n})`)
+            if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
         }
         if (name === "SUMMARY") {
             res.summary = val
