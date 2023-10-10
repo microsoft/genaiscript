@@ -111,15 +111,16 @@ $`In CODE, when you encounter a comment starting by "// TODO: ", generate code f
 Do not respond with full files content; instead respond with the following format:
 
 TODO: this is the TODO text found in the comment
-${env.fence} file=the_source_filename.ts
+${env.fence} file=the_source_filename.ts start_line=start_line_to_replace end_line=end_line_to_replace
 This is the generated code.
 ${env.fence}
 
 TODO: this is another TODO text
-${env.fence} file=the_other_source_filename.ts
+${env.fence} file=the_other_source_filename.ts start_line=start_line_to_replace end_line=end_line_to_replace
 This is the generated code for the other comment.
 ${env.fence}
 
+Start counting lines at 1.
 `
 
 $`
