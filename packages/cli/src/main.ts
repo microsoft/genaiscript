@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "fs"
 import { tokenize } from "./jstokenizer"
 import { getSubtasks } from "./refinement"
 
-import { extractFenced, parseProject, renderFencedVariables } from "coarch-core"
+import { extractFenced, parseLLMDiffs, parseProject, renderFencedVariables } from "coarch-core"
 import { NodeHost } from "./hostimpl"
 
 async function main() {
@@ -71,6 +71,8 @@ DIFF src/pcf8563.ts:
     console.log(renderFencedVariables(vars))
     vars.filter(({ label }) => /^diff/i.test(label)).forEach(({ content }) => {
         console.log(content)
+        const chunks = parseLLMDiffs(content)
+        console.log(chunks)
     })
 }
 
