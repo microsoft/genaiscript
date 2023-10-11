@@ -108,7 +108,8 @@ export abstract class I2CDriver {
 `
 
 $`In CODE, when you encounter a comment starting by "TODO", generate code for the TODO comment in a diff format
-where added lines start with +, deleted lines start with -, do not add line numbers, use the information in SPEC:
+where added lines start with +, deleted lines start with -, do not add line numbers, 
+preserve indentation, use the information in SPEC:
 
 DIFF /path_to_file/file.ts:
 ${env.fence}diff
@@ -121,7 +122,7 @@ ${env.fence}diff
 ${env.fence}
 `
 
-$`Do not generate anything else than DIFF sections.`
+$`Do not generate anything else than DIFF sections. Use one DIFF per change.`
 
 $`
 TypeScript style guidance:
