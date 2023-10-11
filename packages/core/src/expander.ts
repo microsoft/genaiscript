@@ -187,6 +187,7 @@ ${numberedFenceMD(template.jsSource)}
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
         systems.push("system")
+        systems.push("system.explanations")
         systems.push("system.files")
         systems.push("system.summary")
     }
@@ -528,9 +529,9 @@ ${renderFencedVariables(extr)}
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
-    for (const [name, val] of Object.entries(extr.vars)) {
-        if (name.startsWith("File ")) {
-            delete extr.vars[name]
+    for (const fence of extr) {
+        const { label: name, content: val } = fence
+        if (/^file /i.test(name)) {
             const n = name.slice(5).trim()
             const fn = /^.\//.test(n) ? host.resolvePath(projFolder, n) : n
             const ffn = relativePath(ff, fn)
@@ -561,16 +562,10 @@ ${renderFencedVariables(extr)}
 
             if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
         }
-        if (name === "SUMMARY") {
+        if (/^diff /i.test(name)) {
+        } else if (/^summary$/i.test(name)) {
             res.summary = val
-            delete extr.vars[name]
         }
-    }
-
-    const keys = Object.keys(extr.vars)
-    // if there is only one "Foo: ..." thing left, assume it's the output
-    if (keys.length == 1) {
-        text = extr.vars[keys[0]]
     }
 
     text = text.trim()

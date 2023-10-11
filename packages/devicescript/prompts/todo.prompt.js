@@ -8,8 +8,7 @@ prompt({
 def("SPEC", env.file)
 def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
 
-$`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.
-Using the information provided in SPEC, generate a DeviceScript driver for the peripherical.`
+$`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.`
 
 $`The base classes for I2C drivers are at https://github.com/microsoft/devicescript/blob/main/packages/drivers/src/driver.ts .
 The symbols are in the '@devicescript/drivers' module.
@@ -109,17 +108,20 @@ export abstract class I2CDriver {
 `
 
 $`In CODE, when you encounter a comment starting by "TODO", generate code for the TODO comment in a diff format
-where added lines start with +, deleted lines start with -, do not add line numbers:
+where added lines start with +, deleted lines start with -, do not add line numbers, use the information in SPEC:
 
-DIFF:
-${env.fence}diff file=the_full_file_name
+DIFF /path_to_file/file.ts:
+${env.fence}diff
   3 lines or more of code above changes
-+ new code
+- deleted line
+- deleted line 2
++ added line
++ added line 2
   3 lines or more of code above changes
 ${env.fence}
 `
 
-$`Do not respond with existing files.`
+$`Do not generate anything else than DIFF sections.`
 
 $`
 TypeScript style guidance:

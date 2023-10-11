@@ -33,4 +33,8 @@ export class PCF8563 extends I2CDriver {
     private decimalToBcd(decimal: number): number {
         return ((decimal / 10) << 4) | decimal % 10
     }
+
+    async stopClock(): Promise<void> {
+        // TODO
+    }
 }
