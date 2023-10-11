@@ -185,6 +185,11 @@ ${numberedFenceMD(template.jsSource)}
     trace += `## System prompt\n`
 
     const systems = (template.system ?? []).slice(0)
+    if (!systems.length) {
+        systems.push("system")
+        systems.push("system.files")
+        systems.push("system.summary")
+    }
     if (!systems.includes("system")) systems.unshift("system")
     for (let i = 0; i < systems.length; ++i) {
         let systemTemplate = systems[i]

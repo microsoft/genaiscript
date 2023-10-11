@@ -1,7 +1,8 @@
 prompt({
     title: "TODOs",
     description: "Try to implement TODOs found in source code.",
-    categories: ["devicescript"]
+    categories: ["devicescript"],
+    system: ["system"]
 })
 
 def("SPEC", env.file)
@@ -107,21 +108,18 @@ export abstract class I2CDriver {
 
 `
 
-$`In CODE, when you encounter a comment starting by "// TODO: ", generate code for the TODO comment.
-Do not respond with full files content; instead respond with the following format:
+$`In CODE, when you encounter a comment starting by "TODO", generate code for the TODO comment in a diff format
+where added lines start with +, deleted lines start with -, do not add line numbers:
 
-TODO: this is the TODO text found in the comment
-${env.fence} file=the_source_filename.ts start_line=start_line_to_replace end_line=end_line_to_replace
-This is the generated code.
+DIFF:
+${env.fence}diff file=the_full_file_name
+  3 lines or more of code above changes
++ new code
+  3 lines or more of code above changes
 ${env.fence}
-
-TODO: this is another TODO text
-${env.fence} file=the_other_source_filename.ts start_line=start_line_to_replace end_line=end_line_to_replace
-This is the generated code for the other comment.
-${env.fence}
-
-Start counting lines at 1.
 `
+
+$`Do not respond with existing files.`
 
 $`
 TypeScript style guidance:
