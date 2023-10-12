@@ -3,6 +3,11 @@ export interface Chunk {
     lines: string[]
 }
 
+/**
+ * The LLMD diff format is a simple format that can be used to represent changes. It is not precise:
+ * - indentation may be lost
+ * - some code may be not regenerated
+ */
 export function parseLLMDiffs(text: string): Chunk[] {
     /*
  
@@ -67,7 +72,7 @@ DIFF src/pcf8563.ts:
             if (chunk.state === "deleted") chunk.lines.push(l)
             else {
                 chunk = { state: "deleted", lines: [l] }
-                chunks.push(chunk)
+                //chunks.push(chunk) - ignore deleted
             }
         } else {
             if (chunk.state === "existing") chunk.lines.push(line)
@@ -79,4 +84,54 @@ DIFF src/pcf8563.ts:
     }
 
     return chunks
+}
+
+function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
+    const chunkLines = chunk.lines
+    let linei = startLine
+    while (linei < lines.length) {
+        const line = lines[linei]
+        if (line === chunkLines[0]) {
+            let found = true
+            for (
+                let i = 1;
+                i < chunkLines.length && linei + i < lines.length;
+                ++i
+            ) {
+                if (lines[linei + i] !== chunkLines[i]) {
+                    found = false
+                    break
+                }
+            }
+            if (found) return linei
+        }
+        ++linei
+    }
+    return -1
+}
+
+export function applyLLMDiff(source: string, chunks: Chunk[]): string {
+    if (!chunks?.length || !source) return source
+
+    const lines = source.split("\n")
+    let starti = 0
+    for (let i = 0; i < chunks.length; ++i) {
+        const chunk = chunks[i]
+        if (chunk.state === "existing") {
+            // find location of chunk
+            const chunkLine = findChunk(lines, chunk, starti)
+            if (chunkLine === -1) {
+                console.log("chunk not found", chunk)
+                break // give up
+            }
+            // yes we found something, advance counter
+            starti = chunkLine + chunk.lines.length
+        } else if (chunk.state === "deleted") {
+          // mostly ignore this
+        } else if (chunk.state === "added") {
+
+        }
+    }
+
+    return lines.join("\n")
 }

@@ -29,6 +29,7 @@ import {
 import { host } from "./host"
 import { inspect } from "./logging"
 import { initToken } from "./oai_token"
+import { applyLLMDiff, parseLLMDiffs } from "./diff"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -529,58 +530,67 @@ ${renderFencedVariables(extr)}
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
+
     for (const fence of extr) {
         const { label: name, content: val } = fence
-        if (/^file /i.test(name)) {
+        if (/^(file|diff) /i.test(name)) {
             const n = name.slice(5).trim()
             const fn = /^.\//.test(n) ? host.resolvePath(projFolder, n) : n
             const ffn = relativePath(ff, fn)
             const curr = refs.find((r) => r.filename === fn)?.filename
 
-            if (await fileExists(fn)) {
-                const content = await readText(fn)
-                if (content !== val) {
-                    fileEdits[fn] = { before: content, after: val }
-                    edits.push({
-                        label: `Update ${fn}`,
-                        filename: fn,
-                        type: "replace",
-                        range: [[0, 0], stringToPos(content)],
-                        text: val,
-                    })
-                }
-            } else {
-                fileEdits[fn] = { before: null, after: val }
-                edits.push({
-                    label: `Create ${fn}`,
-                    filename: fn,
-                    type: "createfile",
-                    text: val,
-                    overwrite: true,
-                })
+            let fileEdit = fileEdits[fn]
+            if (!fileEdit) {
+                let before: string = null
+                if (await fileExists(fn)) before = await readText(fn)
+                fileEdit = fileEdits[fn] = { before, after: undefined }
             }
-
+            if (/^file/i.test(name)) {
+                fileEdit.after = val
+            } else if (/^diff/i.test(name)) {
+                const chunks = parseLLMDiffs(text)
+                console.log(chunks)
+                const val = applyLLMDiff(fileEdit.before, chunks)
+                fileEdit.after = val
+            }
             if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
-        }
-        if (/^diff /i.test(name)) {
         } else if (/^summary$/i.test(name)) {
             res.summary = val
         }
     }
 
-    text = text.trim()
+    // convert file edits into edits
+    Object.entries(fileEdits)
+        .filter(([, { before, after }]) => before !== after) // ignore unchanged files
+        .forEach(([fn, { before, after }]) => {
+            if (before) {
+                edits.push({
+                    label: `Update ${fn}`,
+                    filename: fn,
+                    type: "replace",
+                    range: [[0, 0], stringToPos(after)],
+                    text: after,
+                })
+            } else {
+                edits.push({
+                    label: `Create ${fn}`,
+                    filename: fn,
+                    type: "createfile",
+                    text: after,
+                    overwrite: true,
+                })
+            }
+        })
 
-    const m = /^(```+)(\w*)\n/.exec(text)
-    if (m && text.endsWith(m[1]))
-        text = text.slice(m[0].length, -m[1].length).trim()
-
-    if (links.length)
+    // add links to the end of the file
+    if (links.length) {
         edits.push({
             ...obj,
             type: "insert",
             pos: fragment.endPos,
             text: `\n\n${links.join("\n")}`,
         })
+    }
 
     return res
 }
