@@ -72,7 +72,7 @@ DIFF src/pcf8563.ts:
             if (chunk.state === "deleted") chunk.lines.push(l)
             else {
                 chunk = { state: "deleted", lines: [l] }
-                //chunks.push(chunk) - ignore deleted
+                chunks.push(chunk)
             }
         } else {
             if (chunk.state === "existing") chunk.lines.push(line)
@@ -111,23 +111,38 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
 
+    chunks = chunks.filter((c) => c.state !== "deleted") // ignore deleted
+
     const lines = source.split("\n")
-    let starti = 0
-    for (let i = 0; i < chunks.length; ++i) {
-        const chunk = chunks[i]
-        if (chunk.state === "existing") {
-            // find location of chunk
-            const chunkLine = findChunk(lines, chunk, starti)
-            if (chunkLine === -1) {
-                console.log("chunk not found", chunk)
-                break // give up
-            }
-            // yes we found something, advance counter
-            starti = chunkLine + chunk.lines.length
-        } else if (chunk.state === "deleted") {
-            // mostly ignore this
-        } else if (chunk.state === "added") {
-        }
+    let current = 0
+    let i = 0
+    while (i < chunks.length) {
+        const chunk = chunks[i++]
+        if (chunk.state !== "existing")
+            throw new Error("expecting existing chunk")
+        const addedChunk = chunks[i++]
+        if (!addedChunk) break
+        if (addedChunk?.state !== "added")
+            throw new Error("expecting added chunk")
+
+        // find location of chunk
+        const chunkStart = findChunk(lines, chunk, current)
+        if (chunkStart === -1) break
+        // yes we found something, advance counter, starti is where added have to splice in the lines
+        current = chunkStart + chunk.lines.length
+
+        // find the end chunk
+        const nextChunk = chunks[i]
+        if (nextChunk && nextChunk.state !== "existing")
+            throw new Error("expecting existing chunk")
+        const chunkEnd = nextChunk
+            ? findChunk(lines, nextChunk, current)
+            : lines.length
+
+        if (chunkEnd === 1) break
+
+        // finally swap the lines in
+        lines.splice(chunkStart, chunkEnd - chunkStart, ...addedChunk.lines)
     }
 
     return lines.join("\n")
