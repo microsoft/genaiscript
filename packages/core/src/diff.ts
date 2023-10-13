@@ -128,7 +128,6 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
         // find location of chunk
         const chunkStart = findChunk(lines, chunk, current)
         if (chunkStart === -1) break
-        // yes we found something, advance counter, starti is where added have to splice in the lines
         current = chunkStart + chunk.lines.length
 
         // find the end chunk
@@ -139,10 +138,14 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
             ? findChunk(lines, nextChunk, current)
             : lines.length
 
-        if (chunkEnd === 1) break
+        if (chunkEnd === -1) break
 
         // finally swap the lines in
-        lines.splice(chunkStart, chunkEnd - chunkStart, ...addedChunk.lines)
+        const toRemove = chunkEnd - current
+        lines.splice(current, toRemove, ...addedChunk.lines)
+        console.log(lines.join("\n"))
+
+        current += addedChunk.lines.length - toRemove
     }
 
     return lines.join("\n")

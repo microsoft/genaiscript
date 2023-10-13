@@ -122,7 +122,7 @@ ${env.fence}diff
 ${env.fence}
 `
 
-$`Do not generate anything else than DIFF sections. Use one DIFF per change.`
+$`Do not generate anything else than DIFF sections. Use one DIFF section per change. Generate relative file path names.`
 
 $`
 TypeScript style guidance:

@@ -535,7 +535,7 @@ ${renderFencedVariables(extr)}
         const { label: name, content: val } = fence
         if (/^(file|diff) /i.test(name)) {
             const n = name.slice(5).trim()
-            const fn = /^.\//.test(n) ? host.resolvePath(projFolder, n) : n
+            const fn = /^[^\/]/.test(n) ? host.resolvePath(projFolder, n) : n
             const ffn = relativePath(ff, fn)
             const curr = refs.find((r) => r.filename === fn)?.filename
 
@@ -548,10 +548,16 @@ ${renderFencedVariables(extr)}
             if (/^file/i.test(name)) {
                 fileEdit.after = val
             } else if (/^diff/i.test(name)) {
-                const chunks = parseLLMDiffs(text)
-                console.log(chunks)
-                const val = applyLLMDiff(fileEdit.before, chunks)
-                fileEdit.after = val
+                try {
+                    const chunks = parseLLMDiffs(val)
+                    console.log(chunks)
+                    fileEdit.after = applyLLMDiff(
+                        fileEdit.after || fileEdit.before,
+                        chunks
+                    )
+                } catch (e) {
+                    console.log(e)
+                }
             }
             if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
         } else if (/^summary$/i.test(name)) {
