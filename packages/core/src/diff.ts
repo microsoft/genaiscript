@@ -88,22 +88,20 @@ DIFF src/pcf8563.ts:
 
 function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
     const chunkLines = chunk.lines
+    const chunkStart = chunkLines[0].trim()
     let linei = startLine
     while (linei < lines.length) {
-        const line = lines[linei]
-        if (line === chunkLines[0]) {
+        const line = lines[linei].trim()
+        if (line === chunkStart) {
             let found = true
-            for (
-                let i = 1;
-                i < chunkLines.length && linei + i < lines.length;
-                ++i
-            ) {
-                if (lines[linei + i] !== chunkLines[i]) {
+            let i = 1
+            for (; i < chunkLines.length && linei + i < lines.length; ++i) {
+                if (lines[linei + i].trim() !== chunkLines[i].trim()) {
                     found = false
                     break
                 }
             }
-            if (found) return linei
+            if (found && i === chunkLines.length) return linei
         }
         ++linei
     }
@@ -127,9 +125,8 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
             // yes we found something, advance counter
             starti = chunkLine + chunk.lines.length
         } else if (chunk.state === "deleted") {
-          // mostly ignore this
+            // mostly ignore this
         } else if (chunk.state === "added") {
-
         }
     }
 
