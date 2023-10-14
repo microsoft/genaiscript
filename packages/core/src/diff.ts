@@ -83,6 +83,14 @@ DIFF src/pcf8563.ts:
         }
     }
 
+    // clean last chunk
+    if (chunk.state === 'existing') {
+        while(/^\s*$/.test(chunk.lines[chunk.lines.length - 1]))
+            chunk.lines.pop()
+        if (chunk.lines.length === 0)
+            chunks.pop()
+    }
+
     return chunks
 }
 
@@ -111,27 +119,36 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
 export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
 
-    chunks = chunks.filter((c) => c.state !== "deleted") // ignore deleted
-
     const lines = source.split("\n")
     let current = 0
     let i = 0
-    while (i < chunks.length) {
+    while (i + 1 < chunks.length) {
         const chunk = chunks[i++]
         if (chunk.state !== "existing")
             throw new Error("expecting existing chunk")
-        const addedChunk = chunks[i++]
-        if (!addedChunk) break
-        if (addedChunk?.state !== "added")
-            throw new Error("expecting added chunk")
 
         // find location of chunk
         const chunkStart = findChunk(lines, chunk, current)
         if (chunkStart === -1) break
         current = chunkStart + chunk.lines.length
 
+        // handle deleted chunk
+        if (chunks[i]?.state === "deleted") {
+            const deletedChunk = chunks[i++]
+            const chunkDel = findChunk(lines, deletedChunk, current)
+            if (chunkDel === current) {
+                lines.splice(current, deletedChunk.lines.length)
+            }
+            if (chunks[i]?.state === "existing") continue
+        }
+
+        const addedChunk = chunks[i++]
+        if (!addedChunk) break
+        if (addedChunk?.state !== "added")
+            throw new Error("expecting added chunk")
+
         // find the end chunk
-        const nextChunk = chunks[i]
+        let nextChunk = chunks[i]
         if (nextChunk && nextChunk.state !== "existing")
             throw new Error("expecting existing chunk")
         const chunkEnd = nextChunk

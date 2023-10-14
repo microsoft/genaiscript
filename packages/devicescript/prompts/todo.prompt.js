@@ -118,7 +118,7 @@ ${env.fence}diff
 - deleted line 2
 + added line
 + added line 2
-  3 lines or more of code above changes
+  3 lines or more of code after changes
 ${env.fence}
 `
 

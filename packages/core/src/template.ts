@@ -284,7 +284,7 @@ async function parseMeta(r: PromptTemplate) {
 
 const promptFence = "`````"
 const promptFenceRx = /`{5,}(\r?\n)?/g
-const promptFenceEndRx = /^`{5,}$/
+const promptFenceEndRx = /^`{5,}\s*$/
 
 function errorId() {
     let r = "ERROR-"
@@ -309,9 +309,9 @@ export function staticVars() {
 }
 
 function endFence(text: string) {
-    if (promptFenceEndRx.test(text)) return text
+    if (promptFenceEndRx.test(text)) return text.replace(/\s*$/, "")
     const m = /^(```+)[\w\-]*\s*$/.exec(text)
-    if (m) return m[1]
+    if (m) return m[1].replace(/\s*$/, "")
     return null
 }
 
@@ -356,7 +356,7 @@ export function extractFenced(text: string): Fenced[] {
         const line = lines[i]
 
         if (currFence) {
-            if (line === currFence) {
+            if (line.replace(/\s*$/, "") === currFence) {
                 currFence = ""
                 vars.push({
                     label: currLbl,
