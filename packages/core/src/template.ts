@@ -177,7 +177,7 @@ export async function evalPrompt(
         def(name, body) {
             let error = false
             const norm = (s: string) => {
-                s = s.replace(/\n*$/, "")
+                s = (s || "").replace(/\n*$/, "")
                 if (s) s += "\n"
                 if (s.includes(env.fence)) error = true
                 return s
@@ -215,7 +215,8 @@ export async function evalPrompt(
             return dontuse("def")
         },
         defFiles(files) {
-            for (const f of files) ctx.def("File " + f.filename, f.content)
+            for (const f of files.filter((f) => !!f))
+                ctx.def("File " + f.filename, f.content)
             return dontuse("defFiles")
         },
         fence(body) {
@@ -280,6 +281,11 @@ async function parseMeta(r: PromptTemplate) {
                 status: 404,
                 statusText: "not supported in meta mode",
                 text: "",
+                file: {
+                    label: url,
+                    filename: url,
+                    content: "",
+                },
             }),
         },
         r.jsSource

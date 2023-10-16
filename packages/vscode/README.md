@@ -320,13 +320,15 @@ In the coarch files, those link you be part of a bulletted list.
 
 The current file is also available as a linked file through, `env.file`
 
-#### fetchText(ur: string): Promise<{ status: number; statusText: string; text?: string }>
+#### fetchText(ur: string): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
 
 Use `fetchText` to to issue GET requests and download text from the internet.
 
 ```ts
-const { text } = await fetchText("https://....")
+const { text, file } = await fetchText("https://....")
 if (text) $`And also ${text}`
+
+def("FILE", file)
 ```
 
 ### Conditional expansion

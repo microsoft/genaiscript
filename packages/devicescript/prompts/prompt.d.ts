@@ -204,9 +204,13 @@ interface PromptContext {
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
-    fetchText(
-        url: string
-    ): Promise<{ status: number; statusText: string; text?: string }>
+    fetchText(url: string): Promise<{
+        ok: boolean
+        status: number
+        statusText: string
+        text?: string
+        file?: LinkedFile
+    }>
     env: ExpansionVariables
 }
 
@@ -271,4 +275,6 @@ declare var env: ExpansionVariables
  * Fetches a given URL and returns the response.
  * @param url
  */
-declare function fetchText(url: string): Promise<{ status: number; text: string }>
+declare function fetchText(
+    url: string
+): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>

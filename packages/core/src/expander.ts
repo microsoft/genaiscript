@@ -122,16 +122,22 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                     if (!/^https:\/\//i.test(url))
                         throw new Error(`only https:// URLs supported`)
                     const resp = await fetch(url)
-                    const status = resp.status
-                    const statusText = resp.statusText
-                    if (!resp.ok) return { status, statusText }
+                    const { ok, status, statusText } = resp
+                    if (!ok) return { ok, status, statusText }
                     const text = await resp.text()
+                    const file: LinkedFile = {
+                        label: url,
+                        filename: url,
+                        content: text,
+                    }
                     return {
+                        ok,
                         status,
                         statusText,
                         text,
+                        file,
                     }
-                },                
+                },
             },
             r.jsSource,
             (msg) => {
