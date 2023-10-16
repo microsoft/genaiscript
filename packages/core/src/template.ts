@@ -277,6 +277,8 @@ async function parseMeta(r: PromptTemplate) {
                 prompt(meta)
             },
             fetch: async (url) => {
+                if (!/^https:\/\//i.test(url))
+                    throw new Error(`only https:// URLs supported`)
                 const resp = await fetch(url)
                 const status = resp.status
                 if (!resp.ok) return { status }
