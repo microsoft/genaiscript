@@ -118,6 +118,7 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                 },
                 prompt: () => {},
                 systemPrompt: () => {},
+                fetch: async (url: string) => ({ status: 404 }),
             },
             r.jsSource,
             (msg) => {

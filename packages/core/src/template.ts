@@ -276,6 +276,13 @@ async function parseMeta(r: PromptTemplate) {
                 meta.isSystem = true
                 prompt(meta)
             },
+            fetch: async (url) => {
+                const resp = await fetch(url)
+                const status = resp.status
+                if (!resp.ok) return { status }
+                const text = await resp.text()
+                return { status: resp.status, text }
+            },
         },
         r.jsSource
     )
