@@ -2,7 +2,7 @@ prompt({
     title: "TODOs",
     description: "Try to implement TODOs found in source code.",
     categories: ["devicescript"],
-    system: ["system"]
+    system: ["system", "system.diff"]
 })
 
 def("SPEC", env.file)
@@ -107,23 +107,8 @@ export abstract class I2CDriver {
 
 `
 
-$`In CODE, when you encounter a comment starting by "TODO", generate code for the TODO comment in a diff format
-where added lines start with +, deleted lines start with -, do not add line numbers, 
-preserve indentation, use the information in SPEC:
-
-DIFF /path_to_file/file.ts:
-${env.fence}diff
-  3 lines or more of code above changes
-- deleted line
-- deleted line 2
-+ added line
-+ added line 2
-  3 lines or more of code after changes
-${env.fence}
+$`In CODE, when you encounter a comment starting by "TODO", generate code for the TODO comment in a DIFF, use the information in SPEC.
 `
-
-$`Do not generate anything else than DIFF sections. Use one DIFF section per change. Generate relative file path names.`
-
 $`
 TypeScript style guidance:
 -  Use export keyboard on classes.
