@@ -276,6 +276,13 @@ async function parseMeta(r: PromptTemplate) {
                 meta.isSystem = true
                 prompt(meta)
             },
+            fetch: async (url) => {
+                const resp = await fetch(url)
+                const status = resp.status
+                if (!resp.ok) return { status }
+                const text = await resp.text()
+                return { status: resp.status, text }
+            },
         },
         r.jsSource
     )
@@ -284,7 +291,7 @@ async function parseMeta(r: PromptTemplate) {
 
 const promptFence = "`````"
 const promptFenceRx = /`{5,}(\r?\n)?/g
-const promptFenceEndRx = /^`{5,}$/
+const promptFenceEndRx = /^`{5,}\s*$/
 
 function errorId() {
     let r = "ERROR-"
@@ -309,10 +316,15 @@ export function staticVars() {
 }
 
 function endFence(text: string) {
-    if (promptFenceEndRx.test(text)) return text
+    if (promptFenceEndRx.test(text)) return text.replace(/\s*$/, "")
     const m = /^(```+)[\w\-]*\s*$/.exec(text)
-    if (m) return m[1]
+    if (m) return m[1].replace(/\s*$/, "")
     return null
+}
+
+export interface Fenced {
+    label: string
+    content: string
 }
 
 /**
@@ -341,22 +353,22 @@ function endFence(text: string) {
  *
  * Note that outside we can treat keys like "File some/thing.js" specially.
  */
-export function extractFenced(text: string) {
+export function extractFenced(text: string): Fenced[] {
     let currLbl = ""
     let currText = ""
     let currFence = ""
-    const vars: Record<string, string> = {}
+    const vars: Fenced[] = []
     const lines = text.split(/\r?\n/)
     for (let i = 0; i < lines.length; ++i) {
         const line = lines[i]
 
         if (currFence) {
-            if (line === currFence) {
+            if (line.replace(/\s*$/, "") === currFence) {
                 currFence = ""
-                vars[currLbl] = normalize(
-                    currLbl,
-                    (vars[currLbl] ?? "") + currText
-                )
+                vars.push({
+                    label: currLbl,
+                    content: normalize(currLbl, currText),
+                })
                 currText = ""
             } else {
                 currText += line + "\n"
@@ -374,10 +386,10 @@ export function extractFenced(text: string) {
     }
 
     if (currText != "") {
-        vars[currLbl] = normalize(currLbl, (vars[currLbl] ?? "") + currText)
+        vars.push({ label: currLbl, content: normalize(currLbl, currText) })
     }
 
-    return { vars }
+    return vars
 
     function normalize(label: string, text: string) {
         /** handles situtions like this:
@@ -396,10 +408,10 @@ import re
     }
 }
 
-export function renderFencedVariables(extr: { vars: Record<string, string> }) {
-    return Object.entries(extr.vars)
+export function renderFencedVariables(vars: Fenced[]) {
+    return vars
         .map(
-            ([k, v]) => `-   \`${k}\`
+            ({ label: k, content: v }) => `-   \`${k}\`
 \`\`\`\`\`${
                 /^Note/.test(k)
                     ? "markdown"

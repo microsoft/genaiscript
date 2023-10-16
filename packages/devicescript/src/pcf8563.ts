@@ -18,10 +18,12 @@ export class PCF8563 extends I2CDriver {
 
     async readTime(): Promise<Date> {
         // TODO
+        return undefined
     }
 
     async writeTime(date: Date): Promise<void> {
         // TODO
+        return undefined
     }
 
     private bcdToDecimal(bcd: number): number {
@@ -30,5 +32,9 @@ export class PCF8563 extends I2CDriver {
 
     private decimalToBcd(decimal: number): number {
         return ((decimal / 10) << 4) | decimal % 10
+    }
+
+    async stopClock(): Promise<void> {
+        // TODO
     }
 }

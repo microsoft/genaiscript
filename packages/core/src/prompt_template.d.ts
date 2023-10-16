@@ -204,5 +204,6 @@ interface PromptContext {
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
+    fetch(url: string): Promise<{ status: number; text?: string }>
     env: ExpansionVariables
 }

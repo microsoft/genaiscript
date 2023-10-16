@@ -54,3 +54,9 @@ declare function defFiles(files: LinkedFile[]): void
  * Variables coming from the fragment on which the prompt is operating.
  */
 declare var env: ExpansionVariables
+
+/**
+ * Fetches a given URL and returns the response.
+ * @param url
+ */
+declare function fetch(url: string): Promise<{ status: number; text: string }>
