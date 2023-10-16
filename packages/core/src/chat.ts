@@ -38,6 +38,7 @@ export class RequestError extends Error {
         public readonly status: number,
         public readonly statusText: string,
         public readonly body: ModelError,
+        public readonly bodyText: string,
         readonly retryAfter: number
     ) {
         super(
@@ -151,11 +152,18 @@ export async function getChatCompletions(
     })
 
     if (r.status != 200) {
-        const b = (await r.json()) as { error: ModelError }
-        const body = b?.error
+        let body: string
+        try {
+            body = await r.text()
+        } catch (e) {}
+        let bodyJSON: { error: ModelError }
+        try {
+            bodyJSON = body ? JSON.parse(body) : undefined
+        } catch (e) {}
         throw new RequestError(
             r.status,
             r.statusText,
+            bodyJSON?.error,
             body,
             parseInt(r.headers.get("retry-after"))
         )

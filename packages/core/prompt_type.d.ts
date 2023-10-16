@@ -59,4 +59,4 @@ declare var env: ExpansionVariables
  * Fetches a given URL and returns the response.
  * @param url
  */
-declare function fetch(url: string): Promise<{ status: number; text: string }>
+declare function fetchText(url: string): Promise<{ status: number; text: string }>

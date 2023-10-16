@@ -118,7 +118,7 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                 },
                 prompt: () => {},
                 systemPrompt: () => {},
-                fetch: async (url: string) => ({ status: 404 }),
+                fetchText: async (url: string) => ({ status: 404, statusText: "not supported in meta mode" }),
             },
             r.jsSource,
             (msg) => {
