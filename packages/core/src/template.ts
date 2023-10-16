@@ -278,6 +278,7 @@ async function parseMeta(r: PromptTemplate) {
                 prompt(meta)
             },
             fetchText: async (url: string) => ({
+                ok: false,
                 status: 404,
                 statusText: "not supported in meta mode",
                 text: "",
