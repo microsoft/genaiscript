@@ -276,20 +276,11 @@ async function parseMeta(r: PromptTemplate) {
                 meta.isSystem = true
                 prompt(meta)
             },
-            fetchText: async (url) => {
-                if (!/^https:\/\//i.test(url))
-                    throw new Error(`only https:// URLs supported`)
-                const resp = await fetch(url)
-                const status = resp.status
-                const statusText = resp.statusText
-                if (!resp.ok) return { status, statusText }
-                const text = await resp.text()
-                return {
-                    status,
-                    statusText,
-                    text,
-                }
-            },
+            fetchText: async (url: string) => ({
+                status: 404,
+                statusText: "not supported in meta mode",
+                text: "",
+            }),
         },
         r.jsSource
     )
