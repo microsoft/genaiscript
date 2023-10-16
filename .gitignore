@@ -4,6 +4,5 @@ node_modules/
 tmp
 package-lock.json
 temp/
-.vscode/settings.json
 .env
 __pycache__/

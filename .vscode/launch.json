@@ -3,6 +3,16 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "cli",
+            "program": "${workspaceFolder}/packages/cli/built/main.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "preLaunchTask": "npm: compile-cli"
+        },
+        {
             "name": "Run - sample",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
