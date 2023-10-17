@@ -71,7 +71,7 @@ export async function activate(context: ExtensionContext) {
             const abort = "Abort"
             const output = "Open Output"
             const trace = "Open Trace"
-            const next = "Next Prompt..."
+            const next = "Run Prompt"
             const cmds: string[] = []
             if (computing) cmds.push(abort)
             else if (request && editsApplied !== null) cmds.push(next)
