@@ -138,6 +138,10 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                         file,
                     }
                 },
+                call: async (functionId, parameters) => {
+                    // call not executed in meta mode
+                    return null
+                },
             },
             r.jsSource,
             (msg) => {

@@ -258,6 +258,7 @@ async function parseMeta(r: PromptTemplate) {
         if (meta !== null) throw new Error(`more than one prompt() call`)
         meta = m
     }
+    const calls: string[] = []
     await evalPrompt(
         {
             env: new Proxy<ExpansionVariables>(staticVars() as any, {
@@ -288,10 +289,17 @@ async function parseMeta(r: PromptTemplate) {
                     content: "",
                 },
             }),
+            call: async (
+                functionId: string,
+                parameters: Record<string, any>
+            ) => {
+                calls.push(functionId)
+                return undefined
+            },
         },
         r.jsSource
     )
-    return { meta, text }
+    return { meta, text, calls }
 }
 
 const promptFence = "`````"
@@ -457,6 +465,8 @@ async function parsePromptTemplateCore(
             obj.meta
         )
         if (obj.meta.isSystem) r.text = obj.text
+        // TODO check function ids
+        r.calls = obj.calls
         prj._finalizers.push(() => finalizer(checker))
         return checker.template
     } catch (e) {
@@ -498,6 +508,7 @@ export async function parsePromptTemplate(
             c.checkBool("autoApplyEdits")
             c.checkString("nextTemplateAfterApplyEdits")
             c.checkBool("readClipboard")
+            c.checkAny("functionParameters", (_) => _)
         })
 
         const r = c.template

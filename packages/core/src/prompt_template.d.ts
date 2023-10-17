@@ -106,6 +106,16 @@ interface PromptTemplate extends PromptLike {
      * a system prompt asking for clipboard access.
      */
     readClipboard?: boolean
+
+    /**
+     * For prompts as functions, the parameters the functions accepts, described as a JSON Schema object.
+     */
+    functionParameters?: Record<string, any>
+
+    /**
+     * Functions called when expanding the prompt
+     */
+    calls?: string[]
 }
 
 /**
@@ -211,5 +221,6 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
+    call(functionId: string, parameters: Record<string, any>): Promise<string>
     env: ExpansionVariables
 }

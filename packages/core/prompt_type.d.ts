@@ -62,3 +62,13 @@ declare var env: ExpansionVariables
 declare function fetchText(
     url: string
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+
+/**
+ * Calls into a registered function
+ * @param functionId function identifier
+ * @param parameters map of parameter name to value
+ */
+declare function call(
+    functionId: string,
+    parameters: Record<string, any>
+): Promise<string>
