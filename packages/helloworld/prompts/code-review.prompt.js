@@ -3,11 +3,8 @@ prompt({
     description: "Given a problem desciption and code, write a code review",
     maxTokens: 4000,
     model: "gpt-4",
-    categories: ["tutorial"],
     autoApplyEdits: true,
     nextTemplateAfterApplyEdits: "generate-python",
-    readClipboard: true,
-    system: ["system", "system.explanations", "system.summary", "system.files"],
     temperature: 0
 })
 
