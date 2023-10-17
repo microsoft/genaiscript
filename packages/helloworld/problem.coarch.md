@@ -1,24 +1,16 @@
-# email address recognizer
+# email address or URL recognizer
 
-Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
+Write a function that takes a string argument and returns true if the whole string is a valid email address or URL, false otherwise.
 
 -   [email_address_recognizer.py](email_address_recognizer.py)
 
+-   [test_email_address_recognizer.py](test_email_address_recognizer.py)
+
 ## Code Review
 
-1. The code is concise and easy to understand.
-2. The regular expression pattern used is appropriate for most email addresses.
-3. The function name `is_valid_email` is descriptive and follows Python naming conventions.
-4. The code uses type hints for better readability and understanding of the function's input and output.
-
-However, there are a few improvements that can be made:
-
-1. The regular expression pattern can be improved to handle more edge cases and special characters.
-2. The `re.match()` function can be replaced with `re.fullmatch()` to ensure the entire string is matched, not just the beginning.
-3. Add comments to explain the regular expression pattern for better maintainability.
-
-Suggested changes:
-
-1. Update the regular expression pattern to: `r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'`
-2. Replace `re.match()` with `re.fullmatch()`.
-3. Add a comment explaining the regular expression pattern.
+1. The function only checks for valid email addresses, not URLs. Add a separate function to check for valid URLs and combine the results.
+2. Use `re.fullmatch()` instead of `re.match()` to ensure the entire string is matched.
+3. Add test cases to validate the function's behavior with various email addresses and URLs.
+4. Import only the required functions from the `re` module, such as `fullmatch`, to improve code readability.
+5. Use raw string notation for the regular expression patterns to avoid potential issues with escape sequences.
+6. Consider using more comprehensive regular expression patterns for email and URL validation.
