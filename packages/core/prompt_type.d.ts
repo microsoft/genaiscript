@@ -71,4 +71,4 @@ declare function fetchText(
 declare function call(
     functionId: string,
     parameters: Record<string, any>
-): Promise<string>
+): Promise<StringLike>

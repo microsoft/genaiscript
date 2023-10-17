@@ -2,11 +2,20 @@ prompt({
     title: "TODOs",
     description: "Try to implement TODOs found in source code.",
     categories: ["devicescript"],
-    system: ["system", "system.diff"]
+    system: ["system", "system.diff"],
 })
 
 def("SPEC", env.file)
-def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
+def(
+    "CODE",
+    env.links.filter(f => f.filename.endsWith(".ts"))
+)
+
+const spec = await call("summarizecode", {
+    url: "https://raw.githubusercontent.com/microsoft/devicescript/main/packages/drivers/src/driver.ts",
+})
+
+def("SPEC", spec)
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.`
 

@@ -85,7 +85,21 @@ function numberedFenceMD(t: string, contentType = "js") {
     )
 }
 
-async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
+interface ExpansionContext {
+    functions: Record<
+        string,
+        (
+            context: ExpansionContext,
+            parameters: Record<string, any>
+        ) => Promise<string>
+    >
+}
+
+async function callExpander(
+    r: PromptTemplate,
+    vars: ExpansionVariables,
+    context: ExpansionContext
+) {
     let promptText = ""
     let errors = ""
     let success = true
@@ -139,8 +153,10 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                     }
                 },
                 call: async (functionId, parameters) => {
-                    // call not executed in meta mode
-                    return null
+                    const fn = context.functions[functionId]
+                    // TODO handle crash
+                    const res = await fn(context, parameters)
+                    return res
                 },
             },
             r.jsSource,
@@ -160,7 +176,8 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
 async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
-    vars: ExpansionVariables
+    vars: ExpansionVariables,
+    context: ExpansionContext
 ) {
     const varName: Record<string, string> = {}
     for (const [k, v] of Object.entries(vars)) {
@@ -183,7 +200,7 @@ ${numberedFenceMD(template.jsSource)}
 
     const attrs = commentAttributes(fragment)
     const cat = categoryPrefix(template, fragment, attrs)
-    const prompt = await callExpander(template, vars)
+    const prompt = await callExpander(template, vars, context)
 
     const expanded = cat.text + "\n" + prompt.text
     errors += prompt.errors
@@ -229,7 +246,7 @@ ${numberedFenceMD(template.jsSource)}
             assert(!!system)
         }
 
-        const sysex = (await callExpander(system, vars)).text
+        const sysex = (await callExpander(system, vars, context)).text
         systemText += sysex + "\n"
 
         model = model ?? system.model
@@ -416,6 +433,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     readClipboard?: () => Promise<string>
     promptOptions?: any
     maxCachedTemperature?: number
+    parameters?: Record<string, any>
 }
 
 export async function runTemplate(
@@ -434,6 +452,26 @@ export async function runTemplate(
     )
     if (vars.vars && template.readClipboard && options?.readClipboard)
         vars.clipboard = await options.readClipboard()
+
+    const context: ExpansionContext = {
+        functions: {},
+    }
+
+    template.calls?.forEach((call) => {
+        const functionTemplate = fragment
+            .applicableTemplates()
+            .find((t) => t.id === call)
+        context.functions[call] = async (ctx, parameters) => {
+            const res = await runTemplate(
+                functionTemplate,
+                templates,
+                fragment,
+                { ...options, parameters }
+            )
+            return res.text
+        }
+    })
+
     let {
         expanded,
         success,
@@ -442,7 +480,12 @@ export async function runTemplate(
         temperature,
         max_tokens,
         systemText,
-    } = await expandTemplate(template, fragment, vars as ExpansionVariables)
+    } = await expandTemplate(
+        template,
+        fragment,
+        vars as ExpansionVariables,
+        context
+    )
 
     trace += "\n\n## Final prompt\n\n"
 

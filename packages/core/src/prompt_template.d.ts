@@ -221,6 +221,9 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
-    call(functionId: string, parameters: Record<string, any>): Promise<string>
+    call(
+        functionId: string,
+        parameters: Record<string, any>
+    ): Promise<StringLike>
     env: ExpansionVariables
 }

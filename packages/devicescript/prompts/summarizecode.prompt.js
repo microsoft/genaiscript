@@ -1,10 +1,10 @@
 prompt({
     title: "Code Summarizer",
-    description: "Given a source file in a programming language, extract the structure"
+    description:
+        "Given a source file in a programming language, extract the structure",
 })
 
-const { file } = await fetchText("https://raw.githubusercontent.com/microsoft/devicescript/main/packages/drivers/src/driver.ts")
-
+const { file } = await fetchText(env.vars.parameters?.["url"] || "")
 def("FILE", file)
 
 $`You are an expert at programming in all known languages.
