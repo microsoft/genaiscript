@@ -335,8 +335,9 @@ export class ExtensionState extends EventTarget {
             : []
     }
 
-    private set project(prj: CoArchProject) {
+    private async setProject(prj: CoArchProject) {
         this._project = prj
+        await this.fixPromptDefinitions()
         this.dispatchFragments()
     }
 
@@ -376,9 +377,18 @@ export class ExtensionState extends EventTarget {
         const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
         for (const folder of folders) {
             const f = vscode.Uri.file(folder)
-            for (const [defName, defContent] of Object.entries(
+            for (let [defName, defContent] of Object.entries(
                 promptDefinitions
             )) {
+                if (this.project && defName === "prompt.d.ts") {
+                    const systems = this.project.templates
+                        .filter((t) => t.isSystem)
+                        .map((s) => `"${s.id}"`)
+                    defContent = defContent.replace(
+                        "type SystemPromptId = string",
+                        `type SystemPromptId = ${systems.join(" | ")}`
+                    )
+                }
                 const current = await readFileText(f, defName)
                 if (current !== defContent)
                     await writeFile(f, defName, defContent)
@@ -397,12 +407,12 @@ export class ExtensionState extends EventTarget {
         const promptFiles = await findFiles("**/*.prompt.js")
         const coarchJsonFiles = await findFiles("**/coarch.json")
 
-        this.project = await parseProject({
+        const newProject = await parseProject({
             coarchFiles,
             promptFiles,
             coarchJsonFiles,
         })
-
+        await this.setProject(newProject)
         this.setDiagnostics()
     }
 
