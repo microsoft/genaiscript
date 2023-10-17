@@ -18,4 +18,7 @@ $`Generate python code for the task in TASK. Save code in CODE.`
 if (env.clipboard)
     $`Analyze CLIPBOARD for runtime errors and fix the code.`
 $`If the CODE is already present, ensure that CODE matches the
-description in TASK and make minimal changes to CODE if it does not.`
+description in TASK and make changes to CODE if it does not.
+Do not modify TASK.`
+
+$`Follow the instructions in the Code Review section of TASK to generate CODE.`

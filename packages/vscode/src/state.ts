@@ -195,12 +195,20 @@ export class ExtensionState extends EventTarget {
                             t.id ===
                             options.template.nextTemplateAfterApplyEdits
                     )
-                if (nextTemplate)
+                if (nextTemplate) {
+                    // save all files
+                    await Promise.all(
+                        vscode.workspace.textDocuments.map((doc) => doc.save())
+                    )
+                    // save
+                    await this.parseWorkspace()
+                    // next prompt
                     vscode.commands.executeCommand(
                         "coarch.fragment.prompt",
                         options.fragment,
                         nextTemplate
                     )
+                }
             }
         } catch (e) {
             if (isCancelError(e)) return

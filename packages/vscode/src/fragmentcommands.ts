@@ -47,35 +47,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         return (picked as TemplateQuickPickItem)?.template
     }
 
-    const pickTemplateOrAction = async (
-        fragment: Fragment,
-        options: {
-            filter?: (p: PromptTemplate) => boolean
-            actions: ActionQuickPickItem[]
-        }
-    ) => {
-        const { filter, actions } = options
-        const templates = fragment.applicableTemplates().filter(filter)
-
-        if (templates.length === 0 && actions.length === 1)
-            return actions[0].action
-
-        const picked = await vscode.window.showQuickPick<
-            vscode.QuickPickItem | TemplateQuickPickItem | ActionQuickPickItem
-        >([
-            ...templatesToQuickPickItems(templates),
-            {
-                label: "Actions",
-                kind: vscode.QuickPickItemKind.Separator,
-            },
-            ...actions,
-        ])
-        return (
-            (picked as TemplateQuickPickItem)?.template ||
-            (picked as ActionQuickPickItem)?.action
-        )
-    }
-
     const fragmentExecute = async (
         fragment: Fragment,
         label: string,
@@ -137,7 +108,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "coarch.fragment.navigate",
             fragmentNavigate
-        ),
+        )
     )
 }
 
