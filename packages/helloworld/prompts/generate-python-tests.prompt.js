@@ -3,6 +3,8 @@ prompt({
     model: "gpt-4",
     description: "Given a task and code, generate tests",
     categories: ["tutorial"],
+    system: ["system", "system.explanations", "system.summary", "system.files", "system.python"],
+    temperature: 0
 })
 
 def("TESTS", env.links.filter((f) => /^test_*\.py$/.test(f.filename)))
@@ -20,9 +22,8 @@ Do not modify or duplicate the code in CODE.
 
 If the tests are already present in TESTS, ensure that the tests
 match the description in TASK and the code in CODE.  If they do not,
-update the tests to match the code and the description. 
+update the tests to match the code and the description.
 
 Use this format for test file names: "test_*.py".
  
-Include a test harness that can run the tests from the command line
-Ensure that the result is well-formed Python code`
+Include the unittest test harness that can run the tests from the command line.`
