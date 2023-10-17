@@ -5,4 +5,4 @@
 DeviceScript is a TypeScript like language to program micro-controllers.
 You will need to implement drivers in TypeScript using the i2c base classes.
 
--   [./driver.ts.pseudo](./driver.ts.pseudo)
+-   [driver.p.ts](driver.p.ts)

@@ -10,7 +10,7 @@ prompt({
 def("SPEC", env.file)
 def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
 def("README", env.links.filter(f => f.filename.endsWith("README.md")))
-def("PSEUDO", env.links.filter(f => f.filename.endsWith(".pseudo")))
+def("PSEUDO", env.links.filter(f => f.filename.endsWith(".p.ts")))
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.
 Using the information provided in SPEC, generate a DeviceScript driver for the peripherical.`
