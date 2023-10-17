@@ -33,6 +33,8 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
+type SystemPromptId = "system.diff" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
+
 interface PromptTemplate extends PromptLike {
     /**
      * Which model to use.
@@ -79,7 +81,7 @@ interface PromptTemplate extends PromptLike {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
-    system?: string[]
+    system?: SystemPromptId[]
 
     /**
      * File extension this prompt applies to; if present. Defaults to `.md`.
@@ -204,7 +206,7 @@ interface PromptContext {
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
-    fetchText(url: string): Promise<{
+    fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
         statusText: string
@@ -276,5 +278,5 @@ declare var env: ExpansionVariables
  * @param url
  */
 declare function fetchText(
-    url: string
+    url: string | LinkedFile
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
