@@ -3,13 +3,7 @@ import {
     RequestError,
     getChatCompletions,
 } from "./chat"
-import {
-    Fragment,
-    PromptTemplate,
-    allChildren,
-    rangeOfFragments,
-    rootFragment,
-} from "./ast"
+import { Fragment, PromptTemplate, allChildren } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
 import {
@@ -18,7 +12,6 @@ import {
     fileExists,
     readText,
     relativePath,
-    splitPath,
 } from "./util"
 import {
     evalPrompt,
@@ -358,6 +351,15 @@ function fragmentVars(
         for (const fr of allChildren(frag, true)) {
             for (const ref of fr.references) {
                 // what about URLs?
+                if (/^https:\/\//.test(ref.filename)) {
+                    if (!links.find((lk) => lk.filename === ref.filename))
+                        links.push({
+                            label: ref.name,
+                            filename: ref.filename,
+                            content: "",
+                        })
+                    continue
+                }
 
                 // check for existing file
                 const projectFile = project.allFiles.find(
