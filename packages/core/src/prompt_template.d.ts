@@ -214,7 +214,7 @@ interface PromptContext {
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
-    fetchText(url: string): Promise<{
+    fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
         statusText: string

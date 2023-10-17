@@ -278,23 +278,22 @@ async function parseMeta(r: PromptTemplate) {
                 meta.isSystem = true
                 prompt(meta)
             },
-            fetchText: async (url: string) => ({
-                ok: false,
-                status: 404,
-                statusText: "not supported in meta mode",
-                text: "",
-                file: {
-                    label: url,
-                    filename: url,
-                    content: "",
-                },
-            }),
-            call: async (
-                functionId: string,
-                parameters: Record<string, any>
-            ) => {
-                calls.push(functionId)
-                return undefined
+            fetchText: async (urlOrFile: string | LinkedFile) => {
+                const url =
+                    typeof urlOrFile === "string"
+                        ? urlOrFile
+                        : urlOrFile?.filename
+                return {
+                    ok: false,
+                    status: 404,
+                    statusText: "not supported in meta mode",
+                    text: "",
+                    file: {
+                        label: url,
+                        filename: url,
+                        content: "",
+                    },
+                }
             },
         },
         r.jsSource

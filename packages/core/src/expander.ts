@@ -3,13 +3,7 @@ import {
     RequestError,
     getChatCompletions,
 } from "./chat"
-import {
-    Fragment,
-    PromptTemplate,
-    allChildren,
-    rangeOfFragments,
-    rootFragment,
-} from "./ast"
+import { Fragment, PromptTemplate, allChildren } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
 import {
@@ -18,7 +12,6 @@ import {
     fileExists,
     readText,
     relativePath,
-    splitPath,
 } from "./util"
 import {
     evalPrompt,
@@ -132,7 +125,15 @@ async function callExpander(
                 },
                 prompt: () => {},
                 systemPrompt: () => {},
-                fetchText: async (url) => {
+                fetchText: async (urlOrFile) => {
+                    if (typeof urlOrFile === "string") {
+                        urlOrFile = {
+                            label: urlOrFile,
+                            filename: urlOrFile,
+                            content: "",
+                        }
+                    }
+                    const url = urlOrFile.filename
                     if (!/^https:\/\//i.test(url))
                         throw new Error(`only https:// URLs supported`)
                     const resp = await fetch(url)
@@ -140,8 +141,8 @@ async function callExpander(
                     if (!ok) return { ok, status, statusText }
                     const text = await resp.text()
                     const file: LinkedFile = {
-                        label: url,
-                        filename: url,
+                        label: urlOrFile.label,
+                        filename: urlOrFile.label,
                         content: text,
                     }
                     return {
@@ -379,6 +380,15 @@ function fragmentVars(
         for (const fr of allChildren(frag, true)) {
             for (const ref of fr.references) {
                 // what about URLs?
+                if (/^https:\/\//.test(ref.filename)) {
+                    if (!links.find((lk) => lk.filename === ref.filename))
+                        links.push({
+                            label: ref.name,
+                            filename: ref.filename,
+                            content: "",
+                        })
+                    continue
+                }
 
                 // check for existing file
                 const projectFile = project.allFiles.find(
@@ -600,8 +610,9 @@ ${renderFencedVariables(extr)}
 
     for (const fence of extr) {
         const { label: name, content: val } = fence
-        if (/^(file|diff) /i.test(name)) {
-            const n = name.slice(5).trim()
+        const pm = /^((file|diff):?) /i.exec(name)
+        if (pm) {
+            const n = name.slice(pm[0].length).trim()
             const fn = /^[^\/]/.test(n) ? host.resolvePath(projFolder, n) : n
             const ffn = relativePath(ff, fn)
             const curr = refs.find((r) => r.filename === fn)?.filename

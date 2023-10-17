@@ -3,7 +3,6 @@ prompt({
     description: "You are an expert software developer with years of experience implementing Python applications.",
     maxTokens: 4000,
     outputFolder: "game",
-    system: ["system.code"],
     categories: ["appdev"]
 })
 
@@ -41,6 +40,8 @@ Make sure that the code is modular and that a quality assurance engineer can
 write test cases for each component.
 Make sure that you can run the client component on the command line for demonstration and testing purposes.
 Include assertions in your code to ensure that the code is correct.
+
+Do not encode the file name as a comment.
 
 
 Respond with the new CODE.

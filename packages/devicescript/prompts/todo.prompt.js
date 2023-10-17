@@ -6,16 +6,8 @@ prompt({
 })
 
 def("SPEC", env.file)
-def(
-    "CODE",
-    env.links.filter(f => f.filename.endsWith(".ts"))
-)
-
-const spec = await call("summarizecode", {
-    url: "https://raw.githubusercontent.com/microsoft/devicescript/main/packages/drivers/src/driver.ts",
-})
-
-def("SPEC", spec)
+def("PSEUDO", env.links.filter(f => f.filename.endsWith(".pseudo")))
+def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.`
 

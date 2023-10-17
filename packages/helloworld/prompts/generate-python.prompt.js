@@ -2,20 +2,23 @@ prompt({
     title: "Generate python code",
     model: "gpt-4",
     description: "Given a task, generate python code.",
-    system: ["system.code", "system.summary"],
     categories: ["tutorial"],
+    system: ["system", "system.explanations", "system.summary", "system.files"],
+    temperature: 0
 })
 
 def("CODE", env.links.filter(
     (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
 ))
 def("TASK", env.file)
-def("CLIPBOARD", env.clipboard)
+if (env.clipboard)
+    def("CLIPBOARD", env.clipboard)
 
-$`You are an expert python programmer.
-Generate python code in CODE for the task in TASK.
+$`Generate python code for the task in TASK. Save code in CODE.`
+if (env.clipboard)
+    $`Analyze CLIPBOARD for runtime errors and fix the code.`
+$`If the CODE is already present, ensure that CODE matches the
+description in TASK and make changes to CODE if it does not.
+Do not modify TASK. Do not modify generate tests.`
 
-If CLIPBOARD is present, analyze it for runtime errors and fix the code.
- 
-If the CODE is already present, ensure that CODE matches the
-description in TASK and make minimal changes if it does not.`
+$`Follow the instructions in the Code Review section of TASK to generate CODE.`

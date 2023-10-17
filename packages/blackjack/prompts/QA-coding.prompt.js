@@ -3,7 +3,6 @@ prompt({
     description: "You are an expert on writing tests for software, including for Python applications.",
     maxTokens: 4000,
     outputFolder: "game",
-    system: ["system.code"],
     categories: ["appdev"]
 })
 

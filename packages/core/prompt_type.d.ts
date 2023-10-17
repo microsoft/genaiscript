@@ -60,7 +60,7 @@ declare var env: ExpansionVariables
  * @param url
  */
 declare function fetchText(
-    url: string
+    url: string | LinkedFile
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**

@@ -23,5 +23,6 @@
         "**/*.ts",
         "**/*.tsx",
         "../node_modules/@devicescript/core/src/*.ts"
-    ]
+    ],
+    "exclude": ["**/*.p.ts"]
 }
