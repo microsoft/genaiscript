@@ -111,7 +111,15 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                 },
                 prompt: () => {},
                 systemPrompt: () => {},
-                fetchText: async (url) => {
+                fetchText: async (urlOrFile) => {
+                    if (typeof urlOrFile === "string") {
+                        urlOrFile = {
+                            label: urlOrFile,
+                            filename: urlOrFile,
+                            content: "",
+                        }
+                    }
+                    const url = urlOrFile.filename
                     if (!/^https:\/\//i.test(url))
                         throw new Error(`only https:// URLs supported`)
                     const resp = await fetch(url)
@@ -119,8 +127,8 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                     if (!ok) return { ok, status, statusText }
                     const text = await resp.text()
                     const file: LinkedFile = {
-                        label: url,
-                        filename: url,
+                        label: urlOrFile.label,
+                        filename: urlOrFile.label,
                         content: text,
                     }
                     return {
