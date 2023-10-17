@@ -2,7 +2,6 @@ prompt({
     title: "Generate python tests",
     model: "gpt-4",
     description: "Given a task and code, generate tests",
-    system: ["system.code", "system.summary"],
     categories: ["tutorial"],
 })
 
