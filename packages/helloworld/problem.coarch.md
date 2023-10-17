@@ -1,15 +1,24 @@
-# email address and URL recognizer 
+# email address recognizer
 
-Write a function that takes a string argument and returns true if the whole string is a valid email address or URL, false otherwise.
+Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
 
--   [./email_recognizer.py](././email_recognizer.py)
-
--   [./test_email_recognizer.py](././test_email_recognizer.py)
+-   [email_address_recognizer.py](email_address_recognizer.py)
 
 ## Code Review
 
-1. Add type hinting for the input argument and return type of the function.
-2. Use more descriptive variable names for the regex patterns.
-3. Handle the case when the input string is `None` or not a string type.
-4. Add docstrings to explain the purpose and usage of the function.
-5. Update the function to handle the case when the input is `None` and return `False`. To fix the runtime error, add a condition to check if the input is a string before performing the regex match.
+1. The code is concise and easy to understand.
+2. The regular expression pattern used is appropriate for most email addresses.
+3. The function name `is_valid_email` is descriptive and follows Python naming conventions.
+4. The code uses type hints for better readability and understanding of the function's input and output.
+
+However, there are a few improvements that can be made:
+
+1. The regular expression pattern can be improved to handle more edge cases and special characters.
+2. The `re.match()` function can be replaced with `re.fullmatch()` to ensure the entire string is matched, not just the beginning.
+3. Add comments to explain the regular expression pattern for better maintainability.
+
+Suggested changes:
+
+1. Update the regular expression pattern to: `r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'`
+2. Replace `re.match()` with `re.fullmatch()`.
+3. Add a comment explaining the regular expression pattern.
