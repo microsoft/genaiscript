@@ -1,0 +1,18 @@
+class I2CDriver {
+  constructor(devAddr, options)
+  init()
+  initDriver()
+  xfer(writeBuf, numRead)
+  writeReg(regAddr, byte)
+  readReg(regAddr)
+  writeRegBuf(regAddr, b)
+  readRegBuf(regAddr, size)
+  readBuf(size)
+  writeBuf(b)
+}
+
+class I2CSensorDriver extends I2CDriver {
+  constructor(devAddr, options)
+  read()
+  readData()
+}

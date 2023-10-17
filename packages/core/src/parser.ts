@@ -193,7 +193,9 @@ const parseMdFile: Parser = (
             (_, name, file) => {
                 newelt.references.push({
                     name,
-                    filename: host.resolvePath(filename, "..", file),
+                    filename: /^\w+:\/\//.test(file)
+                        ? file
+                        : host.resolvePath(filename, "..", file),
                 })
                 return ""
             }
