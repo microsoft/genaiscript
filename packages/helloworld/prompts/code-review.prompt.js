@@ -4,7 +4,6 @@ prompt({
     maxTokens: 4000,
     model: "gpt-4",
     categories: ["tutorial"],
-    system: ["system.summary"],
     autoApplyEdits: true,
     nextTemplateAfterApplyEdits: "generate-python",
     readClipboard: true
@@ -23,5 +22,6 @@ Your job is to critique the code and create a list ways in which it could be imp
 
 If CLIPBOARD is present, analyze it for runtime errors and suggest code fixes.
 
-Replace the "Code Review" section in the SPEC ${env.file.filename} file with your code review. Do not modify CODE.
+Replace the "Code Review" section in the SPEC ${env.file.filename} file with your code review. 
+Do not modify CODE.
 `
