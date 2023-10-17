@@ -563,8 +563,9 @@ ${renderFencedVariables(extr)}
 
     for (const fence of extr) {
         const { label: name, content: val } = fence
-        if (/^(file|diff) /i.test(name)) {
-            const n = name.slice(5).trim()
+        const pm = /^((file|diff):?) /i.exec(name)
+        if (pm) {
+            const n = name.slice(pm[0].length).trim()
             const fn = /^[^\/]/.test(n) ? host.resolvePath(projFolder, n) : n
             const ffn = relativePath(ff, fn)
             const curr = refs.find((r) => r.filename === fn)?.filename

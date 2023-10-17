@@ -6,7 +6,7 @@ prompt({
 
 const output = env.file.filename?.replace(/\.coarch\.md/, ".saplan.coarch.md")
 def("FILE", env.file)
-def("CODE", env.links.filter(f => f.filename === output))
+def("PLAN", env.links.filter(f => f.filename === output))
 
 $`
 You are an expert Python software architect.
@@ -36,8 +36,7 @@ Also, define a command line client that will use the product that can be used bo
 Make sure that the client is easy to use and that it is well documented.
 Make sure that your instructions are clear, concise, and unambiguous.
 
-Respond with the new CODE in ${output}.
+Respond with the PLAN in ${output}. Use local file names.
 
-Limit changes to CODE.
-Generate markdown, do not generate Python code.
+Limit changes to PLAN.  Do not change the SPEC. Do not generate Python.
 `

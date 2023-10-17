@@ -204,6 +204,13 @@ interface PromptContext {
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
+    fetchText(urlOrFile: string | LinkedFile): Promise<{
+        ok: boolean
+        status: number
+        statusText: string
+        text?: string
+        file?: LinkedFile
+    }>
     env: ExpansionVariables
 }
 
@@ -263,3 +270,11 @@ declare function defFiles(files: LinkedFile[]): void
  * Variables coming from the fragment on which the prompt is operating.
  */
 declare var env: ExpansionVariables
+
+/**
+ * Fetches a given URL and returns the response.
+ * @param url
+ */
+declare function fetchText(
+    url: string | LinkedFile
+): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
