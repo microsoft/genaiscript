@@ -358,7 +358,7 @@ export class ExtensionState extends EventTarget {
         }, 1000)
 
         this._watcher = vscode.workspace.createFileSystemWatcher(
-            "**/*.{coarch.md,prompt.js}"
+            "**/*.{gpspec.md,prompt.js}"
         )
         this._watcher.onDidChange(handleChange)
         this._watcher.onDidCreate(handleChange)

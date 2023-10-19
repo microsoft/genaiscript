@@ -10,9 +10,9 @@ while taking into account the tree structure of your documents.
 CoArch tightly integrate the prompt engineering cycle inside Visual Studio Code
 infrastructure to provide a augmented, tooled, prompting experience.
 
-### Prompt Files
+### GPTools
 
-CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`prompts/*.prompt.js`) in your project.
+CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.prompt.js`) in your project.
 
 CoArch comes with builtin prompts and allows you to fork and customize the AI prompts to your project specific needs.
 This leverages VSCode language support (completion, coloring, error checking)
