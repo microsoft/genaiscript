@@ -15,7 +15,7 @@
         "workspace"
     ],
     "activationEvents": [
-        "workspaceContains:**/*.coarch.md",
+        "workspaceContains:**/*.gpspec.md",
         "workspaceContains:**/*.prompt.js"
     ],
     "main": "./built/extension.js",
@@ -83,7 +83,7 @@
         "viewsWelcome": [
             {
                 "view": "coarch.fragments",
-                "contents": "Create a CoArch markdown file (.coarch.md) to start generating tasks and code."
+                "contents": "Create a CoArch markdown file (.gpspec.md) to start generating tasks and code."
             }
         ],
         "menus": {

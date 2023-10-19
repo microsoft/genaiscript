@@ -1,13 +1,13 @@
 prompt({ title: "plot-ideas", 
          description: "Given a framing for a story, suggests a plot for the story.",
-         output: ".plots.coarch.md", 
+         output: ".plots.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["fiction"]  })
 
 def("SUMMARY", env.subtree)
 def("PLAN", env.output)
-def("PREVPLAN", env.links.filter(f => f.filename.endsWith(".plots.coarch.md")))
+def("PREVPLAN", env.links.filter(f => f.filename.endsWith(".plots.gpspec.md")))
 
 $`
 You are an experience writer of fiction and you have been given a framing for a short story, 

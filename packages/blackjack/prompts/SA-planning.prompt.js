@@ -4,7 +4,7 @@ prompt({
     categories: ["appdev"]
 })
 
-const output = env.file.filename?.replace(/\.coarch\.md/, ".saplan.coarch.md")
+const output = env.file.filename?.replace(/\.coarch\.md/, ".saplan.gpspec.md")
 def("FILE", env.file)
 def("PLAN", env.links.filter(f => f.filename === output))
 

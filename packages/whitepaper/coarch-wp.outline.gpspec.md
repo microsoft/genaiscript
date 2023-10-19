@@ -11,7 +11,7 @@
 - Goals of CoArch
 
 ## 3. CoArch Components and Workflow
-- CoArch commands: markdown files (.coarch.md)
+- CoArch commands: markdown files (.gpspec.md)
 - CoArch prompts: prompt files
 - CoArch interaction process
 - Refactor view for human-AI coordination

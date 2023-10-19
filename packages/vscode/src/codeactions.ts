@@ -37,7 +37,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
 export async function activateCodeActions(state: ExtensionState) {
     state.context.subscriptions.push(
         vscode.languages.registerCodeActionsProvider(
-            { scheme: "file", language: "markdown", pattern: "**/*.coarch.md" },
+            { scheme: "file", language: "markdown", pattern: "**/*.gpspec.md" },
             new CodeActionProvider(state),
             {
                 providedCodeActionKinds:

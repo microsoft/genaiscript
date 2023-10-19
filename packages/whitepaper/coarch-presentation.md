@@ -79,7 +79,7 @@ User applies prompt file to \.coarch\.md file to generate LLM result
 ---
 
 CoArch includes
-CoArch commands: markdown files .coarch.md
+CoArch commands: markdown files .gpspec.md
 CoArch prompts: prompt files 
 
 

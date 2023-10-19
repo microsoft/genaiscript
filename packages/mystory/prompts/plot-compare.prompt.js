@@ -1,13 +1,13 @@
 prompt({ title: "plot-compare", 
          description: "Give a file with multiple story plots, rate them",
-         output: ".compare-plots.coarch.md", 
+         output: ".compare-plots.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["fiction"]  })
 
 def("SUMMARY", env.subtree)
 def("COMPARISON", env.output)
-def("PLOTIDEAS", env.links.filter(f => f.filename.endsWith(".plots.coarch.md")))
+def("PLOTIDEAS", env.links.filter(f => f.filename.endsWith(".plots.gpspec.md")))
 
 $`
 You are an experienced writer of fiction and you have been given a framing for a short story, 

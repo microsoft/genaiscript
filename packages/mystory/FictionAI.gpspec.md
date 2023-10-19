@@ -1,8 +1,8 @@
 #  AI in Boulder story framing
 
--   [plot-ideas](./FictionAI.plots.coarch.md)
+-   [plot-ideas](./FictionAI.plots.gpspec.md)
 
--   [plot-compare](./FictionAI.compate-plots.coarch.md)
+-   [plot-compare](./FictionAI.compate-plots.gpspec.md)
 
 ## Genre Near-future hard science fiction short story 
 Write the story so that it is a page turner and the reader is left wanting more.  

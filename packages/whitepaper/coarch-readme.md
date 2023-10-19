@@ -26,7 +26,7 @@ In the future, we foresee that developers will create libraries of prompts and s
 
 ### Specification Files
 
-CoArch parses `*.coarch.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
+CoArch parses `*.gpspec.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
 
 Once the specification files are parsed, CoArch will automatically suggest which prompt can be applied to each fragment.
 
@@ -44,7 +44,7 @@ The extension contains a few prompts, and the following samples can also be cons
 
 ## Authoring
 
-To start using CoArch, create a new `.coarch.md` file and start adding content as markdown. You can either use the CodeAction QuickFix light bulb to access the prompts or open the CoArch view to examine the tree.
+To start using CoArch, create a new `.gpspec.md` file and start adding content as markdown. You can either use the CodeAction QuickFix light bulb to access the prompts or open the CoArch view to examine the tree.
 
 <!-- Text editor with QuickFix menu opened](./images/quickfix.png) -->
 
@@ -352,7 +352,7 @@ if (env.output) def("CODE", env.output)
 
 ### Inline variable
 
-You can inject custom variables in the process by authoring them as markdown comments in your `.coarch.md` files. The variable are accessible through the `env.vars` field.
+You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
 
 ```markdown
 Lorem ipsum...
@@ -371,7 +371,7 @@ const myvalue = env.vars["myvar"]
 
 ### Inline prompts
 
-You can inject prompt in the process by authoring them as markdown comments in your `.coarch.md` files. Essentially, you are defining variables that will be expanded in the prompt templates.
+You can inject prompt in the process by authoring them as markdown comments in your `.gpspec.md` files. Essentially, you are defining variables that will be expanded in the prompt templates.
 
 This example defines a prompt instruction that will be injected in all prompts (that refer to that variable).
 

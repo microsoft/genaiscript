@@ -8,9 +8,9 @@ prompt({
 })
 
 def("SUMMARY", env.subtree)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.coarch.md")))
-def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.coarch.md")))
-def("PLOTLINE", env.links.filter(f => f.filename.endsWith(".plotline.coarch.md")))
+def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
+def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.gpspec.md")))
+def("PLOTLINE", env.links.filter(f => f.filename.endsWith(".plotline.gpspec.md")))
 
 $`
 You are an experience writer of fiction and you have been given an outline for a short story, in SUMMARY, 

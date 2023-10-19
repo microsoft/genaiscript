@@ -1,5 +1,5 @@
 prompt({ title: "SDE-update", 
-         description: "Updates code for an application based on a specification of the specific files and APIs provided in a .saplan.coarch.md file",
+         description: "Updates code for an application based on a specification of the specific files and APIs provided in a .saplan.gpspec.md file",
          maxTokens: 4000,
          outputFolder: "src",
          model: "gpt-4-32k",
@@ -7,7 +7,7 @@ prompt({ title: "SDE-update",
 
 def("SUMMARY", env.subtree)
 def("CODE", env.links.filter(f => f.filename.endsWith(".py")))
-def("DOCS", env.links.filter(f => f.filename.endsWith(".coarch.md")))
+def("DOCS", env.links.filter(f => f.filename.endsWith(".gpspec.md")))
 def("BUGS", env.links.filter(f => f.filename.startsWith("bug")))
 
 $`

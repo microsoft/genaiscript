@@ -1,6 +1,6 @@
 # Story Writing Prompt for CoArch
 
--   [prompt-critique](./storywriting.prompt-critic.coarch.md)
+-   [prompt-critique](./storywriting.prompt-critic.gpspec.md)
 
 ## Goals of this prompt
 

@@ -315,7 +315,7 @@ function errorId() {
 
 export function staticVars() {
     return {
-        file: { filename: "spec.coarch.md", content: "" } as LinkedFile,
+        file: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
         links: [] as LinkedFile[],
         parents: [] as LinkedFile[],
         fence: promptFence,

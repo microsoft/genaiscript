@@ -1,6 +1,6 @@
 prompt({ title: "generate-outline", 
          description: "Given markdown files describing a project, generate an outline of a whitepaper",
-         output: ".outline.coarch.md", 
+         output: ".outline.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          system: ["system.notes"],

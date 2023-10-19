@@ -8,7 +8,7 @@ prompt({ title: "generate-introduction",
 def("PLAN", env.file)      
 def("SOURCES", env.links.filter(f => f.filename.endsWith(".md")))
 
-const introFileName = env.file?.filename?.replace(".coarch.md", ".intro.md")
+const introFileName = env.file?.filename?.replace(".gpspec.md", ".intro.md")
 const intro = env.links.find(lk => lk.filename === introFileName)
 
 if (intro) {

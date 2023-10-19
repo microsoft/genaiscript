@@ -1,14 +1,14 @@
 prompt({ title: "plot-development", 
          description: "Given elements of a story, flesh out the sequence of events",
-         output: ".plotline.coarch.md", 
+         output: ".plotline.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["fiction"]  })
 
 def("SUMMARY", env.subtree)
 def("PLOTLINE", env.output)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.coarch.md")))
-def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.coarch.md")))
+def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
+def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.gpspec.md")))
 
 $`
 You are an experience writer of fiction and you have been given a framing for a short story, 
