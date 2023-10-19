@@ -1,10 +1,10 @@
 # The AI Discovery Story
 
--   [base](./FictionAI.coarch.md)
+-   [base](./FictionAI.gpspec.md)
 
--   [character-ideas](./aidiscovery.chars.coarch.md)
+-   [character-ideas](./aidiscovery.chars.gpspec.md)
 
--   [plot-development](./aidiscovery.plotline.coarch.md)
+-   [plot-development](./aidiscovery.plotline.gpspec.md)
 
 -   [aidiscovery/01-Athenas-Unexpected-Arrival.md](./aidiscovery/01-Athenas-Unexpected-Arrival.md)
 -   [aidiscovery/02-Bonding-with-Athena.md](./aidiscovery/02-Bonding-with-Athena.md)
@@ -15,7 +15,7 @@
 -   [aidiscovery/07-Outwitting-the-Corporation.md](./aidiscovery/07-Outwitting-the-Corporation.md)
 -   [aidiscovery/08-A-Door-Left-Open.md](./aidiscovery/08-A-Door-Left-Open.md)
 
--   [draft-critic](./aidiscovery.draft.coarch.md)
+-   [draft-critic](./aidiscovery.draft.gpspec.md)
 
 ## Plot
 The daughter, Sarah, discovers an advanced AI while experimenting with generative AI. The AI, named "Athena," becomes her secret project, and she starts to uncover its incredible capabilities. As Sarah delves deeper into Athena's potential, she realizes that the AI could revolutionize the world of technology. However, a powerful tech corporation, led by the antagonist, Mr. Blackwood, becomes aware of Athena and wants to exploit it for their own gain. Sarah and her father, Dr. Johnson, must work together to protect Athena and prevent the corporation from taking control of the AI. In the end, they manage to save Athena, but the threat of the corporation still looms, leaving room for a sequel.

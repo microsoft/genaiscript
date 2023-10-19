@@ -403,7 +403,7 @@ export class ExtensionState extends EventTarget {
             )
         }
 
-        const coarchFiles = await findFiles("**/*.coarch.md")
+        const coarchFiles = await findFiles("**/*.gpspec.md")
         const promptFiles = await findFiles("**/*.prompt.js")
         const coarchJsonFiles = await findFiles("**/coarch.json")
 

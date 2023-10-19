@@ -1,6 +1,6 @@
 prompt({ title: "prompt-critic", 
          description: "Given a goal and a prompt, evaluate the prompt",
-         output: ".prompt-critic.coarch.md", 
+         output: ".prompt-critic.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["fiction"]  })

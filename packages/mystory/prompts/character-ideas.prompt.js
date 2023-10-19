@@ -1,13 +1,13 @@
 prompt({ title: "character-ideas", 
          description: "Given a framing for a story, a plot idea and a list of characters, develops the characters",
-         output: ".chars.coarch.md", 
+         output: ".chars.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["fiction"]  })
 
 def("SUMMARY", env.subtree)
 def("CHARS", env.output)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.coarch.md")))
+def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
 
 $`
 You are an experience writer of fiction and you have been given a framing for a short story, 

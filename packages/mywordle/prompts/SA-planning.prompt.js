@@ -1,6 +1,6 @@
 prompt({ title: "SA-planning", 
          description: "Generates a SW architecture plan for the application",
-         output: ".saplan.coarch.md", 
+         output: ".saplan.gpspec.md", 
          maxTokens: 4000,
          model: "gpt-4-32k",
          categories: ["appdev"]  })

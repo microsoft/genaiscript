@@ -1,14 +1,14 @@
 prompt({ title: "draft critic", 
          description: "Given chapters of story, critique the story",
          maxTokens: 4000,
-         output: ".draft.coarch.md", 
+         output: ".draft.gpspec.md", 
          model: "gpt-4-32k",
          categories: ["fiction"]  })
 
 def("DRAFT", env.output)
 def("SUMMARY", env.subtree)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.coarch.md")))
-def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.coarch.md")))
+def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
+def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.gpspec.md")))
 def("STORY", env.links.filter(f => f.filename.includes("0")))
 
 $`

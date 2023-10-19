@@ -5,7 +5,7 @@ prompt({
     categories: ["code.python"],
 })
 
-const pythonFileName = env.file?.filename?.replace(".coarch.md", ".coarch.py")
+const pythonFileName = env.file?.filename?.replace(".gpspec.md", ".coarch.py")
 const python = env.links.find(lk => lk.filename === pythonFileName)
 
 $`
