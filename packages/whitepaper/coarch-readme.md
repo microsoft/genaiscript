@@ -12,7 +12,7 @@ infrastructure to provide a augmented, tooled, prompting experience.
 
 ### Tools
 
-CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.prompt.js`) in your project.
+CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
 
 CoArch comes with builtin prompts and allows you to fork and customize the AI prompts to your project specific needs.
 This leverages VSCode language support (completion, coloring, error checking)
@@ -97,9 +97,9 @@ Following token formats are supported:
 
 Internally, CoArch has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
-All prompts are JS files named as `*.prompt.js`. You can use the `CoArch - Fork a prompt...` to fork any known prompt.
+All prompts are JS files named as `*.gptool.js`. You can use the `CoArch - Fork a prompt...` to fork any known prompt.
 
-All `system.*.prompt.js` are considered system prompt templates
+All `system.*.gptool.js` are considered system prompt templates
 and are unlisted by default. There is no variable expansion in those.
 
 ### Example
@@ -394,7 +394,7 @@ Keep it short.
 -->
 ```
 
-The prompts have to reference the variable, that is the `summarize.prompt.js` has to include `"summarize"`
+The prompts have to reference the variable, that is the `summarize.gptool.js` has to include `"summarize"`
 as one of it's `categories` (otherwise, only `@prompt` is inserted).
 The expansion of these variables is scoped. If you include `"bar.baz"` category,
 it will insert variables `{{@prompt}}`, `{{@prompt.bar}}`, and `{{@prompt.bar.baz}}` (in this order, skipping any missing variables).

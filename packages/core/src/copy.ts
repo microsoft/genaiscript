@@ -5,7 +5,7 @@ import { fileExists, writeText } from "./util"
 function promptPath(id: string) {
     const prompts = host.resolvePath(host.projectFolder(), "prompts")
     if (id === null) return prompts
-    return host.resolvePath(prompts, id + ".prompt.js")
+    return host.resolvePath(prompts, id + ".gptool.js")
 }
 export async function copyPrompt(
     t: PromptTemplate,

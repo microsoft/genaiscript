@@ -25,7 +25,7 @@ The introduction should also explain the key abstraction mechanisms of CoArch, a
 
 Mention that the key abstraction elements in CoArch are:
 - The .gpspec.md command files which capture the concrete intent and structure for a particular use case.
-- The .prompt.js files, which allow sharing and customization of general-purpose prompts.
+- The .gptool.js files, which allow sharing and customization of general-purpose prompts.
 - Maintaining a set of dependencies between different documents and other information sources that inform the application of prompts and the coordination of maintaining consistency in creating and maintaining complex artifacts.
 
 It is the abstraction and separation of concerns between these two elements that allows CoArch to support AI-augmented artifact management.
