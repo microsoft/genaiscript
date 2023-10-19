@@ -10,7 +10,7 @@ for (const prompt of prompts) {
     const text = readFileSync(`${dir}/${prompt}`, "utf-8")
 
     if (prompt.endsWith(".gptool.js"))
-        promptMap[prompt.replace(/\.prompt\.js$/, "")] = text
+        promptMap[prompt.replace(/\.gptool\.js$/, "")] = text
 }
 const promptDefs = {
     ".gitattributes": "prompt.d.ts -diff merge=ours linguist-generated",

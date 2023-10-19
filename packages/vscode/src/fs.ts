@@ -1,6 +1,10 @@
 import * as vscode from "vscode"
 import { JSON5TryParse } from "./json5"
 
+export async function saveAllTextDocuments() {
+    await Promise.all(vscode.workspace.textDocuments.map((doc) => doc.save()))
+}
+
 export async function checkFileExists(
     folderOrFile: vscode.Uri,
     filePath?: string
@@ -20,7 +24,7 @@ export async function writeFile(
     folder: vscode.Uri,
     fileName: string,
     fileContent: string,
-    options?: { open?: boolean, column?: vscode.ViewColumn }
+    options?: { open?: boolean; column?: vscode.ViewColumn }
 ): Promise<vscode.Uri> {
     const file = vscode.Uri.joinPath(folder, fileName)
     await vscode.workspace.fs.writeFile(
@@ -31,7 +35,11 @@ export async function writeFile(
     return file
 }
 
-export async function openFileEditor(folder: vscode.Uri, fileName: string, column?: vscode.ViewColumn) {
+export async function openFileEditor(
+    folder: vscode.Uri,
+    fileName: string,
+    column?: vscode.ViewColumn
+) {
     const file = vscode.Uri.joinPath(folder, fileName)
     const document = await vscode.workspace.openTextDocument(file)
     await vscode.window.showTextDocument(document, column)

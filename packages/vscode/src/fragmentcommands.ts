@@ -8,6 +8,7 @@ import {
     templateGroup,
 } from "coarch-core"
 import { ExtensionState } from "./state"
+import { saveAllTextDocuments } from "./fs"
 
 type TemplateQuickPickItem = {
     template: PromptTemplate
@@ -64,12 +65,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
-    const fragmentPrompt = async (
-        frag: Fragment | string,
-        template: PromptTemplate
-    ) => {
-        if (!checkSaved()) return
-
+    const resolveFragment = (frag: Fragment | string) => {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
             const previous = state.aiRequest.options.fragment
@@ -79,10 +75,44 @@ export function activateFragmentCommands(state: ExtensionState) {
         const fragment = rootFragment(state.project.resolveFragment(frag))
         if (!fragment) {
             vscode.window.showErrorMessage(
-                "CoArch - sorry, we could not find where to apply the prompt. Please try to launch CoArch from the editor."
+                "CoArch - sorry, we could not find where to apply the tool. Please try to launch CoArch from the editor."
             )
-            return
+            return undefined
         }
+        return fragment
+    }
+
+    const fragmentRefine = async () => {
+        const fragment = resolveFragment(undefined)
+        if (!fragment) return
+        const refinement = await vscode.window.showInputBox({
+            title: `What do you want to add to your spec?`,
+        })
+        if (!refinement) return
+
+        const edit = new vscode.WorkspaceEdit()
+        const uri = vscode.Uri.file(fragment.file.filename)
+        const meta: vscode.WorkspaceEditEntryMetadata = {
+            label: "Insert refinement",
+            needsConfirmation: false,
+        }
+        const lineCount = fragment.text.split("\n").length
+        const position = new vscode.Position(lineCount, 0)
+        edit.insert(uri, position, refinement, meta)
+
+        await vscode.workspace.applyEdit(edit)
+        await saveAllTextDocuments()
+
+        await fragmentPrompt()
+    }
+
+    const fragmentPrompt = async (
+        frag?: Fragment | string,
+        template?: PromptTemplate
+    ) => {
+        if (!checkSaved()) return
+        const fragment = resolveFragment(frag)
+        if (!fragment) return
         if (!template) {
             template = await pickTemplate(fragment)
             if (!template) return
@@ -101,6 +131,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         editor.revealRange(range)
     }
     subscriptions.push(
+        vscode.commands.registerCommand(
+            "coarch.fragment.refine",
+            fragmentRefine
+        ),
         vscode.commands.registerCommand(
             "coarch.fragment.prompt",
             fragmentPrompt

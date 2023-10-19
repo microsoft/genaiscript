@@ -4,7 +4,7 @@ import { parse } from "yaml";
 const str = JSON.stringify;
 
 for (const fn of process.argv.slice(2)) {
-    const suff = ".prompt.md";
+    const suff = ".gpspec.md";
     if (!fn.endsWith(suff)) continue;
     console.log(fn);
     const content = readFileSync(fn, "utf-8");

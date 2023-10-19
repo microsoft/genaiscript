@@ -222,7 +222,7 @@ interface PromptContext {
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .prompt.js file.
+ * Exactly one call should be present on top of .gptool.js file.
  */
 declare function prompt(options: PromptArgs): void
 

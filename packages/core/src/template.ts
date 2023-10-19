@@ -11,7 +11,7 @@ import { randomRange } from "./util"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
-        .replace(/\.prompt$/, "")
+        .replace(/\.gptool$/, "")
         .replace(/.*[\/\\]/, "")
 }
 
