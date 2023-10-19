@@ -99,7 +99,7 @@ The treeview reflects that there is a code node now available.
 - [ ] calling open ai M
 - [ ] cache of LLM query M 
 - [ ] detect sync/out of sync nodes M
-- [ ] project wide code generation preferences (`prompts/code.md`, `prompts/task.md`, `prompts/general.md`) M
+- [ ] project wide code generation preferences (`gptools/code.md`, `gptools/task.md`, `gptools/general.md`) M
 
 ## TBD
 

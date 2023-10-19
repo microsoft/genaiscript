@@ -1,10 +1,10 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
-const dir = "./src/prompts"
+const dir = "./src/gptools"
 const fp = "./src/default_prompts.ts"
 console.debug(`bundling ${dir}/*.prompt.js into default_prompts.ts`)
 const promptMap = {}
 const ftMap = {}
-const prompts = readdirSync("./src/prompts")
+const prompts = readdirSync("./src/gptools")
 for (const prompt of prompts) {
     if (!prompt.endsWith(".js")) continue
     const text = readFileSync(`${dir}/${prompt}`, "utf-8")
