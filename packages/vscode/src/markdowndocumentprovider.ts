@@ -82,7 +82,7 @@ ${md}
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
                 .slice(builtinPrefix.length)
-                .replace(/\.prompt\.js$/, "")
+                .replace(/\.gptool\.js$/, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""

@@ -71,11 +71,14 @@ export async function activate(context: ExtensionContext) {
             const abort = "Abort"
             const output = "Open Output"
             const trace = "Open Trace"
-            const next = "Run Prompt"
+            const next = "Refactor"
+            const refine = "Refine"
             const cmds: string[] = []
             if (computing) cmds.push(abort)
-            else if (request && editsApplied !== null) cmds.push(next)
-            if (text) cmds.push(output)
+            if (!computing && request) cmds.push(refine)
+            if (!computing && request && editsApplied !== null) {
+                cmds.push(next)
+            } else if (text) cmds.push(output)
             if (request) cmds.push(trace)
 
             const res = await vscode.window.showInformationMessage(
@@ -96,6 +99,8 @@ export async function activate(context: ExtensionContext) {
             else if (res === output) openRequestOutput()
             else if (res === next)
                 vscode.commands.executeCommand("coarch.fragment.prompt")
+            else if (res === refine)
+                vscode.commands.executeCommand("coarch.fragment.refine")
         }),
         vscode.commands.registerCommand(
             "coarch.openIssueReporter",

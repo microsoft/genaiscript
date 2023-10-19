@@ -25,7 +25,7 @@ import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { readFileText, writeFile } from "./fs"
+import { readFileText, saveAllTextDocuments, writeFile } from "./fs"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -197,9 +197,7 @@ export class ExtensionState extends EventTarget {
                     )
                 if (nextTemplate) {
                     // save all files
-                    await Promise.all(
-                        vscode.workspace.textDocuments.map((doc) => doc.save())
-                    )
+                    await saveAllTextDocuments()
                     // save
                     await this.parseWorkspace()
                     // next prompt
@@ -358,7 +356,7 @@ export class ExtensionState extends EventTarget {
         }, 1000)
 
         this._watcher = vscode.workspace.createFileSystemWatcher(
-            "**/*.{gpspec.md,prompt.js}"
+            "**/*.{gpspec.md,gptool.js}"
         )
         this._watcher.onDidChange(handleChange)
         this._watcher.onDidCreate(handleChange)

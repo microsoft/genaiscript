@@ -25,24 +25,6 @@
         "directory": "packages/vscode"
     },
     "contributes": {
-        "colors": [
-            {
-                "id": "coarch.fragment.id.before",
-                "description": "Before color for CoArch fragment ids.",
-                "defaults": {
-                    "dark": "#FFFF0066",
-                    "light": "#00008066"
-                }
-            },
-            {
-                "id": "coarch.fragment.id.border",
-                "description": "Border color for CoArch fragment ids.",
-                "defaults": {
-                    "dark": "#FFFF0066",
-                    "light": "#00008066"
-                }
-            }
-        ],
         "viewsContainers": {
             "activitybar": [
                 {
@@ -187,6 +169,13 @@
                 "title": "Query a copilot AI to do a task on the node",
                 "category": "CoArch",
                 "shortTitle": "Prompt...",
+                "icon": "$(lightbulb)"
+            },
+            {
+                "command": "coarch.fragment.refine",
+                "title": "Extend specification and run tool again",
+                "category": "CoArch",
+                "shortTitle": "Refine...",
                 "icon": "$(lightbulb)"
             },
             {

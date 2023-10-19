@@ -85,7 +85,7 @@ CoArch prompts: prompt files
 
 # Demo 1 – Hello World
 
-Generic \.prompt\.js implements task: writing Python code
+Generic \.gptool\.js implements task: writing Python code
 
 User writes markdown to solve a specific problem that in combination with prompt creates an LLM request\.
 
@@ -97,7 +97,7 @@ Prompts combine freeform text with integrated JavaScript
 
 Links provide references to other data sources
 
-Two files\, the \.coarch\.md and the \.prompt\.js file\, combine to create the request to the LLM
+Two files\, the \.coarch\.md and the \.gptool\.js file\, combine to create the request to the LLM
 
 # CoArch Interaction Process
 

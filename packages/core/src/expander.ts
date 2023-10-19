@@ -191,7 +191,7 @@ ${numberedFenceMD(template.jsSource)}
     // "Oh, so I can console.log() from prompt!"
     trace += `\n## console output\n`
     if (prompt.logs?.length) trace += fenceMD(prompt.logs)
-    else trace += `> tip: use \`console.log()\` from prompt.js files`
+    else trace += `> tip: use \`console.log()\` from gptool.js files`
 
     trace += "\n## Expanded prompt\n"
     trace += fenceMD(prompt.text)
