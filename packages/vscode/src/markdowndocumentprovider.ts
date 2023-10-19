@@ -154,7 +154,7 @@ export function infoUri(path: string) {
 export function builtinPromptUri(id: string) {
     return vscode.Uri.from({
         scheme: SCHEME,
-        path: builtinPrefix + id + ".prompt.js",
+        path: builtinPrefix + id + ".gptool.js",
     })
 }
 

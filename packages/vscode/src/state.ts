@@ -373,7 +373,7 @@ export class ExtensionState extends EventTarget {
     }
 
     async fixPromptDefinitions() {
-        const prompts = await vscode.workspace.findFiles("**/*.prompt.js")
+        const prompts = await vscode.workspace.findFiles("**/*.gptool.js")
         const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
         for (const folder of folders) {
             const f = vscode.Uri.file(folder)
@@ -404,7 +404,7 @@ export class ExtensionState extends EventTarget {
         }
 
         const coarchFiles = await findFiles("**/*.gpspec.md")
-        const promptFiles = await findFiles("**/*.prompt.js")
+        const promptFiles = await findFiles("**/*.gptool.js")
         const coarchJsonFiles = await findFiles("**/coarch.json")
 
         const newProject = await parseProject({

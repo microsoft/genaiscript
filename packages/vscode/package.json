@@ -16,7 +16,7 @@
     ],
     "activationEvents": [
         "workspaceContains:**/*.gpspec.md",
-        "workspaceContains:**/*.prompt.js"
+        "workspaceContains:**/*.gptool.js"
     ],
     "main": "./built/extension.js",
     "browser": "./built/extension.js",
