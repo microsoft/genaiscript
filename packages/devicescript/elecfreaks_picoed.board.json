@@ -1,13 +1,19 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/devicescript/main/website/docs/devices/boards.json",
-  "description": "ELECFREAKS Pico:ed V2 is a development board based on Raspberry Pi RP2040 MCU.",
   "archId": "rp2040",
   "devName": "Elecfreaks Pico:ed",
   "id": "elecfreaks_picoed",
   "pins": {
-    "GND": "GND",
     "P0": 26,
     "P1": 27,
+    "P2": 28,
+    "P3": 29,
+    "P4": 4,
+    "P5": 5,
+    "P6": 6,
+    "P7": 7,
+    "P8": 8,
+    "P9": 9,
     "P10": 10,
     "P11": 11,
     "P12": 12,
@@ -16,16 +22,7 @@
     "P15": 15,
     "P16": 16,
     "P19": 19,
-    "P2": 2,
-    "P20": 18,
-    "P3": 3,
-    "P4": 4,
-    "P5": 5,
-    "P6": 6,
-    "P7": 7,
-    "P8": 8,
-    "P9": 9,
-    "3V3": "3V3"
+    "P20": 18
   },
   "led": {
     "pin": 25,
@@ -34,6 +31,10 @@
   "log": {
     "baud": 115200,
     "pinTX": 2
+  },
+  "jacdac": {
+    "$connector": "Jacdac",
+    "pin": 12
   },
   "services": [
     {
@@ -52,10 +53,6 @@
       "service": "button"
     }
   ],
-  "jacdac": {
-    "$connector": "Jacdac",
-    "pin": 12
-  },
   "productId": "0x3f6e1f0c",
   "url": "https://shop.elecfreaks.com/products/elecfreaks-pico-ed-v2"
 }
