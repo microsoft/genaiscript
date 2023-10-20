@@ -33,6 +33,8 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
+type SystemPromptId = "system.diff" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
+
 interface PromptTemplate extends PromptLike {
     /**
      * Which model to use.
@@ -79,7 +81,7 @@ interface PromptTemplate extends PromptLike {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
-    system?: string[]
+    system?: SystemPromptId[]
 
     /**
      * File extension this prompt applies to; if present. Defaults to `.md`.
@@ -220,7 +222,7 @@ interface PromptContext {
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .prompt.js file.
+ * Exactly one call should be present on top of .gptool.js file.
  */
 declare function prompt(options: PromptArgs): void
 
