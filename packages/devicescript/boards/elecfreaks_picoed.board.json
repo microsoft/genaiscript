@@ -1,7 +1,8 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/devicescript/main/website/static/schemas/board.json",
+    "$schema": "https://raw.githubusercontent.com/microsoft/devicescript/main/website/docs/devices/boards.json",
     "id": "elecfreaks_picoed",
     "name": "Elecfreaks Pico:ed",
+    "archId": "rp2040",
     "url": "https://shop.elecfreaks.com/products/elecfreaks-pico-ed-v2",
     "led": {
         "pin": 25,
