@@ -13,7 +13,6 @@ import { saveAllTextDocuments } from "./fs"
 type TemplateQuickPickItem = {
     template: PromptTemplate
 } & vscode.QuickPickItem
-type ActionQuickPickItem = { action: string } & vscode.QuickPickItem
 
 export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
@@ -61,6 +60,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
         const template = fragment.file.project.getTemplate(templateId)
 
+        await state.cancelAiRequest()
         await state.requestAI({
             fragment,
             template,
@@ -95,6 +95,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
         if (!refinement) return
 
+        await state.cancelAiRequest()
         await saveAllTextDocuments()
         const uri = vscode.Uri.file(fragment.file.filename)
         let content = new TextDecoder().decode(

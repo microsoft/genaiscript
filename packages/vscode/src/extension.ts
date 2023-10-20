@@ -75,10 +75,9 @@ export async function activate(context: ExtensionContext) {
             const refine = "Refine"
             const cmds: string[] = []
             if (computing) cmds.push(abort)
-            if (!computing && request) cmds.push(refine)
-            if (!computing && request && editsApplied !== null) {
-                cmds.push(next)
-            } else if (text) cmds.push(output)
+            if (request) cmds.push(refine)
+            if (request) cmds.push(next)
+            if (text) cmds.push(output)
             if (request) cmds.push(trace)
 
             const res = await vscode.window.showInformationMessage(
