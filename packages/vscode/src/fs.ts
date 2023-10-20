@@ -2,7 +2,11 @@ import * as vscode from "vscode"
 import { JSON5TryParse } from "./json5"
 
 export async function saveAllTextDocuments() {
-    await Promise.all(vscode.workspace.textDocuments.map((doc) => doc.save()))
+    await Promise.all(
+        vscode.workspace.textDocuments
+            .filter((doc) => doc.isDirty)
+            .map((doc) => doc.save())
+    )
 }
 
 export async function checkFileExists(
