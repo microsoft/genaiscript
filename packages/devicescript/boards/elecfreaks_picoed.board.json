@@ -3,6 +3,7 @@
     "id": "elecfreaks_picoed",
     "name": "Elecfreaks Pico:ed",
     "archId": "rp2040",
+    "productId": "0x3e7a281f",
     "url": "https://shop.elecfreaks.com/products/elecfreaks-pico-ed-v2",
     "led": {
         "pin": 25,
