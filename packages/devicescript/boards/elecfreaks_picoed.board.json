@@ -9,10 +9,6 @@
         "pin": 25,
         "isMono": true
     },
-    "log": {
-        "baud": 115200,
-        "pinTX": 21
-    },
     "i2c": {
         "pinSCL": 9,
         "pinSDA": 8

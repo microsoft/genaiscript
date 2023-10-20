@@ -2,8 +2,6 @@ prompt({
     title: "Add board",
     description: "Updates a DeviceScript board.json generic file with information from the vendor website.",
     categories: ["devicescript"],
-    model: "gpt-4-32k",
-    maxTokens: 16000,
 })
 
 const guide = await fetchText(`https://raw.githubusercontent.com/microsoft/devicescript/main/website/docs/devices/add-board.mdx`)
@@ -16,6 +14,7 @@ You follow the GUIDE for instructions.
 
 The features of the board are listed in the Features section of FILE.
 The pinout of the board is listed in the Pinout section of FILE.
+The Jacdac services of the board are listed in the Services section of FILE.
 
-Update BOARDJSON with the board pinout. Keep the $schema parameter.
+Update BOARDJSON. Keep the $schema parameter.
 `
