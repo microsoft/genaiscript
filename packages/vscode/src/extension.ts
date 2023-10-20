@@ -71,7 +71,7 @@ export async function activate(context: ExtensionContext) {
             const abort = "Abort"
             const output = "Open Output"
             const trace = "Open Trace"
-            const next = "Refactor"
+            const next = "Run GPTool"
             const refine = "Refine"
             const cmds: string[] = []
             if (computing) cmds.push(abort)

@@ -1,8 +1,8 @@
 {
     "name": "coarch-vscode",
     "publisher": "Microsoft",
-    "displayName": "CoArch",
-    "description": "Copilot for Architecture Design",
+    "displayName": "GPTools",
+    "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.81.0"
@@ -29,7 +29,7 @@
             "activitybar": [
                 {
                     "id": "coarch",
-                    "title": "CoArch",
+                    "title": "GPTools",
                     "icon": "./images/robot.svg"
                 }
             ]
@@ -38,17 +38,7 @@
             "coarch": [
                 {
                     "id": "coarch.prompts",
-                    "name": "Prompts"
-                },
-                {
-                    "id": "coarch.runner",
-                    "type": "webview",
-                    "name": "Context"
-                },
-                {
-                    "id": "coarch.fragments",
-                    "name": "Fragments",
-                    "visibility": "collapsed"
+                    "name": "Tools"
                 },
                 {
                     "id": "coarch.prompts.requests",
@@ -59,13 +49,23 @@
                     "id": "coarch.openai.requests",
                     "name": "OpenAI Requests",
                     "visibility": "collapsed"
+                },
+                {
+                    "id": "coarch.runner",
+                    "type": "webview",
+                    "name": "Context"
+                },
+                {
+                    "id": "coarch.fragments",
+                    "name": "Fragments",
+                    "visibility": "collapsed"
                 }
             ]
         },
         "viewsWelcome": [
             {
                 "view": "coarch.fragments",
-                "contents": "Create a CoArch markdown file (.gpspec.md) to start generating tasks and code."
+                "contents": "Create a gpspec file (.gpspec.md) to start generating tasks and code."
             }
         ],
         "menus": {
@@ -128,7 +128,7 @@
         },
         "configuration": [
             {
-                "title": "CoArch",
+                "title": "GPTools",
                 "properties": {
                     "coarch.maxCachedTemperature": {
                         "type": "number",
@@ -142,78 +142,78 @@
             {
                 "command": "coarch.openai.token.clear",
                 "title": "Clear OpenAI token",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.openai.token.update",
                 "title": "Update OpenAI token",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.request.abort",
                 "title": "Abort OpenAI request",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.fragment.navigate",
                 "title": "Navigate to fragment",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.fragment.reveal",
                 "title": "Reveal fragment in tree",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.fragment.prompt",
                 "title": "Query a copilot AI to do a task on the node",
-                "category": "CoArch",
+                "category": "GPTools",
                 "shortTitle": "Prompt...",
                 "icon": "$(lightbulb)"
             },
             {
                 "command": "coarch.fragment.refine",
                 "title": "Extend specification and run tool again",
-                "category": "CoArch",
+                "category": "GPTools",
                 "shortTitle": "Refine...",
                 "icon": "$(lightbulb)"
             },
             {
                 "command": "coarch.prompt.navigate",
                 "title": "Navigate to prompt",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.prompt.create",
                 "title": "Create new prompt file",
                 "icon": "$(add)",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.prompt.fork",
                 "title": "Fork",
-                "category": "CoArch",
+                "category": "GPTools",
                 "icon": "$(repo-forked)"
             },
             {
                 "command": "coarch.prompt.unbuiltin",
                 "title": "Move builtin to project",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.request.open",
                 "title": "Open request or response",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.request.status",
                 "title": "Show information message about OpenAI request status",
-                "category": "CoArch"
+                "category": "GPTools"
             },
             {
                 "command": "coarch.openIssueReporter",
                 "title": "Report Issue...",
-                "category": "CoArch"
+                "category": "GPTools"
             }
         ]
     },

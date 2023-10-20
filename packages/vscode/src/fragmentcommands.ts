@@ -45,7 +45,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates),
             {
-                title: `Pick a prompt to apply to ${fragment.title}`,
+                title: `Pick a GPTool to apply to ${fragment.title}`,
             }
         )
         return (picked as TemplateQuickPickItem)?.template
@@ -172,12 +172,12 @@ export function createCodeActions(fragment: Fragment): vscode.CodeAction[] {
     const templates = fragment.applicableTemplates()
     if (!templates.length) return []
     const action = new vscode.CodeAction(
-        `CoArch - Refactor using AI...`,
+        `Apply GPTool...`,
         vscode.CodeActionKind.QuickFix
     )
     action.command = <vscode.Command>{
         command: "coarch.fragment.prompt",
-        tooltip: "Use generative AI to refactor this node",
+        tooltip: "Apply a generative programming tool to this file.",
         arguments: [fragment],
     }
     return [action]
