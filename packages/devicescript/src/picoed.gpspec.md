@@ -55,11 +55,15 @@ This pintout was generated from https://shop.elecfreaks.com/cdn/shop/files/12.12
 | -                | -          | GP21        | -                   |
 | P20              | -          | GP18        | -                   |
 
-- Map DeviceScript pins to Pico:ed pins
-- A pin GPXX is mapped to the hardware number XX.
+-   Map DeviceScript pins to Pico:ed pins
+-   A pin GPXX is mapped to the hardware number XX.
 -   pin P20 should have been mapped to GP18 which maps to 18
+-   remove log section
+-   Jacdac on pin 12
 
 ## Services
 
-- Buzzer on pin 3
-- Dot matrix screen using IS31FL3731
+-   Buzzer on pin 3
+-   Dot matrix screen using IS31FL3731
+-   Button A on pin 20
+-   Button B on pin 21
