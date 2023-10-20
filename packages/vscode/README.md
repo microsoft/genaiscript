@@ -12,31 +12,29 @@ infrastructure to provide a augmented, tooled, prompting experience.
 
 ### GPTools
 
-CoArch prompts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
+CoArch tools (gptools) use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
 
-CoArch comes with builtin prompts and allows you to fork and customize the AI prompts to your project specific needs.
+CoArch comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
 This leverages VSCode language support (completion, coloring, error checking)
 while remaining friendly to people not very familiar with JavaScript.
 CoArch also provides detailed expansion logs to help you debug your templates.
 
-Since prompts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
+Since gptools are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
-In the future, we foresee that developers will create libraries of prompts and share them as libraries on their favorite package manager.
+In the future, we foresee that developers will create libraries of gptools and share them as libraries on their favorite package manager.
 
 ### Specification Files
 
-CoArch parses `*.gpspec.md` markdown files and uses the markdown headings (`#`, `##`, ...) as the base structure of the document. Each element of the document is considered a node and sub section are considered children; similarly to most document object models.
-
-Once the specification files are parsed, CoArch will automatically suggest which prompt can be applied to each fragment.
+CoArch parses `*.gpspec.md` markdown files as specification.
 
 ### Editor integration
 
-CoArch leverages the VSCode editor integration point to provide a rich auditing user experience, as well as an assisted prompt authoring experience through various editor extensions.
+CoArch leverages the VSCode editor integration point to provide a rich auditing user experience, as well as an assisted gptool authoring experience through various editor extensions.
 
 ### Samples
 
-The extension contains a few prompts, and the following samples can also be consulted.
+The extension contains a few gptools, and the following samples can also be consulted.
 
 -   [blackjack game generator](https://github.com/microsoft/coarch/tree/main/packages/blackjack)
 -   [mywordle](https://github.com/microsoft/coarch/tree/main/packages/mywordle)
@@ -51,18 +49,9 @@ To start using CoArch, create a new `.gpspec.md` file and start adding content a
 CoArch uses the header structure of the document (`#`, `##`, ...) to build a tree of text fragments.
 
 ```markdown A sample CoArch document.
-# Image resize {#YU34}
+# email address recognizer
 
-A command line application that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS.
-
-## Parse command line arguments {#UV61}
-
-Extract file name, size, and output file name from the command line input.
-
-## Validate Input {#QY23}
-
-Ensure all arguments are present.
-Verify the input file exists and is in a valid image format. Validate the dimensions and output file name.
+Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
 
 ...
 ```
@@ -72,6 +61,11 @@ When an AI transformation is computed, a code preview will be shown to confirm t
 <!-- Preview of transformation changes](./images/preview.png) -->
 
 You can accept or cancel the changes using the buttons at the bottom of the view. CoArch does **not** apply any changes to your content automatically; all changes have to be reviewed and approved by the user.
+
+### Refinement
+
+If you decide that the changes are not acceptable, you can click on the **Refine** button in the status dialog (click on the statub bar icon) to refine the gpspec
+by adding a line in that file. This flow provides an iterative, chat like experience to evolve your gpspec file.
 
 ### OpenAI or Llama Token
 
