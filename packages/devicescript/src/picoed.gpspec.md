@@ -67,3 +67,15 @@ This pintout was generated from https://shop.elecfreaks.com/cdn/shop/files/12.12
 -   Dot matrix screen using IS31FL3731
 -   Button A on pin 20
 -   Button B on pin 21
+
+## json validation errors
+
+Fix these errors.
+
+```
+invalid pin: GND=GND
+invalid pin: 3V3=3V3
+GPIO2 marked as both P2 and log.pinTX
+GPIO3 marked as both P3 and services.buzzer[0].pin
+GPIO12 marked as both P12 and jacdac.pin
+```
