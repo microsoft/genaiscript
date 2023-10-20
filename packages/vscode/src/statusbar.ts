@@ -23,7 +23,7 @@ export function activateStatusBar(state: ExtensionState) {
         const { tokensSoFar } = progress || {}
         const token = await host.getSecretToken()
         statusBarItem.text = toStringList(
-            "CoArch",
+            "GPTools",
             template ? template.title : undefined,
             computing && !tokensSoFar ? `$(loading~spin)` : undefined,
             tokensSoFar ? `${tokensSoFar} tokens` : undefined,
