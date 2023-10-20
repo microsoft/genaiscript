@@ -171,6 +171,7 @@ export class ExtensionState extends EventTarget {
                 req.editsApplied = null
                 this.dispatchChange()
                 const autoApplyEdits = !!options.template.autoApplyEdits
+                vscode.commands.executeCommand("coarch.request.status")
                 req.editsApplied = await applyEdits(edits, {
                     needsConfirmation: !autoApplyEdits,
                 })
@@ -183,7 +184,6 @@ export class ExtensionState extends EventTarget {
                             .filter((doc) => doc.isDirty)
                             .map((doc) => doc.save())
                     )
-                    vscode.commands.executeCommand("coarch.request.status")
                 }
                 this.dispatchChange()
 
