@@ -1,0 +1,46 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/devicescript/main/website/static/schemas/board.json",
+    "id": "elecfreaks_picoed",
+    "name": "Elecfreaks Pico:ed",
+    "url": "https://shop.elecfreaks.com/products/elecfreaks-pico-ed-v2",
+    "led": {
+        "pin": 25,
+        "isMono": true
+    },
+    "log": {
+        "baud": 115200,
+        "pinTX": 21
+    },
+    "i2c": {
+        "pinSCL": 27,
+        "pinSDA": 26
+    },
+    "pins": {
+        "P0": 26,
+        "P1": 27,
+        "P2": 28,
+        "P3": 29,
+        "P4": 4,
+        "P5": 5,
+        "P6": 6,
+        "P7": 7,
+        "P8": 8,
+        "P9": 9,
+        "P10": 10,
+        "P11": 11,
+        "P12": 12,
+        "P13": 13,
+        "P14": 14,
+        "P15": 15,
+        "P16": 16,
+        "P19": 19,
+        "P20": 18
+    },
+    "$services": [
+        {
+            "service": "buzzer",
+            "pin": 3,
+            "name": "buzzer"
+        }
+    ]
+}

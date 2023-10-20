@@ -2,6 +2,7 @@ prompt({
     title: "Code Summarizer",
     model: "gpt-4-32k",
     maxTokens: 16000,
+    categories: ["devicescript"],
     description: "Given a source file in a programming language, extract the structure"
 })
 
