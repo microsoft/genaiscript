@@ -19,13 +19,16 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const checkSaved = () => {
+    const checkSaved = async () => {
         if (vscode.workspace.textDocuments.some((doc) => doc.isDirty)) {
             vscode.window.showErrorMessage(
                 "CoArch cancelled. Please save all files before running CoArch."
             )
             return false
         }
+
+        await state.parseWorkspace()
+
         return true
     }
 
@@ -85,32 +88,32 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentRefine = async () => {
         const fragment = resolveFragment(undefined)
         if (!fragment) return
-        const refinement = await vscode.window.showInputBox({
+        const template = state.aiRequest.options.template
+        let refinement = await vscode.window.showInputBox({
             title: `What do you want to add to your spec?`,
+            prompt: `Your recommendation will be added at the end of the gpspec.md file; then the tool will be started again.`,
         })
         if (!refinement) return
 
-        const edit = new vscode.WorkspaceEdit()
+        await saveAllTextDocuments()
         const uri = vscode.Uri.file(fragment.file.filename)
-        const meta: vscode.WorkspaceEditEntryMetadata = {
-            label: "Insert refinement",
-            needsConfirmation: false,
-        }
-        const lineCount = fragment.text.split("\n").length
-        const position = new vscode.Position(lineCount, 0)
-        edit.insert(uri, position, refinement, meta)
-
-        await vscode.workspace.applyEdit(edit)
+        let content = new TextDecoder().decode(
+            await vscode.workspace.fs.readFile(uri)
+        )
+        if (!/\n$/.test(content)) content += "\n"
+        if (!/^-\s+/.test(refinement)) content += "-   "
+        content += refinement
+        vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(content))
         await saveAllTextDocuments()
 
-        await fragmentPrompt()
+        await fragmentPrompt(fragment, template)
     }
 
     const fragmentPrompt = async (
         frag?: Fragment | string,
         template?: PromptTemplate
     ) => {
-        if (!checkSaved()) return
+        if (!(await checkSaved())) return
         const fragment = resolveFragment(frag)
         if (!fragment) return
         if (!template) {
