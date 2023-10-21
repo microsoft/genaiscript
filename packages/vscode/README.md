@@ -73,7 +73,7 @@ CoArch will automatically ask you for a token when needed and will store it in t
 
 <!-- Requesting the OpenAI request](./images/token.png) -->
 
-The token will be cleared once we detect it expired; but you can also _forget_ the token by using the `CoArch: Clear OpenAI Token` command.
+The token will be cleared once we detect it expired; but you can also _forget_ the token by using the `GPTools - Clear OpenAI Token` command.
 
 <!-- Command to clear the token](./images/cleartoken.png) -->
 
@@ -99,7 +99,7 @@ and are unlisted by default. There is no variable expansion in those.
 ### Example
 
 ```js
-prompt({
+gptool({
     title: "Shorten", // displayed in UI
     // also displayed, but grayed out:
     description:
@@ -123,11 +123,11 @@ $`Respond with the new SUMMARY.`
 
 ### Front matter
 
-Prompts use `prompt({ ... })` function call
+Prompts use `gptool({ ... })` function call
 to configure the title and other user interface elements.
 
 ```js
-prompt({
+gptool({
     title: "Shorten", // displayed in UI
     // also displayed, but grayed out:
     description:
@@ -141,7 +141,7 @@ prompt({
 `title` is used as the prompt name, displayed in the light-bulb UI
 
 ```js
-prompt({ title: "Shorten" })
+gptool({ title: "Shorten" })
 ```
 
 #### description: string
@@ -149,7 +149,7 @@ prompt({ title: "Shorten" })
 `description` provides more details and context about the prompt.
 
 ```js
-prompt({
+gptool({
     title: "Shorten",
     description:
         "A prompt that shrinks the size of text without losing meaning.",
@@ -162,7 +162,7 @@ Override the system prompt with a custom prompt.
 There is no variable expansion in system prompts.
 
 ```js
-prompt({
+gptool({
     title: "Generate code",
     system: ["system.code"],
 })
@@ -171,7 +171,7 @@ prompt({
 This setting also supports multiple template names:
 
 ```js
-prompt({
+gptool({
     title: "Generate code",
     system: ["system.code"],
 })
@@ -182,7 +182,7 @@ prompt({
 You can specify an output folder using `outputFolder`.
 
 ```js
-prompt({
+gptool({
     ...,
     outputFolder: "src",
 })
@@ -193,7 +193,7 @@ prompt({
 Automatically apply file changes suggested by the LLM. **Warning, the refectoring UI will not be used when this flag is enabled.**
 
 ```js
-prompt({
+gptool({
     ...,
     autoApplyEdits: true,
 })
@@ -204,7 +204,7 @@ prompt({
 When set, automatically start the next template request after applying edits. Combined with `autoApplyEdits`, this could create execution loops, be careful.
 
 ```js
-prompt({
+gptool({
     ...,
     nextTemplateAfterApplyEdits: 'generate-python',
 })
@@ -215,7 +215,7 @@ prompt({
 The prompt will read the clipboard and use it as the input. Running the prompt might trigger a dialog to request clipboard access.
 
 ```js
-prompt({
+gptool({
     ...,
     readClipboard: true,
 })
@@ -243,10 +243,9 @@ These are taken from prompt, or from system prompt, or set to default.
 
 #### Other parameters
 
--   `prePost: true`, if `true`, include `subtreePre`, `subtreePost`, and possibly `outputPre` and `outputPost` variables if `output` is set.
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
-See `prompt_template.ts` in the sources for details.
+See `gptools.d.ts` in the sources for details.
 
 ### Logging
 
@@ -333,8 +332,6 @@ You can use regular JavaScript `if` statements.
 if (env.output) def("CODE", env.output)
 ```
 
-````
-
 ### Inline variable
 
 You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
@@ -397,7 +394,6 @@ Use the writing style of software technical writer.
 
 -->
 ```
-````
 
 ## Settings
 

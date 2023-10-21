@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Add board",
     description: "Updates a DeviceScript board.json generic file with information from the vendor website.",
     categories: ["devicescript"],

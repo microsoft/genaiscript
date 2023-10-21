@@ -6,12 +6,12 @@
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .gptool.js file.
  */
-declare function prompt(options: PromptArgs): void
+declare function gptool(options: PromptArgs): void
 
 /**
- * Equivalent of prompt() for system prompts.
+ * Equivalent of gptool() for system prompts.
  */
-declare function systemPrompt(options: PromptArgs): void
+declare function system(options: PromptArgs): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".

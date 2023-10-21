@@ -1,2 +1,2 @@
-systemPrompt({ title: "System prompt" })
+system({ title: "System prompt" })
 $`You are concise. Answer in markdown.`

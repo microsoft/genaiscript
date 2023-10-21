@@ -1,4 +1,4 @@
-systemPrompt({ title: "File generation", description: "Teaches the file format supported by CoArch" })
+system({ title: "File generation", description: "Teaches the file format supported by CoArch" })
 
 const folder =
     env.vars["system.multifile.outputFolder"] ||

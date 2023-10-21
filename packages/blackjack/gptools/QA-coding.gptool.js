@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Software Tester (coding)",
     description: "You are an expert on writing tests for software, including for Python applications.",
     maxTokens: 4000,

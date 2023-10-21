@@ -1,4 +1,4 @@
-prompt({ title: "plot-development", 
+gptool({ title: "plot-development", 
          description: "Given elements of a story, flesh out the sequence of events",
          output: ".plotline.gpspec.md", 
          maxTokens: 4000,

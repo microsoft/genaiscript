@@ -1,4 +1,4 @@
-systemPrompt({
+system({
     title: "TypeScript Developer",
     description: "Expert at generating and understanding TypeScript code."
 })

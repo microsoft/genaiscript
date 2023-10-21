@@ -11,6 +11,6 @@
     },
     "include": [
         "*.js",
-        "./prompt.d.ts"
+        "./gptools.d.ts"
     ]
 }

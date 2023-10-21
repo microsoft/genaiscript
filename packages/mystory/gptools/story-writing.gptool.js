@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "story-writing",
     description: "Given characters, a plot, and a framing, write a story",
     outputFolder: "aidiscovery",

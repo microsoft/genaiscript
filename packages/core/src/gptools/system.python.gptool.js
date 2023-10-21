@@ -1,4 +1,4 @@
-systemPrompt({
+system({
     title: "Python Developer",
     description: "Expert at generating and understanding Python code."
 })

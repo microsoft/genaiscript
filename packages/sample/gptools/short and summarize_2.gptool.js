@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Shorten and Summarize",
     description: "Shorten the summary of the fragment.",
     system: ["system.summary"]
