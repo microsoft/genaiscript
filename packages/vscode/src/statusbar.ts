@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
 import { CHANGE } from "coarch-core"
+import { Utils } from "vscode-uri"
 
 function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join(", ")
@@ -31,11 +32,11 @@ export function activateStatusBar(state: ExtensionState) {
         )
         const md = new vscode.MarkdownString(
             toMarkdownString(
-                template
-                    ? `-  template: ${template.title} (${template.id})`
-                    : undefined,
                 fragment
-                    ? `-  fragment: ${fragment.title} (#${fragment.id || ""})`
+                    ? Utils.basename(vscode.Uri.file(fragment.file.filename))
+                    : undefined,
+                template
+                    ? `-  tool: ${template.title} (${template.id})`
                     : undefined,
                 `-   OpenAI token: ${
                     token
