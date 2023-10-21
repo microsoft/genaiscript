@@ -243,10 +243,9 @@ These are taken from prompt, or from system prompt, or set to default.
 
 #### Other parameters
 
--   `prePost: true`, if `true`, include `subtreePre`, `subtreePost`, and possibly `outputPre` and `outputPost` variables if `output` is set.
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
-See `prompt_template.ts` in the sources for details.
+See `gptools.d.ts` in the sources for details.
 
 ### Logging
 
@@ -333,8 +332,6 @@ You can use regular JavaScript `if` statements.
 if (env.output) def("CODE", env.output)
 ```
 
-````
-
 ### Inline variable
 
 You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
@@ -397,7 +394,6 @@ Use the writing style of software technical writer.
 
 -->
 ```
-````
 
 ## Settings
 
