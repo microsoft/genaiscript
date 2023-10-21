@@ -28,7 +28,7 @@ export function activatePromptCommands(state: ExtensionState) {
                         id: "",
                         title: "New prompt template",
                         text: "New prompt template",
-                        jsSource: `prompt({
+                        jsSource: `gptool({
     title: "${name}",
 })
 

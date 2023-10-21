@@ -1,4 +1,4 @@
-systemPrompt({ title: "Diff generation", description: "Teaches the diff file format supported by CoArch" })
+system({ title: "Diff generation", description: "Teaches the diff file format supported by CoArch" })
 
 $`The DIFF format should be used to generate diff changes on files: added lines start with +, deleted lines start with -, do not add line numbers, 
 preserve indentation, use relative file path name: 

@@ -33,6 +33,8 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
+type SystemPromptId = "system.diff" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
+
 interface PromptTemplate extends PromptLike {
     /**
      * Which model to use.
@@ -79,7 +81,7 @@ interface PromptTemplate extends PromptLike {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
-    system?: string[]
+    system?: SystemPromptId[]
 
     /**
      * File extension this prompt applies to; if present. Defaults to `.md`.
@@ -199,11 +201,18 @@ type StringLike = string | LinkedFile | LinkedFile[]
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
-    prompt(options: PromptArgs): void
-    systemPrompt(options: PromptArgs): void
+    gptool(options: PromptArgs): void
+    system(options: PromptArgs): void
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
+    fetchText(urlOrFile: string | LinkedFile): Promise<{
+        ok: boolean
+        status: number
+        statusText: string
+        text?: string
+        file?: LinkedFile
+    }>
     env: ExpansionVariables
 }
 
@@ -215,12 +224,12 @@ interface PromptContext {
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .prompt.js file.
  */
-declare function prompt(options: PromptArgs): void
+declare function gptool(options: PromptArgs): void
 
 /**
- * Equivalent of prompt() for system prompts.
+ * Equivalent of gptool() for system prompts.
  */
-declare function systemPrompt(options: PromptArgs): void
+declare function system(options: PromptArgs): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -263,3 +272,11 @@ declare function defFiles(files: LinkedFile[]): void
  * Variables coming from the fragment on which the prompt is operating.
  */
 declare var env: ExpansionVariables
+
+/**
+ * Fetches a given URL and returns the response.
+ * @param url
+ */
+declare function fetchText(
+    url: string | LinkedFile
+): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>

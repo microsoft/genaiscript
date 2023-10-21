@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Generate python code",
     model: "gpt-4",
     description: "Given a task, generate python code.",

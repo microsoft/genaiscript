@@ -109,8 +109,8 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                         throw new Error(msg)
                     }
                 },
-                prompt: () => {},
-                systemPrompt: () => {},
+                gptool: () => {},
+                system: () => {},
                 fetchText: async (urlOrFile) => {
                     if (typeof urlOrFile === "string") {
                         urlOrFile = {

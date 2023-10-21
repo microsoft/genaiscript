@@ -199,8 +199,8 @@ type StringLike = string | LinkedFile | LinkedFile[]
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
-    prompt(options: PromptArgs): void
-    systemPrompt(options: PromptArgs): void
+    gptool(options: PromptArgs): void
+    system(options: PromptArgs): void
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void
@@ -215,12 +215,12 @@ interface PromptContext {
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .prompt.js file.
  */
-declare function prompt(options: PromptArgs): void
+declare function gptool(options: PromptArgs): void
 
 /**
- * Equivalent of prompt() for system prompts.
+ * Equivalent of gptool() for system prompts.
  */
-declare function systemPrompt(options: PromptArgs): void
+declare function system(options: PromptArgs): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".

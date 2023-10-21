@@ -1,4 +1,4 @@
-prompt({ title: "QA-coding",
+gptool({ title: "QA-coding",
          description: "Generates the first version of test files that test code for an application based on a specification of the specific files and APIs provided in a .saplan.gpspec.md file", 
          output: ".test.py", 
          maxTokens: 4000,

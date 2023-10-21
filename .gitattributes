@@ -1,1 +1,2 @@
 *.coarch.jsonl -diff merge=union linguist-generated
+**/gptools.d.ts -diff merge=ours linguist-generated

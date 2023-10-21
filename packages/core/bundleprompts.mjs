@@ -13,7 +13,7 @@ for (const prompt of prompts) {
         promptMap[prompt.replace(/\.gptool\.js$/, "")] = text
 }
 const promptDefs = {
-    ".gitattributes": "prompt.d.ts -diff merge=ours linguist-generated",
+    ".gitattributes": "gptools.d.ts -diff merge=ours linguist-generated",
     "jsconfig.json": JSON.stringify(
         {
             compilerOptions: {
@@ -24,12 +24,12 @@ const promptDefs = {
                 checkJs: true,
                 allowJs: true,
             },
-            include: ["*.js", "./prompt.d.ts"],
+            include: ["*.js", "./gptools.d.ts"],
         },
         null,
         4
     ),
-    "prompt.d.ts": ["./src/prompt_template.d.ts", "./prompt_type.d.ts"]
+    "gptools.d.ts": ["./src/prompt_template.d.ts", "./prompt_type.d.ts"]
         .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
         .map((src) =>
             src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, "")

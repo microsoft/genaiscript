@@ -1,4 +1,4 @@
-systemPrompt({
+system({
     title: "Summarize",
     description: "Generate a summary of the changes",
 })

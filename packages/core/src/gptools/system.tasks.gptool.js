@@ -1,4 +1,4 @@
-systemPrompt({ title: "System Tasks prompt" })
+system({ title: "System Tasks prompt" })
 
 $`
 You are an AI assistant that helps people create applications by splitting tasks into subtasks.

@@ -1,4 +1,4 @@
-prompt({ title: "prompt-critic", 
+gptool({ title: "prompt-critic", 
          description: "Given a goal and a prompt, evaluate the prompt",
          output: ".prompt-critic.gpspec.md", 
          maxTokens: 4000,

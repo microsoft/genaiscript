@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Generate Project Structure",
     system: ["system.tasks"],
     description: "Generate project structure.",

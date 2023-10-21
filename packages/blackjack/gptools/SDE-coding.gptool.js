@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Software Developer - Coding",
     description: "You are an expert software developer with years of experience implementing Python applications.",
     maxTokens: 4000,

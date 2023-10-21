@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Generate Python Code",
     system: ["system.code"],
     temperature: 0.01,

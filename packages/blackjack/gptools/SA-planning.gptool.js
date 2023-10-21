@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Software Architect - planning",
     description: "A software architect generates instructions for the software engineer",
     categories: ["appdev"]

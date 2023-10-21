@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Generate Node.js Code (multifile)",
     system: ["system.code"],
     temperature: 0.01,

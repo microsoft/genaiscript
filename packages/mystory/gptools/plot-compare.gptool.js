@@ -1,4 +1,4 @@
-prompt({ title: "plot-compare", 
+gptool({ title: "plot-compare", 
          description: "Give a file with multiple story plots, rate them",
          output: ".compare-plots.gpspec.md", 
          maxTokens: 4000,

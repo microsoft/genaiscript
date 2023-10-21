@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Shorten",
     description: "Shorten the summary of the fragment.",
 })
