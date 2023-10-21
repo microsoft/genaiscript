@@ -97,7 +97,7 @@ Following token formats are supported:
 
 Internally, CoArch has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
-All prompts are JS files named as `*.gptool.js`. You can use the `CoArch - Fork a prompt...` to fork any known prompt.
+All prompts are JS files named as `*.gptool.js`. You can use the `GPTools - Fork a gptool...` to fork any known prompt.
 
 All `system.*.gptool.js` are considered system prompt templates
 and are unlisted by default. There is no variable expansion in those.
