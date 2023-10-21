@@ -79,7 +79,7 @@ CoArch will automatically ask you for a token when needed and will store it in t
 
 <!-- Requesting the OpenAI request](./images/token.png) -->
 
-The token will be cleared once we detect it expired; but you can also _forget_ the token by using the `CoArch: Clear OpenAI Token` command.
+The token will be cleared once we detect it expired; but you can also _forget_ the token by using the `GPTools - Clear OpenAI Token` command.
 
 <!-- Command to clear the token](./images/cleartoken.png) -->
 

@@ -30,8 +30,8 @@ import { readFileText, saveAllTextDocuments, writeFile } from "./fs"
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
-export const REQUEST_OUTPUT_FILENAME = "CoArch Output.md"
-export const REQUEST_TRACE_FILENAME = "CoArch Trace.md"
+export const REQUEST_OUTPUT_FILENAME = "GPTools Output.md"
+export const REQUEST_TRACE_FILENAME = "GPTools Trace.md"
 
 export async function openRequestOutput() {
     return vscode.commands.executeCommand(
