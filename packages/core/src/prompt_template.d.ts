@@ -201,8 +201,8 @@ type StringLike = string | LinkedFile | LinkedFile[]
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
-    prompt(options: PromptArgs): void
-    systemPrompt(options: PromptArgs): void
+    gptool(options: PromptArgs): void
+    system(options: PromptArgs): void
     fence(body: StringLike): void
     def(name: string, body: StringLike): void
     defFiles(files: LinkedFile[]): void

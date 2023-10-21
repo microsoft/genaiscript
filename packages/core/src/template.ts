@@ -254,8 +254,8 @@ export async function evalPrompt(
 async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
     let text = ""
-    function prompt(m: PromptArgs) {
-        if (meta !== null) throw new Error(`more than one prompt() call`)
+    function gptool(m: PromptArgs) {
+        if (meta !== null) throw new Error(`more than one gptool() call`)
         meta = m
     }
     await evalPrompt(
@@ -267,15 +267,15 @@ async function parseMeta(r: PromptTemplate) {
             }),
             text: (body) => {
                 if (meta == null)
-                    throw new Error(`prompt()/systemPrompt() has to come first`)
+                    throw new Error(`gptool()/system() has to come first`)
 
                 text += body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
             },
-            prompt,
-            systemPrompt: (meta) => {
+            gptool,
+            system: (meta) => {
                 meta.unlisted = true
                 meta.isSystem = true
-                prompt(meta)
+                gptool(meta)
             },
             fetchText: async (urlOrFile: string | LinkedFile) => {
                 const url =

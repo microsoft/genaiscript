@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Title and Description",
     categories: ["style"],
     system: []

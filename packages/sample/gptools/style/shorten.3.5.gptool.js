@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Shorten 3.5",
     description: "Shorten the summary of the fragment using cheaper model.",
     model: "gpt-3.5-turbo-0613"

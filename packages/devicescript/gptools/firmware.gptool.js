@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "firmware",
     description: "Compile information about various sources to generate DeviceScript driver.",
     categories: ["devicescript"],

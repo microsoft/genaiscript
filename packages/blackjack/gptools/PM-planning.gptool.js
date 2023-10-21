@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Product Manager - planning",
     description: "An expert product manager creates tasks for the team.",
     categories: ["appdev"]

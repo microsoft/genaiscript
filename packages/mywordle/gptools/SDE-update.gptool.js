@@ -1,4 +1,4 @@
-prompt({ title: "SDE-update", 
+gptool({ title: "SDE-update", 
          description: "Updates code for an application based on a specification of the specific files and APIs provided in a .saplan.gpspec.md file",
          maxTokens: 4000,
          outputFolder: "src",

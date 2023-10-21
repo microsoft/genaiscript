@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "TODOs",
     description: "Try to implement TODOs found in source code.",
     temperature: 0

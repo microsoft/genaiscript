@@ -1,4 +1,4 @@
-prompt({ title: "summarize-project", 
+gptool({ title: "summarize-project", 
          description: "Given markdown files describing a project, generate a summary",
          output: ".summary.md", 
          maxTokens: 4000,

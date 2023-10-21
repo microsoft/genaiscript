@@ -1,4 +1,4 @@
-prompt({
+gptool({
     title: "Generate BDD scenarios (.feature)",
     description: "Generate a Gherkin feature file from the node and children.",
     categories: ["samples"],

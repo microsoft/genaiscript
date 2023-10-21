@@ -1,4 +1,4 @@
-prompt({ title: "character-ideas", 
+gptool({ title: "character-ideas", 
          description: "Given a framing for a story, a plot idea and a list of characters, develops the characters",
          output: ".chars.gpspec.md", 
          maxTokens: 4000,

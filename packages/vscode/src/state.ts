@@ -378,7 +378,7 @@ export class ExtensionState extends EventTarget {
             for (let [defName, defContent] of Object.entries(
                 promptDefinitions
             )) {
-                if (this.project && defName === "prompt.d.ts") {
+                if (this.project && defName === "gptools.d.ts") {
                     const systems = this.project.templates
                         .filter((t) => t.isSystem)
                         .map((s) => `"${s.id}"`)
