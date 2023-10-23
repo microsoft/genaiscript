@@ -65,7 +65,7 @@ class RunnerViewProvider implements vscode.WebviewViewProvider {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}';">
-            <title>CoArch Prompt Context</title>
+            <title>GPTools Prompt Context</title>
           </head>
           <body>
                 <vscode-checkbox id="ignore-output">Ignore output</vscode-checkbox>

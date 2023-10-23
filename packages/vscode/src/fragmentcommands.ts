@@ -1,4 +1,5 @@
 import * as vscode from "vscode"
+import { Utils } from "vscode-uri"
 import {
     Fragment,
     PromptTemplate,
@@ -21,7 +22,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     const checkSaved = async () => {
         if (vscode.workspace.textDocuments.some((doc) => doc.isDirty)) {
             vscode.window.showErrorMessage(
-                "CoArch cancelled. Please save all files before running CoArch."
+                "GPTool cancelled. Please save all files before running GPTools."
             )
             return false
         }
@@ -78,7 +79,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const fragment = rootFragment(state.project.resolveFragment(frag))
         if (!fragment) {
             vscode.window.showErrorMessage(
-                "CoArch - sorry, we could not find where to apply the tool. Please try to launch CoArch from the editor."
+                "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
             )
             return undefined
         }
@@ -101,11 +102,21 @@ export function activateFragmentCommands(state: ExtensionState) {
         let content = new TextDecoder().decode(
             await vscode.workspace.fs.readFile(uri)
         )
-        if (!/\n$/.test(content)) content += "\n"
-        if (!/^-\s+/.test(refinement)) content += "-   "
-        content += refinement
+
+        // insert in top fragment
+        const lines = content.split("\n")
+        lines.splice(fragment.endPos[0], 0, `-   ${refinement}`)
+
+        content = lines.join("\n")
+
         vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(content))
         await saveAllTextDocuments()
+
+        vscode.window.showInformationMessage(
+            `GPTools - Added refinement in ${Utils.basename(
+                vscode.Uri.file(fragment.file.filename)
+            )}. Please wait for the tool to start again.`
+        )
 
         await fragmentPrompt(fragment, template)
     }

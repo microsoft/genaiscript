@@ -2,10 +2,10 @@
 
 ELECFREAKS Pico:ed V2 is a development board based on Raspberry Pi RP2040 MCU. It uses a dual-core Arm Cortex-M0+ processor with 264KB RAM. The front of the board contains two buttons and a 7x17 dot matrix screen, which can be conveniently used for classroom teaching.
 
+![pinout](https://shop.elecfreaks.com/cdn/shop/files/12.12-02_1800x.jpg?v=1670829983)
+
 -   [Home](https://shop.elecfreaks.com/products/elecfreaks-pico-ed-v2)
 -   [elecfreaks_picoed.board.json](../boards/elecfreaks_picoed.board.json)
-
-![pinout](https://shop.elecfreaks.com/cdn/shop/files/12.12-02_1800x.jpg?v=1670829983)
 
 ## Features
 

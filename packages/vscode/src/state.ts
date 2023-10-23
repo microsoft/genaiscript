@@ -319,8 +319,10 @@ export class ExtensionState extends EventTarget {
 
     cancelAiRequest() {
         const a = this.aiRequest
-        if (a && a.computing && !a?.controller?.signal?.aborted)
+        if (a && a.computing && !a?.controller?.signal?.aborted) {
             a.controller?.abort("user cancelled")
+            this.dispatchChange()
+        }
     }
 
     get project() {
@@ -395,6 +397,8 @@ export class ExtensionState extends EventTarget {
     }
 
     async parseWorkspace() {
+        this.dispatchChange()
+        
         async function findFiles(pattern: string) {
             return (await vscode.workspace.findFiles(pattern)).map(
                 (f) => f.fsPath
