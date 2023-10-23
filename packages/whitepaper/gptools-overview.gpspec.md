@@ -16,10 +16,10 @@
 ## Foundation Models Create New Opportunities
 
 -   The recent development of foundation models (aka LLMs) have created new opportunities for automating complex workflows.
--   AI has important advantages over traditional software
+-   AI has important advantages over traditional software:
     -   AI models can perform tasks normal software cannot
     -   AI models can be instructed using natural language, allowing non-programmers to use them
--   AI models also have disadvantages
+-   AI models also have disadvantages:
     -   AI models are not perfect, and can make mistakes
     -   AI models are not transparent, and it is difficult to understand why they make the decisions they do
 -   AI models are best used to augment human workflows, not replace them
