@@ -19,10 +19,10 @@ import {
 const SCHEME = "coarch"
 
 const noRequest = `
-No CoArch request found yet. Please run a CoArch prompt.
+No GPTools request found yet. Please run a GPTool.
 `
 const noResponse = `
-Waiting for CoArch response...
+Waiting for GPTool response...
 `
 
 class MarkdownTextDocumentContentProvider
@@ -54,7 +54,7 @@ class MarkdownTextDocumentContentProvider
             if (!md) return noResponse
             return `${
                 computing
-                    ? `> **AI Request in progress. To abort, click on the CoArch status bar.**\n`
+                    ? `> **AI Request in progress. To abort, click on the GPTools status bar.**\n`
                     : ""
             } 
 ${md}    
