@@ -1,11 +1,13 @@
 # gptools: Empowering Human Workflows with AI-Enhanced Tools
 - Authors: Peli de Halleux, Michał Moskal, Ben Zorn
 - Date: October 2023
+-   use LLM to describe foundation models
+-   [gptools-overview.gpspec.md.comments.md](gptools-overview.gpspec.md.comments.md)
 
 ## Complex Artifacts Require Complex Workflows
 
 - Software development is a complex process that requires the coordination of many different activities.
-- Historically, software development has been a highly manual process, with developers using a variety of tools to create and maintain the artifacts that comprise a software system.
+- Historically, software development has been a highly   manual process, with developers using a variety of tools to create and maintain the artifacts that comprise a software system.
 - Over time abstractions have been developed to help manage the complexity of software development.
     - Important examples include: Unix utilities and pipes, makefiles, build scripts, etc.
 - Modern software development includes many automated processes as well as manual processes such as code review, design review, bug triage, etc.
@@ -44,16 +46,16 @@ Key elements of gptools:
     - Programming language constructs that are used to programmatically manipulate both inputs and outputs
 
 - Benefits of gptools
-    - By separating the gptool from the gpspec, we allow gptools to become highly engineering shared artifacts that form the basis of shared libraries.  
+    - By separating the gptool from the gpspec, we allow gptools to become highly engineered shared artifacts that form the basis of shared libraries.  
     - A gptool can be used in many different contexts, and can be updated and maintained independently of the gpspecs that use it.
     - By separating the gptool from the gpspec, we allow non-developers to use gptools without having to understand the details of how they work.
-    - At the same time, because a gptool contains a natural langauge prompt, it is easy for a non-developer to understand what the gptool does, and to modify it to suit their needs.
+    - At the same time, because a gptool contains a natural language prompt, it is easy for a non-developer to understand what the gptool does, and to modify it to suit their needs.
 
 ## gpspec: Natural language to invoke a gptool
 
 Just as a chat enables a user to interact with an AI model, a gpspec is a natural language markdown document that defines a context in which to invoke a gptool.
 
-A gpspec is a standard markdown file with the following additional elements:
+A gpspec is a standard markdown file, with the following additional elements:
 - Links to context elements that define the context in which a particular gptool is to be invoked.  The gpspec defines all possible contexts where a particular gptool might only refer to some part.
 - Natural language describing the specific task to be performed as input to one or more gptools.  For example, the spec for code might contain directions on the desired code as well as information about tests to be performed.  Different gptools invoked from the gpspec file can be used to perform different tasks.
 
@@ -73,7 +75,7 @@ The extension provides the following capabilities:
     - Sends the results to the AI model
     - Processes the results on return to update the user context (which might include updating files, etc.)
 - A user interface that allows the user to interact with the AI model to refine the results
-- An gptool trace viewing mechanism that allows users to understand how the AI model was used to generate the results
+- A gptool trace viewing mechanism that allows users to understand how the AI model was used to generate the results
 
 ## Implications of gptools
 
