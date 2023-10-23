@@ -7,7 +7,7 @@
 - Software development is a complex process that requires the coordination of many different activities.
 - Historically, software development has been a highly manual process, with developers using a variety of tools to create and maintain the artifacts that comprise a software system.
 - Over time abstractions have been developed to help manage the complexity of software development.
-    - Important examples include: Unix utilities and pipes, makefiles, etc.
+    - Important examples include: Unix utilities and pipes, makefiles, build scripts, etc.
 - Modern software development includes many automated processes as well as manual processes such as code review, design review, bug triage, etc.
 
 ## Foundation Models Create New Opportunities
@@ -23,7 +23,7 @@
 
 ## gptools - a Framework for AI-Enhanced Workflows
 
-Vision: empower individuals, including non-developers, to use AI-enhanced scripts to support their efforts to create, understand, and maintain complex artifacts
+Vision: empower teams, including non-developers, to use AI-enhanced scripts to support their efforts to create, understand, and maintain complex artifacts
 
 Goals: support tool abstraction, modularity, reuse, but at the same time empower non-developers to author, maintain, and update AI-enhanced scripts
 

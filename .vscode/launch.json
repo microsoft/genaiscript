@@ -6,9 +6,7 @@
             "name": "cli",
             "program": "${workspaceFolder}/packages/cli/built/main.js",
             "request": "launch",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
+            "skipFiles": ["<node_internals>/**"],
             "type": "node",
             "preLaunchTask": "npm: compile-cli"
         },
@@ -105,6 +103,23 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/devicescript"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile-ext",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/vscode"
+        },
+        {
+            "name": "Run - whitepaper",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/packages/whitepaper"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
