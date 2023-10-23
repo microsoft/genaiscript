@@ -52,6 +52,62 @@ Key elements of gptools:
     -   By separating the gptool from the gpspec, we allow non-developers to use gptools without having to understand the details of how they work.
     -   At the same time, because a gptool contains a natural language prompt, it is easy for a non-developer to understand what the gptool does, and to modify it to suit their needs.
 
+## gptool Example: Python Developer gptool
+
+This is an example of a simple gptool that generates python code from a gpspec file:
+```javascript 
+gptool({
+    title: "Generate python code",
+    model: "gpt-4",
+    description: "Given a task, generate python code.",
+    temperature: 0
+})
+
+def("CODE", env.links.filter(
+    (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
+))
+def("TASK", env.file)
+if (env.clipboard)
+    def("CLIPBOARD", env.clipboard)
+
+$`Generate python code for the task in TASK. Save code in CODE.`
+if (env.clipboard)
+    $`Analyze CLIPBOARD for runtime errors and fix the code.`
+$`If the CODE is already present, ensure that CODE matches the
+description in TASK and make changes to CODE if it does not.
+Do not modify TASK. Do not modify generate tests.`
+
+$`Follow the instructions in the Code Review section of TASK to generate CODE.`
+
+```
+
+```mermaid
+stateDiagram
+    stdio.h --> a.c
+    stdio.h --> b.c
+    stdio.h --> c.c
+    a.c --> cc: cc
+    b.c --> cc: cc
+    c.c --> cc: cc
+    cc --> a.o
+    cc --> b.o
+    cc --> c.o
+    a.o --> ld: ld
+    b.o --> ld: ld
+    c.o --> ld: ld
+    ld --> a.out
+```
+
+```mermaid
+stateDiagram
+    Input --> sort: Input file: test.text
+    sort --> uniq
+    uniq --> wc
+    wc --> Output: Output: 55
+```
+
+The contents of the input gpspec file are implicit in 
+
 ## gpspec: Natural Language to Invoke a gptool
 
 Just as a chat enables a user to interact with an AI model, a gpspec is a natural language markdown document that defines a context in which to invoke a gptool.
