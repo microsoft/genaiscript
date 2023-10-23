@@ -563,7 +563,7 @@ ${renderFencedVariables(extr)}
 
     for (const fence of extr) {
         const { label: name, content: val } = fence
-        const pm = /^((file|diff):?) /i.exec(name)
+        const pm = /^((file|diff):?)\s+/i.exec(name)
         if (pm) {
             const n = name.slice(pm[0].length).trim()
             const fn = /^[^\/]/.test(n) ? host.resolvePath(projFolder, n) : n
@@ -625,7 +625,7 @@ ${renderFencedVariables(extr)}
             ...obj,
             type: "insert",
             pos: fragment.endPos,
-            text: `\n${links.join('\n')}`,
+            text: `\n${links.join("\n")}`,
         })
     }
 

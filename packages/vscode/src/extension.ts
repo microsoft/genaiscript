@@ -69,10 +69,10 @@ export async function activate(context: ExtensionContext) {
             const { text } = response || {}
             const { template } = options || {}
             const abort = "Abort"
-            const output = "Open Output"
-            const trace = "Open Trace"
+            const output = "Output"
+            const trace = "Trace"
             const next = "Run GPTool"
-            const refine = "Refine"
+            const refine = "Refine GPSpec"
             const cmds: string[] = []
             if (computing) cmds.push(abort)
             if (request) cmds.push(refine)
