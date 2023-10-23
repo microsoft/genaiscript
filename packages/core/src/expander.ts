@@ -625,7 +625,7 @@ ${renderFencedVariables(extr)}
             ...obj,
             type: "insert",
             pos: fragment.endPos,
-            text: `\n\n${links.join("\n")}`,
+            text: `\n${links.join('\n')}`,
         })
     }
 

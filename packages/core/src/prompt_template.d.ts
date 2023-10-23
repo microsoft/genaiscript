@@ -111,7 +111,7 @@ interface PromptTemplate extends PromptLike {
 }
 
 /**
- * Represent a file linked from a .coarch document.
+ * Represent a file linked from a `.gpsec.md` document.
  */
 interface LinkedFile {
     /**

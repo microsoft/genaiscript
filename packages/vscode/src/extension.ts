@@ -39,7 +39,7 @@ export async function activate(context: ExtensionContext) {
         vscode.commands.registerCommand("coarch.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
-                "CoArch - request aborted."
+                "GPTools - request aborted."
             )
         }),
         vscode.commands.registerCommand(
@@ -47,7 +47,7 @@ export async function activate(context: ExtensionContext) {
             async () => {
                 await clearToken()
                 await vscode.window.showInformationMessage(
-                    "CoArch - OpenAI token cleared."
+                    "GPTools - OpenAI token cleared."
                 )
             }
         ),
@@ -83,10 +83,10 @@ export async function activate(context: ExtensionContext) {
             const res = await vscode.window.showInformationMessage(
                 toStringList(
                     computing
-                        ? `CoArch - running ${template.title}`
+                        ? `GPTools - running ${template.title}`
                         : template
-                        ? `CoArch - ${template.title}`
-                        : "CoArch",
+                        ? `GPTools - ${template.title}`
+                        : "GPTools",
                     template ? template.title : undefined
                 ),
                 ...cmds
