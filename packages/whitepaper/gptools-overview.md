@@ -61,7 +61,7 @@ Note that one use of a gpspec would be to invoke a gptool to create a new gpspec
 
 ## gptools Extension to VS Code
 
-We believe that human oversight of AI models is essential to their effective use.  To support this, we have created a VS Code extension that allows a user to interact with a gptool in a natural way.
+We believe that human oversight of AI models is essential to their effective use.  To support this, we have created a VS Code extension that allows a user to interact with a gpspec and gptool in a natural way.
 
 The extension provides the following capabilities:
 - A command palette that allows a user to select a gptool to invoke in the context of a given gpspec file
@@ -75,6 +75,19 @@ The extension provides the following capabilities:
 - A user interface that allows the user to interact with the AI model to refine the results
 - An gptool trace viewing mechanism that allows users to understand how the AI model was used to generate the results
 
+## Implications of gptools
+
+The existence of powerful programming tools based on AI that are usable by non-developers is transformative.
+
+Just as the development of JavaScript enabled Web 2.0 and python enabled the creation of the current AI software ecosystem, gptools will fuel a new generation of AI-enhanced applications.
+
+We envision the creation of gptools for many different verticals, with opportunities for customization and authoring at many levels of expertise:
+- Professional developers and architects will define collections of gptools for a given vertical
+- Professional developers can author and maintain individual gptools just as packages are authored and maintained today
+- Developers and non-developers can customize gptools for their particular organization or application needs
+- Non-developers can author and maintain gpspecs for their particular projects
+
+Furthermore, the existence of gptools can empower non-developers to automate their workflows in ways that were previously impossible. 
 
 
 
