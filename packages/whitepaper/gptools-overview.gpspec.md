@@ -2,7 +2,7 @@
 - Authors: Peli de Halleux, Michał Moskal, Ben Zorn
 - Date: October 2023
 -   use LLM to describe foundation models
--   [gptools-overview.gpspec.md.comments.md](gptools-overview.gpspec.md.comments.md)
+-   [gptools-overview.gpspec.md.comments.md](./gptools-overview.gpspec.md.comments.md)
 
 ## Complex Artifacts Require Complex Workflows
 
