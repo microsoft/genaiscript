@@ -2,8 +2,6 @@
 
 -   Authors: Peli de Halleux, Michał Moskal, Ben Zorn
 -   Date: October 2023
--   use LLM to describe foundation models
--   [gptools-overview.gpspec.md.comments.md](./gptools-overview.gpspec.md.comments.md)
 
 ## Complex Artifacts Require Complex Workflows
 
@@ -54,7 +52,7 @@ Key elements of gptools:
     -   By separating the gptool from the gpspec, we allow non-developers to use gptools without having to understand the details of how they work.
     -   At the same time, because a gptool contains a natural language prompt, it is easy for a non-developer to understand what the gptool does, and to modify it to suit their needs.
 
-## gpspec: Natural language to invoke a gptool
+## gpspec: Natural Language to Invoke a gptool
 
 Just as a chat enables a user to interact with an AI model, a gpspec is a natural language markdown document that defines a context in which to invoke a gptool.
 
@@ -90,8 +88,8 @@ Just as the development of JavaScript enabled Web 2.0, and python enabled the cr
 
 We envision the creation of gptools for many different verticals, with opportunities for customization and authoring at many levels of expertise:
 
--   Professional developers and architects will define collections of gptools for a given vertical
--   Professional developers can author and maintain individual gptools just as packages are authored and maintained today
+-   Professional developers and architects will define collections of gptools for a given vertical just as packages are authored and maintained today
+-   Professional developers can author and maintain individual gptools 
 -   Developers and non-developers can customize gptools for their particular organization or application needs
 -   Non-developers can author and maintain gpspecs for their particular projects
 
