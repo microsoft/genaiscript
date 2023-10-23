@@ -55,58 +55,28 @@ Key elements of gptools:
 ## gptool Example: Python Developer gptool
 
 This is an example of a simple gptool that generates python code from a gpspec file:
+
 ```javascript 
 gptool({
     title: "Generate python code",
     model: "gpt-4",
     description: "Given a task, generate python code.",
-    temperature: 0
 })
 
 def("CODE", env.links.filter(
     (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
 ))
 def("TASK", env.file)
-if (env.clipboard)
-    def("CLIPBOARD", env.clipboard)
 
-$`Generate python code for the task in TASK. Save code in CODE.`
-if (env.clipboard)
-    $`Analyze CLIPBOARD for runtime errors and fix the code.`
-$`If the CODE is already present, ensure that CODE matches the
-description in TASK and make changes to CODE if it does not.
-Do not modify TASK. Do not modify generate tests.`
-
-$`Follow the instructions in the Code Review section of TASK to generate CODE.`
-
+$`Generate python code for the task in TASK. Save code in CODE. If the CODE is already present, ensure that CODE matches the description in TASK and make changes to CODE if it does not.`
 ```
 
-```mermaid
-stateDiagram
-    stdio.h --> a.c
-    stdio.h --> b.c
-    stdio.h --> c.c
-    a.c --> cc: cc
-    b.c --> cc: cc
-    c.c --> cc: cc
-    cc --> a.o
-    cc --> b.o
-    cc --> c.o
-    a.o --> ld: ld
-    b.o --> ld: ld
-    c.o --> ld: ld
-    ld --> a.out
-```
+In this example we see the following elements:
+- A header that contains metadata related to the execution of the script (e.g., information about what LLM model to use, etc.)
+- JavaScript code that manipulates the environment context, specifically by extracting only the python files from the context that do not start with "test_".
+- Variable definitions that define allow the prompt to refer to elements in the context. TASK refers to the gpspec file, and CODE refers to the python files in the context.
+- Natural language that combines these elements.
 
-```mermaid
-stateDiagram
-    Input --> sort: Input file: test.text
-    sort --> uniq
-    uniq --> wc
-    wc --> Output: Output: 55
-```
-
-The contents of the input gpspec file are implicit in 
 
 ## gpspec: Natural Language to Invoke a gptool
 
@@ -117,7 +87,18 @@ A gpspec is a standard markdown file, with the following additional elements:
 -   Links to context elements that define the context in which a particular gptool is to be invoked. The gpspec defines all possible contexts where a particular gptool might only refer to some part.
 -   Natural language describing the specific task to be performed as input to one or more gptools. For example, the spec for code might contain directions on the desired code as well as information about tests to be performed. Different gptools invoked from the gpspec file can be used to perform different tasks.
 
-Note that one possible use of a gpspec is to invoke a gptool, which in turn creates a new gpspec with further refinement.
+
+## gpspec Example: Using the Python Developer gptool
+
+This is an example of a gpspec file that uses the python developer gptool:
+
+```markdown
+# email address and URL recognizer
+
+Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
+```
+
+In this example, there is no additional context needed to invoke the python developer gptool. In other cases, the gpspec file will contain links to additional context elements, such as markdown, code files, etc.
 
 ## gptools Extension to VS Code
 
