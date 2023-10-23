@@ -3,6 +3,8 @@
 	// for the documentation about the extensions.json format
 	"recommendations": [
 		"dbaeumer.vscode-eslint",
-		"esbenp.prettier-vscode"
+		"esbenp.prettier-vscode",
+		"evilz.vscode-reveal",
+		"bierner.markdown-mermaid"
 	]
 }
