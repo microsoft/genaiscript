@@ -301,8 +301,8 @@ async function parseMeta(r: PromptTemplate) {
 }
 
 const promptFence = "`````"
-const promptFenceRx = /`{5,}(\r?\n)?/g
-const promptFenceEndRx = /^`{5,}\s*$/
+const promptFenceStartRx = /^(`{5,})(\s+(.*))?\s*$/
+const promptFenceEndRx = /^(`{5,})\s*$/
 
 function errorId() {
     let r = "ERROR-"
@@ -326,10 +326,13 @@ export function staticVars() {
     }
 }
 
+function startFence(text: string) {
+    const m = promptFenceStartRx.exec(text)
+    return { fence: m?.[1], extra: m?.[3], args: parseKeyValuePairs(m?.[3]) }
+}
+
 function endFence(text: string) {
     if (promptFenceEndRx.test(text)) return text.replace(/\s*$/, "")
-    const m = /^(```+)[\w\-]*\s*$/.exec(text)
-    if (m) return m[1].replace(/\s*$/, "")
     return null
 }
 
@@ -385,9 +388,14 @@ export function extractFenced(text: string): Fenced[] {
                 currText += line + "\n"
             }
         } else {
-            if (line.endsWith(":") && endFence(lines[i + 1])) {
-                currLbl = line.slice(0, -1)
-                currFence = endFence(lines[i + 1])
+            const start = startFence(lines[i + 1])
+            if (line.endsWith(":") && start.fence) {
+                currLbl = (
+                    line.slice(0, -1) +
+                    " " +
+                    (start.args["file"] || "")
+                ).trim()
+                currFence = start.fence
                 i++
             } else if (endFence(line)) {
                 currFence = endFence(line)
@@ -419,6 +427,15 @@ import re
     }
 }
 
+function parseKeyValuePairs(text: string) {
+    const res: Record<string, string> = {}
+    text?.split(/\s+/g)
+        .map((kv) => kv.split(/[=:]/))
+        .filter((m) => m.length == 2)
+        .forEach((m) => (res[m[0]] = m[1]))
+    return res
+}
+
 export function renderFencedVariables(vars: Fenced[]) {
     return vars
         .map(
@@ -433,10 +450,6 @@ ${v}
 `
         )
         .join("\n")
-}
-
-export function removeFence(text: string) {
-    return text.replace(promptFenceRx, "")
 }
 
 async function parsePromptTemplateCore(
