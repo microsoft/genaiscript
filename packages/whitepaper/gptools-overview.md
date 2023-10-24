@@ -3,6 +3,28 @@
 -   Authors: Peli de Halleux, Michał Moskal, Ben Zorn
 -   Date: October 2023
 
+## Abstract
+
+gptools is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. gptools provides support for creating, understanding, and maintaining complex collections of documents such as software repositories, project management, etc.  Our framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language. The key elements of the gptools framework are **gpspecs** and **gptools**. gpspecs are natural language documents that describe specific user tasks to accomplish.  gptools are general scripts that combine traditional software and natural language prompts and rely on an LLM to generate results. We execute gptools in the context of a gpspec to achieve a result.  By separating these two abstractions, we allow gptools to be authored, maintained, and updated independently of the gpspecs that use them.  The gptools framework includes an execution engine to execute a gptool and an IDE extension to VS Code to support user interaction with the gptool.  We believe that gptools will empower even non-developers to automate their workflows in ways that were previously impossible.
+
+## Introduction
+
+This document describes the gptools framework, which empowers teams, including non-developers, to use AI-enhanced scripts to support their efforts in creating, understanding, and maintaining complex artifacts.  gptools leverages foundation models (LLMs) to enable a new kind of scripting that combines traditional code and natural language. The key elements of gptools include gpspecs, gptools, the gpvm, and the gptools extension to VS code.
+
+```mermaid
+graph LR
+F[User] --> G[gpspec]
+G --> A[gptool]
+A --> C[gpvm pre]
+C --> D[Foundation Model]
+D --> E[gpvm post]
+E --> F[User]
+```
+
+This diagram illustrates the workflow of gptools. The user creates a gpspec and then uses it to invoke a specific gptool, much as a user might call a python script with a file input. The gpvm executes the gptool with the gpspec, which invokes the foundation model. The foundation model returns a result to the gpvm, which postprocesses it and returns it to the user.
+
+This document will motivate the design of the gptools framework, illustrate its use with examples, and describe elements of implementation.
+
 ## Complex Artifacts Require Complex Workflows
 
 -   Software development is a complex process that requires the coordination of many different activities.
@@ -74,7 +96,7 @@ $`Generate python code for the task in TASK. Save code in CODE. If the CODE is a
 In this example we see the following elements:
 - A header that contains metadata related to the execution of the script (e.g., information about what LLM model to use, etc.)
 - JavaScript code that manipulates the environment context, specifically by extracting only the python files from the context that do not start with "test_".
-- Variable definitions that define allow the prompt to refer to elements in the context. TASK refers to the gpspec file, and CODE refers to the python files in the context.
+- Variable definitions that allow the prompt to refer to elements in the context. TASK refers to the gpspec file, and CODE refers to the python files in the context.
 - Natural language that combines these elements.
 
 
@@ -84,13 +106,15 @@ Just as a chat enables a user to interact with an AI model, a gpspec is a natura
 
 A gpspec is a standard markdown file, with the following additional elements:
 
--   Links to context elements that define the context in which a particular gptool is to be invoked. The gpspec defines all possible contexts where a particular gptool might only refer to some part.
--   Natural language describing the specific task to be performed as input to one or more gptools. For example, the spec for code might contain directions on the desired code as well as information about tests to be performed. Different gptools invoked from the gpspec file can be used to perform different tasks.
+-   Links to context elements that define the context in which a particular gptool is to be invoked. For example, a gpspec might contain links to markdown files, code files, etc.
+-   Natural language describing the specific task to be performed as input to a gptool. For example, the spec  used to generate code would include a description of the functionality and might include a description style guidelines to observe, etc.
+
+. A single gpspec file might be used as input to multiple gptools.  For example, a gpspec might be used to generate code, documentation, and tests, each using a different gptool.
 
 
 ## gpspec Example: Using the Python Developer gptool
 
-This is an example of a gpspec file that uses the python developer gptool:
+This is an example of a gpspec file that uses the python generating gptool shown above:
 
 ```markdown
 # email address and URL recognizer
@@ -100,6 +124,19 @@ Write a function that takes a string argument and returns true if the whole stri
 
 In this example, there is no additional context needed to invoke the python developer gptool. In other cases, the gpspec file will contain links to additional context elements, such as markdown, code files, etc.
 
+## gpvm - A Framework for Executing gpspecs and gptools
+
+Every system that interacts with a foundation model includes layers that transform user input into a prompt that can be processed by the foundation model, and layers that transform the output of the foundation model into a form that is useful to the user. 
+
+- gpvm is a runtime environment that:
+    -   Captures the context defined by the gpspec
+    -   Executes whatever code is present in the gptool (in the example above, the variables CODE and TASK are defined by executing JavaScript code)
+    -   Expands the gpspec and natural language of the gptool into a prompt that can be processed by the foundation model 
+    -   Sends the results to the AI model
+    -   Processes the results on return to update the user context (which might include creating files, updating files, generating user feedback, etc.)
+
+Unlike many AI model orchestration frameworks, such as Semantic Kernel, gpvm does not leverage the model to do chain-of-thought reasoning or utomatically stage multiple invocations of the AI model during its execution. gptools currently relies on the user to choose and invoke the appropriate gptool as needed.
+
 ## gptools Extension to VS Code
 
 We believe that human oversight of AI models is essential to their effective use. To support this, we have created a VS Code extension that allows a user to interact with a gpspec and gptool in a natural way.
@@ -108,12 +145,7 @@ The extension provides the following capabilities:
 
 -   A command palette that allows a user to select a gptool to invoke in the context of a given gpspec file
 -   A token management system that supports connecting with the AI model of interest
--   A runtime environment that:
-    -   Captures the context defined by the gpspec
-    -   Expands the gptool in the appropriate context
-    -   Executes whatever code is present in the gptool
-    -   Sends the results to the AI model
-    -   Processes the results on return to update the user context (which might include updating files, etc.)
+-   An invocation of the gpvm to process the user input and generate results
 -   A user interface that allows the user to interact with the AI model to refine the results
 -   A gptool trace viewing mechanism that allows users to understand how the AI model was used to generate the results
 
