@@ -48,7 +48,7 @@ def("FILE", env.file)
             async (template: PromptTemplate) => {
                 if (!template) return
                 const name = await vscode.window.showInputBox({
-                    title: "Pick a name for the new prompt file.",
+                    title: "Pick a file name for the new .gptool.js file.",
                 })
                 if (name === undefined) return
                 await showPrompt(
