@@ -131,3 +131,25 @@ We envision the creation of gptools for many different verticals, with opportuni
 -   Non-developers can author and maintain gpspecs for their particular projects
 
 Furthermore, the existence of gptools can empower non-developers to automate their workflows in ways that were previously impossible.
+
+## Related Work
+
+gptools are related to a number of foundation model projects that automate workflows and encapsulate LLM actions in software artifacts.  We describe some of these projects below:
+
+### AI Tools for Developers
+- [GitHub Copilot](https://copilot.github.com/) is a VS Code extension that uses the Codex LLM to suggest code completions based on the context of the current file.  Copilot provides LLM support for writing code but does not currently have an extensibility model or a way to create,  maintain and apply collections of AI-enhanced scripts. 
+- [codeplan](https://arxiv.org/abs/2309.12499) is a task-agnostic framework that frames repository-level coding as a planning problem, synthesizing a multi-step chain of edits where each step results in a call to an LLM on a code location with context derived from the entire repository, previous code changes, and task-specific instructions.  While codeplan uses LLM prompts to generate code, it does not provide a way to create, maintain and apply collections of AI-enhanced scripts.
+
+### LLM Automation/Orchestration Frameworks
+- [autogpt](https://github.com/Significant-Gravitas/AutoGPT) is an AI agent that utilizes a large language model to drive its actions and decisions. Unlike traditional language model applications, AutoGPT does not require repeated prompting by a human and can autonomously develop and manage tasks.  
+- [langchain](https://www.langchain.com/) is a Python library designed to simplify the development of Natural Language Processing (NLP) applications using large language models. It provides a framework for connecting language models to other sources of data and allowing them to interact with their environment.
+- [semantic kernel](https://github.com/microsoft/semantic-kernel) is an open-source SDK that allows developers to easily integrate AI services  with conventional programming languages such as C# and Python. It provides a framework for connecting language models to other sources of data, allowing them to interact with their environment and perform tasks autonomously.
+- [autogen](https://arxiv.org/abs/2308.08155) is a framework for simplifying the orchestration, optimization, and automation of large language model (LLM) workflows. It offers customizable and conversable agents that leverage LLMs while addressing their limitations by integrating with humans and tools and having conversations between multiple agents via automated chat.
+
+gptools differ from existing AI task automation frameworks in the following ways:
+- gptools are designed to be authored, maintained, and applied by non-developers as well as developers.
+- gptools define a separation between the gptool and the gpspec that instantiates it, allowing for modularity, reuse, and easier understanding by non-developers.
+- gptools do not assume task automation and provide a user experience that integrates seamlessly with VS code.
+- The gptools UI exposes both the content and execution of each gptools to facilitate human oversight and understanding of how the AI model was used to generate the results.  
+
+
