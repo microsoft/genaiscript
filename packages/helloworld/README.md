@@ -1,3 +1,8 @@
+# Hello world GPTools
+
+This sample contains a few gptools and started gpspec files to get started.
+
+## Python generation demo
 
 1. Add a docstring to the `is_valid_email` function to explain its purpose and parameters.
 2. Use a compiled regex pattern for better performance.
@@ -51,20 +56,22 @@ def test_is_valid_email():
 
 test_is_valid_email()
 ```
-`````
+
+```
 
 
 ### Extracted Variables
 
 -   `*`
-`````
+```
+
 import re
 import sys
 import argparse
 
 def is_valid_email(email: str) -> bool:
-    """
-    Check if the given string is a valid email address.
+"""
+Check if the given string is a valid email address.
 
     :param email: The string to be checked.
     :return: True if the string is a valid email address, False otherwise.
@@ -74,32 +81,33 @@ def is_valid_email(email: str) -> bool:
     return bool(email_regex.match(email))
 
 def main():
-    parser = argparse.ArgumentParser(description="Check if a given string is a valid email address.")
-    parser.add_argument("email", help="The email address to be checked.")
-    args = parser.parse_args()
+parser = argparse.ArgumentParser(description="Check if a given string is a valid email address.")
+parser.add_argument("email", help="The email address to be checked.")
+args = parser.parse_args()
 
     try:
         print(is_valid_email(args.email))
     except Exception as e:
         print(f"Error: {e}")
 
-if __name__ == "__main__":
-    main()
+if **name** == "**main**":
+main()
 def test_is_valid_email():
-    assert is_valid_email("test@example.com") == True
-    assert is_valid_email("test+123@example.co.uk") == True
-    assert is_valid_email("test@subdomain.example.com") == True
-    assert is_valid_email("test@.com") == False
-    assert is_valid_email("test@example") == False
-    assert is_valid_email("test@.com") == False
-    assert is_valid_email("test@.com") == False
+assert is_valid_email("test@example.com") == True
+assert is_valid_email("test+123@example.co.uk") == True
+assert is_valid_email("test@subdomain.example.com") == True
+assert is_valid_email("test@.com") == False
+assert is_valid_email("test@example") == False
+assert is_valid_email("test@.com") == False
+assert is_valid_email("test@.com") == False
 
 test_is_valid_email()
 
-`````
+```
 
 -   remaining
-`````
+```
+
 1. Add a docstring to the `is_valid_email` function to explain its purpose and parameters.
 2. Use a compiled regex pattern for better performance.
 3. Use argparse for better command line argument handling and help messages.
@@ -108,6 +116,4 @@ test_is_valid_email()
 
 Here's the improved code:
 
-
 Test cases:
-  

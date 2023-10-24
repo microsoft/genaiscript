@@ -3,6 +3,7 @@ gptool({
     description: "Given a task, generate python code.",
     temperature: 0,
     readClipboard: true,
+    categories: ["hello world"],
 })
 
 def(

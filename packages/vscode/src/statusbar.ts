@@ -25,10 +25,8 @@ export function activateStatusBar(state: ExtensionState) {
         const token = await host.getSecretToken()
         statusBarItem.text = toStringList(
             "GPTools",
-            template ? template.title : undefined,
             computing && !tokensSoFar ? `$(loading~spin)` : undefined,
-            tokensSoFar ? `${tokensSoFar} tokens` : undefined,
-            editsApplied === null ? `refactoring pending...` : undefined
+            tokensSoFar ? `${tokensSoFar} tokens` : undefined
         )
         const md = new vscode.MarkdownString(
             toMarkdownString(
