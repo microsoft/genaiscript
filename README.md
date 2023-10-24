@@ -1,6 +1,4 @@
-# CoArch: A Refinement Copilot
-
-CoArch stands for Co-pilot for End-to-end Design and Development with AI Refinement.
+# GPTools (formerly CoArch)
 
 -   **Read the [Visual Studio Code Extension README](./packages/vscode/README.md) for user documentation.**
 
