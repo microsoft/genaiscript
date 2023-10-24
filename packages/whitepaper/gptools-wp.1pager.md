@@ -1,46 +1,48 @@
-# gptools: AI-Enhanced Workflows for Complex Artifacts
+# gptools: AI-Enhanced Workflows for Teams
 
-gptools is a framework designed to empower teams, including non-developers, to use AI-enhanced scripts to support their efforts in creating, understanding, and maintaining complex artifacts. It leverages foundation models (LLMs) to enable a new kind of scripting that combines traditional code and natural language. The key elements of gptools include:
+gptools is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. The framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language.
 
-- _gptools_: Scripts that integrate traditional code and natural language, leveraging foundation models in their execution.
-- _gpspecs_: Natural language documents that instantiate gptools in a particular context.
-- _gpvm_: A framework and runtime system that executes gpspecs and gptools.
-- _gptools extension to VS code_: Supporting seamless user interaction with gptools.
+## Key Objectives and Technical Elements
 
-## The Heilmeier Catechism
+The main objectives of gptools are to improve automation, collaboration, and accessibility in the creation, understanding, and maintenance of complex artifacts. The key elements of the gptools framework are:
 
-1. **What are you trying to do?**
+- **gptools**: Scripts that integrate traditional code and natural language, leveraging foundation models in their execution.
+- **gpspecs**: Natural language documents that instantiate gptools in a particular context.
+- **gpvm**: A framework and runtime system that executes gpspecs and gptools.
+- **VS Code extension**: Supporting seamless user interaction with gptools.
 
-   Empower teams to use AI-enhanced scripts for creating, understanding, and maintaining complex artifacts, making it accessible to non-developers.
+The gptools framework is designed to be modular and reusable, allowing for easier understanding and customization by non-developers. It enables users to author and maintain gpspecs and gptools at various levels of expertise, from professional developers to non-developers.
 
-2. **How is it done today, and what are the limitations of the current practice?**
+## Heilmeier Catechism
 
-   Software development is a complex, manual process with various tools and abstractions. AI models can perform tasks that traditional software cannot, but they have limitations, such as making mistakes and lacking transparency.
+### What are you trying to do? Articulate your objectives using absolutely no jargon.
 
-3. **What is new in your approach, and why do you think it will be successful?**
+We aim to empower teams, including non-developers, with AI-enhanced scripts that support their efforts in creating, understanding, and maintaining complex artifacts.
 
-   gptools combines traditional code and natural language, leveraging foundation models to create a new kind of scripting. Separating gptools from gpspecs allows for modularity, reuse, and easier understanding by non-developers.
+### How is it done today, and what are the limits of current practice?
 
-4. **Who cares?**
+Today, software development and other complex workflows involve a mix of manual and automated processes. Current AI models can perform tasks that traditional software cannot, but they have limitations, such as making mistakes and lacking transparency.
 
-   Developers, non-developers, and organizations looking to automate workflows and improve collaboration in creating and maintaining complex artifacts.
+### What is new in your approach, and why do you think it will be successful?
 
-5. **If you are successful, what difference will it make?**
+Our approach separates scripts into two related parts: a generic reusable _gptool_ and a natural language _gpspec_ that instantiates the gptool in a particular context. This allows for modularity, reuse, and easier understanding by non-developers. We believe this approach will be successful because it combines the power of AI with human oversight and understanding.
 
-   gptools will fuel a new generation of AI-enhanced applications, empowering non-developers to automate workflows and customize tools for their needs.
+### Who cares? If you are successful, what difference will it make?
 
-6. **What are the risks and the payoffs?**
+Developers, non-developers, and organizations will benefit from improved automation, collaboration, and accessibility in their workflows. The existence of gptools can empower non-developers to automate their workflows in ways that were previously impossible.
 
-   Risks include AI models making mistakes and lacking transparency. Payoffs include increased automation, collaboration, and accessibility of complex workflows for non-developers.
+### What are the risks and payoffs?
 
-7. **How much will it cost?**
+The risks include AI model mistakes and lack of transparency. The payoffs are increased automation, collaboration, and accessibility in complex workflows.
 
-   The cost will depend on the implementation, maintenance, and usage of gptools, as well as the AI models and resources required.
+### How much will it cost?
 
-8. **How long will it take?**
+The cost depends on the development, testing, and deployment of the gptools framework and its components.
 
-   The timeline will depend on the development, testing, and deployment of gptools and its components.
+### How long will it take?
 
-9. **What are the midterm and final "exams" to check for success?**
+The timeline depends on the development, testing, and deployment of the gptools framework and its components.
 
-   Midterm exams include successful implementation of gptools and its components, and user adoption. Final exams include widespread usage, improved workflows, and increased collaboration between developers and non-developers.
+### What are the midterm and final "exams" to check for success?
+
+Midterm success would involve successful implementation and user adoption of the gptools framework. Final success would be widespread usage and improved workflows across various domains.
