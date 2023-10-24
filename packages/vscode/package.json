@@ -38,26 +38,21 @@
             "coarch": [
                 {
                     "id": "coarch.prompts",
-                    "name": "Tools"
+                    "name": "GPTools"
+                },
+                {
+                    "id": "coarch.fragments",
+                    "name": "GPSpecs",
+                    "visibility": "collapsed"
                 },
                 {
                     "id": "coarch.prompts.requests",
-                    "name": "Prompt Requests",
+                    "name": "Runs",
                     "visibility": "collapsed"
                 },
                 {
                     "id": "coarch.openai.requests",
                     "name": "OpenAI Requests",
-                    "visibility": "collapsed"
-                },
-                {
-                    "id": "coarch.runner",
-                    "type": "webview",
-                    "name": "Context"
-                },
-                {
-                    "id": "coarch.fragments",
-                    "name": "Fragments",
                     "visibility": "collapsed"
                 }
             ]

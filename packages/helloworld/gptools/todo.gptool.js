@@ -1,6 +1,7 @@
 gptool({
     title: "TODOs",
     description: "Try to implement TODOs found in source code.",
+    categories: ["hello world"],
     temperature: 0
 })
 

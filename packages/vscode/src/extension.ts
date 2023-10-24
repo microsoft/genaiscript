@@ -11,7 +11,6 @@ import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentp
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands } from "./promptcommands"
 import { clearToken } from "coarch-core"
-import { activateRunnerView } from "./runnerview"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 
@@ -31,7 +30,7 @@ export async function activate(context: ExtensionContext) {
     activateFragmentTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
-    activateRunnerView(state)
+    // activateRunnerView(state)
     activateStatusBar(state)
     activateCodeActions(state)
 
