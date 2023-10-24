@@ -180,7 +180,7 @@
             },
             {
                 "command": "coarch.prompt.create",
-                "title": "Create new prompt file",
+                "title": "Create new GPTool",
                 "icon": "$(add)",
                 "category": "GPTools"
             },

@@ -19,15 +19,15 @@ export function activatePromptCommands(state: ExtensionState) {
     subscriptions.push(
         vscode.commands.registerCommand("coarch.prompt.create", async () => {
             const name = await vscode.window.showInputBox({
-                title: "Pick a name for the new prompt file.",
+                title: "Pick a file name for the new GPTool.",
             })
             if (name === undefined) return
             await showPrompt(
                 await copyPrompt(
                     {
                         id: "",
-                        title: "New prompt template",
-                        text: "New prompt template",
+                        title: "my tool",
+                        text: "New GPtool empty template",
                         jsSource: `gptool({
     title: "${name}",
 })
