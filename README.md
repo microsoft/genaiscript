@@ -8,10 +8,10 @@ CoArch stands for Co-pilot for End-to-end Design and Development with AI Refinem
 
 These are the instructions to install the latest build of the extension manually in Visual Studio Code.
 
--   download the `coarch.vsix` file
+-   download the `gptools.vsix` file
 -   open Visual Studio Code
 -   open the command palette and type **Extensions: Install from VSIX...**
--   load the `coarch.vsix` file
+-   load the `gptools.vsix` file
 
 ## Contributing
 

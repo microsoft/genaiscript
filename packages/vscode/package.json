@@ -220,7 +220,7 @@
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
         "typecheck": "tsc -p .",
-        "package": "vsce package --dependencies --out coarch.vsix --yarn"
+        "package": "vsce package --dependencies --out gptools.vsix --yarn"
     },
     "devDependencies": {
         "@types/isomorphic-fetch": "^0.0.36",
