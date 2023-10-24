@@ -301,7 +301,7 @@ async function parseMeta(r: PromptTemplate) {
 }
 
 const promptFence = "`````"
-const promptFenceStartRx = /^(`{5,})(\s+(.*))\s*$/
+const promptFenceStartRx = /^(`{5,})(\s+(.*))?\s*$/
 const promptFenceEndRx = /^(`{5,})\s*$/
 
 function errorId() {

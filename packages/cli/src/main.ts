@@ -20,6 +20,11 @@ FILE:
 ### Slide 1: gptools Overview
 \`\`\`\`\`
 
+FILE gptools-wp2.slides.md:
+\`\`\`\`\`
+### Slide 2: gptools Overview
+\`\`\`\`\`
+
 SUMMARY:
 \`\`\`\`\`
 Created a slidedeck in markdown format for the gptools content, including an overview, key components, workflow, AI-enhanced workflow process, and benefits.
