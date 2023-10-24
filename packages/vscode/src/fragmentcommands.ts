@@ -89,6 +89,8 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentRefine = async () => {
         const fragment = resolveFragment(undefined)
         if (!fragment) return
+
+        await state.cancelAiRequest()
         const template = state.aiRequest.options.template
         let refinement = await vscode.window.showInputBox({
             title: `What do you want to add to your spec?`,
@@ -96,7 +98,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
         if (!refinement) return
 
-        await state.cancelAiRequest()
         await saveAllTextDocuments()
         const uri = vscode.Uri.file(fragment.file.filename)
         let content = new TextDecoder().decode(
