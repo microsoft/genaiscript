@@ -1,4 +1,4 @@
-# CoArch
+# GPTools
 
 An iterative, refining copilot experience designed for Visual Studio Code.
 
@@ -12,7 +12,7 @@ infrastructure to provide a augmented, tooled, prompting experience.
 
 ### GPTools
 
-CoArch tools (gptools) use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
+GPTools use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
 
 CoArch comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
 This leverages VSCode language support (completion, coloring, error checking)
