@@ -1,11 +1,13 @@
-Ethan: Welcome to our demo of GPTools, a powerful software tool for code generation.
+Ethan: Welcome to our demonstration of GPTools, a powerful framework that empowers teams to create and use AI-enhanced scripts for their workflows.
 
-Nancy: That's right, Ethan. In this demo, we'll see how a user can create a function to validate email addresses using natural language.
+Nancy: That's right, Ethan. GPTools leverages foundation models to enable a new kind of scripting that combines traditional code and natural language.
 
-Ethan: The user starts by clicking on the gpspec file and writing the task they want to accomplish.
+Ethan: In this demo, we'll see how a user can create a function that validates email addresses using natural language. They start by clicking on the gpspec file and writing the task to be done.
 
-Nancy: Then, they select the code generation GPTool, which processes the context and text generation instructions to create a prompt.
+Nancy: Once the task is written, the user selects the code generation gptool. GPTools are JavaScript files that process the context and text generation instruction to create a prompt.
 
-Ethan: As the results are generated, they're streamed to Visual Studio Code, where the user can review them in a refactoring workspace edit.
+Ethan: The generation of results is streamed to VSCode, and the results are parsed into a refactoring workspace edit, which the user can review.
 
-Nancy: It's an efficient and user-friendly way to generate code, making developers' lives easier.
+Nancy: This seamless integration with VSCode makes it easy for users, even non-developers, to automate their workflows in ways that were previously impossible.
+
+Ethan: Absolutely, Nancy. GPTools is a game-changer for teams working with complex artifacts, enabling them to create, understand, and maintain their projects more efficiently.
