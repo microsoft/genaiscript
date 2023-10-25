@@ -14,7 +14,7 @@ import { clearToken } from "coarch-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 
-export const COARCH_EXTENSION_ID = "coarch.coarch-vscode"
+export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
 
 function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join("\n")
