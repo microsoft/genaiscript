@@ -6,15 +6,18 @@ gptool({
 
 const output = env.file.filename.replace(".gpspec.md", ".dialog.md")
 def(
-    "DIALOG",
-    env.links.filter((f) => f.filename.endsWith(".dialog.md"))
+    "INFO",
+    env.links.filter(
+        (f) => f.filename.endsWith(".md") && !f.filename.endsWith(".dialog.md")
+    )
 )
 def("SCENES", env.file)
 
 $`You are a screenplay expert at writing dialogs. You are writing a dialog between two actors that play news commentators anchors. Make it a conversation
 between the two anchors, similarly to sports commentators.
 
-The subject is a screen recording of a software tool that needs to be described.
+The subject is a screen recording of a software tool that needs to be described. The tool
+is described in INFO. Use information from INFO in the dialogs.
 
 SCENES contains the description of each scene. Save the dialog in a markdown format in DIALOG file ${output} formatted as follows:
 

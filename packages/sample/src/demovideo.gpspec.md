@@ -1,7 +1,9 @@
 # Demo video
 
 This file contains a text description of the gptools demo file.
+
 -   [demovideo.dialog.md](demovideo.dialog.md)
+-   [gptools](../../whitepaper/gptools-overview.md)
 
 ## Scenes
 
