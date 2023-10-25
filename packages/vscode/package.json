@@ -1,5 +1,5 @@
 {
-    "name": "coarch-vscode",
+    "name": "gptools-vscode",
     "publisher": "Microsoft",
     "displayName": "GPTools",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
