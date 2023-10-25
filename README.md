@@ -1,4 +1,17 @@
-# GPTools (formerly CoArch)
+# GPTools (formerly CoArch): AI-Enhanced Workflows for Teams
+
+`gptools` is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. The framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language.
+
+## Key Objectives and Technical Elements
+
+The main objectives of gptools are to improve automation, collaboration, and accessibility in the creation, understanding, and maintenance of complex artifacts. The key elements of the gptools framework are:
+
+- **gptools**: Scripts that integrate traditional code and natural language, leveraging foundation models in their execution.
+- **gpspecs**: Natural language documents that instantiate gptools in a particular context.
+- **gpvm**: A framework and runtime system that executes gpspecs and gptools.
+- **VS Code extension**: Supporting seamless user interaction with gptools.
+
+The gptools framework is designed to be modular and reusable, allowing for easier understanding and customization by non-developers. It enables users to author and maintain gpspecs and gptools at various levels of expertise, from professional developers to non-develop
 
 -   **Read the [Visual Studio Code Extension README](./packages/vscode/README.md) for user documentation.**
 
