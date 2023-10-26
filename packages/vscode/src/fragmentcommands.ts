@@ -12,7 +12,8 @@ import { ExtensionState } from "./state"
 import { saveAllTextDocuments } from "./fs"
 
 type TemplateQuickPickItem = {
-    template: PromptTemplate
+    template?: PromptTemplate
+    action?: "create"
 } & vscode.QuickPickItem
 
 export function activateFragmentCommands(state: ExtensionState) {
@@ -40,7 +41,6 @@ export function activateFragmentCommands(state: ExtensionState) {
     ) => {
         const { filter = () => true } = options || {}
         const templates = fragment.applicableTemplates().filter(filter)
-        if (!templates.length) return undefined
 
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates),
@@ -48,7 +48,10 @@ export function activateFragmentCommands(state: ExtensionState) {
                 title: `Pick a GPTool to apply to ${fragment.title}`,
             }
         )
-        return (picked as TemplateQuickPickItem)?.template
+        if (picked?.action === "create") {
+            vscode.commands.executeCommand("coarch.prompt.create")
+            return undefined
+        } else return (picked as TemplateQuickPickItem)?.template
     }
 
     const fragmentExecute = async (
@@ -162,7 +165,9 @@ export function activateFragmentCommands(state: ExtensionState) {
     )
 }
 
-function templatesToQuickPickItems(templates: globalThis.PromptTemplate[]) {
+function templatesToQuickPickItems(
+    templates: globalThis.PromptTemplate[]
+): TemplateQuickPickItem[] {
     const cats = groupBy(templates, templateGroup)
     const items: vscode.QuickPickItem[] = []
     for (const cat in cats) {
@@ -171,13 +176,27 @@ function templatesToQuickPickItems(templates: globalThis.PromptTemplate[]) {
             kind: vscode.QuickPickItemKind.Separator,
         })
         items.push(
-            ...cats[cat].map((template) => ({
-                label: template.title,
-                description: `${template.id} ${template.description || ""}`,
-                template,
-            }))
+            ...cats[cat].map(
+                (template) =>
+                    <TemplateQuickPickItem>{
+                        label: template.title,
+                        description: `${template.id} ${
+                            template.description || ""
+                        }`,
+                        template,
+                    }
+            )
         )
     }
+    items.push(<vscode.QuickPickItem>{
+        label: "GPTools",
+        kind: vscode.QuickPickItemKind.Separator,
+    })
+    items.push(<TemplateQuickPickItem>{
+        label: "Create a new gptool script...",
+        description: "Create a new gptool script in the current workspace.",
+        action: "create",
+    })
     return items
 }
 
