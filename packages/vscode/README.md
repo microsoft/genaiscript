@@ -224,17 +224,6 @@ mysrc
 -->
 ```
 
-#### readClipboard
-
-The prompt will read the clipboard and use it as the input. Running the prompt might trigger a dialog to request clipboard access.
-
-```js
-gptool({
-    ...,
-    readClipboard: true,
-})
-```
-
 #### LLM parameters
 
 These are taken from prompt, or from system prompt, or set to default.
