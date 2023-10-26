@@ -69,7 +69,7 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     log(level: LogLevel, msg: string): void {
         // add prefix for easier filtering in console
-        defaultLog(level, "CoArch> " + msg)
+        defaultLog(level, "gptools> " + msg)
     }
     async readFile(name: string): Promise<Uint8Array> {
         return await workspace.fs.readFile(Uri.file(name))
