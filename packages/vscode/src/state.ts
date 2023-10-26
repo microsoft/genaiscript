@@ -27,6 +27,8 @@ import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { readFileText, saveAllTextDocuments, writeFile } from "./fs"
 
+const MAX_HISTORY_LENGTH = 500
+
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
@@ -238,6 +240,11 @@ export class ExtensionState extends EventTarget {
         }
     }
 
+    readonly requestHistory: {
+        filename: string
+        template: string
+    }[] = []
+
     private startAIRequest(options: AIRequestOptions): AIRequest {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration("coarch")
@@ -291,6 +298,10 @@ export class ExtensionState extends EventTarget {
             )
 
         openRequestOutput()
+        this.requestHistory.push({ template: template.id, filename: fragment.file.filename })
+        if (this.requestHistory.length > MAX_HISTORY_LENGTH)
+            this.requestHistory.shift()
+
         r.request = runTemplate(template, templates, fragment, runOptions)
         // clear on completion
         r.request
