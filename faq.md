@@ -1,18 +1,18 @@
-# CoArch FAQ
+# GPTools FAQ
 
-## What is CoArch?
+## What is GPTools?
 
 Describe the system in plain English. What type of system is this? What does it do? At a high level, what does the system take as input? What kind of outputs does the system produce?
 
-## What can CoArch do?
+## What can GPTools do?
 
 Building on the previous question, provide semi-technical, high-level information on how the system offers functionality for various uses.
 
-## What is/are CoArch’s intended use(s)?
+## What is/are GPTools’s intended use(s)?
 
 Explain intended use(s), as identified in your Impact Assessment.
 
-## How was CoArch evaluated? What metrics are used to measure performance?
+## How was GPTools evaluated? What metrics are used to measure performance?
 
 Provide evidence of system accuracy and performance as well as a description of the extent to which these results are generalizable across use cases that were not part of the evaluation.
 

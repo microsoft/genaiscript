@@ -1,11 +1,10 @@
 gptool({
     title: "Generate Python Code",
-    system: ["system.code"],
     temperature: 0.01,
     categories: ["code.python"],
 })
 
-const pythonFileName = env.file?.filename?.replace(".gpspec.md", ".coarch.py")
+const pythonFileName = env.file?.filename?.replace(".gpspec.md", ".gptools.py")
 const python = env.links.find(lk => lk.filename === pythonFileName)
 
 $`

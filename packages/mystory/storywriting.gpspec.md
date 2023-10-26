@@ -1,4 +1,4 @@
-# Story Writing Prompt for CoArch
+# Story Writing Prompt for GPTools
 
 -   [prompt-critique](./storywriting.prompt-critic.gpspec.md)
 
