@@ -213,15 +213,16 @@ function templatesToQuickPickItems(
 }
 
 export function createCodeActions(fragment: Fragment): vscode.CodeAction[] {
-    const templates = fragment.applicableTemplates()
-    if (!templates.length) return []
+    const templates = fragment?.applicableTemplates()
+    if (!templates?.length) return []
+
     const action = new vscode.CodeAction(
-        `Apply GPTool...`,
+        `Run GPTool...`,
         vscode.CodeActionKind.QuickFix
     )
     action.command = <vscode.Command>{
         command: "coarch.fragment.prompt",
-        tooltip: "Apply a generative programming tool to this file.",
+        tooltip: "Apply a GPTool script to this file.",
         arguments: [fragment],
     }
     return [action]
