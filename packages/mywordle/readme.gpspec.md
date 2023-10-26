@@ -1,4 +1,4 @@
-# Exploring CoArch with the mywordle Sample
+# Exploring GPTools with the mywordle Sample
 
 ## Prompts
 

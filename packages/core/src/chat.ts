@@ -142,7 +142,7 @@ export async function getChatCompletions(
         headers: {
             authorization: cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
             "api-key": cfg.isOpenAI ? undefined : cfg.token,
-            "user-agent": "coarch",
+            "user-agent": "gptools",
             "content-type": "application/json",
             ...(headers || {}),
         },

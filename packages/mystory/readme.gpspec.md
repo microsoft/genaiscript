@@ -1,4 +1,4 @@
-# Exploring CoArch with the mystory Sample
+# Exploring GPTools with the mystory Sample
 
 ## Purpose
 

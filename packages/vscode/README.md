@@ -72,9 +72,6 @@ This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspe
 The extension contains a few gptools, and the following samples can also be consulted.
 
 -   [hello world](https://github.com/microsoft/gptools/tree/main/packages/helloworld)
--   [blackjack game generator](https://github.com/microsoft/gptools/tree/main/packages/blackjack)
--   [mywordle](https://github.com/microsoft/gptools/tree/main/packages/mywordle)
--   [mystory](https://github.com/microsoft/gptools/tree/main/packages/mystory)
 
 ## Authoring GPSpecs
 

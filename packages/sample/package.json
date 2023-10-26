@@ -8,7 +8,7 @@
   },
   "scripts": {
     "go": "node ../cli/built/main.js src/sample.ts",
-    "token": "mkdir -p .coarch/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .coarch/tmp/request.txt",
+    "token": "mkdir -p .gptools/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .gptools/tmp/request.txt",
     "typecheck": "tsc -p src"
   },
   "dependencies": {
