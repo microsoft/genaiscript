@@ -21,7 +21,7 @@
     "main": "./built/extension.js",
     "browser": "./built/extension.js",
     "repository": {
-        "url": "https://dev.azure.com/risecodeai/coarch/_git/coarch",
+        "url": "https://github.com/microsoft/gptools",
         "directory": "packages/vscode"
     },
     "contributes": {

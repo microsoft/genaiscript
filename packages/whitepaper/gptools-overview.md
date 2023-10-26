@@ -2,15 +2,15 @@
 
 -   Authors: Peli de Halleux, Michał Moskal, Ben Zorn
 -   Date: October 2023
--   Repository: [gptools](https://github.com/microsoft/coarch/tree/main)
+-   Repository: [gptools](https://github.com/microsoft/gptools/tree/main)
 
 ## Abstract
 
-gptools is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. gptools provides support for creating, understanding, and maintaining complex collections of documents such as software repositories, project management, etc.  Our framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language. The key elements of the gptools framework are **gpspecs** and **gptools**. gpspecs are natural language documents that describe specific user tasks to accomplish.  gptools are general scripts that combine traditional software and natural language prompts and rely on an LLM to generate results. We execute gptools in the context of a gpspec to achieve a result.  By separating these two abstractions, we allow gptools to be authored, maintained, and updated independently of the gpspecs that use them.  The gptools framework includes an execution engine to execute a gptool and an IDE extension to VS Code to support user interaction with the gptool.  We believe that gptools will empower even non-developers to automate their workflows in ways that were previously impossible.
+gptools is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. gptools provides support for creating, understanding, and maintaining complex collections of documents such as software repositories, project management, etc. Our framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language. The key elements of the gptools framework are **gpspecs** and **gptools**. gpspecs are natural language documents that describe specific user tasks to accomplish. gptools are general scripts that combine traditional software and natural language prompts and rely on an LLM to generate results. We execute gptools in the context of a gpspec to achieve a result. By separating these two abstractions, we allow gptools to be authored, maintained, and updated independently of the gpspecs that use them. The gptools framework includes an execution engine to execute a gptool and an IDE extension to VS Code to support user interaction with the gptool. We believe that gptools will empower even non-developers to automate their workflows in ways that were previously impossible.
 
 ## Introduction
 
-This document describes the gptools framework, which empowers teams, including non-developers, to use AI-enhanced scripts to support their efforts in creating, understanding, and maintaining complex artifacts.  gptools leverages foundation models (LLMs) to enable a new kind of scripting that combines traditional code and natural language. To understand how gptools works, we provide an example. The key elements of gptools include gpspecs, gptools, the gpvm, and the gptools extension to VS code. 
+This document describes the gptools framework, which empowers teams, including non-developers, to use AI-enhanced scripts to support their efforts in creating, understanding, and maintaining complex artifacts. gptools leverages foundation models (LLMs) to enable a new kind of scripting that combines traditional code and natural language. To understand how gptools works, we provide an example. The key elements of gptools include gpspecs, gptools, the gpvm, and the gptools extension to VS code.
 
 ```mermaid
 graph LR
@@ -82,17 +82,18 @@ Just as a chat enables a user to interact with an AI model, a gpspec is a natura
 A gpspec is a standard markdown file, with the following additional elements:
 
 -   Links to context elements that define the context in which a particular gptool is to be invoked. For example, a gpspec might contain links to markdown files, code files, etc.
--   Natural language describing the specific task to be performed as input to a gptool. For example, the spec  used to generate code would include a description of the functionality and might include a description style guidelines to observe, etc.
+-   Natural language describing the specific task to be performed as input to a gptool. For example, the spec used to generate code would include a description of the functionality and might include a description style guidelines to observe, etc.
 
-. A single gpspec file might be used as input to multiple gptools.  For example, a gpspec might be used to generate code, documentation, and tests, each using a different gptool.
+. A single gpspec file might be used as input to multiple gptools. For example, a gpspec might be used to generate code, documentation, and tests, each using a different gptool.
 
 ## Expanding the Example
 
-To better understand how gptools work, we expand the example given above. The diagram below illustrates the gptools workflow in greater detail.  Our design of gptools is based on the following principles:
-- gptools are used in a context where there is human oversight on the content generated.  As a result, our workflow starts and ends with the user.  
-- We assume that the output of a gptool may be incomplete or incorrect, and that the user will need to interact with the output to refine it.  As a result, we allow the user to accept/reject and directly modify the AI-generated content.
-- We assume that the user will want to understand how the AI model was used to generate the results. We provide a trace of how the gpvm composes the gpspec and gptool into a prompt that can be processed by the foundation model.
-- We support iterative development, where the user can both edit the gpspec and the gptool if they see opportunities to improve the results.
+To better understand how gptools work, we expand the example given above. The diagram below illustrates the gptools workflow in greater detail. Our design of gptools is based on the following principles:
+
+-   gptools are used in a context where there is human oversight on the content generated. As a result, our workflow starts and ends with the user.
+-   We assume that the output of a gptool may be incomplete or incorrect, and that the user will need to interact with the output to refine it. As a result, we allow the user to accept/reject and directly modify the AI-generated content.
+-   We assume that the user will want to understand how the AI model was used to generate the results. We provide a trace of how the gpvm composes the gpspec and gptool into a prompt that can be processed by the foundation model.
+-   We support iterative development, where the user can both edit the gpspec and the gptool if they see opportunities to improve the results.
 
 ```mermaid
 sequenceDiagram
@@ -113,32 +114,34 @@ VSCode->>User: Display updated context
 
 This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec instantiates the gptool, which interacts with the gpvm and foundation model. The AI-generated output is used to update the context, and the user interacts with the updated context through the gptools extension to VS code.
 
-
 ### gptool Example: Python Developer gptool
 
 This is an example of a simple gptool that generates python code from a gpspec file:
 
-```javascript 
+```javascript
 gptool({
     title: "Generate python code",
     model: "gpt-4",
     description: "Given a task, generate python code.",
 })
 
-def("CODE", env.links.filter(
-    (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
-))
+def(
+    "CODE",
+    env.links.filter(
+        (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
+    )
+)
 def("TASK", env.file)
 
 $`Generate python code for the task in TASK. Save code in CODE. If the CODE is already present, ensure that CODE matches the description in TASK and make changes to CODE if it does not.`
 ```
 
 In this example we see the following elements:
-- A header that contains metadata related to the execution of the script (e.g., information about what LLM model to use, etc.)
-- JavaScript code that manipulates the environment context, specifically by extracting only the python files from the context that do not start with "test_".
-- Variable definitions that allow the prompt to refer to elements in the context. TASK refers to the gpspec file, and CODE refers to the python files in the context.
-- Natural language that combines these elements.
 
+-   A header that contains metadata related to the execution of the script (e.g., information about what LLM model to use, etc.)
+-   JavaScript code that manipulates the environment context, specifically by extracting only the python files from the context that do not start with "test\_".
+-   Variable definitions that allow the prompt to refer to elements in the context. TASK refers to the gpspec file, and CODE refers to the python files in the context.
+-   Natural language that combines these elements.
 
 ### gpspec Example: Using the Python Developer gptool
 
@@ -154,12 +157,12 @@ In this example, there is no additional context needed to invoke the python deve
 
 ## gpvm - A Framework for Executing gpspecs and gptools
 
-Every system that interacts with a foundation model includes layers that transform user input into a prompt that can be processed by the foundation model, and layers that transform the output of the foundation model into a form that is useful to the user. 
+Every system that interacts with a foundation model includes layers that transform user input into a prompt that can be processed by the foundation model, and layers that transform the output of the foundation model into a form that is useful to the user.
 
-- gpvm is a runtime environment that:
+-   gpvm is a runtime environment that:
     -   Captures the context defined by the gpspec
     -   Executes whatever code is present in the gptool (in the example above, the variables CODE and TASK are defined by executing JavaScript code)
-    -   Expands the gpspec and natural language of the gptool into a prompt that can be processed by the foundation model 
+    -   Expands the gpspec and natural language of the gptool into a prompt that can be processed by the foundation model
     -   Sends the results to the AI model
     -   Processes the results on return to update the user context (which might include creating files, updating files, generating user feedback, etc.)
 
@@ -186,7 +189,7 @@ Just as the development of JavaScript enabled Web 2.0, and python enabled the cr
 We envision the creation of gptools for many different verticals, with opportunities for customization and authoring at many levels of expertise:
 
 -   Professional developers and architects will define collections of gptools for a given vertical just as packages are authored and maintained today
--   Professional developers can author and maintain individual gptools 
+-   Professional developers can author and maintain individual gptools
 -   Developers and non-developers can customize gptools for their particular organization or application needs
 -   Non-developers can author and maintain gpspecs for their particular projects
 
@@ -194,22 +197,23 @@ Furthermore, the existence of gptools can empower non-developers to automate the
 
 ## Related Work
 
-gptools are related to a number of foundation model projects that automate workflows and encapsulate LLM actions in software artifacts.  We describe some of these projects below:
+gptools are related to a number of foundation model projects that automate workflows and encapsulate LLM actions in software artifacts. We describe some of these projects below:
 
 ### AI Tools for Developers
-- [GitHub Copilot](https://copilot.github.com/) is a VS Code extension that uses the Codex LLM to suggest code completions based on the context of the current file.  Copilot provides LLM support for writing code but does not currently have an extensibility model or a way to create,  maintain and apply collections of AI-enhanced scripts. 
-- [codeplan](https://arxiv.org/abs/2309.12499) is a task-agnostic framework that frames repository-level coding as a planning problem, synthesizing a multi-step chain of edits where each step results in a call to an LLM on a code location with context derived from the entire repository, previous code changes, and task-specific instructions.  While codeplan uses LLM prompts to generate code, it does not provide a way to create, maintain and apply collections of AI-enhanced scripts.
+
+-   [GitHub Copilot](https://copilot.github.com/) is a VS Code extension that uses the Codex LLM to suggest code completions based on the context of the current file. Copilot provides LLM support for writing code but does not currently have an extensibility model or a way to create, maintain and apply collections of AI-enhanced scripts.
+-   [codeplan](https://arxiv.org/abs/2309.12499) is a task-agnostic framework that frames repository-level coding as a planning problem, synthesizing a multi-step chain of edits where each step results in a call to an LLM on a code location with context derived from the entire repository, previous code changes, and task-specific instructions. While codeplan uses LLM prompts to generate code, it does not provide a way to create, maintain and apply collections of AI-enhanced scripts.
 
 ### LLM Automation/Orchestration Frameworks
-- [autogpt](https://github.com/Significant-Gravitas/AutoGPT) is an AI agent that utilizes a large language model to drive its actions and decisions. Unlike traditional language model applications, AutoGPT does not require repeated prompting by a human and can autonomously develop and manage tasks.  
-- [langchain](https://www.langchain.com/) is a Python library designed to simplify the development of Natural Language Processing (NLP) applications using large language models. It provides a framework for connecting language models to other sources of data and allowing them to interact with their environment.
-- [semantic kernel](https://github.com/microsoft/semantic-kernel) is an open-source SDK that allows developers to easily integrate AI services  with conventional programming languages such as C# and Python. It provides a framework for connecting language models to other sources of data, allowing them to interact with their environment and perform tasks autonomously.
-- [autogen](https://arxiv.org/abs/2308.08155) is a framework for simplifying the orchestration, optimization, and automation of large language model (LLM) workflows. It offers customizable and conversable agents that leverage LLMs while addressing their limitations by integrating with humans and tools and having conversations between multiple agents via automated chat.
+
+-   [autogpt](https://github.com/Significant-Gravitas/AutoGPT) is an AI agent that utilizes a large language model to drive its actions and decisions. Unlike traditional language model applications, AutoGPT does not require repeated prompting by a human and can autonomously develop and manage tasks.
+-   [langchain](https://www.langchain.com/) is a Python library designed to simplify the development of Natural Language Processing (NLP) applications using large language models. It provides a framework for connecting language models to other sources of data and allowing them to interact with their environment.
+-   [semantic kernel](https://github.com/microsoft/semantic-kernel) is an open-source SDK that allows developers to easily integrate AI services with conventional programming languages such as C# and Python. It provides a framework for connecting language models to other sources of data, allowing them to interact with their environment and perform tasks autonomously.
+-   [autogen](https://arxiv.org/abs/2308.08155) is a framework for simplifying the orchestration, optimization, and automation of large language model (LLM) workflows. It offers customizable and conversable agents that leverage LLMs while addressing their limitations by integrating with humans and tools and having conversations between multiple agents via automated chat.
 
 gptools differ from existing AI task automation frameworks in the following ways:
-- gptools are designed to be authored, maintained, and applied by non-developers as well as developers.
-- gptools define a separation between the gptool and the gpspec that instantiates it, allowing for modularity, reuse, and easier understanding by non-developers.
-- gptools do not assume task automation and provide a user experience that integrates seamlessly with VS code.
-- The gptools UI exposes both the content and execution of each gptools to facilitate human oversight and understanding of how the AI model was used to generate the results.  
 
-
+-   gptools are designed to be authored, maintained, and applied by non-developers as well as developers.
+-   gptools define a separation between the gptool and the gpspec that instantiates it, allowing for modularity, reuse, and easier understanding by non-developers.
+-   gptools do not assume task automation and provide a user experience that integrates seamlessly with VS code.
+-   The gptools UI exposes both the content and execution of each gptools to facilitate human oversight and understanding of how the AI model was used to generate the results.

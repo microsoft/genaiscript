@@ -398,7 +398,7 @@ export class ExtensionState extends EventTarget {
 
     async parseWorkspace() {
         this.dispatchChange()
-        
+
         async function findFiles(pattern: string) {
             return (await vscode.workspace.findFiles(pattern)).map(
                 (f) => f.fsPath
@@ -407,12 +407,12 @@ export class ExtensionState extends EventTarget {
 
         const coarchFiles = await findFiles("**/*.gpspec.md")
         const promptFiles = await findFiles("**/*.gptool.js")
-        const coarchJsonFiles = await findFiles("**/coarch.json")
+        const projectFiles = await findFiles("**/gptools.json")
 
         const newProject = await parseProject({
             coarchFiles,
             promptFiles,
-            coarchJsonFiles,
+            coarchJsonFiles: projectFiles,
         })
         await this.setProject(newProject)
         this.setDiagnostics()
