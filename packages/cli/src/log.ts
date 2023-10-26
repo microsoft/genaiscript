@@ -1,5 +1,5 @@
-export const coarchFolder = ".coarch"
-export const coarchExt = ".coarch.jsonl"
+export const coarchFolder = ".gptools"
+export const coarchExt = ".gptools.jsonl"
 
 export const log = console.log
 

@@ -53,5 +53,5 @@ export function setHost(h: Host) {
     host = h
 }
 
-export const coarchFolder = ".coarch"
-export const coarchExt = ".coarch.jsonl"
+export const coarchFolder = ".gptools"
+export const coarchExt = ".gptools.jsonl"
