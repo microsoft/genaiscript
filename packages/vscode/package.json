@@ -92,7 +92,7 @@
                 {
                     "command": "coarch.fragment.prompt",
                     "when": "false"
-                }
+                },
                 {
                     "command": "coarch.request.open",
                     "when": "false"
