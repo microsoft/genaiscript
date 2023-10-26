@@ -45,7 +45,8 @@ GPTools parses `*.gpspec.md` markdown files as specification.
 ```markdown A sample GPSpec document.
 # email address recognizer
 
-Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
+Write a function that takes a string argument
+and returns true if the whole string is a valid email address, false otherwise.
 ```
 
 ### User experience
