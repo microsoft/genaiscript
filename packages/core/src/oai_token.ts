@@ -47,8 +47,7 @@ export async function initToken(force = false) {
     }
 
     const f = await host.askToken()
-    if (f === undefined) throwError("token not specified", true)
-    if (!f) throw new Error("token not specified")
+    if (!f) throwError("token not specified", true)
 
     if (f.startsWith("sk-")) {
         // OpenAI token
@@ -92,6 +91,6 @@ export async function initToken(force = false) {
         }
         return cfg
     } else {
-        throw new Error("can't find URL in token text")
+        throw new Error("GPTools - Invalid token format.")
     }
 }

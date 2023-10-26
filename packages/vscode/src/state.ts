@@ -162,6 +162,7 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
+            await initToken()
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
