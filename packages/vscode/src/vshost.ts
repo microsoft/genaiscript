@@ -7,7 +7,7 @@ import {
     setHost,
 } from "coarch-core"
 import { Uri, window, workspace } from "vscode"
-import { ExtensionState } from "./state"
+import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
 
 const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 
@@ -48,7 +48,8 @@ export class VSCodeHost extends EventTarget implements Host {
     async askToken(): Promise<string> {
         let t = await window.showInputBox({
             placeHolder: "Paste OpenAI token",
-            prompt: "GPTools - Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets.",
+            title: "GPTools - OpenAI token configuration",
+            prompt: `Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets. [Learn more...](${TOKEN_DOCUMENTATION_URL})`,
             value: this.lastToken,
         })
         this.lastToken = t

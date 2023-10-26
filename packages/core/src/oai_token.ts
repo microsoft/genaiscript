@@ -1,3 +1,4 @@
+import { RequestError } from "./chat"
 import { throwError } from "./error"
 import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
@@ -90,7 +91,13 @@ export async function initToken(force = false) {
             await host.setSecretToken(cfg)
         }
         return cfg
-    } else {
-        throw new Error("GPTools - Invalid token format.")
     }
+
+    throw new RequestError(
+        400,
+        "Invalid OpenAI token",
+        undefined,
+        "Invalid OpenAI token or configuration",
+        0
+    )
 }

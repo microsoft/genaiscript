@@ -29,6 +29,9 @@ import { readFileText, saveAllTextDocuments, writeFile } from "./fs"
 
 const MAX_HISTORY_LENGTH = 500
 
+export const TOKEN_DOCUMENTATION_URL =
+    "https://github.com/microsoft/gptools/tree/main/packages/vscode#openai-or-llama-token"
+
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
@@ -202,6 +205,14 @@ export class ExtensionState extends EventTarget {
                 )
                 if (res === trace) openRequestTrace()
                 else if (res === fix) await initToken(true)
+            } else if (isRequestError(e, 400)) {
+                const help = "Documentation"
+                const msg = `Invalid OpenAI token or configuration string.`
+                const res = await vscode.window.showWarningMessage(msg, help)
+                if (res === help)
+                    vscode.env.openExternal(
+                        vscode.Uri.parse(TOKEN_DOCUMENTATION_URL)
+                    )
             } else if (isRequestError(e)) {
                 const trace = "Open Trace"
                 const retry = "Retry"
