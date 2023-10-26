@@ -260,9 +260,6 @@ export class ExtensionState extends EventTarget {
             },
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
-            readClipboard: async () => {
-                return await vscode.env.clipboard.readText()
-            },
         }
         const templates = fragment
             .applicableTemplates()
