@@ -1,52 +1,84 @@
 # GPTools
 
-An iterative, refining copilot experience designed for Visual Studio Code.
+AI-Enhanced Workflows for Teams.
 
 ## Features
 
-CoArch lets you apply AI transformation to various parts of your project
+GPTools lets you apply AI transformation to various parts of your project
 while taking into account the tree structure of your documents.
 
-CoArch tightly integrate the prompt engineering cycle inside Visual Studio Code
-infrastructure to provide a augmented, tooled, prompting experience.
+-   **\*.gptools.js**: Scripts that integrate traditional code and natural language, leveraging foundation models in their execution.
+-   **\*.gpspecs.md**: Natural language documents that instantiate gptools in a particular context.
+-   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
 
-### GPTools
+### GPTool scripts
 
-GPTools use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
+GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
 
-CoArch comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
+```js
+gptool({
+    title: "Technical proofreading",
+    description: "Reviews the text as a technical document writer.",
+})
+
+def("TEXT", env.file)
+
+$`You are reviewing and updating TEXT to fix grammatical errors, fix spelling errors and make it technical.`
+```
+
+GPTools comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
 This leverages VSCode language support (completion, coloring, error checking)
 while remaining friendly to people not very familiar with JavaScript.
-CoArch also provides detailed expansion logs to help you debug your templates.
+GPTools also provides detailed expansion logs to help you debug your templates.
 
-Since gptools are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
+Since gptool scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of gptools and share them as libraries on their favorite package manager.
 
-### Specification Files
+### GPSpec specifications
 
-CoArch parses `*.gpspec.md` markdown files as specification.
+GPTools parses `*.gpspec.md` markdown files as specification.
 
-### Editor integration
+```markdown A sample GPSpec document.
+# email address recognizer
 
-CoArch leverages the VSCode editor integration point to provide a rich auditing user experience, as well as an assisted gptool authoring experience through various editor extensions.
+Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
+```
+
+### User experience
+
+```mermaid
+sequenceDiagram
+participant User
+participant VSCode
+participant gpspec
+participant gptool
+participant gpvm
+User->>VSCode: Create/Edit gpspec
+VSCode->>gpspec: Save gpspec
+User->>VSCode: Invoke gptool
+VSCode->>gptool: Execute gptool with gpspec + workspace
+gptool->>gpvm: Request foundation model execution
+gpvm->>gptool: Return AI-generated output
+gptool->>VSCode: Update workspace with output
+VSCode->>User: Display updated workspace
+```
+
+This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model. The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the gptools extension to VS code.
 
 ### Samples
 
 The extension contains a few gptools, and the following samples can also be consulted.
 
+-   [hello world](https://github.com/microsoft/coarch/tree/main/packages/helloworld)
 -   [blackjack game generator](https://github.com/microsoft/coarch/tree/main/packages/blackjack)
 -   [mywordle](https://github.com/microsoft/coarch/tree/main/packages/mywordle)
 -   [mystory](https://github.com/microsoft/coarch/tree/main/packages/mystory)
 
-## Authoring
+## Authoring GPSpecs
 
-To start using CoArch, create a new `.gpspec.md` file and start adding content as markdown. You can either use the CodeAction QuickFix light bulb to access the prompts or open the CoArch view to examine the tree.
-
-<!-- Text editor with QuickFix menu opened](./images/quickfix.png) -->
-
-CoArch uses the header structure of the document (`#`, `##`, ...) to build a tree of text fragments.
+To start using GPTools, create a new `.gpspec.md` file and start adding content as markdown. You can use the CodeAction QuickFix light bulb to launch the gptools on this file.
 
 ```markdown A sample CoArch document.
 # email address recognizer
@@ -56,20 +88,24 @@ Write a function that takes a string argument and returns true if the whole stri
 ...
 ```
 
-When an AI transformation is computed, a code preview will be shown to confirm the changes. Click on each line of the change tree to see individual diff views. This is the same user experience as a refactoring.
+When an AI transformation is computed, a refactoring code preview will be shown to confirm the changes. Click on each line of the change tree to see individual diff views. This is the same user experience as a refactoring.
 
-<!-- Preview of transformation changes](./images/preview.png) -->
+You can accept or cancel the changes using the buttons at the bottom of the view.
 
-You can accept or cancel the changes using the buttons at the bottom of the view. CoArch does **not** apply any changes to your content automatically; all changes have to be reviewed and approved by the user.
+### GPSpec Refinement
 
-### Refinement
+If you need to "influence" the answer of the LLM, you can click on the **Refine GPSpec** button in the status dialog (click on the statub bar icon) to refine the gpspec file
+by adding a line. This flow provides an iterative, chat like experience to evolve your gpspec file.
 
-If you decide that the changes are not acceptable, you can click on the **Refine** button in the status dialog (click on the statub bar icon) to refine the gpspec
-by adding a line in that file. This flow provides an iterative, chat like experience to evolve your gpspec file.
+### Running next GPTool
 
-### OpenAI or Llama Token
+Once you have used a GPTool on a GPSpec file, this file becomes the "active GPSpec"
+and you can use the GPTools status bar to launch the next GPTool without having
+to open the gpspec file.
 
-CoArch will automatically ask you for a token when needed and will store it in the workspace secret storage. The token is **never** stored in the clear or shared outside the project.
+## OpenAI or Llama Token
+
+GPTools will automatically ask you for a token when needed and will store it in the workspace secret storage. The token is **never** stored in the clear or shared outside the project.
 
 <!-- Requesting the OpenAI request](./images/token.png) -->
 
@@ -87,9 +123,9 @@ Following token formats are supported:
     [HuggingFace Text Generation Inference](https://github.com/huggingface/text-generation-inference),
     currently only Llama Instruct models are supported; the key is sent as `api-key` header
 
-## Custom prompt templates
+## Authoring GPTool scripts
 
-Internally, CoArch has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
+GPTools has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
 All prompts are JS files named as `*.gptool.js`. You can use the `GPTools - Fork a gptool...` to fork any known prompt.
 
@@ -108,20 +144,20 @@ gptool({
 })
 
 // this appends text to the prompt
-$`Shorten the following SUMMARY. Limit changes to minimum.`
+$`Shorten the following FILE. Limit changes to minimum.`
 
 // you can debug the generation using goo'old logs
-console.log({ fragment: env.fragment })
+console.log({ fragment: env.file })
 
 // this is similar to $`SUMMARY: ${env.fragment}`
 // but the variable is appropriately delimited
-def("SUMMARY", env.fragment)
+def("FILE", env.file)
 
 // more text appended to prompt
-$`Respond with the new SUMMARY.`
+$`Respond with the new FILE.`
 ```
 
-### Front matter
+### Metadata
 
 Prompts use `gptool({ ... })` function call
 to configure the title and other user interface elements.
@@ -158,17 +194,7 @@ gptool({
 
 #### system: prompt_template_id[]
 
-Override the system prompt with a custom prompt.
-There is no variable expansion in system prompts.
-
-```js
-gptool({
-    title: "Generate code",
-    system: ["system.code"],
-})
-```
-
-This setting also supports multiple template names:
+Override the system prompts with a custom prompt.
 
 ```js
 gptool({
@@ -179,7 +205,7 @@ gptool({
 
 #### outputFolder
 
-You can specify an output folder using `outputFolder`.
+You can specify an output folder using `outputFolder` in the script.
 
 ```js
 gptool({
@@ -188,26 +214,14 @@ gptool({
 })
 ```
 
-#### autoApplyEdits
+You can specify the output folder using `system.multifile.outputFolder` variable in the gpspec file.
 
-Automatically apply file changes suggested by the LLM. **Warning, the refectoring UI will not be used when this flag is enabled.**
+```markdown
+<!-- @system.files.outputFolder
 
-```js
-gptool({
-    ...,
-    autoApplyEdits: true,
-})
-```
+mysrc
 
-#### nextTemplateAfterApplyEdits
-
-When set, automatically start the next template request after applying edits. Combined with `autoApplyEdits`, this could create execution loops, be careful.
-
-```js
-gptool({
-    ...,
-    nextTemplateAfterApplyEdits: 'generate-python',
-})
+-->
 ```
 
 #### readClipboard
@@ -219,18 +233,6 @@ gptool({
     ...,
     readClipboard: true,
 })
-```
-
-#### Multiple file output
-
-You can specify the output folder using `system.multifile.outputFolder` variable.
-
-```markdown
-<!-- @system.multifile.outputFolder
-
-mysrc
-
--->
 ```
 
 #### LLM parameters
