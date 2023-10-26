@@ -4,7 +4,7 @@ GPTools (formerly CoArch)  is a framework that empowers teams, including non-dev
 
 > Don't forget to turn on the sound.
 
-https://github.com/microsoft/gptools/assets/4175913/bbee1282-0591-4c06-a04e-4062af737523
+https://github.com/microsoft/gptools/assets/4175913/74517b81-4b9c-47d9-8a5c-a15362b0d4db
 
 ## Key Objectives and Technical Elements
 
