@@ -1,4 +1,5 @@
-# GPTools (formerly CoArch): AI-Enhanced Workflows for Teams
+# GPTools (formerly CoArch)
+## AI-Enhanced Workflows for Teams
 
 `gptools` is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. The framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language.
 
