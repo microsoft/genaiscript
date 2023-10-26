@@ -21,15 +21,12 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         const prj = this.state.project
         if (!prj) return []
 
-        const file = document.uri.fsPath
-        let fragments = this.state.project.allFragments || []
-        fragments = fragments.filter(
-            (fragment) => fragment.file.filename === file
+        const filename = document.uri.fsPath
+        const file = this.state.project.rootFiles.find(
+            (f) => f.filename === filename
         )
-        fragments = fragments.filter((fragment) =>
-            range.intersection(fragmentRange(fragment))
-        )
-        const fixes = concatArrays(...fragments.map(createCodeActions))
+        const fragment = file?.roots?.[0]
+        const fixes = createCodeActions(fragment)
         return fixes
     }
 }
