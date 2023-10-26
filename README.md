@@ -18,16 +18,18 @@ The main objectives of gptools are to improve automation, collaboration, and acc
 The gptools framework is designed to be modular and reusable, allowing for easier understanding and customization by non-developers. It enables users to author and maintain gpspecs and gptools at various levels of expertise, from professional developers to non-develop
 
 -   **Read the [Visual Studio Code Extension README](./packages/vscode/README.md) for user documentation.**
--   Download and install the latest .vsix: open the [latest release](https://github.com/microsoft/gptools/releases/latest/), download `gptools.vsix`, run `Extension: Install VSIX manually` in Visual Studio Code
 
 ## Install manually
 
 These are the instructions to install the latest build of the extension manually in Visual Studio Code.
 
+-   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
 -   download the `gptools.vsix` file
 -   open Visual Studio Code
 -   open the command palette and type **Extensions: Install from VSIX...**
 -   load the `gptools.vsix` file
+
+Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
 
 ## Contributing
 
