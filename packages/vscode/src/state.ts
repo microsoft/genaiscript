@@ -298,7 +298,10 @@ export class ExtensionState extends EventTarget {
             )
 
         openRequestOutput()
-        this.requestHistory.push({ template: template.id, filename: fragment.file.filename })
+        this.requestHistory.push({
+            template: template.id,
+            filename: fragment.file.filename,
+        })
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
