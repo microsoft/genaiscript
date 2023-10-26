@@ -298,7 +298,10 @@ export class ExtensionState extends EventTarget {
             )
 
         openRequestOutput()
-        this.requestHistory.push({ template: template.id, filename: fragment.file.filename })
+        this.requestHistory.push({
+            template: template.id,
+            filename: fragment.file.filename,
+        })
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
@@ -364,7 +367,7 @@ export class ExtensionState extends EventTarget {
 
     private initWatcher() {
         const handleChange = debounceAsync(async () => {
-            console.log(`coarch: watch changed`)
+            console.log(`gptools: watch changed`)
             await this.fixPromptDefinitions()
             await this.parseWorkspace()
         }, 1000)
@@ -378,7 +381,7 @@ export class ExtensionState extends EventTarget {
     }
 
     async activate() {
-        console.log(`coarch: activate`)
+        console.log(`gptools: activate`)
         this.initWatcher()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
