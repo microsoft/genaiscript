@@ -69,7 +69,7 @@ def("FILE", env.file)
                 const uri = prompt.filename
                     ? vscode.Uri.file(prompt.filename)
                     : builtinPromptUri(prompt.id)
-                const editor = await vscode.window.showTextDocument(uri, {
+                await vscode.window.showTextDocument(uri, {
                     viewColumn: promptViewColumn,
                 })
             }
