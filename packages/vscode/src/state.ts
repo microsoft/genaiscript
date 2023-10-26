@@ -189,27 +189,6 @@ export class ExtensionState extends EventTarget {
                     )
                 }
                 this.dispatchChange()
-
-                const nextTemplate =
-                    req.editsApplied &&
-                    edits.length > 0 &&
-                    this.project.templates.find(
-                        (t) =>
-                            t.id ===
-                            options.template.nextTemplateAfterApplyEdits
-                    )
-                if (nextTemplate) {
-                    // save all files
-                    await saveAllTextDocuments()
-                    // save
-                    await this.parseWorkspace()
-                    // next prompt
-                    vscode.commands.executeCommand(
-                        "coarch.fragment.prompt",
-                        options.fragment,
-                        nextTemplate
-                    )
-                }
             }
         } catch (e) {
             if (isCancelError(e)) return
