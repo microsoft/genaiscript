@@ -64,7 +64,23 @@
             }
         ],
         "menus": {
+            "file/newFile": [
+                {
+                    "command": "coarch.newfile.gptool"
+                },
+                {
+                    "command": "coarch.newfile.gpspec"
+                }
+            ],
             "commandPalette": [
+                {
+                    "command": "coarch.newfile.gptool",
+                    "when": "false"
+                },
+                {
+                    "command": "coarch.newfile.gpspec",
+                    "when": "false"
+                },
                 {
                     "command": "coarch.fragment.reveal",
                     "when": "false"
@@ -194,6 +210,16 @@
                 "command": "coarch.prompt.create",
                 "title": "Create new GPTool",
                 "icon": "$(add)",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.newfile.gptool",
+                "title": "GPTool File",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.newfile.gpspec",
+                "title": "GPSpec File",
                 "category": "GPTools"
             },
             {

@@ -1,9 +1,13 @@
 import * as vscode from "vscode"
+import { Utils } from "vscode-uri"
 import { ExtensionState } from "./state"
 import { PromptTemplate, copyPrompt } from "coarch-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 
-const promptViewColumn = vscode.ViewColumn.Two
+const TEMPLATE = `# New specification
+    
+Description of the spec.
+`
 
 export function activatePromptCommands(state: ExtensionState) {
     const { context } = state
@@ -11,12 +15,25 @@ export function activatePromptCommands(state: ExtensionState) {
 
     async function showPrompt(fn: string) {
         await state.parseWorkspace()
-        await vscode.window.showTextDocument(vscode.Uri.file(fn), {
-            viewColumn: promptViewColumn,
-        })
+        await vscode.window.showTextDocument(vscode.Uri.file(fn))
     }
 
     subscriptions.push(
+        vscode.commands.registerCommand("coarch.newfile.gptool", () =>
+            vscode.commands.executeCommand("coarch.prompt.create")
+        ),
+        vscode.commands.registerCommand("coarch.newfile.gpspec", async () => {
+            const newFile = Utils.joinPath(
+                vscode.workspace.workspaceFolders[0]?.uri,
+                "untitled.gpspec.md"
+            ).with({
+                scheme: "untitled",
+            })
+            await vscode.workspace.openTextDocument(newFile)
+            const edit = new vscode.WorkspaceEdit()
+            edit.insert(newFile, new vscode.Position(0, 0), TEMPLATE)
+            vscode.workspace.applyEdit(edit)
+        }),
         vscode.commands.registerCommand("coarch.prompt.create", async () => {
             const name = await vscode.window.showInputBox({
                 title: "Pick a file name for the new GPTool.",
@@ -69,9 +86,7 @@ def("FILE", env.file)
                 const uri = prompt.filename
                     ? vscode.Uri.file(prompt.filename)
                     : builtinPromptUri(prompt.id)
-                await vscode.window.showTextDocument(uri, {
-                    viewColumn: promptViewColumn,
-                })
+                await vscode.window.showTextDocument(uri)
             }
         )
     )
