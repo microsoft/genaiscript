@@ -2,6 +2,8 @@
 
 `gptools` is a framework that empowers teams, including non-developers, to create and use AI-enhanced scripts to support their workflows. The framework leverages foundation models (specifically LLMs) to enable a new kind of scripting that combines traditional code and natural language.
 
+https://github.com/microsoft/gptools/assets/4175913/bbee1282-0591-4c06-a04e-4062af737523
+
 ## Key Objectives and Technical Elements
 
 The main objectives of gptools are to improve automation, collaboration, and accessibility in the creation, understanding, and maintenance of complex artifacts. The key elements of the gptools framework are:
