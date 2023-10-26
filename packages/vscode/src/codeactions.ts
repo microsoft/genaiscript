@@ -37,6 +37,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
             ).values()
         )
             .slice(0, 3)
+            .sort((l, r) => l.title.localeCompare(r.title))
             .map((t) => {
                 const a = new vscode.CodeAction(
                     `Run '${t.title}'`,
