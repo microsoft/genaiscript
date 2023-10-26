@@ -5,7 +5,7 @@
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
     "version": "0.0.1",
     "engines": {
-        "vscode": "^1.81.0"
+        "vscode": "^1.83.0"
     },
     "categories": [
         "Other"
@@ -235,23 +235,23 @@
         "package": "vsce package --dependencies --out gptools.vsix --yarn"
     },
     "devDependencies": {
-        "@types/isomorphic-fetch": "^0.0.36",
-        "@types/mocha": "^10.0.1",
-        "@types/vscode": "^1.81.0",
-        "@typescript-eslint/eslint-plugin": "^5.59.8",
-        "@typescript-eslint/parser": "^5.59.8",
-        "@vscode/test-web": "^0.0.44",
+        "@types/isomorphic-fetch": "^0.0.38",
+        "@types/mocha": "^10.0.3",
+        "@types/vscode": "^1.83.1",
+        "@typescript-eslint/eslint-plugin": "^6.9.0",
+        "@typescript-eslint/parser": "^6.9.0",
+        "@vscode/test-web": "^0.0.47",
         "@vscode/webview-ui-toolkit": "^1.2.2",
-        "assert": "^2.0.0",
+        "assert": "^2.1.0",
         "coarch-core": "*",
-        "eslint": "^8.41.0",
+        "eslint": "^8.52.0",
         "isomorphic-fetch": "^3.0.0",
         "json5": "^2.2.3",
         "mocha": "^10.2.0",
         "process": "^0.11.10",
-        "ts-loader": "^9.4.3",
-        "typescript": "^5.1.3",
+        "ts-loader": "^9.5.0",
+        "typescript": "^5.2.2",
         "vsce": "^2.15.0",
-        "vscode-uri": "^3.0.7"
+        "vscode-uri": "^3.0.8"
     }
 }
