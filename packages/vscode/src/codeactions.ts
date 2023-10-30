@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { Fragment } from "coarch-core"
+import { Fragment, TextFile } from "coarch-core"
+import { Utils } from "vscode-uri"
 
 class CodeActionProvider implements vscode.CodeActionProvider {
     constructor(readonly state: ExtensionState) {}
@@ -60,7 +61,6 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         context: vscode.CodeActionContext,
         token: vscode.CancellationToken
     ): Promise<(vscode.CodeAction | vscode.Command)[]> {
-        // find fragments on the line of the actions
         const prj = this.state.project
         if (!prj) return []
 
@@ -77,7 +77,15 @@ class CodeActionProvider implements vscode.CodeActionProvider {
 export async function activateCodeActions(state: ExtensionState) {
     state.context.subscriptions.push(
         vscode.languages.registerCodeActionsProvider(
-            { scheme: "file", language: "markdown", pattern: "**/*.gpspec.md" },
+            [
+                {
+                    scheme: "file",
+                    language: "markdown",
+                    pattern: "**/*.md",
+                },
+                { scheme: "file", language: "typescript" },
+                { scheme: "file", language: "python" },
+            ],
             new CodeActionProvider(state),
             {
                 providedCodeActionKinds:
