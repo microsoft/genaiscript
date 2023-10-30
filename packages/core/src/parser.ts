@@ -306,7 +306,6 @@ export async function parseProject(options: {
     coarchJsonFiles: string[]
 }) {
     const { coarchFiles, promptFiles, coarchJsonFiles } = options
-    logVerbose("parseProject")
     const prj = new CoArchProject()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
