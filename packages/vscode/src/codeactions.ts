@@ -10,8 +10,13 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         vscode.CodeActionKind.QuickFix,
     ]
 
-    private createCodeActions(fragment: Fragment): vscode.CodeAction[] {
-        const templates = fragment?.applicableTemplates()
+    private createCodeActions(
+        fragment: Fragment | vscode.Uri
+    ): vscode.CodeAction[] {
+        const templates =
+            fragment instanceof Fragment
+                ? fragment.applicableTemplates()
+                : this.state.project?.templates?.slice(0)
         if (!templates?.length) return []
 
         const action = new vscode.CodeAction(
@@ -23,7 +28,10 @@ class CodeActionProvider implements vscode.CodeActionProvider {
             tooltip: "Apply a GPTool script to this file.",
             arguments: [fragment],
         }
-        const filename = fragment.file.filename
+        const filename =
+            fragment instanceof Fragment
+                ? fragment.file.filename
+                : fragment.fsPath
         const history = Array.from(
             new Set(
                 this.state.requestHistory
@@ -64,18 +72,15 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         let prj = this.state.project
         if (!prj) return []
 
+        let fragment: Fragment | vscode.Uri
         const filename = document.uri.fsPath
-        let file = this.state.project.rootFiles.find(
+        const file = this.state.project.rootFiles.find(
             (f) => f.filename === filename
         )
 
-        if (!file) {
-            prj = await this.state.parseDocument(document, token)
-            if (token.isCancellationRequested) return []
-            file = prj?.rootFiles?.[0]
-        }
-
-        const fragment = file?.roots?.[0]
+        if (file) fragment = file.roots[0]
+        else fragment = document.uri
+        
         const fixes = this.createCodeActions(fragment)
         return fixes
     }
