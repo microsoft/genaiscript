@@ -1,4 +1,4 @@
-import { LogLevel, coarchFolder, host } from "./host"
+import { LogLevel, ReadFileOptions, coarchFolder, host } from "./host"
 
 export function delay<T>(millis: number, value?: T): Promise<T | undefined> {
     return new Promise((resolve) => setTimeout(() => resolve(value), millis))
@@ -218,9 +218,9 @@ export async function writeText(fn: string, content: string) {
     await host.writeFile(fn, utf8Encode(content))
 }
 
-export async function fileExists(fn: string) {
+export async function fileExists(fn: string, options?: ReadFileOptions) {
     try {
-        await host.readFile(fn)
+        await host.readFile(fn, options)
         return true
     } catch {
         return false

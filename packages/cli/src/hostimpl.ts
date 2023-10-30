@@ -2,6 +2,7 @@ import {
     Host,
     LogLevel,
     OAIToken,
+    ReadFileOptions,
     UTF8Decoder,
     UTF8Encoder,
     defaultLog,
@@ -49,7 +50,10 @@ export class NodeHost implements Host {
     resolvePath(...segments: string[]) {
         return resolve(...segments)
     }
-    async readFile(name: string): Promise<Uint8Array> {
+    async readFile(
+        name: string,
+        options?: ReadFileOptions
+    ): Promise<Uint8Array> {
         return new Uint8Array(await readFile(name))
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {

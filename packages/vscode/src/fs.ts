@@ -1,6 +1,10 @@
 import * as vscode from "vscode"
 import { JSON5TryParse } from "./json5"
 
+export async function findFiles(pattern: string) {
+    return (await vscode.workspace.findFiles(pattern)).map((f) => f.fsPath)
+}
+
 export async function saveAllTextDocuments() {
     await Promise.all(
         vscode.workspace.textDocuments

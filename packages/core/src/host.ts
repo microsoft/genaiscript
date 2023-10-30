@@ -26,6 +26,10 @@ export interface OAIToken {
     isTGI?: boolean
 }
 
+export interface ReadFileOptions {
+    virtual?: boolean
+}
+
 export interface Host {
     userState: any
 
@@ -41,7 +45,7 @@ export interface Host {
     log(level: LogLevel, msg: string): void
 
     // fs
-    readFile(name: string): Promise<Uint8Array>
+    readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>

@@ -3,6 +3,7 @@ import {
     Host,
     LogLevel,
     OAIToken,
+    ReadFileOptions,
     defaultLog,
     setHost,
 } from "coarch-core"
@@ -13,6 +14,7 @@ const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
+    virtualFiles: Record<string, Uint8Array> = {}
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -23,7 +25,10 @@ export class VSCodeHost extends EventTarget implements Host {
     get context() {
         return this.state.context
     }
-
+    setVirtualFile(name: string, content: string) {
+        this.virtualFiles = {}
+        this.virtualFiles[name] = this.createUTF8Encoder().encode(content)
+    }
     dispose() {
         setHost(undefined)
     }
@@ -72,11 +77,24 @@ export class VSCodeHost extends EventTarget implements Host {
         // add prefix for easier filtering in console
         defaultLog(level, "gptools> " + msg)
     }
-    async readFile(name: string): Promise<Uint8Array> {
-        return await workspace.fs.readFile(Uri.file(name))
+    async readFile(
+        name: string,
+        options?: ReadFileOptions
+    ): Promise<Uint8Array> {
+        const uri = Uri.file(name)
+
+        const v = this.virtualFiles[uri.fsPath]
+        if (options?.virtual) {
+            if (!v) throw new Error("virtual file not found")
+            return v // alway return virtual files
+        } else if (options?.virtual !== false && !!v) return v // optional return virtual files
+
+        return await workspace.fs.readFile(uri)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
-        await workspace.fs.writeFile(Uri.file(name), content)
+        const uri = Uri.file(name)
+        delete this.virtualFiles[uri.fsPath]
+        await workspace.fs.writeFile(uri, content)
     }
     async createDirectory(name: string): Promise<void> {
         await workspace.fs.createDirectory(Uri.file(name))
