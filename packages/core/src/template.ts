@@ -389,12 +389,17 @@ export function extractFenced(text: string): Fenced[] {
             }
         } else {
             const start = startFence(lines[i + 1])
-            if (line.endsWith(":") && start.fence) {
+            const m = /(\w+):\s+([^\s]+)/.exec(line)
+            if (start.fence && line.endsWith(":")) {
                 currLbl = (
                     line.slice(0, -1) +
                     " " +
                     (start.args["file"] || "")
                 ).trim()
+                currFence = start.fence
+                i++
+            } else if (start.fence && m) {
+                currLbl = m[1] + " " + (start.args["file"] || m[2])
                 currFence = start.fence
                 i++
             } else if (endFence(line)) {
