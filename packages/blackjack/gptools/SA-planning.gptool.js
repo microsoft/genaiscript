@@ -4,15 +4,16 @@ gptool({
     categories: ["appdev"]
 })
 
-const output = env.file.filename?.replace(/\.coarch\.md/, ".saplan.gpspec.md")
+const output = env.file.filename?.replace(/\.gpspec\.md/, ".saplan.gpspec.md")
 def("FILE", env.file)
-def("PLAN", env.links.filter(f => f.filename === output))
+def("PLAN", output)
 
+console.log("PLAN file is", env.links.filter(f => f.filename === output))
 $`
 You are an expert Python software architect.
 You have been given a product idea and your job is to define a plan to implement the product.
 The instructions contain the high level idea and specific directions from the product manager for you to follow.
-Use the SPEC as input and generate the architecture for the product.
+Use the FILE as input and generate the architecture for the product.
 
 Encapsulate each component in a separate module and define the APIs for each component.
 Make sure that the components are loosely coupled, they can be easily tested and that the APIs are well defined.
