@@ -1,9 +1,8 @@
 import * as vscode from "vscode"
-import { URI, Utils } from "vscode-uri"
+import { Utils } from "vscode-uri"
 import {
     Fragment,
     PromptTemplate,
-    allChildren,
     groupBy,
     rootFragment,
     templateGroup,
@@ -79,12 +78,14 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
-    const resolveFragment = async (frag: Fragment | string) => {
+    const resolveFragment = async (frag: Fragment | string | vscode.Uri) => {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
             const previous = state.aiRequest.options.fragment
             frag = previous?.fullId
         }
+
+        if (frag instanceof vscode.Uri) frag = frag.fsPath
 
         let fragment = state.project.resolveFragment(frag)
 
@@ -102,7 +103,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const fragmentRefine = async () => {
-        const fragment = resolveFragment(undefined)
+        const fragment = await resolveFragment(undefined)
         if (!fragment) return
 
         await state.cancelAiRequest()
@@ -138,13 +139,10 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const fragmentPrompt = async (
-        frag?: Fragment | string | URI,
+        frag?: Fragment | string | vscode.Uri,
         template?: PromptTemplate
     ) => {
         if (!(await checkSaved())) return
-
-        if ((frag as URI).fsPath) frag = (frag as URI).fsPath
-        if (frag instanceof URI) frag = frag.fsPath
 
         const fragment = await resolveFragment(frag)
         if (!fragment) {
