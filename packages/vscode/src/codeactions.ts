@@ -70,8 +70,9 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         )
 
         if (!file) {
-            prj = await this.state.parseDocument(document)
-            file = prj.rootFiles[0]
+            prj = await this.state.parseDocument(document, token)
+            if (token.isCancellationRequested) return []
+            file = prj?.rootFiles?.[0]
         }
 
         const fragment = file?.roots?.[0]

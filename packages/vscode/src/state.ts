@@ -414,7 +414,10 @@ export class ExtensionState extends EventTarget {
         this.setDiagnostics()
     }
 
-    async parseDocument(document: vscode.TextDocument) {
+    async parseDocument(
+        document: vscode.TextDocument,
+        token: vscode.CancellationToken
+    ) {
         const fspath = document.uri.fsPath
         const fn = Utils.basename(document.uri)
         const specn = fspath + ".gpspec.md"
@@ -427,7 +430,9 @@ export class ExtensionState extends EventTarget {
         )
         const coarchFiles = [specn]
         const promptFiles = await findFiles("**/*.gptool.js")
+        if (token.isCancellationRequested) return undefined
         const coarchJsonFiles = await findFiles("**/gptools.json")
+        if (token.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             coarchFiles,
