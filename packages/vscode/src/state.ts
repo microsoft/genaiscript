@@ -416,7 +416,7 @@ export class ExtensionState extends EventTarget {
 
     async parseDocument(
         document: vscode.TextDocument,
-        token: vscode.CancellationToken
+        token?: vscode.CancellationToken
     ) {
         const fspath = document.uri.fsPath
         const fn = Utils.basename(document.uri)
@@ -430,9 +430,9 @@ export class ExtensionState extends EventTarget {
         )
         const coarchFiles = [specn]
         const promptFiles = await findFiles("**/*.gptool.js")
-        if (token.isCancellationRequested) return undefined
+        if (token?.isCancellationRequested) return undefined
         const coarchJsonFiles = await findFiles("**/gptools.json")
-        if (token.isCancellationRequested) return undefined
+        if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             coarchFiles,

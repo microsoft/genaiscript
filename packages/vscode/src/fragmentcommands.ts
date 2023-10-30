@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { Utils } from "vscode-uri"
+import { URI, Utils } from "vscode-uri"
 import {
     Fragment,
     PromptTemplate,
@@ -79,21 +79,26 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
-    const resolveFragment = (frag: Fragment | string) => {
+    const resolveFragment = async (frag: Fragment | string) => {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
             const previous = state.aiRequest.options.fragment
             frag = previous?.fullId
         }
 
-        const fragment = rootFragment(state.project.resolveFragment(frag))
-        if (!fragment) {
-            vscode.window.showErrorMessage(
-                "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
-            )
-            return undefined
+        let fragment = state.project.resolveFragment(frag)
+
+        if (!fragment && typeof frag === "string") {
+            const document = vscode.window.visibleTextEditors.find(
+                (editor) => editor.document.uri.fsPath === frag
+            )?.document
+            if (document) {
+                const prj = await state.parseDocument(document)
+                fragment = prj?.rootFiles?.[0].fragments?.[0]
+            }
         }
-        return fragment
+
+        return rootFragment(fragment)
     }
 
     const fragmentRefine = async () => {
@@ -133,12 +138,21 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const fragmentPrompt = async (
-        frag?: Fragment | string,
+        frag?: Fragment | string | URI,
         template?: PromptTemplate
     ) => {
         if (!(await checkSaved())) return
-        const fragment = resolveFragment(frag)
-        if (!fragment) return
+
+        if ((frag as URI).fsPath) frag = (frag as URI).fsPath
+        if (frag instanceof URI) frag = frag.fsPath
+
+        const fragment = await resolveFragment(frag)
+        if (!fragment) {
+            vscode.window.showErrorMessage(
+                "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
+            )
+            return
+        }
         if (!template) {
             template = await pickTemplate(fragment)
             if (!template) return
