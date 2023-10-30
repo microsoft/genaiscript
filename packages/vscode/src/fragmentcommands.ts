@@ -78,7 +78,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
-    const resolveFragment = async (frag: Fragment | string | vscode.Uri) => {
+    const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
             const previous = state.aiRequest.options.fragment
@@ -87,26 +87,66 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         if (frag instanceof vscode.Uri) frag = frag.fsPath
 
-        let fragment = state.project.resolveFragment(frag)
+        const { project } = state
 
-        if (!fragment && typeof frag === "string") {
-            const document = vscode.window.visibleTextEditors.find(
-                (editor) => editor.document.uri.fsPath === frag
-            )?.document
-            if (document) {
-                const prj = await state.parseDocument(document)
-                fragment = prj?.rootFiles?.[0].fragments?.[0]
+        let fragment: Fragment
+        if (typeof frag === "string" && !/\.gpspec\.md$/i.test(frag)) {
+            const gpspecs = project.rootFiles.filter((f) =>
+                f.roots.some((r) =>
+                    r.references.some((ref) => ref.filename === frag)
+                )
+            )
+            const pick = gpspecs.length
+                ? await vscode.window.showQuickPick(
+                      [
+                          ...project.rootFiles
+                              .filter((f) =>
+                                  f.roots.some((r) =>
+                                      r.references.some(
+                                          (ref) => ref.filename === frag
+                                      )
+                                  )
+                              )
+                              .map((f) => ({
+                                  label: Utils.basename(
+                                      vscode.Uri.file(f.filename)
+                                  ),
+                                  file: f,
+                              })),
+                          {
+                              label: "Create new GPSpec file...",
+                              file: undefined,
+                          },
+                      ],
+                      {
+                          title: "Select GPSpec file",
+                      }
+                  )
+                : { label: "", file: undefined }
+            if (pick === undefined) return undefined
+            if (pick.file) {
+                fragment = pick.file.roots[0]
+            } else {
+                const document = vscode.window.visibleTextEditors.find(
+                    (editor) => editor.document.uri.fsPath === frag
+                )?.document
+                if (document) {
+                    const prj = await state.parseDocument(document)
+                    fragment = prj?.rootFiles?.[0].fragments?.[0]
+                }
             }
+        } else {
+            fragment = project.resolveFragment(frag)
         }
 
         return rootFragment(fragment)
     }
 
     const fragmentRefine = async () => {
-        const fragment = await resolveFragment(undefined)
+        await state.cancelAiRequest()
+        const fragment = await resolveSpec(undefined)
         if (!fragment) return
 
-        await state.cancelAiRequest()
         const template = state.aiRequest.options.template
         let refinement = await vscode.window.showInputBox({
             title: `What do you want to add to your spec?`,
@@ -144,7 +184,8 @@ export function activateFragmentCommands(state: ExtensionState) {
     ) => {
         if (!(await checkSaved())) return
 
-        const fragment = await resolveFragment(frag)
+        await state.cancelAiRequest()
+        const fragment = await resolveSpec(frag)
         if (!fragment) {
             vscode.window.showErrorMessage(
                 "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
