@@ -61,13 +61,19 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         context: vscode.CodeActionContext,
         token: vscode.CancellationToken
     ): Promise<(vscode.CodeAction | vscode.Command)[]> {
-        const prj = this.state.project
+        let prj = this.state.project
         if (!prj) return []
 
         const filename = document.uri.fsPath
-        const file = this.state.project.rootFiles.find(
+        let file = this.state.project.rootFiles.find(
             (f) => f.filename === filename
         )
+
+        if (!file) {
+            prj = await this.state.parseDocument(document)
+            file = prj.rootFiles[0]
+        }
+
         const fragment = file?.roots?.[0]
         const fixes = this.createCodeActions(fragment)
         return fixes

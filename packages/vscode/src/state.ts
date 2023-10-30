@@ -25,7 +25,7 @@ import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { readFileText, saveAllTextDocuments, writeFile } from "./fs"
+import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -401,23 +401,40 @@ export class ExtensionState extends EventTarget {
     async parseWorkspace() {
         this.dispatchChange()
 
-        async function findFiles(pattern: string) {
-            return (await vscode.workspace.findFiles(pattern)).map(
-                (f) => f.fsPath
-            )
-        }
-
         const coarchFiles = await findFiles("**/*.gpspec.md")
         const promptFiles = await findFiles("**/*.gptool.js")
-        const projectFiles = await findFiles("**/gptools.json")
+        const coarchJsonFiles = await findFiles("**/gptools.json")
 
         const newProject = await parseProject({
             coarchFiles,
             promptFiles,
-            coarchJsonFiles: projectFiles,
+            coarchJsonFiles,
         })
         await this.setProject(newProject)
         this.setDiagnostics()
+    }
+
+    async parseDocument(document: vscode.TextDocument) {
+        const fspath = document.uri.fsPath
+        const fn = Utils.basename(document.uri)
+        const specn = fspath + ".gpspec.md"
+        this.host.setVirtualFile(
+            specn,
+            `# ${fn}
+
+-   [${fn}](./${fn})
+`
+        )
+        const coarchFiles = [specn]
+        const promptFiles = await findFiles("**/*.gptool.js")
+        const coarchJsonFiles = await findFiles("**/gptools.json")
+
+        const newProject = await parseProject({
+            coarchFiles,
+            promptFiles,
+            coarchJsonFiles,
+        })
+        return newProject
     }
 
     private setDiagnostics() {

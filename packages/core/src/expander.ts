@@ -570,8 +570,12 @@ ${renderFencedVariables(extr)}
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
                 let before: string = null
-                if (await fileExists(fn)) before = await readText(fn)
-                fileEdit = fileEdits[fn] = { before, after: undefined }
+                let after: string = undefined
+                if (await fileExists(fn, { virtual: false }))
+                    before = await readText(fn)
+                else if (await fileExists(fn, { virtual: true }))
+                    after = await readText(fn)
+                fileEdit = fileEdits[fn] = { before, after }
             }
             if (/^file/i.test(name)) {
                 fileEdit.after = val
@@ -615,6 +619,16 @@ ${renderFencedVariables(extr)}
                 })
             }
         })
+
+    if (await fileExists(fragment.file.filename, { virtual: true })) {
+        edits.push({
+            label: `Create ${fragment.file.filename}`,
+            filename: fragment.file.filename,
+            type: "createfile",
+            text: fragment.file.content,
+            overwrite: true,
+        })
+    }
 
     // add links to the end of the file
     if (links.length) {
