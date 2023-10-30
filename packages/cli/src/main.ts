@@ -20,6 +20,11 @@ FILE:
 ### Slide 1: gptools Overview
 \`\`\`\`\`
 
+FILE: gptools-wp2.slides
+\`\`\`\`\`
+### Slide 1: gptools Overview
+\`\`\`\`\`
+
 FILE gptools-wp2.slides.md:
 \`\`\`\`\`
 ### Slide 2: gptools Overview
