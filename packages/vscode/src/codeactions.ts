@@ -80,7 +80,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
 
         if (file) fragment = file.roots[0]
         else fragment = document.uri
-        
+
         const fixes = this.createCodeActions(fragment)
         return fixes
     }
@@ -93,10 +93,8 @@ export async function activateCodeActions(state: ExtensionState) {
                 {
                     scheme: "file",
                     language: "markdown",
-                    pattern: "**/*.md",
+                    pattern: "**/*.gpspec.md",
                 },
-                { scheme: "file", language: "typescript" },
-                { scheme: "file", language: "python" },
             ],
             new CodeActionProvider(state),
             {
