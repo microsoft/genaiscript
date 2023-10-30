@@ -6,11 +6,17 @@ gptool({
     categories: ["appdev"]
 })
 
+const sadoc = env.links.filter(f => /\.saplan\.gpspec\.md$/.test(f.filename))
+const codefile = env.links.filter(f => /\.py$/.test(f.filename) && !/test_/.test(f.filename))
+
 def("SPEC", env.file)
-def("SADOC", env.links.filter(f => /\.saplan\.coarch\.md$/.test(f.filename)))
+def("SADOC", env.links.filter(f => /\.saplan\.gpspec\.md$/.test(f.filename)))
 def("CODE", env.links.filter(f => /\.py$/.test(f.filename) && !/test_/.test(f.filename)))
 
-$`To respond, refer to the SPEC from the product manager, and the SADOC from the software architect.`
+console.log("SADOC file is", sadoc)
+console.log("CODE file is", codefile)
+
+$`To respond, refer to the SPEC from the product manager, and the SADOC from the software architect.  If there is a section of the SPEC called "Known Issues" pay special attention to make sure these are addressed in CODE. `
 
 $`
 You are an expert software developer with years of experience implementing Python applications.
