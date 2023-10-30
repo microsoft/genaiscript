@@ -64,6 +64,12 @@
             }
         ],
         "menus": {
+            "editor/context": [
+                {
+                    "command": "coarch.fragment.prompt",
+                    "when": "!inDebugMode"
+                }
+            ],
             "file/newFile": [
                 {
                     "command": "coarch.newfile.gptool"
@@ -189,9 +195,8 @@
             },
             {
                 "command": "coarch.fragment.prompt",
-                "title": "Query a copilot AI to do a task on the node",
+                "title": "Run GPTool...",
                 "category": "GPTools",
-                "shortTitle": "Prompt...",
                 "icon": "$(lightbulb)"
             },
             {
