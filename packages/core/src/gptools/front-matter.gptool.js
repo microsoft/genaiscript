@@ -2,22 +2,22 @@ gptool({
     title: "SEO front matter",
     description: "Update or generate SEO-optimized front matter for a markdown file.",
     categories: ["markdown"],
-    system: ["system", "system.diff"],
+    system: ["system", "system.files"],
     maxTokens: 2000,
     temperature: 0,
 })
 
-def("SOURCE", env.links.filter(f => f.filename.endsWith(".md")))
+def("FILE", env.links.filter(f => f.filename.endsWith(".md")))
 
 $`
-You are a helpful front matter generator. You are an SEO expert.
+You are a search engine optimization expert at creating front matter for markdown document.
 
-Generate DIFF for SOURCE front matter:
+Update or generate front matter in FILE:
 - Update fields title, description and keywords as needed
 - use yaml format, do not use quotes
 - only 5 keywords or less
 - optimize for search engine optimization.
-- Do not modify the markdown content after the front matter.
+- Do not modify the markdown content after the front matter
 
 If no front matter is present, generate it.
 `
