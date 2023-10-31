@@ -557,6 +557,9 @@ ${renderFencedVariables(extr)}
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
+    const fragmentVirtual = await fileExists(fragment.file.filename, {
+        virtual: true,
+    })
 
     for (const fence of extr) {
         const { label: name, content: val } = fence
@@ -597,9 +600,11 @@ ${renderFencedVariables(extr)}
         }
     }
 
+    // only emit virtual file if tool has specTemplate
     if (
         !fileEdits[fragment.file.filename]?.after &&
-        (await fileExists(fragment.file.filename, { virtual: true }))
+        fragmentVirtual &&
+        template.emitAutoSpec
     ) {
         const fe =
             fileEdits[fragment.file.filename] ||
@@ -634,7 +639,10 @@ ${renderFencedVariables(extr)}
         })
 
     // add links to the end of the file
-    if (links.length) {
+    if (
+        links.length &&
+        (!fragmentVirtual || fileEdits[fragment.file.filename]?.after)
+    ) {
         edits.push({
             ...obj,
             type: "insert",
