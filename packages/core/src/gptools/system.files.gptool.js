@@ -1,6 +1,6 @@
 system({
     title: "File generation",
-    description: "Teaches the file format supported by CoArch",
+    description: "Teaches the file format supported by GPTools",
 })
 
 const folder =
