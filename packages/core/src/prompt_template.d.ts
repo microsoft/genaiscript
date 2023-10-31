@@ -129,10 +129,16 @@ interface LinkedFile {
  */
 interface ExpansionVariables {
     /**
-     * Used to delimit multi-line strings.
+     * Used to delimit multi-line strings, expect for markdown.
      * `fence(X)` is preferred (equivalent to `` $`${env.fence}\n${X}\n${env.fence}` ``)
      */
     fence: string
+
+    /**
+     * Used to delimit multi-line markdown strings.
+     * `fence(X, "markdown")` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
+     */
+    markdownFence: string
 
     /**
      * Current file
@@ -192,8 +198,8 @@ interface PromptContext {
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
-    fence(body: StringLike): void
-    def(name: string, body: StringLike): void
+    fence(body: StringLike, language?: string): void
+    def(name: string, body: StringLike, language?: string): void
     defFiles(files: LinkedFile[]): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
