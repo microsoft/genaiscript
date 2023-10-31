@@ -1,3 +1,8 @@
+---
+title: Python Email Validation Guide with GPTools
+description: Learn how to enhance a Python function for email validation using GPTools. This guide covers error handling, command line argument handling, and test cases.
+keywords: Python, Email Validation, GPTools, Regex, Command Line Arguments
+---
 # Hello world GPTools
 
 This sample contains a few gptools and started gpspec files to get started.
