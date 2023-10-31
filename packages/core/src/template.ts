@@ -174,43 +174,40 @@ export async function evalPrompt(
             }
             text(r)
         },
-        def(name, body) {
+        def(name, body, language) {
+            const fence =
+                language === "markdown" ? env.markdownFence : env.fence
             let error = false
-            const norm = (s: string) => {
+            const norm = (s: string, f: string) => {
                 s = (s || "").replace(/\n*$/, "")
                 if (s) s += "\n"
-                if (s.includes(env.fence)) error = true
+                if (s.includes(f)) error = true
                 return s
             }
             const df = (file: LinkedFile) => {
+                const dfence = /\.md$/i.test(file.filename)
+                    ? env.markdownFence
+                    : fence
                 text(
                     (name ? name + ":\n" : "") +
-                        env.fence +
+                        dfence +
                         ` file=${file.filename}\n` +
-                        norm(file.content) +
-                        env.fence
+                        norm(file.content, dfence) +
+                        dfence
                 )
             }
 
             if (Array.isArray(body)) body.forEach(df)
             else if (typeof body != "string") df(body as LinkedFile)
             else {
-                body = norm(body)
-                text(
-                    (name ? name + ":\n" : "") +
-                        env.fence +
-                        "\n" +
-                        body +
-                        env.fence
-                )
-                if (body.includes(env.fence)) error = true
+                body = norm(body, fence)
+                text((name ? name + ":\n" : "") + fence + "\n" + body + fence)
+                if (body.includes(fence)) error = true
             }
 
             if (error)
                 text(
-                    env.error +
-                        " fenced body already included fence: " +
-                        env.fence
+                    env.error + " fenced body already included fence: " + fence
                 )
             return dontuse("def")
         },
@@ -219,8 +216,8 @@ export async function evalPrompt(
                 ctx.def("File " + f.filename, f.content)
             return dontuse("defFiles")
         },
-        fence(body) {
-            ctx.def("", body)
+        fence(body, language?: string) {
+            ctx.def("", body, language)
             return dontuse("fence")
         },
         console: {
@@ -300,7 +297,8 @@ async function parseMeta(r: PromptTemplate) {
     return { meta, text }
 }
 
-const promptFence = "`````"
+const promptFence = "```"
+const markdownPromptFence = "`````"
 const promptFenceStartRx = /^(`{3,})(\s*(.*))?\s*$/
 const promptFenceEndRx = /^(`{3,})\s*$/
 
@@ -319,6 +317,7 @@ export function staticVars() {
         links: [] as LinkedFile[],
         parents: [] as LinkedFile[],
         fence: promptFence,
+        markdownFence: markdownPromptFence,
         error: errorId(),
         promptOptions: {},
         vars: {} as Record<string, string>,
