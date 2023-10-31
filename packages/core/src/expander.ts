@@ -597,6 +597,19 @@ ${renderFencedVariables(extr)}
         }
     }
 
+    if (
+        !fileEdits[fragment.file.filename]?.after &&
+        (await fileExists(fragment.file.filename, { virtual: true }))
+    ) {
+        const fe =
+            fileEdits[fragment.file.filename] ||
+            (fileEdits[fragment.file.filename] = {
+                before: undefined,
+                after: undefined,
+            })
+        fe.after = fragment.file.content
+    }
+
     // convert file edits into edits
     Object.entries(fileEdits)
         .filter(([, { before, after }]) => before !== after) // ignore unchanged files
@@ -619,16 +632,6 @@ ${renderFencedVariables(extr)}
                 })
             }
         })
-
-    if (await fileExists(fragment.file.filename, { virtual: true })) {
-        edits.push({
-            label: `Create ${fragment.file.filename}`,
-            filename: fragment.file.filename,
-            type: "createfile",
-            text: fragment.file.content,
-            overwrite: true,            
-        })
-    }
 
     // add links to the end of the file
     if (links.length) {
