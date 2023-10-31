@@ -139,7 +139,7 @@ export class ExtensionState extends EventTarget {
         const { subscriptions } = context
         subscriptions.push(this)
 
-        this._diagColl = vscode.languages.createDiagnosticCollection("CoArch")
+        this._diagColl = vscode.languages.createDiagnosticCollection("GPTools")
         subscriptions.push(this._diagColl)
 
         this._aiRequestCache = getAIRequestCache()
@@ -237,7 +237,7 @@ export class ExtensionState extends EventTarget {
 
     private startAIRequest(options: AIRequestOptions): AIRequest {
         const controller = new AbortController()
-        const config = vscode.workspace.getConfiguration("coarch")
+        const config = vscode.workspace.getConfiguration("gptools")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const signal = controller.signal
         const r: AIRequest = {
@@ -465,7 +465,7 @@ export class ExtensionState extends EventTarget {
                         d.message,
                         severities[d.severity]
                     )
-                    r.source = "CoArch"
+                    r.source = "GPTools"
                     // r.code = 0;
                     return r
                 })
