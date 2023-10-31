@@ -90,7 +90,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const { project } = state
 
         let fragment: Fragment
-        if (typeof frag === "string" && !/\.gpspec\.md$/i.test(frag)) {
+        if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
             const gpspecs = project.rootFiles.filter((f) =>
                 f.roots.some((r) =>
                     r.references.some((ref) => ref.filename === frag)
