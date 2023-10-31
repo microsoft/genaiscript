@@ -1,3 +1,9 @@
+---
+title: PCF8563 Real-Time Clock Driver
+description: DeviceScript driver for the PCF8563 real-time clock (RTC) peripheral.
+keywords: PCF8563, Real-Time Clock, RTC, DeviceScript, Driver
+---
+
 # PCF8563 Real-Time Clock Driver
 
 This is a DeviceScript driver for the PCF8563 real-time clock (RTC) peripheral.
