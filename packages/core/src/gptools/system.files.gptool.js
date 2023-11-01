@@ -4,7 +4,7 @@ system({
 })
 
 const folder =
-    env.vars["system.multifile.outputFolder"] || env.template.outputFolder
+    env.vars["outputFolder"] || env.template.outputFolder
 $`When generating or updating files you will use the following syntax:`
 
 def(

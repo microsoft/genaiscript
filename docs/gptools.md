@@ -89,10 +89,10 @@ gptool({
 })
 ```
 
-You can specify the output folder using `system.multifile.outputFolder` variable in the gpspec file.
+You can specify the output folder using `outputFolder` variable in the gpspec file.
 
 ```markdown
-<!-- @system.files.outputFolder
+<!-- @outputFolder
 
 mysrc
 

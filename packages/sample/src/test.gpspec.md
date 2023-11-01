@@ -8,7 +8,7 @@ Use the writing style of software technical writer.
 
 -->
 
-<!-- @system.multifile.outputFolder
+<!-- @outputFolder
 
 mysrc
 

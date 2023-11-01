@@ -5,3 +5,8 @@ Finally prints "Finished".
 
 -   [python](./counting.py)
 
+<!-- @outputFolder
+
+anotherfolder
+
+-->
