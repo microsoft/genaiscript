@@ -30,17 +30,23 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
  * Similar to `text(env.fence); text(body); text(env.fence)`
  *
  * @param body string to be fenced
+ * @param language typescript, python, markdown, etc...
  */
-declare function fence(body: StringLike): void
+declare function fence(body: StringLike, language?: "markdown" | string): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
- * Similar to `text(name + ":"); fence(body)`
+ * Similar to `text(name + ":"); fence(body, language)`
  *
- * @param name name of defined entity, eg. "SUMMARY" or "This is text before SUMMARY"
+ * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
  * @param body string to be fenced/defined
+ * @param language typescript, python, markdown, etc...
  */
-declare function def(name: string, body: StringLike): void
+declare function def(
+    name: string,
+    body: StringLike,
+    language?: "markdown" | string
+): void
 
 /**
  * Inline supplied files in the prompt.

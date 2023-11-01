@@ -1,13 +1,17 @@
 gptool({
     title: "SEO front matter",
-    description: "Update or generate SEO-optimized front matter for a markdown file.",
-    categories: ["markdown"],
+    description:
+        "Update or generate SEO-optimized front matter for a markdown file.",
+    categories: ["samples"],
     system: ["system", "system.files"],
     maxTokens: 2000,
     temperature: 0,
 })
 
-def("FILE", env.links.filter(f => f.filename.endsWith(".md")))
+def(
+    "FILE",
+    env.links.filter((f) => f.filename.endsWith(".md"))
+)
 
 $`
 You are a search engine optimization expert at creating front matter for markdown document.

@@ -126,7 +126,7 @@ When you apply a prompt to a given fragment, a number of variables are set inclu
 -   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
 -   `env.links` set of linked files and content
 
-> For a full list with values, run any prompt, click on the "CoArch" in the status bar and look at prompt expansion trace.
+> For a full list with values, run any prompt, click on the "GPTools" in the status bar and look at prompt expansion trace.
 
 ### Fenced variables
 
