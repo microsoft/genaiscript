@@ -28,13 +28,13 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
-            "name": "Run - blackjack",
+            "name": "Run - demoapps",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
-                "${workspaceFolder}/packages/blackjack"
+                "${workspaceFolder}/packages/demoapps"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
