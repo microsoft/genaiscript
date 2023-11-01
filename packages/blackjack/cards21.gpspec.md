@@ -1,6 +1,7 @@
 # Description create a command line application that plays the card game 21
 -   [cards21.saplan.gpspec.md](cards21.saplan.gpspec.md)
 -   [cards21.py](cards21.py)
+-   [test_cards21.py](test_cards21.py)
 
 ## Idea
 

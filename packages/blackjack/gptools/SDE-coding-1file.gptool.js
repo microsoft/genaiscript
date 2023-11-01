@@ -2,6 +2,7 @@ gptool({
     title: "Software Developer - coding - 1 file",
     description: "You are an expert software developer with years of experience implementing Python applications.",
     maxTokens: 4000,
+    system: ["system", "system.explanations", "system.summary", "system.files", "system.python"],
     categories: ["appdev"]
 })
 
