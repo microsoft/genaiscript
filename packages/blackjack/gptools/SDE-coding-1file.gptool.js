@@ -1,5 +1,5 @@
 gptool({
-    title: "Software Developer - coding",
+    title: "Software Developer - coding - 1 file",
     description: "You are an expert software developer with years of experience implementing Python applications.",
     maxTokens: 4000,
     categories: ["appdev"]
@@ -15,7 +15,8 @@ def("CODE", codefile)
 console.log("SADOC file is", sadoc)
 console.log("CODE file is", codefile)
 
-$`To respond, refer to the SPEC from the product manager, and the SADOC from the software architect.  If there is a section of the SPEC called "Known Issues" pay special attention to make sure these are addressed in CODE. `
+$`To respond, refer to the SPEC from the product manager, and the SADOC from the software architect.  
+If there is a section of the SPEC called "Known Issues" pay special attention to make sure these are addressed in CODE. `
 
 $`
 You are an expert software developer with years of experience implementing Python applications.
@@ -32,8 +33,8 @@ You have been assigned to implement the complete code for all of these component
 instructions in SPEC. 
 
 Generate code for all files mentioned in SPEC.
-For each of the Python files listed in SPEC, implement the code for the component and place
-the code in a separate file using the file name used in SPEC.
+For each of the Python components listed in SPEC, implement the code for the component and place
+the code in a single file using the file name used in SPEC.
 
 Make sure that the code is well documented and that the code is easy to read and understand.
 Make sure that the comments follow the Python commenting conventions.
@@ -42,9 +43,6 @@ Make sure that the code is modular and that a quality assurance engineer can
 write test cases for each component.
 Make sure that you can run the client component on the command line for demonstration and testing purposes.
 Include assertions in your code to ensure that the code is correct.
-
-Do not encode the file name as a comment.
-
 
 Respond with the new CODE.
 Limit changes to existing code to minimum.
