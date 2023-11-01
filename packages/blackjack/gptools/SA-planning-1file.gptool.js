@@ -1,5 +1,5 @@
 gptool({
-    title: "Software Architect - planning",
+    title: "Software Architect - planning - 1 file",
     description: "A software architect generates instructions for the software engineer",
     categories: ["appdev"]
 })
@@ -24,13 +24,14 @@ can write test cases from your descriptions.
 Separate sections of your output into markdown subsections.
 
 First, choose a programming language and a framework to implement the product.
-Next, show the directory structure for the code using bullet points in markdown.
-Next include the instructions for the software developer from SPEC in your output and
+Assume all the components will be encapsulated in a single file.
+
+Next include the instructions for the software developer from SPEC in your output.
 Next make suggestions for invariants that are related to the application domain. 
 
-Next, describe each component in the implementation and assume it will be
-encapsulate in a single file.
-In your output, explicity list each file that will be created, what imports and exports it has,
+Next, describe each component in the implementation.
+
+In your output, explicity list each component, 
 what the API to that component is, and how the different components will be interconnected.
 Also, define a command line client that will use the product that can be used both for testing and for demonstration purposes.
 Make sure that the client is easy to use and that it is well documented.
