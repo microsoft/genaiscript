@@ -91,49 +91,12 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let fragment: Fragment
         if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
-            const gpspecs = project.rootFiles.filter((f) =>
-                f.roots.some((r) =>
-                    r.references.some((ref) => ref.filename === frag)
-                )
-            )
-            const pick = gpspecs.length
-                ? await vscode.window.showQuickPick(
-                      [
-                          ...project.rootFiles
-                              .filter((f) =>
-                                  f.roots.some((r) =>
-                                      r.references.some(
-                                          (ref) => ref.filename === frag
-                                      )
-                                  )
-                              )
-                              .map((f) => ({
-                                  label: Utils.basename(
-                                      vscode.Uri.file(f.filename)
-                                  ),
-                                  file: f,
-                              })),
-                          {
-                              label: "Create new GPSpec file...",
-                              file: undefined,
-                          },
-                      ],
-                      {
-                          title: "Select GPSpec file",
-                      }
-                  )
-                : { label: "", file: undefined }
-            if (pick === undefined) return undefined
-            if (pick.file) {
-                fragment = pick.file.roots[0]
-            } else {
-                const document = vscode.window.visibleTextEditors.find(
-                    (editor) => editor.document.uri.fsPath === frag
-                )?.document
-                if (document) {
-                    const prj = await state.parseDocument(document)
-                    fragment = prj?.rootFiles?.[0].fragments?.[0]
-                }
+            const document = vscode.window.visibleTextEditors.find(
+                (editor) => editor.document.uri.fsPath === frag
+            )?.document
+            if (document) {
+                const prj = await state.parseDocument(document)
+                fragment = prj?.rootFiles?.[0].fragments?.[0]
             }
         } else {
             fragment = project.resolveFragment(frag)
