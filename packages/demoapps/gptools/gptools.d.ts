@@ -97,21 +97,10 @@ interface PromptTemplate extends PromptLike {
      * Apply edits automatically instead of showing the refactoring UI.
      */
     autoApplyEdits?: boolean
-
-    /**
-     * If set, the next prompt template will be used after the edits are applied.
-     */
-    nextTemplateAfterApplyEdits?: string
-
-    /**
-     * The prompt will use the clipboard contents as input. Using this prompt might trigger
-     * a system prompt asking for clipboard access.
-     */
-    readClipboard?: boolean
 }
 
 /**
- * Represent a file linked from a .coarch document.
+ * Represent a file linked from a `.gpsec.md` document.
  */
 interface LinkedFile {
     /**
@@ -135,10 +124,16 @@ interface LinkedFile {
  */
 interface ExpansionVariables {
     /**
-     * Used to delimit multi-line strings.
+     * Used to delimit multi-line strings, expect for markdown.
      * `fence(X)` is preferred (equivalent to `` $`${env.fence}\n${X}\n${env.fence}` ``)
      */
     fence: string
+
+    /**
+     * Used to delimit multi-line markdown strings.
+     * `fence(X, "markdown")` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
+     */
+    markdownFence: string
 
     /**
      * Current file
@@ -184,11 +179,6 @@ interface ExpansionVariables {
      * User defined variables
      */
     vars: Record<string, string>
-
-    /**
-     * Clipboard content if the prompt declare `readClipboard: true`
-     */
-    clipboard?: string
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -203,8 +193,8 @@ interface PromptContext {
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
-    fence(body: StringLike): void
-    def(name: string, body: StringLike): void
+    fence(body: StringLike, language?: string): void
+    def(name: string, body: StringLike, language?: string): void
     defFiles(files: LinkedFile[]): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
@@ -222,7 +212,7 @@ interface PromptContext {
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .prompt.js file.
+ * Exactly one call should be present on top of .gptool.js file.
  */
 declare function gptool(options: PromptArgs): void
 
@@ -248,17 +238,23 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
  * Similar to `text(env.fence); text(body); text(env.fence)`
  *
  * @param body string to be fenced
+ * @param language typescript, python, markdown, etc...
  */
-declare function fence(body: StringLike): void
+declare function fence(body: StringLike, language?: "markdown" | string): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
- * Similar to `text(name + ":"); fence(body)`
+ * Similar to `text(name + ":"); fence(body, language)`
  *
- * @param name name of defined entity, eg. "SUMMARY" or "This is text before SUMMARY"
+ * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
  * @param body string to be fenced/defined
+ * @param language typescript, python, markdown, etc...
  */
-declare function def(name: string, body: StringLike): void
+declare function def(
+    name: string,
+    body: StringLike,
+    language?: "markdown" | string
+): void
 
 /**
  * Inline supplied files in the prompt.
