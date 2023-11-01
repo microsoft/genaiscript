@@ -16,7 +16,7 @@ import {
     renderFencedVariables,
 } from "coarch-core"
 
-const SCHEME = "coarch"
+const SCHEME = "gptools"
 
 const noRequest = `
 No GPTools request found yet. Please run a GPTool.
