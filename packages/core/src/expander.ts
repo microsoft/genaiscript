@@ -600,21 +600,6 @@ ${renderFencedVariables(extr)}
         }
     }
 
-    // only emit virtual file if tool has specTemplate
-    if (
-        !fileEdits[fragment.file.filename]?.after &&
-        fragmentVirtual &&
-        template.emitAutoSpec
-    ) {
-        const fe =
-            fileEdits[fragment.file.filename] ||
-            (fileEdits[fragment.file.filename] = {
-                before: undefined,
-                after: undefined,
-            })
-        fe.after = fragment.file.content
-    }
-
     // convert file edits into edits
     Object.entries(fileEdits)
         .filter(([, { before, after }]) => before !== after) // ignore unchanged files
