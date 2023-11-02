@@ -97,11 +97,6 @@ interface PromptTemplate extends PromptLike {
      * Apply edits automatically instead of showing the refactoring UI.
      */
     autoApplyEdits?: boolean
-
-    /**
-     * Emit auto-generated .gpspec.md file.
-     */
-    emitAutoSpec?: boolean
 }
 
 /**
