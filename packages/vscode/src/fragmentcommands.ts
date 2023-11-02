@@ -8,7 +8,7 @@ import {
     templateGroup,
 } from "coarch-core"
 import { ExtensionState } from "./state"
-import { saveAllTextDocuments } from "./fs"
+import { checkFileExists, saveAllTextDocuments } from "./fs"
 
 type TemplateQuickPickItem = {
     template?: PromptTemplate
@@ -82,7 +82,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
             const previous = state.aiRequest.options.fragment
-            frag = previous?.fullId
+            if (previous && state.host.isVirtualFile(previous.file.filename))
+                frag = previous.file.filename.replace(/\.gpspec\.md$/i, "")
+            else frag = previous?.fullId
         }
 
         if (frag instanceof vscode.Uri) frag = frag.fsPath
@@ -91,9 +93,11 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let fragment: Fragment
         if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
-            const document = vscode.window.visibleTextEditors.find(
-                (editor) => editor.document.uri.fsPath === frag
-            )?.document
+            let document = vscode.workspace.textDocuments.find(
+                (document) => document.uri.fsPath === frag
+            )
+            if (!document && (await checkFileExists(vscode.Uri.file(frag))))
+                document = await vscode.workspace.openTextDocument(frag)
             if (document) {
                 const prj = await state.parseDocument(document)
                 fragment = prj?.rootFiles?.[0].fragments?.[0]
