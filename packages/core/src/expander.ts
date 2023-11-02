@@ -157,13 +157,13 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
 async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
-    vars: ExpansionVariables
+    env: ExpansionVariables
 ) {
     const varName: Record<string, string> = {}
-    for (const [k, v] of Object.entries(vars)) {
+    for (const [k, v] of Object.entries(env)) {
         if (!varName[v]) varName[v] = k
     }
-    const varMap = vars as any as Record<string, string | any[]>
+    const varMap = env as any as Record<string, string | any[]>
 
     // we put errors on top so they draw attention
     let trace = `
@@ -180,7 +180,7 @@ ${numberedFenceMD(template.jsSource)}
 
     const attrs = commentAttributes(fragment)
     const cat = categoryPrefix(template, fragment, attrs)
-    const prompt = await callExpander(template, vars)
+    const prompt = await callExpander(template, env)
 
     const expanded = cat.text + "\n" + prompt.text
     errors += prompt.errors
@@ -226,7 +226,7 @@ ${numberedFenceMD(template.jsSource)}
             assert(!!system)
         }
 
-        const sysex = (await callExpander(system, vars)).text
+        const sysex = (await callExpander(system, env)).text
         systemText += sysex + "\n"
 
         model = model ?? system.model
@@ -245,9 +245,17 @@ ${numberedFenceMD(template.jsSource)}
         trace += fenceMD(sysex)
     }
 
-    model = model ?? fragment.project.coarchJson.model ?? defaultModel
-    temperature = temperature ?? defaultTemperature
-    max_tokens = max_tokens ?? defaultMaxTokens
+    model =
+        env.vars["model"] ??
+        model ??
+        fragment.project.coarchJson.model ??
+        defaultModel
+    temperature =
+        tryParseFloat(env.vars["temperature"]) ??
+        temperature ??
+        defaultTemperature
+    max_tokens =
+        tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens
 
     return {
         expanded,
@@ -258,6 +266,16 @@ ${numberedFenceMD(template.jsSource)}
         temperature,
         max_tokens,
         systemText,
+    }
+
+    function tryParseInt(v: string) {
+        const i = parseInt(v)
+        return isNaN(i) ? undefined : i
+    }
+
+    function tryParseFloat(v: string) {
+        const i = parseFloat(v)
+        return isNaN(i) ? undefined : i
     }
 
     function isComplex(k: string) {
@@ -276,7 +294,7 @@ ${numberedFenceMD(template.jsSource)}
 
         info += "Variables are referenced through `env.NAME` in prompts.\n\n"
 
-        for (const k of Object.keys(vars)) {
+        for (const k of Object.keys(env)) {
             if (isComplex(k)) continue
             const v = varMap[k]
             if (typeof v === "string" && varName[v] != k)
@@ -284,7 +302,7 @@ ${numberedFenceMD(template.jsSource)}
             else info += `-   env.**${k}**: \`${v}\`\n\n`
         }
 
-        for (const k of Object.keys(vars)) {
+        for (const k of Object.keys(env)) {
             if (!isComplex(k)) continue
             const v = varMap[k]
             info += `-   env.**${k}**${fenceMD(

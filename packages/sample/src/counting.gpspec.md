@@ -5,8 +5,7 @@ Finally prints "Finished".
 
 -   [python](./counting.py)
 
-<!-- @outputFolder
-
-anotherfolder
-
--->
+<!-- @outputFolder anotherfolder -->
+<!-- @maxTokens 1024 -->
+<!-- @temperature 0.5 -->
+<!-- @model gpt-4-32k -->

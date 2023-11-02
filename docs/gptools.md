@@ -99,13 +99,57 @@ mysrc
 -->
 ```
 
-### LLM parameters
+### model
 
-These are taken from prompt, or from system prompt, or set to default.
+You can specify the LLM `model` identifier in the script. The default is `gpt-4`.
+The intellisense provided by `gptools.g.ts` will help with discovering the list of supported models.
 
--   `temperature: 1`, makes the model more "creative", defaults to 0.2
--   `model: "gpt-4"`, changes default model
--   `maxTokens: 800`, sets the maximum response size
+```js
+gptool({
+    ...,
+    model: "gpt-4-32k",
+})
+```
+
+You can specify the temperate using `model` variable in the gpspec file.
+
+```markdown
+<!-- @model gpt-4-32k -->
+```
+
+### maxTokens
+
+You can specify the LLM `max tokens` in the script. The default is `800`.
+
+```js
+gptool({
+    ...,
+    maxTokens: 2000,
+})
+```
+
+You can specify the maxTokens using `maxTokens` variable in the gpspec file.
+
+```markdown
+<!-- @maxTokens 2000 -->
+```
+
+### temperature
+
+You can specify the LLM `temperature` in the script. The default is `0.2`.
+
+```js
+gptool({
+    ...,
+    temperature: 0.8,
+})
+```
+
+You can specify the temperate using `temperature` variable in the gpspec file.
+
+```markdown
+<!-- @temperature 0.8 -->
+```
 
 ### Other parameters
 
