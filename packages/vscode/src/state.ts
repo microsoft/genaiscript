@@ -401,13 +401,13 @@ export class ExtensionState extends EventTarget {
     async parseWorkspace() {
         this.dispatchChange()
 
-        const coarchFiles = await findFiles("**/*.gpspec.md")
-        const promptFiles = await findFiles("**/*.gptool.js")
+        const gpspecFiles = await findFiles("**/*.gpspec.md")
+        const gptoolFiles = await findFiles("**/*.gptool.js")
         const coarchJsonFiles = await findFiles("**/gptools.json")
 
         const newProject = await parseProject({
-            coarchFiles,
-            promptFiles,
+            gpspecFiles,
+            gptoolFiles,
             coarchJsonFiles,
         })
         await this.setProject(newProject)
@@ -428,15 +428,15 @@ export class ExtensionState extends EventTarget {
 -   [${fn}](./${fn})
 `
         )
-        const coarchFiles = [specn]
-        const promptFiles = await findFiles("**/*.gptool.js")
+        const gpspecFiles = [specn]
+        const gptoolFiles = await findFiles("**/*.gptool.js")
         if (token?.isCancellationRequested) return undefined
         const coarchJsonFiles = await findFiles("**/gptools.json")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
-            coarchFiles,
-            promptFiles,
+            gpspecFiles,
+            gptoolFiles,
             coarchJsonFiles,
         })
         return newProject

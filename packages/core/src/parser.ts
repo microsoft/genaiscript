@@ -301,11 +301,11 @@ async function fragmentHash(t: Fragment) {
 }
 
 export async function parseProject(options: {
-    coarchFiles: string[]
-    promptFiles: string[]
+    gpspecFiles: string[]
+    gptoolFiles: string[]
     coarchJsonFiles: string[]
 }) {
-    const { coarchFiles, promptFiles, coarchJsonFiles } = options
+    const { gpspecFiles, gptoolFiles, coarchJsonFiles } = options
     const prj = new CoArchProject()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
@@ -321,7 +321,7 @@ export async function parseProject(options: {
     runFinalizers()
 
     const deflPr = Object.assign({}, defaultPrompts)
-    for (const f of promptFiles) {
+    for (const f of gptoolFiles) {
         const tmpl = await parsePromptTemplate(f, await readText(f), prj)
         if (!tmpl) continue
         delete deflPr[tmpl.id]
@@ -341,7 +341,7 @@ export async function parseProject(options: {
 
     prj.templates.sort((a, b) => strcmp(templKey(a), templKey(b)))
 
-    const todos = coarchFiles.slice(0)
+    const todos = gpspecFiles.slice(0)
     const seen = new Set<string>()
     while (todos.length) {
         const f = todos.shift()!
@@ -360,7 +360,7 @@ export async function parseProject(options: {
             const text = await readText(f)
             const file = parser(prj, f, text)
             prj.allFiles.push(file)
-            if (coarchFiles.includes(f)) prj.rootFiles.push(file)
+            if (gpspecFiles.includes(f)) prj.rootFiles.push(file)
             file.forEachFragment((frag) => {
                 todos.push(...frag.references.map((r) => r.filename))
             })
