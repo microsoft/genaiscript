@@ -1,3 +1,7 @@
+---
+title: gptools: Empowering Human Workflows with AI-Enhanced Tools
+description: An overview of gptools, a framework that empowers teams to create and use AI-enhanced scripts to support their workflows.
+---
 # gptools: Empowering Human Workflows with AI-Enhanced Tools
 
 -   Authors: Peli de Halleux, Michał Moskal, Ben Zorn

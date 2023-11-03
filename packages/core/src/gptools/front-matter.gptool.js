@@ -3,14 +3,14 @@ gptool({
     description:
         "Update or generate SEO-optimized front matter for a markdown file.",
     categories: ["samples"],
-    system: ["system", "system.files"],
+    system: ["system", "system.diff", "system.summary"],
     maxTokens: 2000,
     temperature: 0,
 })
 
 def(
     "FILE",
-    env.links.filter((f) => f.filename.endsWith(".md"))
+    env.links.filter((f) => f.filename.endsWith(".md")), { lineNumbers: true }
 )
 
 $`
@@ -21,7 +21,7 @@ Update or generate front matter in FILE:
 - use yaml format, do not use quotes
 - only 5 keywords or less
 - optimize for search engine optimization.
-- Do not modify the markdown content after the front matter
+- Do NOT modify the markdown content after the front matter
 
 If no front matter is present, generate it.
 `
