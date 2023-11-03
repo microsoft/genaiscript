@@ -161,11 +161,12 @@ async function expandTemplate(
 
     // we put errors on top so they draw attention
     let trace = `
-# Prompt trace
+# \`${template.id}\` trace
 
 @@errors@@
 
-## GPTool "${template.title}" (\`${template.id}\`)
+## gptool source
+
 ${fenceMD(template.jsSource, "js")}
 
 `
@@ -183,7 +184,7 @@ ${fenceMD(template.jsSource, "js")}
     if (prompt.logs?.length) trace += fenceMD(prompt.logs)
     else trace += `> tip: use \`console.log()\` from gptool.js files`
 
-    trace += "\n## Expanded prompt\n"
+    trace += "\n## expanded prompt\n"
     trace += fenceMD(prompt.text)
     trace += traceVars()
 
@@ -194,7 +195,7 @@ ${fenceMD(template.jsSource, "js")}
     let temperature = template.temperature
     let max_tokens = template.maxTokens
 
-    trace += `## System prompt\n`
+    trace += `## system prompts\n`
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -223,7 +224,7 @@ ${fenceMD(template.jsSource, "js")}
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
 
-        trace += `###  template: \`${systemTemplate}\`\n`
+        trace += `###  \`${systemTemplate}\`\n`
         if (system.model) trace += `-  model: \`${system.model || ""}\`\n`
         if (system.temperature !== undefined)
             trace += `-  temperature: ${system.temperature || ""}\n`
@@ -231,7 +232,7 @@ ${fenceMD(template.jsSource, "js")}
             trace += `-  max tokens: ${system.maxTokens || ""}\n`
 
         trace += fenceMD(system.jsSource, "js")
-        trace += "#### Expanded system prompt"
+        trace += "#### expanded system prompt"
         trace += fenceMD(sysex)
     }
 
@@ -280,9 +281,9 @@ ${fenceMD(template.jsSource, "js")}
     }
 
     function traceVars() {
-        let info = "\n\n## Variables\n"
+        let info = "\n\n## variables\n"
 
-        info += "Variables are referenced through `env.NAME` in prompts.\n\n"
+        info += "> Variables are referenced through `env.NAME` in prompts.\n\n"
 
         for (const k of Object.keys(env)) {
             if (isComplex(k)) continue
@@ -409,7 +410,7 @@ export async function runTemplate(
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
 
-    trace += "\n\n## Final prompt\n\n"
+    trace += "\n\n## final prompt\n\n"
 
     if (model) trace += `-  model: \`${model || ""}\`\n`
     if (temperature !== undefined)
