@@ -40,34 +40,18 @@ Created a slidedeck in markdown format for the gptools content, including an ove
     console.log(renderFencedVariables(vars))
 */
     const f = `
-  async readTime(): Promise<Date> {
--       // TODO
--       return undefined
-+       const buf = await this.readRegBuf(REG_SECONDS, 7)
-+       const seconds = this.bcdToDecimal(buf[0] & 0x7f)
-+       const minutes = this.bcdToDecimal(buf[1] & 0x7f)
-+       const hours = this.bcdToDecimal(buf[2] & 0x3f)
-+       const day = this.bcdToDecimal(buf[3] & 0x3f)
-+       const month = this.bcdToDecimal(buf[5] & 0x1f)
-+       const year = this.bcdToDecimal(buf[6]) + 2000
-+       return new Date(year, month - 1, day, hours, minutes, seconds)
-  }
-
-  async writeTime(date: Date): Promise<void> {
--       // TODO
--       return undefined
-+       const buf = this.allocBuffer(7)
-+       buf[0] = this.decimalToBcd(date.seconds) & 0x7f
-+       buf[1] = this.decimalToBcd(date.minutes) & 0x7f
-+       buf[2] = this.decimalToBcd(date.hours) & 0x3f
-+       buf[3] = this.decimalToBcd(date.day) & 0x3f
-+       buf[4] = 0x00 // Weekday not used, set to 0
-+       buf[5] = this.decimalToBcd(date.month + 1) & 0x1f
-+       buf[6] = this.decimalToBcd(date.year - 2000)
-+       await this.writeRegBuf(REG_SECONDS, buf)
-  }
+[1] import re
+[2] 
+[3] def is_valid_email(email):
+- [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
++ [4]     pattern = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
++ [5]     if pattern.fullmatch(email):
+[6]         return True
+[7]     else:
+[8]         return False
 `
-    parseLLMDiffs(f)
+    const res = parseLLMDiffs(f)
+    console.log(res)
 }
 
 main()

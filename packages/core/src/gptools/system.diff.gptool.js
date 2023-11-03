@@ -11,27 +11,28 @@ $`The DIFF format should be used to generate diff changes on files: added lines 
 , do NOT emit the whole file content
 , deleted lines MUST exist in the original file (do not invent deleted lines)
 , added lines MUST not exist in the original file
-, emit line numbers
+, emit line numbers from existing lines
+, do NOT emit line numbers for added lines and deleted lines
 , keep the diffs as small as possible:
 
 DIFF ./file.ts:
 ${env.fence}diff
-[line number]  <2 lines before changes (not the whole file)>
-[line number] - <deleted line>
-[line number] - <delete line 2>
-[line number] + <added line>
-[line number] + <added line 2>
-[line number]   <2 lines after changes (not the whole file)>
+[original line number]  <2 lines before changes (not the whole file)>
+- <deleted line>
+- <delete line 2>
++ <added line>
++ <added line 2>
+[original line number]   <2 lines after changes (not the whole file)>
 ${env.fence}
 
 DIFF ./file2.ts:
 ${env.fence}diff
-[line number]   <2 lines before changes (not the whole file)>
-[line number] - <deleted line>
-[line number] - <delete line 2>
-[line number] + <added line>
-[line number] + <added line 2>
-[line number]   <2 lines after changes (not the whole file)>
+[original line number]   <2 lines before changes (not the whole file)>
+- <deleted line>
+- <delete line 2>
++ <added line>
++ <added line 2>
+[original line number]   <2 lines after changes (not the whole file)>
 ${env.fence}
 `
 

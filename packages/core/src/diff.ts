@@ -1,3 +1,5 @@
+import { assert } from "./util"
+
 export interface Chunk {
     state: "existing" | "deleted" | "added"
     lines: string[]
@@ -51,6 +53,18 @@ DIFF src/pcf8563.ts:
   }
 `````    
             
+DIFF ./email_recognizer.py:
+```diff
+[1] import re
+[2] 
+[3] def is_valid_email(email):
+- [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
++ [4]     pattern = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
++ [5]     if pattern.fullmatch(email):
+[6]         return True
+[7]     else:
+[8]         return False
+```
 
 */
     const lines = text.split("\n")
@@ -61,36 +75,42 @@ DIFF src/pcf8563.ts:
 
     for (let i = 0; i < lines.length; ++i) {
         let line = lines[i]
-        const diffM = /^((\d+) )?(-|\+) /.exec(line)
-        const diffln = diffM ? parseInt(diffM[2]) : Number.NaN
-        if (diffM && diffM[3] === "+") {
+        const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line)
+        console.log(diffM)
+        if (diffM) {
             const l = line.substring(diffM[0].length)
-            if (chunk.state === "added") {
-                chunk.lines.push(l)
-                chunk.lineNumbers.push(diffln)
-            } else {
-                chunk = {
-                    state: "added",
-                    lines: [l],
-                    lineNumbers: [diffln],
+            const diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
+            const op = diffM[3]
+            debugger
+            if (op === "+") {
+                const l = line.substring(diffM[0].length)
+                if (chunk.state === "added") {
+                    chunk.lines.push(l)
+                    chunk.lineNumbers.push(diffln)
+                } else {
+                    chunk = {
+                        state: "added",
+                        lines: [l],
+                        lineNumbers: [diffln],
+                    }
+                    chunks.push(chunk)
                 }
-                chunks.push(chunk)
-            }
-        } else if (diffM && diffM[3] === "-") {
-            const l = line.substring(diffM[0].length)
-            if (chunk.state === "deleted") {
-                chunk.lines.push(l)
-                chunk.lineNumbers.push(diffln)
             } else {
-                chunk = {
-                    state: "deleted",
-                    lines: [l],
-                    lineNumbers: [diffln],
+                assert(op === "-")
+                if (chunk.state === "deleted") {
+                    chunk.lines.push(l)
+                    chunk.lineNumbers.push(diffln)
+                } else {
+                    chunk = {
+                        state: "deleted",
+                        lines: [l],
+                        lineNumbers: [diffln],
+                    }
+                    chunks.push(chunk)
                 }
-                chunks.push(chunk)
             }
         } else {
-            const lineM = /^(\d+) /.exec(line)
+            const lineM = /^\[(\d+)\] /.exec(line)
             const lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN
             const l = line.substring(lineM ? lineM[0].length : 0)
             if (chunk.state === "existing") {
