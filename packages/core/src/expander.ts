@@ -548,13 +548,15 @@ ${renderFencedVariables(extr)}
             } else if (/^diff/i.test(name)) {
                 try {
                     const chunks = parseLLMDiffs(val)
-                    console.log(chunks)
                     fileEdit.after = applyLLMDiff(
                         fileEdit.after || fileEdit.before,
                         chunks
                     )
                 } catch (e) {
-                    console.log(e)
+                    console.debug(e)
+                    res.trace += `\n\n### Error applying diff\n\n${fenceMD(
+                        e.message
+                    )}`
                 }
             }
             if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)

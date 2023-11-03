@@ -76,7 +76,6 @@ DIFF ./email_recognizer.py:
     for (let i = 0; i < lines.length; ++i) {
         let line = lines[i]
         const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line)
-        console.log(diffM)
         if (diffM) {
             const l = line.substring(diffM[0].length)
             const diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
@@ -128,8 +127,10 @@ DIFF ./email_recognizer.py:
 
     // clean last chunk
     if (chunk.state === "existing") {
-        while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1]))
+        while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1])) {
             chunk.lines.pop()
+            chunk.lineNumbers.pop()
+        }
         if (chunk.lines.length === 0) chunks.pop()
     }
 
@@ -139,6 +140,7 @@ DIFF ./email_recognizer.py:
 const MIN_CHUNK_SIZE = 4
 function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
     const chunkLines = chunk.lines
+    if (chunkLines.length === 0) return startLine
     const chunkStart = chunkLines[0].trim()
     let linei = startLine
     while (linei < lines.length) {
@@ -208,7 +210,6 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
         // finally swap the lines in
         const toRemove = chunkEnd - current
         lines.splice(current, toRemove, ...addedChunk.lines)
-        console.log(lines.join("\n"))
 
         current += addedChunk.lines.length - toRemove
     }
