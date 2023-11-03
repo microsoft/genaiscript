@@ -13,7 +13,7 @@ import { NodeHost } from "./hostimpl"
 
 async function main() {
     NodeHost.install()
-
+/*
     const source = `
 FILE:
 \`\`\`\`\` file=gptools-wp.slides.md
@@ -38,6 +38,18 @@ Created a slidedeck in markdown format for the gptools content, including an ove
     `
     const vars = extractFenced(source)
     console.log(renderFencedVariables(vars))
+*/
+    const f = `[1] import re
+[2] 
+[3] def is_valid_email(email):
+- [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
++ [4]     pattern = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
++ [5]     if pattern.fullmatch(email):
+[6]         return True
+[7]     else:
+[8]         return False`
+    const res = parseLLMDiffs(f)
+    console.log(res)
 }
 
 main()
