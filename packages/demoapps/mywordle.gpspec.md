@@ -3,6 +3,7 @@
 -   [mywordle.saplan.gpspec.md](mywordle.saplan.gpspec.md)
 -   [mywordle.py](mywordle.py)
 -   [test_mywordle.py](test_mywordle.py)
+-   [mywordle.slides.md](mywordle.slides.md)
 
 ## Idea
 This application implements Wordle as a command line application. The rules follow the rules of the popular game. The game picks a random hidden 5-letter word from a dictionary of legal words. The user provides a 5-letter word and the game shows the user which of the letters in their word is (1) in the hidden word and (2) whether that letter is in the correct position. The user then offers another 5-letter word. 
