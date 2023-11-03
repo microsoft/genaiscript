@@ -1,6 +1,6 @@
 gptool({
     title: "Generate python tests",
-    model: "gpt-4",
+    model: "gpt-4-32k",
     description: "Given a task and code, generate tests",
     categories: ["hello world"],
     system: ["system", "system.explanations", "system.summary", "system.files", "system.python"],

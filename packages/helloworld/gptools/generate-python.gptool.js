@@ -2,6 +2,7 @@ gptool({
     title: "Generate python code",
     description: "Given a task, generate python code.",
     temperature: 0,
+    model: "gpt-4-32k",
     categories: ["hello world"],
 })
 
