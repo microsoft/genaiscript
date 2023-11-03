@@ -172,14 +172,10 @@ ${fenceMD(template.jsSource, "js")}
 
     let errors = ``
 
-    const attrs = commentAttributes(fragment)
-    const cat = categoryPrefix(template, fragment, attrs)
     const prompt = await callExpander(template, env)
 
-    const expanded = cat.text + "\n" + prompt.text
+    const expanded = prompt.text
     errors += prompt.errors
-
-    trace += cat.info
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
@@ -307,50 +303,6 @@ ${fenceMD(template.jsSource, "js")}
 
         return info
     }
-}
-
-function categoryPrefix(
-    template: PromptTemplate,
-    frag: Fragment,
-    attrs: Record<string, string>
-) {
-    let text = ""
-    let info = ""
-    const used = new Set<string>()
-    if (template.categories?.length || attrs["@prompt"]) {
-        info += "\n## Inline prompts\n"
-        info += `\nAdded as comment at the end of a fragment: 
-\`\`\`markdown
-Lorem ipsum...
-
-<!-- @prompt.NAME 
-You are concise.
-!-->
-\`\`\`
-        
-
-`
-
-        const prefs = template.categories?.length
-            ? concatArrays(
-                  ...template.categories.map((s) => prefixes("@prompt." + s))
-              )
-            : ["@prompt"]
-        for (const pref of prefs) {
-            if (used.has(pref)) continue
-            used.add(pref)
-            if (attrs[pref] === undefined) {
-                info += `-   **${pref}** missing\n`
-            } else {
-                const v = attrs[pref]
-                info += `-   **${pref}**)\n${trimNewlines(v)}\n`
-                text += attrs[pref]
-            }
-        }
-        info += "\n"
-    }
-
-    return { info, text }
 }
 
 function fragmentVars(
