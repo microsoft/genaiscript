@@ -39,8 +39,7 @@ Created a slidedeck in markdown format for the gptools content, including an ove
     const vars = extractFenced(source)
     console.log(renderFencedVariables(vars))
 */
-    const f = `
-[1] import re
+    const f = `[1] import re
 [2] 
 [3] def is_valid_email(email):
 - [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
@@ -48,8 +47,7 @@ Created a slidedeck in markdown format for the gptools content, including an ove
 + [5]     if pattern.fullmatch(email):
 [6]         return True
 [7]     else:
-[8]         return False
-`
+[8]         return False`
     const res = parseLLMDiffs(f)
     console.log(res)
 }

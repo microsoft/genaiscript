@@ -81,7 +81,6 @@ DIFF ./email_recognizer.py:
             const l = line.substring(diffM[0].length)
             const diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN
             const op = diffM[3]
-            debugger
             if (op === "+") {
                 const l = line.substring(diffM[0].length)
                 if (chunk.state === "added") {
@@ -137,6 +136,7 @@ DIFF ./email_recognizer.py:
     return chunks
 }
 
+const MIN_CHUNK_SIZE = 4
 function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
     const chunkLines = chunk.lines
     const chunkStart = chunkLines[0].trim()
@@ -146,7 +146,12 @@ function findChunk(lines: string[], chunk: Chunk, startLine: number): number {
         if (line === chunkStart) {
             let found = true
             let i = 1
-            for (; i < chunkLines.length && linei + i < lines.length; ++i) {
+            for (
+                ;
+                i < Math.min(MIN_CHUNK_SIZE, chunkLines.length) &&
+                linei + i < lines.length;
+                ++i
+            ) {
                 if (lines[linei + i].trim() !== chunkLines[i].trim()) {
                     found = false
                     break
