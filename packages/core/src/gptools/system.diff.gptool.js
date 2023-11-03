@@ -15,22 +15,22 @@ $`The DIFF format should be used to generate diff changes on files: added lines 
 
 DIFF ./file.ts:
 ${env.fence}diff
-  2 lines before changes (not the whole file)
-- deleted line
-- delete line 2
-+ added line
-+ added line 2
-  2 lines after changes (not the whole file)
+  <2 lines before changes (not the whole file)>
+- <deleted line>
+- <delete line 2>
++ <added line>
++ <added line 2>
+  <2 lines after changes (not the whole file)>
 ${env.fence}
 
 DIFF ./file2.ts:
 ${env.fence}diff
-  2 line before changes (not the whole file)
-  - deleted line
-  - delete line 2
-  + added line
-  + added line 2
-  2 lines after changes (not the whole file)
+  <2 lines before changes (not the whole file)>
+- <deleted line>
+- <delete line 2>
++ <added line>
++ <added line 2>
+  <2 lines after changes (not the whole file)>
 ${env.fence}
 `
 

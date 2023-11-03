@@ -67,7 +67,7 @@ function trimNewlines(s: string) {
 const fence = "```"
 const markdownFence = "```````````````"
 export function fenceMD(t: string, contentType = "markdown") {
-    const f = contentType === "markdown" ? markdownFence : fence
+    const f = !contentType || contentType === "markdown" ? markdownFence : fence
     return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
@@ -300,7 +300,7 @@ ${fenceMD(template.jsSource, "js")}
             const v = varMap[k]
             info += `-   env.**${k}**${fenceMD(
                 typeof v === "string" ? v : inspect(v),
-                typeof v === "string" ? "" : "js"
+                typeof v === "string" ? undefined : "js"
             )}\n`
         }
 
