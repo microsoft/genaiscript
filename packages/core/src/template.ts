@@ -182,9 +182,9 @@ export async function evalPrompt(
             let error = false
             const norm = (s: string, f: string) => {
                 s = (s || "").replace(/\n*$/, "")
+                if (s && lineNumbers) s = addLineNumbers(s)
                 if (s) s += "\n"
                 if (s.includes(f)) error = true
-                if (lineNumbers) s = addLineNumbers(s)
                 return s
             }
             const df = (file: LinkedFile) => {

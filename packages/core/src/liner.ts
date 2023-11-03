@@ -6,8 +6,10 @@ export function addLineNumbers(text: string) {
 }
 
 export function removeLineNumbers(text: string) {
-    return text
-        .split("\n")
-        .map((line) => line.replace(/^\[\d+\] /, ""))
-        .join("\n")
+    const rx = /^\[\d+\] /
+    const lines = text.split("\n")
+
+    if (!lines.slice(0, 10).every((line) => rx.test(line))) return text
+
+    return lines.map((line) => line.replace(rx, "")).join("\n")
 }

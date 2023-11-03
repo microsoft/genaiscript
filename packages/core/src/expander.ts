@@ -172,7 +172,7 @@ async function expandTemplate(
 @@errors@@
 
 ## Prompt template "${template.title}" (\`${template.id}\`)
-${numberedFenceMD(template.jsSource)}
+${fenceMD(template.jsSource, "js")}
 
 `
 
@@ -240,7 +240,7 @@ ${numberedFenceMD(template.jsSource)}
         if (system.maxTokens !== undefined)
             trace += `-  max tokens: ${system.maxTokens || ""}\n`
 
-        trace += numberedFenceMD(system.jsSource)
+        trace += fenceMD(system.jsSource, "js")
         trace += "#### Expanded system prompt"
         trace += fenceMD(sysex)
     }
