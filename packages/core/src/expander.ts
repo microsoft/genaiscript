@@ -22,7 +22,7 @@ import {
 import { host } from "./host"
 import { inspect } from "./logging"
 import { initToken } from "./oai_token"
-import { applyLLMDiff, parseLLMDiffs } from "./diff"
+import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -546,17 +546,29 @@ ${renderFencedVariables(extr)}
             if (/^file/i.test(name)) {
                 fileEdit.after = val
             } else if (/^diff/i.test(name)) {
+                const chunks = parseLLMDiffs(val)
                 try {
-                    const chunks = parseLLMDiffs(val)
-                    fileEdit.after = applyLLMDiff(
+                    fileEdit.after = applyLLMPatch(
                         fileEdit.after || fileEdit.before,
                         chunks
                     )
                 } catch (e) {
                     console.debug(e)
-                    res.trace += `\n\n### Error applying diff\n\n${fenceMD(
+                    res.trace += `\n\n### Error applying patch\n\n${fenceMD(
                         e.message
                     )}`
+
+                    try {
+                        fileEdit.after = applyLLMDiff(
+                            fileEdit.after || fileEdit.before,
+                            chunks
+                        )
+                    } catch (e) {
+                        console.debug(e)
+                        res.trace += `\n\n### Error applying diff\n\n${fenceMD(
+                            e.message
+                        )}`
+                    }
                 }
             }
             if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)

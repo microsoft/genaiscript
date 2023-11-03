@@ -1,6 +1,7 @@
 ---
-title: gptools: Empowering Human Workflows with AI-Enhanced Tools
-description: An overview of gptools, a framework that empowers teams to create and use AI-enhanced scripts to support their workflows.
+title: gptools: AI-Enhanced Tools for Human Workflows
+description: gptools is a framework that enables teams to create and use AI-enhanced scripts to support their workflows.
+keywords: gptools, AI scripts, workflows, foundation models, LLMs
 ---
 # gptools: Empowering Human Workflows with AI-Enhanced Tools
 
