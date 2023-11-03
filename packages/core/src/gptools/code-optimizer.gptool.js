@@ -1,8 +1,10 @@
 gptool({
     title: "Code Optimizer",
-    description: "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",
+    description:
+        "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",
     maxTokens: 2000,
-    system: ["system", "system.diff"]
+    categories: ["samples"],
+    system: ["system", "system.diff"],
 })
 
 // Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46
