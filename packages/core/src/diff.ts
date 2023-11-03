@@ -216,3 +216,40 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
 
     return lines.join("\n")
 }
+
+export function applyLLMPatch(source: string, chunks: Chunk[]): string {
+    if (!chunks?.length || !source) return source
+
+    const lines = source.split("\n")
+
+    // modified, deleted
+    chunks
+        .filter((c) => c.state !== "added")
+        .forEach((chunk) => {
+            for (let li = 0; li < chunk.lines.length; ++li) {
+                const line =
+                    chunk.state === "deleted" ? undefined : chunk.lines[li]
+                const linei = chunk.lineNumbers[li] - 1
+                if (isNaN(linei)) throw new Error("missing line number")
+                if (linei < 0 || linei >= lines.length)
+                    throw new Error("invalid line number")
+                lines[linei] = line
+            }
+        })
+
+    // update added
+    for (let ci = chunks.length - 1; ci > 0; ci--) {
+        const chunk = chunks[ci]
+        if (chunk.state !== "added") continue
+        let previ = ci - 1
+        let prev = chunks[previ]
+        while (prev && prev.state !== "existing") {
+            prev = chunks[--previ]
+        }
+        if (!prev) throw new Error("missing previous chunk for added chunk")
+        const prevLinei = prev.lineNumbers[prev.lineNumbers.length - 1]
+        lines.splice(prevLinei, 0, ...chunk.lines)
+    }
+
+    return lines.filter((l) => l !== undefined).join("\n")
+}
