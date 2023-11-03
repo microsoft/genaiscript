@@ -65,7 +65,7 @@ function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
 const fence = "```"
-const markdownFence = "```````````````"
+const markdownFence = "``````"
 export function fenceMD(t: string, contentType?: string) {
     if (!contentType) contentType = "markdown"
     const f = contentType === "markdown" ? markdownFence : fence
