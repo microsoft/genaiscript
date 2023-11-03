@@ -5,6 +5,7 @@ import {
     Position,
     PromptTemplate,
 } from "./ast"
+import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange } from "./util"
 
@@ -174,7 +175,8 @@ export async function evalPrompt(
             }
             text(r)
         },
-        def(name, body, language) {
+        def(name, body, options) {
+            const { language, lineNumbers } = options || {}
             const fence =
                 language === "markdown" ? env.markdownFence : env.fence
             let error = false
@@ -182,6 +184,7 @@ export async function evalPrompt(
                 s = (s || "").replace(/\n*$/, "")
                 if (s) s += "\n"
                 if (s.includes(f)) error = true
+                if (lineNumbers) s = addLineNumbers(s)
                 return s
             }
             const df = (file: LinkedFile) => {
@@ -216,8 +219,8 @@ export async function evalPrompt(
                 ctx.def("File " + f.filename, f.content)
             return dontuse("defFiles")
         },
-        fence(body, language?: string) {
-            ctx.def("", body, language)
+        fence(body, options?: DefOptions) {
+            ctx.def("", body, options)
             return dontuse("fence")
         },
         console: {

@@ -131,7 +131,7 @@ interface ExpansionVariables {
 
     /**
      * Used to delimit multi-line markdown strings.
-     * `fence(X, "markdown")` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
+     * `fence(X, { language: "markdown" })` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
      */
     markdownFence: string
 
@@ -187,14 +187,19 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 
 type StringLike = string | LinkedFile | LinkedFile[]
 
+interface DefOptions {
+    language?: "markdown" | string
+    lineNumbers?: boolean
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
-    fence(body: StringLike, language?: string): void
-    def(name: string, body: StringLike, language?: string): void
+    fence(body: StringLike, options?: DefOptions): void
+    def(name: string, body: StringLike, options?: DefOptions): void
     defFiles(files: LinkedFile[]): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
