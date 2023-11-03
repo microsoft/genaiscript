@@ -64,18 +64,11 @@ function prefixes(w: string) {
 function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
-const fence = "```````````````"
+const fence = "```"
+const markdownFence = "```````````````"
 export function fenceMD(t: string, contentType = "markdown") {
-    return `\n${fence}${contentType}\n${trimNewlines(t)}\n${fence}\n`
-}
-function numberedFenceMD(t: string, contentType = "js") {
-    return fenceMD(
-        t
-            .split(/\r?\n/)
-            .map((l, i) => ("" + (i + 1)).padStart(3) + ": " + l)
-            .join("\n"),
-        contentType
-    )
+    const f = contentType === "markdown" ? markdownFence : fence
+    return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
 async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
@@ -171,7 +164,7 @@ async function expandTemplate(
 
 @@errors@@
 
-## Prompt template "${template.title}" (\`${template.id}\`)
+## GPTool "${template.title}" (\`${template.id}\`)
 ${fenceMD(template.jsSource, "js")}
 
 `
@@ -325,9 +318,7 @@ function categoryPrefix(
     const used = new Set<string>()
     if (template.categories?.length || attrs["@prompt"]) {
         info += "\n## Inline prompts\n"
-
         info += `\nAdded as comment at the end of a fragment: 
-
 \`\`\`markdown
 Lorem ipsum...
 
