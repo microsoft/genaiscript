@@ -261,50 +261,6 @@ And somewhere in the prompt
 const myvalue = env.vars["myvar"]
 ```
 
-## Inline prompts
-
-You can inject prompt in the process by authoring them as markdown comments in your `.gpspec.md` files. Essentially, you are defining variables that will be expanded in the prompt templates.
-
-This example defines a prompt instruction that will be injected in all prompts (that refer to that variable).
-
-```markdown
-Lorem ipsum...
-
-<!-- @prompt
-
-Avoid acronyms.
--->
-```
-
-Another prompt just for the summaries.
-
-```markdown
-Lorem ipsum...
-
-<!-- @prompt.summarize
-Keep it short.
--->
-```
-
-The prompts have to reference the variable, that is the `summarize.gptool.js` has to include `"summarize"`
-as one of it's `categories` (otherwise, only `@prompt` is inserted).
-The expansion of these variables is scoped. If you include `"bar.baz"` category,
-it will insert variables `{{@prompt}}`, `{{@prompt.bar}}`, and `{{@prompt.bar.baz}}` (in this order, skipping any missing variables).
-
-The inline prompts have to occur at the end of the body of a fragment.
-
-```markdown
-# Image resize {#OI62}
-
-A command line that takes a file name, a size, and an output file name, resizes the image using the best algorithm, and saves the resized image. Use node.js LTS.
-
-<!-- @prompt
-
-Use the writing style of software technical writer.
-
--->
-```
-
 ## Settings
 
 The Visual Studio Code extension has various configuration settings:

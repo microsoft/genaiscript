@@ -97,11 +97,6 @@ interface PromptTemplate extends PromptLike {
      * Apply edits automatically instead of showing the refactoring UI.
      */
     autoApplyEdits?: boolean
-
-    /**
-     * Emit auto-generated .gpspec.md file.
-     */
-    emitAutoSpec?: boolean
 }
 
 /**
@@ -136,7 +131,7 @@ interface ExpansionVariables {
 
     /**
      * Used to delimit multi-line markdown strings.
-     * `fence(X, "markdown")` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
+     * `fence(X, { language: "markdown" })` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
      */
     markdownFence: string
 
@@ -192,14 +187,19 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 
 type StringLike = string | LinkedFile | LinkedFile[]
 
+interface DefOptions {
+    language?: "markdown" | string
+    lineNumbers?: boolean
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
-    fence(body: StringLike, language?: string): void
-    def(name: string, body: StringLike, language?: string): void
+    fence(body: StringLike, options?: DefOptions): void
+    def(name: string, body: StringLike, options?: DefOptions): void
     defFiles(files: LinkedFile[]): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
@@ -243,9 +243,8 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
  * Similar to `text(env.fence); text(body); text(env.fence)`
  *
  * @param body string to be fenced
- * @param language typescript, python, markdown, etc...
  */
-declare function fence(body: StringLike, language?: "markdown" | string): void
+declare function fence(body: StringLike, options?: DefOptions): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
@@ -253,13 +252,8 @@ declare function fence(body: StringLike, language?: "markdown" | string): void
  *
  * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
  * @param body string to be fenced/defined
- * @param language typescript, python, markdown, etc...
  */
-declare function def(
-    name: string,
-    body: StringLike,
-    language?: "markdown" | string
-): void
+declare function def(name: string, body: StringLike, options?: DefOptions): void
 
 /**
  * Inline supplied files in the prompt.

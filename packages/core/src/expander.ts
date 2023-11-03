@@ -64,18 +64,12 @@ function prefixes(w: string) {
 function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
-const fence = "```````````````"
-export function fenceMD(t: string, contentType = "markdown") {
-    return `\n${fence}${contentType}\n${trimNewlines(t)}\n${fence}\n`
-}
-function numberedFenceMD(t: string, contentType = "js") {
-    return fenceMD(
-        t
-            .split(/\r?\n/)
-            .map((l, i) => ("" + (i + 1)).padStart(3) + ": " + l)
-            .join("\n"),
-        contentType
-    )
+const fence = "```"
+const markdownFence = "``````"
+export function fenceMD(t: string, contentType?: string) {
+    if (!contentType) contentType = "markdown"
+    const f = contentType === "markdown" ? markdownFence : fence
+    return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
 async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
@@ -171,21 +165,17 @@ async function expandTemplate(
 
 @@errors@@
 
-## Prompt template "${template.title}" (\`${template.id}\`)
-${numberedFenceMD(template.jsSource)}
+## GPTool "${template.title}" (\`${template.id}\`)
+${fenceMD(template.jsSource, "js")}
 
 `
 
     let errors = ``
 
-    const attrs = commentAttributes(fragment)
-    const cat = categoryPrefix(template, fragment, attrs)
     const prompt = await callExpander(template, env)
 
-    const expanded = cat.text + "\n" + prompt.text
+    const expanded = prompt.text
     errors += prompt.errors
-
-    trace += cat.info
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
@@ -240,7 +230,7 @@ ${numberedFenceMD(template.jsSource)}
         if (system.maxTokens !== undefined)
             trace += `-  max tokens: ${system.maxTokens || ""}\n`
 
-        trace += numberedFenceMD(system.jsSource)
+        trace += fenceMD(system.jsSource, "js")
         trace += "#### Expanded system prompt"
         trace += fenceMD(sysex)
     }
@@ -307,58 +297,12 @@ ${numberedFenceMD(template.jsSource)}
             const v = varMap[k]
             info += `-   env.**${k}**${fenceMD(
                 typeof v === "string" ? v : inspect(v),
-                typeof v === "string" ? "" : "js"
+                typeof v === "string" ? undefined : "js"
             )}\n`
         }
 
         return info
     }
-}
-
-function categoryPrefix(
-    template: PromptTemplate,
-    frag: Fragment,
-    attrs: Record<string, string>
-) {
-    let text = ""
-    let info = ""
-    const used = new Set<string>()
-    if (template.categories?.length || attrs["@prompt"]) {
-        info += "\n## Inline prompts\n"
-
-        info += `\nAdded as comment at the end of a fragment: 
-
-\`\`\`markdown
-Lorem ipsum...
-
-<!-- @prompt.NAME 
-You are concise.
-!-->
-\`\`\`
-        
-
-`
-
-        const prefs = template.categories?.length
-            ? concatArrays(
-                  ...template.categories.map((s) => prefixes("@prompt." + s))
-              )
-            : ["@prompt"]
-        for (const pref of prefs) {
-            if (used.has(pref)) continue
-            used.add(pref)
-            if (attrs[pref] === undefined) {
-                info += `-   **${pref}** missing\n`
-            } else {
-                const v = attrs[pref]
-                info += `-   **${pref}**)\n${trimNewlines(v)}\n`
-                text += attrs[pref]
-            }
-        }
-        info += "\n"
-    }
-
-    return { info, text }
 }
 
 function fragmentVars(
