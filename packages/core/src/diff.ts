@@ -1,6 +1,7 @@
 export interface Chunk {
     state: "existing" | "deleted" | "added"
     lines: string[]
+    lineNumbers: number[]
 }
 
 /**
@@ -55,40 +56,62 @@ DIFF src/pcf8563.ts:
     const lines = text.split("\n")
     const chunks: Chunk[] = []
 
-    let chunk: Chunk = { state: "existing", lines: [] }
+    let chunk: Chunk = { state: "existing", lines: [], lineNumbers: [] }
     chunks.push(chunk)
 
     for (let i = 0; i < lines.length; ++i) {
-        const line = lines[i]
-        if (line.startsWith("+ ")) {
-            const l = line.substring(2)
-            if (chunk.state === "added") chunk.lines.push(l)
-            else {
-                chunk = { state: "added", lines: [l] }
+        let line = lines[i]
+        const diffM = /^((\d+) )?(-|\+) /.exec(line)
+        const diffln = diffM ? parseInt(diffM[2]) : Number.NaN
+        if (diffM && diffM[3] === "+") {
+            const l = line.substring(diffM[0].length)
+            if (chunk.state === "added") {
+                chunk.lines.push(l)
+                chunk.lineNumbers.push(diffln)
+            } else {
+                chunk = {
+                    state: "added",
+                    lines: [l],
+                    lineNumbers: [diffln],
+                }
                 chunks.push(chunk)
             }
-        } else if (line.startsWith("- ")) {
-            const l = line.substring(2)
-            if (chunk.state === "deleted") chunk.lines.push(l)
-            else {
-                chunk = { state: "deleted", lines: [l] }
+        } else if (diffM && diffM[3] === "-") {
+            const l = line.substring(diffM[0].length)
+            if (chunk.state === "deleted") {
+                chunk.lines.push(l)
+                chunk.lineNumbers.push(diffln)
+            } else {
+                chunk = {
+                    state: "deleted",
+                    lines: [l],
+                    lineNumbers: [diffln],
+                }
                 chunks.push(chunk)
             }
         } else {
-            if (chunk.state === "existing") chunk.lines.push(line)
-            else {
-                chunk = { state: "existing", lines: [line] }
+            const lineM = /^(\d+) /.exec(line)
+            const lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN
+            const l = line.substring(lineM ? lineM[0].length : 0)
+            if (chunk.state === "existing") {
+                chunk.lines.push(l)
+                chunk.lineNumbers.push(lineNumber)
+            } else {
+                chunk = {
+                    state: "existing",
+                    lines: [l],
+                    lineNumbers: [lineNumber],
+                }
                 chunks.push(chunk)
             }
         }
     }
 
     // clean last chunk
-    if (chunk.state === 'existing') {
-        while(/^\s*$/.test(chunk.lines[chunk.lines.length - 1]))
+    if (chunk.state === "existing") {
+        while (/^\s*$/.test(chunk.lines[chunk.lines.length - 1]))
             chunk.lines.pop()
-        if (chunk.lines.length === 0)
-            chunks.pop()
+        if (chunk.lines.length === 0) chunks.pop()
     }
 
     return chunks
