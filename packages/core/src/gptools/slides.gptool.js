@@ -7,20 +7,15 @@ gptool({
 
 const output = env.file.filename.replace(/\.gpspec\.md$/, ".slides.md")
 def(
-    "FILE",
+    "SOURCE",
     [env.file,
     ...env.links.filter(
         (f) => !f.filename.endsWith(".slides.md")
     )]
 )
-def("SLIDES", env.links.filter(
-    (f) => f.filename.endsWith(".slides.md")
-), { lineNumbers: true })
 
-def("INSTRUCTIONS", env.file)
-
-$`Generate a slidedeck in markdown format for the content in FILE
-in SLIDES file ${output}.
+$`Generate a slidedeck in markdown format for the content in SOURCE
+in file ${output} using markdown.
 
 -  Each slide SHOULD have a title, unless it is only showing a code snippet.
 -  USE heading level 3 for slide titles.
