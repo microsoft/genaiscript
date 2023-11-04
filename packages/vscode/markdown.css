@@ -1,0 +1,8 @@
+.vscode-body details {
+    font-size: var(--markdown-font-size, 14px);
+}
+
+.vscode-body details summary {
+    font-size: 1.5em;
+    cursor: pointer;
+}

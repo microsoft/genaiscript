@@ -25,6 +25,9 @@
         "directory": "packages/vscode"
     },
     "contributes": {
+        "markdown.previewStyles": [
+            "./markdown.css"
+        ],
         "viewsContainers": {
             "activitybar": [
                 {
