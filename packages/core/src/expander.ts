@@ -6,13 +6,7 @@ import {
 import { Fragment, PromptTemplate, allChildren } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
-import {
-    assert,
-    concatArrays,
-    fileExists,
-    readText,
-    relativePath,
-} from "./util"
+import { assert, fileExists, readText, relativePath } from "./util"
 import {
     evalPrompt,
     extractFenced,
@@ -148,6 +142,21 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
     return { logs, errors, success, text: promptText }
 }
 
+export function startDetails(title: string) {
+    return `\n\n<details id="${title.replace(
+        /\s+/g,
+        "-"
+    )}"><summary>${title}</summary>\n\n`
+}
+
+export function endDetails() {
+    return `\n\n</details>\n`
+}
+
+export function details(title: string, body: string) {
+    return `${startDetails(title)}${body}${endDetails()}`
+}
+
 async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
@@ -165,10 +174,6 @@ async function expandTemplate(
 
 @@errors@@
 
-## gptool source
-
-${fenceMD(template.jsSource, "js")}
-
 `
 
     let errors = ``
@@ -180,22 +185,19 @@ ${fenceMD(template.jsSource, "js")}
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
-    trace += `\n## console output\n`
+    trace += startDetails("console output")
     if (prompt.logs?.length) trace += fenceMD(prompt.logs)
     else trace += `> tip: use \`console.log()\` from gptool.js files`
+    trace += endDetails()
 
-    trace += "\n## expanded prompt\n"
-    trace += fenceMD(prompt.text)
-    trace += traceVars()
-
-    trace = trace.replace("@@errors@@", errors)
+    trace += details("variables", traceVars())
 
     let systemText = ""
     let model = template.model
     let temperature = template.temperature
     let max_tokens = template.maxTokens
 
-    trace += `## system prompts\n`
+    trace += startDetails(`system gptools`)
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -224,7 +226,7 @@ ${fenceMD(template.jsSource, "js")}
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
 
-        trace += `###  \`${systemTemplate}\`\n`
+        trace += `###  \`${systemTemplate}\` source\n`
         if (system.model) trace += `-  model: \`${system.model || ""}\`\n`
         if (system.temperature !== undefined)
             trace += `-  temperature: ${system.temperature || ""}\n`
@@ -232,9 +234,12 @@ ${fenceMD(template.jsSource, "js")}
             trace += `-  max tokens: ${system.maxTokens || ""}\n`
 
         trace += fenceMD(system.jsSource, "js")
-        trace += "#### expanded system prompt"
+        trace += "#### expanded"
         trace += fenceMD(sysex)
     }
+    trace += endDetails()
+
+    trace += details("gptool source", fenceMD(template.jsSource, "js"))
 
     model =
         env.vars["model"] ??
@@ -247,6 +252,17 @@ ${fenceMD(template.jsSource, "js")}
         defaultTemperature
     max_tokens =
         tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens
+
+    trace += startDetails("expanded prompt")
+    if (model) trace += `-  model: \`${model || ""}\`\n`
+    if (temperature !== undefined)
+        trace += `-  temperature: ${temperature || ""}\n`
+    if (max_tokens !== undefined)
+        trace += `-  max tokens: ${max_tokens || ""}\n`
+    trace += fenceMD(expanded)
+
+    trace += endDetails()
+    trace = trace.replace("@@errors@@", errors)
 
     return {
         expanded,
@@ -281,9 +297,8 @@ ${fenceMD(template.jsSource, "js")}
     }
 
     function traceVars() {
-        let info = "\n\n## variables\n"
-
-        info += "> Variables are referenced through `env.NAME` in prompts.\n\n"
+        let info =
+            "> Variables are referenced through `env.NAME` in prompts.\n\n"
 
         for (const k of Object.keys(env)) {
             if (isComplex(k)) continue
@@ -410,16 +425,6 @@ export async function runTemplate(
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
 
-    trace += "\n\n## final prompt\n\n"
-
-    if (model) trace += `-  model: \`${model || ""}\`\n`
-    if (temperature !== undefined)
-        trace += `-  temperature: ${temperature || ""}\n`
-    if (max_tokens !== undefined)
-        trace += `-  max tokens: ${max_tokens || ""}\n`
-
-    trace += fenceMD(expanded)
-
     // if the expansion failed, show the user the trace
     if (!success) {
         return {
@@ -493,16 +498,10 @@ The user requested to cancel the request.
         filename: fragment.file.filename,
     }
 
-    trace += "\n\n## AI Output\n\n" + fenceMD(text)
+    trace += details("LLM response", fenceMD(text))
 
     const extr = extractFenced(text)
-
-    trace += `
-
-### Extracted Variables
-
-${renderFencedVariables(extr)}
-`
+    trace += details("code regions", renderFencedVariables(extr))
 
     const res: FragmentTransformResponse = {
         edits,
