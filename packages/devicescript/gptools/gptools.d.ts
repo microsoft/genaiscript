@@ -97,11 +97,6 @@ interface PromptTemplate extends PromptLike {
      * Apply edits automatically instead of showing the refactoring UI.
      */
     autoApplyEdits?: boolean
-
-    /**
-     * Emit auto-generated .gpspec.md file.
-     */
-    emitAutoSpec?: boolean
 }
 
 /**
@@ -129,10 +124,16 @@ interface LinkedFile {
  */
 interface ExpansionVariables {
     /**
-     * Used to delimit multi-line strings.
+     * Used to delimit multi-line strings, expect for markdown.
      * `fence(X)` is preferred (equivalent to `` $`${env.fence}\n${X}\n${env.fence}` ``)
      */
     fence: string
+
+    /**
+     * Used to delimit multi-line markdown strings.
+     * `fence(X, { language: "markdown" })` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
+     */
+    markdownFence: string
 
     /**
      * Current file
@@ -186,14 +187,19 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 
 type StringLike = string | LinkedFile | LinkedFile[]
 
+interface DefOptions {
+    language?: "markdown" | string
+    lineNumbers?: boolean
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     text(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
-    fence(body: StringLike): void
-    def(name: string, body: StringLike): void
+    fence(body: StringLike, options?: DefOptions): void
+    def(name: string, body: StringLike, options?: DefOptions): void
     defFiles(files: LinkedFile[]): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
@@ -238,16 +244,16 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
  *
  * @param body string to be fenced
  */
-declare function fence(body: StringLike): void
+declare function fence(body: StringLike, options?: DefOptions): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
- * Similar to `text(name + ":"); fence(body)`
+ * Similar to `text(name + ":"); fence(body, language)`
  *
- * @param name name of defined entity, eg. "SUMMARY" or "This is text before SUMMARY"
+ * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
  * @param body string to be fenced/defined
  */
-declare function def(name: string, body: StringLike): void
+declare function def(name: string, body: StringLike, options?: DefOptions): void
 
 /**
  * Inline supplied files in the prompt.
