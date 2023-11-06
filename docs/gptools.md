@@ -22,9 +22,8 @@ gptool({
 $`Shorten the following FILE. Limit changes to minimum.`
 
 // you can debug the generation using goo'old logs
-console.log({ fragment: env.file })
+console.log("this shows up in the `console output` section of the trace")
 
-// this is similar to $`SUMMARY: ${env.fragment}`
 // but the variable is appropriately delimited
 def("FILE", env.file)
 
