@@ -59,6 +59,11 @@ interface PromptTemplate extends PromptLike {
     maxTokens?: number
 
     /**
+     * A deterministic integer seed to use for the model.
+     */
+    seed?: number
+
+    /**
      * If this is `["a", "b.c"]` then the prompt will include values of variables:
      * `@prompt`, `@prompt.a`, `@prompt.b`, `@prompt.b.c`
      * TODO implement this

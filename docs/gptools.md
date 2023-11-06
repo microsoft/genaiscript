@@ -150,6 +150,23 @@ You can specify the temperate using `temperature` variable in the gpspec file.
 <!-- @temperature 0.8 -->
 ```
 
+### seed
+
+You can specify the LLM `seed` in the script. The default is not specified.
+
+```js
+gptool({
+    ...,
+    seed: 12345678,
+})
+```
+
+You can specify the temperate using `temperature` variable in the gpspec file.
+
+```markdown
+<!-- @seed 12345678 -->
+```
+
 ### Other parameters
 
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
