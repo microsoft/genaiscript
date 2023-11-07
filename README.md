@@ -8,14 +8,15 @@ https://github.com/microsoft/gptools/assets/4175913/74517b81-4b9c-47d9-8a5c-a153
 
 ## Key Objectives and Technical Elements
 
-The main objectives of gptools are to improve automation, collaboration, and accessibility in the creation, understanding, and maintenance of complex artifacts.
+The main objectives of gptools are to improve automation, collaboration, and accessibility in the creation, understanding, and maintenance of complex GPT artifacts.
 The key elements of the gptools framework are:
 
 -   [gptools](./docs/gptools.md): Scripts that integrate traditional code and natural language, leveraging foundation models in their execution.
 -   [gpspecs](./docs/gpspecs.md): Natural language documents that instantiate gptools in a particular context.
 -   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
 -   [VS Code extension](./packages/vscode/README.md): Supporting seamless user interaction with gptools.
--   [Foundation models](./docs/token.md): Pre-trained models that can be used to execute gptools.
+
+GPTools access AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md).
 
 The **gptools** framework is designed to be modular and reusable, allowing for easier understanding and customization by non-developers. It enables users to author and maintain gpspecs and gptools at various levels of expertise, from professional developers to non-develop
 
