@@ -92,11 +92,6 @@ interface PromptTemplate extends PromptLike {
      * Specifies a folder to create output files into
      */
     outputFolder?: string
-
-    /**
-     * Apply edits automatically instead of showing the refactoring UI.
-     */
-    autoApplyEdits?: boolean
 }
 
 /**
