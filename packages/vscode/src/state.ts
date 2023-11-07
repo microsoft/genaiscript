@@ -176,10 +176,9 @@ export class ExtensionState extends EventTarget {
             if (edits) {
                 req.editsApplied = null
                 this.dispatchChange()
-                const autoApplyEdits = !!options.template.autoApplyEdits
                 vscode.commands.executeCommand("coarch.request.status")
                 req.editsApplied = await applyEdits(edits, {
-                    needsConfirmation: !autoApplyEdits,
+                    needsConfirmation: true,
                 })
                 if (req.editsApplied) {
                     const key = snapshotAIRequestKey(req)
