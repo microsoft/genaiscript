@@ -3,6 +3,7 @@ import { Utils } from "vscode-uri"
 import { ExtensionState } from "./state"
 import { PromptTemplate, copyPrompt } from "coarch-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
+import { templatesToQuickPickItems } from "./fragmentcommands"
 
 const TEMPLATE = `# New specification
     
@@ -63,9 +64,22 @@ def("FILE", env.file)
         vscode.commands.registerCommand(
             "coarch.prompt.fork",
             async (template: PromptTemplate) => {
-                if (!template) return
+                if (!template) {
+                    if (!state.project) await state.parseWorkspace()
+                    const templates = state.project?.templates
+                    if (!templates?.length) return
+                    const picked = await vscode.window.showQuickPick(
+                        templatesToQuickPickItems(templates),
+                        {
+                            title: `Pick a GPTool to fork`,
+                        }
+                    )
+                    if (picked === undefined) return
+                    template = picked.template
+                }
                 const name = await vscode.window.showInputBox({
                     title: "Pick a file name for the new .gptool.js file.",
+                    value: template.id,
                 })
                 if (name === undefined) return
                 await showPrompt(
