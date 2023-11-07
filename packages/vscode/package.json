@@ -95,10 +95,6 @@
                     "when": "false"
                 },
                 {
-                    "command": "coarch.prompt.fork",
-                    "when": "false"
-                },
-                {
                     "command": "coarch.prompt.unbuiltin",
                     "when": "false"
                 },
@@ -232,7 +228,7 @@
             },
             {
                 "command": "coarch.prompt.fork",
-                "title": "Fork",
+                "title": "Fork GPTool...",
                 "category": "GPTools",
                 "icon": "$(repo-forked)"
             },
