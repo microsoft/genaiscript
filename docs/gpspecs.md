@@ -14,6 +14,46 @@ When an AI transformation is computed, a refactoring code preview will be shown 
 
 You can accept or cancel the changes using the buttons at the bottom of the view.
 
+## Linked documents
+
+You can link other documents using the markdown link syntax. These documents are accessible during the GPTool
+execution through the `env.links` variable.
+
+```markdown A sample CoArch document.
+# email address recognizer
+
+-   [email_validator.py](./email_validator.py)
+
+Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
+
+...
+```
+
+and somewhere in the GPTool:
+
+```js
+def(
+    "FILES",
+    env.links.filter((f) => f.filename.endsWith(".py"))
+)
+```
+
+## Variables
+
+You can inject custom variables as markdown comments in your .gpspec.md files. The variable are accessible through the `env.vars` field.
+
+```markdown
+Lorem ipsum...
+
+<!-- @myvar myvalue -->
+```
+
+and somewhere in the GPtool:
+
+```js
+const myvalue = env.vars.myvar
+```
+
 ## GPSpec Refinement
 
 If you need to "influence" the answer of the LLM, you can click on the **Refine GPSpec** button in the status dialog (click on the statub bar icon) to refine the gpspec file

@@ -241,14 +241,6 @@ if (text) $`And also ${text}`
 def("FILE", file)
 ```
 
-## Conditional expansion
-
-You can use regular JavaScript `if` statements.
-
-```js
-if (env.output) def("CODE", env.output)
-```
-
 ## Inline variable
 
 You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
@@ -262,7 +254,7 @@ myvalue
 -->
 ```
 
-And somewhere in the prompt
+And somewhere in the GPTool:
 
 ```js
 const myvalue = env.vars["myvar"]
