@@ -56,9 +56,11 @@ using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of gptools and share them as libraries on their favorite package manager.
 
+-   Read more about [gptools](./docs/gptools.md).
+
 ## GPSpec specifications
 
-GPTools parses `*.gpspec.md` markdown files as specification.
+Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification.
 
 ```markdown A sample GPSpec document.
 # email address recognizer
@@ -66,6 +68,8 @@ GPTools parses `*.gpspec.md` markdown files as specification.
 Write a function that takes a string argument
 and returns true if the whole string is a valid email address, false otherwise.
 ```
+
+-   Read more about [gpspecs](./docs/gpspecs.md).
 
 ## User experience
 
