@@ -18,18 +18,26 @@ gptool({
     categories: ["shorten"], // see Inline prompts later
 })
 
-// this appends text to the prompt
-$`Shorten the following FILE. Limit changes to minimum.`
-
 // you can debug the generation using goo'old logs
 console.log("this shows up in the `console output` section of the trace")
 
 // but the variable is appropriately delimited
 def("FILE", env.file)
 
-// more text appended to prompt
-$`Respond with the new FILE.`
+// this appends text to the prompt
+$`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
 ```
+
+## Samples
+
+The section links to various samples of gptools; most of which are shipped with the extension.
+
+-   [code optimizer](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-optimizer.gptool.js)
+-   [code xray](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-xray.gptool.js)
+-   [front matter generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/front-matter.gptool.js)
+-   [slides](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/slides.gptool.js)
+-   [peer review](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/peer-review.gptool.js)
+-   [more samples...](https://github.com/microsoft/gptools/tree/main/packages/core/src/gptools)
 
 ## Metadata
 
