@@ -10,17 +10,17 @@ $`When generating or updating files you will use the following syntax:`
 def(
     `File ${folder || "."}/file1.ts`,
     `What goes in\n${folder || "."}/file1.ts.`,
-    "typescript"
+    { language: "typescript" }
 )
 def(
     `File ${folder || "."}/file1.py`,
     `What goes in\n${folder || "."}/file1.py.`,
-    "python"
+    { language: "python" }
 )
 def(
     `File /path_to_file/file2.md`,
     `What goes in\n/path_to_file/file2.md.`,
-    "markdown"
+    { language: "markdown" }
 )
 
 $`Make sure to use precisely ${env.fence} to guard file code sections.`
