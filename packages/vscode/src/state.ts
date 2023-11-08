@@ -59,7 +59,6 @@ export interface AIRequestOptions {
 }
 
 export interface AIRequestContextOptions {
-    ignoreOutput?: boolean
 }
 
 export class FragmentsEvent extends Event {

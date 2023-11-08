@@ -16,7 +16,7 @@ You can accept or cancel the changes using the buttons at the bottom of the view
 
 ## Linked documents
 
-You can link other documents using the markdown link syntax. These documents are accessible during the GPTool
+You can link other local documents using the markdown link syntax. These documents are accessible during the GPTool
 execution through the `env.links` variable.
 
 ```markdown A sample CoArch document.
@@ -37,6 +37,14 @@ def(
     env.links.filter((f) => f.filename.endsWith(".py"))
 )
 ```
+
+You can also link to `https://` resource that will automatically be download and inline.
+
+```markdown
+-   [driver.ts](https://github.com/microsoft/devicescript/blob/main/packages/drivers/src/driver.ts)
+```
+
+> For GitHub.com source files, GPTool will automatically update the URL to point to the raw file.
 
 ## Variables
 
