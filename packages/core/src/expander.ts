@@ -264,7 +264,7 @@ async function expandTemplate(
     max_tokens =
         tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens
 
-    trace += startDetails("expanded prompt")
+    trace += startDetails("gptool expanded prompt")
     if (model) trace += `-  model: \`${model || ""}\`\n`
     if (temperature !== undefined)
         trace += `-  temperature: ${temperature || ""}\n`
