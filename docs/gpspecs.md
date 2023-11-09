@@ -65,7 +65,7 @@ For example, if you want to customize a GPTool to focus on a particular file men
 
 ```markdown
 <!-- @focusdoc
-gap-secmgmt.md
+my-focus-doc.md
 -->
 ```
 and refer to that variable in the GPTool as follows:
