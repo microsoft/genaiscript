@@ -61,6 +61,20 @@ and somewhere in the GPtool:
 ```js
 const myvalue = env.vars.myvar
 ```
+For example, if you want to customize a GPTool to focus on a particular file mentioned in the GPSpec file, you can do the following in the GPSpec file:
+
+```markdown
+<!-- @focusdoc
+gap-secmgmt.md
+-->
+```
+and refer to that variable in the GPTool as follows:
+
+```js
+const focusFileName = env.vars.focusdoc
+def("FOCUSDOC", env.links.filter(f => f.filename.endsWith(focusFileName)))
+```
+Note that the variable reference in the GPSpec file is treated as a string and does not need to be quoted.
 
 ## GPSpec Refinement
 
