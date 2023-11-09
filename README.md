@@ -55,7 +55,7 @@ using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of gptools and share them as libraries on their favorite package manager.
 
--   Read more about [gptools](./docs/gptools.md).
+-   [Read more about gptools](./docs/gptools.md).
 
 ## GPSpec specifications
 
@@ -68,9 +68,12 @@ Write a function that takes a string argument
 and returns true if the whole string is a valid email address, false otherwise.
 ```
 
--   Read more about [gpspecs](./docs/gpspecs.md).
+-   [Read more about gpspecs](./docs/gpspecs.md).
 
 ## User experience
+
+This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
+The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the gptools extension to VS code.
 
 ```mermaid
 sequenceDiagram
@@ -88,15 +91,6 @@ gpvm->>gptool: Return AI-generated output
 gptool->>VSCode: Update workspace with output
 VSCode->>User: Display updated workspace
 ```
-
-This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
-The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the gptools extension to VS code.
-
-## Samples
-
-The extension contains a few gptools, and the following samples can also be consulted.
-
--   [hello world](https://github.com/microsoft/gptools/tree/main/packages/helloworld)
 
 ## Contributing
 
