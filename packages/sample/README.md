@@ -1,6 +1,6 @@
-# GPTools - AI-Enhanced Workflows for Teams
+# GPTools - AI-Scripting for Teams
 
-GPTools (formerly CoArch) allows teams, including non-developers, to create and use AI-enhanced scripts (gptools). The framework leverages LLMs to enable a new kind of scripting that combines traditional code and natural language.
+GPTools (formerly CoArch) allows teams, including non-developers, to create and use AI-enhanced scripts. GPTools uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 > Don't forget to turn on the sound.
 
@@ -48,10 +48,13 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 ## GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification.
+Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification. Links define the content.
 
 ```markdown
 # email address recognizer
+
+-   [email_validator.py](./email_validator.py)
+-   [best practices](./shared/best_practices.md)
 
 Write a function that takes a string
 and returns true if the whole string is a valid email address,
