@@ -1,68 +1,68 @@
 ### GPTools - AI-Enhanced Workflows for Teams
 
-- GPTools is a framework that empowers teams to create and use AI-enhanced scripts.
-- It combines traditional code and natural language.
+- GPTools allows teams to create and use AI-enhanced scripts.
+- The framework leverages LLMs to combine traditional code and natural language.
 
 ---
 
 ### Key Objectives and Technical Elements
 
-- Improve automation, collaboration, and accessibility.
+- Improve automation, collaboration, and accessibility in GPT artifacts.
 - Key elements: gptools, gpspecs, VS Code extension, gpvm.
 
 ---
 
-### Install manually
+### GPTool Scripts
 
-- Open the latest release.
-- Download the `gptools.vsix` file.
-- Install the extension in Visual Studio Code.
-
----
-
-### GPTool scripts
-
-- GPTool scripts use stylized JavaScript.
-- They are stored as files in your project.
+- GPTool scripts use stylized JavaScript with minimal syntax.
+- Stored as files (`gptools/*.gptool.js`) in your project.
 
 ---
+
+### GPTool Script Example
 
 ```js
 gptool({
     title: "Technical proofreading",
-    description: "Reviews the text as a technical document writer.",
+    description: "Reviews the text as a tech writer.",
 })
 
 def("TEXT", env.file)
 
-$`You are reviewing and updating TEXT to fix grammatical errors, 
+$`You are reviewing and updating TEXT 
+to fix grammatical errors, 
 fix spelling errors and make it technical.`
 ```
 
 ---
 
-### GPSpec specifications
+### GPSpec Specifications
 
 - Natural language documents that instantiate gptools in a particular context.
 - GPTools parses `*.gpspec.md` markdown files as specification.
 
 ---
 
+### GPSpec Example
+
 ```markdown
 # email address recognizer
 
-Write a function that takes a string argument
-and returns true if the whole string is a valid email address, false otherwise.
+Write a function that takes a string
+and returns true if the whole string is a valid email address,
+false otherwise.
 ```
 
 ---
 
-### User experience
+### User Experience
 
 - The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
 - The AI-generated output is used to update the workspace.
 
 ---
+
+### User Experience Diagram
 
 ```mermaid
 sequenceDiagram
@@ -83,12 +83,12 @@ VSCode->>User: Display updated workspace
 
 ---
 
-### Contributing
+### Getting Started
 
-- We accept contributions!
-- Checkout the [CONTRIBUTING](./CONTRIBUTING.md) page for details and developer setup.
-
----
+- Install in Visual Studio Code.
+- Try a builtin tool.
+- Create a gpspec.
+- Fork a tool.
 
 ### Trademarks
 

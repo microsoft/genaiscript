@@ -87,6 +87,13 @@ export function activateFragmentCommands(state: ExtensionState) {
             else frag = previous?.fullId
         }
 
+        // active text editor
+        if (frag === undefined && vscode.window.activeTextEditor) {
+            const document = vscode.window.activeTextEditor.document
+            if (document && document.uri.scheme === "file")
+                frag = document.uri.fsPath
+        }
+
         if (frag instanceof vscode.Uri) frag = frag.fsPath
 
         const { project } = state
