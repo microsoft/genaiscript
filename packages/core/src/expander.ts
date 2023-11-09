@@ -108,12 +108,24 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                         }
                     }
                     const url = urlOrFile.filename
-                    if (!/^https:\/\//i.test(url))
-                        throw new Error(`only https:// URLs supported`)
-                    const resp = await fetch(url)
-                    const { ok, status, statusText } = resp
-                    if (!ok) return { ok, status, statusText }
-                    const text = await resp.text()
+                    let ok = false
+                    let status = 404
+                    let text: string
+                    if (/^https?:\/\//i.test(url)) {
+                        const resp = await fetch(url)
+                        ok = resp.ok
+                        status = resp.status
+                        if (ok) text = await resp.text()
+                    } else {
+                        try {
+                            text = await readText("workspace://" + url)
+                            ok = true
+                        } catch (e) {
+                            console.debug(e)
+                            ok = false
+                            status = 404
+                        }
+                    }
                     const file: LinkedFile = {
                         label: urlOrFile.label,
                         filename: urlOrFile.label,
@@ -122,7 +134,6 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                     return {
                         ok,
                         status,
-                        statusText,
                         text,
                         file,
                     }
