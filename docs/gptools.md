@@ -230,7 +230,7 @@ In the coarch files, those link you be part of a bulletted list.
 
 The current file is also available as a linked file through, `env.file`
 
-### fetchText(ur: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
+### fetchText(url: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
 
 Use `fetchText` to to issue GET requests and download text from the internet.
 
@@ -239,6 +239,13 @@ const { text, file } = await fetchText("https://....")
 if (text) $`And also ${text}`
 
 def("FILE", file)
+```
+
+fetchText will also resolve the contents of file in the current workspace if the url is a relative path.
+
+```ts
+const { file } = await fetchText("README.md")
+def("README", file)
 ```
 
 ## Inline variable

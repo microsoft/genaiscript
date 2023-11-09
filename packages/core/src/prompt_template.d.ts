@@ -199,7 +199,6 @@ interface PromptContext {
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
-        statusText: string
         text?: string
         file?: LinkedFile
     }>
