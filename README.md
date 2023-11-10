@@ -6,13 +6,13 @@ GPTools (formerly CoArch) allows teams, including non-developers, to create and 
 
 https://github.com/microsoft/gptools/assets/4175913/74517b81-4b9c-47d9-8a5c-a15362b0d4db
 
-## Key Objectives and Technical Elements
+## Overview
 
-The main objectives of gptools are to improve automation, collaboration, and accessibility in the creation, understanding, and maintenance of complex GPT artifacts. The key elements of the gptools framework are:
+The key elements of the gptools framework are:
 
--   [gptools](./docs/gptools.md): Scripts that integrate traditional code and natural language, leveraging foundation models in their execution.
--   [gpspecs](./docs/gpspecs.md): Natural language documents that instantiate gptools in a particular context.
--   [VS Code extension](./packages/vscode/README.md): Supporting seamless user interaction with gptools.
+-   [gpspecs](./docs/gpspecs.md): Natural language specification documents that also define the LLM context.
+-   [gptools](./docs/gptools.md): Scripts that combine the gpspec source, the context and the LLM models.
+-   [VS Code extension](./packages/vscode/README.md): User interaction with gptools and conversion of LLM results into workspace edits.
 -   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
 
 GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md).
@@ -22,16 +22,21 @@ GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) usin
 GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
 
 ```js
+// metadata
 gptool({
     title: "Technical proofreading",
     description: "Reviews the text as a tech writer.",
 })
 
+// the context
 def("TEXT", env.file)
+def("RES", env.links)
 
+// the task
 $`You are reviewing and updating TEXT 
 to fix grammatical errors, 
-fix spelling errors and make it technical.`
+fix spelling errors and make it technical.
+Use information from RES.`
 ```
 
 GPTools comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
@@ -48,7 +53,7 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 ## GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification. Links define the content.
+Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.file`). Links define the content (`env.links`).
 
 ```markdown
 # email address recognizer
