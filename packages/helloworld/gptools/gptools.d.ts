@@ -37,11 +37,11 @@ type SystemPromptId = "system.diff" | "system.explanations" | "system.files" | "
 
 interface PromptTemplate extends PromptLike {
     /**
-     * Which model to use.
+     * Which LLM model to use.
      *
      * @default gpt-4
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo"
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -54,7 +54,6 @@ interface PromptTemplate extends PromptLike {
     /**
      * When to stop producing output.
      *
-     * @default 800
      */
     maxTokens?: number
 
@@ -199,7 +198,6 @@ interface PromptContext {
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
-        statusText: string
         text?: string
         file?: LinkedFile
     }>
