@@ -9,6 +9,7 @@ import {
 } from "coarch-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
+import { Utils } from "vscode-uri"
 
 const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 
@@ -84,7 +85,13 @@ export class VSCodeHost extends EventTarget implements Host {
         name: string,
         options?: ReadFileOptions
     ): Promise<Uint8Array> {
-        const uri = Uri.file(name)
+        const wksrx = /^workspace:\/\//i
+        const uri = wksrx.test(name)
+            ? Utils.joinPath(
+                  workspace.workspaceFolders[0].uri,
+                  name.replace(wksrx, "")
+              )
+            : Uri.file(name)
 
         const v = this.virtualFiles[uri.fsPath]
         if (options?.virtual) {

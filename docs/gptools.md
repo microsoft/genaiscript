@@ -18,18 +18,26 @@ gptool({
     categories: ["shorten"], // see Inline prompts later
 })
 
-// this appends text to the prompt
-$`Shorten the following FILE. Limit changes to minimum.`
-
 // you can debug the generation using goo'old logs
 console.log("this shows up in the `console output` section of the trace")
 
 // but the variable is appropriately delimited
 def("FILE", env.file)
 
-// more text appended to prompt
-$`Respond with the new FILE.`
+// this appends text to the prompt
+$`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
 ```
+
+## Samples
+
+The section links to various samples of gptools; most of which are shipped with the extension.
+
+-   [code optimizer](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-optimizer.gptool.js)
+-   [code xray](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-xray.gptool.js)
+-   [front matter generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/front-matter.gptool.js)
+-   [slides](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/slides.gptool.js)
+-   [peer review](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/peer-review.gptool.js)
+-   [more samples...](https://github.com/microsoft/gptools/tree/main/packages/core/src/gptools)
 
 ## Metadata
 
@@ -118,7 +126,7 @@ You can specify the temperate using `model` variable in the gpspec file.
 
 ### maxTokens
 
-You can specify the LLM `max tokens` in the script. The default is `800`.
+You can specify the LLM `max tokens` in the script. The default is unspecified.
 
 ```js
 gptool({
@@ -239,7 +247,7 @@ In the coarch files, those link you be part of a bulletted list.
 
 The current file is also available as a linked file through, `env.file`
 
-### fetchText(ur: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
+### fetchText(url: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
 
 Use `fetchText` to to issue GET requests and download text from the internet.
 
@@ -250,12 +258,11 @@ if (text) $`And also ${text}`
 def("FILE", file)
 ```
 
-## Conditional expansion
+fetchText will also resolve the contents of file in the current workspace if the url is a relative path.
 
-You can use regular JavaScript `if` statements.
-
-```js
-if (env.output) def("CODE", env.output)
+```ts
+const { file } = await fetchText("README.md")
+def("README", file)
 ```
 
 ## Inline variable
@@ -271,7 +278,7 @@ myvalue
 -->
 ```
 
-And somewhere in the prompt
+And somewhere in the GPTool:
 
 ```js
 const myvalue = env.vars["myvar"]

@@ -17,9 +17,10 @@ export function isTokenError(e: Error) {
     return isRequestError(e, 403)
 }
 
-export function isRequestError(e: Error, statusCode?: number) {
+export function isRequestError(e: Error, statusCode?: number, code?: string) {
     return (
         e instanceof RequestError &&
-        (statusCode === undefined || statusCode === e.status)
+        (statusCode === undefined || statusCode === e.status) &&
+        (code === undefined || code === e.body?.code)
     )
 }

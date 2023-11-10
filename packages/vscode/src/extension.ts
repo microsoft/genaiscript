@@ -85,8 +85,7 @@ export async function activate(context: ExtensionContext) {
                         ? `GPTools - running ${template.title}`
                         : template
                         ? `GPTools - ${template.title}`
-                        : "GPTools",
-                    template ? template.title : undefined
+                        : "GPTools"
                 ),
                 ...cmds
             )

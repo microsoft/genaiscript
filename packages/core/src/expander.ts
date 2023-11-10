@@ -20,8 +20,8 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
-const defaultMaxTokens = 800
 const defaultSeed: number = undefined
+const defaultMaxTokens: number = undefined
 
 export interface FragmentTransformResponse {
     /**
@@ -109,12 +109,24 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                         }
                     }
                     const url = urlOrFile.filename
-                    if (!/^https:\/\//i.test(url))
-                        throw new Error(`only https:// URLs supported`)
-                    const resp = await fetch(url)
-                    const { ok, status, statusText } = resp
-                    if (!ok) return { ok, status, statusText }
-                    const text = await resp.text()
+                    let ok = false
+                    let status = 404
+                    let text: string
+                    if (/^https?:\/\//i.test(url)) {
+                        const resp = await fetch(url)
+                        ok = resp.ok
+                        status = resp.status
+                        if (ok) text = await resp.text()
+                    } else {
+                        try {
+                            text = await readText("workspace://" + url)
+                            ok = true
+                        } catch (e) {
+                            console.debug(e)
+                            ok = false
+                            status = 404
+                        }
+                    }
                     const file: LinkedFile = {
                         label: urlOrFile.label,
                         filename: urlOrFile.label,
@@ -123,7 +135,6 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                     return {
                         ok,
                         status,
-                        statusText,
                         text,
                         file,
                     }
@@ -244,11 +255,10 @@ async function expandTemplate(
 
     trace += details("gptool source", fenceMD(template.jsSource, "js"))
 
-    model =
-        env.vars["model"] ??
+    model = (env.vars["model"] ??
         model ??
         fragment.project.coarchJson.model ??
-        defaultModel
+        defaultModel) as any
     temperature =
         tryParseFloat(env.vars["temperature"]) ??
         temperature ??
@@ -257,7 +267,7 @@ async function expandTemplate(
         tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens
     seed = tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace += startDetails("expanded prompt")
+    trace += startDetails("gptool expanded prompt")
     if (model) trace += `-  model: \`${model || ""}\`\n`
     if (temperature !== undefined)
         trace += `-  temperature: ${temperature || ""}\n`
@@ -330,52 +340,62 @@ async function expandTemplate(
     }
 }
 
-function fragmentVars(
+async function fragmentVars(
     template: PromptTemplate,
     templates: PromptDefinition[],
     frag: Fragment,
-    promptOptions: { ignoreOutput?: boolean } & any
+    promptOptions: any
 ) {
     const { file } = frag
     const project = file.project
-    const ignoreOutput = !!promptOptions?.ignoreOutput
     const prjFolder = host.projectFolder()
 
     const links: LinkedFile[] = []
-    if (!ignoreOutput) {
-        for (const fr of allChildren(frag, true)) {
-            for (const ref of fr.references) {
-                // what about URLs?
-                if (/^https:\/\//.test(ref.filename)) {
-                    if (!links.find((lk) => lk.filename === ref.filename))
-                        links.push({
-                            label: ref.name,
-                            filename: ref.filename,
-                            content: "",
-                        })
-                    continue
-                }
-
-                // check for existing file
-                const projectFile = project.allFiles.find(
-                    (f) => f.filename === ref.filename
-                )
-                if (!projectFile) {
-                    console.debug(`reference ${ref.filename} not found`)
-                    continue
-                }
-
-                const fn = relativePath(
-                    host.projectFolder(),
-                    projectFile.filename
-                )
-                if (!links.find((lk) => lk.filename === fn))
+    for (const fr of allChildren(frag, true)) {
+        for (const ref of fr.references) {
+            // what about URLs?
+            if (/^https:\/\//.test(ref.filename)) {
+                if (!links.find((lk) => lk.filename === ref.filename)) {
+                    let content: string = ""
+                    try {
+                        let url = ref.filename
+                        const m =
+                            /^https:\/\/github.com\/(\w+)\/(\w+)\/blob\/(.+)#?/i.exec(
+                                url
+                            )
+                        if (m)
+                            url = `https://raw.githubusercontent.com/${m[1]}/${m[2]}/${m[3]}`
+                        const resp = await fetch(url)
+                        if (resp.ok) content = await resp.text()
+                    } catch (e) {
+                        console.log(`failed to download ${ref.filename}`)
+                        console.debug(e)
+                    }
                     links.push({
                         label: ref.name,
-                        filename: fn,
-                        content: projectFile.content,
+                        filename: ref.filename,
+                        content,
                     })
+                }
+                continue
             }
+
+            // check for existing file
+            const projectFile = project.allFiles.find(
+                (f) => f.filename === ref.filename
+            )
+            if (!projectFile) {
+                console.debug(`reference ${ref.filename} not found`)
+                continue
+            }
+
+            const fn = relativePath(host.projectFolder(), projectFile.filename)
+            if (!links.find((lk) => lk.filename === fn))
+                links.push({
+                    label: ref.name,
+                    filename: fn,
+                    content: projectFile.content,
+                })
         }
     }
     const parents: LinkedFile[] = []
@@ -418,7 +438,15 @@ export async function runTemplate(
 ): Promise<FragmentTransformResponse> {
     const { requestOptions = {} } = options || {}
     const { signal } = requestOptions
-    const { vars } = fragmentVars(
+
+    options?.infoCb?.({
+        edits: [],
+        trace: "",
+        text: "> Running GPTool...",
+        fileEdits: {},
+    })
+
+    const { vars } = await fragmentVars(
         template,
         templates,
         fragment,

@@ -27,4 +27,5 @@ in file ${output} using markdown.
 -  If the source is code, describe the code and show the code in a separate slide.
 -  Keep code snippet short. Maximum 10 lines. Maximum 42 columns. Use multiple slides if needed. Ellipse sections with ... if necessary.
 -  The first slide have a title and a summary of the slidedeck.
+-  IGNORE Contributing, Copyright and Trademarks sections.
 `

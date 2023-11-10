@@ -30,7 +30,9 @@ import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 const MAX_HISTORY_LENGTH = 500
 
 export const TOKEN_DOCUMENTATION_URL =
-    "https://github.com/microsoft/gptools/tree/main/packages/vscode#openai-or-llama-token"
+    "https://github.com/microsoft/gptools/blob/main/docs/token.md"
+export const CONTEXT_LENGTH_DOCUMENTATION_URL =
+    "https://github.com/microsoft/gptools/blob/main/docs/token.md"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -58,9 +60,7 @@ export interface AIRequestOptions {
     fragment: Fragment
 }
 
-export interface AIRequestContextOptions {
-    ignoreOutput?: boolean
-}
+export interface AIRequestContextOptions {}
 
 export class FragmentsEvent extends Event {
     constructor(readonly fragments?: Fragment[]) {
@@ -176,10 +176,9 @@ export class ExtensionState extends EventTarget {
             if (edits) {
                 req.editsApplied = null
                 this.dispatchChange()
-                const autoApplyEdits = !!options.template.autoApplyEdits
                 vscode.commands.executeCommand("coarch.request.status")
                 req.editsApplied = await applyEdits(edits, {
-                    needsConfirmation: !autoApplyEdits,
+                    needsConfirmation: true,
                 })
                 if (req.editsApplied) {
                     const key = snapshotAIRequestKey(req)
@@ -205,9 +204,20 @@ export class ExtensionState extends EventTarget {
                 )
                 if (res === trace) openRequestTrace()
                 else if (res === fix) await initToken(true)
+            } else if (isRequestError(e, 400, "context_length_exceeded")) {
+                const help = "Documentation"
+                const title = `Context length exceeded.`
+                const msg = `${title}.
+    ${e.message}`
+                const res = await vscode.window.showWarningMessage(msg, help)
+                if (res === help)
+                    vscode.env.openExternal(
+                        vscode.Uri.parse(CONTEXT_LENGTH_DOCUMENTATION_URL)
+                    )
             } else if (isRequestError(e, 400)) {
                 const help = "Documentation"
-                const msg = `Invalid OpenAI token or configuration string.`
+                const msg = `OpenAI model error (400).
+${e.message}`
                 const res = await vscode.window.showWarningMessage(msg, help)
                 if (res === help)
                     vscode.env.openExternal(

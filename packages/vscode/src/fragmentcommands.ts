@@ -42,7 +42,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const templates = fragment.applicableTemplates().filter(filter)
 
         const picked = await vscode.window.showQuickPick(
-            templatesToQuickPickItems(templates),
+            templatesToQuickPickItems(templates, { create: true }),
             {
                 title: `Pick a GPTool to apply to ${fragment.title}`,
             }
@@ -85,6 +85,13 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (previous && state.host.isVirtualFile(previous.file.filename))
                 frag = previous.file.filename.replace(/\.gpspec\.md$/i, "")
             else frag = previous?.fullId
+        }
+
+        // active text editor
+        if (frag === undefined && vscode.window.activeTextEditor) {
+            const document = vscode.window.activeTextEditor.document
+            if (document && document.uri.scheme === "file")
+                frag = document.uri.fsPath
         }
 
         if (frag instanceof vscode.Uri) frag = frag.fsPath
@@ -192,9 +199,11 @@ export function activateFragmentCommands(state: ExtensionState) {
     )
 }
 
-function templatesToQuickPickItems(
-    templates: globalThis.PromptTemplate[]
+export function templatesToQuickPickItems(
+    templates: globalThis.PromptTemplate[],
+    options?: { create?: boolean }
 ): TemplateQuickPickItem[] {
+    const { create } = options || {}
     const cats = groupBy(templates, templateGroup)
     const items: vscode.QuickPickItem[] = []
     for (const cat in cats) {
@@ -215,19 +224,21 @@ function templatesToQuickPickItems(
             )
         )
     }
-    items.push(<vscode.QuickPickItem>{
-        label: "",
-        kind: vscode.QuickPickItemKind.Separator,
-    })
-    items.push(<TemplateQuickPickItem>{
-        label: "Create a new GPTool script...",
-        description: "Create a new gptool script in the current workspace.",
-        action: "create",
-    })
-    items.push(<TemplateQuickPickItem>{
-        label: "View GPTools Discussions...",
-        description: "Open the Discussions tab in the GPTools GitHub.",
-        action: "discussions",
-    })
+    if (create) {
+        items.push(<vscode.QuickPickItem>{
+            label: "",
+            kind: vscode.QuickPickItemKind.Separator,
+        })
+        items.push(<TemplateQuickPickItem>{
+            label: "Create a new GPTool script...",
+            description: "Create a new gptool script in the current workspace.",
+            action: "create",
+        })
+        items.push(<TemplateQuickPickItem>{
+            label: "View GPTools Discussions...",
+            description: "Open the Discussions tab in the GPTools GitHub.",
+            action: "discussions",
+        })
+    }
     return items
 }

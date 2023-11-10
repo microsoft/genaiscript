@@ -6,3 +6,4 @@ package-lock.json
 temp/
 .env
 __pycache__/
+packages/sample/*.slides.md
