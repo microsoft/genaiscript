@@ -20,7 +20,7 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
-const defaultMaxTokens = 800
+const defaultMaxTokens: number = undefined
 
 export interface FragmentTransformResponse {
     /**

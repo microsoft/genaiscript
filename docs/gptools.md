@@ -126,7 +126,7 @@ You can specify the temperate using `model` variable in the gpspec file.
 
 ### maxTokens
 
-You can specify the LLM `max tokens` in the script. The default is `800`.
+You can specify the LLM `max tokens` in the script. The default is unspecified.
 
 ```js
 gptool({
