@@ -252,11 +252,10 @@ async function expandTemplate(
 
     trace += details("gptool source", fenceMD(template.jsSource, "js"))
 
-    model =
-        env.vars["model"] ??
+    model = (env.vars["model"] ??
         model ??
         fragment.project.coarchJson.model ??
-        defaultModel
+        defaultModel) as any
     temperature =
         tryParseFloat(env.vars["temperature"]) ??
         temperature ??
