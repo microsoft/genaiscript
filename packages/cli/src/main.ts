@@ -29,11 +29,11 @@ async function buildProject(options?: {
     return newProject
 }
 
-async function run(options: { tool: string; spec: string; out: string }) {
+async function run(tool: string, spec: string, options: { out: string }) {
     const prj = await buildProject()
-    const gptool = prj.templates.find((t) => t.id === options.tool)
+    const gptool = prj.templates.find((t) => t.id === tool)
     if (!gptool) throw new Error("Tool not found")
-    const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(options.spec))
+    const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(spec))
     if (!gpspec) throw new Error("Spec not found")
 
     const res = await runTemplate(gptool, [], gpspec.roots[0], {
@@ -77,8 +77,7 @@ async function main() {
     program
         .command("run", { isDefault: true })
         .description("Runs a GPTools against a GPSpec")
-        .requiredOption("-t, --tool <string>", "tool to execute")
-        .requiredOption("-s, --spec <string>", "gpspec file to start from")
+        .arguments("<tool> <spec>")
         .option("-o, --out <string>", "output file")
         .action(run)
 
