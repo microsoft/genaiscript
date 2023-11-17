@@ -4,6 +4,8 @@ import {
     parseProject,
     runTemplate,
     setToken,
+    writeJSON,
+    writeText,
 } from "coarch-core"
 import { NodeHost } from "./hostimpl"
 import { program } from "commander"
@@ -27,7 +29,7 @@ async function buildProject(options?: {
     return newProject
 }
 
-async function run(options: { tool: string; spec: string }) {
+async function run(options: { tool: string; spec: string; out: string }) {
     const prj = await buildProject()
     const gptool = prj.templates.find((t) => t.id === options.tool)
     if (!gptool) throw new Error("Tool not found")
@@ -39,7 +41,19 @@ async function run(options: { tool: string; spec: string }) {
             console.log(progress?.text)
         },
     })
-    console.log(JSON.stringify(res, null, 2))
+    if (options.out) {
+        if (!/\.json$/i.test(options.out)) options.out += ".json"
+        const jsonf = options.out
+        // change the extension of jsonf to .output.md
+        const outputf = jsonf.replace(/\.json$/i, ".output.md")
+        const tracef = jsonf.replace(/\.json$/i, ".trace.md")
+        console.log(`writing ${jsonf}, ${outputf} and ${tracef}`)
+        await writeJSON(jsonf, res)
+        await writeText(outputf, res.text)
+        await writeText(tracef, res.trace)
+    } else {
+        console.log(res.text)
+    }
 }
 
 async function listTools() {
@@ -65,6 +79,7 @@ async function main() {
         .description("Runs a GPTools against a GPSpec")
         .requiredOption("-t, --tool <string>", "tool to execute")
         .requiredOption("-s, --spec <string>", "gpspec file to start from")
+        .option("-o, --out <string>", "output file")
         .action(run)
 
     const keys = program.command("keys")
