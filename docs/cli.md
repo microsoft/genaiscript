@@ -4,12 +4,12 @@ The GPTools CLI is a command line packaged as a Node.JS javascript file. It is u
 
 -   Download `gptools.js` from the [latest release assets](https://github.com/microsoft/gptools/releases/latest).
 
-## `run`, run a tool on a spec
+## run a tool on a spec
 
 Runs a gptool on a gpspec file and prints the LLM output.
 
 ```bash
-node gptools.js run <tool> <file>
+node gptools.js <tool> <file>
 ```
 
 ### --output <file>
@@ -17,7 +17,7 @@ node gptools.js run <tool> <file>
 Saves the results in a JSON file, along with mardown files of the output and the trace.
 
 ```bash
-node gptools.js run <tool> <file> --output <file>
+node gptools.js <tool> <file> --output <file>
 ```
 
 ## `tools`, manage GPtools
