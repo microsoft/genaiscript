@@ -1,4 +1,4 @@
-import { host, parseLLMDiffs, parseProject } from "coarch-core"
+import { host, parseLLMDiffs, parseProject, runTemplate } from "coarch-core"
 import { NodeHost } from "./hostimpl"
 import { program } from "commander"
 
@@ -22,7 +22,18 @@ async function buildProject(options?: {
 }
 
 async function run(options: { tool: string; spec: string }) {
-    console.log({ options })
+    const prj = await buildProject()
+    const gptool = prj.templates.find((t) => t.id === options.tool)
+    if (!gptool) throw new Error("Tool not found")
+    const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(options.spec))
+    if (!gpspec) throw new Error("Spec not found")
+
+    const res = await runTemplate(gptool, [], gpspec.roots[0], {
+        infoCb: (progress) => {
+            console.log(progress?.text)
+        },
+    })
+    console.log(JSON.stringify(res, null, 2))
 }
 
 async function listTools() {
