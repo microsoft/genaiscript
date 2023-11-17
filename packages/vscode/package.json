@@ -151,7 +151,7 @@
                 "properties": {
                     "coarch.maxCachedTemperature": {
                         "type": "number",
-                        "default": 0.1,
+                        "default": 0.01,
                         "description": "Maximum prompt temperature to be cached."
                     }
                 }
