@@ -96,8 +96,10 @@ export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
 }
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
-    const { response, error } = r
+    const { response, error, creationTime } = r
     const snapshot = structuredClone({
+        creationTime,
+        cacheTime: new Date().toISOString(),
         response,
         error,
     })
