@@ -69,6 +69,7 @@ export interface AIRequestSnapshot {
 }
 
 export interface AIRequest {
+    creationTime: string
     options: AIRequestOptions
     controller: AbortController
     request?: Promise<FragmentTransformResponse>
@@ -95,7 +96,7 @@ export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
 }
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
-    const { options, response, error } = r
+    const { response, error } = r
     const snapshot = structuredClone({
         response,
         error,
@@ -160,6 +161,11 @@ export class ExtensionState extends EventTarget {
             if (text)
                 vscode.commands.executeCommand("coarch.request.open.output")
 
+            const key = snapshotAIRequestKey(req)
+            const snapshot = snapshotAIRequest(req)
+            await this._aiRequestCache.set(key, snapshot)
+            this.dispatchChange()
+
             if (edits) {
                 req.editsApplied = null
                 this.dispatchChange()
@@ -168,9 +174,6 @@ export class ExtensionState extends EventTarget {
                     needsConfirmation: true,
                 })
                 if (req.editsApplied) {
-                    const key = snapshotAIRequestKey(req)
-                    const snapshot = snapshotAIRequest(req)
-                    await this._aiRequestCache.set(key, snapshot)
                     await Promise.all(
                         vscode.workspace.textDocuments
                             .filter((doc) => doc.isDirty)
@@ -240,6 +243,7 @@ ${e.message}`
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const signal = controller.signal
         const r: AIRequest = {
+            creationTime: new Date().toISOString(),
             options,
             controller,
             request: null,
