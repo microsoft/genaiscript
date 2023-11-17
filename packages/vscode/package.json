@@ -3,7 +3,7 @@
     "publisher": "Microsoft",
     "displayName": "GPTools",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
-    "version": "0.0.1",
+    "version": "1.1.21",
     "engines": {
         "vscode": "^1.83.0"
     },
@@ -42,11 +42,6 @@
                 {
                     "id": "coarch.prompts",
                     "name": "GPTools"
-                },
-                {
-                    "id": "coarch.fragments",
-                    "name": "GPSpecs",
-                    "visibility": "collapsed"
                 },
                 {
                     "id": "coarch.prompts.requests",
@@ -156,7 +151,7 @@
                 "properties": {
                     "coarch.maxCachedTemperature": {
                         "type": "number",
-                        "default": 0.1,
+                        "default": 0.01,
                         "description": "Maximum prompt temperature to be cached."
                     }
                 }
@@ -176,6 +171,11 @@
             {
                 "command": "coarch.request.abort",
                 "title": "Abort OpenAI request",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.request.retry",
+                "title": "Retry last GPTool",
                 "category": "GPTools"
             },
             {
@@ -236,6 +236,16 @@
             {
                 "command": "coarch.request.open",
                 "title": "Open request or response",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.request.open.trace",
+                "title": "Open Trace",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.request.open.output",
+                "title": "Open Output",
                 "category": "GPTools"
             },
             {

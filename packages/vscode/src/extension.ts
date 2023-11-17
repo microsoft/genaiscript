@@ -1,7 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionContext } from "vscode"
-import { ExtensionState, openRequestOutput } from "./state"
-import { activateFragmentTreeDataProvider } from "./fragmenttree"
+import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
 import { initToken, isCancelError } from "coarch-core"
@@ -9,17 +8,12 @@ import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
-import { activatePromptCommands } from "./promptcommands"
+import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { clearToken } from "coarch-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 
 export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
-
-function toStringList(...token: string[]) {
-    const md = token.filter((l) => l !== undefined && l !== null).join("\n")
-    return md
-}
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -27,7 +21,7 @@ export async function activate(context: ExtensionContext) {
     activateFragmentCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
-    activateFragmentTreeDataProvider(state)
+    //activateFragmentTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
     // activateRunnerView(state)
@@ -41,6 +35,9 @@ export async function activate(context: ExtensionContext) {
                 "GPTools - request aborted."
             )
         }),
+        vscode.commands.registerCommand("coarch.request.retry", () =>
+            state.retryAIRequest()
+        ),
         vscode.commands.registerCommand(
             "coarch.openai.token.clear",
             async () => {
@@ -63,41 +60,17 @@ export async function activate(context: ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand("coarch.request.status", async () => {
-            const request = state.aiRequest
-            const { computing, options, editsApplied, response } = request || {}
-            const { text } = response || {}
-            const { template } = options || {}
-            const abort = "Abort"
-            const output = "Output"
-            const trace = "Trace"
-            const next = "Run GPTool"
-            const refine = "Refine GPSpec"
-            const cmds: string[] = []
-            if (computing) cmds.push(abort)
-            if (request) cmds.push(refine)
-            if (request) cmds.push(next)
-            if (text) cmds.push(output)
-            if (request) cmds.push(trace)
-
-            const res = await vscode.window.showInformationMessage(
-                toStringList(
-                    computing
-                        ? `GPTools - running ${template.title}`
-                        : template
-                        ? `GPTools - ${template.title}`
-                        : "GPTools"
-                ),
-                ...cmds
-            )
-            if (res === abort)
-                vscode.commands.executeCommand("coarch.request.abort")
-            else if (res === trace)
-                vscode.commands.executeCommand("coarch.request.open")
-            else if (res === output) openRequestOutput()
-            else if (res === next)
-                vscode.commands.executeCommand("coarch.fragment.prompt")
-            else if (res === refine)
-                vscode.commands.executeCommand("coarch.fragment.refine")
+            const cmds = commandButtons(state)
+            if (!cmds.length)
+                await vscode.window.showInformationMessage(
+                    "GPTools - no request."
+                )
+            else {
+                const res = await vscode.window.showQuickPick(cmds, {
+                    canPickMany: false,
+                })
+                if (res) vscode.commands.executeCommand(res.cmd)
+            }
         }),
         vscode.commands.registerCommand(
             "coarch.openIssueReporter",

@@ -26,6 +26,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
+import { commandButtonsMarkdown } from "./promptcommands"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -39,20 +40,6 @@ export const AI_REQUEST_CHANGE = "aiRequestChange"
 
 export const REQUEST_OUTPUT_FILENAME = "GPTools Output.md"
 export const REQUEST_TRACE_FILENAME = "GPTools Trace.md"
-
-export async function openRequestOutput() {
-    return vscode.commands.executeCommand(
-        "coarch.request.open",
-        REQUEST_OUTPUT_FILENAME
-    )
-}
-
-export async function openRequestTrace() {
-    return vscode.commands.executeCommand(
-        "coarch.request.open",
-        REQUEST_TRACE_FILENAME
-    )
-}
 
 export interface AIRequestOptions {
     label: string
@@ -83,6 +70,7 @@ export interface AIRequestSnapshot {
 }
 
 export interface AIRequest {
+    creationTime: string
     options: AIRequestOptions
     controller: AbortController
     request?: Promise<FragmentTransformResponse>
@@ -109,8 +97,10 @@ export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
 }
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
-    const { options, response, error } = r
+    const { response, error, creationTime } = r
     const snapshot = structuredClone({
+        creationTime,
+        cacheTime: new Date().toISOString(),
         response,
         error,
     })
@@ -161,8 +151,10 @@ export class ExtensionState extends EventTarget {
     async retryAIRequest(): Promise<void> {
         const options = this.aiRequest?.options
         await this.cancelAiRequest()
-        await delay(100 + Math.random() * 1000)
-        return options ? this.requestAI(options) : undefined
+        if (options) {
+            await delay(100 + Math.random() * 1000)
+            await this.requestAI(options)
+        }
     }
 
     async requestAI(options: AIRequestOptions): Promise<void> {
@@ -171,7 +163,13 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text) openRequestOutput()
+            if (text)
+                vscode.commands.executeCommand("coarch.request.open.output")
+
+            const key = snapshotAIRequestKey(req)
+            const snapshot = snapshotAIRequest(req)
+            await this._aiRequestCache.set(key, snapshot)
+            this.dispatchChange()
 
             if (edits) {
                 req.editsApplied = null
@@ -181,9 +179,6 @@ export class ExtensionState extends EventTarget {
                     needsConfirmation: true,
                 })
                 if (req.editsApplied) {
-                    const key = snapshotAIRequestKey(req)
-                    const snapshot = snapshotAIRequest(req)
-                    await this._aiRequestCache.set(key, snapshot)
                     await Promise.all(
                         vscode.workspace.textDocuments
                             .filter((doc) => doc.isDirty)
@@ -202,7 +197,8 @@ export class ExtensionState extends EventTarget {
                     fix,
                     trace
                 )
-                if (res === trace) openRequestTrace()
+                if (res === trace)
+                    vscode.commands.executeCommand("coarch.request.open.trace")
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
@@ -224,18 +220,13 @@ ${e.message}`
                         vscode.Uri.parse(TOKEN_DOCUMENTATION_URL)
                     )
             } else if (isRequestError(e)) {
-                const trace = "Open Trace"
-                const retry = "Retry"
                 const msg = isRequestError(e, 404)
                     ? `OpenAI model not found (404). Does your token support the selected model?`
                     : e.message
-                const res = await vscode.window.showWarningMessage(
+                await vscode.window.showWarningMessage(
                     msg,
-                    retry,
-                    trace
+                    commandButtonsMarkdown(this)
                 )
-                if (res === trace) openRequestTrace()
-                else if (res === retry) await this.retryAIRequest()
             } else throw e
         }
     }
@@ -251,6 +242,7 @@ ${e.message}`
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const signal = controller.signal
         const r: AIRequest = {
+            creationTime: new Date().toISOString(),
             options,
             controller,
             request: null,
@@ -294,7 +286,7 @@ ${e.message}`
                     }
             )
 
-        openRequestOutput()
+        vscode.commands.executeCommand("coarch.request.open.output")
         this.requestHistory.push({
             template: template.id,
             filename: fragment.file.filename,

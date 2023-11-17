@@ -1,6 +1,6 @@
 {
     "name": "coarch",
-    "version": "1.1.19",
+    "version": "1.1.21",
     "license": "MIT",
     "private": true,
     "workspaces": [
@@ -25,5 +25,8 @@
             "releaseName": "v${version}",
             "draft": true
         }
+    },
+    "devDependencies": {
+        "@release-it-plugins/workspaces": "^4.0.0"
     }
 }
