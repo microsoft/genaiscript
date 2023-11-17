@@ -1,6 +1,6 @@
 {
     "name": "coarch",
-    "version": "1.1.21",
+    "version": "1.1.22",
     "license": "MIT",
     "private": true,
     "workspaces": [
@@ -16,7 +16,8 @@
         "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/gptools.vsix --no-github.draft",
-        "release": "yarn compile && yarn package && yarn release:draft && yarn compile && yarn package && yarn release:vsix",
+        "release:cli": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/cli/built/gptools.js --no-github.draft",
+        "release": "yarn compile && yarn package && yarn release:draft && yarn compile && yarn package && yarn release:vsix && yarn release:cli",
         "bump": "yarn release"
     },
     "release-it": {

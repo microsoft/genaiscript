@@ -239,8 +239,8 @@ export async function tryReadJSON(fn: string) {
     }
 }
 
-export async function writeJSON(fn: string, obj: {}) {
-    await host.writeFile(fn, utf8Encode(JSON.stringify(obj)))
+export async function writeJSON(fn: string, obj: any) {
+    await writeText(fn, JSON.stringify(obj))
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {

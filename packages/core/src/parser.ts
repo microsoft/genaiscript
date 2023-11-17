@@ -350,11 +350,10 @@ export async function parseProject(options: {
         const ext = /\.[^\.]+$/.exec(f)?.[0]
         let parser = parsers[ext ?? ""]
         if (!parser) {
-            logVerbose(`unknown file type: ${f}`)
             parser = parseGeneric
         }
         if (!(await fileExists(f))) {
-            logWarn(`file not found: ${f}`)
+            //logWarn(`file not found: ${f}`)
             continue
         } else {
             const text = await readText(f)

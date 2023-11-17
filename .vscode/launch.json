@@ -4,7 +4,7 @@
     "configurations": [
         {
             "name": "cli",
-            "program": "${workspaceFolder}/packages/cli/built/main.js",
+            "program": "${workspaceFolder}/packages/cli/built/gptools.js",
             "request": "launch",
             "skipFiles": ["<node_internals>/**"],
             "type": "node",
