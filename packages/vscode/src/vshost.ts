@@ -106,6 +106,10 @@ export class VSCodeHost extends EventTarget implements Host {
         delete this.virtualFiles[uri.fsPath]
         await workspace.fs.writeFile(uri, content)
     }
+    async findFiles(path: string): Promise<string[]> {
+        const uris = await workspace.findFiles(path)
+        return uris.map((u) => u.fsPath)
+    }
     async createDirectory(name: string): Promise<void> {
         await workspace.fs.createDirectory(Uri.file(name))
     }

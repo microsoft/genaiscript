@@ -1,12 +1,14 @@
 {
   "name": "coarch-cli",
   "version": "1.0.0",
-  "main": "built/main.js",
+  "main": "built/gptools.js",
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "commander": "^11.1.0",
     "esbuild": "^0.17.18",
     "fs-extra": "^11.1.1",
+    "glob": "^10.3.10",
     "openai": "^3.2.1",
     "typescript": "^5.0.4"
   },
@@ -16,8 +18,8 @@
     "coarch-core": "*"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/main.js",
-    "go": "yarn compile && node built/main.js",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js",
+    "go": "yarn compile && node built/gptools.js",
     "typecheck": "tsc -p src"
   }
 }

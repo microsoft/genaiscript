@@ -49,7 +49,10 @@ export async function initToken(force = false) {
 
     const f = await host.askToken()
     if (!f) throwError("token not specified", true)
+    return await setToken(f)
+}
 
+export async function setToken(f: string) {
     if (f.startsWith("sk-")) {
         // OpenAI token
         cfg = {

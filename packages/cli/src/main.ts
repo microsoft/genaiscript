@@ -1,61 +1,121 @@
-
 import {
-    parseLLMDiffs,
+    clearToken,
+    host,
+    parseProject,
+    runTemplate,
+    setToken,
+    writeJSON,
+    writeText,
 } from "coarch-core"
 import { NodeHost } from "./hostimpl"
+import { program } from "commander"
+
+async function buildProject(options?: {
+    toolsPath?: string
+    specsPath?: string
+}) {
+    const { toolsPath = "**/*.gptool.js", specsPath = "**/*.gpspec.md" } =
+        options || {}
+
+    const gpspecFiles = await host.findFiles(specsPath)
+    const gptoolFiles = await host.findFiles(toolsPath)
+    const coarchJsonFiles = await host.findFiles("**/gptools.json")
+
+    const newProject = await parseProject({
+        gpspecFiles,
+        gptoolFiles,
+        coarchJsonFiles,
+    })
+    return newProject
+}
+
+async function run(options: { tool: string; spec: string; out: string }) {
+    const prj = await buildProject()
+    const gptool = prj.templates.find((t) => t.id === options.tool)
+    if (!gptool) throw new Error("Tool not found")
+    const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(options.spec))
+    if (!gpspec) throw new Error("Spec not found")
+
+    const res = await runTemplate(gptool, [], gpspec.roots[0], {
+        infoCb: (progress) => {
+            console.log(progress?.text)
+        },
+    })
+    if (options.out) {
+        if (!/\.json$/i.test(options.out)) options.out += ".json"
+        const jsonf = options.out
+        // change the extension of jsonf to .output.md
+        const outputf = jsonf.replace(/\.json$/i, ".output.md")
+        const tracef = jsonf.replace(/\.json$/i, ".trace.md")
+        console.log(`writing ${jsonf}, ${outputf} and ${tracef}`)
+        await writeJSON(jsonf, res)
+        await writeText(outputf, res.text)
+        await writeText(tracef, res.trace)
+    } else {
+        console.log(res.text)
+    }
+}
+
+async function listTools() {
+    const prj = await buildProject()
+    prj.templates.forEach((t) =>
+        console.log(`${t.id}: ${t.title} (${t.filename || "builtin"})`)
+    )
+}
+
+async function listSpecs() {
+    const prj = await buildProject()
+    prj.rootFiles.forEach((f) => console.log(f.filename))
+}
 
 async function main() {
     NodeHost.install()
-    /*
-    const source = `
-FILE:
-\`\`\`\`\` file=gptools-wp.slides.md
-### Slide 1: gptools Overview
-\`\`\`\`\`
+    program
+        .name("gptools")
+        .description("CLI for GPTools")
+        .showHelpAfterError(true)
+    program
+        .command("run", { isDefault: true })
+        .description("Runs a GPTools against a GPSpec")
+        .requiredOption("-t, --tool <string>", "tool to execute")
+        .requiredOption("-s, --spec <string>", "gpspec file to start from")
+        .option("-o, --out <string>", "output file")
+        .action(run)
 
-FILE: gptools-wp2.slides
-\`\`\`\`\`
-### Slide 1: gptools Overview
-\`\`\`\`\`
+    const keys = program.command("keys")
+    keys.command("list", { isDefault: true })
+        .description("List all available keys")
+        .action(async () => {
+            const key = await host.getSecretToken()
+            console.log(
+                key
+                    ? `${key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url}`
+                    : "no key set"
+            )
+        })
+    keys.command("set")
+        .description("store OpenAI connection string in .gptools folder")
+        .argument("<key>", "key to set")
+        .action(async (tok) => {
+            await setToken(tok)
+        })
+    keys.command("clear")
+        .description("Clear any OpenAI connection string")
+        .action(async () => await clearToken())
 
-FILE gptools-wp2.slides.md:
-\`\`\`\`\`
-### Slide 2: gptools Overview
-\`\`\`\`\`
+    const tools = program.command("tools")
+    tools
+        .command("list", { isDefault: true })
+        .description("List all available tools")
+        .action(listTools)
 
-SUMMARY:
-\`\`\`\`\`
-Created a slidedeck in markdown format for the gptools content, including an overview, key components, workflow, AI-enhanced workflow process, and benefits.
-\`\`\`\`\`   
-            
-    `
-    const vars = extractFenced(source)
-    console.log(renderFencedVariables(vars))
+    const specs = program.command("specs")
+    specs
+        .command("list", { isDefault: true })
+        .description("List all available specs")
+        .action(listSpecs)
 
-    const source = `[1] import re
-[2] 
-[3] def is_valid_email(email):
-- [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
-+ [4]     pattern = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
-+ [5]     if pattern.fullmatch(email):
-[6]         return True
-[7]     else:
-[8]         return False`
-*/
-    const source = `+ ---
-+ title: gptools: Empowering Human Workflows with AI-Enhanced Tools
-+ description: An overview of gptools, a framework that empowers teams to create and use AI-enhanced scripts to support their workflows.
-+ keywords: gptools, AI-enhanced scripts, workflow automation, foundation models, LLMs
-+ ---
-[1] # gptools: Empowering Human Workflows with AI-Enhanced Tools
-[2] 
-[3] -   Authors: Peli de Halleux, Michał Moskal, Ben Zorn
-[4] -   Date: October 2023
-[5] -   Repository: [gptools](https://github.com/microsoft/gptools/tree/main)
-[6] 
-[7] ## Abstract`
-    const res = parseLLMDiffs(source)
-    console.log(res)
+    program.parse()
 }
 
 main()
