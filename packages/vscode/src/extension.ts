@@ -1,7 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionContext } from "vscode"
-import { ExtensionState, openRequestOutput } from "./state"
-import { activateFragmentTreeDataProvider } from "./fragmenttree"
+import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
 import { initToken, isCancelError } from "coarch-core"
@@ -9,7 +8,7 @@ import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
-import { activatePromptCommands } from "./promptcommands"
+import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { clearToken } from "coarch-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
@@ -27,7 +26,7 @@ export async function activate(context: ExtensionContext) {
     activateFragmentCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
-    activateFragmentTreeDataProvider(state)
+    //activateFragmentTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
     // activateRunnerView(state)
@@ -67,17 +66,8 @@ export async function activate(context: ExtensionContext) {
             const { computing, options, editsApplied, response } = request || {}
             const { text } = response || {}
             const { template } = options || {}
-            const abort = "Abort"
-            const output = "Output"
-            const trace = "Trace"
-            const next = "Run GPTool"
-            const refine = "Refine GPSpec"
-            const cmds: string[] = []
-            if (computing) cmds.push(abort)
-            if (request) cmds.push(refine)
-            if (request) cmds.push(next)
-            if (text) cmds.push(output)
-            if (request) cmds.push(trace)
+
+            const cmds = commandButtons(state)
 
             const res = await vscode.window.showInformationMessage(
                 toStringList(
@@ -87,17 +77,10 @@ export async function activate(context: ExtensionContext) {
                         ? `GPTools - ${template.title}`
                         : "GPTools"
                 ),
-                ...cmds
+                ...cmds.map(({ title }) => title)
             )
-            if (res === abort)
-                vscode.commands.executeCommand("coarch.request.abort")
-            else if (res === trace)
-                vscode.commands.executeCommand("coarch.request.open")
-            else if (res === output) openRequestOutput()
-            else if (res === next)
-                vscode.commands.executeCommand("coarch.fragment.prompt")
-            else if (res === refine)
-                vscode.commands.executeCommand("coarch.fragment.refine")
+            const cmd = cmds.find(({ title }) => title === res)
+            if (cmd) vscode.commands.executeCommand(cmd.cmd)
         }),
         vscode.commands.registerCommand(
             "coarch.openIssueReporter",

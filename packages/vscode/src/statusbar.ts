@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
 import { CHANGE } from "coarch-core"
 import { Utils } from "vscode-uri"
+import { commandButtons } from "./promptcommands"
 
 function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join(", ")
@@ -28,6 +29,8 @@ export function activateStatusBar(state: ExtensionState) {
             computing && !tokensSoFar ? `$(loading~spin)` : undefined,
             tokensSoFar ? `${tokensSoFar} tokens` : undefined
         )
+
+        const cmds = commandButtons(state)
         const md = new vscode.MarkdownString(
             toMarkdownString(
                 fragment
@@ -40,7 +43,11 @@ export function activateStatusBar(state: ExtensionState) {
                     token
                         ? `${token.url} [clear](command:coarch.openai.token.clear)`
                         : "not configured"
-                }`
+                }`,
+                "",
+                cmds
+                    .map(({ title, cmd }) => `[${title}](command:${cmd})`)
+                    .join(" | ")
             ),
             true
         )

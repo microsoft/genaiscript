@@ -105,3 +105,21 @@ def("FILE", env.file)
         )
     )
 }
+
+export function commandButtons(state: ExtensionState) {
+    const request = state.aiRequest
+    const { computing, options, editsApplied, response } = request || {}
+    const { text } = response || {}
+    const abort = "Abort"
+    const output = "Output"
+    const trace = "Trace"
+    const next = "Run GPTool"
+    const refine = "Refine GPSpec"
+    const cmds: { title: string; cmd: string }[] = []
+    if (computing) cmds.push({ title: abort, cmd: "coarch.request.abort" })
+    if (request) cmds.push({ title: refine, cmd: "coarch.fragment.refine" })
+    if (request) cmds.push({ title: next, cmd: "coarch.fragment.prompt" })
+    if (text) cmds.push({ title: output, cmd: "coarch.fragment.open.output" })
+    if (request) cmds.push({ title: trace, cmd: "coarch.request.open.trace" })
+    return cmds
+}
