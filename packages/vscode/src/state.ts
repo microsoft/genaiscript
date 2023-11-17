@@ -40,20 +40,6 @@ export const AI_REQUEST_CHANGE = "aiRequestChange"
 export const REQUEST_OUTPUT_FILENAME = "GPTools Output.md"
 export const REQUEST_TRACE_FILENAME = "GPTools Trace.md"
 
-export async function openRequestOutput() {
-    return vscode.commands.executeCommand(
-        "coarch.request.open",
-        REQUEST_OUTPUT_FILENAME
-    )
-}
-
-export async function openRequestTrace() {
-    return vscode.commands.executeCommand(
-        "coarch.request.open",
-        REQUEST_TRACE_FILENAME
-    )
-}
-
 export interface AIRequestOptions {
     label: string
     template: PromptTemplate
@@ -171,7 +157,8 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text) openRequestOutput()
+            if (text)
+                vscode.commands.executeCommand("coarch.request.open.output")
 
             if (edits) {
                 req.editsApplied = null
@@ -202,7 +189,8 @@ export class ExtensionState extends EventTarget {
                     fix,
                     trace
                 )
-                if (res === trace) openRequestTrace()
+                if (res === trace)
+                    vscode.commands.executeCommand("coarch.request.open.trace")
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
@@ -234,7 +222,8 @@ ${e.message}`
                     retry,
                     trace
                 )
-                if (res === trace) openRequestTrace()
+                if (res === trace)
+                    vscode.commands.executeCommand("coarch.request.open.trace")
                 else if (res === retry) await this.retryAIRequest()
             } else throw e
         }
@@ -294,7 +283,7 @@ ${e.message}`
                     }
             )
 
-        openRequestOutput()
+        vscode.commands.executeCommand("coarch.request.open.output")
         this.requestHistory.push({
             template: template.id,
             filename: fragment.file.filename,

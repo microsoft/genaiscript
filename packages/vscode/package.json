@@ -44,11 +44,6 @@
                     "name": "GPTools"
                 },
                 {
-                    "id": "coarch.fragments",
-                    "name": "GPSpecs",
-                    "visibility": "collapsed"
-                },
-                {
                     "id": "coarch.prompts.requests",
                     "name": "Runs",
                     "visibility": "collapsed"
@@ -236,6 +231,16 @@
             {
                 "command": "coarch.request.open",
                 "title": "Open request or response",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.request.open.trace",
+                "title": "Open Trace",
+                "category": "GPTools"
+            },
+            {
+                "command": "coarch.request.open.output",
+                "title": "Open Output",
                 "category": "GPTools"
             },
             {
