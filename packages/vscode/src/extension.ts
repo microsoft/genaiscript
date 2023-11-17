@@ -15,11 +15,6 @@ import { activateAIRequestTreeDataProvider } from "./airequesttree"
 
 export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
 
-function toStringList(...token: string[]) {
-    const md = token.filter((l) => l !== undefined && l !== null).join("\n")
-    return md
-}
-
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
@@ -62,25 +57,22 @@ export async function activate(context: ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand("coarch.request.status", async () => {
-            const request = state.aiRequest
-            const { computing, options, editsApplied, response } = request || {}
-            const { text } = response || {}
-            const { template } = options || {}
-
             const cmds = commandButtons(state)
-
-            const res = await vscode.window.showInformationMessage(
-                toStringList(
-                    computing
-                        ? `GPTools - running ${template.title}`
-                        : template
-                        ? `GPTools - ${template.title}`
-                        : "GPTools"
-                ),
-                ...cmds.map(({ title }) => title)
-            )
-            const cmd = cmds.find(({ title }) => title === res)
-            if (cmd) vscode.commands.executeCommand(cmd.cmd)
+            if (!cmds.length)
+                await vscode.window.showInformationMessage(
+                    "GPTools - no request."
+                )
+            else {
+                const res = await vscode.window.showQuickPick(
+                    cmds.map(
+                        ({ title }) => <vscode.QuickPickItem>{ label: title }
+                    ),
+                    { canPickMany: false }
+                )
+                if (res === undefined) return
+                const cmd = cmds.find(({ title }) => title === res.label)
+                if (cmd) vscode.commands.executeCommand(cmd.cmd)
+            }
         }),
         vscode.commands.registerCommand(
             "coarch.openIssueReporter",
