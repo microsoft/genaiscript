@@ -26,6 +26,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
+import { commandButtonsMarkdown } from "./promptcommands"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -150,8 +151,10 @@ export class ExtensionState extends EventTarget {
     async retryAIRequest(): Promise<void> {
         const options = this.aiRequest?.options
         await this.cancelAiRequest()
-        await delay(100 + Math.random() * 1000)
-        return options ? this.requestAI(options) : undefined
+        if (options) {
+            await delay(100 + Math.random() * 1000)
+            await this.requestAI(options)
+        }
     }
 
     async requestAI(options: AIRequestOptions): Promise<void> {
@@ -217,19 +220,13 @@ ${e.message}`
                         vscode.Uri.parse(TOKEN_DOCUMENTATION_URL)
                     )
             } else if (isRequestError(e)) {
-                const trace = "Open Trace"
-                const retry = "Retry"
                 const msg = isRequestError(e, 404)
                     ? `OpenAI model not found (404). Does your token support the selected model?`
                     : e.message
-                const res = await vscode.window.showWarningMessage(
+                await vscode.window.showWarningMessage(
                     msg,
-                    retry,
-                    trace
+                    commandButtonsMarkdown(this)
                 )
-                if (res === trace)
-                    vscode.commands.executeCommand("coarch.request.open.trace")
-                else if (res === retry) await this.retryAIRequest()
             } else throw e
         }
     }

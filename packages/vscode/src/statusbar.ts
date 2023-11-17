@@ -3,7 +3,7 @@ import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
 import { CHANGE } from "coarch-core"
 import { Utils } from "vscode-uri"
-import { commandButtons } from "./promptcommands"
+import { commandButtonsMarkdown } from "./promptcommands"
 
 function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join(", ")
@@ -30,7 +30,6 @@ export function activateStatusBar(state: ExtensionState) {
             tokensSoFar ? `${tokensSoFar} tokens` : undefined
         )
 
-        const cmds = commandButtons(state)
         const md = new vscode.MarkdownString(
             toMarkdownString(
                 fragment
@@ -45,9 +44,7 @@ export function activateStatusBar(state: ExtensionState) {
                         : "not configured"
                 }`,
                 "",
-                cmds
-                    .map(({ title, cmd }) => `[${title}](command:${cmd})`)
-                    .join(" | ")
+                commandButtonsMarkdown(state)
             ),
             true
         )
