@@ -21,13 +21,9 @@ async function buildProject(options?: {
     return newProject
 }
 
-async function run(
-    str: string,
-    options: {
-        tool: string
-        spec: string
-    }
-) {}
+async function run(options: { tool: string; spec: string }) {
+    console.log({ options })
+}
 
 async function listTools() {
     const prj = await buildProject()
@@ -48,7 +44,7 @@ async function main() {
         .command("run", { isDefault: true })
         .description("Runs a GPTools against a GPSpec")
         .requiredOption("-t, --tool <string>", "tool to execute")
-        .requiredOption("-s, --spec", "gpspec file to start from")
+        .requiredOption("-s, --spec <string>", "gpspec file to start from")
         .action(run)
 
     program
