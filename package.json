@@ -24,13 +24,7 @@
             "release": true,
             "releaseName": "v${version}",
             "draft": true
-        },
-        "plugins": {
-            "@release-it-plugins/workspaces": {
-                "publish": false
-            }
-        },
-        "npm": false
+        }
     },
     "devDependencies": {
         "@release-it-plugins/workspaces": "^4.0.0"
