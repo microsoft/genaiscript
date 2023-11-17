@@ -15,7 +15,7 @@ import {
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
-import { resolve } from "path"
+import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 
 export class NodeHost implements Host {
@@ -34,7 +34,7 @@ export class NodeHost implements Host {
         return await tryReadJSON(dotCoarchPath("tmp/token.json"))
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
-        await writeJSON(dotCoarchPath("tmp/token.json"), JSON.stringify(tok))
+        await writeJSON(dotCoarchPath("tmp/token.json"), tok)
     }
     log(level: LogLevel, msg: string): void {
         defaultLog(level, msg)
@@ -62,6 +62,7 @@ export class NodeHost implements Host {
         return files
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
+        await ensureDir(dirname(name))
         await writeFile(name, content)
     }
     async createDirectory(name: string): Promise<void> {
