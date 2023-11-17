@@ -35,6 +35,9 @@ export async function activate(context: ExtensionContext) {
                 "GPTools - request aborted."
             )
         }),
+        vscode.commands.registerCommand("coarch.request.retry", () =>
+            state.retryAIRequest()
+        ),
         vscode.commands.registerCommand(
             "coarch.openai.token.clear",
             async () => {
@@ -63,15 +66,10 @@ export async function activate(context: ExtensionContext) {
                     "GPTools - no request."
                 )
             else {
-                const res = await vscode.window.showQuickPick(
-                    cmds.map(
-                        ({ title }) => <vscode.QuickPickItem>{ label: title }
-                    ),
-                    { canPickMany: false }
-                )
-                if (res === undefined) return
-                const cmd = cmds.find(({ title }) => title === res.label)
-                if (cmd) vscode.commands.executeCommand(cmd.cmd)
+                const res = await vscode.window.showQuickPick(cmds, {
+                    canPickMany: false,
+                })
+                if (res) vscode.commands.executeCommand(res.cmd)
             }
         }),
         vscode.commands.registerCommand(
