@@ -16,6 +16,7 @@ import { TextDecoder, TextEncoder } from "util"
 import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { resolve } from "path"
+import { glob } from "glob"
 
 export class NodeHost implements Host {
     userState: any = {}
@@ -55,6 +56,10 @@ export class NodeHost implements Host {
         options?: ReadFileOptions
     ): Promise<Uint8Array> {
         return new Uint8Array(await readFile(name))
+    }
+    async findFiles(path: string): Promise<string[]> {
+        const files = await glob(path)
+        return files
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await writeFile(name, content)

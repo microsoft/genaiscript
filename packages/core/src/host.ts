@@ -47,6 +47,7 @@ export interface Host {
     // fs
     readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
+    findFiles(glob: string): Promise<string[]>
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
 }
