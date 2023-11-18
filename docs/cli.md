@@ -6,7 +6,8 @@ The GPTools CLI is a command line packaged as a Node.JS javascript file. It is u
 
 ## run a tool on a spec
 
-Runs a gptool on a gpspec file and prints the LLM output.
+Runs a gptool on a gpspec file and prints the LLM output. The token is read from the environment `GPTOOLS_TOKEN`
+or configure through the `keys` command (as a JSON payload).
 
 ```bash
 node gptools.js <tool> <file>
@@ -33,6 +34,8 @@ Lists the tools available in the current workspace.
 Lists the specs available in the current workspace.
 
 ## `keys`, manage OpenAI Token
+
+Commands to manage the OpenAI token on file. You can also use the `GPTOOLS_TOKEN` environment variable.
 
 ### gptools keys set <token>
 
