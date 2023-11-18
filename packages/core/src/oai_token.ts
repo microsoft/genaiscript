@@ -52,7 +52,12 @@ export async function initToken(force = false) {
     return await setToken(f)
 }
 
-export async function setToken(f: string) {
+export async function setToken(token: string) {
+    const tok = await parseToken(f)
+    await host.setSecretToken(tok)
+}
+
+export async function parseToken(f: string) {
     if (f.startsWith("sk-")) {
         // OpenAI token
         cfg = {
@@ -60,7 +65,6 @@ export async function setToken(f: string) {
             token: f,
             isOpenAI: true,
         }
-        await host.setSecretToken(cfg)
         return cfg
     }
 
@@ -70,7 +74,6 @@ export async function setToken(f: string) {
         const token = m[2]
         validateTokenCore(token)
         cfg = { url, token }
-        await host.setSecretToken(cfg)
         return cfg
     }
 
@@ -79,7 +82,6 @@ export async function setToken(f: string) {
         const url = m[1]
         const token = m[2]
         cfg = { url, token, isTGI: true }
-        await host.setSecretToken(cfg)
         return cfg
     }
 
@@ -91,9 +93,8 @@ export async function setToken(f: string) {
             const token = m[1]
             validateTokenCore(token)
             cfg = { url, token }
-            await host.setSecretToken(cfg)
+            return cfg
         }
-        return cfg
     }
 
     throw new RequestError(

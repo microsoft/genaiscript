@@ -8,6 +8,7 @@ import {
     defaultLog,
     dotCoarchPath,
     logWarn,
+    parseToken,
     setHost,
     tryReadJSON,
     writeJSON,
@@ -20,7 +21,6 @@ import { glob } from "glob"
 
 export class NodeHost implements Host {
     userState: any = {}
-
     static install() {
         setHost(new NodeHost())
     }
@@ -31,6 +31,10 @@ export class NodeHost implements Host {
         return this.createUTF8Decoder().decode(await this.readFile(path))
     }
     async getSecretToken(): Promise<OAIToken> {
+        if (process.env.GPTOOLS_TOKEN) {
+            const tok = parseToken(JSON.parse(process.env.GPTOOLS_TOKEN))
+            return tok
+        }
         return await tryReadJSON(dotCoarchPath("tmp/token.json"))
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
