@@ -21,6 +21,15 @@ Saves the results in a JSON file, along with mardown files of the output and the
 node gptools.js <tool> <file> --output <file>
 ```
 
+### --retry <number>
+
+Specifies the number of retries when the LLM invocations fails with throttling (429).
+Default is 3.
+
+### --retry-delay <number>
+
+Minimum delay between retries in milliseconds.
+
 ## `tools`, manage GPtools
 
 ### gptools tools list
