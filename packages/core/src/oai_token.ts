@@ -53,8 +53,9 @@ export async function initToken(force = false) {
 }
 
 export async function setToken(token: string) {
-    const tok = await parseToken(f)
+    const tok = await parseToken(token)
     await host.setSecretToken(tok)
+    return tok
 }
 
 export async function parseToken(f: string) {
