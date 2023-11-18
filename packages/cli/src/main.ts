@@ -37,7 +37,6 @@ async function run(
     spec: string,
     options: { out: string; retry: string; retryDelay: string }
 ) {
-    console.log(options)
     const out = options.out
     const retry = parseInt(options.retry) || 3
     const retryDelay = parseInt(options.retryDelay) || 5000
@@ -47,41 +46,42 @@ async function run(
     if (!gptool) throw new Error("Tool not found")
     const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(spec))
     if (!gpspec) throw new Error("Spec not found")
+    const fragment = gpspec.roots[0]
 
-    const runOnce = async () => {
-        const res = await runTemplate(gptool, [], gpspec.roots[0], {
-            infoCb: (progress) => {
-                console.log(progress?.text)
+    console.log(`running ${gptool.title} against ${gpspec.filename}`)
+
+    const res = await backOff(
+        async () =>
+            await runTemplate(gptool, [], fragment, {
+                infoCb: (progress) => {},
+            }),
+        {
+            numOfAttempts: retry,
+            startingDelay: retryDelay,
+            maxDelay: 180000,
+            retry: (e, attempt) => {
+                if (isRequestError(e, 429)) {
+                    console.log(
+                        `Rate limited, retry #${attempt} in ${retryDelay}s...`
+                    )
+                    return true
+                }
+                return false
             },
-        })
-        if (out) {
-            const jsonf = /\.json$/i.test(out) ? out : out + ".json"
-            const outputf = jsonf.replace(/\.json$/i, ".output.md")
-            const tracef = jsonf.replace(/\.json$/i, ".trace.md")
-            console.log(`writing ${jsonf}, ${outputf} and ${tracef}`)
-            await writeJSON(jsonf, res)
-            await writeText(outputf, res.text)
-            await writeText(tracef, res.trace)
-        } else {
-            console.log(res.text)
         }
-    }
+    )
 
-    await backOff(runOnce, {
-        numOfAttempts: retry,
-        startingDelay: retryDelay,
-        maxDelay: 180000,
-        retry: (e, attempt) => {
-            if (isCancelError(e)) return false
-            if (isRequestError(e, 429)) {
-                console.log(
-                    `Rate limited, retry #${attempt} in ${retryDelay}s...`
-                )
-                return true
-            }
-            return false
-        },
-    })
+    if (out) {
+        const jsonf = /\.json$/i.test(out) ? out : out + ".json"
+        const outputf = jsonf.replace(/\.json$/i, ".output.md")
+        const tracef = jsonf.replace(/\.json$/i, ".trace.md")
+        console.log(`writing ${jsonf}, ${outputf} and ${tracef}`)
+        await writeJSON(jsonf, res)
+        if (res.text) await writeText(outputf, res.text)
+        if (res.trace) await writeText(tracef, res.trace)
+    } else {
+        console.log(res.text)
+    }
 }
 
 async function listTools() {
@@ -108,6 +108,7 @@ async function main() {
         .arguments("<tool> <spec>")
         .option("-o, --out <string>", "output file")
         .option("-r, --retry <number>", "number of retries", "3")
+        .option("-d, --dry-run", "dry run")
         .option(
             "-rd, --retry-delay <number>",
             "minimum delay between retries",
