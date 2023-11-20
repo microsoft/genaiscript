@@ -136,8 +136,6 @@ export async function getChatCompletions(
 
     let numTokens = 0
 
-    logVerbose(`query ${model} at ${url}`)
-
     const r = await fetch(url, {
         headers: {
             authorization: cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,

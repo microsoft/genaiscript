@@ -35,7 +35,7 @@ async function buildProject(options?: {
 async function run(
     tool: string,
     spec: string,
-    options: { out: string; retry: string; retryDelay: string }
+    options: { out: string; retry: string; retryDelay: string; json: boolean }
 ) {
     const out = options.out
     const retry = parseInt(options.retry) || 3
@@ -47,9 +47,6 @@ async function run(
     const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(spec))
     if (!gpspec) throw new Error("Spec not found")
     const fragment = gpspec.roots[0]
-
-    console.log(`running ${gptool.title} against ${gpspec.filename}`)
-
     const res = await backOff(
         async () =>
             await runTemplate(gptool, [], fragment, {
@@ -61,8 +58,8 @@ async function run(
             maxDelay: 180000,
             retry: (e, attempt) => {
                 if (isRequestError(e, 429)) {
-                    console.log(
-                        `Rate limited, retry #${attempt} in ${retryDelay}s...`
+                    console.error(
+                        `rate limited, retry #${attempt} in ${retryDelay}s...`
                     )
                     return true
                 }
@@ -80,7 +77,8 @@ async function run(
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
     } else {
-        console.log(res.text)
+        if (options.json) console.log(JSON.stringify(res, null, 2))
+        else console.log(res.text)
     }
 }
 
@@ -108,7 +106,7 @@ async function main() {
         .arguments("<tool> <spec>")
         .option("-o, --out <string>", "output file")
         .option("-r, --retry <number>", "number of retries", "3")
-        .option("-d, --dry-run", "dry run")
+        .option("-j, --json", "emit full JSON response to output")
         .option(
             "-rd, --retry-delay <number>",
             "minimum delay between retries",
