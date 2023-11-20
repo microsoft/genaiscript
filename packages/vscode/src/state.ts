@@ -274,17 +274,6 @@ ${e.message}`
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
         }
-        const templates = fragment
-            .applicableTemplates()
-            .filter((t) => !t.unlisted && !t.isSystem)
-            .map(
-                (t) =>
-                    <PromptDefinition>{
-                        id: t.id,
-                        title: t.title,
-                        description: t.description,
-                    }
-            )
 
         vscode.commands.executeCommand("coarch.request.open.output")
         this.requestHistory.push({
@@ -294,7 +283,7 @@ ${e.message}`
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
-        r.request = runTemplate(template, templates, fragment, runOptions)
+        r.request = runTemplate(template, fragment, runOptions)
         // clear on completion
         r.request
             .then((resp) => {
