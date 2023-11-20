@@ -425,7 +425,7 @@ ${e.message}`
         const specn = fspath + ".gpspec.md"
         this.host.setVirtualFile(
             specn,
-            `# ${fn}
+            `# Specification
 
 -   [${fn}](./${fn})
 `

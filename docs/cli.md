@@ -10,15 +10,19 @@ Runs a gptool on a gpspec file and prints the LLM output. The token is read from
 or configure through the `keys` command (as a JSON payload).
 
 ```bash
-node gptools.js <tool> <file>
+node gptools.js <tool> [spec]
 ```
+
+where `<tool>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
+If `[spec]` is not specified, the `stdin` content is used as the spec. If `[spec]` is not a `.gpspec.md` file,
+a wrapper spec is generated on the fly.
 
 ### --output <file>
 
 Saves the results in a JSON file, along with mardown files of the output and the trace.
 
 ```bash
-node gptools.js <tool> <file> --output <file>
+node gptools.js <tool> <spec> --output <file>
 ```
 
 ### --retry <number>
@@ -29,6 +33,10 @@ Default is 3.
 ### --retry-delay <number>
 
 Minimum delay between retries in milliseconds.
+
+### --json
+
+Output the entire response as JSON to the stdout.
 
 ## `tools`, manage GPtools
 
