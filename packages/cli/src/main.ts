@@ -1,7 +1,6 @@
 import {
     clearToken,
     host,
-    isCancelError,
     isRequestError,
     parseProject,
     runTemplate,
@@ -12,6 +11,8 @@ import {
 import { NodeHost } from "./hostimpl"
 import { program } from "commander"
 import { backOff } from "exponential-backoff"
+import getStdin from "get-stdin"
+import { basename, resolve } from "node:path"
 
 async function buildProject(options?: {
     toolsPath?: string
@@ -41,11 +42,35 @@ async function run(
     const retry = parseInt(options.retry) || 3
     const retryDelay = parseInt(options.retryDelay) || 5000
 
+    if (!spec) {
+        const specContent = await getStdin()
+        spec = "stdin.gpspec.md"
+        host.setVirtualFile(spec, specContent)
+    } else if (!/\.gpspec\.md$/i.test(spec)) {
+        const fn = basename(spec)
+        spec = spec + ".gpspec.md"
+        host.setVirtualFile(
+            spec,
+            `# Specification
+
+-   [${fn}](./${fn})
+`
+        )
+    }
+
     const prj = await buildProject()
-    const gptool = prj.templates.find((t) => t.id === tool)
-    if (!gptool) throw new Error("Tool not found")
-    const gpspec = prj.rootFiles.find((f) => f.filename.endsWith(spec))
-    if (!gpspec) throw new Error("Spec not found")
+    const gptool = prj.templates.find(
+        (t) =>
+            t.id === tool ||
+            (t.filename &&
+                /\.gptool\.(js|ts)$/i.test(tool) &&
+                resolve(t.filename) === resolve(tool))
+    )
+    if (!gptool) throw new Error(`tool ${tool} not found`)
+    const gpspec = prj.rootFiles.find(
+        (f) => resolve(f.filename) === resolve(spec)
+    )
+    if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.roots[0]
     const res = await backOff(
         async () =>
@@ -103,7 +128,7 @@ async function main() {
     program
         .command("run", { isDefault: true })
         .description("Runs a GPTools against a GPSpec")
-        .arguments("<tool> <spec>")
+        .arguments("<tool> [spec]")
         .option("-o, --out <string>", "output file")
         .option("-r, --retry <number>", "number of retries", "3")
         .option("-j, --json", "emit full JSON response to output")

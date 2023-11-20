@@ -21,6 +21,8 @@ import { glob } from "glob"
 
 export class NodeHost implements Host {
     userState: any = {}
+    virtualFiles: Record<string, Uint8Array> = {}
+
     static install() {
         setHost(new NodeHost())
     }
@@ -40,6 +42,15 @@ export class NodeHost implements Host {
     async setSecretToken(tok: OAIToken): Promise<void> {
         await writeJSON(dotCoarchPath("tmp/token.json"), tok)
     }
+    setVirtualFile(name: string, content: string) {
+        this.virtualFiles = {}
+        this.virtualFiles[resolve(name)] =
+            this.createUTF8Encoder().encode(content)
+    }
+    isVirtualFile(name: string) {
+        return !!this.virtualFiles[name]
+    }
+
     log(level: LogLevel, msg: string): void {
         defaultLog(level, msg)
     }
@@ -59,6 +70,14 @@ export class NodeHost implements Host {
         name: string,
         options?: ReadFileOptions
     ): Promise<Uint8Array> {
+        // virtual file handler
+        const v = this.virtualFiles[resolve(name)]
+        if (options?.virtual) {
+            if (!v) throw new Error("virtual file not found")
+            return v // alway return virtual files
+        } else if (options?.virtual !== false && !!v) return v // optional return virtual files
+
+        // read file
         return new Uint8Array(await readFile(name))
     }
     async findFiles(path: string): Promise<string[]> {
@@ -67,6 +86,7 @@ export class NodeHost implements Host {
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))
+        delete this.virtualFiles[resolve(name)]
         await writeFile(name, content)
     }
     async createDirectory(name: string): Promise<void> {
