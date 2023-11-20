@@ -74,7 +74,7 @@ async function run(
     const fragment = gpspec.roots[0]
     const res = await backOff(
         async () =>
-            await runTemplate(gptool, [], fragment, {
+            await runTemplate(gptool, fragment, {
                 infoCb: (progress) => {},
             }),
         {

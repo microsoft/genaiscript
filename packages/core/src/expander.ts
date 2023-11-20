@@ -333,7 +333,6 @@ async function expandTemplate(
 
 async function fragmentVars(
     template: PromptTemplate,
-    templates: PromptDefinition[],
     frag: Fragment,
     promptOptions: any
 ) {
@@ -409,7 +408,6 @@ async function fragmentVars(
         parents,
         promptOptions,
         template,
-        templates,
         vars: attrs,
     }
     return { vars }
@@ -423,7 +421,6 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
 
 export async function runTemplate(
     template: PromptTemplate,
-    templates: PromptDefinition[],
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
@@ -439,7 +436,6 @@ export async function runTemplate(
 
     const { vars } = await fragmentVars(
         template,
-        templates,
         fragment,
         options.promptOptions
     )
