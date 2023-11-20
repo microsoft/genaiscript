@@ -15,14 +15,24 @@ import getStdin from "get-stdin"
 import { basename, resolve } from "node:path"
 
 async function buildProject(options?: {
+    toolFiles?: string[]
+    specFiles?: string[]
     toolsPath?: string
     specsPath?: string
 }) {
-    const { toolsPath = "**/*.gptool.js", specsPath = "**/*.gpspec.md" } =
-        options || {}
+    const {
+        toolFiles,
+        specFiles,
+        toolsPath = "**/*.gptool.js",
+        specsPath = "**/*.gpspec.md",
+    } = options || {}
 
-    const gpspecFiles = await host.findFiles(specsPath)
-    const gptoolFiles = await host.findFiles(toolsPath)
+    const gpspecFiles = specFiles?.length
+        ? specFiles
+        : await host.findFiles(specsPath)
+    const gptoolFiles = toolFiles?.length
+        ? toolFiles
+        : await host.findFiles(toolsPath)
     const coarchJsonFiles = await host.findFiles("**/gptools.json")
 
     const newProject = await parseProject({
@@ -42,6 +52,9 @@ async function run(
     const retry = parseInt(options.retry) || 3
     const retryDelay = parseInt(options.retryDelay) || 5000
 
+    const toolFiles: string[] = []
+    if (/.gptool\.(js|ts)$/i.test(tool)) toolFiles.push(tool)
+
     if (!spec) {
         const specContent = await getStdin()
         spec = "stdin.gpspec.md"
@@ -58,7 +71,10 @@ async function run(
         )
     }
 
-    const prj = await buildProject()
+    const prj = await buildProject({
+        toolFiles,
+        specFiles: [spec],
+    })
     const gptool = prj.templates.find(
         (t) =>
             t.id === tool ||
