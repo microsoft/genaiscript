@@ -118,10 +118,18 @@ async function run(
 
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : out + ".json"
+        const userf = jsonf.replace(/\.json$/i, ".user.md")
+        const systemf = jsonf.replace(/\.json$/i, ".system.md")
         const outputf = jsonf.replace(/\.json$/i, ".output.md")
         const tracef = jsonf.replace(/\.json$/i, ".trace.md")
-        console.log(`writing ${jsonf}, ${outputf} and ${tracef}`)
+        console.log(
+            `writing ${jsonf}, ${systemf}, ${userf}, ${outputf} and ${tracef}`
+        )
         await writeJSON(jsonf, res)
+        if (res.prompt) {
+            await writeText(systemf, res.prompt.system)
+            await writeText(userf, res.prompt.user)
+        }
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
     } else {
