@@ -24,6 +24,13 @@ const defaultMaxTokens: number = undefined
 
 export interface FragmentTransformResponse {
     /**
+     * Expanded prompt text
+     */
+    prompt: {
+        system: string
+        user: string
+    }
+    /**
      * Zero or more edits to apply.
      */
     edits: Edits[]
@@ -428,6 +435,7 @@ export async function runTemplate(
     const { signal } = requestOptions
 
     options?.infoCb?.({
+        prompt: undefined,
         edits: [],
         trace: "",
         text: "> Running GPTool...",
@@ -449,9 +457,15 @@ export async function runTemplate(
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
 
+    const prompt = {
+        system: systemText,
+        user: expanded,
+    }
+
     // if the expansion failed, show the user the trace
     if (!success) {
         return {
+            prompt,
             trace,
             text: "# Template failed\nSee info below.\n" + trace,
             edits: [],
@@ -463,6 +477,7 @@ export async function runTemplate(
     try {
         await initToken()
         options?.infoCb?.({
+            prompt,
             edits: [],
             trace,
             text: "> Waiting for response...",
@@ -496,6 +511,7 @@ export async function runTemplate(
             }
             trace += `-   status: \`${error.status}\`, ${error.statusText}\n`
             options.infoCb({
+                prompt,
                 edits: [],
                 trace,
                 text: "Request error",
@@ -507,6 +523,7 @@ export async function runTemplate(
 The user requested to cancel the request.
 `
             options.infoCb({
+                prompt,
                 edits: [],
                 trace,
                 text: "Request cancelled",
@@ -528,6 +545,7 @@ The user requested to cancel the request.
     trace += details("code regions", renderFencedVariables(extr))
 
     const res: FragmentTransformResponse = {
+        prompt,
         edits,
         fileEdits: {},
         trace,

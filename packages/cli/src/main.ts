@@ -46,11 +46,18 @@ async function buildProject(options?: {
 async function run(
     tool: string,
     spec: string,
-    options: { out: string; retry: string; retryDelay: string; json: boolean }
+    options: {
+        out: string
+        retry: string
+        retryDelay: string
+        json: boolean
+        maxDelay: string
+    }
 ) {
     const out = options.out
     const retry = parseInt(options.retry) || 3
     const retryDelay = parseInt(options.retryDelay) || 5000
+    const maxDelay = parseInt(options.maxDelay) || 180000
 
     const toolFiles: string[] = []
     if (/.gptool\.(js|ts)$/i.test(tool)) toolFiles.push(tool)
@@ -96,7 +103,7 @@ async function run(
         {
             numOfAttempts: retry,
             startingDelay: retryDelay,
-            maxDelay: 180000,
+            maxDelay,
             retry: (e, attempt) => {
                 if (isRequestError(e, 429)) {
                     console.error(
@@ -153,11 +160,16 @@ async function main() {
             "minimum delay between retries",
             "5000"
         )
+        .option(
+            "-md, --max-delay <number>",
+            "maximum delay between retries",
+            "180000"
+        )
         .action(run)
 
     const keys = program.command("keys")
-    keys.command("list", { isDefault: true })
-        .description("List all available keys")
+    keys.command("show", { isDefault: true })
+        .description("Parse and show current key information")
         .action(async () => {
             const key = await host.getSecretToken()
             console.log(
