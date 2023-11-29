@@ -424,6 +424,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     infoCb?: (partialResponse: FragmentTransformResponse) => void
     promptOptions?: any
     maxCachedTemperature?: number
+    skipLLM?: boolean
 }
 
 export async function runTemplate(
@@ -431,7 +432,7 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { requestOptions = {} } = options || {}
+    const { requestOptions = {}, skipLLM } = options || {}
     const { signal } = requestOptions
 
     options?.infoCb?.({
@@ -468,6 +469,17 @@ export async function runTemplate(
             prompt,
             trace,
             text: "# Template failed\nSee info below.\n" + trace,
+            edits: [],
+            fileEdits: {},
+        }
+    }
+
+    // don't run LLM
+    if (skipLLM) {
+        return {
+            prompt,
+            trace,
+            text: undefined,
             edits: [],
             fileEdits: {},
         }

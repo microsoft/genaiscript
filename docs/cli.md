@@ -21,6 +21,10 @@ a wrapper spec is generated on the fly.
 The token is read from the environment `GPTOOLS_TOKEN`, from `OPENAI_API_KEY/BASE` keys or
 or configured through the `keys` command (as a JSON payload).
 
+### --json
+
+Output the entire response as JSON to the stdout.
+
 ### --output <file>
 
 Saves the results in a JSON file, along with mardown files of the output and the trace.
@@ -28,6 +32,10 @@ Saves the results in a JSON file, along with mardown files of the output and the
 ```bash
 node gptools.js <tool> <spec> --output <file>
 ```
+
+### --dry-run
+
+Skips the LLM invocation and only prints the expanded system and user chat messages.
 
 ### --retry <number>
 
@@ -37,10 +45,6 @@ Default is 3.
 ### --retry-delay <number>
 
 Minimum delay between retries in milliseconds.
-
-### --json
-
-Output the entire response as JSON to the stdout.
 
 ## `tools`, manage GPtools
 

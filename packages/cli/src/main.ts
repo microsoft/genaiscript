@@ -52,9 +52,11 @@ async function run(
         retryDelay: string
         json: boolean
         maxDelay: string
+        dryRun: boolean
     }
 ) {
     const out = options.out
+    const skipLLM = !!options.dryRun
     const retry = parseInt(options.retry) || 3
     const retryDelay = parseInt(options.retryDelay) || 5000
     const maxDelay = parseInt(options.maxDelay) || 180000
@@ -99,6 +101,7 @@ async function run(
         async () =>
             await runTemplate(gptool, fragment, {
                 infoCb: (progress) => {},
+                skipLLM,
             }),
         {
             numOfAttempts: retry,
@@ -134,7 +137,15 @@ async function run(
         if (res.trace) await writeText(tracef, res.trace)
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
-        else console.log(res.text)
+        else {
+            if (options.dryRun) {
+                const { system, user } = res.prompt || {}
+                console.log(`------------------ SYSTEM`)
+                console.log(system)
+                console.log(`------------------ USER`)
+                console.log(user)
+            } else console.log(res.text)
+        }
     }
 }
 
@@ -163,6 +174,10 @@ async function main() {
         .option("-o, --out <string>", "output file")
         .option("-r, --retry <number>", "number of retries", "3")
         .option("-j, --json", "emit full JSON response to output")
+        .option(
+            "-d, --dry-run",
+            "dry run, don't execute LLM and return expanded prompt"
+        )
         .option(
             "-rd, --retry-delay <number>",
             "minimum delay between retries",
