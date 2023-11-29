@@ -69,7 +69,16 @@ export async function parseToken(f: string) {
         return cfg
     }
 
-    let m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
+    let m = /(https:\/\/[\-\w\.]+)\S*#oaikey=(\w+)/.exec(f)
+    if (m) {
+        const url = m[1]
+        const token = m[2]
+        validateTokenCore(token)
+        cfg = { url, token }
+        return cfg
+    }
+
+    m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
     if (m) {
         const url = m[1] + "/openai/deployments/"
         const token = m[2]
