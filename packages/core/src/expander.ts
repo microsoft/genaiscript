@@ -24,6 +24,11 @@ const defaultMaxTokens: number = undefined
 
 export interface FragmentTransformResponse {
     /**
+     * The env variables sent to the prompt
+     */
+    vars: Partial<ExpansionVariables>
+
+    /**
      * Expanded prompt text
      */
     prompt: {
@@ -436,6 +441,7 @@ export async function runTemplate(
     const { signal } = requestOptions
 
     options?.infoCb?.({
+        vars: {},
         prompt: undefined,
         edits: [],
         trace: "",
@@ -467,6 +473,7 @@ export async function runTemplate(
     if (!success) {
         return {
             prompt,
+            vars,
             trace,
             text: "# Template failed\nSee info below.\n" + trace,
             edits: [],
@@ -478,6 +485,7 @@ export async function runTemplate(
     if (skipLLM) {
         return {
             prompt,
+            vars,
             trace,
             text: undefined,
             edits: [],
@@ -490,6 +498,7 @@ export async function runTemplate(
         await initToken()
         options?.infoCb?.({
             prompt,
+            vars,
             edits: [],
             trace,
             text: "> Waiting for response...",
@@ -524,6 +533,7 @@ export async function runTemplate(
             trace += `-   status: \`${error.status}\`, ${error.statusText}\n`
             options.infoCb({
                 prompt,
+                vars,
                 edits: [],
                 trace,
                 text: "Request error",
@@ -536,6 +546,7 @@ The user requested to cancel the request.
 `
             options.infoCb({
                 prompt,
+                vars,
                 edits: [],
                 trace,
                 text: "Request cancelled",
@@ -558,6 +569,7 @@ The user requested to cancel the request.
 
     const res: FragmentTransformResponse = {
         prompt,
+        vars,
         edits,
         fileEdits: {},
         trace,
