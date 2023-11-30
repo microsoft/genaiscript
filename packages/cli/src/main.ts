@@ -136,16 +136,17 @@ async function run(
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
     } else {
-        if (options.json) console.log(JSON.stringify(res, null, 2))
-        else {
-            if (options.dryRun) {
+        if (options.dryRun) {
+            if (options.json) console.log(JSON.stringify(res.prompt, null, 2))
+            else {
                 const { system, user } = res.prompt || {}
-                console.log(`------------------ SYSTEM`)
+                console.log(`## SYSTEM`)
                 console.log(system)
-                console.log(`------------------ USER`)
+                console.log(`## USER`)
                 console.log(user)
-            } else console.log(res.text)
-        }
+            }
+        } else if (options.json) console.log(JSON.stringify(res, null, 2))
+        else console.log(res.text)
     }
 }
 
