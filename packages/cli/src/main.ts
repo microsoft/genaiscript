@@ -62,7 +62,7 @@ async function run(
     const maxDelay = parseInt(options.maxDelay) || 180000
 
     const toolFiles: string[] = []
-    if (/.gptool\.(js|ts)$/i.test(tool)) toolFiles.push(tool)
+    if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
 
     if (!spec) {
         const specContent = await getStdin()
