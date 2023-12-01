@@ -1,6 +1,6 @@
 {
   "name": "devicescript-drivers",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "private": "Please use 'yarn devs add npm' to make this a publishable package",
   "devDependencies": {
     "@devicescript/cli": "^2.15.14"
