@@ -20,4 +20,5 @@ for (const pkgp of packages) {
 if (added) {
     console.log(`git commit versions`)
     $`git commit -m "chore: bump version to ${version}"`
+    $`git push`
 }
