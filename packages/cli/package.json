@@ -21,6 +21,7 @@
   },
   "scripts": {
     "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js",
+    "postcompile": "cp built/gptools.js ../vscode/gptools.js",
     "go": "yarn compile && node built/gptools.js",
     "typecheck": "tsc -p src"
   }
