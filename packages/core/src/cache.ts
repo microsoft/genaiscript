@@ -1,6 +1,6 @@
 import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
 import { host, coarchExt } from "./host"
-import { dotCoarchPath, sha256string } from "./util"
+import { dotGptoolsPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
 
 export type CacheEntry<K, V> = { sha: string; key: K; val: V }
@@ -20,7 +20,7 @@ export class Cache<K, V> extends EventTarget {
     }
 
     private folder() {
-        return dotCoarchPath("cache")
+        return dotGptoolsPath("cache")
     }
     private path() {
         return host.resolvePath(this.folder(), this.name + coarchExt)

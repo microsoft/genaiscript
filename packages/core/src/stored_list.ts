@@ -1,6 +1,6 @@
 import { appendJSONL, readJSONL } from "./jsonl"
 import { host, coarchExt } from "./host"
-import { dotCoarchPath } from "./util"
+import { dotGptoolsPath } from "./util"
 
 export class StoredList<T, U = unknown> {
     userData: U
@@ -16,7 +16,7 @@ export class StoredList<T, U = unknown> {
     }
 
     private folder() {
-        return dotCoarchPath("state")
+        return dotGptoolsPath("state")
     }
     private path() {
         return host.resolvePath(this.folder(), this.name + coarchExt)

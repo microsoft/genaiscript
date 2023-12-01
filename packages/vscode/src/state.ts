@@ -19,6 +19,7 @@ import {
     delay,
     CHANGE,
     Cache,
+    dotGptoolsPath,
 } from "coarch-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -142,6 +143,15 @@ export class ExtensionState extends EventTarget {
             undefined,
             subscriptions
         )
+    }
+
+    private async saveGptoolsJs() {
+        const p = Utils.joinPath(this.context.extensionUri, "gptools.js")
+        const cli = vscode.Uri.file(dotGptoolsPath("gptools.js"))
+        await vscode.workspace.fs.createDirectory(
+            vscode.Uri.file(dotGptoolsPath("."))
+        )
+        await vscode.workspace.fs.copy(p, cli, { overwrite: true })
     }
 
     aiRequestCache() {
@@ -361,6 +371,7 @@ ${e.message}`
     async activate() {
         console.log(`gptools: activate`)
         this.initWatcher()
+        await this.saveGptoolsJs()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
     }
