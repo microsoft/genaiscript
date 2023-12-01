@@ -16,7 +16,8 @@
         "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/gptools.vsix --github.assets=packages/cli/built/gptools.js --no-github.draft",
-        "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn compile && yarn package && yarn release:vsix",
+        "patch-versions": "npx --yes zx scripts/patch-version.mjs",
+        "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix",
         "bump": "yarn release"
     },
     "release-it": {
@@ -27,6 +28,7 @@
         }
     },
     "devDependencies": {
-        "@release-it-plugins/workspaces": "^4.0.0"
+        "@release-it-plugins/workspaces": "^4.0.0",
+        "zx": "^7.2.3"
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "coarch-sample",
-  "version": "1.0.0",
+  "version": "1.2.4",
   "license": "MIT",
   "private": true,
   "devDependencies": {
