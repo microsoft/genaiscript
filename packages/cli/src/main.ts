@@ -13,6 +13,7 @@ import { program } from "commander"
 import { backOff } from "exponential-backoff"
 import getStdin from "get-stdin"
 import { basename, resolve } from "node:path"
+import packageJson from "../package.json"
 
 async function buildProject(options?: {
     toolFiles?: string[]
@@ -163,10 +164,11 @@ async function main() {
     NodeHost.install()
     program
         .name("gptools")
-        .description("CLI for GPTools")
+        .version(packageJson.version)
+        .description("CLI for GPTools https://github.com/microsoft/gptools")
         .showHelpAfterError(true)
     program
-        .command("run", { isDefault: true })
+        .command("run")
         .description("Runs a GPTools against a GPSpec")
         .arguments("<tool> [spec]")
         .option("-o, --out <string>", "output file")
@@ -188,14 +190,16 @@ async function main() {
         )
         .action(run)
 
-    const keys = program.command("keys")
+    const keys = program.command("keys").description("Manage OpenAI keys")
     keys.command("show", { isDefault: true })
         .description("Parse and show current key information")
         .action(async () => {
             const key = await host.getSecretToken()
             console.log(
                 key
-                    ? `${key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url} (from ${key.source})`
+                    ? `${
+                          key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url
+                      } (from ${key.source})`
                     : "no key set"
             )
         })
@@ -209,13 +213,13 @@ async function main() {
         .description("Clear any OpenAI connection string")
         .action(async () => await clearToken())
 
-    const tools = program.command("tools")
+    const tools = program.command("tools").description("Manage GPTools")
     tools
         .command("list", { isDefault: true })
         .description("List all available tools")
         .action(listTools)
 
-    const specs = program.command("specs")
+    const specs = program.command("specs").description("Manage GPSpecs")
     specs
         .command("list", { isDefault: true })
         .description("List all available specs")

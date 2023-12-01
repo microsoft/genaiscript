@@ -10,7 +10,7 @@ The GPTools CLI is a command line packaged as a Node.JS javascript file (`gptool
 Runs a gptool on a gpspec file and prints the LLM output.
 
 ```bash
-node .gptools/gptools.js <tool> [spec]
+node .gptools/gptools.js run <tool> [spec]
 ```
 
 where `<tool>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
@@ -31,7 +31,7 @@ Output the entire response as JSON to the stdout.
 Saves the results in a JSON file, along with mardown files of the output and the trace.
 
 ```bash
-node gptools.js <tool> <spec> --output <file>
+node gptools.js run <tool> <spec> --output <file>
 ```
 
 ### --dry-run
