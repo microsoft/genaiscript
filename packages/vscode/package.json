@@ -4,6 +4,7 @@
     "displayName": "GPTools",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
     "version": "1.2.8",
+    "icon": "icon.png",
     "engines": {
         "vscode": "^1.83.0"
     },
