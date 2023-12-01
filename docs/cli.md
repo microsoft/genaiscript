@@ -1,7 +1,8 @@
 # CLI
 
-The GPTools CLI is a command line packaged as a Node.JS javascript file. It is used to run GPTools from the command line.
+The GPTools CLI is a command line packaged as a Node.JS javascript file (`gptools.js`). It is used to run GPTools from the command line.
 
+-   The VS Code extension automatically installs the CLI at `.gptools/gptools.js` in your project.
 -   Download `gptools.js` from the [latest release assets](https://github.com/microsoft/gptools/releases/latest).
 
 ## run a tool on a spec
@@ -9,7 +10,7 @@ The GPTools CLI is a command line packaged as a Node.JS javascript file. It is u
 Runs a gptool on a gpspec file and prints the LLM output.
 
 ```bash
-node gptools.js <tool> [spec]
+node .gptools/gptools.js <tool> [spec]
 ```
 
 where `<tool>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
