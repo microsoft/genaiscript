@@ -24,7 +24,7 @@ export interface OAIToken {
     token: string
     isOpenAI?: boolean
     isTGI?: boolean
-    source: string
+    source?: string
 }
 
 export interface ReadFileOptions {
