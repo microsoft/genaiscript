@@ -116,7 +116,9 @@ export class VSCodeHost extends EventTarget implements Host {
     async getSecretToken(): Promise<OAIToken> {
         const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
         if (!s) return undefined
-        return JSON.parse(s)
+        const res = JSON.parse(s)
+        res.source = "workspace"
+        return res
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
         if (!tok || !tok.token)
