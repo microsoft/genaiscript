@@ -6,7 +6,7 @@ import {
     UTF8Decoder,
     UTF8Encoder,
     defaultLog,
-    dotCoarchPath,
+    dotGptoolsPath,
     logWarn,
     parseToken,
     setHost,
@@ -28,7 +28,7 @@ export class NodeHost implements Host {
     }
 
     async askToken(): Promise<string> {
-        const path = dotCoarchPath("tmp/token.txt")
+        const path = dotGptoolsPath("tmp/token.txt")
         logWarn(`reading token from ${path}`)
         return this.createUTF8Decoder().decode(await this.readFile(path))
     }
@@ -53,13 +53,13 @@ export class NodeHost implements Host {
             return tok
         }
 
-        const keyp = dotCoarchPath("tmp/token.json")
+        const keyp = dotGptoolsPath("tmp/token.json")
         const tok = await tryReadJSON(keyp)
         if (tok) tok.source = keyp
         return tok
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
-        await writeJSON(dotCoarchPath("tmp/token.json"), tok)
+        await writeJSON(dotGptoolsPath("tmp/token.json"), tok)
     }
     setVirtualFile(name: string, content: string) {
         this.virtualFiles = {}

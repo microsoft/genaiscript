@@ -152,7 +152,7 @@ export function toBase64(data: Uint8Array): string {
     else return btoa(uint8ArrayToString(data))
 }
 
-export function dotCoarchPath(...segments: string[]) {
+export function dotGptoolsPath(...segments: string[]) {
     return host.resolvePath(host.projectFolder(), coarchFolder, ...segments)
 }
 
