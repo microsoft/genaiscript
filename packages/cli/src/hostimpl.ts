@@ -34,7 +34,8 @@ export class NodeHost implements Host {
     }
     async getSecretToken(): Promise<OAIToken> {
         if (process.env.GPTOOLS_TOKEN) {
-            const tok = parseToken(process.env.GPTOOLS_TOKEN)
+            const tok = await parseToken(process.env.GPTOOLS_TOKEN)
+            tok.source = "env: gptools_token"
             return tok
         }
         if (process.env.OPENAI_API_KEY) {
@@ -47,11 +48,15 @@ export class NodeHost implements Host {
                 throw new Error("OPENAI_API_TYPE must be azure")
             if (version && version !== "2023-03-15-preview")
                 throw new Error("OPENAI_API_VERSION must be 2023-03-15-preview")
-            const tok = parseToken(`${base}#oaikey=${key}`)
+            const tok = await parseToken(`${base}#oaikey=${key}`)
+            tok.source = "env: openai_api_..."
             return tok
         }
 
-        return await tryReadJSON(dotCoarchPath("tmp/token.json"))
+        const keyp = dotCoarchPath("tmp/token.json")
+        const tok = await tryReadJSON(keyp)
+        if (tok) tok.source = keyp
+        return tok
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
         await writeJSON(dotCoarchPath("tmp/token.json"), tok)

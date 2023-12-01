@@ -195,7 +195,7 @@ async function main() {
             const key = await host.getSecretToken()
             console.log(
                 key
-                    ? `${key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url}`
+                    ? `${key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url} (from ${key.source})`
                     : "no key set"
             )
         })
