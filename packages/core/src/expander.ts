@@ -229,7 +229,6 @@ async function expandTemplate(
         systems.push("system.files")
         systems.push("system.summary")
     }
-    if (!systems.includes("system")) systems.unshift("system")
     for (let i = 0; i < systems.length; ++i) {
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
