@@ -151,7 +151,11 @@ async function run(
 async function listTools() {
     const prj = await buildProject()
     prj.templates.forEach((t) =>
-        console.log(`${t.id}: ${t.title} (${t.filename || "builtin"})`)
+        console.log(
+            `${t.id}: ${t.title}, ${t.filename || "builtin"}, ${
+                t.isSystem ? "system" : "user"
+            }"}`
+        )
     )
 }
 
