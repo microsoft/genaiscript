@@ -1,298 +1,298 @@
 {
-    "name": "gptools-vscode",
-    "publisher": "Microsoft",
-    "displayName": "GPTools",
-    "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
-    "version": "1.2.8",
-    "icon": "icon.png",
-    "engines": {
-        "vscode": "^1.83.0"
+  "name": "gptools-vscode",
+  "publisher": "Microsoft",
+  "displayName": "GPTools",
+  "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
+  "version": "1.2.13",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.83.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "license": "MIT",
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/*.gpspec.md",
+    "workspaceContains:**/*.gptool.js"
+  ],
+  "main": "./built/extension.js",
+  "browser": "./built/extension.js",
+  "repository": {
+    "url": "https://github.com/microsoft/gptools",
+    "directory": "packages/vscode"
+  },
+  "files": [
+    "./built/gptools.js"
+  ],
+  "contributes": {
+    "markdown.previewStyles": [
+      "./markdown.css"
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "coarch",
+          "title": "GPTools",
+          "icon": "./images/robot.svg"
+        }
+      ]
     },
-    "categories": [
-        "Other"
-    ],
-    "license": "MIT",
-    "extensionKind": [
-        "workspace"
-    ],
-    "activationEvents": [
-        "workspaceContains:**/*.gpspec.md",
-        "workspaceContains:**/*.gptool.js"
-    ],
-    "main": "./built/extension.js",
-    "browser": "./built/extension.js",
-    "repository": {
-        "url": "https://github.com/microsoft/gptools",
-        "directory": "packages/vscode"
-    },
-    "files": [
-        "./built/gptools.js"
-    ],
-    "contributes": {
-        "markdown.previewStyles": [
-            "./markdown.css"
-        ],
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "coarch",
-                    "title": "GPTools",
-                    "icon": "./images/robot.svg"
-                }
-            ]
+    "views": {
+      "coarch": [
+        {
+          "id": "coarch.prompts",
+          "name": "GPTools"
         },
-        "views": {
-            "coarch": [
-                {
-                    "id": "coarch.prompts",
-                    "name": "GPTools"
-                },
-                {
-                    "id": "coarch.prompts.requests",
-                    "name": "Runs",
-                    "visibility": "collapsed"
-                },
-                {
-                    "id": "coarch.openai.requests",
-                    "name": "OpenAI Requests",
-                    "visibility": "collapsed"
-                }
-            ]
+        {
+          "id": "coarch.prompts.requests",
+          "name": "Runs",
+          "visibility": "collapsed"
         },
-        "viewsWelcome": [
-            {
-                "view": "coarch.fragments",
-                "contents": "Create a gpspec file (.gpspec.md) to start generating tasks and code."
-            }
-        ],
-        "menus": {
-            "editor/context": [
-                {
-                    "command": "coarch.fragment.prompt",
-                    "when": "!inDebugMode"
-                }
-            ],
-            "file/newFile": [
-                {
-                    "command": "coarch.newfile.gptool"
-                },
-                {
-                    "command": "coarch.newfile.gpspec"
-                }
-            ],
-            "commandPalette": [
-                {
-                    "command": "coarch.newfile.gptool",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.newfile.gpspec",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.fragment.reveal",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.prompt.unbuiltin",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.prompt.navigate",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.fragment.navigate",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.fragment.refine",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.request.open",
-                    "when": "false"
-                },
-                {
-                    "command": "coarch.request.status",
-                    "when": "false"
-                }
-            ],
-            "view/title": [
-                {
-                    "command": "coarch.prompt.create",
-                    "when": "view == coarch.prompts",
-                    "group": "navigation"
-                },
-                {
-                    "command": "coarch.openai.token.update",
-                    "when": "view == coarch.prompts"
-                },
-                {
-                    "command": "coarch.openai.token.clear",
-                    "when": "view == coarch.prompts"
-                }
-            ],
-            "view/item/context": [
-                {
-                    "command": "coarch.fragment.prompt",
-                    "when": "view == coarch.fragments && viewItem  =~ /^fragment/",
-                    "group": "inline"
-                },
-                {
-                    "command": "coarch.prompt.fork",
-                    "when": "view == coarch.prompts && viewItem  =~ /^prompt/"
-                },
-                {
-                    "command": "coarch.prompt.unbuiltin",
-                    "when": "view == coarch.prompts && viewItem  =~ /^prompt.builtin/"
-                }
-            ]
+        {
+          "id": "coarch.openai.requests",
+          "name": "OpenAI Requests",
+          "visibility": "collapsed"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "coarch.fragments",
+        "contents": "Create a gpspec file (.gpspec.md) to start generating tasks and code."
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "coarch.fragment.prompt",
+          "when": "!inDebugMode"
+        }
+      ],
+      "file/newFile": [
+        {
+          "command": "coarch.newfile.gptool"
         },
-        "configuration": [
-            {
-                "title": "GPTools",
-                "properties": {
-                    "coarch.maxCachedTemperature": {
-                        "type": "number",
-                        "default": 0.01,
-                        "description": "Maximum prompt temperature to be cached."
-                    }
-                }
-            }
-        ],
-        "commands": [
-            {
-                "command": "coarch.openai.token.clear",
-                "title": "Clear OpenAI token",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.openai.token.update",
-                "title": "Update OpenAI token",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.request.abort",
-                "title": "Abort OpenAI request",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.request.retry",
-                "title": "Retry last GPTool",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.fragment.navigate",
-                "title": "Navigate to fragment",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.fragment.reveal",
-                "title": "Reveal fragment in tree",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.fragment.prompt",
-                "title": "Run GPTool...",
-                "category": "GPTools",
-                "icon": "$(lightbulb)"
-            },
-            {
-                "command": "coarch.fragment.refine",
-                "title": "Extend specification and run tool again",
-                "category": "GPTools",
-                "shortTitle": "Refine...",
-                "icon": "$(lightbulb)"
-            },
-            {
-                "command": "coarch.prompt.navigate",
-                "title": "Navigate to prompt",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.prompt.create",
-                "title": "Create new GPTool",
-                "icon": "$(add)",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.newfile.gptool",
-                "title": "GPTool File",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.newfile.gpspec",
-                "title": "GPSpec File",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.prompt.fork",
-                "title": "Fork GPTool...",
-                "category": "GPTools",
-                "icon": "$(repo-forked)"
-            },
-            {
-                "command": "coarch.prompt.unbuiltin",
-                "title": "Move builtin to project",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.request.open",
-                "title": "Open request or response",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.request.open.trace",
-                "title": "Open Trace",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.request.open.output",
-                "title": "Open Output",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.request.status",
-                "title": "Show information message about OpenAI request status",
-                "category": "GPTools"
-            },
-            {
-                "command": "coarch.openIssueReporter",
-                "title": "Report Issue...",
-                "category": "GPTools"
-            }
-        ]
+        {
+          "command": "coarch.newfile.gpspec"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "coarch.newfile.gptool",
+          "when": "false"
+        },
+        {
+          "command": "coarch.newfile.gpspec",
+          "when": "false"
+        },
+        {
+          "command": "coarch.fragment.reveal",
+          "when": "false"
+        },
+        {
+          "command": "coarch.prompt.unbuiltin",
+          "when": "false"
+        },
+        {
+          "command": "coarch.prompt.navigate",
+          "when": "false"
+        },
+        {
+          "command": "coarch.fragment.navigate",
+          "when": "false"
+        },
+        {
+          "command": "coarch.fragment.refine",
+          "when": "false"
+        },
+        {
+          "command": "coarch.request.open",
+          "when": "false"
+        },
+        {
+          "command": "coarch.request.status",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "coarch.prompt.create",
+          "when": "view == coarch.prompts",
+          "group": "navigation"
+        },
+        {
+          "command": "coarch.openai.token.update",
+          "when": "view == coarch.prompts"
+        },
+        {
+          "command": "coarch.openai.token.clear",
+          "when": "view == coarch.prompts"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "coarch.fragment.prompt",
+          "when": "view == coarch.fragments && viewItem  =~ /^fragment/",
+          "group": "inline"
+        },
+        {
+          "command": "coarch.prompt.fork",
+          "when": "view == coarch.prompts && viewItem  =~ /^prompt/"
+        },
+        {
+          "command": "coarch.prompt.unbuiltin",
+          "when": "view == coarch.prompts && viewItem  =~ /^prompt.builtin/"
+        }
+      ]
     },
-    "scripts": {
-        "vscode:prepublish": "yarn run compile",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node18 --outfile=built/extension.js --external:vscode",
-        "compile:webview": "esbuild src/webview/main.ts --sourcemap --bundle --format=esm --platform=node --target=es2020 --outfile=built/webview.js --external:vscode",
-        "compile": "yarn compile:extension && yarn compile:webview",
-        "lint": "eslint src --ext ts",
-        "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
-        "typecheck": "tsc -p .",
-        "package": "vsce package --dependencies --out gptools.vsix --yarn"
-    },
-    "devDependencies": {
-        "@types/isomorphic-fetch": "^0.0.38",
-        "@types/mocha": "^10.0.3",
-        "@types/vscode": "^1.83.1",
-        "@typescript-eslint/eslint-plugin": "^6.9.0",
-        "@typescript-eslint/parser": "^6.9.0",
-        "@vscode/test-web": "^0.0.47",
-        "@vscode/webview-ui-toolkit": "^1.2.2",
-        "assert": "^2.1.0",
-        "coarch-core": "*",
-        "cli": "*",
-        "eslint": "^8.52.0",
-        "isomorphic-fetch": "^3.0.0",
-        "json5": "^2.2.3",
-        "mocha": "^10.2.0",
-        "process": "^0.11.10",
-        "ts-loader": "^9.5.0",
-        "typescript": "^5.2.2",
-        "vsce": "^2.15.0",
-        "vscode-uri": "^3.0.8"
-    }
+    "configuration": [
+      {
+        "title": "GPTools",
+        "properties": {
+          "coarch.maxCachedTemperature": {
+            "type": "number",
+            "default": 0.01,
+            "description": "Maximum prompt temperature to be cached."
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "coarch.openai.token.clear",
+        "title": "Clear OpenAI token",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.openai.token.update",
+        "title": "Update OpenAI token",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.request.abort",
+        "title": "Abort OpenAI request",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.request.retry",
+        "title": "Retry last GPTool",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.fragment.navigate",
+        "title": "Navigate to fragment",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.fragment.reveal",
+        "title": "Reveal fragment in tree",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.fragment.prompt",
+        "title": "Run GPTool...",
+        "category": "GPTools",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "coarch.fragment.refine",
+        "title": "Extend specification and run tool again",
+        "category": "GPTools",
+        "shortTitle": "Refine...",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "coarch.prompt.navigate",
+        "title": "Navigate to prompt",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.prompt.create",
+        "title": "Create new GPTool",
+        "icon": "$(add)",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.newfile.gptool",
+        "title": "GPTool File",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.newfile.gpspec",
+        "title": "GPSpec File",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.prompt.fork",
+        "title": "Fork GPTool...",
+        "category": "GPTools",
+        "icon": "$(repo-forked)"
+      },
+      {
+        "command": "coarch.prompt.unbuiltin",
+        "title": "Move builtin to project",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.request.open",
+        "title": "Open request or response",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.request.open.trace",
+        "title": "Open Trace",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.request.open.output",
+        "title": "Open Output",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.request.status",
+        "title": "Show information message about OpenAI request status",
+        "category": "GPTools"
+      },
+      {
+        "command": "coarch.openIssueReporter",
+        "title": "Report Issue...",
+        "category": "GPTools"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node18 --outfile=built/extension.js --external:vscode",
+    "compile:webview": "esbuild src/webview/main.ts --sourcemap --bundle --format=esm --platform=node --target=es2020 --outfile=built/webview.js --external:vscode",
+    "compile": "yarn compile:extension && yarn compile:webview",
+    "lint": "eslint src --ext ts",
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
+    "typecheck": "tsc -p .",
+    "package": "vsce package --dependencies --out gptools.vsix --yarn"
+  },
+  "devDependencies": {
+    "@types/isomorphic-fetch": "^0.0.38",
+    "@types/mocha": "^10.0.3",
+    "@types/vscode": "^1.83.1",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "@vscode/test-web": "^0.0.47",
+    "@vscode/webview-ui-toolkit": "^1.2.2",
+    "assert": "^2.1.0",
+    "coarch-core": "*",
+    "cli": "*",
+    "eslint": "^8.52.0",
+    "isomorphic-fetch": "^3.0.0",
+    "json5": "^2.2.3",
+    "mocha": "^10.2.0",
+    "process": "^0.11.10",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.2.2",
+    "vsce": "^2.15.0",
+    "vscode-uri": "^3.0.8"
+  }
 }
