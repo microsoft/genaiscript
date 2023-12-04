@@ -42,9 +42,7 @@ export function activateStatusBar(state: ExtensionState) {
                     token
                         ? `${token.url} [clear](command:coarch.openai.token.clear)`
                         : "not configured"
-                }`,
-                "",
-                commandButtonsMarkdown(state)
+                }`
             ),
             true
         )

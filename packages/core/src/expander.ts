@@ -3,7 +3,7 @@ import {
     RequestError,
     getChatCompletions,
 } from "./chat"
-import { Fragment, PromptTemplate, allChildren } from "./ast"
+import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, fileExists, readText, relativePath } from "./util"
@@ -41,6 +41,11 @@ export interface FragmentTransformResponse {
     edits: Edits[]
 
     /**
+     * Parsed source annotations
+     */
+    annotations: Diagnostic[]
+
+    /**
      * A map of file updates
      */
     fileEdits: Record<string, { before: string; after: string }>
@@ -61,17 +66,13 @@ export interface FragmentTransformResponse {
     summary?: string
 }
 
-// 'foo.bar.baz' -> [ 'foo', 'foo.bar', 'foo.bar.baz' ]
-function prefixes(w: string) {
-    const words = w.split(".")
-    return words.map((_, i) => words.slice(0, i + 1).join("."))
-}
-
 function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
 const fence = "```"
 const markdownFence = "``````"
+const systemFence = "---"
+
 export function fenceMD(t: string, contentType?: string) {
     if (!contentType) contentType = "markdown"
     const f = contentType === "markdown" ? markdownFence : fence
@@ -242,7 +243,7 @@ async function expandTemplate(
         }
 
         const sysex = (await callExpander(system, env)).text
-        systemText += sysex + "\n"
+        systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
         temperature = temperature ?? system.temperature
@@ -443,6 +444,7 @@ export async function runTemplate(
         vars: {},
         prompt: undefined,
         edits: [],
+        annotations: [],
         trace: "",
         text: "> Running GPTool...",
         fileEdits: {},
@@ -476,6 +478,7 @@ export async function runTemplate(
             trace,
             text: "# Template failed\nSee info below.\n" + trace,
             edits: [],
+            annotations: [],
             fileEdits: {},
         }
     }
@@ -488,6 +491,7 @@ export async function runTemplate(
             trace,
             text: undefined,
             edits: [],
+            annotations: [],
             fileEdits: {},
         }
     }
@@ -499,6 +503,7 @@ export async function runTemplate(
             prompt,
             vars,
             edits: [],
+            annotations: [],
             trace,
             text: "> Waiting for response...",
             fileEdits: {},
@@ -523,7 +528,7 @@ export async function runTemplate(
         )
     } catch (error: unknown) {
         if (error instanceof RequestError) {
-            trace += `## Request error\n\n`
+            trace += `\n## Request error\n\n`
             if (error.body) {
                 trace += `\n> ${error.body.message}\n\n`
                 trace += `-  type: \`${error.body.type}\`\n`
@@ -534,12 +539,13 @@ export async function runTemplate(
                 prompt,
                 vars,
                 edits: [],
+                annotations: [],
                 trace,
                 text: "Request error",
                 fileEdits: {},
             })
         } else if (signal?.aborted) {
-            trace += `## Request cancelled
+            trace += `\n## Request cancelled
             
 The user requested to cancel the request.
 `
@@ -547,18 +553,13 @@ The user requested to cancel the request.
                 prompt,
                 vars,
                 edits: [],
+                annotations: [],
                 trace,
                 text: "Request cancelled",
                 fileEdits: {},
             })
         }
         throw error
-    }
-
-    const edits: Edits[] = []
-    const obj = {
-        label: template.title,
-        filename: fragment.file.filename,
     }
 
     trace += details("LLM response", fenceMD(text))
@@ -569,12 +570,13 @@ The user requested to cancel the request.
     const res: FragmentTransformResponse = {
         prompt,
         vars,
-        edits,
+        edits: [],
+        annotations: [],
         fileEdits: {},
         trace,
         text,
     }
-    const { fileEdits } = res
+    const { fileEdits, annotations, edits } = res
 
     const projFolder = host.projectFolder()
     const links: string[] = []
@@ -636,6 +638,26 @@ The user requested to cancel the request.
                 }
             }
             if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
+        } else if (/^annotation$/i.test(name)) {
+            // ::(notice|warning|error) file=<filename>,line=<start line>::<message>
+            const rx =
+                /^::(notice|warning|error)\s*file=([^,]+),\s*line=(\d+),\s*endLine=(\d+)\s*::(.*)$/gim
+            val.replace(rx, (_, severity, file, line, endLine, message) => {
+                const filename = /^[^\/]/.test(file)
+                    ? host.resolvePath(projFolder, file)
+                    : file
+                const annotation: Diagnostic = {
+                    severity,
+                    filename,
+                    range: [
+                        [parseInt(line) - 1, 0],
+                        [parseInt(endLine) - 1, Number.MAX_VALUE],
+                    ],
+                    message,
+                }
+                annotations.push(annotation)
+                return ""
+            })
         } else if (/^summary$/i.test(name)) {
             res.summary = val
         }
@@ -669,6 +691,10 @@ The user requested to cancel the request.
         links.length &&
         (!fragmentVirtual || fileEdits[fragment.file.filename]?.after)
     ) {
+        const obj = {
+            label: template.title,
+            filename: fragment.file.filename,
+        }
         edits.push({
             ...obj,
             type: "insert",

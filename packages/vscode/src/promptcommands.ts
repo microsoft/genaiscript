@@ -151,12 +151,9 @@ export function commandButtons(state: ExtensionState) {
     return cmds
 }
 
-export function commandButtonsMarkdown(state: ExtensionState) {
-    return commandButtons(state)
-        .map(({ label, description, cmd }) => {
-            return description
-                ? `[${label}](command:${cmd} "${description}")`
-                : `[${label}](command:${cmd})`
-        })
-        .join(" | ")
+export function commandButtonsMarkdown(state: ExtensionState, sep = " | ") {
+    const res = commandButtons(state)
+        .map(({ label, description, cmd }) => `[${label}](command:${cmd})`)
+        .join(sep)
+    return res
 }

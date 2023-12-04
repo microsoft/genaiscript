@@ -179,6 +179,8 @@ export class ExtensionState extends EventTarget {
             const key = snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
             await this._aiRequestCache.set(key, snapshot)
+
+            this.setDiagnostics()
             this.dispatchChange()
 
             if (edits) {
@@ -233,10 +235,7 @@ ${e.message}`
                 const msg = isRequestError(e, 404)
                     ? `OpenAI model not found (404). Does your token support the selected model?`
                     : e.message
-                await vscode.window.showWarningMessage(
-                    msg,
-                    commandButtonsMarkdown(this)
-                )
+                await vscode.window.showWarningMessage(msg)
             } else throw e
         }
     }
@@ -448,30 +447,37 @@ ${e.message}`
         this._diagColl.clear()
 
         const severities: Record<
-            DiagnosticSeverity,
+            DiagnosticSeverity | "notice",
             vscode.DiagnosticSeverity
         > = {
+            notice: vscode.DiagnosticSeverity.Information,
             warning: vscode.DiagnosticSeverity.Warning,
             error: vscode.DiagnosticSeverity.Error,
             info: vscode.DiagnosticSeverity.Information,
         }
 
-        for (const [filename, diags] of Object.entries(
-            groupBy(this.project.diagnostics, (d) => d.filename)
-        )) {
-            this._diagColl.set(
-                vscode.Uri.file(filename),
-                diags.map((d) => {
-                    const r = new vscode.Diagnostic(
-                        toRange(d.range),
-                        d.message,
-                        severities[d.severity]
-                    )
-                    r.source = "GPTools"
-                    // r.code = 0;
-                    return r
-                })
+        let diagnostics = this.project.diagnostics
+        if (this._aiRequest?.response?.annotations?.length)
+            diagnostics = diagnostics.concat(
+                this._aiRequest?.response?.annotations
             )
+
+        // project entries
+        for (const [filename, diags] of Object.entries(
+            groupBy(diagnostics, (d) => d.filename)
+        )) {
+            const ds = diags.map((d) => {
+                const r = new vscode.Diagnostic(
+                    toRange(d.range),
+                    d.message,
+                    severities[d.severity]
+                )
+                r.source = "GPTools"
+                // r.code = 0;
+                return r
+            })
+            const uri = vscode.Uri.file(filename)
+            this._diagColl.set(uri, ds)
         }
     }
 
