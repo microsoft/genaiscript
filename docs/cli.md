@@ -14,8 +14,18 @@ node .gptools/gptools.js run <tool> [spec]
 ```
 
 where `<tool>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
-If `[spec]` is not specified, the `stdin` content is used as the spec. If `[spec]` is not a `.gpspec.md` file,
-a wrapper spec is generated on the fly.
+
+If `spec` is not a `.gpspec.md` file, a wrapper spec is generated on the fly. In this case, spec can also be a `glob` patterns.
+
+```bash
+node .gptools/gptools.js run code-annotator src/*.ts
+```
+
+If `[spec]` is not specified, the `stdin` content is used as the spec.
+
+```bash
+cat spec.gpspec.md | node .gptools/gptools.js run tool
+```
 
 ### credentials
 

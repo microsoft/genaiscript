@@ -74,13 +74,13 @@ async function run(
         spec = "stdin.gpspec.md"
         host.setVirtualFile(spec, specContent)
     } else if (!/\.gpspec\.md$/i.test(spec)) {
-        const fn = basename(spec)
-        spec = spec + ".gpspec.md"
+        const files = await host.findFiles(spec)
+        spec = "cli.gpspec.md"
         host.setVirtualFile(
             spec,
             `# Specification
 
--   [${fn}](./${fn})
+${files.map((f) => `-   [${basename(f)}](./${f})\n`)}
 `
         )
     }
@@ -190,7 +190,7 @@ async function main() {
         .arguments("<tool> [spec]")
         .option(
             "-o, --out <string>",
-            "output file. Extra markdown fiels for output and trace will also be generatred"
+            "output file. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
         .option("-r, --retry <number>", "number of retries", "3")
