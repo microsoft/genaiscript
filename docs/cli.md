@@ -42,12 +42,18 @@ or configured through the `keys` command (as a JSON payload).
 
 Output the entire response as JSON to the stdout.
 
-### --out <file>
+### --out <file|directory>
 
-Saves the results in a JSON file, along with mardown files of the output and the trace.
+Saves the results in a JSON file, along with markdown files of the output and the trace.
 
 ```bash
-node gptools.js run <tool> <spec> --out <file>
+node gptools.js run <tool> <spec> --out output/results.json
+```
+
+If `file` does not end with `.json`, the path is treated as a directory path.
+
+```bash
+node gptools.js run <tool> <spec> --out output
 ```
 
 ### --out-trace <file>

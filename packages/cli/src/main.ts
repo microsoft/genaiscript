@@ -5,6 +5,7 @@ import {
     host,
     isRequestError,
     parseProject,
+    readText,
     runTemplate,
     setToken,
     writeJSON,
@@ -14,7 +15,7 @@ import { NodeHost } from "./hostimpl"
 import { program } from "commander"
 import { backOff } from "exponential-backoff"
 import getStdin from "get-stdin"
-import { basename, resolve } from "node:path"
+import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
 
 async function buildProject(options?: {
@@ -67,6 +68,7 @@ async function run(
     const outTrace = options.outTrace
 
     let spec: string
+    let specContent: string
     const toolFiles: string[] = []
 
     let md: string
@@ -76,9 +78,8 @@ async function run(
 
     const gpspecRx = /\.gpspec\.md$/i
     if (!specs?.length) {
-        const specContent = await getStdin()
+        specContent = await getStdin()
         spec = "stdin.gpspec.md"
-        host.setVirtualFile(spec, specContent)
     } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
         spec = specs[0]
     } else {
@@ -96,14 +97,13 @@ async function run(
 
     if (md || links.length) {
         spec = "cli.gpspec.md"
-        host.setVirtualFile(
-            spec,
-            `${md || "# Specification"}
+        specContent = `${md || "# Specification"}
 
 ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 `
-        )
     }
+
+    if (specContent) host.setVirtualFile(spec, specContent)
 
     const prj = await buildProject({
         toolFiles,
@@ -145,14 +145,15 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     if (outTrace && res.trace) await writeText(outTrace, res.trace)
     if (out) {
-        const jsonf = /\.json$/i.test(out) ? out : out + ".json"
+        const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const userf = jsonf.replace(/\.json$/i, ".user.md")
         const systemf = jsonf.replace(/\.json$/i, ".system.md")
         const outputf = jsonf.replace(/\.json$/i, ".output.md")
         const tracef = jsonf.replace(/\.json$/i, ".trace.md")
-        console.log(
-            `writing ${jsonf}, ${systemf}, ${userf}, ${outputf} and ${tracef}`
-        )
+        const specf = specContent
+            ? jsonf.replace(/\.json$/i, ".gpspec.md")
+            : undefined
+        console.error(`writing ${jsonf}`)
         await writeJSON(jsonf, res)
         if (res.prompt) {
             await writeText(systemf, res.prompt.system)
@@ -160,6 +161,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         }
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
+        if (specf) await writeText(specf, await readText(spec))
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
