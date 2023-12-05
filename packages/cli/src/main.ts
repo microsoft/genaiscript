@@ -1,4 +1,5 @@
 import {
+    RequestError,
     clearToken,
     host,
     isRequestError,
@@ -165,6 +166,13 @@ async function listSpecs() {
 }
 
 async function main() {
+    process.on("uncaughtException", (err) => {
+        console.error(err.message)
+        console.error(err.stack)
+        if (isRequestError(err)) process.exit((err as RequestError).status)
+        process.exit(-1)
+    })
+
     NodeHost.install()
     program
         .name("gptools")
