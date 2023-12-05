@@ -5,6 +5,7 @@ import {
     host,
     isRequestError,
     parseProject,
+    readText,
     runTemplate,
     setToken,
     writeJSON,
@@ -14,7 +15,7 @@ import { NodeHost } from "./hostimpl"
 import { program } from "commander"
 import { backOff } from "exponential-backoff"
 import getStdin from "get-stdin"
-import { basename, resolve } from "node:path"
+import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
 
 async function buildProject(options?: {
@@ -48,7 +49,7 @@ async function buildProject(options?: {
 
 async function run(
     tool: string,
-    spec: string,
+    specs: string[],
     options: {
         out: string
         retry: string
@@ -66,24 +67,43 @@ async function run(
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
 
+    let spec: string
+    let specContent: string
     const toolFiles: string[] = []
+
+    let md: string
+    const links: string[] = []
+
     if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
 
-    if (!spec) {
-        const specContent = await getStdin()
+    const gpspecRx = /\.gpspec\.md$/i
+    if (!specs?.length) {
+        specContent = await getStdin()
         spec = "stdin.gpspec.md"
-        host.setVirtualFile(spec, specContent)
-    } else if (!/\.gpspec\.md$/i.test(spec)) {
-        const fn = basename(spec)
-        spec = spec + ".gpspec.md"
-        host.setVirtualFile(
-            spec,
-            `# Specification
-
--   [${fn}](./${fn})
-`
-        )
+    } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
+        spec = specs[0]
+    } else {
+        for (const arg of specs) {
+            const files = await host.findFiles(arg)
+            for (const file of files) {
+                if (gpspecRx.test(spec)) {
+                    md += (await host.readFile(file)) + "\n"
+                } else {
+                    links.push(file)
+                }
+            }
+        }
     }
+
+    if (md || links.length) {
+        spec = "cli.gpspec.md"
+        specContent = `${md || "# Specification"}
+
+${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
+`
+    }
+
+    if (specContent) host.setVirtualFile(spec, specContent)
 
     const prj = await buildProject({
         toolFiles,
@@ -125,14 +145,15 @@ async function run(
 
     if (outTrace && res.trace) await writeText(outTrace, res.trace)
     if (out) {
-        const jsonf = /\.json$/i.test(out) ? out : out + ".json"
+        const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const userf = jsonf.replace(/\.json$/i, ".user.md")
         const systemf = jsonf.replace(/\.json$/i, ".system.md")
         const outputf = jsonf.replace(/\.json$/i, ".output.md")
         const tracef = jsonf.replace(/\.json$/i, ".trace.md")
-        console.log(
-            `writing ${jsonf}, ${systemf}, ${userf}, ${outputf} and ${tracef}`
-        )
+        const specf = specContent
+            ? jsonf.replace(/\.json$/i, ".gpspec.md")
+            : undefined
+        console.error(`writing ${jsonf}`)
         await writeJSON(jsonf, res)
         if (res.prompt) {
             await writeText(systemf, res.prompt.system)
@@ -140,13 +161,14 @@ async function run(
         }
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
+        if (specf) await writeText(specf, await readText(spec))
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
             const { system, user } = res.prompt || {}
-            console.log(`## SYSTEM`)
+            console.log(`---------- SYSTEM ----------`)
             console.log(system)
-            console.log(`## USER`)
+            console.log(`---------- USER   ----------`)
             console.log(user)
         } else console.log(res.text)
     }
@@ -187,10 +209,10 @@ async function main() {
     program
         .command("run")
         .description("Runs a GPTools against a GPSpec")
-        .arguments("<tool> [spec]")
+        .arguments("<tool> [spec...]")
         .option(
             "-o, --out <string>",
-            "output file. Extra markdown fiels for output and trace will also be generatred"
+            "output file. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
         .option("-r, --retry <number>", "number of retries", "3")

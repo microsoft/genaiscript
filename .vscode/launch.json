@@ -8,7 +8,8 @@
             "request": "launch",
             "skipFiles": ["<node_internals>/**"],
             "type": "node",
-            "preLaunchTask": "npm: compile-cli"
+            "preLaunchTask": "npm: compile-cli",
+            "args": ["run", "code-annotator", "packages/sample/src/*.py", "packages/sample/src/*.ts", "-d"]
         },
         {
             "name": "Run - sample",
