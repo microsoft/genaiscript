@@ -80,6 +80,7 @@ async function run(
         spec = "stdin.gpspec.md"
         host.setVirtualFile(spec, specContent)
     } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
+        spec = specs[0]
     } else {
         for (const arg of specs) {
             const files = await host.findFiles(arg)
@@ -99,7 +100,7 @@ async function run(
             spec,
             `${md || "# Specification"}
 
-${links.map((f) => `-   [${basename(f)}](./${f})\n`)}
+${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 `
         )
     }
@@ -163,9 +164,9 @@ ${links.map((f) => `-   [${basename(f)}](./${f})\n`)}
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
             const { system, user } = res.prompt || {}
-            console.log(`## SYSTEM`)
+            console.log(`---------- SYSTEM ----------`)
             console.log(system)
-            console.log(`## USER`)
+            console.log(`---------- USER   ----------`)
             console.log(user)
         } else console.log(res.text)
     }
