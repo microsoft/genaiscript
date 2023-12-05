@@ -150,6 +150,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             startingDelay: retryDelay,
             maxDelay,
             retry: (e, attempt) => {
+                console.error(e)
                 if (isRequestError(e, 429)) {
                     host.log(
                         LogLevel.Info,
