@@ -58,6 +58,7 @@ async function run(
         maxDelay: string
         dryRun: boolean
         outTrace: string
+        label: string
     }
 ) {
     const out = options.out
@@ -66,6 +67,7 @@ async function run(
     const retryDelay = parseInt(options.retryDelay) || 5000
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
+    const label = options.label
 
     let spec: string
     let specContent: string
@@ -128,6 +130,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             await runTemplate(gptool, fragment, {
                 infoCb: (progress) => {},
                 skipLLM,
+                label,
             }),
         {
             numOfAttempts: retry,
@@ -231,6 +234,7 @@ async function main() {
             "maximum delay between retries",
             "180000"
         )
+        .option("-l, --label <string>", "label for the run")
         .action(run)
 
     const keys = program.command("keys").description("Manage OpenAI keys")

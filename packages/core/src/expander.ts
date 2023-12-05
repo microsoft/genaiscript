@@ -69,6 +69,11 @@ export interface FragmentTransformResponse {
      * Error message if any
      */
     error?: unknown
+
+    /**
+     * Run label if provided
+     */
+    label?: string
 }
 
 function trimNewlines(s: string) {
@@ -198,10 +203,7 @@ async function expandTemplate(
     const varMap = env as any as Record<string, string | any[]>
 
     // we put errors on top so they draw attention
-    let trace = `
-# \`${template.id}\` trace
-
-@@errors@@
+    let trace = `@@errors@@
 
 `
 
@@ -435,6 +437,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     promptOptions?: any
     maxCachedTemperature?: number
     skipLLM?: boolean
+    label?: string
 }
 
 export async function runTemplate(
@@ -442,7 +445,7 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { requestOptions = {}, skipLLM } = options || {}
+    const { requestOptions = {}, skipLLM, label } = options || {}
     const { signal } = requestOptions
 
     options?.infoCb?.({
@@ -453,6 +456,7 @@ export async function runTemplate(
         trace: "",
         text: "> Running GPTool...",
         fileEdits: {},
+        label,
     })
 
     const { vars } = await fragmentVars(
@@ -460,15 +464,18 @@ export async function runTemplate(
         fragment,
         options.promptOptions
     )
+    let trace = `## ${label || template.id}\n`
     let {
         expanded,
         success,
-        trace,
+        trace: expansionTrace,
         model,
         temperature,
         max_tokens,
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
+
+    trace += expansionTrace
 
     const prompt = {
         system: systemText,
@@ -486,6 +493,7 @@ export async function runTemplate(
             edits: [],
             annotations: [],
             fileEdits: {},
+            label,
         }
     }
 
@@ -499,6 +507,7 @@ export async function runTemplate(
             edits: [],
             annotations: [],
             fileEdits: {},
+            label,
         }
     }
 
@@ -513,6 +522,7 @@ export async function runTemplate(
             trace,
             text: "> Waiting for response...",
             fileEdits: {},
+            label,
         })
         text = await getChatCompletions(
             {
@@ -534,7 +544,7 @@ export async function runTemplate(
         )
     } catch (error: unknown) {
         if (error instanceof RequestError) {
-            trace += `\n## Request error\n\n`
+            trace += `\n### Request error\n\n`
             if (error.body) {
                 trace += `\n> ${error.body.message}\n\n`
                 trace += `-  type: \`${error.body.type}\`\n`
@@ -551,7 +561,7 @@ export async function runTemplate(
                 fileEdits: {},
             })
         } else if (signal?.aborted) {
-            trace += `\n## Request cancelled
+            trace += `\n### Request cancelled
             
 The user requested to cancel the request.
 `
@@ -563,6 +573,7 @@ The user requested to cancel the request.
                 trace,
                 text: "Request cancelled",
                 fileEdits: {},
+                label,
             })
         }
 
@@ -575,6 +586,7 @@ The user requested to cancel the request.
             fileEdits: {},
             trace,
             text,
+            label,
         }
     }
 
@@ -636,7 +648,7 @@ The user requested to cancel the request.
                     )
                 } catch (e) {
                     console.debug(e)
-                    res.trace += `\n\n### Error applying patch\n\n${fenceMD(
+                    res.trace += `\n\n#### Error applying patch\n\n${fenceMD(
                         e.message
                     )}`
 
@@ -647,7 +659,7 @@ The user requested to cancel the request.
                         )
                     } catch (e) {
                         console.debug(e)
-                        res.trace += `\n\n### Error applying diff\n\n${fenceMD(
+                        res.trace += `\n\n#### Error applying diff\n\n${fenceMD(
                             e.message
                         )}`
                     }

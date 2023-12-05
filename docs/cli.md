@@ -85,6 +85,10 @@ Default is 3.
 
 Minimum delay between retries in milliseconds.
 
+### --label <label>
+
+Adds a run label that will be used in generating the trace title.
+
 ## `tools`, manage GPtools
 
 ### gptools tools list

@@ -18,7 +18,8 @@
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/gptools.vsix --github.assets=packages/cli/built/gptools.js --no-github.draft",
         "patch-versions": "npx --yes zx scripts/patch-version.mjs",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix",
-        "bump": "yarn release"
+        "bump": "yarn release",
+        "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -d -o .gptools/tmp/tests/cli"
     },
     "release-it": {
         "github": {
