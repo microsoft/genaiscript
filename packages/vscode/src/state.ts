@@ -298,6 +298,7 @@ ${e.message}`
             .then((resp) => {
                 r.response = resp
                 r.computing = false
+                if (resp.error) r.error = resp.error
             })
             .catch((e) => {
                 r.computing = false

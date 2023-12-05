@@ -1,13 +1,10 @@
 name: build
 
 on:
-    push:
-        branches: [main]
-    pull_request:
-        branches: [main]
     workflow_dispatch:
-
 jobs:
+    env:
+      GPTOOLS_TOKEN: ${{ secrets.GPTOOLS_TOKEN }}
     build:
         runs-on: ubuntu-latest
         steps:
@@ -20,9 +17,7 @@ jobs:
                   node-version: "18"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: package vscode
-              run: yarn package
+            - name: run gptools
+              run: node packages/cli/built/gptools.js front-matter README.md -ot $GITHUB_STEP_SUMMARY
