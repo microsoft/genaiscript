@@ -282,9 +282,10 @@
     "@typescript-eslint/parser": "^6.9.0",
     "@vscode/test-web": "^0.0.47",
     "@vscode/webview-ui-toolkit": "^1.2.2",
+    "@vscode/vsce": "^2.22.0",
     "assert": "^2.1.0",
-    "coarch-core": "*",
-    "cli": "*",
+    "gptools-cli": "*",
+    "gptools-core": "*",
     "eslint": "^8.52.0",
     "isomorphic-fetch": "^3.0.0",
     "json5": "^2.2.3",
@@ -292,7 +293,6 @@
     "process": "^0.11.10",
     "ts-loader": "^9.5.0",
     "typescript": "^5.2.2",
-    "vsce": "^2.15.0",
     "vscode-uri": "^3.0.8"
   }
 }

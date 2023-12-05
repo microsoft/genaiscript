@@ -1,5 +1,5 @@
 {
-  "name": "coarch-cli",
+  "name": "gptools-cli",
   "version": "1.2.16",
   "main": "built/gptools.js",
   "license": "MIT",
@@ -17,7 +17,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^18.16.3",
-    "coarch-core": "*"
+    "gptools-core": "*"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js",
