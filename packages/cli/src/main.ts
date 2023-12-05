@@ -1,4 +1,5 @@
 import {
+    FragmentTransformResponse,
     RequestError,
     clearToken,
     host,
@@ -55,6 +56,7 @@ async function run(
         json: boolean
         maxDelay: string
         dryRun: boolean
+        outTrace: string
     }
 ) {
     const out = options.out
@@ -62,6 +64,7 @@ async function run(
     const retry = parseInt(options.retry) || 3
     const retryDelay = parseInt(options.retryDelay) || 5000
     const maxDelay = parseInt(options.maxDelay) || 180000
+    const outTrace = options.outTrace
 
     const toolFiles: string[] = []
     if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
@@ -99,7 +102,8 @@ async function run(
     )
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.roots[0]
-    const res = await backOff(
+
+    const res: FragmentTransformResponse = await backOff(
         async () =>
             await runTemplate(gptool, fragment, {
                 infoCb: (progress) => {},
@@ -121,6 +125,7 @@ async function run(
         }
     )
 
+    if (outTrace && res.trace) await writeText(outTrace, res.trace)
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : out + ".json"
         const userf = jsonf.replace(/\.json$/i, ".user.md")
@@ -147,6 +152,8 @@ async function run(
             console.log(user)
         } else console.log(res.text)
     }
+
+    if (res.error) throw res.error
 }
 
 async function listTools() {
@@ -183,7 +190,8 @@ async function main() {
         .command("run")
         .description("Runs a GPTools against a GPSpec")
         .arguments("<tool> [spec]")
-        .option("-o, --out <string>", "output file")
+        .option("-o, --out <string>", "output file. Extra markdown fiels for output and trace will also be generatred")
+        .option("-ot, --out-trace <string>", "output file for trace")
         .option("-r, --retry <number>", "number of retries", "3")
         .option("-j, --json", "emit full JSON response to output")
         .option(

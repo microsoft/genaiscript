@@ -26,12 +26,28 @@ or configured through the `keys` command (as a JSON payload).
 
 Output the entire response as JSON to the stdout.
 
-### --output <file>
+### --out <file>
 
 Saves the results in a JSON file, along with mardown files of the output and the trace.
 
 ```bash
-node gptools.js run <tool> <spec> --output <file>
+node gptools.js run <tool> <spec> --out <file>
+```
+
+### --out-trace <file>
+
+Save the markdown trace to the specified file.
+
+```bash
+node gptools.js run <tool> <spec> --out-trace <file>
+```
+
+In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
+
+```yaml
+- name: Run GPTools tool on spec
+  run: |
+      node gptools.js run <tool> <spec> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
 ### --dry-run
