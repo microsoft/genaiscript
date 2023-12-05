@@ -150,7 +150,10 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             maxDelay,
             retry: (e, attempt) => {
                 if (isRequestError(e, 429)) {
-                    console.error(`rate limited, retry #${attempt}...`)
+                    host.log(
+                        LogLevel.Info,
+                        `LLM rate limited (429), retry #${attempt}...`
+                    )
                     return true
                 }
                 return false
@@ -208,7 +211,6 @@ async function listSpecs() {
 
 async function main() {
     process.on("uncaughtException", (err) => {
-        console.error(err.message)
         console.error(err.stack)
         if (isRequestError(err)) process.exit((err as RequestError).status)
         process.exit(-1)
@@ -229,7 +231,7 @@ async function main() {
             "output file. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
-        .option("-r, --retry <number>", "number of retries", "3")
+        .option("-r, --retry <number>", "number of retries", "5")
         .option("-j, --json", "emit full JSON response to output")
         .option(
             "-d, --dry-run",
