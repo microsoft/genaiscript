@@ -20,4 +20,10 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run gptools
-              run: node packages/cli/built/gptools.js run front-matter README.md -ot $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -ot $GITHUB_STEP_SUMMARY
+
+
+
+
+
+
