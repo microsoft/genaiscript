@@ -24,5 +24,11 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: run cli
+              run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.gpspec.md -d -ot $GITHUB_STEP_SUMMARY
+            - name: run cli pipe
+              run: cat packages/sample/src/counting.gpspec.md | node packages/cli/built/gptools.js run code-xray -d -ot $GITHUB_STEP_SUMMARY
+            - name: run cli glob
+              run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.py packages/sample/src/*.ts -d -o .gptools/tmp/cli -ot $GITHUB_STEP_SUMMARY
             - name: package vscode
               run: yarn package
