@@ -12,7 +12,7 @@ import {
     setHost,
     tryReadJSON,
     writeJSON,
-} from "coarch-core"
+} from "gptools-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"

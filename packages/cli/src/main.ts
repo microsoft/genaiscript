@@ -10,7 +10,7 @@ import {
     setToken,
     writeJSON,
     writeText,
-} from "coarch-core"
+} from "gptools-core"
 import { NodeHost } from "./hostimpl"
 import { program } from "commander"
 import { backOff } from "exponential-backoff"

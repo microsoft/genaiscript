@@ -4,8 +4,8 @@ import {
     AIRequestSnapshotKey,
     ExtensionState,
 } from "./state"
-import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "coarch-core"
-import { Cache } from "coarch-core"
+import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "gptools-core"
+import { Cache } from "gptools-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
 

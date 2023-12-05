@@ -14,7 +14,7 @@ import {
     extractFenced,
     getChatCompletionCache,
     renderFencedVariables,
-} from "coarch-core"
+} from "gptools-core"
 
 const SCHEME = "gptools"
 

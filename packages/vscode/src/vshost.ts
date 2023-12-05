@@ -6,7 +6,7 @@ import {
     ReadFileOptions,
     defaultLog,
     setHost,
-} from "coarch-core"
+} from "gptools-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
 import { Utils } from "vscode-uri"

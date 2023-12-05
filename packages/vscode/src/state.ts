@@ -20,7 +20,7 @@ import {
     CHANGE,
     Cache,
     dotGptoolsPath,
-} from "coarch-core"
+} from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
