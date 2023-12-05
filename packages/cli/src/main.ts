@@ -115,9 +115,7 @@ async function run(
             maxDelay,
             retry: (e, attempt) => {
                 if (isRequestError(e, 429)) {
-                    console.error(
-                        `rate limited, retry #${attempt} in ${retryDelay}s...`
-                    )
+                    console.error(`rate limited, retry #${attempt}...`)
                     return true
                 }
                 return false
@@ -190,7 +188,10 @@ async function main() {
         .command("run")
         .description("Runs a GPTools against a GPSpec")
         .arguments("<tool> [spec]")
-        .option("-o, --out <string>", "output file. Extra markdown fiels for output and trace will also be generatred")
+        .option(
+            "-o, --out <string>",
+            "output file. Extra markdown fiels for output and trace will also be generatred"
+        )
         .option("-ot, --out-trace <string>", "output file for trace")
         .option("-r, --retry <number>", "number of retries", "3")
         .option("-j, --json", "emit full JSON response to output")
