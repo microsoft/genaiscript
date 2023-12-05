@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { Utils } from "vscode-uri"
 import { ExtensionState } from "./state"
-import { PromptTemplate, copyPrompt } from "coarch-core"
+import { PromptTemplate, copyPrompt } from "gptools-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 

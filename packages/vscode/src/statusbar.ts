@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
-import { CHANGE } from "coarch-core"
+import { CHANGE } from "gptools-core"
 import { Utils } from "vscode-uri"
 import { commandButtonsMarkdown } from "./promptcommands"
 
