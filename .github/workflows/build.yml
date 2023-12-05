@@ -25,6 +25,6 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run cli
-              run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.py packages/sample/src/*.ts -d -o .gptools/tmp/cli -of $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.py packages/sample/src/*.ts -d -o .gptools/tmp/cli -ot $GITHUB_STEP_SUMMARY
             - name: package vscode
               run: yarn package
