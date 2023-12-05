@@ -3,10 +3,10 @@ name: build
 on:
     workflow_dispatch:
 jobs:
-    env:
-      GPTOOLS_TOKEN: ${{ secrets.GPTOOLS_TOKEN }}
     build:
         runs-on: ubuntu-latest
+        env:
+          GPTOOLS_TOKEN: ${{ secrets.GPTOOLS_TOKEN }}
         steps:
             - uses: actions/checkout@v3
               with:
