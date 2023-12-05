@@ -1,5 +1,6 @@
 import {
     FragmentTransformResponse,
+    LogLevel,
     RequestError,
     clearToken,
     host,
@@ -17,6 +18,11 @@ import { backOff } from "exponential-backoff"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
+
+async function write(name: string, content: string) {
+    await host.log(LogLevel.Info, `writing ${name}`)
+    await writeText(name, content)
+}
 
 async function buildProject(options?: {
     toolFiles?: string[]
@@ -59,6 +65,8 @@ async function run(
         dryRun: boolean
         outTrace: string
         label: string
+        temperature: string
+        cache: boolean
     }
 ) {
     const out = options.out
@@ -68,6 +76,8 @@ async function run(
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
     const label = options.label
+    const temperature = parseFloat(options.temperature) ?? undefined
+    const cache = !!options.cache
 
     let spec: string
     let specContent: string
@@ -131,6 +141,8 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
                 infoCb: (progress) => {},
                 skipLLM,
                 label,
+                cache,
+                temperature: isNaN(temperature) ? undefined : temperature,
             }),
         {
             numOfAttempts: retry,
@@ -146,7 +158,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         }
     )
 
-    if (outTrace && res.trace) await writeText(outTrace, res.trace)
+    if (outTrace && res.trace) await write(outTrace, res.trace)
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const userf = jsonf.replace(/\.json$/i, ".user.md")
@@ -156,15 +168,14 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         const specf = specContent
             ? jsonf.replace(/\.json$/i, ".gpspec.md")
             : undefined
-        console.error(`writing ${jsonf}`)
-        await writeJSON(jsonf, res)
+        await write(jsonf, JSON.stringify(res, null, 2))
         if (res.prompt) {
-            await writeText(systemf, res.prompt.system)
-            await writeText(userf, res.prompt.user)
+            await write(systemf, res.prompt.system)
+            await write(userf, res.prompt.user)
         }
-        if (res.text) await writeText(outputf, res.text)
-        if (res.trace) await writeText(tracef, res.trace)
-        if (specf) await writeText(specf, await readText(spec))
+        if (res.text) await write(outputf, res.text)
+        if (res.trace) await write(tracef, res.trace)
+        if (specf) await write(specf, await readText(spec))
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
@@ -235,6 +246,8 @@ async function main() {
             "180000"
         )
         .option("-l, --label <string>", "label for the run")
+        .option("--temp <number>", "temperature for the run")
+        .option("--no-cache", "disable LLM result cache")
         .action(run)
 
     const keys = program.command("keys").description("Manage OpenAI keys")

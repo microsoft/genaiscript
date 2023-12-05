@@ -6,11 +6,9 @@ import type {
 } from "openai"
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
-import { delay, logError, logVerbose } from "./util"
+import { logError } from "./util"
 import { host } from "./host"
 import { MAX_CACHED_TEMPERATURE } from "./constants"
-
-let testMode = false
 
 interface Choice extends CreateChatCompletionResponseChoicesInner {
     delta: {
@@ -31,6 +29,7 @@ export type ChatCompletionsOptions = {
     partialCb?: (progres: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
+    cache?: boolean
 }
 
 export class RequestError extends Error {
@@ -86,15 +85,15 @@ export async function getChatCompletions(
         requestOptions,
         partialCb,
         maxCachedTemperature = MAX_CACHED_TEMPERATURE,
+        cache: useCache,
     } = options || {}
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
-    const cached = testMode
-        ? "Test-mode enabled"
-        : temperature > maxCachedTemperature
-        ? undefined
-        : await cache.get(req)
+    const cached =
+        !useCache || temperature > maxCachedTemperature
+            ? undefined
+            : await cache.get(req)
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),

@@ -89,6 +89,15 @@ Minimum delay between retries in milliseconds.
 
 Adds a run label that will be used in generating the trace title.
 
+### --cache
+
+Enables LLM caching in JSONL file under `.gptools/tmp/openai.gptools.jsonl`. Caching is enabled by default in VSCode
+but not for the CLI.
+
+### --temperature <number>
+
+Overrides the LLM run temperature.
+
 ## `tools`, manage GPtools
 
 ### gptools tools list
