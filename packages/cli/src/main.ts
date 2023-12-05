@@ -18,6 +18,7 @@ import { backOff } from "exponential-backoff"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
+import { inspect } from "gptools-core/src/logging"
 
 async function write(name: string, content: string) {
     await host.log(LogLevel.Info, `writing ${name}`)
@@ -150,15 +151,17 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             startingDelay: retryDelay,
             maxDelay,
             retry: (e, attempt) => {
-                console.error(e)
                 if (isRequestError(e, 429)) {
                     host.log(
                         LogLevel.Info,
                         `LLM rate limited (429), retry #${attempt}...`
                     )
                     return true
+                } else {
+                    host.log(LogLevel.Error, e.stack)
+                    console.error(inspect(e))
+                    return false
                 }
-                return false
             },
         }
     )
