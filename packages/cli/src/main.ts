@@ -48,7 +48,7 @@ async function buildProject(options?: {
 
 async function run(
     tool: string,
-    spec: string,
+    specs: string[],
     options: {
         out: string
         retry: string
@@ -66,21 +66,40 @@ async function run(
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
 
+    let spec: string
     const toolFiles: string[] = []
+
+    let md: string
+    const links: string[] = []
+
     if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
 
-    if (!spec) {
+    const gpspecRx = /\.gpspec\.md$/i
+    if (!specs?.length) {
         const specContent = await getStdin()
         spec = "stdin.gpspec.md"
         host.setVirtualFile(spec, specContent)
-    } else if (!/\.gpspec\.md$/i.test(spec)) {
-        const files = await host.findFiles(spec)
+    } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
+    } else {
+        for (const arg of specs) {
+            const files = await host.findFiles(arg)
+            for (const file of files) {
+                if (gpspecRx.test(spec)) {
+                    md += (await host.readFile(file)) + "\n"
+                } else {
+                    links.push(file)
+                }
+            }
+        }
+    }
+
+    if (md || links.length) {
         spec = "cli.gpspec.md"
         host.setVirtualFile(
             spec,
-            `# Specification
+            `${md || "# Specification"}
 
-${files.map((f) => `-   [${basename(f)}](./${f})\n`)}
+${links.map((f) => `-   [${basename(f)}](./${f})\n`)}
 `
         )
     }
@@ -187,7 +206,7 @@ async function main() {
     program
         .command("run")
         .description("Runs a GPTools against a GPSpec")
-        .arguments("<tool> [spec]")
+        .arguments("<tool> [spec...]")
         .option(
             "-o, --out <string>",
             "output file. Extra markdown fields for output and trace will also be generated"
