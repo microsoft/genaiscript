@@ -6,7 +6,7 @@ jobs:
     build:
         runs-on: ubuntu-latest
         env:
-          GPTOOLS_TOKEN: ${{ secrets.GPTOOLS_TOKEN }}
+            GPTOOLS_TOKEN: ${{ secrets.GPTOOLS_TOKEN }}
         steps:
             - uses: actions/checkout@v3
               with:
@@ -20,10 +20,4 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run gptools
-              run: node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -ot $GITHUB_STEP_SUMMARY
-
-
-
-
-
-
+              run: node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
