@@ -231,16 +231,16 @@ async function main() {
             "output file. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
-        .option("-r, --retry <number>", "number of retries", "5")
         .option("-j, --json", "emit full JSON response to output")
         .option(
             "-d, --dry-run",
             "dry run, don't execute LLM and return expanded prompt"
         )
+        .option("-r, --retry <number>", "number of retries", "8")
         .option(
             "-rd, --retry-delay <number>",
             "minimum delay between retries",
-            "5000"
+            "15000"
         )
         .option(
             "-md, --max-delay <number>",
