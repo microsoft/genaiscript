@@ -71,8 +71,8 @@ async function run(
 ) {
     const out = options.out
     const skipLLM = !!options.dryRun
-    const retry = parseInt(options.retry) || 3
-    const retryDelay = parseInt(options.retryDelay) || 5000
+    const retry = parseInt(options.retry) || 8
+    const retryDelay = parseInt(options.retryDelay) || 15000
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
     const label = options.label
@@ -145,6 +145,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
                 temperature: isNaN(temperature) ? undefined : temperature,
             }),
         {
+            jitter: "full",
             numOfAttempts: retry,
             startingDelay: retryDelay,
             maxDelay,
