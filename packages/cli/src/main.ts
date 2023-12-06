@@ -66,6 +66,8 @@ async function run(
         label: string
         temperature: string
         cache: boolean
+        applyEdits: boolean
+        model: string
     }
 ) {
     const out = options.out
@@ -77,6 +79,8 @@ async function run(
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
     const cache = !!options.cache
+    const applyEdits = !!options.applyEdits
+    const model = options.model
 
     let spec: string
     let specContent: string
@@ -140,12 +144,21 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         label,
         cache,
         temperature: isNaN(temperature) ? undefined : temperature,
+        model,
         retry,
         retryDelay,
         maxDelay,
     })
 
     if (outTrace && res.trace) await write(outTrace, res.trace)
+
+    if (applyEdits) {
+        for (const fileEdit of Object.entries(res.fileEdits)) {
+            const [fn, { before, after }] = fileEdit
+            if (after !== before) await write(fn, after ?? before)
+        }
+    }
+
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const userf = jsonf.replace(/\.json$/i, ".user.md")
@@ -232,7 +245,9 @@ async function main() {
             "180000"
         )
         .option("-l, --label <string>", "label for the run")
-        .option("--temp <number>", "temperature for the run")
+        .option("-t, --temperature <number>", "temperature for the run")
+        .option("-m, --model <string>", "model for the run")
+        .option("-ae, --apply-edits", "apply file edits")
         .option("--no-cache", "disable LLM result cache")
         .action(run)
 
