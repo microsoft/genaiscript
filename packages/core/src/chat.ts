@@ -141,14 +141,14 @@ export async function getChatCompletions(
     let numTokens = 0
 
     const fetchRetry = await wrapFetch(fetch, {
-        retryOn: [429, 504],
+        retryOn: [429],
         retries: retry,
         retryDelay: (attempt, error, response) => {
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
             if (attempt > 0)
                 host.log(
                     LogLevel.Verbose,
-                    `LLM error (${error}), retrying ${attempt} in ${
+                    `LLM throttled, retry #${attempt} in ${
                         (delay / 1000) | 0
                     }s...`
                 )
