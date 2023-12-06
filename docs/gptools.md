@@ -161,7 +161,7 @@ You can specify the temperate using `temperature` variable in the gpspec file.
 
 ### seed
 
-You can specify the LLM `seed` in the script. The default is not specified.
+You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
 
 ```js
 gptool({
@@ -170,7 +170,7 @@ gptool({
 })
 ```
 
-You can specify the temperate using `temperature` variable in the gpspec file.
+You can specify the seed using `seed` variable in the gpspec file.
 
 ```markdown
 <!-- @seed 12345678 -->
