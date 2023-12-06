@@ -140,7 +140,7 @@ export function commandButtons(state: ExtensionState) {
         cmds.push({
             label: output,
             description: "Preview AI response.",
-            cmd: "coarch.fragment.open.output",
+            cmd: "coarch.request.open.output",
         })
     if (request)
         cmds.push({
