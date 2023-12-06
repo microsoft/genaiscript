@@ -98,6 +98,14 @@ but not for the CLI.
 
 Overrides the LLM run temperature.
 
+### --model <string>
+
+Overrides the LLM model identifier.
+
+### --apply-edits
+
+Apply file modifications to the file system.
+
 ## `tools`, manage GPtools
 
 ### gptools tools list

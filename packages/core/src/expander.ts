@@ -439,6 +439,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     skipLLM?: boolean
     label?: string
     temperature?: number
+    model?: string
     cache?: boolean
 }
 
@@ -471,13 +472,14 @@ export async function runTemplate(
         expanded,
         success,
         trace: expansionTrace,
-        model,
         temperature: templateTemperature,
+        model: modelTemperature,
         max_tokens,
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
 
     const temperature = options?.temperature ?? templateTemperature
+    const model = options?.model ?? modelTemperature
 
     trace += expansionTrace
 
