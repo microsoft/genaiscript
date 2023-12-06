@@ -8,9 +8,9 @@
     "commander": "^11.1.0",
     "esbuild": "^0.17.18",
     "fs-extra": "^11.1.1",
+    "openai": "^3.3.0",
     "get-stdin": "^9.0.0",
     "glob": "^10.3.10",
-    "openai": "^3.2.1",
     "typescript": "^5.0.4"
   },
   "devDependencies": {

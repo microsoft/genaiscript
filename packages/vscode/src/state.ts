@@ -357,7 +357,6 @@ ${e.message}`
 
     private initWatcher() {
         const handleChange = debounceAsync(async () => {
-            console.log(`gptools: watch changed`)
             await this.fixPromptDefinitions()
             await this.parseWorkspace()
         }, 1000)
@@ -371,7 +370,6 @@ ${e.message}`
     }
 
     async activate() {
-        console.log(`gptools: activate`)
         this.initWatcher()
         await this.saveGptoolsJs()
         await this.fixPromptDefinitions()

@@ -20,7 +20,6 @@ class RunnerViewProvider implements vscode.WebviewViewProvider {
         }
         this._view.webview.html = this._getHtmlForWebview(webviewView.webview)
         this._view.webview.onDidReceiveMessage((data) => {
-            console.log({ data })
             const { command = "" } = data
             switch (command) {
                 case "ready": {

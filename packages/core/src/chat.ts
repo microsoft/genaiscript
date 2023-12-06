@@ -81,10 +81,10 @@ interface TGIResponse {
 }
 
 export async function getChatCompletions(
-    req: CreateChatCompletionRequest,
+    req: CreateChatCompletionRequest & { seed?: number },
     options?: ChatCompletionsOptions
 ) {
-    const { temperature } = req
+    const { temperature, seed } = req
     const {
         requestOptions,
         partialCb,
@@ -97,7 +97,7 @@ export async function getChatCompletions(
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
-    const caching = useCache && temperature > maxCachedTemperature
+    const caching = useCache && temperature > maxCachedTemperature && seed === undefined
     const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
@@ -123,6 +123,7 @@ export async function getChatCompletions(
                 temperature: req.temperature,
                 return_full_text: false,
                 max_new_tokens: req.max_tokens,
+                seed: req.seed,
             },
             inputs: encodeMessagesForLlama(req),
         }
