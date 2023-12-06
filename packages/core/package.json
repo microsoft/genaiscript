@@ -9,7 +9,7 @@
     "@types/node": "^20.3.0",
     "esbuild": "^0.17.18",
     "fetch-retry": "^5.0.6",
-    "openai": "^v3.3.0",
+    "openai": "^3.3.0",
     "prettier": "^2.8.8",
     "remark": "^14.0.3",
     "remark-frontmatter": "^4.0.1",
