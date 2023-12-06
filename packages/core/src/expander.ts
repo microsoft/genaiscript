@@ -580,18 +580,7 @@ The user requested to cancel the request.
                 label,
             })
         }
-
-        return {
-            error,
-            prompt,
-            vars,
-            edits: [],
-            annotations: [],
-            fileEdits: {},
-            trace,
-            text,
-            label,
-        }
+        throw error
     }
 
     trace += details("LLM response", fenceMD(text))

@@ -283,6 +283,7 @@ ${e.message}`
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
             cache: true,
+            retry: 0,
         }
 
         vscode.commands.executeCommand("coarch.request.open.output")

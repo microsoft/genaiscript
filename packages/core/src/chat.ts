@@ -7,8 +7,9 @@ import type {
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
 import { logError } from "./util"
-import { host } from "./host"
+import { LogLevel, host } from "./host"
 import { MAX_CACHED_TEMPERATURE } from "./constants"
+import wrapFetch from "fetch-retry"
 
 interface Choice extends CreateChatCompletionResponseChoicesInner {
     delta: {
@@ -30,6 +31,9 @@ export type ChatCompletionsOptions = {
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
     cache?: boolean
+    retry?: number
+    retryDelay?: number
+    maxDelay?: number
 }
 
 export class RequestError extends Error {
@@ -86,14 +90,15 @@ export async function getChatCompletions(
         partialCb,
         maxCachedTemperature = MAX_CACHED_TEMPERATURE,
         cache: useCache,
+        retry,
+        retryDelay,
+        maxDelay,
     } = options || {}
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
-    const cached =
-        !useCache || temperature > maxCachedTemperature
-            ? undefined
-            : await cache.get(req)
+    const caching = useCache && temperature > maxCachedTemperature
+    const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),
@@ -135,7 +140,22 @@ export async function getChatCompletions(
 
     let numTokens = 0
 
-    const r = await fetch(url, {
+    const fetchRetry = await wrapFetch(fetch, {
+        retryOn: [429, 504],
+        retries: retry,
+        retryDelay: (attempt, error, response) => {
+            const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
+            if (attempt > 0)
+                host.log(
+                    LogLevel.Verbose,
+                    `LLM error (${error}), retrying ${attempt} in ${
+                        (delay / 1000) | 0
+                    }s...`
+                )
+            return delay
+        },
+    })
+    const r = await fetchRetry(url, {
         headers: {
             authorization: cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
             "api-key": cfg.isOpenAI ? undefined : cfg.token,
@@ -188,7 +208,7 @@ export async function getChatCompletions(
     }
 
     if (seenDone) {
-        if (!cfg.isTGI) await cache.set(req, chatResp)
+        if (caching && !cfg.isTGI) await cache.set(req, chatResp)
         return chatResp
     } else {
         throw new Error(`invalid response: ${pref}`)

@@ -20,7 +20,7 @@
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix",
         "bump": "yarn release",
         "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -d -o .gptools/tmp/tests/cli",
-        "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 0 --temp 0.5 --no-cache"
+        "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temp 0.5 --no-cache"
     },
     "release-it": {
         "github": {
