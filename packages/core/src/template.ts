@@ -251,52 +251,66 @@ export async function evalPrompt(
     return await fn(...Object.values(ctx))
 }
 
+class MetaFoundError extends Error {
+    constructor() {
+        super("meta found")
+    }
+}
+
 async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
     let text = ""
     function gptool(m: PromptArgs) {
         if (meta !== null) throw new Error(`more than one gptool() call`)
         meta = m
+        throw new MetaFoundError()
     }
-    await evalPrompt(
-        {
-            env: new Proxy<ExpansionVariables>(staticVars() as any, {
-                get: (target: any, prop, recv) => {
-                    return target[prop] ?? "<empty>"
-                },
-            }),
-            text: (body) => {
-                if (meta == null)
-                    throw new Error(`gptool()/system() has to come first`)
 
-                text += body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
-            },
-            gptool,
-            system: (meta) => {
-                meta.unlisted = true
-                meta.isSystem = true
-                gptool(meta)
-            },
-            fetchText: async (urlOrFile: string | LinkedFile) => {
-                const url =
-                    typeof urlOrFile === "string"
-                        ? urlOrFile
-                        : urlOrFile?.filename
-                return {
-                    ok: false,
-                    status: 404,
-                    statusText: "not supported in meta mode",
-                    text: "",
-                    file: {
-                        label: url,
-                        filename: url,
-                        content: "",
+    try {
+        await evalPrompt(
+            {
+                env: new Proxy<ExpansionVariables>(staticVars() as any, {
+                    get: (target: any, prop, recv) => {
+                        return target[prop] ?? "<empty>"
                     },
-                }
+                }),
+                text: (body) => {
+                    if (meta == null)
+                        throw new Error(`gptool()/system() has to come first`)
+
+                    text +=
+                        body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
+                },
+                gptool,
+                system: (meta) => {
+                    meta.unlisted = true
+                    meta.isSystem = true
+                    gptool(meta)
+                },
+                fetchText: async (urlOrFile: string | LinkedFile) => {
+                    const url =
+                        typeof urlOrFile === "string"
+                            ? urlOrFile
+                            : urlOrFile?.filename
+                    return {
+                        ok: false,
+                        status: 404,
+                        statusText: "not supported in meta mode",
+                        text: "",
+                        file: {
+                            label: url,
+                            filename: url,
+                            content: "",
+                        },
+                    }
+                },
             },
-        },
-        r.jsSource
-    )
+            r.jsSource
+        )
+    } catch (e) {
+        if (!meta || !(e instanceof MetaFoundError)) throw e
+    }
+
     return { meta, text }
 }
 

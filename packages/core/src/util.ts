@@ -152,7 +152,7 @@ export function toBase64(data: Uint8Array): string {
     else return btoa(uint8ArrayToString(data))
 }
 
-export function dotCoarchPath(...segments: string[]) {
+export function dotGptoolsPath(...segments: string[]) {
     return host.resolvePath(host.projectFolder(), coarchFolder, ...segments)
 }
 
@@ -197,14 +197,14 @@ export function defaultLog(level: LogLevel, msg: string) {
             console.error(msg)
             break
         case LogLevel.Warn:
-            console.warn(msg)
+            console.error(msg)
             break
         case LogLevel.Verbose:
-            console.debug(msg)
+            console.error(msg)
             break
         case LogLevel.Info:
         default:
-            console.log(msg)
+            console.error(msg)
             break
     }
 }
@@ -239,8 +239,8 @@ export async function tryReadJSON(fn: string) {
     }
 }
 
-export async function writeJSON(fn: string, obj: {}) {
-    await host.writeFile(fn, utf8Encode(JSON.stringify(obj)))
+export async function writeJSON(fn: string, obj: any) {
+    await writeText(fn, JSON.stringify(obj))
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {

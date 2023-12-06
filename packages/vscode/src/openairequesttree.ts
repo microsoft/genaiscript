@@ -5,9 +5,9 @@ import {
     CacheEntry,
     cachedOpenAIRequestPrefix,
     getChatCompletionCache,
-} from "coarch-core"
+} from "gptools-core"
 import type { CreateChatCompletionRequest } from "openai"
-import { Cache } from "coarch-core"
+import { Cache } from "gptools-core"
 import { infoUri } from "./markdowndocumentprovider"
 
 type OpenAIRequestTreeNode = CacheEntry<CreateChatCompletionRequest, string>

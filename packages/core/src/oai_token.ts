@@ -49,7 +49,16 @@ export async function initToken(force = false) {
 
     const f = await host.askToken()
     if (!f) throwError("token not specified", true)
+    return await setToken(f)
+}
 
+export async function setToken(token: string) {
+    const tok = await parseToken(token)
+    await host.setSecretToken(tok)
+    return tok
+}
+
+export async function parseToken(f: string) {
     if (f.startsWith("sk-")) {
         // OpenAI token
         cfg = {
@@ -57,17 +66,24 @@ export async function initToken(force = false) {
             token: f,
             isOpenAI: true,
         }
-        await host.setSecretToken(cfg)
         return cfg
     }
 
-    let m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
+    let m = /(https:\/\/[\-\w\.]+)\S*#oaikey=(\w+)/.exec(f)
+    if (m) {
+        const url = m[1]
+        const token = m[2]
+        validateTokenCore(token)
+        cfg = { url, token }
+        return cfg
+    }
+
+    m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
     if (m) {
         const url = m[1] + "/openai/deployments/"
         const token = m[2]
         validateTokenCore(token)
         cfg = { url, token }
-        await host.setSecretToken(cfg)
         return cfg
     }
 
@@ -76,7 +92,6 @@ export async function initToken(force = false) {
         const url = m[1]
         const token = m[2]
         cfg = { url, token, isTGI: true }
-        await host.setSecretToken(cfg)
         return cfg
     }
 
@@ -88,9 +103,8 @@ export async function initToken(force = false) {
             const token = m[1]
             validateTokenCore(token)
             cfg = { url, token }
-            await host.setSecretToken(cfg)
+            return cfg
         }
-        return cfg
     }
 
     throw new RequestError(

@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { Utils } from "vscode-uri"
 import { ExtensionState } from "./state"
-import { PromptTemplate, copyPrompt } from "coarch-core"
+import { PromptTemplate, copyPrompt } from "gptools-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 
@@ -104,4 +104,56 @@ def("FILE", env.file)
             }
         )
     )
+}
+
+export function commandButtons(state: ExtensionState) {
+    const request = state.aiRequest
+    const { computing, options, editsApplied, response } = request || {}
+    const { text } = response || {}
+    const abort = "Abort"
+    const retry = "Retry"
+    const output = "Output"
+    const trace = "Trace"
+    const next = "Run GPTool"
+    const refine = "Refine GPSpec"
+    const cmds: { label: string; description?: string; cmd: string }[] = []
+    if (computing) cmds.push({ label: abort, cmd: "coarch.request.abort" })
+    else if (request)
+        cmds.push({
+            label: retry,
+            description: "Run last gptool and gpspec again.",
+            cmd: "coarch.request.retry",
+        })
+    if (request)
+        cmds.push({
+            label: refine,
+            description: "Add text to gpspec file.",
+            cmd: "coarch.fragment.refine",
+        })
+    if (request)
+        cmds.push({
+            label: next,
+            description: "Run another gptool on the same gpsec.",
+            cmd: "coarch.fragment.prompt",
+        })
+    if (text)
+        cmds.push({
+            label: output,
+            description: "Preview AI response.",
+            cmd: "coarch.fragment.open.output",
+        })
+    if (request)
+        cmds.push({
+            label: trace,
+            description: "Inspect gptool execution and LLM response.",
+            cmd: "coarch.request.open.trace",
+        })
+    return cmds
+}
+
+export function commandButtonsMarkdown(state: ExtensionState, sep = " | ") {
+    const res = commandButtons(state)
+        .map(({ label, description, cmd }) => `[${label}](command:${cmd})`)
+        .join(sep)
+    return res
 }

@@ -1,0 +1,23 @@
+name: cli test
+
+on:
+    workflow_dispatch:
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        env:
+            GPTOOLS_TOKEN: ${{ secrets.GPTOOLS_TOKEN }}
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 0
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "18"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile
+              run: yarn compile
+            - name: run gptools
+              run: node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY

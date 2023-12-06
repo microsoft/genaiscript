@@ -6,7 +6,7 @@ import {
     groupBy,
     rootFragment,
     templateGroup,
-} from "coarch-core"
+} from "gptools-core"
 import { ExtensionState } from "./state"
 import { checkFileExists, saveAllTextDocuments } from "./fs"
 

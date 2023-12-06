@@ -14,7 +14,7 @@ import {
     extractFenced,
     getChatCompletionCache,
     renderFencedVariables,
-} from "coarch-core"
+} from "gptools-core"
 
 const SCHEME = "gptools"
 
@@ -174,6 +174,18 @@ export function activateMarkdownTextDocumentContentProvider(
                     await showMarkdownPreview(uri)
                 }
             }
+        ),
+        vscode.commands.registerCommand("coarch.request.open.trace", () =>
+            vscode.commands.executeCommand(
+                "coarch.request.open",
+                REQUEST_TRACE_FILENAME
+            )
+        ),
+        vscode.commands.registerCommand("coarch.request.open.output", () =>
+            vscode.commands.executeCommand(
+                "coarch.request.open",
+                REQUEST_OUTPUT_FILENAME
+            )
         )
     )
 }

@@ -1,3 +1,4 @@
 {
-    "devicescript.devtools.autoStart": false
+    "devicescript.devtools.autoStart": false,
+    "cSpell.words": ["gpspec", "gptool", "gptools"]
 }

@@ -6,7 +6,7 @@ import {
     ReadFileOptions,
     defaultLog,
     setHost,
-} from "coarch-core"
+} from "gptools-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
 import { Utils } from "vscode-uri"
@@ -106,13 +106,19 @@ export class VSCodeHost extends EventTarget implements Host {
         delete this.virtualFiles[uri.fsPath]
         await workspace.fs.writeFile(uri, content)
     }
+    async findFiles(path: string): Promise<string[]> {
+        const uris = await workspace.findFiles(path)
+        return uris.map((u) => u.fsPath)
+    }
     async createDirectory(name: string): Promise<void> {
         await workspace.fs.createDirectory(Uri.file(name))
     }
     async getSecretToken(): Promise<OAIToken> {
         const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
         if (!s) return undefined
-        return JSON.parse(s)
+        const res = JSON.parse(s)
+        res.source = "workspace"
+        return res
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
         if (!tok || !tok.token)

@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { Edits, Position, Range, Fragment } from "coarch-core"
+import { Edits, Position, Range, Fragment } from "gptools-core"
 
 export function toPos(p: Position) {
     return new vscode.Position(...p)

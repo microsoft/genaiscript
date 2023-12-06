@@ -170,11 +170,6 @@ interface ExpansionVariables {
     template: PromptTemplate
 
     /**
-     * Available prompt templates in project
-     */
-    templates: PromptDefinition[]
-
-    /**
      * User defined variables
      */
     vars: Record<string, string>

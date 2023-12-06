@@ -1,19 +1,19 @@
 {
-    "name": "devicescript-drivers",
-    "version": "0.0.0",
-    "private": "Please use 'yarn devs add npm' to make this a publishable package",
-    "devDependencies": {
-        "@devicescript/cli": "^2.15.14"
-    },
-    "scripts": {
-        "setup": "devicescript build --quiet",
-        "build:devicescript": "devicescript build src/main.ts",
-        "postinstall": "npm run setup",
-        "build": "npm run build:devicescript",
-        "watch:devicescript": "devicescript devtools src/main.ts",
-        "watch": "npm run watch:devicescript",
-        "test:devicescript": "devicescript run src/main.ts --test --test-self-exit",
-        "test": "npm run test:devicescript",
-        "start": "npm run watch"
-    }
+  "name": "devicescript-drivers",
+  "version": "1.2.21",
+  "private": "Please use 'yarn devs add npm' to make this a publishable package",
+  "devDependencies": {
+    "@devicescript/cli": "^2.15.14"
+  },
+  "scripts": {
+    "setup": "devicescript build --quiet",
+    "build:devicescript": "devicescript build src/main.ts",
+    "postinstall": "npm run setup",
+    "build": "npm run build:devicescript",
+    "watch:devicescript": "devicescript devtools src/main.ts",
+    "watch": "npm run watch:devicescript",
+    "test:devicescript": "devicescript run src/main.ts --test --test-self-exit",
+    "test": "npm run test:devicescript",
+    "start": "npm run watch"
+  }
 }

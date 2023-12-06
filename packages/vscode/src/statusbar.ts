@@ -1,8 +1,9 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
-import { CHANGE } from "coarch-core"
+import { CHANGE } from "gptools-core"
 import { Utils } from "vscode-uri"
+import { commandButtonsMarkdown } from "./promptcommands"
 
 function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join(", ")
@@ -28,6 +29,7 @@ export function activateStatusBar(state: ExtensionState) {
             computing && !tokensSoFar ? `$(loading~spin)` : undefined,
             tokensSoFar ? `${tokensSoFar} tokens` : undefined
         )
+
         const md = new vscode.MarkdownString(
             toMarkdownString(
                 fragment

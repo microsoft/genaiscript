@@ -1,6 +1,6 @@
 {
     "name": "coarch",
-    "version": "1.1.18",
+    "version": "1.2.22",
     "license": "MIT",
     "private": true,
     "workspaces": [
@@ -15,9 +15,13 @@
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
-        "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/gptools.vsix --no-github.draft",
-        "release": "yarn compile && yarn package && yarn release:draft && yarn compile && yarn package && yarn release:vsix",
-        "bump": "yarn release"
+        "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/gptools.vsix --github.assets=packages/cli/built/gptools.js --no-github.draft",
+        "patch-versions": "npx --yes zx scripts/patch-version.mjs",
+        "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix",
+        "bump": "yarn release",
+        "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -d -o .gptools/tmp/tests/cli",
+        "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temp 0.5 --no-cache",
+        "test:front-matter": "node packages/cli/built/gptools.js run front-matter README.md -ae"
     },
     "release-it": {
         "github": {
@@ -25,5 +29,9 @@
             "releaseName": "v${version}",
             "draft": true
         }
+    },
+    "devDependencies": {
+        "@release-it-plugins/workspaces": "^4.0.0",
+        "zx": "^7.2.3"
     }
 }

@@ -24,6 +24,7 @@ export interface OAIToken {
     token: string
     isOpenAI?: boolean
     isTGI?: boolean
+    source?: string
 }
 
 export interface ReadFileOptions {
@@ -47,6 +48,10 @@ export interface Host {
     // fs
     readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
+    findFiles(glob: string): Promise<string[]>
+    setVirtualFile(name: string, content: string): void
+    isVirtualFile(name: string): boolean
+
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
 }

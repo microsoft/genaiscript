@@ -6,11 +6,10 @@ import type {
 } from "openai"
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
-import { delay, logError, logVerbose } from "./util"
-import { host } from "./host"
+import { logError } from "./util"
+import { LogLevel, host } from "./host"
 import { MAX_CACHED_TEMPERATURE } from "./constants"
-
-let testMode = false
+import wrapFetch from "fetch-retry"
 
 interface Choice extends CreateChatCompletionResponseChoicesInner {
     delta: {
@@ -31,6 +30,10 @@ export type ChatCompletionsOptions = {
     partialCb?: (progres: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
+    cache?: boolean
+    retry?: number
+    retryDelay?: number
+    maxDelay?: number
 }
 
 export class RequestError extends Error {
@@ -86,15 +89,16 @@ export async function getChatCompletions(
         requestOptions,
         partialCb,
         maxCachedTemperature = MAX_CACHED_TEMPERATURE,
+        cache: useCache,
+        retry,
+        retryDelay,
+        maxDelay,
     } = options || {}
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
-    const cached = testMode
-        ? "Test-mode enabled"
-        : temperature > maxCachedTemperature && seed === undefined
-        ? undefined
-        : await cache.get(req)
+    const caching = useCache && temperature > maxCachedTemperature && seed === undefined
+    const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),
@@ -137,9 +141,22 @@ export async function getChatCompletions(
 
     let numTokens = 0
 
-    logVerbose(`query ${model} at ${url}`)
-
-    const r = await fetch(url, {
+    const fetchRetry = await wrapFetch(fetch, {
+        retryOn: [429],
+        retries: retry,
+        retryDelay: (attempt, error, response) => {
+            const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
+            if (attempt > 0)
+                host.log(
+                    LogLevel.Verbose,
+                    `LLM throttled, retry #${attempt} in ${
+                        (delay / 1000) | 0
+                    }s...`
+                )
+            return delay
+        },
+    })
+    const r = await fetchRetry(url, {
         headers: {
             authorization: cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
             "api-key": cfg.isOpenAI ? undefined : cfg.token,
@@ -192,7 +209,7 @@ export async function getChatCompletions(
     }
 
     if (seenDone) {
-        if (!cfg.isTGI) await cache.set(req, chatResp)
+        if (caching && !cfg.isTGI) await cache.set(req, chatResp)
         return chatResp
     } else {
         throw new Error(`invalid response: ${pref}`)

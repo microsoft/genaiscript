@@ -7,3 +7,4 @@ temp/
 .env
 __pycache__/
 packages/sample/*.slides.md
+**/.gptools/gptools.js

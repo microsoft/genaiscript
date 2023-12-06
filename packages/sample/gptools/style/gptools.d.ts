@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
 
 interface PromptTemplate extends PromptLike {
     /**
@@ -163,11 +163,6 @@ interface ExpansionVariables {
      * current prompt template
      */
     template: PromptTemplate
-
-    /**
-     * Available prompt templates in project
-     */
-    templates: PromptDefinition[]
 
     /**
      * User defined variables

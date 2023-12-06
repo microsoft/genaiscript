@@ -19,13 +19,15 @@ import {
     delay,
     CHANGE,
     Cache,
-} from "coarch-core"
+    dotGptoolsPath,
+} from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
+import { commandButtonsMarkdown } from "./promptcommands"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -39,20 +41,6 @@ export const AI_REQUEST_CHANGE = "aiRequestChange"
 
 export const REQUEST_OUTPUT_FILENAME = "GPTools Output.md"
 export const REQUEST_TRACE_FILENAME = "GPTools Trace.md"
-
-export async function openRequestOutput() {
-    return vscode.commands.executeCommand(
-        "coarch.request.open",
-        REQUEST_OUTPUT_FILENAME
-    )
-}
-
-export async function openRequestTrace() {
-    return vscode.commands.executeCommand(
-        "coarch.request.open",
-        REQUEST_TRACE_FILENAME
-    )
-}
 
 export interface AIRequestOptions {
     label: string
@@ -83,6 +71,7 @@ export interface AIRequestSnapshot {
 }
 
 export interface AIRequest {
+    creationTime: string
     options: AIRequestOptions
     controller: AbortController
     request?: Promise<FragmentTransformResponse>
@@ -109,8 +98,10 @@ export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
 }
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
-    const { options, response, error } = r
+    const { response, error, creationTime } = r
     const snapshot = structuredClone({
+        creationTime,
+        cacheTime: new Date().toISOString(),
         response,
         error,
     })
@@ -154,6 +145,15 @@ export class ExtensionState extends EventTarget {
         )
     }
 
+    private async saveGptoolsJs() {
+        const p = Utils.joinPath(this.context.extensionUri, "gptools.js")
+        const cli = vscode.Uri.file(dotGptoolsPath("gptools.js"))
+        await vscode.workspace.fs.createDirectory(
+            vscode.Uri.file(dotGptoolsPath("."))
+        )
+        await vscode.workspace.fs.copy(p, cli, { overwrite: true })
+    }
+
     aiRequestCache() {
         return this._aiRequestCache
     }
@@ -161,8 +161,10 @@ export class ExtensionState extends EventTarget {
     async retryAIRequest(): Promise<void> {
         const options = this.aiRequest?.options
         await this.cancelAiRequest()
-        await delay(100 + Math.random() * 1000)
-        return options ? this.requestAI(options) : undefined
+        if (options) {
+            await delay(100 + Math.random() * 1000)
+            await this.requestAI(options)
+        }
     }
 
     async requestAI(options: AIRequestOptions): Promise<void> {
@@ -171,7 +173,15 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text) openRequestOutput()
+            if (text)
+                vscode.commands.executeCommand("coarch.request.open.output")
+
+            const key = snapshotAIRequestKey(req)
+            const snapshot = snapshotAIRequest(req)
+            await this._aiRequestCache.set(key, snapshot)
+
+            this.setDiagnostics()
+            this.dispatchChange()
 
             if (edits) {
                 req.editsApplied = null
@@ -181,9 +191,6 @@ export class ExtensionState extends EventTarget {
                     needsConfirmation: true,
                 })
                 if (req.editsApplied) {
-                    const key = snapshotAIRequestKey(req)
-                    const snapshot = snapshotAIRequest(req)
-                    await this._aiRequestCache.set(key, snapshot)
                     await Promise.all(
                         vscode.workspace.textDocuments
                             .filter((doc) => doc.isDirty)
@@ -202,7 +209,8 @@ export class ExtensionState extends EventTarget {
                     fix,
                     trace
                 )
-                if (res === trace) openRequestTrace()
+                if (res === trace)
+                    vscode.commands.executeCommand("coarch.request.open.trace")
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
@@ -224,18 +232,10 @@ ${e.message}`
                         vscode.Uri.parse(TOKEN_DOCUMENTATION_URL)
                     )
             } else if (isRequestError(e)) {
-                const trace = "Open Trace"
-                const retry = "Retry"
                 const msg = isRequestError(e, 404)
                     ? `OpenAI model not found (404). Does your token support the selected model?`
                     : e.message
-                const res = await vscode.window.showWarningMessage(
-                    msg,
-                    retry,
-                    trace
-                )
-                if (res === trace) openRequestTrace()
-                else if (res === retry) await this.retryAIRequest()
+                await vscode.window.showWarningMessage(msg)
             } else throw e
         }
     }
@@ -251,6 +251,7 @@ ${e.message}`
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const signal = controller.signal
         const r: AIRequest = {
+            creationTime: new Date().toISOString(),
             options,
             controller,
             request: null,
@@ -281,20 +282,11 @@ ${e.message}`
             },
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
+            cache: true,
+            retry: 0,
         }
-        const templates = fragment
-            .applicableTemplates()
-            .filter((t) => !t.unlisted && !t.isSystem)
-            .map(
-                (t) =>
-                    <PromptDefinition>{
-                        id: t.id,
-                        title: t.title,
-                        description: t.description,
-                    }
-            )
 
-        openRequestOutput()
+        vscode.commands.executeCommand("coarch.request.open.output")
         this.requestHistory.push({
             template: template.id,
             filename: fragment.file.filename,
@@ -302,12 +294,13 @@ ${e.message}`
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
-        r.request = runTemplate(template, templates, fragment, runOptions)
+        r.request = runTemplate(template, fragment, runOptions)
         // clear on completion
         r.request
             .then((resp) => {
                 r.response = resp
                 r.computing = false
+                if (resp.error) r.error = resp.error
             })
             .catch((e) => {
                 r.computing = false
@@ -380,6 +373,7 @@ ${e.message}`
     async activate() {
         console.log(`gptools: activate`)
         this.initWatcher()
+        await this.saveGptoolsJs()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
     }
@@ -433,7 +427,7 @@ ${e.message}`
         const specn = fspath + ".gpspec.md"
         this.host.setVirtualFile(
             specn,
-            `# ${fn}
+            `# Specification
 
 -   [${fn}](./${fn})
 `
@@ -456,30 +450,37 @@ ${e.message}`
         this._diagColl.clear()
 
         const severities: Record<
-            DiagnosticSeverity,
+            DiagnosticSeverity | "notice",
             vscode.DiagnosticSeverity
         > = {
+            notice: vscode.DiagnosticSeverity.Information,
             warning: vscode.DiagnosticSeverity.Warning,
             error: vscode.DiagnosticSeverity.Error,
             info: vscode.DiagnosticSeverity.Information,
         }
 
-        for (const [filename, diags] of Object.entries(
-            groupBy(this.project.diagnostics, (d) => d.filename)
-        )) {
-            this._diagColl.set(
-                vscode.Uri.file(filename),
-                diags.map((d) => {
-                    const r = new vscode.Diagnostic(
-                        toRange(d.range),
-                        d.message,
-                        severities[d.severity]
-                    )
-                    r.source = "GPTools"
-                    // r.code = 0;
-                    return r
-                })
+        let diagnostics = this.project.diagnostics
+        if (this._aiRequest?.response?.annotations?.length)
+            diagnostics = diagnostics.concat(
+                this._aiRequest?.response?.annotations
             )
+
+        // project entries
+        for (const [filename, diags] of Object.entries(
+            groupBy(diagnostics, (d) => d.filename)
+        )) {
+            const ds = diags.map((d) => {
+                const r = new vscode.Diagnostic(
+                    toRange(d.range),
+                    d.message,
+                    severities[d.severity]
+                )
+                r.source = "GPTools"
+                // r.code = 0;
+                return r
+            })
+            const uri = vscode.Uri.file(filename)
+            this._diagColl.set(uri, ds)
         }
     }
 

@@ -13,6 +13,7 @@ The key elements of the gptools framework are:
 -   [gpspecs](./docs/gpspecs.md): Natural language specification documents that also define the LLM context.
 -   [gptools](./docs/gptools.md): Scripts that combine the gpspec source, the context and the LLM models.
 -   [VS Code extension](./packages/vscode/README.md): User interaction with gptools and conversion of LLM results into workspace edits.
+-   [cli](./docs/cli.md): Command line interface to run gptools.
 -   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
 
 GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md).
