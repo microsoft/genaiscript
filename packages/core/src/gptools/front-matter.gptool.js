@@ -6,12 +6,16 @@ gptool({
     system: ["system", "system.diff", "system.summary"],
     maxTokens: 2000,
     temperature: 0,
-    model: "gpt-4-32k"
+    model: "gpt-4-32k",
+    fileMerge: (label, before, generated) => {
+        
+    },
 })
 
 def(
     "FILE",
-    env.links.filter((f) => f.filename.endsWith(".md")), { lineNumbers: true }
+    env.links.filter((f) => f.filename.endsWith(".md")),
+    { lineNumbers: true }
 )
 
 $`

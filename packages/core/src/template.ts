@@ -535,6 +535,7 @@ export async function parsePromptTemplate(
             c.checkStringArray("categories")
 
             c.checkBool("isSystem")
+            c.checkAny("fileMerge", (v) => !v || typeof v === "function")
         })
 
         const r = c.template
