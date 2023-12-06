@@ -1,6 +1,6 @@
 {
   "name": "gptools-cli",
-  "version": "1.2.21",
+  "version": "1.2.23",
   "main": "built/gptools.js",
   "license": "MIT",
   "private": true,
