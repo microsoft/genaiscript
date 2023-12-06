@@ -1,10 +1,10 @@
 import {
     FragmentTransformResponse,
-    LogLevel,
     RequestError,
     clearToken,
     host,
     isRequestError,
+    logVerbose,
     parseProject,
     readText,
     runTemplate,
@@ -16,10 +16,10 @@ import { program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
-import { inspect } from "gptools-core/src/logging"
+import { error, setConsoleColors } from "./log"
 
 async function write(name: string, content: string) {
-    await host.log(LogLevel.Info, `writing ${name}`)
+    logVerbose(`writing ${name}`)
     await writeText(name, content)
 }
 
@@ -208,7 +208,7 @@ async function listSpecs() {
 
 async function main() {
     process.on("uncaughtException", (err) => {
-        console.error(err.stack)
+        error(err.stack)
         if (isRequestError(err)) process.exit((err as RequestError).status)
         process.exit(-1)
     })
@@ -219,6 +219,10 @@ async function main() {
         .version(packageJson.version)
         .description("CLI for GPTools https://github.com/microsoft/gptools")
         .showHelpAfterError(true)
+        .option("--no-colors", "disable color output")
+
+    program.on("option:no-colors", () => setConsoleColors(false))
+
     program
         .command("run")
         .description("Runs a GPTools against a GPSpec")

@@ -20,6 +20,7 @@ import {
     CHANGE,
     Cache,
     dotGptoolsPath,
+    logInfo,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -120,11 +121,15 @@ export class ExtensionState extends EventTarget {
     private _diagColl: vscode.DiagnosticCollection
     private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
         undefined
+    readonly output: vscode.LogOutputChannel
 
     readonly aiRequestContext: AIRequestContextOptions = {}
 
     constructor(public readonly context: ExtensionContext) {
         super()
+        this.output = vscode.window.createOutputChannel("GPTools", {
+            log: true,
+        })
         this.host = new VSCodeHost(this)
         this.host.addEventListener(CHANGE, this.dispatchChange.bind(this))
         const { subscriptions } = context
@@ -374,6 +379,8 @@ ${e.message}`
         await this.saveGptoolsJs()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
+
+        logInfo("gptools extension acticated")
     }
 
     async fixPromptDefinitions() {

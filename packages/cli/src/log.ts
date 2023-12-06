@@ -1,10 +1,14 @@
 export const coarchFolder = ".gptools"
 export const coarchExt = ".gptools.jsonl"
 
-export const log = console.error
+export const info = console.error
 
 export function debug(...args: any[]) {
-    if (!isQuiet) console.debug(...wrapArgs(34, args))
+    if (!isQuiet) console.error(...wrapArgs(34, args))
+}
+
+export function warn(...args: any[]) {
+    console.error(...wrapArgs(95, args))
 }
 
 export function error(...args: any[]) {

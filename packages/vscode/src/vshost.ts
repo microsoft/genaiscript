@@ -4,7 +4,6 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
-    defaultLog,
     setHost,
 } from "gptools-core"
 import { Uri, window, workspace } from "vscode"
@@ -78,8 +77,21 @@ export class VSCodeHost extends EventTarget implements Host {
         return t
     }
     log(level: LogLevel, msg: string): void {
-        // add prefix for easier filtering in console
-        defaultLog(level, "gptools> " + msg)
+        const output = this.state.output
+        switch (level) {
+            case LogLevel.Error:
+                output.error(msg)
+                break
+            case LogLevel.Warn:
+                output.warn(msg)
+                break
+            case LogLevel.Verbose:
+                output.debug(msg)
+                break
+            default:
+                output.info(msg)
+                break
+        }
     }
     async readFile(
         name: string,

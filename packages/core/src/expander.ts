@@ -6,7 +6,14 @@ import {
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, fileExists, readText, relativePath } from "./util"
+import {
+    assert,
+    fileExists,
+    logInfo,
+    logVerbose,
+    readText,
+    relativePath,
+} from "./util"
 import {
     evalPrompt,
     extractFenced,
@@ -145,7 +152,7 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
                             text = await readText("workspace://" + url)
                             ok = true
                         } catch (e) {
-                            console.debug(e)
+                            logVerbose(e)
                             ok = false
                             status = 404
                         }
@@ -386,8 +393,8 @@ async function fragmentVars(
                         const resp = await fetch(url)
                         if (resp.ok) content = await resp.text()
                     } catch (e) {
-                        console.log(`failed to download ${ref.filename}`)
-                        console.debug(e)
+                        logInfo(`failed to download ${ref.filename}`)
+                        logVerbose(e)
                     }
                     links.push({
                         label: ref.name,
@@ -653,7 +660,7 @@ The user requested to cancel the request.
                         chunks
                     )
                 } catch (e) {
-                    console.debug(e)
+                    logVerbose(e)
                     res.trace += `\n\n#### Error applying patch\n\n${fenceMD(
                         e.message
                     )}`
@@ -664,7 +671,7 @@ The user requested to cancel the request.
                             chunks
                         )
                     } catch (e) {
-                        console.debug(e)
+                        logVerbose(e)
                         res.trace += `\n\n#### Error applying diff\n\n${fenceMD(
                             e.message
                         )}`
