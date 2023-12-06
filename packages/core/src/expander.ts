@@ -20,6 +20,7 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
+const defaultSeed: number = undefined
 const defaultMaxTokens: number = undefined
 
 export interface FragmentTransformResponse {
@@ -227,6 +228,7 @@ async function expandTemplate(
     let model = template.model
     let temperature = template.temperature
     let max_tokens = template.maxTokens
+    let seed = template.seed
 
     trace += startDetails(`system gptools`)
 
@@ -255,6 +257,7 @@ async function expandTemplate(
         model = model ?? system.model
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
+        seed = seed ?? system.seed
 
         trace += `###  \`${systemTemplate}\` source\n`
         if (system.model) trace += `-  model: \`${system.model || ""}\`\n`
@@ -281,6 +284,7 @@ async function expandTemplate(
         defaultTemperature
     max_tokens =
         tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens
+    seed = tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
     trace += startDetails("gptool expanded prompt")
     if (model) trace += `-  model: \`${model || ""}\`\n`
@@ -288,6 +292,10 @@ async function expandTemplate(
         trace += `-  temperature: ${temperature || ""}\n`
     if (max_tokens !== undefined)
         trace += `-  max tokens: ${max_tokens || ""}\n`
+    if (seed !== undefined) {
+        seed = seed >> 0
+        trace += `-  seed: ${seed}\n`
+    }
     trace += fenceMD(expanded)
 
     trace += endDetails()
@@ -301,6 +309,7 @@ async function expandTemplate(
         model,
         temperature,
         max_tokens,
+        seed,
         systemText,
     }
 
@@ -475,6 +484,7 @@ export async function runTemplate(
         temperature: templateTemperature,
         model: modelTemperature,
         max_tokens,
+        seed,
         systemText,
     } = await expandTemplate(template, fragment, vars as ExpansionVariables)
 
@@ -535,6 +545,7 @@ export async function runTemplate(
                 model,
                 temperature,
                 max_tokens,
+                seed,
                 messages: [
                     {
                         role: "system",
