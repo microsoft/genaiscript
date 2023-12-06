@@ -6,7 +6,7 @@ import type {
 } from "openai"
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
-import { logError } from "./util"
+import { logError, logVerbose } from "./util"
 import { LogLevel, host } from "./host"
 import { MAX_CACHED_TEMPERATURE } from "./constants"
 import wrapFetch from "fetch-retry"
@@ -97,7 +97,8 @@ export async function getChatCompletions(
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
-    const caching = useCache && temperature > maxCachedTemperature && seed === undefined
+    const caching =
+        useCache && temperature > maxCachedTemperature && seed === undefined
     const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
@@ -147,8 +148,7 @@ export async function getChatCompletions(
         retryDelay: (attempt, error, response) => {
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
             if (attempt > 0)
-                host.log(
-                    LogLevel.Verbose,
+                logVerbose(
                     `LLM throttled, retry #${attempt} in ${
                         (delay / 1000) | 0
                     }s...`

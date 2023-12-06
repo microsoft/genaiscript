@@ -5,7 +5,6 @@ import {
     ReadFileOptions,
     UTF8Decoder,
     UTF8Encoder,
-    defaultLog,
     dotGptoolsPath,
     logWarn,
     parseToken,
@@ -18,6 +17,7 @@ import { readFile, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
+import { debug, error, info, warn } from "./log"
 
 export class NodeHost implements Host {
     userState: any = {}
@@ -71,7 +71,21 @@ export class NodeHost implements Host {
     }
 
     log(level: LogLevel, msg: string): void {
-        defaultLog(level, msg)
+        switch (level) {
+            case LogLevel.Error:
+                error(msg)
+                break
+            case LogLevel.Warn:
+                warn(msg)
+                break
+            case LogLevel.Verbose:
+                debug(msg)
+                break
+            case LogLevel.Info:
+            default:
+                info(msg)
+                break
+        }
     }
     createUTF8Decoder(): UTF8Decoder {
         return new TextDecoder("utf-8")

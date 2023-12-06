@@ -191,24 +191,6 @@ export function logError(msg: string) {
     host.log(LogLevel.Error, msg)
 }
 
-export function defaultLog(level: LogLevel, msg: string) {
-    switch (level) {
-        case LogLevel.Error:
-            console.error(msg)
-            break
-        case LogLevel.Warn:
-            console.error(msg)
-            break
-        case LogLevel.Verbose:
-            console.error(msg)
-            break
-        case LogLevel.Info:
-        default:
-            console.error(msg)
-            break
-    }
-}
-
 export async function readText(fn: string) {
     const curr = await host.readFile(fn)
     return utf8Decode(curr)
