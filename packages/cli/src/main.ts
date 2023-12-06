@@ -196,7 +196,7 @@ async function listTools() {
         console.log(
             `${t.id}: ${t.title}, ${t.filename || "builtin"}, ${
                 t.isSystem ? "system" : "user"
-            }"}`
+            }`
         )
     )
 }
