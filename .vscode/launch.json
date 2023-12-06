@@ -9,7 +9,22 @@
             "skipFiles": ["<node_internals>/**"],
             "type": "node",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["run", "code-annotator", "packages/sample/src/*.py", "packages/sample/src/*.ts", "-d"]
+            "args": [
+                "run",
+                "code-annotator",
+                "packages/sample/src/counting.py",
+                "-l",
+                "Test",
+                "-o",
+                ".gptools/tmp/tests/cli",
+                "--retry",
+                "1",
+                "--temp",
+                "0.5",
+                "--no-cache",
+                "--fault",
+                "429"
+            ]
         },
         {
             "name": "Run - sample",

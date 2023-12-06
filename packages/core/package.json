@@ -8,7 +8,7 @@
     "@types/mdast": "^3.0.11",
     "@types/node": "^20.3.0",
     "esbuild": "^0.17.18",
-    "yaml": "^2.3.1",
+    "fetch-retry": "^5.0.6",
     "openai": "^3.2.1",
     "prettier": "^2.8.8",
     "remark": "^14.0.3",
@@ -17,7 +17,8 @@
     "remark-heading-id": "^1.0.0",
     "remark-parse": "^10.0.2",
     "typescript": "^5.0.4",
-    "unified": "^10.1.2"
+    "unified": "^10.1.2",
+    "yaml": "^2.3.1"
   },
   "scripts": {
     "typecheck": "tsc -p src",

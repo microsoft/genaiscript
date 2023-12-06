@@ -9,12 +9,10 @@ import {
     readText,
     runTemplate,
     setToken,
-    writeJSON,
     writeText,
 } from "gptools-core"
 import { NodeHost } from "./hostimpl"
 import { program } from "commander"
-import { backOff } from "exponential-backoff"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
@@ -136,35 +134,16 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.roots[0]
 
-    const res: FragmentTransformResponse = await backOff(
-        async () =>
-            await runTemplate(gptool, fragment, {
-                infoCb: (progress) => {},
-                skipLLM,
-                label,
-                cache,
-                temperature: isNaN(temperature) ? undefined : temperature,
-            }),
-        {
-            jitter: "full",
-            numOfAttempts: retry,
-            startingDelay: retryDelay,
-            maxDelay,
-            retry: (e, attempt) => {
-                if (isRequestError(e, 429)) {
-                    host.log(
-                        LogLevel.Info,
-                        `LLM rate limited (429), retry #${attempt}...`
-                    )
-                    return true
-                } else {
-                    host.log(LogLevel.Error, e.stack)
-                    console.error(inspect(e))
-                    return false
-                }
-            },
-        }
-    )
+    const res: FragmentTransformResponse = await runTemplate(gptool, fragment, {
+        infoCb: (progress) => {},
+        skipLLM,
+        label,
+        cache,
+        temperature: isNaN(temperature) ? undefined : temperature,
+        retry,
+        retryDelay,
+        maxDelay,
+    })
 
     if (outTrace && res.trace) await write(outTrace, res.trace)
     if (out) {
