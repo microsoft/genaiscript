@@ -161,13 +161,15 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
-        const userf = jsonf.replace(/\.json$/i, ".user.md")
-        const systemf = jsonf.replace(/\.json$/i, ".system.md")
-        const outputf = jsonf.replace(/\.json$/i, ".output.md")
-        const tracef = jsonf.replace(/\.json$/i, ".trace.md")
-        const specf = specContent
-            ? jsonf.replace(/\.json$/i, ".gpspec.md")
+        const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
+        const userf = mkfn(".user.md")
+        const systemf = mkfn(".system.md")
+        const outputf = mkfn(".output.md")
+        const tracef = mkfn(".trace.md")
+        const annotationf = res.annotations?.length
+            ? mkfn(".annotation.csv")
             : undefined
+        const specf = specContent ? mkfn(".gpspec.md") : undefined
         await write(jsonf, JSON.stringify(res, null, 2))
         if (res.prompt) {
             await write(systemf, res.prompt.system)
@@ -176,6 +178,17 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         if (res.text) await write(outputf, res.text)
         if (res.trace) await write(tracef, res.trace)
         if (specf) await write(specf, await readText(spec))
+        if (annotationf)
+            await write(
+                annotationf,
+                `severity, filename, start, end, message\n` +
+                    res.annotations
+                        .map(
+                            ({ severity, filename, range, message }) =>
+                                `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
+                        )
+                        .join("\n")
+            )
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
