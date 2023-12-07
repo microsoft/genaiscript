@@ -2,6 +2,7 @@ import {
     FragmentTransformResponse,
     RequestError,
     clearToken,
+    diagnosticsToCSV,
     host,
     isRequestError,
     logVerbose,
@@ -63,6 +64,7 @@ async function run(
         maxDelay: string
         dryRun: boolean
         outTrace: string
+        outAnnotations: string
         label: string
         temperature: string
         cache: boolean
@@ -76,6 +78,7 @@ async function run(
     const retryDelay = parseInt(options.retryDelay) || 15000
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
+    const outAnnotations = options.outAnnotations
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
     const cache = !!options.cache
@@ -151,6 +154,13 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     })
 
     if (outTrace && res.trace) await write(outTrace, res.trace)
+    if (outAnnotations && res.annotations?.length)
+        await write(
+            outAnnotations,
+            /\.csv$/i.test(outAnnotations)
+                ? diagnosticsToCSV(res.annotations)
+                : JSON.stringify(res.annotations, null, 2)
+        )
 
     if (applyEdits) {
         for (const fileEdit of Object.entries(res.fileEdits)) {
@@ -245,6 +255,10 @@ async function main() {
             "output file. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
+        .option(
+            "-oa, --out-annotations <string>",
+            "output file for annotations (.csv will be rendered as csv)"
+        )
         .option("-j, --json", "emit full JSON response to output")
         .option(
             "-d, --dry-run",

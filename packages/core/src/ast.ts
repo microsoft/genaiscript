@@ -29,6 +29,18 @@ export interface Diagnostic {
     message: string
 }
 
+export function diagnosticsToCSV(diagnostics: Diagnostic[]) {
+    return (
+        `severity, filename, start, end, message\n` +
+        diagnostics
+            .map(
+                ({ severity, filename, range, message }) =>
+                    `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
+            )
+            .join("\n")
+    )
+}
+
 export type FragmentInit = Partial<
     Pick<Fragment, "children" | "depth" | "references">
 > &
