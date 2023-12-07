@@ -21,7 +21,7 @@
         "bump": "yarn release",
         "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -d -o .gptools/tmp/tests/cli -ot .gptools/tmp/tests/cli/outtrace.md -oa .gptools/tmp/tests/cli/diags.csv",
         "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temp 0.5 --no-cache",
-        "test:front-matter": "node packages/cli/built/gptools.js run front-matter README.md -ae"
+        "test:front-matter": "node packages/cli/built/gptools.js run front-matter SUPPORT.md"
     },
     "release-it": {
         "github": {

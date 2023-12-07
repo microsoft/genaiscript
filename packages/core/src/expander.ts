@@ -654,6 +654,7 @@ The user requested to cancel the request.
             if (kw === "file") {
                 if (template.fileMerge) {
                     try {
+                        debugger
                         fileEdit.after = template.fileMerge(
                             label,
                             fileEdit.before,
