@@ -1,6 +1,6 @@
 {
     "name": "coarch",
-    "version": "1.2.25",
+    "version": "1.2.26",
     "license": "MIT",
     "private": true,
     "workspaces": [
