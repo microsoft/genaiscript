@@ -2,6 +2,7 @@ import {
     FragmentTransformResponse,
     RequestError,
     clearToken,
+    diagnosticsToCSV,
     host,
     isRequestError,
     logVerbose,
@@ -63,6 +64,7 @@ async function run(
         maxDelay: string
         dryRun: boolean
         outTrace: string
+        outAnnotations: string
         label: string
         temperature: string
         cache: boolean
@@ -76,6 +78,7 @@ async function run(
     const retryDelay = parseInt(options.retryDelay) || 15000
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
+    const outAnnotations = options.outAnnotations
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
     const cache = !!options.cache
@@ -151,6 +154,13 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     })
 
     if (outTrace && res.trace) await write(outTrace, res.trace)
+    if (outAnnotations && res.annotations?.length)
+        await write(
+            outAnnotations,
+            /\.csv$/i.test(outAnnotations)
+                ? diagnosticsToCSV(res.annotations)
+                : JSON.stringify(res.annotations, null, 2)
+        )
 
     if (applyEdits) {
         for (const fileEdit of Object.entries(res.fileEdits)) {
@@ -161,13 +171,15 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
-        const userf = jsonf.replace(/\.json$/i, ".user.md")
-        const systemf = jsonf.replace(/\.json$/i, ".system.md")
-        const outputf = jsonf.replace(/\.json$/i, ".output.md")
-        const tracef = jsonf.replace(/\.json$/i, ".trace.md")
-        const specf = specContent
-            ? jsonf.replace(/\.json$/i, ".gpspec.md")
+        const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
+        const userf = mkfn(".user.md")
+        const systemf = mkfn(".system.md")
+        const outputf = mkfn(".output.md")
+        const tracef = mkfn(".trace.md")
+        const annotationf = res.annotations?.length
+            ? mkfn(".annotation.csv")
             : undefined
+        const specf = specContent ? mkfn(".gpspec.md") : undefined
         await write(jsonf, JSON.stringify(res, null, 2))
         if (res.prompt) {
             await write(systemf, res.prompt.system)
@@ -176,6 +188,17 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         if (res.text) await write(outputf, res.text)
         if (res.trace) await write(tracef, res.trace)
         if (specf) await write(specf, await readText(spec))
+        if (annotationf)
+            await write(
+                annotationf,
+                `severity, filename, start, end, message\n` +
+                    res.annotations
+                        .map(
+                            ({ severity, filename, range, message }) =>
+                                `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
+                        )
+                        .join("\n")
+            )
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
@@ -196,7 +219,7 @@ async function listTools() {
         console.log(
             `${t.id}: ${t.title}, ${t.filename || "builtin"}, ${
                 t.isSystem ? "system" : "user"
-            }"}`
+            }`
         )
     )
 }
@@ -232,6 +255,10 @@ async function main() {
             "output file. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
+        .option(
+            "-oa, --out-annotations <string>",
+            "output file for annotations (.csv will be rendered as csv)"
+        )
         .option("-j, --json", "emit full JSON response to output")
         .option(
             "-d, --dry-run",
