@@ -635,6 +635,7 @@ The user requested to cancel the request.
         const { label: name, content: val } = fence
         const pm = /^((file|diff):?)\s+/i.exec(name)
         if (pm) {
+            const kw = pm[1].toLowerCase()
             const n = name.slice(pm[0].length).trim()
             const fn = /^[^\/]/.test(n) ? host.resolvePath(projFolder, n) : n
             const ffn = relativePath(ff, fn)
@@ -650,9 +651,23 @@ The user requested to cancel the request.
                     after = await readText(fn)
                 fileEdit = fileEdits[fn] = { before, after }
             }
-            if (/^file/i.test(name)) {
-                fileEdit.after = val
-            } else if (/^diff/i.test(name)) {
+            if (kw === "file") {
+                if (template.fileMerge) {
+                    try {
+                        debugger
+                        fileEdit.after = template.fileMerge(
+                            label,
+                            fileEdit.before,
+                            val
+                        )
+                    } catch (e) {
+                        logVerbose(e)
+                        res.trace += `\n\n#### Error merging file\n\n${fenceMD(
+                            e.message
+                        )}`
+                    }
+                } else fileEdit.after = val
+            } else if (kw === "diff") {
                 const chunks = parseLLMDiffs(val)
                 try {
                     fileEdit.after = applyLLMPatch(

@@ -24,6 +24,7 @@ export function getChatCompletionCache() {
 export interface ChatCompletionsProgressReport {
     tokensSoFar: number
     responseSoFar: string
+    responseChunk: string
 }
 
 export type ChatCompletionsOptions = {
@@ -104,6 +105,7 @@ export async function getChatCompletions(
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),
             responseSoFar: cached,
+            responseChunk: cached,
         })
         return cached
     }
@@ -261,6 +263,7 @@ export async function getChatCompletions(
             partialCb?.({
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
+                responseChunk: progress
             })
         }
         pref = chunk
