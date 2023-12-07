@@ -164,7 +164,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     if (outAnnotations && res.annotations?.length)
         await write(
             outAnnotations,
-            /\.csv$/i.test(outAnnotations)
+            /\.(c|t)sv$/i.test(outAnnotations)
                 ? diagnosticsToCSV(res.annotations)
                 : JSON.stringify(res.annotations, null, 2)
         )
