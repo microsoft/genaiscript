@@ -17,7 +17,7 @@ import { program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
-import { error, setConsoleColors } from "./log"
+import { error, isQuiet, setConsoleColors, setQuiet, wrapColor } from "./log"
 
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
@@ -141,8 +141,14 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.roots[0]
 
+    let tokens = 0
     const res: FragmentTransformResponse = await runTemplate(gptool, fragment, {
         infoCb: (progress) => {},
+        partialCb: ({ responseChunk, tokensSoFar }) => {
+            tokens = tokensSoFar
+            if (!isQuiet)
+                process.stderr.write(wrapColor(36, responseChunk))
+        },
         skipLLM,
         label,
         cache,
@@ -153,6 +159,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         maxDelay,
     })
 
+    logVerbose(`tokens: ${tokens}`)
     if (outTrace && res.trace) await write(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length)
         await write(
@@ -243,8 +250,10 @@ async function main() {
         .description("CLI for GPTools https://github.com/microsoft/gptools")
         .showHelpAfterError(true)
         .option("--no-colors", "disable color output")
+        .option("-q, --quiet", "disable verbose output")
 
     program.on("option:no-colors", () => setConsoleColors(false))
+    program.on("option:quiet", () => setQuiet(true))
 
     program
         .command("run")

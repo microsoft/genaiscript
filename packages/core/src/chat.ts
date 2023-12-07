@@ -105,6 +105,7 @@ export async function getChatCompletions(
         partialCb?.({
             tokensSoFar: Math.round(cached.length / 4),
             responseSoFar: cached,
+            responseChunk: cached,
         })
         return cached
     }
