@@ -146,8 +146,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         infoCb: (progress) => {},
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
-            if (!isQuiet)
-                process.stderr.write(wrapColor(36, responseChunk))
+            if (!isQuiet) process.stderr.write(wrapColor(36, responseChunk))
         },
         skipLLM,
         label,
@@ -159,7 +158,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         maxDelay,
     })
 
-    logVerbose(`tokens: ${tokens}`)
+    logVerbose(``)
     if (outTrace && res.trace) await write(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length)
         await write(
