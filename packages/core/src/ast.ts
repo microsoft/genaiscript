@@ -30,15 +30,12 @@ export interface Diagnostic {
 }
 
 export function diagnosticsToCSV(diagnostics: Diagnostic[]) {
-    return (
-        `severity, filename, start, end, message\n` +
-        diagnostics
-            .map(
-                ({ severity, filename, range, message }) =>
-                    `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
-            )
-            .join("\n")
-    )
+    const sep = "\t"
+    return diagnostics
+        .map(({ severity, filename, range, message }) =>
+            [severity, filename, range[0][0], range[1][0], message].join(sep)
+        )
+        .join("\n")
 }
 
 export type FragmentInit = Partial<
