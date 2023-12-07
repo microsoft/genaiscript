@@ -7,7 +7,7 @@ The GPTools CLI is a command line packaged as a Node.JS javascript file (`gptool
 
 ## run a tool on a spec
 
-Runs a gptool on a gpspec file and prints the LLM output.
+Runs a gptool on a gpspec file and streams the LLM output to stdout.
 
 ```bash
 node .gptools/gptools.js run <tool> [spec...]

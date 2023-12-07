@@ -657,7 +657,7 @@ The user requested to cancel the request.
                         debugger
                         fileEdit.after = template.fileMerge(
                             label,
-                            fileEdit.before,
+                            fileEdit.after ?? fileEdit.before,
                             val
                         )
                     } catch (e) {

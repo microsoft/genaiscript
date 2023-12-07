@@ -176,6 +176,10 @@ You can specify the seed using `seed` variable in the gpspec file.
 <!-- @seed 12345678 -->
 ```
 
+### fileMerge: (label, before, generated) => string
+
+A function that merges the generated content with the original content. The default is to replace the original content with the generated content. This function can be used to implement custom merge strategies.
+
 ### Other parameters
 
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
