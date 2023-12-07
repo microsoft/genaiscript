@@ -72,6 +72,7 @@ async function run(
         model: string
     }
 ) {
+    const stream = !options.json
     const out = options.out
     const skipLLM = !!options.dryRun
     const retry = parseInt(options.retry) || 8
@@ -146,7 +147,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         infoCb: (progress) => {},
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
-            if (!isQuiet) process.stderr.write(wrapColor(36, responseChunk))
+            if (stream) process.stdout.write(responseChunk)
         },
         skipLLM,
         label,
@@ -213,7 +214,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             console.log(system)
             console.log(`---------- USER   ----------`)
             console.log(user)
-        } else console.log(res.text)
+        }
     }
 
     if (res.error) throw res.error
