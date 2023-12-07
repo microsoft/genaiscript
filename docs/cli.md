@@ -72,6 +72,14 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
       node gptools.js run <tool> <spec> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
+### --out-annotations <file>
+
+Emit annotations in the specified file as a JSON array or a CSV file if the file ends with `.csv`.
+
+```bash
+node gptools.js run <tool> <spec> --out-trace diags.csv
+```
+
 ### --dry-run
 
 Skips the LLM invocation and only prints the expanded system and user chat messages.
