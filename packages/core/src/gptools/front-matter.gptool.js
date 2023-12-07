@@ -3,21 +3,38 @@ gptool({
     description:
         "Update or generate SEO-optimized front matter for a markdown file.",
     categories: ["samples"],
-    system: ["system", "system.diff", "system.summary"],
+    system: ["system", "system.files", "system.summary"],
     maxTokens: 2000,
     temperature: 0,
-    model: "gpt-4-32k"
+    model: "gpt-4",
+    fileMerge: (label, before, generated) => {
+        let start = 0,
+            end = 0
+        const lines = (before || "").split("\n")
+        if (lines[0] === "---") end = lines.indexOf("---", 1)
+        let gstart = 0,
+            gend = 0
+        const glines = generated.split("\n")
+        if (glines[0] === "---") gend = glines.indexOf("---", 1)
+        if (gend > 0) {
+            const res = lines.slice(0)
+            res.splice(start, end - start, ...glines.slice(gstart, gend + 1))
+            return res.join("\n")
+        }
+        return before
+    },
 })
 
 def(
     "FILE",
-    env.links.filter((f) => f.filename.endsWith(".md")), { lineNumbers: true }
+    env.links.filter((f) => f.filename.endsWith(".md"))
 )
 
 $`
 You are a search engine optimization expert at creating front matter for markdown document.
 
-Update or generate front matter in FILE:
+For each FILE, generate the front matter content. DO NOT RESPOND the rest of the markdown content beyond the front matter.
+ONLY generate the front matter section.
 - Update fields title as needed
 - Update description as needed 
 - Update keywords as needed, only 5 keywords or less

@@ -107,6 +107,14 @@ class Checker<T extends PromptLike> {
         }
     }
 
+    checkFunction(k: any) {
+        if (this.skip(k)) return
+        if (typeof this.val != "function") {
+            this.verror("expecting function here")
+            return
+        }
+    }
+
     checkBool(k: KeysOfType<T, boolean>) {
         if (this.skip(k)) return
         if (typeof this.val != "boolean") {
@@ -535,6 +543,7 @@ export async function parsePromptTemplate(
             c.checkStringArray("categories")
 
             c.checkBool("isSystem")
+            c.checkFunction("fileMerge")
         })
 
         const r = c.template

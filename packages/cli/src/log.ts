@@ -15,11 +15,6 @@ export function error(...args: any[]) {
     console.error(...wrapArgs(91, args))
 }
 
-export function fatal(msg: string): never {
-    error("fatal error: " + msg)
-    process.exit(1)
-}
-
 export let consoleColors = true
 
 export function setConsoleColors(enabled: boolean) {
@@ -46,18 +41,8 @@ function wrapArgs(color: number, args: any[]) {
     }
 }
 
-export let isVerbose = 1
 export let isQuiet = false
-
-export function incVerbose() {
-    isVerbose++
-    verboseLog(`verbose level: ${isVerbose}`)
-}
 
 export function setQuiet(v: boolean) {
     isQuiet = v
-}
-
-export function verboseLog(msg: string) {
-    if (isVerbose) console.debug(wrapColor(90, msg))
 }
