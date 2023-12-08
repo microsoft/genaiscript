@@ -2,7 +2,9 @@
     "extends": "../../tsconfig-base.json",
     "compilerOptions": {
         "declarationDir": "built/types",
-        "outDir": "built"
+        "outDir": "built",
+        "target": "es2022",
+        "lib": ["ES2022"]
     },
     "include": ["src"],
     "exclude": ["node_modules", ".vscode-test", "src/webview/"]
