@@ -115,6 +115,28 @@ class Checker<T extends PromptLike> {
         }
     }
 
+    checkFunctionArray(k: any) {
+        if (this.skip(k)) return
+        if (
+            !Array.isArray(this.val) ||
+            !this.val.every((f) => typeof f == "function")
+        ) {
+            this.verror("expecting array of functions here")
+            return
+        }
+    }
+
+    checkObjectArray(k: any) {
+        if (this.skip(k)) return
+        if (
+            !Array.isArray(this.val) ||
+            !this.val.every((f) => typeof f == "object")
+        ) {
+            this.verror("expecting array of object here")
+            return
+        }
+    }
+
     checkBool(k: KeysOfType<T, boolean>) {
         if (this.skip(k)) return
         if (typeof this.val != "boolean") {
@@ -544,6 +566,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("isSystem")
             c.checkFunction("fileMerge")
+            c.checkObjectArray("urlAdapters")
         })
 
         const r = c.template
