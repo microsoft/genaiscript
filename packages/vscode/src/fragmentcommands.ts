@@ -63,7 +63,8 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentExecute = async (
         fragment: Fragment,
         label: string,
-        templateId: string
+        templateId: string,
+        chat: vscode.ChatAgentContext
     ) => {
         if (!fragment) return
 
@@ -75,6 +76,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment,
             template,
             label,
+            chat
         })
     }
 
@@ -149,17 +151,20 @@ export function activateFragmentCommands(state: ExtensionState) {
             )}. Please wait for the tool to start again.`
         )
 
-        await fragmentPrompt(fragment, template)
+        await fragmentPrompt({ fragment, template })
     }
 
-    const fragmentPrompt = async (
-        frag?: Fragment | string | vscode.Uri,
+    const fragmentPrompt = async (options: {
+        fragment?: Fragment | string | vscode.Uri
         template?: PromptTemplate
-    ) => {
+        chat?: vscode.ChatAgentContext
+    }) => {
         if (!(await checkSaved())) return
 
+        let { fragment, template, chat } = options || {}
+
         await state.cancelAiRequest()
-        const fragment = await resolveSpec(frag)
+        fragment = await resolveSpec(fragment)
         if (!fragment) {
             vscode.window.showErrorMessage(
                 "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
@@ -170,7 +175,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             template = await pickTemplate(fragment)
             if (!template) return
         }
-        await fragmentExecute(fragment, template.title, template.id)
+        await fragmentExecute(fragment, template.title, template.id, chat)
     }
     const fragmentNavigate = async (fragment: Fragment | string) => {
         fragment = state.project.resolveFragment(fragment)

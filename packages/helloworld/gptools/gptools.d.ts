@@ -149,6 +149,27 @@ interface LinkedFile {
     content: string
 }
 
+declare enum ChatMessageRole {
+    System = 0,
+    User = 1,
+    Assistant = 2,
+    Function = 3,
+}
+
+// ChatML
+interface ChatMessage {
+    role: ChatMessageRole
+    content: string
+    name?: string
+}
+
+interface ChatAgentContext {
+    /**
+     * All of the chat messages so far in the current chat session.
+     */
+    history: ChatMessage[]
+}
+
 /**
  * A set of text extracted from the context of the prompt execution
  */
@@ -204,6 +225,11 @@ interface ExpansionVariables {
      * User defined variables
      */
     vars: Record<string, string>
+
+    /**
+     * Chat context if called from a chat command
+     */
+    chat?: ChatAgentContext
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

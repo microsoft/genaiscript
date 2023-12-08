@@ -47,6 +47,7 @@ export interface AIRequestOptions {
     label: string
     template: PromptTemplate
     fragment: Fragment
+    chat?: ChatAgentContext
 }
 
 export interface AIRequestContextOptions {}
@@ -296,6 +297,7 @@ ${e.message}`
                         : fragment.file.filename
                 ),
             },
+            chat: options.chat,
         }
 
         vscode.commands.executeCommand("coarch.request.open.output")
