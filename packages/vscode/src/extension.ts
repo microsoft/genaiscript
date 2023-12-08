@@ -12,6 +12,7 @@ import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { clearToken } from "gptools-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
+import { activateChatAgent } from "./chat-agent/agent"
 
 export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
 
@@ -27,6 +28,7 @@ export async function activate(context: ExtensionContext) {
     // activateRunnerView(state)
     activateStatusBar(state)
     activateCodeActions(state)
+    activateChatAgent(state)
 
     context.subscriptions.push(
         vscode.commands.registerCommand("coarch.request.abort", async () => {
