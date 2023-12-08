@@ -462,7 +462,6 @@ async function fragmentVars(
         promptOptions,
         template,
         vars: attrs,
-        chat: promptOptions.chat || { history: [] },
     }
     return { vars, trace }
 }
