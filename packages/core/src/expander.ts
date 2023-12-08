@@ -659,7 +659,7 @@ The user requested to cancel the request.
                             label,
                             fileEdit.after ?? fileEdit.before,
                             val
-                        )
+                        ) ?? val
                     } catch (e) {
                         logVerbose(e)
                         res.trace += `\n\n#### Error merging file\n\n${fenceMD(
