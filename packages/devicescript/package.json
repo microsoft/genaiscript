@@ -2,13 +2,8 @@
   "name": "devicescript-drivers",
   "version": "1.2.29",
   "private": "Please use 'yarn devs add npm' to make this a publishable package",
-  "devDependencies": {
-    "@devicescript/cli": "^2.15.14"
-  },
   "scripts": {
-    "setup": "devicescript build --quiet",
     "build:devicescript": "devicescript build src/main.ts",
-    "postinstall": "npm run setup",
     "build": "npm run build:devicescript",
     "watch:devicescript": "devicescript devtools src/main.ts",
     "watch": "npm run watch:devicescript",
