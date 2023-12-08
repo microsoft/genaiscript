@@ -1,6 +1,6 @@
 {
     "name": "coarch",
-    "version": "1.2.29",
+    "version": "1.2.28",
     "license": "MIT",
     "private": true,
     "workspaces": [
@@ -17,7 +17,8 @@
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/gptools.vsix --github.assets=packages/cli/built/gptools.js --no-github.draft",
         "patch-versions": "npx --yes zx scripts/patch-version.mjs",
-        "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix",
+        "commit-versions": "git add **/package.json && git commit -m '[skip ci] updated version numbers' && git push",
+        "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
         "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -d -o .gptools/tmp/tests/cli -ot .gptools/tmp/tests/cli/outtrace.md -oa .gptools/tmp/tests/cli/diags.csv",
         "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temp 0.5 --no-cache",
