@@ -70,6 +70,7 @@ async function run(
         cache: boolean
         applyEdits: boolean
         model: string
+        csvSeparator: string
     }
 ) {
     const stream = !options.json
@@ -85,6 +86,7 @@ async function run(
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const model = options.model
+    const csvSeparator = options.csvSeparator || "\t"
 
     let spec: string
     let specContent: string
@@ -165,7 +167,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         await write(
             outAnnotations,
             /\.(c|t)sv$/i.test(outAnnotations)
-                ? diagnosticsToCSV(res.annotations)
+                ? diagnosticsToCSV(res.annotations, csvSeparator)
                 : JSON.stringify(res.annotations, null, 2)
         )
 
@@ -289,6 +291,7 @@ async function main() {
         .option("-m, --model <string>", "model for the run")
         .option("-ae, --apply-edits", "apply file edits")
         .option("--no-cache", "disable LLM result cache")
+        .option("--cs, --csv-separator <string>", "csv separator", "\t")
         .action(run)
 
     const keys = program.command("keys").description("Manage OpenAI keys")
