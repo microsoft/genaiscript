@@ -24,6 +24,7 @@ import { host } from "./host"
 import { inspect } from "./logging"
 import { initToken } from "./oai_token"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
+import { defaultUrlAdapters } from "./urlAdapters"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -383,17 +384,33 @@ async function fragmentVars(
                 if (!links.find((lk) => lk.filename === ref.filename)) {
                     let content: string = ""
                     try {
+                        const urlAdapters = defaultUrlAdapters.concat(
+                            template.urlAdapters ?? []
+                        )
                         let url = ref.filename
-                        const m =
-                            /^https:\/\/github.com\/(\w+)\/(\w+)\/blob\/(.+)#?/i.exec(
-                                url
-                            )
-                        if (m)
-                            url = `https://raw.githubusercontent.com/${m[1]}/${m[2]}/${m[3]}`
-                        const resp = await fetch(url)
-                        if (resp.ok) content = await resp.text()
+                        let adapter: UrlAdapter = undefined
+                        for (const a of urlAdapters) {
+                            const newUrl = a.matcher(url)
+                            if (newUrl) {
+                                url = newUrl
+                                adapter = a
+                                break
+                            }
+                        }
+                        logVerbose(`fetch ${url}`)
+                        const resp = await fetch(url, {
+                            headers: {
+                                "Content-Type":
+                                    adapter?.contentType ?? "text/plain",
+                            },
+                        })
+                        if (resp.ok)
+                            content =
+                                adapter?.contentType === "application/json"
+                                    ? adapter.adapter(await resp.json())
+                                    : await resp.text()
                     } catch (e) {
-                        logInfo(`failed to download ${ref.filename}`)
+                        logInfo(`fetch failed for ${ref.filename}`)
                         logVerbose(e)
                     }
                     links.push({
@@ -655,11 +672,12 @@ The user requested to cancel the request.
                 if (template.fileMerge) {
                     try {
                         debugger
-                        fileEdit.after = template.fileMerge(
-                            label,
-                            fileEdit.after ?? fileEdit.before,
-                            val
-                        ) ?? val
+                        fileEdit.after =
+                            template.fileMerge(
+                                label,
+                                fileEdit.after ?? fileEdit.before,
+                                val
+                            ) ?? val
                     } catch (e) {
                         logVerbose(e)
                         res.trace += `\n\n#### Error merging file\n\n${fenceMD(

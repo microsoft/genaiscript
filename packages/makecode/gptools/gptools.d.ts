@@ -35,6 +35,24 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
 
+interface UrlAdapter {
+    contentType?: "text/plain" | "application/json"
+
+    /**
+     * Given a friendly URL, return a URL that can be used to fetch the content.
+     * @param url
+     * @returns
+     */
+    matcher: (url: string) => string
+
+    /**
+     * Convers the body of the response to a string.
+     * @param body
+     * @returns
+     */
+    adapter?: (body: string | any) => string | undefined
+}
+
 interface PromptTemplate extends PromptLike {
     /**
      * Which LLM model to use.
@@ -104,6 +122,11 @@ interface PromptTemplate extends PromptLike {
      * @returns undefined to ignore merge, or a string to use as the new content
      */
     fileMerge?: (label: string, before: string, generated: string) => string
+
+    /**
+     * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
+     */
+    urlAdapters?: UrlAdapter[]
 }
 
 /**
