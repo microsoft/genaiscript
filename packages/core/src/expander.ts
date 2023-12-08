@@ -375,6 +375,7 @@ async function fragmentVars(
     const { file } = frag
     const project = file.project
     const prjFolder = host.projectFolder()
+    let trace = ""
 
     const links: LinkedFile[] = []
     for (const fr of allChildren(frag, true)) {
@@ -397,7 +398,7 @@ async function fragmentVars(
                                 break
                             }
                         }
-                        logVerbose(`fetch ${url}`)
+                        trace += `fetch ${url}\n`
                         const resp = await fetch(url, {
                             headers: {
                                 "Content-Type":
@@ -410,8 +411,8 @@ async function fragmentVars(
                                     ? adapter.adapter(await resp.json())
                                     : await resp.text()
                     } catch (e) {
-                        logInfo(`fetch failed for ${ref.filename}`)
-                        logVerbose(e)
+                        trace += `fetch failed for ${ref.filename}\n`
+                        trace += e.message + "\n"
                     }
                     links.push({
                         label: ref.name,
@@ -427,7 +428,7 @@ async function fragmentVars(
                 (f) => f.filename === ref.filename
             )
             if (!projectFile) {
-                console.debug(`reference ${ref.filename} not found`)
+                trace += `reference ${ref.filename} not found\n`
                 continue
             }
 
@@ -462,7 +463,7 @@ async function fragmentVars(
         template,
         vars: attrs,
     }
-    return { vars }
+    return { vars, trace }
 }
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
@@ -472,8 +473,34 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     skipLLM?: boolean
     label?: string
     temperature?: number
+    seed?: number
     model?: string
     cache?: boolean
+    cliInfo?: {
+        spec: string
+    }
+}
+
+export function generateCliArguments(
+    template: PromptTemplate,
+    fragment: Fragment,
+    options?: RunTemplateOptions
+) {
+    const { model, temperature, seed, cliInfo } = options || {}
+
+    const cli = [
+        "node",
+        ".gptools/gptools.js",
+        "run",
+        template.id,
+        cliInfo.spec,
+        "--apply-edits",
+    ]
+    if (model) cli.push(`--model`, model)
+    if (!isNaN(temperature)) cli.push(`--temperature`, temperature + "")
+    if (!isNaN(seed)) cli.push("--seed", seed + "")
+
+    return cli.join(" ")
 }
 
 export async function runTemplate(
@@ -481,7 +508,7 @@ export async function runTemplate(
     fragment: Fragment,
     options?: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { requestOptions = {}, skipLLM, label } = options || {}
+    const { requestOptions = {}, skipLLM, label, cliInfo } = options || {}
     const { signal } = requestOptions
 
     options?.infoCb?.({
@@ -495,12 +522,32 @@ export async function runTemplate(
         label,
     })
 
-    const { vars } = await fragmentVars(
+    let trace = `## ${label || template.id}\n`
+
+    if (cliInfo)
+        trace += details(
+            "automation",
+            `This operation can be run from the command line:
+
+\`\`\`bash
+${generateCliArguments(template, fragment, options)}
+\`\`\`
+
+-   You will need to install [Node.js](https://nodejs.org/en/).
+-   Configure the OpenAI token in environment variables (run \`node .gptools/gptools help keys\` for help).
+-   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
+-   Run \`node .gptools/gptools help run\` for the full list of options.
+`
+        )
+
+    const { vars, trace: varsTrace } = await fragmentVars(
         template,
         fragment,
         options.promptOptions
     )
-    let trace = `## ${label || template.id}\n`
+
+    if (varsTrace) trace += details("variables", varsTrace)
+
     let {
         expanded,
         success,
