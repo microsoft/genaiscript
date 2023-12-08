@@ -26,7 +26,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         action.command = <vscode.Command>{
             command: "coarch.fragment.prompt",
             tooltip: "Apply a GPTool script to this file.",
-            arguments: [fragment],
+            arguments: [{ fragment }],
         }
         const filename =
             fragment instanceof Fragment
@@ -55,7 +55,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
                 a.command = <vscode.Command>{
                     command: "coarch.fragment.prompt",
                     tooltip: `Apply ${t.title} to this file.`,
-                    arguments: [fragment, t],
+                    arguments: [{ fragment, template: t }],
                 }
                 return a
             })

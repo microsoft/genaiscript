@@ -462,6 +462,7 @@ async function fragmentVars(
         promptOptions,
         template,
         vars: attrs,
+        chat: promptOptions.chat || { history: [] },
     }
     return { vars, trace }
 }
@@ -479,6 +480,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     cliInfo?: {
         spec: string
     }
+    chat?: ChatAgentContext
 }
 
 export function generateCliArguments(
@@ -545,6 +547,7 @@ ${generateCliArguments(template, fragment, options)}
         fragment,
         options.promptOptions
     )
+    vars.chat = options.chat || { history: [] }
 
     if (varsTrace) trace += details("variables", varsTrace)
 

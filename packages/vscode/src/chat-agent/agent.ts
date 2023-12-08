@@ -19,22 +19,9 @@ export function activateChatAgent(state: ExtensionState) {
     ): Promise<ICatChatAgentResult> => {
         const { slashCommand } = request
         if (slashCommand?.name === "run") {
-            const access = await vscode.chat.requestChatAccess("copilot")
-            const messages = [
-                {
-                    role: vscode.ChatMessageRole.System,
-                    content:
-                        "You are a cat! Your job is to explain computer science concepts in the funny manner of a cat. Always start your response by stating what concept you are explaining.",
-                },
-                {
-                    role: vscode.ChatMessageRole.User,
-                    content: "linked list",
-                },
-            ]
-            const chatRequest = access.makeRequest(messages, {}, token)
-            for await (const fragment of chatRequest.response) {
-                progress.report({ content: fragment })
-            }
+            await vscode.commands.executeCommand("coarch.fragment.prompt", {
+                chat: chatContext,
+            })
             return { slashCommand: "run" }
         } else {
             const access = await vscode.chat.requestChatAccess("copilot")
@@ -82,7 +69,7 @@ export function activateChatAgent(state: ExtensionState) {
             result: ICatChatAgentResult,
             token: vscode.CancellationToken
         ) {
-            if (result.slashCommand === "run") {
+            /*if (result.slashCommand === "run") {
                 return [
                     {
                         commandId: "coarch.fragment.prompt",
@@ -90,7 +77,7 @@ export function activateChatAgent(state: ExtensionState) {
                         title: "Meow!",
                     },
                 ]
-            }
+            }*/
             return []
         },
     }
