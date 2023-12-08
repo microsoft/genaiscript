@@ -6,7 +6,7 @@
   "version": "1.2.29",
   "icon": "icon.png",
   "engines": {
-    "vscode": "^1.83.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
@@ -275,24 +275,24 @@
     "package": "vsce package --dependencies --out gptools.vsix --yarn"
   },
   "devDependencies": {
-    "@types/isomorphic-fetch": "^0.0.38",
-    "@types/mocha": "^10.0.3",
-    "@types/vscode": "^1.83.1",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
-    "@typescript-eslint/parser": "^6.9.0",
-    "@vscode/test-web": "^0.0.47",
-    "@vscode/webview-ui-toolkit": "^1.2.2",
+    "@types/isomorphic-fetch": "^0.0.39",
+    "@types/mocha": "^10.0.6",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "@vscode/test-web": "^0.0.49",
+    "@vscode/webview-ui-toolkit": "^1.4.0",
     "@vscode/vsce": "^2.22.0",
     "assert": "^2.1.0",
     "gptools-cli": "*",
     "gptools-core": "*",
-    "eslint": "^8.52.0",
+    "eslint": "^8.55.0",
     "isomorphic-fetch": "^3.0.0",
     "json5": "^2.2.3",
     "mocha": "^10.2.0",
     "process": "^0.11.10",
-    "ts-loader": "^9.5.0",
-    "typescript": "^5.2.2",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
     "vscode-uri": "^3.0.8"
   }
 }
