@@ -289,6 +289,13 @@ ${e.message}`
             maxCachedTemperature,
             cache: true,
             retry: 0,
+            cliInfo: {
+                spec: vscode.workspace.asRelativePath(
+                    this.host.isVirtualFile(fragment.file.filename)
+                        ? fragment.file.filename.replace(/\.gpspec\.md$/i, "")
+                        : fragment.file.filename
+                ),
+            },
         }
 
         vscode.commands.executeCommand("coarch.request.open.output")

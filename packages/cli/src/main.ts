@@ -67,6 +67,7 @@ async function run(
         outAnnotations: string
         label: string
         temperature: string
+        seed: string
         cache: boolean
         applyEdits: boolean
         model: string
@@ -83,6 +84,7 @@ async function run(
     const outAnnotations = options.outAnnotations
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
+    const seed = parseFloat(options.seed) ?? undefined
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const model = options.model
@@ -150,11 +152,13 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
             if (stream) process.stdout.write(responseChunk)
+            else if (!isQuiet) process.stdout.write(".")
         },
         skipLLM,
         label,
         cache,
         temperature: isNaN(temperature) ? undefined : temperature,
+        seed: isNaN(seed) ? undefined : seed,
         model,
         retry,
         retryDelay,
@@ -289,12 +293,24 @@ async function main() {
         .option("-l, --label <string>", "label for the run")
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-m, --model <string>", "model for the run")
+        .option("-se, --seed <number>", "seed for the run")
         .option("-ae, --apply-edits", "apply file edits")
         .option("--no-cache", "disable LLM result cache")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
         .action(run)
 
-    const keys = program.command("keys").description("Manage OpenAI keys")
+    const keys = program
+        .command("keys")
+        .description("Manage OpenAI keys")
+        .addHelpText(
+            "after",
+            `The OpenAI configuration keys can be set in various ways:
+
+-   use 'gptools keys set <key>' to set the key to a specific value. The key will be stored in a file in the .gptools folder in clear text.
+-   set the GPTOOLS_TOKEN environment variable. The format is 'https://base-url#key=secret-token'
+-   set the OPENAI_API_BASE, OPENAI_API_KEY environment variables. OPENAI_API_TYPE is optional or must be 'azure' and OPENAI_API_VERSION is optional or must be '2023-03-15-preview'.
+`
+        )
     keys.command("show", { isDefault: true })
         .description("Parse and show current key information")
         .action(async () => {
