@@ -29,8 +29,7 @@ export interface Diagnostic {
     message: string
 }
 
-export function diagnosticsToCSV(diagnostics: Diagnostic[]) {
-    const sep = "\t"
+export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
     return diagnostics
         .map(({ severity, filename, range, message }) =>
             [severity, filename, range[0][0], range[1][0], message].join(sep)
