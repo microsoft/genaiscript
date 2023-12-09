@@ -165,9 +165,18 @@ interface ChatMessage {
 
 interface ChatAgentContext {
     /**
+     * Ready to use rendered chat session
+     */
+    content: string;
+    /**
      * All of the chat messages so far in the current chat session.
      */
     history: ChatMessage[]
+
+    /**
+     * The prompt that was used to start the chat session.
+     */
+    prompt?: string
 }
 
 /**

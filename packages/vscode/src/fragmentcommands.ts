@@ -64,7 +64,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         fragment: Fragment,
         label: string,
         templateId: string,
-        chat: vscode.ChatAgentContext
+        chat: ChatAgentContext
     ) => {
         if (!fragment) return
 
@@ -157,7 +157,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentPrompt = async (options: {
         fragment?: Fragment | string | vscode.Uri
         template?: PromptTemplate
-        chat?: vscode.ChatAgentContext
+        chat?: ChatAgentContext
     }) => {
         if (!(await checkSaved())) return
 

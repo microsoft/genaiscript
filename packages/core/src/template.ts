@@ -369,6 +369,11 @@ export function staticVars() {
         promptOptions: {},
         vars: {} as Record<string, string>,
         templates: [] as PromptTemplate[],
+        chat: {
+            content: "",
+            history: [],
+            prompt: "",
+        } as ChatAgentContext,
     }
 }
 
