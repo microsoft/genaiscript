@@ -7,6 +7,29 @@ interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
 
 // follow https://github.com/microsoft/vscode/issues/199908
 
+export function toChatAgentContext(
+    request: vscode.ChatAgentRequest,
+    chatContext: vscode.ChatAgentContext
+): ChatAgentContext {
+    const roles = {
+        [vscode.ChatMessageRole.System]: "system",
+        [vscode.ChatMessageRole.User]: "user",
+        [vscode.ChatMessageRole.Assistant]: "assistant",
+        [vscode.ChatMessageRole.Function]: "function",
+    }
+    const res: ChatAgentContext = {
+        history: chatContext.history,
+        prompt: request.prompt || "",
+        content: `\`\`\`chat
+${chatContext.history
+    .map((h) => `${h.name || roles[h.role]}: ${h.content}`)
+    .join("\n")}
+\`\`\`
+`,
+    }
+    return res
+}
+
 export function activateChatAgent(state: ExtensionState) {
     const { context } = state
     const { extensionUri } = context
@@ -23,10 +46,7 @@ export function activateChatAgent(state: ExtensionState) {
                 ({ id }) => id === slashCommand.name
             )
             vscode.commands.executeCommand("coarch.fragment.prompt", {
-                chat: {
-                    ...chatContext,
-                    prompt: request.prompt,
-                },
+                chat: toChatAgentContext(request, chatContext),
                 template,
             })
             return { slashCommand: "run" }

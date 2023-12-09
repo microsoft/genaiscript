@@ -546,7 +546,7 @@ ${generateCliArguments(template, fragment, options)}
         fragment,
         options.promptOptions
     )
-    vars.chat = options.chat || { history: [] }
+    vars.chat = options.chat || { content: "", history: [], prompt: "" }
 
     if (varsTrace) trace += details("variables", varsTrace)
 
