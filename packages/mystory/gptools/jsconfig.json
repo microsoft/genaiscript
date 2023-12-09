@@ -3,10 +3,10 @@
         "lib": [
             "ES2022"
         ],
-        "checkJs": true,
         "target": "ES2022",
         "module": "ES2022",
         "moduleDetection": "force",
+        "checkJs": true,
         "allowJs": true
     },
     "include": [

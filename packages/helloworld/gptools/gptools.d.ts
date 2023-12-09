@@ -33,7 +33,17 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
+type SystemPromptId =
+    | "system.diff"
+    | "system.annotations"
+    | "system.explanations"
+    | "system.files"
+    | "system.python"
+    | "system.summary"
+    | "system.tasks"
+    | "system"
+    | "system.technical"
+    | "system.typescript"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -168,6 +178,10 @@ interface ChatAgentContext {
      * All of the chat messages so far in the current chat session.
      */
     history: ChatMessage[]
+    /**
+     * User prompt for the slash command
+     */
+    prompt?: string
 }
 
 /**
@@ -260,8 +274,6 @@ interface PromptContext {
     }>
     env: ExpansionVariables
 }
-
-
 
 // keep in sync with PromptContext!
 
