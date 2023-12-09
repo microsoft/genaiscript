@@ -25,6 +25,10 @@ import { inspect } from "./logging"
 import { initToken } from "./oai_token"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
+import {
+    ChatCompletionRequestMessage,
+    CreateChatCompletionRequest,
+} from "openai"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -480,6 +484,10 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
         spec: string
     }
     chat?: ChatAgentContext
+    getChatCompletions?: (
+        req: CreateChatCompletionRequest & { seed?: number },
+        options?: ChatCompletionsOptions
+    ) => Promise<string>
 }
 
 export function generateCliArguments(
@@ -613,22 +621,24 @@ ${generateCliArguments(template, fragment, options)}
             fileEdits: {},
             label,
         })
-        text = await getChatCompletions(
+        const messages: ChatCompletionRequestMessage[] = [
+            {
+                role: "system",
+                content: systemText,
+            },
+            {
+                role: "user",
+                content: expanded,
+            },
+        ]
+        const completer = options.getChatCompletions || getChatCompletions
+        text = await completer(
             {
                 model,
                 temperature,
                 max_tokens,
                 seed,
-                messages: [
-                    {
-                        role: "system",
-                        content: systemText,
-                    },
-                    {
-                        role: "user",
-                        content: expanded,
-                    },
-                ],
+                messages,
             },
             options
         )
