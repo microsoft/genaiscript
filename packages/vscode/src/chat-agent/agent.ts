@@ -18,9 +18,16 @@ export function activateChatAgent(state: ExtensionState) {
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
         const { slashCommand } = request
-        if (slashCommand?.name === "run") {
-            await vscode.commands.executeCommand("coarch.fragment.prompt", {
-                chat: chatContext,
+        if (slashCommand) {
+            const template = state.project?.templates.find(
+                ({ id }) => id === slashCommand.name
+            )
+            vscode.commands.executeCommand("coarch.fragment.prompt", {
+                chat: {
+                    ...chatContext,
+                    prompt: request.prompt,
+                },
+                template,
             })
             return { slashCommand: "run" }
         } else {
@@ -54,7 +61,15 @@ export function activateChatAgent(state: ExtensionState) {
     agent.fullName = "GPTools"
     agent.slashCommandProvider = {
         provideSlashCommands(token) {
+            const templates =
+                state.project?.templates.filter((t) => !t.isSystem) || []
             return [
+                ...templates.map(({ id, title, description }) => ({
+                    name: id,
+                    description: [title, description]
+                        .filter((s) => s)
+                        .join("\n"),
+                })),
                 {
                     name: "run",
                     description:
