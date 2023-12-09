@@ -84,7 +84,7 @@ interface TGIResponse {
 export async function getChatCompletions(
     req: CreateChatCompletionRequest & { seed?: number },
     options?: ChatCompletionsOptions
-) {
+): Promise<string> {
     const { temperature, seed } = req
     const {
         requestOptions,
@@ -263,7 +263,7 @@ export async function getChatCompletions(
             partialCb?.({
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
-                responseChunk: progress
+                responseChunk: progress,
             })
         }
         pref = chunk
