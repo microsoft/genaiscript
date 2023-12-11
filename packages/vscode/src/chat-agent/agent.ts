@@ -41,41 +41,20 @@ export function activateChatAgent(state: ExtensionState) {
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
         const { slashCommand } = request
-        if (slashCommand) {
-            const template = state.project?.templates.find(
-                ({ id }) => id === slashCommand.name
-            )
-            const access = await vscode.chat.requestChatAccess("copilot")
-            await vscode.commands.executeCommand("coarch.fragment.prompt", {
-                chat: <ChatRequestContext>{
-                    context: toChatAgentContext(request, chatContext),
-                    progress,
-                    token,
-                    access,
-                },
-                template,
-            })
-            return { slashCommand: "run" }
-        } else {
-            const access = await vscode.chat.requestChatAccess("copilot")
-            const messages = [
-                {
-                    role: vscode.ChatMessageRole.System,
-                    content:
-                        "You are a cat! Reply in the voice of a cat, using cat analogies when appropriate.",
-                },
-                {
-                    role: vscode.ChatMessageRole.User,
-                    content: request.prompt,
-                },
-            ]
-            const chatRequest = access.makeRequest(messages, {}, token)
-            for await (const fragment of chatRequest.response) {
-                progress.report({ content: fragment })
-            }
-
-            return { slashCommand: "" }
-        }
+        const template =
+            slashCommand &&
+            state.project?.templates.find(({ id }) => id === slashCommand.name)
+        const access = await vscode.chat.requestChatAccess("copilot")
+        await vscode.commands.executeCommand("coarch.fragment.prompt", {
+            chat: <ChatRequestContext>{
+                context: toChatAgentContext(request, chatContext),
+                progress,
+                token,
+                access,
+            },
+            template,
+        })
+        return { slashCommand: "run" }
     }
 
     // Agents appear as top-level options in the chat input
@@ -83,7 +62,7 @@ export function activateChatAgent(state: ExtensionState) {
     // that appear when you type `/`.
     const agent = vscode.chat.createChatAgent("gptools", handler)
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
-    agent.description = "What tool do you want to run today?"
+    agent.description = "Run GPTools within the chat..."
     agent.fullName = "GPTools"
     agent.slashCommandProvider = {
         provideSlashCommands(token) {
