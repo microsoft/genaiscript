@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { ExtensionState } from "../state"
+import { ChatRequestContext, ExtensionState } from "../state"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     slashCommand: string
@@ -45,8 +45,14 @@ export function activateChatAgent(state: ExtensionState) {
             const template = state.project?.templates.find(
                 ({ id }) => id === slashCommand.name
             )
-            vscode.commands.executeCommand("coarch.fragment.prompt", {
-                chat: toChatAgentContext(request, chatContext),
+            const access = await vscode.chat.requestChatAccess("copilot")
+            await vscode.commands.executeCommand("coarch.fragment.prompt", {
+                chat: <ChatRequestContext>{
+                    context: toChatAgentContext(request, chatContext),
+                    progress,
+                    token,
+                    access,
+                },
                 template,
             })
             return { slashCommand: "run" }

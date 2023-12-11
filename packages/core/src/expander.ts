@@ -526,7 +526,7 @@ export async function runTemplate(
         edits: [],
         annotations: [],
         trace: "",
-        text: "> Running GPTool...",
+        text: "Running...",
         fileEdits: {},
         label,
     })
@@ -617,7 +617,7 @@ ${generateCliArguments(template, fragment, options)}
             edits: [],
             annotations: [],
             trace,
-            text: "> Waiting for response...",
+            text: "Waiting for response...",
             fileEdits: {},
             label,
         })
@@ -730,7 +730,6 @@ The user requested to cancel the request.
             if (kw === "file") {
                 if (template.fileMerge) {
                     try {
-                        debugger
                         fileEdit.after =
                             template.fileMerge(
                                 label,

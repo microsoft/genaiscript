@@ -62,6 +62,11 @@ interface PromptTemplate extends PromptLike {
     model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo"
 
     /**
+     * If running in chat, use copilot LLM model
+     */
+    copilot?: boolean
+
+    /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
      *
@@ -167,7 +172,7 @@ interface ChatAgentContext {
     /**
      * Ready to use rendered chat session
      */
-    content: string;
+    content: string
     /**
      * All of the chat messages so far in the current chat session.
      */
