@@ -562,6 +562,7 @@ export async function parsePromptTemplate(
             c.checkString("outputFolder")
 
             c.checkBool("unlisted")
+            c.checkBool("copilot")
 
             c.checkNat("maxTokens")
             c.checkNumber("temperature")

@@ -611,16 +611,6 @@ ${generateCliArguments(template, fragment, options)}
     let text: string
     try {
         await initToken()
-        options?.infoCb?.({
-            prompt,
-            vars,
-            edits: [],
-            annotations: [],
-            trace,
-            text: "Waiting for response...",
-            fileEdits: {},
-            label,
-        })
         const messages: ChatCompletionRequestMessage[] = [
             {
                 role: "system",
