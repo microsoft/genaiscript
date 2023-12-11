@@ -51,6 +51,6 @@ The CHAT is formatted as a markdown list of user messages.
 `
 
 // use def to emit and reference chunks of text
-def("CHAT", env.chat.history.filter(m => m.role === "user")
+def("CHAT", env.chat.history.filter(m => m.role === "user" && !/@/.test(m.content))
     .map(({ role, content }) => `- ${content}`)
     .join("\n"), { language: "markdown" })
