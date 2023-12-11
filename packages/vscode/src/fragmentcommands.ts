@@ -7,7 +7,7 @@ import {
     rootFragment,
     templateGroup,
 } from "gptools-core"
-import { ExtensionState } from "./state"
+import { ChatRequestContext, ExtensionState } from "./state"
 import { checkFileExists, saveAllTextDocuments } from "./fs"
 
 type TemplateQuickPickItem = {
@@ -64,7 +64,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         fragment: Fragment,
         label: string,
         templateId: string,
-        chat: ChatAgentContext
+        chat: ChatRequestContext
     ) => {
         if (!fragment) return
 
@@ -157,10 +157,11 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentPrompt = async (options: {
         fragment?: Fragment | string | vscode.Uri
         template?: PromptTemplate
-        chat?: ChatAgentContext
-    }) => {
+        chat?: ChatRequestContext
+    } | vscode.Uri) => {
         if (!(await checkSaved())) return
-
+        if (typeof options === "object" && options instanceof vscode.Uri)
+            options = { fragment: options }
         let { fragment, template, chat } = options || {}
 
         await state.cancelAiRequest()
