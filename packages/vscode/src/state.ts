@@ -277,9 +277,11 @@ ${e.message}`
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
             if (r.response) r.response.text = progress.responseSoFar
-            r.options.chat?.progress?.report({
-                content: progress.responseChunk,
-            })
+
+            //r.options.chat?.progress?.report({
+            //    content: progress.responseChunk,
+            //})
+
             reqChange()
         }
         this.aiRequest = r
@@ -289,6 +291,10 @@ ${e.message}`
             partialCb,
             infoCb: (data) => {
                 r.response = data
+                if (data.summary)
+                    r.options.chat?.progress?.report({
+                        content: data.summary,
+                    })
                 reqChange()
             },
             promptOptions: this.aiRequestContext,
