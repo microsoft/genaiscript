@@ -163,16 +163,13 @@ declare enum ChatMessageRole {
 
 // ChatML
 interface ChatMessage {
-    role: ChatMessageRole
+    role: "user" | "system" | "assistant" | "function"
     content: string
     name?: string
 }
 
 interface ChatAgentContext {
     /**
-     * Ready to use rendered chat session
-     */
-    content: string
     /**
      * All of the chat messages so far in the current chat session.
      */

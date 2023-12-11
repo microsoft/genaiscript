@@ -1,13 +1,13 @@
 gptool({
     title: "toolify",
     copilot: true,
-    system: ["system"]
+    system: ["system", "system.files"]
 })
 
 // use $ to output formatted text to the prompt
 $`You are an expert LLM prompt engineer.
-You will summarize the CHAT history into a prompt tool under.
-Do not generate a fence region for the output.`
+You will generate a script that generates a LLM promt 
+that captures the intent of the user in CHAT.`
 
 $`The tool is formatted in JavaScript and will be saved as a file named 'gptools/<toolname>.gptool.js'
 where <toolname> is a short, descriptive, filename friendly name for the chat.`
@@ -28,16 +28,28 @@ declare function gptool(options: {
  * Append given string to the prompt. It automatically appends "\n".
  */
 declare function $(strings: TemplateStringsArray, ...args: any[]): string
-
-/**
- * Defines \`name\` to be the (often multi-line) string \`body\`.
- *
- * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
- * @param body string to be fenced/defined
- */
-declare function def(name: string, body: string): void
 \`\`\`
+
+\`\`\`typescript file=gptools/<toolname>.gptool.js
+A typical gptools file looks like this:
+
+gptools({ title: <the title> })
+
+$\`<the generated prompt from the user intent>\`
+\`\`\`
+
+To access files in the current context, insert this code in the script.
+
+    def("SPEC", env.file)
+    def("FILE", env.links)
+
+`
+
+$`
+The CHAT is formatted as a markdown list of user messages.
 `
 
 // use def to emit and reference chunks of text
-def("CHAT", env.chat.content, { language: "markdown" })
+def("CHAT", env.chat.history.filter(m => m.role === "user")
+    .map(({ role, content }) => `- ${content}`)
+    .join("\n"), { language: "markdown" })

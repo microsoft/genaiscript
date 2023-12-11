@@ -18,11 +18,15 @@ export function toChatAgentContext(
         [vscode.ChatMessageRole.Function]: "function",
     }
     const res: ChatAgentContext = {
-        history: chatContext.history,
+        history: chatContext.history.map(
+            (m) =>
+                <ChatMessage>{
+                    role: roles[m.role],
+                    content: m.content,
+                    name: m.name,
+                }
+        ),
         prompt: request.prompt || "",
-        content: chatContext.history
-            .map((h) => `${h.name || roles[h.role]}: ${h.content}`)
-            .join("\n"),
     }
     return res
 }
