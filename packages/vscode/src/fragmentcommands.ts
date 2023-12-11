@@ -19,19 +19,6 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const checkSaved = async () => {
-        if (vscode.workspace.textDocuments.some((doc) => doc.isDirty)) {
-            vscode.window.showErrorMessage(
-                "GPTool cancelled. Please save all files before running GPTools."
-            )
-            return false
-        }
-
-        await state.parseWorkspace()
-
-        return true
-    }
-
     const pickTemplate = async (
         fragment: Fragment,
         options?: {
@@ -76,7 +63,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment,
             template,
             label,
-            chat
+            chat,
         })
     }
 
@@ -154,12 +141,18 @@ export function activateFragmentCommands(state: ExtensionState) {
         await fragmentPrompt({ fragment, template })
     }
 
-    const fragmentPrompt = async (options: {
-        fragment?: Fragment | string | vscode.Uri
-        template?: PromptTemplate
-        chat?: ChatRequestContext
-    } | vscode.Uri) => {
-        if (!(await checkSaved())) return
+    const fragmentPrompt = async (
+        options:
+            | {
+                  fragment?: Fragment | string | vscode.Uri
+                  template?: PromptTemplate
+                  chat?: ChatRequestContext
+              }
+            | vscode.Uri
+    ) => {
+        await saveAllTextDocuments
+        await state.parseWorkspace()
+
         if (typeof options === "object" && options instanceof vscode.Uri)
             options = { fragment: options }
         let { fragment, template, chat } = options || {}
