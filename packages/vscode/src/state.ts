@@ -200,13 +200,14 @@ export class ExtensionState extends EventTarget {
             if (edits) {
                 req.editsApplied = null
                 this.dispatchChange()
-                req.editsApplied = await applyEdits(edits, {
+                applyEdits(edits, {
                     needsConfirmation: true,
+                }).then((applied) => {
+                    req.editsApplied = applied
+                    if (req !== this.aiRequest) return
+                    if (req.editsApplied) saveAllTextDocuments()
+                    this.dispatchChange()
                 })
-                if (req.editsApplied) {
-                    await saveAllTextDocuments()
-                }
-                this.dispatchChange()
             }
         } catch (e) {
             if (isCancelError(e)) return
