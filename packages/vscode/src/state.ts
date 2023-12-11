@@ -28,7 +28,7 @@ import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { findFiles, readFileText, writeFile } from "./fs"
+import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -204,11 +204,7 @@ export class ExtensionState extends EventTarget {
                     needsConfirmation: true,
                 })
                 if (req.editsApplied) {
-                    await Promise.all(
-                        vscode.workspace.textDocuments
-                            .filter((doc) => doc.isDirty)
-                            .map((doc) => doc.save())
-                    )
+                    await saveAllTextDocuments()
                 }
                 this.dispatchChange()
             }
