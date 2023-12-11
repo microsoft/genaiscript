@@ -305,7 +305,7 @@ ${e.message}`
             chat: options.chat?.context,
         }
 
-        if (options.chat && template.copilot) {
+        if (options.chat?.access && template.copilot) {
             this.createCompletionChatFromChat(options, runOptions)
         }
 
@@ -349,10 +349,15 @@ ${e.message}`
         runOptions.cache = false
         runOptions.infoCb = (data) => {
             infoCb?.(data)
-            progress.report(<vscode.ChatAgentTask>{
-                placeholder: "",
-                resolvedContent: { content: data.text + "\n" } as any,
-            })
+            if (data.text)
+                progress.report(<vscode.ChatAgentTask>{
+                    placeholder: "",
+                    resolvedContent: { content: data.text + "\n" } as any,
+                })
+            if (data.summary)
+                progress.report(<vscode.ChatAgentContent>{
+                    content: data.summary,
+                })
         }
         runOptions.getChatCompletions = async (req, chatOptions) => {
             let text = ""
@@ -379,7 +384,7 @@ ${e.message}`
                     responseChunk: fragment,
                     tokensSoFar: text.length,
                 })
-                progress.report({ content: fragment })
+                // progress.report({ content: fragment })
             }
             return text
         }
