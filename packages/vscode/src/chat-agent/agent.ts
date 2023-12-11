@@ -20,12 +20,9 @@ export function toChatAgentContext(
     const res: ChatAgentContext = {
         history: chatContext.history,
         prompt: request.prompt || "",
-        content: `\`\`\`chat
-${chatContext.history
-    .map((h) => `${h.name || roles[h.role]}: ${h.content}`)
-    .join("\n")}
-\`\`\`
-`,
+        content: chatContext.history
+            .map((h) => `${h.name || roles[h.role]}: ${h.content}`)
+            .join("\n"),
     }
     return res
 }
