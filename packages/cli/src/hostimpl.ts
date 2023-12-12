@@ -1,3 +1,4 @@
+import "dotenv/config"
 import {
     Host,
     LogLevel,
@@ -5,12 +6,8 @@ import {
     ReadFileOptions,
     UTF8Decoder,
     UTF8Encoder,
-    dotGptoolsPath,
-    logWarn,
     parseToken,
     setHost,
-    tryReadJSON,
-    writeJSON,
 } from "gptools-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, writeFile } from "fs/promises"
@@ -28,9 +25,7 @@ export class NodeHost implements Host {
     }
 
     async askToken(): Promise<string> {
-        const path = dotGptoolsPath("tmp/token.txt")
-        logWarn(`reading token from ${path}`)
-        return this.createUTF8Decoder().decode(await this.readFile(path))
+        return undefined
     }
     async getSecretToken(): Promise<OAIToken> {
         if (process.env.GPTOOLS_TOKEN) {
@@ -52,15 +47,9 @@ export class NodeHost implements Host {
             tok.source = "env: openai_api_..."
             return tok
         }
-
-        const keyp = dotGptoolsPath("tmp/token.json")
-        const tok = await tryReadJSON(keyp)
-        if (tok) tok.source = keyp
-        return tok
+        return undefined
     }
-    async setSecretToken(tok: OAIToken): Promise<void> {
-        await writeJSON(dotGptoolsPath("tmp/token.json"), tok)
-    }
+    async setSecretToken(tok: OAIToken): Promise<void> {}
     setVirtualFile(name: string, content: string) {
         this.virtualFiles = {}
         this.virtualFiles[resolve(name)] =

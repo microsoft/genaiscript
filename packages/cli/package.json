@@ -6,11 +6,12 @@
   "private": true,
   "dependencies": {
     "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
     "esbuild": "^0.17.18",
     "fs-extra": "^11.1.1",
-    "openai": "^3.3.0",
     "get-stdin": "^9.0.0",
     "glob": "^10.3.10",
+    "openai": "^3.3.0",
     "typescript": "^5.3.3"
   },
   "engines": {
