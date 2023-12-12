@@ -5,6 +5,8 @@
 		"dbaeumer.vscode-eslint",
 		"esbenp.prettier-vscode",
 		"evilz.vscode-reveal",
-		"bierner.markdown-mermaid"
+		"bierner.markdown-mermaid",
+		"zixuanchen.vitest-explorer",
+		"github.vscode-github-actions"
 	]
 }

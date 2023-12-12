@@ -17,7 +17,11 @@ jobs:
                   node-version: "18"
                   cache: yarn
             - run: yarn install --frozen-lockfile
+            - name: typecheck
+              run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: unit tests
+              run: yarn test
             - name: run gptools
               run: node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
