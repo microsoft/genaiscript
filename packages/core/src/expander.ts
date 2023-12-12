@@ -634,7 +634,7 @@ ${generateCliArguments(template, fragment, options)}
                 trace += `-  code: \`${error.body.code}\`\n`
             }
             trace += `-   status: \`${error.status}\`, ${error.statusText}\n`
-            options.infoCb({
+            options.infoCb?.({
                 prompt,
                 vars,
                 edits: [],
@@ -648,7 +648,7 @@ ${generateCliArguments(template, fragment, options)}
             
 The user requested to cancel the request.
 `
-            options.infoCb({
+            options.infoCb?.({
                 prompt,
                 vars,
                 edits: [],
@@ -837,6 +837,8 @@ The user requested to cancel the request.
                     )
                     .join("\n")
         )
+
+    options?.infoCb?.(res)
 
     return res
 }

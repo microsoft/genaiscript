@@ -4,7 +4,7 @@ gptool({
         "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",
     maxTokens: 2000,
     categories: ["samples"],
-    system: ["system", "system.diff"],
+    system: ["system", "system.diff", "system.summary"],
 })
 
 // Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46
