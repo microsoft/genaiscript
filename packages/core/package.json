@@ -6,7 +6,7 @@
   "private": true,
   "devDependencies": {
     "@types/mdast": "^3.0.11",
-    "@types/node": "^20.3.0",
+    "@types/node": "^20.10.4",
     "esbuild": "^0.17.18",
     "fetch-retry": "^5.0.6",
     "openai": "^3.3.0",
@@ -18,11 +18,13 @@
     "remark-parse": "^10.0.2",
     "typescript": "^5.3.3",
     "unified": "^10.1.2",
+    "vitest": "^1.0.4",
     "yaml": "^2.3.4"
   },
   "scripts": {
     "typecheck": "tsc -p src",
     "prompts:bundle": "node bundleprompts.mjs",
-    "pretypecheck": "yarn prompts:bundle"
+    "pretypecheck": "yarn prompts:bundle",
+    "test": "vitest"
   }
 }
