@@ -17,6 +17,7 @@ The key elements of the gptools framework are:
 -   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
 
 GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md).
+To access GPTools from GitHub Copilot Chat, use [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
 
 ### GPTool scripts
 
