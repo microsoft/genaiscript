@@ -217,6 +217,12 @@ export function applyLLMDiff(source: string, chunks: Chunk[]): string {
     return lines.join("\n")
 }
 
+export class DiffError extends Error {
+    constructor(message: string) {
+        super(message)
+    }
+}
+
 export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     if (!chunks?.length || !source) return source
 
@@ -230,9 +236,9 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
                 const line =
                     chunk.state === "deleted" ? undefined : chunk.lines[li]
                 const linei = chunk.lineNumbers[li] - 1
-                if (isNaN(linei)) throw new Error("missing line number")
+                if (isNaN(linei)) throw new DiffError("missing line number")
                 if (linei < 0 || linei >= lines.length)
-                    throw new Error("invalid line number")
+                    throw new DiffError("invalid line number")
                 lines[linei] = line
             }
         })
