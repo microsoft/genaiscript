@@ -35,8 +35,8 @@ node .gptools/gptools.js run <tool> src/*.gpspec.md src/*.ts
 
 ### credentials
 
-The token is read from the environment `GPTOOLS_TOKEN`, from `OPENAI_API_KEY/BASE` keys or
-or configured through the `keys` command (as a JSON payload).
+The token is read from the environment variables `GPTOOLS_TOKEN`, from `OPENAI_API_KEY/BASE`.
+The CLI also supports loading the variables from a `.env` file in the current directory.
 
 ### --json
 

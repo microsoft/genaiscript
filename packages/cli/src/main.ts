@@ -1,7 +1,6 @@
 import {
     FragmentTransformResponse,
     RequestError,
-    clearToken,
     diagnosticsToCSV,
     host,
     isRequestError,
@@ -9,7 +8,6 @@ import {
     parseProject,
     readText,
     runTemplate,
-    setToken,
     writeText,
 } from "gptools-core"
 import { NodeHost } from "./hostimpl"
@@ -17,7 +15,7 @@ import { program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
-import { error, isQuiet, setConsoleColors, setQuiet, wrapColor } from "./log"
+import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
@@ -306,9 +304,9 @@ async function main() {
             "after",
             `The OpenAI configuration keys can be set in various ways:
 
--   use 'gptools keys set <key>' to set the key to a specific value. The key will be stored in a file in the .gptools folder in clear text.
 -   set the GPTOOLS_TOKEN environment variable. The format is 'https://base-url#key=secret-token'
 -   set the OPENAI_API_BASE, OPENAI_API_KEY environment variables. OPENAI_API_TYPE is optional or must be 'azure' and OPENAI_API_VERSION is optional or must be '2023-03-15-preview'.
+-   '.env' file with the same variables
 `
         )
     keys.command("show", { isDefault: true })
@@ -323,15 +321,6 @@ async function main() {
                     : "no key set"
             )
         })
-    keys.command("set")
-        .description("store OpenAI connection string in .gptools folder")
-        .argument("<key>", "key to set")
-        .action(async (tok) => {
-            await setToken(tok)
-        })
-    keys.command("clear")
-        .description("Clear any OpenAI connection string")
-        .action(async () => await clearToken())
 
     const tools = program.command("tools").description("Manage GPTools")
     tools
