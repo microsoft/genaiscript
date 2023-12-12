@@ -24,8 +24,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/sample"
             ],
@@ -45,8 +43,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/demoapps"
             ],
@@ -66,8 +62,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/mywordle"
             ],
@@ -87,8 +81,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/mystory"
             ],
@@ -108,8 +100,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/helloworld"
             ],
@@ -129,8 +119,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/devicescript"
             ],
@@ -150,8 +138,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/whitepaper"
             ],
@@ -171,8 +157,6 @@
             "debugWebWorkerHost": true,
             "request": "launch",
             "args": [
-                "--enable-proposed-api",
-                "Microsoft.gptools-vscode",
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/makecode"
             ],
