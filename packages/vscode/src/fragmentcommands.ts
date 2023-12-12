@@ -182,6 +182,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         var range = new vscode.Range(pos, pos)
         editor.revealRange(range)
     }
+
+    const applyEdits = async () => state.applyEdits()
+
     subscriptions.push(
         vscode.commands.registerCommand(
             "coarch.fragment.refine",
@@ -194,7 +197,8 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "coarch.fragment.navigate",
             fragmentNavigate
-        )
+        ),
+        vscode.commands.registerCommand("coarch.request.applyEdits", applyEdits)
     )
 }
 

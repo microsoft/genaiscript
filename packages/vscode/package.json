@@ -260,6 +260,11 @@
         "category": "GPTools"
       },
       {
+        "command": "coarch.request.applyEdits",
+        "title": "Apply Edits",
+        "category": "GPTools"
+      },
+      {
         "command": "coarch.request.status",
         "title": "Show information message about OpenAI request status",
         "category": "GPTools"

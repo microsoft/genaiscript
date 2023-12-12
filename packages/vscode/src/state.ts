@@ -180,13 +180,31 @@ export class ExtensionState extends EventTarget {
         }
     }
 
+    async applyEdits() {
+        const req = this.aiRequest
+        if (!req) return
+        const edits = req.response?.edits
+        if (!edits) return
+
+        req.editsApplied = null
+        this.dispatchChange()
+
+        const applied = await applyEdits(edits, {
+            needsConfirmation: true,
+        })
+
+        req.editsApplied = applied
+        if (req !== this.aiRequest) return
+        if (req.editsApplied) saveAllTextDocuments()
+        this.dispatchChange()
+    }
+
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
-            if (!(options.chat?.access && options.template.copilot))
-                await initToken()
+            if (!(options.chat && options.template.copilot)) await initToken()
             const req = await this.startAIRequest(options)
             const res = await req?.request
-            const { edits, text } = res || {}
+            const { text } = res || {}
             if (text)
                 vscode.commands.executeCommand("coarch.request.open.output")
 
@@ -197,18 +215,7 @@ export class ExtensionState extends EventTarget {
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (edits) {
-                req.editsApplied = null
-                this.dispatchChange()
-                applyEdits(edits, {
-                    needsConfirmation: true,
-                }).then((applied) => {
-                    req.editsApplied = applied
-                    if (req !== this.aiRequest) return
-                    if (req.editsApplied) saveAllTextDocuments()
-                    this.dispatchChange()
-                })
-            }
+            if (!options.chat) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
             else if (isTokenError(e)) {
@@ -311,7 +318,7 @@ ${e.message}`
             chat: options.chat?.context,
         }
 
-        if (options.chat?.access && template.copilot) {
+        if (options.chat && template.copilot) {
             this.createCompletionChatFromChat(options, runOptions)
         }
 

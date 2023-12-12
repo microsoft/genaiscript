@@ -92,15 +92,18 @@ export function activateChatAgent(state: ExtensionState) {
             result: ICatChatAgentResult,
             token: vscode.CancellationToken
         ) {
-            /*if (result.slashCommand === "run") {
+            if (
+                result.slashCommand === "run" &&
+                state.aiRequest?.response?.edits
+            ) {
                 return [
                     {
-                        commandId: "coarch.fragment.prompt",
-                        message: "@gptools running...",
-                        title: "Meow!",
+                        commandId: "coarch.request.applyEdits",
+                        message: "Review the changes in the Refactorings view.",
+                        title: "Preview Edits",
                     },
                 ]
-            }*/
+            }
             return []
         },
     }
