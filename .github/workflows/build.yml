@@ -25,7 +25,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: unit tests
-              run: yarn test
+              run: yarn test:unit
             - name: run cli
               run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.gpspec.md -d -ot $GITHUB_STEP_SUMMARY -l single
             - name: run cli pipe
