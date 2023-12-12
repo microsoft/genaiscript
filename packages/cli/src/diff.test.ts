@@ -33,6 +33,34 @@ test("missing line numbers", () => {
 `
 
     const chunks = parseLLMDiffs(source)
-    console.log(chunks)
     assert.equal(chunks.length, 12)
+})
+
+test("missing line numbers 2", () => {
+    const source = `
+[17] CONSTANTS
+-     \* @type: ???;
++     \* @type: Int;
+[19]     N,
+-     \* @type: ???;
++     \* @type: Int;
+[21]     T,
+-     \* @type: ???;
++     \* @type: Int;
+[23]     F
+[28] VARIABLE 
+-   \* @type: ???;
++   \* @type: Str -> Str;
+[30]   pc,
+-   \* @type: ???;
++   \* @type: Str -> Set(<<Int, Str>>);
+[32]   rcvd,
+-   \* @type: ???;
++   \* @type: Set(<<Int, Str>>);
+[34]   sent
+`
+
+    const chunks = parseLLMDiffs(source)
+    console.log(chunks)
+    assert.equal(chunks.length, 19)
 })
