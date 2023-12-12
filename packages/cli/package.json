@@ -16,12 +16,14 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^18.16.3",
-    "gptools-core": "*"
+    "gptools-core": "*",
+    "tsx": "^4.6.2"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js",
     "postcompile": "cp built/gptools.js ../vscode/gptools.js",
     "go": "yarn compile && node built/gptools.js",
+    "test": "node --loader tsx --test src/**.test.ts",
     "typecheck": "tsc -p src"
   }
 }

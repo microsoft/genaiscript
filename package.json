@@ -20,7 +20,7 @@
         "commit-versions": "git add packages/**/package.json && git commit -m '[skip ci] updated version numbers' && git push",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
-        "test:unit": "vitest",
+        "test:unit": "cd packages/cli && yarn test",
         "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -d -o .gptools/tmp/tests/cli -ot .gptools/tmp/tests/cli/outtrace.md -oa .gptools/tmp/tests/cli/diags.csv",
         "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temp 0.5 --no-cache",
         "test:front-matter": "node packages/cli/built/gptools.js run front-matter SUPPORT.md"
@@ -35,8 +35,5 @@
     "devDependencies": {
         "@release-it-plugins/workspaces": "^4.0.0",
         "zx": "^7.2.3"
-    },
-    "dependencies": {
-        "vitest": "^1.0.4"
     }
 }
