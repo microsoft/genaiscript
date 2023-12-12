@@ -1,4 +1,4 @@
-import test from "node:test"
+import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { parseLLMDiffs } from "gptools-core"
 
@@ -13,5 +13,5 @@ test("is_valid_email", () => {
 [7]     else:
 [8]         return False`
     const chunks = parseLLMDiffs(source)
-    assert.strictEqual(chunks.length, 4)
+    assert.equal(chunks.length, 4)
 })
