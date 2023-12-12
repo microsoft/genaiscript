@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
 import { ChatRequestContext, ExtensionState } from "../state"
+import { logVerbose } from "gptools-core"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     slashCommand: string
@@ -46,6 +47,7 @@ export function activateChatAgent(state: ExtensionState) {
             slashCommand &&
             state.project?.templates.find(({ id }) => id === slashCommand.name)
         const access = await vscode.chat.requestChatAccess("copilot")
+        logVerbose(`chat access model: ${access.model}`)
         await vscode.commands.executeCommand("coarch.fragment.prompt", {
             chat: <ChatRequestContext>{
                 context: toChatAgentContext(request, chatContext),
