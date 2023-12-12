@@ -356,9 +356,8 @@ ${e.message}`
         runOptions.infoCb = (data) => {
             infoCb?.(data)
             if (data.text)
-                progress.report(<vscode.ChatAgentTask>{
-                    placeholder: "",
-                    resolvedContent: { content: data.text + "\n" } as any,
+                progress.report(<vscode.ChatAgentProgressMessage>{
+                    message: { content: data.text + "\n" } as any,
                 })
             if (data.summary)
                 progress.report(<vscode.ChatAgentContent>{
