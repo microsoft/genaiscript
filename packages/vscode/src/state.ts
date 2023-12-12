@@ -204,7 +204,7 @@ export class ExtensionState extends EventTarget {
             if (!(options.chat && options.template.copilot)) await initToken()
             const req = await this.startAIRequest(options)
             const res = await req?.request
-            const { text } = res || {}
+            const { edits, text } = res || {}
             if (text)
                 vscode.commands.executeCommand("coarch.request.open.output")
 
@@ -215,7 +215,24 @@ export class ExtensionState extends EventTarget {
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (!options.chat) this.applyEdits()
+            if (edits?.length) {
+                if (!options.chat) this.applyEdits()
+                else {
+                    options.chat.progress.report(<vscode.ChatAgentFileTree>{
+                        treeData: {
+                            label: "edits",
+                            uri: vscode.Uri.parse(REQUEST_OUTPUT_FILENAME),
+                            children: edits.map(
+                                (e) =>
+                                    <vscode.ChatAgentFileTreeData>{
+                                        label: e.label,
+                                        uri: vscode.Uri.file(e.filename),
+                                    }
+                            ),
+                        },
+                    })
+                }
+            }
         } catch (e) {
             if (isCancelError(e)) return
             else if (isTokenError(e)) {
@@ -365,10 +382,6 @@ ${e.message}`
             if (data.text)
                 progress.report(<vscode.ChatAgentProgressMessage>{
                     message: { content: data.text + "\n" } as any,
-                })
-            if (data.summary)
-                progress.report(<vscode.ChatAgentContent>{
-                    content: data.summary,
                 })
         }
         runOptions.getChatCompletions = async (req, chatOptions) => {

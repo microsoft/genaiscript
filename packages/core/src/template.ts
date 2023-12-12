@@ -377,11 +377,6 @@ function startFence(text: string) {
     return { fence: m?.[1], extra: m?.[3], args: parseKeyValuePairs(m?.[3]) }
 }
 
-function endFence(text: string) {
-    if (promptFenceEndRx.test(text)) return text.replace(/\s*$/, "")
-    return null
-}
-
 export interface Fenced {
     label: string
     content: string
@@ -448,9 +443,6 @@ export function extractFenced(text: string): Fenced[] {
                 currLbl = m[1] + " " + (start.args["file"] || m[2])
                 currFence = start.fence
                 i++
-            } else if (endFence(line)) {
-                currFence = endFence(line)
-                currLbl = "*"
             }
         }
     }
