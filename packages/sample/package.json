@@ -12,6 +12,6 @@
     "typecheck": "tsc -p src"
   },
   "dependencies": {
-    "sharp": "^0.32.2"
+    "sharp": "^0.33.0"
   }
 }
