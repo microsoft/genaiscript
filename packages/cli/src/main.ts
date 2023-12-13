@@ -242,9 +242,12 @@ async function listSpecs() {
 
 async function main() {
     process.on("uncaughtException", (err) => {
-        error(err.stack)
-        if (isRequestError(err)) process.exit((err as RequestError).status)
-        process.exit(-1)
+        error(isQuiet ? err : err.message)
+        if (isRequestError(err)) {
+            const exitCode = (err as RequestError).status
+            process.exit(exitCode)
+        }
+        else process.exit(-1)
     })
 
     NodeHost.install()

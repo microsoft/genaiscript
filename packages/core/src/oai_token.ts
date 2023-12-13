@@ -48,7 +48,19 @@ export async function initToken(force = false) {
     }
 
     const f = await host.askToken()
-    if (!f) throwError("token not specified", true)
+    if (!f)
+        throw new RequestError(
+            403,
+            "token not specified",
+            {
+                type: "no_token",
+                message: "token not configured, please run command 'key help'",
+                param: undefined,
+                code: "no_token",
+            },
+            '{ code: "no_token" }',
+            -1
+        )
     return await setToken(f)
 }
 
