@@ -240,7 +240,7 @@ interface ExpansionVariables {
     /**
      * current prompt template
      */
-    template: PromptTemplate
+    template: PromptDefinition
 
     /**
      * User defined variables

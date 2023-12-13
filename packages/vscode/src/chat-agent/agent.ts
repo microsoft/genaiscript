@@ -66,6 +66,7 @@ export function activateChatAgent(state: ExtensionState) {
         const template =
             slashCommand &&
             state.project?.templates.find(({ id }) => id === slashCommand.name)
+            
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
         await vscode.commands.executeCommand("coarch.fragment.prompt", {
