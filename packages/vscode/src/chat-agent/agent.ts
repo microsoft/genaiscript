@@ -116,7 +116,7 @@ export function activateChatAgent(state: ExtensionState) {
         ) {
             if (
                 result.slashCommand === "run" &&
-                state.aiRequest?.response?.edits
+                state.aiRequest?.response?.edits?.length
             ) {
                 return [
                     {

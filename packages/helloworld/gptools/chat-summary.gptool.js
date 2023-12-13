@@ -2,7 +2,8 @@ gptool({
     title: "chat-summary",
     copilot: true,
     system: ["system"],
-    chat: true
+    chat: true,
+    chatOutput: "inline"
 })
 
 // use $ to output formatted text to the prompt

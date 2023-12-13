@@ -553,6 +553,7 @@ export async function parsePromptTemplate(
             c.checkBool("unlisted")
             c.checkBool("copilot")
             c.checkBool("chat")
+            c.checkString("chatOutput")
 
             c.checkNat("maxTokens")
             c.checkNumber("temperature")

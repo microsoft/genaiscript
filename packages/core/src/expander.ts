@@ -348,6 +348,7 @@ async function expandTemplate(
                 typeof v === "string" ? undefined : "js"
             )
         }
+        trace.endDetails()
     }
 }
 

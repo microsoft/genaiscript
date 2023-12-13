@@ -205,7 +205,7 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text)
+            if (text && options.template.chatOutput !== "inline")
                 vscode.commands.executeCommand("coarch.request.open.output")
 
             const key = snapshotAIRequestKey(req)
@@ -301,15 +301,15 @@ ${e.message}`
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
             if (r.response) r.response.text = progress.responseSoFar
-
-            //r.options.chat?.progress?.report({
-            //    content: progress.responseChunk,
-            //})
-
+            if (template.chatOutput === "inline")
+                r.options.chat?.progress?.report({
+                    content: progress.responseChunk,
+                })
             reqChange()
         }
         this.aiRequest = r
         const { template, fragment } = options
+        const { chatOutput } = template
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
             partialCb,
@@ -348,7 +348,8 @@ ${e.message}`
 
         r.request = runTemplate(template, fragment, runOptions)
 
-        vscode.commands.executeCommand("coarch.request.open.output")
+        if (chatOutput !== "inline")
+            vscode.commands.executeCommand("coarch.request.open.output")
 
         r.request
             .then((resp) => {
@@ -373,15 +374,17 @@ ${e.message}`
         runOptions: RunTemplateOptions
     ): void {
         logVerbose("using copilot llm")
+        const { template } = options
         const { access, progress, token } = options.chat
         const { partialCb, infoCb } = runOptions
+        const { chatOutput } = template
 
         runOptions.cache = false
         runOptions.infoCb = (data) => {
             infoCb?.(data)
             if (data.text)
                 progress.report(<vscode.ChatAgentProgressMessage>{
-                    message: { content: data.text + "\n" } as any,
+                    message: data.text,
                 })
         }
         runOptions.getChatCompletions = async (req, chatOptions) => {
@@ -411,7 +414,6 @@ ${e.message}`
                     responseChunk: fragment,
                     tokensSoFar: text.length,
                 })
-                // progress.report({ content: fragment })
             }
             return text
         }
