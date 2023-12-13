@@ -98,7 +98,7 @@ VSCode->>User: Display updated workspace
 
 These are the instructions to install the latest build of the extension manually in Visual Studio Code.
 
--   install [Visual Studio Code](https://code.visualstudio.com/Download) (or [Insiders](https://code.visualstudio.com/insiders/) to access Copilot Chat integration)
+-   install [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio Code Insiders](https://code.visualstudio.com/insiders/. The Insiders version gives you access the Copilot Chat integration.
 -   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
 -   download the `gptools.vsix` file (`gptools.insiders.vsix` for Insiders) into your project
 -   open Visual Studio Code
