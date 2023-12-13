@@ -285,7 +285,7 @@
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
     "typecheck": "tsc -p .",
     "prepackage": "zx prepackage.mjs",
-    "postpackage": "git checkout -- package.json",
+    "postpackage": "zx postpackage.mjs",
     "package": "vsce package --dependencies --out gptools.vsix --yarn --pre-release"
   },
   "devDependencies": {
