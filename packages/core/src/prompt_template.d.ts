@@ -132,6 +132,11 @@ interface PromptTemplate extends PromptLike {
      * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
      */
     urlAdapters?: UrlAdapter[]
+
+    /**
+     * Indicate if the tool can be used in a copilot chat context. `true` is exclusive, `false` never and `undefined` is both.
+     */
+    chat?: boolean
 }
 
 /**

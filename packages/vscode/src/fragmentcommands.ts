@@ -166,7 +166,9 @@ export function activateFragmentCommands(state: ExtensionState) {
             return
         }
         if (!template) {
-            template = await pickTemplate(fragment)
+            template = await pickTemplate(fragment, {
+                filter: (t) => t.chat !== true,
+            })
             if (!template) return
         }
         await fragmentExecute(fragment, template.title, template.id, chat)

@@ -2,7 +2,8 @@ gptool({
     title: "Convert chat to tool",
     description: "Attempts to capture the intent of the user and generate a tool from it.",
     copilot: true,
-    system: ["system", "system.files", "system.summary"]
+    system: ["system", "system.files", "system.summary"],
+    chat: true
 })
 
 // use $ to output formatted text to the prompt

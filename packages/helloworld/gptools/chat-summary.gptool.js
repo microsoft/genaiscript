@@ -1,7 +1,8 @@
 gptool({
     title: "chat-summary",
     copilot: true,
-    system: ["system"]
+    system: ["system"],
+    chat: true
 })
 
 // use $ to output formatted text to the prompt
@@ -10,4 +11,4 @@ You will summarize the chat history as text (you can format it in markdown).
 Do not generate a fence region for the output.`
 
 // use def to emit and reference chunks of text
-def("CHAT", env.chat.content, { language: "markdown" })
+def("CHAT", env.chat.history.map(({ role, content }) => `-  ${role}: ${content}`).join('\n\n'), { language: "markdown" })
