@@ -38,6 +38,10 @@ node .gptools/gptools.js run <tool> src/*.gpspec.md src/*.ts
 The token is read from the environment variables `GPTOOLS_TOKEN`, from `OPENAI_API_KEY/BASE`.
 The CLI also supports loading the variables from a `.env` file in the current directory.
 
+The `GPTOOLS_TOKEN` should be formatted as follows
+
+    https://<openai base>#key=<openai api key>
+
 ### --json
 
 Output the entire response as JSON to the stdout.
