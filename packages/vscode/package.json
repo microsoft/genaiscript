@@ -1,7 +1,7 @@
 {
   "name": "gptools-vscode",
   "publisher": "Microsoft",
-  "displayName": "GPTools Insders",
+  "displayName": "GPTools Insiders",
   "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
   "version": "1.3.4",
   "icon": "icon.png",
