@@ -7,9 +7,10 @@ import type {
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
-import { LogLevel, host } from "./host"
+import { host } from "./host"
 import { MAX_CACHED_TEMPERATURE } from "./constants"
 import wrapFetch from "fetch-retry"
+import { MarkdownTrace } from "./trace"
 
 interface Choice extends CreateChatCompletionResponseChoicesInner {
     delta: {
@@ -27,7 +28,7 @@ export interface ChatCompletionsProgressReport {
     responseChunk: string
 }
 
-export type ChatCompletionsOptions = {
+export interface ChatCompletionsOptions {
     partialCb?: (progres: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
@@ -83,7 +84,7 @@ interface TGIResponse {
 
 export async function getChatCompletions(
     req: CreateChatCompletionRequest & { seed?: number },
-    options?: ChatCompletionsOptions
+    options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ): Promise<string> {
     const { temperature, seed } = req
     const {
@@ -94,7 +95,8 @@ export async function getChatCompletions(
         retry,
         retryDelay,
         maxDelay,
-    } = options || {}
+        trace,
+    } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
@@ -107,6 +109,7 @@ export async function getChatCompletions(
             responseSoFar: cached,
             responseChunk: cached,
         })
+        trace.item(`found cached response`)
         return cached
     }
 
@@ -142,6 +145,10 @@ export async function getChatCompletions(
             "/chat/completions?api-version=2023-03-15-preview"
     }
 
+    trace.item(`${cfg.isTGI ? "TGI" : "OpenAI"} chat request`)
+    trace.item(`model: ${model}`)
+    trace.item(`url: [${url}](${url})`)
+
     let numTokens = 0
 
     const fetchRetry = await wrapFetch(fetch, {
@@ -149,12 +156,14 @@ export async function getChatCompletions(
         retries: retry,
         retryDelay: (attempt, error, response) => {
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
-            if (attempt > 0)
+            if (attempt > 0) {
+                trace.item(`retry #${attempt} after ${delay}ms`)
                 logVerbose(
                     `LLM throttled, retry #${attempt} in ${
                         (delay / 1000) | 0
                     }s...`
                 )
+            }
             return delay
         },
     })
@@ -172,6 +181,7 @@ export async function getChatCompletions(
     })
 
     if (r.status != 200) {
+        trace.error(`request error: ${r.status}`)
         let body: string
         try {
             body = await r.text()
@@ -214,6 +224,8 @@ export async function getChatCompletions(
         if (caching && !cfg.isTGI) await cache.set(req, chatResp)
         return chatResp
     } else {
+        trace.error(`invalid response`)
+        trace.fence(pref)
         throw new Error(`invalid response: ${pref}`)
     }
 

@@ -385,6 +385,7 @@ ${e.message}`
                 })
         }
         runOptions.getChatCompletions = async (req, chatOptions) => {
+            const { trace } = chatOptions
             let text = ""
             const roles: Record<string, vscode.ChatMessageRole> = {
                 system: 0,
@@ -397,6 +398,7 @@ ${e.message}`
                 role: roles[m.role],
                 content: m.content,
             }))
+            trace.item(`chat access model: ${access.model || "unknown"}`)
             const request = access.makeRequest(
                 messages,
                 { model, temperature, seed },
