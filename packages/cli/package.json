@@ -7,8 +7,8 @@
   "dependencies": {
     "commander": "^11.1.0",
     "dotenv": "^16.3.1",
-    "esbuild": "^0.17.18",
-    "fs-extra": "^11.1.1",
+    "esbuild": "^0.19.9",
+    "fs-extra": "^11.2.0",
     "get-stdin": "^9.0.0",
     "glob": "^10.3.10",
     "openai": "^3.3.0",
@@ -18,8 +18,8 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.1",
-    "@types/node": "^18.16.3",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.10.4",
     "gptools-core": "*",
     "tsx": "^4.6.2"
   },

@@ -7,7 +7,7 @@
   "devDependencies": {
     "@types/mdast": "^3.0.11",
     "@types/node": "^20.10.4",
-    "esbuild": "^0.17.18",
+    "esbuild": "^0.19.9",
     "fetch-retry": "^5.0.6",
     "openai": "^3.3.0",
     "prettier": "^2.8.8",
