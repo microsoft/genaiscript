@@ -200,6 +200,12 @@ export function details(title: string, body: string) {
 async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
+    options: {
+        temperature?: number
+        model?: string
+        seed?: number
+        max_tokens?: number
+    },
     env: ExpansionVariables
 ) {
     const varName: Record<string, string> = {}
@@ -279,17 +285,22 @@ async function expandTemplate(
 
     trace += details("gptool source", fenceMD(template.jsSource, "js"))
 
-    model = (env.vars["model"] ??
+    model = (options.model ??
+        env.vars["model"] ??
         model ??
         fragment.project.coarchJson.model ??
         defaultModel) as any
     temperature =
+        options.temperature ??
         tryParseFloat(env.vars["temperature"]) ??
         temperature ??
         defaultTemperature
     max_tokens =
-        tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens
-    seed = tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
+        options.max_tokens ??
+        tryParseInt(env.vars["maxTokens"]) ??
+        max_tokens ??
+        defaultMaxTokens
+    seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
     trace += startDetails("gptool expanded prompt")
     if (model) trace += `-  model: \`${model || ""}\`\n`
@@ -508,7 +519,7 @@ export function generateCliArguments(
 export async function runTemplate(
     template: PromptTemplate,
     fragment: Fragment,
-    options?: RunTemplateOptions
+    options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
     const { requestOptions = {}, skipLLM, label, cliInfo } = options || {}
     const { signal } = requestOptions
@@ -555,15 +566,17 @@ ${generateCliArguments(template, fragment, options)}
         expanded,
         success,
         trace: expansionTrace,
-        temperature: templateTemperature,
-        model: modelTemperature,
+        temperature,
+        model,
         max_tokens,
         seed,
         systemText,
-    } = await expandTemplate(template, fragment, vars as ExpansionVariables)
-
-    const temperature = options?.temperature ?? templateTemperature
-    const model = options?.model ?? modelTemperature
+    } = await expandTemplate(
+        template,
+        fragment,
+        options,
+        vars as ExpansionVariables
+    )
 
     trace += expansionTrace
 
