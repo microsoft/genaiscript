@@ -218,9 +218,11 @@ export async function evalPrompt(
                 return s
             }
             const df = (file: LinkedFile) => {
-                const dfence = /\.md$/i.test(file.filename)
-                    ? env.markdownFence
-                    : fence
+                const dfence =
+                    /\.md$/i.test(file.filename) ||
+                    file.content?.includes(fence)
+                        ? env.markdownFence
+                        : fence
                 text(
                     (name ? name + ":\n" : "") +
                         dfence +
