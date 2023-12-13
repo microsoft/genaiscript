@@ -22,6 +22,7 @@ import {
     ChatCompletionRequestMessage,
     CreateChatCompletionRequest,
 } from "openai"
+import { MarkdownTrace } from "./trace"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -95,15 +96,18 @@ export function fenceMD(t: string, contentType?: string) {
     return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
-async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
+async function callExpander(
+    r: PromptTemplate,
+    vars: ExpansionVariables,
+    trace: MarkdownTrace
+) {
     let promptText = ""
-    let errors = ""
     let success = true
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
             const v = target[prop]
             if (v === undefined) {
-                errors += `-  \`env.${String(prop)}\` not defined\n`
+                trace.error(`\`env.${String(prop)}\` not defined`)
                 return ""
             }
             return v
@@ -177,24 +181,9 @@ async function callExpander(r: PromptTemplate, vars: ExpansionVariables) {
         success = false
         const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
         const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
-        errors += `-  ${e.name}: ${e.message}${info}\n`
+        trace.error(info, e)
     }
-    return { logs, errors, success, text: promptText }
-}
-
-export function startDetails(title: string) {
-    return `\n\n<details id="${title.replace(
-        /\s+/g,
-        "-"
-    )}"><summary>${title}</summary>\n\n`
-}
-
-export function endDetails() {
-    return `\n\n</details>\n`
-}
-
-export function details(title: string, body: string) {
-    return `${startDetails(title)}${body}${endDetails()}`
+    return { logs, success, text: promptText }
 }
 
 async function expandTemplate(
@@ -206,7 +195,8 @@ async function expandTemplate(
         seed?: number
         max_tokens?: number
     },
-    env: ExpansionVariables
+    env: ExpansionVariables,
+    trace: MarkdownTrace
 ) {
     const varName: Record<string, string> = {}
     for (const [k, v] of Object.entries(env)) {
@@ -214,26 +204,17 @@ async function expandTemplate(
     }
     const varMap = env as any as Record<string, string | any[]>
 
-    // we put errors on top so they draw attention
-    let trace = `@@errors@@
-
-`
-
-    let errors = ``
-
-    const prompt = await callExpander(template, env)
-
+    const prompt = await callExpander(template, env, trace)
     const expanded = prompt.text
-    errors += prompt.errors
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
-    trace += startDetails("console output")
-    if (prompt.logs?.length) trace += fenceMD(prompt.logs)
-    else trace += `> tip: use \`console.log()\` from gptool.js files`
-    trace += endDetails()
+    trace.startDetails("console output")
+    if (prompt.logs?.length) trace.fence(prompt.logs)
+    else trace.tip("use `console.log()` from gptool.js files`")
+    trace.endDetails()
 
-    trace += details("variables", traceVars())
+    traceVars()
 
     let systemText = ""
     let model = template.model
@@ -241,7 +222,7 @@ async function expandTemplate(
     let max_tokens = template.maxTokens
     let seed = template.seed
 
-    trace += startDetails(`system gptools`)
+    trace.startDetails(`system gptools`)
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -254,15 +235,14 @@ async function expandTemplate(
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
         if (!system) {
-            if (systemTemplate)
-                trace += `\n** error: \`${systemTemplate}\` not found\n`
+            if (systemTemplate) trace.error(`\`${systemTemplate}\` not found\n`)
             if (i > 0) continue
             systemTemplate = "system"
             system = fragment.file.project.getTemplate(systemTemplate)
             assert(!!system)
         }
 
-        const sysex = (await callExpander(system, env)).text
+        const sysex = (await callExpander(system, env, trace)).text
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -270,20 +250,20 @@ async function expandTemplate(
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
 
-        trace += `###  \`${systemTemplate}\` source\n`
-        if (system.model) trace += `-  model: \`${system.model || ""}\`\n`
+        trace.heading(3, `\`${systemTemplate}\` source`)
+        if (system.model) trace.item(`model: \`${system.model || ""}\``)
         if (system.temperature !== undefined)
-            trace += `-  temperature: ${system.temperature || ""}\n`
+            trace.item(`temperature: ${system.temperature || ""}`)
         if (system.maxTokens !== undefined)
-            trace += `-  max tokens: ${system.maxTokens || ""}\n`
+            trace.item(`max tokens: ${system.maxTokens || ""}`)
 
-        trace += fenceMD(system.jsSource, "js")
-        trace += "#### expanded"
-        trace += fenceMD(sysex)
+        trace.fence(system.jsSource, "js")
+        trace.heading(4, "expanded")
+        trace.fence(sysex, "markdown")
     }
-    trace += endDetails()
+    trace.endDetails()
 
-    trace += details("gptool source", fenceMD(template.jsSource, "js"))
+    trace.detailsFenced("gptool source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
@@ -302,24 +282,21 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace += startDetails("gptool expanded prompt")
-    if (model) trace += `-  model: \`${model || ""}\`\n`
+    trace.startDetails("gptool expanded prompt")
+    if (model) trace.item(`model: \`${model || ""}\``)
     if (temperature !== undefined)
-        trace += `-  temperature: ${temperature || ""}\n`
-    if (max_tokens !== undefined)
-        trace += `-  max tokens: ${max_tokens || ""}\n`
+        trace.item(`temperature: ${temperature || ""}`)
+    if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens || ""}`)
     if (seed !== undefined) {
         seed = seed >> 0
-        trace += `-  seed: ${seed}\n`
+        trace.item(`seed: ${seed}`)
     }
-    trace += fenceMD(expanded)
+    trace.fence(expanded, "markdown")
 
-    trace += endDetails()
-    trace = trace.replace("@@errors@@", errors)
+    trace.endDetails()
 
     return {
         expanded,
-        errors,
         trace,
         success: prompt.success,
         model,
@@ -351,27 +328,26 @@ async function expandTemplate(
     }
 
     function traceVars() {
-        let info =
-            "> Variables are referenced through `env.NAME` in prompts.\n\n"
+        trace.startDetails("variables")
+        trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
         for (const k of Object.keys(env)) {
             if (isComplex(k)) continue
             const v = varMap[k]
             if (typeof v === "string" && varName[v] != k)
-                info += `-   env.**${k}**: same as **${varName[v]}**\n\n`
-            else info += `-   env.**${k}**: \`${v}\`\n\n`
+                trace.item(`env.**${k}**: same as **${varName[v]}**`)
+            else trace.item(`env.**${k}**: \`${v}\``)
         }
 
         for (const k of Object.keys(env)) {
             if (!isComplex(k)) continue
             const v = varMap[k]
-            info += `-   env.**${k}**${fenceMD(
+            trace.item(`-   env.**${k}**`)
+            trace.fence(
                 typeof v === "string" ? v : inspect(v),
                 typeof v === "string" ? undefined : "js"
-            )}\n`
+            )
         }
-
-        return info
     }
 }
 
@@ -490,7 +466,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     chat?: ChatAgentContext
     getChatCompletions?: (
         req: CreateChatCompletionRequest & { seed?: number },
-        options?: ChatCompletionsOptions
+        options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<string>
 }
 
@@ -535,10 +511,11 @@ export async function runTemplate(
         label,
     })
 
-    let trace = `## ${label || template.id}\n`
+    const trace = new MarkdownTrace()
+    trace.heading(2, label || template.id)
 
     if (cliInfo)
-        trace += details(
+        trace.details(
             "automation",
             `This operation can be run from the command line:
 
@@ -560,12 +537,11 @@ ${generateCliArguments(template, fragment, options)}
     )
     vars.chat = options.chat || { history: [], prompt: "" }
 
-    if (varsTrace) trace += details("variables", varsTrace)
+    if (varsTrace) trace.details("variables", varsTrace)
 
     let {
         expanded,
         success,
-        trace: expansionTrace,
         temperature,
         model,
         max_tokens,
@@ -575,10 +551,9 @@ ${generateCliArguments(template, fragment, options)}
         template,
         fragment,
         options,
-        vars as ExpansionVariables
+        vars as ExpansionVariables,
+        trace
     )
-
-    trace += expansionTrace
 
     const prompt = {
         system: systemText,
@@ -591,8 +566,8 @@ ${generateCliArguments(template, fragment, options)}
             error: new Error("Template failed"),
             prompt,
             vars,
-            trace,
-            text: "# Template failed\nSee info below.\n" + trace,
+            trace: trace.content,
+            text: "# Template failed\nSee trace.",
             edits: [],
             annotations: [],
             fileEdits: {},
@@ -605,7 +580,7 @@ ${generateCliArguments(template, fragment, options)}
         return {
             prompt,
             vars,
-            trace,
+            trace: trace.content,
             text: undefined,
             edits: [],
             annotations: [],
@@ -627,46 +602,50 @@ ${generateCliArguments(template, fragment, options)}
                 content: expanded,
             },
         ]
-        const completer = options.getChatCompletions || getChatCompletions
-        text = await completer(
-            {
-                model,
-                temperature,
-                max_tokens,
-                seed,
-                messages,
-            },
-            options
-        )
+        try {
+            trace.startDetails("llm request")
+            const completer = options.getChatCompletions || getChatCompletions
+            text = await completer(
+                {
+                    model,
+                    temperature,
+                    max_tokens,
+                    seed,
+                    messages,
+                },
+                { ...options, trace }
+            )
+        } finally {
+            trace.endDetails()
+        }
     } catch (error: unknown) {
         if (error instanceof RequestError) {
-            trace += `\n### Request error\n\n`
+            trace.heading(3, `### Request error`)
             if (error.body) {
-                trace += `\n> ${error.body.message}\n\n`
-                trace += `-  type: \`${error.body.type}\`\n`
-                trace += `-  code: \`${error.body.code}\`\n`
+                trace.log(`> ${error.body.message}\n\n`)
+                trace.item(`type: \`${error.body.type}\``)
+                trace.item(`code: \`${error.body.code}\`\n`)
             }
-            trace += `-   status: \`${error.status}\`, ${error.statusText}\n`
+            trace.item(`status: \`${error.status}\`, ${error.statusText}\n`)
             options.infoCb?.({
                 prompt,
                 vars,
                 edits: [],
                 annotations: [],
-                trace,
+                trace: trace.content,
                 text: "Request error",
                 fileEdits: {},
             })
         } else if (signal?.aborted) {
-            trace += `\n### Request cancelled
-            
-The user requested to cancel the request.
-`
+            trace.heading(3, `Request cancelled`)
+            trace.log(`The user requested to cancel the request.`)
+
             options.infoCb?.({
                 prompt,
                 vars,
                 edits: [],
                 annotations: [],
-                trace,
+                trace: trace.content,
                 text: "Request cancelled",
                 fileEdits: {},
                 label,
@@ -675,21 +654,15 @@ The user requested to cancel the request.
         throw error
     }
 
-    trace += details("LLM response", fenceMD(text))
+    trace.detailsFenced("llm response", text)
 
     const extr = extractFenced(text)
-    trace += details("code regions", renderFencedVariables(extr))
+    trace.details("code regions", renderFencedVariables(extr))
 
-    const res: FragmentTransformResponse = {
-        prompt,
-        vars,
-        edits: [],
-        annotations: [],
-        fileEdits: {},
-        trace,
-        text,
-    }
-    const { fileEdits, annotations, edits } = res
+    const fileEdits: Record<string, { before: string; after: string }> = {}
+    const annotations: Diagnostic[] = []
+    const edits: Edits[] = []
+    let summary: string = undefined
 
     const projFolder = host.projectFolder()
     const links: string[] = []
@@ -734,9 +707,7 @@ The user requested to cancel the request.
                             ) ?? val
                     } catch (e) {
                         logVerbose(e)
-                        res.trace += `\n\n#### Error merging file\n\n${fenceMD(
-                            e.message
-                        )}`
+                        trace.error(`error custom merging diff in ${fn}`, e)
                     }
                 } else fileEdit.after = val
             } else if (kw === "diff") {
@@ -748,10 +719,7 @@ The user requested to cancel the request.
                     )
                 } catch (e) {
                     logVerbose(e)
-                    res.trace += `\n\n#### Error applying patch\n\n${fenceMD(
-                        e.message
-                    )}`
-
+                    trace.error(`error applying patch to ${fn}`, e)
                     try {
                         fileEdit.after = applyLLMDiff(
                             fileEdit.after || fileEdit.before,
@@ -759,9 +727,7 @@ The user requested to cancel the request.
                         )
                     } catch (e) {
                         logVerbose(e)
-                        res.trace += `\n\n#### Error applying diff\n\n${fenceMD(
-                            e.message
-                        )}`
+                        trace.error(`error merging diff in ${fn}`, e)
                     }
                 }
             }
@@ -787,7 +753,7 @@ The user requested to cancel the request.
                 return ""
             })
         } else if (/^summary$/i.test(name)) {
-            res.summary = val
+            summary = val
         }
     }
 
@@ -832,7 +798,7 @@ The user requested to cancel the request.
     }
 
     if (edits.length)
-        res.trace += details(
+        trace.details(
             "edits",
             `| Type | Filename | Message |\n| --- | --- | --- |\n` +
                 edits
@@ -840,7 +806,7 @@ The user requested to cancel the request.
                     .join("\n")
         )
     if (annotations.length)
-        res.trace += details(
+        trace.details(
             "annotations",
             `| Severity | Filename | Line | Message |\n| --- | --- | --- | --- |\n` +
                 annotations
@@ -851,7 +817,16 @@ The user requested to cancel the request.
                     .join("\n")
         )
 
+    const res: FragmentTransformResponse = {
+        prompt,
+        vars,
+        edits,
+        annotations,
+        fileEdits,
+        trace: trace.content,
+        text,
+        summary,
+    }
     options?.infoCb?.(res)
-
     return res
 }
