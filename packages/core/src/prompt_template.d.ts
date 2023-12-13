@@ -62,11 +62,6 @@ interface PromptTemplate extends PromptLike {
     model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo"
 
     /**
-     * If running in chat, use copilot LLM model
-     */
-    copilot?: boolean
-
-    /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
      *
@@ -137,6 +132,16 @@ interface PromptTemplate extends PromptLike {
      * Indicate if the tool can be used in a copilot chat context. `true` is exclusive, `false` never and `undefined` is both.
      */
     chat?: boolean
+
+    /**
+     * Indicates what output should be included in the chat response.
+     */
+    chatOutput?: "inline" | "summary"
+
+    /**
+     * If running in chat, use copilot LLM model
+     */
+    copilot?: boolean
 }
 
 /**
