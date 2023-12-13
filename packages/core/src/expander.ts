@@ -478,9 +478,9 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
 export function generateCliArguments(
     template: PromptTemplate,
     fragment: Fragment,
-    options?: RunTemplateOptions
+    options: RunTemplateOptions
 ) {
-    const { model, temperature, seed, cliInfo } = options || {}
+    const { model, temperature, seed, cliInfo } = options
 
     const cli = [
         "node",
@@ -505,7 +505,7 @@ export async function runTemplate(
     const { requestOptions = {}, skipLLM, label, cliInfo } = options || {}
     const { signal } = requestOptions
 
-    options?.infoCb?.({
+    options.infoCb?.({
         vars: {},
         prompt: undefined,
         edits: [],
@@ -520,20 +520,7 @@ export async function runTemplate(
     trace.heading(2, label || template.id)
 
     if (cliInfo)
-        trace.details(
-            "automation",
-            `This operation can be run from the command line:
-
-\`\`\`bash
-${generateCliArguments(template, fragment, options)}
-\`\`\`
-
--   You will need to install [Node.js](https://nodejs.org/en/).
--   Configure the OpenAI token in environment variables (run \`node .gptools/gptools help keys\` for help).
--   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
--   Run \`node .gptools/gptools help run\` for the full list of options.
-`
-        )
+        traceCliArgs(trace, template, fragment, options)
 
     const { vars, trace: varsTrace } = await fragmentVars(
         template,
@@ -834,3 +821,20 @@ ${generateCliArguments(template, fragment, options)}
     options?.infoCb?.(res)
     return res
 }
+
+function traceCliArgs(trace: MarkdownTrace, template: globalThis.PromptTemplate, fragment: Fragment, options: RunTemplateOptions) {
+        trace.details(
+            "automation",
+            `This operation can be run from the command line:
+
+\`\`\`bash
+${generateCliArguments(template, fragment, options)}
+\`\`\`
+
+-   You will need to install [Node.js](https://nodejs.org/en/).
+-   Configure the OpenAI token in environment variables (run \`node .gptools/gptools help keys\` for help).
+-   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
+-   Run \`node .gptools/gptools help run\` for the full list of options.
+`
+}
+
