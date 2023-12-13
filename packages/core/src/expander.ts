@@ -445,7 +445,11 @@ async function fragmentVars(
         links,
         parents,
         promptOptions,
-        template,
+        template: {
+            id: template.id,
+            title: template.title,
+            description: template.description,
+        },
         vars: attrs,
     }
     return { vars, trace }
@@ -592,7 +596,6 @@ ${generateCliArguments(template, fragment, options)}
 
     let text: string
     try {
-        await initToken()
         const messages: ChatCompletionRequestMessage[] = [
             {
                 role: "system",

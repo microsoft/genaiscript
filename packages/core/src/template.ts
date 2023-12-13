@@ -370,7 +370,6 @@ export function staticVars() {
         error: errorId(),
         promptOptions: {},
         vars: {} as Record<string, string>,
-        templates: [] as PromptTemplate[],
     }
 }
 

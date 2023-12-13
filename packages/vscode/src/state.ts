@@ -201,7 +201,7 @@ export class ExtensionState extends EventTarget {
 
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
-            if (!(options.chat && options.template.copilot)) await initToken()
+            if (!options.chat) await initToken()
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
@@ -279,7 +279,9 @@ ${e.message}`
         template: string
     }[] = []
 
-    private startAIRequest(options: AIRequestOptions): AIRequest {
+    private async startAIRequest(
+        options: AIRequestOptions
+    ): Promise<AIRequest> {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration("gptools")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
@@ -335,8 +337,10 @@ ${e.message}`
             chat: options.chat?.context,
         }
 
-        if (options.chat && template.copilot) {
-            this.createCompletionChatFromChat(options, runOptions)
+        if (options.chat) {
+            const hasToken = await this.host.getSecretToken()
+            if (template.copilot || !hasToken)
+                this.createCompletionChatFromChat(options, runOptions)
         }
 
         this.requestHistory.push({
@@ -374,10 +378,8 @@ ${e.message}`
         runOptions: RunTemplateOptions
     ): void {
         logVerbose("using copilot llm")
-        const { template } = options
         const { access, progress, token } = options.chat
         const { partialCb, infoCb } = runOptions
-        const { chatOutput } = template
 
         runOptions.cache = false
         runOptions.infoCb = (data) => {
@@ -389,7 +391,6 @@ ${e.message}`
         }
         runOptions.getChatCompletions = async (req, chatOptions) => {
             const { trace } = chatOptions
-            let text = ""
             const roles: Record<string, vscode.ChatMessageRole> = {
                 system: 0,
                 user: 1,
@@ -397,16 +398,20 @@ ${e.message}`
                 function: 3,
             }
             const { model, temperature, seed, ...rest } = req
+            trace.item(`copilot llm model: ${access.model || "unknown"}`)
+            trace.item(`gptool model: ${model}`)
+
             const messages: vscode.ChatMessage[] = req.messages.map((m) => ({
                 role: roles[m.role],
                 content: m.content,
             }))
-            trace.item(`chat access model: ${access.model || "unknown"}`)
             const request = access.makeRequest(
                 messages,
                 { model, temperature, seed },
                 token
             )
+
+            let text = ""
             for await (const fragment of request.response) {
                 text += fragment
                 partialCb?.({
