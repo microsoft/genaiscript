@@ -90,7 +90,9 @@ export function activateChatAgent(state: ExtensionState) {
     agent.slashCommandProvider = {
         provideSlashCommands(token) {
             const templates =
-                state.project?.templates.filter((t) => !t.isSystem) || []
+                state.project?.templates.filter(
+                    (t) => !t.isSystem && t.chat !== false
+                ) || []
             return [
                 ...templates.map(({ id, title, description }) => ({
                     name: id,
