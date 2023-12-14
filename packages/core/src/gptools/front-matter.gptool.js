@@ -3,7 +3,7 @@ gptool({
     description:
         "Update or generate SEO-optimized front matter for a markdown file.",
     categories: ["samples"],
-    system: ["system", "system.files", "system.summary"],
+    system: ["system", "system.files"],
     maxTokens: 2000,
     temperature: 0,
     model: "gpt-4",
