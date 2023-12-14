@@ -4,11 +4,15 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
+    logVerbose,
+    parseTokenFromEnv,
     setHost,
 } from "gptools-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
 import { Utils } from "vscode-uri"
+import { parse } from "dotenv"
+import { readFileText } from "./fs"
 
 const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 
@@ -130,10 +134,23 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async getSecretToken(): Promise<OAIToken> {
         const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
-        if (!s) return undefined
-        const res = JSON.parse(s)
-        res.source = "workspace"
-        return res
+        if (s) {
+            const res = JSON.parse(s)
+            res.source = "workspace secrets"
+            return res
+        }
+
+        try {
+            const dotenv = await readFileText(this.projectUri, ".env")
+            const env = parse(dotenv)
+            const tok = await parseTokenFromEnv(env)
+            tok.source = ".env file"
+            return tok
+        } catch (e) {
+            logVerbose(e)
+        }
+
+        return undefined
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
         if (!tok || !tok.token)

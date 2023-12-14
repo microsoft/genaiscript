@@ -40,7 +40,7 @@ export function activateStatusBar(state: ExtensionState) {
                     : undefined,
                 `-   OpenAI token: ${
                     token
-                        ? `${token.url} [clear](command:coarch.openai.token.clear)`
+                        ? `${token.url} from ${token.source}`
                         : "not configured"
                 }`
             ),
