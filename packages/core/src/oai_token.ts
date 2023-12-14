@@ -127,3 +127,26 @@ export async function parseToken(f: string) {
         0
     )
 }
+
+export async function parseTokenFromEnv(env: Record<string, string>) {
+    if (env.GPTOOLS_TOKEN) {
+        const tok = await parseToken(env.GPTOOLS_TOKEN)
+        tok.source = "env: GPTOOLS_TOKEN"
+        return tok
+    }
+    if (env.OPENAI_API_KEY) {
+        const key = env.OPENAI_API_KEY
+        const base = env.OPENAI_API_BASE
+        const type = env.OPENAI_API_TYPE
+        const version = env.OPENAI_API_VERSION
+        if (!base) throw new Error("OPENAI_API_BASE not set")
+        if (type && type !== "azure")
+            throw new Error("OPENAI_API_TYPE must be 'azure'")
+        if (version && version !== "2023-03-15-preview")
+            throw new Error("OPENAI_API_VERSION must be '2023-03-15-preview'")
+        const tok = await parseToken(`${base}#key=${key}`)
+        tok.source = "env: OPENAI_API_..."
+        return tok
+    }
+    return undefined
+}

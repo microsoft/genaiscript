@@ -6,7 +6,7 @@ import {
     ReadFileOptions,
     UTF8Decoder,
     UTF8Encoder,
-    parseToken,
+    parseTokenFromEnv,
     setHost,
 } from "gptools-core"
 import { TextDecoder, TextEncoder } from "util"
@@ -28,26 +28,7 @@ export class NodeHost implements Host {
         return undefined
     }
     async getSecretToken(): Promise<OAIToken> {
-        if (process.env.GPTOOLS_TOKEN) {
-            const tok = await parseToken(process.env.GPTOOLS_TOKEN)
-            tok.source = "env: gptools_token"
-            return tok
-        }
-        if (process.env.OPENAI_API_KEY) {
-            const key = process.env.OPENAI_API_KEY
-            const base = process.env.OPENAI_API_BASE
-            const type = process.env.OPENAI_API_TYPE
-            const version = process.env.OPENAI_API_VERSION
-            if (!base) throw new Error("OPENAI_API_BASE not set")
-            if (type && type !== "azure")
-                throw new Error("OPENAI_API_TYPE must be azure")
-            if (version && version !== "2023-03-15-preview")
-                throw new Error("OPENAI_API_VERSION must be 2023-03-15-preview")
-            const tok = await parseToken(`${base}#oaikey=${key}`)
-            tok.source = "env: openai_api_..."
-            return tok
-        }
-        return undefined
+        return await parseTokenFromEnv(process.env)
     }
     async setSecretToken(tok: OAIToken): Promise<void> {}
     setVirtualFile(name: string, content: string) {
