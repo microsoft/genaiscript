@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { ChatRequestContext, ExtensionState } from "../state"
-import { logVerbose } from "gptools-core"
+import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
+import { RunTemplateOptions, logVerbose } from "gptools-core"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     slashCommand: string
@@ -66,7 +66,7 @@ export function activateChatAgent(state: ExtensionState) {
         const template =
             slashCommand &&
             state.project?.templates.find(({ id }) => id === slashCommand.name)
-            
+
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
         await vscode.commands.executeCommand("coarch.fragment.prompt", {
@@ -129,5 +129,49 @@ export function activateChatAgent(state: ExtensionState) {
             }
             return []
         },
+    }
+}
+
+export function configureChatCompletionForChatAgent(
+    options: AIRequestOptions,
+    runOptions: RunTemplateOptions
+): void {
+    logVerbose("using copilot llm")
+    const { access, progress, token } = options.chat
+    const { partialCb, infoCb } = runOptions
+
+    runOptions.cache = false
+    runOptions.getChatCompletions = async (req, chatOptions) => {
+        const { trace } = chatOptions
+        const roles: Record<string, vscode.ChatMessageRole> = {
+            system: 0,
+            user: 1,
+            assistant: 2,
+            function: 3,
+        }
+        const { model, temperature, seed, ...rest } = req
+        trace.item(`copilot llm model: ${access.model || "unknown"}`)
+        trace.item(`gptool model: ${model}`)
+
+        const messages: vscode.ChatMessage[] = req.messages.map((m) => ({
+            role: roles[m.role],
+            content: m.content,
+        }))
+        const request = access.makeRequest(
+            messages,
+            { model, temperature, seed },
+            token
+        )
+
+        let text = ""
+        for await (const fragment of request.response) {
+            text += fragment
+            partialCb?.({
+                responseSoFar: text,
+                responseChunk: fragment,
+                tokensSoFar: text.length,
+            })
+        }
+        return text
     }
 }
