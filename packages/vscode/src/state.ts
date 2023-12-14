@@ -21,7 +21,6 @@ import {
     Cache,
     dotGptoolsPath,
     logInfo,
-    logVerbose,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -29,6 +28,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
+import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -75,7 +75,7 @@ export interface AIRequestSnapshotKey {
     }
 }
 export interface AIRequestSnapshot {
-    response?: FragmentTransformResponse
+    response?: Partial<FragmentTransformResponse>
     error?: any
 }
 
@@ -84,7 +84,7 @@ export interface AIRequest {
     options: AIRequestOptions
     controller: AbortController
     request?: Promise<FragmentTransformResponse>
-    response?: FragmentTransformResponse
+    response?: Partial<FragmentTransformResponse>
     computing?: boolean
     error?: any
     progress?: ChatCompletionsProgressReport
@@ -312,15 +312,40 @@ ${e.message}`
         this.aiRequest = r
         const { template, fragment } = options
         const { chatOutput } = template
+        let varsProgressReported = false
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
             partialCb,
             infoCb: (data) => {
                 r.response = data
-                if (data.summary)
-                    r.options.chat?.progress?.report({
-                        content: data.summary,
-                    })
+                const progress = r.options.chat?.progress
+                if (progress) {
+                    if (data.text)
+                        progress.report(<vscode.ChatAgentProgressMessage>{
+                            message: data.text,
+                        })
+                    if (data.summary)
+                        progress.report({
+                            content: data.summary,
+                        })
+                    if (data.vars && !varsProgressReported) {
+                        varsProgressReported = true
+                        data.vars.links
+                            ?.map(({ filename }) => {
+                                return /^https?:/i.test(filename)
+                                    ? vscode.Uri.parse(filename)
+                                    : vscode.Uri.joinPath(
+                                          this.host.projectUri,
+                                          filename
+                                      )
+                            })
+                            ?.forEach((reference) =>
+                                progress.report(<
+                                    vscode.ChatAgentContentReference
+                                >{ reference })
+                            )
+                    }
+                }
                 reqChange()
             },
             promptOptions: this.aiRequestContext,
@@ -340,7 +365,7 @@ ${e.message}`
         if (options.chat) {
             const hasToken = await this.host.getSecretToken()
             if (template.copilot || !hasToken)
-                this.createCompletionChatFromChat(options, runOptions)
+                configureChatCompletionForChatAgent(options, runOptions)
         }
 
         this.requestHistory.push({
@@ -371,57 +396,6 @@ ${e.message}`
 
     get aiRequest() {
         return this._aiRequest
-    }
-
-    private createCompletionChatFromChat(
-        options: AIRequestOptions,
-        runOptions: RunTemplateOptions
-    ): void {
-        logVerbose("using copilot llm")
-        const { access, progress, token } = options.chat
-        const { partialCb, infoCb } = runOptions
-
-        runOptions.cache = false
-        runOptions.infoCb = (data) => {
-            infoCb?.(data)
-            if (data.text)
-                progress.report(<vscode.ChatAgentProgressMessage>{
-                    message: data.text,
-                })
-        }
-        runOptions.getChatCompletions = async (req, chatOptions) => {
-            const { trace } = chatOptions
-            const roles: Record<string, vscode.ChatMessageRole> = {
-                system: 0,
-                user: 1,
-                assistant: 2,
-                function: 3,
-            }
-            const { model, temperature, seed, ...rest } = req
-            trace.item(`copilot llm model: ${access.model || "unknown"}`)
-            trace.item(`gptool model: ${model}`)
-
-            const messages: vscode.ChatMessage[] = req.messages.map((m) => ({
-                role: roles[m.role],
-                content: m.content,
-            }))
-            const request = access.makeRequest(
-                messages,
-                { model, temperature, seed },
-                token
-            )
-
-            let text = ""
-            for await (const fragment of request.response) {
-                text += fragment
-                partialCb?.({
-                    responseSoFar: text,
-                    responseChunk: fragment,
-                    tokensSoFar: text.length,
-                })
-            }
-            return text
-        }
     }
 
     private set aiRequest(r: AIRequest) {

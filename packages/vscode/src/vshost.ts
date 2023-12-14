@@ -41,6 +41,9 @@ export class VSCodeHost extends EventTarget implements Host {
     createUTF8Encoder() {
         return new TextEncoder()
     }
+    get projectUri() {
+        return workspace.workspaceFolders[0]?.uri
+    }
     projectFolder(): string {
         return workspace.rootPath ?? "."
     }

@@ -456,7 +456,7 @@ async function fragmentVars(
 }
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
-    infoCb?: (partialResponse: FragmentTransformResponse) => void
+    infoCb?: (partialResponse: Partial<FragmentTransformResponse>) => void
     promptOptions?: any
     maxCachedTemperature?: number
     skipLLM?: boolean
@@ -505,22 +505,12 @@ export async function runTemplate(
     const { requestOptions = {}, skipLLM, label, cliInfo } = options || {}
     const { signal } = requestOptions
 
-    options.infoCb?.({
-        vars: {},
-        prompt: undefined,
-        edits: [],
-        annotations: [],
-        trace: "",
-        text: "Running...",
-        fileEdits: {},
-        label,
-    })
+    options.infoCb?.({ trace: "", text: "Preparing..." })
 
     const trace = new MarkdownTrace()
     trace.heading(2, label || template.id)
 
-    if (cliInfo)
-        traceCliArgs(trace, template, fragment, options)
+    if (cliInfo) traceCliArgs(trace, template, fragment, options)
 
     const { vars, trace: varsTrace } = await fragmentVars(
         template,
@@ -583,6 +573,11 @@ export async function runTemplate(
 
     let text: string
     try {
+        options.infoCb?.({
+            vars,
+            text: "Running...",
+            label,
+        })
         const messages: ChatCompletionRequestMessage[] = [
             {
                 role: "system",
@@ -621,11 +616,8 @@ export async function runTemplate(
             options.infoCb?.({
                 prompt,
                 vars,
-                edits: [],
-                annotations: [],
                 trace: trace.content,
                 text: "Request error",
-                fileEdits: {},
             })
         } else if (signal?.aborted) {
             trace.heading(3, `Request cancelled`)
@@ -634,11 +626,8 @@ export async function runTemplate(
             options.infoCb?.({
                 prompt,
                 vars,
-                edits: [],
-                annotations: [],
                 trace: trace.content,
                 text: "Request cancelled",
-                fileEdits: {},
                 label,
             })
         }
@@ -822,10 +811,15 @@ export async function runTemplate(
     return res
 }
 
-function traceCliArgs(trace: MarkdownTrace, template: globalThis.PromptTemplate, fragment: Fragment, options: RunTemplateOptions) {
-        trace.details(
-            "automation",
-            `This operation can be run from the command line:
+function traceCliArgs(
+    trace: MarkdownTrace,
+    template: globalThis.PromptTemplate,
+    fragment: Fragment,
+    options: RunTemplateOptions
+) {
+    trace.details(
+        "automation",
+        `This operation can be run from the command line:
 
 \`\`\`bash
 ${generateCliArguments(template, fragment, options)}
@@ -836,5 +830,5 @@ ${generateCliArguments(template, fragment, options)}
 -   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
 -   Run \`node .gptools/gptools help run\` for the full list of options.
 `
+    )
 }
-
