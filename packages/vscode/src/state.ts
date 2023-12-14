@@ -367,7 +367,7 @@ ${e.message}`
 
         if (options.chat) {
             const hasToken = await this.host.getSecretToken()
-            if (template.copilot || !hasToken)
+            if (hasToken && template.copilot)
                 configureChatCompletionForChatAgent(options, runOptions)
         }
 
