@@ -150,8 +150,15 @@ export function configureChatCompletionForChatAgent(
             function: 3,
         }
         const { model, temperature, seed, ...rest } = req
-        trace.item(`copilot llm model: ${access.model || "unknown"}`)
         trace.item(`gptool model: ${model}`)
+        trace.item(`copilot llm model: ${access.model || "unknown"}`)
+
+        if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())
+            progress.report(<vscode.ChatAgentContent>{
+                content: `⚠ expected model \`${model}\` but got \`${access.model}\`.
+
+`,
+            })
 
         const messages: vscode.ChatMessage[] = req.messages.map((m) => ({
             role: roles[m.role],
