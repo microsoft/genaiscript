@@ -38,11 +38,11 @@ export function activateChatAgent(state: ExtensionState) {
 
     const { enabledApiProposals }: { enabledApiProposals: string[] } =
         context.extension.packageJSON
-    if (!enabledApiProposals?.includes("chatAgents2")) {
+    if (!enabledApiProposals) {
         const help = "Download"
         vscode.window
             .showWarningMessage(
-                "gptools copilot chat not supported. Reload this workspace in Visual Studio Code - Insiders to activate this feature.",
+                "gptools copilot chat not installed. Install gptools.insiders.vsix in Visual Studio Code - Insiders to activate this feature.",
                 help
             )
             .then((res) => {
