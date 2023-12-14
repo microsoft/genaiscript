@@ -6,6 +6,7 @@ gptool({
     system: ["system", "system.files"],
     maxTokens: 2000,
     temperature: 0,
+    chatOutput: "inline",
     model: "gpt-4",
     fileMerge: (label, before, generated) => {
         let start = 0,
