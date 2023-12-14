@@ -3,6 +3,7 @@ gptool({
     copilot: true,
     system: ["system"],
     chat: true,
+    categories: ["chat"],
     chatOutput: "inline"
 })
 
