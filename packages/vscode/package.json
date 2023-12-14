@@ -179,7 +179,7 @@
             },
             {
                 "command": "coarch.request.abort",
-                "title": "Abort OpenAI request",                
+                "title": "Abort OpenAI request",
                 "category": "GPTools"
             },
             {
