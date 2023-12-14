@@ -24,16 +24,19 @@ VSCode->>User: Display updated workspace
 
 ## Copilot Chat integration
 
-This diagram demonstrates the AI-enhanced workflow process in gptools. The user interacts with the chatbot, which converts the dialog to a `gptool`.
+GPTools is exposed as the `@gptools` agent in Copilot Chat, each `gptool` is exposed as a slash command
+using the tool id, e.g. the file name.
 
-```mermaid
-sequenceDiagram
-participant User
-participant Chat
-participant gptool
-User->>Chat: copilot chat
-Chat->>gptool: Convert dialog to tool
+For example, to run the `front-matter` tool on the current file, type in the Copilot chat:
+
+```bash
+@gptool /front-matter
 ```
+
+** Note: Copilot Chat is currently a proposed API and requires Visual Studio Code Insiders. **
+
+When invoked from Copilot Chat, the `env.chat` variable is populated and contains the history of messages
+and the prompt passed by the user after the slash command.
 
 ## Getting started
 
