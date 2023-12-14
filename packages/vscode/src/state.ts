@@ -205,7 +205,10 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text && options.template.chatOutput !== "inline")
+            if (
+                text &&
+                (!options.chat || options.template.chatOutput !== "inline")
+            )
                 vscode.commands.executeCommand("coarch.request.open.output")
 
             const key = snapshotAIRequestKey(req)
@@ -377,7 +380,7 @@ ${e.message}`
 
         r.request = runTemplate(template, fragment, runOptions)
 
-        if (chatOutput !== "inline")
+        if (!options.chat || chatOutput !== "inline")
             vscode.commands.executeCommand("coarch.request.open.output")
 
         r.request
