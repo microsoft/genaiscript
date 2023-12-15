@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
-import { RunTemplateOptions, logVerbose } from "gptools-core"
+import { RunTemplateOptions, logInfo, logVerbose } from "gptools-core"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     slashCommand: string
@@ -34,6 +34,62 @@ export function toChatAgentContext(
 
 export function activateChatAgent(state: ExtensionState) {
     const { context } = state
+
+    const packageJSON: { displayName: string; enabledApiProposals?: string } =
+        context.extension.packageJSON
+    if (!packageJSON.displayName?.includes("Insiders")) {
+        vscode.window.showWarningMessage(
+            "GPTools - chat agent only available with gptools.insiders.vsix"
+        )
+        return
+    }
+
+    if (!vscode.env.appName.includes("Insiders")) {
+        vscode.window.showWarningMessage(
+            "GPTools - chat agent only available with Visual Studio Code Insiders"
+        )
+        return
+    }
+
+    if (!packageJSON.enabledApiProposals?.includes("chatAgents2")) {
+        const configure = "Configure"
+        vscode.window
+            .showWarningMessage(
+                "GPTools - chat agent proposal api not enabled.",
+                configure
+            )
+            .then(async (res) => {
+                if (res === configure) {
+                    await vscode.commands.executeCommand(
+                        "workbench.action.configureRuntimeArguments"
+                    )
+                    await vscode.workspace.openTextDocument({
+                        content: `# Configuring Copilot Chat Agents
+                        
+The Copilot Chat Agents are still under the proposal APIs phase so you need a configuration
+step to enable them for gptools (Learn about [proposed apis](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api)).
+
+These steps will not be needed once the API gets fully released.
+
+-   edit the \`.vscode-insiders/argv.json\` file to add the gptools extension
+
+\`\`\`json
+{
+    ...
+    "enable-proposed-api": ["${context.extension.id}"]
+}
+\`\`\`
+-   close **all instances** of VS Code Insiders
+-   reopen VS Code Insiders
+`,
+                        language: "markdown",
+                    })
+                }
+            })
+        return
+    }
+
+    logInfo("activating chat agent")
     const { extensionUri } = context
 
     const handler: vscode.ChatAgentHandler = async (
