@@ -162,6 +162,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         retryDelay,
         maxDelay,
     })
+    ;(res as any).version = packageJson.version
 
     logVerbose(``)
     if (outTrace && res.trace) await write(outTrace, res.trace)
@@ -246,8 +247,7 @@ async function main() {
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status
             process.exit(exitCode)
-        }
-        else process.exit(-1)
+        } else process.exit(-1)
     })
 
     NodeHost.install()
