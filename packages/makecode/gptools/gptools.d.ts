@@ -127,6 +127,21 @@ interface PromptTemplate extends PromptLike {
      * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
      */
     urlAdapters?: UrlAdapter[]
+
+    /**
+     * Indicate if the tool can be used in a copilot chat context. `true` is exclusive, `false` never and `undefined` is both.
+     */
+    chat?: boolean
+
+    /**
+     * Indicates what output should be included in the chat response.
+     */
+    chatOutput?: "inline" | "summary"
+
+    /**
+     * If running in chat, use copilot LLM model
+     */
+    copilot?: boolean
 }
 
 /**
@@ -147,6 +162,33 @@ interface LinkedFile {
      * Content of the file.
      */
     content: string
+}
+
+declare enum ChatMessageRole {
+    System = 0,
+    User = 1,
+    Assistant = 2,
+    Function = 3,
+}
+
+// ChatML
+interface ChatMessage {
+    role: "user" | "system" | "assistant" | "function"
+    content: string
+    name?: string
+}
+
+interface ChatAgentContext {
+    /**
+    /**
+     * All of the chat messages so far in the current chat session.
+     */
+    history: ChatMessage[]
+
+    /**
+     * The prompt that was used to start the chat session.
+     */
+    prompt?: string
 }
 
 /**
@@ -198,12 +240,17 @@ interface ExpansionVariables {
     /**
      * current prompt template
      */
-    template: PromptTemplate
+    template: PromptDefinition
 
     /**
      * User defined variables
      */
     vars: Record<string, string>
+
+    /**
+     * Chat context if called from a chat command
+     */
+    chat?: ChatAgentContext
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
