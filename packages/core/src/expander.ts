@@ -606,32 +606,35 @@ export async function runTemplate(
         }
     } catch (error: unknown) {
         if (error instanceof RequestError) {
-            trace.heading(3, `### Request error`)
+            trace.heading(3, `Request error`)
             if (error.body) {
                 trace.log(`> ${error.body.message}\n\n`)
                 trace.item(`type: \`${error.body.type}\``)
                 trace.item(`code: \`${error.body.code}\`\n`)
             }
             trace.item(`status: \`${error.status}\`, ${error.statusText}\n`)
-            options.infoCb?.({
-                prompt,
-                vars,
-                trace: trace.content,
-                text: "Request error",
-            })
+            text = "Request error"
         } else if (signal?.aborted) {
             trace.heading(3, `Request cancelled`)
             trace.log(`The user requested to cancel the request.`)
-
-            options.infoCb?.({
-                prompt,
-                vars,
-                trace: trace.content,
-                text: "Request cancelled",
-                label,
-            })
+            text = "Request cancelled"
+            error = undefined
+        } else {
+            trace.heading(3, `Fetch error`)
+            trace.error(error + "")
+            text = "Unpexpected error"
         }
-        throw error
+        return {
+            prompt,
+            vars,
+            trace: trace.content,
+            error,
+            text,
+            edits: [],
+            annotations: [],
+            fileEdits: {},
+            label,
+        }
     }
 
     trace.detailsFenced("llm response", text)
