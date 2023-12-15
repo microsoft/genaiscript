@@ -7,5 +7,5 @@
         "lib": ["ES2022"]
     },
     "include": ["src"],
-    "exclude": ["node_modules", ".vscode-test", "src/webview/"]
+    "exclude": ["node_modules", ".vscode-test"]
 }

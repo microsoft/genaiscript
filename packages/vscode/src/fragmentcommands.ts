@@ -12,7 +12,7 @@ import { checkFileExists, saveAllTextDocuments } from "./fs"
 
 type TemplateQuickPickItem = {
     template?: PromptTemplate
-    action?: "create" | "discussions"
+    action?: "create
 } & vscode.QuickPickItem
 
 export function activateFragmentCommands(state: ExtensionState) {
@@ -36,13 +36,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
         if (picked?.action === "create") {
             vscode.commands.executeCommand("coarch.prompt.create")
-            return undefined
-        } else if (picked?.action === "discussions") {
-            vscode.env.openExternal(
-                vscode.Uri.parse(
-                    "https://github.com/microsoft/gptools/discussions"
-                )
-            )
             return undefined
         } else return (picked as TemplateQuickPickItem)?.template
     }
@@ -238,11 +231,6 @@ export function templatesToQuickPickItems(
             label: "Create a new GPTool script...",
             description: "Create a new gptool script in the current workspace.",
             action: "create",
-        })
-        items.push(<TemplateQuickPickItem>{
-            label: "View GPTools Discussions...",
-            description: "Open the Discussions tab in the GPTools GitHub.",
-            action: "discussions",
         })
     }
     return items
