@@ -17,7 +17,7 @@ declare function system(options: PromptArgs): void
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function text(body: string): void
+declare function writeText(body: string): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".

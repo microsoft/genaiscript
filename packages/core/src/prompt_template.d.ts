@@ -266,7 +266,7 @@ interface DefOptions {
 
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
-    text(body: string): void
+    writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
