@@ -118,7 +118,7 @@ async function callExpander(
         await evalPrompt(
             {
                 env,
-                text: (body) => {
+                writeText: (body) => {
                     promptText +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
 

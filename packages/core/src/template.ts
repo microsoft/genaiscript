@@ -192,7 +192,7 @@ export async function evalPrompt(
     jstext: string,
     logCb?: (msg: string) => void
 ) {
-    const { text, env } = ctx0
+    const { writeText, env } = ctx0
     const dontuse = (name: string) =>
         `${env.error} ${name}() should not be used inside of \${ ... }\n`
     const ctx: PromptContext & { console: Partial<typeof console> } = {
@@ -203,7 +203,7 @@ export async function evalPrompt(
                 r += strings[i]
                 if (i < args.length) r += args[i] ?? ""
             }
-            text(r)
+            writeText(r)
         },
         def(name, body, options) {
             const { language, lineNumbers } = options || {}
@@ -223,7 +223,7 @@ export async function evalPrompt(
                     file.content?.includes(fence)
                         ? env.markdownFence
                         : fence
-                text(
+                writeText(
                     (name ? name + ":\n" : "") +
                         dfence +
                         ` file=${file.filename}\n` +
@@ -236,12 +236,12 @@ export async function evalPrompt(
             else if (typeof body != "string") df(body as LinkedFile)
             else {
                 body = norm(body, fence)
-                text((name ? name + ":\n" : "") + fence + "\n" + body + fence)
+                writeText((name ? name + ":\n" : "") + fence + "\n" + body + fence)
                 if (body.includes(fence)) error = true
             }
 
             if (error)
-                text(
+                writeText(
                     env.error + " fenced body already included fence: " + fence
                 )
             return dontuse("def")
@@ -306,7 +306,7 @@ async function parseMeta(r: PromptTemplate) {
                         return target[prop] ?? "<empty>"
                     },
                 }),
-                text: (body) => {
+                writeText: (body) => {
                     if (meta == null)
                         throw new Error(`gptool()/system() has to come first`)
 
