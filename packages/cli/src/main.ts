@@ -150,7 +150,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
             if (stream) process.stdout.write(responseChunk)
-            else if (!isQuiet) process.stdout.write(".")
+            else if (!isQuiet) process.stderr.write(".")
         },
         skipLLM,
         label,
