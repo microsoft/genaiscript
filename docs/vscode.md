@@ -43,12 +43,33 @@ and the prompt passed by the user after the slash command.
 ### Install in Visual Studio Code
 
 These are the instructions to install the latest build of the extension manually in Visual Studio Code.
+See Insiders for Copilot Chat integration.
 
 -   install [Visual Studio Code](https://code.visualstudio.com/Download) or [Visual Studio Code Insiders](https://code.visualstudio.com/insiders/. The Insiders version gives you access the Copilot Chat integration.
 -   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
--   download the `gptools.vsix` file (`gptools.insiders.vsix` for Insiders) into your project
+-   download the `gptools.vsix`
 -   open Visual Studio Code
 -   right click on the `.vsix` file and select **Install Extension VSIX...**
+
+Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
+
+## Install in Visual Studio Code - Insiders + Copilot Chat
+
+To leverage the Copilot Chat integration, you will need to do the follwing.
+
+-   install [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
+-   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
+-   download the **`gptools.insiders.vsix`**
+-   open **Visual Studio Code - Insiders**
+-   right click on the `.vsix` file and select **Install Extension VSIX...**
+-   add `.vscode-insiders/argv.json` to your workspace to [enable Copilot Chat Agents]([proposed API](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api))
+
+```json file=.vscode-insiders/argv.json
+{
+    ...
+    "extensions": ["Microsoft.gptools-vscode"]
+}
+```
 
 Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
 
