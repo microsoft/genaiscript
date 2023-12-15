@@ -36,26 +36,6 @@ export function activateChatAgent(state: ExtensionState) {
     const { context } = state
     const { extensionUri } = context
 
-    const { enabledApiProposals }: { enabledApiProposals: string[] } =
-        context.extension.packageJSON
-    if (!enabledApiProposals) {
-        const help = "Download"
-        vscode.window
-            .showWarningMessage(
-                "gptools copilot chat not installed. Install gptools.insiders.vsix in Visual Studio Code - Insiders to activate this feature.",
-                help
-            )
-            .then((res) => {
-                if (res === help)
-                    vscode.env.openExternal(
-                        vscode.Uri.parse(
-                            "https://code.visualstudio.com/insiders/"
-                        )
-                    )
-            })
-        return
-    }
-
     const handler: vscode.ChatAgentHandler = async (
         request: vscode.ChatAgentRequest,
         chatContext: vscode.ChatAgentContext,
