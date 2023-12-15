@@ -12,7 +12,7 @@ import { checkFileExists, saveAllTextDocuments } from "./fs"
 
 type TemplateQuickPickItem = {
     template?: PromptTemplate
-    action?: "create
+    action?: "create"
 } & vscode.QuickPickItem
 
 export function activateFragmentCommands(state: ExtensionState) {
