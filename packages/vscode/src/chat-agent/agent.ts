@@ -198,7 +198,7 @@ export function configureChatCompletionForChatAgent(
 
         const messages: vscode.ChatMessage[] = req.messages.map((m) => ({
             role: roles[m.role],
-            content: m.content,
+            content: typeof m.content === "string" ? m.content : "...",
         }))
         const request = access.makeRequest(
             messages,
