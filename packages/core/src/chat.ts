@@ -150,6 +150,7 @@ export async function getChatCompletions(
     }
 
     if (responseType) postReq.response_format = { type: responseType }
+    delete postReq.responseType
 
     trace.item(`${cfg.isTGI ? "TGI" : "OpenAI"} chat request`)
     trace.item(`model: ${model}`)

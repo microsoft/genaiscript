@@ -474,7 +474,10 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     }
     chat?: ChatAgentContext
     getChatCompletions?: (
-        req: CreateChatCompletionRequest & { seed?: number },
+        req: CreateChatCompletionRequest & {
+            seed?: number
+            responseType?: PromptTemplateResponseType
+        },
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<string>
 }
@@ -616,9 +619,9 @@ export async function runTemplate(
             if (error.body) {
                 trace.log(`> ${error.body.message}\n\n`)
                 trace.item(`type: \`${error.body.type}\``)
-                trace.item(`code: \`${error.body.code}\`\n`)
+                trace.item(`code: \`${error.body.code}\``)
             }
-            trace.item(`status: \`${error.status}\`, ${error.statusText}\n`)
+            trace.item(`status: \`${error.status}\`, ${error.statusText}`)
             text = `Request error: \`${error.status}\`, ${error.statusText}\n`
         } else if (signal?.aborted) {
             trace.heading(3, `Request cancelled`)
