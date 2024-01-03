@@ -186,6 +186,20 @@ A function that merges the generated content with the original content. The defa
 
 See `gptools.d.ts` in the sources for details.
 
+## JSON output
+
+You can use `system.json` system message to force a single JSON output file. This
+enables the [JSON mode](https://platform.openai.com/docs/guides/text-generation/json-mode) of OpenAI.
+
+```js
+gptool({
+    ...,
+    system: ["system.json"],
+})
+```
+
+The generated file name will be `[spec].[template].json`.
+
 ## Logging
 
 Use `console.log` and friends to debug your prompts.
