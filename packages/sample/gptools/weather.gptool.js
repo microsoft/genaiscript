@@ -5,6 +5,8 @@ gptool({
 
 $`Query the weather for each listed city and return the results as a table.`
 
+def("CITIES", env.file)
+
 defFunction('get_current_weather', 'get the current weather', {
     "type": "object",
     "properties": {
