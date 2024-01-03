@@ -619,7 +619,7 @@ export async function runTemplate(
                 trace.item(`code: \`${error.body.code}\`\n`)
             }
             trace.item(`status: \`${error.status}\`, ${error.statusText}\n`)
-            text = "Request error"
+            text = `Request error: \`${error.status}\`, ${error.statusText}\n`
         } else if (signal?.aborted) {
             trace.heading(3, `Request cancelled`)
             trace.log(`The user requested to cancel the request.`)
