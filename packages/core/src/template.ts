@@ -548,6 +548,7 @@ export async function parsePromptTemplate(
             c.checkString("model")
             c.checkString("input")
             c.checkString("outputFolder")
+            c.checkString("responseType")
 
             c.checkBool("unlisted")
             c.checkBool("copilot")

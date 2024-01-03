@@ -299,7 +299,6 @@
         "gptools-cli": "*",
         "gptools-core": "*",
         "isomorphic-fetch": "^3.0.0",
-        "json5": "^2.2.3",
         "mocha": "^10.2.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",

@@ -7,7 +7,11 @@ export class MarkdownTrace {
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
-        )}"><summary>${title}</summary>\n`
+        )}"><summary>
+${title}
+</summary>
+
+`
     }
 
     endDetails() {

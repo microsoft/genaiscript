@@ -83,10 +83,13 @@ interface TGIResponse {
 }
 
 export async function getChatCompletions(
-    req: CreateChatCompletionRequest & { seed?: number },
+    req: CreateChatCompletionRequest & {
+        seed?: number
+        responseType?: PromptTemplateResponseType
+    },
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ): Promise<string> {
-    const { temperature, seed } = req
+    const { temperature, seed, responseType } = req
     const {
         requestOptions,
         partialCb,
@@ -118,6 +121,7 @@ export async function getChatCompletions(
     let postReq: any = r2
 
     let model = req.model.replace("-35-", "-3.5-")
+    let response_format = undefined
 
     let url = ""
 
@@ -145,9 +149,16 @@ export async function getChatCompletions(
             "/chat/completions?api-version=2023-03-15-preview"
     }
 
+    if (responseType) postReq.response_format = { type: responseType }
+    delete postReq.responseType
+
     trace.item(`${cfg.isTGI ? "TGI" : "OpenAI"} chat request`)
     trace.item(`model: ${model}`)
     trace.item(`url: [${url}](${url})`)
+    if (response_format)
+        trace.item(
+            `response_format: ${JSON.stringify(response_format, null, 2)}`
+        )
 
     let numTokens = 0
 
