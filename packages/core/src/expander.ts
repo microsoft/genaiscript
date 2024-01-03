@@ -690,11 +690,10 @@ export async function runTemplate(
     }
 
     if (json !== undefined) {
-        const fn =
-            fragment.file.filename.replace(/\.gpspec\.md$/i, "") +
-            "." +
-            template.id +
-            ".json"
+        const fn = fragment.file.filename.replace(
+            /\.gpspec\.md$/i,
+            "." + template.id + ".json"
+        )
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
     } else {
