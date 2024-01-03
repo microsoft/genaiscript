@@ -108,10 +108,11 @@ export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
     const { response, error, creationTime } = r
+    const { vars, ...responseWithoutVars } = response || {}
     const snapshot = structuredClone({
         creationTime,
         cacheTime: new Date().toISOString(),
-        response,
+        response: responseWithoutVars,
         error,
     })
     return snapshot
