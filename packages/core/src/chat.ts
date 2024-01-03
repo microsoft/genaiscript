@@ -1,9 +1,4 @@
-import type {
-    CreateChatCompletionRequest,
-    CreateChatCompletionResponse,
-    CreateChatCompletionResponseChoicesInner,
-    ModelError,
-} from "openai"
+import OpenAI from "openai"
 import { Cache } from "./cache"
 import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
@@ -12,11 +7,13 @@ import { MAX_CACHED_TEMPERATURE } from "./constants"
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
 
-interface Choice extends CreateChatCompletionResponseChoicesInner {
-    delta: {
-        content: string
-    }
-}
+export type CreateChatCompletionRequest =
+    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
+
+export type ChatCompletionRequestMessage =
+    OpenAI.Chat.Completions.ChatCompletionMessageParam
+
+export const ModelError = OpenAI.APIError
 
 export function getChatCompletionCache() {
     return Cache.byName<CreateChatCompletionRequest, string>("openai")
@@ -42,12 +39,14 @@ export class RequestError extends Error {
     constructor(
         public readonly status: number,
         public readonly statusText: string,
-        public readonly body: ModelError,
+        public readonly body: any,
         public readonly bodyText: string,
         readonly retryAfter: number
     ) {
         super(
-            `OpenAI error: ${body ? body.message : `${statusText} (${status})`}`
+            `OpenAI error: ${
+                body?.message ? body?.message : `${statusText} (${status})`
+            }`
         )
     }
 }
@@ -65,6 +64,8 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
                         return msg.content
                     case "function":
                         return "???function"
+                    default:
+                        return "???role " + msg.role
                 }
             })
             .join("\n")
@@ -83,13 +84,10 @@ interface TGIResponse {
 }
 
 export async function getChatCompletions(
-    req: CreateChatCompletionRequest & {
-        seed?: number
-        responseType?: PromptTemplateResponseType
-    },
+    req: CreateChatCompletionRequest,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ): Promise<string> {
-    const { temperature, seed, responseType } = req
+    const { temperature, seed, response_format } = req
     const {
         requestOptions,
         partialCb,
@@ -121,7 +119,6 @@ export async function getChatCompletions(
     let postReq: any = r2
 
     let model = req.model.replace("-35-", "-3.5-")
-    let response_format = undefined
 
     let url = ""
 
@@ -148,9 +145,6 @@ export async function getChatCompletions(
             model.replace(/\./g, "") +
             "/chat/completions?api-version=2023-03-15-preview"
     }
-
-    if (responseType) postReq.response_format = { type: responseType }
-    delete postReq.responseType
 
     trace.item(`${cfg.isTGI ? "TGI" : "OpenAI"} chat request`)
     trace.item(`model: ${model}`)
@@ -197,7 +191,7 @@ export async function getChatCompletions(
         try {
             body = await r.text()
         } catch (e) {}
-        let bodyJSON: { error: ModelError }
+        let bodyJSON: { error: unknown }
         try {
             bodyJSON = body ? JSON.parse(body) : undefined
         } catch (e) {}
@@ -268,9 +262,9 @@ export async function getChatCompletions(
                 }
             else
                 try {
-                    const obj: CreateChatCompletionResponse = JSON.parse(json)
+                    const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
                     if (obj.choices?.length != 1) throw new Error()
-                    const ch = obj.choices[0] as Choice
+                    const ch = obj.choices[0]
                     if (typeof ch?.delta?.content == "string") {
                         numTokens++
                         chatResp += ch.delta.content
