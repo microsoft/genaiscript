@@ -221,6 +221,7 @@ async function expandTemplate(
     let temperature = template.temperature
     let max_tokens = template.maxTokens
     let seed = template.seed
+    let responseType = template.responseType
 
     trace.startDetails(`system gptools`)
 
@@ -249,6 +250,7 @@ async function expandTemplate(
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
+        responseType = responseType ?? system.responseType
 
         trace.heading(3, `\`${systemTemplate}\` source`)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
@@ -291,6 +293,7 @@ async function expandTemplate(
         seed = seed >> 0
         trace.item(`seed: ${seed}`)
     }
+    if (responseType) trace.item(`response type: ${responseType}`)
     trace.fence(expanded, "markdown")
 
     trace.endDetails()
@@ -304,6 +307,7 @@ async function expandTemplate(
         max_tokens,
         seed,
         systemText,
+        responseType,
     }
 
     function tryParseInt(v: string) {
@@ -529,6 +533,7 @@ export async function runTemplate(
         max_tokens,
         seed,
         systemText,
+        responseType,
     } = await expandTemplate(
         template,
         fragment,
@@ -598,6 +603,7 @@ export async function runTemplate(
                     max_tokens,
                     seed,
                     messages,
+                    responseType,
                 },
                 { ...options, trace }
             )

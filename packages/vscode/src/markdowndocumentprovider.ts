@@ -48,6 +48,7 @@ class MarkdownTextDocumentContentProvider
     ): Promise<string> {
         const aiRequest = this.state.aiRequest
         const computing = !!aiRequest?.computing
+        const req = aiRequest?.request
         const res = aiRequest?.response
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
@@ -62,8 +63,9 @@ ${md}
         }
 
         switch (uri.path) {
-            case REQUEST_OUTPUT_FILENAME:
+            case REQUEST_OUTPUT_FILENAME: {
                 return wrap(res?.text)
+            }
             case REQUEST_TRACE_FILENAME:
                 return wrap(res?.trace)
         }
