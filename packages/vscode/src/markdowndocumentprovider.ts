@@ -12,6 +12,7 @@ import {
     cachedOpenAIRequestPrefix,
     defaultPrompts,
     extractFenced,
+    fenceMD,
     getChatCompletionCache,
     renderFencedVariables,
 } from "gptools-core"
@@ -54,7 +55,7 @@ class MarkdownTextDocumentContentProvider
             if (!md) return noResponse
             return `${
                 computing
-                    ? `> **AI Request in progress. To abort, click on the GPTools status bar.**\n`
+                    ? `> **AI Request in progress.**\n`
                     : ""
             } 
 ${md}    
@@ -62,8 +63,11 @@ ${md}
         }
 
         switch (uri.path) {
-            case REQUEST_OUTPUT_FILENAME:
-                return wrap(res?.text)
+            case REQUEST_OUTPUT_FILENAME: {
+                let text = res?.text
+                if (/^\s*\{/.test(text)) text = fenceMD(text, "json")
+                return wrap(text)
+            }
             case REQUEST_TRACE_FILENAME:
                 return wrap(res?.trace)
         }

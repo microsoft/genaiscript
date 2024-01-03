@@ -15,7 +15,6 @@ import {
 } from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
-import { initToken } from "./oai_token"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import {
@@ -23,6 +22,7 @@ import {
     CreateChatCompletionRequest,
 } from "openai"
 import { MarkdownTrace } from "./trace"
+import { JSON5TryParse } from "./json5"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -221,6 +221,7 @@ async function expandTemplate(
     let temperature = template.temperature
     let max_tokens = template.maxTokens
     let seed = template.seed
+    let responseType = template.responseType
 
     trace.startDetails(`system gptools`)
 
@@ -249,6 +250,7 @@ async function expandTemplate(
         temperature = temperature ?? system.temperature
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
+        responseType = responseType ?? system.responseType
 
         trace.heading(3, `\`${systemTemplate}\` source`)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
@@ -291,6 +293,7 @@ async function expandTemplate(
         seed = seed >> 0
         trace.item(`seed: ${seed}`)
     }
+    if (responseType) trace.item(`response type: ${responseType}`)
     trace.fence(expanded, "markdown")
 
     trace.endDetails()
@@ -304,6 +307,7 @@ async function expandTemplate(
         max_tokens,
         seed,
         systemText,
+        responseType,
     }
 
     function tryParseInt(v: string) {
@@ -470,7 +474,10 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     }
     chat?: ChatAgentContext
     getChatCompletions?: (
-        req: CreateChatCompletionRequest & { seed?: number },
+        req: CreateChatCompletionRequest & {
+            seed?: number
+            responseType?: PromptTemplateResponseType
+        },
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<string>
 }
@@ -529,6 +536,7 @@ export async function runTemplate(
         max_tokens,
         seed,
         systemText,
+        responseType,
     } = await expandTemplate(
         template,
         fragment,
@@ -598,6 +606,7 @@ export async function runTemplate(
                     max_tokens,
                     seed,
                     messages,
+                    responseType,
                 },
                 { ...options, trace }
             )
@@ -610,10 +619,10 @@ export async function runTemplate(
             if (error.body) {
                 trace.log(`> ${error.body.message}\n\n`)
                 trace.item(`type: \`${error.body.type}\``)
-                trace.item(`code: \`${error.body.code}\`\n`)
+                trace.item(`code: \`${error.body.code}\``)
             }
-            trace.item(`status: \`${error.status}\`, ${error.statusText}\n`)
-            text = "Request error"
+            trace.item(`status: \`${error.status}\`, ${error.statusText}`)
+            text = `Request error: \`${error.status}\`, ${error.statusText}\n`
         } else if (signal?.aborted) {
             trace.heading(3, `Request cancelled`)
             trace.log(`The user requested to cancel the request.`)
@@ -639,8 +648,15 @@ export async function runTemplate(
 
     trace.detailsFenced("llm response", text)
 
-    const extr = extractFenced(text)
-    trace.details("code regions", renderFencedVariables(extr))
+    const json = JSON5TryParse(text, undefined)
+    const fences = json === undefined ? extractFenced(text) : []
+    if (fences?.length)
+        trace.details("code regions", renderFencedVariables(fences))
+    if (json !== undefined) {
+        trace.startDetails("json (parsed)")
+        trace.fence(JSON.stringify(json, null, 2), "json")
+        trace.endDetails()
+    }
 
     const fileEdits: Record<string, { before: string; after: string }> = {}
     const annotations: Diagnostic[] = []
@@ -659,84 +675,100 @@ export async function runTemplate(
         virtual: true,
     })
 
-    for (const fence of extr) {
-        const { label: name, content: val } = fence
-        const pm = /^((file|diff):?)\s+/i.exec(name)
-        if (pm) {
-            const kw = pm[1].toLowerCase()
-            const n = name.slice(pm[0].length).trim()
-            const fn = /^[^\/]/.test(n) ? host.resolvePath(projFolder, n) : n
-            const ffn = relativePath(ff, fn)
-            const curr = refs.find((r) => r.filename === fn)?.filename
+    const getFileEdit = async (fn: string) => {
+        let fileEdit = fileEdits[fn]
+        if (!fileEdit) {
+            let before: string = null
+            let after: string = undefined
+            if (await fileExists(fn, { virtual: false }))
+                before = await readText(fn)
+            else if (await fileExists(fn, { virtual: true }))
+                after = await readText(fn)
+            fileEdit = fileEdits[fn] = { before, after }
+        }
+        return fileEdit
+    }
 
-            let fileEdit = fileEdits[fn]
-            if (!fileEdit) {
-                let before: string = null
-                let after: string = undefined
-                if (await fileExists(fn, { virtual: false }))
-                    before = await readText(fn)
-                else if (await fileExists(fn, { virtual: true }))
-                    after = await readText(fn)
-                fileEdit = fileEdits[fn] = { before, after }
-            }
-            if (kw === "file") {
-                if (template.fileMerge) {
+    if (json !== undefined) {
+        const fn = fragment.file.filename.replace(
+            /\.gpspec\.md$/i,
+            "." + template.id + ".json"
+        )
+        const fileEdit = await getFileEdit(fn)
+        fileEdit.after = text
+    } else {
+        for (const fence of fences) {
+            const { label: name, content: val } = fence
+            const pm = /^((file|diff):?)\s+/i.exec(name)
+            if (pm) {
+                const kw = pm[1].toLowerCase()
+                const n = name.slice(pm[0].length).trim()
+                const fn = /^[^\/]/.test(n)
+                    ? host.resolvePath(projFolder, n)
+                    : n
+                const ffn = relativePath(ff, fn)
+                const curr = refs.find((r) => r.filename === fn)?.filename
+
+                const fileEdit = await getFileEdit(fn)
+                if (kw === "file") {
+                    if (template.fileMerge) {
+                        try {
+                            fileEdit.after =
+                                template.fileMerge(
+                                    label,
+                                    fileEdit.after ?? fileEdit.before,
+                                    val
+                                ) ?? val
+                        } catch (e) {
+                            logVerbose(e)
+                            trace.error(`error custom merging diff in ${fn}`, e)
+                        }
+                    } else fileEdit.after = val
+                } else if (kw === "diff") {
+                    const chunks = parseLLMDiffs(val)
                     try {
-                        fileEdit.after =
-                            template.fileMerge(
-                                label,
-                                fileEdit.after ?? fileEdit.before,
-                                val
-                            ) ?? val
-                    } catch (e) {
-                        logVerbose(e)
-                        trace.error(`error custom merging diff in ${fn}`, e)
-                    }
-                } else fileEdit.after = val
-            } else if (kw === "diff") {
-                const chunks = parseLLMDiffs(val)
-                try {
-                    fileEdit.after = applyLLMPatch(
-                        fileEdit.after || fileEdit.before,
-                        chunks
-                    )
-                } catch (e) {
-                    logVerbose(e)
-                    trace.error(`error applying patch to ${fn}`, e)
-                    try {
-                        fileEdit.after = applyLLMDiff(
+                        fileEdit.after = applyLLMPatch(
                             fileEdit.after || fileEdit.before,
                             chunks
                         )
                     } catch (e) {
                         logVerbose(e)
-                        trace.error(`error merging diff in ${fn}`, e)
+                        trace.error(`error applying patch to ${fn}`, e)
+                        try {
+                            fileEdit.after = applyLLMDiff(
+                                fileEdit.after || fileEdit.before,
+                                chunks
+                            )
+                        } catch (e) {
+                            logVerbose(e)
+                            trace.error(`error merging diff in ${fn}`, e)
+                        }
                     }
                 }
+                if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
+            } else if (/^annotation$/i.test(name)) {
+                // ::(notice|warning|error) file=<filename>,line=<start line>::<message>
+                const rx =
+                    /^::(notice|warning|error)\s*file=([^,]+),\s*line=(\d+),\s*endLine=(\d+)\s*::(.*)$/gim
+                val.replace(rx, (_, severity, file, line, endLine, message) => {
+                    const filename = /^[^\/]/.test(file)
+                        ? host.resolvePath(projFolder, file)
+                        : file
+                    const annotation: Diagnostic = {
+                        severity,
+                        filename,
+                        range: [
+                            [parseInt(line) - 1, 0],
+                            [parseInt(endLine) - 1, Number.MAX_VALUE],
+                        ],
+                        message,
+                    }
+                    annotations.push(annotation)
+                    return ""
+                })
+            } else if (/^summary$/i.test(name)) {
+                summary = val
             }
-            if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
-        } else if (/^annotation$/i.test(name)) {
-            // ::(notice|warning|error) file=<filename>,line=<start line>::<message>
-            const rx =
-                /^::(notice|warning|error)\s*file=([^,]+),\s*line=(\d+),\s*endLine=(\d+)\s*::(.*)$/gim
-            val.replace(rx, (_, severity, file, line, endLine, message) => {
-                const filename = /^[^\/]/.test(file)
-                    ? host.resolvePath(projFolder, file)
-                    : file
-                const annotation: Diagnostic = {
-                    severity,
-                    filename,
-                    range: [
-                        [parseInt(line) - 1, 0],
-                        [parseInt(endLine) - 1, Number.MAX_VALUE],
-                    ],
-                    message,
-                }
-                annotations.push(annotation)
-                return ""
-            })
-        } else if (/^summary$/i.test(name)) {
-            summary = val
         }
     }
 

@@ -53,6 +53,8 @@ interface UrlAdapter {
     adapter?: (body: string | any) => string | undefined
 }
 
+type PromptTemplateResponseType = "json_object" | undefined
+
 interface PromptTemplate extends PromptLike {
     /**
      * Which LLM model to use.
@@ -114,6 +116,11 @@ interface PromptTemplate extends PromptLike {
      * Specifies a folder to create output files into
      */
     outputFolder?: string
+
+    /**
+     * Specifies the type of output. Default is `markdown`.
+     */
+    responseType?: PromptTemplateResponseType
 
     /**
      * A set of custom merge strategies.
