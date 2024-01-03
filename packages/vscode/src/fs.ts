@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { JSON5TryParse } from "./json5"
+import { JSON5TryParse } from "gptools-core"
 
 export async function findFiles(pattern: string) {
     return (await vscode.workspace.findFiles(pattern)).map((f) => f.fsPath)

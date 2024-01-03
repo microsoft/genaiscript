@@ -55,7 +55,7 @@ class MarkdownTextDocumentContentProvider
             if (!md) return noResponse
             return `${
                 computing
-                    ? `> **AI Request in progress. To abort, click on the GPTools status bar.**\n`
+                    ? `> **AI Request in progress.**\n`
                     : ""
             } 
 ${md}    
