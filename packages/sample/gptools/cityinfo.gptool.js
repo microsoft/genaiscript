@@ -1,5 +1,6 @@
 gptool({
-    title: "City info",
+    title: "City general information",
+    description: "Generate a JSON response with city size information.",
     system: ["system.json"]
 })
 
@@ -8,10 +9,10 @@ $`For each city in the CITIES, provide the following information:
 - The city's population
 - The city's elevation
 
-Example:
+If the city is unknown, omit it from the response.
 `
 
-fence(JSON.stringify({
+def("EXAMPLE", JSON.stringify({
     "madrid": {
         "population": 3223334,
         "elevation": 667
