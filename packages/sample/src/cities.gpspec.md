@@ -2,3 +2,4 @@
 
 - Brussels
 - Seattle
+- Munich
