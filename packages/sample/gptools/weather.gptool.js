@@ -1,7 +1,9 @@
-system({
+gptool({
     title: 'Weather function',
     description: 'Register a function to query the weather'
 })
+
+$`Query the weather for each listed city and return the results as a table.`
 
 defFunction('get_current_weather', 'get the current weather', {
     "type": "object",
