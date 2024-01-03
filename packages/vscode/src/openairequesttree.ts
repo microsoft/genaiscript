@@ -3,10 +3,10 @@ import { ExtensionState } from "./state"
 import {
     CHANGE,
     CacheEntry,
+    CreateChatCompletionRequest,
     cachedOpenAIRequestPrefix,
     getChatCompletionCache,
 } from "gptools-core"
-import type { CreateChatCompletionRequest } from "openai"
 import { Cache } from "gptools-core"
 import { infoUri } from "./markdowndocumentprovider"
 

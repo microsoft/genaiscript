@@ -1,5 +1,7 @@
 import {
+    ChatCompletionRequestMessage,
     ChatCompletionsOptions,
+    CreateChatCompletionRequest,
     RequestError,
     getChatCompletions,
 } from "./chat"
@@ -17,10 +19,6 @@ import { host } from "./host"
 import { inspect } from "./logging"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
-import {
-    ChatCompletionRequestMessage,
-    CreateChatCompletionRequest,
-} from "openai"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
 
@@ -474,10 +472,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     }
     chat?: ChatAgentContext
     getChatCompletions?: (
-        req: CreateChatCompletionRequest & {
-            seed?: number
-            responseType?: PromptTemplateResponseType
-        },
+        req: CreateChatCompletionRequest,
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<string>
 }
@@ -598,6 +593,9 @@ export async function runTemplate(
         ]
         try {
             trace.startDetails("llm request")
+            const response_format = responseType
+                ? { type: responseType }
+                : undefined
             const completer = options.getChatCompletions || getChatCompletions
             text = await completer(
                 {
@@ -606,7 +604,8 @@ export async function runTemplate(
                     max_tokens,
                     seed,
                     messages,
-                    responseType,
+                    stream: true,
+                    response_format,
                 },
                 { ...options, trace }
             )

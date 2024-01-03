@@ -53,11 +53,7 @@ class MarkdownTextDocumentContentProvider
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
             if (!md) return noResponse
-            return `${
-                computing
-                    ? `> **AI Request in progress.**\n`
-                    : ""
-            } 
+            return `${computing ? `> **AI Request in progress.**\n` : ""} 
 ${md}    
             `
         }
@@ -132,7 +128,11 @@ ${key.messages
     .map(
         (msg) => `-   **${msg.role}:**
 \`\`\`\`\`
-${msg.content?.trim() || ""}
+${
+    typeof msg.content === "string"
+        ? msg.content.trim()
+        : JSON.stringify(msg.content)
+}
 \`\`\`\`\`
 `
     )
