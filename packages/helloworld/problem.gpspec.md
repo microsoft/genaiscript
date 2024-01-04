@@ -1,4 +1,4 @@
 # email address recognizer
 
-Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.2
--   [email_recognizer.py](email_recognizer.py)
+Write a function that validates an email address.
+-   [email_validator.py](email_validator.py)
