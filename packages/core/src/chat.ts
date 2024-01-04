@@ -3,7 +3,7 @@ import { Cache } from "./cache"
 import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
 import { host } from "./host"
-import { MAX_CACHED_TEMPERATURE } from "./constants"
+import { AZURE_OPENAI_API_VERSION, MAX_CACHED_TEMPERATURE } from "./constants"
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
 
@@ -12,6 +12,17 @@ export type CreateChatCompletionRequest =
 
 export type ChatCompletionRequestMessage =
     OpenAI.Chat.Completions.ChatCompletionMessageParam
+
+export interface ChatCompletionToolCall {
+    id: string
+    name: string
+    arguments?: string
+}
+
+export interface ChatCompletionResponse {
+    text?: string
+    toolCalls?: ChatCompletionToolCall[]
+}
 
 export const ModelError = OpenAI.APIError
 
@@ -86,8 +97,8 @@ interface TGIResponse {
 export async function getChatCompletions(
     req: CreateChatCompletionRequest,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
-): Promise<string> {
-    const { temperature, seed, response_format } = req
+): Promise<ChatCompletionResponse> {
+    const { temperature, seed, response_format, tools } = req
     const {
         requestOptions,
         partialCb,
@@ -102,7 +113,10 @@ export async function getChatCompletions(
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
     const caching =
-        useCache && temperature > maxCachedTemperature && seed === undefined
+        useCache &&
+        temperature > maxCachedTemperature &&
+        seed === undefined &&
+        !tools?.length
     const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
@@ -111,7 +125,7 @@ export async function getChatCompletions(
             responseChunk: cached,
         })
         trace.item(`found cached response`)
-        return cached
+        return { text: cached }
     }
 
     const cfg = await initToken()
@@ -119,8 +133,8 @@ export async function getChatCompletions(
     let postReq: any = r2
 
     let model = req.model.replace("-35-", "-3.5-")
-
     let url = ""
+    const toolCalls: ChatCompletionToolCall[] = []
 
     if (cfg.isTGI) {
         model = "TGI-model"
@@ -143,7 +157,7 @@ export async function getChatCompletions(
         url =
             cfg.url +
             model.replace(/\./g, "") +
-            "/chat/completions?api-version=2023-03-15-preview"
+            `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     }
 
     trace.item(`${cfg.isTGI ? "TGI" : "OpenAI"} chat request`)
@@ -227,7 +241,7 @@ export async function getChatCompletions(
 
     if (seenDone) {
         if (caching && !cfg.isTGI) await cache.set(req, chatResp)
-        return chatResp
+        return { text: chatResp, toolCalls }
     } else {
         trace.error(`invalid response`)
         trace.fence(pref)
@@ -264,10 +278,31 @@ export async function getChatCompletions(
                 try {
                     const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
                     if (obj.choices?.length != 1) throw new Error()
-                    const ch = obj.choices[0]
-                    if (typeof ch?.delta?.content == "string") {
+                    const choice = obj.choices[0]
+                    const { finish_reason, delta } = choice
+                    if (typeof delta?.content == "string") {
                         numTokens++
-                        chatResp += ch.delta.content
+                        chatResp += delta.content
+                    } else if (delta?.tool_calls?.length) {
+                        const { tool_calls } = delta
+                        logVerbose(
+                            `delta tool calls: ${JSON.stringify(tool_calls)}`
+                        )
+                        for (const call of tool_calls) {
+                            const tc =
+                                toolCalls[call.index] ||
+                                (toolCalls[call.index] = {
+                                    id: call.id,
+                                    name: call.function.name,
+                                    arguments: "",
+                                })
+                            if (call.function.arguments)
+                                tc.arguments += call.function.arguments
+                        }
+                    } else if (finish_reason == "tool_calls") {
+                        // apply tools and restart
+                        seenDone = true
+                        logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                     }
                 } catch {
                     logError(`invalid json in chat response: ${json}`)

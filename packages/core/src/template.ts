@@ -185,7 +185,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "defFiles" | "$"
+    "fence" | "def" | "defFiles" | "$" | "defFunction"
 >
 export async function evalPrompt(
     ctx0: BasePromptContext,
@@ -236,7 +236,9 @@ export async function evalPrompt(
             else if (typeof body != "string") df(body as LinkedFile)
             else {
                 body = norm(body, fence)
-                writeText((name ? name + ":\n" : "") + fence + "\n" + body + fence)
+                writeText(
+                    (name ? name + ":\n" : "") + fence + "\n" + body + fence
+                )
                 if (body.includes(fence)) error = true
             }
 
@@ -250,6 +252,14 @@ export async function evalPrompt(
             for (const f of files.filter((f) => !!f))
                 ctx.def("File " + f.filename, f.content)
             return dontuse("defFiles")
+        },
+        defFunction(name, description, parameters, fn) {
+            env.functions = env.functions || []
+            env.functions.push({
+                definition: { name, description, parameters },
+                fn,
+            })
+            return dontuse("defFunction")
         },
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
