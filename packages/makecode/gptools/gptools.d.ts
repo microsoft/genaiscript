@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.python" | "system.summary" | "system.tasks" | "system" | "system.technical" | "system.typescript"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -52,6 +52,8 @@ interface UrlAdapter {
      */
     adapter?: (body: string | any) => string | undefined
 }
+
+type PromptTemplateResponseType = "json_object" | undefined
 
 interface PromptTemplate extends PromptLike {
     /**
@@ -114,6 +116,11 @@ interface PromptTemplate extends PromptLike {
      * Specifies a folder to create output files into
      */
     outputFolder?: string
+
+    /**
+     * Specifies the type of output. Default is `markdown`.
+     */
+    responseType?: PromptTemplateResponseType
 
     /**
      * A set of custom merge strategies.
@@ -191,6 +198,42 @@ interface ChatAgentContext {
     prompt?: string
 }
 
+interface FunctionDefinition {
+    /**
+     * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
+     * underscores and dashes, with a maximum length of 64.
+     */
+    name: string
+
+    /**
+     * A description of what the function does, used by the model to choose when and
+     * how to call the function.
+     */
+    description?: string
+
+    /**
+     * The parameters the functions accepts, described as a JSON Schema object. See the
+     * [guide](https://platform.openai.com/docs/guides/text-generation/function-calling)
+     * for examples, and the
+     * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
+     * documentation about the format.
+     *
+     * Omitting `parameters` defines a function with an empty parameter list.
+     */
+    parameters?: ChatFunctionParameters
+}
+
+/**
+ * The parameters the functions accepts, described as a JSON Schema object. See the
+ * [guide](https://platform.openai.com/docs/guides/text-generation/function-calling)
+ * for examples, and the
+ * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
+ * documentation about the format.
+ *
+ * Omitting `parameters` defines a function with an empty parameter list.
+ */
+type ChatFunctionParameters = Record<string, unknown>
+
 /**
  * A set of text extracted from the context of the prompt execution
  */
@@ -251,6 +294,14 @@ interface ExpansionVariables {
      * Chat context if called from a chat command
      */
     chat?: ChatAgentContext
+
+    /**
+     * List of functions defined in the prompt
+     */
+    functions?: {
+        definition: FunctionDefinition
+        fn: (args: Record<string, any>) => string | Promise<string>
+    }[]
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -266,13 +317,19 @@ interface DefOptions {
 
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
-    text(body: string): void
+    writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     gptool(options: PromptArgs): void
     system(options: PromptArgs): void
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
     defFiles(files: LinkedFile[]): void
+    defFunction(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: (args: Record<string, any>) => string | Promise<string>
+    ): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
@@ -301,7 +358,7 @@ declare function system(options: PromptArgs): void
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function text(body: string): void
+declare function writeText(body: string): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -333,6 +390,20 @@ declare function def(name: string, body: StringLike, options?: DefOptions): void
  * @param files files to define, eg. `env.links` or a subset thereof
  */
 declare function defFiles(files: LinkedFile[]): void
+
+/**
+ * Declares a function that can be called from the prompt.
+ * @param name The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+ * @param description A description of what the function does, used by the model to choose when and how to call the function.
+ * @param parameters The parameters the functions accepts, described as a JSON Schema object.
+ * @param fn callback invoked when the LLM requests to run this function
+ */
+declare function defFunction(
+    name: string,
+    description: string,
+    parameters: ChatFunctionParameters,
+    fn: (args: Record<string, any>) => string | Promise<string>
+): void
 
 /**
  * Variables coming from the fragment on which the prompt is operating.

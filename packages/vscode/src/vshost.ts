@@ -12,7 +12,8 @@ import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
 import { Utils } from "vscode-uri"
 import { parse } from "dotenv"
-import { readFileText } from "./fs"
+import { checkFileExists, readFileText, writeFile } from "./fs"
+import * as vscode from "vscode"
 
 const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 
@@ -61,27 +62,83 @@ export class VSCodeHost extends EventTarget implements Host {
 
     private lastToken: string
     async askToken(): Promise<string> {
-        let t = await window.showInputBox({
-            placeHolder: "Paste OpenAI token",
-            title: "GPTools - OpenAI token configuration",
-            prompt: `Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets. [Learn more...](${TOKEN_DOCUMENTATION_URL})`,
-            value: this.lastToken,
-        })
-        this.lastToken = t
+        const pick = await window.showQuickPick(
+            [
+                {
+                    id: "workspace",
+                    label: "Use workspace secrets",
+                    description:
+                        "Use the OpenAI token stored in the workspace secrets",
+                },
+                {
+                    id: "env",
+                    label: "Use .env",
+                    description: "Store OpenAI configuration in a .env file",
+                },
+            ],
+            {
+                title: "GPTools - OpenAI token configuration",
+            }
+        )
 
-        // looks like a token, missing endpoint
-        if (/^[a-z0-9]{32,}$/i.test(t) && !/sk-/.test(t)) {
-            const endpoint = await window.showInputBox({
-                placeHolder: "Paste deployment endpoint",
-                prompt: "The token looks like an Azure AI service token. Please paste de Azure AI endpoint or leave empty to ignore.",
+        if (pick === undefined) return undefined
+
+        if (pick.id === "workspace") {
+            let t = await window.showInputBox({
+                placeHolder: "Paste OpenAI token",
+                title: "GPTools - OpenAI token configuration",
+                prompt: `Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets. [Learn more...](${TOKEN_DOCUMENTATION_URL})`,
+                value: this.lastToken,
             })
-            if (endpoint && /^https:\/\//.test(endpoint)) {
-                t = `${endpoint}#key=${t}`
-                this.lastToken = undefined
-            } else t = undefined // don't know how to handle this token
-        }
+            this.lastToken = t
 
-        return t
+            // looks like a token, missing endpoint
+            if (/^[a-z0-9]{32,}$/i.test(t) && !/sk-/.test(t)) {
+                const endpoint = await window.showInputBox({
+                    placeHolder: "Paste deployment endpoint",
+                    prompt: "The token looks like an Azure AI service token. Please paste de Azure AI endpoint or leave empty to ignore.",
+                })
+                if (endpoint && /^https:\/\//.test(endpoint)) {
+                    t = `${endpoint}#key=${t}`
+                    this.lastToken = undefined
+                } else t = undefined // don't know how to handle this token
+            }
+
+            return t
+        } else {
+            const uri = Uri.joinPath(this.projectUri, ".env")
+            if (!(await checkFileExists(uri)))
+                await writeFile(
+                    this.projectUri,
+                    ".env",
+                    `#/-------------------OpenAI configuration---------------------/
+OPENAI_API_KEY="<your token>"
+OPENAI_API_BASE="https://api.openai.com/v1/"
+# OPENAI_API_TYPE="azure"
+`
+                )
+
+            const doc = await workspace.openTextDocument(uri)
+            await window.showTextDocument(doc)
+            const text = doc.getText()
+            let nextText = text
+            if (!/OPENAI_API_KEY/.test(text))
+                nextText += `\nOPENAI_API_KEY="<your token>"`
+            if (!/OPENAI_API_BASE/.test(text))
+                nextText += `\nOPENAI_API_BASE="https://api.openai.com/v1/"`
+            if (!/OPENAI_API_TYPE/.test(text))
+                nextText += `\n# OPENAI_API_TYPE="azure"`
+            if (nextText !== text) {
+                const edit = new vscode.WorkspaceEdit()
+                edit.replace(
+                    uri,
+                    doc.validateRange(new vscode.Range(0, 0, 999, 999)),
+                    nextText
+                )
+                await workspace.applyEdit(edit)
+            }
+            return undefined
+        }
     }
     log(level: LogLevel, msg: string): void {
         const output = this.state.output
