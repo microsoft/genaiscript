@@ -7,8 +7,7 @@ gptool({
     temperature: 0
 })
 
-const { text1, file } = await fetchText("https://www.microsoft.com/en-us/research/people/zorn/")
-if (text1) $`And also ${text1}`
+const { file } = await fetchText("https://www.microsoft.com/en-us/research/people/zorn/")
 
 def("FILE", file)
 
