@@ -1,6 +1,7 @@
 gptool({
     title: 'Weather function',
-    description: 'Register a function to query the weather'
+    description: 'Register a function to query the weather',
+    temperature: 0.5
 })
 
 $`Query the weather for each listed city and return the results as a table.`

@@ -6,5 +6,3 @@
 - Seattle
 - Munich
 - Nivelle
-
-<!-- @temperature 0.5 -->

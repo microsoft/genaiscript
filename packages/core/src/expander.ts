@@ -1,5 +1,6 @@
 import {
     ChatCompletionRequestMessage,
+    ChatCompletionResponse,
     ChatCompletionsOptions,
     CreateChatCompletionRequest,
     RequestError,
@@ -474,7 +475,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     getChatCompletions?: (
         req: CreateChatCompletionRequest,
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
-    ) => Promise<string>
+    ) => Promise<ChatCompletionResponse>
 }
 
 export function generateCliArguments(
@@ -573,83 +574,149 @@ export async function runTemplate(
             label,
         }
     }
+    const response_format = responseType ? { type: responseType } : undefined
+    const completer = options.getChatCompletions || getChatCompletions
 
+    // initial messages (before tools)
+    const messages: ChatCompletionRequestMessage[] = [
+        {
+            role: "system",
+            content: systemText,
+        },
+        {
+            role: "user",
+            content: expanded,
+        },
+    ]
+
+    let statusText = ""
     let text: string
-    try {
-        options.infoCb?.({
-            vars,
-            text: "Running...",
-            label,
-        })
-        const messages: ChatCompletionRequestMessage[] = [
-            {
-                role: "system",
-                content: systemText,
-            },
-            {
-                role: "user",
-                content: expanded,
-            },
-        ]
+    while (!signal?.aborted && text === undefined) {
+        let resp: ChatCompletionResponse
         try {
-            trace.startDetails("llm request")
-            const response_format = responseType
-                ? { type: responseType }
-                : undefined
-            const completer = options.getChatCompletions || getChatCompletions
-            text = await completer(
-                {
-                    model,
-                    temperature,
-                    max_tokens,
-                    seed,
-                    messages,
-                    stream: true,
-                    response_format,
-                    tools: vars.functions?.map((f) => ({
-                        type: "function",
-                        function: f.definition,
-                    })),
-                },
-                { ...options, trace }
-            )
-        } finally {
-            trace.endDetails()
-        }
-    } catch (error: unknown) {
-        if (error instanceof RequestError) {
-            trace.heading(3, `Request error`)
-            if (error.body) {
-                trace.log(`> ${error.body.message}\n\n`)
-                trace.item(`type: \`${error.body.type}\``)
-                trace.item(`code: \`${error.body.code}\``)
+            statusText += "\nCalling LLM..."
+            options.infoCb?.({
+                vars,
+                text: statusText,
+                label,
+            })
+            try {
+                trace.startDetails(`llm request (${messages.length} messages)`)
+                resp = await completer(
+                    {
+                        model,
+                        temperature,
+                        max_tokens,
+                        seed,
+                        messages,
+                        stream: true,
+                        response_format,
+                        tools: vars.functions?.map((f) => ({
+                            type: "function",
+                            function: f.definition,
+                        })),
+                    },
+                    { ...options, trace }
+                )
+            } finally {
+                trace.endDetails()
             }
-            trace.item(`status: \`${error.status}\`, ${error.statusText}`)
-            text = `Request error: \`${error.status}\`, ${error.statusText}\n`
-        } else if (signal?.aborted) {
-            trace.heading(3, `Request cancelled`)
-            trace.log(`The user requested to cancel the request.`)
-            text = "Request cancelled"
-            error = undefined
-        } else {
-            trace.heading(3, `Fetch error`)
-            trace.error(error + "")
-            text = "Unpexpected error"
+        } catch (error: unknown) {
+            if (error instanceof RequestError) {
+                trace.heading(3, `Request error`)
+                if (error.body) {
+                    trace.log(`> ${error.body.message}\n\n`)
+                    trace.item(`type: \`${error.body.type}\``)
+                    trace.item(`code: \`${error.body.code}\``)
+                }
+                trace.item(`status: \`${error.status}\`, ${error.statusText}`)
+                resp = {
+                    text: `Request error: \`${error.status}\`, ${error.statusText}\n`,
+                }
+            } else if (signal?.aborted) {
+                trace.heading(3, `Request cancelled`)
+                trace.log(`The user requested to cancel the request.`)
+                resp = { text: "Request cancelled" }
+                error = undefined
+            } else {
+                trace.heading(3, `Fetch error`)
+                trace.error(error + "")
+                resp = { text: "Unexpected error" }
+            }
+
+            return {
+                prompt,
+                vars,
+                trace: trace.content,
+                error,
+                text: resp?.text,
+                edits: [],
+                annotations: [],
+                fileEdits: {},
+                label,
+            }
         }
-        return {
-            prompt,
-            vars,
-            trace: trace.content,
-            error,
-            text,
-            edits: [],
-            annotations: [],
-            fileEdits: {},
-            label,
+
+        if (resp.text) trace.detailsFenced("llm response", resp.text)
+
+        if (resp.toolCalls?.length) {
+            statusText += "\nCalling tools..."
+            options.infoCb?.({
+                vars,
+                text: statusText,
+                label,
+            })
+
+            if (resp.text)
+                messages.push({
+                    role: "assistant",
+                    content: resp.text,
+                })
+            messages.push({
+                role: "assistant",
+                content: null,
+                tool_calls: resp.toolCalls.map((c) => ({
+                    id: c.id,
+                    function: {
+                        name: c.name,
+                        arguments: c.arguments,
+                    },
+                    type: "function",
+                })),
+            })
+
+            // call tool and run again
+            trace.startDetails("tool calls")
+            for (const call of resp.toolCalls) {
+                if (signal?.aborted) break
+                trace.item(`${call.name} ${call.arguments || ""}`)
+                try {
+                    const args = call.arguments
+                        ? JSON.parse(call.arguments)
+                        : undefined
+                    const fd = vars.functions.find(
+                        (f) => f.definition.name === call.name
+                    )
+                    if (!fd) throw new Error(`function ${call.name} not found`)
+                    const fr = await fd.fn(args)
+                    trace.fence(fr, "markdown")
+                    messages.push({
+                        role: "tool",
+                        content: fr,
+                        tool_call_id: call.id,
+                    })
+                } catch (e) {
+                    trace.error(`function failed`, e)
+                    throw e
+                }
+            }
+            trace.endDetails()
+        } else {
+            text =
+                messages.filter((msg) => msg.role === "assistant").join("\n") +
+                resp.text
         }
     }
-
-    trace.detailsFenced("llm response", text)
 
     const json = JSON5TryParse(text, undefined)
     const fences = json === undefined ? extractFenced(text) : []

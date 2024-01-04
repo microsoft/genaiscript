@@ -13,6 +13,17 @@ export type CreateChatCompletionRequest =
 export type ChatCompletionRequestMessage =
     OpenAI.Chat.Completions.ChatCompletionMessageParam
 
+export interface ChatCompletionToolCall {
+    id: string
+    name: string
+    arguments?: string
+}
+
+export interface ChatCompletionResponse {
+    text?: string
+    toolCalls?: ChatCompletionToolCall[]
+}
+
 export const ModelError = OpenAI.APIError
 
 export function getChatCompletionCache() {
@@ -86,8 +97,8 @@ interface TGIResponse {
 export async function getChatCompletions(
     req: CreateChatCompletionRequest,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
-): Promise<string> {
-    const { temperature, seed, response_format } = req
+): Promise<ChatCompletionResponse> {
+    const { temperature, seed, response_format, tools } = req
     const {
         requestOptions,
         partialCb,
@@ -102,7 +113,10 @@ export async function getChatCompletions(
     const { headers, ...rest } = requestOptions || {}
     const cache = getChatCompletionCache()
     const caching =
-        useCache && temperature > maxCachedTemperature && seed === undefined
+        useCache &&
+        temperature > maxCachedTemperature &&
+        seed === undefined &&
+        !tools?.length
     const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
@@ -111,7 +125,7 @@ export async function getChatCompletions(
             responseChunk: cached,
         })
         trace.item(`found cached response`)
-        return cached
+        return { text: cached }
     }
 
     const cfg = await initToken()
@@ -120,7 +134,7 @@ export async function getChatCompletions(
 
     let model = req.model.replace("-35-", "-3.5-")
     let url = ""
-    const toolCalls: { name: string; arguments: string }[] = []
+    const toolCalls: ChatCompletionToolCall[] = []
 
     if (cfg.isTGI) {
         model = "TGI-model"
@@ -227,7 +241,7 @@ export async function getChatCompletions(
 
     if (seenDone) {
         if (caching && !cfg.isTGI) await cache.set(req, chatResp)
-        return chatResp
+        return { text: chatResp, toolCalls }
     } else {
         trace.error(`invalid response`)
         trace.fence(pref)
@@ -278,6 +292,7 @@ export async function getChatCompletions(
                             const tc =
                                 toolCalls[call.index] ||
                                 (toolCalls[call.index] = {
+                                    id: call.id,
                                     name: call.function.name,
                                     arguments: "",
                                 })
@@ -286,6 +301,7 @@ export async function getChatCompletions(
                         }
                     } else if (finish_reason == "tool_calls") {
                         // apply tools and restart
+                        seenDone = true
                         logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                     }
                 } catch {
