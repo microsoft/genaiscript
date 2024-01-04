@@ -589,18 +589,22 @@ export async function runTemplate(
         },
     ]
 
+    const status = (text: string) => {
+        statusText += `<br/>${text}...`
+        options.infoCb?.({
+            vars,
+            text: statusText,
+            label,
+        })
+    }
+
     let statusText = ""
     let text: string
     while (!signal?.aborted && text === undefined) {
         let resp: ChatCompletionResponse
         try {
-            statusText += "\nCalling LLM..."
-            options.infoCb?.({
-                vars,
-                text: statusText,
-                label,
-            })
             try {
+                status(`calling LLM`)
                 trace.startDetails(`llm request (${messages.length} messages)`)
                 resp = await completer(
                     {
@@ -660,7 +664,7 @@ export async function runTemplate(
         if (resp.text) trace.detailsFenced("llm response", resp.text)
 
         if (resp.toolCalls?.length) {
-            statusText += "\nCalling tools..."
+            status(`running tools`)
             options.infoCb?.({
                 vars,
                 text: statusText,
