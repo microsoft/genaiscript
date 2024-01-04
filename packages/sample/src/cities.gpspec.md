@@ -1,6 +1,6 @@
 # Cities
 
-<!-- @temperature 0.5 -->
+## List of cities
 
 - Brussels
 - Seattle

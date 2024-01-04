@@ -215,6 +215,6 @@ export function configureChatCompletionForChatAgent(
                 tokensSoFar: text.length,
             })
         }
-        return text
+        return { text }
     }
 }

@@ -284,6 +284,33 @@ const { file } = await fetchText("README.md")
 def("README", file)
 ```
 
+## Functions
+
+You can register functions that the LLM may decide to call as part of assembling the answer.
+See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
+
+```js
+defFunction(
+    "get_current_weather",
+    "get the current weather",
+    {
+        type: "object",
+        properties: {
+            location: {
+                type: "string",
+                description: "The city and state, e.g. San Francisco, CA",
+            },
+        },
+        required: ["location"],
+    },
+    (args) => {
+        const { location } = args
+        if (location === "Brussels") return "sunny"
+        else return "variable"
+    }
+)
+```
+
 ## Inline variable
 
 You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
@@ -291,10 +318,7 @@ You can inject custom variables in the process by authoring them as markdown com
 ```markdown
 Lorem ipsum...
 
-<!-- @myvar
-
-myvalue
--->
+<!-- @myvar myvalue -->
 ```
 
 And somewhere in the GPTool:
