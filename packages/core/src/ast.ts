@@ -197,7 +197,7 @@ export class CoArchProject {
 
             // find by file
             if (!fragment) {
-                const [file] = fullId.split(":", 1)
+                const file = fullId.replace(/:\d+:\d+$/, '')
                 if (file) {
                     const f = this.resolve(file)
                     fragment = f?.roots?.[0]
