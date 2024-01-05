@@ -25,8 +25,9 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
     },
     "required": ["lineStart", "lineEnd"],
 }, (args) => {
-    const { lineStart, lineEnd, content } = args
-    return `[${lineStart}-${lineEnd}] ${content || ""}`
+    const { output, lineStart, lineEnd, content } = args
+    output.log(`[${lineStart}-${lineEnd}] ${content || ""}`)
+    return ''
 })
 
 // Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46

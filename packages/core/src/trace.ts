@@ -1,6 +1,6 @@
 import { fenceMD } from "./expander"
 
-export class MarkdownTrace {
+export class MarkdownTrace implements ChatFunctionCallTrace {
     content: string = ""
 
     startDetails(title: string) {
