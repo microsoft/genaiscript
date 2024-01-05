@@ -254,7 +254,6 @@ export async function evalPrompt(
             return dontuse("defFiles")
         },
         defFunction(name, description, parameters, fn) {
-            env.functions = env.functions || []
             env.functions.push({
                 definition: { name, description, parameters },
                 fn,
@@ -380,6 +379,7 @@ export function staticVars() {
         error: errorId(),
         promptOptions: {},
         vars: {} as Record<string, string>,
+        functions: [] as ChatFunctionCallback[],
     }
 }
 
