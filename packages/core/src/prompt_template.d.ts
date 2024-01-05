@@ -198,7 +198,7 @@ interface ChatAgentContext {
     prompt?: string
 }
 
-interface FunctionDefinition {
+interface ChatFunctionDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -233,6 +233,11 @@ interface FunctionDefinition {
  * Omitting `parameters` defines a function with an empty parameter list.
  */
 type ChatFunctionParameters = Record<string, unknown>
+
+interface ChatFunctionCallback {
+    definition: ChatFunctionDefinition
+    fn: (args: Record<string, any>) => string | Promise<string>
+}
 
 /**
  * A set of text extracted from the context of the prompt execution
@@ -298,10 +303,7 @@ interface ExpansionVariables {
     /**
      * List of functions defined in the prompt
      */
-    functions?: {
-        definition: FunctionDefinition
-        fn: (args: Record<string, any>) => string | Promise<string>
-    }[]
+    functions?: ChatFunctionCallback[]
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

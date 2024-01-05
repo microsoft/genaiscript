@@ -167,6 +167,12 @@ export async function getChatCompletions(
         trace.item(
             `response_format: ${JSON.stringify(response_format, null, 2)}`
         )
+    if (tools?.length) {
+        trace.item(
+            `tools: ${tools.map((t) => "`" + t.function.name + "`").join(", ")}`
+        )
+        trace.fence(JSON.stringify(tools, null, 2), "json")
+    }
 
     let numTokens = 0
 

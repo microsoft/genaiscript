@@ -55,7 +55,7 @@ ${title}
     }
 
     error(message: string, exception?: unknown) {
-        this.content += `\n** error: ${message}\n`
+        this.content += `\n> error: ${message}\n`
         if (exception) this.fence(exception + "")
     }
 }
