@@ -234,9 +234,29 @@ interface ChatFunctionDefinition {
  */
 type ChatFunctionParameters = Record<string, unknown>
 
+interface ChatFunctionCallTrace {
+    log(message: string): void
+    item(message: string): void
+    tip(message: string): void
+    fence(message: string, contentType?: string): void
+}
+
+interface ChatFunctionCallHost {
+    findFiles(glob: string): Promise<string[]>
+    readText(file: string): Promise<string>
+}
+
+interface ChatFunctionCallContext {
+    trace: ChatFunctionCallTrace
+    output: ChatFunctionCallTrace
+    host: ChatFunctionCallHost
+}
+
 interface ChatFunctionCallback {
     definition: ChatFunctionDefinition
-    fn: (args: Record<string, any>) => string | Promise<string>
+    fn: (
+        args: { context: ChatFunctionCallContext } & Record<string, any>
+    ) => string | Promise<string>
 }
 
 /**

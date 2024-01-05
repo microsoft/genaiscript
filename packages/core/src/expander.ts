@@ -600,7 +600,7 @@ export async function runTemplate(
 
     let statusText = ""
     let text: string
-    while (!signal?.aborted && text === undefined) {
+    while (!signal?.aborted) {
         let resp: ChatCompletionResponse
         try {
             try {
@@ -695,15 +695,30 @@ export async function runTemplate(
                 if (signal?.aborted) break
                 trace.item(`\`${call.name}\``)
                 try {
+                    trace.fence(call.arguments, "json")
                     const args = call.arguments
                         ? JSON.parse(call.arguments)
                         : undefined
-                    trace.fence(args, "json")
                     const fd = vars.functions.find(
                         (f) => f.definition.name === call.name
                     )
                     if (!fd) throw new Error(`function ${call.name} not found`)
-                    const fr = await fd.fn(args)
+
+                    const output = new MarkdownTrace()
+                    const host: ChatFunctionCallHost = {
+                        findFiles: async (glob) => host.findFiles(glob),
+                        readText: async (file) => host.readText(file),
+                    }
+                    const context: ChatFunctionCallContext = {
+                        trace,
+                        output,
+                        host,
+                    }
+
+                    const fr = await fd.fn({ context, ...args })
+
+                    if (output.content) text += output.content
+
                     trace.fence(fr, "markdown")
                     messages.push({
                         role: "tool",
@@ -720,6 +735,7 @@ export async function runTemplate(
             text =
                 messages.filter((msg) => msg.role === "assistant").join("\n") +
                 resp.text
+            break
         }
     }
 
