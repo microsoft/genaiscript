@@ -693,11 +693,12 @@ export async function runTemplate(
             trace.startDetails("tool calls")
             for (const call of resp.toolCalls) {
                 if (signal?.aborted) break
-                trace.item(`${call.name} ${call.arguments || ""}`)
+                trace.item(`\`${call.name}\``)
                 try {
                     const args = call.arguments
                         ? JSON.parse(call.arguments)
                         : undefined
+                    trace.fence(args, "json")
                     const fd = vars.functions.find(
                         (f) => f.definition.name === call.name
                     )
