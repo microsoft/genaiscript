@@ -241,6 +241,27 @@ interface ChatFunctionCallTrace {
     fence(message: string, contentType?: string): void
 }
 
+type LineRange = [number, number]
+
+interface FileEdit {
+    type: string
+    filename: string
+    label?: string
+}
+
+interface ReplaceFileEdit extends FileEdit {
+    type: "replace"
+    range: LineRange
+    text: string
+}
+
+type FileEdits = ReplaceFileEdit
+
+interface ChatFunctionCallOutput {
+    content: string
+    edits?: FileEdits[]
+}
+
 interface ChatFunctionCallHost {
     findFiles(glob: string): Promise<string[]>
     readText(file: string): Promise<string>
@@ -248,7 +269,6 @@ interface ChatFunctionCallHost {
 
 interface ChatFunctionCallContext {
     trace: ChatFunctionCallTrace
-    output: ChatFunctionCallTrace
     host: ChatFunctionCallHost
 }
 
@@ -256,7 +276,11 @@ interface ChatFunctionCallback {
     definition: ChatFunctionDefinition
     fn: (
         args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => string | Promise<string>
+    ) =>
+        | string
+        | Promise<string>
+        | ChatFunctionCallOutput
+        | Promise<ChatFunctionCallOutput>
 }
 
 /**
@@ -350,7 +374,13 @@ interface PromptContext {
         name: string,
         description: string,
         parameters: ChatFunctionParameters,
-        fn: (args: Record<string, any>) => string | Promise<string>
+        fn: (
+            args: Record<string, any>
+        ) =>
+            | string
+            | Promise<string>
+            | ChatFunctionCallOutput
+            | Promise<ChatFunctionCallOutput>
     ): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean

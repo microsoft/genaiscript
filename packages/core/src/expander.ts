@@ -690,11 +690,12 @@ export async function runTemplate(
             })
 
             // call tool and run again
-            trace.startDetails("tool calls")
             for (const call of resp.toolCalls) {
                 if (signal?.aborted) break
-                trace.item(`\`${call.name}\``)
                 try {
+                    trace.startDetails(`tool call ${call.name}`)
+                    trace.item(`id: \`${call.id}\``)
+                    trace.item(`args:`)
                     trace.fence(call.arguments, "json")
                     const args = call.arguments
                         ? JSON.parse(call.arguments)
@@ -704,33 +705,34 @@ export async function runTemplate(
                     )
                     if (!fd) throw new Error(`function ${call.name} not found`)
 
-                    const output = new MarkdownTrace()
                     const host: ChatFunctionCallHost = {
                         findFiles: async (glob) => host.findFiles(glob),
                         readText: async (file) => host.readText(file),
                     }
                     const context: ChatFunctionCallContext = {
                         trace,
-                        output,
                         host,
                     }
 
-                    const fr = await fd.fn({ context, ...args })
+                    let output = await fd.fn({ context, ...args })
+                    if (typeof output === "string") output = { content: output }
+                    const { content, edits } = output
 
-                    if (output.content) text += output.content
+                    if (content) trace.fence(content, "markdown")
+                    if (edits?.length) trace.fence(edits, "json")
 
-                    trace.fence(fr, "markdown")
                     messages.push({
                         role: "tool",
-                        content: fr,
+                        content,
                         tool_call_id: call.id,
                     })
                 } catch (e) {
                     trace.error(`function failed`, e)
                     throw e
+                } finally {
+                    trace.endDetails()
                 }
             }
-            trace.endDetails()
         } else {
             text =
                 messages.filter((msg) => msg.role === "assistant").join("\n") +

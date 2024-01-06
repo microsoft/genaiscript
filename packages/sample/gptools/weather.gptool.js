@@ -19,14 +19,12 @@ defFunction('get_current_weather', 'get the current weather', {
     "required": ["location"],
 }, (args) => {
     const { context, location } = args
-    const { trace, output } = context
+    const { trace } = context
 
     trace.log(`Getting weather for ${location}...`)
 
-    let r = "variable"
-    if (location === "Brussels") r = "sunny"
+    let content = "variable"
+    if (location === "Brussels") content = "sunny"
 
-    output.log(`The weather in ${location} is ${r}`)
-
-    return r
+    return content
 })
