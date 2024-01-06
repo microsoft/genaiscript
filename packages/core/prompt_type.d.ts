@@ -61,7 +61,13 @@ declare function defFunction(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
-    fn: (args: Record<string, any>) => string | Promise<string>
+    fn: (
+        args: Record<string, any>
+    ) =>
+        | string
+        | Promise<string>
+        | ChatFunctionCallOutput
+        | Promise<ChatFunctionCallOutput>
 ): void
 
 /**

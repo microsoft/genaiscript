@@ -38,7 +38,11 @@ ${title}
         this.content += message + "\n"
     }
 
-    fence(message: string, contentType?: string) {
+    fence(message: string | object, contentType?: string) {
+        if (typeof message !== "string") {
+            message = JSON.stringify(message, null, 2)
+            contentType = contentType || "json"
+        }
         this.content += fenceMD(message, contentType)
     }
 

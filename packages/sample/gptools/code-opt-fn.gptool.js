@@ -10,6 +10,10 @@ gptool({
 defFunction("update_file", "Describes an update (patch) of a file.", {
     "type": "object",
     "properties": {
+        "filename": {
+            "type": "string",
+            "description": "Filename to update.",
+        },
         "lineStart": {
             "type": "string",
             "description": "The line number to start the patch.",
@@ -23,11 +27,18 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
             "description": "The content to replace the patch with. If not provided, the patch will be deleted.",
         }
     },
-    "required": ["lineStart", "lineEnd"],
+    "required": ["filename", "lineStart", "lineEnd"],
 }, (args) => {
-    const { output, lineStart, lineEnd, content } = args
-    output.log(`[${lineStart}-${lineEnd}] ${content || ""}`)
-    return ''
+    const { filename, lineStart, lineEnd, content } = args
+    return {
+        content: `${filename}[${lineStart}-${lineEnd}] ${content || ""}`,
+        edits: [{
+            type: "replace",
+            filename,
+            range: [lineStart, lineEnd],
+            text: content,
+        }]
+    }
 })
 
 // Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46
