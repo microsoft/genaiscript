@@ -254,7 +254,7 @@ type CharRange = [CharPosition, CharPosition]
 /**
  * 0-based line numbers.
  */
-type LineRange = [number,  number]
+type LineRange = [number, number]
 
 interface FileEdit {
     type: string
@@ -288,10 +288,24 @@ interface CreateFileEdit extends FileEdit {
 
 type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
 
-interface ChatFunctionCallOutput {
+interface ChatFunctionCallContent {
+    type?: "content"
     content: string
     edits?: Edits[]
 }
+
+interface ChatFunctionCallShell {
+    type: "shell"
+    command: string
+    cwd?: string
+    env?: Record<string, string>
+    args?: string[]
+}
+
+type ChatFUnctionCallOutput =
+    | string
+    | ChatFunctionCallContent
+    | ChatFunctionCallShell
 
 interface ChatFunctionCallHost {
     findFiles(glob: string): Promise<string[]>
@@ -307,11 +321,7 @@ interface ChatFunctionCallback {
     definition: ChatFunctionDefinition
     fn: (
         args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) =>
-        | string
-        | Promise<string>
-        | ChatFunctionCallOutput
-        | Promise<ChatFunctionCallOutput>
+    ) => ChatFUnctionCallOutput | Promise<ChatFUnctionCallOutput>
 }
 
 /**
@@ -392,6 +402,13 @@ interface DefOptions {
     lineNumbers?: boolean
 }
 
+interface ChatTaskOptions {
+    command: string
+    cwd?: string
+    env?: Record<string, string>
+    args?: string[]
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -410,8 +427,8 @@ interface PromptContext {
         ) =>
             | string
             | Promise<string>
-            | ChatFunctionCallOutput
-            | Promise<ChatFunctionCallOutput>
+            | ChatFunctionCallContent
+            | Promise<ChatFunctionCallContent>
     ): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean

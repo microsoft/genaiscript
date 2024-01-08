@@ -15,6 +15,7 @@ import { ensureDir } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
+import { execa } from "execa"
 
 export class NodeHost implements Host {
     userState: any = {}
@@ -94,5 +95,27 @@ export class NodeHost implements Host {
     }
     async createDirectory(name: string): Promise<void> {
         await ensureDir(name)
+    }
+
+    async exec(
+        command: string,
+        args: string[],
+        input: string,
+        options: {
+            cwd?: string
+            timeout?: number
+        }
+    ) {
+        args = args.slice(0)
+        const exec = execa
+        const { stdout, stderr, exitCode, failed } = await exec(command, args, {
+            cleanup: true,
+            input,
+            timeout: options.timeout,
+            cwd: options.cwd,
+            preferLocal: true,
+            stripFinalNewline: true,
+        })
+        return { stdout, stderr, exitCode, failed }
     }
 }

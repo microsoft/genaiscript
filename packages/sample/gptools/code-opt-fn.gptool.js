@@ -7,6 +7,25 @@ gptool({
     system: ["system.functions"],
 })
 
+defFunction("check_syntax", "Checks code for syntax errors", {
+    "type": "object",
+    "properties": {
+        "code": {
+            "type": "string",
+            "description": "Code to check.",
+        },
+    },
+    "required": ["code"],
+}, (args) => {
+    const { code } = args
+    return {
+        type: "shell",
+        input: code,
+        command: "node",
+        args: ["check-syntax.js"],
+    }
+})
+
 defFunction("update_file", "Describes an update (patch) of a file.", {
     "type": "object",
     "properties": {
@@ -49,12 +68,14 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
 def("FILE", env.links, { lineNumbers: true })
 
 $`
-You are a world expert in making code run faster. You use any resource you can to do so.
+You are a world expert in making code run faster. 
+You use any resource you can to do so.
 
 Given some code in FILE files, identify how long it might take to run.
 After that, identify which parts are key candidates to speed up.
 After that, order the candidates by ranking.
 
 Take the top-ranked candidate and update the code in the file to be faster.
+Check the syntax of the generated code.
 Do not explain your reasoning, just update the code.
 `
