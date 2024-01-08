@@ -599,6 +599,36 @@ export async function runTemplate(
 
     let statusText = ""
     let text: string
+    const fileEdits: Record<string, { before: string; after: string }> = {}
+    const annotations: Diagnostic[] = []
+    const edits: Edits[] = []
+    let summary: string = undefined
+    const projFolder = host.projectFolder()
+    const links: string[] = []
+    const fp = fragment.file.filename
+    const fragn = /^.\//.test(fp)
+        ? host.resolvePath(projFolder, fragment.file.filename)
+        : fp
+    const ff = host.resolvePath(fp, "..")
+    const refs = fragment.references
+    const fragmentVirtual = await fileExists(fragment.file.filename, {
+        virtual: true,
+    })
+
+    const getFileEdit = async (fn: string) => {
+        let fileEdit = fileEdits[fn]
+        if (!fileEdit) {
+            let before: string = null
+            let after: string = undefined
+            if (await fileExists(fn, { virtual: false }))
+                before = await readText(fn)
+            else if (await fileExists(fn, { virtual: true }))
+                after = await readText(fn)
+            fileEdit = fileEdits[fn] = { before, after }
+        }
+        return fileEdit
+    }
+
     while (!signal?.aborted) {
         let resp: ChatCompletionResponse
         try {
@@ -653,9 +683,9 @@ export async function runTemplate(
                 trace: trace.content,
                 error,
                 text: resp?.text,
-                edits: [],
-                annotations: [],
-                fileEdits: {},
+                edits,
+                annotations,
+                fileEdits,
                 label,
             }
         }
@@ -715,10 +745,13 @@ export async function runTemplate(
 
                     let output = await fd.fn({ context, ...args })
                     if (typeof output === "string") output = { content: output }
-                    const { content, edits } = output
+                    const { content, edits: functionEdits } = output
 
                     if (content) trace.fence(content, "markdown")
-                    if (edits?.length) trace.fence(edits, "json")
+                    if (functionEdits?.length) {
+                        trace.fence(functionEdits, "json")
+                        edits.push(...functionEdits)
+                    }
 
                     messages.push({
                         role: "tool",
@@ -748,37 +781,6 @@ export async function runTemplate(
         trace.startDetails("json (parsed)")
         trace.fence(JSON.stringify(json, null, 2), "json")
         trace.endDetails()
-    }
-
-    const fileEdits: Record<string, { before: string; after: string }> = {}
-    const annotations: Diagnostic[] = []
-    const edits: Edits[] = []
-    let summary: string = undefined
-
-    const projFolder = host.projectFolder()
-    const links: string[] = []
-    const fp = fragment.file.filename
-    const fragn = /^.\//.test(fp)
-        ? host.resolvePath(projFolder, fragment.file.filename)
-        : fp
-    const ff = host.resolvePath(fp, "..")
-    const refs = fragment.references
-    const fragmentVirtual = await fileExists(fragment.file.filename, {
-        virtual: true,
-    })
-
-    const getFileEdit = async (fn: string) => {
-        let fileEdit = fileEdits[fn]
-        if (!fileEdit) {
-            let before: string = null
-            let after: string = undefined
-            if (await fileExists(fn, { virtual: false }))
-                before = await readText(fn)
-            else if (await fileExists(fn, { virtual: true }))
-                after = await readText(fn)
-            fileEdit = fileEdits[fn] = { before, after }
-        }
-        return fileEdit
     }
 
     if (json !== undefined) {
@@ -909,7 +911,10 @@ export async function runTemplate(
             "edits",
             `| Type | Filename | Message |\n| --- | --- | --- |\n` +
                 edits
-                    .map((e) => `| ${e.type} | ${e.filename} | ${e.label} |`)
+                    .map(
+                        (e) =>
+                            `| ${e.type} | ${e.filename} | ${e.label || ""} |`
+                    )
                     .join("\n")
         )
     if (annotations.length)

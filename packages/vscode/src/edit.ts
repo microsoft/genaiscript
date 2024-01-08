@@ -1,10 +1,16 @@
 import * as vscode from "vscode"
-import { Fragment } from "gptools-core"
+import { Fragment, eolPosition } from "gptools-core"
 
-export function toPos(p: CharPosition) {
+export function toPos(p: CharPosition | number) {
+    if (typeof p === "number") return new vscode.Position(p, 0)
     return new vscode.Position(...p)
 }
-export function toRange(p: CharRange) {
+export function toRange(p: CharRange | LineRange) {
+    if (Array.isArray(p) && typeof p[0] === "number" && typeof p[1] === "number")
+        return new vscode.Range(
+            new vscode.Position(p[0], 0),
+            new vscode.Position(p[1], eolPosition)
+        )
     return new vscode.Range(toPos(p[0]), toPos(p[1]))
 }
 export function fragmentRange(frag: Fragment) {
