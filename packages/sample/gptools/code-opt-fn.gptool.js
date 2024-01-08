@@ -20,7 +20,7 @@ defFunction("check_syntax", "Checks code for syntax errors", {
     const { code } = args
     return {
         type: "shell",
-        input: code,
+        stdin: code,
         command: "node",
         args: ["check-syntax.js"],
     }

@@ -68,6 +68,7 @@ export interface Host {
         args: string[],
         stdin: string,
         options: {
+            label?: string
             cwd?: string
             timeout?: number
         }
