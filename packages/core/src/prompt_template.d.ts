@@ -251,6 +251,11 @@ type CharPosition = [number, number]
  */
 type CharRange = [CharPosition, CharPosition]
 
+/**
+ * 0-based line numbers.
+ */
+type LineRange = [number,  number]
+
 interface FileEdit {
     type: string
     filename: string
@@ -259,19 +264,19 @@ interface FileEdit {
 
 interface ReplaceEdit extends FileEdit {
     type: "replace"
-    range: CharRange
+    range: CharRange | LineRange
     text: string
 }
 
 interface InsertEdit extends FileEdit {
     type: "insert"
-    pos: CharPosition
+    pos: CharPosition | number
     text: string
 }
 
 interface DeleteEdit extends FileEdit {
     type: "delete"
-    range: CharRange
+    range: CharRange | LineRange
 }
 
 interface CreateFileEdit extends FileEdit {

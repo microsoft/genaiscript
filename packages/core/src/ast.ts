@@ -147,6 +147,7 @@ export function templateGroup(template: PromptTemplate) {
     )
 }
 
+export const eolPosition = 0x3fffffff
 export const eofPosition: CharPosition = [0x3fffffff, 0]
 
 export interface CoArchJson {

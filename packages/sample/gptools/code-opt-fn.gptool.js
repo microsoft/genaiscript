@@ -14,6 +14,10 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
             "type": "string",
             "description": "Filename to update.",
         },
+        "label": {
+            "type": "string",
+            "description": "Description of the change.",
+        },
         "lineStart": {
             "type": "string",
             "description": "The line number to start the patch.",
@@ -35,7 +39,7 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
         edits: [{
             type: "replace",
             filename,
-            range: [lineStart, lineEnd],
+            range: [parseInt(lineStart), parseInt(lineEnd)],
             text: content,
         }]
     }
