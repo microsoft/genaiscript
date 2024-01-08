@@ -589,7 +589,7 @@ export async function runTemplate(
     ]
 
     const status = (text: string) => {
-        statusText += `-  ${text}...`
+        statusText += `-  ${text}...\n`
         options.infoCb?.({
             vars,
             text: statusText,
@@ -734,13 +734,13 @@ export async function runTemplate(
                     )
                     if (!fd) throw new Error(`function ${call.name} not found`)
 
-                    const host: ChatFunctionCallHost = {
-                        findFiles: async (glob) => host.findFiles(glob),
-                        readText: async (file) => host.readText(file),
+                    const callHost: ChatFunctionCallHost = {
+                        findFiles: async (glob) => callHost.findFiles(glob),
+                        readText: async (file) => callHost.readText(file),
                     }
                     const context: ChatFunctionCallContext = {
                         trace,
-                        host,
+                        host: callHost,
                     }
 
                     let output = await fd.fn({ context, ...args })
@@ -750,7 +750,16 @@ export async function runTemplate(
                     if (content) trace.fence(content, "markdown")
                     if (functionEdits?.length) {
                         trace.fence(functionEdits, "json")
-                        edits.push(...functionEdits)
+                        edits.push(
+                            ...functionEdits.map((e) => {
+                                const { filename, ...rest } = e
+                                const n = e.filename
+                                const fn = /^[^\/]/.test(n)
+                                    ? host.resolvePath(projFolder, n)
+                                    : n
+                                return { filename: fn, ...rest }
+                            })
+                        )
                     }
 
                     messages.push({
