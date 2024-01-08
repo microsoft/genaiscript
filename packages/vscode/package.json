@@ -150,6 +150,12 @@
                     "command": "coarch.prompt.unbuiltin",
                     "when": "view == coarch.prompts && viewItem  =~ /^prompt.builtin/"
                 }
+            ],
+            "explorer/context": [
+                {
+                    "command": "coarch.fragment.prompt",
+                    "when": "!explorerResourceIsFolder && explorerViewletVisible"
+                }
             ]
         },
         "configuration": [
