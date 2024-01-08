@@ -589,7 +589,7 @@ export async function runTemplate(
     ]
 
     const status = (text: string) => {
-        statusText += `\n\n${text}...`
+        statusText += `-  ${text}...`
         options.infoCb?.({
             vars,
             text: statusText,
