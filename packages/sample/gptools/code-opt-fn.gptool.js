@@ -22,7 +22,7 @@ defFunction("check_syntax", "Checks code for syntax errors", {
         type: "shell",
         stdin: code,
         command: "node",
-        args: ["check-syntax.js"],
+        args: ["gptools/check-syntax.js"],
     }
 })
 
@@ -75,7 +75,6 @@ Given some code in FILE files, identify how long it might take to run.
 After that, identify which parts are key candidates to speed up.
 After that, order the candidates by ranking.
 
-Take the top-ranked candidate and update the code in the file to be faster.
-Check the syntax of the generated code.
+Take the top-ranked candidate, check the syntax and update the code in the file to be faster.
 Do not explain your reasoning, just update the code.
 `

@@ -694,8 +694,6 @@ export async function runTemplate(
         if (resp.text) trace.detailsFenced("llm response", resp.text)
 
         if (resp.toolCalls?.length) {
-            status(`running tools`)
-
             if (resp.text)
                 messages.push({
                     role: "assistant",
@@ -718,6 +716,7 @@ export async function runTemplate(
             for (const call of resp.toolCalls) {
                 if (signal?.aborted) break
                 try {
+                    status(`running tool ${call.name}`)
                     trace.startDetails(`tool call ${call.name}`)
                     trace.item(`id: \`${call.id}\``)
                     trace.item(`args:`)
@@ -742,7 +741,7 @@ export async function runTemplate(
                     let output = await fd.fn({ context, ...callArgs })
                     if (typeof output === "string") output = { content: output }
                     if (output.type === "shell") {
-                        const { command, args = [], stdin } = output
+                        let { command, args = [], stdin, cwd, timeout } = output
                         trace.item(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
@@ -752,6 +751,8 @@ export async function runTemplate(
                             stdin,
                             {
                                 label: call.name,
+                                cwd: cwd ?? projFolder,
+                                timeout: timeout ?? 60000,
                             }
                         )
                         output = { content: stdout }
