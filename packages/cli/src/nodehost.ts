@@ -102,6 +102,7 @@ export class NodeHost implements Host {
         args: string[],
         input: string,
         options: {
+            label: string,
             cwd?: string
             timeout?: number
         }

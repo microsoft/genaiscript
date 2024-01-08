@@ -228,7 +228,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         args: string[],
         stdin: string,
         options: {
-            node?: boolean
+            label?: string
             cwd?: string
             timeout?: number
         }
@@ -241,7 +241,11 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const prefix = dotGptoolsPath(Math.random() + "")
         const stdinFile = prefix + ".in.txt"
         const stdoutFile = prefix + ".out.txt"
-        const terminal = vscode.window.createTerminal()
+        const terminal = vscode.window.createTerminal({
+            cwd: options.cwd,
+            isTransient: true,
+            name: options.label ?? "GPTools",
+        })
         let watcher: vscode.FileSystemWatcher
 
         const clean = async () => {
@@ -254,15 +258,15 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         return new Promise<ShellOutput>(async (resolve, reject) => {
             await vscode.workspace.fs.writeFile(
                 vscode.Uri.file(stdinFile),
-                this.createUTF8Encoder().encode(stdin)
+                this.createUTF8Encoder().encode(stdin || "")
             )
             watcher = vscode.workspace.createFileSystemWatcher(prefix + "*")
-            terminal.sendText(
-                `${command} ${args
-                    .map((a) => (/\s/.test(a) ? `"${a}"` : ""))
-                    .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
-            )
-            terminal.sendText("exit $?")
+            const text = `${command} ${args
+                .map((a) => (/\s/.test(a) ? `"${a}"` : ""))
+                .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
+            this.state.output.info(`> ` + text)
+            terminal.sendText(text)
+            terminal.sendText("exit 0") // vscode gives an annoying error message
 
             watcher.onDidChange(async () => {
                 const output = (
@@ -270,6 +274,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                         vscode.Uri.file(stdoutFile)
                     )
                 ).toString()
+                this.state.output.debug(output)
                 resolve({
                     stdout: output,
                     stderr: "",

@@ -593,6 +593,7 @@ export async function runTemplate(
         options.infoCb?.({
             vars,
             text: statusText,
+            trace: trace.content,
             label,
         })
     }
@@ -694,11 +695,6 @@ export async function runTemplate(
 
         if (resp.toolCalls?.length) {
             status(`running tools`)
-            options.infoCb?.({
-                vars,
-                text: statusText,
-                label,
-            })
 
             if (resp.text)
                 messages.push({
@@ -746,15 +742,17 @@ export async function runTemplate(
                     let output = await fd.fn({ context, ...callArgs })
                     if (typeof output === "string") output = { content: output }
                     if (output.type === "shell") {
-                        const { command, args = [] } = output
+                        const { command, args = [], stdin } = output
                         trace.item(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
                         const { stdout, stderr } = await host.exec(
                             command,
                             args,
-                            call.arguments,
-                            {}
+                            stdin,
+                            {
+                                label: call.name,
+                            }
                         )
                         output = { content: stdout }
                         if (stdout) trace.details("shell output", stdout)
