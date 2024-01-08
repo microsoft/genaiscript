@@ -6,16 +6,6 @@ import { templateAppliesTo } from "./template"
 type PromptTemplate = globalThis.PromptTemplate
 export type { PromptTemplate }
 
-/**
- * This is 0-based offset in file.
- */
-export type Position = [number, number]
-
-/**
- * Describes a run of text.
- */
-export type Range = [Position, Position]
-
 export interface FileReference {
     name: string
     filename: string
@@ -24,7 +14,7 @@ export interface FileReference {
 export type DiagnosticSeverity = "error" | "warning" | "info"
 export interface Diagnostic {
     filename: string
-    range: Range
+    range: CharRange
     severity: DiagnosticSeverity
     message: string
 }
@@ -81,12 +71,12 @@ export class Fragment {
     /**
      * Where the text of the fragment starts.
      */
-    startPos: Position
+    startPos: CharPosition
 
     /**
      * Where the text of the fragments ends.
      */
-    endPos: Position
+    endPos: CharPosition
 
     /**
      * Full body of the fragment (both header and body).
@@ -157,7 +147,7 @@ export function templateGroup(template: PromptTemplate) {
     )
 }
 
-export const eofPosition: Position = [0x3fffffff, 0]
+export const eofPosition: CharPosition = [0x3fffffff, 0]
 
 export interface CoArchJson {
     model?: string
@@ -240,7 +230,7 @@ export class TextFile {
         return f
     }
 
-    textOfRange(start: Position, stop: Position) {
+    textOfRange(start: CharPosition, stop: CharPosition) {
         const [l, c] = start
         const [ll, cc] = stop
         const lines = this.content.split("\n").slice(l, ll + 1)
@@ -252,11 +242,11 @@ export class TextFile {
     }
 }
 
-function ltPos(a: Position, b: Position) {
+function ltPos(a: CharPosition, b: CharPosition) {
     return a[0] < b[0] || a[1] < b[1]
 }
 
-export function rangeOfFragments(...frags: Fragment[]): Range {
+export function rangeOfFragments(...frags: Fragment[]): CharRange {
     let start = frags[0].startPos
     let stop = frags[0].endPos
     for (const t of frags) {

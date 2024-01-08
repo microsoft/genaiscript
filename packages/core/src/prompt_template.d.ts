@@ -241,7 +241,15 @@ interface ChatFunctionCallTrace {
     fence(message: string, contentType?: string): void
 }
 
-type LineRange = [number, number]
+/**
+ * Position (line, character) in a file. Both are 0-based.
+ */
+type CharPosition = [number, number]
+
+/**
+ * Describes a run of text.
+ */
+type CharRange = [CharPosition, CharPosition]
 
 interface FileEdit {
     type: string
@@ -249,17 +257,35 @@ interface FileEdit {
     label?: string
 }
 
-interface ReplaceFileEdit extends FileEdit {
+interface ReplaceEdit extends FileEdit {
     type: "replace"
-    range: LineRange
+    range: CharRange
     text: string
 }
 
-type FileEdits = ReplaceFileEdit
+interface InsertEdit extends FileEdit {
+    type: "insert"
+    pos: CharPosition
+    text: string
+}
+
+interface DeleteEdit extends FileEdit {
+    type: "delete"
+    range: CharRange
+}
+
+interface CreateFileEdit extends FileEdit {
+    type: "createfile"
+    overwrite?: boolean
+    ignoreIfExists?: boolean
+    text: string
+}
+
+type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
 
 interface ChatFunctionCallOutput {
     content: string
-    edits?: FileEdits[]
+    edits?: Edits[]
 }
 
 interface ChatFunctionCallHost {

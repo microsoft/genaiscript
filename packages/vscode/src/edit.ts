@@ -1,10 +1,10 @@
 import * as vscode from "vscode"
-import { Edits, Position, Range, Fragment } from "gptools-core"
+import { Fragment } from "gptools-core"
 
-export function toPos(p: Position) {
+export function toPos(p: CharPosition) {
     return new vscode.Position(...p)
 }
-export function toRange(p: Range) {
+export function toRange(p: CharRange) {
     return new vscode.Range(toPos(p[0]), toPos(p[1]))
 }
 export function fragmentRange(frag: Fragment) {
