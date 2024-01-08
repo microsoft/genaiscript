@@ -39,7 +39,7 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
         edits: [{
             type: "replace",
             filename,
-            range: [parseInt(lineStart), parseInt(lineEnd)],
+            range: [parseInt(lineStart) - 1, parseInt(lineEnd) - 1],
             text: content,
         }]
     }
