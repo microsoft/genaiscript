@@ -13,14 +13,7 @@ import {
     strcmp,
     tryReadJSON,
 } from "./util"
-import {
-    CoArchProject,
-    TextFile,
-    Position,
-    PromptTemplate,
-    Fragment,
-    Range,
-} from "./ast"
+import { CoArchProject, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { builtinPrefix, parsePromptTemplate } from "./template"
 import { host } from "./host"
@@ -116,7 +109,7 @@ function sourceRange(md: string, elts: Content[]) {
     return md.slice(start.offset, stop.offset)
 }
 
-function toPosition(p: { line: number; column: number }): Position {
+function toPosition(p: { line: number; column: number }): CharPosition {
     return [p.line - 1, p.column - 1]
 }
 
@@ -220,7 +213,7 @@ const parseMdFile: Parser = (
 
 const nodeIdRx = /\{(#[A-Z]{2,6}[0-9]{2,6})\}/
 
-export function fragmentIdRange(fragment: Fragment): Range {
+export function fragmentIdRange(fragment: Fragment): CharRange {
     const m = nodeIdRx.exec(fragment.text)
     if (m) {
         const off = fragment.text.indexOf(m[0])
@@ -237,7 +230,7 @@ export function fragmentIdRange(fragment: Fragment): Range {
     return undefined
 }
 
-export function stringToPos(str: string): Position {
+export function stringToPos(str: string): CharPosition {
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
 
@@ -261,7 +254,7 @@ const parseGeneric: Parser = (prj, filename, content) => {
             else title = ""
             if (!title) title = defaultTitle + " #" + file.roots.length
 
-            const startPos: Position = [lineNo, 0]
+            const startPos: CharPosition = [lineNo, 0]
             lineNo++
             let text = line + "\n"
             while (lineNo < lines.length) {

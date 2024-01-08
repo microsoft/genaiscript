@@ -1,10 +1,4 @@
-import {
-    CoArchProject,
-    Diagnostic,
-    Fragment,
-    Position,
-    PromptTemplate,
-} from "./ast"
+import { CoArchProject, Diagnostic, Fragment, PromptTemplate } from "./ast"
 import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange } from "./util"
@@ -30,7 +24,7 @@ class Checker<T extends PromptLike> {
     key: string
     val: any
 
-    toPosition(n: number): Position {
+    toPosition(n: number): CharPosition {
         const pref = this.js.slice(0, n)
         const line = pref.replace(/[^\n]/g, "").length
         const col = pref.replace(/[^]*\n/, "").length

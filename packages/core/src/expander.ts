@@ -7,7 +7,6 @@ import {
     getChatCompletions,
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
-import { Edits } from "./edits"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, fileExists, logVerbose, readText, relativePath } from "./util"
 import {
