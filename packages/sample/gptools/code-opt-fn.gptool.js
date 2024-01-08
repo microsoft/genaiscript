@@ -33,9 +33,9 @@ defFunction("update_file", "Describes an update (patch) of a file.", {
     },
     "required": ["filename", "lineStart", "lineEnd"],
 }, (args) => {
-    const { filename, lineStart, lineEnd, content } = args
+    const { filename, lineStart, lineEnd, content, label } = args
     return {
-        content: `${filename}[${lineStart}-${lineEnd}] ${content || ""}`,
+        content: `${filename}[${lineStart}-${lineEnd}] ${content || ""} (${label || "no description"})`,
         edits: [{
             type: "replace",
             filename,
