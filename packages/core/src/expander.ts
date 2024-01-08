@@ -726,7 +726,7 @@ export async function runTemplate(
                     trace.item(`id: \`${call.id}\``)
                     trace.item(`args:`)
                     trace.fence(call.arguments, "json")
-                    const args = call.arguments
+                    const callArgs = call.arguments
                         ? JSON.parse(call.arguments)
                         : undefined
                     const fd = vars.functions.find(
@@ -743,8 +743,24 @@ export async function runTemplate(
                         host: callHost,
                     }
 
-                    let output = await fd.fn({ context, ...args })
+                    let output = await fd.fn({ context, ...callArgs })
                     if (typeof output === "string") output = { content: output }
+                    if (output.type === "shell") {
+                        const { command, args = [] } = output
+                        trace.item(
+                            `shell command: \`${command}\` ${args.join(" ")}`
+                        )
+                        const { stdout, stderr } = await host.exec(
+                            command,
+                            args,
+                            call.arguments,
+                            {}
+                        )
+                        output = { content: stdout }
+                        if (stdout) trace.details("shell output", stdout)
+                        if (stderr) trace.details("shell error", stderr)
+                    }
+
                     const { content, edits: functionEdits } = output
 
                     if (content) trace.fence(content, "markdown")

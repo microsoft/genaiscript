@@ -10,7 +10,7 @@ import {
     runTemplate,
     writeText,
 } from "gptools-core"
-import { NodeHost } from "./hostimpl"
+import { NodeHost } from "./nodehost"
 import { program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"

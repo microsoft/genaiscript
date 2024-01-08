@@ -4,6 +4,8 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
+    ShellOutput,
+    dotGptoolsPath,
     logVerbose,
     parseTokenFromEnv,
     setHost,
@@ -218,5 +220,72 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                 JSON.stringify(tok)
             )
         this.dispatchEvent(new Event(CHANGE))
+    }
+
+    // executes a process
+    async exec(
+        command: string,
+        args: string[],
+        stdin: string,
+        options: {
+            node?: boolean
+            cwd?: string
+            timeout?: number
+        }
+    ): Promise<{
+        stdout: string
+        stderr: string
+        exitCode: number
+        failed: boolean
+    }> {
+        const prefix = dotGptoolsPath(Math.random() + "")
+        const stdinFile = prefix + ".in.txt"
+        const stdoutFile = prefix + ".out.txt"
+        const terminal = vscode.window.createTerminal()
+        let watcher: vscode.FileSystemWatcher
+
+        const clean = async () => {
+            await vscode.workspace.fs.delete(vscode.Uri.file(stdoutFile))
+            await vscode.workspace.fs.delete(vscode.Uri.file(stdinFile))
+            watcher?.dispose()
+            terminal?.dispose()
+        }
+
+        return new Promise<ShellOutput>(async (resolve, reject) => {
+            await vscode.workspace.fs.writeFile(
+                vscode.Uri.file(stdinFile),
+                this.createUTF8Encoder().encode(stdin)
+            )
+            watcher = vscode.workspace.createFileSystemWatcher(prefix + "*")
+            terminal.sendText(
+                `${command} ${args
+                    .map((a) => (/\s/.test(a) ? `"${a}"` : ""))
+                    .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
+            )
+            terminal.sendText("exit $?")
+
+            watcher.onDidChange(async () => {
+                const output = (
+                    await vscode.workspace.fs.readFile(
+                        vscode.Uri.file(stdoutFile)
+                    )
+                ).toString()
+                resolve({
+                    stdout: output,
+                    stderr: "",
+                    exitCode: 0,
+                    failed: false,
+                })
+            })
+            watcher.onDidDelete(async () => {
+                reject(
+                    new Error(
+                        "Temporary file was deleted before it could be read."
+                    )
+                )
+            })
+        }).finally(async () => {
+            await clean()
+        })
     }
 }

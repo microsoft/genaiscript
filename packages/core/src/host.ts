@@ -31,6 +31,13 @@ export interface ReadFileOptions {
     virtual?: boolean
 }
 
+export interface ShellOutput {
+    stdout: string
+    stderr: string
+    exitCode: number
+    failed: boolean
+}
+
 export interface Host {
     userState: any
 
@@ -54,6 +61,17 @@ export interface Host {
 
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
+
+    // executes a process
+    exec(
+        command: string,
+        args: string[],
+        stdin: string,
+        options: {
+            cwd?: string
+            timeout?: number
+        }
+    ): Promise<ShellOutput>
 }
 
 export let host: Host
