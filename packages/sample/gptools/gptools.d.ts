@@ -299,8 +299,8 @@ interface ChatFunctionCallShell {
     command: string
     stdin: string
     cwd?: string
-    env?: Record<string, string>
     args?: string[]
+    timeout?: number
 }
 
 type ChatFUnctionCallOutput =

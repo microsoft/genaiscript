@@ -10,3 +10,4 @@ packages/sample/*.slides.md
 **/.gptools/gptools.js
 vscode-extension-samples/
 .DS_Store
+.gptools/temp

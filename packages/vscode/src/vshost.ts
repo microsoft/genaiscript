@@ -238,7 +238,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         exitCode: number
         failed: boolean
     }> {
-        const prefix = dotGptoolsPath(Math.random() + "")
+        const prefix = dotGptoolsPath("temp", Math.random() + "")
         const stdinFile = prefix + ".in.txt"
         const stdoutFile = prefix + ".out.txt"
         const terminal = vscode.window.createTerminal({
@@ -262,9 +262,9 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             )
             watcher = vscode.workspace.createFileSystemWatcher(prefix + "*")
             const text = `${command} ${args
-                .map((a) => (/\s/.test(a) ? `"${a}"` : ""))
+                .map((a) => (/\s/.test(a) ? `"${a}"` : a))
                 .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
-            this.state.output.info(`> ` + text)
+            this.state.output.info(`${options.cwd || ""}> ` + text)
             terminal.sendText(text)
             terminal.sendText("exit 0") // vscode gives an annoying error message
 
