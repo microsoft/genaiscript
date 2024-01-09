@@ -241,6 +241,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const prefix = dotGptoolsPath("temp", Math.random() + "")
         const stdinFile = prefix + ".in.txt"
         const stdoutFile = prefix + ".out.txt"
+        const exitFile = prefix + ".exit.txt"
         const terminal = vscode.window.createTerminal({
             cwd: options.cwd,
             isTransient: true,
@@ -251,6 +252,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const clean = async () => {
             await vscode.workspace.fs.delete(vscode.Uri.file(stdoutFile))
             await vscode.workspace.fs.delete(vscode.Uri.file(stdinFile))
+            await vscode.workspace.fs.delete(vscode.Uri.file(exitFile))
             watcher?.dispose()
             terminal?.dispose()
         }
@@ -266,6 +268,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                 .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
             this.state.output.info(`${options.cwd || ""}> ` + text)
             terminal.sendText(text)
+            terminal.sendText(`echo $? > "${exitFile}"`, true)
             terminal.sendText("exit 0") // vscode gives an annoying error message
 
             watcher.onDidChange(async () => {
@@ -274,11 +277,18 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                         vscode.Uri.file(stdoutFile)
                     )
                 ).toString()
+                const exitCode = parseInt(
+                    (
+                        await vscode.workspace.fs.readFile(
+                            vscode.Uri.file(exitFile)
+                        )
+                    ).toString()
+                )
                 this.state.output.debug(output)
                 resolve({
                     stdout: output,
                     stderr: "",
-                    exitCode: 0,
+                    exitCode,
                     failed: false,
                 })
             })
