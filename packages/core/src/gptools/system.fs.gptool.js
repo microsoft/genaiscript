@@ -33,12 +33,26 @@ defFunction(
                 "type": "string",
                 "description": "Path of the file to load, relative to the workspace.",
             },
+            "linestart": {
+                "type": "integer",
+                "description": "Line number (1-based) to start reading from.",
+            },
+            "lineend": {
+                "type": "integer",
+                "description": "Line number (1-based) to end reading at.",
+            },
         },
         "required": ["filename"],
     },
     async (args) => {
-        const { context, filename } = args
-        const res = await context.host.readText(filename)
+        let { context, filename, linestart, lineend } = args
+        linestart = parseInt(linestart) - 1
+        lineend = parseInt(lineend)
+        let res = await context.host.readText(filename)
+        if (!isNaN(linestart) && !isNaN(lineend)) {
+            const lines = res.split("\n")
+            res = lines.slice(linestart, lineend).join("\n")
+        }
         return res
     }
 )

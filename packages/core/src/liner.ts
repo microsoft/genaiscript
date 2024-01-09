@@ -1,3 +1,7 @@
+/**
+ * @param text Adds 1-based line numbrers
+ * @returns 
+ */
 export function addLineNumbers(text: string) {
     return text
         .split("\n")
