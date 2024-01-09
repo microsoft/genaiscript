@@ -76,5 +76,6 @@ After that, identify which parts are key candidates to speed up.
 After that, order the candidates by ranking.
 
 Take the top-ranked candidate, check the syntax and update the code in the file to be faster.
+If the syntax is incorrect, try to fix the code.
 Do not explain your reasoning, just update the code.
 `
