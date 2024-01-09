@@ -301,9 +301,10 @@ interface ChatFunctionCallShell {
     cwd?: string
     args?: string[]
     timeout?: number
+    ignoreExitCode?: boolean
 }
 
-type ChatFUnctionCallOutput =
+type ChatFunctionCallOutput =
     | string
     | ChatFunctionCallContent
     | ChatFunctionCallShell
@@ -322,7 +323,7 @@ interface ChatFunctionCallback {
     definition: ChatFunctionDefinition
     fn: (
         args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => ChatFUnctionCallOutput | Promise<ChatFUnctionCallOutput>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 }
 
 /**
@@ -424,12 +425,8 @@ interface PromptContext {
         description: string,
         parameters: ChatFunctionParameters,
         fn: (
-            args: Record<string, any>
-        ) =>
-            | string
-            | Promise<string>
-            | ChatFunctionCallContent
-            | Promise<ChatFunctionCallContent>
+            args: { context: ChatFunctionCallContext } & Record<string, any>
+        ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean

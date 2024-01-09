@@ -248,6 +248,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             name: options.label ?? "GPTools",
         })
         let watcher: vscode.FileSystemWatcher
+        this.state.context.subscriptions.push(terminal)
 
         const clean = async () => {
             await vscode.workspace.fs.delete(vscode.Uri.file(stdoutFile))
@@ -255,6 +256,8 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             await vscode.workspace.fs.delete(vscode.Uri.file(exitFile))
             watcher?.dispose()
             terminal?.dispose()
+            const i = this.state.context.subscriptions.indexOf(terminal)
+            if (i > -1) this.state.context.subscriptions.splice(i, 1)
         }
 
         return new Promise<ShellOutput>(async (resolve, reject) => {
@@ -268,7 +271,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                 .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
             this.state.output.info(`${options.cwd || ""}> ` + text)
             terminal.sendText(text)
-            terminal.sendText(`echo $? > "${exitFile}"`, true)
+            terminal.sendText(`echo $? > "${exitFile}"`)
             terminal.sendText("exit 0") // vscode gives an annoying error message
 
             watcher.onDidChange(async () => {
@@ -284,12 +287,13 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                         )
                     ).toString()
                 )
+                this.state.output.debug(`exit code: ${exitCode}`)
                 this.state.output.debug(output)
                 resolve({
                     stdout: output,
                     stderr: "",
                     exitCode,
-                    failed: false,
+                    failed: exitCode !== 0,
                 })
             })
             watcher.onDidDelete(async () => {

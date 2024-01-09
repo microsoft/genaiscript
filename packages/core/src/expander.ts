@@ -743,11 +743,18 @@ export async function runTemplate(
                     let output = await fd.fn({ context, ...callArgs })
                     if (typeof output === "string") output = { content: output }
                     if (output.type === "shell") {
-                        let { command, args = [], stdin, cwd, timeout } = output
+                        let {
+                            command,
+                            args = [],
+                            stdin,
+                            cwd,
+                            timeout,
+                            ignoreExitCode,
+                        } = output
                         trace.item(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
-                        const { stdout, stderr } = await host.exec(
+                        const { stdout, stderr, exitCode } = await host.exec(
                             command,
                             args,
                             stdin,
@@ -758,8 +765,13 @@ export async function runTemplate(
                             }
                         )
                         output = { content: stdout }
+                        trace.item(`exit code: ${exitCode}`)
                         if (stdout) trace.details("shell output", stdout)
                         if (stderr) trace.details("shell error", stderr)
+                        if (exitCode !== 0 && !ignoreExitCode)
+                            throw new Error(
+                                `tool ${call.name} failed with exit code ${exitCode}}`
+                            )
                     }
 
                     const { content, edits: functionEdits } = output
@@ -793,8 +805,10 @@ export async function runTemplate(
             }
         } else {
             text =
-                messages.filter((msg) => msg.role === "assistant").join("\n") +
-                resp.text
+                messages
+                    .filter((msg) => msg.role === "assistant" && msg.content)
+                    .map((m) => m.content)
+                    .join("\n") + resp.text
             break
         }
     }

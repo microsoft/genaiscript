@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs" | "system.files" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -301,9 +301,10 @@ interface ChatFunctionCallShell {
     cwd?: string
     args?: string[]
     timeout?: number
+    ignoreExitCode?: boolean
 }
 
-type ChatFUnctionCallOutput =
+type ChatFunctionCallOutput =
     | string
     | ChatFunctionCallContent
     | ChatFunctionCallShell
@@ -322,7 +323,7 @@ interface ChatFunctionCallback {
     definition: ChatFunctionDefinition
     fn: (
         args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => ChatFUnctionCallOutput | Promise<ChatFUnctionCallOutput>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 }
 
 /**
@@ -424,12 +425,8 @@ interface PromptContext {
         description: string,
         parameters: ChatFunctionParameters,
         fn: (
-            args: Record<string, any>
-        ) =>
-            | string
-            | Promise<string>
-            | ChatFunctionCallContent
-            | Promise<ChatFunctionCallContent>
+            args: { context: ChatFunctionCallContext } & Record<string, any>
+        ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
@@ -504,8 +501,8 @@ declare function defFunction(
     description: string,
     parameters: ChatFunctionParameters,
     fn: (
-        args: Record<string, any>
-    ) => ChatFUnctionCallOutput | Promise<ChatFUnctionCallOutput>
+        args: { context: ChatFunctionCallContext } & Record<string, any>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 ): void
 
 /**
