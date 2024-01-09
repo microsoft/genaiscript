@@ -275,26 +275,26 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             terminal.sendText("exit 0") // vscode gives an annoying error message
 
             watcher.onDidChange(async () => {
-                const output = (
-                    await vscode.workspace.fs.readFile(
-                        vscode.Uri.file(stdoutFile)
-                    )
-                ).toString()
-                const exitCode = parseInt(
-                    (
-                        await vscode.workspace.fs.readFile(
-                            vscode.Uri.file(exitFile)
-                        )
+                try {
+                    const output = (
+                        await readFileText(vscode.Uri.file(stdoutFile))
                     ).toString()
-                )
-                this.state.output.debug(`exit code: ${exitCode}`)
-                this.state.output.debug(output)
-                resolve({
-                    stdout: output,
-                    stderr: "",
-                    exitCode,
-                    failed: exitCode !== 0,
-                })
+                    this.state.output.debug(output)
+                    const exitCode = parseInt(
+                        (
+                            await readFileText(vscode.Uri.file(exitFile))
+                        ).toString()
+                    )
+                    this.state.output.debug(`exit code: ${exitCode}`)
+                    resolve({
+                        stdout: output,
+                        stderr: "",
+                        exitCode,
+                        failed: exitCode !== 0,
+                    })
+                } catch (e) {
+                    reject(e)
+                }
             })
             watcher.onDidDelete(async () => {
                 reject(

@@ -589,8 +589,8 @@ export async function runTemplate(
         },
     ]
 
-    const status = (text: string) => {
-        statusText += `-  ${text}...\n`
+    const status = (text?: string) => {
+        if (text) statusText += `-  ${text}...\n`
         options.infoCb?.({
             vars,
             text: statusText,
@@ -658,6 +658,7 @@ export async function runTemplate(
                 )
             } finally {
                 trace.endDetails()
+                status()
             }
         } catch (error: unknown) {
             if (error instanceof RequestError) {
@@ -682,6 +683,7 @@ export async function runTemplate(
                 resp = { text: "Unexpected error" }
             }
 
+            status(`error`)
             return {
                 prompt,
                 vars,
@@ -697,6 +699,7 @@ export async function runTemplate(
 
         if (resp.text) trace.detailsFenced("llm response", resp.text)
 
+        status()
         if (resp.toolCalls?.length) {
             if (resp.text)
                 messages.push({
@@ -725,8 +728,9 @@ export async function runTemplate(
                     trace.item(`id: \`${call.id}\``)
                     trace.item(`args:`)
                     trace.fence(call.arguments, "json")
-                    const callArgs = call.arguments
-                        ? JSON.parse(call.arguments)
+
+                    const callArgs: any = call.arguments
+                        ? JSON5TryParse(call.arguments)
                         : undefined
                     const fd = vars.functions.find(
                         (f) => f.definition.name === call.name
@@ -756,6 +760,7 @@ export async function runTemplate(
                         trace.item(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
+                        status()
                         const { stdout, stderr, exitCode } = await host.exec(
                             command,
                             args,
@@ -774,6 +779,7 @@ export async function runTemplate(
                             throw new Error(
                                 `tool ${call.name} failed with exit code ${exitCode}}`
                             )
+                        status()
                     }
 
                     const { content, edits: functionEdits } = output
@@ -800,9 +806,11 @@ export async function runTemplate(
                     })
                 } catch (e) {
                     trace.error(`function failed`, e)
+                    status(`error`)
                     throw e
                 } finally {
                     trace.endDetails()
+                    status()
                 }
             }
         } else {
