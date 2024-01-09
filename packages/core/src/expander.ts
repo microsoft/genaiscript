@@ -643,6 +643,7 @@ export async function runTemplate(
             try {
                 status(`calling LLM`)
                 trace.startDetails(`llm request (${messages.length} messages)`)
+                status()
                 resp = await completer(
                     {
                         model,
