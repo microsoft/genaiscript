@@ -311,6 +311,37 @@ defFunction(
 )
 ```
 
+### Running scripts as functions
+
+A function may also return a request to run a native tool in a terminal. The `stdout` output of the tool
+will be used as the function result.
+
+```js
+defFunction(
+    "check_syntax",
+    "Checks code for syntax errors",
+    {
+        type: "object",
+        properties: {
+            code: {
+                type: "string",
+                description: "Code to check.",
+            },
+        },
+        required: ["code"],
+    },
+    (args) => {
+        const { code } = args
+        return {
+            type: "shell",
+            stdin: code,
+            command: "node",
+            args: ["gptools/check-syntax.js"],
+        }
+    }
+)
+```
+
 ## Inline variable
 
 You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.

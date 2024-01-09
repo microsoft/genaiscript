@@ -124,18 +124,6 @@ export function commandButtons(state: ExtensionState) {
             description: "Run last gptool and gpspec again.",
             cmd: "coarch.request.retry",
         })
-    if (request)
-        cmds.push({
-            label: refine,
-            description: "Add text to gpspec file.",
-            cmd: "coarch.fragment.refine",
-        })
-    if (request)
-        cmds.push({
-            label: next,
-            description: "Run another gptool on the same gpsec.",
-            cmd: "coarch.fragment.prompt",
-        })
     if (text)
         cmds.push({
             label: output,
@@ -148,6 +136,19 @@ export function commandButtons(state: ExtensionState) {
             description: "Inspect gptool execution and LLM response.",
             cmd: "coarch.request.open.trace",
         })
+    if (request)
+        cmds.push({
+            label: refine,
+            description: "Add text to gpspec file.",
+            cmd: "coarch.fragment.refine",
+        })
+    if (request)
+        cmds.push({
+            label: next,
+            description: "Run another gptool on the same gpsec.",
+            cmd: "coarch.fragment.prompt",
+        })
+
     return cmds
 }
 
