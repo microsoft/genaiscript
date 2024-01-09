@@ -21,6 +21,7 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
+import { ChatCompletionTool } from "openai/resources"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -615,6 +616,12 @@ export async function runTemplate(
     const fragmentVirtual = await fileExists(fragment.file.filename, {
         virtual: true,
     })
+    const tools: ChatCompletionTool[] = vars.functions?.length
+        ? vars.functions.map((f) => ({
+              type: "function",
+              function: f.definition,
+          }))
+        : undefined
 
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]
@@ -645,12 +652,7 @@ export async function runTemplate(
                         messages,
                         stream: true,
                         response_format,
-                        tools: vars.functions?.length
-                            ? vars.functions.map((f) => ({
-                                  type: "function",
-                                  function: f.definition,
-                              }))
-                            : undefined,
+                        tools,
                     },
                     { ...options, trace }
                 )
