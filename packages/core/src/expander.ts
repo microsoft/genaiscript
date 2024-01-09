@@ -645,10 +645,12 @@ export async function runTemplate(
                         messages,
                         stream: true,
                         response_format,
-                        tools: vars.functions?.map((f) => ({
-                            type: "function",
-                            function: f.definition,
-                        })),
+                        tools: vars.functions?.length
+                            ? vars.functions.map((f) => ({
+                                  type: "function",
+                                  function: f.definition,
+                              }))
+                            : undefined,
                     },
                     { ...options, trace }
                 )
