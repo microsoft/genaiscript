@@ -3,7 +3,7 @@
     "publisher": "Microsoft",
     "displayName": "GPTools Insiders",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
-    "version": "1.4.8",
+    "version": "1.4.9",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.85.0"
