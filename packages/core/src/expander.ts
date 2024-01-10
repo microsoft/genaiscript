@@ -642,7 +642,7 @@ export async function runTemplate(
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`calling LLM`)
+                status(`prompting model`)
                 trace.startDetails(`llm request (${messages.length} messages)`)
                 status()
                 resp = await completer(

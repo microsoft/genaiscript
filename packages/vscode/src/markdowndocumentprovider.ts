@@ -53,7 +53,7 @@ class MarkdownTextDocumentContentProvider
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
             if (!md) return noResponse
-            return `${computing ? `> **AI Request in progress.**\n` : ""} 
+            return `${computing ? `> **GPTool run in progress.**\n` : ""} 
 ${md}    
             `
         }

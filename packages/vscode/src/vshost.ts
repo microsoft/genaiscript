@@ -263,20 +263,9 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
 
         return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
             watcher = vscode.workspace.createFileSystemWatcher(exitcodefile)
-            const text = `${command} ${args
-                .map((a) => (/\s/.test(a) ? `"${a}"` : a))
-                .join(" ")} > "${stdoutfile}" 2>&1 < "${stdinfile}"`
-            this.state.output.info(`${options.cwd || ""}> ` + text)
-            terminal.sendText(text)
-            terminal.sendText(`echo $? > "${exitcodefile}"`)
-            terminal.sendText("exit 0") // vscode gives an annoying error message
-
             watcher.onDidChange(async () => {
-                try {
-                    resolve(<Partial<ShellOutput>>{})
-                } catch (e) {
-                    reject(e)
-                }
+                resolve(<Partial<ShellOutput>>{})
+                watcher.dispose()
             })
             watcher.onDidDelete(async () => {
                 reject(
@@ -285,6 +274,14 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
                     )
                 )
             })
+
+            const text = `${command} ${args
+                .map((a) => (/\s/.test(a) ? `"${a}"` : a))
+                .join(" ")} > "${stdoutfile}" 2>&1 < "${stdinfile}"`
+            this.state.output.info(`${options.cwd || ""}> ` + text)
+            terminal.sendText(text)
+            terminal.sendText(`echo $? > "${exitcodefile}"`)
+            terminal.sendText("exit 0") // vscode gives an annoying error message
         }).finally(async () => {
             await clean()
         })
