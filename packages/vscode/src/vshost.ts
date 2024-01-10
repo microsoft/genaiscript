@@ -196,6 +196,9 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
     async createDirectory(name: string): Promise<void> {
         await workspace.fs.createDirectory(Uri.file(name))
     }
+    async deleteDirectory(name: string): Promise<void> {
+        await workspace.fs.delete(Uri.file(name))
+    }
     async getSecretToken(): Promise<OAIToken> {
         const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
         if (s) {

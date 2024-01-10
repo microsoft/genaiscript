@@ -71,14 +71,7 @@ export async function exec(
         return <ShellOutput>res
     } finally {
         try {
-            for (const f of [
-                stdinfile,
-                stdoutfile,
-                stderrfile,
-                exitcodefile,
-            ].filter((f) => !!f)) {
-                await host.deleteFile(f)
-            }
+            await host.deleteDirectory(outputdir)
         } finally {
             // todo delete directory
             trace.endDetails()

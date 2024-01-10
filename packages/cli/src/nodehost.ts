@@ -11,7 +11,7 @@ import {
 } from "gptools-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "fs/promises"
-import { ensureDir } from "fs-extra"
+import { ensureDir, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
@@ -99,6 +99,10 @@ export class NodeHost implements Host {
     }
     async createDirectory(name: string): Promise<void> {
         await ensureDir(name)
+    }
+
+    async deleteDirectory(name: string): Promise<void> {
+        await remove(name)
     }
 
     async exec(
