@@ -10,7 +10,7 @@ import {
     setHost,
 } from "gptools-core"
 import { TextDecoder, TextEncoder } from "util"
-import { readFile, writeFile } from "fs/promises"
+import { readFile, unlink, writeFile } from "fs/promises"
 import { ensureDir } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
@@ -93,6 +93,10 @@ export class NodeHost implements Host {
         delete this.virtualFiles[resolve(name)]
         await writeFile(name, content)
     }
+    async deleteFile(name: string) {
+        delete this.virtualFiles[resolve(name)]
+        await unlink(name)
+    }
     async createDirectory(name: string): Promise<void> {
         await ensureDir(name)
     }
@@ -100,9 +104,9 @@ export class NodeHost implements Host {
     async exec(
         command: string,
         args: string[],
-        input: string,
+        stdin: string,
         options: {
-            label: string,
+            label: string
             cwd?: string
             timeout?: number
         }
@@ -111,7 +115,7 @@ export class NodeHost implements Host {
         const exec = execa
         const { stdout, stderr, exitCode, failed } = await exec(command, args, {
             cleanup: true,
-            input,
+            input: stdin,
             timeout: options.timeout,
             cwd: options.cwd,
             preferLocal: true,
