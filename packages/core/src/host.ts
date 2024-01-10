@@ -62,6 +62,7 @@ export interface Host {
 
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
+    deleteDirectory(name: string): Promise<void>
 
     // executes a process
     exec(
