@@ -184,6 +184,11 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         delete this.virtualFiles[uri.fsPath]
         await workspace.fs.writeFile(uri, content)
     }
+    async deleteFile(name: string): Promise<void> {
+        const uri = Uri.file(name)
+        delete this.virtualFiles[uri.fsPath]
+        await workspace.fs.delete(uri)
+    }
     async findFiles(path: string): Promise<string[]> {
         const uris = await workspace.findFiles(path)
         return uris.map((u) => u.fsPath)
@@ -231,67 +236,41 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             label?: string
             cwd?: string
             timeout?: number
+            stdoutfile: string
+            stdinfile: string
+            exitcodefile: string
         }
-    ): Promise<{
-        stdout: string
-        stderr: string
-        exitCode: number
-        failed: boolean
-    }> {
-        const prefix = dotGptoolsPath("temp", Math.random() + "")
-        const stdinFile = prefix + ".in.txt"
-        const stdoutFile = prefix + ".out.txt"
-        const exitFile = prefix + ".exit.txt"
+    ): Promise<Partial<ShellOutput>> {
+        const { stdoutfile, stdinfile, exitcodefile, label } = options
+
         const terminal = vscode.window.createTerminal({
             cwd: options.cwd,
             isTransient: true,
-            name: options.label ?? "GPTools",
+            name: label ?? "GPTools",
         })
         let watcher: vscode.FileSystemWatcher
         this.state.context.subscriptions.push(terminal)
 
         const clean = async () => {
-            await vscode.workspace.fs.delete(vscode.Uri.file(stdoutFile))
-            await vscode.workspace.fs.delete(vscode.Uri.file(stdinFile))
-            await vscode.workspace.fs.delete(vscode.Uri.file(exitFile))
             watcher?.dispose()
             terminal?.dispose()
             const i = this.state.context.subscriptions.indexOf(terminal)
             if (i > -1) this.state.context.subscriptions.splice(i, 1)
         }
 
-        return new Promise<ShellOutput>(async (resolve, reject) => {
-            await vscode.workspace.fs.writeFile(
-                vscode.Uri.file(stdinFile),
-                this.createUTF8Encoder().encode(stdin || "")
-            )
-            watcher = vscode.workspace.createFileSystemWatcher(prefix + "*")
+        return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
+            watcher = vscode.workspace.createFileSystemWatcher(exitcodefile)
             const text = `${command} ${args
                 .map((a) => (/\s/.test(a) ? `"${a}"` : a))
-                .join(" ")} > "${stdoutFile}" 2>&1 < "${stdinFile}"`
+                .join(" ")} > "${stdoutfile}" 2>&1 < "${stdinfile}"`
             this.state.output.info(`${options.cwd || ""}> ` + text)
             terminal.sendText(text)
-            terminal.sendText(`echo $? > "${exitFile}"`)
+            terminal.sendText(`echo $? > "${exitcodefile}"`)
             terminal.sendText("exit 0") // vscode gives an annoying error message
 
             watcher.onDidChange(async () => {
                 try {
-                    const output = (
-                        await readFileText(vscode.Uri.file(stdoutFile))
-                    ).toString()
-                    this.state.output.debug(output)
-                    const exitCode = parseInt(
-                        (
-                            await readFileText(vscode.Uri.file(exitFile))
-                        ).toString()
-                    )
-                    this.state.output.debug(`exit code: ${exitCode}`)
-                    resolve({
-                        stdout: output,
-                        stderr: "",
-                        exitCode,
-                        failed: exitCode !== 0,
-                    })
+                    resolve(<Partial<ShellOutput>>{})
                 } catch (e) {
                     reject(e)
                 }

@@ -22,6 +22,7 @@ import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
 import { ChatCompletionTool } from "openai/resources"
+import { exec } from "./exec"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -762,12 +763,14 @@ export async function runTemplate(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
                         status()
-                        const { stdout, stderr, exitCode } = await host.exec(
+                        const { stdout, stderr, exitCode } = await exec(
+                            host,
+                            trace,
                             command,
                             args,
-                            stdin,
                             {
                                 label: call.name,
+                                stdin,
                                 cwd: cwd ?? projFolder,
                                 timeout: timeout ?? 60000,
                             }

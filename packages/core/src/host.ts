@@ -55,6 +55,7 @@ export interface Host {
     // fs
     readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
+    deleteFile(name: string): Promise<void>
     findFiles(glob: string): Promise<string[]>
     setVirtualFile(name: string, content: string): void
     isVirtualFile(name: string): boolean
@@ -72,7 +73,7 @@ export interface Host {
             cwd?: string
             timeout?: number
         }
-    ): Promise<ShellOutput>
+    ): Promise<Partial<ShellOutput>>
 }
 
 export let host: Host
