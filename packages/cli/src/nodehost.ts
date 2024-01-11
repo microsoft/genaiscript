@@ -4,6 +4,7 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
+    ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
     parseTokenFromEnv,
@@ -105,23 +106,14 @@ export class NodeHost implements Host {
         await remove(name)
     }
 
-    async exec(
-        command: string,
-        args: string[],
-        stdin: string,
-        options: {
-            label: string
-            cwd?: string
-            timeout?: number
-        }
-    ) {
-        args = args.slice(0)
+    async exec(command: string, args: string[], options: ShellCallOptions) {
+        const { cwd, timeout, stdin: input } = options
         const exec = execa
         const { stdout, stderr, exitCode, failed } = await exec(command, args, {
             cleanup: true,
-            input: stdin,
-            timeout: options.timeout,
-            cwd: options.cwd,
+            input,
+            timeout,
+            cwd,
             preferLocal: true,
             stripFinalNewline: true,
         })

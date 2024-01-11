@@ -297,7 +297,9 @@ interface ChatFunctionCallContent {
 interface ChatFunctionCallShell {
     type: "shell"
     command: string
-    stdin: string
+    stdin?: string
+    files?: Record<string, string>
+    outputFile?: string
     cwd?: string
     args?: string[]
     timeout?: number

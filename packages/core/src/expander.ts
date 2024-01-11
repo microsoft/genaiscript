@@ -590,8 +590,12 @@ export async function runTemplate(
         },
     ]
 
+    const startTime = Date.now()
     const status = (text?: string) => {
-        if (text) statusText += `-  ${text}...\n`
+        if (text)
+            statusText += `- [${Math.round(
+                (Date.now() - startTime) / 1000
+            )}] ${text}...\n`
         options.infoCb?.({
             vars,
             text: statusText,
@@ -758,6 +762,8 @@ export async function runTemplate(
                             cwd,
                             timeout,
                             ignoreExitCode,
+                            files,
+                            outputFile,
                         } = output
                         trace.item(
                             `shell command: \`${command}\` ${args.join(" ")}`
@@ -766,13 +772,18 @@ export async function runTemplate(
                         const { stdout, stderr, exitCode } = await exec(
                             host,
                             trace,
-                            command,
-                            args,
                             {
                                 label: call.name,
-                                stdin,
-                                cwd: cwd ?? projFolder,
-                                timeout: timeout ?? 60000,
+                                call: {
+                                    type: "shell",
+                                    command,
+                                    args,
+                                    stdin,
+                                    files,
+                                    outputFile,
+                                    cwd: cwd ?? projFolder,
+                                    timeout: timeout ?? 60000,
+                                },
                             }
                         )
                         output = { content: stdout }

@@ -4,8 +4,8 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
+    ShellCallOptions,
     ShellOutput,
-    dotGptoolsPath,
     logVerbose,
     parseTokenFromEnv,
     setHost,
@@ -197,7 +197,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         await workspace.fs.createDirectory(Uri.file(name))
     }
     async deleteDirectory(name: string): Promise<void> {
-        await workspace.fs.delete(Uri.file(name))
+        await workspace.fs.delete(Uri.file(name), { recursive: true })
     }
     async getSecretToken(): Promise<OAIToken> {
         const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
@@ -234,22 +234,14 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
     async exec(
         command: string,
         args: string[],
-        stdin: string,
-        options: {
-            label?: string
-            cwd?: string
-            timeout?: number
-            stdoutfile: string
-            stdinfile: string
-            exitcodefile: string
-        }
+        options: ShellCallOptions
     ): Promise<Partial<ShellOutput>> {
-        const { stdoutfile, stdinfile, exitcodefile, label } = options
+        const { cwd, exitcodefile, stdoutfile, stdinfile, outputdir } = options
 
         const terminal = vscode.window.createTerminal({
-            cwd: options.cwd,
+            cwd,
             isTransient: true,
-            name: label ?? "GPTools",
+            name: "GPTools",
         })
         let watcher: vscode.FileSystemWatcher
         this.state.context.subscriptions.push(terminal)
@@ -262,19 +254,18 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         }
 
         return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
-            watcher = vscode.workspace.createFileSystemWatcher(exitcodefile)
-            watcher.onDidChange(async () => {
-                resolve(<Partial<ShellOutput>>{})
-                watcher.dispose()
+            watcher = vscode.workspace.createFileSystemWatcher(
+                new vscode.RelativePattern(outputdir, "*.txt"),
+                true,
+                false,
+                true
+            )
+            watcher.onDidChange(async (e) => {
+                if (await checkFileExists(Uri.file(exitcodefile))) {
+                    resolve(<Partial<ShellOutput>>{})
+                    watcher.dispose()
+                }
             })
-            watcher.onDidDelete(async () => {
-                reject(
-                    new Error(
-                        "Temporary file was deleted before it could be read."
-                    )
-                )
-            })
-
             const text = `${command} ${args
                 .map((a) => (/\s/.test(a) ? `"${a}"` : a))
                 .join(" ")} > "${stdoutfile}" 2>&1 < "${stdinfile}"`
