@@ -32,10 +32,22 @@ export interface ReadFileOptions {
 }
 
 export interface ShellOutput {
-    stdout: string
-    stderr: string
+    stdout?: string
+    stderr?: string
+    output?: string
     exitCode: number
     failed: boolean
+}
+
+export interface ShellCallOptions {
+    cwd?: string
+    timeout?: number
+    stdin?: string
+    outputdir: string
+    stdinfile: string
+    stdoutfile: string
+    stderrfile: string
+    exitcodefile: string
 }
 
 export interface Host {
@@ -68,12 +80,7 @@ export interface Host {
     exec(
         command: string,
         args: string[],
-        stdin: string,
-        options: {
-            label?: string
-            cwd?: string
-            timeout?: number
-        }
+        options: ShellCallOptions
     ): Promise<Partial<ShellOutput>>
 }
 

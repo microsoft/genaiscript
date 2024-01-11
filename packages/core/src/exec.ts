@@ -5,16 +5,10 @@ import { dotGptoolsPath, fileExists, readText, writeText } from "./util"
 export async function exec(
     host: Host,
     trace: MarkdownTrace,
-    command: string,
-    args: string[],
-    options: {
-        label?: string
-        cwd?: string
-        stdin?: string
-        timeout?: number
-    }
+    options: { label: string; call: ChatFunctionCallShell }
 ): Promise<ShellOutput> {
-    const { label, stdin } = options
+    const { label, call } = options
+    let { stdin, command, args, cwd, timeout, files, outputFile } = call
 
     let outputdir: string
     let stdinfile: string
@@ -38,7 +32,17 @@ export async function exec(
 
         await writeText(stdinfile, stdin || "")
 
-        const subs: Record<string, string> = {
+        if (files) {
+            for (const f in files) {
+                const content = files[f]
+                const fn = outputdir + "/" + f
+                await writeText(fn, content)
+            }
+        }
+
+        if (outputFile) outputFile = outputdir + "/" + outputFile
+
+        const subs = {
             outputdir,
             stdinfile,
             stdoutfile,
@@ -46,12 +50,17 @@ export async function exec(
             exitcodefile,
         }
         const patchedArgs = args.map((a) =>
-            a.replace(/\$\{\}/g, (m) => subs[m.toLowerCase()] || "???")
+            a.replace(
+                /\$\{\}/g,
+                (m) =>
+                    (subs as Record<string, string>)[m.toLowerCase()] || "???"
+            )
         )
 
         trace.item(`shell command: \`${command}\` ${patchedArgs.join(" ")}`)
-        const res = await host.exec(command, patchedArgs, stdin, {
-            ...options,
+        const res = await host.exec(command, patchedArgs, {
+            cwd,
+            timeout,
             ...subs,
         })
 
@@ -65,6 +74,8 @@ export async function exec(
             res.stdout = await readText(stdoutfile)
         if (res.stderr === undefined && (await fileExists(stderrfile)))
             res.stderr = await readText(stderrfile)
+        if (outputFile && (await fileExists(outputFile)))
+            res.output = await readText(outputFile)
 
         trace.detailsFenced(`output`, res.stdout || "")
 
