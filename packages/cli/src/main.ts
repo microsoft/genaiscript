@@ -1,6 +1,8 @@
 import {
     FragmentTransformResponse,
+    MarkdownTrace,
     RequestError,
+    clip,
     diagnosticsToCSV,
     host,
     isRequestError,
@@ -16,6 +18,7 @@ import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
+import { ensureDir } from "fs-extra"
 
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
@@ -241,6 +244,26 @@ async function listSpecs() {
     prj.rootFiles.forEach((f) => console.log(f.filename))
 }
 
+async function convertToMarkdown(
+    path: string,
+    options: {
+        out: string
+    }
+) {
+    const { out } = options
+    const trace = new MarkdownTrace()
+    if (/^http?s:/i.test(path)) {
+    } else {
+        const files = await host.findFiles(path)
+        if (out) await ensureDir(out)
+        for (const file of files) {
+            const outf = out ? join(out, basename(file) + ".md") : file + ".md"
+            console.log(`converting ${file} -> ${outf}`)
+            await clip(host, trace, file, outf)
+        }
+    }
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -336,6 +359,13 @@ async function main() {
         .command("list", { isDefault: true })
         .description("List all available specs")
         .action(listSpecs)
+
+    const converter = program
+        .command("convert")
+        .description("Convert HTML files or URLs to markdown format")
+        .arguments("<path>")
+        .option("-o, --out <string>", "output directory")
+        .action(convertToMarkdown)
 
     program.parse()
 }

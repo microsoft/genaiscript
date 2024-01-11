@@ -6,17 +6,11 @@
             "name": "cli",
             "program": "${workspaceFolder}/packages/cli/built/gptools.js",
             "request": "launch",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
+            "skipFiles": ["<node_internals>/**"],
             "type": "node",
+            "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": [
-                "run",
-                "front-matter",
-                "SUPPORT.md",
-                "-ae"
-            ]
+            "args": ["convert", "packages/cli/test.html"]
         },
         {
             "name": "Run - sample",
@@ -27,9 +21,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/sample"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -46,9 +38,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/demoapps"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -65,9 +55,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/mywordle"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -84,9 +72,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/mystory"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -103,9 +89,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/helloworld"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -122,9 +106,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/devicescript"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -141,9 +123,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/whitepaper"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -160,9 +140,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/packages/makecode"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -179,9 +157,7 @@
                 "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
                 "${workspaceFolder}/../restler-research/AzureRestApiDemo1"
             ],
-            "outFiles": [
-                "${workspaceFolder}/packages/vscode/built/**"
-            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
             "preLaunchTask": "npm: compile-ext",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
@@ -199,9 +175,7 @@
                 "--extensionDevelopmentKind=web",
                 "--extensionTestsPath=${workspaceFolder}/dist/test/suite/index"
             ],
-            "outFiles": [
-                "${workspaceFolder}/dist/**/*.js"
-            ],
+            "outFiles": ["${workspaceFolder}/dist/**/*.js"],
             "preLaunchTask": "npm: compile-web",
             "cwd": "${workspaceFolder}/packages/vscode"
         }
