@@ -145,3 +145,11 @@ Clears the OpenAI token from `.gptools/tmp/token.json`.
 ### gptools keys show
 
 Shows information about the current key.
+
+## `convert`, convert files and URLs to markdown
+
+Extract content from HTML files into flat markdown files, which can be better integrated into a prompt.
+
+```
+node gptools.js convert <glob>
+```
