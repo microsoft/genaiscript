@@ -54,6 +54,11 @@ export interface FragmentTransformResponse {
     annotations: Diagnostic[]
 
     /**
+     * ChangeLog sections
+     */
+    changelogs: string[]
+
+    /**
      * A map of file updates
      */
     fileEdits: Record<string, { before: string; after: string }>
@@ -558,6 +563,7 @@ export async function runTemplate(
             text: "# Template failed\nSee trace.",
             edits: [],
             annotations: [],
+            changelogs: [],
             fileEdits: {},
             label,
         }
@@ -572,6 +578,7 @@ export async function runTemplate(
             text: undefined,
             edits: [],
             annotations: [],
+            changelogs: [],
             fileEdits: {},
             label,
         }
@@ -608,6 +615,7 @@ export async function runTemplate(
     let statusText = ""
     let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
+    const changelogs: string[] = []
     const annotations: Diagnostic[] = []
     const edits: Edits[] = []
     let summary: string = undefined
@@ -699,6 +707,7 @@ export async function runTemplate(
                 text: resp?.text,
                 edits,
                 annotations,
+                changelogs,
                 fileEdits,
                 label,
             }
@@ -907,8 +916,9 @@ export async function runTemplate(
                 }
                 if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
             } else if (/^changelog$/i.test(name)) {
-                const changelogs = parseChangeLogs(val)
-                for (const changelog of changelogs) {
+                changelogs.push(val)
+                const cls = parseChangeLogs(val)
+                for (const changelog of cls) {
                     const { filename, changes } = changelog
                     const fn = /^[^\/]/.test(filename)
                         ? host.resolvePath(projFolder, filename)
@@ -1018,6 +1028,7 @@ export async function runTemplate(
         vars,
         edits,
         annotations,
+        changelogs,
         fileEdits,
         trace: trace.content,
         text,

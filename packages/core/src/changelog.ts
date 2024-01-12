@@ -15,6 +15,7 @@ export interface ChangeLog {
     description: string
     changes: ChangeLogChange[]
 }
+
 /**
  *
  * @param source
@@ -26,9 +27,13 @@ export function parseChangeLogs(source: string): ChangeLog[] {
 
     // outer loop
     while (lines.length) {
+        if (!lines[0].trim()) {
+            lines.shift()
+            continue
+        }
         // ChangeLog:....
         let m = /^ChangeLog:\s*(?<index>\d+)@(?<file>.*)$/i.exec(lines[0])
-        if (!m) throw new Error("missing ChangeLog header")
+        if (!m) throw new Error("missing ChangeLog header in " + lines[0])
         const changelog: ChangeLog = {
             index: parseInt(m.groups.index),
             filename: m.groups.file.trim(),
@@ -130,7 +135,7 @@ export function applyChangeLog(source: string, changelog: ChangeLog): string {
         const change = changelog.changes[i]
         const { original, changed } = change
         lines.splice(
-            original.start,
+            original.start - 1,
             original.end - original.start + 1,
             ...changed.lines.map((l) => l.content)
         )
