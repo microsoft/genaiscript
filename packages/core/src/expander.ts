@@ -23,6 +23,7 @@ import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
 import { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
+import { applyChangeLog, parseChangeLogs } from "./changelog"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -51,6 +52,11 @@ export interface FragmentTransformResponse {
      * Parsed source annotations
      */
     annotations: Diagnostic[]
+
+    /**
+     * ChangeLog sections
+     */
+    changelogs: string[]
 
     /**
      * A map of file updates
@@ -230,6 +236,7 @@ async function expandTemplate(
         systems.push("system")
         systems.push("system.explanations")
         systems.push("system.files")
+        systems.push("system.changelog")
         systems.push("system.summary")
     }
     for (let i = 0; i < systems.length; ++i) {
@@ -557,6 +564,7 @@ export async function runTemplate(
             text: "# Template failed\nSee trace.",
             edits: [],
             annotations: [],
+            changelogs: [],
             fileEdits: {},
             label,
         }
@@ -571,6 +579,7 @@ export async function runTemplate(
             text: undefined,
             edits: [],
             annotations: [],
+            changelogs: [],
             fileEdits: {},
             label,
         }
@@ -607,6 +616,7 @@ export async function runTemplate(
     let statusText = ""
     let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
+    const changelogs: string[] = []
     const annotations: Diagnostic[] = []
     const edits: Edits[] = []
     let summary: string = undefined
@@ -698,6 +708,7 @@ export async function runTemplate(
                 text: resp?.text,
                 edits,
                 annotations,
+                changelogs,
                 fileEdits,
                 label,
             }
@@ -905,6 +916,25 @@ export async function runTemplate(
                     }
                 }
                 if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
+            } else if (/^changelog$/i.test(name)) {
+                changelogs.push(val)
+                const cls = parseChangeLogs(val)
+                for (const changelog of cls) {
+                    const { filename } = changelog
+                    const fn = /^[^\/]/.test(filename)
+                        ? host.resolvePath(projFolder, filename)
+                        : filename
+                    const ffn = relativePath(ff, fn)
+                    const curr = refs.find((r) => r.filename === fn)?.filename
+
+                    const fileEdit = await getFileEdit(fn)
+                    fileEdit.after = applyChangeLog(
+                        fileEdit.after || fileEdit.before || "",
+                        changelog
+                    )
+                    if (!curr && fragn !== fn)
+                        links.push(`-   [${ffn}](${ffn})`)
+                }
             } else if (/^annotation$/i.test(name)) {
                 // ::(notice|warning|error) file=<filename>,line=<start line>::<message>
                 const rx =
@@ -999,6 +1029,7 @@ export async function runTemplate(
         vars,
         edits,
         annotations,
+        changelogs,
         fileEdits,
         trace: trace.content,
         text,

@@ -26,7 +26,7 @@ declare module 'vscode' {
 	}
 
 	export interface ChatVariableContext {
-		message: string;
+		prompt: string;
 	}
 
 	export interface ChatVariableResolver {
