@@ -66,6 +66,7 @@ async function run(
         dryRun: boolean
         outTrace: string
         outAnnotations: string
+        outChangelogs: string
         label: string
         temperature: string
         seed: string
@@ -83,6 +84,7 @@ async function run(
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
     const outAnnotations = options.outAnnotations
+    const outChangelogs = options.outChangelogs
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
     const seed = parseFloat(options.seed) ?? undefined
@@ -176,6 +178,8 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
                 ? diagnosticsToCSV(res.annotations, csvSeparator)
                 : JSON.stringify(res.annotations, null, 2)
         )
+    if (outChangelogs && res.changelogs?.length)
+        await write(outChangelogs, res.changelogs.join("\n"))
 
     if (applyEdits) {
         for (const fileEdit of Object.entries(res.fileEdits)) {
@@ -195,6 +199,9 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             ? mkfn(".annotation.csv")
             : undefined
         const specf = specContent ? mkfn(".gpspec.md") : undefined
+        const changelogf = res.changelogs?.length
+            ? mkfn(".changelog.txt")
+            : undefined
         await write(jsonf, JSON.stringify(res, null, 2))
         if (res.prompt) {
             await write(systemf, res.prompt.system)
@@ -214,6 +221,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
                         )
                         .join("\n")
             )
+        if (changelogf) await write(changelogf, res.changelogs.join("\n"))
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.dryRun) {
@@ -298,6 +306,7 @@ async function main() {
             "-oa, --out-annotations <string>",
             "output file for annotations (.csv will be rendered as csv)"
         )
+        .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option("-j, --json", "emit full JSON response to output")
         .option(
             "-d, --dry-run",

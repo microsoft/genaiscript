@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -198,7 +198,7 @@ interface ChatAgentContext {
     prompt?: string
 }
 
-interface FunctionDefinition {
+interface ChatFunctionDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -233,6 +233,100 @@ interface FunctionDefinition {
  * Omitting `parameters` defines a function with an empty parameter list.
  */
 type ChatFunctionParameters = Record<string, unknown>
+
+interface ChatFunctionCallTrace {
+    log(message: string): void
+    item(message: string): void
+    tip(message: string): void
+    fence(message: string, contentType?: string): void
+}
+
+/**
+ * Position (line, character) in a file. Both are 0-based.
+ */
+type CharPosition = [number, number]
+
+/**
+ * Describes a run of text.
+ */
+type CharRange = [CharPosition, CharPosition]
+
+/**
+ * 0-based line numbers.
+ */
+type LineRange = [number, number]
+
+interface FileEdit {
+    type: string
+    filename: string
+    label?: string
+}
+
+interface ReplaceEdit extends FileEdit {
+    type: "replace"
+    range: CharRange | LineRange
+    text: string
+}
+
+interface InsertEdit extends FileEdit {
+    type: "insert"
+    pos: CharPosition | number
+    text: string
+}
+
+interface DeleteEdit extends FileEdit {
+    type: "delete"
+    range: CharRange | LineRange
+}
+
+interface CreateFileEdit extends FileEdit {
+    type: "createfile"
+    overwrite?: boolean
+    ignoreIfExists?: boolean
+    text: string
+}
+
+type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
+
+interface ChatFunctionCallContent {
+    type?: "content"
+    content: string
+    edits?: Edits[]
+}
+
+interface ChatFunctionCallShell {
+    type: "shell"
+    command: string
+    stdin?: string
+    files?: Record<string, string>
+    outputFile?: string
+    cwd?: string
+    args?: string[]
+    timeout?: number
+    ignoreExitCode?: boolean
+}
+
+type ChatFunctionCallOutput =
+    | string
+    | ChatFunctionCallContent
+    | ChatFunctionCallShell
+
+interface ChatFunctionCallHost {
+    findFiles(glob: string): Promise<string[]>
+    readText(file: string): Promise<string>
+}
+
+interface ChatFunctionCallContext {
+    trace: ChatFunctionCallTrace
+    host: ChatFunctionCallHost
+}
+
+interface ChatFunctionCallback {
+    definition: ChatFunctionDefinition
+    fn: (
+        args: { context: ChatFunctionCallContext } & Record<string, any>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+}
 
 /**
  * A set of text extracted from the context of the prompt execution
@@ -298,10 +392,7 @@ interface ExpansionVariables {
     /**
      * List of functions defined in the prompt
      */
-    functions?: {
-        definition: FunctionDefinition
-        fn: (args: Record<string, any>) => string | Promise<string>
-    }[]
+    functions?: ChatFunctionCallback[]
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -313,6 +404,13 @@ type StringLike = string | LinkedFile | LinkedFile[]
 interface DefOptions {
     language?: "markdown" | string
     lineNumbers?: boolean
+}
+
+interface ChatTaskOptions {
+    command: string
+    cwd?: string
+    env?: Record<string, string>
+    args?: string[]
 }
 
 // keep in sync with prompt_type.d.ts
@@ -328,7 +426,9 @@ interface PromptContext {
         name: string,
         description: string,
         parameters: ChatFunctionParameters,
-        fn: (args: Record<string, any>) => string | Promise<string>
+        fn: (
+            args: { context: ChatFunctionCallContext } & Record<string, any>
+        ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
@@ -402,7 +502,9 @@ declare function defFunction(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
-    fn: (args: Record<string, any>) => string | Promise<string>
+    fn: (
+        args: { context: ChatFunctionCallContext } & Record<string, any>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 ): void
 
 /**
