@@ -11,7 +11,7 @@ export interface ChangeLogChange {
 
 export interface ChangeLog {
     index: number
-    file: string
+    filename: string
     description: string
     changes: ChangeLogChange[]
 }
@@ -31,7 +31,7 @@ export function parseChangeLogs(source: string): ChangeLog[] {
         if (!m) throw new Error("missing ChangeLog header")
         const changelog: ChangeLog = {
             index: parseInt(m.groups.index),
-            file: m.groups.file.trim(),
+            filename: m.groups.file.trim(),
             description: undefined,
             changes: [],
         }

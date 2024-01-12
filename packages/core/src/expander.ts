@@ -23,6 +23,7 @@ import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
 import { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
+import { applyChangeLog, parseChangeLogs } from "./changelog"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -905,6 +906,24 @@ export async function runTemplate(
                     }
                 }
                 if (!curr && fragn !== fn) links.push(`-   [${ffn}](${ffn})`)
+            } else if (/^changelog$/i.test(name)) {
+                const changelogs = parseChangeLogs(val)
+                for (const changelog of changelogs) {
+                    const { filename, changes } = changelog
+                    const fn = /^[^\/]/.test(filename)
+                        ? host.resolvePath(projFolder, filename)
+                        : filename
+                    const ffn = relativePath(ff, fn)
+                    const curr = refs.find((r) => r.filename === fn)?.filename
+
+                    const fileEdit = await getFileEdit(fn)
+                    fileEdit.after = applyChangeLog(
+                        fileEdit.after || fileEdit.before,
+                        changelog
+                    )
+                    if (!curr && fragn !== fn)
+                        links.push(`-   [${ffn}](${ffn})`)
+                }
             } else if (/^annotation$/i.test(name)) {
                 // ::(notice|warning|error) file=<filename>,line=<start line>::<message>
                 const rx =
