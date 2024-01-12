@@ -1,0 +1,15 @@
+{
+    "name": "gptools-rag",
+    "version": "1.5.0",
+    "main": "src/index.ts",
+    "license": "MIT",
+    "private": true,
+    "devDependencies": {
+        "@types/node": "^20.10.4",
+        "chromadb": "^1.7.3",
+        "gptools-core": "*"
+    },
+    "scripts": {
+        "typecheck": "tsc -p src"
+    }
+}
