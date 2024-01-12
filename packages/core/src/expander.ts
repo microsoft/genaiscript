@@ -928,7 +928,7 @@ export async function runTemplate(
 
                     const fileEdit = await getFileEdit(fn)
                     fileEdit.after = applyChangeLog(
-                        fileEdit.after || fileEdit.before,
+                        fileEdit.after || fileEdit.before || "",
                         changelog
                     )
                     if (!curr && fragn !== fn)

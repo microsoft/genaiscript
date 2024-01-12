@@ -352,7 +352,6 @@ async function parseMeta(r: PromptTemplate) {
 const promptFence = "```"
 const markdownPromptFence = "`````"
 const promptFenceStartRx = /^(`{3,})(\s*(.*))?\s*$/
-const promptFenceEndRx = /^(`{3,})\s*$/
 
 function errorId() {
     let r = "ERROR-"
