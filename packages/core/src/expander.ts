@@ -236,6 +236,7 @@ async function expandTemplate(
         systems.push("system")
         systems.push("system.explanations")
         systems.push("system.files")
+        systems.push("system.changelog")
         systems.push("system.summary")
     }
     for (let i = 0; i < systems.length; ++i) {
