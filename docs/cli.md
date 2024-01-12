@@ -81,12 +81,22 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 Emit annotations in the specified file as a JSON array or a CSV file if the file ends with `.csv`.
 
 ```bash
-node gptools.js run <tool> <spec> --out-trace diags.csv
+node gptools.js run <tool> <spec> --out-annotations diags.csv
+```
+
+### --out-changelogs <file>
+
+Emit changelogs in the specified file as text.
+
+```bash
+node gptools.js run <tool> <spec> --out-changelogs changelogs.txt
 ```
 
 ### --dry-run
 
 Skips the LLM invocation and only prints the expanded system and user chat messages.
+
+This mode is not compatible with gptools that use functions.
 
 ### --retry <number>
 
