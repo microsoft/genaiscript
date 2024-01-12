@@ -31,7 +31,7 @@ export function parseChangeLogs(source: string): ChangeLog[] {
         if (!m) throw new Error("missing ChangeLog header")
         const changelog: ChangeLog = {
             index: parseInt(m.groups.index),
-            file: m.groups.file,
+            file: m.groups.file.trim(),
             description: undefined,
             changes: [],
         }
@@ -39,9 +39,9 @@ export function parseChangeLogs(source: string): ChangeLog[] {
         lines.shift()
 
         // Description:...
-        m = /^Description:\s*(?<description>.*)$/i.exec(lines[0])
+        m = /^Description:(?<description>.*)$/i.exec(lines[0])
         if (!m) throw new Error("missing ChangeLog description")
-        changelog.description = m.groups.description
+        changelog.description = m.groups.description.trim()
         lines.shift()
 
         // changes
@@ -122,4 +122,24 @@ ChangedCode@23-23:
 [23] <white space> <changed code line>`
 
 */
+}
+
+export function applyChangeLog(source: string, changelog: ChangeLog): string {
+    const lines = source.split("\n")
+    for (let i = 0; i < changelog.changes.length; ++i) {
+        const change = changelog.changes[i]
+        const { original, changed } = change
+        lines.splice(
+            original.start,
+            original.end - original.start + 1,
+            ...changed.lines.map((l) => l.content)
+        )
+        const shift = changed.lines.length - original.lines.length
+        for (let j = i + 1; j < changelog.changes.length; ++j) {
+            const c = changelog.changes[j]
+            c.original.start += shift
+            c.original.end += shift
+        }
+    }
+    return lines.join("\n")
 }
