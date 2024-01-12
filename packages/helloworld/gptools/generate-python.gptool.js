@@ -2,6 +2,7 @@ gptool({
     title: "Generate python code",
     description: "Given a task, generate python code.",
     categories: ["hello world"],
+    system: ["system", "system.changelog"]
 })
 
 def(
