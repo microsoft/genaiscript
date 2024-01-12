@@ -4,7 +4,7 @@ system({
 })
 
 
-$`For your response, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
+$`For partial updates of files, return one or more ChangeLogs (CLs) formatted as follows. Each CL must contain
 one or more code snippet changes for a single file. There can be multiple CLs for a single file.
 Each CL must start with a description of its changes. The CL must then list one or more pairs of
 (OriginalCode, ChangedCode) code snippets. In each such pair, OriginalCode must list all consecutive

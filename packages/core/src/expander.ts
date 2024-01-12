@@ -919,7 +919,7 @@ export async function runTemplate(
                 changelogs.push(val)
                 const cls = parseChangeLogs(val)
                 for (const changelog of cls) {
-                    const { filename, changes } = changelog
+                    const { filename } = changelog
                     const fn = /^[^\/]/.test(filename)
                         ? host.resolvePath(projFolder, filename)
                         : filename

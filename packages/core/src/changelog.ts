@@ -84,9 +84,11 @@ export function parseChangeLogs(source: string): ChangeLog[] {
         while (lines.length) {
             m = /^\[(?<index>\d+)\](?<content>.*)$/i.exec(lines[0])
             if (m) {
+                let content = m.groups.content
+                if (content[0] === " ") content = content.slice(1)
                 chunk.lines.push({
                     index: parseInt(m.groups.index),
-                    content: m.groups.content,
+                    content,
                 })
                 lines.shift()
             } else {
