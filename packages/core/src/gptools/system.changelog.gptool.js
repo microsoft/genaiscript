@@ -16,7 +16,8 @@ in both the OriginalCode and ChangedCode snippets, must be prefixed with [N] tha
 index N in the above snippets, and then be prefixed with exactly the same whitespace indentation as
 the original snippets above. See also the following examples of the expected response format.
 
-${env.fence}changelog
+CHANGELOG
+${env.fence}
 ChangeLog:1@<file>
 Description: <summary>.
 OriginalCode@4-6:

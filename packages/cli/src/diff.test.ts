@@ -2,8 +2,9 @@ import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { parseLLMDiffs } from "gptools-core"
 
-test("is_valid_email", () => {
-    const source = `[1] import re
+describe("diff", () => {
+    test("is_valid_email", () => {
+        const source = `[1] import re
 [2] 
 [3] def is_valid_email(email):
 - [4]     if re.fullmatch(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+", email):
@@ -12,12 +13,12 @@ test("is_valid_email", () => {
 [6]         return True
 [7]     else:
 [8]         return False`
-    const chunks = parseLLMDiffs(source)
-    assert.equal(chunks.length, 4)
-})
+        const chunks = parseLLMDiffs(source)
+        assert.equal(chunks.length, 4)
+    })
 
-test("missing line numbers", () => {
-    const source = `
+    test("missing line numbers", () => {
+        const source = `
 [10] CONSTANT
 -     \* @type: XXX;
 +     \* @type: Int;
@@ -32,12 +33,12 @@ test("missing line numbers", () => {
 +     \* @type: Str;
 `
 
-    const chunks = parseLLMDiffs(source)
-    assert.equal(chunks.length, 12)
-})
+        const chunks = parseLLMDiffs(source)
+        assert.equal(chunks.length, 12)
+    })
 
-test("missing line numbers 2", () => {
-    const source = `
+    test("missing line numbers 2", () => {
+        const source = `
 [17] CONSTANTS
 -     \* @type: ???;
 +     \* @type: Int;
@@ -60,7 +61,8 @@ test("missing line numbers 2", () => {
 [34]   sent
 `
 
-    const chunks = parseLLMDiffs(source)
-    console.log(chunks)
-    assert.equal(chunks.length, 19)
+        const chunks = parseLLMDiffs(source)
+        console.log(chunks)
+        assert.equal(chunks.length, 19)
+    })
 })
