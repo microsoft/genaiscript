@@ -6,6 +6,7 @@
 		"esbenp.prettier-vscode",
 		"evilz.vscode-reveal",
 		"bierner.markdown-mermaid",
-		"github.vscode-github-actions"
+		"github.vscode-github-actions",
+		"yoavbls.pretty-ts-errors"
 	]
 }
