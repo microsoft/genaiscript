@@ -128,7 +128,9 @@ export async function parseToken(f: string) {
     )
 }
 
-export async function parseTokenFromEnv(env: Record<string, string>) {
+export async function parseTokenFromEnv(
+    env: Record<string, string>
+): Promise<OAIToken> {
     if (env.GPTOOLS_TOKEN) {
         const tok = await parseToken(env.GPTOOLS_TOKEN)
         tok.source = "env: GPTOOLS_TOKEN"
@@ -144,8 +146,19 @@ export async function parseTokenFromEnv(env: Record<string, string>) {
             throw new Error("OPENAI_API_TYPE must be 'azure'")
         if (version && version !== "2023-03-15-preview")
             throw new Error("OPENAI_API_VERSION must be '2023-03-15-preview'")
-        const tok = await parseToken(`${base}#key=${key}`)
+        const name = type === "azure" ? "key" : "oaikey"
+        const tok = await parseToken(`${base}#${name}=${key}`)
         tok.source = "env: OPENAI_API_..."
+        return tok
+    }
+    if (env.JAN_AI_PORT) {
+        const port = parseInt(env.JAN_AI_PORT)
+        const base = env.JAN_AI_BASE || "http://localhost"
+        const tok: OAIToken = {
+            url: `${base}:${port}/`,
+            token: "",
+            source: `env: JAN_AI_...`,
+        }
         return tok
     }
     return undefined
