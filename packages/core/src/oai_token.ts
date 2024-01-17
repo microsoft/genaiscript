@@ -155,8 +155,9 @@ export async function parseTokenFromEnv(
         const port = parseInt(env.JAN_AI_PORT)
         const base = env.JAN_AI_BASE || "http://localhost"
         const tok: OAIToken = {
-            url: `${base}:${port}/`,
+            url: `${base}:${port}`,
             token: "",
+            isOpenAI: true,
             source: `env: JAN_AI_...`,
         }
         return tok
