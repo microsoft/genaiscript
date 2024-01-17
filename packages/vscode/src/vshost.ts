@@ -127,7 +127,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             if (!/OPENAI_API_KEY/.test(text))
                 nextText += `\nOPENAI_API_KEY="<your token>"`
             if (!/OPENAI_API_BASE/.test(text))
-                nextText += `\nOPENAI_API_BASE="https://api.openai.com/v1/"`
+                nextText += `\nOPENAI_API_BASE="https://api.openai.com/v1"`
             if (!/OPENAI_API_TYPE/.test(text))
                 nextText += `\n# OPENAI_API_TYPE="azure"`
             if (nextText !== text) {

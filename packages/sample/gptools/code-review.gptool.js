@@ -2,8 +2,8 @@ gptool({
     title: "Code review",
     description: "Given a problem desciption and code, write a code review",
     maxTokens: 4000,
-    model: "gpt-4",
-    categories: ["hello world"],
+    model: "mistral-ins-7b-q4",
+    categories: ["samples"],
     temperature: 0
 })
 

@@ -196,8 +196,9 @@ export async function getChatCompletions(
     })
     const r = await fetchRetry(url, {
         headers: {
-            authorization: cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
-            "api-key": cfg.isOpenAI ? undefined : cfg.token,
+            authorization:
+                cfg.token && cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
+            "api-key": cfg.token && !cfg.isOpenAI ? cfg.token : undefined,
             "user-agent": "gptools",
             "content-type": "application/json",
             ...(headers || {}),
@@ -207,7 +208,8 @@ export async function getChatCompletions(
         ...(rest || {}),
     })
 
-    if (r.status != 200) {
+    trace.item(`response: ${r.status} ${r.statusText}`)
+    if (r.status !== 200) {
         trace.error(`request error: ${r.status}`)
         let body: string
         try {

@@ -364,6 +364,7 @@ async function expandTemplate(
 }
 
 async function fragmentVars(
+    trace: MarkdownTrace,
     template: PromptTemplate,
     frag: Fragment,
     promptOptions: any
@@ -371,7 +372,6 @@ async function fragmentVars(
     const { file } = frag
     const project = file.project
     const prjFolder = host.projectFolder()
-    let trace = ""
 
     const links: LinkedFile[] = []
     for (const fr of allChildren(frag, true)) {
@@ -394,21 +394,21 @@ async function fragmentVars(
                                 break
                             }
                         }
-                        trace += `fetch ${url}\n`
+                        trace.item(`fetch ${url}`)
                         const resp = await fetch(url, {
                             headers: {
                                 "Content-Type":
                                     adapter?.contentType ?? "text/plain",
                             },
                         })
+                        trace.item(`status: ${resp.status}, ${resp.statusText}`)
                         if (resp.ok)
                             content =
                                 adapter?.contentType === "application/json"
                                     ? adapter.adapter(await resp.json())
                                     : await resp.text()
                     } catch (e) {
-                        trace += `fetch failed for ${ref.filename}\n`
-                        trace += e.message + "\n"
+                        trace.error(`fetch def error`, e)
                     }
                     links.push({
                         label: ref.name,
@@ -424,7 +424,7 @@ async function fragmentVars(
                 (f) => f.filename === ref.filename
             )
             if (!projectFile) {
-                trace += `reference ${ref.filename} not found\n`
+                trace.item(`reference ${ref.filename} not found`)
                 continue
             }
 
@@ -523,14 +523,13 @@ export async function runTemplate(
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
 
-    const { vars, trace: varsTrace } = await fragmentVars(
+    const { vars } = await fragmentVars(
+        trace,
         template,
         fragment,
         options.promptOptions
     )
     vars.chat = options.chat || { history: [], prompt: "" }
-
-    if (varsTrace) trace.details("variables", varsTrace)
 
     let {
         expanded,
@@ -677,7 +676,16 @@ export async function runTemplate(
                 status()
             }
         } catch (error: unknown) {
-            if (error instanceof RequestError) {
+            if (error instanceof TypeError) {
+                trace.heading(3, `Request error`)
+                trace.item(error.message)
+                if (error.cause) trace.fence(error.cause)
+                if (error.stack) trace.fence(error.stack)
+                resp = {
+                    text: "Unexpected error",
+                }
+            }
+            else if (error instanceof RequestError) {
                 trace.heading(3, `Request error`)
                 if (error.body) {
                     trace.log(`> ${error.body.message}\n\n`)
@@ -695,7 +703,7 @@ export async function runTemplate(
                 error = undefined
             } else {
                 trace.heading(3, `Fetch error`)
-                trace.error(error + "")
+                trace.error(`fetch error`, error)
                 resp = { text: "Unexpected error" }
             }
 
