@@ -136,30 +136,30 @@ export async function parseTokenFromEnv(
         tok.source = "env: GPTOOLS_TOKEN"
         return tok
     }
-    if (env.OPENAI_API_KEY) {
+    if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
         const key = env.OPENAI_API_KEY
-        const base = env.OPENAI_API_BASE
-        const type = env.OPENAI_API_TYPE
+        let base = env.OPENAI_API_BASE
+        let type = env.OPENAI_API_TYPE
         const version = env.OPENAI_API_VERSION
-        if (!base) throw new Error("OPENAI_API_BASE not set")
-        if (type && type !== "azure")
-            throw new Error("OPENAI_API_TYPE must be 'azure'")
+        if (type && type !== "azure" && type !== "local")
+            throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
+        if (type === "azure" && !base)
+            throw new Error("OPENAI_API_BASE not set")
+        if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
         if (version && version !== "2023-03-15-preview")
             throw new Error("OPENAI_API_VERSION must be '2023-03-15-preview'")
+        if (type === "local") {
+            return {
+                url: base,
+                token: key || "",
+                isOpenAI: true,
+                source: "env: OPENAI_API_...",
+            }
+        }
+        base ??= "https://api.openai.com/v1/"
         const name = type === "azure" ? "key" : "oaikey"
         const tok = await parseToken(`${base}#${name}=${key}`)
         tok.source = "env: OPENAI_API_..."
-        return tok
-    }
-    if (env.JAN_AI_PORT) {
-        const port = parseInt(env.JAN_AI_PORT)
-        const base = env.JAN_AI_BASE || "http://localhost"
-        const tok: OAIToken = {
-            url: `${base}:${port}`,
-            token: "",
-            isOpenAI: true,
-            source: `env: JAN_AI_...`,
-        }
         return tok
     }
     return undefined

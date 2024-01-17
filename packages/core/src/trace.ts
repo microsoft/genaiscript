@@ -1,4 +1,5 @@
 import { fenceMD } from "./expander"
+import { stringify as yamlStringify } from "yaml"
 
 export class MarkdownTrace implements ChatFunctionCallTrace {
     content: string = ""
@@ -18,15 +19,18 @@ ${title}
         this.content += `\n</details>\n\n`
     }
 
-    details(title: string, body: string) {
+    details(title: string, body: string | object) {
         this.startDetails(title)
-        this.content += body
+        if (body) {
+            if (typeof body === "string") this.content += body
+            else this.content += yamlStringify(body)
+        }
         this.endDetails()
     }
 
-    detailsFenced(title: string, body: string, contentType?: string) {
+    detailsFenced(title: string, body: string | object, contentType?: string) {
         this.startDetails(title)
-        this.content += fenceMD(body, contentType)
+        this.fence(body, contentType)
         this.endDetails()
     }
 
@@ -38,12 +42,17 @@ ${title}
         this.content += message + "\n"
     }
 
-    fence(message: string | object, contentType?: string) {
+    fence(message: string | unknown, contentType?: string) {
+        let res: string
         if (typeof message !== "string") {
-            message = JSON.stringify(message, null, 2)
-            contentType = contentType || "json"
-        }
-        this.content += fenceMD(message, contentType)
+            if (contentType === "json") {
+                res = JSON.stringify(message, null, 2)
+            } else {
+                res = yamlStringify(message)
+                contentType = "yaml"
+            }
+        } else res = message
+        this.content += fenceMD(res, contentType)
     }
 
     append(trace: MarkdownTrace) {
@@ -60,6 +69,12 @@ ${title}
 
     error(message: string, exception?: unknown) {
         this.content += `\n> error: ${message}\n`
-        if (exception) this.fence(exception + "")
+        if (typeof exception === "string") this.fence(exception)
+        else if (exception)
+            this.fence(
+                `${(exception as Error).message}\n${
+                    (exception as Error).stack || ""
+                }`
+            )
     }
 }
