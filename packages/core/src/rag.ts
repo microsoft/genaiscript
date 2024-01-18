@@ -12,11 +12,6 @@ export interface VectorToken {
 let client: ChromaClient
 let embeddingFunction: IEmbeddingFunction
 
-async function close() {
-    client = undefined
-    embeddingFunction = undefined
-}
-
 async function startVectorDb(token?: VectorToken) {
     if (!client) {
         client = new ChromaClient({
@@ -33,7 +28,7 @@ async function startVectorDb(token?: VectorToken) {
     return { client, collection }
 }
 
-export async function stats(trace: MarkdownTrace) {
+export async function stats(token: VectorToken, trace: MarkdownTrace) {
     try {
         trace.startDetails(`embedded documents`)
         const { collection } = await startVectorDb(token)
