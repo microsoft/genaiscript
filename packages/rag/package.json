@@ -10,6 +10,8 @@
         "gptools-core": "*"
     },
     "scripts": {
-        "typecheck": "tsc -p src"
+        "typecheck": "tsc -p src",
+        "postinstall": "pip install chromadb",
+        "serve": "chroma run --path ./db"
     }
 }
