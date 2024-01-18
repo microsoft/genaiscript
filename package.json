@@ -33,7 +33,6 @@
         }
     },
     "devDependencies": {
-        "@release-it-plugins/workspaces": "^4.0.0",
         "zx": "^7.2.3"
     }
 }

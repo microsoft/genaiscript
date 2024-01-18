@@ -1,4 +1,11 @@
 {
     "devicescript.devtools.autoStart": false,
-    "cSpell.words": ["gpspec", "gptool", "gptools", "metadatas"]
+    "cSpell.words": [
+        "chromadb",
+        "gpspec",
+        "gptool",
+        "gptools",
+        "metadatas",
+        "typecheck"
+    ]
 }

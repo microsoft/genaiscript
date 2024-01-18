@@ -1,26 +1,20 @@
 import { ChromaClient } from "chromadb"
-import { OpenAIEmbeddingFunction } from "chromadb"
+import { embeddingFunction } from "chromadb-default-embed"
 import { MarkdownTrace, OAIToken } from "gptools-core"
 
 export interface VectorToken {
-    token?: string
-    embeddingToken: OAIToken
+    credentials?: string
 }
 
-async function startVectorDb(token: VectorToken) {
-    if (!token.embeddingToken.isOpenAI) throw new Error("Invalid OpenAI token")
-
+async function startVectorDb(token?: VectorToken) {
     const client = new ChromaClient({
-        auth: token.token
+        auth: token?.credentials
             ? { provider: "token", credentials: "test-token" }
             : undefined,
     })
-    const embedder = new OpenAIEmbeddingFunction({
-        openai_api_key: token.embeddingToken.token,
-    })
     const collection = await client.getOrCreateCollection({
         name: "sources",
-        embeddingFunction: embedder,
+        embeddingFunction,
     })
     return { client, collection }
 }
