@@ -1142,10 +1142,10 @@ chromadb-default-embed@^2.13.2:
   optionalDependencies:
     onnxruntime-node "1.14.0"
 
-chromadb@^1.7.3:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/chromadb/-/chromadb-1.7.3.tgz#809019efd8c6126c5e4527875905f29c6c828fa6"
-  integrity sha512-3GgvQjpqgk5C89x5EuTDaXKbfrdqYDJ5UVyLQ3ZmwxnpetNc+HhRDGjkvXa5KSvpQ3lmKoyDoqnN4tZepfFkbw==
+chromadb@1.7.3-beta5:
+  version "1.7.3-beta5"
+  resolved "https://registry.yarnpkg.com/chromadb/-/chromadb-1.7.3-beta5.tgz#c4fcf06c1220f6a312cf9e52b9405ae07bf94b44"
+  integrity sha512-Zp4xdczlkeJW6q8PzYOE5glXy+qpRmeUtohRyZZO7afRZVcijCKZdhioeyazgM4VXS65sy3vHT5jCVsfBSP4Cg==
   dependencies:
     cliui "^8.0.1"
     isomorphic-fetch "^3.0.0"

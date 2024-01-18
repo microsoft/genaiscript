@@ -1,17 +1,31 @@
-import { ChromaClient } from "chromadb"
-import { embeddingFunction } from "chromadb-default-embed"
-import { MarkdownTrace, OAIToken } from "gptools-core"
+import {
+    ChromaClient,
+    DefaultEmbeddingFunction,
+    IEmbeddingFunction,
+} from "chromadb"
+import { MarkdownTrace } from "gptools-core"
 
 export interface VectorToken {
     credentials?: string
 }
 
+let client: ChromaClient
+let embeddingFunction: IEmbeddingFunction
+
+async function close() {
+    client = undefined
+    embeddingFunction = undefined
+}
+
 async function startVectorDb(token?: VectorToken) {
-    const client = new ChromaClient({
-        auth: token?.credentials
-            ? { provider: "token", credentials: "test-token" }
-            : undefined,
-    })
+    if (!client) {
+        client = new ChromaClient({
+            auth: token?.credentials
+                ? { provider: "token", credentials: "test-token" }
+                : undefined,
+        })
+        embeddingFunction = new DefaultEmbeddingFunction()
+    }
     const collection = await client.getOrCreateCollection({
         name: "sources",
         embeddingFunction,
@@ -19,7 +33,7 @@ async function startVectorDb(token?: VectorToken) {
     return { client, collection }
 }
 
-export async function stats(token: VectorToken, trace: MarkdownTrace) {
+export async function stats(trace: MarkdownTrace) {
     try {
         trace.startDetails(`embedded documents`)
         const { collection } = await startVectorDb(token)
