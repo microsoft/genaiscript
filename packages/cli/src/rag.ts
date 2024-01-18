@@ -29,6 +29,7 @@ async function getCollection(name: string) {
     const collection = await client.getOrCreateCollection({
         name,
         embeddingFunction,
+        metadata: { "hnsw:space": "cosine" },
     })
     return collection
 }
