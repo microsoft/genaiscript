@@ -19,7 +19,7 @@ import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { ensureDir } from "fs-extra"
-import { ragIndexFiles, ragStart } from "./rag"
+import { indexFiles, queryFiles, connect } from "./rag"
 
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
@@ -273,8 +273,13 @@ async function convertToMarkdown(
     }
 }
 
+async function ragStart() {
+    const { version } = await connect()
+    console.log(`chromadb: v${version}`)
+}
+
 async function ragIndex(collection: string, files: string[]) {
-    const client = await ragStart()
+    await ragStart()
     const fs: Record<string, LinkedFile> = {}
     for (const fp of files) {
         if (!fs[fp]) {
@@ -284,7 +289,21 @@ async function ragIndex(collection: string, files: string[]) {
             }
         }
     }
-    await ragIndexFiles(collection, Object.values(fs))
+    console.log(`indexing ${Object.keys(fs).length} files in '${collection}'`)
+    await indexFiles(collection, Object.values(fs))
+}
+
+async function ragQuery(
+    collection: string,
+    query: string,
+    options: { nResults: number }
+) {
+    await ragStart()
+    console.log(`searching '${collection}' for '${query}'`)
+    const docs = await queryFiles(collection, query, options)
+    console.log(`found ${docs.length} documents`)
+    for (const doc of docs)
+        console.log(`${doc.filename} ${(doc as any).distance}`)
 }
 
 async function main() {
@@ -384,14 +403,16 @@ async function main() {
         .description("List all available specs")
         .action(listSpecs)
 
-    const embeddings = program
-        .command("embeddings")
-        .description("Manage embeddings")
-    embeddings
-        .command("index")
+    const db = program.command("db").description("Manage vector database")
+    db.command("index")
         .description("Index a set of files in a collection")
         .arguments("<collection> <files...>")
         .action(ragIndex)
+    db.command("search")
+        .description("Issue a search query against a collection")
+        .arguments("<collection> <query>")
+        .option("-n, --n-results <number>", "number of results to return")
+        .action(ragQuery)
 
     const converter = program
         .command("convert")

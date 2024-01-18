@@ -2,8 +2,8 @@ import {
     ChromaClient,
     DefaultEmbeddingFunction,
     IEmbeddingFunction,
+    IncludeEnum,
 } from "chromadb"
-import { MarkdownTrace } from "gptools-core"
 
 export interface VectorToken {
     credentials?: string
@@ -12,15 +12,17 @@ export interface VectorToken {
 let client: ChromaClient
 let embeddingFunction: IEmbeddingFunction
 
-export async function ragStart(token?: VectorToken) {
+export async function connect(token?: VectorToken) {
     client = new ChromaClient({
         auth: token?.credentials
             ? { provider: "token", credentials: "test-token" }
             : undefined,
     })
     embeddingFunction = new DefaultEmbeddingFunction()
-    const collections = await client.listCollections()
-    console.log(collections.map((c) => c.name).join("\n"))
+    return {
+        version: await client.version(),
+        heartbeat: await client.heartbeat(),
+    }
 }
 
 async function getCollection(name: string) {
@@ -31,7 +33,7 @@ async function getCollection(name: string) {
     return collection
 }
 
-export async function ragIndexFiles(name: string, files: LinkedFile[]) {
+export async function indexFiles(name: string, files: LinkedFile[]) {
     const collection = await getCollection(name)
     return await collection.upsert({
         ids: files.map((file) => file.filename),
@@ -43,15 +45,35 @@ export async function ragIndexFiles(name: string, files: LinkedFile[]) {
     })
 }
 
-export async function ragQuery(
+export async function queryFiles(
     name: string,
-    queryTexts: string
-): Promise<string[]> {
+    queryTexts: string | string[],
+    options: {
+        nResults?: number
+    } = {}
+): Promise<LinkedFile[]> {
     const collection = await getCollection(name)
     const query = await collection.query({
-        nResults: 10,
         queryTexts,
+        include: [
+            IncludeEnum.Documents,
+            IncludeEnum.Metadatas,
+            IncludeEnum.Distances,
+        ],
+        ...options,
     })
     const documents = query.documents?.[0]
-    return documents.filter((d) => d !== null) as string[]
+    const metadatas = query.metadatas?.[0]
+    const distances = query.distances?.[0]
+    return documents
+        .map(
+            (d, i) =>
+                <LinkedFile>{
+                    filename: metadatas[i]?.filename,
+                    label: metadatas[i]?.label,
+                    distance: distances[i],
+                    content: d,
+                }
+        )
+        .filter((d) => d.content !== null)
 }
