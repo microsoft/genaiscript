@@ -12,7 +12,7 @@ export interface VectorToken {
 let client: ChromaClient
 let embeddingFunction: IEmbeddingFunction
 
-export async function start(token?: VectorToken) {
+export async function ragStart(token?: VectorToken) {
     client = new ChromaClient({
         auth: token?.credentials
             ? { provider: "token", credentials: "test-token" }
@@ -31,7 +31,7 @@ async function getCollection(name: string) {
     return collection
 }
 
-export async function upsertFiles(name: string, files: LinkedFile[]) {
+export async function ragIndexFiles(name: string, files: LinkedFile[]) {
     const collection = await getCollection(name)
     return await collection.upsert({
         ids: files.map((file) => file.filename),
@@ -43,7 +43,7 @@ export async function upsertFiles(name: string, files: LinkedFile[]) {
     })
 }
 
-export async function query(
+export async function ragQuery(
     name: string,
     queryTexts: string
 ): Promise<string[]> {

@@ -19,6 +19,7 @@ import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { ensureDir } from "fs-extra"
+import { ragIndexFiles, ragStart } from "./rag"
 
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
@@ -272,6 +273,16 @@ async function convertToMarkdown(
     }
 }
 
+async function ragIndex(collection: string, files: string[]) {
+    const client = await ragStart()
+    let fs: string[] = []
+    for (const fp in files) {
+        const fn = await host.findFiles(fp)
+        fs.push(...fn)
+    }
+    await ragIndexFiles(collection, fs)
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -368,6 +379,15 @@ async function main() {
         .command("list", { isDefault: true })
         .description("List all available specs")
         .action(listSpecs)
+
+    const embeddings = program
+        .command("embeddings")
+        .description("Manage embeddings")
+    embeddings
+        .command("index")
+        .description("Index a set of files in a collection")
+        .arguments("<collection> <files...>")
+        .action(ragIndex)
 
     const converter = program
         .command("convert")
