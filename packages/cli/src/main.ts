@@ -275,12 +275,16 @@ async function convertToMarkdown(
 
 async function ragIndex(collection: string, files: string[]) {
     const client = await ragStart()
-    let fs: string[] = []
-    for (const fp in files) {
-        const fn = await host.findFiles(fp)
-        fs.push(...fn)
+    const fs: Record<string, LinkedFile> = {}
+    for (const fp of files) {
+        if (!fs[fp]) {
+            fs[fp] = <LinkedFile>{
+                content: await readText(fp),
+                filename: fp,
+            }
+        }
     }
-    await ragIndexFiles(collection, fs)
+    await ragIndexFiles(collection, Object.values(fs))
 }
 
 async function main() {
