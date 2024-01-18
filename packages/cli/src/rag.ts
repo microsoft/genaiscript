@@ -12,39 +12,27 @@ export interface VectorToken {
 let client: ChromaClient
 let embeddingFunction: IEmbeddingFunction
 
-async function startVectorDb(token?: VectorToken) {
-    if (!client) {
-        client = new ChromaClient({
-            auth: token?.credentials
-                ? { provider: "token", credentials: "test-token" }
-                : undefined,
-        })
-        embeddingFunction = new DefaultEmbeddingFunction()
-    }
+export async function start(token?: VectorToken) {
+    client = new ChromaClient({
+        auth: token?.credentials
+            ? { provider: "token", credentials: "test-token" }
+            : undefined,
+    })
+    embeddingFunction = new DefaultEmbeddingFunction()
+    const collections = await client.listCollections()
+    console.log(collections.map((c) => c.name).join("\n"))
+}
+
+async function getCollection(name: string) {
     const collection = await client.getOrCreateCollection({
-        name: "sources",
+        name,
         embeddingFunction,
     })
-    return { client, collection }
+    return collection
 }
 
-export async function stats(token: VectorToken, trace: MarkdownTrace) {
-    try {
-        trace.startDetails(`embedded documents`)
-        const { collection } = await startVectorDb(token)
-
-        const count = await collection.count()
-        trace.item(`count: ${count}`)
-    } catch (e) {
-        trace.error("error", e)
-    } finally {
-        trace.endDetails()
-    }
-    return stats
-}
-
-export async function upsertFiles(token: VectorToken, files: LinkedFile[]) {
-    const { collection } = await startVectorDb(token)
+export async function upsertFiles(name: string, files: LinkedFile[]) {
+    const collection = await getCollection(name)
     return await collection.upsert({
         ids: files.map((file) => file.filename),
         documents: files.map((file) => file.content),
@@ -56,10 +44,10 @@ export async function upsertFiles(token: VectorToken, files: LinkedFile[]) {
 }
 
 export async function query(
-    token: VectorToken,
+    name: string,
     queryTexts: string
 ): Promise<string[]> {
-    const { collection } = await startVectorDb(token)
+    const collection = await getCollection(name)
     const query = await collection.query({
         nResults: 10,
         queryTexts,
