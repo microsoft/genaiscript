@@ -51,8 +51,10 @@ export async function queryFiles(
     queryTexts: string | string[],
     options: {
         nResults?: number
+        distance?: number
     } = {}
-): Promise<LinkedFile[]> {
+): Promise<{ file: LinkedFile; distance: number }[]> {
+    const { nResults, distance } = options
     const collection = await getCollection(name)
     const query = await collection.query({
         queryTexts,
@@ -61,20 +63,23 @@ export async function queryFiles(
             IncludeEnum.Metadatas,
             IncludeEnum.Distances,
         ],
-        ...options,
+        nResults,
     })
     const documents = query.documents?.[0]
     const metadatas = query.metadatas?.[0]
     const distances = query.distances?.[0]
     return documents
-        .map(
-            (d, i) =>
-                <LinkedFile>{
-                    filename: metadatas[i]?.filename,
-                    label: metadatas[i]?.label,
-                    distance: distances[i],
-                    content: d,
-                }
+        .map((d, i) => ({
+            file: <LinkedFile>{
+                filename: metadatas[i]?.filename,
+                label: metadatas[i]?.label,
+                content: d,
+            },
+            distance: distances[i],
+        }))
+        .filter(
+            (d) =>
+                d.file.content !== null &&
+                (isNaN(distance) || d.distance < distance)
         )
-        .filter((d) => d.content !== null)
 }

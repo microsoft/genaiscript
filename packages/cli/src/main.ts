@@ -296,14 +296,13 @@ async function ragIndex(collection: string, files: string[]) {
 async function ragQuery(
     collection: string,
     query: string,
-    options: { nResults: number }
+    options: { nResults?: number; distance?: number }
 ) {
     await ragStart()
     console.log(`searching '${collection}' for '${query}'`)
     const docs = await queryFiles(collection, query, options)
     console.log(`found ${docs.length} documents`)
-    for (const doc of docs)
-        console.log(`${doc.filename} ${(doc as any).distance}`)
+    for (const doc of docs) console.log(`${doc.file.filename} ${doc.distance}`)
 }
 
 async function main() {
@@ -412,6 +411,10 @@ async function main() {
         .description("Issue a search query against a collection")
         .arguments("<collection> <query>")
         .option("-n, --n-results <number>", "number of results to return")
+        .option(
+            "-d, --distance <number>",
+            "maximum distance of documents [0..1]"
+        )
         .action(ragQuery)
 
     const converter = program
