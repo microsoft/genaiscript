@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "bierner.markdown-emoji"
+        "bierner.markdown-emoji",
+        "kejun.markdown-alert"
     ]
 }
