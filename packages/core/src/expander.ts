@@ -724,7 +724,7 @@ export async function runTemplate(
             }
         }
 
-        if (resp.text) trace.detailsFenced("📩 llm response", resp.text)
+        if (resp.text) trace.details("📩 llm response", resp.text) // render output as markdown
 
         status()
         if (resp.toolCalls?.length) {
