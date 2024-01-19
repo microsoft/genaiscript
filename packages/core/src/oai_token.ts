@@ -161,14 +161,20 @@ export async function parseTokenFromEnv(
         base ??= "https://api.openai.com/v1/"
         const name = type === "azure" ? "key" : "oaikey"
         const tok = await parseToken(`${base}#${name}=${key}`)
-        tok.source = "env: OPENAI_API_..."
+        tok.source = "env: OPENAI_..."
         return tok
     }
-    if (env.AZURE_OPENAI_API_KEY) {
-        const key = env.AZURE_OPENAI_API_KEY
-        const base = env.AZURE_OPENAI_ENDPOINT
-        const version = env.AZURE_OPENAI_API_VERSION
-        if (!base) throw new Error("AZURE_OPENAI_ENDPOINT not set")
+    if (env.AZURE_OPENAI_API_KEY || env.AZURE_API_KEY) {
+        const key = env.AZURE_OPENAI_API_KEY || env.AZURE_API_KEY
+        const base =
+            env.AZURE_OPENAI_ENDPOINT ||
+            env.AZURE_OPENAI_API_BASE ||
+            env.AZURE_API_BASE
+        const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
+        if (!base)
+            throw new Error(
+                "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
+            )
         if (version && version !== AZURE_OPENAI_API_VERSION)
             throw new Error(
                 `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
@@ -177,7 +183,7 @@ export async function parseTokenFromEnv(
             url: base,
             token: key,
             isOpenAI: true,
-            source: "env: AZURE_OPENAI_API_...",
+            source: "env: AZURE_...",
         }
     }
     return undefined
