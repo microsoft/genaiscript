@@ -765,7 +765,8 @@ export async function runTemplate(
 
                     const callHost: ChatFunctionCallHost = {
                         findFiles: async (glob) => host.findFiles(glob),
-                        readText: async (file) => readText(file),
+                        readText: async (file) =>
+                            readText("workspace://" + file),
                     }
                     const context: ChatFunctionCallContext = {
                         trace,
