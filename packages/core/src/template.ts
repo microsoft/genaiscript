@@ -187,6 +187,7 @@ export async function evalPrompt(
     logCb?: (msg: string) => void
 ) {
     const { writeText, env } = ctx0
+    const defs: Record<string, string[]> = {}
     const dontuse = (name: string) =>
         `${env.error} ${name}() should not be used inside of \${ ... }\n`
     const ctx: PromptContext & { console: Partial<typeof console> } = {
@@ -212,14 +213,20 @@ export async function evalPrompt(
                 return s
             }
             const df = (file: LinkedFile) => {
+                const defsn = defs[name] || (defs[name] = [])
+                console.log({ defs, defsn, name })
+                if (defsn.includes(file.filename)) return // duplicate
+                defsn.push(file.filename)
                 const dfence =
                     /\.md$/i.test(file.filename) ||
                     file.content?.includes(fence)
                         ? env.markdownFence
                         : fence
+                const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
                 writeText(
                     (name ? name + ":\n" : "") +
                         dfence +
+                        dtype +
                         ` file=${file.filename}\n` +
                         norm(file.content, dfence) +
                         dfence
