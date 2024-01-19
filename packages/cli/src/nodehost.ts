@@ -17,6 +17,7 @@ import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
+import { join } from "node:path"
 
 export class NodeHost implements Host {
     userState: any = {}
@@ -75,6 +76,10 @@ export class NodeHost implements Host {
         name: string,
         options?: ReadFileOptions
     ): Promise<Uint8Array> {
+        const wksrx = /^workspace:\/\//i
+        if(wksrx.test(name))
+            name = join(this.projectFolder(), name.replace(wksrx, ""))
+
         // virtual file handler
         const v = this.virtualFiles[resolve(name)]
         if (options?.virtual) {

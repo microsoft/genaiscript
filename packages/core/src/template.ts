@@ -214,7 +214,6 @@ export async function evalPrompt(
             }
             const df = (file: LinkedFile) => {
                 const defsn = defs[name] || (defs[name] = [])
-                console.log({ defs, defsn, name })
                 if (defsn.includes(file.filename)) return // duplicate
                 defsn.push(file.filename)
                 const dfence =
