@@ -71,7 +71,7 @@ Use ANNOTATIONS to highlight the issues, best practices or improvements in SPECS
 4. Double check your list of actions to make sure that you have a complete list of actions and add any that you missed
 5. Organize the actions by the target services or cloud components that are impacted by the actions
 6. Identify any cloud resources that are deployed after this file is used that were not present before this file was used and add them to the "Deployed" list. If nothing that you find directly within the provided file content meets this criteria, please leave the list empty.
-7. Generate a JSON file, targets.json, with the results following the TARGET_SCHEMA JSON schema:
+7. Generate a YAML file, targets.yaml, with the results following the TARGET_SCHEMA JSON schema:
 `
 
 defSchema("TARGET_SCHEMA", {
