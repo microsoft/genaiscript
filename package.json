@@ -7,6 +7,7 @@
         "packages/*"
     ],
     "scripts": {
+        "setup": "git submodule update --init --recursive",
         "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile",
         "compile-cli": "yarn --cwd packages/cli run compile",
         "compile": "yarn compile-ext && yarn compile-cli",
