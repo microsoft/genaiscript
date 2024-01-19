@@ -764,8 +764,8 @@ export async function runTemplate(
                     if (!fd) throw new Error(`function ${call.name} not found`)
 
                     const callHost: ChatFunctionCallHost = {
-                        findFiles: async (glob) => callHost.findFiles(glob),
-                        readText: async (file) => callHost.readText(file),
+                        findFiles: async (glob) => host.findFiles(glob),
+                        readText: async (file) => readText(file),
                     }
                     const context: ChatFunctionCallContext = {
                         trace,
