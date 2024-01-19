@@ -4,11 +4,12 @@ system({
         "GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message).",
 })
 
-$`Use the following format to create **file annotations** (same as GitHub Actions workflow). Group annotations together.`
+$`Use the following format to create **file annotations** (same as GitHub Actions workflow). GROUP annotations together.`
 
 def(
     "ANNOTATION",
-    `::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>::<message>`
+    `::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>::<message>
+::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>::<message>`
 )
 
 $`For example, an warning in main.py on line 3 with message "typo" would be:`
