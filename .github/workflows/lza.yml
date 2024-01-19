@@ -14,6 +14,10 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
+            - run: yarn setup:az
+            - run: yarn setup:bicep
+            - name: lint bicep
+              run: az bicep lint --file applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep
             - name: compile
               run: yarn compile
             - name: lza_review 02-spoke
@@ -28,4 +32,3 @@ jobs:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-                  
