@@ -32,7 +32,7 @@ export class MarkdownTrace
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
-        )}"><summary>
+        )}" class="gptools"><summary>
 ${title}
 </summary>
 
