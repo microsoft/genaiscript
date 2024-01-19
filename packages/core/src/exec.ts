@@ -77,7 +77,7 @@ export async function exec(
         if (outputFile && (await fileExists(outputFile)))
             res.output = await readText(outputFile)
 
-        trace.detailsFenced(`output`, res.stdout || "")
+        trace.detailsFenced(`📩 output`, res.stdout || "")
 
         return <ShellOutput>res
     } finally {
