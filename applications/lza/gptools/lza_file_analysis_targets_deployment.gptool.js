@@ -29,7 +29,7 @@ It is important to explain *why* the Action is being taken and *what* is being d
 
 # SourceFile
 You will be provided with the contents of the file to analyze as well as its dependencies to help you understand what the file is doing.
-If you are missing a module in the bicep file, use fs_read_file to add the module to the prompt.
+If you are missing a module in the bicep file, use fs_read_file to add the module to the prompt. Ignore .json and .jsonc file references.
 
 In Bicep, you can use the following syntax to include a module in your file (for example policy-definition.bicep):
 
