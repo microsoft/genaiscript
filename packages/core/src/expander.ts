@@ -215,7 +215,7 @@ async function expandTemplate(
 
     // always append, even if empty - should help with discoverability:
     // "Oh, so I can console.log() from prompt!"
-    trace.startDetails("console output")
+    trace.startDetails("🔤 console output")
     if (prompt.logs?.length) trace.fence(prompt.logs)
     else trace.tip("use `console.log()` from gptool.js files`")
     trace.endDetails()
@@ -229,7 +229,7 @@ async function expandTemplate(
     let seed = template.seed
     let responseType = template.responseType
 
-    trace.startDetails(`system gptools`)
+    trace.startDetails(`👾 system gptools`)
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -272,7 +272,7 @@ async function expandTemplate(
     }
     trace.endDetails()
 
-    trace.detailsFenced("gptool source", template.jsSource, "js")
+    trace.detailsFenced("📜 gptool source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
@@ -291,7 +291,7 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace.startDetails("gptool expanded prompt")
+    trace.startDetails("👽 gptool expanded prompt")
     if (model) trace.item(`model: \`${model || ""}\``)
     if (temperature !== undefined)
         trace.item(`temperature: ${temperature || ""}`)
@@ -339,7 +339,7 @@ async function expandTemplate(
     }
 
     function traceVars() {
-        trace.startDetails("variables")
+        trace.startDetails("🎰 variables")
         trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
         for (const k of Object.keys(env)) {
@@ -656,7 +656,9 @@ export async function runTemplate(
         try {
             try {
                 status(`prompting model`)
-                trace.startDetails(`llm request (${messages.length} messages)`)
+                trace.startDetails(
+                    `🧠 llm request (${messages.length} messages)`
+                )
                 status()
                 resp = await completer(
                     {
@@ -684,8 +686,7 @@ export async function runTemplate(
                 resp = {
                     text: "Unexpected error",
                 }
-            }
-            else if (error instanceof RequestError) {
+            } else if (error instanceof RequestError) {
                 trace.heading(3, `Request error`)
                 if (error.body) {
                     trace.log(`> ${error.body.message}\n\n`)
@@ -722,7 +723,7 @@ export async function runTemplate(
             }
         }
 
-        if (resp.text) trace.detailsFenced("llm response", resp.text)
+        if (resp.text) trace.detailsFenced("📩 llm response", resp.text)
 
         status()
         if (resp.toolCalls?.length) {
@@ -749,7 +750,7 @@ export async function runTemplate(
                 if (signal?.aborted) break
                 try {
                     status(`running tool ${call.name}`)
-                    trace.startDetails(`tool call ${call.name}`)
+                    trace.startDetails(`🛠️ tool call ${call.name}`)
                     trace.item(`id: \`${call.id}\``)
                     trace.item(`args:`)
                     trace.fence(call.arguments, "json")
@@ -807,8 +808,8 @@ export async function runTemplate(
                         )
                         output = { content: stdout }
                         trace.item(`exit code: ${exitCode}`)
-                        if (stdout) trace.details("shell output", stdout)
-                        if (stderr) trace.details("shell error", stderr)
+                        if (stdout) trace.details("📩 shell output", stdout)
+                        if (stderr) trace.details("📩 shell error", stderr)
                         if (exitCode !== 0 && !ignoreExitCode)
                             throw new Error(
                                 `tool ${call.name} failed with exit code ${exitCode}}`
@@ -862,7 +863,7 @@ export async function runTemplate(
     if (fences?.length)
         trace.details("code regions", renderFencedVariables(fences))
     if (json !== undefined) {
-        trace.startDetails("json (parsed)")
+        trace.startDetails("📩 json (parsed)")
         trace.fence(JSON.stringify(json, null, 2), "json")
         trace.endDetails()
     }
@@ -1054,7 +1055,7 @@ function traceCliArgs(
     options: RunTemplateOptions
 ) {
     trace.details(
-        "automation",
+        "🤖 automation",
         `This operation can be run from the command line:
 
 \`\`\`bash

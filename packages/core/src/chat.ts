@@ -171,7 +171,7 @@ export async function getChatCompletions(
         trace.item(
             `tools: ${tools.map((t) => "`" + t.function.name + "`").join(", ")}`
         )
-        trace.startDetails("schema")
+        trace.startDetails("🧱 schema")
         trace.fence(JSON.stringify(tools, null, 2), "json")
         trace.endDetails()
     }
