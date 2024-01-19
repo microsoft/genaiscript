@@ -63,13 +63,11 @@ export async function createIssue(
         `searching for issues in ${owner}/${repo} with title "${title}"`
     )
     const existing = await octokit.rest.search.issuesAndPullRequests({
-        q: `is:issue repo:${owner}/${repo} "${title}" in:title`,
+        q: `is:issue repo:${owner}/${repo} in:title "${title}"`,
     })
     const n = existing.data.total_count
     if (n > 0) {
-        console.log(
-            `related issue found: ${existing.data.items[0].html_url}`
-        )
+        console.log(`related issue found: ${existing.data.items[0].html_url}`)
     } else {
         const res = await octokit.rest.issues.create({
             owner,
