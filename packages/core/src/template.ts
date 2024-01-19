@@ -253,6 +253,9 @@ export async function evalPrompt(
                 ctx.def("File " + f.filename, f.content)
             return dontuse("defFiles")
         },
+        defSchema(name, schema) {
+            ctx.def(name, JSON.stringify(schema, null, 2), { language: "json" })
+        },
         defFunction(name, description, parameters, fn) {
             env.functions.push({
                 definition: { name, description, parameters },
