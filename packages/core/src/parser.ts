@@ -296,19 +296,13 @@ async function fragmentHash(t: Fragment) {
 export async function parseProject(options: {
     gpspecFiles: string[]
     gptoolFiles: string[]
-    coarchJsonFiles: string[]
 }) {
-    const { gpspecFiles, gptoolFiles, coarchJsonFiles } = options
+    const { gpspecFiles, gptoolFiles } = options
     const prj = new CoArchProject()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
         prj._finalizers = []
         for (const fin of fins) fin()
-    }
-
-    for (const f of coarchJsonFiles) {
-        const cfg = await tryReadJSON(f)
-        if (cfg) Object.assign(prj.coarchJson, cfg)
     }
 
     runFinalizers()

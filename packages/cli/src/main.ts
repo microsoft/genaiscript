@@ -44,12 +44,10 @@ async function buildProject(options?: {
     const gptoolFiles = toolFiles?.length
         ? toolFiles
         : await host.findFiles(toolsPath)
-    const coarchJsonFiles = await host.findFiles("**/gptools.json")
 
     const newProject = await parseProject({
         gpspecFiles,
         gptoolFiles,
-        coarchJsonFiles,
     })
     return newProject
 }

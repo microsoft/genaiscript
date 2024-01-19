@@ -495,12 +495,10 @@ ${e.message}`
 
         const gpspecFiles = await findFiles("**/*.gpspec.md")
         const gptoolFiles = await findFiles("**/*.gptool.js")
-        const coarchJsonFiles = await findFiles("**/gptools.json")
 
         const newProject = await parseProject({
             gpspecFiles,
             gptoolFiles,
-            coarchJsonFiles,
         })
         await this.setProject(newProject)
         this.setDiagnostics()
@@ -523,13 +521,10 @@ ${e.message}`
         const gpspecFiles = [specn]
         const gptoolFiles = await findFiles("**/*.gptool.js")
         if (token?.isCancellationRequested) return undefined
-        const coarchJsonFiles = await findFiles("**/gptools.json")
-        if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             gpspecFiles,
             gptoolFiles,
-            coarchJsonFiles,
         })
         return newProject
     }
