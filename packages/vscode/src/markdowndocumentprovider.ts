@@ -5,7 +5,7 @@ import {
     REQUEST_OUTPUT_FILENAME,
     REQUEST_TRACE_FILENAME,
 } from "./state"
-import { pretifyMarkdown, showMarkdownPreview } from "./markdown"
+import { showMarkdownPreview } from "./markdown"
 import {
     builtinPrefix,
     cachedAIRequestPrefix,
@@ -14,6 +14,7 @@ import {
     extractFenced,
     fenceMD,
     getChatCompletionCache,
+    pretifyMarkdown,
     renderFencedVariables,
 } from "gptools-core"
 

@@ -25,6 +25,7 @@ import { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
+import { pretifyMarkdown } from "./markdown"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -724,7 +725,8 @@ export async function runTemplate(
             }
         }
 
-        if (resp.text) trace.details("📩 llm response", resp.text) // render output as markdown
+        if (resp.text)
+            trace.details("📩 llm response", pretifyMarkdown(resp.text)) // render output as markdown
 
         status()
         if (resp.toolCalls?.length) {
