@@ -59,10 +59,14 @@ export async function createIssue(
 ) {
     const { owner, repo } = conn
     const octokit = createClient(conn)
-
+    console.error(
+        `searching for issues in ${owner}/${repo} with title "${title}"`
+    )
     const existing = await octokit.rest.search.issuesAndPullRequests({
-        state: "open",
-        q: `repo:${owner}/${repo} is:issue in:title "${title}"`,
+        q: `is:issue in:title ${title} repo:${owner}/${repo}`,
+        headers: {
+            Accept: "application/vnd.github.v3.text-match+json",
+        },
     })
     const n = existing.data.total_count
     if (n > 0) {
