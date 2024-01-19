@@ -23,7 +23,7 @@ jobs:
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: lza_review all
-              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/**/deploy.*.bicep -ot $GITHUB_STEP_SUMMARY -l "review of scenarios"
+              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/**/deploy.*.bicep -ot $GITHUB_STEP_SUMMARY -l "review of scenarios" --ghi
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
