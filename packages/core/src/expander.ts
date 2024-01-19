@@ -997,7 +997,7 @@ export async function runTemplate(
 
     if (edits.length)
         trace.details(
-            "edits",
+            "🖊 edits",
             `| Type | Filename | Message |\n| --- | --- | --- |\n` +
                 edits
                     .map(
@@ -1008,7 +1008,7 @@ export async function runTemplate(
         )
     if (annotations.length)
         trace.details(
-            "annotations",
+            "⚠️ annotations",
             `| Severity | Filename | Line | Message |\n| --- | --- | --- | --- |\n` +
                 annotations
                     .map(
