@@ -284,6 +284,37 @@ const { file } = await fetchText("README.md")
 def("README", file)
 ```
 
+## JSON Schema
+
+Use `defSchema` to define a JSON schema for the prompt output.
+
+```js
+$`Use the TARGET_SCHEMA for the JSON schema.`
+
+defSchema("TARGET_SCHEMA", {
+    type: "array",
+    description: "An array of targets",
+    items: {
+        description: "A target that is impacted by the actions in the file",
+        type: "object",
+        properties: {
+            name: {
+                description: "Identifier of the target",
+                type: "string",
+            },
+            source: {
+                description: "Path of the file defining the target",
+                type: "string",
+            },
+            action: {
+                description: "What is being done on the cloud resource",
+                type: "string",
+            },
+        },
+    },
+})
+```
+
 ## Functions
 
 You can register functions that the LLM may decide to call as part of assembling the answer.

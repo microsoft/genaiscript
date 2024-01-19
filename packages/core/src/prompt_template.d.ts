@@ -414,6 +414,39 @@ interface ChatTaskOptions {
     args?: string[]
 }
 
+type JSONSchemaTypeName =
+    | "string"
+    | "number"
+    | "boolean"
+    | "object"
+    | "array"
+    | "null"
+
+type JSONSchemaType =
+    | string //
+    | number
+    | boolean
+    | JSONSchemaObject
+    | JSONSchemaArray
+    | null
+
+interface JSONSchemaObject {
+    type: "object"
+    description?: string
+    properties?: {
+        [key: string]: {
+            description?: string
+            type?: JSONSchemaType
+        }
+    }
+}
+
+interface JSONSchemaArray {
+    type: "array"
+    description?: string
+    items?: JSONSchemaType
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -431,6 +464,7 @@ interface PromptContext {
             args: { context: ChatFunctionCallContext } & Record<string, any>
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
+    defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number

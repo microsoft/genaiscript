@@ -78,3 +78,10 @@ declare var env: ExpansionVariables
 declare function fetchText(
     url: string | LinkedFile
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+
+/**
+ * Declares a JSON schema variable.
+ * @param name name of the variable
+ * @param schema JSON schema instance
+ */
+declare function defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject)
