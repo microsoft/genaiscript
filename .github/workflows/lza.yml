@@ -14,7 +14,7 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: compile-cli
-              run: yarn compile-cli
+            - name: compile
+              run: yarn compile
             - name: lza_review 02-spoke
               run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "lza_review 02-spoke"
