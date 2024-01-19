@@ -25,6 +25,7 @@ Use ANNOTATIONS to highlight the issues, best practices or improvements in SPECS
 -  Add link to documentation about security issues.
 -  Do NOT generate annotations for DEPS files.
 -  Do NOT generate a bullet point list.
+-  Do NOT report notice annotations, only error and warning.
 `
 
 const biceps = env.links.filter(f => f.filename.endsWith(".bicep"))
