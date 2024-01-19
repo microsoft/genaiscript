@@ -1,8 +1,32 @@
 import { fenceMD } from "./expander"
 import { stringify as yamlStringify } from "yaml"
 
-export class MarkdownTrace implements ChatFunctionCallTrace {
-    content: string = ""
+export class MarkdownTrace
+    extends EventTarget
+    implements ChatFunctionCallTrace
+{
+    _content: string = ""
+
+    static readonly CHANGE = "change"
+
+    constructor() {
+        super()
+    }
+
+    private dispatchChange() {
+        this.dispatchEvent(new Event(MarkdownTrace.CHANGE))
+    }
+
+    get content() {
+        return this._content
+    }
+
+    set content(value: string) {
+        if (this._content !== value) {
+            this._content = value
+            this.dispatchChange()
+        }
+    }
 
     startDetails(title: string) {
         this.content += `\n\n<details id="${title.replace(

@@ -356,7 +356,7 @@ ${e.message}`
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
             cache: true,
-            retry: 0,
+            retry: 3,
             cliInfo: {
                 spec: vscode.workspace.asRelativePath(
                     this.host.isVirtualFile(fragment.file.filename)
