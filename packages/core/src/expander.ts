@@ -24,6 +24,7 @@ import { JSON5TryParse } from "./json5"
 import { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
+import { parseAnnotations } from "./annotations"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -616,7 +617,7 @@ export async function runTemplate(
     let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
     const changelogs: string[] = []
-    const annotations: Diagnostic[] = []
+    let annotations: Diagnostic[] = []
     const edits: Edits[] = []
     let summary: string = undefined
     const projFolder = host.projectFolder()
@@ -877,6 +878,9 @@ export async function runTemplate(
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
     } else {
+        // parse all annotations, regardless of fences
+        annotations = parseAnnotations(text)
+
         for (const fence of fences) {
             const { label: name, content: val } = fence
             const pm = /^((file|diff):?)\s+/i.exec(name)
@@ -945,26 +949,6 @@ export async function runTemplate(
                     if (!curr && fragn !== fn)
                         links.push(`-   [${ffn}](${ffn})`)
                 }
-            } else if (/^annotation$/i.test(name)) {
-                // ::(notice|warning|error) file=<filename>,line=<start line>::<message>
-                const rx =
-                    /^::(notice|warning|error)\s*file=([^,]+),\s*line=(\d+),\s*endLine=(\d+)\s*::(.*)$/gim
-                val.replace(rx, (_, severity, file, line, endLine, message) => {
-                    const filename = /^[^\/]/.test(file)
-                        ? host.resolvePath(projFolder, file)
-                        : file
-                    const annotation: Diagnostic = {
-                        severity,
-                        filename,
-                        range: [
-                            [parseInt(line) - 1, 0],
-                            [parseInt(endLine) - 1, Number.MAX_VALUE],
-                        ],
-                        message,
-                    }
-                    annotations.push(annotation)
-                    return ""
-                })
             } else if (/^summary$/i.test(name)) {
                 summary = val
             }

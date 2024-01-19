@@ -7,6 +7,7 @@
 		"evilz.vscode-reveal",
 		"bierner.markdown-mermaid",
 		"github.vscode-github-actions",
-		"yoavbls.pretty-ts-errors"
+		"yoavbls.pretty-ts-errors",
+		"kejun.markdown-alert"
 	]
 }
