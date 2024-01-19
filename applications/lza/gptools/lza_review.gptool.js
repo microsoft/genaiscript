@@ -16,7 +16,7 @@ for an enterprise software company.
 
 ## Definitions
 ### Action
-Something being done by the SPEC file or its dependencies when used. Understanding the Action requires understanding the purpose of the script and its dependencies which requires deeper analysis than just describing the basic implementation of the name or steps in the script. The Action is the *why* of the script, not the *how*.
+Something being done by the SPECS file or its dependencies when used. Understanding the Action requires understanding the purpose of the script and its dependencies which requires deeper analysis than just describing the basic implementation of the name or steps in the script. The Action is the *why* of the script, not the *how*.
 
 ### Target
 Specific Azure service or cloud component that will be impacted by the Action. Example Targets include Application Insights, Application Gateway, Virtual Machines, and GitHub but could even include other clouds or custom components.
@@ -30,7 +30,7 @@ It is important to explain *why* the Action is being taken and *what* is being d
 
 ## Task 1
 
-Identify security issues in SPEC files. 
+Identify security issues in SPECS files. Examine each SPECS file carefully.
 Use ANNOTATIONS to highlight the issues, best practices or improvements in SPECS. 
 
 -  Look for bad practices.
@@ -43,7 +43,7 @@ Use ANNOTATIONS to highlight the issues, best practices or improvements in SPECS
 
 ## Task 2
 
-1. Review the Azure file and its dependencies that the user uploads
+1. Review the SPECS files and its dependencies that the user uploads
 2. Perform a very careful analysis of all the file contents that you receive to really understand what is happening
 3. Develop a lengthy list of actions that are being performed by the file and its dependencies. Make sure that you understand what is being done and why it is being done in creating this list using the approach from "Guidance on Actions" above.
 4. Double check your list of actions to make sure that you have a complete list of actions and add any that you missed

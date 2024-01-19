@@ -1,8 +1,9 @@
-.vscode-body details {
+.vscode-body details.gptools {
     font-size: var(--markdown-font-size, 14px);
+    margin-left: 1rem;
 }
 
-.vscode-body details summary {
+.vscode-body details.gptools summary {
     font-size: 1.25em;
     cursor: pointer;
 }

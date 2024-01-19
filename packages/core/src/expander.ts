@@ -224,12 +224,16 @@ async function expandTemplate(
 
     traceVars()
 
+    trace.detailsFenced("📄 gpspec", env.file.content, "markdown")
+
     let systemText = ""
     let model = template.model
     let temperature = template.temperature
     let max_tokens = template.maxTokens
     let seed = template.seed
     let responseType = template.responseType
+
+    trace.startDetails("🛠️ gptool")
 
     trace.startDetails(`👾 system gptools`)
 
@@ -274,7 +278,7 @@ async function expandTemplate(
     }
     trace.endDetails()
 
-    trace.detailsFenced("📜 gptool source", template.jsSource, "js")
+    trace.detailsFenced("source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
@@ -293,7 +297,7 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace.startDetails("👽 gptool expanded prompt")
+    trace.startDetails("expanded prompt")
     if (model) trace.item(`model: \`${model || ""}\``)
     if (temperature !== undefined)
         trace.item(`temperature: ${temperature || ""}`)
@@ -304,7 +308,7 @@ async function expandTemplate(
     }
     if (responseType) trace.item(`response type: ${responseType}`)
     trace.fence(expanded, "markdown")
-
+    trace.endDetails()
     trace.endDetails()
 
     return {
@@ -753,7 +757,7 @@ export async function runTemplate(
                 if (signal?.aborted) break
                 try {
                     status(`running tool ${call.name}`)
-                    trace.startDetails(`🛠️ tool call ${call.name}`)
+                    trace.startDetails(`📠 tool call ${call.name}`)
                     trace.item(`id: \`${call.id}\``)
                     trace.item(`args:`)
                     trace.fence(call.arguments, "json")
