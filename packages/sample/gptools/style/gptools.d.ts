@@ -60,8 +60,9 @@ interface PromptTemplate extends PromptLike {
      * Which LLM model to use.
      *
      * @default gpt-4
+     * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo"
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.

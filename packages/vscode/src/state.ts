@@ -21,6 +21,7 @@ import {
     Cache,
     dotGptoolsPath,
     logInfo,
+    logMeasure,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -493,15 +494,18 @@ ${e.message}`
     async parseWorkspace() {
         this.dispatchChange()
 
+        performance.mark(`project-start`)
         const gpspecFiles = await findFiles("**/*.gpspec.md")
+        performance.mark(`scan-tools`)
         const gptoolFiles = await findFiles("**/*.gptool.js")
-
+        performance.mark(`parse-project`)
         const newProject = await parseProject({
             gpspecFiles,
             gptoolFiles,
         })
         await this.setProject(newProject)
         this.setDiagnostics()
+        logMeasure(`project`, `project-start`, `project-end`)
     }
 
     async parseDocument(
