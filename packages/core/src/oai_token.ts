@@ -1,5 +1,5 @@
 import { RequestError } from "./chat"
-import { throwError } from "./error"
+import { AZURE_OPENAI_API_VERSION } from "./constants"
 import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
@@ -146,8 +146,10 @@ export async function parseTokenFromEnv(
         if (type === "azure" && !base)
             throw new Error("OPENAI_API_BASE not set")
         if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
-        if (version && version !== "2023-03-15-preview")
-            throw new Error("OPENAI_API_VERSION must be '2023-03-15-preview'")
+        if (version && version !== AZURE_OPENAI_API_VERSION)
+            throw new Error(
+                `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+            )
         if (type === "local") {
             return {
                 url: base,
@@ -161,6 +163,22 @@ export async function parseTokenFromEnv(
         const tok = await parseToken(`${base}#${name}=${key}`)
         tok.source = "env: OPENAI_API_..."
         return tok
+    }
+    if (env.AZURE_OPENAI_API_KEY) {
+        const key = env.AZURE_OPENAI_API_KEY
+        const base = env.AZURE_OPENAI_ENDPOINT
+        const version = env.AZURE_OPENAI_API_VERSION
+        if (!base) throw new Error("AZURE_OPENAI_ENDPOINT not set")
+        if (version && version !== AZURE_OPENAI_API_VERSION)
+            throw new Error(
+                `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+            )
+        return {
+            url: base,
+            token: key,
+            isOpenAI: true,
+            source: "env: AZURE_OPENAI_API_...",
+        }
     }
     return undefined
 }
