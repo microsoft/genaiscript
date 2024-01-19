@@ -233,7 +233,7 @@ interface ChatFunctionDefinition {
  *
  * Omitting `parameters` defines a function with an empty parameter list.
  */
-type ChatFunctionParameters = JSONSchemaArray | JSONSchemaObject
+type ChatFunctionParameters = Record<string, unknown>
 
 interface ChatFunctionCallTrace {
     log(message: string): void

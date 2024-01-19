@@ -179,7 +179,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "defFiles" | "$" | "defFunction"
+    "fence" | "def" | "defFiles" | "$" | "defFunction" | "defSchema"
 >
 export async function evalPrompt(
     ctx0: BasePromptContext,
