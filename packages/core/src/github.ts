@@ -63,15 +63,12 @@ export async function createIssue(
         `searching for issues in ${owner}/${repo} with title "${title}"`
     )
     const existing = await octokit.rest.search.issuesAndPullRequests({
-        q: `is:issue in:title ${title} repo:${owner}/${repo}`,
-        headers: {
-            Accept: "application/vnd.github.v3.text-match+json",
-        },
+        q: `is:issue repo:${owner}/${repo} "${title}" in:title`,
     })
     const n = existing.data.total_count
     if (n > 0) {
         console.log(
-            `related open issue already exists: ${existing.data.items[0].html_url}`
+            `related issue found: ${existing.data.items[0].html_url}`
         )
     } else {
         const res = await octokit.rest.issues.create({
