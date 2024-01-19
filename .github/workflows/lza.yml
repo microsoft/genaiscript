@@ -1,0 +1,20 @@
+name: lza
+on:
+    workflow_dispatch:
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile-cli
+              run: yarn compile-cli
+            - name: lza_review 02-spoke
+              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "lza_review 02-spoke"
