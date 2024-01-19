@@ -20,6 +20,9 @@ import packageJson from "../package.json"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { ensureDir } from "fs-extra"
 
+const UNHANDLED_ERROR_CODE = -1
+const ANNOTATION_ERROR_CODE = -2
+
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
     await writeText(name, content)
@@ -72,6 +75,7 @@ async function run(
         applyEdits: boolean
         model: string
         csvSeparator: string
+        failOnErrors: boolean
     }
 ) {
     const stream = !options.json
@@ -82,6 +86,7 @@ async function run(
     const maxDelay = parseInt(options.maxDelay) || 180000
     const outTrace = options.outTrace
     const outAnnotations = options.outAnnotations
+    const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
@@ -232,6 +237,11 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     }
 
     if (res.error) throw res.error
+
+    if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
+        console.log`error annotations found, exiting with error code`
+        process.exit(ANNOTATION_ERROR_CODE)
+    }
 }
 
 async function listTools() {
@@ -276,7 +286,7 @@ async function main() {
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status
             process.exit(exitCode)
-        } else process.exit(-1)
+        } else process.exit(UNHANDLED_ERROR_CODE)
     })
 
     NodeHost.install()
@@ -309,6 +319,10 @@ async function main() {
         .option(
             "-d, --dry-run",
             "dry run, don't execute LLM and return expanded prompt"
+        )
+        .option(
+            `-fe, --fail-on-errors`,
+            `fails on detected annotation error`
         )
         .option("-r, --retry <number>", "number of retries", "8")
         .option(
