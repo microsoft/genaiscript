@@ -1,7 +1,7 @@
 import { CoArchProject, Diagnostic, Fragment, PromptTemplate } from "./ast"
 import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
-import { randomRange } from "./util"
+import { randomRange, sha256string } from "./util"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -499,6 +499,8 @@ ${v}
         .join("\n")
 }
 
+const metaCache: Record<string, { meta: PromptArgs; text: string }> = {}
+
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
@@ -514,7 +516,8 @@ async function parsePromptTemplateCore(
     if (!filename.startsWith(builtinPrefix)) r.filename = filename
 
     try {
-        const obj = await parseMeta(r)
+        const key = (await sha256string(`${r.id}-${r.jsSource}`)).slice(0, 16)
+        const obj = metaCache[key] || (metaCache[key] = await parseMeta(r))
         const checker = new Checker<PromptTemplate>(
             r,
             filename,
