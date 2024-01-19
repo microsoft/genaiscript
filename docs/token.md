@@ -17,8 +17,9 @@ The extension also support a root `.env` file in your project.
 
 The extension also supports the following set of variables:
 
--   `OPENAI_API_TYPE`, `OPENAI_API_BASE`, `OPENAI_API_KEY` variables.
--   `AZURE_OPENAI_API_ENDPOINT`, `AZURE_OPENAI_API_KEY`` variables.
+-   `OPENAI_API_TYPE`, `OPENAI_API_BASE`, `OPENAI_API_KEY`, `OPENAI_API_VERSION` variables.
+-   `AZURE_OPENAI_API_ENDPOINT` or `AZURE_OPENAI_API_BASE`, `AZURE_OPENAI_API_KEY` variables.
+-   `AZURE_API_BASE`, `AZURE_API_KEY`, `AZURE_API_VERSION` variables.
 
 Aditionaly
 
