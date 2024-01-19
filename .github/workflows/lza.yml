@@ -21,11 +21,13 @@ jobs:
             - name: compile
               run: yarn compile
             - name: lza_review 02-spoke
-              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "review of 02-spoke"
+              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "review of 02-spoke -ghi"
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_REPOSITORY: ${{ github.repository }}
             - name: lza_review all
               run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/**/deploy.*.bicep -ot $GITHUB_STEP_SUMMARY -l "review of scenarios"
               env:
