@@ -59,30 +59,12 @@ export async function createIssue(
 ) {
     const { owner, repo } = conn
     const octokit = createClient(conn)
-    console.error(
-        `searching for issues in ${owner}/${repo} with title "${title}"`
-    )
-    let n = 0
-    try {
-        const existing = await octokit.rest.search.issuesAndPullRequests({
-            q: `is:issue repo:${owner}/${repo} in:title "${title}"`,
-        })
-        n = existing.data.total_count
-    } catch (e) {
-        console.error(
-            `GitHub issue search failed, does your token have the necessary scopes?`
-        )
-        console.error(e)
-    }
-    if (n > 0) {
-        console.log(`related issue found: ${existing.data.items[0].html_url}`)
-    } else {
-        const res = await octokit.rest.issues.create({
-            owner,
-            repo,
-            title,
-            body,
-        })
-        console.log(`created issue: ${res.data.html_url}`)
-    }
+
+    const res = await octokit.rest.issues.create({
+        owner,
+        repo,
+        title,
+        body,
+    })
+    console.log(`created issue: ${res.data.html_url}`)
 }
