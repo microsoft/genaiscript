@@ -30,6 +30,23 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
+            "name": "Run - lza",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/applications/lza"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile-ext",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/vscode"
+        },        
+        {
             "name": "Run - demoapps",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
