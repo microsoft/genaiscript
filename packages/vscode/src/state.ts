@@ -22,6 +22,7 @@ import {
     dotGptoolsPath,
     logInfo,
     logMeasure,
+    parseAnnotations,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -302,12 +303,16 @@ ${e.message}`
         const reqChange = () => {
             if (this._aiRequest === r) {
                 this.dispatchEvent(new Event(AI_REQUEST_CHANGE))
+                this.setDiagnostics()
                 this.dispatchChange()
             }
         }
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
-            if (r.response) r.response.text = progress.responseSoFar
+            if (r.response) {
+                r.response.text = progress.responseSoFar
+                r.response.annotations = parseAnnotations(r.response.text)
+            }
             if (template.chatOutput === "inline")
                 r.options.chat?.progress?.report({
                     content: progress.responseChunk,
@@ -559,7 +564,7 @@ ${e.message}`
             const ds = diags.map((d) => {
                 const r = new vscode.Diagnostic(
                     toRange(d.range),
-                    d.message,
+                    d.message || "...",
                     severities[d.severity]
                 )
                 r.source = "GPTools"

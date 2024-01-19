@@ -1,3 +1,4 @@
+import { convertAnnotationsToMarkdown } from "gptools-core"
 import * as vscode from "vscode"
 
 export function toMarkdownString(...lines: string[]) {
@@ -12,4 +13,10 @@ export async function showMarkdownPreview(uri: vscode.Uri) {
 export function toFencedCodeBlock(code: string, language?: string) {
     if (!code) return undefined
     return `\`\`\`${language || ""}\n${code}\n\`\`\``
+}
+
+export function pretifyMarkdown(md: string) {
+    let res = md
+    res = convertAnnotationsToMarkdown(res)
+    return res
 }

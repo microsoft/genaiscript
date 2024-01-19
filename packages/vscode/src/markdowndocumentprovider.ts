@@ -5,7 +5,7 @@ import {
     REQUEST_OUTPUT_FILENAME,
     REQUEST_TRACE_FILENAME,
 } from "./state"
-import { showMarkdownPreview } from "./markdown"
+import { pretifyMarkdown, showMarkdownPreview } from "./markdown"
 import {
     builtinPrefix,
     cachedAIRequestPrefix,
@@ -54,7 +54,7 @@ class MarkdownTextDocumentContentProvider
             if (!aiRequest) return noRequest
             if (!md) return noResponse
             return `${computing ? `> **GPTool run in progress.**\n` : ""} 
-${md}    
+${pretifyMarkdown(md)}    
             `
         }
 
