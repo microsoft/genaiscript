@@ -26,6 +26,7 @@ import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
+import { YAMLTryParse } from "./yaml"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -278,7 +279,7 @@ async function expandTemplate(
     }
     trace.endDetails()
 
-    trace.detailsFenced("source", template.jsSource, "js")
+    trace.detailsFenced("📓 gptool.js source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
@@ -297,7 +298,7 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace.startDetails("expanded prompt")
+    trace.startDetails("🧬 expanded prompt")
     if (model) trace.item(`model: \`${model || ""}\``)
     if (temperature !== undefined)
         trace.item(`temperature: ${temperature || ""}`)
@@ -760,7 +761,7 @@ export async function runTemplate(
                     trace.startDetails(`📠 tool call ${call.name}`)
                     trace.item(`id: \`${call.id}\``)
                     trace.item(`args:`)
-                    trace.fence(call.arguments, "json")
+                    trace.fence(call.arguments)
 
                     const callArgs: any = call.arguments
                         ? JSON5TryParse(call.arguments)
@@ -829,7 +830,7 @@ export async function runTemplate(
 
                     if (content) trace.fence(content, "markdown")
                     if (functionEdits?.length) {
-                        trace.fence(functionEdits, "json")
+                        trace.fence(functionEdits)
                         edits.push(
                             ...functionEdits.map((e) => {
                                 const { filename, ...rest } = e
@@ -867,19 +868,25 @@ export async function runTemplate(
     }
 
     const json = JSON5TryParse(text, undefined)
-    const fences = json === undefined ? extractFenced(text) : []
+    const yaml = YAMLTryParse(text, undefined)
+    const fences =
+        json === undefined && yaml === yaml ? extractFenced(text) : []
     if (fences?.length)
-        trace.details("code regions", renderFencedVariables(fences))
-    if (json !== undefined) {
-        trace.startDetails("📩 json (parsed)")
-        trace.fence(JSON.stringify(json, null, 2), "json")
-        trace.endDetails()
-    }
+        trace.details("📩 code regions", renderFencedVariables(fences))
+    if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
+    if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
 
     if (json !== undefined) {
         const fn = fragment.file.filename.replace(
             /\.gpspec\.md$/i,
             "." + template.id + ".json"
+        )
+        const fileEdit = await getFileEdit(fn)
+        fileEdit.after = text
+    } else if (yaml !== undefined) {
+        const fn = fragment.file.filename.replace(
+            /\.gpspec\.md$/i,
+            "." + template.id + ".yaml"
         )
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
