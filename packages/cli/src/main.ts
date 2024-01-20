@@ -2,6 +2,7 @@ import {
     FragmentTransformResponse,
     MarkdownTrace,
     RequestError,
+    YAMLStringify,
     clip,
     createIssue,
     diagnosticsToCSV,
@@ -65,6 +66,7 @@ async function run(
         retry: string
         retryDelay: string
         json: boolean
+        yaml: boolean
         maxDelay: string
         dryRun: boolean
         outTrace: string
@@ -81,7 +83,7 @@ async function run(
         githubIssues: boolean
     }
 ) {
-    const stream = !options.json
+    const stream = !options.json && !options.yaml
     const out = options.out
     const skipLLM = !!options.dryRun
     const retry = parseInt(options.retry) || 8
@@ -183,6 +185,8 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             outAnnotations,
             /\.(c|t)sv$/i.test(outAnnotations)
                 ? diagnosticsToCSV(res.annotations, csvSeparator)
+                : /\.ya?ml$/i.test(outAnnotations)
+                ? YAMLStringify(res.annotations)
                 : JSON.stringify(res.annotations, null, 2)
         )
     if (outChangelogs && res.changelogs?.length)
@@ -197,6 +201,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
+        const yamlf = /\.ya?ml$/i.test(out) ? out : join(out, `res.yaml`)
         const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
         const userf = mkfn(".user.md")
         const systemf = mkfn(".system.md")
@@ -210,6 +215,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             ? mkfn(".changelog.txt")
             : undefined
         await write(jsonf, JSON.stringify(res, null, 2))
+        await write(yamlf, YAMLStringify(res))
         if (res.prompt) {
             await write(systemf, res.prompt.system)
             await write(userf, res.prompt.user)
@@ -231,6 +237,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         if (changelogf) await write(changelogf, res.changelogs.join("\n"))
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
+        if (options.yaml) console.log(YAMLStringify(res))
         if (options.dryRun) {
             const { system, user } = res.prompt || {}
             console.log(`---------- SYSTEM ----------`)
@@ -339,6 +346,7 @@ async function main() {
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option("-j, --json", "emit full JSON response to output")
+        .option("-y, --yaml", "emit full YAML response to output")
         .option(
             "-d, --dry-run",
             "dry run, don't execute LLM and return expanded prompt"

@@ -233,7 +233,7 @@ interface ChatFunctionDefinition {
  *
  * Omitting `parameters` defines a function with an empty parameter list.
  */
-type ChatFunctionParameters = Record<string, unknown>
+type ChatFunctionParameters = JSONSchemaArray | JSONSchemaObject
 
 interface ChatFunctionCallTrace {
     log(message: string): void
@@ -414,6 +414,40 @@ interface ChatTaskOptions {
     args?: string[]
 }
 
+type JSONSchemaTypeName =
+    | "string"
+    | "number"
+    | "boolean"
+    | "object"
+    | "array"
+    | "null"
+
+type JSONSchemaType =
+    | string //
+    | number
+    | boolean
+    | JSONSchemaObject
+    | JSONSchemaArray
+    | null
+
+interface JSONSchemaObject {
+    type: "object"
+    description?: string
+    properties?: {
+        [key: string]: {
+            description?: string
+            type?: JSONSchemaType
+        }
+    }
+    required?: string[]
+}
+
+interface JSONSchemaArray {
+    type: "array"
+    description?: string
+    items?: JSONSchemaType
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -431,6 +465,7 @@ interface PromptContext {
             args: { context: ChatFunctionCallContext } & Record<string, any>
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
+    defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
@@ -520,3 +555,10 @@ declare var env: ExpansionVariables
 declare function fetchText(
     url: string | LinkedFile
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+
+/**
+ * Declares a JSON schema variable.
+ * @param name name of the variable
+ * @param schema JSON schema instance
+ */
+declare function defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject)
