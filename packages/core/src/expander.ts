@@ -21,7 +21,7 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import { ChatCompletionTool } from "openai/resources"
+import type { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
@@ -639,7 +639,7 @@ export async function runTemplate(
     const tools: ChatCompletionTool[] = vars.functions?.length
         ? vars.functions.map((f) => ({
               type: "function",
-              function: f.definition,
+              function: f.definition as any,
           }))
         : undefined
 
