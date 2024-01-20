@@ -255,6 +255,7 @@ export async function evalPrompt(
         },
         defSchema(name, schema) {
             ctx.def(name, JSON.stringify(schema, null, 2), { language: "json" })
+            return dontuse("defSchema")
         },
         defFunction(name, description, parameters, fn) {
             env.functions.push({
