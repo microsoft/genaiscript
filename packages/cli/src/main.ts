@@ -310,17 +310,17 @@ async function convertToMarkdown(
 async function helpAll() {
     console.log(`# GPTools CLI\n`)
 
-    const visit = (header: string, commands: readonly Command[]) => {
+    const visit = (header: string, parent: Command, commands: readonly Command[]) => {
         commands.forEach((c) => {
-            console.log(`\n${header} ${c.name()}\n`)
+            console.log(`\n${header} \`${parent ? parent.name() : ""} ${c.name()}\`\n`)
             c.outputHelp()
             if (c.commands?.length) {
                 console.log(`\n${header + "#"} Subcommands\n`)
-                visit(header + "##", c.commands)
+                visit(header + "##", c, c.commands)
             }
         })
     }
-    visit("##", program.commands)
+    visit("##", undefined, program.commands)
 }
 
 async function main() {
