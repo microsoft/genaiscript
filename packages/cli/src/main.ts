@@ -68,7 +68,7 @@ async function run(
         json: boolean
         yaml: boolean
         maxDelay: string
-        dryRun: boolean
+        prompt: boolean
         outTrace: string
         outAnnotations: string
         outChangelogs: string
@@ -85,7 +85,7 @@ async function run(
 ) {
     const stream = !options.json && !options.yaml
     const out = options.out
-    const skipLLM = !!options.dryRun
+    const skipLLM = !!options.prompt
     const retry = parseInt(options.retry) || 8
     const retryDelay = parseInt(options.retryDelay) || 15000
     const maxDelay = parseInt(options.maxDelay) || 180000
@@ -199,12 +199,14 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         }
     }
 
+    const promptjson = res.prompt?.length
+        ? JSON.stringify(res.prompt, null, 2)
+        : undefined
     if (out) {
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const yamlf = /\.ya?ml$/i.test(out) ? out : join(out, `res.yaml`)
         const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
-        const userf = mkfn(".user.md")
-        const systemf = mkfn(".system.md")
+        const promptf = mkfn(".prompt.json")
         const outputf = mkfn(".output.md")
         const tracef = mkfn(".trace.md")
         const annotationf = res.annotations?.length
@@ -216,9 +218,8 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             : undefined
         await write(jsonf, JSON.stringify(res, null, 2))
         await write(yamlf, YAMLStringify(res))
-        if (res.prompt) {
-            await write(systemf, res.prompt.system)
-            await write(userf, res.prompt.user)
+        if (promptjson) {
+            await write(promptf, promptjson)
         }
         if (res.text) await write(outputf, res.text)
         if (res.trace) await write(tracef, res.trace)
@@ -238,12 +239,8 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.yaml) console.log(YAMLStringify(res))
-        if (options.dryRun) {
-            const { system, user } = res.prompt || {}
-            console.log(`---------- SYSTEM ----------`)
-            console.log(system)
-            console.log(`---------- USER   ----------`)
-            console.log(user)
+        if (options.prompt && promptjson) {
+            console.log(promptjson)
         }
     }
 
@@ -364,7 +361,7 @@ async function main() {
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
         .option(
-            "-d, --dry-run",
+            "-p, --prompt",
             "dry run, don't execute LLM and return expanded prompt"
         )
         .option(`-fe, --fail-on-errors`, `fails on detected annotation error`)
