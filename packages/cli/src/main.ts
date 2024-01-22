@@ -16,7 +16,7 @@ import {
     writeText,
 } from "gptools-core"
 import { NodeHost } from "./nodehost"
-import { program } from "commander"
+import { Command, program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
@@ -310,6 +310,22 @@ async function convertToMarkdown(
     }
 }
 
+async function helpAll() {
+    console.log(`# GPTools CLI\n`)
+
+    const visit = (header: string, commands: readonly Command[]) => {
+        commands.forEach((c) => {
+            console.log(`\n${header} ${c.name()}\n`)
+            c.outputHelp()
+            if (c.commands?.length) {
+                console.log(`\n${header + "#"} Subcommands\n`)
+                visit(header + "##", c.commands)
+            }
+        })
+    }
+    visit("##", program.commands)
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -410,12 +426,17 @@ async function main() {
         .description("List all available specs")
         .action(listSpecs)
 
-    const converter = program
+    program
         .command("convert")
         .description("Convert HTML files or URLs to markdown format")
         .arguments("<path>")
         .option("-o, --out <string>", "output directory")
         .action(convertToMarkdown)
+
+    program
+        .command("help-all", { hidden: true })
+        .description("Show help for all commands")
+        .action(helpAll)
 
     program.parse()
 }
