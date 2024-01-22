@@ -6,6 +6,7 @@ import {
     clip,
     createIssue,
     diagnosticsToCSV,
+    extractFenced,
     host,
     isRequestError,
     logVerbose,
@@ -310,9 +311,15 @@ async function convertToMarkdown(
 async function helpAll() {
     console.log(`# GPTools CLI\n`)
 
-    const visit = (header: string, parent: Command, commands: readonly Command[]) => {
+    const visit = (
+        header: string,
+        parent: Command,
+        commands: readonly Command[]
+    ) => {
         commands.forEach((c) => {
-            console.log(`\n${header} \`${parent ? parent.name() : ""} ${c.name()}\`\n`)
+            console.log(
+                `\n${header} \`${parent ? parent.name() : ""} ${c.name()}\`\n`
+            )
             c.outputHelp()
             if (c.commands?.length) {
                 console.log(`\n${header + "#"} Subcommands\n`)
@@ -321,6 +328,12 @@ async function helpAll() {
         })
     }
     visit("##", undefined, program.commands)
+}
+
+async function parseFence(type: string) {
+    const stdin = await getStdin()
+    const fences = extractFenced(stdin || "").filter((f) => f.type === type)
+    console.log(fences.map((f) => f.content).join("\n\n"))
 }
 
 async function main() {
@@ -422,6 +435,14 @@ async function main() {
         .command("list", { isDefault: true })
         .description("List all available specs")
         .action(listSpecs)
+
+    const parser = program
+        .command("parse")
+        .description("Parse output of a GPSpec in various formats")
+    parser
+        .command("region <type>")
+        .description("Extracts a code fenced regions of the given type")
+        .action(parseFence)
 
     program
         .command("convert")

@@ -393,6 +393,7 @@ function startFence(text: string) {
 
 export interface Fenced {
     label: string
+    type?: string
     content: string
 }
 
@@ -425,6 +426,7 @@ export interface Fenced {
 export function extractFenced(text: string): Fenced[] {
     let currLbl = ""
     let currText = ""
+    let currType = ""
     let currFence = ""
     const vars: Fenced[] = []
     const lines = text.split(/\r?\n/)
@@ -452,17 +454,23 @@ export function extractFenced(text: string): Fenced[] {
                     (start.args["file"] || "")
                 ).trim()
                 currFence = start.fence
+                currType = start.extra || ""
                 i++
             } else if (start.fence && m) {
                 currLbl = m[1] + " " + (start.args["file"] || m[2])
                 currFence = start.fence
+                currType = start.extra || ""
                 i++
             }
         }
     }
 
     if (currText != "") {
-        vars.push({ label: currLbl, content: normalize(currLbl, currText) })
+        vars.push({
+            label: currLbl,
+            type: currType,
+            content: normalize(currLbl, currText),
+        })
     }
 
     return vars
