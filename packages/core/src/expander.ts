@@ -21,7 +21,7 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import type { ChatCompletionTool } from "openai/resources"
+import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
@@ -42,10 +42,7 @@ export interface FragmentTransformResponse {
     /**
      * Expanded prompt text
      */
-    prompt: {
-        system: string
-        user: string
-    }
+    prompt: ChatCompletionMessageParam[]
     /**
      * Zero or more edits to apply.
      */
@@ -555,10 +552,16 @@ export async function runTemplate(
         trace
     )
 
-    const prompt = {
-        system: systemText,
-        user: expanded,
-    }
+    const prompt: ChatCompletionMessageParam[] = [
+        {
+            role: "system",
+            content: systemText
+        },
+        {
+            role: "assistant",
+            content: expanded
+        }
+    ]
 
     // if the expansion failed, show the user the trace
     if (!success) {

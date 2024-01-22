@@ -92,11 +92,9 @@ Emit changelogs in the specified file as text.
 node gptools.js run <tool> <spec> --out-changelogs changelogs.txt
 ```
 
-### --dry-run
+### --prompt
 
 Skips the LLM invocation and only prints the expanded system and user chat messages.
-
-This mode is not compatible with gptools that use functions.
 
 ### --retry <number>
 
