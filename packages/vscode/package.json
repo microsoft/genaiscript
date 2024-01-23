@@ -109,10 +109,6 @@
                     "when": "false"
                 },
                 {
-                    "command": "coarch.fragment.refine",
-                    "when": "false"
-                },
-                {
                     "command": "coarch.request.open",
                     "when": "false"
                 },
@@ -207,13 +203,6 @@
                 "command": "coarch.fragment.prompt",
                 "title": "Run GPTool...",
                 "category": "GPTools",
-                "icon": "$(lightbulb)"
-            },
-            {
-                "command": "coarch.fragment.refine",
-                "title": "Extend specification and run tool again",
-                "category": "GPTools",
-                "shortTitle": "Refine...",
                 "icon": "$(lightbulb)"
             },
             {

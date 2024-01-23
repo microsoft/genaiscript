@@ -75,14 +75,3 @@ const focusFileName = env.vars.focusdoc
 def("FOCUSDOC", env.links.filter(f => f.filename.endsWith(focusFileName)))
 ```
 Note that the variable reference in the GPSpec file is treated as a string and does not need to be quoted.
-
-## GPSpec Refinement
-
-If you need to "influence" the answer of the LLM, you can click on the **Refine GPSpec** button in the status dialog (click on the statub bar icon) to refine the gpspec file
-by adding a line. This flow provides an iterative, chat like experience to evolve your gpspec file.
-
-## Running next GPTool
-
-Once you have used a GPTool on a GPSpec file, this file becomes the "active GPSpec"
-and you can use the GPTools status bar to launch the next GPTool without having
-to open the gpspec file.

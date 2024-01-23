@@ -98,42 +98,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         return rootFragment(fragment)
     }
 
-    const fragmentRefine = async () => {
-        await state.cancelAiRequest()
-        const fragment = await resolveSpec(undefined)
-        if (!fragment) return
-
-        const template = state.aiRequest.options.template
-        let refinement = await vscode.window.showInputBox({
-            title: `What do you want to add to your spec?`,
-            prompt: `Your recommendation will be added at the end of the gpspec.md file; then the tool will be started again.`,
-        })
-        if (!refinement) return
-
-        await saveAllTextDocuments()
-        const uri = vscode.Uri.file(fragment.file.filename)
-        let content = new TextDecoder().decode(
-            await vscode.workspace.fs.readFile(uri)
-        )
-
-        // insert in top fragment
-        const lines = content.split("\n")
-        lines.splice(fragment.endPos[0], 0, `-   ${refinement}`)
-
-        content = lines.join("\n")
-
-        vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(content))
-        await saveAllTextDocuments()
-
-        vscode.window.showInformationMessage(
-            `GPTools - Added refinement in ${Utils.basename(
-                vscode.Uri.file(fragment.file.filename)
-            )}. Please wait for the tool to start again.`
-        )
-
-        await fragmentPrompt({ fragment, template })
-    }
-
     const fragmentPrompt = async (
         options:
             | {
@@ -181,10 +145,6 @@ export function activateFragmentCommands(state: ExtensionState) {
     const applyEdits = async () => state.applyEdits()
 
     subscriptions.push(
-        vscode.commands.registerCommand(
-            "coarch.fragment.refine",
-            fragmentRefine
-        ),
         vscode.commands.registerCommand(
             "coarch.fragment.prompt",
             fragmentPrompt
