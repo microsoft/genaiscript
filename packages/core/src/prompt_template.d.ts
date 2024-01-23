@@ -233,7 +233,7 @@ interface ChatFunctionDefinition {
  *
  * Omitting `parameters` defines a function with an empty parameter list.
  */
-type ChatFunctionParameters = JSONSchemaArray | JSONSchemaObject
+type ChatFunctionParameters = JSONSchema
 
 interface ChatFunctionCallTrace {
     log(message: string): void
@@ -394,6 +394,11 @@ interface ExpansionVariables {
      * List of functions defined in the prompt
      */
     functions?: ChatFunctionCallback[]
+
+    /**
+     * List of JSON schemas; if any
+     */
+    schemas?: Record<string, JSONSchema>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -440,6 +445,7 @@ interface JSONSchemaObject {
         }
     }
     required?: string[]
+    additionalProperties?: boolean
 }
 
 interface JSONSchemaArray {
@@ -447,6 +453,8 @@ interface JSONSchemaArray {
     description?: string
     items?: JSONSchemaType
 }
+
+type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
@@ -465,7 +473,7 @@ interface PromptContext {
             args: { context: ChatFunctionCallContext } & Record<string, any>
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
-    defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject): void
+    defSchema(name: string, schema: JSONSchema): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number

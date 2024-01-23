@@ -21,7 +21,10 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources"
+import type {
+    ChatCompletionMessageParam,
+    ChatCompletionTool,
+} from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
@@ -364,6 +367,13 @@ async function expandTemplate(
             )
         }
         trace.endDetails()
+
+        const schemas = env.schemas || {}
+        for (const [k, v] of Object.entries(schemas)) {
+            trace.startDetails(`📋 schema \`${k}\``)
+            trace.fence(v, "json")
+            trace.endDetails()
+        }
     }
 }
 
@@ -555,12 +565,12 @@ export async function runTemplate(
     const prompt: ChatCompletionMessageParam[] = [
         {
             role: "system",
-            content: systemText
+            content: systemText,
         },
         {
             role: "assistant",
-            content: expanded
-        }
+            content: expanded,
+        },
     ]
 
     // if the expansion failed, show the user the trace
@@ -646,6 +656,7 @@ export async function runTemplate(
               function: f.definition as any,
           }))
         : undefined
+    const schemas = vars.schemas || {}
 
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]

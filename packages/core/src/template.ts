@@ -254,7 +254,17 @@ export async function evalPrompt(
             return dontuse("defFiles")
         },
         defSchema(name, schema) {
-            ctx.def(name, JSON.stringify(schema, null, 2), { language: "json" })
+            ctx.def(name, JSON.stringify(schema, null, 2), {
+                language: "jsonschema",
+            })
+            if (env.schemas[name])
+                writeText(
+                    env.error +
+                        " schema " +
+                        name +
+                        " defined in multiple places"
+                )
+            env.schemas[name] = schema
             return dontuse("defSchema")
         },
         defFunction(name, description, parameters, fn) {
@@ -383,6 +393,7 @@ export function staticVars() {
         promptOptions: {},
         vars: {} as Record<string, string>,
         functions: [] as ChatFunctionCallback[],
+        schemas: {} as Record<string, JSONSchema>,
     }
 }
 
