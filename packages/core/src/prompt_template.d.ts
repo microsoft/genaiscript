@@ -408,8 +408,20 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
-    language?: "markdown" | string
+    language?:
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | string
     lineNumbers?: boolean
+    /**
+     * JSON schema identifier
+     */
+    schema?: string
 }
 
 interface ChatTaskOptions {

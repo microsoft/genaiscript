@@ -7,3 +7,5 @@
 - Munich
 - Nivelle
 - Paris
+- London
+- Madrid

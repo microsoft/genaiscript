@@ -201,7 +201,7 @@ export async function evalPrompt(
             writeText(r)
         },
         def(name, body, options) {
-            const { language, lineNumbers } = options || {}
+            const { language, lineNumbers, schema } = options || {}
             const fence =
                 language === "markdown" ? env.markdownFence : env.fence
             let error = false
@@ -228,6 +228,7 @@ export async function evalPrompt(
                         dtype +
                         ` file=${file.filename}\n` +
                         norm(file.content, dfence) +
+                        (schema ? ` schema=${schema}` : "") +
                         dfence
                 )
             }
@@ -240,6 +241,7 @@ export async function evalPrompt(
                     (name ? name + ":\n" : "") +
                         fence +
                         (language || "") +
+                        (schema ? ` schema=${schema}` : "") +
                         "\n" +
                         body +
                         fence

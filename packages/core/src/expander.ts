@@ -30,6 +30,7 @@ import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
 import { YAMLTryParse } from "./yaml"
+import { validateSchema } from "./schema"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -887,6 +888,30 @@ export async function runTemplate(
         json === undefined && yaml === yaml ? extractFenced(text) : []
     if (fences?.length)
         trace.details("📩 code regions", renderFencedVariables(fences))
+
+    // validate schemas in fences
+    for (const fence of fences.filter(
+        ({ language }) => language === "json" || language === "yaml"
+    )) {
+        const { language, content: val, args } = fence
+        // validate well formed json/yaml
+        const obj = language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
+        if (obj === undefined) {
+            trace.error(`invalid ${language} syntax`)
+            continue
+        }
+        // check if schema specified
+        const schema = args?.schema
+        if (schema) {
+            const schemaObj = schemas[schema]
+            if (!schemaObj) {
+                trace.error(`schema ${schema} not found`)
+                continue
+            }
+            if (!validateSchema(trace, obj, schemaObj)) continue
+        }
+    }
+
     if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
     else if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
 
@@ -909,7 +934,7 @@ export async function runTemplate(
         annotations = parseAnnotations(text)
 
         for (const fence of fences) {
-            const { label: name, content: val } = fence
+            const { label: name, content: val, language, args } = fence
             const pm = /^((file|diff):?)\s+/i.exec(name)
             if (pm) {
                 const kw = pm[1].toLowerCase()

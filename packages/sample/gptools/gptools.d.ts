@@ -408,8 +408,20 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
-    language?: "markdown" | string
+    language?:
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | string
     lineNumbers?: boolean
+    /**
+     * JSON schema identifier
+     */
+    schema?: string
 }
 
 interface ChatTaskOptions {
@@ -569,4 +581,4 @@ declare function fetchText(
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject)
+declare function defSchema(name: string, schema: JSONSchema)

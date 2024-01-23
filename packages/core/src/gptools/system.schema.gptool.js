@@ -13,17 +13,4 @@ It is stored in a \`json-schema\` code section.
     ...
     \`\`\`
 
-
-When you generate JSON or YAML according to a named schema. Add the schema identifier in the code fence header.
-
-    \`\`\`json schema=<schema-identifier>
-    ...
-    \`\`\`
-
-or 
-
-    \`\`\`yaml schema=<schema-identifier>
-    ...
-    \`\`\`
-
 `

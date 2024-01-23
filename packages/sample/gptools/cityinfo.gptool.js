@@ -1,10 +1,10 @@
 gptool({
     title: "City general information",
     description: "Generate a JSON response with city size information.",
-    system: ["system", "system.schema"]
+    system: ["system", "system.files", "system.schema"]
 })
 
-$`For each city in the CITIES, provide the following information:
+$`Generate a YAML data file with the following information for each city in CITIES.
 
 - The city's population.
 - The city's elevation.
