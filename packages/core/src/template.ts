@@ -376,7 +376,6 @@ async function parseMeta(r: PromptTemplate) {
 
 const promptFence = "```"
 const markdownPromptFence = "`````"
-const promptFenceStartRx = /^(`{3,})(\s*(.*))?\s*$/
 
 function errorId() {
     let r = "ERROR-"
@@ -402,15 +401,23 @@ export function staticVars() {
     }
 }
 
+const promptFenceStartRx =
+    /^(?<fence>`{3,})(?<language>[^=:]+)?\s+(?<args>.*)$/m
 function startFence(text: string) {
     const m = promptFenceStartRx.exec(text)
-    return { fence: m?.[1], extra: m?.[3], args: parseKeyValuePairs(m?.[3]) }
+    const groups: Record<string, string> = m?.groups || {}
+    return {
+        fence: groups.fence,
+        language: groups.language,
+        args: parseKeyValuePairs(groups.args),
+    }
 }
 
 export interface Fenced {
     label: string
-    type?: string
+    language?: string
     content: string
+    args?: Record<string, string>
 }
 
 /**
@@ -442,7 +449,8 @@ export interface Fenced {
 export function extractFenced(text: string): Fenced[] {
     let currLbl = ""
     let currText = ""
-    let currType = ""
+    let currLanguage = ""
+    let currArgs: Record<string, string> = {}
     let currFence = ""
     const vars: Fenced[] = []
     const lines = text.split(/\r?\n/)
@@ -455,6 +463,8 @@ export function extractFenced(text: string): Fenced[] {
                 vars.push({
                     label: currLbl,
                     content: normalize(currLbl, currText),
+                    language: currLanguage,
+                    args: currArgs,
                 })
                 currText = ""
             } else {
@@ -470,12 +480,14 @@ export function extractFenced(text: string): Fenced[] {
                     (start.args["file"] || "")
                 ).trim()
                 currFence = start.fence
-                currType = start.extra || ""
+                currLanguage = start.language || ""
+                currArgs = start.args
                 i++
             } else if (start.fence && m) {
                 currLbl = m[1] + " " + (start.args["file"] || m[2])
                 currFence = start.fence
-                currType = start.extra || ""
+                currLanguage = start.language || ""
+                currArgs = start.args
                 i++
             }
         }
@@ -484,8 +496,9 @@ export function extractFenced(text: string): Fenced[] {
     if (currText != "") {
         vars.push({
             label: currLbl,
-            type: currType,
+            language: currLanguage,
             content: normalize(currLbl, currText),
+            args: currArgs,
         })
     }
 
