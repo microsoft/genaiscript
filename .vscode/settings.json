@@ -5,6 +5,7 @@
         "gpspecs",
         "gptool",
         "gptools",
+        "gptoolsjs",
         "openai",
         "typecheck",
         "vsix"

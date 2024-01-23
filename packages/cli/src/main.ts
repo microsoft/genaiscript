@@ -227,8 +227,11 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         }
         if (res.text) await write(outputf, res.text)
         if (res.trace) await write(tracef, res.trace)
-        if (specf) await write(specf, await readText(spec))
-        if (annotationf)
+        if (specf) {
+            const spect = await readText(spec)
+            await write(specf, spect)
+        }
+        if (annotationf && res.annotations?.length) {
             await write(
                 annotationf,
                 `severity, filename, start, end, message\n` +
@@ -239,7 +242,9 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
                         )
                         .join("\n")
             )
-        if (changelogf) await write(changelogf, res.changelogs.join("\n"))
+        }
+        if (changelogf && res.changelogs?.length)
+            await write(changelogf, res.changelogs.join("\n"))
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.yaml) console.log(YAMLStringify(res))
@@ -250,6 +255,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     const errors = res.annotations?.filter((a) => a.severity === "error")
     if (githubIssues && errors?.length) {
+        logVerbose(`writing errors`)
         const conn = parseGHTokenFromEnv(process.env)
         for (const a of errors) {
             await createIssue(
@@ -268,11 +274,16 @@ Error reported by gptools ${gptool.id}.
     }
 
     // final fail
-    if (res.error) throw res.error
+    if (res.error) {
+        logVerbose(`error: ${res.error}`)
+        process.exit(ANNOTATION_ERROR_CODE)
+    }
+
     if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
         console.log`error annotations found, exiting with error code`
         process.exit(ANNOTATION_ERROR_CODE)
     }
+    logVerbose(`gptools run completed with ${tokens} tokens`)
 }
 
 async function listTools() {
