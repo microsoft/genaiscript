@@ -34,6 +34,7 @@ import { validateJSONSchema } from "./schema"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
+const defaultTopP: number = undefined
 const defaultSeed: number = undefined
 const defaultMaxTokens: number = undefined
 
@@ -201,6 +202,7 @@ async function expandTemplate(
     fragment: Fragment,
     options: {
         temperature?: number
+        topP?: number
         model?: string
         seed?: number
         max_tokens?: number
@@ -231,6 +233,7 @@ async function expandTemplate(
     let systemText = ""
     let model = template.model
     let temperature = template.temperature
+    let topP = template.topP
     let max_tokens = template.maxTokens
     let seed = template.seed
     let responseType = template.responseType
@@ -264,6 +267,7 @@ async function expandTemplate(
 
         model = model ?? system.model
         temperature = temperature ?? system.temperature
+        topP = topP ?? system.topP
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
@@ -272,6 +276,7 @@ async function expandTemplate(
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
         if (system.temperature !== undefined)
             trace.item(`temperature: ${system.temperature || ""}`)
+        if (system.topP !== undefined) trace.item(`top_p: ${system.topP || ""}`)
         if (system.maxTokens !== undefined)
             trace.item(`max tokens: ${system.maxTokens || ""}`)
 
@@ -293,6 +298,8 @@ async function expandTemplate(
         tryParseFloat(env.vars["temperature"]) ??
         temperature ??
         defaultTemperature
+    topP =
+        options.topP ?? tryParseFloat(env.vars["top_p"]) ?? topP ?? defaultTopP
     max_tokens =
         options.max_tokens ??
         tryParseInt(env.vars["maxTokens"]) ??
@@ -304,6 +311,7 @@ async function expandTemplate(
     if (model) trace.item(`model: \`${model || ""}\``)
     if (temperature !== undefined)
         trace.item(`temperature: ${temperature || ""}`)
+    if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
     if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens || ""}`)
     if (seed !== undefined) {
         seed = seed >> 0
@@ -320,6 +328,7 @@ async function expandTemplate(
         success: prompt.success,
         model,
         temperature,
+        topP,
         max_tokens,
         seed,
         systemText,
@@ -489,6 +498,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
     skipLLM?: boolean
     label?: string
     temperature?: number
+    topP?: number
     seed?: number
     model?: string
     cache?: boolean
@@ -507,7 +517,7 @@ export function generateCliArguments(
     fragment: Fragment,
     options: RunTemplateOptions
 ) {
-    const { model, temperature, seed, cliInfo } = options
+    const { model, temperature, topP, seed, cliInfo } = options
 
     const cli = [
         "node",
@@ -519,6 +529,7 @@ export function generateCliArguments(
     ]
     if (model) cli.push(`--model`, model)
     if (!isNaN(temperature)) cli.push(`--temperature`, temperature + "")
+    if (!isNaN(topP)) cli.push(`--top-p`, topP + "")
     if (!isNaN(seed)) cli.push("--seed", seed + "")
 
     return cli.join(" ")
@@ -551,6 +562,7 @@ export async function runTemplate(
         expanded,
         success,
         temperature,
+        topP,
         model,
         max_tokens,
         seed,
@@ -687,6 +699,7 @@ export async function runTemplate(
                     {
                         model,
                         temperature,
+                        top_p: topP,
                         max_tokens,
                         seed,
                         messages,

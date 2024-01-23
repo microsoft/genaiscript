@@ -73,6 +73,13 @@ interface PromptTemplate extends PromptLike {
     temperature?: number
 
     /**
+     * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
+     * A high “top_p” value means the model looks at more possible words, even the less likely ones, 
+     * which makes the generated text more diverse.
+     */
+    topP?: number
+
+    /**
      * When to stop producing output.
      *
      */

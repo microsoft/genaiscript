@@ -631,6 +631,7 @@ export async function parsePromptTemplate(
 
             c.checkNat("maxTokens")
             c.checkNumber("temperature")
+            c.checkNumber("topP")
 
             c.checkStringArray("system")
             c.checkStringArray("categories")

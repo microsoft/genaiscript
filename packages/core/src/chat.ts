@@ -98,7 +98,7 @@ export async function getChatCompletions(
     req: CreateChatCompletionRequest,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ): Promise<ChatCompletionResponse> {
-    const { temperature, seed, response_format, tools } = req
+    const { temperature, top_p, seed, response_format, tools } = req
     const {
         requestOptions,
         partialCb,
@@ -141,7 +141,8 @@ export async function getChatCompletions(
         url = cfg.url + "/generate_stream"
         postReq = {
             parameters: {
-                temperature: req.temperature,
+                temperature: temperature,
+                top_p: top_p,
                 return_full_text: false,
                 max_new_tokens: req.max_tokens,
                 seed: req.seed,
