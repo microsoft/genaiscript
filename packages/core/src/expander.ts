@@ -30,7 +30,7 @@ import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
 import { YAMLTryParse } from "./yaml"
-import { validateSchema } from "./schema"
+import { validateJSONSchema } from "./schema"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -237,7 +237,7 @@ async function expandTemplate(
 
     trace.startDetails("🛠️ gptool")
 
-    trace.startDetails(`👾 system gptools`)
+    trace.startDetails(`👾 system`)
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -372,7 +372,7 @@ async function expandTemplate(
 
         const schemas = env.schemas || {}
         for (const [k, v] of Object.entries(schemas)) {
-            trace.startDetails(`📋 schema \`${k}\``)
+            trace.startDetails(`📋 schema ${k}`)
             trace.fence(v, "json")
             trace.endDetails()
         }
@@ -909,7 +909,7 @@ export async function runTemplate(
                 trace.error(`schema ${schema} not found`)
                 continue
             }
-            fence.validated = validateSchema(trace, obj, schemaObj)
+            fence.validation = validateJSONSchema(trace, obj, schemaObj)
         }
     }
 
@@ -935,7 +935,7 @@ export async function runTemplate(
         annotations = parseAnnotations(text)
 
         for (const fence of fences.filter(
-            ({ validated }) => validated !== false
+            ({ validation }) => validation?.valid !== false
         )) {
             const { label: name, content: val } = fence
             const pm = /^((file|diff):?)\s+/i.exec(name)

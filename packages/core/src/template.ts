@@ -2,6 +2,7 @@ import { CoArchProject, Diagnostic, Fragment, PromptTemplate } from "./ast"
 import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
+import { JSONSchemaValidation } from "./schema"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -421,7 +422,7 @@ export interface Fenced {
     content: string
     args?: { schema?: string } & Record<string, string>
 
-    validated?: boolean
+    validation?: JSONSchemaValidation
 }
 
 /**
@@ -537,14 +538,30 @@ function parseKeyValuePairs(text: string) {
 export function renderFencedVariables(vars: Fenced[]) {
     return vars
         .map(
-            ({ label: k, content: v }) => `-   \`${k}\`
+            ({
+                label: k,
+                content: v,
+                validation,
+                args,
+                language,
+            }) => `-   \`${k}\` ${
+                validation !== undefined
+                    ? `schema ${args.schema}: ${validation.valid ? "✅" : "❌"}`
+                    : ""
+            }\n
 \`\`\`\`\`${
-                /^Note/.test(k)
+                language ?? /^Note/.test(k)
                     ? "markdown"
                     : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""
             }
 ${v}
 \`\`\`\`\`
+${
+    validation?.errors
+        ? `> ![CAUTION] Schema validation errors
+${validation.errors.split("\n").join("\n> ")}`
+        : ""
+}
 `
         )
         .join("\n")
