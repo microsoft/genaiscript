@@ -1,0 +1,78 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps container required CPU and memory",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "This policy enforces limits for container CPU and memory requests in an AZure Container App.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "maxCpu": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Max allowed CPU cores",
+          "description": "Specifies the maximum CPU cores allowed for a container. E.g. 1.25."
+        },
+        "defaultValue": "2.0"
+      },
+      "maxMemory": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Max allowed memory in Gi",
+          "description": "Specifies the maximum memory in Gi allowed for a container. E.g. 2.5"
+        },
+        "defaultValue": "4.0"
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.App/containerApps"
+          },
+          {
+            "anyOf": [{
+                "count": {
+                  "field": "Microsoft.App/containerApps/template.containers[*]",
+                  "where": {
+                    "field": "Microsoft.App/containerApps/template.containers[*].resources.cpu",
+                    "greater": "[float(parameters('maxCpu'))]"
+                  }
+                },
+                "greater": 0
+              },
+              {
+                "count": {
+                  "field": "Microsoft.App/containerApps/template.containers[*]",
+                  "where": {
+                    "value": "[float(substring(first(field('Microsoft.App/containerApps/template.containers[*].resources.memory')), 0, sub(length(first(field('Microsoft.App/containerApps/template.containers[*].resources.memory'))), 2)))]",
+                    "greater": "[float(parameters('maxMemory'))]"
+                  }
+                },
+                "greater": 0
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}
