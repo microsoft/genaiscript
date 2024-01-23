@@ -6,3 +6,6 @@
 - Seattle
 - Munich
 - Nivelle
+- Paris
+- London
+- Madrid

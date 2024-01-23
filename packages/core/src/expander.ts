@@ -21,12 +21,16 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import type { ChatCompletionMessageParam, ChatCompletionTool } from "openai/resources"
+import type {
+    ChatCompletionMessageParam,
+    ChatCompletionTool,
+} from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
 import { YAMLTryParse } from "./yaml"
+import { validateSchema } from "./schema"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -240,6 +244,7 @@ async function expandTemplate(
         systems.push("system")
         systems.push("system.explanations")
         systems.push("system.files")
+        systems.push("system.schema")
         systems.push("system.changelog")
         systems.push("system.summary")
     }
@@ -364,6 +369,13 @@ async function expandTemplate(
             )
         }
         trace.endDetails()
+
+        const schemas = env.schemas || {}
+        for (const [k, v] of Object.entries(schemas)) {
+            trace.startDetails(`📋 schema \`${k}\``)
+            trace.fence(v, "json")
+            trace.endDetails()
+        }
     }
 }
 
@@ -555,12 +567,12 @@ export async function runTemplate(
     const prompt: ChatCompletionMessageParam[] = [
         {
             role: "system",
-            content: systemText
+            content: systemText,
         },
         {
             role: "assistant",
-            content: expanded
-        }
+            content: expanded,
+        },
     ]
 
     // if the expansion failed, show the user the trace
@@ -646,6 +658,7 @@ export async function runTemplate(
               function: f.definition as any,
           }))
         : undefined
+    const schemas = vars.schemas || {}
 
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]
@@ -876,20 +889,44 @@ export async function runTemplate(
         json === undefined && yaml === yaml ? extractFenced(text) : []
     if (fences?.length)
         trace.details("📩 code regions", renderFencedVariables(fences))
-    if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
-    if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
 
-    if (json !== undefined) {
-        const fn = fragment.file.filename.replace(
-            /\.gpspec\.md$/i,
-            "." + template.id + ".json"
-        )
-        const fileEdit = await getFileEdit(fn)
-        fileEdit.after = text
-    } else if (yaml !== undefined) {
+    // validate schemas in fences
+    for (const fence of fences.filter(
+        ({ language }) => language === "json" || language === "yaml"
+    )) {
+        const { language, content: val, args } = fence
+        // validate well formed json/yaml
+        const obj = language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
+        if (obj === undefined) {
+            trace.error(`invalid ${language} syntax`)
+            continue
+        }
+        // check if schema specified
+        const schema = args?.schema
+        if (schema) {
+            const schemaObj = schemas[schema]
+            if (!schemaObj) {
+                trace.error(`schema ${schema} not found`)
+                continue
+            }
+            if (!validateSchema(trace, obj, schemaObj)) continue
+        }
+    }
+
+    if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
+    else if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
+
+    if (yaml !== undefined) {
         const fn = fragment.file.filename.replace(
             /\.gpspec\.md$/i,
             "." + template.id + ".yaml"
+        )
+        const fileEdit = await getFileEdit(fn)
+        fileEdit.after = text
+    } else if (json !== undefined) {
+        const fn = fragment.file.filename.replace(
+            /\.gpspec\.md$/i,
+            "." + template.id + ".json"
         )
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
@@ -898,7 +935,7 @@ export async function runTemplate(
         annotations = parseAnnotations(text)
 
         for (const fence of fences) {
-            const { label: name, content: val } = fence
+            const { label: name, content: val, language, args } = fence
             const pm = /^((file|diff):?)\s+/i.exec(name)
             if (pm) {
                 const kw = pm[1].toLowerCase()
