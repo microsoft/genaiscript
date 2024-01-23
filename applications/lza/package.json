@@ -2,7 +2,7 @@
   "name": "lza",
   "version": "1.0.0",
   "scripts": {
-    "test": "vitest --reporter=junit --reporter=default"
+    "test": "vitest run --reporter=junit --reporter=default --outputFile=test-results/jest-lza.xml"
   },
   "devDependencies": {
     "dotenv": "^16.3.2",
