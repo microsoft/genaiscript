@@ -909,7 +909,7 @@ export async function runTemplate(
                 trace.error(`schema ${schema} not found`)
                 continue
             }
-            if (!validateSchema(trace, obj, schemaObj)) continue
+            fence.validated = validateSchema(trace, obj, schemaObj)
         }
     }
 
@@ -934,8 +934,10 @@ export async function runTemplate(
         // parse all annotations, regardless of fences
         annotations = parseAnnotations(text)
 
-        for (const fence of fences) {
-            const { label: name, content: val, language, args } = fence
+        for (const fence of fences.filter(
+            ({ validated }) => validated !== false
+        )) {
+            const { label: name, content: val } = fence
             const pm = /^((file|diff):?)\s+/i.exec(name)
             if (pm) {
                 const kw = pm[1].toLowerCase()
