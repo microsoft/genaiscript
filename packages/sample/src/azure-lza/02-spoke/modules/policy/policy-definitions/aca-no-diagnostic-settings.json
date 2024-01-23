@@ -1,0 +1,78 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps no diagnostic settings configured",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "When the environment configure to collect logs and metrics to Azure Monitor, checks whether diagnostic settings have been defined.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "logsEnabled": {
+        "type": "Boolean",
+        "metadata": {
+          "displayName": "Logs Enabled"
+        },
+        "allowedValues": [
+          true,
+          false
+        ],
+        "defaultValue": true
+      },
+      "metricsEnabled": {
+        "type": "Boolean",
+        "metadata": {
+          "displayName": "Metrics Enabled"
+        },
+        "allowedValues": [
+          true,
+          false
+        ],
+        "defaultValue": true
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.App/managedEnvironments"
+          },
+          {
+            "field": "Microsoft.App/managedEnvironments/appLogsConfiguration.destination",
+            "equals": "azure-monitor"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "allOf": [{
+                "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                "equals": "[parameters('logsEnabled')]"
+              },
+              {
+                "field": "Microsoft.Insights/diagnosticSettings/metrics.enabled",
+                "equals": "[parameters('metricsEnabled')]"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

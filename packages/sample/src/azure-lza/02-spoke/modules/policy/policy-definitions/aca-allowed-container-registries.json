@@ -1,0 +1,59 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps allowed container registries",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "This policy enables you to restrict the list of container registries for Azure Container Apps.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "listOfAllowedContainerRegistries": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed container registries",
+          "description": "The list of container registries that can be specified when deploying resources."
+        },
+        "defaultValue": [
+          "mcr.microsoft.com"
+        ]
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.App/containerApps"
+          },
+          {
+            "count": {
+              "field": "Microsoft.App/containerApps/template.containers[*]",
+              "where": {
+                "value": "[split(first(field('Microsoft.App/containerApps/template.containers[*].image')), '/')[0]]",
+                "notIn": "[parameters('listOfAllowedContainerRegistries')]"
+              }
+            },
+            "greater": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

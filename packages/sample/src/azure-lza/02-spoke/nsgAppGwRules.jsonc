@@ -1,0 +1,60 @@
+{
+    "securityRules": [
+        {
+            "name": "HealthProbes",
+            "properties": {
+                "description": "Sllow HealthProbes from gateway Manager.",
+                "protocol": "*",
+                "sourceAddressPrefix": "GatewayManager",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "65200-65535",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
+            }
+        },
+        {
+            "name": "Allow_TLS",
+            "properties": {
+                "description": "allow https incoming connections",
+                "protocol": "*",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "443",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound"
+            }
+        },
+        {
+            "name": "Allow_HTTP",
+            "properties": {
+                "description": "allow http incoming connections",
+                "protocol": "*",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "80",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound"
+            }
+        },
+        {
+            "name": "Allow_AzureLoadBalancer",
+            "properties": {
+                "description": "allow AzureLoadBalancer incoming connections",
+                "protocol": "*",
+                "sourceAddressPrefix": "AzureLoadBalancer",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "80",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Inbound"
+            }
+        }
+    ]
+}
