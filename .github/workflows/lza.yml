@@ -1,5 +1,8 @@
 name: lza
 on:
+    schedule:
+        # 0 minutes, 1 hour, every 3 days
+        - cron: "0 1 */3 * *"
     workflow_dispatch:
 jobs:
     build:
@@ -42,8 +45,8 @@ jobs:
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: Test Report
               uses: dorny/test-reporter@v1
-              if: success() || failure()    # run this step even if previous step failed
+              if: success() || failure() # run this step even if previous step failed
               with:
-                name: Tests            # Name of the check run which will be created
-                path: applications/lza/test-results/jest-*.xml    # Path to test results
-                reporter: jest-junit        # Format of test results
+                  name: Tests # Name of the check run which will be created
+                  path: applications/lza/test-results/jest-*.xml # Path to test results
+                  reporter: jest-junit # Format of test results
