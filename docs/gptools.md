@@ -315,6 +315,9 @@ defSchema("TARGET_SCHEMA", {
 })
 ```
 
+When a JSON/YAML payload is generated with the schema identifier,
+gptools automatically validates the payload against the schema.
+
 ## Functions
 
 You can register functions that the LLM may decide to call as part of assembling the answer.
