@@ -1,3 +1,6 @@
 [submodule "applications/lza/aca-landing-zone-accelerator"]
 	path = applications/lza/aca-landing-zone-accelerator
 	url = https://github.com/Azure/aca-landing-zone-accelerator/
+[submodule "applications/tlaplus-examples"]
+	path = applications/tlaplus-examples
+	url = https://github.com/microsoft/tlaplus-examples
