@@ -6,12 +6,15 @@ gptool({
     temperature: 0
 })
 
-const { file } = await fetchText("README.md")
-def("README", file)
-
+// content
 def("SPEC", env.file)
 def("CODE", env.links.filter((f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")))
 
+// workspace
+const { file } = await fetchText("README.md")
+def("README", file)
+
+// prompt generation
 $`
 You are an expert software developer with deep knowledge of the Python programming language.  
 You have been asked to review the code in CODE and provide a code review.  
