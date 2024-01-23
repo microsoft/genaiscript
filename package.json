@@ -1,6 +1,6 @@
 {
     "name": "gptools",
-    "version": "1.5.12",
+    "version": "1.5.13",
     "license": "MIT",
     "private": true,
     "workspaces": [
