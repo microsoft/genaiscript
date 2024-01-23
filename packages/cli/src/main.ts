@@ -330,9 +330,11 @@ async function helpAll() {
     visit("##", undefined, program.commands)
 }
 
-async function parseFence(type: string) {
+async function parseFence(language: string) {
     const stdin = await getStdin()
-    const fences = extractFenced(stdin || "").filter((f) => f.type === type)
+    const fences = extractFenced(stdin || "").filter(
+        (f) => f.language === language
+    )
     console.log(fences.map((f) => f.content).join("\n\n"))
 }
 
@@ -440,7 +442,7 @@ async function main() {
         .command("parse")
         .description("Parse output of a GPSpec in various formats")
     parser
-        .command("region <type>")
+        .command("region <language>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
 
