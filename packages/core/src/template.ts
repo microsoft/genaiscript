@@ -404,7 +404,7 @@ export function staticVars() {
 }
 
 const promptFenceStartRx =
-    /^(?<fence>`{3,})(?<language>[^=:]+)?\s+(?<args>.*)$/m
+    /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
 function startFence(text: string) {
     const m = promptFenceStartRx.exec(text)
     const groups: Record<string, string> = m?.groups || {}
@@ -419,7 +419,9 @@ export interface Fenced {
     label: string
     language?: string
     content: string
-    args?: Record<string, string>
+    args?: { schema?: string } & Record<string, string>
+
+    validated?: boolean
 }
 
 /**
