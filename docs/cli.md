@@ -118,6 +118,10 @@ but not for the CLI.
 
 Overrides the LLM run temperature.
 
+### --top-p <number>
+
+Overrides the LLM run `top_p` value.
+
 ### --model <string>
 
 Overrides the LLM model identifier.

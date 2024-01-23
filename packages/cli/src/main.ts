@@ -75,6 +75,7 @@ async function run(
         outChangelogs: string
         label: string
         temperature: string
+        topP: string
         seed: string
         cache: boolean
         applyEdits: boolean
@@ -96,6 +97,7 @@ async function run(
     const outChangelogs = options.outChangelogs
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
+    const topP = parseFloat(options.topP) ?? undefined
     const seed = parseFloat(options.seed) ?? undefined
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
@@ -171,6 +173,7 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         label,
         cache,
         temperature: isNaN(temperature) ? undefined : temperature,
+        topP: isNaN(topP) ? undefined : topP,
         seed: isNaN(seed) ? undefined : seed,
         model,
         retry,
@@ -394,6 +397,7 @@ async function main() {
         .option("-l, --label <string>", "label for the run")
         .option("-ghi, --github-issues", "create a github issues for errors")
         .option("-t, --temperature <number>", "temperature for the run")
+        .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
         .option("-se, --seed <number>", "seed for the run")
         .option("-ae, --apply-edits", "apply file edits")

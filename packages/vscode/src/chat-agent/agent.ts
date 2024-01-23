@@ -185,7 +185,7 @@ export function configureChatCompletionForChatAgent(
             assistant: 2,
             function: 3,
         }
-        const { model, temperature, seed, ...rest } = req
+        const { model, temperature, top_p, seed, ...rest } = req
         trace.item(`gptool model: ${model}`)
         trace.item(`copilot llm model: ${access.model || "unknown"}`)
 
@@ -202,7 +202,7 @@ export function configureChatCompletionForChatAgent(
         }))
         const request = access.makeRequest(
             messages,
-            { model, temperature, seed },
+            { model, temperature, top_p, seed },
             token
         )
 

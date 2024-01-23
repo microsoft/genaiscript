@@ -159,9 +159,26 @@ You can specify the temperate using `temperature` variable in the gpspec file.
 <!-- @temperature 0.8 -->
 ```
 
+### top_p
+
+You can specify the LLM `top_p` in the script. The default is not specified
+
+```js
+gptool({
+    ...,
+    top_p: 0.5,
+})
+```
+
+You can specify the temperate using `top_p` variable in the gpspec file.
+
+```markdown
+<!-- @top_p 0.4 -->
+```
+
 ### seed
 
-You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
+For some models,You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
 
 ```js
 gptool({
