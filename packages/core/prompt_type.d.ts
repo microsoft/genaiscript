@@ -84,4 +84,4 @@ declare function fetchText(
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchemaArray | JSONSchemaObject)
+declare function defSchema(name: string, schema: JSONSchema)
