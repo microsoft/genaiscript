@@ -10,11 +10,13 @@ https://github.com/microsoft/gptools/assets/4175913/74517b81-4b9c-47d9-8a5c-a153
 
 The key elements of the gptools framework are:
 
--   [gpspecs](./docs/gpspecs.md): Natural language specification documents that also define the LLM context.
 -   [gptools](./docs/gptools.md): Scripts that combine the gpspec source, the context and the LLM models.
+-   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification documents that also define the LLM context.
+
+The tooling supports a short dev loop in VS Code and automated CI/CD pipelines.
+
 -   [Visual Studio Code extension](./docs/vscode.md): User interaction with gptools and conversion of LLM results into workspace edits.
 -   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
--   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
 
 GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
 To access GPTools from GitHub Copilot Chat, use [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
