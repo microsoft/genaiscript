@@ -74,7 +74,7 @@ interface PromptTemplate extends PromptLike {
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
-     * A high “top_p” value means the model looks at more possible words, even the less likely ones, 
+     * A high “top_p” value means the model looks at more possible words, even the less likely ones,
      * which makes the generated text more diverse.
      */
     topP?: number
@@ -179,16 +179,11 @@ interface LinkedFile {
     content: string
 }
 
-declare enum ChatMessageRole {
-    System = 0,
-    User = 1,
-    Assistant = 2,
-    Function = 3,
-}
+type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
 // ChatML
 interface ChatMessage {
-    role: "user" | "system" | "assistant" | "function"
+    role: ChatMessageRole
     content: string
     name?: string
 }

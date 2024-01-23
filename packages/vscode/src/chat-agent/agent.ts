@@ -12,19 +12,12 @@ export function toChatAgentContext(
     request: vscode.ChatAgentRequest,
     chatContext: vscode.ChatAgentContext
 ): ChatAgentContext {
-    const roles = {
-        [vscode.ChatMessageRole.System]: "system",
-        [vscode.ChatMessageRole.User]: "user",
-        [vscode.ChatMessageRole.Assistant]: "assistant",
-        [vscode.ChatMessageRole.Function]: "function",
-    }
     const res: ChatAgentContext = {
         history: chatContext.history.map(
             (m) =>
                 <ChatMessage>{
-                    role: roles[m.role],
-                    content: m.content,
-                    name: m.name,
+                    role: m.request.agentId,
+                    content: m.request.prompt,
                 }
         ),
         prompt: request.prompt || "",
@@ -98,10 +91,10 @@ These steps will not be needed once the API gets fully released.
         progress: vscode.Progress<vscode.ChatAgentProgress>,
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
-        const { slashCommand } = request
+        const { subCommand } = request
         const template =
-            slashCommand &&
-            state.project?.templates.find(({ id }) => id === slashCommand.name)
+            subCommand &&
+            state.project?.templates.find(({ id }) => id === subCommand)
 
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
@@ -124,8 +117,8 @@ These steps will not be needed once the API gets fully released.
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
     agent.description = "Run GPTools within the chat..."
     agent.fullName = "GPTools"
-    agent.slashCommandProvider = {
-        provideSlashCommands(token) {
+    agent.subCommandProvider = {
+        provideSubCommands(token) {
             const templates =
                 state.project?.templates.filter(
                     (t) => !t.isSystem && t.chat !== false

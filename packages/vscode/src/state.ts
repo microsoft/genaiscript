@@ -31,6 +31,7 @@ import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
+import { infoUri } from "./markdowndocumentprovider"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -232,7 +233,7 @@ export class ExtensionState extends EventTarget {
                                 (e) =>
                                     <vscode.ChatAgentFileTreeData>{
                                         label: e.label,
-                                        uri: vscode.Uri.file(e.filename),
+                                        uri: infoUri(REQUEST_OUTPUT_FILENAME),
                                     }
                             ),
                         },
@@ -374,7 +375,7 @@ ${e.message}`
 
         if (options.chat) {
             const hasToken = await this.host.getSecretToken()
-            if (hasToken && template.copilot)
+            if (!hasToken && template.copilot)
                 configureChatCompletionForChatAgent(options, runOptions)
         }
 

@@ -1,6 +1,5 @@
 # GPTools CLI
 
-
 ## run
 
 Usage: gptools run [options] <tool> [spec...]
