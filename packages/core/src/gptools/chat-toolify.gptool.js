@@ -9,15 +9,15 @@ gptool({
 
 // use $ to output formatted text to the prompt
 $`You are an expert LLM prompt engineer.
-You will generate a script that generates a LLM promt 
-that captures the intent of the user in CHAT.`
+You will generate a tool script that generates a LLM prompt
+that captures the intent of the user in CHAT_HISTORY.`
 
-$`The tool is formatted in JavaScript and will be saved as a file named 'gptools/<toolname>.gptool.js'
-where <toolname> is a short, descriptive, filename friendly name for the chat.`
+$`The generated tool source is JavaScript and will be saved as a file named 'gptools/<toolname>.gptool.js'
+where <toolname> is a short, descriptive, filename friendly name for the CHAT_HISTORY.`
 
 $` The tool has access to these APIs:
 
-\`\`\`typescript
+\`\`\`js
 /**
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .gptool.js file.
@@ -31,28 +31,28 @@ declare function gptool(options: {
  * Append given string to the prompt. It automatically appends "\n".
  */
 declare function $(strings: TemplateStringsArray, ...args: any[]): string
+
+/**
+ * Define a variable with the content of files.
+ */
+declare function def(name: string, files: LinkedFile[]): void
 \`\`\`
 
-\`\`\`typescript file=gptools/<toolname>.gptool.js
-A typical gptools file looks like this:
+A typical gptools file looks like this.
 
+\`\`\`js file=gptools/<toolname>.gptool.js
 gptools({ title: <the title> })
+
+// FILE is a special variable that points to files in context.
+def("FILE", env.links)
 
 $\`<the generated prompt from the user intent>\`
 \`\`\`
-
-To access files in the current context, insert this code in the script.
-
-    def("SPEC", env.file)
-    def("FILE", env.links)
-
 `
 
-$`
-The CHAT is formatted as a markdown list of user messages.
-`
 
 // use def to emit and reference chunks of text
-def("CHAT", env.chat.history.filter(m => m.role === "user" && !/@/.test(m.content))
-    .map(({ role, content }) => `- ${content}`)
+def("CHAT_HISTORY", env.chat.history
+    .map(({ role, content }) => `- [${role}] ${content}\n`)
     .join("\n"), { language: "markdown" })
+

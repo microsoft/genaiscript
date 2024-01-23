@@ -632,15 +632,10 @@ export async function runTemplate(
         },
     ]
 
-    const startTime = Date.now()
     const status = (text?: string) => {
-        if (text)
-            statusText += `- [${Math.round(
-                (Date.now() - startTime) / 1000
-            )}] ${text}...\n`
         options.infoCb?.({
             vars,
-            text: statusText,
+            text,
             trace: trace.content,
             label,
         })
@@ -690,7 +685,7 @@ export async function runTemplate(
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`prompting model`)
+                status(`Prompting model`)
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
