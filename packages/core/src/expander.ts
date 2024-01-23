@@ -887,20 +887,20 @@ export async function runTemplate(
         json === undefined && yaml === yaml ? extractFenced(text) : []
     if (fences?.length)
         trace.details("📩 code regions", renderFencedVariables(fences))
-    if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
     if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
+    else if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
 
-    if (json !== undefined) {
-        const fn = fragment.file.filename.replace(
-            /\.gpspec\.md$/i,
-            "." + template.id + ".json"
-        )
-        const fileEdit = await getFileEdit(fn)
-        fileEdit.after = text
-    } else if (yaml !== undefined) {
+    if (yaml !== undefined) {
         const fn = fragment.file.filename.replace(
             /\.gpspec\.md$/i,
             "." + template.id + ".yaml"
+        )
+        const fileEdit = await getFileEdit(fn)
+        fileEdit.after = text
+    } else if (json !== undefined) {
+        const fn = fragment.file.filename.replace(
+            /\.gpspec\.md$/i,
+            "." + template.id + ".json"
         )
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text

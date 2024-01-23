@@ -1,26 +1,31 @@
 gptool({
     title: "City general information",
     description: "Generate a JSON response with city size information.",
-    system: ["system.json"]
+    system: ["system", "system.schema"]
 })
 
 $`For each city in the CITIES, provide the following information:
 
-- The city's population
-- The city's elevation
+- The city's population.
+- The city's elevation.
 
 If the city is unknown, omit it from the response.
+Validate the output the generated YAML using the CITY_SCHEMA JSON schema.
 `
 
-def("EXAMPLE", JSON.stringify({
-    "madrid": {
-        "population": 3223334,
-        "elevation": 667
-    },
-    "london": {
-        "population": 8908081,
-        "elevation": 24
-    },
-}), { language: "json" })
+defSchema("CITY_SCHEMA", {
+    type: "array",
+    description: "A list of cities with population and elevation information.",
+    items: {
+        type: "object",
+        description: "A city with population and elevation information.",
+        properties: {
+            name: { type: "string", description: "The name of the city." },
+            population: { type: "number", description: "The population of the city." },
+            elevation: { type: "number", description: "The elevation of the city." }
+        },
+        required: ["name", "population", "elevation"]
+    }
+})
 
 def("CITIES", env.file)

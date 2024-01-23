@@ -237,7 +237,12 @@ export async function evalPrompt(
             else {
                 body = norm(body, fence)
                 writeText(
-                    (name ? name + ":\n" : "") + fence + "\n" + body + fence
+                    (name ? name + ":\n" : "") +
+                        fence +
+                        (language || "") +
+                        "\n" +
+                        body +
+                        fence
                 )
                 if (body.includes(fence)) error = true
             }
@@ -255,7 +260,7 @@ export async function evalPrompt(
         },
         defSchema(name, schema) {
             ctx.def(name, JSON.stringify(schema, null, 2), {
-                language: "jsonschema",
+                language: "json-schema",
             })
             if (env.schemas[name])
                 writeText(
