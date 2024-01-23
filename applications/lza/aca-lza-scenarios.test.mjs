@@ -11,7 +11,7 @@ tools.forEach(tool => describe(tool, async () => {
     files.forEach(file => {
         const name = file.substring(dir.length + 1)
         return test(name.replace(/\.bicep$/, ''), async () => {
-            const { review, stderr } = await $`node ${gptoolsjs} run ${tool} ${file} --out ./test-results/${tool}/${name}      `
+            const { review, stderr } = await $`node ${gptoolsjs} run ${tool} ${file} --no-colors --out ./test-results/${tool}/${name}      `
             console.log(stderr)
             expect(review).toBe(undefined)
         }, { timeout: 120000 })
