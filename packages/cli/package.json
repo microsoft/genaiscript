@@ -1,6 +1,6 @@
 {
   "name": "gptools-cli",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "main": "built/gptools.js",
   "license": "MIT",
   "private": true,
@@ -25,7 +25,7 @@
     "tsx": "^4.7.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js --minify",
     "postcompile": "cp built/gptools.js ../vscode/gptools.js",
     "go": "yarn compile && node built/gptools.js",
     "test": "node --import tsx --test src/**.test.ts",
