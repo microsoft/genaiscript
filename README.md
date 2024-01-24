@@ -59,6 +59,8 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.context`). Links define the content (`env.files`).
 
+The `.gpspec` context is automatically generate when running a tool on a file or set of files.
+
 ```markdown
 # email address recognizer
 
