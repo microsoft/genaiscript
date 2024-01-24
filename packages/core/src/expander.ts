@@ -307,19 +307,22 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace.startDetails("🧬 expanded prompt")
-    if (model) trace.item(`model: \`${model || ""}\``)
-    if (temperature !== undefined)
-        trace.item(`temperature: ${temperature || ""}`)
-    if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
-    if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens || ""}`)
-    if (seed !== undefined) {
-        seed = seed >> 0
-        trace.item(`seed: ${seed}`)
+    {
+        trace.startDetails("🧬 expanded prompt")
+        if (model) trace.item(`model: \`${model || ""}\``)
+        if (temperature !== undefined)
+            trace.item(`temperature: ${temperature || ""}`)
+        if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
+        if (max_tokens !== undefined)
+            trace.item(`max tokens: ${max_tokens || ""}`)
+        if (seed !== undefined) {
+            seed = seed >> 0
+            trace.item(`seed: ${seed}`)
+        }
+        if (responseType) trace.item(`response type: ${responseType}`)
+        trace.fence(expanded, "markdown")
+        trace.endDetails() // expanded prompt
     }
-    if (responseType) trace.item(`response type: ${responseType}`)
-    trace.fence(expanded, "markdown")
-    trace.endDetails()
     trace.endDetails()
 
     return {
@@ -371,7 +374,7 @@ async function expandTemplate(
         for (const k of Object.keys(env)) {
             if (!isComplex(k)) continue
             const v = varMap[k]
-            trace.item(`-   env.**${k}**`)
+            trace.item(`env.**${k}**`)
             trace.fence(
                 typeof v === "string" ? v : inspect(v),
                 typeof v === "string" ? undefined : "js"

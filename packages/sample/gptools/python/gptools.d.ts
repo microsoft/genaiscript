@@ -545,7 +545,7 @@ declare function def(name: string, body: StringLike, options?: DefOptions): void
  * Inline supplied files in the prompt.
  * Similar to `for (const f in files) { def("File " + f.filename, f.contents) }`
  *
- * @param files files to define, eg. `env.links` or a subset thereof
+ * @param files files to define, eg. `env.files` or a subset thereof
  */
 declare function defFiles(files: LinkedFile[]): void
 

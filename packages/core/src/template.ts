@@ -640,6 +640,8 @@ export async function parsePromptTemplate(
             c.checkBool("isSystem")
             c.checkFunction("fileMerge")
             c.checkObjectArray("urlAdapters")
+            c.checkObjectArray("functions")
+            c.checkObjectArray("schemas")
         })
 
         const r = c.template

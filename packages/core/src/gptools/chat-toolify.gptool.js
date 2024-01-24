@@ -44,7 +44,7 @@ A typical gptools file looks like this.
 gptools({ title: <the title> })
 
 // FILE is a special variable that points to files in context.
-def("FILE", env.links)
+def("FILE", env.files)
 
 $\`<the generated prompt from the user intent>\`
 \`\`\`
