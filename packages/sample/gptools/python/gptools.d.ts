@@ -418,6 +418,7 @@ interface DefOptions {
         | "typescript"
         | "python"
         | "shell"
+        | "toml"
         | string
     lineNumbers?: boolean
     /**
@@ -508,6 +509,23 @@ interface Path {
     relative(from: string, to: string): string
 }
 
+interface Parsers {
+    /**
+     * Parses text as a JSON5 payload
+     */
+    JSON5(text: string): unknown | undefined
+    /**
+     * Parses text as a YAML paylaod
+     */
+    YAML(text: string): unknown | undefined
+
+    /**
+     * Parses text as TOML payload
+     * @param text text as TOML payload
+     */
+    TOML(text: string): unknown | undefined
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -534,6 +552,7 @@ interface PromptContext {
     }>
     env: ExpansionVariables
     path: Path
+    parsers: Parsers
 }
 
 
@@ -613,6 +632,11 @@ declare var env: ExpansionVariables
  * Path manipulation functions.
  */
 declare var path: Path
+
+/**
+ * A set of parsers for well-known file formats
+ */
+declare var parsers: Parsers
 
 /**
  * Fetches a given URL and returns the response.
