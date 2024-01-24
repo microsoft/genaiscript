@@ -14,7 +14,7 @@ that ignores the internal details of the implementation.'
 
 ### Demo videos
 
--  [From Copilot Chat to GPTool](./videos/gptools-copilot-chat.mp4)
+-  [From Copilot Chat to GPTool](https://github.com/microsoft/gptools/raw/main/docs/videos/gptools-copilot-chat.mp4)
 
 ## Overview
 
