@@ -2,6 +2,21 @@
 
 GPTools (formerly CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GPTools uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
+```js
+gptool({
+    title: "Shorten", // displayed in UI and Copilot Chat
+    // also displayed, but grayed out:
+    description:
+        "A prompt that shrinks the size of text without losing meaning",
+})
+
+// define "LLM variables"
+def("FILE", env.files)
+
+// build your prompt programmatically
+$`Shorten the content of FILE. Limit changes to minimum.`
+```
+
 ## Overview
 
 The key elements of the gptools framework are:

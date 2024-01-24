@@ -11,18 +11,17 @@ and are unlisted by default. There is no variable expansion in those.
 
 ```js
 gptool({
-    title: "Shorten", // displayed in UI
+    title: "Shorten", // displayed in UI and Copilot Chat
     // also displayed, but grayed out:
     description:
         "A prompt that shrinks the size of text without losing meaning",
-    categories: ["shorten"], // see Inline prompts later
 })
 
 // you can debug the generation using goo'old logs
 console.log("this shows up in the `console output` section of the trace")
 
 // but the variable is appropriately delimited
-def("FILE", env.spec)
+def("FILE", env.files)
 
 // this appends text to the prompt
 $`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
