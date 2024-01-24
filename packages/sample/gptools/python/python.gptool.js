@@ -4,14 +4,14 @@ gptool({
     categories: ["code.python"],
 })
 
-const pythonFileName = env.file?.filename?.replace(".gpspec.md", ".gptools.py")
-const python = env.links.find(lk => lk.filename === pythonFileName)
+const pythonFileName = env.context.filename.replace(".gpspec.md", ".gptools.py")
+const python = env.files.find(lk => lk.filename === pythonFileName)
 
 $`
 You are an expert system designer that writes Python code.
 `
 
-def("SUMMARY", env.file)
+def("SUMMARY", env.context)
 if (python) {
     $`Update the following CODE to match SUMMARY. Limit changes to existing code to minimum.`
     def("CODE", python)

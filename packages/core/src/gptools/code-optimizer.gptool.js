@@ -8,7 +8,7 @@ gptool({
 })
 
 // Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46
-def("FILE", env.links, { lineNumbers: true })
+def("FILE", env.files, { lineNumbers: true })
 
 $`
 You are a world expert in making code run faster. You use any resource you can to do so.

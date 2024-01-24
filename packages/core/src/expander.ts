@@ -228,7 +228,7 @@ async function expandTemplate(
 
     traceVars()
 
-    trace.detailsFenced("📄 gpspec", env.file.content, "markdown")
+    trace.detailsFenced("📄 gpspec", env.context.content, "markdown")
 
     let systemText = ""
     let model = template.model
@@ -307,19 +307,22 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    trace.startDetails("🧬 expanded prompt")
-    if (model) trace.item(`model: \`${model || ""}\``)
-    if (temperature !== undefined)
-        trace.item(`temperature: ${temperature || ""}`)
-    if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
-    if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens || ""}`)
-    if (seed !== undefined) {
-        seed = seed >> 0
-        trace.item(`seed: ${seed}`)
+    {
+        trace.startDetails("🧬 expanded prompt")
+        if (model) trace.item(`model: \`${model || ""}\``)
+        if (temperature !== undefined)
+            trace.item(`temperature: ${temperature || ""}`)
+        if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
+        if (max_tokens !== undefined)
+            trace.item(`max tokens: ${max_tokens || ""}`)
+        if (seed !== undefined) {
+            seed = seed >> 0
+            trace.item(`seed: ${seed}`)
+        }
+        if (responseType) trace.item(`response type: ${responseType}`)
+        trace.fence(expanded, "markdown")
+        trace.endDetails() // expanded prompt
     }
-    if (responseType) trace.item(`response type: ${responseType}`)
-    trace.fence(expanded, "markdown")
-    trace.endDetails()
     trace.endDetails()
 
     return {
@@ -371,7 +374,7 @@ async function expandTemplate(
         for (const k of Object.keys(env)) {
             if (!isComplex(k)) continue
             const v = varMap[k]
-            trace.item(`-   env.**${k}**`)
+            trace.item(`env.**${k}**`)
             trace.fence(
                 typeof v === "string" ? v : inspect(v),
                 typeof v === "string" ? undefined : "js"
@@ -398,12 +401,12 @@ async function fragmentVars(
     const project = file.project
     const prjFolder = host.projectFolder()
 
-    const links: LinkedFile[] = []
+    const files: LinkedFile[] = []
     for (const fr of allChildren(frag, true)) {
         for (const ref of fr.references) {
             // what about URLs?
             if (/^https:\/\//.test(ref.filename)) {
-                if (!links.find((lk) => lk.filename === ref.filename)) {
+                if (!files.find((lk) => lk.filename === ref.filename)) {
                     let content: string = ""
                     try {
                         const urlAdapters = defaultUrlAdapters.concat(
@@ -435,7 +438,7 @@ async function fragmentVars(
                     } catch (e) {
                         trace.error(`fetch def error`, e)
                     }
-                    links.push({
+                    files.push({
                         label: ref.name,
                         filename: ref.filename,
                         content,
@@ -454,8 +457,8 @@ async function fragmentVars(
             }
 
             const fn = relativePath(host.projectFolder(), projectFile.filename)
-            if (!links.find((lk) => lk.filename === fn))
-                links.push({
+            if (!files.find((lk) => lk.filename === fn))
+                files.push({
                     label: ref.name,
                     filename: fn,
                     content: projectFile.content,
@@ -473,12 +476,12 @@ async function fragmentVars(
 
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
-        file: {
+        context: {
             filename: relativePath(host.projectFolder(), file.filename),
-            label: "current",
+            label: "context",
             content: file.content,
         },
-        links,
+        files,
         parents,
         promptOptions,
         template: {
@@ -641,7 +644,6 @@ export async function runTemplate(
         })
     }
 
-    let statusText = ""
     let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
     const changelogs: string[] = []

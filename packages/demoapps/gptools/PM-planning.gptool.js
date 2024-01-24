@@ -4,7 +4,7 @@ gptool({
     categories: ["appdev"]
 })
 
-def("SPEC", env.file)
+def("SPEC", env.context)
 
 $`
 You are an expert product manager with years of experience in the industry selling software products.
@@ -20,7 +20,7 @@ the code will be organized, what the APIs are, and how the different components 
 will implement the code for that component;
 --- (QA) the quality assurance engineer, who will write test cases for the product to make sure it works correctly;
 
-Generate and update high-level instructions for each of your team members in file ${env.file.filename}
+Generate and update high-level instructions for each of your team members in file ${env.context.filename}
 in a level 2 'Tasks' section. The level 2 section "Idea" contains the idea.
 
 If there are already instructions, make sure that the instructions are consistent with the idea.

@@ -7,7 +7,7 @@ gptool({
     system: ["system.summary"]
 })
 
-def("SPEC", env.file)
+def("SPEC", env.context)
 
 $`
 You are an writer of large language model prompts and you have been given SPEC which has 2 sections.  

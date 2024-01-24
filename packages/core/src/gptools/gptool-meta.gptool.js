@@ -4,7 +4,7 @@ gptool({
     categories: ["samples"],
 })
 
-def("SCRIPTS", env.links)
+def("SCRIPTS", env.files)
 
 $`You are an expert in GPTool scripts; a script language for creating LLM tools written in Javascript. SCRIPTS files is a list of gptool files.
 

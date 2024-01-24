@@ -6,8 +6,8 @@ gptool({ title: "SDE-coding",
          categories: ["appdev"]  })
 
 def("SUMMARY", env.subtree)
-def("CODE", env.links.filter(f => f.filename.endsWith(".py")))
-def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
+def("CODE", env.files.filter(f => f.filename.endsWith(".py")))
+def("DOCS", env.files.filter(f => f.filename.endsWith(".md")))
 
 $`
 Use documentation from DOCS.  Pay specific attention to the instructions from for the UX designer.

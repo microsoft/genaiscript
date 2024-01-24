@@ -5,8 +5,8 @@ gptool({
     temperature: 0.5
 })
 
-def("FILE", env.file)
-def("FEATURE", env.links.filter(f => f.filename.endsWith(".feature")))
+def("FILE", env.context)
+def("FEATURE", env.files.filter(f => f.filename.endsWith(".feature")))
 
 $`
 You are an expert system designer that writes scenarios 

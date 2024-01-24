@@ -28,4 +28,4 @@ defSchema("CITY_SCHEMA", {
     }
 })
 
-def("CITIES", env.file)
+def("CITIES", env.context)

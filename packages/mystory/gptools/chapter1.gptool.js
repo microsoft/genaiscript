@@ -6,9 +6,9 @@ gptool({ title: "chapter1",
          categories: ["fiction"]  })
 
 def("SUMMARY", env.subtree)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
-def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.gpspec.md")))
-def("PLOTLINE", env.links.filter(f => f.filename.endsWith(".plotline.gpspec.md")))
+def("FRAMING", env.files.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
+def("CHARS", env.files.filter(f => f.filename.endsWith(".chars.gpspec.md")))
+def("PLOTLINE", env.files.filter(f => f.filename.endsWith(".plotline.gpspec.md")))
 
 $`
 You are an experienced writer of fiction

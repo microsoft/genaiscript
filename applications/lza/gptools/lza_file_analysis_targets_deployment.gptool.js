@@ -180,4 +180,4 @@ When you generate the JSON response, you will need to include the file path from
 \`\`\`
 `
 
-def("SPECS", env.links)
+def("SPECS", env.files)
