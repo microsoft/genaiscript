@@ -23,6 +23,7 @@ import { basename, resolve, join } from "node:path"
 import packageJson from "../package.json"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { ensureDir } from "fs-extra"
+import { createNodePath } from "./nodepath"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
@@ -179,6 +180,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         retry,
         retryDelay,
         maxDelay,
+        path: createNodePath()
     })
     ;(res as any).version = packageJson.version
 

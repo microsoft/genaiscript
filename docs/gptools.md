@@ -364,7 +364,7 @@ defFunction(
 )
 ```
 
-### Running scripts as functions
+### Running CLIs as functions
 
 A function may also return a request to run a native tool in a terminal. The `stdout` output of the tool
 will be used as the function result.
@@ -393,6 +393,16 @@ defFunction(
         }
     }
 )
+```
+
+## Utilities
+
+### `path`
+
+A `path` library is available to manipulate file paths.
+
+```js
+const ext = path.extname(filename)
 ```
 
 ## Inline variable
