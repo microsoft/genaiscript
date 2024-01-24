@@ -7,7 +7,7 @@ gptool({
         "Given a source file in a programming language, extract the structure necessary to do LLM queries",
 })
 
-def("FILE", env.files.filter(f => !/\.xray/.test(f.filename)))
+def("FILE", env.files.filter(f => !f.filename.endsWith(".xray")))
 def("SPEC", env.context)
 
 $`You are an expert at programming in all known languages.
