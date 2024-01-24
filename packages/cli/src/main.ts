@@ -110,7 +110,7 @@ async function run(
     const toolFiles: string[] = []
 
     let md: string
-    const links: string[] = []
+    const files: string[] = []
 
     if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
 
@@ -122,22 +122,22 @@ async function run(
         spec = specs[0]
     } else {
         for (const arg of specs) {
-            const files = await host.findFiles(arg)
-            for (const file of files) {
+            const ffs = await host.findFiles(arg)
+            for (const file of ffs) {
                 if (gpspecRx.test(spec)) {
                     md += (await host.readFile(file)) + "\n"
                 } else {
-                    links.push(file)
+                    files.push(file)
                 }
             }
         }
     }
 
-    if (md || links.length) {
+    if (md || files.length) {
         spec = "cli.gpspec.md"
         specContent = `${md || "# Specification"}
 
-${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
+${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 `
     }
 
@@ -190,8 +190,8 @@ ${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             /\.(c|t)sv$/i.test(outAnnotations)
                 ? diagnosticsToCSV(res.annotations, csvSeparator)
                 : /\.ya?ml$/i.test(outAnnotations)
-                ? YAMLStringify(res.annotations)
-                : JSON.stringify(res.annotations, null, 2)
+                  ? YAMLStringify(res.annotations)
+                  : JSON.stringify(res.annotations, null, 2)
         )
     if (outChangelogs && res.changelogs?.length)
         await write(outChangelogs, res.changelogs.join("\n"))

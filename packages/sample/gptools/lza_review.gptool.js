@@ -17,7 +17,7 @@ for an enterprise software company.
 ## Files
 `
 
-const biceps = env.links.filter(f => f.filename.endsWith(".bicep"))
+const biceps = env.files.filter(f => f.filename.endsWith(".bicep"))
 def("SPECS", biceps, { lineNumbers: true })
 
 // inline dependencies

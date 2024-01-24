@@ -28,7 +28,7 @@ gptool({
 
 def(
     "FILE",
-    env.links.filter((f) => f.filename.endsWith(".md"))
+    env.files.filter((f) => f.filename.endsWith(".md"))
 )
 
 $`

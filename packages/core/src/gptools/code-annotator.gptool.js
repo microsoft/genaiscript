@@ -11,7 +11,7 @@ gptool({
 
 def(
     "CODE",
-    env.links.filter(
+    env.files.filter(
         (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
     ),
     { lineNumbers: true }

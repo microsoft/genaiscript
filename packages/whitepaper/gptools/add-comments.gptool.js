@@ -6,8 +6,8 @@ gptool({
     system: ["system", "system.diff"],
 })
 
-const output = env.file.filename + ".comments.md"
-def("FILE", env.file)
+const output = env.context.filename + ".comments.md"
+def("FILE", env.context)
 
 $`You are an expert Technical documentation reviewer and you will
 create a list of comments about the document FILE. Address any issues

@@ -3,14 +3,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cli",
+            "name": "Run - cli",
             "program": "${workspaceFolder}/packages/cli/built/gptools.js",
             "request": "launch",
             "skipFiles": ["<node_internals>/**"],
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["convert", "packages/cli/test.html"]
+            "args": ["run", "code-xray", "packages/sample/src/counting.py"]
         },
         {
             "name": "Run - sample",

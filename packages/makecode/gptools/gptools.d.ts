@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.files" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -60,8 +60,9 @@ interface PromptTemplate extends PromptLike {
      * Which LLM model to use.
      *
      * @default gpt-4
+     * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo"
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -70,6 +71,13 @@ interface PromptTemplate extends PromptLike {
      * @default 0.2
      */
     temperature?: number
+
+    /**
+     * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
+     * A high “top_p” value means the model looks at more possible words, even the less likely ones,
+     * which makes the generated text more diverse.
+     */
+    topP?: number
 
     /**
      * When to stop producing output.
@@ -171,16 +179,11 @@ interface LinkedFile {
     content: string
 }
 
-declare enum ChatMessageRole {
-    System = 0,
-    User = 1,
-    Assistant = 2,
-    Function = 3,
-}
+type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
 // ChatML
 interface ChatMessage {
-    role: "user" | "system" | "assistant" | "function"
+    role: ChatMessageRole
     content: string
     name?: string
 }
@@ -198,7 +201,7 @@ interface ChatAgentContext {
     prompt?: string
 }
 
-interface FunctionDefinition {
+interface ChatFunctionDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -232,7 +235,101 @@ interface FunctionDefinition {
  *
  * Omitting `parameters` defines a function with an empty parameter list.
  */
-type ChatFunctionParameters = Record<string, unknown>
+type ChatFunctionParameters = JSONSchema
+
+interface ChatFunctionCallTrace {
+    log(message: string): void
+    item(message: string): void
+    tip(message: string): void
+    fence(message: string, contentType?: string): void
+}
+
+/**
+ * Position (line, character) in a file. Both are 0-based.
+ */
+type CharPosition = [number, number]
+
+/**
+ * Describes a run of text.
+ */
+type CharRange = [CharPosition, CharPosition]
+
+/**
+ * 0-based line numbers.
+ */
+type LineRange = [number, number]
+
+interface FileEdit {
+    type: string
+    filename: string
+    label?: string
+}
+
+interface ReplaceEdit extends FileEdit {
+    type: "replace"
+    range: CharRange | LineRange
+    text: string
+}
+
+interface InsertEdit extends FileEdit {
+    type: "insert"
+    pos: CharPosition | number
+    text: string
+}
+
+interface DeleteEdit extends FileEdit {
+    type: "delete"
+    range: CharRange | LineRange
+}
+
+interface CreateFileEdit extends FileEdit {
+    type: "createfile"
+    overwrite?: boolean
+    ignoreIfExists?: boolean
+    text: string
+}
+
+type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
+
+interface ChatFunctionCallContent {
+    type?: "content"
+    content: string
+    edits?: Edits[]
+}
+
+interface ChatFunctionCallShell {
+    type: "shell"
+    command: string
+    stdin?: string
+    files?: Record<string, string>
+    outputFile?: string
+    cwd?: string
+    args?: string[]
+    timeout?: number
+    ignoreExitCode?: boolean
+}
+
+type ChatFunctionCallOutput =
+    | string
+    | ChatFunctionCallContent
+    | ChatFunctionCallShell
+
+interface ChatFunctionCallHost {
+    findFiles(glob: string): Promise<string[]>
+    readText(file: string): Promise<string>
+}
+
+interface ChatFunctionCallContext {
+    trace: ChatFunctionCallTrace
+    host: ChatFunctionCallHost
+}
+
+interface ChatFunctionCallback {
+    definition: ChatFunctionDefinition
+    fn: (
+        args: { context: ChatFunctionCallContext } & Record<string, any>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+}
 
 /**
  * A set of text extracted from the context of the prompt execution
@@ -251,14 +348,14 @@ interface ExpansionVariables {
     markdownFence: string
 
     /**
-     * Current file
+     * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    file: LinkedFile
+    context: LinkedFile
 
     /**
      * List of linked files parsed in context
      */
-    links: LinkedFile[]
+    files: LinkedFile[]
 
     /**
      * List of files pointing to this fragment
@@ -298,10 +395,12 @@ interface ExpansionVariables {
     /**
      * List of functions defined in the prompt
      */
-    functions?: {
-        definition: FunctionDefinition
-        fn: (args: Record<string, any>) => string | Promise<string>
-    }[]
+    functions?: ChatFunctionCallback[]
+
+    /**
+     * List of JSON schemas; if any
+     */
+    schemas?: Record<string, JSONSchema>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -311,9 +410,65 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
-    language?: "markdown" | string
+    language?:
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | string
     lineNumbers?: boolean
+    /**
+     * JSON schema identifier
+     */
+    schema?: string
 }
+
+interface ChatTaskOptions {
+    command: string
+    cwd?: string
+    env?: Record<string, string>
+    args?: string[]
+}
+
+type JSONSchemaTypeName =
+    | "string"
+    | "number"
+    | "boolean"
+    | "object"
+    | "array"
+    | "null"
+
+type JSONSchemaType =
+    | string //
+    | number
+    | boolean
+    | JSONSchemaObject
+    | JSONSchemaArray
+    | null
+
+interface JSONSchemaObject {
+    type: "object"
+    description?: string
+    properties?: {
+        [key: string]: {
+            description?: string
+            type?: JSONSchemaType
+        }
+    }
+    required?: string[]
+    additionalProperties?: boolean
+}
+
+interface JSONSchemaArray {
+    type: "array"
+    description?: string
+    items?: JSONSchemaType
+}
+
+type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
@@ -328,8 +483,11 @@ interface PromptContext {
         name: string,
         description: string,
         parameters: ChatFunctionParameters,
-        fn: (args: Record<string, any>) => string | Promise<string>
+        fn: (
+            args: { context: ChatFunctionCallContext } & Record<string, any>
+        ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
+    defSchema(name: string, schema: JSONSchema): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
@@ -402,7 +560,9 @@ declare function defFunction(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
-    fn: (args: Record<string, any>) => string | Promise<string>
+    fn: (
+        args: { context: ChatFunctionCallContext } & Record<string, any>
+    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 ): void
 
 /**
@@ -417,3 +577,10 @@ declare var env: ExpansionVariables
 declare function fetchText(
     url: string | LinkedFile
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+
+/**
+ * Declares a JSON schema variable.
+ * @param name name of the variable
+ * @param schema JSON schema instance
+ */
+declare function defSchema(name: string, schema: JSONSchema)

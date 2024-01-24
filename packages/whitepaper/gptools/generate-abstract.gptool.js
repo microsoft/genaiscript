@@ -6,7 +6,7 @@ gptool({ title: "generate-abstract",
          system: ["system.notes"],
          categories: ["whitepaper"]  })
 
-def("SOURCES", env.links.filter(f => f.filename.endsWith(".md")))
+def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 
 $`
 You are an experienced technical writer and you have been given documents describing a project, including a presentation and a readme file from the project's repository, all in markdown in SOURCES.

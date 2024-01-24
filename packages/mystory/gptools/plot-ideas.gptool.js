@@ -7,7 +7,7 @@ gptool({ title: "plot-ideas",
 
 def("SUMMARY", env.subtree)
 def("PLAN", env.output)
-def("PREVPLAN", env.links.filter(f => f.filename.endsWith(".plots.gpspec.md")))
+def("PREVPLAN", env.files.filter(f => f.filename.endsWith(".plots.gpspec.md")))
 
 $`
 You are an experience writer of fiction and you have been given a framing for a short story, 

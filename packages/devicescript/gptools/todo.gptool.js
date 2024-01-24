@@ -5,9 +5,9 @@ gptool({
     system: ["system", "system.diff"]
 })
 
-def("SPEC", env.file)
-def("PSEUDO", env.links.filter(f => f.filename.endsWith(".pseudo")))
-def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
+def("SPEC", env.context)
+def("PSEUDO", env.files.filter(f => f.filename.endsWith(".pseudo")))
+def("CODE", env.files.filter(f => f.filename.endsWith(".ts")))
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.`
 

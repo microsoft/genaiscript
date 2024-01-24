@@ -348,14 +348,14 @@ interface ExpansionVariables {
     markdownFence: string
 
     /**
-     * Current file
+     * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    file: LinkedFile
+    context: LinkedFile
 
     /**
      * List of linked files parsed in context
      */
-    links: LinkedFile[]
+    files: LinkedFile[]
 
     /**
      * List of files pointing to this fragment
@@ -545,7 +545,7 @@ declare function def(name: string, body: StringLike, options?: DefOptions): void
  * Inline supplied files in the prompt.
  * Similar to `for (const f in files) { def("File " + f.filename, f.contents) }`
  *
- * @param files files to define, eg. `env.links` or a subset thereof
+ * @param files files to define, eg. `env.files` or a subset thereof
  */
 declare function defFiles(files: LinkedFile[]): void
 

@@ -41,10 +41,10 @@ Finally, suggest how to improve the project.
 
 `
 
-def("FILE", env.file)
+def("FILE", env.context)
 def(
     "PROJECT",
-    env.links.filter((f) => /^https:\/\/makecode.com\//.test(f.filename), {
+    env.files.filter((f) => /^https:\/\/makecode.com\//.test(f.filename), {
         lineNumbers: true,
     })
 )

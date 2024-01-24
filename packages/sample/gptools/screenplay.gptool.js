@@ -4,15 +4,15 @@ gptool({
         "Given a description of scenes, generate a dialog between two avatar characters.",
 })
 
-const output = env.file.filename.replace(".gpspec.md", ".dialog.md")
+const output = env.context.filename.replace(".gpspec.md", ".dialog.md")
 def(
     "INFO",
-    env.links.filter((f) => f.label.endsWith("info"))
+    env.files.filter((f) => f.label.endsWith("info"))
 )
-def("TASK", env.file)
+def("TASK", env.context)
 def(
     "TRANSCRIPT",
-    env.links.filter((f) => f.filename.endsWith(".transcript.md"))
+    env.files.filter((f) => f.filename.endsWith(".transcript.md"))
 )
 
 $`You are a screenplay expert at writing dialogs. You are writing a dialog between two actors that play news commentators anchors. Make it a conversation

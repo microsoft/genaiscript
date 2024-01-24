@@ -7,8 +7,8 @@ gptool({
 })
 
 // content
-def("SPEC", env.file)
-def("CODE", env.links.filter((f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")))
+def("SPEC", env.context)
+def("CODE", env.files.filter((f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")))
 
 // workspace
 const { file } = await fetchText("README.md")
@@ -24,6 +24,6 @@ Your job is to critique the code and create a list ways in which it could be imp
 Use context from README to help you understand the problem and the code.
 `
 
-$`Replace the entire "Code Review" section in the SPEC ${env.file.filename} file 
+$`Replace the entire "Code Review" section in the SPEC ${env.context.filename} file 
 with your code review. Do not generate python or modify python files. Do not modify file names.
 `

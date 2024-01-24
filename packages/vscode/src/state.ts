@@ -341,7 +341,7 @@ ${e.message}`
                         })
                     if (data.vars && !varsProgressReported) {
                         varsProgressReported = true
-                        data.vars.links
+                        data.vars.files
                             ?.map(({ filename }) => {
                                 return /^https?:/i.test(filename)
                                     ? vscode.Uri.parse(filename)

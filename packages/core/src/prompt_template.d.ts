@@ -348,14 +348,14 @@ interface ExpansionVariables {
     markdownFence: string
 
     /**
-     * Current file
+     * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    file: LinkedFile
+    context: LinkedFile
 
     /**
      * List of linked files parsed in context
      */
-    links: LinkedFile[]
+    files: LinkedFile[]
 
     /**
      * List of files pointing to this fragment

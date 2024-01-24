@@ -3,7 +3,7 @@ gptool({
     description: "Generate a Python wrapper function to call a CLI tool.",
     system: ["system", "system.files", "system.python"]
 })
-def("CLI", env.links)
+def("CLI", env.files)
 
 $`# Python CLI Wrapper
 

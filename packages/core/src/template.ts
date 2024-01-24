@@ -389,10 +389,10 @@ function errorId() {
     return r
 }
 
-export function staticVars() {
+export function staticVars(): Omit<ExpansionVariables, "template"> {
     return {
-        file: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
-        links: [] as LinkedFile[],
+        context: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
+        files: [] as LinkedFile[],
         parents: [] as LinkedFile[],
         fence: promptFence,
         markdownFence: markdownPromptFence,
@@ -640,6 +640,8 @@ export async function parsePromptTemplate(
             c.checkBool("isSystem")
             c.checkFunction("fileMerge")
             c.checkObjectArray("urlAdapters")
+            c.checkObjectArray("functions")
+            c.checkObjectArray("schemas")
         })
 
         const r = c.template
