@@ -5,7 +5,7 @@ gptool({
     system: ["system", "system.diff"]
 })
 
-def("SPEC", env.context)
+def("SPEC", env.spec)
 def("PSEUDO", env.files.filter(f => f.filename.endsWith(".pseudo")))
 def("CODE", env.files.filter(f => f.filename.endsWith(".ts")))
 

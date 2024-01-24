@@ -7,7 +7,7 @@ gptool({
 })
 
 // content
-def("SPEC", env.context)
+def("SPEC", env.spec)
 def("CODE", env.files.filter((f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")))
 
 // workspace
@@ -24,6 +24,6 @@ Your job is to critique the code and create a list ways in which it could be imp
 Use context from README to help you understand the problem and the code.
 `
 
-$`Replace the entire "Code Review" section in the SPEC ${env.context.filename} file 
+$`Replace the entire "Code Review" section in the SPEC ${env.spec.filename} file 
 with your code review. Do not generate python or modify python files. Do not modify file names.
 `

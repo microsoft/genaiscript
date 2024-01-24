@@ -5,7 +5,7 @@ gptool({
     temperature: 0.5
 })
 
-def("FILE", env.context)
+def("FILE", env.spec)
 def("FEATURE", env.files.filter(f => f.filename.endsWith(".feature")))
 
 $`

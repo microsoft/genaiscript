@@ -7,7 +7,7 @@ gptool({
     maxTokens: 16000,
 })
 
-def("SPEC", env.context)
+def("SPEC", env.spec)
 def("CODE", env.files.filter(f => f.filename.endsWith(".ts")))
 def("README", env.files.filter(f => f.filename.endsWith("README.md")))
 def("PSEUDO", env.files.filter(f => f.filename.endsWith(".p.ts")))
@@ -17,7 +17,7 @@ Using the information provided in SPEC, generate a DeviceScript driver for the p
 
 $`The PSEUDO file contain information about existing code in the library. Use this in CODE.`
 
-$`Generate a README.md file (with filename starting with 'main${env.context.filename.replace(`.gpspec.md`, '')}') that uses the driver 
+$`Generate a README.md file (with filename starting with 'main${env.spec.filename.replace(`.gpspec.md`, '')}') that uses the driver 
 and displays meaningful information to the console. Generate the list of sources used to generate the code.`
 
 $`Minimize changes to the existing CODE files.`

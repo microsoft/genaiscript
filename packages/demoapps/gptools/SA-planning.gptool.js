@@ -4,8 +4,8 @@ gptool({
     categories: ["appdev"]
 })
 
-const output = env.context.filename?.replace(/\.gpspec\.md/, ".saplan.gpspec.md")
-def("FILE", env.context)
+const output = env.spec.filename?.replace(/\.gpspec\.md/, ".saplan.gpspec.md")
+def("FILE", env.spec)
 def("PLAN", output)
 
 console.log("PLAN file is", env.files.filter(f => f.filename === output))

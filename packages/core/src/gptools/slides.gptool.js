@@ -5,10 +5,10 @@ gptool({
     temperature: 0.1,
 })
 
-const output = env.context.filename.replace(/\.gpspec\.md$/, ".slides.md")
+const output = env.spec.filename.replace(/\.gpspec\.md$/, ".slides.md")
 def(
     "SOURCE",
-    [env.context,
+    [env.spec,
     ...env.files.filter(
         (f) => !f.filename.endsWith(".slides.md")
     )]

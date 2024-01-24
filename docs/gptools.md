@@ -22,7 +22,7 @@ gptool({
 console.log("this shows up in the `console output` section of the trace")
 
 // but the variable is appropriately delimited
-def("FILE", env.context)
+def("FILE", env.spec)
 
 // this appends text to the prompt
 $`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
@@ -281,7 +281,9 @@ In the coarch files, those link you be part of a bulletted list.
 
 ### Context/spec file
 
-The file describing the context (or `.gpspec.md` file) is also available as a linked file through, `env.context`
+The file describing the context (or `.gpspec.md` file) is also available as a linked file through, `env.spec`.
+
+It is typically generated automatically but can also be authored manually as a `.gpspec.md` file.
 
 ### fetchText(url: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
 

@@ -7,7 +7,7 @@ gptool({ title: "generate 1 pager",
 
 def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 
-def("BASENAME", env.context.filename.replace(".gpspec.md",".1pager.md"))
+def("BASENAME", env.spec.filename.replace(".gpspec.md",".1pager.md"))
 
 $`
 You are an experienced technical writer and you have been given documents describing a project in SOURCES.

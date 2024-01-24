@@ -7,7 +7,7 @@ gptool({
     model: "gpt-4-32k",
 })
 
-def("SUBMISSION", env.context)
+def("SUBMISSION", env.spec)
 def("ARTICLE", env.files)
 
 $`You are an expert academic reviewer for the SUBMISSION conference. 

@@ -5,7 +5,7 @@ gptool({ title: "SA-planning",
          model: "gpt-4-32k",
          categories: ["appdev"]  })
 
-def("SUMMARY", env.context)
+def("SUMMARY", env.spec)
 def("CODE", env.output)
 def("DOCS", env.files.filter(f => f.filename.endsWith(".md")))
 

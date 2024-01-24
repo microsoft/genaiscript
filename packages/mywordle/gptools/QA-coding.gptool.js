@@ -6,7 +6,7 @@ gptool({ title: "QA-coding",
          system: ["system.code"],
          categories: ["appdev"]  })
 
-def("SUMMARY", env.context)
+def("SUMMARY", env.spec)
 def("TEST", env.output)
 
 $`

@@ -5,4 +5,4 @@ gptool({
 
 $`Shorten the following FILE. Limit changes to minimum.`
 
-def("FILE", env.context)
+def("FILE", env.spec)

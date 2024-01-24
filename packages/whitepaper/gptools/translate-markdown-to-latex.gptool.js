@@ -8,9 +8,9 @@ gptool({ title: "translate-markdown-to-latex",
 def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 def("PREVIOUS", env.files.filter(f => f.filename.endsWith(".tex")))
 
-var basename = env.context.filename.replace(".gpspec.md",".tex")
+var basename = env.spec.filename.replace(".gpspec.md",".tex")
 
-def("BASENAME", env.context.filename.replace(".gpspec.md",".tex"))
+def("BASENAME", env.spec.filename.replace(".gpspec.md",".tex"))
 
 console.log("BASENAME", basename)
 

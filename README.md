@@ -7,7 +7,7 @@ GPTools (formerly CoArch) allows teams, including non-developers, to create and 
 The key elements of the gptools framework are:
 
 -   [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM. The scripting environment provides convinient tooling to acheive common tasks
-such as extracting generate code into files, JSON parsing and validation, function calls...
+    such as extracting generate code into files, JSON parsing and validation, function calls...
 -   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification documents to define the prompt context.
 
 The tooling supports a short dev loop in VS Code and automated CI/CD pipelines.
@@ -30,14 +30,12 @@ gptool({
 })
 
 // the context
-def("TEXT", env.context)
-def("RES", env.files)
+def("FILES", env.files)
 
 // the task
-$`You are reviewing and updating TEXT 
+$`You are reviewing and updating FILES 
 to fix grammatical errors, 
-fix spelling errors and make it technical.
-Use information from RES.`
+fix spelling errors and make it technical.`
 ```
 
 GPTools comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
@@ -54,7 +52,7 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 ## GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.context`). Links define the content (`env.files`).
+Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
 
 The `.gpspec` context is automatically generate when running a tool on a file or set of files.
 

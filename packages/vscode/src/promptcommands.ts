@@ -54,7 +54,7 @@ export function activatePromptCommands(state: ExtensionState) {
 $\`You are a helpful assistant.\`
 
 // use def to emit and reference chunks of text
-def("FILE", env.context)
+def("FILE", env.spec)
                 `,
                     },
                     { fork: false, name }

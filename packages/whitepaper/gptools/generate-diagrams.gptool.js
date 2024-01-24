@@ -6,7 +6,7 @@ gptool({ title: "generate diagrams",
 
 def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 
-def("BASENAME", env.context.filename.replace(".gpspec.md",".diagrams.md"))
+def("BASENAME", env.spec.filename.replace(".gpspec.md",".diagrams.md"))
 
 $`
 You are an experienced technical writer and you have been given documents describing a project in SOURCES.

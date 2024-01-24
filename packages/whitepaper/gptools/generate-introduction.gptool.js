@@ -5,10 +5,10 @@ gptool({ title: "generate-introduction",
          system: [],
          categories: ["whitepaper"]  })
 
-def("PLAN", env.context)      
+def("PLAN", env.spec)      
 def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 
-const introFileName = env.context.filename.replace(".gpspec.md", ".intro.md")
+const introFileName = env.spec.filename.replace(".gpspec.md", ".intro.md")
 const intro = env.files.find(lk => lk.filename === introFileName)
 
 if (intro) {

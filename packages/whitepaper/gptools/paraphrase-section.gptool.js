@@ -13,7 +13,7 @@ console.log("writing to " + outFileName)
 
 def("MAINDOC", env.files.filter(f => f.filename.endsWith(mainFileName)))
 def("FOCUSDOC", env.files.filter(f => f.filename.endsWith(focusFileName)))
-def("PLAN", env.context)  
+def("PLAN", env.spec)  
 
 // def("OTHERSOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 

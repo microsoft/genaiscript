@@ -9,7 +9,7 @@ gptool({
 const sadoc = env.files.filter(f => /\.saplan\.gpspec\.md$/.test(f.filename))
 const codefile = env.files.filter(f => /\.py$/.test(f.filename) && !/test_/.test(f.filename))
 
-def("SPEC", env.context)
+def("SPEC", env.spec)
 def("SADOC", sadoc)
 def("CODE", codefile)
 
