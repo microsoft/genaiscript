@@ -23,7 +23,6 @@ import {
     logInfo,
     logMeasure,
     parseAnnotations,
-    Diagnostic,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -593,13 +592,26 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
             groupBy(diagnostics, (d) => d.filename)
         )) {
             const ds = diags.map((d) => {
+                let message = d.message
+                let value: string
+                let target: vscode.Uri
+                const murl = /\[([^\]]+)\]\((https:\/\/([^)]+))\)/.exec(message)
+                if (murl) {
+                    value = murl[1]
+                    target = vscode.Uri.parse(murl[2])
+                }
                 const r = new vscode.Diagnostic(
                     toRange(d.range),
-                    d.message || "...",
+                    message || "...",
                     severities[d.severity]
                 )
                 r.source = "GPTools"
-                // r.code = 0;
+                r.code = target
+                    ? {
+                          value,
+                          target,
+                      }
+                    : undefined
                 return r
             })
             const uri = vscode.Uri.file(filename)
