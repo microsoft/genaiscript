@@ -1,4 +1,4 @@
-import { dirname, extname, basename, join, normalize } from "path"
+import { dirname, extname, basename, join, normalize, relative } from "path"
 
 export function createNodePath(): Path {
     return <Path>{
@@ -7,5 +7,6 @@ export function createNodePath(): Path {
         basename,
         join,
         normalize,
+        relative,
     }
 }
