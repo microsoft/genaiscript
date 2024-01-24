@@ -72,6 +72,11 @@ declare function defFunction(
 declare var env: ExpansionVariables
 
 /**
+ * Path manipulation functions.
+ */
+declare var path: Path
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

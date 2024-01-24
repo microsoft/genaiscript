@@ -32,6 +32,7 @@ import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
 import { infoUri } from "./markdowndocumentprovider"
+import { createVSPath } from "./vspath"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -371,6 +372,7 @@ ${e.message}`
                 ),
             },
             chat: options.chat?.context,
+            path: createVSPath()
         }
 
         if (options.chat) {
