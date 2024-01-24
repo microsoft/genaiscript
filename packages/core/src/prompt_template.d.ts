@@ -470,6 +470,34 @@ interface JSONSchemaArray {
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
+/**
+ * Path manipulation functions.
+ */
+interface Path {
+    /**
+     * Returns the last portion of a path. Similar to the Unix basename command.
+     * @param path
+     */
+    dirname(path: string): string
+
+    /**
+     * Returns the extension of the path, from the last '.' to end of string in the last portion of the path.
+     * @param path
+     */
+    extname(path: string): string
+
+    /**
+     * Returns the last portion of a path, similar to the Unix basename command.
+     */
+    basename(path: string, suffix?: string): string
+
+    /**
+     * The path.join() method joins all given path segments together using the platform-specific separator as a delimiter, then normalizes the resulting path.
+     * @param paths
+     */
+    join(...paths: string[]): string
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -495,4 +523,5 @@ interface PromptContext {
         file?: LinkedFile
     }>
     env: ExpansionVariables
+    path: Path
 }

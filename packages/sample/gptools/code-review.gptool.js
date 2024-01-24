@@ -8,7 +8,7 @@ gptool({
 
 // content
 def("SPEC", env.spec)
-def("CODE", env.files.filter((f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")))
+def("CODE", env.files.filter((f) => path.extname(f.filename) === ".py" && !path.basename(f.filename).startsWith("test_")))
 
 // workspace
 const { file } = await fetchText("README.md")

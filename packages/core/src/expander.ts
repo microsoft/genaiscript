@@ -110,6 +110,7 @@ export function fenceMD(t: string, contentType?: string) {
 async function callExpander(
     r: PromptTemplate,
     vars: ExpansionVariables,
+    path: Path,
     trace: MarkdownTrace
 ) {
     let promptText = ""
@@ -129,6 +130,7 @@ async function callExpander(
         await evalPrompt(
             {
                 env,
+                path,
                 writeText: (body) => {
                     promptText +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
@@ -208,6 +210,7 @@ async function expandTemplate(
         max_tokens?: number
     },
     env: ExpansionVariables,
+    path: Path,
     trace: MarkdownTrace
 ) {
     const varName: Record<string, string> = {}
@@ -216,7 +219,7 @@ async function expandTemplate(
     }
     const varMap = env as any as Record<string, string | any[]>
 
-    const prompt = await callExpander(template, env, trace)
+    const prompt = await callExpander(template, env, path, trace)
     const expanded = prompt.text
 
     // always append, even if empty - should help with discoverability:
@@ -262,7 +265,7 @@ async function expandTemplate(
             assert(!!system)
         }
 
-        const sysex = (await callExpander(system, env, trace)).text
+        const sysex = (await callExpander(system, env, path, trace)).text
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -513,6 +516,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
         req: CreateChatCompletionRequest,
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<ChatCompletionResponse>
+    path: Path
 }
 
 export function generateCliArguments(
@@ -543,7 +547,7 @@ export async function runTemplate(
     fragment: Fragment,
     options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { requestOptions = {}, skipLLM, label, cliInfo } = options || {}
+    const { requestOptions = {}, skipLLM, label, cliInfo, path } = options || {}
     const { signal } = requestOptions
 
     options.infoCb?.({ trace: "", text: "Preparing..." })
@@ -576,6 +580,7 @@ export async function runTemplate(
         fragment,
         options,
         vars as ExpansionVariables,
+        path,
         trace
     )
 

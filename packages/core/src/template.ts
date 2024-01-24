@@ -337,6 +337,7 @@ async function parseMeta(r: PromptTemplate) {
                         return target[prop] ?? "<empty>"
                     },
                 }),
+                path: undefined,
                 writeText: (body) => {
                     if (meta == null)
                         throw new Error(`gptool()/system() has to come first`)
@@ -528,7 +529,8 @@ import re
 
 function parseKeyValuePairs(text: string) {
     const res: Record<string, string> = {}
-    text?.split(/\s+/g)
+    text
+        ?.split(/\s+/g)
         .map((kv) => kv.split(/[=:]/))
         .filter((m) => m.length == 2)
         .forEach((m) => (res[m[0]] = m[1]))
