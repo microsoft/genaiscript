@@ -31,7 +31,8 @@ import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
 import { YAMLTryParse } from "./yaml"
 import { validateJSONSchema } from "./schema"
-import { createParsers} from "./parsers"
+import { createParsers } from "./parsers"
+import { coreVersion } from "./version"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -93,6 +94,11 @@ export interface FragmentTransformResponse {
      * Run label if provided
      */
     label?: string
+
+    /**
+     * GPTools version
+     */
+    version: string
 }
 
 function trimNewlines(s: string) {
@@ -552,6 +558,7 @@ export async function runTemplate(
 ): Promise<FragmentTransformResponse> {
     const { requestOptions = {}, skipLLM, label, cliInfo, path } = options || {}
     const { signal } = requestOptions
+    const version = coreVersion
 
     options.infoCb?.({ trace: "", text: "Preparing..." })
 
@@ -600,7 +607,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (!success) {
-        return {
+        return <FragmentTransformResponse>{
             error: new Error("Template failed"),
             prompt,
             vars,
@@ -611,12 +618,13 @@ export async function runTemplate(
             changelogs: [],
             fileEdits: {},
             label,
+            version,
         }
     }
 
     // don't run LLM
     if (skipLLM) {
-        return {
+        return <FragmentTransformResponse>{
             prompt,
             vars,
             trace: trace.content,
@@ -626,6 +634,7 @@ export async function runTemplate(
             changelogs: [],
             fileEdits: {},
             label,
+            version,
         }
     }
     const response_format = responseType ? { type: responseType } : undefined
@@ -750,7 +759,7 @@ export async function runTemplate(
             }
 
             status(`error`)
-            return {
+            return <FragmentTransformResponse>{
                 prompt,
                 vars,
                 trace: trace.content,
@@ -761,6 +770,7 @@ export async function runTemplate(
                 changelogs,
                 fileEdits,
                 label,
+                version,
             }
         }
 
@@ -1101,6 +1111,7 @@ export async function runTemplate(
         trace: trace.content,
         text,
         summary,
+        version,
     }
     options?.infoCb?.(res)
     return res
