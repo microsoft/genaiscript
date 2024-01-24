@@ -7,9 +7,9 @@ gptool({ title: "draft critic",
 
 def("DRAFT", env.output)
 def("SUMMARY", env.subtree)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
-def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.gpspec.md")))
-def("STORY", env.links.filter(f => f.filename.includes("0")))
+def("FRAMING", env.files.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
+def("CHARS", env.files.filter(f => f.filename.endsWith(".chars.gpspec.md")))
+def("STORY", env.files.filter(f => f.filename.includes("0")))
 
 $`
 You are an experience reviewer of short story fiction and you have been given an outline for a short story, in SUMMARY, a framing of the story in FRAMING, and the actual contents of the story in STORY.

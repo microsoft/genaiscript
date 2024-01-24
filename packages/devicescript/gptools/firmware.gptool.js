@@ -7,17 +7,17 @@ gptool({
     maxTokens: 16000,
 })
 
-def("SPEC", env.file)
-def("CODE", env.links.filter(f => f.filename.endsWith(".ts")))
-def("README", env.links.filter(f => f.filename.endsWith("README.md")))
-def("PSEUDO", env.links.filter(f => f.filename.endsWith(".p.ts")))
+def("SPEC", env.context)
+def("CODE", env.files.filter(f => f.filename.endsWith(".ts")))
+def("README", env.files.filter(f => f.filename.endsWith("README.md")))
+def("PSEUDO", env.files.filter(f => f.filename.endsWith(".p.ts")))
 
 $`You are an expert at DeviceScript (https://microsoft.github.io/devicescript), a TypeScript compiler and runtime for embedded devices.
 Using the information provided in SPEC, generate a DeviceScript driver for the peripherical.`
 
 $`The PSEUDO file contain information about existing code in the library. Use this in CODE.`
 
-$`Generate a README.md file (with filename starting with 'main${env.file.filename.replace(`.gpspec.md`, '')}') that uses the driver 
+$`Generate a README.md file (with filename starting with 'main${env.context.filename.replace(`.gpspec.md`, '')}') that uses the driver 
 and displays meaningful information to the console. Generate the list of sources used to generate the code.`
 
 $`Minimize changes to the existing CODE files.`

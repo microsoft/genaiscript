@@ -6,9 +6,9 @@ gptool({ title: "summarize-project",
          system: ["system.notes"],
          categories: ["whitepaper"]  })
 
-def("SOURCES", env.links.filter(f => f.filename.endsWith(".md")))
+def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 
-def("BASENAME", env.file.filename.replace(".gpspec.md",".summary.md"))
+def("BASENAME", env.context.filename.replace(".gpspec.md",".summary.md"))
 
 $`
 You are an experienced technical writer and you have been given documents describing a project, including a presentation and a readme file from the project's repository, both in markdown in SOURCES.

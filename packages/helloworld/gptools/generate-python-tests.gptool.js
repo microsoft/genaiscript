@@ -7,11 +7,11 @@ gptool({
     temperature: 0
 })
 
-def("TESTS", env.links.filter((f) => /^test_*\.py$/.test(f.filename)))
-def("TASK", env.file)
+def("TESTS", env.files.filter((f) => /^test_*\.py$/.test(f.filename)))
+def("TASK", env.context)
 def(
     "CODE",
-    env.links.filter(
+    env.files.filter(
         (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
     )
 )

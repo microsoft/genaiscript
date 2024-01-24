@@ -6,8 +6,8 @@ gptool({
     temperature: 0,
 })
 
-def("SPEC", env.file)
-def("CODE", env.links, { lineNumbers: true })
+def("SPEC", env.context)
+def("CODE", env.files, { lineNumbers: true })
 
 $`In CODE, when you encounter a comment starting by "TODO", 
 generate code for the TODO comment in a DIFF format and use the information in SPEC.

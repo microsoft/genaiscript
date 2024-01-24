@@ -7,8 +7,8 @@ gptool({ title: "plot-development",
 
 def("SUMMARY", env.subtree)
 def("PLOTLINE", env.output)
-def("FRAMING", env.links.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
-def("CHARS", env.links.filter(f => f.filename.endsWith(".chars.gpspec.md")))
+def("FRAMING", env.files.filter(f => f.filename.endsWith("FictionAI.gpspec.md")))
+def("CHARS", env.files.filter(f => f.filename.endsWith(".chars.gpspec.md")))
 
 $`
 You are an experience writer of fiction and you have been given a framing for a short story, 

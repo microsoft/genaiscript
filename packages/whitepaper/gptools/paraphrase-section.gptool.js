@@ -11,11 +11,11 @@ const outFileName = focusFileName?.replace(".md", ".para.md")
 console.log("writing to " + outFileName)
 
 
-def("MAINDOC", env.links.filter(f => f.filename.endsWith(mainFileName)))
-def("FOCUSDOC", env.links.filter(f => f.filename.endsWith(focusFileName)))
-def("PLAN", env.file)  
+def("MAINDOC", env.files.filter(f => f.filename.endsWith(mainFileName)))
+def("FOCUSDOC", env.files.filter(f => f.filename.endsWith(focusFileName)))
+def("PLAN", env.context)  
 
-// def("OTHERSOURCES", env.links.filter(f => f.filename.endsWith(".md")))
+// def("OTHERSOURCES", env.files.filter(f => f.filename.endsWith(".md")))
 
 $`
 You are an experienced technical writer and you have been given documents describing a project.  The most important files are the PLAN files, that have important instructions for generating the contents of the document.  The PLAN documents contain instructions that should be followed with high priority.

@@ -6,7 +6,7 @@ gptool({
     temperature: 0,
 })
 
-def("FILE", env.file)
+def("FILE", env.context)
 
 $`You are a helpful expert writer at technical documentation.
 You are reviewing and updating FILE to fix grammatical errors, 

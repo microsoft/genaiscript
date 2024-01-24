@@ -110,7 +110,7 @@ async function run(
     const toolFiles: string[] = []
 
     let md: string
-    const links: string[] = []
+    const files: string[] = []
 
     if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
 
@@ -127,17 +127,17 @@ async function run(
                 if (gpspecRx.test(spec)) {
                     md += (await host.readFile(file)) + "\n"
                 } else {
-                    links.push(file)
+                    files.push(file)
                 }
             }
         }
     }
 
-    if (md || links.length) {
+    if (md || files.length) {
         spec = "cli.gpspec.md"
         specContent = `${md || "# Specification"}
 
-${links.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
+${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 `
     }
 

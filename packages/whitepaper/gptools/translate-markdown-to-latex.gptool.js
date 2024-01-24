@@ -5,12 +5,12 @@ gptool({ title: "translate-markdown-to-latex",
          system: ["system.notes"],
          categories: ["whitepaper"]  })
 
-def("SOURCES", env.links.filter(f => f.filename.endsWith(".md")))
-def("PREVIOUS", env.links.filter(f => f.filename.endsWith(".tex")))
+def("SOURCES", env.files.filter(f => f.filename.endsWith(".md")))
+def("PREVIOUS", env.files.filter(f => f.filename.endsWith(".tex")))
 
-var basename = env.file.filename.replace(".gpspec.md",".tex")
+var basename = env.context.filename.replace(".gpspec.md",".tex")
 
-def("BASENAME", env.file.filename.replace(".gpspec.md",".tex"))
+def("BASENAME", env.context.filename.replace(".gpspec.md",".tex"))
 
 console.log("BASENAME", basename)
 

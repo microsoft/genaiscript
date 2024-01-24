@@ -5,9 +5,9 @@ gptool({ title: "SA-planning",
          model: "gpt-4-32k",
          categories: ["appdev"]  })
 
-def("SUMMARY", env.file)
+def("SUMMARY", env.context)
 def("CODE", env.output)
-def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
+def("DOCS", env.files.filter(f => f.filename.endsWith(".md")))
 
 $`
 You are an expert software architect and developer.

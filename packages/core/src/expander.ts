@@ -228,7 +228,7 @@ async function expandTemplate(
 
     traceVars()
 
-    trace.detailsFenced("📄 gpspec", env.file.content, "markdown")
+    trace.detailsFenced("📄 gpspec", env.context.content, "markdown")
 
     let systemText = ""
     let model = template.model
@@ -398,12 +398,12 @@ async function fragmentVars(
     const project = file.project
     const prjFolder = host.projectFolder()
 
-    const links: LinkedFile[] = []
+    const files: LinkedFile[] = []
     for (const fr of allChildren(frag, true)) {
         for (const ref of fr.references) {
             // what about URLs?
             if (/^https:\/\//.test(ref.filename)) {
-                if (!links.find((lk) => lk.filename === ref.filename)) {
+                if (!files.find((lk) => lk.filename === ref.filename)) {
                     let content: string = ""
                     try {
                         const urlAdapters = defaultUrlAdapters.concat(
@@ -435,7 +435,7 @@ async function fragmentVars(
                     } catch (e) {
                         trace.error(`fetch def error`, e)
                     }
-                    links.push({
+                    files.push({
                         label: ref.name,
                         filename: ref.filename,
                         content,
@@ -454,8 +454,8 @@ async function fragmentVars(
             }
 
             const fn = relativePath(host.projectFolder(), projectFile.filename)
-            if (!links.find((lk) => lk.filename === fn))
-                links.push({
+            if (!files.find((lk) => lk.filename === fn))
+                files.push({
                     label: ref.name,
                     filename: fn,
                     content: projectFile.content,
@@ -473,12 +473,12 @@ async function fragmentVars(
 
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
-        file: {
+        context: {
             filename: relativePath(host.projectFolder(), file.filename),
             label: "current",
             content: file.content,
         },
-        links,
+        files: files,
         parents,
         promptOptions,
         template: {
@@ -641,7 +641,6 @@ export async function runTemplate(
         })
     }
 
-    let statusText = ""
     let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
     const changelogs: string[] = []

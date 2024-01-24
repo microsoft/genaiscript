@@ -7,8 +7,8 @@ gptool({
     model: "gpt-4-32k",
 })
 
-def("SUBMISSION", env.file)
-def("ARTICLE", env.links)
+def("SUBMISSION", env.context)
+def("ARTICLE", env.files)
 
 $`You are an expert academic reviewer for the SUBMISSION conference. 
 Write a review of ARTICLE.

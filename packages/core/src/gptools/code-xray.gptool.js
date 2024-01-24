@@ -7,8 +7,8 @@ gptool({
         "Given a source file in a programming language, extract the structure necessary to do LLM queries",
 })
 
-def("FILE", env.links.filter(f => !/\.xray/.test(f.filename)))
-def("SPEC", env.file)
+def("FILE", env.files.filter(f => !/\.xray/.test(f.filename)))
+def("SPEC", env.context)
 
 $`You are an expert at programming in all known languages.
 For each FILE 'filename.<EXT>', generate the code structure in FILE 'filename.<EXT>.xray' 

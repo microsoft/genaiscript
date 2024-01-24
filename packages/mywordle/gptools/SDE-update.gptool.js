@@ -5,10 +5,9 @@ gptool({ title: "SDE-update",
          model: "gpt-4-32k",
          categories: ["appdev"]  })
 
-def("SUMMARY", env.subtree)
-def("CODE", env.links.filter(f => f.filename.endsWith(".py")))
-def("DOCS", env.links.filter(f => f.filename.endsWith(".gpspec.md")))
-def("BUGS", env.links.filter(f => f.filename.startsWith("bug")))
+def("CODE", env.files.filter(f => f.filename.endsWith(".py")))
+def("DOCS", env.files.filter(f => f.filename.endsWith(".gpspec.md")))
+def("BUGS", env.files.filter(f => f.filename.startsWith("bug")))
 
 $`
 Use documentation from DOCS.  

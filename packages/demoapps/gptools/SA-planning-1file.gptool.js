@@ -4,11 +4,11 @@ gptool({
     categories: ["appdev"]
 })
 
-const output = env.file.filename?.replace(/\.gpspec\.md/, ".saplan.gpspec.md")
-def("FILE", env.file)
+const output = env.context.filename?.replace(/\.gpspec\.md/, ".saplan.gpspec.md")
+def("FILE", env.context)
 def("PLAN", output)
 
-console.log("PLAN file is", env.links.filter(f => f.filename === output))
+console.log("PLAN file is", env.files.filter(f => f.filename === output))
 $`
 You are an expert Python software architect.
 You have been given a product idea and you must define a plan to implement the product.
