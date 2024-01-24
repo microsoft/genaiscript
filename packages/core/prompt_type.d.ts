@@ -77,6 +77,11 @@ declare var env: ExpansionVariables
 declare var path: Path
 
 /**
+ * A set of parsers for well-known file formats
+ */
+declare var parsers: Parsers
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

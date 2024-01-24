@@ -338,6 +338,7 @@ async function parseMeta(r: PromptTemplate) {
                     },
                 }),
                 path: undefined,
+                parsers: undefined,
                 writeText: (body) => {
                     if (meta == null)
                         throw new Error(`gptool()/system() has to come first`)
