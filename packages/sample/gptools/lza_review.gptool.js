@@ -23,13 +23,13 @@ def("SPECS", biceps, { lineNumbers: true })
 // inline dependencies
 for (const link of biceps) {
   const filename = link.filename
-  const dirname = filename.split(/\//g).slice(0, -1).join("/") + "/"
+  const dirname = path.dirname(filename)
   const content = link.content
   const dependencies = content.matchAll(/module\s+([^\s]+)\s+\'([^']+)'/g)
   for (const dependency of dependencies) {
-    const [, , path] = dependency
-    if (path.includes("shared")) continue // ignore those shared files
-    const dp = dirname + path
+    const [, , p] = dependency
+    if (p.includes("shared")) continue // ignore those shared files
+    const dp = path.join(dirname, p)
     const resp = await fetchText(dp)
     def("DEPS", resp.file, { lineNumbers: true })
   }
