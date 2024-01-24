@@ -212,7 +212,7 @@
             },
             {
                 "command": "coarch.prompt.create",
-                "title": "Create new GPTool",
+                "title": "Create new GPTool...",
                 "icon": "$(add)",
                 "category": "GPTools"
             },

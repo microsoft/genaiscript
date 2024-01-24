@@ -1,0 +1,67 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps allowed locations",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "This policy enables you to restrict the locations for Azure Container Apps.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "listOfAllowedLocations": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed locations",
+          "description": "The list of locations that can be specified when deploying resources.",
+          "strongType": "location"
+        },
+        "defaultValue": [
+          "northeurope",
+          "westeurope",
+          "eastus2"
+        ]
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "location",
+            "notIn": "[parameters('listOfAllowedLocations')]"
+          },
+          {
+            "field": "location",
+            "notEquals": "global"
+          },
+          {
+            "anyOf": [{
+                "field": "type",
+                "equals": "Microsoft.App/managedEnvironments"
+              },
+              {
+                "field": "type",
+                "equals": "Microsoft.App/containerApps"
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

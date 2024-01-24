@@ -1,0 +1,64 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps allowed ingress transports",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "This policy enables you to restrict the list of ingress transports for Azure Container Apps.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "listOfAllowedIngressTransports": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Allowed container transports",
+          "description": "The list of container transports that can be specified when deploying resources."
+        },
+        "defaultValue": [
+          80,
+          443
+        ]
+      },
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.App/containerApps"
+          },
+          {
+            "field": "Microsoft.App/containerApps/configuration.ingress",
+            "exists": true
+          },
+          {
+            "not": {
+              "field": "Microsoft.App/containerApps/configuration.ingress",
+              "equals": ""
+            }
+          },
+          {
+            "field": "Microsoft.App/containerApps/configuration.ingress.transport",
+            "notIn": "[parameters('listOfAllowedIngressTransports')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}
