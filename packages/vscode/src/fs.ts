@@ -13,6 +13,21 @@ export async function saveAllTextDocuments() {
     )
 }
 
+export async function checkDirectoryExists(
+    folderOrFile: vscode.Uri,
+    filePath?: string
+): Promise<boolean> {
+    try {
+        const file = filePath
+            ? vscode.Uri.joinPath(folderOrFile, filePath)
+            : folderOrFile
+        const stat = await vscode.workspace.fs.stat(file)
+        return stat.type === vscode.FileType.Directory
+    } catch (error) {
+        return false
+    }
+}
+
 export async function checkFileExists(
     folderOrFile: vscode.Uri,
     filePath?: string
@@ -21,8 +36,8 @@ export async function checkFileExists(
         const file = filePath
             ? vscode.Uri.joinPath(folderOrFile, filePath)
             : folderOrFile
-        await vscode.workspace.fs.stat(file)
-        return true
+        const stat = await vscode.workspace.fs.stat(file)
+        return stat.type === vscode.FileType.File
     } catch (error) {
         return false
     }

@@ -8,7 +8,11 @@ import {
     templateGroup,
 } from "gptools-core"
 import { ChatRequestContext, ExtensionState } from "./state"
-import { checkFileExists, saveAllTextDocuments } from "./fs"
+import {
+    checkDirectoryExists,
+    checkFileExists,
+    saveAllTextDocuments,
+} from "./fs"
 
 type TemplateQuickPickItem = {
     template?: PromptTemplate
@@ -82,14 +86,22 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let fragment: Fragment
         if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
+            const fragUri = vscode.Uri.file(frag)
             let document = vscode.workspace.textDocuments.find(
                 (document) => document.uri.fsPath === frag
             )
-            if (!document && (await checkFileExists(vscode.Uri.file(frag))))
-                document = await vscode.workspace.openTextDocument(frag)
+            if (!document && (await checkFileExists(fragUri)))
+                document = await vscode.workspace.openTextDocument(fragUri)
             if (document) {
                 const prj = await state.parseDocument(document)
                 fragment = prj?.rootFiles?.[0].fragments?.[0]
+            }
+
+            if (!fragment) {
+                if (await checkDirectoryExists(fragUri)) {
+                    const prj = await state.parseDirectory(fragUri)
+                    fragment = prj?.rootFiles?.[0].fragments?.[0]
+                }
             }
         } else {
             fragment = project.resolveFragment(frag)

@@ -372,7 +372,7 @@ ${e.message}`
                 ),
             },
             chat: options.chat?.context,
-            path: createVSPath()
+            path: createVSPath(),
         }
 
         if (options.chat) {
@@ -514,6 +514,36 @@ ${e.message}`
         await this.setProject(newProject)
         this.setDiagnostics()
         logMeasure(`project`, `project-start`, `project-end`)
+    }
+
+    async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
+        const fspath = uri.fsPath
+        const specn = fspath + "/dir.gpspec.md"
+        const files = await (
+            await vscode.workspace.fs.readDirectory(uri)
+        )
+            .filter(([, type]) => type === vscode.FileType.File)
+            .map(([name]) => name)
+            .filter((name) => !name.endsWith(".gpspec.md"))
+        if (token?.isCancellationRequested) return undefined
+
+        this.host.setVirtualFile(
+            specn,
+            `# Specification
+
+${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
+`
+        )
+
+        const gpspecFiles = [specn]
+        const gptoolFiles = await findFiles("**/*.gptool.js")
+        if (token?.isCancellationRequested) return undefined
+
+        const newProject = await parseProject({
+            gpspecFiles,
+            gptoolFiles,
+        })
+        return newProject
     }
 
     async parseDocument(

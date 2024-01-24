@@ -150,7 +150,7 @@
             "explorer/context": [
                 {
                     "command": "coarch.fragment.prompt",
-                    "when": "!explorerResourceIsFolder && explorerViewletVisible"
+                    "when": "explorerViewletVisible"
                 }
             ]
         },
