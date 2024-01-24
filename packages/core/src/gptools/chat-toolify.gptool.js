@@ -13,7 +13,7 @@ You will generate a tool script that generates a LLM prompt
 that captures the intent of the user in CHAT_HISTORY.`
 
 $`The generated tool source is JavaScript and will be saved as a file named 'gptools/<toolname>.gptool.js'
-where <toolname> is a short, descriptive, filename friendly name for the CHAT_HISTORY.`
+where <toolname> is a short, descriptive, friendly filename that summarizes the CHAT_HISTORY content.`
 
 $` The tool has access to these APIs:
 
