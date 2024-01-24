@@ -496,6 +496,16 @@ interface Path {
      * @param paths
      */
     join(...paths: string[]): string
+
+    /**
+     * The path.normalize() method normalizes the given path, resolving '..' and '.' segments.
+     */
+    normalize(...paths: string[]): string
+
+    /**
+     * The path.relative() method returns the relative path from from to to based on the current working directory. If from and to each resolve to the same path (after calling path.resolve() on each), a zero-length string is returned.
+     */
+    relative(from: string, to: string): string
 }
 
 // keep in sync with prompt_type.d.ts
