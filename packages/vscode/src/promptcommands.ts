@@ -53,8 +53,8 @@ export function activatePromptCommands(state: ExtensionState) {
 // use $ to output formatted text to the prompt
 $\`You are a helpful assistant.\`
 
-// use def to emit and reference chunks of text
-def("FILE", env.spec)
+// use def to emit LLM variables
+def("FILE", env.files)
                 `,
                     },
                     { fork: false, name }
