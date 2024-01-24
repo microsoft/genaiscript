@@ -475,10 +475,10 @@ async function fragmentVars(
         ...staticVars(),
         context: {
             filename: relativePath(host.projectFolder(), file.filename),
-            label: "current",
+            label: "context",
             content: file.content,
         },
-        files: files,
+        files,
         parents,
         promptOptions,
         template: {
