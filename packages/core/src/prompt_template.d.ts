@@ -496,6 +496,11 @@ interface Path {
      * @param paths
      */
     join(...paths: string[]): string
+
+    /**
+     * The path.normalize() method normalizes the given path, resolving '..' and '.' segments.
+     */
+    normalize(...paths: string[]): string
 }
 
 // keep in sync with prompt_type.d.ts
