@@ -3,29 +3,30 @@
 GPTools (formerly CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GPTools uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 ```js
-gptool({
-    title: "Shorten", // displayed in UI and Copilot Chat
-    // also displayed, but grayed out:
-    description:
-        "A prompt that shrinks the size of text without losing meaning",
-})
+gptool({ title: "Code XRay" })
 
-// define "LLM variables"
-def("FILE", env.files)
+def("FILE", env.files.filter(f => !f.filename.endsWith(".xray")))
 
-// build your prompt programmatically
-$`Shorten the content of FILE. Limit changes to minimum.`
+$`You are an expert at programming in all known languages.
+For each FILE, extract the code structure
+that ignores the internal details of the implementation.'
 ```
 
 ## Overview
 
 The key elements of the gptools framework are:
 
--   [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM. The scripting environment provides convinient tooling to acheive common tasks
-    such as extracting generate code into files, JSON parsing and validation, function calls...
--   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification documents to define the prompt context.
+-   [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM.
+-   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
 
-The tooling supports a short dev loop in VS Code and automated CI/CD pipelines.
+GPTools automatically parses the LLM output into various formats:
+
+-   file edits (full or diffs) with preview support in VSCode
+-   structured data extracted with JSON schema definition and validation
+-   code annotations compatible with [GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) and VS Code
+-   [OpenAI functions](https://platform.openai.com/docs/guides/function-calling) as JavaScript functions
+
+The tooling supports a short developer loop in VS Code and automation CI/CD pipelines.
 
 -   [Visual Studio Code extension](./docs/vscode.md): User interaction with gptools and conversion of LLM results into workspace edits.
 -   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
