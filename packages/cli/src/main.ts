@@ -4,6 +4,7 @@ import {
     RequestError,
     YAMLStringify,
     clip,
+    coreVersion,
     createIssue,
     diagnosticsToCSV,
     extractFenced,
@@ -20,7 +21,6 @@ import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
-import packageJson from "../package.json"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { ensureDir } from "fs-extra"
 import { createNodePath } from "./nodepath"
@@ -180,9 +180,8 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         retry,
         retryDelay,
         maxDelay,
-        path: createNodePath()
+        path: createNodePath(),
     })
-    ;(res as any).version = packageJson.version
 
     logVerbose(``)
     if (outTrace && res.trace) await write(outTrace, res.trace)
@@ -366,7 +365,7 @@ async function main() {
     NodeHost.install()
     program
         .name("gptools")
-        .version(packageJson.version)
+        .version(coreVersion)
         .description("CLI for GPTools https://github.com/microsoft/gptools")
         .showHelpAfterError(true)
         .option("--no-colors", "disable color output")
