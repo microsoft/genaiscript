@@ -25,7 +25,7 @@
     "tsx": "^4.7.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js --minify",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js --minify-whitespace",
     "postcompile": "cp built/gptools.js ../vscode/gptools.js",
     "go": "yarn compile && node built/gptools.js",
     "test": "node --import tsx --test src/**.test.ts",
