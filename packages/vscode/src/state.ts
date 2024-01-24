@@ -23,6 +23,7 @@ import {
     logInfo,
     logMeasure,
     parseAnnotations,
+    Diagnostic,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -219,7 +220,6 @@ export class ExtensionState extends EventTarget {
             const key = snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
             await this._aiRequestCache.set(key, snapshot)
-
             this.setDiagnostics()
             this.dispatchChange()
 
@@ -313,7 +313,8 @@ ${e.message}`
             r.progress = progress
             if (r.response) {
                 r.response.text = progress.responseSoFar
-                r.response.annotations = parseAnnotations(r.response.text)
+                if (/\n/.test(progress.responseChunk))
+                    r.response.annotations = parseAnnotations(r.response.text)
             }
             if (template.chatOutput === "inline")
                 r.options.chat?.progress?.report({
@@ -572,8 +573,13 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
     }
 
     private setDiagnostics() {
+        let diagnostics = this.project.diagnostics
+        if (this._aiRequest?.response?.annotations?.length)
+            diagnostics = diagnostics.concat(
+                this._aiRequest?.response?.annotations
+            )
         this._diagColl.clear()
-
+        // project entries
         const severities: Record<
             DiagnosticSeverity | "notice",
             vscode.DiagnosticSeverity
@@ -583,14 +589,6 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
             error: vscode.DiagnosticSeverity.Error,
             info: vscode.DiagnosticSeverity.Information,
         }
-
-        let diagnostics = this.project.diagnostics
-        if (this._aiRequest?.response?.annotations?.length)
-            diagnostics = diagnostics.concat(
-                this._aiRequest?.response?.annotations
-            )
-
-        // project entries
         for (const [filename, diags] of Object.entries(
             groupBy(diagnostics, (d) => d.filename)
         )) {
