@@ -33,8 +33,8 @@ gptool({
 })
 
 // the context
-def("TEXT", env.file)
-def("RES", env.links)
+def("TEXT", env.context)
+def("RES", env.files)
 
 // the task
 $`You are reviewing and updating TEXT 
@@ -57,7 +57,7 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 ## GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.file`). Links define the content (`env.links`).
+Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.context`). Links define the content (`env.files`).
 
 ```markdown
 # email address recognizer
