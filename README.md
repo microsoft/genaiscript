@@ -14,21 +14,21 @@ that ignores the internal details of the implementation.'
 
 ### Demo videos
 
--  [From Copilot Chat to GPTool](https://github.com/microsoft/gptools/raw/main/docs/videos/gptools-copilot-chat.mp4)
+-  💬 [Copilot Chat to GPTools](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
 
 ## Overview
 
 The key elements of the gptools framework are:
 
--   [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM.
--   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
+-   🪄 [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM.
+-   🖼 [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
 
 GPTools automatically parses the LLM output into various formats:
 
--   file edits (full or diffs) with preview support in VSCode
--   structured data extracted with JSON schema definition and validation
--   code annotations compatible with [GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) and VS Code
--   [OpenAI functions](https://platform.openai.com/docs/guides/function-calling) as JavaScript functions
+-   🗂 file edits (full or diffs) with preview support in VSCode
+-   📊 structured data extracted with JSON schema definition and validation
+-   ⚠️ code annotations compatible with [GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) and VS Code
+-   🛠️ [OpenAI functions](https://platform.openai.com/docs/guides/function-calling) as JavaScript functions
 
 The tooling supports a short developer loop in VS Code and automation CI/CD pipelines.
 
