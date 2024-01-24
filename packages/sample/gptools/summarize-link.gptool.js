@@ -1,5 +1,5 @@
 gptool({
-    title: "summarize link",
+    title: "summarize links",
     model: "gpt-4-32k",
     description: "Given a URL, summarize the contents of the page",
     categories: ["hello world"],
@@ -7,8 +7,8 @@ gptool({
     temperature: 0
 })
 
-const { file } = await fetchText("https://www.microsoft.com/en-us/research/people/zorn/")
-
-def("FILE", file)
-
+for (const link of env.files.filter(file => file.filename.startsWith("https://"))) {
+    const { file } = await fetchText(link)
+    def("FILE", file)
+}
 $`Summarize FILE`
