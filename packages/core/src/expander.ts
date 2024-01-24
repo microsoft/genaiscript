@@ -31,6 +31,7 @@ import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
 import { YAMLTryParse } from "./yaml"
 import { validateJSONSchema } from "./schema"
+import { createParsers} from "./parsers"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -115,6 +116,7 @@ async function callExpander(
 ) {
     let promptText = ""
     let success = true
+    const parsers = createParsers()
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
             const v = target[prop]
@@ -131,6 +133,7 @@ async function callExpander(
             {
                 env,
                 path,
+                parsers,
                 writeText: (body) => {
                     promptText +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"

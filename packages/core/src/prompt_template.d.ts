@@ -508,6 +508,17 @@ interface Path {
     relative(from: string, to: string): string
 }
 
+interface Parsers {
+    /**
+     * Parses text as a JSON5 payload
+     */
+    JSON5(text: string): unknown | undefined
+    /**
+     * Parses text as a YAML paylaod
+     */
+    YAML(text: string): unknown | undefined
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -534,4 +545,5 @@ interface PromptContext {
     }>
     env: ExpansionVariables
     path: Path
+    parsers: Parsers
 }

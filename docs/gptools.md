@@ -404,6 +404,10 @@ A `path` library is available to manipulate file paths.
 const ext = path.extname(filename)
 ```
 
+### `parsers`
+
+The `parsers` object contains methods to parse various file formats such as JSON5 and YAML.
+
 ## Inline variable
 
 You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
