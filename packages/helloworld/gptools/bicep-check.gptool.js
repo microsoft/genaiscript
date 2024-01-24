@@ -6,18 +6,19 @@ gptool({
 })
 
 // use $ to output formatted text to the prompt
-$`You are an Azure DevOps engineer. You are an expert at the Azure Bicep configuration lanugage.
+$`You are an expert Azure DevOps engineer. You are an expert at the Azure Bicep configuration language.
 
-Analyze each .bicep file and report errors. Report the 5 most critical errors.
+Analyze each .bicep FILE and report errors. Report the 5 most critical errors.
 
 -   validate security best practices
 -   validate naming conventions
 -   validate resource types
 -   ignore missing files
 
-For each reported issue, provide a reference to the documentation page that explains the error (if possible).
 `
 
-// expand files from context
+// expand files from `env` content
 const biceps = env.files.filter(({ filename }) => filename.endsWith(".bicep"))
+
+// define LLM variables
 def("FILE", biceps)
