@@ -1,0 +1,121 @@
+{
+    //security rules (as of 2023-march-10): https://learn.microsoft.com/azure/container-apps/firewall-integration#nsg-allow-rules
+    //Inbound rules are not required, if we leave the default inbound rules 65000 and 65001
+    "securityRules": [
+        // {
+        //     "name": "Allow_communication_between_IPs_in_the_infra_subnet",
+        //     "properties": {
+        //         "description": "Allow communication between IPs in the infrastructure subnet. This address is passed as a parameter when you create an environment. For example, 10.0.0.0/21.",
+        //         "protocol": "*",
+        //         "sourceAddressPrefix": "10.0.0.0/21",
+        //         "sourcePortRange": "*",
+        //         "destinationAddressPrefix": "10.0.0.0/21",
+        //         "destinationPortRange": "*",
+        //         "access": "Allow",
+        //         "priority": 100,
+        //         "direction": "Inbound"
+        //     }
+        // },
+        // {
+        //     "name": "Allow_Azure_Loadbalancer_To_Communicate_with_the_Environment",
+        //     "properties": {
+        //         "description": "Allow the Azure infrastructure load balancer to communicate with your environment.",
+        //         "protocol": "*",
+        //         "sourceAddressPrefix": "AzureLoadBalancer",
+        //         "sourcePortRange": "*",
+        //         "destinationAddressPrefix": "10.0.0.0/21",
+        //         "destinationPortRange": "*",
+        //         "access": "Allow",
+        //         "priority": 110,
+        //         "direction": "Inbound"
+        //     }
+        // },
+        {
+            "name": "Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_UDP",
+            "properties": {
+                "description": "internal AKS secure connection between underlying nodes and control plane..",
+                "protocol": "UDP",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "AzureCloud.<location>",
+                "destinationPortRange": "1194",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Outbound"
+            }
+        },
+        {
+            "name": "Allow_Internal_AKS_Connection_Between_Nodes_And_Control_Plane_TCP",
+            "properties": {
+                "description": "internal AKS secure connection between underlying nodes and control plane..",
+                "protocol": "TCP",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "AzureCloud.<location>",
+                "destinationPortRange": "9000",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Outbound"
+            }
+        },
+        {
+            "name": "Allow_Azure_Monitor",
+            "properties": {
+                "description": "Allows outbound calls to Azure Monitor.",
+                "protocol": "TCP",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "AzureCloud.<location>",
+                "destinationPortRange": "443",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound"
+            }
+        },
+        {
+            "name": "Allow_Outbound_443",
+            "properties": {
+                "description": "Allowing all outbound on port 443 provides a way to allow all FQDN based outbound dependencies that don't have a static IP",
+                "protocol": "TCP",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "443",
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Outbound"
+            }
+        },
+        {
+            "name": "Allow_NTP_Server",
+            "properties": {
+                "description": "NTP server",
+                "protocol": "UDP",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRange": "123",
+                "access": "Allow",
+                "priority": 140,
+                "direction": "Outbound"
+            }
+        },
+        {
+            "name": "Allow_Container_Apps_control_plane",
+            "properties": {
+                "description": "Container Apps control plane",
+                "protocol": "TCP",
+                "sourceAddressPrefix": "VirtualNetwork",
+                "sourcePortRange": "*",
+                "destinationAddressPrefix": "*",
+                "destinationPortRanges": [
+                    "5671",
+                    "5672"
+                ],
+                "access": "Allow",
+                "priority": 150,
+                "direction": "Outbound"
+            }
+        }
+    ]
+}

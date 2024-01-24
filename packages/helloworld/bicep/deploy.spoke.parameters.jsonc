@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // The name of the workload that is being deployed. Up to 10 characters long. This wil be used as part of the naming convention (i.e. as defined here: https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming) 
+    "workloadName": {
+      "value": "lzaaca"
+    },
+    //The name of the environment (e.g. "dev", "test", "prod", "preprod", "staging", "uat", "dr", "qa"). Up to 8 characters long.
+    "environment": {
+      "value": "dev"
+    },
+    // optional. If empty automatic name will be generated. To override, please give name of spoke resource group name
+    "spokeResourceGroupName": {
+      "value": ""
+    },
+    "tags": {
+        "value": {}
+    },
+    // Replace with the resource ID of the hub virtual network 
+    "hubVNetId": {
+        "value": "<HUB_VNET_RESOURCE_ID>"
+    },
+    "spokeVNetAddressPrefixes": {
+      "value":  ["10.1.0.0/22"]
+    },
+    "spokeInfraSubnetAddressPrefix": {
+      "value":  "10.1.0.0/23"
+    },
+    "spokePrivateEndpointsSubnetAddressPrefix": {
+      "value":  "10.1.2.0/27"
+    },
+    "spokeApplicationGatewaySubnetAddressPrefix": {
+      "value":  "10.1.3.0/24"
+    },
+    "networkApplianceIpAddress": {
+      "value": "[IP OF THE NETWORK APPLIANCE]"
+    },
+    "vmSize": {
+      "value": "Standard_B2ms"
+    },
+    "vmAdminUsername": {
+      "value": "azureuser"
+    },
+    "vmAdminPassword": {
+      "value": "Password123"
+    },
+    "vmLinuxSshAuthorizedKeys": {
+      "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDpNpoh248rsraL3uejAwKlla+pHaDLbp4DM7bKFoc3Rt1DeXPs0XTutJcNtq4iRq+ooRQ1T7WaK42MfQQxt3qkXwjyv8lPJ4v7aElWkAbxZIRYVYmQVxxwfw+zyB1rFdaCQD/kISg/zXxCWw+gdds4rEy7eq23/bXFM0l7pNvbAULIB6ZY7MRpC304lIAJusuZC59iwvjT3dWsDNWifA1SJtgr39yaxB9Fb01UdacwJNuvfGC35GNYH0VJ56c+iCFeAnMXIT00cYuHf0FCRTP0WvTKl+PQmeD1pwxefdFvKCVpidU2hOARb4ooapT0SDM1SODqjaZ/qwWP18y/qQ/v imported-openssh-key"
+    },
+    "vmJumpboxOSType": {
+      "value": "linux"
+    },
+    "vmJumpBoxSubnetAddressPrefix": {
+      "value": "10.1.2.32/27"
+    },
+    //If true, Azure Policies will be deployed
+    "deployAzurePolicies": {
+      "value": true
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps no container liveness probes",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "This policy enforces that all the containers of Azure Containers Apps have liveness probes configured.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.App/containerApps"
+          },
+          {
+            "count": {
+              "field": "Microsoft.App/containerApps/template.containers[*].probes[*]",
+              "where": {
+                "field": "Microsoft.App/containerApps/template.containers[*].probes[*].type",
+                "equals": "Liveness"
+              }
+            },
+            "equals": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

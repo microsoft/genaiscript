@@ -1,0 +1,43 @@
+{
+  "properties": {
+    "displayName": "Azure Container Apps no monitoring configured",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "This policy enforces that monitoring is configured for Azure Container Apps environments.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Azure Container Apps"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Deny",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.App/managedEnvironments"
+          },
+          {
+            "field": "Microsoft.App/managedEnvironments/appLogsConfiguration.destination",
+            "exists": false
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}
