@@ -911,6 +911,7 @@ export async function runTemplate(
         }
     }
 
+    annotations = parseAnnotations(text)
     const json = JSON5TryParse(text, undefined)
     const yaml = YAMLTryParse(text, undefined)
     const fences =
@@ -959,9 +960,6 @@ export async function runTemplate(
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
     } else {
-        // parse all annotations, regardless of fences
-        annotations = parseAnnotations(text)
-
         for (const fence of fences.filter(
             ({ validation }) => validation?.valid !== false
         )) {
