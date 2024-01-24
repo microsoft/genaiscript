@@ -5,10 +5,10 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "ajv": "^8.12.0",
     "@octokit/plugin-throttling": "^8.1.3",
     "@types/mdast": "^3.0.11",
     "@types/node": "^20.11.5",
+    "ajv": "^8.12.0",
     "esbuild": "^0.19.12",
     "fetch-retry": "^5.0.6",
     "json5": "^2.2.3",
@@ -22,7 +22,8 @@
     "remark-parse": "^10.0.2",
     "typescript": "^5.3.3",
     "unified": "^10.1.2",
-    "yaml": "^2.3.4"
+    "yaml": "^2.3.4",
+    "toml": "^3.0.0"
   },
   "scripts": {
     "typecheck": "tsc -p src",

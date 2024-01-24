@@ -418,6 +418,7 @@ interface DefOptions {
         | "typescript"
         | "python"
         | "shell"
+        | "toml"
         | string
     lineNumbers?: boolean
     /**
@@ -517,6 +518,12 @@ interface Parsers {
      * Parses text as a YAML paylaod
      */
     YAML(text: string): unknown | undefined
+
+    /**
+     * Parses text as TOML payload
+     * @param text text as TOML payload
+     */
+    TOML(text: string): unknown | undefined
 }
 
 // keep in sync with prompt_type.d.ts
