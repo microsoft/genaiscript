@@ -391,7 +391,7 @@ function errorId() {
 
 export function staticVars(): Omit<ExpansionVariables, "template"> {
     return {
-        context: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
+        spec: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
         files: [] as LinkedFile[],
         parents: [] as LinkedFile[],
         fence: promptFence,

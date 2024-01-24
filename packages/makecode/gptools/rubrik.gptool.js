@@ -41,7 +41,7 @@ Finally, suggest how to improve the project.
 
 `
 
-def("FILE", env.context)
+def("FILE", env.spec)
 def(
     "PROJECT",
     env.files.filter((f) => /^https:\/\/makecode.com\//.test(f.filename), {

@@ -6,7 +6,7 @@ gptool({
     temperature: 0,
 })
 
-def("SPEC", env.context)
+def("SPEC", env.spec)
 def("CODE", env.files, { lineNumbers: true })
 
 $`In CODE, when you encounter a comment starting by "TODO", 

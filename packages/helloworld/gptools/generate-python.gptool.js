@@ -11,7 +11,7 @@ def(
         (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
     )
 )
-def("TASK", env.context)
+def("TASK", env.spec)
 
 $`Generate python code for the task in TASK. Save code in CODE.`
 $`If the CODE is already present, ensure that CODE matches the

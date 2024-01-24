@@ -6,6 +6,6 @@ gptool({
 
 $`Shorten the following SUMMARY. Limit changes to minimum.`
 
-def("SUMMARY", env.context)
+def("SUMMARY", env.spec)
 
 $`Respond with the new SUMMARY.`

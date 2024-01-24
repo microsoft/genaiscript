@@ -1,21 +1,22 @@
-# GPTools - AI-Scripting for Teams
+# GPTools - GenAI Scripting
 
-GPTools (formerly CoArch) allows teams, including non-developers, to create and use AI-enhanced scripts. GPTools uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
-
-> Don't forget to turn on the sound.
-
-https://github.com/microsoft/gptools/assets/4175913/74517b81-4b9c-47d9-8a5c-a15362b0d4db
+GPTools (formerly CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GPTools uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 ## Overview
 
 The key elements of the gptools framework are:
 
--   [gpspecs](./docs/gpspecs.md): Natural language specification documents that also define the LLM context.
--   [gptools](./docs/gptools.md): Scripts that combine the gpspec source, the context and the LLM models.
--   [VS Code extension](./packages/vscode/README.md): User interaction with gptools and conversion of LLM results into workspace edits.
--   **gpvm**: A framework and runtime system that executes gpspecs and gptools.
+-   [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM. The scripting environment provides convinient tooling to acheive common tasks
+    such as extracting generate code into files, JSON parsing and validation, function calls...
+-   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification documents to define the prompt context.
 
-GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md).
+The tooling supports a short dev loop in VS Code and automated CI/CD pipelines.
+
+-   [Visual Studio Code extension](./docs/vscode.md): User interaction with gptools and conversion of LLM results into workspace edits.
+-   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
+
+GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
+To access GPTools from GitHub Copilot Chat, use [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
 
 ### GPTool scripts
 
@@ -29,14 +30,12 @@ gptool({
 })
 
 // the context
-def("TEXT", env.context)
-def("RES", env.files)
+def("FILES", env.files)
 
 // the task
-$`You are reviewing and updating TEXT 
+$`You are reviewing and updating FILES 
 to fix grammatical errors, 
-fix spelling errors and make it technical.
-Use information from RES.`
+fix spelling errors and make it technical.`
 ```
 
 GPTools comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
@@ -53,7 +52,9 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 ## GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.context`). Links define the content (`env.files`).
+Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
+
+The `.gpspec` context is automatically generate when running a tool on a file or set of files.
 
 ```markdown
 # email address recognizer
@@ -67,64 +68,6 @@ false otherwise.
 ```
 
 -   [Read more about gpspecs](./docs/gpspecs.md).
-
-## User experience
-
-This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
-The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the gptools extension to VS code.
-
-```mermaid
-sequenceDiagram
-participant User
-participant VSCode
-participant gpspec
-participant gptool
-participant gpvm
-User->>VSCode: Create/Edit gpspec
-VSCode->>gpspec: Save gpspec
-User->>VSCode: Invoke gptool
-VSCode->>gptool: Execute gptool with gpspec + workspace
-gptool->>gpvm: Request foundation model execution
-gpvm->>gptool: Return AI-generated output
-gptool->>VSCode: Update workspace with output
-VSCode->>User: Display updated workspace
-```
-
-## Getting started
-
-### Install in Visual Studio Code
-
-These are the instructions to install the latest build of the extension manually in Visual Studio Code.
-
--   install [Visual Studio Code](https://code.visualstudio.com/Download)
--   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
--   download the `gptools.vsix` file
--   open Visual Studio Code
--   open the command palette and type **Extensions: Install from VSIX...**
--   load the `gptools.vsix` file
-
-Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
-
-### Try a builtin tool
-
-GPTools comes with sample tools and you don't need a gpspec to run those tools on any file. The easiest way to start playing with GPTools is to:
-
--   open a folder in Visual Studio Code
--   open any file, open the context menu and run "Run GPTool..."
--   select one of the builtin tools in the dropdown
-
-### Create a gpspec
-
-The default gpspec generated by GPTools is rather simplistic. You can improve the performance of the LLM
-by creating a new gpspec with more instructions.
-
-### Fork a tool
-
--   open the command palette
--   type "Fork a GPTool..." and select the tool you want to fork
--   pick a new name and start editing the tool
-
-The tool will be available in the dropdown of the "Run GPTool..." command.
 
 ## Contributing
 

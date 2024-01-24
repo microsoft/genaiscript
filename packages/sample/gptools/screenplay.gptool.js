@@ -4,12 +4,12 @@ gptool({
         "Given a description of scenes, generate a dialog between two avatar characters.",
 })
 
-const output = env.context.filename.replace(".gpspec.md", ".dialog.md")
+const output = env.spec.filename.replace(".gpspec.md", ".dialog.md")
 def(
     "INFO",
     env.files.filter((f) => f.label.endsWith("info"))
 )
-def("TASK", env.context)
+def("TASK", env.spec)
 def(
     "TRANSCRIPT",
     env.files.filter((f) => f.filename.endsWith(".transcript.md"))

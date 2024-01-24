@@ -18,5 +18,5 @@ View:
 - [style.css](css/style.css) stylesheet
 `)
 
-def("SUMMARY", env.context)
+def("SUMMARY", env.spec)
 

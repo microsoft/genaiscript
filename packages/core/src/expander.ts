@@ -228,7 +228,7 @@ async function expandTemplate(
 
     traceVars()
 
-    trace.detailsFenced("📄 gpspec", env.context.content, "markdown")
+    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
 
     let systemText = ""
     let model = template.model
@@ -476,7 +476,7 @@ async function fragmentVars(
 
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
-        context: {
+        spec: {
             filename: relativePath(host.projectFolder(), file.filename),
             label: "context",
             content: file.content,

@@ -10,7 +10,7 @@ const sadoc = env.files.filter(f => /\.saplan\.gpspec\.md$/.test(f.filename))
 const codefiles = env.files.filter(f => /\.py$/.test(f.filename) && !/test_/.test(f.filename))
 const testfiles = env.files.filter(f => /test_*\.py$/.test(f.filename))
 
-def("SPEC", env.context)
+def("SPEC", env.spec)
 def("SADOC", sadoc)
 def("CODE", codefiles)
 def("TEST", testfiles)

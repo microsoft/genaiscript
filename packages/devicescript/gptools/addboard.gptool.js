@@ -11,7 +11,7 @@ const schema = await fetchText(`https://raw.githubusercontent.com/microsoft/devi
 def("SCHEMA", schema.file)
 const guide = await fetchText(`https://raw.githubusercontent.com/microsoft/devicescript/main/website/docs/devices/add-board.mdx`)
 def("GUIDE", guide.file)
-def("FILE", env.context)
+def("FILE", env.spec)
 //def("BOARDJSON", env.files.filter(f => f.filename.endsWith(".board.json")))
 
 $`You are an expert at configuration new boards for the DeviceScript system. 

@@ -8,7 +8,7 @@ gptool({
 })
 
 def("TESTS", env.files.filter((f) => /^test_*\.py$/.test(f.filename)))
-def("TASK", env.context)
+def("TASK", env.spec)
 def(
     "CODE",
     env.files.filter(

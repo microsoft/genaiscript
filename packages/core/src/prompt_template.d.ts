@@ -350,7 +350,7 @@ interface ExpansionVariables {
     /**
      * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    context: LinkedFile
+    spec: LinkedFile
 
     /**
      * List of linked files parsed in context

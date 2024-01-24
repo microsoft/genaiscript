@@ -8,7 +8,7 @@ gptool({
 })
 
 def("FILE", env.files.filter(f => !f.filename.endsWith(".xray")))
-def("SPEC", env.context)
+def("SPEC", env.spec)
 
 $`You are an expert at programming in all known languages.
 For each FILE 'filename.<EXT>', generate the code structure in FILE 'filename.<EXT>.xray' 
