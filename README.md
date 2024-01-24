@@ -12,6 +12,10 @@ For each FILE, extract the code structure
 that ignores the internal details of the implementation.'
 ```
 
+### Demo videos
+
+-  [From Copilot Chat to GPTool](./videos/gptools-copilot-chat.mp4)
+
 ## Overview
 
 The key elements of the gptools framework are:
