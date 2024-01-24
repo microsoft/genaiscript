@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -60,8 +60,9 @@ interface PromptTemplate extends PromptLike {
      * Which LLM model to use.
      *
      * @default gpt-4
+     * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo"
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -70,6 +71,13 @@ interface PromptTemplate extends PromptLike {
      * @default 0.2
      */
     temperature?: number
+
+    /**
+     * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
+     * A high “top_p” value means the model looks at more possible words, even the less likely ones,
+     * which makes the generated text more diverse.
+     */
+    topP?: number
 
     /**
      * When to stop producing output.
@@ -171,16 +179,11 @@ interface LinkedFile {
     content: string
 }
 
-declare enum ChatMessageRole {
-    System = 0,
-    User = 1,
-    Assistant = 2,
-    Function = 3,
-}
+type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
 // ChatML
 interface ChatMessage {
-    role: "user" | "system" | "assistant" | "function"
+    role: ChatMessageRole
     content: string
     name?: string
 }
@@ -232,7 +235,7 @@ interface ChatFunctionDefinition {
  *
  * Omitting `parameters` defines a function with an empty parameter list.
  */
-type ChatFunctionParameters = Record<string, unknown>
+type ChatFunctionParameters = JSONSchema
 
 interface ChatFunctionCallTrace {
     log(message: string): void
@@ -345,14 +348,14 @@ interface ExpansionVariables {
     markdownFence: string
 
     /**
-     * Current file
+     * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    file: LinkedFile
+    spec: LinkedFile
 
     /**
      * List of linked files parsed in context
      */
-    links: LinkedFile[]
+    files: LinkedFile[]
 
     /**
      * List of files pointing to this fragment
@@ -393,6 +396,11 @@ interface ExpansionVariables {
      * List of functions defined in the prompt
      */
     functions?: ChatFunctionCallback[]
+
+    /**
+     * List of JSON schemas; if any
+     */
+    schemas?: Record<string, JSONSchema>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -402,8 +410,20 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
-    language?: "markdown" | string
+    language?:
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | string
     lineNumbers?: boolean
+    /**
+     * JSON schema identifier
+     */
+    schema?: string
 }
 
 interface ChatTaskOptions {
@@ -411,6 +431,81 @@ interface ChatTaskOptions {
     cwd?: string
     env?: Record<string, string>
     args?: string[]
+}
+
+type JSONSchemaTypeName =
+    | "string"
+    | "number"
+    | "boolean"
+    | "object"
+    | "array"
+    | "null"
+
+type JSONSchemaType =
+    | string //
+    | number
+    | boolean
+    | JSONSchemaObject
+    | JSONSchemaArray
+    | null
+
+interface JSONSchemaObject {
+    type: "object"
+    description?: string
+    properties?: {
+        [key: string]: {
+            description?: string
+            type?: JSONSchemaType
+        }
+    }
+    required?: string[]
+    additionalProperties?: boolean
+}
+
+interface JSONSchemaArray {
+    type: "array"
+    description?: string
+    items?: JSONSchemaType
+}
+
+type JSONSchema = JSONSchemaObject | JSONSchemaArray
+
+/**
+ * Path manipulation functions.
+ */
+interface Path {
+    /**
+     * Returns the last portion of a path. Similar to the Unix basename command.
+     * @param path
+     */
+    dirname(path: string): string
+
+    /**
+     * Returns the extension of the path, from the last '.' to end of string in the last portion of the path.
+     * @param path
+     */
+    extname(path: string): string
+
+    /**
+     * Returns the last portion of a path, similar to the Unix basename command.
+     */
+    basename(path: string, suffix?: string): string
+
+    /**
+     * The path.join() method joins all given path segments together using the platform-specific separator as a delimiter, then normalizes the resulting path.
+     * @param paths
+     */
+    join(...paths: string[]): string
+
+    /**
+     * The path.normalize() method normalizes the given path, resolving '..' and '.' segments.
+     */
+    normalize(...paths: string[]): string
+
+    /**
+     * The path.relative() method returns the relative path from from to to based on the current working directory. If from and to each resolve to the same path (after calling path.resolve() on each), a zero-length string is returned.
+     */
+    relative(from: string, to: string): string
 }
 
 // keep in sync with prompt_type.d.ts
@@ -430,6 +525,7 @@ interface PromptContext {
             args: { context: ChatFunctionCallContext } & Record<string, any>
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
+    defSchema(name: string, schema: JSONSchema): void
     fetchText(urlOrFile: string | LinkedFile): Promise<{
         ok: boolean
         status: number
@@ -437,6 +533,7 @@ interface PromptContext {
         file?: LinkedFile
     }>
     env: ExpansionVariables
+    path: Path
 }
 
 
@@ -487,7 +584,7 @@ declare function def(name: string, body: StringLike, options?: DefOptions): void
  * Inline supplied files in the prompt.
  * Similar to `for (const f in files) { def("File " + f.filename, f.contents) }`
  *
- * @param files files to define, eg. `env.links` or a subset thereof
+ * @param files files to define, eg. `env.files` or a subset thereof
  */
 declare function defFiles(files: LinkedFile[]): void
 
@@ -513,9 +610,21 @@ declare function defFunction(
 declare var env: ExpansionVariables
 
 /**
+ * Path manipulation functions.
+ */
+declare var path: Path
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
 declare function fetchText(
     url: string | LinkedFile
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+
+/**
+ * Declares a JSON schema variable.
+ * @param name name of the variable
+ * @param schema JSON schema instance
+ */
+declare function defSchema(name: string, schema: JSONSchema)
