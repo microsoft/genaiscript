@@ -222,6 +222,7 @@ async function expandTemplate(
     path: Path,
     trace: MarkdownTrace
 ) {
+    const { jsSource } = template
     const varName: Record<string, string> = {}
     for (const [k, v] of Object.entries(env)) {
         if (!varName[v]) varName[v] = k
@@ -259,9 +260,9 @@ async function expandTemplate(
         systems.push("system")
         systems.push("system.explanations")
         systems.push("system.files")
-        systems.push("system.schema")
-        systems.push("system.changelog")
-        systems.push("system.summary")
+        if (/diff/i.test(jsSource)) systems.push("system.diff")
+        if (/defschema/i.test(jsSource)) systems.push("system.schema")
+        if (/changelog/i.test(jsSource)) systems.push("system.changelog")
     }
     for (let i = 0; i < systems.length; ++i) {
         let systemTemplate = systems[i]

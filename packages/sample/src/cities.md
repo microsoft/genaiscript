@@ -5,3 +5,5 @@
 - Brussels
 - Seattle
 - Munich
+- Paris
+- ThisCityDoesNotExist
