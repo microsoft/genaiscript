@@ -1,10 +1,10 @@
 gptool({
     title: "City general information",
     description: "Generate a JSON response with city size information.",
-    system: ["system", "system.files", "system.schema"],
     temperature: 0
 })
 
+// JSON schema to constrain the output of the tool.
 defSchema("CITY_SCHEMA", {
     type: "array",
     description: "A list of cities with population and elevation information.",
@@ -21,13 +21,10 @@ defSchema("CITY_SCHEMA", {
     }
 })
 
+// the data to analyze
 def("CITIES", env.files)
 
-$`Generate a YAML data file with the following information for each city in CITIES.
-
-- The city's population.
-- The city's elevation.
-
-If the city is unknown, omit it from the response. Explain the source of your data.
-Validate the output the generated YAML using the CITY_SCHEMA JSON schema.
+// the task
+$`Generate a YAML data file with the information of the cities in the CITIES data set,
+compliant with the CITY_SCHEMA JSON schema.
 `
