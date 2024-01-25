@@ -563,7 +563,14 @@ export async function runTemplate(
     fragment: Fragment,
     options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { requestOptions = {}, skipLLM, label, cliInfo, path, trace = new MarkdownTrace() } = options || {}
+    const {
+        requestOptions = {},
+        skipLLM,
+        label,
+        cliInfo,
+        path,
+        trace = new MarkdownTrace(),
+    } = options || {}
     const { signal } = requestOptions
     const version = coreVersion
 
@@ -779,8 +786,12 @@ export async function runTemplate(
             }
         }
 
-        if (resp.text)
-            trace.details("📩 llm response", pretifyMarkdown(resp.text)) // render output as markdown
+        if (resp.text) {
+            trace.startDetails("📩 llm response")
+            trace.content += pretifyMarkdown(resp.text)
+            trace.detailsFenced(`markdown`, resp.text, "markdown")
+            trace.endDetails()
+        }
 
         status()
         if (resp.toolCalls?.length) {
@@ -921,8 +932,6 @@ export async function runTemplate(
     const yaml = YAMLTryParse(text, undefined)
     const fences =
         json === undefined && yaml === yaml ? extractFenced(text) : []
-    if (fences?.length)
-        trace.details("📩 code regions", renderFencedVariables(fences))
 
     // validate schemas in fences
     for (const fence of fences.filter(
@@ -946,6 +955,9 @@ export async function runTemplate(
             fence.validation = validateJSONSchema(trace, obj, schemaObj)
         }
     }
+
+    if (fences?.length)
+        trace.details("📩 code regions", renderFencedVariables(fences))
 
     if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
     else if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
