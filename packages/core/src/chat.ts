@@ -3,7 +3,11 @@ import { Cache } from "./cache"
 import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
 import { host } from "./host"
-import { AZURE_OPENAI_API_VERSION, MAX_CACHED_TEMPERATURE } from "./constants"
+import {
+    AZURE_OPENAI_API_VERSION,
+    MAX_CACHED_TEMPERATURE,
+    MAX_CACHED_TOP_P,
+} from "./constants"
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
 
@@ -40,6 +44,7 @@ export interface ChatCompletionsOptions {
     partialCb?: (progres: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
+    maxCachedTopP?: number
     cache?: boolean
     retry?: number
     retryDelay?: number
@@ -103,6 +108,7 @@ export async function getChatCompletions(
         requestOptions,
         partialCb,
         maxCachedTemperature = MAX_CACHED_TEMPERATURE,
+        maxCachedTopP = MAX_CACHED_TOP_P,
         cache: useCache,
         retry,
         retryDelay,
@@ -111,11 +117,17 @@ export async function getChatCompletions(
     } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
+
+    trace.item(`temperature: ${temperature} (max cached: ${maxCachedTemperature})`)
+    trace.item(`top_p: ${top_p} (max cached: ${maxCachedTopP})`)
+    if (seed) trace.item(`seed: ${seed}`)
+
     const cache = getChatCompletionCache()
     const caching =
         useCache &&
-        temperature > maxCachedTemperature &&
-        seed === undefined &&
+        (isNaN(maxCachedTemperature) || temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
+        (isNaN(maxCachedTopP) || top_p < maxCachedTopP) && // high top_p is not cacheable (it's too random)
+        seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
         !tools?.length
     const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
@@ -124,7 +136,7 @@ export async function getChatCompletions(
             responseSoFar: cached,
             responseChunk: cached,
         })
-        trace.item(`found cached response`)
+        trace.item(`found cached response ${await cache.getKeySHA(req)}`)
         return { text: cached }
     }
 
@@ -193,6 +205,8 @@ export async function getChatCompletions(
             return delay
         },
     })
+
+    trace.dispatchChange()
     const r = await fetchRetry(url, {
         headers: {
             authorization:

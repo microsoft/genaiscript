@@ -164,7 +164,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     let tokens = 0
     const res: FragmentTransformResponse = await runTemplate(gptool, fragment, {
-        infoCb: (progress) => {},
+        infoCb: () => {},
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
             if (stream) process.stdout.write(responseChunk)

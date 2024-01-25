@@ -66,7 +66,7 @@ ${pretifyMarkdown(md)}
                 return wrap(text)
             }
             case REQUEST_TRACE_FILENAME:
-                return wrap(res?.trace)
+                return wrap(aiRequest?.trace.content)
         }
         if (uri.path.startsWith(cachedOpenAIRequestPrefix)) {
             const sha = uri.path
@@ -98,7 +98,7 @@ ${pretifyMarkdown(md)}
         Request \`${sha}\` not found in cache.
         `
 
-        return val.response?.trace
+        return val?.trace || val?.response?.trace
     }
 }
 
