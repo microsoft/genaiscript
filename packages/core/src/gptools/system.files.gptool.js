@@ -34,7 +34,10 @@ $`Do NOT emit line numbers in file.`
 
 $`
 ### JSON Schema
-When you generate JSON or YAML according to a named schema. Add the schema identifier in the code fence header.`
+
+When you generate JSON or YAML according to a named schema, 
+you MUST add the schema identifier in the code fence header.
+`
 
 def(
     `File ${folder}/data.json`,
