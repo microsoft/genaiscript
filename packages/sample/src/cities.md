@@ -5,7 +5,3 @@
 - Brussels
 - Seattle
 - Munich
-- Nivelle
-- Paris
-- London
-- Madrid

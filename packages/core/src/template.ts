@@ -559,10 +559,10 @@ export function renderFencedVariables(vars: Fenced[]) {
             }
 ${v}
 \`\`\`\`\`
-${validation?.valid ? `> ![NOTE] Schema ${args.schema} validation ok` : ""}
+${validation?.valid ? `> [!NOTE] Schema ${args.schema} validation ok` : ""}
 ${
     validation?.errors
-        ? `> ![CAUTION] Schema ${args.schema} validation errors
+        ? `> [!CAUTION] Schema ${args.schema} validation errors
 ${validation.errors.split("\n").join("\n> ")}`
         : ""
 }
