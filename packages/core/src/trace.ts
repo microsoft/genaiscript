@@ -13,8 +13,10 @@ export class MarkdownTrace
         super()
     }
 
-    private dispatchChange() {
-        this.dispatchEvent(new Event(MarkdownTrace.CHANGE))
+    private disableChangeDispatch = 0
+    dispatchChange() {
+        if (!this.disableChangeDispatch)
+            this.dispatchEvent(new Event(MarkdownTrace.CHANGE))
     }
 
     get content() {
@@ -43,19 +45,33 @@ ${title}
         this.content += `\n</details>\n\n`
     }
 
-    details(title: string, body: string | object) {
-        this.startDetails(title)
-        if (body) {
-            if (typeof body === "string") this.content += body
-            else this.content += yamlStringify(body)
+    private guarded(f: () => void) {
+        try {
+            this.disableChangeDispatch++
+            f()
+        } finally {
+            this.disableChangeDispatch--
+            this.dispatchChange()
         }
-        this.endDetails()
+    }
+
+    details(title: string, body: string | object) {
+        this.guarded(() => {
+            this.startDetails(title)
+            if (body) {
+                if (typeof body === "string") this.content += body
+                else this.content += yamlStringify(body)
+            }
+            this.endDetails()
+        })
     }
 
     detailsFenced(title: string, body: string | object, contentType?: string) {
-        this.startDetails(title)
-        this.fence(body, contentType)
-        this.endDetails()
+        this.guarded(() => {
+            this.startDetails(title)
+            this.fence(body, contentType)
+            this.endDetails()
+        })
     }
 
     item(message: string) {
@@ -92,13 +108,15 @@ ${title}
     }
 
     error(message: string, exception?: unknown) {
-        this.content += `\n> error: ${message}\n`
-        if (typeof exception === "string") this.fence(exception)
-        else if (exception)
-            this.fence(
-                `${(exception as Error).message}\n${
-                    (exception as Error).stack || ""
-                }`
-            )
+        this.guarded(() => {
+            this.content += `\n> error: ${message}\n`
+            if (typeof exception === "string") this.fence(exception)
+            else if (exception)
+                this.fence(
+                    `${(exception as Error).message}\n${
+                        (exception as Error).stack || ""
+                    }`
+                )
+        })
     }
 }

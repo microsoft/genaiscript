@@ -72,6 +72,11 @@ export class Cache<K, V> extends EventTarget {
         await appendJSONL(this.path(), [ent])
         this.dispatchEvent(new Event(CHANGE))
     }
+    async getKeySHA(key: K) {
+        await this.initialize()
+        const sha = await keySHA(key)
+        return sha;
+    }
 }
 async function keySHA(key: any) {
     if (typeof key != "string") key = JSON.stringify(key)

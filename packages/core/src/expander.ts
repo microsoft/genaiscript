@@ -507,9 +507,16 @@ async function fragmentVars(
 }
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
-    infoCb?: (partialResponse: Partial<FragmentTransformResponse>) => void
+    infoCb?: (partialResponse: {
+        text: string
+        label?: string
+        summary?: string
+        vars?: Partial<ExpansionVariables>
+    }) => void
+    trace?: MarkdownTrace
     promptOptions?: any
     maxCachedTemperature?: number
+    maxCachedTopP?: number
     skipLLM?: boolean
     label?: string
     temperature?: number
@@ -556,13 +563,12 @@ export async function runTemplate(
     fragment: Fragment,
     options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
-    const { requestOptions = {}, skipLLM, label, cliInfo, path } = options || {}
+    const { requestOptions = {}, skipLLM, label, cliInfo, path, trace = new MarkdownTrace() } = options || {}
     const { signal } = requestOptions
     const version = coreVersion
 
-    options.infoCb?.({ trace: "", text: "Preparing..." })
+    options.infoCb?.({ text: "Preparing" })
 
-    const trace = new MarkdownTrace()
     trace.heading(2, label || template.id)
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
@@ -656,7 +662,6 @@ export async function runTemplate(
         options.infoCb?.({
             vars,
             text,
-            trace: trace.content,
             label,
         })
     }

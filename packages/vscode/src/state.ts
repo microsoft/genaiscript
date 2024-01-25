@@ -23,6 +23,7 @@ import {
     logInfo,
     logMeasure,
     parseAnnotations,
+    MarkdownTrace,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -81,12 +82,14 @@ export interface AIRequestSnapshotKey {
 export interface AIRequestSnapshot {
     response?: Partial<FragmentTransformResponse>
     error?: any
+    trace?: string
 }
 
 export interface AIRequest {
     creationTime: string
     options: AIRequestOptions
     controller: AbortController
+    trace: MarkdownTrace
     request?: Promise<FragmentTransformResponse>
     response?: Partial<FragmentTransformResponse>
     computing?: boolean
@@ -118,6 +121,7 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
         cacheTime: new Date().toISOString(),
         response: responseWithoutVars,
         error,
+        trace: r.trace.content
     })
     return snapshot
 }
@@ -292,7 +296,10 @@ ${e.message}`
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration("gptools")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
+        const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
+        const trace = new MarkdownTrace()
+
         const r: AIRequest = {
             creationTime: new Date().toISOString(),
             options,
@@ -300,6 +307,7 @@ ${e.message}`
             request: null,
             computing: true,
             editsApplied: undefined,
+            trace,
         }
         const reqChange = () => {
             if (this._aiRequest === r) {
@@ -308,6 +316,7 @@ ${e.message}`
                 this.dispatchChange()
             }
         }
+        trace.addEventListener(MarkdownTrace.CHANGE, reqChange)
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
             if (r.response) {
@@ -328,6 +337,7 @@ ${e.message}`
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
             partialCb,
+            trace,
             infoCb: (data) => {
                 r.response = data
                 const progress = r.options.chat?.progress
@@ -362,6 +372,7 @@ ${e.message}`
             },
             promptOptions: this.aiRequestContext,
             maxCachedTemperature,
+            maxCachedTopP,
             cache: true,
             retry: 3,
             cliInfo: {
