@@ -26,7 +26,6 @@ function toChatAgentVariables(
 
 function toChatAgentRequest(request: vscode.ChatAgentRequest) {
     return {
-        role: request.agentId,
         content: request.prompt,
         subCommand: request.subCommand,
         agentId: request.agentId,
@@ -94,8 +93,8 @@ function toChatAgentContext(
 function wrapComment(text: string) {
     if (!text) return ""
     const lines = text.split("\n")
-    if (lines.length === 1) return `// ${text}`
-    else return `/*\n${lines.map((l) => ` * ${l}`).join("\n")}\n */`
+    if (lines.length === 1) return `// ${text}\n`
+    else return `/*\n${lines.map((l) => ` * ${l}`).join("\n")}\n */\n`
 }
 
 function chatRequestToPromptTemplate(
@@ -108,6 +107,10 @@ function chatRequestToPromptTemplate(
     }
     let id = "copilot"
     let jsSource = `def("FILE", env.files)\n\n`
+
+    const appendPrompt = (content: string) => {
+        if (content) jsSource += `$\`${content.replace("`", "\\`")}\`\n`
+    }
 
     for (const msg of context.history) {
         const { request, response } = msg
@@ -141,18 +144,17 @@ function chatRequestToPromptTemplate(
                         jsSource += `call(${subCommand}, "${content}")\n`
                     } else {
                         // no subcommand, just add the content
-                        jsSource += `$\`${content.replace("`", "\\`")}\`\n`
+                        appendPrompt(content)
                     }
             }
-        } else if (agentId) {
+        } else if (agentId === "copilot") {
             // other agent id, not supported
             // TODO
-            jsSource += wrapComment(`${agentId}: ${content}`)
-        }
+            appendPrompt(content)
+        } else jsSource += wrapComment(`${agentId}: ${content}`)
     }
 
-    if (!request.subCommand && context.prompt)
-        jsSource += `$\`${context.prompt.replace("`", "\\`")}\`\n`
+    if (!request.subCommand) appendPrompt(context.prompt)
 
     jsSource = `gptool(${JSON.stringify({ id, ...args }, null, 4)})\n\n${jsSource}`
 
@@ -265,7 +267,7 @@ These steps will not be needed once the API gets fully released.
     // that appear when you type `/`.
     const agent = vscode.chat.createChatAgent(AGENT_ID, handler)
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
-    agent.description = "Run GPTools within the chat..."
+    agent.description = "Run conversation as GPTool script..."
     agent.fullName = "GPTools"
     agent.subCommandProvider = {
         provideSubCommands(token) {
