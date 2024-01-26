@@ -30,7 +30,7 @@ interface PromptLike extends PromptDefinition {
      * The actual text of the prompt template.
      * Only used for system prompts.
      */
-    text: string
+    text?: string
 }
 
 type SystemPromptId = string
