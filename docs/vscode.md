@@ -24,12 +24,21 @@ VSCode->>User: Display updated workspace
 
 ## Copilot Chat integration
 
-GPTools is exposed as the `@gptools` agent in Copilot Chat, each `gptool` is exposed as a slash command
+GPTools is exposed as the `@gptools` agent in Copilot Chat
+
+### Chat REPL
+
+When invoking the @gptools agent without a subcommand, the agent will aggregate the conversation
+into a gptool script and execute it. This is a great way to explore the capabilities of GPTools
+and interactively create a new gptool script.
+
+### Tools as slash commands
+
+Each `gptool` is exposed as a sub command
 using the tool id, e.g. the file name.
 
 > [!IMPORTANT]
 > Copilot Chat is currently a proposed API and requires Visual Studio Code Insiders.
-
 
 For example, to run the `front-matter` tool on the current file, type in the Copilot chat:
 
