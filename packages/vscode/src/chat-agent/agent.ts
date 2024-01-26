@@ -8,6 +8,68 @@ interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
 
 // follow https://github.com/microsoft/vscode/issues/199908
 
+function toChatAgentVariables(
+    variables: Record<string, vscode.ChatVariableValue[]>
+) {
+    const res: Record<string, (string | { uri: string })[]> = {}
+    for (const [key, values] of Object.entries(variables)) {
+        res[key] = values.map((v) =>
+            v.value instanceof vscode.Uri ? { uri: v.value.fsPath } : v.value
+        )
+    }
+    return res
+}
+
+function toChatAgentRequest(request: vscode.ChatAgentRequest) {
+    return {
+        role: request.agentId,
+        content: request.prompt,
+        subCommand: request.subCommand,
+        agentId: request.agentId,
+        variables: toChatAgentVariables(request.variables),
+    }
+}
+
+function uriPosToUri(uri: vscode.Uri | vscode.Location) {
+    if (!uri) return undefined
+    if (uri instanceof vscode.Location) return uri.uri.fsPath
+    return uri.fsPath
+}
+
+function uriPosToPosition(uri: vscode.Uri | vscode.Location): CharPosition {
+    if (uri instanceof vscode.Location)
+        return [uri.range.start.line, uri.range.end.line]
+    return undefined
+}
+
+function toChatAgentFileTree(
+    tree: vscode.ChatAgentFileTreeData
+): ChatMessageFileTreeNode {
+    if (!tree) return undefined
+    return {
+        uri: tree.uri.fsPath,
+        label: tree.label,
+        children: tree.children?.map((c) => toChatAgentFileTree(c)),
+    }
+}
+
+function toChatAgentResponse(
+    response: vscode.ChatAgentContentProgress[]
+): ChatMessageResponse[] {
+    return response.map((resp) => ({
+        content: (resp as vscode.ChatAgentContent)?.content,
+        uri: uriPosToUri(
+            (resp as vscode.ChatAgentInlineContentReference)?.inlineReference
+        ),
+        position: uriPosToPosition(
+            (resp as vscode.ChatAgentInlineContentReference)?.inlineReference
+        ),
+        fileTree: toChatAgentFileTree(
+            (resp as vscode.ChatAgentFileTree)?.treeData
+        ),
+    }))
+}
+
 export function toChatAgentContext(
     request: vscode.ChatAgentRequest,
     chatContext: vscode.ChatAgentContext
@@ -16,8 +78,8 @@ export function toChatAgentContext(
         history: chatContext.history.map(
             (m) =>
                 <ChatMessage>{
-                    role: m.request.agentId,
-                    content: m.request.prompt,
+                    request: toChatAgentRequest(m.request),
+                    response: toChatAgentResponse(m.response),
                 }
         ),
         prompt: request.prompt || "",
@@ -92,9 +154,14 @@ These steps will not be needed once the API gets fully released.
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
         const { subCommand } = request
-        const template =
-            subCommand &&
-            state.project?.templates.find(({ id }) => id === subCommand)
+        let template: PromptTemplate
+        if (subCommand && subCommand !== "run") {
+            template = state.project?.templates.find(
+                ({ id }) => id === subCommand
+            )
+        } else if (!subCommand) {
+            // no subcommand, create template from history and execute
+        }
 
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
