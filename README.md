@@ -17,6 +17,7 @@ that ignores the internal details of the implementation.'
 -  🔑 [Building a Azure Bicep Analyzer](https://github.com/microsoft/gptools/assets/4175913/d8e9f080-9e47-4667-b10a-ea5b544b1125)
 -  💬 [Copilot Chat to GPTools](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
 -  📑 [Structured Data Extraction](https://github.com/microsoft/gptools/assets/4175913/907ca886-7344-4341-986c-e288148fd501)
+-  🎥 [Video transcript converter](https://github.com/microsoft/gptools/assets/4175913/9b49d291-91f2-4739-b8f4-aa4332dc08ac)
 
 
 ## Overview
