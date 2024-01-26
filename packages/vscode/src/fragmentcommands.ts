@@ -44,26 +44,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         } else return (picked as TemplateQuickPickItem)?.template
     }
 
-    const fragmentExecute = async (
-        fragment: Fragment,
-        label: string,
-        templateId: string,
-        chat: ChatRequestContext
-    ) => {
-        if (!fragment) return
-
-        fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
-        const template = fragment.file.project.getTemplate(templateId)
-
-        await state.cancelAiRequest()
-        await state.requestAI({
-            fragment,
-            template,
-            label,
-            chat,
-        })
-    }
-
     const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
         // "next logic"
         if (frag === undefined && state.aiRequest) {
@@ -140,7 +120,16 @@ export function activateFragmentCommands(state: ExtensionState) {
             })
             if (!template) return
         }
-        await fragmentExecute(fragment, template.title, template.id, chat)
+
+        if (!fragment) return
+
+        fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
+        await state.requestAI({
+            fragment,
+            template,
+            label: template.id,
+            chat,
+        })
     }
     const fragmentNavigate = async (fragment: Fragment | string) => {
         fragment = state.project.resolveFragment(fragment)

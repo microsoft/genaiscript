@@ -30,7 +30,7 @@ interface PromptLike extends PromptDefinition {
      * The actual text of the prompt template.
      * Only used for system prompts.
      */
-    text: string
+    text?: string
 }
 
 type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
@@ -181,11 +181,32 @@ interface LinkedFile {
 
 type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
-// ChatML
-interface ChatMessage {
+interface ChatMessageRequest {
     role: ChatMessageRole
     content: string
+    agentId?: string
+    subCommand?: string
     name?: string
+    variables: Record<string, (string | { uri: string })[]>
+}
+
+interface ChatMessageFileTreeNode {
+    uri: string
+    label: string
+    children?: ChatMessageFileTreeNode[]
+}
+
+interface ChatMessageResponse {
+    content?: string
+    uri?: string
+    position?: CharPosition
+    fileTree?: ChatMessageFileTreeNode
+}
+
+// ChatML
+interface ChatMessage {
+    request: ChatMessageRequest
+    response: ChatMessageResponse[]
 }
 
 interface ChatAgentContext {

@@ -575,7 +575,7 @@ export async function runTemplate(
     const { signal } = requestOptions
     const version = coreVersion
 
-    options.infoCb?.({ text: "Preparing" })
+    options.infoCb?.({ text: "Preparing prompt" })
 
     trace.heading(2, label || template.id)
 

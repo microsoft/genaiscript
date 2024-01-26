@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
 import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
 import { RunTemplateOptions, logInfo, logVerbose } from "gptools-core"
 
+const AGENT_ID = "gptools"
+
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
-    slashCommand: string
+    template?: PromptTemplate
+    subCommand: string
 }
 
 // follow https://github.com/microsoft/vscode/issues/199908
@@ -70,7 +74,7 @@ function toChatAgentResponse(
     }))
 }
 
-export function toChatAgentContext(
+function toChatAgentContext(
     request: vscode.ChatAgentRequest,
     chatContext: vscode.ChatAgentContext
 ): ChatAgentContext {
@@ -85,6 +89,81 @@ export function toChatAgentContext(
         prompt: request.prompt || "",
     }
     return res
+}
+
+function wrapComment(text: string) {
+    if (!text) return ""
+    const lines = text.split("\n")
+    if (lines.length === 1) return `// ${text}`
+    else return `/*\n${lines.map((l) => ` * ${l}`).join("\n")}\n */`
+}
+
+function chatRequestToPromptTemplate(
+    request: vscode.ChatAgentRequest,
+    context: ChatAgentContext
+): PromptTemplate {
+    const args: PromptArgs = {
+        title: "",
+        chatOutput: "inline",
+    }
+    let id = "copilot"
+    let jsSource = `def("FILE", env.files)\n\n`
+
+    for (const msg of context.history) {
+        const { request, response } = msg
+        const { agentId, subCommand, content } = request
+
+        // process input
+        if (agentId === AGENT_ID) {
+            switch (subCommand) {
+                case "title":
+                    args.title = content
+                    break
+                case "description":
+                    args.description = content
+                    break
+                case "model":
+                    args.model = content
+                    break
+                case "system": // todo validate
+                    args.system = (args.system || []).concat(content)
+                    break
+                case "temperature":
+                    args.temperature = parseFloat(content)
+                    break
+                case "top_p":
+                    args.topP = parseFloat(content)
+                    break
+                default:
+                    if (subCommand) {
+                        // calling into another template
+                        // TODO
+                        jsSource += `call(${subCommand}, "${content}")\n`
+                    } else {
+                        // no subcommand, just add the content
+                        jsSource += `$\`${content.replace("`", "\\`")}\`\n`
+                    }
+            }
+        } else if (agentId) {
+            // other agent id, not supported
+            // TODO
+            jsSource += wrapComment(`${agentId}: ${content}`)
+        }
+    }
+
+    if (!request.subCommand && context.prompt)
+        jsSource += `$\`${context.prompt.replace("`", "\\`")}\`\n`
+
+    jsSource = `gptool(${JSON.stringify({ id, ...args }, null, 4)})\n\n${jsSource}`
+
+    const template: PromptTemplate = {
+        ...args,
+        id,
+        jsSource,
+    }
+
+    logVerbose(`copilot template:\n${jsSource}}`)
+    return template
 }
 
 export function activateChatAgent(state: ExtensionState) {
@@ -154,33 +233,37 @@ These steps will not be needed once the API gets fully released.
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
         const { subCommand } = request
-        let template: PromptTemplate
-        if (subCommand && subCommand !== "run") {
-            template = state.project?.templates.find(
-                ({ id }) => id === subCommand
-            )
-        } else if (!subCommand) {
-            // no subcommand, create template from history and execute
+        const res = <ICatChatAgentResult>{
+            subCommand,
+        }
+        const context = toChatAgentContext(request, chatContext)
+        let template = state.project?.templates.find(
+            ({ id }) => id === subCommand
+        )
+        if (!template) {
+            progress.report({ message: "Genering script" })
+            template = chatRequestToPromptTemplate(request, context)
+            res.template = template
         }
 
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
         await vscode.commands.executeCommand("coarch.fragment.prompt", {
             chat: <ChatRequestContext>{
-                context: toChatAgentContext(request, chatContext),
+                context,
                 progress,
                 token,
                 access,
             },
             template,
         })
-        return { slashCommand: "run" }
+        return res
     }
 
     // Agents appear as top-level options in the chat input
     // when you type `@`, and can contribute sub-commands in the chat input
     // that appear when you type `/`.
-    const agent = vscode.chat.createChatAgent("gptools", handler)
+    const agent = vscode.chat.createChatAgent(AGENT_ID, handler)
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
     agent.description = "Run GPTools within the chat..."
     agent.fullName = "GPTools"
@@ -211,19 +294,27 @@ These steps will not be needed once the API gets fully released.
             result: ICatChatAgentResult,
             token: vscode.CancellationToken
         ) {
+            const follows: vscode.ChatAgentFollowup[] = []
+            if (result.template) {
+                follows.push({
+                    commandId: "coarch.prompt.create",
+                    message:
+                        "Save generated GPTool script in current workspace.",
+                    title: "Save GPTools Script",
+                    args: [result.template],
+                })
+            }
             if (
-                result.slashCommand === "run" &&
+                result.subCommand === "run" &&
                 state.aiRequest?.response?.edits?.length
             ) {
-                return [
-                    {
-                        commandId: "coarch.request.applyEdits",
-                        message: "Review the changes in the Refactorings view.",
-                        title: "Preview Edits",
-                    },
-                ]
+                follows.push({
+                    commandId: "coarch.request.applyEdits",
+                    message: "Review the changes in the Refactorings view.",
+                    title: "Preview Edits",
+                })
             }
-            return []
+            return follows
         },
     }
 }

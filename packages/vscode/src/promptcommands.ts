@@ -35,19 +35,20 @@ export function activatePromptCommands(state: ExtensionState) {
             edit.insert(newFile, new vscode.Position(0, 0), TEMPLATE)
             vscode.workspace.applyEdit(edit)
         }),
-        vscode.commands.registerCommand("coarch.prompt.create", async () => {
-            const name = await vscode.window.showInputBox({
-                title: "Pick a file name for the new GPTool.",
-            })
-            if (name === undefined) return
-            await showPrompt(
-                await copyPrompt(
-                    {
+        vscode.commands.registerCommand(
+            "coarch.prompt.create",
+            async (template?: PromptTemplate) => {
+                const name = await vscode.window.showInputBox({
+                    title: "Pick a file name for the new GPTool.",
+                })
+                if (name === undefined) return
+                const t = structuredClone(
+                    template || {
                         id: "",
                         title: "my tool",
                         text: "New GPtool empty template",
                         jsSource: `gptool({
-    title: "${name}",
+title: "${name}",
 })
 
 // use $ to output formatted text to the prompt
@@ -55,12 +56,15 @@ $\`You are a helpful assistant.\`
 
 // use def to emit LLM variables
 def("FILE", env.files)
-                `,
-                    },
-                    { fork: false, name }
+        `,
+                    }
                 )
-            )
-        }),
+                t.id = ""
+                delete t.chatOutput
+
+                await showPrompt(await copyPrompt(t, { fork: false, name }))
+            }
+        ),
         vscode.commands.registerCommand(
             "coarch.prompt.fork",
             async (template: PromptTemplate) => {
