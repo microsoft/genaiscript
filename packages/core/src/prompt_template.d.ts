@@ -182,7 +182,6 @@ interface LinkedFile {
 type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
 interface ChatMessageRequest {
-    role: ChatMessageRole
     content: string
     agentId?: string
     subCommand?: string
