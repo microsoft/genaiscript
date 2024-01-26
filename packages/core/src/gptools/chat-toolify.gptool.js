@@ -53,6 +53,6 @@ $\`<the generated prompt from the user intent>\`
 
 // use def to emit and reference chunks of text
 def("CHAT_HISTORY", env.chat.history
-    .map(({ role, content }) => `- [${role}] ${content}\n`)
+    .map(({ request }) => `- [${request.role}] ${request.content}\n`)
     .join("\n"), { language: "markdown" })
 
