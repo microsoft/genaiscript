@@ -95,3 +95,9 @@ declare function fetchText(
  * @param schema JSON schema instance
  */
 declare function defSchema(name: string, schema: JSONSchema)
+
+/**
+ * Search the query workspace for files.
+ * @param query 
+ */
+declare function search(query: string): Promise<LinkedFile[]>

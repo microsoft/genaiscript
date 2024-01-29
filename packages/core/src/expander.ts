@@ -33,6 +33,7 @@ import { YAMLTryParse } from "./yaml"
 import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { coreVersion } from "./version"
+import { createAPIClient } from "./services/client"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -123,6 +124,7 @@ async function callExpander(
     let promptText = ""
     let success = true
     const parsers = createParsers()
+    const apis = createAPIClient()
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
             const v = target[prop]
@@ -154,6 +156,27 @@ async function callExpander(
                 },
                 gptool: () => {},
                 system: () => {},
+                search: async (query: string) => {
+                    try {
+                        trace.startDetails(`search`)
+                        trace.item(`query: ${query}`)
+                        const resp = await apis.search({ query })
+                        trace.item(`status: ${resp.status}, ${resp.statusText}`)
+
+                        const res: LinkedFile[] = []
+                        if (!resp.ok) trace.error(resp.statusText)
+                        else
+                            for (const doc of resp.data?.documents || []) {
+                                res.push(<LinkedFile>{
+                                    filename: doc.uri,
+                                    content: await readText(doc.uri),
+                                })
+                            }
+                        return res
+                    } finally {
+                        trace.endDetails()
+                    }
+                },
                 fetchText: async (urlOrFile) => {
                     if (typeof urlOrFile === "string") {
                         urlOrFile = {

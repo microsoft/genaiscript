@@ -369,6 +369,7 @@ async function parseMeta(r: PromptTemplate) {
                         },
                     }
                 },
+                search: async () => [],
             },
             r.jsSource
         )

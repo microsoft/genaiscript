@@ -570,6 +570,7 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
+    search(query: string): Promise<LinkedFile[]>
     env: ExpansionVariables
     path: Path
     parsers: Parsers
