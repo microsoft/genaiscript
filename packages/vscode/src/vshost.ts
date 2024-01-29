@@ -1,4 +1,5 @@
 import {
+    AZURE_OPENAI_API_VERSION,
     CHANGE,
     Host,
     LogLevel,
@@ -115,8 +116,9 @@ export class VSCodeHost extends EventTarget implements Host {
                     ".env",
                     `#/-------------------OpenAI configuration---------------------/
 OPENAI_API_KEY="<your token>"
-OPENAI_API_BASE="https://api.openai.com/v1/"
-# OPENAI_API_TYPE="azure"
+# For Azure
+# AZURE_OPENAI_ENDPOINT="https://<your-resource-name>.openai.azure.com/"
+# OPENAI_API_VERSION="${AZURE_OPENAI_API_VERSION}"
 `
                 )
 
