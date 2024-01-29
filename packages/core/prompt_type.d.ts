@@ -98,6 +98,9 @@ declare function defSchema(name: string, schema: JSONSchema)
 
 /**
  * Search the query workspace for files.
- * @param query 
+ * @param query search query
  */
-declare function search(query: string): Promise<LinkedFile[]>
+declare function search(
+    query: string,
+    options?: SearchOptions
+): Promise<LinkedFile[]>

@@ -546,6 +546,13 @@ interface Parsers {
     TOML(text: string): unknown | undefined
 }
 
+interface SearchOptions {
+    /**
+     * How many embeddings to return
+     */
+    topK?: number
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -570,7 +577,7 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
-    search(query: string): Promise<LinkedFile[]>
+    search(query: string, options?: SearchOptions): Promise<LinkedFile[]>
     env: ExpansionVariables
     path: Path
     parsers: Parsers
