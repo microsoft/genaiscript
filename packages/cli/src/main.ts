@@ -5,13 +5,11 @@ import {
     YAMLStringify,
     clip,
     coreVersion,
-    createIssue,
     diagnosticsToCSV,
     extractFenced,
     host,
     isRequestError,
     logVerbose,
-    parseGHTokenFromEnv,
     parseProject,
     readText,
     runTemplate,
@@ -83,7 +81,6 @@ async function run(
         model: string
         csvSeparator: string
         failOnErrors: boolean
-        githubIssues: boolean
     }
 ) {
     const stream = !options.json && !options.yaml
@@ -104,7 +101,6 @@ async function run(
     const applyEdits = !!options.applyEdits
     const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
-    const githubIssues = options.githubIssues
 
     let spec: string
     let specContent: string
@@ -254,26 +250,6 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         }
     }
 
-    const errors = res.annotations?.filter((a) => a.severity === "error")
-    if (githubIssues && errors?.length) {
-        logVerbose(`writing errors`)
-        const conn = parseGHTokenFromEnv(process.env)
-        for (const a of errors) {
-            await createIssue(
-                conn,
-                `[gptools] ${a.message.split(".", 1)[0]} at ${a.filename}#L${
-                    a.range[0][0]
-                }`,
-                `${a.message}
-
--  ${a.filename}#L${a.range[0][0]}
-
-Error reported by gptools ${gptool.id}.
-`
-            )
-        }
-    }
-
     // final fail
     if (res.error) {
         logVerbose(`error: ${res.error}`)
@@ -407,7 +383,6 @@ async function main() {
             "180000"
         )
         .option("-l, --label <string>", "label for the run")
-        .option("-ghi, --github-issues", "create a github issues for errors")
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
