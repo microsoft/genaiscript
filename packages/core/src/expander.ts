@@ -299,7 +299,7 @@ async function expandTemplate(
     }
     trace.endDetails()
 
-    trace.detailsFenced("📓 gptool.js source", template.jsSource, "js")
+    trace.detailsFenced("📓 gptool source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
