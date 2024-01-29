@@ -3,6 +3,22 @@ info:
     title: GPTools Server API
     version: "1.0"
 paths:
+    /status:
+        get:
+            description: Ping the server and receives a heartbeat
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        description: Message from the server
+                                required:
+                                    - "message"
     /search:
         get:
             description: Search for documents

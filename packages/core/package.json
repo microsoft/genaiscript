@@ -28,7 +28,7 @@
         "yaml": "^2.3.4"
     },
     "scripts": {
-        "build:openapi": "openapi-typescript ./src/services/api.yml -o ./src/services/api.d.ts",
+        "build:openapi": "openapi-typescript ./src/services/api.yml -o ./src/services/api.ts",
         "typecheck": "tsc -p src",
         "prompts:bundle": "node bundleprompts.mjs",
         "pretypecheck": "yarn build:openapi && yarn prompts:bundle"

@@ -5,6 +5,22 @@
 
 
 export interface paths {
+  "/status": {
+    /** @description Ping the server and receives a heartbeat */
+    get: {
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              /** @description Message from the server */
+              message: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/search": {
     /** @description Search for documents */
     get: {
