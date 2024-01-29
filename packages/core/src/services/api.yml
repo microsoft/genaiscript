@@ -1,6 +1,6 @@
 openapi: "3.0.2"
 info:
-    title: Retreival
+    title: GPTools Server API
     version: "1.0"
 paths:
     /search:
