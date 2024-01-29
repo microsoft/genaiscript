@@ -29,7 +29,7 @@
         "yamljs": "^0.3.0"
     },
     "scripts": {
-        "build:openapi:json": "yaml2json ./src/services/api.yml --pretty > ./built/api.json",
+        "build:openapi:json": "yaml2json ./src/services/api.yml --pretty > ./src/services/api.json",
         "build:openapi:ts": "openapi-typescript ./src/services/api.yml -o ./src/services/api.ts",
         "build:openapi": "yarn build:openapi:json && yarn build:openapi:ts",
         "typecheck": "tsc -p src",
