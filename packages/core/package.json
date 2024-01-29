@@ -25,12 +25,15 @@
         "toml": "^3.0.0",
         "typescript": "^5.3.3",
         "unified": "^10.1.2",
-        "yaml": "^2.3.4"
+        "yaml": "^2.3.4",
+        "yamljs": "^0.3.0"
     },
     "scripts": {
-        "build:openapi": "openapi-typescript ./src/services/api.yml -o ./src/services/api.ts",
+        "build:openapi:json": "yaml2json ./src/services/api.yml --pretty > ./built/api.json",
+        "build:openapi:ts": "openapi-typescript ./src/services/api.yml -o ./src/services/api.ts",
+        "build:openapi": "yarn build:openapi:json && yarn build:openapi:ts",
         "typecheck": "tsc -p src",
         "prompts:bundle": "node bundleprompts.mjs",
-        "pretypecheck": "yarn build:openapi && yarn prompts:bundle"
+        "pretypecheck": "yarn prompts:bundle"
     }
 }
