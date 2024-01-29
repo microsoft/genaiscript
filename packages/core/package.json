@@ -34,6 +34,6 @@
         "build:openapi": "yarn build:openapi:json && yarn build:openapi:ts",
         "typecheck": "tsc -p src",
         "prompts:bundle": "node bundleprompts.mjs",
-        "pretypecheck": "yarn prompts:bundle"
+        "pretypecheck": "yarn build:openapi && yarn prompts:bundle"
     }
 }
