@@ -427,6 +427,12 @@ export interface Fenced {
     validation?: JSONSchemaValidation
 }
 
+export interface DataFrame {
+    schema?: string
+    data: unknown
+    validation?: JSONSchemaValidation
+}
+
 /**
  * Parse output of LLM similar to output of coarch def() function.
  *
@@ -559,7 +565,6 @@ export function renderFencedVariables(vars: Fenced[]) {
             }
 ${v}
 \`\`\`\`\`
-${validation?.valid ? `> [!NOTE] Schema ${args.schema} validation ok` : ""}
 ${
     validation?.errors
         ? `> [!CAUTION] Schema ${args.schema} validation errors

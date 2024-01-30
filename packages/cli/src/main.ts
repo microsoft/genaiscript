@@ -13,6 +13,7 @@ import {
     parseProject,
     readText,
     runTemplate,
+    writeJSONL,
     writeText,
 } from "gptools-core"
 import { NodeHost } from "./nodehost"
@@ -29,6 +30,14 @@ const ANNOTATION_ERROR_CODE = -2
 async function write(name: string, content: string) {
     logVerbose(`writing ${name}`)
     await writeText(name, content)
+}
+
+async function append<T>(name: string, objs: T[], meta: object = {}) {
+    logVerbose(`appending ${name}`)
+    await writeJSONL(
+        name,
+        objs.map((obj) => ({ ...obj, ...meta }))
+    )
 }
 
 async function buildProject(options?: {
@@ -72,6 +81,7 @@ async function run(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
+        outData: string
         label: string
         temperature: string
         topP: string
@@ -93,6 +103,7 @@ async function run(
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
+    const outData = options.outData
     const label = options.label
     const temperature = parseFloat(options.temperature) ?? undefined
     const topP = parseFloat(options.topP) ?? undefined
@@ -181,17 +192,24 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     logVerbose(``)
     if (outTrace && res.trace) await write(outTrace, res.trace)
-    if (outAnnotations && res.annotations?.length)
-        await write(
-            outAnnotations,
-            /\.(c|t)sv$/i.test(outAnnotations)
-                ? diagnosticsToCSV(res.annotations, csvSeparator)
-                : /\.ya?ml$/i.test(outAnnotations)
-                  ? YAMLStringify(res.annotations)
-                  : JSON.stringify(res.annotations, null, 2)
-        )
+    if (outAnnotations && res.annotations?.length) {
+        if (/\.jsonl$/i.test(outAnnotations))
+            await append(outAnnotations, res.annotations)
+        else
+            await write(
+                outAnnotations,
+                /\.(c|t)sv$/i.test(outAnnotations)
+                    ? diagnosticsToCSV(res.annotations, csvSeparator)
+                    : /\.ya?ml$/i.test(outAnnotations)
+                      ? YAMLStringify(res.annotations)
+                      : JSON.stringify(res.annotations, null, 2)
+            )
+    }
     if (outChangelogs && res.changelogs?.length)
         await write(outChangelogs, res.changelogs.join("\n"))
+    if (outData && res.frames?.length)
+        if (/\.jsonl$/i.test(outAnnotations)) await append(outData, res.frames)
+        else await write(outData, JSON.stringify(res.frames, null, 2))
 
     if (applyEdits) {
         for (const fileEdit of Object.entries(res.fileEdits)) {
@@ -360,8 +378,12 @@ async function main() {
         )
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
+            "-od, --out-data <string>",
+            "output file for data (.jsonl will be aggregated)"
+        )
+        .option(
             "-oa, --out-annotations <string>",
-            "output file for annotations (.csv will be rendered as csv)"
+            "output file for annotations (.csv will be rendered as csv, .jsonl will be aggregated)"
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option("-j, --json", "emit full JSON response to output")
