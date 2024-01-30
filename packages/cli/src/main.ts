@@ -24,19 +24,20 @@ import { basename, resolve, join, relative, dirname } from "node:path"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { createNodePath } from "./nodepath"
 import { appendFile, writeFile } from "node:fs/promises"
-import { mkdir } from "fs-extra"
+import { emptyDir, ensureDir, remove } from "fs-extra"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
 
 async function write(name: string, content: string) {
-    logVerbose(`writing ${name}`)
     await writeText(name, content)
 }
 
-async function appendJSONL<T>(name: string, objs: T[]) {
-    logVerbose(`appending ${name}`)
-    await writeJSONL(name, objs)
+async function appendJSONL<T>(name: string, objs: T[], meta: any = {}) {
+    await writeJSONL(
+        name,
+        objs.map((obj) => ({ ...obj, ...meta }))
+    )
 }
 
 async function buildProject(options?: {
@@ -73,6 +74,7 @@ async function batch(
     specs: string[],
     options: {
         out: string
+        removeOut: boolean
         retry: string
         retryDelay: string
         maxDelay: string
@@ -84,25 +86,21 @@ async function batch(
         cache: boolean
     }
 ) {
-    const { out = "./results" } = options
+    const spinner = ora("preparing tool and files").start()
+
+    const { out = "./results", removeOut, model, cache, label } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
     const outFenced = join(out, "fenced.jsonl")
     const outOutput = join(out, "output.md")
     const outErrors = join(out, "errors.jsonl")
 
-    const spinner = ora("preparing tool and files").start()
-    await initToken() // ensure we have a token early
-
     const retry = parseInt(options.retry) || 8
     const retryDelay = parseInt(options.retryDelay) || 15000
     const maxDelay = parseInt(options.maxDelay) || 180000
-    const label = options.label
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
-    const model = options.model
-    const cache = !!options.cache
     const path = createNodePath()
 
     const toolFiles: string[] = []
@@ -136,20 +134,27 @@ async function batch(
     if (!gptool) throw new Error(`tool ${tool} not found`)
 
     spinner.succeed(
-        `${spinner.text}, ${gptool.id} (${gptool.title}), ${specFiles.length} files`
+        `tool: ${gptool.id} (${gptool.title}), files: ${specFiles.length}, out: ${resolve(out)}`
     )
 
-    await mkdir(out, { recursive: true })
-    await writeFile(outOutput, `# Results\n\n`)
-    for (const specFile of specFiles) {
+    spinner.start(`validating token`)
+    const tok = await initToken() // ensure we have a token early
+    spinner.succeed(`LLM: ${tok.url}`)
+
+    let totalTokens = 0
+    if (remove) await emptyDir(out)
+    await ensureDir(out)
+    for (let i = 0; i < specFiles.length; i++) {
+        const specFile = specFiles[i]
         try {
+            const file = specFile.replace(gpspecRx, "")
             spinner.suffixText = ""
-            spinner.start(specFile.replace(gpspecRx, ""))
+            spinner.start(`${file} (${i + 1}/${specFiles.length})`)
             const fragment = prj.rootFiles.find(
                 (f) => resolve(f.filename) === resolve(specFile)
             ).roots[0]
             let tokens = 0
-            const res: FragmentTransformResponse = await runTemplate(
+            const result: FragmentTransformResponse = await runTemplate(
                 gptool,
                 fragment,
                 {
@@ -172,29 +177,49 @@ async function batch(
                 }
             )
             // save results in various files
-            if (res.error)
-                await appendJSONL(outErrors, [
-                    { tool, spec: specFile, error: res.error },
+            if (result.error)
+                await writeJSONL(outErrors, [
+                    { tool, file, error: result.error },
                 ])
+            if (result.annotations?.length)
+                await appendJSONL(outAnnotations, result.annotations, {
+                    tool,
+                    file,
+                })
+            if (result.fences?.length)
+                await appendJSONL(outFenced, result.fences)
+            if (result.frames?.length)
+                await appendJSONL(outData, result.frames, { tool, file })
+
             // save results
             const outText = join(
                 out,
                 `${relative(".", specFile).replace(gpspecRx, ".md")}`
             )
-            await mkdir(dirname(outText), { recursive: true })
-            await writeFile(outText, res.text)
-
+            const outTrace = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".trace.md")}`
+            )
+            const outJSON = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".json")}`
+            )
+            await ensureDir(dirname(outText))
+            await writeFile(outText, result.text, { encoding: "utf8" })
+            await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- [${relative(".", specFile).replace(gpspecRx, "")}](${outText})\n`
+                `- [${relative(".", specFile).replace(gpspecRx, "")}](${outText})\n`,
+                { encoding: "utf8" }
             )
-            if (res.annotations?.length)
-                await appendJSONL(outAnnotations, res.annotations)
-            if (res.fences?.length) await appendJSONL(outFenced, res.fences)
-            if (res.frames?.length) await appendJSONL(outData, res.frames)
+            await writeFile(outJSON, JSON.stringify(result, null, 2), {
+                encoding: "utf8",
+            })
 
-            if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
+            if (result.error) spinner.fail(`${spinner.text}, ${result.error}`)
             else spinner.succeed()
+
+            totalTokens += tokens
         } catch (e) {
             await appendJSONL(outErrors, [
                 { tool, spec: specFile, error: e.message + "\n" + e.stack },
@@ -493,6 +518,7 @@ async function main() {
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
+        .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
             "-od, --out-data <string>",
