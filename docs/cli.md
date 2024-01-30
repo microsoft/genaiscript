@@ -42,10 +42,6 @@ The `GPTOOLS_TOKEN` should be formatted as follows
 
     https://<openai base>#key=<openai api key>
 
-### --json
-
-Output the entire response as JSON to the stdout.
-
 ### --out <file|directory>
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
@@ -59,6 +55,10 @@ If `file` does not end with `.json`, the path is treated as a directory path.
 ```bash
 node gptools.js run <tool> <spec> --out output
 ```
+
+### --json
+
+Output the entire response as JSON to the stdout.
 
 ### --out-trace <file>
 
@@ -78,10 +78,25 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 
 ### --out-annotations <file>
 
-Emit annotations in the specified file as a JSON array or a CSV file if the file ends with `.csv`.
+Emit annotations in the specified file as a JSON array, JSON Lines or a CSV file if the file ends with `.csv`.
 
 ```bash
 node gptools.js run <tool> <spec> --out-annotations diags.csv
+```
+
+Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
+
+```bash
+node gptools.js run <tool> <spec> --out-annotations diags.jsonl
+```
+
+### --out-data <file>
+
+Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
+and availabe, the JSON validation result is also stored.
+
+```bash
+node gptools.js run <tool> <spec> --out-data data.jsonl
 ```
 
 ### --out-changelogs <file>

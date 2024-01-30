@@ -379,7 +379,7 @@ async function main() {
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
             "-od, --out-data <string>",
-            "output file for data (.jsonl will be aggregated)"
+            "output file for data (.jsonl will be aggregated). JSON schema information and validation will be included if available."
         )
         .option(
             "-oa, --out-annotations <string>",
