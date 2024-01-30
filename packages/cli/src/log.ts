@@ -1,3 +1,4 @@
+import { stdout } from "node:process"
 export const coarchFolder = ".gptools"
 export const coarchExt = ".gptools.jsonl"
 
@@ -15,7 +16,7 @@ export function error(...args: any[]) {
     console.error(...wrapArgs(91, args))
 }
 
-export let consoleColors = true
+export let consoleColors = !!stdout.isTTY
 
 export function setConsoleColors(enabled: boolean) {
     consoleColors = !!enabled
