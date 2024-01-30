@@ -1,41 +1,45 @@
 import {
     FragmentTransformResponse,
-    MarkdownTrace,
     RequestError,
     YAMLStringify,
-    clip,
     coreVersion,
     diagnosticsToCSV,
     extractFenced,
     host,
+    initToken,
     isJSONLFilename,
     isRequestError,
     logVerbose,
     parseProject,
     readText,
     runTemplate,
-    writeJSONL,
+    appendJSONL as appendJSONLCore,
     writeText,
 } from "gptools-core"
+import ora from "ora"
 import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
 import getStdin from "get-stdin"
-import { basename, resolve, join } from "node:path"
+import { basename, resolve, join, relative, dirname } from "node:path"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
-import { ensureDir } from "fs-extra"
 import { createNodePath } from "./nodepath"
+import { appendFile, writeFile } from "node:fs/promises"
+import { emptyDir, ensureDir, remove } from "fs-extra"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
 
 async function write(name: string, content: string) {
-    logVerbose(`writing ${name}`)
     await writeText(name, content)
 }
 
-async function appendJSONL<T>(name: string, objs: T[]) {
-    logVerbose(`appending ${name}`)
-    await writeJSONL(name, objs)
+async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
+    if (meta)
+        await appendJSONLCore(
+            name,
+            objs.map((obj) => ({ ...obj, __meta: meta }))
+        )
+    else await appendJSONLCore(name, objs)
 }
 
 async function buildProject(options?: {
@@ -65,6 +69,171 @@ async function buildProject(options?: {
     return newProject
 }
 
+const gpspecRx = /\.gpspec\.md$/i
+const gptoolRx = /\.gptool\.js$/i
+async function batch(
+    tool: string,
+    specs: string[],
+    options: {
+        out: string
+        removeOut: boolean
+        retry: string
+        retryDelay: string
+        maxDelay: string
+        label: string
+        temperature: string
+        topP: string
+        seed: string
+        model: string
+        cache: boolean
+    }
+) {
+    const spinner = ora({ interval: 200 }).start("preparing tool and files")
+
+    const { out = "./results", removeOut, model, cache, label } = options
+    const outAnnotations = join(out, "annotations.jsonl")
+    const outData = join(out, "data.jsonl")
+    const outFenced = join(out, "fenced.jsonl")
+    const outOutput = join(out, "output.md")
+    const outErrors = join(out, "errors.jsonl")
+
+    const retry = parseInt(options.retry) || 12
+    const retryDelay = parseInt(options.retryDelay) || 15000
+    const maxDelay = parseInt(options.maxDelay) || 360000
+    const temperature = normalizeFloat(options.temperature)
+    const topP = normalizeFloat(options.topP)
+    const seed = normalizeFloat(options.seed)
+    const path = createNodePath()
+
+    const toolFiles: string[] = []
+    if (gptoolRx.test(tool)) toolFiles.push(tool)
+    const specFiles: string[] = []
+    for (const arg of specs) {
+        const ffs = await host.findFiles(arg)
+        for (const f of ffs) {
+            if (gpspecRx.test(f)) specFiles.push(f)
+            else {
+                const fp = `${f}.gpspec.md`
+                const md = `# Specification
+                
+-   [${basename(f)}](./${basename(f)})\n`
+                host.setVirtualFile(fp, md)
+                specFiles.push(fp)
+            }
+        }
+    }
+    const prj = await buildProject({
+        toolFiles,
+        specFiles,
+    })
+    const gptool = prj.templates.find(
+        (t) =>
+            t.id === tool ||
+            (t.filename &&
+                gptoolRx.test(tool) &&
+                resolve(t.filename) === resolve(tool))
+    )
+    if (!gptool) throw new Error(`tool ${tool} not found`)
+
+    spinner.succeed(
+        `tool: ${gptool.id} (${gptool.title}), files: ${specFiles.length}, out: ${resolve(out)}`
+    )
+
+    spinner.start(`validating token`)
+    const tok = await initToken() // ensure we have a token early
+    spinner.succeed(`LLM: ${tok.url}`)
+
+    let totalTokens = 0
+    if (remove) await emptyDir(out)
+    await ensureDir(out)
+    for (let i = 0; i < specFiles.length; i++) {
+        const specFile = specFiles[i]
+        const file = specFile.replace(gpspecRx, "")
+        const meta = { tool, file }
+        try {
+            spinner.suffixText = ""
+            spinner.start(`${file} (${i + 1}/${specFiles.length})`)
+            const fragment = prj.rootFiles.find(
+                (f) => resolve(f.filename) === resolve(specFile)
+            ).roots[0]
+            let tokens = 0
+            const result: FragmentTransformResponse = await runTemplate(
+                gptool,
+                fragment,
+                {
+                    infoCb: () => {},
+                    partialCb: ({ tokensSoFar }) => {
+                        tokens = tokensSoFar
+                        spinner.suffixText = `${tokens} tokens`
+                    },
+                    skipLLM: false,
+                    label,
+                    cache,
+                    temperature,
+                    topP,
+                    seed,
+                    model,
+                    retry,
+                    retryDelay,
+                    maxDelay,
+                    path,
+                }
+            )
+            // save results in various files
+            if (result.error)
+                await appendJSONL(outErrors, [{ error: result.error }], meta)
+            if (result.annotations?.length)
+                await appendJSONL(outAnnotations, result.annotations, meta)
+            if (result.fences?.length)
+                await appendJSONL(outFenced, result.fences, meta)
+            if (result.frames?.length)
+                await appendJSONL(outData, result.frames, meta)
+
+            // save results
+            const outText = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".md")}`
+            )
+            const outTrace = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".trace.md")}`
+            )
+            const outJSON = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".json")}`
+            )
+            await ensureDir(dirname(outText))
+            await writeFile(outText, result.text, { encoding: "utf8" })
+            await writeFile(outTrace, result.trace, { encoding: "utf8" })
+            await appendFile(
+                outOutput,
+                `- [${relative(".", specFile).replace(gpspecRx, "")}](${outText})\n`,
+                { encoding: "utf8" }
+            )
+            await writeFile(outJSON, JSON.stringify(result, null, 2), {
+                encoding: "utf8",
+            })
+
+            if (result.error) spinner.fail(`${spinner.text}, ${result.error}`)
+            else spinner.succeed()
+
+            totalTokens += tokens
+        } catch (e) {
+            await appendJSONL(
+                outErrors,
+                [{ error: e.message + "\n" + e.stack }],
+                meta
+            )
+            spinner.fail(`${spinner.text}, ${e.error}`)
+        }
+    }
+}
+
+function normalizeFloat(s: string) {
+    const f = parseFloat(s)
+    return isNaN(f) ? undefined : f
+}
+
 async function run(
     tool: string,
     specs: string[],
@@ -72,9 +241,9 @@ async function run(
         out: string
         retry: string
         retryDelay: string
+        maxDelay: string
         json: boolean
         yaml: boolean
-        maxDelay: string
         prompt: boolean
         outTrace: string
         outAnnotations: string
@@ -84,10 +253,10 @@ async function run(
         temperature: string
         topP: string
         seed: string
-        cache: boolean
-        applyEdits: boolean
         model: string
         csvSeparator: string
+        cache: boolean
+        applyEdits: boolean
         failOnErrors: boolean
     }
 ) {
@@ -103,9 +272,9 @@ async function run(
     const outChangelogs = options.outChangelogs
     const outData = options.outData
     const label = options.label
-    const temperature = parseFloat(options.temperature) ?? undefined
-    const topP = parseFloat(options.topP) ?? undefined
-    const seed = parseFloat(options.seed) ?? undefined
+    const temperature = normalizeFloat(options.temperature)
+    const topP = normalizeFloat(options.topP)
+    const seed = normalizeFloat(options.seed)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const model = options.model
@@ -118,9 +287,8 @@ async function run(
     let md: string
     const files: string[] = []
 
-    if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
+    if (gptoolRx.test(tool)) toolFiles.push(tool)
 
-    const gpspecRx = /\.gpspec\.md$/i
     if (!specs?.length) {
         specContent = await getStdin()
         spec = "stdin.gpspec.md"
@@ -157,7 +325,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         (t) =>
             t.id === tool ||
             (t.filename &&
-                /\.gptool\.(js|ts)$/i.test(tool) &&
+                gptoolRx.test(tool) &&
                 resolve(t.filename) === resolve(tool))
     )
     if (!gptool) throw new Error(`tool ${tool} not found`)
@@ -178,9 +346,9 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         skipLLM,
         label,
         cache,
-        temperature: isNaN(temperature) ? undefined : temperature,
-        topP: isNaN(topP) ? undefined : topP,
-        seed: isNaN(seed) ? undefined : seed,
+        temperature,
+        topP,
+        seed,
         model,
         retry,
         retryDelay,
@@ -228,7 +396,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         const outputf = mkfn(".output.md")
         const tracef = mkfn(".trace.md")
         const annotationf = res.annotations?.length
-            ? mkfn(".annotation.csv")
+            ? mkfn(".annotations.csv")
             : undefined
         const specf = specContent ? mkfn(".gpspec.md") : undefined
         const changelogf = res.changelogs?.length
@@ -291,31 +459,6 @@ async function listTools() {
     )
 }
 
-async function listSpecs() {
-    const prj = await buildProject()
-    prj.rootFiles.forEach((f) => console.log(f.filename))
-}
-
-async function convertToMarkdown(
-    path: string,
-    options: {
-        out: string
-    }
-) {
-    const { out } = options
-    const trace = new MarkdownTrace()
-    if (/^http?s:/i.test(path)) {
-    } else {
-        const files = await host.findFiles(path)
-        if (out) await ensureDir(out)
-        for (const file of files) {
-            const outf = out ? join(out, basename(file) + ".md") : file + ".md"
-            console.log(`converting ${file} -> ${outf}`)
-            await clip(host, trace, file, outf)
-        }
-    }
-}
-
 async function helpAll() {
     console.log(`# GPTools CLI\n`)
 
@@ -369,12 +512,13 @@ async function main() {
 
     program
         .command("run")
-        .description("Runs a GPTools against a GPSpec")
+        .description("Runs a GPTools against files or stdin.")
         .arguments("<tool> [spec...]")
         .option(
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
+        .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
             "-od, --out-data <string>",
@@ -408,10 +552,38 @@ async function main() {
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
         .option("-se, --seed <number>", "seed for the run")
-        .option("-ae, --apply-edits", "apply file edits")
         .option("--no-cache", "disable LLM result cache")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
+        .option("-ae, --apply-edits", "apply file edits")
         .action(run)
+
+    program
+        .command("batch")
+        .description("Run a tool on a batch of specs")
+        .arguments("<tool> [spec...]")
+        .option(
+            "-o, --out <string>",
+            "output folder. Extra markdown fields for output and trace will also be generated"
+        )
+
+        .option("-r, --retry <number>", "number of retries", "8")
+        .option(
+            "-rd, --retry-delay <number>",
+            "minimum delay between retries",
+            "15000"
+        )
+        .option(
+            "-md, --max-delay <number>",
+            "maximum delay between retries",
+            "180000"
+        )
+        .option("-l, --label <string>", "label for the run")
+        .option("-t, --temperature <number>", "temperature for the run")
+        .option("-tp, --top-p <number>", "top-p for the run")
+        .option("-m, --model <string>", "model for the run")
+        .option("-se, --seed <number>", "seed for the run")
+        .option("--no-cache", "disable LLM result cache")
+        .action(batch)
 
     const keys = program
         .command("keys")
@@ -444,12 +616,6 @@ async function main() {
         .description("List all available tools")
         .action(listTools)
 
-    const specs = program.command("specs").description("Manage GPSpecs")
-    specs
-        .command("list", { isDefault: true })
-        .description("List all available specs")
-        .action(listSpecs)
-
     const parser = program
         .command("parse")
         .description("Parse output of a GPSpec in various formats")
@@ -457,13 +623,6 @@ async function main() {
         .command("region <language>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
-
-    program
-        .command("convert")
-        .description("Convert HTML files or URLs to markdown format")
-        .arguments("<path>")
-        .option("-o, --out <string>", "output directory")
-        .action(convertToMarkdown)
 
     program
         .command("help-all", { hidden: true })
