@@ -17,6 +17,7 @@ import {
     writeText,
     MarkdownTrace,
     convertAnnotationToGitHubActionCommand,
+    readJSONL,
 } from "gptools-core"
 import ora from "ora"
 import { NodeHost } from "./nodehost"
@@ -26,12 +27,22 @@ import { basename, resolve, join, relative, dirname } from "node:path"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { createNodePath } from "./nodepath"
 import { appendFile, writeFile } from "node:fs/promises"
-import { emptyDir, ensureDir, remove } from "fs-extra"
+import { emptyDir, ensureDir } from "fs-extra"
+import replaceExt from "replace-ext"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
 const FILES_NOT_FOUND = -3
 const GENERATION_ERROR = -4
+
+async function expandFiles(files: string[]) {
+    const res: string[] = []
+    for (const file of files) {
+        const f = await host.findFiles(file)
+        res.push(...f)
+    }
+    return res
+}
 
 async function write(name: string, content: string) {
     await writeText(name, content)
@@ -526,6 +537,23 @@ async function parseFence(language: string) {
     console.log(fences.map((f) => f.content).join("\n\n"))
 }
 
+async function jsonl2json(files: string[]) {
+    const spinner = ora({ interval: 200 })
+    for (const file of await expandFiles(files)) {
+        spinner.suffixText = ""
+        spinner.start(file)
+        if (!isJSONLFilename(file)) {
+            spinner.suffixText = "not a jsonl file"
+            spinner.fail()
+            continue
+        }
+        const objs = await readJSONL(file)
+        const out = replaceExt(file, ".json")
+        await write(out, JSON.stringify(objs, null, 2))
+        spinner.succeed()
+    }
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -652,6 +680,11 @@ async function main() {
         .command("list", { isDefault: true })
         .description("List all available tools")
         .action(listTools)
+
+    program
+        .command("jsonl2json", "Converts JSONL files to a JSON file")
+        .argument("<file...>", "input JSONL files")
+        .action(jsonl2json)
 
     const parser = program
         .command("parse")
