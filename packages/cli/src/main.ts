@@ -8,6 +8,7 @@ import {
     diagnosticsToCSV,
     extractFenced,
     host,
+    isJSONLFilename,
     isRequestError,
     logVerbose,
     parseProject,
@@ -32,12 +33,9 @@ async function write(name: string, content: string) {
     await writeText(name, content)
 }
 
-async function append<T>(name: string, objs: T[], meta: object = {}) {
+async function appendJSONL<T>(name: string, objs: T[]) {
     logVerbose(`appending ${name}`)
-    await writeJSONL(
-        name,
-        objs.map((obj) => ({ ...obj, ...meta }))
-    )
+    await writeJSONL(name, objs)
 }
 
 async function buildProject(options?: {
@@ -193,8 +191,8 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     logVerbose(``)
     if (outTrace && res.trace) await write(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length) {
-        if (/\.jsonl$/i.test(outAnnotations))
-            await append(outAnnotations, res.annotations)
+        if (isJSONLFilename(outAnnotations))
+            await appendJSONL(outAnnotations, res.annotations)
         else
             await write(
                 outAnnotations,
@@ -208,7 +206,8 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
     if (outChangelogs && res.changelogs?.length)
         await write(outChangelogs, res.changelogs.join("\n"))
     if (outData && res.frames?.length)
-        if (/\.jsonl$/i.test(outAnnotations)) await append(outData, res.frames)
+        if (isJSONLFilename(outAnnotations))
+            await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 
     if (applyEdits) {
@@ -374,16 +373,16 @@ async function main() {
         .arguments("<tool> [spec...]")
         .option(
             "-o, --out <string>",
-            "output file. Extra markdown fields for output and trace will also be generated"
+            "output folder. Extra markdown fields for output and trace will also be generated"
         )
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
             "-od, --out-data <string>",
-            "output file for data (.jsonl will be aggregated). JSON schema information and validation will be included if available."
+            "output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available."
         )
         .option(
             "-oa, --out-annotations <string>",
-            "output file for annotations (.csv will be rendered as csv, .jsonl will be aggregated)"
+            "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)"
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option("-j, --json", "emit full JSON response to output")
