@@ -95,9 +95,9 @@ async function batch(
     const outOutput = join(out, "output.md")
     const outErrors = join(out, "errors.jsonl")
 
-    const retry = parseInt(options.retry) || 8
+    const retry = parseInt(options.retry) || 12
     const retryDelay = parseInt(options.retryDelay) || 15000
-    const maxDelay = parseInt(options.maxDelay) || 180000
+    const maxDelay = parseInt(options.maxDelay) || 360000
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
