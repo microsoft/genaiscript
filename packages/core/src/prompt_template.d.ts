@@ -476,7 +476,7 @@ interface JSONSchemaObject {
     properties?: {
         [key: string]: {
             description?: string
-            type?: JSONSchemaType
+            type?: JSONSchemaType[]
         }
     }
     required?: string[]
