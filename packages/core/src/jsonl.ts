@@ -8,6 +8,10 @@ function tryReadFile(fn: string) {
     )
 }
 
+export function isJSONLFilename(fn: string) {
+    return /\.(jsonl|mdjson|ldjson)$/i.test(fn)
+}
+
 export async function readJSONL(fn: string) {
     const buf = await tryReadFile(fn)
     const res: any[] = []
