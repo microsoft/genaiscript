@@ -13,7 +13,7 @@ import {
     parseProject,
     readText,
     runTemplate,
-    writeJSONL,
+    appendJSONL as appendJSONLCore,
     writeText,
 } from "gptools-core"
 import ora from "ora"
@@ -33,11 +33,13 @@ async function write(name: string, content: string) {
     await writeText(name, content)
 }
 
-async function appendJSONL<T>(name: string, objs: T[], meta: any = {}) {
-    await writeJSONL(
-        name,
-        objs.map((obj) => ({ ...obj, ...meta }))
-    )
+async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
+    if (meta)
+        await appendJSONLCore(
+            name,
+            objs.map((obj) => ({ ...obj, __meta: meta }))
+        )
+    else await appendJSONLCore(name, objs)
 }
 
 async function buildProject(options?: {
@@ -146,8 +148,9 @@ async function batch(
     await ensureDir(out)
     for (let i = 0; i < specFiles.length; i++) {
         const specFile = specFiles[i]
+        const file = specFile.replace(gpspecRx, "")
+        const meta = { tool, file }
         try {
-            const file = specFile.replace(gpspecRx, "")
             spinner.suffixText = ""
             spinner.start(`${file} (${i + 1}/${specFiles.length})`)
             const fragment = prj.rootFiles.find(
@@ -178,18 +181,13 @@ async function batch(
             )
             // save results in various files
             if (result.error)
-                await writeJSONL(outErrors, [
-                    { tool, file, error: result.error },
-                ])
+                await appendJSONL(outErrors, [{ error: result.error }], meta)
             if (result.annotations?.length)
-                await appendJSONL(outAnnotations, result.annotations, {
-                    tool,
-                    file,
-                })
+                await appendJSONL(outAnnotations, result.annotations, meta)
             if (result.fences?.length)
-                await appendJSONL(outFenced, result.fences)
+                await appendJSONL(outFenced, result.fences, meta)
             if (result.frames?.length)
-                await appendJSONL(outData, result.frames, { tool, file })
+                await appendJSONL(outData, result.frames, meta)
 
             // save results
             const outText = join(
@@ -221,9 +219,11 @@ async function batch(
 
             totalTokens += tokens
         } catch (e) {
-            await appendJSONL(outErrors, [
-                { tool, spec: specFile, error: e.message + "\n" + e.stack },
-            ])
+            await appendJSONL(
+                outErrors,
+                [{ error: e.message + "\n" + e.stack }],
+                meta
+            )
             spinner.fail(`${spinner.text}, ${e.error}`)
         }
     }
