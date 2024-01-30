@@ -2,6 +2,7 @@ import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
 
 export interface JSONSchemaValidation {
+    schema?: JSONSchema
     valid: boolean
     errors?: string
 }
@@ -11,6 +12,12 @@ export function validateJSONSchema(
     object: any,
     schema: JSONSchema
 ): JSONSchemaValidation {
+    if (!schema)
+        return {
+            valid: false,
+            errors: "no schema provided",
+        }
+
     try {
         const ajv = new Ajv()
         const validate = ajv.compile(schema)
@@ -20,13 +27,14 @@ export function validateJSONSchema(
             trace.fence(validate.errors)
             trace.fence(schema, "json")
             return {
+                schema,
                 valid: false,
                 errors: ajv.errorsText(validate.errors),
             }
         }
-        return { valid: true }
+        return { schema, valid: true }
     } catch (e) {
         trace.error("schema validation failed", e)
-        return { valid: false, errors: e.message }
+        return { schema, valid: false, errors: e.message }
     }
 }

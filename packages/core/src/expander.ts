@@ -107,8 +107,6 @@ export interface FragmentTransformResponse {
      */
     fences?: Fenced[]
 
-    schemas?: Record<string, JSONSchema>
-
     /**
      * Parsed data sections
      */
@@ -960,20 +958,16 @@ export async function runTemplate(
         }
         // check if schema specified
         const schema = args?.schema
+        const schemaObj = schema && schemas[schema]
         if (schema) {
-            const schemaObj = schemas[schema]
-            if (!schemaObj) {
-                trace.error(`schema ${schema} not found`)
-                continue
-            }
+            if (!schemaObj) trace.error(`schema ${schema} not found`)
             fence.validation = validateJSONSchema(trace, data, schemaObj)
-        }
-
-        frames.push({
-            schema,
-            data,
-            validation: fence.validation,
-        })
+            frames.push({
+                schema,
+                data,
+                validation: fence.validation,
+            })
+        } else frames.push({ data })
     }
 
     if (fences?.length)
@@ -1149,7 +1143,6 @@ export async function runTemplate(
         version,
         fences,
         frames,
-        schemas,
     }
     options?.infoCb?.(res)
     return res
