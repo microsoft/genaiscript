@@ -15,6 +15,8 @@ import {
     runTemplate,
     appendJSONL as appendJSONLCore,
     writeText,
+    MarkdownTrace,
+    convertAnnotationToGitHubActionCommand,
 } from "gptools-core"
 import ora from "ora"
 import { NodeHost } from "./nodehost"
@@ -78,6 +80,7 @@ async function batch(
     specs: string[],
     options: {
         out: string
+        outSummary: string
         removeOut: boolean
         retry: string
         retryDelay: string
@@ -92,7 +95,14 @@ async function batch(
 ) {
     const spinner = ora({ interval: 200 }).start("preparing tool and files")
 
-    const { out = "./results", removeOut, model, cache, label } = options
+    const {
+        out = "./results",
+        removeOut,
+        model,
+        cache,
+        label,
+        outSummary,
+    } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
     const outFenced = join(out, "fenced.jsonl")
@@ -153,7 +163,7 @@ async function batch(
 
     let errors = 0
     let totalTokens = 0
-    if (remove) await emptyDir(out)
+    if (removeOut) await emptyDir(out)
     await ensureDir(out)
     for (let i = 0; i < specFiles.length; i++) {
         const specFile = specFiles[i]
@@ -188,6 +198,7 @@ async function batch(
                     path,
                 }
             )
+
             // save results in various files
             if (result.error)
                 await appendJSONL(outErrors, [{ error: result.error }], meta)
@@ -197,6 +208,12 @@ async function batch(
                 await appendJSONL(outFenced, result.fences, meta)
             if (result.frames?.length)
                 await appendJSONL(outData, result.frames, meta)
+            // add to summary
+            if (outSummary) {
+                const st = new MarkdownTrace()
+                st.details(file, result.text)
+                await appendFile(outSummary, st.content)
+            }
 
             // save results
             const outText = join(
@@ -229,6 +246,12 @@ async function batch(
             } else spinner.succeed()
 
             totalTokens += tokens
+
+            // if in a CI build, print annotations
+            if (result.annotations?.length && process.env.CI)
+                result.annotations
+                    .map(convertAnnotationToGitHubActionCommand)
+                    .forEach((d) => console.log(d))
         } catch (e) {
             errors++
             await appendJSONL(
@@ -576,10 +599,10 @@ async function main() {
         .description("Run a tool on a batch of specs")
         .arguments("<tool> [spec...]")
         .option(
-            "-o, --out <string>",
+            "-o, --out <folder>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
-
+        .option("-os", "--out-summary <file>", "append output summary in file")
         .option("-r, --retry <number>", "number of retries", "8")
         .option(
             "-rd, --retry-delay <number>",

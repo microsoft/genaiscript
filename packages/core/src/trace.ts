@@ -5,7 +5,7 @@ export class MarkdownTrace
     extends EventTarget
     implements ChatFunctionCallTrace
 {
-    _content: string = ""
+    private _content: string = ""
 
     static readonly CHANGE = "change"
 

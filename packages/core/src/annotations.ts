@@ -9,6 +9,11 @@ const ANNOTATIONS_RX =
  * @param line
  */
 export function parseAnnotations(text: string): Diagnostic[] {
+    const sevMap: Record<string, DiagnosticSeverity> = {
+        ["notice"]: "info",
+        ["warning"]: "warning",
+        ["error"]: "error",
+    }
     const annotations: Diagnostic[] = []
     const projectFolder = host.projectFolder()
     text?.replace(
@@ -18,7 +23,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
                 ? host.resolvePath(projectFolder, file)
                 : file
             const annotation: Diagnostic = {
-                severity,
+                severity: sevMap[severity] || severity,
                 filename,
                 range: [
                     [parseInt(line) - 1, 0],
@@ -31,6 +36,16 @@ export function parseAnnotations(text: string): Diagnostic[] {
         }
     )
     return annotations
+}
+
+export function convertAnnotationToGitHubActionCommand(d: Diagnostic) {
+    const sevMap: Record<DiagnosticSeverity, string> = {
+        ["info"]: "notice",
+        ["warning"]: "warning",
+        ["error"]: "error",
+    }
+
+    return `${sevMap[d.severity] || d.severity} file=${d.filename}, line=${d.range[0][0]}, endLine=${d.range[1][0]}::${d.message}`
 }
 
 export function convertAnnotationsToMarkdown(text: string): string {
