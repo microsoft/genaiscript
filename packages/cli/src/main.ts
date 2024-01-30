@@ -135,12 +135,15 @@ async function batch(
     )
     if (!gptool) throw new Error(`tool ${tool} not found`)
 
-    spinner.succeed()
+    spinner.succeed(
+        `${spinner.text}, ${gptool.id} (${gptool.title}), ${specFiles.length} files`
+    )
 
     await mkdir(out, { recursive: true })
     await writeFile(outOutput, `# Results\n\n`)
     for (const specFile of specFiles) {
         try {
+            spinner.suffixText = ""
             spinner.start(specFile.replace(gpspecRx, ""))
             const fragment = prj.rootFiles.find(
                 (f) => resolve(f.filename) === resolve(specFile)
@@ -153,7 +156,7 @@ async function batch(
                     infoCb: () => {},
                     partialCb: ({ tokensSoFar }) => {
                         tokens = tokensSoFar
-                        if (!isQuiet) process.stdout.write(".")
+                        spinner.suffixText = `${tokens} tokens`
                     },
                     skipLLM: false,
                     label,
@@ -191,10 +194,12 @@ async function batch(
             if (res.frames?.length) await appendJSONL(outData, res.frames)
 
             if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
-            else spinner.succeed(`${spinner.text}, ${tokens} tokens`)
+            else spinner.succeed()
         } catch (e) {
-            console.error(e)
-            spinner.fail()
+            await appendJSONL(outErrors, [
+                { tool, spec: specFile, error: e.message + "\n" + e.stack },
+            ])
+            spinner.fail(`${spinner.text}, ${e.error}`)
         }
     }
 }
