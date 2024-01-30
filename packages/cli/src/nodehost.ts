@@ -34,8 +34,12 @@ export class NodeHost implements Host {
         return await parseTokenFromEnv(process.env)
     }
     async setSecretToken(tok: OAIToken): Promise<void> {}
-    setVirtualFile(name: string, content: string) {
+
+    clearVirtualFiles(): void {
         this.virtualFiles = {}
+    }
+
+    setVirtualFile(name: string, content: string) {
         this.virtualFiles[resolve(name)] =
             this.createUTF8Encoder().encode(content)
     }
@@ -77,7 +81,7 @@ export class NodeHost implements Host {
         options?: ReadFileOptions
     ): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i
-        if(wksrx.test(name))
+        if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
 
         // virtual file handler

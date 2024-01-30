@@ -474,7 +474,7 @@ async function fragmentVars(
                 (f) => f.filename === ref.filename
             )
             if (!projectFile) {
-                trace.item(`reference ${ref.filename} not found`)
+                trace.error(`reference ${ref.filename} not found`)
                 continue
             }
 
