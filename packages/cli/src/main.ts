@@ -130,7 +130,7 @@ async function run(
         for (const arg of specs) {
             const ffs = await host.findFiles(arg)
             for (const file of ffs) {
-                if (gpspecRx.test(spec)) {
+                if (gpspecRx.test(file)) {
                     md += (await host.readFile(file)) + "\n"
                 } else {
                     files.push(file)
