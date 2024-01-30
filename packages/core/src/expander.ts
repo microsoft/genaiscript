@@ -10,6 +10,8 @@ import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, fileExists, logVerbose, readText, relativePath } from "./util"
 import {
+    DataFrame,
+    Fenced,
     evalPrompt,
     extractFenced,
     renderFencedVariables,
@@ -99,6 +101,18 @@ export interface FragmentTransformResponse {
      * GPTools version
      */
     version: string
+
+    /**
+     * Parsed fence sections
+     */
+    fences?: Fenced[]
+
+    schemas?: Record<string, JSONSchema>
+
+    /**
+     * Parsed data sections
+     */
+    frames?: DataFrame[]
 }
 
 function trimNewlines(s: string) {
@@ -253,8 +267,6 @@ async function expandTemplate(
 
     trace.startDetails("🛠️ gptool")
 
-    trace.startDetails(`👾 system`)
-
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
         systems.push("system")
@@ -284,8 +296,7 @@ async function expandTemplate(
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
-
-        trace.heading(3, `\`${systemTemplate}\` source`)
+        trace.startDetails(`👾 ${systemTemplate}`)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
         if (system.temperature !== undefined)
             trace.item(`temperature: ${system.temperature || ""}`)
@@ -294,10 +305,10 @@ async function expandTemplate(
             trace.item(`max tokens: ${system.maxTokens || ""}`)
 
         trace.fence(system.jsSource, "js")
-        trace.heading(4, "expanded")
+        trace.heading(3, "expanded")
         trace.fence(sysex, "markdown")
+        trace.endDetails()
     }
-    trace.endDetails()
 
     trace.detailsFenced("📓 gptool source", template.jsSource, "js")
 
@@ -397,8 +408,8 @@ async function expandTemplate(
 
         const schemas = env.schemas || {}
         for (const [k, v] of Object.entries(schemas)) {
-            trace.startDetails(`📋 schema ${k}`)
-            trace.fence(v, "json")
+            trace.startDetails(`📋 schema \'${k}\'`)
+            trace.fence(v, "yaml")
             trace.endDetails()
         }
     }
@@ -933,6 +944,7 @@ export async function runTemplate(
     const yaml = YAMLTryParse(text, undefined)
     const fences =
         json === undefined && yaml === yaml ? extractFenced(text) : []
+    const frames: DataFrame[] = []
 
     // validate schemas in fences
     for (const fence of fences.filter(
@@ -940,8 +952,9 @@ export async function runTemplate(
     )) {
         const { language, content: val, args } = fence
         // validate well formed json/yaml
-        const obj = language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
-        if (obj === undefined) {
+        const data =
+            language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
+        if (data === undefined) {
             trace.error(`invalid ${language} syntax`)
             continue
         }
@@ -953,8 +966,14 @@ export async function runTemplate(
                 trace.error(`schema ${schema} not found`)
                 continue
             }
-            fence.validation = validateJSONSchema(trace, obj, schemaObj)
+            fence.validation = validateJSONSchema(trace, data, schemaObj)
         }
+
+        frames.push({
+            schema,
+            data,
+            validation: fence.validation,
+        })
     }
 
     if (fences?.length)
@@ -1128,6 +1147,9 @@ export async function runTemplate(
         text,
         summary,
         version,
+        fences,
+        frames,
+        schemas,
     }
     options?.infoCb?.(res)
     return res
