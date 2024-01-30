@@ -538,6 +538,7 @@ ${e.message}`
             .filter((name) => !name.endsWith(".gpspec.md"))
         if (token?.isCancellationRequested) return undefined
 
+        this.host.clearVirtualFiles()
         this.host.setVirtualFile(
             specn,
             `# Specification
@@ -564,6 +565,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
         const fspath = document.uri.fsPath
         const fn = Utils.basename(document.uri)
         const specn = fspath + ".gpspec.md"
+        this.host.clearVirtualFiles()
         this.host.setVirtualFile(
             specn,
             `# Specification
