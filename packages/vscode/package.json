@@ -290,10 +290,10 @@
         "@types/isomorphic-fetch": "^0.0.39",
         "@types/mocha": "^10.0.6",
         "@types/vscode": "^1.85.0",
-        "@typescript-eslint/eslint-plugin": "^6.19.1",
-        "@typescript-eslint/parser": "^6.19.1",
-        "@vscode/test-web": "^0.0.50",
-        "@vscode/vsce": "^2.22.0",
+        "@typescript-eslint/eslint-plugin": "^6.20.0",
+        "@typescript-eslint/parser": "^6.20.0",
+        "@vscode/test-web": "^0.0.51",
+        "@vscode/vsce": "^2.23.0",
         "assert": "^2.1.0",
         "eslint": "^8.56.0",
         "gptools-cli": "*",
@@ -305,7 +305,7 @@
         "typescript": "^5.3.3",
         "vscode-uri": "^3.0.8",
         "zx": "^7.2.3",
-        "dotenv": "^16.4.0"
+        "dotenv": "^16.4.1"
     },
     "enabledApiProposals": [
         "chatAgents2",
