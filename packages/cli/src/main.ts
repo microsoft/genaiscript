@@ -16,6 +16,7 @@ import {
     writeJSONL,
     writeText,
 } from "gptools-core"
+import ora from "ora"
 import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
 import getStdin from "get-stdin"
@@ -88,7 +89,9 @@ async function batch(
     const outData = join(out, "data.jsonl")
     const outFenced = join(out, "fenced.jsonl")
     const outOutput = join(out, "output.md")
+    const outErrors = join(out, "errors.jsonl")
 
+    const spinner = ora("preparing tool and files").start()
     await initToken() // ensure we have a token early
 
     const retry = parseInt(options.retry) || 8
@@ -110,11 +113,10 @@ async function batch(
         for (const f of ffs) {
             if (gpspecRx.test(f)) specFiles.push(f)
             else {
-                const fp = relative(".", `${f}.gpspec.md`)
+                const fp = `${f}.gpspec.md`
                 const md = `# Specification
                 
--   [${basename(f)}](${relative(".", f)})\n`
-console.log(md)
+-   [${basename(f)}](./${basename(f)})\n`
                 host.setVirtualFile(fp, md)
                 specFiles.push(fp)
             }
@@ -133,56 +135,67 @@ console.log(md)
     )
     if (!gptool) throw new Error(`tool ${tool} not found`)
 
-    console.log(`results: ${out}`)
+    spinner.succeed()
+
     await mkdir(out, { recursive: true })
     await writeFile(outOutput, `# Results\n\n`)
     for (const specFile of specFiles) {
-        if (!isQuiet) console.log(`> ${specFile.replace(gpspecRx, "")}`)
-        const fragment = prj.rootFiles.find(
-            (f) => resolve(f.filename) === resolve(specFile)
-        ).roots[0]
-        let tokens = 0
-        const res: FragmentTransformResponse = await runTemplate(
-            gptool,
-            fragment,
-            {
-                infoCb: () => {},
-                partialCb: ({ tokensSoFar }) => {
-                    tokens = tokensSoFar
-                    if (!isQuiet) process.stdout.write(".")
-                },
-                skipLLM: false,
-                label,
-                cache,
-                temperature,
-                topP,
-                seed,
-                model,
-                retry,
-                retryDelay,
-                maxDelay,
-                path,
-            }
-        )
-        // save results in various files
-        console.debug(`  ${tokens} tokens\n`)
-        if (res.error) console.error(`error: ${res.error}\n`)
-        // save results
-        const outText = join(
-            out,
-            `${relative(".", specFile).replace(gpspecRx, ".md")}`
-        )
-        await mkdir(dirname(outText), { recursive: true })
-        await writeFile(outText, res.text)
+        try {
+            spinner.start(specFile.replace(gpspecRx, ""))
+            const fragment = prj.rootFiles.find(
+                (f) => resolve(f.filename) === resolve(specFile)
+            ).roots[0]
+            let tokens = 0
+            const res: FragmentTransformResponse = await runTemplate(
+                gptool,
+                fragment,
+                {
+                    infoCb: () => {},
+                    partialCb: ({ tokensSoFar }) => {
+                        tokens = tokensSoFar
+                        if (!isQuiet) process.stdout.write(".")
+                    },
+                    skipLLM: false,
+                    label,
+                    cache,
+                    temperature,
+                    topP,
+                    seed,
+                    model,
+                    retry,
+                    retryDelay,
+                    maxDelay,
+                    path,
+                }
+            )
+            // save results in various files
+            if (res.error)
+                await appendJSONL(outErrors, [
+                    { tool, spec: specFile, error: res.error },
+                ])
+            // save results
+            const outText = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".md")}`
+            )
+            await mkdir(dirname(outText), { recursive: true })
+            await writeFile(outText, res.text)
 
-        await appendFile(
-            outOutput,
-            `- [${relative(".", specFile).replace(gpspecRx, "")}](${outText})\n`
-        )
-        if (res.annotations?.length)
-            await appendJSONL(outAnnotations, res.annotations)
-        if (res.fences?.length) await appendJSONL(outFenced, res.fences)
-        if (res.frames?.length) await appendJSONL(outData, res.frames)
+            await appendFile(
+                outOutput,
+                `- [${relative(".", specFile).replace(gpspecRx, "")}](${outText})\n`
+            )
+            if (res.annotations?.length)
+                await appendJSONL(outAnnotations, res.annotations)
+            if (res.fences?.length) await appendJSONL(outFenced, res.fences)
+            if (res.frames?.length) await appendJSONL(outData, res.frames)
+
+            if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
+            else spinner.succeed(`${spinner.text}, ${tokens} tokens`)
+        } catch (e) {
+            console.error(e)
+            spinner.fail()
+        }
     }
 }
 
