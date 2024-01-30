@@ -29,6 +29,7 @@ import { emptyDir, ensureDir, remove } from "fs-extra"
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
 const FILES_NOT_FOUND = -3
+const GENERATION_ERROR = -4
 
 async function write(name: string, content: string) {
     await writeText(name, content)
@@ -150,6 +151,7 @@ async function batch(
     const tok = await initToken() // ensure we have a token early
     spinner.succeed(`LLM: ${tok.url}`)
 
+    let errors = 0
     let totalTokens = 0
     if (remove) await emptyDir(out)
     await ensureDir(out)
@@ -221,11 +223,14 @@ async function batch(
                 encoding: "utf8",
             })
 
-            if (result.error) spinner.fail(`${spinner.text}, ${result.error}`)
-            else spinner.succeed()
+            if (result.error) {
+                errors++
+                spinner.fail(`${spinner.text}, ${result.error}`)
+            } else spinner.succeed()
 
             totalTokens += tokens
         } catch (e) {
+            errors++
             await appendJSONL(
                 outErrors,
                 [{ error: e.message + "\n" + e.stack }],
@@ -234,6 +239,8 @@ async function batch(
             spinner.fail(`${spinner.text}, ${e.error}`)
         }
     }
+
+    if (errors) process.exit(GENERATION_ERROR)
 }
 
 function normalizeFloat(s: string) {
