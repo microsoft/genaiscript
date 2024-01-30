@@ -86,7 +86,7 @@ async function batch(
         cache: boolean
     }
 ) {
-    const spinner = ora("preparing tool and files").start()
+    const spinner = ora({ interval: 200 }).start("preparing tool and files")
 
     const { out = "./results", removeOut, model, cache, label } = options
     const outAnnotations = join(out, "annotations.jsonl")
