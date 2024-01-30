@@ -28,6 +28,7 @@ import { emptyDir, ensureDir, remove } from "fs-extra"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
+const FILES_NOT_FOUND = -3
 
 async function write(name: string, content: string) {
     await writeText(name, content)
@@ -122,6 +123,12 @@ async function batch(
             }
         }
     }
+
+    if (!specFiles.length) {
+        spinner.fail("no file found")
+        process.exit(FILES_NOT_FOUND)
+    }
+
     const prj = await buildProject({
         toolFiles,
         specFiles,
