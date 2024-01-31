@@ -229,7 +229,7 @@ async function batch(
             // save results
             const outText = join(
                 out,
-                `${relative(".", specFile).replace(gpspecRx, ".md")}`
+                `${relative(".", specFile).replace(gpspecRx, "output.md")}`
             )
             const outTrace = join(
                 out,
@@ -244,7 +244,7 @@ async function batch(
             await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- [${relative(".", specFile).replace(gpspecRx, "")}](${outText})\n`,
+                `- [${relative(".", specFile).replace(gpspecRx, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
                 { encoding: "utf8" }
             )
             await writeFile(outJSON, JSON.stringify(result, null, 2), {

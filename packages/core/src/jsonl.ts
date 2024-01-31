@@ -37,7 +37,7 @@ export async function readJSONL(fn: string) {
     return res
 }
 
-async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
+function serialize(objs: any[]) {
     let accLen = 0
     let acc = ""
     for (const o of objs) {
@@ -46,13 +46,16 @@ async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
         acc += s + "\n"
     }
 
-    let buf = host.createUTF8Encoder().encode(acc)
+    const buf = host.createUTF8Encoder().encode(acc)
+    return buf
+}
 
+async function writeJSONLCore(fn: string, objs: any[], append: boolean) {
+    let buf = serialize(objs)
     if (append) {
         const curr = await tryReadFile(fn)
         if (curr) buf = concatBuffers(curr, buf)
     }
-
     await host.writeFile(fn, buf)
 }
 
