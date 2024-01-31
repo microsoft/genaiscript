@@ -45,6 +45,20 @@ The tool will create various JSON Lines files with the results (JSON Lines is a 
 
 By default, results will be saved in the `./results` folder, this can be overriden with `--out`. The execution produces various `.jsonl` (JSON Lines) files that provide a convinient way to append runs to the same files.
 
+In a GitHub Actions workflow, you can inject a report in the step summary (`GITHUB_STEP_SUMMARY`) using `--out-summary` (`-os`).
+
+```yaml
+- name: Run gptools <toolname> on <files>
+  run: |
+      node .gptools/gptools.js batch <toolname> <files> -os $GITHUB_STEP_SUMMARY
+- name: Upload GPTools results
+  if: success() || failure()
+  uses: actions/upload-artifact@v4
+  with:
+      path: |
+          results/**
+```
+
 ### credentials
 
 The token is read from the environment variables `GPTOOLS_TOKEN`, from `OPENAI_API_KEY/BASE`.
