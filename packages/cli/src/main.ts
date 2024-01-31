@@ -306,6 +306,7 @@ async function run(
         cache: boolean
         applyEdits: boolean
         failOnErrors: boolean
+        removeOut: boolean
     }
 ) {
     const stream = !options.json && !options.yaml
@@ -327,6 +328,7 @@ async function run(
     const applyEdits = !!options.applyEdits
     const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
+    const removeOut = options.removeOut
 
     let spec: string
     let specContent: string
@@ -437,6 +439,9 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         ? JSON.stringify(res.prompt, null, 2)
         : undefined
     if (out) {
+        if (removeOut) await emptyDir(out)
+        await ensureDir(out)
+
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const yamlf = /\.ya?ml$/i.test(out) ? out : join(out, `res.yaml`)
         const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
@@ -630,6 +635,7 @@ async function main() {
             "-o, --out <folder>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
+        .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("-os, --out-summary <file>", "append output summary in file")
         .option("-r, --retry <number>", "number of retries", "8")
         .option(
