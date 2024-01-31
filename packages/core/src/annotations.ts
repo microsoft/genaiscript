@@ -45,7 +45,7 @@ export function convertAnnotationToGitHubActionCommand(d: Diagnostic) {
         ["error"]: "error",
     }
 
-    return `${sevMap[d.severity] || d.severity} file=${d.filename}, line=${d.range[0][0]}, endLine=${d.range[1][0]}::${d.message}`
+    return `::${sevMap[d.severity] || d.severity} file=${d.filename}, line=${d.range[0][0]}, endLine=${d.range[1][0]}::${d.message}`
 }
 
 export function convertAnnotationsToMarkdown(text: string): string {
