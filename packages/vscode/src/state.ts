@@ -24,6 +24,8 @@ import {
     logMeasure,
     parseAnnotations,
     MarkdownTrace,
+    coreVersion,
+    sha256string,
 } from "gptools-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -73,11 +75,13 @@ export interface AIRequestSnapshotKey {
     template: {
         id: string
         title: string
+        hash: string
     }
     fragment: {
         fullId: string
         hash: string
     }
+    version: string
 }
 export interface AIRequestSnapshot {
     response?: Partial<FragmentTransformResponse>
@@ -98,17 +102,21 @@ export interface AIRequest {
     editsApplied?: boolean // null = waiting, false, true
 }
 
-export function snapshotAIRequestKey(r: AIRequest): AIRequestSnapshotKey {
-    const { options, response, error } = r
+export async function snapshotAIRequestKey(
+    r: AIRequest
+): Promise<AIRequestSnapshotKey> {
+    const { options, request } = r
     const key = {
         template: {
             id: options.template.id,
             title: options.template.title,
+            hash: await sha256string(JSON.stringify(options.template)),
         },
         fragment: {
             fullId: options.fragment.fullId,
             hash: options.fragment.hash,
         },
+        version: coreVersion,
     }
     return key
 }
@@ -121,7 +129,7 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
         cacheTime: new Date().toISOString(),
         response: responseWithoutVars,
         error,
-        trace: r.trace.content
+        trace: r.trace.content,
     })
     return snapshot
 }
@@ -220,7 +228,7 @@ export class ExtensionState extends EventTarget {
             )
                 vscode.commands.executeCommand("coarch.request.open.output")
 
-            const key = snapshotAIRequestKey(req)
+            const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
             await this._aiRequestCache.set(key, snapshot)
             this.setDiagnostics()
