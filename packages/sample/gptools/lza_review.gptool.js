@@ -96,3 +96,20 @@ defSchema("TARGET_SCHEMA", {
     }
   }
 })
+
+defSchema(`DEPENDENCY_SCHEMA`, {
+  type: 'object',
+  properties: {
+    Dependencies: {
+      type: "array",
+      items: {
+        type: "string"
+      }
+    },
+    StaticAnalysisIssue: {
+      type: "array",
+      items: { type: "string" }
+    }
+  },
+  required: ["Dependencies", "StaticAnalysisIssue"]
+})

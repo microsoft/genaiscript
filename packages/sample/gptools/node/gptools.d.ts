@@ -463,21 +463,33 @@ type JSONSchemaTypeName =
     | "null"
 
 type JSONSchemaType =
-    | string //
-    | number
-    | boolean
+    | JSONSchemaString
+    | JSONSchemaNumber
+    | JSONSchemaBoolean
     | JSONSchemaObject
     | JSONSchemaArray
     | null
+
+interface JSONSchemaString {
+    type: "string"
+    description?: string
+}
+
+interface JSONSchemaNumber {
+    type: "number"
+    description?: string
+}
+
+interface JSONSchemaBoolean {
+    type: "boolean"
+    description?: string
+}
 
 interface JSONSchemaObject {
     type: "object"
     description?: string
     properties?: {
-        [key: string]: {
-            description?: string
-            type?: JSONSchemaType
-        }
+        [key: string]: JSONSchemaType
     }
     required?: string[]
     additionalProperties?: boolean
@@ -671,4 +683,4 @@ declare function fetchText(
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchema)
+declare function defSchema(name: string, schema: JSONSchema): void
