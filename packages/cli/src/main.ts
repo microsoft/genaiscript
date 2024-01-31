@@ -630,7 +630,7 @@ async function main() {
             "-o, --out <folder>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
-        .option("-os", "--out-summary <file>", "append output summary in file")
+        .option("-os, --out-summary <file>", "append output summary in file")
         .option("-r, --retry <number>", "number of retries", "8")
         .option(
             "-rd, --retry-delay <number>",
