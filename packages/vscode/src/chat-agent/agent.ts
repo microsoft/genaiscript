@@ -108,7 +108,7 @@ function chatRequestToPromptTemplate(
     let jsSource = `def("FILE", env.files)\n\n`
 
     const appendPrompt = (content: string) => {
-        if (content) jsSource += `$\`${content.replace("`", "\\`")}\`\n`
+        if (content) jsSource += `$\`${content.replace(/`/g, "\\`")}\`\n`
     }
 
     for (const msg of context.history) {
@@ -125,7 +125,7 @@ function chatRequestToPromptTemplate(
                 // no subcommand, just add the content
                 appendPrompt(content)
             }
-        } else if (agentId === "copilot" || agentId === '') {
+        } else if (agentId === "copilot" || agentId === "") {
             // other agent id, not supported
             // TODO
             appendPrompt(content)
