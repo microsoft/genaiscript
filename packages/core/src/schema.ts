@@ -7,6 +7,11 @@ export interface JSONSchemaValidation {
     errors?: string
 }
 
+export async function validateSchema(trace: MarkdownTrace, schema: JSONSchema) {
+    const ajv = new Ajv()
+    return await ajv.validateSchema(schema, false)
+}
+
 export function validateJSONSchema(
     trace: MarkdownTrace,
     object: any,
