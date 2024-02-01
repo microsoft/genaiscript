@@ -484,24 +484,32 @@ export function extractFenced(text: string): Fenced[] {
                 currText += line + "\n"
             }
         } else {
-            const start = startFence(lines[i + 1])
-            const m = /(\w+):\s+([^\s]+)/.exec(line)
-            if (start.fence && line.endsWith(":")) {
-                currLbl = (
-                    line.slice(0, -1) +
-                    " " +
-                    (start.args["file"] || "")
-                ).trim()
-                currFence = start.fence
-                currLanguage = start.language || ""
-                currArgs = start.args
-                i++
-            } else if (start.fence && m) {
-                currLbl = m[1] + " " + (start.args["file"] || m[2])
-                currFence = start.fence
-                currLanguage = start.language || ""
-                currArgs = start.args
-                i++
+            const fence = startFence(line)
+            if (fence.fence && fence.args["file"]) {
+                currLbl = 'FILE ' + fence.args["file"]
+                currFence = fence.fence
+                currLanguage = fence.language || ""
+                currArgs = fence.args
+            } else {
+                const start = startFence(lines[i + 1])
+                const m = /(\w+):\s+([^\s]+)/.exec(line)
+                if (start.fence && line.endsWith(":")) {
+                    currLbl = (
+                        line.slice(0, -1) +
+                        " " +
+                        (start.args["file"] || "")
+                    ).trim()
+                    currFence = start.fence
+                    currLanguage = start.language || ""
+                    currArgs = start.args
+                    i++
+                } else if (start.fence && m) {
+                    currLbl = m[1] + " " + (start.args["file"] || m[2])
+                    currFence = start.fence
+                    currLanguage = start.language || ""
+                    currArgs = start.args
+                    i++
+                }
             }
         }
     }
