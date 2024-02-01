@@ -102,6 +102,7 @@ async function batch(
         seed: string
         model: string
         cache: boolean
+        applyEdits: boolean
     }
 ) {
     const spinner = ora({ interval: 200 }).start("preparing tool and files")
@@ -113,6 +114,7 @@ async function batch(
         cache,
         label,
         outSummary,
+        applyEdits,
     } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
@@ -210,6 +212,8 @@ async function batch(
                 }
             )
 
+            if (applyEdits && result.fileEdits?.length)
+                await writeFileEdits(result)
             // save results in various files
             if (result.error)
                 await appendJSONL(outErrors, [{ error: result.error }], meta)
@@ -225,7 +229,6 @@ async function batch(
                 st.details(file, result.text)
                 await appendFile(outSummary, st.content)
             }
-
             // save results
             const outText = join(
                 out,
@@ -428,12 +431,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits) {
-        for (const fileEdit of Object.entries(res.fileEdits)) {
-            const [fn, { before, after }] = fileEdit
-            if (after !== before) await write(fn, after ?? before)
-        }
-    }
+    if (applyEdits && res.fileEdits?.length) await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
         ? JSON.stringify(res.prompt, null, 2)
@@ -499,6 +497,13 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         process.exit(ANNOTATION_ERROR_CODE)
     }
     logVerbose(`gptools run completed with ${tokens} tokens`)
+}
+
+async function writeFileEdits(res: FragmentTransformResponse) {
+    for (const fileEdit of Object.entries(res.fileEdits)) {
+        const [fn, { before, after }] = fileEdit
+        if (after !== before) await write(fn, after ?? before)
+    }
 }
 
 async function listTools() {
@@ -654,6 +659,7 @@ async function main() {
         .option("-m, --model <string>", "model for the run")
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
+        .option("-ae, --apply-edits", "apply file edits")
         .action(batch)
 
     const keys = program
