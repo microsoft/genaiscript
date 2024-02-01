@@ -121,6 +121,7 @@ async function batch(
     const outFenced = join(out, "fenced.jsonl")
     const outOutput = join(out, "output.md")
     const outErrors = join(out, "errors.jsonl")
+    const outFileEdits = join(out, "file-edits.jsonl")
 
     const retry = parseInt(options.retry) || 12
     const retryDelay = parseInt(options.retryDelay) || 15000
@@ -215,6 +216,12 @@ async function batch(
             if (applyEdits && !result.error && result.fileEdits?.length)
                 await writeFileEdits(result)
             // save results in various files
+            if (result.fileEdits?.length)
+                await appendJSONL(
+                    outFileEdits,
+                    [{ fileEdits: result.fileEdits }],
+                    meta
+                )
             if (result.error)
                 await appendJSONL(outErrors, [{ error: result.error }], meta)
             if (result.annotations?.length)
