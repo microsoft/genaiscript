@@ -90,6 +90,12 @@ declare function fetchText(
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
+ * Reads the content of a file
+ * @param path 
+ */
+declare function readFile(path: string): Promise<LinkedFile>
+
+/**
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance

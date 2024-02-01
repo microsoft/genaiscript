@@ -166,6 +166,13 @@ async function callExpander(
                 },
                 gptool: () => {},
                 system: () => {},
+                readFile: async (filename: string) => {
+                    let content: string
+                    try {
+                        content = await readText(filename)
+                    } catch (e) {}
+                    return { label: filename, filename, content }
+                },
                 fetchText: async (urlOrFile) => {
                     if (typeof urlOrFile === "string") {
                         urlOrFile = {
