@@ -18,6 +18,7 @@ import {
     MarkdownTrace,
     convertAnnotationToGitHubActionCommand,
     readJSONL,
+    dotGptoolsPath,
 } from "gptools-core"
 import ora from "ora"
 import { NodeHost } from "./nodehost"
@@ -108,7 +109,7 @@ async function batch(
     const spinner = ora({ interval: 200 }).start("preparing tool and files")
 
     const {
-        out = "./results",
+        out = dotGptoolsPath("results"),
         removeOut,
         model,
         cache,
@@ -213,15 +214,16 @@ async function batch(
                 }
             )
 
-            if (applyEdits && !result.error && result.fileEdits?.length)
-                await writeFileEdits(result)
-            // save results in various files
-            if (result.fileEdits?.length)
+            const fileEdits = result.fileEdits || {}
+            if (Object.keys(fileEdits).length) {
+                if (applyEdits && !result.error) await writeFileEdits(result)
+                // save results in various files
                 await appendJSONL(
                     outFileEdits,
                     [{ fileEdits: result.fileEdits }],
                     meta
                 )
+            }
             if (result.error)
                 await appendJSONL(outErrors, [{ error: result.error }], meta)
             if (result.annotations?.length)
@@ -438,7 +440,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits && !res.error && res.fileEdits?.length)
+    if (applyEdits && !res.error && Object.keys(res.fileEdits || {}).length)
         await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
