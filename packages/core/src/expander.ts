@@ -329,7 +329,7 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    if (prompt.logs?.length) trace.fence(prompt.logs)
+    if (prompt.logs?.length) trace.details("console.log", prompt.logs)
     {
         trace.startDetails("🧬 expanded prompt")
         if (model) trace.item(`model: \`${model || ""}\``)

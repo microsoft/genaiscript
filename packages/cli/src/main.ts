@@ -212,7 +212,7 @@ async function batch(
                 }
             )
 
-            if (applyEdits && result.fileEdits?.length)
+            if (applyEdits && !result.error && result.fileEdits?.length)
                 await writeFileEdits(result)
             // save results in various files
             if (result.error)
@@ -431,7 +431,8 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits && res.fileEdits?.length) await writeFileEdits(res)
+    if (applyEdits && res.error && res.fileEdits?.length)
+        await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
         ? JSON.stringify(res.prompt, null, 2)
