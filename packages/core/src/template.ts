@@ -352,6 +352,11 @@ async function parseMeta(r: PromptTemplate) {
                     meta.isSystem = true
                     gptool(meta)
                 },
+                readFile: async (filename: string) => ({
+                    label: filename,
+                    filename,
+                    content: undefined,
+                }),
                 fetchText: async (urlOrFile: string | LinkedFile) => {
                     const url =
                         typeof urlOrFile === "string"
@@ -365,7 +370,7 @@ async function parseMeta(r: PromptTemplate) {
                         file: {
                             label: url,
                             filename: url,
-                            content: "",
+                            content: undefined,
                         },
                     }
                 },
@@ -486,7 +491,7 @@ export function extractFenced(text: string): Fenced[] {
         } else {
             const fence = startFence(line)
             if (fence.fence && fence.args["file"]) {
-                currLbl = 'FILE ' + fence.args["file"]
+                currLbl = "FILE " + fence.args["file"]
                 currFence = fence.fence
                 currLanguage = fence.language || ""
                 currArgs = fence.args

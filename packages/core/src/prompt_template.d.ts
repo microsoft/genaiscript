@@ -582,6 +582,7 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
+    readFile(file: string): Promise<LinkedFile>
     env: ExpansionVariables
     path: Path
     parsers: Parsers
