@@ -431,7 +431,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
             await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits && res.error && res.fileEdits?.length)
+    if (applyEdits && !res.error && res.fileEdits?.length)
         await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
