@@ -1,6 +1,6 @@
 {
   "name": "gptools-core",
-  "version": "1.7.8",
+  "version": "1.7.9",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
