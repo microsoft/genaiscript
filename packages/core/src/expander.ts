@@ -169,7 +169,7 @@ async function callExpander(
                 readFile: async (filename: string) => {
                     let content: string
                     try {
-                        content = await readText(filename)
+                        content = await readText("workspace://" + filename)
                     } catch (e) {}
                     return { label: filename, filename, content }
                 },
@@ -251,13 +251,6 @@ async function expandTemplate(
     const prompt = await callExpander(template, env, path, trace)
     const expanded = prompt.text
 
-    // always append, even if empty - should help with discoverability:
-    // "Oh, so I can console.log() from prompt!"
-    trace.startDetails("🔤 console output")
-    if (prompt.logs?.length) trace.fence(prompt.logs)
-    else trace.tip("use `console.log()` from gptool.js files`")
-    trace.endDetails()
-
     traceVars()
 
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
@@ -336,6 +329,7 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
+    if (prompt.logs?.length) trace.fence(prompt.logs)
     {
         trace.startDetails("🧬 expanded prompt")
         if (model) trace.item(`model: \`${model || ""}\``)
