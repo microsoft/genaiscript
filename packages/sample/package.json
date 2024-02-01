@@ -1,6 +1,6 @@
 {
   "name": "gptools-sample",
-  "version": "1.7.7",
+  "version": "1.7.8",
   "license": "MIT",
   "private": true,
   "devDependencies": {
