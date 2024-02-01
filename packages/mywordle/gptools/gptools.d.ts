@@ -30,10 +30,10 @@ interface PromptLike extends PromptDefinition {
      * The actual text of the prompt template.
      * Only used for system prompts.
      */
-    text: string
+    text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = "system.diff" | "system.diff" | "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.json" | "system.json" | "system" | "system" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.technical" | "system.technical" | "system.typescript" | "system.typescript" | "system.functions" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -181,11 +181,31 @@ interface LinkedFile {
 
 type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
+interface ChatMessageRequest {
+    content: string
+    agentId?: string
+    subCommand?: string
+    name?: string
+    variables: Record<string, (string | { uri: string })[]>
+}
+
+interface ChatMessageFileTreeNode {
+    uri: string
+    label: string
+    children?: ChatMessageFileTreeNode[]
+}
+
+interface ChatMessageResponse {
+    content?: string
+    uri?: string
+    position?: CharPosition
+    fileTree?: ChatMessageFileTreeNode
+}
+
 // ChatML
 interface ChatMessage {
-    role: ChatMessageRole
-    content: string
-    name?: string
+    request: ChatMessageRequest
+    response: ChatMessageResponse[]
 }
 
 interface ChatAgentContext {
@@ -350,7 +370,7 @@ interface ExpansionVariables {
     /**
      * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    context: LinkedFile
+    spec: LinkedFile
 
     /**
      * List of linked files parsed in context
@@ -418,6 +438,7 @@ interface DefOptions {
         | "typescript"
         | "python"
         | "shell"
+        | "toml"
         | string
     lineNumbers?: boolean
     /**
@@ -442,21 +463,33 @@ type JSONSchemaTypeName =
     | "null"
 
 type JSONSchemaType =
-    | string //
-    | number
-    | boolean
+    | JSONSchemaString
+    | JSONSchemaNumber
+    | JSONSchemaBoolean
     | JSONSchemaObject
     | JSONSchemaArray
     | null
+
+interface JSONSchemaString {
+    type: "string"
+    description?: string
+}
+
+interface JSONSchemaNumber {
+    type: "number"
+    description?: string
+}
+
+interface JSONSchemaBoolean {
+    type: "boolean"
+    description?: string
+}
 
 interface JSONSchemaObject {
     type: "object"
     description?: string
     properties?: {
-        [key: string]: {
-            description?: string
-            type?: JSONSchemaType
-        }
+        [key: string]: JSONSchemaType
     }
     required?: string[]
     additionalProperties?: boolean
@@ -469,6 +502,61 @@ interface JSONSchemaArray {
 }
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
+
+/**
+ * Path manipulation functions.
+ */
+interface Path {
+    /**
+     * Returns the last portion of a path. Similar to the Unix basename command.
+     * @param path
+     */
+    dirname(path: string): string
+
+    /**
+     * Returns the extension of the path, from the last '.' to end of string in the last portion of the path.
+     * @param path
+     */
+    extname(path: string): string
+
+    /**
+     * Returns the last portion of a path, similar to the Unix basename command.
+     */
+    basename(path: string, suffix?: string): string
+
+    /**
+     * The path.join() method joins all given path segments together using the platform-specific separator as a delimiter, then normalizes the resulting path.
+     * @param paths
+     */
+    join(...paths: string[]): string
+
+    /**
+     * The path.normalize() method normalizes the given path, resolving '..' and '.' segments.
+     */
+    normalize(...paths: string[]): string
+
+    /**
+     * The path.relative() method returns the relative path from from to to based on the current working directory. If from and to each resolve to the same path (after calling path.resolve() on each), a zero-length string is returned.
+     */
+    relative(from: string, to: string): string
+}
+
+interface Parsers {
+    /**
+     * Parses text as a JSON5 payload
+     */
+    JSON5(text: string): unknown | undefined
+    /**
+     * Parses text as a YAML paylaod
+     */
+    YAML(text: string): unknown | undefined
+
+    /**
+     * Parses text as TOML payload
+     * @param text text as TOML payload
+     */
+    TOML(text: string): unknown | undefined
+}
 
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
@@ -494,7 +582,10 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
+    readFile(file: string): Promise<LinkedFile>
     env: ExpansionVariables
+    path: Path
+    parsers: Parsers
 }
 
 
@@ -545,7 +636,7 @@ declare function def(name: string, body: StringLike, options?: DefOptions): void
  * Inline supplied files in the prompt.
  * Similar to `for (const f in files) { def("File " + f.filename, f.contents) }`
  *
- * @param files files to define, eg. `env.links` or a subset thereof
+ * @param files files to define, eg. `env.files` or a subset thereof
  */
 declare function defFiles(files: LinkedFile[]): void
 
@@ -571,6 +662,16 @@ declare function defFunction(
 declare var env: ExpansionVariables
 
 /**
+ * Path manipulation functions.
+ */
+declare var path: Path
+
+/**
+ * A set of parsers for well-known file formats
+ */
+declare var parsers: Parsers
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
@@ -579,8 +680,14 @@ declare function fetchText(
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
+ * Reads the content of a file
+ * @param path 
+ */
+declare function readFile(path: string): Promise<LinkedFile>
+
+/**
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchema)
+declare function defSchema(name: string, schema: JSONSchema): void
