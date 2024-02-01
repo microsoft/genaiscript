@@ -232,7 +232,7 @@ async function batch(
             // save results
             const outText = join(
                 out,
-                `${relative(".", specFile).replace(gpspecRx, "output.md")}`
+                `${relative(".", specFile).replace(gpspecRx, ".output.md")}`
             )
             const outTrace = join(
                 out,
