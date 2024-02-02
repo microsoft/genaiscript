@@ -91,6 +91,7 @@ async function batch(
     tool: string,
     specs: string[],
     options: {
+        excludedFiles: string[]
         out: string
         outSummary: string
         removeOut: boolean
@@ -116,6 +117,7 @@ async function batch(
         label,
         outSummary,
         applyEdits,
+        excludedFiles,
     } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
@@ -134,30 +136,37 @@ async function batch(
 
     const toolFiles: string[] = []
     if (gptoolRx.test(tool)) toolFiles.push(tool)
-    const specFiles: string[] = []
+    const specFiles = new Set<string>()
     for (const arg of specs) {
         const ffs = await host.findFiles(arg)
         for (const f of ffs) {
-            if (gpspecRx.test(f)) specFiles.push(f)
+            if (gpspecRx.test(f)) specFiles.add(f)
             else {
                 const fp = `${f}.gpspec.md`
                 const md = `# Specification
                 
 -   [${basename(f)}](./${basename(f)})\n`
                 host.setVirtualFile(fp, md)
-                specFiles.push(fp)
+                specFiles.add(fp)
             }
         }
     }
 
-    if (!specFiles.length) {
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs) specFiles.delete(f)
+        }
+    }
+
+    if (!specFiles.size) {
         spinner.fail("no file found")
         process.exit(FILES_NOT_FOUND)
     }
 
     const prj = await buildProject({
         toolFiles,
-        specFiles,
+        specFiles: Array.from(specFiles),
     })
     const gptool = prj.templates.find(
         (t) =>
@@ -169,7 +178,7 @@ async function batch(
     if (!gptool) throw new Error(`tool ${tool} not found`)
 
     spinner.succeed(
-        `tool: ${gptool.id} (${gptool.title}), files: ${specFiles.length}, out: ${resolve(out)}`
+        `tool: ${gptool.id} (${gptool.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
     spinner.start(`validating token`)
@@ -180,13 +189,13 @@ async function batch(
     let totalTokens = 0
     if (removeOut) await emptyDir(out)
     await ensureDir(out)
-    for (let i = 0; i < specFiles.length; i++) {
-        const specFile = specFiles[i]
+    for (let i = 0; i < prj.rootFiles.length; i++) {
+        const specFile = prj.rootFiles[i].filename
         const file = specFile.replace(gpspecRx, "")
         const meta = { tool, file }
         try {
             spinner.suffixText = ""
-            spinner.start(`${file} (${i + 1}/${specFiles.length})`)
+            spinner.start(`${file} (${i + 1}/${specFiles.size})`)
             const fragment = prj.rootFiles.find(
                 (f) => resolve(f.filename) === resolve(specFile)
             ).roots[0]
@@ -298,6 +307,7 @@ async function run(
     tool: string,
     specs: string[],
     options: {
+        excludedFiles: string[]
         out: string
         retry: string
         retryDelay: string
@@ -321,6 +331,7 @@ async function run(
         removeOut: boolean
     }
 ) {
+    const excludedFiles = options.excludedFiles
     const stream = !options.json && !options.yaml
     const out = options.out
     const skipLLM = !!options.prompt
@@ -347,7 +358,7 @@ async function run(
     const toolFiles: string[] = []
 
     let md: string
-    const files: string[] = []
+    const files = new Set<string>()
 
     if (gptoolRx.test(tool)) toolFiles.push(tool)
 
@@ -363,17 +374,25 @@ async function run(
                 if (gpspecRx.test(file)) {
                     md += (await host.readFile(file)) + "\n"
                 } else {
-                    files.push(file)
+                    files.add(file)
                 }
             }
         }
     }
 
-    if (md || files.length) {
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs) files.delete(f)
+        }
+    }
+
+
+    if (md || files.size) {
         spec = "cli.gpspec.md"
         specContent = `${md || "# Specification"}
 
-${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
+${Array.from(files).map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 `
     }
 
@@ -598,7 +617,8 @@ async function main() {
     program
         .command("run")
         .description("Runs a GPTools against files or stdin.")
-        .arguments("<tool> [spec...]")
+        .arguments("<tool> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"
@@ -645,7 +665,8 @@ async function main() {
     program
         .command("batch")
         .description("Run a tool on a batch of specs")
-        .arguments("<tool> [spec...]")
+        .arguments("<tool> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-o, --out <folder>",
             "output folder. Extra markdown fields for output and trace will also be generated"
