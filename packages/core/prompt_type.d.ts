@@ -91,7 +91,7 @@ declare function fetchText(
 
 /**
  * Reads the content of a file
- * @param path 
+ * @param path
  */
 declare function readFile(path: string): Promise<LinkedFile>
 
@@ -101,3 +101,9 @@ declare function readFile(path: string): Promise<LinkedFile>
  * @param schema JSON schema instance
  */
 declare function defSchema(name: string, schema: JSONSchema): void
+
+/**
+ * Cancels the current prompt generation/execution with the given reason.
+ * @param reason
+ */
+declare function cancel(reason?: string): void

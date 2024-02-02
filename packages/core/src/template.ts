@@ -3,6 +3,7 @@ import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
+import { throwError } from "./error"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -180,7 +181,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "defFiles" | "$" | "defFunction" | "defSchema"
+    "fence" | "def" | "defFiles" | "$" | "defFunction" | "defSchema" | "cancel"
 >
 export async function evalPrompt(
     ctx0: BasePromptContext,
@@ -285,6 +286,9 @@ export async function evalPrompt(
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return dontuse("fence")
+        },
+        cancel: (reason?: string) => {
+            throwError(reason || "user cancelled", true)
         },
         console: {
             log: log,

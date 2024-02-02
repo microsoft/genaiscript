@@ -35,6 +35,7 @@ import { YAMLTryParse } from "./yaml"
 import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { coreVersion } from "./version"
+import { isCancelError } from "./error"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -220,9 +221,13 @@ async function callExpander(
         )
     } catch (e) {
         success = false
-        const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
-        const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
-        trace.error(info, e)
+        if (isCancelError(e)) {
+            trace.log(`cancelled: ${(e as Error).message}`)
+        } else {
+            const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
+            const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
+            trace.error(info, e)
+        }
     }
     return { logs, success, text: promptText }
 }
@@ -242,19 +247,15 @@ async function expandTemplate(
     trace: MarkdownTrace
 ) {
     const { jsSource } = template
-    const varName: Record<string, string> = {}
-    for (const [k, v] of Object.entries(env)) {
-        if (!varName[v]) varName[v] = k
-    }
-    const varMap = env as any as Record<string, string | any[]>
+
+    traceVars()
+    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
+    trace.startDetails("🛠️ gptool")
 
     const prompt = await callExpander(template, env, path, trace)
     const expanded = prompt.text
 
-    traceVars()
-
-    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-
+    let success = prompt.success
     let systemText = ""
     let model = template.model
     let temperature = template.temperature
@@ -262,8 +263,6 @@ async function expandTemplate(
     let max_tokens = template.maxTokens
     let seed = template.seed
     let responseType = template.responseType
-
-    trace.startDetails("🛠️ gptool")
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -274,7 +273,7 @@ async function expandTemplate(
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
         if (/changelog/i.test(jsSource)) systems.push("system.changelog")
     }
-    for (let i = 0; i < systems.length; ++i) {
+    for (let i = 0; i < systems.length && success; ++i) {
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
         if (!system) {
@@ -285,7 +284,10 @@ async function expandTemplate(
             assert(!!system)
         }
 
-        const sysex = (await callExpander(system, env, path, trace)).text
+        const sysr = await callExpander(system, env, path, trace)
+        const sysex = sysr.text
+        success = success && sysr.success
+        if (!success) break
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -350,8 +352,7 @@ async function expandTemplate(
 
     return {
         expanded,
-        trace,
-        success: prompt.success,
+        success,
         model,
         temperature,
         topP,
@@ -371,18 +372,13 @@ async function expandTemplate(
         return isNaN(i) ? undefined : i
     }
 
-    function isComplex(k: string) {
-        const v = varMap[k]
-        if (typeof v === "string" && varName[v] != k) return false
-        return (
-            typeof v !== "string" ||
-            v.length > 40 ||
-            v.trim().includes("\n") ||
-            v.includes("`")
-        )
-    }
-
     function traceVars() {
+        const varName: Record<string, string> = {}
+        for (const [k, v] of Object.entries(env)) {
+            if (!varName[v]) varName[v] = k
+        }
+        const varMap = env as any as Record<string, string | any[]>
+
         trace.startDetails("🎰 variables")
         trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
@@ -410,6 +406,17 @@ async function expandTemplate(
             trace.startDetails(`📋 schema \'${k}\'`)
             trace.fence(v, "yaml")
             trace.endDetails()
+        }
+
+        function isComplex(k: string) {
+            const v = varMap[k]
+            if (typeof v === "string" && varName[v] != k) return false
+            return (
+                typeof v !== "string" ||
+                v.length > 40 ||
+                v.trim().includes("\n") ||
+                v.includes("`")
+            )
         }
     }
 }

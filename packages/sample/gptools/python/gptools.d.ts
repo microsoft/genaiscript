@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.diff" | "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.json" | "system.json" | "system" | "system" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.technical" | "system.technical" | "system.typescript" | "system.typescript" | "system.functions" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -583,6 +583,7 @@ interface PromptContext {
         file?: LinkedFile
     }>
     readFile(file: string): Promise<LinkedFile>
+    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
@@ -681,7 +682,7 @@ declare function fetchText(
 
 /**
  * Reads the content of a file
- * @param path 
+ * @param path
  */
 declare function readFile(path: string): Promise<LinkedFile>
 
@@ -691,3 +692,9 @@ declare function readFile(path: string): Promise<LinkedFile>
  * @param schema JSON schema instance
  */
 declare function defSchema(name: string, schema: JSONSchema): void
+
+/**
+ * Cancels the current prompt generation/execution with the given reason.
+ * @param reason
+ */
+declare function cancel(reason?: string): void

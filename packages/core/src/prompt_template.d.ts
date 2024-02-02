@@ -583,6 +583,7 @@ interface PromptContext {
         file?: LinkedFile
     }>
     readFile(file: string): Promise<LinkedFile>
+    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
