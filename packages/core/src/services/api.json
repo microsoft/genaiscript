@@ -1,0 +1,88 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "GPTools Server API",
+    "version": "1.0"
+  },
+  "paths": {
+    "/status": {
+      "get": {
+        "description": "Ping the server and receives a heartbeat",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Message from the server"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "description": "Search for documents",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Query to search for documents",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "documents": {
+                      "type": "array",
+                      "description": "List of documents URIs",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "uri": {
+                            "type": "string",
+                            "description": "Document URI"
+                          },
+                          "score": {
+                            "type": "number",
+                            "description": "Document score"
+                          }
+                        },
+                        "required": [
+                          "uri"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "documents"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
