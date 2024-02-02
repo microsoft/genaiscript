@@ -387,12 +387,13 @@ async function run(
         }
     }
 
-
     if (md || files.size) {
         spec = "cli.gpspec.md"
         specContent = `${md || "# Specification"}
 
-${Array.from(files).map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
+${Array.from(files)
+    .map((f) => `-   [${basename(f)}](./${f})`)
+    .join("\n")}
 `
     }
 

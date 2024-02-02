@@ -16,6 +16,7 @@ import {
     extractFenced,
     renderFencedVariables,
     staticVars,
+    undoublequote,
 } from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
@@ -1006,7 +1007,7 @@ export async function runTemplate(
             const pm = /^((file|diff):?)\s+/i.exec(name)
             if (pm) {
                 const kw = pm[1].toLowerCase()
-                const n = name.slice(pm[0].length).trim()
+                const n = undoublequote(name.slice(pm[0].length).trim())
                 const fn = /^[^\/]/.test(n)
                     ? host.resolvePath(projFolder, n)
                     : n
