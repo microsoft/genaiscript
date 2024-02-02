@@ -1,36 +1,61 @@
 import {
     FragmentTransformResponse,
-    MarkdownTrace,
     RequestError,
     YAMLStringify,
-    clip,
     coreVersion,
-    createIssue,
     diagnosticsToCSV,
     extractFenced,
     host,
+    initToken,
+    isJSONLFilename,
     isRequestError,
     logVerbose,
-    parseGHTokenFromEnv,
     parseProject,
     readText,
     runTemplate,
+    appendJSONL as appendJSONLCore,
     writeText,
+    MarkdownTrace,
+    convertAnnotationToGitHubActionCommand,
+    readJSONL,
+    dotGptoolsPath,
 } from "gptools-core"
+import ora from "ora"
 import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
 import getStdin from "get-stdin"
-import { basename, resolve, join } from "node:path"
+import { basename, resolve, join, relative, dirname } from "node:path"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
-import { ensureDir } from "fs-extra"
 import { createNodePath } from "./nodepath"
+import { appendFile, writeFile } from "node:fs/promises"
+import { emptyDir, ensureDir } from "fs-extra"
+import replaceExt from "replace-ext"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
+const FILES_NOT_FOUND = -3
+const GENERATION_ERROR = -4
+
+async function expandFiles(files: string[]) {
+    const res: string[] = []
+    for (const file of files) {
+        const f = await host.findFiles(file)
+        res.push(...f)
+    }
+    return res
+}
 
 async function write(name: string, content: string) {
-    logVerbose(`writing ${name}`)
     await writeText(name, content)
+}
+
+async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
+    if (meta)
+        await appendJSONLCore(
+            name,
+            objs.map((obj) => ({ ...obj, __meta: meta }))
+        )
+    else await appendJSONLCore(name, objs)
 }
 
 async function buildProject(options?: {
@@ -60,32 +85,253 @@ async function buildProject(options?: {
     return newProject
 }
 
-async function run(
+const gpspecRx = /\.gpspec\.md$/i
+const gptoolRx = /\.gptool\.js$/i
+async function batch(
     tool: string,
     specs: string[],
     options: {
+        excludedFiles: string[]
         out: string
+        outSummary: string
+        removeOut: boolean
         retry: string
         retryDelay: string
-        json: boolean
-        yaml: boolean
         maxDelay: string
-        prompt: boolean
-        outTrace: string
-        outAnnotations: string
-        outChangelogs: string
         label: string
         temperature: string
         topP: string
         seed: string
+        model: string
         cache: boolean
         applyEdits: boolean
-        model: string
-        csvSeparator: string
-        failOnErrors: boolean
-        githubIssues: boolean
     }
 ) {
+    const spinner = ora({ interval: 200 }).start("preparing tool and files")
+
+    const {
+        out = dotGptoolsPath("results"),
+        removeOut,
+        model,
+        cache,
+        label,
+        outSummary,
+        applyEdits,
+        excludedFiles,
+    } = options
+    const outAnnotations = join(out, "annotations.jsonl")
+    const outData = join(out, "data.jsonl")
+    const outFenced = join(out, "fenced.jsonl")
+    const outOutput = join(out, "output.md")
+    const outErrors = join(out, "errors.jsonl")
+    const outFileEdits = join(out, "file-edits.jsonl")
+
+    const retry = parseInt(options.retry) || 12
+    const retryDelay = parseInt(options.retryDelay) || 15000
+    const maxDelay = parseInt(options.maxDelay) || 360000
+    const temperature = normalizeFloat(options.temperature)
+    const topP = normalizeFloat(options.topP)
+    const seed = normalizeFloat(options.seed)
+    const path = createNodePath()
+
+    const toolFiles: string[] = []
+    if (gptoolRx.test(tool)) toolFiles.push(tool)
+    const specFiles = new Set<string>()
+    for (const arg of specs) {
+        const ffs = await host.findFiles(arg)
+        for (const f of ffs) {
+            if (gpspecRx.test(f)) specFiles.add(f)
+            else {
+                const fp = `${f}.gpspec.md`
+                const md = `# Specification
+                
+-   [${basename(f)}](./${basename(f)})\n`
+                host.setVirtualFile(fp, md)
+                specFiles.add(fp)
+            }
+        }
+    }
+
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs) specFiles.delete(f)
+        }
+    }
+
+    if (!specFiles.size) {
+        spinner.fail("no file found")
+        process.exit(FILES_NOT_FOUND)
+    }
+
+    const prj = await buildProject({
+        toolFiles,
+        specFiles: Array.from(specFiles),
+    })
+    const gptool = prj.templates.find(
+        (t) =>
+            t.id === tool ||
+            (t.filename &&
+                gptoolRx.test(tool) &&
+                resolve(t.filename) === resolve(tool))
+    )
+    if (!gptool) throw new Error(`tool ${tool} not found`)
+
+    spinner.succeed(
+        `tool: ${gptool.id} (${gptool.title}), files: ${specFiles.size}, out: ${resolve(out)}`
+    )
+
+    spinner.start(`validating token`)
+    const tok = await initToken() // ensure we have a token early
+    spinner.succeed(`LLM: ${tok.url}`)
+
+    let errors = 0
+    let totalTokens = 0
+    if (removeOut) await emptyDir(out)
+    await ensureDir(out)
+    for (let i = 0; i < prj.rootFiles.length; i++) {
+        const specFile = prj.rootFiles[i].filename
+        const file = specFile.replace(gpspecRx, "")
+        const meta = { tool, file }
+        try {
+            spinner.suffixText = ""
+            spinner.start(`${file} (${i + 1}/${specFiles.size})`)
+            const fragment = prj.rootFiles.find(
+                (f) => resolve(f.filename) === resolve(specFile)
+            ).roots[0]
+            let tokens = 0
+            const result: FragmentTransformResponse = await runTemplate(
+                gptool,
+                fragment,
+                {
+                    infoCb: () => {},
+                    partialCb: ({ tokensSoFar }) => {
+                        tokens = tokensSoFar
+                        spinner.suffixText = `${tokens} tokens`
+                    },
+                    skipLLM: false,
+                    label,
+                    cache,
+                    temperature,
+                    topP,
+                    seed,
+                    model,
+                    retry,
+                    retryDelay,
+                    maxDelay,
+                    path,
+                }
+            )
+
+            const fileEdits = result.fileEdits || {}
+            if (Object.keys(fileEdits).length) {
+                if (applyEdits && !result.error) await writeFileEdits(result)
+                // save results in various files
+                await appendJSONL(
+                    outFileEdits,
+                    [{ fileEdits: result.fileEdits }],
+                    meta
+                )
+            }
+            if (result.error)
+                await appendJSONL(outErrors, [{ error: result.error }], meta)
+            if (result.annotations?.length)
+                await appendJSONL(outAnnotations, result.annotations, meta)
+            if (result.fences?.length)
+                await appendJSONL(outFenced, result.fences, meta)
+            if (result.frames?.length)
+                await appendJSONL(outData, result.frames, meta)
+            // add to summary
+            if (outSummary) {
+                const st = new MarkdownTrace()
+                st.details(file, result.text)
+                await appendFile(outSummary, st.content)
+            }
+            // save results
+            const outText = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".output.md")}`
+            )
+            const outTrace = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".trace.md")}`
+            )
+            const outJSON = join(
+                out,
+                `${relative(".", specFile).replace(gpspecRx, ".json")}`
+            )
+            await ensureDir(dirname(outText))
+            await writeFile(outText, result.text, { encoding: "utf8" })
+            await writeFile(outTrace, result.trace, { encoding: "utf8" })
+            await appendFile(
+                outOutput,
+                `- ${result.error ? "❌" : "✅"} [${relative(".", specFile).replace(gpspecRx, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
+                { encoding: "utf8" }
+            )
+            await writeFile(outJSON, JSON.stringify(result, null, 2), {
+                encoding: "utf8",
+            })
+
+            if (result.error) {
+                errors++
+                spinner.fail(`${spinner.text}, ${result.error}`)
+            } else spinner.succeed()
+
+            totalTokens += tokens
+
+            // if in a CI build, print annotations
+            if (result.annotations?.length && process.env.CI)
+                result.annotations
+                    .map(convertAnnotationToGitHubActionCommand)
+                    .forEach((d) => console.log(d))
+        } catch (e) {
+            errors++
+            await appendJSONL(
+                outErrors,
+                [{ error: e.message + "\n" + e.stack }],
+                meta
+            )
+            spinner.fail(`${spinner.text}, ${e.error}`)
+        }
+    }
+
+    if (errors) process.exit(GENERATION_ERROR)
+}
+
+function normalizeFloat(s: string) {
+    const f = parseFloat(s)
+    return isNaN(f) ? undefined : f
+}
+
+async function run(
+    tool: string,
+    specs: string[],
+    options: {
+        excludedFiles: string[]
+        out: string
+        retry: string
+        retryDelay: string
+        maxDelay: string
+        json: boolean
+        yaml: boolean
+        prompt: boolean
+        outTrace: string
+        outAnnotations: string
+        outChangelogs: string
+        outData: string
+        label: string
+        temperature: string
+        topP: string
+        seed: string
+        model: string
+        csvSeparator: string
+        cache: boolean
+        applyEdits: boolean
+        failOnErrors: boolean
+        removeOut: boolean
+    }
+) {
+    const excludedFiles = options.excludedFiles
     const stream = !options.json && !options.yaml
     const out = options.out
     const skipLLM = !!options.prompt
@@ -96,26 +342,26 @@ async function run(
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
+    const outData = options.outData
     const label = options.label
-    const temperature = parseFloat(options.temperature) ?? undefined
-    const topP = parseFloat(options.topP) ?? undefined
-    const seed = parseFloat(options.seed) ?? undefined
+    const temperature = normalizeFloat(options.temperature)
+    const topP = normalizeFloat(options.topP)
+    const seed = normalizeFloat(options.seed)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
-    const githubIssues = options.githubIssues
+    const removeOut = options.removeOut
 
     let spec: string
     let specContent: string
     const toolFiles: string[] = []
 
     let md: string
-    const files: string[] = []
+    const files = new Set<string>()
 
-    if (/.gptool\.js$/i.test(tool)) toolFiles.push(tool)
+    if (gptoolRx.test(tool)) toolFiles.push(tool)
 
-    const gpspecRx = /\.gpspec\.md$/i
     if (!specs?.length) {
         specContent = await getStdin()
         spec = "stdin.gpspec.md"
@@ -125,20 +371,29 @@ async function run(
         for (const arg of specs) {
             const ffs = await host.findFiles(arg)
             for (const file of ffs) {
-                if (gpspecRx.test(spec)) {
+                if (gpspecRx.test(file)) {
                     md += (await host.readFile(file)) + "\n"
                 } else {
-                    files.push(file)
+                    files.add(file)
                 }
             }
         }
     }
 
-    if (md || files.length) {
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs) files.delete(f)
+        }
+    }
+
+    if (md || files.size) {
         spec = "cli.gpspec.md"
         specContent = `${md || "# Specification"}
 
-${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
+${Array.from(files)
+    .map((f) => `-   [${basename(f)}](./${f})`)
+    .join("\n")}
 `
     }
 
@@ -152,7 +407,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         (t) =>
             t.id === tool ||
             (t.filename &&
-                /\.gptool\.(js|ts)$/i.test(tool) &&
+                gptoolRx.test(tool) &&
                 resolve(t.filename) === resolve(tool))
     )
     if (!gptool) throw new Error(`tool ${tool} not found`)
@@ -173,9 +428,9 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         skipLLM,
         label,
         cache,
-        temperature: isNaN(temperature) ? undefined : temperature,
-        topP: isNaN(topP) ? undefined : topP,
-        seed: isNaN(seed) ? undefined : seed,
+        temperature,
+        topP,
+        seed,
         model,
         retry,
         retryDelay,
@@ -185,29 +440,36 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
 
     logVerbose(``)
     if (outTrace && res.trace) await write(outTrace, res.trace)
-    if (outAnnotations && res.annotations?.length)
-        await write(
-            outAnnotations,
-            /\.(c|t)sv$/i.test(outAnnotations)
-                ? diagnosticsToCSV(res.annotations, csvSeparator)
-                : /\.ya?ml$/i.test(outAnnotations)
-                  ? YAMLStringify(res.annotations)
-                  : JSON.stringify(res.annotations, null, 2)
-        )
+    if (outAnnotations && res.annotations?.length) {
+        if (isJSONLFilename(outAnnotations))
+            await appendJSONL(outAnnotations, res.annotations)
+        else
+            await write(
+                outAnnotations,
+                /\.(c|t)sv$/i.test(outAnnotations)
+                    ? diagnosticsToCSV(res.annotations, csvSeparator)
+                    : /\.ya?ml$/i.test(outAnnotations)
+                      ? YAMLStringify(res.annotations)
+                      : JSON.stringify(res.annotations, null, 2)
+            )
+    }
     if (outChangelogs && res.changelogs?.length)
         await write(outChangelogs, res.changelogs.join("\n"))
+    if (outData && res.frames?.length)
+        if (isJSONLFilename(outAnnotations))
+            await appendJSONL(outData, res.frames)
+        else await write(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits) {
-        for (const fileEdit of Object.entries(res.fileEdits)) {
-            const [fn, { before, after }] = fileEdit
-            if (after !== before) await write(fn, after ?? before)
-        }
-    }
+    if (applyEdits && !res.error && Object.keys(res.fileEdits || {}).length)
+        await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
         ? JSON.stringify(res.prompt, null, 2)
         : undefined
     if (out) {
+        if (removeOut) await emptyDir(out)
+        await ensureDir(out)
+
         const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
         const yamlf = /\.ya?ml$/i.test(out) ? out : join(out, `res.yaml`)
         const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
@@ -215,7 +477,7 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         const outputf = mkfn(".output.md")
         const tracef = mkfn(".trace.md")
         const annotationf = res.annotations?.length
-            ? mkfn(".annotation.csv")
+            ? mkfn(".annotations.csv")
             : undefined
         const specf = specContent ? mkfn(".gpspec.md") : undefined
         const changelogf = res.changelogs?.length
@@ -254,26 +516,6 @@ ${files.map((f) => `-   [${basename(f)}](./${f})`).join("\n")}
         }
     }
 
-    const errors = res.annotations?.filter((a) => a.severity === "error")
-    if (githubIssues && errors?.length) {
-        logVerbose(`writing errors`)
-        const conn = parseGHTokenFromEnv(process.env)
-        for (const a of errors) {
-            await createIssue(
-                conn,
-                `[gptools] ${a.message.split(".", 1)[0]} at ${a.filename}#L${
-                    a.range[0][0]
-                }`,
-                `${a.message}
-
--  ${a.filename}#L${a.range[0][0]}
-
-Error reported by gptools ${gptool.id}.
-`
-            )
-        }
-    }
-
     // final fail
     if (res.error) {
         logVerbose(`error: ${res.error}`)
@@ -287,6 +529,13 @@ Error reported by gptools ${gptool.id}.
     logVerbose(`gptools run completed with ${tokens} tokens`)
 }
 
+async function writeFileEdits(res: FragmentTransformResponse) {
+    for (const fileEdit of Object.entries(res.fileEdits)) {
+        const [fn, { before, after }] = fileEdit
+        if (after !== before) await write(fn, after ?? before)
+    }
+}
+
 async function listTools() {
     const prj = await buildProject()
     prj.templates.forEach((t) =>
@@ -296,31 +545,6 @@ async function listTools() {
             }`
         )
     )
-}
-
-async function listSpecs() {
-    const prj = await buildProject()
-    prj.rootFiles.forEach((f) => console.log(f.filename))
-}
-
-async function convertToMarkdown(
-    path: string,
-    options: {
-        out: string
-    }
-) {
-    const { out } = options
-    const trace = new MarkdownTrace()
-    if (/^http?s:/i.test(path)) {
-    } else {
-        const files = await host.findFiles(path)
-        if (out) await ensureDir(out)
-        for (const file of files) {
-            const outf = out ? join(out, basename(file) + ".md") : file + ".md"
-            console.log(`converting ${file} -> ${outf}`)
-            await clip(host, trace, file, outf)
-        }
-    }
 }
 
 async function helpAll() {
@@ -353,6 +577,23 @@ async function parseFence(language: string) {
     console.log(fences.map((f) => f.content).join("\n\n"))
 }
 
+async function jsonl2json(files: string[]) {
+    const spinner = ora({ interval: 200 })
+    for (const file of await expandFiles(files)) {
+        spinner.suffixText = ""
+        spinner.start(file)
+        if (!isJSONLFilename(file)) {
+            spinner.suffixText = "not a jsonl file"
+            spinner.fail()
+            continue
+        }
+        const objs = await readJSONL(file)
+        const out = replaceExt(file, ".json")
+        await write(out, JSON.stringify(objs, null, 2))
+        spinner.succeed()
+    }
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -376,16 +617,22 @@ async function main() {
 
     program
         .command("run")
-        .description("Runs a GPTools against a GPSpec")
-        .arguments("<tool> [spec...]")
+        .description("Runs a GPTools against files or stdin.")
+        .arguments("<tool> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-o, --out <string>",
-            "output file. Extra markdown fields for output and trace will also be generated"
+            "output folder. Extra markdown fields for output and trace will also be generated"
         )
+        .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("-ot, --out-trace <string>", "output file for trace")
         .option(
+            "-od, --out-data <string>",
+            "output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available."
+        )
+        .option(
             "-oa, --out-annotations <string>",
-            "output file for annotations (.csv will be rendered as csv)"
+            "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)"
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option("-j, --json", "emit full JSON response to output")
@@ -407,15 +654,45 @@ async function main() {
             "180000"
         )
         .option("-l, --label <string>", "label for the run")
-        .option("-ghi, --github-issues", "create a github issues for errors")
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
         .option("-se, --seed <number>", "seed for the run")
-        .option("-ae, --apply-edits", "apply file edits")
         .option("--no-cache", "disable LLM result cache")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
+        .option("-ae, --apply-edits", "apply file edits")
         .action(run)
+
+    program
+        .command("batch")
+        .description("Run a tool on a batch of specs")
+        .arguments("<tool> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .option(
+            "-o, --out <folder>",
+            "output folder. Extra markdown fields for output and trace will also be generated"
+        )
+        .option("-rmo, --remove-out", "remove output folder if it exists")
+        .option("-os, --out-summary <file>", "append output summary in file")
+        .option("-r, --retry <number>", "number of retries", "8")
+        .option(
+            "-rd, --retry-delay <number>",
+            "minimum delay between retries",
+            "15000"
+        )
+        .option(
+            "-md, --max-delay <number>",
+            "maximum delay between retries",
+            "180000"
+        )
+        .option("-l, --label <string>", "label for the run")
+        .option("-t, --temperature <number>", "temperature for the run")
+        .option("-tp, --top-p <number>", "top-p for the run")
+        .option("-m, --model <string>", "model for the run")
+        .option("-se, --seed <number>", "seed for the run")
+        .option("--no-cache", "disable LLM result cache")
+        .option("-ae, --apply-edits", "apply file edits")
+        .action(batch)
 
     const keys = program
         .command("keys")
@@ -448,11 +725,10 @@ async function main() {
         .description("List all available tools")
         .action(listTools)
 
-    const specs = program.command("specs").description("Manage GPSpecs")
-    specs
-        .command("list", { isDefault: true })
-        .description("List all available specs")
-        .action(listSpecs)
+    program
+        .command("jsonl2json", "Converts JSONL files to a JSON file")
+        .argument("<file...>", "input JSONL files")
+        .action(jsonl2json)
 
     const parser = program
         .command("parse")
@@ -461,13 +737,6 @@ async function main() {
         .command("region <language>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
-
-    program
-        .command("convert")
-        .description("Convert HTML files or URLs to markdown format")
-        .arguments("<path>")
-        .option("-o, --out <string>", "output directory")
-        .action(convertToMarkdown)
 
     program
         .command("help-all", { hidden: true })

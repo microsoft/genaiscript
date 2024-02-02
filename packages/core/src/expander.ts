@@ -10,10 +10,13 @@ import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, fileExists, logVerbose, readText, relativePath } from "./util"
 import {
+    DataFrame,
+    Fenced,
     evalPrompt,
     extractFenced,
     renderFencedVariables,
     staticVars,
+    undoublequote,
 } from "./template"
 import { host } from "./host"
 import { inspect } from "./logging"
@@ -34,6 +37,7 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { coreVersion } from "./version"
 import { createAPIClient } from "./services/client"
+import { isCancelError } from "./error"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -100,6 +104,16 @@ export interface FragmentTransformResponse {
      * GPTools version
      */
     version: string
+
+    /**
+     * Parsed fence sections
+     */
+    fences?: Fenced[]
+
+    /**
+     * Parsed data sections
+     */
+    frames?: DataFrame[]
 }
 
 function trimNewlines(s: string) {
@@ -156,7 +170,7 @@ async function callExpander(
                 },
                 gptool: () => {},
                 system: () => {},
-                search: async (query: string) => {
+                search: async (query: string, options?: SearchOptions) => {
                     try {
                         trace.startDetails(`search`)
                         trace.item(`query: ${query}`)
@@ -176,6 +190,13 @@ async function callExpander(
                     } finally {
                         trace.endDetails()
                     }
+                },
+                readFile: async (filename: string) => {
+                    let content: string
+                    try {
+                        content = await readText("workspace://" + filename)
+                    } catch (e) {}
+                    return { label: filename, filename, content }
                 },
                 fetchText: async (urlOrFile) => {
                     if (typeof urlOrFile === "string") {
@@ -224,9 +245,13 @@ async function callExpander(
         )
     } catch (e) {
         success = false
-        const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
-        const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
-        trace.error(info, e)
+        if (isCancelError(e)) {
+            trace.log(`cancelled: ${(e as Error).message}`)
+        } else {
+            const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
+            const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
+            trace.error(info, e)
+        }
     }
     return { logs, success, text: promptText }
 }
@@ -246,26 +271,15 @@ async function expandTemplate(
     trace: MarkdownTrace
 ) {
     const { jsSource } = template
-    const varName: Record<string, string> = {}
-    for (const [k, v] of Object.entries(env)) {
-        if (!varName[v]) varName[v] = k
-    }
-    const varMap = env as any as Record<string, string | any[]>
+
+    traceVars()
+    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
+    trace.startDetails("🛠️ gptool")
 
     const prompt = await callExpander(template, env, path, trace)
     const expanded = prompt.text
 
-    // always append, even if empty - should help with discoverability:
-    // "Oh, so I can console.log() from prompt!"
-    trace.startDetails("🔤 console output")
-    if (prompt.logs?.length) trace.fence(prompt.logs)
-    else trace.tip("use `console.log()` from gptool.js files`")
-    trace.endDetails()
-
-    traceVars()
-
-    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-
+    let success = prompt.success
     let systemText = ""
     let model = template.model
     let temperature = template.temperature
@@ -273,10 +287,6 @@ async function expandTemplate(
     let max_tokens = template.maxTokens
     let seed = template.seed
     let responseType = template.responseType
-
-    trace.startDetails("🛠️ gptool")
-
-    trace.startDetails(`👾 system`)
 
     const systems = (template.system ?? []).slice(0)
     if (!systems.length) {
@@ -287,7 +297,7 @@ async function expandTemplate(
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
         if (/changelog/i.test(jsSource)) systems.push("system.changelog")
     }
-    for (let i = 0; i < systems.length; ++i) {
+    for (let i = 0; i < systems.length && success; ++i) {
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
         if (!system) {
@@ -298,7 +308,10 @@ async function expandTemplate(
             assert(!!system)
         }
 
-        const sysex = (await callExpander(system, env, path, trace)).text
+        const sysr = await callExpander(system, env, path, trace)
+        const sysex = sysr.text
+        success = success && sysr.success
+        if (!success) break
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -307,8 +320,7 @@ async function expandTemplate(
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
-
-        trace.heading(3, `\`${systemTemplate}\` source`)
+        trace.startDetails(`👾 ${systemTemplate}`)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
         if (system.temperature !== undefined)
             trace.item(`temperature: ${system.temperature || ""}`)
@@ -317,12 +329,12 @@ async function expandTemplate(
             trace.item(`max tokens: ${system.maxTokens || ""}`)
 
         trace.fence(system.jsSource, "js")
-        trace.heading(4, "expanded")
+        trace.heading(3, "expanded")
         trace.fence(sysex, "markdown")
+        trace.endDetails()
     }
-    trace.endDetails()
 
-    trace.detailsFenced("📓 gptool.js source", template.jsSource, "js")
+    trace.detailsFenced("📓 gptool source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
@@ -343,6 +355,7 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
+    if (prompt.logs?.length) trace.details("console.log", prompt.logs)
     {
         trace.startDetails("🧬 expanded prompt")
         if (model) trace.item(`model: \`${model || ""}\``)
@@ -363,8 +376,7 @@ async function expandTemplate(
 
     return {
         expanded,
-        trace,
-        success: prompt.success,
+        success,
         model,
         temperature,
         topP,
@@ -384,18 +396,13 @@ async function expandTemplate(
         return isNaN(i) ? undefined : i
     }
 
-    function isComplex(k: string) {
-        const v = varMap[k]
-        if (typeof v === "string" && varName[v] != k) return false
-        return (
-            typeof v !== "string" ||
-            v.length > 40 ||
-            v.trim().includes("\n") ||
-            v.includes("`")
-        )
-    }
-
     function traceVars() {
+        const varName: Record<string, string> = {}
+        for (const [k, v] of Object.entries(env)) {
+            if (!varName[v]) varName[v] = k
+        }
+        const varMap = env as any as Record<string, string | any[]>
+
         trace.startDetails("🎰 variables")
         trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
@@ -420,9 +427,20 @@ async function expandTemplate(
 
         const schemas = env.schemas || {}
         for (const [k, v] of Object.entries(schemas)) {
-            trace.startDetails(`📋 schema ${k}`)
-            trace.fence(v, "json")
+            trace.startDetails(`📋 schema \'${k}\'`)
+            trace.fence(v, "yaml")
             trace.endDetails()
+        }
+
+        function isComplex(k: string) {
+            const v = varMap[k]
+            if (typeof v === "string" && varName[v] != k) return false
+            return (
+                typeof v !== "string" ||
+                v.length > 40 ||
+                v.trim().includes("\n") ||
+                v.includes("`")
+            )
         }
     }
 }
@@ -488,7 +506,7 @@ async function fragmentVars(
                 (f) => f.filename === ref.filename
             )
             if (!projectFile) {
-                trace.item(`reference ${ref.filename} not found`)
+                trace.error(`reference ${ref.filename} not found`)
                 continue
             }
 
@@ -956,6 +974,7 @@ export async function runTemplate(
     const yaml = YAMLTryParse(text, undefined)
     const fences =
         json === undefined && yaml === yaml ? extractFenced(text) : []
+    const frames: DataFrame[] = []
 
     // validate schemas in fences
     for (const fence of fences.filter(
@@ -963,21 +982,24 @@ export async function runTemplate(
     )) {
         const { language, content: val, args } = fence
         // validate well formed json/yaml
-        const obj = language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
-        if (obj === undefined) {
+        const data =
+            language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
+        if (data === undefined) {
             trace.error(`invalid ${language} syntax`)
             continue
         }
         // check if schema specified
         const schema = args?.schema
+        const schemaObj = schema && schemas[schema]
         if (schema) {
-            const schemaObj = schemas[schema]
-            if (!schemaObj) {
-                trace.error(`schema ${schema} not found`)
-                continue
-            }
-            fence.validation = validateJSONSchema(trace, obj, schemaObj)
-        }
+            if (!schemaObj) trace.error(`schema ${schema} not found`)
+            fence.validation = validateJSONSchema(trace, data, schemaObj)
+            frames.push({
+                schema,
+                data,
+                validation: fence.validation,
+            })
+        } else frames.push({ data })
     }
 
     if (fences?.length)
@@ -1008,7 +1030,7 @@ export async function runTemplate(
             const pm = /^((file|diff):?)\s+/i.exec(name)
             if (pm) {
                 const kw = pm[1].toLowerCase()
-                const n = name.slice(pm[0].length).trim()
+                const n = undoublequote(name.slice(pm[0].length).trim())
                 const fn = /^[^\/]/.test(n)
                     ? host.resolvePath(projFolder, n)
                     : n
@@ -1151,6 +1173,8 @@ export async function runTemplate(
         text,
         summary,
         version,
+        fences,
+        frames,
     }
     options?.infoCb?.(res)
     return res

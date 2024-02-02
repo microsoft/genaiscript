@@ -12,15 +12,12 @@ For each FILE, extract the code structure
 that ignores the internal details of the implementation.'
 ```
 
-### Demo videos
-
--  🔑 [Building a Azure Bicep Analyzer](https://github.com/microsoft/gptools/assets/4175913/d8e9f080-9e47-4667-b10a-ea5b544b1125)
--  💬 [Copilot Chat to GPTools](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
--  📑 [Structured Data Extraction](https://github.com/microsoft/gptools/assets/4175913/907ca886-7344-4341-986c-e288148fd501)
--  🎥 [Video transcript converter](https://github.com/microsoft/gptools/assets/4175913/9b49d291-91f2-4739-b8f4-aa4332dc08ac)
-
-
 ## Overview
+
+-   🔑 [Building a Azure Bicep Analyzer](https://github.com/microsoft/gptools/assets/4175913/d8e9f080-9e47-4667-b10a-ea5b544b1125)
+-   💬 [Copilot Chat to GPTools](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
+-   📑 [Structured Data Extraction](https://github.com/microsoft/gptools/assets/4175913/907ca886-7344-4341-986c-e288148fd501)
+-   🎥 [Video transcript converter](https://github.com/microsoft/gptools/assets/4175913/9b49d291-91f2-4739-b8f4-aa4332dc08ac)
 
 The key elements of the gptools framework are:
 
@@ -40,11 +37,38 @@ The tooling supports a short developer loop in VS Code and automation CI/CD pipe
 -   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
 
 GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
-To access GPTools from GitHub Copilot Chat, use [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
 
-### GPTool scripts
+## Getting started
+
+### Install in Visual Studio Code
+
+These are the instructions to install the latest build of the extension manually in Visual Studio Code.
+See Insiders for Copilot Chat integration.
+
+-   install [Visual Studio Code](https://code.visualstudio.com/Download),
+-   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
+-   download the `gptools.vsix` into your project in VSCode
+-   right click on the `.vsix` file and select **Install Extension VSIX...**
+
+Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
+
+### Install in Visual Studio Code - Insiders + Copilot Chat
+
+To leverage the Copilot Chat integration, you will need to do the follwing.
+
+-   install [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
+-   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
+-   download the `gptools.insiders.vsix` into your project in **Visual Studio Code - Insiders**
+-   right click on the `.vsix` file and select **Install Extension VSIX...**
+-   follow the instructions to install the extension ([more information](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api))
+
+Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
+
+## GPTool scripts
 
 GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
+
+> Use the `Create a GPTool...` command in the command palette to create a new gptool script.
 
 ```js
 // metadata
@@ -74,7 +98,7 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 -   [Read more about gptools](./docs/gptools.md).
 
-## GPSpec specifications
+## (Optional) GPSpec specifications
 
 Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
 

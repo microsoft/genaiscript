@@ -30,7 +30,7 @@ interface PromptLike extends PromptDefinition {
      * The actual text of the prompt template.
      * Only used for system prompts.
      */
-    text: string
+    text?: string
 }
 
 type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
@@ -181,11 +181,31 @@ interface LinkedFile {
 
 type ChatMessageRole = "user" | "system" | "assistant" | "function"
 
+interface ChatMessageRequest {
+    content: string
+    agentId?: string
+    subCommand?: string
+    name?: string
+    variables: Record<string, (string | { uri: string })[]>
+}
+
+interface ChatMessageFileTreeNode {
+    uri: string
+    label: string
+    children?: ChatMessageFileTreeNode[]
+}
+
+interface ChatMessageResponse {
+    content?: string
+    uri?: string
+    position?: CharPosition
+    fileTree?: ChatMessageFileTreeNode
+}
+
 // ChatML
 interface ChatMessage {
-    role: ChatMessageRole
-    content: string
-    name?: string
+    request: ChatMessageRequest
+    response: ChatMessageResponse[]
 }
 
 interface ChatAgentContext {
@@ -443,21 +463,33 @@ type JSONSchemaTypeName =
     | "null"
 
 type JSONSchemaType =
-    | string //
-    | number
-    | boolean
+    | JSONSchemaString
+    | JSONSchemaNumber
+    | JSONSchemaBoolean
     | JSONSchemaObject
     | JSONSchemaArray
     | null
+
+interface JSONSchemaString {
+    type: "string"
+    description?: string
+}
+
+interface JSONSchemaNumber {
+    type: "number"
+    description?: string
+}
+
+interface JSONSchemaBoolean {
+    type: "boolean"
+    description?: string
+}
 
 interface JSONSchemaObject {
     type: "object"
     description?: string
     properties?: {
-        [key: string]: {
-            description?: string
-            type?: JSONSchemaType
-        }
+        [key: string]: JSONSchemaType
     }
     required?: string[]
     additionalProperties?: boolean
@@ -550,6 +582,8 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
+    readFile(file: string): Promise<LinkedFile>
+    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
@@ -647,8 +681,20 @@ declare function fetchText(
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
+ * Reads the content of a file
+ * @param path
+ */
+declare function readFile(path: string): Promise<LinkedFile>
+
+/**
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchema)
+declare function defSchema(name: string, schema: JSONSchema): void
+
+/**
+ * Cancels the current prompt generation/execution with the given reason.
+ * @param reason
+ */
+declare function cancel(reason?: string): void

@@ -90,11 +90,23 @@ declare function fetchText(
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
+ * Reads the content of a file
+ * @param path
+ */
+declare function readFile(path: string): Promise<LinkedFile>
+
+/**
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance
  */
 declare function defSchema(name: string, schema: JSONSchema)
+
+/**
+ * Cancels the current prompt generation/execution with the given reason.
+ * @param reason
+ */
+declare function cancel(reason?: string): void
 
 /**
  * Search the query workspace for files.

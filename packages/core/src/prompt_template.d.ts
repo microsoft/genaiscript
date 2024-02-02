@@ -463,21 +463,33 @@ type JSONSchemaTypeName =
     | "null"
 
 type JSONSchemaType =
-    | string //
-    | number
-    | boolean
+    | JSONSchemaString
+    | JSONSchemaNumber
+    | JSONSchemaBoolean
     | JSONSchemaObject
     | JSONSchemaArray
     | null
+
+interface JSONSchemaString {
+    type: "string"
+    description?: string
+}
+
+interface JSONSchemaNumber {
+    type: "number"
+    description?: string
+}
+
+interface JSONSchemaBoolean {
+    type: "boolean"
+    description?: string
+}
 
 interface JSONSchemaObject {
     type: "object"
     description?: string
     properties?: {
-        [key: string]: {
-            description?: string
-            type?: JSONSchemaType
-        }
+        [key: string]: JSONSchemaType
     }
     required?: string[]
     additionalProperties?: boolean
@@ -578,6 +590,8 @@ interface PromptContext {
         file?: LinkedFile
     }>
     search(query: string, options?: SearchOptions): Promise<LinkedFile[]>
+    readFile(file: string): Promise<LinkedFile>
+    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers

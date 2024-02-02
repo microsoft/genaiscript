@@ -105,11 +105,10 @@ function chatRequestToPromptTemplate(
         title: "",
         chatOutput: "inline",
     }
-    let id = "copilot"
     let jsSource = `def("FILE", env.files)\n\n`
 
     const appendPrompt = (content: string) => {
-        if (content) jsSource += `$\`${content.replace("`", "\\`")}\`\n`
+        if (content) jsSource += `$\`${content.replace(/`/g, "\\`")}\`\n`
     }
 
     for (const msg of context.history) {
@@ -118,36 +117,15 @@ function chatRequestToPromptTemplate(
 
         // process input
         if (agentId === AGENT_ID) {
-            switch (subCommand) {
-                case "title":
-                    args.title = content
-                    break
-                case "description":
-                    args.description = content
-                    break
-                case "model":
-                    args.model = content
-                    break
-                case "system": // todo validate
-                    args.system = (args.system || []).concat(content)
-                    break
-                case "temperature":
-                    args.temperature = parseFloat(content)
-                    break
-                case "top_p":
-                    args.topP = parseFloat(content)
-                    break
-                default:
-                    if (subCommand) {
-                        // calling into another template
-                        // TODO
-                        jsSource += `call(${subCommand}, "${content}")\n`
-                    } else {
-                        // no subcommand, just add the content
-                        appendPrompt(content)
-                    }
+            if (subCommand) {
+                // calling into another template
+                // TODO
+                jsSource += wrapComment(`${agentId}: ${content}`)
+            } else {
+                // no subcommand, just add the content
+                appendPrompt(content)
             }
-        } else if (agentId === "copilot") {
+        } else if (agentId === "copilot" || agentId === "") {
             // other agent id, not supported
             // TODO
             appendPrompt(content)
@@ -156,11 +134,11 @@ function chatRequestToPromptTemplate(
 
     if (!request.subCommand) appendPrompt(context.prompt)
 
-    jsSource = `gptool(${JSON.stringify({ id, ...args }, null, 4)})\n\n${jsSource}`
+    jsSource = `gptool(${JSON.stringify({ ...args }, null, 4)})\n\n${jsSource}`
 
     const template: PromptTemplate = {
         ...args,
-        id,
+        id: "copilot",
         jsSource,
     }
 
@@ -243,7 +221,7 @@ These steps will not be needed once the API gets fully released.
             ({ id }) => id === subCommand
         )
         if (!template) {
-            progress.report({ message: "Genering script" })
+            progress.report({ message: "Generating script" })
             template = chatRequestToPromptTemplate(request, context)
             res.template = template
         }

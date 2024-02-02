@@ -284,6 +284,15 @@ The file describing the context (or `.gpspec.md` file) is also available as a li
 
 It is typically generated automatically but can also be authored manually as a `.gpspec.md` file.
 
+### readFile(filename: string): Promise<string>
+
+Reads the content of a local text file.
+
+```ts
+const content = await readFile("/README.md")
+defFile("README", content)
+```
+
 ### fetchText(url: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
 
 Use `fetchText` to to issue GET requests and download text from the internet.

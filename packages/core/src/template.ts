@@ -3,6 +3,7 @@ import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
+import { throwError } from "./error"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -180,7 +181,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "defFiles" | "$" | "defFunction" | "defSchema"
+    "fence" | "def" | "defFiles" | "$" | "defFunction" | "defSchema" | "cancel"
 >
 export async function evalPrompt(
     ctx0: BasePromptContext,
@@ -286,6 +287,9 @@ export async function evalPrompt(
             ctx.def("", body, options)
             return dontuse("fence")
         },
+        cancel: (reason?: string) => {
+            throwError(reason || "user cancelled", true)
+        },
         console: {
             log: log,
             warn: log,
@@ -352,6 +356,11 @@ async function parseMeta(r: PromptTemplate) {
                     meta.isSystem = true
                     gptool(meta)
                 },
+                readFile: async (filename: string) => ({
+                    label: filename,
+                    filename,
+                    content: undefined,
+                }),
                 fetchText: async (urlOrFile: string | LinkedFile) => {
                     const url =
                         typeof urlOrFile === "string"
@@ -365,7 +374,7 @@ async function parseMeta(r: PromptTemplate) {
                         file: {
                             label: url,
                             filename: url,
-                            content: "",
+                            content: undefined,
                         },
                     }
                 },
@@ -407,6 +416,11 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
     }
 }
 
+export function undoublequote(s: string) {
+    if (s && s[0] === `"` && s[s.length - 1] === `"`) return s.slice(1, -1)
+    return s
+}
+
 const promptFenceStartRx =
     /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
 function startFence(text: string) {
@@ -414,7 +428,7 @@ function startFence(text: string) {
     const groups: Record<string, string> = m?.groups || {}
     return {
         fence: groups.fence,
-        language: groups.language,
+        language: undoublequote(groups.language),
         args: parseKeyValuePairs(groups.args),
     }
 }
@@ -425,6 +439,12 @@ export interface Fenced {
     content: string
     args?: { schema?: string } & Record<string, string>
 
+    validation?: JSONSchemaValidation
+}
+
+export interface DataFrame {
+    schema?: string
+    data: unknown
     validation?: JSONSchemaValidation
 }
 
@@ -479,24 +499,35 @@ export function extractFenced(text: string): Fenced[] {
                 currText += line + "\n"
             }
         } else {
-            const start = startFence(lines[i + 1])
-            const m = /(\w+):\s+([^\s]+)/.exec(line)
-            if (start.fence && line.endsWith(":")) {
-                currLbl = (
-                    line.slice(0, -1) +
-                    " " +
-                    (start.args["file"] || "")
-                ).trim()
-                currFence = start.fence
-                currLanguage = start.language || ""
-                currArgs = start.args
-                i++
-            } else if (start.fence && m) {
-                currLbl = m[1] + " " + (start.args["file"] || m[2])
-                currFence = start.fence
-                currLanguage = start.language || ""
-                currArgs = start.args
-                i++
+            const fence = startFence(line)
+            if (fence.fence && fence.args["file"]) {
+                currLbl = "FILE " + fence.args["file"]
+                currFence = fence.fence
+                currLanguage = fence.language || ""
+                currArgs = fence.args
+            } else {
+                const start = startFence(lines[i + 1])
+                const m = /(\w+):\s+([^\s]+)/.exec(line)
+                if (start.fence && line.endsWith(":")) {
+                    currLbl = (
+                        undoublequote(line.slice(0, -1)) +
+                        " " +
+                        (start.args["file"] || "")
+                    ).trim()
+                    currFence = start.fence
+                    currLanguage = start.language || ""
+                    currArgs = start.args
+                    i++
+                } else if (start.fence && m) {
+                    currLbl =
+                        undoublequote(m[1]) +
+                        " " +
+                        (start.args["file"] || undoublequote(m[2]))
+                    currFence = start.fence
+                    currLanguage = start.language || ""
+                    currArgs = start.args
+                    i++
+                }
             }
         }
     }
@@ -535,7 +566,7 @@ function parseKeyValuePairs(text: string) {
         ?.split(/\s+/g)
         .map((kv) => kv.split(/[=:]/))
         .filter((m) => m.length == 2)
-        .forEach((m) => (res[m[0]] = m[1]))
+        .forEach((m) => (res[m[0]] = undoublequote(m[1])))
     return res
 }
 
@@ -560,7 +591,6 @@ export function renderFencedVariables(vars: Fenced[]) {
             }
 ${v}
 \`\`\`\`\`
-${validation?.valid ? `> [!NOTE] Schema ${args.schema} validation ok` : ""}
 ${
     validation?.errors
         ? `> [!CAUTION] Schema ${args.schema} validation errors

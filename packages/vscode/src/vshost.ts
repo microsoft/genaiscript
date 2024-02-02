@@ -33,6 +33,9 @@ export class VSCodeHost extends EventTarget implements Host {
     get context() {
         return this.state.context
     }
+    clearVirtualFiles(): void {
+        this.virtualFiles = {}
+    }
     setVirtualFile(name: string, content: string) {
         this.virtualFiles = {}
         this.virtualFiles[name] = this.createUTF8Encoder().encode(content)

@@ -4,7 +4,6 @@ import { extractFenced } from "gptools-core"
 
 describe("fence", () => {
     test("fence opt", () => {
-        debugger
         const source = `
 The provided \`email_recognizer.py\` file contains a simple function that uses a regular expression to validate an email address. The time it takes to run this function depends on the complexity of the regular expression and the length of the input email string. However, without specific performance metrics or a larger context, it's not possible to provide an exact time for how long this function might take to run.
 
@@ -54,9 +53,44 @@ Pre-compiled the regular expression to improve the performance of the is_valid_e
 `
 
         const fenced = extractFenced(source)
-        console.log(fenced)
         assert.equal(fenced.length, 2)
         assert.equal(fenced[0].label, "DIFF ./email_recognizer.py")
         assert.equal(fenced[1].label, "SUMMARY")
+    })
+
+    test("file arg", () => {
+        const source = `
+lorem
+
+\`\`\`md file=./somefile.md
+...
+\`\`\`
+
+bla
+
+`
+
+        const fenced = extractFenced(source)
+        console.log(fenced)
+        assert.equal(fenced.length, 1)
+        assert.equal(fenced[0].label, "FILE ./somefile.md")
+    })
+
+    test("file arg file quoted", () => {
+        const source = `
+lorem
+
+\`\`\`md file="./somefile.md"
+...
+\`\`\`
+
+bla
+
+`
+
+        const fenced = extractFenced(source)
+        console.log(fenced)
+        assert.equal(fenced.length, 1)
+        assert.equal(fenced[0].label, "FILE ./somefile.md")
     })
 })
