@@ -43,12 +43,12 @@ node .gptools/gptools.js batch <tool> src/*.bicep
 
 The tool will create various JSON Lines files with the results (JSON Lines is a file format where each line is a valid JSON object, which allows for appending results). You can post-process those results using your favorite script environment.
 
-By default, results will be saved in the `./results` folder, this can be overriden with `--out`. The execution produces various `.jsonl` (JSON Lines) files that provide a convinient way to append runs to the same files.
+By default, results will be saved in the `.gptools/results` folder, this can be overriden with `--out`. The execution produces various `.jsonl` (JSON Lines) files that provide a convinient way to append runs to the same files.
 
 In a GitHub Actions workflow, you can inject a report in the step summary (`GITHUB_STEP_SUMMARY`) using `--out-summary` (`-os`).
 
 ```yaml
-- name: Run gptools <toolname> on <files>
+- name: Batch gptools <toolname> on <files>
   run: |
       node .gptools/gptools.js batch <toolname> <files> -os $GITHUB_STEP_SUMMARY
 - name: Upload GPTools results
@@ -61,25 +61,30 @@ In a GitHub Actions workflow, you can inject a report in the step summary (`GITH
 
 ### credentials
 
-The token is read from the environment variables `GPTOOLS_TOKEN`, from `OPENAI_API_KEY/BASE`.
-The CLI also supports loading the variables from a `.env` file in the current directory.
+The token is read from the usual OpenAI (or Azure OpenAI) environment variables or from a `.env` file in the current directory.
 
-The `GPTOOLS_TOKEN` should be formatted as follows
+See [token format](./token.md).
 
-    https://<openai base>#key=<openai api key>
+### --excluded-files <files...>
+
+Excludes the specified files from the file set.
+
+```bash
+node .gptools/gptools.js run <tool> <spec> --excluded-files <excluded-files...>
+```
 
 ### --out <file|directory>
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
 
 ```bash
-node gptools.js run <tool> <spec> --out output/results.json
+node .gptools/gptools.js run <tool> <spec> --out output/results.json
 ```
 
 If `file` does not end with `.json`, the path is treated as a directory path.
 
 ```bash
-node gptools.js run <tool> <spec> --out output
+node .gptools/gptools.js run <tool> <spec> --out output
 ```
 
 ### --json
@@ -91,7 +96,7 @@ Output the entire response as JSON to the stdout.
 Save the markdown trace to the specified file.
 
 ```bash
-node gptools.js run <tool> <spec> --out-trace <file>
+node .gptools/gptools.js run <tool> <spec> --out-trace <file>
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
@@ -99,7 +104,7 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 ```yaml
 - name: Run GPTools tool on spec
   run: |
-      node gptools.js run <tool> <spec> --out-trace $GITHUB_STEP_SUMMARY
+      node .gptools/gptools.js run <tool> <spec> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
 ### --out-annotations <file>
@@ -107,13 +112,13 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 Emit annotations in the specified file as a JSON array, JSON Lines or a CSV file if the file ends with `.csv`.
 
 ```bash
-node gptools.js run <tool> <spec> --out-annotations diags.csv
+node .gptools/gptools.js run <tool> <spec> --out-annotations diags.csv
 ```
 
 Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
 
 ```bash
-node gptools.js run <tool> <spec> --out-annotations diags.jsonl
+node .gptools/gptools.js run <tool> <spec> --out-annotations diags.jsonl
 ```
 
 ### --out-data <file>
@@ -122,7 +127,7 @@ Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
 and availabe, the JSON validation result is also stored.
 
 ```bash
-node gptools.js run <tool> <spec> --out-data data.jsonl
+node .gptools/gptools.js run <tool> <spec> --out-data data.jsonl
 ```
 
 ### --out-changelogs <file>
@@ -130,7 +135,7 @@ node gptools.js run <tool> <spec> --out-data data.jsonl
 Emit changelogs in the specified file as text.
 
 ```bash
-node gptools.js run <tool> <spec> --out-changelogs changelogs.txt
+node .gptools/gptools.js run <tool> <spec> --out-changelogs changelogs.txt
 ```
 
 ### --prompt
@@ -204,5 +209,5 @@ Shows information about the current key.
 Extract content from HTML files into flat markdown files, which can be better integrated into a prompt.
 
 ```
-node gptools.js convert <glob>
+node .gptools/gptools.js convert <glob>
 ```
