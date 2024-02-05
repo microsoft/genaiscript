@@ -1,37 +1,37 @@
 {
-    "name": "gptools-cli",
-    "version": "1.7.10",
-    "main": "built/gptools.js",
-    "license": "MIT",
-    "private": true,
-    "dependencies": {
-        "commander": "^11.1.0",
-        "dotenv": "^16.4.0",
-        "esbuild": "^0.19.12",
-        "execa": "^8.0.1",
-        "fs-extra": "^11.2.0",
-        "get-stdin": "^9.0.0",
-        "glob": "^10.3.10",
-        "openai": "^4.25.0",
-        "typescript": "^5.3.3"
-    },
-    "engines": {
-        "node": ">=20.0.0"
-    },
-    "devDependencies": {
-        "@types/fs-extra": "^11.0.4",
-        "@types/node": "^20.11.5",
-        "@types/replace-ext": "^2.0.2",
-        "gptools-core": "*",
-        "ora": "^8.0.1",
-        "replace-ext": "^2.0.0",
-        "tsx": "^4.7.0"
-    },
-    "scripts": {
-        "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/gptools.js --minify-whitespace",
-        "postcompile": "cp built/gptools.js ../vscode/gptools.js",
-        "go": "yarn compile && node built/gptools.js",
-        "test": "node --import tsx --test src/**.test.ts",
-        "typecheck": "tsc -p src"
-    }
+  "name": "gptools-cli",
+  "version": "1.7.11",
+  "main": "built/gptools.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "commander": "^11.1.0",
+    "dotenv": "^16.4.0",
+    "esbuild": "^0.19.12",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.2.0",
+    "get-stdin": "^9.0.0",
+    "glob": "^10.3.10",
+    "openai": "^4.25.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.5",
+    "@types/replace-ext": "^2.0.2",
+    "gptools-core": "*",
+    "ora": "^8.0.1",
+    "replace-ext": "^2.0.0",
+    "tsx": "^4.7.0"
+  },
+  "scripts": {
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/gptools.js --minify-whitespace",
+    "postcompile": "cp built/gptools.js ../vscode/gptools.js",
+    "go": "yarn compile && node built/gptools.js",
+    "test": "node --import tsx --test src/**.test.ts",
+    "typecheck": "tsc -p src"
+  }
 }
