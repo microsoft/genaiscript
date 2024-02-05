@@ -523,7 +523,7 @@ async function fragmentVars(
         },
         vars: attrs,
     }
-    return { vars, trace }
+    return vars
 }
 
 export type RunTemplateOptions = ChatCompletionsOptions & {
@@ -553,6 +553,7 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<ChatCompletionResponse>
     path: Path
+    vars?: Record<string, string>
 }
 
 export function generateCliArguments(
@@ -598,12 +599,15 @@ export async function runTemplate(
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
 
-    const { vars } = await fragmentVars(
+    const vars = await fragmentVars(
         trace,
         template,
         fragment,
         options.promptOptions
     )
+    // override with options vars
+    if (options.vars)
+        vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
     vars.chat = options.chat || { history: [], prompt: "" }
 
     let {
