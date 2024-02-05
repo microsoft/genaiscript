@@ -124,7 +124,8 @@ const systemFence = "---"
 
 export function fenceMD(t: string, contentType?: string) {
     if (!contentType) contentType = "markdown"
-    const f = contentType === "markdown" ? markdownFence : fence
+    let f = "```"
+    while (f.includes(f) && f.length < 8) f += "`"
     return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
@@ -593,8 +594,6 @@ export async function runTemplate(
     const { signal } = requestOptions
     const version = coreVersion
 
-    options.infoCb?.({ text: "Preparing prompt" })
-
     trace.heading(2, label || template.id)
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
@@ -735,7 +734,7 @@ export async function runTemplate(
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`Prompting model`)
+                status(`Prompting model ${model}`)
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )

@@ -14,6 +14,7 @@ import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 
+export const TOOL_NAME = "GPTools"
 export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
 
 export async function activate(context: ExtensionContext) {
@@ -34,7 +35,7 @@ export async function activate(context: ExtensionContext) {
         vscode.commands.registerCommand("coarch.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
-                "GPTools - request aborted."
+                `${TOOL_NAME} - request aborted.`
             )
         }),
         vscode.commands.registerCommand("coarch.request.retry", () =>
@@ -45,7 +46,7 @@ export async function activate(context: ExtensionContext) {
             async () => {
                 await clearToken()
                 await vscode.window.showInformationMessage(
-                    "GPTools - OpenAI token cleared."
+                    `${TOOL_NAME} - authentication token cleared.`
                 )
             }
         ),
@@ -65,7 +66,7 @@ export async function activate(context: ExtensionContext) {
             const cmds = commandButtons(state)
             if (!cmds.length)
                 await vscode.window.showInformationMessage(
-                    "GPTools - no request."
+                    `${TOOL_NAME} - no request.`
                 )
             else {
                 const res = await vscode.window.showQuickPick(cmds, {

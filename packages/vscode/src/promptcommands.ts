@@ -60,7 +60,6 @@ def("FILE", env.files)
                     }
                 )
                 t.id = ""
-                delete t.chatOutput
 
                 await showPrompt(await copyPrompt(t, { fork: false, name }))
             }

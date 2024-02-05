@@ -332,7 +332,7 @@ async function run(
     }
 ) {
     const excludedFiles = options.excludedFiles
-    const stream = !options.json && !options.yaml
+    const stream = !options.json && !options.yaml && !options.out
     const out = options.out
     const skipLLM = !!options.prompt
     const retry = parseInt(options.retry) || 8
