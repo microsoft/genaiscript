@@ -276,7 +276,7 @@
     },
     "scripts": {
         "vscode:prepublish": "yarn run compile",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node18 --outfile=built/extension.js --external:vscode",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode",
         "compile": "yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
