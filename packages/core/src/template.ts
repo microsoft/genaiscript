@@ -559,7 +559,7 @@ import re
     }
 }
 
-function parseKeyValuePairs(text: string) {
+export function parseKeyValuePairs(text: string) {
     const res: Record<string, string> = {}
     text
         ?.split(/\s+/g)

@@ -91,6 +91,14 @@ node .gptools/gptools.js run <tool> <spec> --out output
 
 Output the entire response as JSON to the stdout.
 
+### --yaml
+
+Output the entire response as YAML to the stdout.
+
+### --vars name=value name2=value2 ...
+
+Populate values in the `env.vars` map that can be used when running the prompt.
+
 ### --out-trace <file>
 
 Save the markdown trace to the specified file.

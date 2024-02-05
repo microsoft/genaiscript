@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = string
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"

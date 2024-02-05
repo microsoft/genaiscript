@@ -19,6 +19,7 @@ import {
     convertAnnotationToGitHubActionCommand,
     readJSONL,
     dotGptoolsPath,
+    parseKeyValuePairs,
 } from "gptools-core"
 import ora from "ora"
 import { NodeHost } from "./nodehost"
@@ -105,6 +106,7 @@ async function batch(
         model: string
         cache: boolean
         applyEdits: boolean
+        vars: string[]
     }
 ) {
     const spinner = ora({ interval: 200 }).start("preparing tool and files")
@@ -118,6 +120,7 @@ async function batch(
         outSummary,
         applyEdits,
         excludedFiles,
+        vars,
     } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
@@ -220,6 +223,7 @@ async function batch(
                     retryDelay,
                     maxDelay,
                     path,
+                    vars: parseVars(vars),
                 }
             )
 
@@ -303,6 +307,13 @@ function normalizeFloat(s: string) {
     return isNaN(f) ? undefined : f
 }
 
+function parseVars(vars: string[]) {
+    if (!vars?.length) return undefined
+    const res: Record<string, string> = {}
+    if (vars) for (const v of vars) Object.assign(res, parseKeyValuePairs(v))
+    return res
+}
+
 async function run(
     tool: string,
     specs: string[],
@@ -329,6 +340,7 @@ async function run(
         applyEdits: boolean
         failOnErrors: boolean
         removeOut: boolean
+        vars: string[]
     }
 ) {
     const excludedFiles = options.excludedFiles
@@ -352,6 +364,7 @@ async function run(
     const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
+    const vars = options.vars
 
     let spec: string
     let specContent: string
@@ -436,6 +449,7 @@ ${Array.from(files)
         retryDelay,
         maxDelay,
         path: createNodePath(),
+        vars: parseVars(vars),
     })
 
     logVerbose(``)
@@ -661,6 +675,10 @@ async function main() {
         .option("--no-cache", "disable LLM result cache")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
         .option("-ae, --apply-edits", "apply file edits")
+        .option(
+            "--vars <namevalue...>",
+            "variables, as name=value, stored in env.vars"
+        )
         .action(run)
 
     program
@@ -692,6 +710,10 @@ async function main() {
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
         .option("-ae, --apply-edits", "apply file edits")
+        .option(
+            "--vars <string...>",
+            "variables, as name=value, stored in env.vars"
+        )
         .action(batch)
 
     const keys = program
