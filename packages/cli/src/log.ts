@@ -45,5 +45,5 @@ function wrapArgs(color: number, args: any[]) {
 export let isQuiet = false
 
 export function setQuiet(v: boolean) {
-    isQuiet = v
+    isQuiet = !!v
 }

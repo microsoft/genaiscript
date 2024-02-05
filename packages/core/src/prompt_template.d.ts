@@ -7,7 +7,7 @@ interface PromptDefinition {
     /**
      * Something like "Summarize children", show in UI.
      */
-    title: string
+    title?: string
 
     /**
      * Longer description of the prompt. Shows in UI grayed-out.
@@ -147,11 +147,6 @@ interface PromptTemplate extends PromptLike {
      * Indicate if the tool can be used in a copilot chat context. `true` is exclusive, `false` never and `undefined` is both.
      */
     chat?: boolean
-
-    /**
-     * Indicates what output should be included in the chat response.
-     */
-    chatOutput?: "inline" | "summary"
 
     /**
      * If running in chat, use copilot LLM model

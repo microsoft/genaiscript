@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
 import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
-import { RunTemplateOptions, logInfo, logVerbose } from "gptools-core"
+import {
+    MarkdownTrace,
+    RunTemplateOptions,
+    logInfo,
+    logVerbose,
+} from "gptools-core"
 
 const AGENT_ID = "gptools"
 
@@ -101,10 +106,7 @@ function chatRequestToPromptTemplate(
     request: vscode.ChatAgentRequest,
     context: ChatAgentContext
 ): PromptTemplate {
-    const args: PromptArgs = {
-        title: "",
-        chatOutput: "inline",
-    }
+    const args: PromptArgs = {}
     let jsSource = `def("FILE", env.files)\n\n`
 
     const appendPrompt = (content: string) => {
@@ -142,7 +144,6 @@ function chatRequestToPromptTemplate(
         jsSource,
     }
 
-    logVerbose(`copilot template:\n${jsSource}}`)
     return template
 }
 
@@ -224,6 +225,13 @@ These steps will not be needed once the API gets fully released.
             progress.report({ message: "Generating script" })
             template = chatRequestToPromptTemplate(request, context)
             res.template = template
+
+            const message = new MarkdownTrace()
+            message.log(`We generated this script from the chat history:`)
+            message.fence(res.template.jsSource, "javascript")
+            progress.report(<vscode.ChatAgentContent>{
+                content: message.content,
+            })
         }
 
         const access = await vscode.chat.requestChatAccess("copilot")
@@ -275,15 +283,6 @@ These steps will not be needed once the API gets fully released.
             token: vscode.CancellationToken
         ) {
             const follows: vscode.ChatAgentFollowup[] = []
-            if (result.template) {
-                follows.push({
-                    commandId: "coarch.prompt.create",
-                    message:
-                        "Save generated GPTool script in current workspace.",
-                    title: "Save GPTools Script",
-                    args: [result.template],
-                })
-            }
             if (
                 result.subCommand === "run" &&
                 state.aiRequest?.response?.edits?.length

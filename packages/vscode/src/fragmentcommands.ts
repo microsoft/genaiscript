@@ -99,14 +99,18 @@ export function activateFragmentCommands(state: ExtensionState) {
               }
             | vscode.Uri
     ) => {
-        await saveAllTextDocuments
-        await state.parseWorkspace()
-
         if (typeof options === "object" && options instanceof vscode.Uri)
             options = { fragment: options }
         let { fragment, template, chat } = options || {}
 
         await state.cancelAiRequest()
+
+        if (chat?.progress)
+            chat.progress.report({ message: "Preparing script" })
+
+        await saveAllTextDocuments
+        await state.parseWorkspace()
+
         fragment = await resolveSpec(fragment)
         if (!fragment) {
             vscode.window.showErrorMessage(

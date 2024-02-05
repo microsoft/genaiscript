@@ -150,6 +150,7 @@ export class ExtensionState extends EventTarget {
 
     readonly aiRequestContext: AIRequestContextOptions = {}
 
+
     constructor(public readonly context: ExtensionContext) {
         super()
         this.output = vscode.window.createOutputChannel("GPTools", {
@@ -222,10 +223,7 @@ export class ExtensionState extends EventTarget {
             const req = await this.startAIRequest(options)
             const res = await req?.request
             const { edits, text } = res || {}
-            if (
-                text &&
-                (!options.chat || options.template.chatOutput !== "inline")
-            )
+            if (text && !options.chat)
                 vscode.commands.executeCommand("coarch.request.open.output")
 
             const key = await snapshotAIRequestKey(req)
@@ -332,7 +330,7 @@ ${e.message}`
                 if (/\n/.test(progress.responseChunk))
                     r.response.annotations = parseAnnotations(r.response.text)
             }
-            if (template.chatOutput === "inline")
+            if (r.options.chat?.progress)
                 r.options.chat?.progress?.report({
                     content: progress.responseChunk,
                 })
@@ -340,7 +338,6 @@ ${e.message}`
         }
         this.aiRequest = r
         const { template, fragment } = options
-        const { chatOutput } = template
         let varsProgressReported = false
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
@@ -409,7 +406,7 @@ ${e.message}`
 
         r.request = runTemplate(template, fragment, runOptions)
 
-        if (!options.chat || chatOutput !== "inline")
+        if (!options.chat)
             vscode.commands.executeCommand("coarch.request.open.output")
 
         r.request
@@ -438,11 +435,12 @@ ${e.message}`
         }
     }
 
-    cancelAiRequest() {
+    async cancelAiRequest() {
         const a = this.aiRequest
         if (a && a.computing && !a?.controller?.signal?.aborted) {
             a.controller?.abort("user cancelled")
             this.dispatchChange()
+            await delay(100)
         }
     }
 
