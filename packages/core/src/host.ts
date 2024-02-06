@@ -58,6 +58,8 @@ export interface Host {
     projectFolder(): string
     resolvePath(...segments: string[]): string
 
+    // read a secret from the environment or a .env file
+    readSecret(name: string): Promise<string | undefined>
     getSecretToken(): Promise<OAIToken | undefined>
     setSecretToken(tok: OAIToken): Promise<void>
     askToken(): Promise<string>
