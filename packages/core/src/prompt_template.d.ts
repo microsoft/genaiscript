@@ -563,6 +563,8 @@ interface Parsers {
     TOML(text: string): unknown | undefined
 }
 
+type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -581,7 +583,7 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
-    fetchText(urlOrFile: string | LinkedFile): Promise<{
+    fetchText(urlOrFile: string | LinkedFile, options?: FetchTextOptions): Promise<{
         ok: boolean
         status: number
         text?: string

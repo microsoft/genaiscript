@@ -86,7 +86,8 @@ declare var parsers: Parsers
  * @param url
  */
 declare function fetchText(
-    url: string | LinkedFile
+    url: string | LinkedFile,
+    options?: FetchTextOptions
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
