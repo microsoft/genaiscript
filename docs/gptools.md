@@ -311,6 +311,20 @@ const { file } = await fetchText("README.md")
 def("README", file)
 ```
 
+### env.secrets
+
+The `env.secrets` object is used to access secrets from the environment. The secrets are typically stored in the `.env` file in the root of the project (or in the `process.env` for the CLI).
+You will need to declare the list of secrets needed in `gptool({ secrets: ... })`.
+
+```js
+gptool({
+    ...
+    secrets: ["SECRET_TOKEN"]
+})
+
+const token = env.secrets.SECRET_TOKEN
+```
+
 ## JSON Schema
 
 Use `defSchema` to define a JSON schema for the prompt output.

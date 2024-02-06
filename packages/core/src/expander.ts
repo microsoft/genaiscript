@@ -505,12 +505,11 @@ async function fragmentVars(
             content: frag.parent.file.content,
         })
     const attrs = commentAttributes(frag)
-    let secrets: Record<string, string>
+    const secrets: Record<string, string> = {}
     for (const secret of (template.secrets || [])) {
         const value = await host.readSecret(secret)
         if (value) {
             trace.item(`secret \`${secret}\` used`)
-            if (!secrets) secrets = {}
             secrets[secret] = value
         } else trace.error(`secret \`${secret}\` not found`)
     }
