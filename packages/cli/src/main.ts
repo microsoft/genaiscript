@@ -16,10 +16,11 @@ import {
     appendJSONL as appendJSONLCore,
     writeText,
     MarkdownTrace,
-    convertAnnotationToGitHubActionCommand,
+    convertDiagnosticToGitHubActionCommand,
     readJSONL,
     dotGptoolsPath,
     parseKeyValuePairs,
+    convertDiagnosticToAzureDevOpsCommand,
 } from "gptools-core"
 import ora from "ora"
 import { NodeHost } from "./nodehost"
@@ -283,10 +284,22 @@ async function batch(
 
             totalTokens += tokens
 
-            // if in a CI build, print annotations
-            if (result.annotations?.length && process.env.CI)
+            // if in a CI/GitHub Actions build, print annotations
+            if (
+                result.annotations?.length &&
+                process.env.CI &&
+                process.env.GITHUB_ACTION
+            )
                 result.annotations
-                    .map(convertAnnotationToGitHubActionCommand)
+                    .map(convertDiagnosticToGitHubActionCommand)
+                    .forEach((d) => console.log(d))
+            else if (
+                // Azure DevOps
+                result.annotations?.length &&
+                process.env.SYSTEM_TEAMFOUNDATIONCOLLECTIONURI
+            )
+                result.annotations
+                    .map(convertDiagnosticToAzureDevOpsCommand)
                     .forEach((d) => console.log(d))
         } catch (e) {
             errors++
