@@ -176,7 +176,7 @@ async function callExpander(
                     } catch (e) { }
                     return { label: filename, filename, content }
                 },
-                fetchText: async (urlOrFile) => {
+                fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {
                         urlOrFile = {
                             label: urlOrFile,
@@ -189,7 +189,7 @@ async function callExpander(
                     let status = 404
                     let text: string
                     if (/^https?:\/\//i.test(url)) {
-                        const resp = await fetch(url)
+                        const resp = await fetch(url, options)
                         ok = resp.ok
                         status = resp.status
                         if (ok) text = await resp.text()
