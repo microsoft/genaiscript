@@ -152,6 +152,11 @@ interface PromptTemplate extends PromptLike {
      * If running in chat, use copilot LLM model
      */
     copilot?: boolean
+
+    /**
+     * Secrets required by the prompt
+     */
+    secrets?: string[]
 }
 
 /**
@@ -416,6 +421,11 @@ interface ExpansionVariables {
      * List of JSON schemas; if any
      */
     schemas?: Record<string, JSONSchema>
+
+    /**
+     * List of secrets used by the prompt, must be registred in `gptools`.
+     */
+    secrets?: Record<string, string>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -426,15 +436,15 @@ type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
     language?:
-        | "markdown"
-        | "json"
-        | "yaml"
-        | "javascript"
-        | "typescript"
-        | "python"
-        | "shell"
-        | "toml"
-        | string
+    | "markdown"
+    | "json"
+    | "yaml"
+    | "javascript"
+    | "typescript"
+    | "python"
+    | "shell"
+    | "toml"
+    | string
     lineNumbers?: boolean
     /**
      * JSON schema identifier

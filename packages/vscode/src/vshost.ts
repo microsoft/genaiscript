@@ -169,9 +169,9 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const wksrx = /^workspace:\/\//i
         const uri = wksrx.test(name)
             ? Utils.joinPath(
-                  workspace.workspaceFolders[0].uri,
-                  name.replace(wksrx, "")
-              )
+                workspace.workspaceFolders[0].uri,
+                name.replace(wksrx, "")
+            )
             : Uri.file(name)
 
         const v = this.virtualFiles[uri.fsPath]
@@ -202,6 +202,17 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
     async deleteDirectory(name: string): Promise<void> {
         await workspace.fs.delete(Uri.file(name), { recursive: true })
     }
+
+    async readSecret(name: string): Promise<string | undefined> {
+        try {
+            const dotenv = await readFileText(this.projectUri, ".env")
+            const env = parse(dotenv)
+            return env?.[name]
+        } catch (e) {
+            return undefined
+        }
+    }
+
     async getSecretToken(): Promise<OAIToken> {
         const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
         if (s) {

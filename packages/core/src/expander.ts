@@ -167,13 +167,13 @@ async function callExpander(
                         throw new Error(msg)
                     }
                 },
-                gptool: () => {},
-                system: () => {},
+                gptool: () => { },
+                system: () => { },
                 readFile: async (filename: string) => {
                     let content: string
                     try {
                         content = await readText("workspace://" + filename)
-                    } catch (e) {}
+                    } catch (e) { }
                     return { label: filename, filename, content }
                 },
                 fetchText: async (urlOrFile) => {
@@ -505,7 +505,15 @@ async function fragmentVars(
             content: frag.parent.file.content,
         })
     const attrs = commentAttributes(frag)
-
+    let secrets: Record<string, string>
+    for (const secret of (template.secrets || [])) {
+        const value = await host.readSecret(secret)
+        if (value) {
+            trace.item(`secret \`${secret}\` used`)
+            if (!secrets) secrets = {}
+            secrets[secret] = value
+        } else trace.error(`secret \`${secret}\` not found`)
+    }
     const vars: Partial<ExpansionVariables> = {
         ...staticVars(),
         spec: {
@@ -522,6 +530,7 @@ async function fragmentVars(
             description: template.description,
         },
         vars: attrs,
+        secrets
     }
     return vars
 }
@@ -714,9 +723,9 @@ export async function runTemplate(
     })
     const tools: ChatCompletionTool[] = vars.functions?.length
         ? vars.functions.map((f) => ({
-              type: "function",
-              function: f.definition as any,
-          }))
+            type: "function",
+            function: f.definition as any,
+        }))
         : undefined
     const schemas = vars.schemas || {}
 
@@ -1123,23 +1132,23 @@ export async function runTemplate(
         trace.details(
             "🖊 edits",
             `| Type | Filename | Message |\n| --- | --- | --- |\n` +
-                edits
-                    .map(
-                        (e) =>
-                            `| ${e.type} | ${e.filename} | ${e.label || ""} |`
-                    )
-                    .join("\n")
+            edits
+                .map(
+                    (e) =>
+                        `| ${e.type} | ${e.filename} | ${e.label || ""} |`
+                )
+                .join("\n")
         )
     if (annotations.length)
         trace.details(
             "⚠️ annotations",
             `| Severity | Filename | Line | Message |\n| --- | --- | --- | --- |\n` +
-                annotations
-                    .map(
-                        (e) =>
-                            `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
-                    )
-                    .join("\n")
+            annotations
+                .map(
+                    (e) =>
+                        `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
+                )
+                .join("\n")
         )
 
     const res: FragmentTransformResponse = {
