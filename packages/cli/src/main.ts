@@ -32,6 +32,7 @@ import { createNodePath } from "./nodepath"
 import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
+import { convertDiagnosticsToSARIF } from "./sarif"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
@@ -477,7 +478,9 @@ ${Array.from(files)
                     ? diagnosticsToCSV(res.annotations, csvSeparator)
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(res.annotations)
-                      : JSON.stringify(res.annotations, null, 2)
+                      : /\.sarif$/.test(outAnnotations)
+                        ? convertDiagnosticsToSARIF(gptool, res.annotations)
+                        : JSON.stringify(res.annotations, null, 2)
             )
     }
     if (outChangelogs && res.changelogs?.length)
@@ -506,6 +509,7 @@ ${Array.from(files)
         const annotationf = res.annotations?.length
             ? mkfn(".annotations.csv")
             : undefined
+        const sariff = res.annotations?.length ? mkfn(".sarif") : undefined
         const specf = specContent ? mkfn(".gpspec.md") : undefined
         const changelogf = res.changelogs?.length
             ? mkfn(".changelog.txt")
@@ -521,7 +525,7 @@ ${Array.from(files)
             const spect = await readText(spec)
             await write(specf, spect)
         }
-        if (annotationf && res.annotations?.length) {
+        if (annotationf) {
             await write(
                 annotationf,
                 `severity, filename, start, end, message\n` +
@@ -533,6 +537,11 @@ ${Array.from(files)
                         .join("\n")
             )
         }
+        if (sariff)
+            await write(
+                sariff,
+                convertDiagnosticsToSARIF(gptool, res.annotations)
+            )
         if (changelogf && res.changelogs?.length)
             await write(changelogf, res.changelogs.join("\n"))
     } else {

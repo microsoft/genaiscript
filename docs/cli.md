@@ -117,7 +117,7 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 
 ### --out-annotations <file>
 
-Emit annotations in the specified file as a JSON array, JSON Lines or a CSV file if the file ends with `.csv`.
+Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
 ```bash
 node .gptools/gptools.js run <tool> <spec> --out-annotations diags.csv

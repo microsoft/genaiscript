@@ -9,5 +9,6 @@
         "openai",
         "typecheck",
         "vsix"
-    ]
+    ],
+    "sarif-viewer.connectToGithubCodeScanning": "on"
 }
