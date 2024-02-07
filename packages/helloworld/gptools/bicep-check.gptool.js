@@ -1,5 +1,5 @@
 // prompt metadata and model configuration
-gptool({
+script({
     title: "bicep-check",
     description: "Check Azure Bicep for security and configuration errors",
     system: ["system", "system.annotations"]

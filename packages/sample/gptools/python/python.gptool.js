@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Generate Python Code",
     temperature: 0.01,
     categories: ["code.python"],

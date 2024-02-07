@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Generate Slides",
     description: "Generate a slidedeck in markdown. Install extension 'vscode-reveal'.",
     categories: ["samples"],

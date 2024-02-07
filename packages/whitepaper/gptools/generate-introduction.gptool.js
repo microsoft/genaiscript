@@ -1,4 +1,4 @@
-gptool({ title: "generate-introduction", 
+script({ title: "generate-introduction", 
          description: "Given files about a project and the goal of writing a white paper, write an introduction for the white paper",
          maxTokens: 4000,
          model: "gpt-4-32k",

@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Convert chat to tool",
     description: "Attempts to capture the intent of the user and generate a tool from it.",
     copilot: true,

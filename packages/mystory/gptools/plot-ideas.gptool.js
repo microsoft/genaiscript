@@ -1,4 +1,4 @@
-gptool({ title: "plot-ideas", 
+script({ title: "plot-ideas", 
          description: "Given a framing for a story, suggests a plot for the story.",
          output: ".plots.gpspec.md", 
          maxTokens: 4000,

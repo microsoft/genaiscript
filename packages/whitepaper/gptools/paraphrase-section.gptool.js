@@ -1,4 +1,4 @@
-gptool({ title: "paraphrase-section", 
+script({ title: "paraphrase-section", 
          description: "Given a section, paraphrase it.",
          maxTokens: 4000,
          model: "gpt-4-32k",

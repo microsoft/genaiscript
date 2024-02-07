@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "City general information",
     temperature: 0
 })

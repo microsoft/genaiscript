@@ -1,4 +1,4 @@
-gptool({ title: "generate diagrams", 
+script({ title: "generate diagrams", 
          description: "Given markdown files describing a project, mermaid diagrams showing workflow",
          maxTokens: 4000,
          model: "gpt-4-32k",

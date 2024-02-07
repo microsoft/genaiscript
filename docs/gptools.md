@@ -10,7 +10,7 @@ and are unlisted by default. There is no variable expansion in those.
 ## Example
 
 ```js
-gptool({
+script({
     title: "Shorten", // displayed in UI and Copilot Chat
     // also displayed, but grayed out:
     description:
@@ -41,11 +41,11 @@ The section links to various samples of gptools; most of which are shipped with 
 
 ## Metadata
 
-Prompts use `gptool({ ... })` function call
+Prompts use `script({ ... })` function call
 to configure the title and other user interface elements.
 
 ```js
-gptool({
+script({
     title: "Shorten", // displayed in UI
     // also displayed, but grayed out:
     description:
@@ -59,7 +59,7 @@ gptool({
 `title` is used as the prompt name, displayed in the light-bulb UI
 
 ```js
-gptool({ title: "Shorten" })
+script({ title: "Shorten" })
 ```
 
 #### description: string
@@ -67,7 +67,7 @@ gptool({ title: "Shorten" })
 `description` provides more details and context about the prompt.
 
 ```js
-gptool({
+script({
     title: "Shorten",
     description:
         "A prompt that shrinks the size of text without losing meaning.",
@@ -79,7 +79,7 @@ gptool({
 Override the system prompts with a custom prompt.
 
 ```js
-gptool({
+script({
     title: "Generate code",
     system: ["system.code"],
 })
@@ -90,7 +90,7 @@ gptool({
 You can specify an output folder using `outputFolder` in the script.
 
 ```js
-gptool({
+script({
     ...,
     outputFolder: "src",
 })
@@ -112,7 +112,7 @@ You can specify the LLM `model` identifier in the script. The default is `gpt-4`
 The intellisense provided by `gptools.g.ts` will help with discovering the list of supported models.
 
 ```js
-gptool({
+script({
     ...,
     model: "gpt-4-32k",
 })
@@ -129,7 +129,7 @@ You can specify the temperate using `model` variable in the gpspec file.
 You can specify the LLM `max tokens` in the script. The default is unspecified.
 
 ```js
-gptool({
+script({
     ...,
     maxTokens: 2000,
 })
@@ -146,7 +146,7 @@ You can specify the maxTokens using `maxTokens` variable in the gpspec file.
 You can specify the LLM `temperature` in the script. The default is `0.2`.
 
 ```js
-gptool({
+script({
     ...,
     temperature: 0.8,
 })
@@ -163,7 +163,7 @@ You can specify the temperate using `temperature` variable in the gpspec file.
 You can specify the LLM `top_p` in the script. The default is not specified
 
 ```js
-gptool({
+script({
     ...,
     top_p: 0.5,
 })
@@ -180,7 +180,7 @@ You can specify the temperate using `top_p` variable in the gpspec file.
 For some models,You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
 
 ```js
-gptool({
+script({
     ...,
     seed: 12345678,
 })
@@ -208,7 +208,7 @@ You can use `system.json` system message to force a single JSON output file. Thi
 enables the [JSON mode](https://platform.openai.com/docs/guides/text-generation/json-mode) of OpenAI.
 
 ```js
-gptool({
+script({
     ...,
     system: ["system.json"],
 })
@@ -314,10 +314,10 @@ def("README", file)
 ### env.secrets
 
 The `env.secrets` object is used to access secrets from the environment. The secrets are typically stored in the `.env` file in the root of the project (or in the `process.env` for the CLI).
-You will need to declare the list of secrets needed in `gptool({ secrets: ... })`.
+You will need to declare the list of secrets needed in `script({ secrets: ... })`.
 
 ```js
-gptool({
+script({
     ...
     secrets: ["SECRET_TOKEN"]
 })

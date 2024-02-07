@@ -1,4 +1,4 @@
-gptool({ title: "SA-planning", 
+script({ title: "SA-planning", 
          description: "Generates a SW architecture plan for the application",
          output: ".saplan.gpspec.md", 
          maxTokens: 4000,

@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Code Optimizer",
     description:
         "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",

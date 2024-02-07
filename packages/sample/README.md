@@ -24,7 +24,7 @@ GPTool scripts use stylized JavaScript with minimal syntax. They are stored as f
 
 ```js
 // metadata
-gptool({
+script({
     title: "Technical proofreading",
     description: "Reviews the text as a tech writer.",
 })

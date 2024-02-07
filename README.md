@@ -3,7 +3,7 @@
 GenAIScript (formerly GenAIScript, CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 ```js
-gptool({ title: "Code XRay" })
+script({ title: "Code XRay" })
 
 def("FILE", env.files.filter(f => !f.filename.endsWith(".xray")))
 
@@ -72,7 +72,7 @@ GPTool scripts use stylized JavaScript with minimal syntax. They are stored as f
 
 ```js
 // metadata
-gptool({
+script({
     title: "Technical proofreading",
     description: "Reviews the text as a tech writer.",
 })

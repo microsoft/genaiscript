@@ -1,4 +1,4 @@
-gptool({ title: "translate-markdown-to-latex", 
+script({ title: "translate-markdown-to-latex", 
          description: "Given markdown files describing a project, generate a latex version",
          maxTokens: 4000,
          model: "gpt-4-32k",

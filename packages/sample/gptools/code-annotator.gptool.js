@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Code annotator",
     copilot: true,
     description: "Given a problem desciption and code, write a code review",

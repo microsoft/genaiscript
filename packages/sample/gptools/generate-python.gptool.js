@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Generate python code",
     description: "Given a task, generate python code.",
     categories: ["hello world"],

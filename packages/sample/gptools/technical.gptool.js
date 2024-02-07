@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Technical proofreading",
     description: "Review the text as a technical document writer.",
     categories: ["samples"],

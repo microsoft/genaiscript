@@ -1,4 +1,4 @@
-gptool({ title: "generate 1 pager", 
+script({ title: "generate 1 pager", 
          description: "Given markdown files describing a project, generate 1 page overview",
          output: ".1pager.md", 
          maxTokens: 4000,

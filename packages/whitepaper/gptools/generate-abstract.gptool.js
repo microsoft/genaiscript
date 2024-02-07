@@ -1,4 +1,4 @@
-gptool({ title: "generate-abstract", 
+script({ title: "generate-abstract", 
          description: "Given files about a project and the goal of writing a white paper, write an abstract for the white paper",
          output: ".abstract.md", 
          maxTokens: 4000,

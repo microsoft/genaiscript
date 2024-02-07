@@ -1,4 +1,4 @@
-gptool({
+script({
     title: 'Weather as function',
     description: 'Query the weather for each city using a dummy weather function',
     temperature: 0.5

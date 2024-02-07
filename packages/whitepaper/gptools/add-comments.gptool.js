@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Add Comments",
     description:
         "Review each chapter and adds a comment as a technical reviewer",

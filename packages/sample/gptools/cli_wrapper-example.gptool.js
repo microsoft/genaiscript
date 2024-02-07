@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "CLI Wrapper with Timeout and Type Annotations",
     description: "Generate a Python wrapper function to call a CLI tool.",
     system: ["system", "system.files", "system.python"]

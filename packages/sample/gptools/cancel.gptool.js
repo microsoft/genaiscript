@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "always cancels"
 })
 

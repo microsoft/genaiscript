@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "A dialog generator for descript",
     description:
         "Given a description of scenes, generate a dialog between two avatar characters.",

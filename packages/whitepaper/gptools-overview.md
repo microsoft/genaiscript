@@ -124,7 +124,7 @@ This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspe
 This is an example of a simple gptool that generates python code from a gpspec file:
 
 ```javascript
-gptool({
+script({
     title: "Generate python code",
     model: "gpt-4",
     description: "Given a task, generate python code.",

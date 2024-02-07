@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "SEO front matter",
     description:
         "Update or generate SEO-optimized front matter for a markdown file.",

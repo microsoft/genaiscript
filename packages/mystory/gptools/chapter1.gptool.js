@@ -1,4 +1,4 @@
-gptool({ title: "chapter1", 
+script({ title: "chapter1", 
          description: "Given characters, a plot, and a framing, write the first chapter",
          outputFolder: "aidiscovery",
          maxTokens: 4000,

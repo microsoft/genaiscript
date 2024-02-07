@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "Generate python tests",
     model: "gpt-4-32k",
     description: "Given a task and code, generate tests",

@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "peer review",
     description: "An expert academic is reviewing your submission.",
     categories: ["samples"],

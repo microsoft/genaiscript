@@ -1,4 +1,4 @@
-gptool({ title: "draft critic", 
+script({ title: "draft critic", 
          description: "Given chapters of story, critique the story",
          maxTokens: 4000,
          output: ".draft.gpspec.md", 

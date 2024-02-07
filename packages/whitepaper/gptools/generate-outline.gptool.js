@@ -1,4 +1,4 @@
-gptool({ title: "generate-outline", 
+script({ title: "generate-outline", 
          description: "Given markdown files describing a project, generate an outline of a whitepaper",
          output: ".outline.gpspec.md", 
          maxTokens: 4000,

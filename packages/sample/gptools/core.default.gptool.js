@@ -1,4 +1,4 @@
-gptool({
+script({
         title: "Run gpspec directly",
         description: "This is the default gptool that assumes the gpspec contains the entire request.",
         maxTokens: 2000,

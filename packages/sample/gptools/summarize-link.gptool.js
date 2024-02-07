@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "summarize links",
     model: "gpt-4-32k",
     description: "Given a URL, summarize the contents of the page",

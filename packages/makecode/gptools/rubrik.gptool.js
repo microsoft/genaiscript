@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "rubrik",
     description: "Evaluate a rubrik for a MakeCode Arcade project",
     categories: ["MakeCode"],
