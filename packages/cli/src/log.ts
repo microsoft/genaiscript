@@ -1,6 +1,4 @@
 import { stdout } from "node:process"
-export const coarchFolder = ".genaiscript"
-export const coarchExt = ".genaiscript.jsonl"
 
 export const info = console.error
 

@@ -93,6 +93,3 @@ export let host: Host
 export function setHost(h: Host) {
     host = h
 }
-
-export const coarchFolder = ".genaiscript"
-export const coarchExt = ".genaiscript.jsonl"
