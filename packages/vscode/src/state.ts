@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import {
     ChatCompletionsProgressReport,
-    CoArchProject,
+    Project,
     Fragment,
     PromptTemplate,
     concatArrays,
@@ -142,7 +142,7 @@ function getAIRequestCache() {
 
 export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
-    private _project: CoArchProject = undefined
+    private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _watcher: vscode.FileSystemWatcher | undefined
     private _diagColl: vscode.DiagnosticCollection
@@ -456,7 +456,7 @@ ${e.message}`
             : []
     }
 
-    private async setProject(prj: CoArchProject) {
+    private async setProject(prj: Project) {
         this._project = prj
         await this.fixPromptDefinitions()
         this.dispatchFragments()

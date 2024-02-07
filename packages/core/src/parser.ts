@@ -13,7 +13,7 @@ import {
     strcmp,
     tryReadJSON,
 } from "./util"
-import { CoArchProject, TextFile, PromptTemplate, Fragment } from "./ast"
+import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { builtinPrefix, parsePromptTemplate } from "./template"
 import { host } from "./host"
@@ -113,7 +113,7 @@ function toPosition(p: { line: number; column: number }): CharPosition {
     return [p.line - 1, p.column - 1]
 }
 
-type Parser = (prj: CoArchProject, filename: string, md: string) => TextFile
+type Parser = (prj: Project, filename: string, md: string) => TextFile
 
 function removeIds(str: string, cb: (id: string) => void) {
     return str.replace(new RegExp(nodeIdRx.source, "g"), (_, id) => {
@@ -123,7 +123,7 @@ function removeIds(str: string, cb: (id: string) => void) {
 }
 
 const parseMdFile: Parser = (
-    prj: CoArchProject,
+    prj: Project,
     filename: string,
     md: string
 ) => {
@@ -298,7 +298,7 @@ export async function parseProject(options: {
     gptoolFiles: string[]
 }) {
     const { gpspecFiles, gptoolFiles } = options
-    const prj = new CoArchProject()
+    const prj = new Project()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
         prj._finalizers = []

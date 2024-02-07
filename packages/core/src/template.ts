@@ -1,4 +1,4 @@
-import { CoArchProject, Diagnostic, Fragment, PromptTemplate } from "./ast"
+import { Project, Diagnostic, Fragment, PromptTemplate } from "./ast"
 import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
@@ -606,7 +606,7 @@ const metaCache: Record<string, { meta: PromptArgs; text: string }> = {}
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
-    prj: CoArchProject,
+    prj: Project,
     finalizer: (checker: Checker<PromptTemplate>) => void
 ) {
     const r = {
@@ -647,7 +647,7 @@ async function parsePromptTemplateCore(
 export async function parsePromptTemplate(
     filename: string,
     content: string,
-    prj: CoArchProject
+    prj: Project
 ) {
     return await parsePromptTemplateCore(filename, content, prj, (c) => {
         const obj = c.validateKV(() => {

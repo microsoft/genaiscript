@@ -150,7 +150,7 @@ export function templateGroup(template: PromptTemplate) {
 export const eolPosition = 0x3fffffff
 export const eofPosition: CharPosition = [0x3fffffff, 0]
 
-export class CoArchProject {
+export class Project {
     readonly rootFiles: TextFile[] = []
     readonly allFiles: TextFile[] = []
     readonly fragmentById: Record<string, Fragment[]> = {}
@@ -202,7 +202,7 @@ export class TextFile {
     filesyntax = "markdown"
 
     constructor(
-        public readonly project: CoArchProject,
+        public readonly project: Project,
         public readonly filename: string,
         public readonly content: string
     ) {}

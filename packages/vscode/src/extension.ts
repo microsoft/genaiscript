@@ -15,7 +15,7 @@ import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 
 export const TOOL_NAME = "GenAIScript"
-export const COARCH_EXTENSION_ID = "genaiscript.genaiscript-vscode"
+export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const AGENT_ID = "genaiscript"
 
 export async function activate(context: ExtensionContext) {
@@ -107,7 +107,7 @@ export async function activate(context: ExtensionContext) {
                 await vscode.commands.executeCommand(
                     "workbench.action.openIssueReporter",
                     {
-                        extensionId: COARCH_EXTENSION_ID,
+                        extensionId: EXTENSION_ID,
                         issueBody: issueBody.join("\n"),
                     }
                 )
