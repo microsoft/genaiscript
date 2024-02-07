@@ -447,6 +447,32 @@ And somewhere in the GPTool:
 const myvalue = env.vars["myvar"]
 ```
 
+### Variables from the CLI
+
+Use the `vars` field in the CLI to override variables. vars takes a sequence of `key=value` pairs.
+
+```bash
+node .gptools/gptools.js run ... --vars myvar=myvalue myvar2=myvalue2 ...
+```
+
+## Errors, warnings and SARIF
+
+Using the `system.annotations` system prompt, you can have the LLM generate errors, warnings and notes.
+GPTools will convert those into SARIF files that can be uploaded to GitHub Actions as security reports,
+similarly to CodeQL reports. The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
+extension can be used to visualize the reports.
+
+```yaml
+# workflow.yml
+    - name: Run GPTools
+      run: node .gptools/gptools.js ... -oa result.sarif
+    - name: Upload SARIF file
+        if: success() || failure()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+            sarif_file: result.sarif
+```
+
 ## Settings
 
 The Visual Studio Code extension has various configuration settings:
