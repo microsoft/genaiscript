@@ -486,7 +486,7 @@ ${Array.from(files)
     if (outChangelogs && res.changelogs?.length)
         await write(outChangelogs, res.changelogs.join("\n"))
     if (outData && res.frames?.length)
-        if (isJSONLFilename(outAnnotations))
+        if (isJSONLFilename(outData))
             await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 

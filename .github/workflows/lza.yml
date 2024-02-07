@@ -24,13 +24,16 @@ jobs:
             - name: compile
               run: yarn compile
             - name: lza_review 02-spoke
-              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "review of 02-spoke"
+              run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "review of 02-spoke -oa spoke.sarif"
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_REPOSITORY: ${{ github.repository }}
+            - name: Upload SARIF file
+              if: success() || failure() # run this step even if previous step failed
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                sarif_file: spoke.sarif
             - name: lza_review all
               run: node packages/cli/built/gptools.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/**/deploy.*.bicep -ot $GITHUB_STEP_SUMMARY -l "review of scenarios"
               env:
@@ -43,10 +46,9 @@ jobs:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            - name: Test Report
-              uses: dorny/test-reporter@v1
+            - name: Upload SARIF file
               if: success() || failure() # run this step even if previous step failed
+              uses: github/codeql-action/upload-sarif@v3
               with:
-                  name: Tests # Name of the check run which will be created
-                  path: applications/lza/test-results/jest-*.xml # Path to test results
-                  reporter: jest-junit # Format of test results
+                # Path to SARIF file relative to the root of the repository
+                sarif_file: results.sarif
