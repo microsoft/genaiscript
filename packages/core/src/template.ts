@@ -8,7 +8,7 @@ import { throwError } from "./error"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
-        .replace(/\.script$/, "")
+        .replace(/\.genai$/, "")
         .replace(/.*[\/\\]/, "")
 }
 
