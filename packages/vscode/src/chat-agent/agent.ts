@@ -7,8 +7,8 @@ import {
     logInfo,
     logVerbose,
 } from "genaiscript-core"
+import { TOOL_NAME, AGENT_ID } from "../extension"
 
-const AGENT_ID = "gptools"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     template?: PromptTemplate
@@ -253,8 +253,8 @@ These steps will not be needed once the API gets fully released.
     // that appear when you type `/`.
     const agent = vscode.chat.createChatAgent(AGENT_ID, handler)
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
-    agent.description = "Run conversation as GPTool script..."
-    agent.fullName = "GenAIScript"
+    agent.description = "Run conversation as genaiscript..."
+    agent.fullName = TOOL_NAME
     agent.subCommandProvider = {
         provideSubCommands(token) {
             const templates =

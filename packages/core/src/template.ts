@@ -448,7 +448,7 @@ export interface DataFrame {
 }
 
 /**
- * Parse output of LLM similar to output of coarch def() function.
+ * Parse output of LLM similar to output of genaiscript def() function.
  *
  * Expect text to look something like this:
  *

@@ -18,9 +18,9 @@ import {
     MarkdownTrace,
     convertDiagnosticToGitHubActionCommand,
     readJSONL,
-    dotGptoolsPath,
     parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
+    dotGenaiscriptPath,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -114,7 +114,7 @@ async function batch(
     const spinner = ora({ interval: 200 }).start("preparing tool and files")
 
     const {
-        out = dotGptoolsPath("results"),
+        out = dotGenaiscriptPath("results"),
         removeOut,
         model,
         cache,

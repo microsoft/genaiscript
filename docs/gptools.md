@@ -276,7 +276,7 @@ Use documentation from DOCS.
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
 
-In the coarch files, those link you be part of a bulletted list.
+In the genai files, those link you be part of a bulletted list.
 
 ### Context/spec file
 

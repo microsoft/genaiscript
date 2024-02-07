@@ -19,13 +19,14 @@ import {
     delay,
     CHANGE,
     Cache,
-    dotGptoolsPath,
     logInfo,
     logMeasure,
     parseAnnotations,
     MarkdownTrace,
     coreVersion,
     sha256string,
+    dotGenaiscriptPath,
+    CLI_JS,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -36,6 +37,7 @@ import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
 import { infoUri } from "./markdowndocumentprovider"
 import { createVSPath } from "./vspath"
+import { TOOL_NAME } from "./extension"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -150,10 +152,9 @@ export class ExtensionState extends EventTarget {
 
     readonly aiRequestContext: AIRequestContextOptions = {}
 
-
     constructor(public readonly context: ExtensionContext) {
         super()
-        this.output = vscode.window.createOutputChannel("GenAIScript", {
+        this.output = vscode.window.createOutputChannel(TOOL_NAME, {
             log: true,
         })
         this.host = new VSCodeHost(this)
@@ -161,7 +162,8 @@ export class ExtensionState extends EventTarget {
         const { subscriptions } = context
         subscriptions.push(this)
 
-        this._diagColl = vscode.languages.createDiagnosticCollection("GenAIScript")
+        this._diagColl =
+            vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
         this._aiRequestCache = getAIRequestCache()
@@ -177,10 +179,10 @@ export class ExtensionState extends EventTarget {
     }
 
     private async saveGptoolsJs() {
-        const p = Utils.joinPath(this.context.extensionUri, "genaiscript.js")
-        const cli = vscode.Uri.file(dotGptoolsPath("genaiscript.js"))
+        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
+        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
         await vscode.workspace.fs.createDirectory(
-            vscode.Uri.file(dotGptoolsPath("."))
+            vscode.Uri.file(dotGenaiscriptPath("."))
         )
         await vscode.workspace.fs.copy(p, cli, { overwrite: true })
     }
@@ -624,7 +626,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
                     message || "...",
                     severities[d.severity]
                 )
-                r.source = "GenAIScript"
+                r.source = TOOL_NAME
                 r.code = target
                     ? {
                           value,

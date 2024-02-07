@@ -16,6 +16,7 @@ import { activateChatAgent } from "./chat-agent/agent"
 
 export const TOOL_NAME = "GenAIScript"
 export const COARCH_EXTENSION_ID = "coarch.genaiscript-vscode"
+export const AGENT_ID = "genaiscript"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)

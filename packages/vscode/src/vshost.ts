@@ -16,6 +16,7 @@ import { Utils } from "vscode-uri"
 import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
+import { TOOL_NAME } from "./extension"
 
 const OPENAI_TOKEN_KEY = "coarch.openAIToken"
 
@@ -255,7 +256,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const terminal = vscode.window.createTerminal({
             cwd,
             isTransient: true,
-            name: "GenAIScript",
+            name: TOOL_NAME,
         })
         let watcher: vscode.FileSystemWatcher
         this.state.context.subscriptions.push(terminal)
