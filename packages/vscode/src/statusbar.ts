@@ -17,7 +17,7 @@ export function activateStatusBar(state: ExtensionState) {
         vscode.StatusBarAlignment.Right,
         120
     )
-    statusBarItem.command = "coarch.request.status"
+    statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
         const { computing, progress, options, editsApplied } =
             state.aiRequest || {}

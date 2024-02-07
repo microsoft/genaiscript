@@ -226,7 +226,7 @@ export class ExtensionState extends EventTarget {
             const res = await req?.request
             const { edits, text } = res || {}
             if (text && !options.chat)
-                vscode.commands.executeCommand("coarch.request.open.output")
+                vscode.commands.executeCommand("genaiscript.request.open.output")
 
             const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
@@ -263,7 +263,7 @@ export class ExtensionState extends EventTarget {
                     trace
                 )
                 if (res === trace)
-                    vscode.commands.executeCommand("coarch.request.open.trace")
+                    vscode.commands.executeCommand("genaiscript.request.open.trace")
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
@@ -409,7 +409,7 @@ ${e.message}`
         r.request = runTemplate(template, fragment, runOptions)
 
         if (!options.chat)
-            vscode.commands.executeCommand("coarch.request.open.output")
+            vscode.commands.executeCommand("genaiscript.request.open.output")
 
         r.request
             .then((resp) => {

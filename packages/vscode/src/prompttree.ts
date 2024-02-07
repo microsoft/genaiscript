@@ -19,7 +19,7 @@ class PromptTreeDataProvider
                 element,
                 vscode.TreeItemCollapsibleState.Collapsed
             )
-            item.id = `coarch.promptCategory.${element}`
+            item.id = `genaiscript.promptCategory.${element}`
             return item
         } else {
             const { id, title, description = "" } = element
@@ -31,13 +31,13 @@ class PromptTreeDataProvider
                 title,
                 vscode.TreeItemCollapsibleState.None
             )
-            item.id = `coarch.prompts.${id}`
+            item.id = `genaiscript.prompts.${id}`
             item.contextValue = element.filename ? `prompt` : `prompt.builtin`
             item.description = generating
                 ? `${progress?.tokensSoFar || 0} tokens`
                 : id
             item.command = {
-                command: "coarch.prompt.navigate",
+                command: "genaiscript.prompt.navigate",
                 title: "Navigate to...",
                 arguments: [element],
             }
@@ -94,7 +94,7 @@ export function activatePrompTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new PromptTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("coarch.prompts", {
+    const treeView = vscode.window.createTreeView("genaiscript.prompts", {
         treeDataProvider,
     })
     subscriptions.push(treeView)

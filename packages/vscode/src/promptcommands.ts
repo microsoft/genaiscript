@@ -20,10 +20,10 @@ export function activatePromptCommands(state: ExtensionState) {
     }
 
     subscriptions.push(
-        vscode.commands.registerCommand("coarch.newfile.gptool", () =>
-            vscode.commands.executeCommand("coarch.prompt.create")
+        vscode.commands.registerCommand("genaiscript.newfile.gptool", () =>
+            vscode.commands.executeCommand("genaiscript.prompt.create")
         ),
-        vscode.commands.registerCommand("coarch.newfile.gpspec", async () => {
+        vscode.commands.registerCommand("genaiscript.newfile.gpspec", async () => {
             const newFile = Utils.joinPath(
                 vscode.workspace.workspaceFolders[0]?.uri,
                 "untitled.gpspec.md"
@@ -36,7 +36,7 @@ export function activatePromptCommands(state: ExtensionState) {
             vscode.workspace.applyEdit(edit)
         }),
         vscode.commands.registerCommand(
-            "coarch.prompt.create",
+            "genaiscript.prompt.create",
             async (template?: PromptTemplate) => {
                 const name = await vscode.window.showInputBox({
                     title: "Pick a file name for the new GPTool.",
@@ -65,7 +65,7 @@ def("FILE", env.files)
             }
         ),
         vscode.commands.registerCommand(
-            "coarch.prompt.fork",
+            "genaiscript.prompt.fork",
             async (template: PromptTemplate) => {
                 if (!template) {
                     if (!state.project) await state.parseWorkspace()
@@ -91,14 +91,14 @@ def("FILE", env.files)
             }
         ),
         vscode.commands.registerCommand(
-            "coarch.prompt.unbuiltin",
+            "genaiscript.prompt.unbuiltin",
             async (template: PromptTemplate) => {
                 if (!template) return
                 await showPrompt(await copyPrompt(template, { fork: false }))
             }
         ),
         vscode.commands.registerCommand(
-            "coarch.prompt.navigate",
+            "genaiscript.prompt.navigate",
             async (prompt: PromptTemplate) => {
                 const uri = prompt.filename
                     ? vscode.Uri.file(prompt.filename)
@@ -118,24 +118,24 @@ export function commandButtons(state: ExtensionState) {
     const output = "Output"
     const trace = "Trace"
     const cmds: { label: string; description?: string; cmd: string }[] = []
-    if (computing) cmds.push({ label: abort, cmd: "coarch.request.abort" })
+    if (computing) cmds.push({ label: abort, cmd: "genaiscript.request.abort" })
     else if (request)
         cmds.push({
             label: retry,
             description: "Run last gptool and gpspec again.",
-            cmd: "coarch.request.retry",
+            cmd: "genaiscript.request.retry",
         })
     if (text)
         cmds.push({
             label: output,
             description: "Preview AI response.",
-            cmd: "coarch.request.open.output",
+            cmd: "genaiscript.request.open.output",
         })
     if (request)
         cmds.push({
             label: trace,
             description: "Inspect gptool execution and LLM response.",
-            cmd: "coarch.request.open.trace",
+            cmd: "genaiscript.request.open.trace",
         })
 
     return cmds

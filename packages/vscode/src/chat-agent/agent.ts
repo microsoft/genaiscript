@@ -236,7 +236,7 @@ These steps will not be needed once the API gets fully released.
 
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
-        await vscode.commands.executeCommand("coarch.fragment.prompt", {
+        await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
             chat: <ChatRequestContext>{
                 context,
                 progress,
@@ -288,7 +288,7 @@ These steps will not be needed once the API gets fully released.
                 state.aiRequest?.response?.edits?.length
             ) {
                 follows.push({
-                    commandId: "coarch.request.applyEdits",
+                    commandId: "genaiscript.request.applyEdits",
                     message: "Review the changes in the Refactorings view.",
                     title: "Preview Edits",
                 })

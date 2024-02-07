@@ -18,7 +18,7 @@ import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { TOOL_NAME } from "./extension"
 
-const OPENAI_TOKEN_KEY = "coarch.openAIToken"
+const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}

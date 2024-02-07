@@ -172,7 +172,7 @@ export function activateMarkdownTextDocumentContentProvider(
     subscriptions.push(
         vscode.workspace.registerTextDocumentContentProvider(SCHEME, provider),
         vscode.commands.registerCommand(
-            "coarch.request.open",
+            "genaiscript.request.open",
             async (id: string) => {
                 if (state.aiRequest) {
                     const uri = infoUri(id || REQUEST_TRACE_FILENAME)
@@ -180,15 +180,15 @@ export function activateMarkdownTextDocumentContentProvider(
                 }
             }
         ),
-        vscode.commands.registerCommand("coarch.request.open.trace", () =>
+        vscode.commands.registerCommand("genaiscript.request.open.trace", () =>
             vscode.commands.executeCommand(
-                "coarch.request.open",
+                "genaiscript.request.open",
                 REQUEST_TRACE_FILENAME
             )
         ),
-        vscode.commands.registerCommand("coarch.request.open.output", () =>
+        vscode.commands.registerCommand("genaiscript.request.open.output", () =>
             vscode.commands.executeCommand(
-                "coarch.request.open",
+                "genaiscript.request.open",
                 REQUEST_OUTPUT_FILENAME
             )
         )

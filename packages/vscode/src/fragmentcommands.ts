@@ -39,7 +39,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             }
         )
         if (picked?.action === "create") {
-            vscode.commands.executeCommand("coarch.prompt.create")
+            vscode.commands.executeCommand("genaiscript.prompt.create")
             return undefined
         } else return (picked as TemplateQuickPickItem)?.template
     }
@@ -151,14 +151,14 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     subscriptions.push(
         vscode.commands.registerCommand(
-            "coarch.fragment.prompt",
+            "genaiscript.fragment.prompt",
             fragmentPrompt
         ),
         vscode.commands.registerCommand(
-            "coarch.fragment.navigate",
+            "genaiscript.fragment.navigate",
             fragmentNavigate
         ),
-        vscode.commands.registerCommand("coarch.request.applyEdits", applyEdits)
+        vscode.commands.registerCommand("genaiscript.request.applyEdits", applyEdits)
     )
 }
 

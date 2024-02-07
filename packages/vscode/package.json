@@ -38,25 +38,25 @@
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "coarch",
+                    "id": "genaiscript",
                     "title": "GenAIScript",
                     "icon": "./icon.svg"
                 }
             ]
         },
         "views": {
-            "coarch": [
+            "genaiscript": [
                 {
-                    "id": "coarch.prompts",
+                    "id": "genaiscript.prompts",
                     "name": "GenAIScript"
                 },
                 {
-                    "id": "coarch.prompts.requests",
+                    "id": "genaiscript.prompts.requests",
                     "name": "Runs",
                     "visibility": "collapsed"
                 },
                 {
-                    "id": "coarch.openai.requests",
+                    "id": "genaiscript.openai.requests",
                     "name": "OpenAI Requests",
                     "visibility": "collapsed"
                 }
@@ -64,92 +64,92 @@
         },
         "viewsWelcome": [
             {
-                "view": "coarch.fragments",
+                "view": "genaiscript.fragments",
                 "contents": "Create a gpspec file (.gpspec.md) to start generating tasks and code."
             }
         ],
         "menus": {
             "editor/context": [
                 {
-                    "command": "coarch.fragment.prompt",
+                    "command": "genaiscript.fragment.prompt",
                     "when": "!inDebugMode"
                 }
             ],
             "file/newFile": [
                 {
-                    "command": "coarch.newfile.gptool"
+                    "command": "genaiscript.newfile.gptool"
                 },
                 {
-                    "command": "coarch.newfile.gpspec"
+                    "command": "genaiscript.newfile.gpspec"
                 }
             ],
             "commandPalette": [
                 {
-                    "command": "coarch.newfile.gptool",
+                    "command": "genaiscript.newfile.gptool",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.newfile.gpspec",
+                    "command": "genaiscript.newfile.gpspec",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.fragment.reveal",
+                    "command": "genaiscript.fragment.reveal",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.prompt.unbuiltin",
+                    "command": "genaiscript.prompt.unbuiltin",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.prompt.navigate",
+                    "command": "genaiscript.prompt.navigate",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.fragment.navigate",
+                    "command": "genaiscript.fragment.navigate",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.request.open",
+                    "command": "genaiscript.request.open",
                     "when": "false"
                 },
                 {
-                    "command": "coarch.request.status",
+                    "command": "genaiscript.request.status",
                     "when": "false"
                 }
             ],
             "view/title": [
                 {
-                    "command": "coarch.prompt.create",
-                    "when": "view == coarch.prompts",
+                    "command": "genaiscript.prompt.create",
+                    "when": "view == genaiscript.prompts",
                     "group": "navigation"
                 },
                 {
-                    "command": "coarch.openai.token.update",
-                    "when": "view == coarch.prompts"
+                    "command": "genaiscript.openai.token.update",
+                    "when": "view == genaiscript.prompts"
                 },
                 {
-                    "command": "coarch.openai.token.clear",
-                    "when": "view == coarch.prompts"
+                    "command": "genaiscript.openai.token.clear",
+                    "when": "view == genaiscript.prompts"
                 }
             ],
             "view/item/context": [
                 {
-                    "command": "coarch.fragment.prompt",
-                    "when": "view == coarch.fragments && viewItem  =~ /^fragment/",
+                    "command": "genaiscript.fragment.prompt",
+                    "when": "view == genaiscript.fragments && viewItem  =~ /^fragment/",
                     "group": "inline"
                 },
                 {
-                    "command": "coarch.prompt.fork",
-                    "when": "view == coarch.prompts && viewItem  =~ /^prompt/"
+                    "command": "genaiscript.prompt.fork",
+                    "when": "view == genaiscript.prompts && viewItem  =~ /^prompt/"
                 },
                 {
-                    "command": "coarch.prompt.unbuiltin",
-                    "when": "view == coarch.prompts && viewItem  =~ /^prompt.builtin/"
+                    "command": "genaiscript.prompt.unbuiltin",
+                    "when": "view == genaiscript.prompts && viewItem  =~ /^prompt.builtin/"
                 }
             ],
             "explorer/context": [
                 {
-                    "command": "coarch.fragment.prompt",
+                    "command": "genaiscript.fragment.prompt",
                     "when": "explorerViewletVisible"
                 }
             ]
@@ -158,12 +158,12 @@
             {
                 "title": "GenAIScript",
                 "properties": {
-                    "coarch.maxCachedTemperature": {
+                    "genaiscript.maxCachedTemperature": {
                         "type": "number",
                         "default": 0.01,
                         "description": "Maximum prompt temperature to be cached (default 0.01)."
                     },
-                    "coarch.maxCachedTopP": {
+                    "genaiscript.maxCachedTopP": {
                         "type": "number",
                         "default": 0.5,
                         "description": "Maximum prompt top_p to be cached (default 0.5)."
@@ -173,102 +173,102 @@
         ],
         "commands": [
             {
-                "command": "coarch.openai.token.clear",
+                "command": "genaiscript.openai.token.clear",
                 "shortTitle": "Clear OpenAI token",
                 "title": "Clear OpenAI token in workspace secrets",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.openai.token.update",
+                "command": "genaiscript.openai.token.update",
                 "shortTitle": "Update OpenAI token",
                 "title": "Update OpenAI token in workspace secrets",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.abort",
+                "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.retry",
+                "command": "genaiscript.request.retry",
                 "title": "Retry last GPTool",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.fragment.navigate",
+                "command": "genaiscript.fragment.navigate",
                 "title": "Navigate to fragment",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.fragment.reveal",
+                "command": "genaiscript.fragment.reveal",
                 "title": "Reveal fragment in tree",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.fragment.prompt",
+                "command": "genaiscript.fragment.prompt",
                 "title": "Run GPTool...",
                 "category": "GenAIScript",
                 "icon": "$(lightbulb)"
             },
             {
-                "command": "coarch.prompt.navigate",
+                "command": "genaiscript.prompt.navigate",
                 "title": "Navigate to prompt",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.prompt.create",
+                "command": "genaiscript.prompt.create",
                 "title": "Create new GPTool...",
                 "icon": "$(add)",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.newfile.gptool",
+                "command": "genaiscript.newfile.gptool",
                 "title": "GPTool File",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.newfile.gpspec",
+                "command": "genaiscript.newfile.gpspec",
                 "title": "GPSpec File",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.prompt.fork",
+                "command": "genaiscript.prompt.fork",
                 "title": "Fork GPTool...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
             },
             {
-                "command": "coarch.prompt.unbuiltin",
+                "command": "genaiscript.prompt.unbuiltin",
                 "title": "Move builtin to project",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.open",
+                "command": "genaiscript.request.open",
                 "title": "Open request or response",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.open.trace",
+                "command": "genaiscript.request.open.trace",
                 "title": "Open Trace",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.open.output",
+                "command": "genaiscript.request.open.output",
                 "title": "Open Output",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.applyEdits",
+                "command": "genaiscript.request.applyEdits",
                 "title": "Apply Edits",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.request.status",
+                "command": "genaiscript.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "GenAIScript"
             },
             {
-                "command": "coarch.openIssueReporter",
+                "command": "genaiscript.openIssueReporter",
                 "title": "Report Issue...",
                 "category": "GenAIScript"
             }

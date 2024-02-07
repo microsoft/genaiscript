@@ -85,7 +85,7 @@ export function activateAIRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new AIRequestTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("coarch.prompts.requests", {
+    const treeView = vscode.window.createTreeView("genaiscript.prompts.requests", {
         treeDataProvider,
     })
     subscriptions.push(treeView)

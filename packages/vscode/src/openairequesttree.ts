@@ -74,7 +74,7 @@ export function activateOpenAIRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new OpenAIRequestTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("coarch.openai.requests", {
+    const treeView = vscode.window.createTreeView("genaiscript.openai.requests", {
         treeDataProvider,
     })
     subscriptions.push(treeView)

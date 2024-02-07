@@ -24,7 +24,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
             vscode.CodeActionKind.QuickFix
         )
         action.command = <vscode.Command>{
-            command: "coarch.fragment.prompt",
+            command: "genaiscript.fragment.prompt",
             tooltip: "Apply a GPTool script to this file.",
             arguments: [{ fragment }],
         }
@@ -53,7 +53,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
                     vscode.CodeActionKind.QuickFix
                 )
                 a.command = <vscode.Command>{
-                    command: "coarch.fragment.prompt",
+                    command: "genaiscript.fragment.prompt",
                     tooltip: `Apply ${t.title} to this file.`,
                     arguments: [{ fragment, template: t }],
                 }

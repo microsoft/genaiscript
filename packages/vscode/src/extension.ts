@@ -15,7 +15,7 @@ import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 
 export const TOOL_NAME = "GenAIScript"
-export const COARCH_EXTENSION_ID = "coarch.genaiscript-vscode"
+export const COARCH_EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const AGENT_ID = "genaiscript"
 
 export async function activate(context: ExtensionContext) {
@@ -33,17 +33,17 @@ export async function activate(context: ExtensionContext) {
     activateChatAgent(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("coarch.request.abort", async () => {
+        vscode.commands.registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
                 `${TOOL_NAME} - request aborted.`
             )
         }),
-        vscode.commands.registerCommand("coarch.request.retry", () =>
+        vscode.commands.registerCommand("genaiscript.request.retry", () =>
             state.retryAIRequest()
         ),
         vscode.commands.registerCommand(
-            "coarch.openai.token.clear",
+            "genaiscript.openai.token.clear",
             async () => {
                 await clearToken()
                 await vscode.window.showInformationMessage(
@@ -52,7 +52,7 @@ export async function activate(context: ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "coarch.openai.token.update",
+            "genaiscript.openai.token.update",
             async () => {
                 try {
                     await clearToken()
@@ -63,7 +63,7 @@ export async function activate(context: ExtensionContext) {
                 }
             }
         ),
-        vscode.commands.registerCommand("coarch.request.status", async () => {
+        vscode.commands.registerCommand("genaiscript.request.status", async () => {
             const cmds = commandButtons(state)
             if (!cmds.length)
                 await vscode.window.showInformationMessage(
@@ -77,7 +77,7 @@ export async function activate(context: ExtensionContext) {
             }
         }),
         vscode.commands.registerCommand(
-            "coarch.openIssueReporter",
+            "genaiscript.openIssueReporter",
             async () => {
                 const issueBody: string[] = [
                     `## Describe the issue`,
