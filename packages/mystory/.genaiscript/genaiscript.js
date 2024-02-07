@@ -4,6 +4,7 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __defNormalProp = (obj, key, value2) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value: value2 }) : obj[key] = value2;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
@@ -27,6 +28,32 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __publicField = (obj, key, value2) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value2);
+  return value2;
+};
+var __accessCheck = (obj, member, msg) => {
+  if (!member.has(obj))
+    throw TypeError("Cannot " + msg);
+};
+var __privateGet = (obj, member, getter) => {
+  __accessCheck(obj, member, "read from private field");
+  return getter ? getter.call(obj) : member.get(obj);
+};
+var __privateAdd = (obj, member, value2) => {
+  if (member.has(obj))
+    throw TypeError("Cannot add the same private member more than once");
+  member instanceof WeakSet ? member.add(obj) : member.set(obj, value2);
+};
+var __privateSet = (obj, member, value2, setter) => {
+  __accessCheck(obj, member, "write to private field");
+  setter ? setter.call(obj, value2) : member.set(obj, value2);
+  return value2;
+};
+var __privateMethod = (obj, member, method) => {
+  __accessCheck(obj, member, "access private method");
+  return method;
+};
 
 // ../../node_modules/format/format.js
 var require_format = __commonJS({
@@ -345,338 +372,6 @@ var require_fetch_retry = __commonJS({
   }
 });
 
-// ../../node_modules/dotenv/package.json
-var require_package = __commonJS({
-  "../../node_modules/dotenv/package.json"(exports, module2) {
-    module2.exports = {
-      name: "dotenv",
-      version: "16.3.1",
-      description: "Loads environment variables from .env file",
-      main: "lib/main.js",
-      types: "lib/main.d.ts",
-      exports: {
-        ".": {
-          types: "./lib/main.d.ts",
-          require: "./lib/main.js",
-          default: "./lib/main.js"
-        },
-        "./config": "./config.js",
-        "./config.js": "./config.js",
-        "./lib/env-options": "./lib/env-options.js",
-        "./lib/env-options.js": "./lib/env-options.js",
-        "./lib/cli-options": "./lib/cli-options.js",
-        "./lib/cli-options.js": "./lib/cli-options.js",
-        "./package.json": "./package.json"
-      },
-      scripts: {
-        "dts-check": "tsc --project tests/types/tsconfig.json",
-        lint: "standard",
-        "lint-readme": "standard-markdown",
-        pretest: "npm run lint && npm run dts-check",
-        test: "tap tests/*.js --100 -Rspec",
-        prerelease: "npm test",
-        release: "standard-version"
-      },
-      repository: {
-        type: "git",
-        url: "git://github.com/motdotla/dotenv.git"
-      },
-      funding: "https://github.com/motdotla/dotenv?sponsor=1",
-      keywords: [
-        "dotenv",
-        "env",
-        ".env",
-        "environment",
-        "variables",
-        "config",
-        "settings"
-      ],
-      readmeFilename: "README.md",
-      license: "BSD-2-Clause",
-      devDependencies: {
-        "@definitelytyped/dtslint": "^0.0.133",
-        "@types/node": "^18.11.3",
-        decache: "^4.6.1",
-        sinon: "^14.0.1",
-        standard: "^17.0.0",
-        "standard-markdown": "^7.1.0",
-        "standard-version": "^9.5.0",
-        tap: "^16.3.0",
-        tar: "^6.1.11",
-        typescript: "^4.8.4"
-      },
-      engines: {
-        node: ">=12"
-      },
-      browser: {
-        fs: false
-      }
-    };
-  }
-});
-
-// ../../node_modules/dotenv/lib/main.js
-var require_main = __commonJS({
-  "../../node_modules/dotenv/lib/main.js"(exports, module2) {
-    var fs = require("fs");
-    var path3 = require("path");
-    var os = require("os");
-    var crypto = require("crypto");
-    var packageJson = require_package();
-    var version = packageJson.version;
-    var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
-    function parse2(src) {
-      const obj = {};
-      let lines = src.toString();
-      lines = lines.replace(/\r\n?/mg, "\n");
-      let match2;
-      while ((match2 = LINE.exec(lines)) != null) {
-        const key = match2[1];
-        let value2 = match2[2] || "";
-        value2 = value2.trim();
-        const maybeQuote = value2[0];
-        value2 = value2.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
-        if (maybeQuote === '"') {
-          value2 = value2.replace(/\\n/g, "\n");
-          value2 = value2.replace(/\\r/g, "\r");
-        }
-        obj[key] = value2;
-      }
-      return obj;
-    }
-    function _parseVault(options) {
-      const vaultPath = _vaultPath(options);
-      const result = DotenvModule.configDotenv({ path: vaultPath });
-      if (!result.parsed) {
-        throw new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
-      }
-      const keys2 = _dotenvKey(options).split(",");
-      const length = keys2.length;
-      let decrypted;
-      for (let i = 0; i < length; i++) {
-        try {
-          const key = keys2[i].trim();
-          const attrs = _instructions(result, key);
-          decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
-          break;
-        } catch (error2) {
-          if (i + 1 >= length) {
-            throw error2;
-          }
-        }
-      }
-      return DotenvModule.parse(decrypted);
-    }
-    function _log(message) {
-      console.log(`[dotenv@${version}][INFO] ${message}`);
-    }
-    function _warn(message) {
-      console.log(`[dotenv@${version}][WARN] ${message}`);
-    }
-    function _debug(message) {
-      console.log(`[dotenv@${version}][DEBUG] ${message}`);
-    }
-    function _dotenvKey(options) {
-      if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
-        return options.DOTENV_KEY;
-      }
-      if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
-        return process.env.DOTENV_KEY;
-      }
-      return "";
-    }
-    function _instructions(result, dotenvKey) {
-      let uri;
-      try {
-        uri = new URL(dotenvKey);
-      } catch (error2) {
-        if (error2.code === "ERR_INVALID_URL") {
-          throw new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenv.org/vault/.env.vault?environment=development");
-        }
-        throw error2;
-      }
-      const key = uri.password;
-      if (!key) {
-        throw new Error("INVALID_DOTENV_KEY: Missing key part");
-      }
-      const environment = uri.searchParams.get("environment");
-      if (!environment) {
-        throw new Error("INVALID_DOTENV_KEY: Missing environment part");
-      }
-      const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
-      const ciphertext = result.parsed[environmentKey];
-      if (!ciphertext) {
-        throw new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
-      }
-      return { ciphertext, key };
-    }
-    function _vaultPath(options) {
-      let dotenvPath = path3.resolve(process.cwd(), ".env");
-      if (options && options.path && options.path.length > 0) {
-        dotenvPath = options.path;
-      }
-      return dotenvPath.endsWith(".vault") ? dotenvPath : `${dotenvPath}.vault`;
-    }
-    function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path3.join(os.homedir(), envPath.slice(1)) : envPath;
-    }
-    function _configVault(options) {
-      _log("Loading env from encrypted .env.vault");
-      const parsed = DotenvModule._parseVault(options);
-      let processEnv = process.env;
-      if (options && options.processEnv != null) {
-        processEnv = options.processEnv;
-      }
-      DotenvModule.populate(processEnv, parsed, options);
-      return { parsed };
-    }
-    function configDotenv(options) {
-      let dotenvPath = path3.resolve(process.cwd(), ".env");
-      let encoding = "utf8";
-      const debug2 = Boolean(options && options.debug);
-      if (options) {
-        if (options.path != null) {
-          dotenvPath = _resolveHome(options.path);
-        }
-        if (options.encoding != null) {
-          encoding = options.encoding;
-        }
-      }
-      try {
-        const parsed = DotenvModule.parse(fs.readFileSync(dotenvPath, { encoding }));
-        let processEnv = process.env;
-        if (options && options.processEnv != null) {
-          processEnv = options.processEnv;
-        }
-        DotenvModule.populate(processEnv, parsed, options);
-        return { parsed };
-      } catch (e) {
-        if (debug2) {
-          _debug(`Failed to load ${dotenvPath} ${e.message}`);
-        }
-        return { error: e };
-      }
-    }
-    function config(options) {
-      const vaultPath = _vaultPath(options);
-      if (_dotenvKey(options).length === 0) {
-        return DotenvModule.configDotenv(options);
-      }
-      if (!fs.existsSync(vaultPath)) {
-        _warn(`You set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}. Did you forget to build it?`);
-        return DotenvModule.configDotenv(options);
-      }
-      return DotenvModule._configVault(options);
-    }
-    function decrypt(encrypted, keyStr) {
-      const key = Buffer.from(keyStr.slice(-64), "hex");
-      let ciphertext = Buffer.from(encrypted, "base64");
-      const nonce = ciphertext.slice(0, 12);
-      const authTag = ciphertext.slice(-16);
-      ciphertext = ciphertext.slice(12, -16);
-      try {
-        const aesgcm = crypto.createDecipheriv("aes-256-gcm", key, nonce);
-        aesgcm.setAuthTag(authTag);
-        return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
-      } catch (error2) {
-        const isRange = error2 instanceof RangeError;
-        const invalidKeyLength = error2.message === "Invalid key length";
-        const decryptionFailed = error2.message === "Unsupported state or unable to authenticate data";
-        if (isRange || invalidKeyLength) {
-          const msg = "INVALID_DOTENV_KEY: It must be 64 characters long (or more)";
-          throw new Error(msg);
-        } else if (decryptionFailed) {
-          const msg = "DECRYPTION_FAILED: Please check your DOTENV_KEY";
-          throw new Error(msg);
-        } else {
-          console.error("Error: ", error2.code);
-          console.error("Error: ", error2.message);
-          throw error2;
-        }
-      }
-    }
-    function populate(processEnv, parsed, options = {}) {
-      const debug2 = Boolean(options && options.debug);
-      const override = Boolean(options && options.override);
-      if (typeof parsed !== "object") {
-        throw new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
-      }
-      for (const key of Object.keys(parsed)) {
-        if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
-          if (override === true) {
-            processEnv[key] = parsed[key];
-          }
-          if (debug2) {
-            if (override === true) {
-              _debug(`"${key}" is already defined and WAS overwritten`);
-            } else {
-              _debug(`"${key}" is already defined and was NOT overwritten`);
-            }
-          }
-        } else {
-          processEnv[key] = parsed[key];
-        }
-      }
-    }
-    var DotenvModule = {
-      configDotenv,
-      _configVault,
-      _parseVault,
-      config,
-      decrypt,
-      parse: parse2,
-      populate
-    };
-    module2.exports.configDotenv = DotenvModule.configDotenv;
-    module2.exports._configVault = DotenvModule._configVault;
-    module2.exports._parseVault = DotenvModule._parseVault;
-    module2.exports.config = DotenvModule.config;
-    module2.exports.decrypt = DotenvModule.decrypt;
-    module2.exports.parse = DotenvModule.parse;
-    module2.exports.populate = DotenvModule.populate;
-    module2.exports = DotenvModule;
-  }
-});
-
-// ../../node_modules/dotenv/lib/env-options.js
-var require_env_options = __commonJS({
-  "../../node_modules/dotenv/lib/env-options.js"(exports, module2) {
-    var options = {};
-    if (process.env.DOTENV_CONFIG_ENCODING != null) {
-      options.encoding = process.env.DOTENV_CONFIG_ENCODING;
-    }
-    if (process.env.DOTENV_CONFIG_PATH != null) {
-      options.path = process.env.DOTENV_CONFIG_PATH;
-    }
-    if (process.env.DOTENV_CONFIG_DEBUG != null) {
-      options.debug = process.env.DOTENV_CONFIG_DEBUG;
-    }
-    if (process.env.DOTENV_CONFIG_OVERRIDE != null) {
-      options.override = process.env.DOTENV_CONFIG_OVERRIDE;
-    }
-    if (process.env.DOTENV_CONFIG_DOTENV_KEY != null) {
-      options.DOTENV_KEY = process.env.DOTENV_CONFIG_DOTENV_KEY;
-    }
-    module2.exports = options;
-  }
-});
-
-// ../../node_modules/dotenv/lib/cli-options.js
-var require_cli_options = __commonJS({
-  "../../node_modules/dotenv/lib/cli-options.js"(exports, module2) {
-    var re = /^dotenv_config_(encoding|path|debug|override|DOTENV_KEY)=(.+)$/;
-    module2.exports = function optionMatcher(args) {
-      return args.reduce(function(acc, cur) {
-        const matches = cur.match(re);
-        if (matches) {
-          acc[matches[1]] = matches[2];
-        }
-        return acc;
-      }, {});
-    };
-  }
-});
-
 // ../../node_modules/universalify/index.js
 var require_universalify = __commonJS({
   "../../node_modules/universalify/index.js"(exports) {
@@ -822,7 +517,7 @@ var require_polyfills = __commonJS({
           Object.setPrototypeOf(read, fs$read);
         return read;
       }(fs.read);
-      fs.readSync = typeof fs.readSync !== "function" ? fs.readSync : /* @__PURE__ */ function(fs$readSync) {
+      fs.readSync = typeof fs.readSync !== "function" ? fs.readSync : function(fs$readSync) {
         return function(fd, buffer2, offset, length, position2) {
           var eagCounter = 0;
           while (true) {
@@ -4000,7 +3695,7 @@ var require_command = __commonJS({
     var { Help: Help2 } = require_help();
     var { Option: Option2, splitOptionFlags, DualOptions } = require_option();
     var { suggestSimilar } = require_suggestSimilar();
-    var Command2 = class _Command extends EventEmitter2 {
+    var Command2 = class extends EventEmitter2 {
       /**
        * Initialize a new `Command`.
        *
@@ -4158,7 +3853,7 @@ var require_command = __commonJS({
        * @return {Command} new command
        */
       createCommand(name) {
-        return new _Command(name);
+        return new Command2(name);
       }
       /**
        * You can customise the help with a subclass of Help by overriding createHelp,
@@ -5998,6 +5693,9 @@ async function tryReadJSON(fn) {
   } catch {
     return void 0;
   }
+}
+async function writeJSON(fn, obj) {
+  await writeText(fn, JSON.stringify(obj));
 }
 function randomRange(min, max) {
   return Math.round(Math.random() * (max - min) + min);
@@ -14289,7 +13987,7 @@ function bail(error2) {
 var import_is_buffer2 = __toESM(require_is_buffer(), 1);
 var import_extend = __toESM(require_extend(), 1);
 
-// ../../node_modules/unified/node_modules/is-plain-obj/index.js
+// ../../node_modules/is-plain-obj/index.js
 function isPlainObject(value2) {
   if (typeof value2 !== "object" || value2 === null) {
     return false;
@@ -17911,7 +17609,7 @@ function addLineNumbers(text5) {
 
 // ../core/src/logging.ts
 function inspect(obj, options) {
-  const { maxDepth = 3, maxLength = 2e3, maxString = 60 } = options ?? {};
+  const { maxDepth = 2, maxLength = 2e3, maxString = 60 } = options ?? {};
   return doInspect(obj, "", maxDepth);
   function doInspect(obj2, pref, depth) {
     if (Array.isArray(obj2)) {
@@ -18152,7 +17850,7 @@ async function evalPrompt(ctx0, jstext, logCb) {
         return s;
       };
       const df = (file) => {
-        const dfence = /\.md$/i.test(file.filename) || file.content?.includes(fence4) ? env.markdownFence : fence4;
+        const dfence = /\.md$/i.test(file.filename) ? env.markdownFence : fence4;
         text5(
           (name ? name + ":\n" : "") + dfence + ` file=${file.filename}
 ` + norm(file.content, dfence) + dfence
@@ -18260,6 +17958,7 @@ async function parseMeta(r) {
 var promptFence = "```";
 var markdownPromptFence = "`````";
 var promptFenceStartRx = /^(`{3,})(\s*(.*))?\s*$/;
+var promptFenceEndRx = /^(`{3,})\s*$/;
 function errorId() {
   let r = "ERROR-";
   for (let i = 0; i < 6; ++i)
@@ -18277,12 +17976,18 @@ function staticVars() {
     markdownFence: markdownPromptFence,
     error: errorId(),
     promptOptions: {},
-    vars: {}
+    vars: {},
+    templates: []
   };
 }
 function startFence(text5) {
   const m = promptFenceStartRx.exec(text5);
   return { fence: m?.[1], extra: m?.[3], args: parseKeyValuePairs(m?.[3]) };
+}
+function endFence(text5) {
+  if (promptFenceEndRx.test(text5))
+    return text5.replace(/\s*$/, "");
+  return null;
 }
 function extractFenced(text5) {
   let currLbl = "";
@@ -18314,6 +18019,9 @@ function extractFenced(text5) {
         currLbl = m[1] + " " + (start.args["file"] || m[2]);
         currFence = start.fence;
         i++;
+      } else if (endFence(line)) {
+        currFence = endFence(line);
+        currLbl = "*";
       }
     }
   }
@@ -18388,9 +18096,6 @@ async function parsePromptTemplate(filename, content3, prj) {
       c.checkString("input");
       c.checkString("outputFolder");
       c.checkBool("unlisted");
-      c.checkBool("copilot");
-      c.checkBool("chat");
-      c.checkString("chatOutput");
       c.checkNat("maxTokens");
       c.checkNumber("temperature");
       c.checkStringArray("system");
@@ -18550,9 +18255,8 @@ var TextFile = class {
 // ../core/src/default_prompts.ts
 var defaultPrompts = {
   "bdd-feature": 'gptool({\n    title: "Generate BDD scenarios",\n    description: "Generate a Gherkin .feature file from the node and children.",\n    categories: ["samples"],\n    temperature: 0.5\n})\n\ndef("FILE", env.file)\ndef("FEATURE", env.links.filter(f => f.filename.endsWith(".feature")))\n\n$`\nYou are an expert system designer that writes scenarios \nin a [Gherkin syntax](https://cucumber.io/docs/gherkin/reference/). \n\nUpdate FEATURE files to match requirements in FILE.\n\nLimit changes to existing scenarios to minimum, \nbut add new scenarios as needed. \n`\n',
-  "chat-toolify": 'gptool({\n    title: "Convert chat to tool",\n    description: "Attempts to capture the intent of the user and generate a tool from it.",\n    copilot: true,\n    system: ["system", "system.files", "system.summary"],\n    chat: true\n})\n\n// use $ to output formatted text to the prompt\n$`You are an expert LLM prompt engineer.\nYou will generate a script that generates a LLM promt \nthat captures the intent of the user in CHAT.`\n\n$`The tool is formatted in JavaScript and will be saved as a file named \'gptools/<toolname>.gptool.js\'\nwhere <toolname> is a short, descriptive, filename friendly name for the chat.`\n\n$` The tool has access to these APIs:\n\n\\`\\`\\`typescript\n/**\n * Setup prompt title and other parameters.\n * Exactly one call should be present on top of .gptool.js file.\n */\ndeclare function gptool(options: {\n    // human friendly name for the tool\n    title: string\n}): void\n\n/**\n * Append given string to the prompt. It automatically appends "\\n".\n */\ndeclare function $(strings: TemplateStringsArray, ...args: any[]): string\n\\`\\`\\`\n\n\\`\\`\\`typescript file=gptools/<toolname>.gptool.js\nA typical gptools file looks like this:\n\ngptools({ title: <the title> })\n\n$\\`<the generated prompt from the user intent>\\`\n\\`\\`\\`\n\nTo access files in the current context, insert this code in the script.\n\n    def("SPEC", env.file)\n    def("FILE", env.links)\n\n`\n\n$`\nThe CHAT is formatted as a markdown list of user messages.\n`\n\n// use def to emit and reference chunks of text\ndef("CHAT", env.chat.history.filter(m => m.role === "user" && !/@/.test(m.content))\n    .map(({ role, content }) => `- ${content}`)\n    .join("\\n"), { language: "markdown" })\n',
-  "code-annotator": 'gptool({\n    title: "Code annotator",\n    copilot: true,\n    description: "Given a problem desciption and code, write a code review",\n    maxTokens: 4000,\n    model: "gpt-4-32k",\n    categories: ["hello world"],\n    system: ["system", "system.annotations"],\n    temperature: 0,\n})\n\ndef(\n    "CODE",\n    env.links.filter(\n        (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")\n    ),\n    { lineNumbers: true }\n)\n\n$`\nYou are an EXPORT software developer with deep knowledge of all programming languages.\n\nYour job is to do a code review of CODE and create ANNOTATION with code improvement notice, warning and errors. \n- No more than 5 annotations per code file.\n- Consider readability, maintainability, performance, security, and correctness. \n- The code in CODE is written by a novice programmer.\n\nDo your best and will get a large tip. $$$.\n`\n',
-  "code-optimizer": 'gptool({\n    title: "Code Optimizer",\n    description:\n        "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",\n    maxTokens: 2000,\n    categories: ["samples"],\n    system: ["system", "system.diff", "system.summary"],\n})\n\n// Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46\ndef("FILE", env.links, { lineNumbers: true })\n\n$`\nYou are a world expert in making code run faster. You use any resource you can to do so.\n\nGiven some code in FILE files, identify how long it might take to run.\n\nAfter that, identify which parts are key candidates to speed up.\n\nAfter that, order the candidates by ranking.\n\nTake the top-ranked candidate and explain in more detail how to rewrite the code to be faster using a DIFF format. \nThen, rewrite the actual code. \nAfter you\'ve done that, determine if there are issues with the new code you wrote. \nIf so, move on. Otherwise, rewrite the code again to fix them.\n\nUpdate FILE files with all of the speed improvements.\n`\n',
+  "code-annotator": 'gptool({\n    title: "Code annotator",\n    description: "Given a problem desciption and code, write a code review",\n    maxTokens: 4000,\n    model: "gpt-4-32k",\n    categories: ["hello world"],\n    system: ["system", "system.annotations"],\n    temperature: 0,\n})\n\ndef(\n    "CODE",\n    env.links.filter(\n        (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")\n    ),\n    { lineNumbers: true }\n)\n\n$`\nYou are an EXPORT software developer with deep knowledge of all programming languages.\n\nYour job is to do a code review of CODE and create ANNOTATION with code improvement notice, warning and errors. \n- No more than 5 annotations per code file.\n- Consider readability, maintainability, performance, security, and correctness. \n- The code in CODE is written by a novice programmer.\n\nDo your best and will get a large tip. $$$.\n`\n',
+  "code-optimizer": 'gptool({\n    title: "Code Optimizer",\n    description:\n        "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",\n    maxTokens: 2000,\n    categories: ["samples"],\n    system: ["system", "system.diff"],\n})\n\n// Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46\ndef("FILE", env.links, { lineNumbers: true })\n\n$`\nYou are a world expert in making code run faster. You use any resource you can to do so.\n\nGiven some code in FILE files, identify how long it might take to run.\n\nAfter that, identify which parts are key candidates to speed up.\n\nAfter that, order the candidates by ranking.\n\nTake the top-ranked candidate and explain in more detail how to rewrite the code to be faster using a DIFF format. \nThen, rewrite the actual code. \nAfter you\'ve done that, determine if there are issues with the new code you wrote. \nIf so, move on. Otherwise, rewrite the code again to fix them.\n\nUpdate FILE files with all of the speed improvements.\n`\n',
   "code-xray": `gptool({
     title: "Code XRay",
     model: "gpt-4-32k",
@@ -18574,7 +18278,7 @@ to use the code elements in the source file in the context of the SPEC task.
 \`
 `,
   "core.default": 'gptool({\n        title: "Run gpspec directly",\n        description: "This is the default gptool that assumes the gpspec contains the entire request.",\n        maxTokens: 2000,\n        categories: ["core"],\n})\n\ndef("LINKS", env.links)\ndef("TASK", env.file)\n\n\n$`The user has defined their task in TASK and provided all the context in LINKS.\nExecute the task as specified in TASK.  Pay careful attention to the type of file the user wants to generate as output and what file it should be written to.\nOnly if the location of the output is not specified in TASK, append it to file ${env.file.filename}.  In that case, do not overwrite the original contents of ${env.file.filename}.`',
-  "front-matter": 'gptool({\n    title: "SEO front matter",\n    description:\n        "Update or generate SEO-optimized front matter for a markdown file.",\n    categories: ["samples"],\n    system: ["system", "system.files"],\n    maxTokens: 2000,\n    temperature: 0,\n    chatOutput: "inline",\n    model: "gpt-4",\n    fileMerge: (label, before, generated) => {\n        let start = 0,\n            end = 0\n        const lines = (before || "").split("\\n")\n        if (lines[0] === "---") end = lines.indexOf("---", 1)\n        let gstart = 0,\n            gend = 0\n        const glines = generated.split("\\n")\n        if (glines[0] === "---") gend = glines.indexOf("---", 1)\n        if (gend > 0) {\n            const res = lines.slice(0)\n            res.splice(start, end - start, ...glines.slice(gstart, gend + 1))\n            return res.join("\\n")\n        }\n        return before\n    },\n})\n\ndef(\n    "FILE",\n    env.links.filter((f) => f.filename.endsWith(".md"))\n)\n\n$`\nYou are a search engine optimization expert at creating front matter for markdown document.\n\nFor each FILE, generate the front matter content. DO NOT RESPOND the rest of the markdown content beyond the front matter.\nONLY generate the front matter section.\n- Update fields title as needed\n- Update description as needed \n- Update keywords as needed, only 5 keywords or less\n- use yaml format, do not use quotes\n- optimize for search engine optimization.\n- Do NOT modify the markdown content after the front matter\n\nIf no front matter is present, generate it.\n`\n',
+  "front-matter": 'gptool({\n    title: "SEO front matter",\n    description:\n        "Update or generate SEO-optimized front matter for a markdown file.",\n    categories: ["samples"],\n    system: ["system", "system.files", "system.summary"],\n    maxTokens: 2000,\n    temperature: 0,\n    model: "gpt-4",\n    fileMerge: (label, before, generated) => {\n        let start = 0,\n            end = 0\n        const lines = (before || "").split("\\n")\n        if (lines[0] === "---") end = lines.indexOf("---", 1)\n        let gstart = 0,\n            gend = 0\n        const glines = generated.split("\\n")\n        if (glines[0] === "---") gend = glines.indexOf("---", 1)\n        if (gend > 0) {\n            const res = lines.slice(0)\n            res.splice(start, end - start, ...glines.slice(gstart, gend + 1))\n            return res.join("\\n")\n        }\n        return before\n    },\n})\n\ndef(\n    "FILE",\n    env.links.filter((f) => f.filename.endsWith(".md"))\n)\n\n$`\nYou are a search engine optimization expert at creating front matter for markdown document.\n\nFor each FILE, generate the front matter content. DO NOT RESPOND the rest of the markdown content beyond the front matter.\nONLY generate the front matter section.\n- Update fields title as needed\n- Update description as needed \n- Update keywords as needed, only 5 keywords or less\n- use yaml format, do not use quotes\n- optimize for search engine optimization.\n- Do NOT modify the markdown content after the front matter\n\nIf no front matter is present, generate it.\n`\n',
   "gptool-meta": `gptool({
     title: 'GPTool metadata generator',
     description: 'Generates metadata for GPTools',
@@ -18962,7 +18666,7 @@ function commentAttributes(frag) {
 }
 
 // ../core/src/cache.ts
-var Cache = class _Cache extends EventTarget {
+var Cache = class extends EventTarget {
   constructor(name) {
     super();
     this.name = name;
@@ -18971,7 +18675,7 @@ var Cache = class _Cache extends EventTarget {
     const key = "cacheKV." + name;
     if (host.userState[key])
       return host.userState[key];
-    const r = new _Cache(name);
+    const r = new Cache(name);
     host.userState[key] = r;
     return r;
   }
@@ -19035,6 +18739,18 @@ async function keySHA(key) {
   return await sha256string(key);
 }
 
+// ../core/src/error.ts
+function throwError(e, cancel) {
+  if (typeof e === "string")
+    e = new Error(e);
+  if (cancel)
+    e.__cancel = true;
+  throw e;
+}
+function isRequestError(e, statusCode, code3) {
+  return e instanceof RequestError && (statusCode === void 0 || statusCode === e.status) && (code3 === void 0 || code3 === e.body?.code);
+}
+
 // ../core/src/oai_token.ts
 var cfg;
 function validateTokenCore(token, quiet = false) {
@@ -19055,6 +18771,10 @@ function validateTokenCore(token, quiet = false) {
   if (timeleft < 60)
     throw new Error("token expired");
 }
+async function clearToken() {
+  await host.setSecretToken(void 0);
+  cfg = void 0;
+}
 async function initToken(force = false) {
   if (cfg && !force) {
     try {
@@ -19074,18 +18794,7 @@ async function initToken(force = false) {
   }
   const f = await host.askToken();
   if (!f)
-    throw new RequestError(
-      403,
-      "token not specified",
-      {
-        type: "no_token",
-        message: "token not configured, please run command 'key help'",
-        param: void 0,
-        code: "no_token"
-      },
-      '{ code: "no_token" }',
-      -1
-    );
+    throwError("token not specified", true);
   return await setToken(f);
 }
 async function setToken(token) {
@@ -19144,29 +18853,6 @@ async function parseToken(f) {
     0
   );
 }
-async function parseTokenFromEnv(env) {
-  if (env.GPTOOLS_TOKEN) {
-    const tok = await parseToken(env.GPTOOLS_TOKEN);
-    tok.source = "env: GPTOOLS_TOKEN";
-    return tok;
-  }
-  if (env.OPENAI_API_KEY) {
-    const key = env.OPENAI_API_KEY;
-    const base2 = env.OPENAI_API_BASE;
-    const type = env.OPENAI_API_TYPE;
-    const version = env.OPENAI_API_VERSION;
-    if (!base2)
-      throw new Error("OPENAI_API_BASE not set");
-    if (type && type !== "azure")
-      throw new Error("OPENAI_API_TYPE must be 'azure'");
-    if (version && version !== "2023-03-15-preview")
-      throw new Error("OPENAI_API_VERSION must be '2023-03-15-preview'");
-    const tok = await parseToken(`${base2}#key=${key}`);
-    tok.source = "env: OPENAI_API_...";
-    return tok;
-  }
-  return void 0;
-}
 
 // ../core/src/chat.ts
 var import_fetch_retry = __toESM(require_fetch_retry());
@@ -19213,9 +18899,8 @@ async function getChatCompletions(req, options) {
     cache: useCache,
     retry,
     retryDelay,
-    maxDelay,
-    trace
-  } = options;
+    maxDelay
+  } = options || {};
   const { signal } = requestOptions || {};
   const { headers, ...rest } = requestOptions || {};
   const cache = getChatCompletionCache();
@@ -19227,7 +18912,6 @@ async function getChatCompletions(req, options) {
       responseSoFar: cached,
       responseChunk: cached
     });
-    trace.item(`found cached response`);
     return cached;
   }
   const cfg2 = await initToken();
@@ -19255,21 +18939,16 @@ async function getChatCompletions(req, options) {
     delete r2.model;
     url = cfg2.url + model.replace(/\./g, "") + "/chat/completions?api-version=2023-03-15-preview";
   }
-  trace.item(`${cfg2.isTGI ? "TGI" : "OpenAI"} chat request`);
-  trace.item(`model: ${model}`);
-  trace.item(`url: [${url}](${url})`);
   let numTokens = 0;
   const fetchRetry = await (0, import_fetch_retry.default)(fetch, {
     retryOn: [429],
     retries: retry,
     retryDelay: (attempt, error2, response) => {
       const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay);
-      if (attempt > 0) {
-        trace.item(`retry #${attempt} after ${delay}ms`);
+      if (attempt > 0)
         logVerbose(
           `LLM throttled, retry #${attempt} in ${delay / 1e3 | 0}s...`
         );
-      }
       return delay;
     }
   });
@@ -19286,7 +18965,6 @@ async function getChatCompletions(req, options) {
     ...rest || {}
   });
   if (r.status != 200) {
-    trace.error(`request error: ${r.status}`);
     let body;
     try {
       body = await r.text();
@@ -19329,8 +19007,6 @@ async function getChatCompletions(req, options) {
       await cache.set(req, chatResp);
     return chatResp;
   } else {
-    trace.error(`invalid response`);
-    trace.fence(pref);
     throw new Error(`invalid response: ${pref}`);
   }
   function doChunk(value2) {
@@ -19391,22 +19067,13 @@ function parseLLMDiffs(text5) {
   const chunks = [];
   let chunk = { state: "existing", lines: [], lineNumbers: [] };
   chunks.push(chunk);
-  let currentLine = Number.NaN;
   for (let i = 0; i < lines.length; ++i) {
     let line = lines[i];
     const diffM = /^(\[(\d+)\] )?(-|\+) (\[(\d+)\] )?/.exec(line);
     if (diffM) {
       const l = line.substring(diffM[0].length);
-      let diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN;
+      const diffln = diffM ? parseInt(diffM[5] ?? diffM[2]) : Number.NaN;
       const op = diffM[3];
-      if (isNaN(diffln) && !isNaN(currentLine)) {
-        currentLine++;
-        diffln = currentLine;
-        if (op === "-")
-          currentLine--;
-      } else {
-        currentLine = diffln;
-      }
       if (op === "+") {
         const l2 = line.substring(diffM[0].length);
         if (chunk.state === "added") {
@@ -19436,14 +19103,8 @@ function parseLLMDiffs(text5) {
       }
     } else {
       const lineM = /^\[(\d+)\] /.exec(line);
-      let lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN;
+      const lineNumber = lineM ? parseInt(lineM[1]) : Number.NaN;
       const l = line.substring(lineM ? lineM[0].length : 0);
-      if (isNaN(lineNumber) && !isNaN(currentLine)) {
-        currentLine++;
-        lineNumber = currentLine;
-      } else {
-        currentLine = lineNumber;
-      }
       if (chunk.state === "existing") {
         chunk.lines.push(l);
         chunk.lineNumbers.push(lineNumber);
@@ -19532,11 +19193,6 @@ function applyLLMDiff(source, chunks) {
   }
   return lines.join("\n");
 }
-var DiffError = class extends Error {
-  constructor(message) {
-    super(message);
-  }
-};
 function applyLLMPatch(source, chunks) {
   if (!chunks?.length || !source)
     return source;
@@ -19546,9 +19202,9 @@ function applyLLMPatch(source, chunks) {
       const line = chunk.state === "deleted" ? void 0 : chunk.lines[li];
       const linei = chunk.lineNumbers[li] - 1;
       if (isNaN(linei))
-        throw new DiffError("missing line number");
+        throw new Error("missing line number");
       if (linei < 0 || linei >= lines.length)
-        throw new DiffError("invalid line number");
+        throw new Error("invalid line number");
       lines[linei] = line;
     }
   });
@@ -19581,68 +19237,6 @@ var defaultUrlAdapters = [
   }
 ];
 
-// ../core/src/trace.ts
-var MarkdownTrace = class {
-  constructor() {
-    this.content = "";
-  }
-  startDetails(title) {
-    this.content += `
-
-<details id="${title.replace(
-      /\s+/g,
-      "-"
-    )}"><summary>${title}</summary>
-
-`;
-  }
-  endDetails() {
-    this.content += `
-
-</details>
-`;
-  }
-  details(title, body) {
-    this.startDetails(title);
-    this.content += body;
-    this.endDetails();
-  }
-  detailsFenced(title, body, contentType) {
-    this.startDetails(title);
-    this.content += fenceMD(body, contentType);
-    this.endDetails();
-  }
-  item(message) {
-    this.content += `-   ${message}
-`;
-  }
-  log(message) {
-    this.content += message + "\n";
-  }
-  fence(message, contentType) {
-    this.content += fenceMD(message, contentType);
-  }
-  append(trace) {
-    this.content += "\n" + trace.content;
-  }
-  tip(message) {
-    this.content += `> ${message}
-`;
-  }
-  heading(level, message) {
-    this.content += `${"#".repeat(level)} ${message}
-
-`;
-  }
-  error(message, exception) {
-    this.content += `
-** error: ${message}
-`;
-    if (exception)
-      this.fence(exception + "");
-  }
-};
-
 // ../core/src/expander.ts
 var defaultModel = "gpt-4";
 var defaultTemperature = 0.2;
@@ -19664,14 +19258,16 @@ ${trimNewlines(t)}
 ${f}
 `;
 }
-async function callExpander(r, vars, trace) {
+async function callExpander(r, vars) {
   let promptText = "";
+  let errors = "";
   let success = true;
   const env = new Proxy(vars, {
     get: (target, prop, recv) => {
       const v = target[prop];
       if (v === void 0) {
-        trace.error(`\`env.${String(prop)}\` not defined`);
+        errors += `-  \`env.${String(prop)}\` not defined
+`;
         return "";
       }
       return v;
@@ -19744,32 +19340,57 @@ async function callExpander(r, vars, trace) {
     success = false;
     const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack);
     const info2 = m ? ` at prompt line ${m[1]}, column ${m[2]}` : "";
-    trace.error(info2, e);
+    errors += `-  ${e.name}: ${e.message}${info2}
+`;
   }
-  return { logs, success, text: promptText };
+  return { logs, errors, success, text: promptText };
 }
-async function expandTemplate(template, fragment, options, env, trace) {
+function startDetails(title) {
+  return `
+
+<details id="${title.replace(
+    /\s+/g,
+    "-"
+  )}"><summary>${title}</summary>
+
+`;
+}
+function endDetails() {
+  return `
+
+</details>
+`;
+}
+function details(title, body) {
+  return `${startDetails(title)}${body}${endDetails()}`;
+}
+async function expandTemplate(template, fragment, env) {
   const varName = {};
   for (const [k, v] of Object.entries(env)) {
     if (!varName[v])
       varName[v] = k;
   }
   const varMap = env;
-  const prompt = await callExpander(template, env, trace);
+  let trace = `@@errors@@
+
+`;
+  let errors = ``;
+  const prompt = await callExpander(template, env);
   const expanded = prompt.text;
-  trace.startDetails("console output");
+  errors += prompt.errors;
+  trace += startDetails("console output");
   if (prompt.logs?.length)
-    trace.fence(prompt.logs);
+    trace += fenceMD(prompt.logs);
   else
-    trace.tip("use `console.log()` from gptool.js files`");
-  trace.endDetails();
-  traceVars();
+    trace += `> tip: use \`console.log()\` from gptool.js files`;
+  trace += endDetails();
+  trace += details("variables", traceVars());
   let systemText = "";
   let model = template.model;
   let temperature = template.temperature;
   let max_tokens = template.maxTokens;
   let seed = template.seed;
-  trace.startDetails(`system gptools`);
+  trace += startDetails(`system gptools`);
   const systems = (template.system ?? []).slice(0);
   if (!systems.length) {
     systems.push("system");
@@ -19782,52 +19403,63 @@ async function expandTemplate(template, fragment, options, env, trace) {
     let system = fragment.file.project.getTemplate(systemTemplate);
     if (!system) {
       if (systemTemplate)
-        trace.error(`\`${systemTemplate}\` not found
-`);
+        trace += `
+** error: \`${systemTemplate}\` not found
+`;
       if (i > 0)
         continue;
       systemTemplate = "system";
       system = fragment.file.project.getTemplate(systemTemplate);
       assert(!!system);
     }
-    const sysex = (await callExpander(system, env, trace)).text;
+    const sysex = (await callExpander(system, env)).text;
     systemText += systemFence + "\n" + sysex + "\n";
     model = model ?? system.model;
     temperature = temperature ?? system.temperature;
     max_tokens = max_tokens ?? system.maxTokens;
     seed = seed ?? system.seed;
-    trace.heading(3, `\`${systemTemplate}\` source`);
+    trace += `###  \`${systemTemplate}\` source
+`;
     if (system.model)
-      trace.item(`model: \`${system.model || ""}\``);
+      trace += `-  model: \`${system.model || ""}\`
+`;
     if (system.temperature !== void 0)
-      trace.item(`temperature: ${system.temperature || ""}`);
+      trace += `-  temperature: ${system.temperature || ""}
+`;
     if (system.maxTokens !== void 0)
-      trace.item(`max tokens: ${system.maxTokens || ""}`);
-    trace.fence(system.jsSource, "js");
-    trace.heading(4, "expanded");
-    trace.fence(sysex, "markdown");
+      trace += `-  max tokens: ${system.maxTokens || ""}
+`;
+    trace += fenceMD(system.jsSource, "js");
+    trace += "#### expanded";
+    trace += fenceMD(sysex);
   }
-  trace.endDetails();
-  trace.detailsFenced("gptool source", template.jsSource, "js");
-  model = options.model ?? env.vars["model"] ?? model ?? fragment.project.coarchJson.model ?? defaultModel;
-  temperature = options.temperature ?? tryParseFloat(env.vars["temperature"]) ?? temperature ?? defaultTemperature;
-  max_tokens = options.max_tokens ?? tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens;
-  seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed;
-  trace.startDetails("gptool expanded prompt");
+  trace += endDetails();
+  trace += details("gptool source", fenceMD(template.jsSource, "js"));
+  model = env.vars["model"] ?? model ?? fragment.project.coarchJson.model ?? defaultModel;
+  temperature = tryParseFloat(env.vars["temperature"]) ?? temperature ?? defaultTemperature;
+  max_tokens = tryParseInt(env.vars["maxTokens"]) ?? max_tokens ?? defaultMaxTokens;
+  seed = tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed;
+  trace += startDetails("gptool expanded prompt");
   if (model)
-    trace.item(`model: \`${model || ""}\``);
+    trace += `-  model: \`${model || ""}\`
+`;
   if (temperature !== void 0)
-    trace.item(`temperature: ${temperature || ""}`);
+    trace += `-  temperature: ${temperature || ""}
+`;
   if (max_tokens !== void 0)
-    trace.item(`max tokens: ${max_tokens || ""}`);
+    trace += `-  max tokens: ${max_tokens || ""}
+`;
   if (seed !== void 0) {
     seed = seed >> 0;
-    trace.item(`seed: ${seed}`);
+    trace += `-  seed: ${seed}
+`;
   }
-  trace.fence(expanded, "markdown");
-  trace.endDetails();
+  trace += fenceMD(expanded);
+  trace += endDetails();
+  trace = trace.replace("@@errors@@", errors);
   return {
     expanded,
+    errors,
     trace,
     success: prompt.success,
     model,
@@ -19851,28 +19483,31 @@ async function expandTemplate(template, fragment, options, env, trace) {
     return typeof v !== "string" || v.length > 40 || v.trim().includes("\n") || v.includes("`");
   }
   function traceVars() {
-    trace.startDetails("variables");
-    trace.tip("Variables are referenced through `env.NAME` in prompts.");
+    let info2 = "> Variables are referenced through `env.NAME` in prompts.\n\n";
     for (const k of Object.keys(env)) {
       if (isComplex(k))
         continue;
       const v = varMap[k];
       if (typeof v === "string" && varName[v] != k)
-        trace.item(`env.**${k}**: same as **${varName[v]}**`);
+        info2 += `-   env.**${k}**: same as **${varName[v]}**
+
+`;
       else
-        trace.item(`env.**${k}**: \`${v}\``);
+        info2 += `-   env.**${k}**: \`${v}\`
+
+`;
     }
     for (const k of Object.keys(env)) {
       if (!isComplex(k))
         continue;
       const v = varMap[k];
-      trace.item(`-   env.**${k}**`);
-      trace.fence(
+      info2 += `-   env.**${k}**${fenceMD(
         typeof v === "string" ? v : inspect(v),
         typeof v === "string" ? void 0 : "js"
-      );
+      )}
+`;
     }
-    trace.endDetails();
+    return info2;
   }
 }
 async function fragmentVars(template, frag, promptOptions) {
@@ -19957,17 +19592,13 @@ async function fragmentVars(template, frag, promptOptions) {
     links,
     parents,
     promptOptions,
-    template: {
-      id: template.id,
-      title: template.title,
-      description: template.description
-    },
+    template,
     vars: attrs
   };
   return { vars, trace };
 }
 function generateCliArguments(template, fragment, options) {
-  const { model, temperature, seed, cliInfo } = options;
+  const { model, temperature, seed, cliInfo } = options || {};
   const cli = [
     "node",
     ".gptools/gptools.js",
@@ -19987,34 +19618,53 @@ function generateCliArguments(template, fragment, options) {
 async function runTemplate(template, fragment, options) {
   const { requestOptions = {}, skipLLM, label, cliInfo } = options || {};
   const { signal } = requestOptions;
-  options.infoCb?.({ trace: "", text: "Preparing..." });
-  const trace = new MarkdownTrace();
-  trace.heading(2, label || template.id);
+  options?.infoCb?.({
+    vars: {},
+    prompt: void 0,
+    edits: [],
+    annotations: [],
+    trace: "",
+    text: "> Running GPTool...",
+    fileEdits: {},
+    label
+  });
+  let trace = `## ${label || template.id}
+`;
   if (cliInfo)
-    traceCliArgs(trace, template, fragment, options);
+    trace += details(
+      "automation",
+      `This operation can be run from the command line:
+
+\`\`\`bash
+${generateCliArguments(template, fragment, options)}
+\`\`\`
+
+-   You will need to install [Node.js](https://nodejs.org/en/).
+-   Configure the OpenAI token in environment variables (run \`node .gptools/gptools help keys\` for help).
+-   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
+-   Run \`node .gptools/gptools help run\` for the full list of options.
+`
+    );
   const { vars, trace: varsTrace } = await fragmentVars(
     template,
     fragment,
     options.promptOptions
   );
-  vars.chat = options.chat || { history: [], prompt: "" };
   if (varsTrace)
-    trace.details("variables", varsTrace);
+    trace += details("variables", varsTrace);
   let {
     expanded,
     success,
-    temperature,
-    model,
+    trace: expansionTrace,
+    temperature: templateTemperature,
+    model: modelTemperature,
     max_tokens,
     seed,
     systemText
-  } = await expandTemplate(
-    template,
-    fragment,
-    options,
-    vars,
-    trace
-  );
+  } = await expandTemplate(template, fragment, vars);
+  const temperature = options?.temperature ?? templateTemperature;
+  const model = options?.model ?? modelTemperature;
+  trace += expansionTrace;
   const prompt = {
     system: systemText,
     user: expanded
@@ -20024,8 +19674,8 @@ async function runTemplate(template, fragment, options) {
       error: new Error("Template failed"),
       prompt,
       vars,
-      trace: trace.content,
-      text: "# Template failed\nSee trace.",
+      trace,
+      text: "# Template failed\nSee info below.\n" + trace,
       edits: [],
       annotations: [],
       fileEdits: {},
@@ -20036,7 +19686,7 @@ async function runTemplate(template, fragment, options) {
     return {
       prompt,
       vars,
-      trace: trace.content,
+      trace,
       text: void 0,
       edits: [],
       annotations: [],
@@ -20046,76 +19696,95 @@ async function runTemplate(template, fragment, options) {
   }
   let text5;
   try {
-    options.infoCb?.({
+    await initToken();
+    options?.infoCb?.({
+      prompt,
       vars,
-      text: "Running...",
+      edits: [],
+      annotations: [],
+      trace,
+      text: "> Waiting for response...",
+      fileEdits: {},
       label
     });
-    const messages = [
+    text5 = await getChatCompletions(
       {
-        role: "system",
-        content: systemText
+        model,
+        temperature,
+        max_tokens,
+        seed,
+        messages: [
+          {
+            role: "system",
+            content: systemText
+          },
+          {
+            role: "user",
+            content: expanded
+          }
+        ]
       },
-      {
-        role: "user",
-        content: expanded
-      }
-    ];
-    try {
-      trace.startDetails("llm request");
-      const completer = options.getChatCompletions || getChatCompletions;
-      text5 = await completer(
-        {
-          model,
-          temperature,
-          max_tokens,
-          seed,
-          messages
-        },
-        { ...options, trace }
-      );
-    } finally {
-      trace.endDetails();
-    }
+      options
+    );
   } catch (error2) {
     if (error2 instanceof RequestError) {
-      trace.heading(3, `### Request error`);
-      if (error2.body) {
-        trace.log(`> ${error2.body.message}
+      trace += `
+### Request error
 
-`);
-        trace.item(`type: \`${error2.body.type}\``);
-        trace.item(`code: \`${error2.body.code}\`
-`);
+`;
+      if (error2.body) {
+        trace += `
+> ${error2.body.message}
+
+`;
+        trace += `-  type: \`${error2.body.type}\`
+`;
+        trace += `-  code: \`${error2.body.code}\`
+`;
       }
-      trace.item(`status: \`${error2.status}\`, ${error2.statusText}
-`);
-      options.infoCb?.({
+      trace += `-   status: \`${error2.status}\`, ${error2.statusText}
+`;
+      options.infoCb({
         prompt,
         vars,
-        trace: trace.content,
-        text: "Request error"
+        edits: [],
+        annotations: [],
+        trace,
+        text: "Request error",
+        fileEdits: {}
       });
     } else if (signal?.aborted) {
-      trace.heading(3, `Request cancelled`);
-      trace.log(`The user requested to cancel the request.`);
-      options.infoCb?.({
+      trace += `
+### Request cancelled
+            
+The user requested to cancel the request.
+`;
+      options.infoCb({
         prompt,
         vars,
-        trace: trace.content,
+        edits: [],
+        annotations: [],
+        trace,
         text: "Request cancelled",
+        fileEdits: {},
         label
       });
     }
     throw error2;
   }
-  trace.detailsFenced("llm response", text5);
+  trace += details("LLM response", fenceMD(text5));
   const extr = extractFenced(text5);
-  trace.details("code regions", renderFencedVariables(extr));
-  const fileEdits = {};
-  const annotations = [];
-  const edits = [];
-  let summary = void 0;
+  trace += details("code regions", renderFencedVariables(extr));
+  const res = {
+    prompt,
+    vars,
+    edits: [],
+    annotations: [],
+    fileEdits: {},
+    trace,
+    text: text5
+  };
+  const { fileEdits, annotations, edits } = res;
   const projFolder = host.projectFolder();
   const links = [];
   const fp = fragment.file.filename;
@@ -20147,6 +19816,7 @@ async function runTemplate(template, fragment, options) {
       if (kw === "file") {
         if (template.fileMerge) {
           try {
+            debugger;
             fileEdit.after = template.fileMerge(
               label,
               fileEdit.after ?? fileEdit.before,
@@ -20154,7 +19824,13 @@ async function runTemplate(template, fragment, options) {
             ) ?? val;
           } catch (e) {
             logVerbose(e);
-            trace.error(`error custom merging diff in ${fn}`, e);
+            res.trace += `
+
+#### Error merging file
+
+${fenceMD(
+              e.message
+            )}`;
           }
         } else
           fileEdit.after = val;
@@ -20167,7 +19843,13 @@ async function runTemplate(template, fragment, options) {
           );
         } catch (e) {
           logVerbose(e);
-          trace.error(`error applying patch to ${fn}`, e);
+          res.trace += `
+
+#### Error applying patch
+
+${fenceMD(
+            e.message
+          )}`;
           try {
             fileEdit.after = applyLLMDiff(
               fileEdit.after || fileEdit.before,
@@ -20175,7 +19857,13 @@ async function runTemplate(template, fragment, options) {
             );
           } catch (e2) {
             logVerbose(e2);
-            trace.error(`error merging diff in ${fn}`, e2);
+            res.trace += `
+
+#### Error applying diff
+
+${fenceMD(
+              e2.message
+            )}`;
           }
         }
       }
@@ -20198,7 +19886,7 @@ async function runTemplate(template, fragment, options) {
         return "";
       });
     } else if (/^summary$/i.test(name)) {
-      summary = val;
+      res.summary = val;
     }
   }
   Object.entries(fileEdits).filter(([, { before, after }]) => before !== after).forEach(([fn, { before, after }]) => {
@@ -20234,14 +19922,14 @@ ${links.join("\n")}`
     });
   }
   if (edits.length)
-    trace.details(
+    res.trace += details(
       "edits",
       `| Type | Filename | Message |
 | --- | --- | --- |
 ` + edits.map((e) => `| ${e.type} | ${e.filename} | ${e.label} |`).join("\n")
     );
   if (annotations.length)
-    trace.details(
+    res.trace += details(
       "annotations",
       `| Severity | Filename | Line | Message |
 | --- | --- | --- | --- |
@@ -20249,51 +19937,8 @@ ${links.join("\n")}`
         (e) => `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
       ).join("\n")
     );
-  const res = {
-    prompt,
-    vars,
-    edits,
-    annotations,
-    fileEdits,
-    trace: trace.content,
-    text: text5,
-    summary
-  };
-  options?.infoCb?.(res);
   return res;
 }
-function traceCliArgs(trace, template, fragment, options) {
-  trace.details(
-    "automation",
-    `This operation can be run from the command line:
-
-\`\`\`bash
-${generateCliArguments(template, fragment, options)}
-\`\`\`
-
--   You will need to install [Node.js](https://nodejs.org/en/).
--   Configure the OpenAI token in environment variables (run \`node .gptools/gptools help keys\` for help).
--   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
--   Run \`node .gptools/gptools help run\` for the full list of options.
-`
-  );
-}
-
-// ../core/src/error.ts
-function isRequestError(e, statusCode, code3) {
-  return e instanceof RequestError && (statusCode === void 0 || statusCode === e.status) && (code3 === void 0 || code3 === e.body?.code);
-}
-
-// ../../node_modules/dotenv/config.js
-(function() {
-  require_main().config(
-    Object.assign(
-      {},
-      require_env_options(),
-      require_cli_options()(process.argv)
-    )
-  );
-})();
 
 // src/hostimpl.ts
 var import_util10 = require("util");
@@ -20442,111 +20087,86 @@ var regExpEscape = (s) => s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 var qmark = "[^/]";
 var star = qmark + "*?";
 var starNoEmpty = qmark + "+?";
-var AST = class _AST {
-  type;
-  #root;
-  #hasMagic;
-  #uflag = false;
-  #parts = [];
-  #parent;
-  #parentIndex;
-  #negs;
-  #filledNegs = false;
-  #options;
-  #toString;
-  // set to true if it's an extglob with no children
-  // (which really means one child of '')
-  #emptyExt = false;
+var _root, _hasMagic, _uflag, _parts, _parent, _parentIndex, _negs, _filledNegs, _options, _toString, _emptyExt, _fillNegs, fillNegs_fn, _parseAST, parseAST_fn, _partsToRegExp, partsToRegExp_fn, _parseGlob, parseGlob_fn;
+var _AST = class {
   constructor(type, parent, options = {}) {
+    __privateAdd(this, _fillNegs);
+    __privateAdd(this, _partsToRegExp);
+    __publicField(this, "type");
+    __privateAdd(this, _root, void 0);
+    __privateAdd(this, _hasMagic, void 0);
+    __privateAdd(this, _uflag, false);
+    __privateAdd(this, _parts, []);
+    __privateAdd(this, _parent, void 0);
+    __privateAdd(this, _parentIndex, void 0);
+    __privateAdd(this, _negs, void 0);
+    __privateAdd(this, _filledNegs, false);
+    __privateAdd(this, _options, void 0);
+    __privateAdd(this, _toString, void 0);
+    // set to true if it's an extglob with no children
+    // (which really means one child of '')
+    __privateAdd(this, _emptyExt, false);
     this.type = type;
     if (type)
-      this.#hasMagic = true;
-    this.#parent = parent;
-    this.#root = this.#parent ? this.#parent.#root : this;
-    this.#options = this.#root === this ? options : this.#root.#options;
-    this.#negs = this.#root === this ? [] : this.#root.#negs;
-    if (type === "!" && !this.#root.#filledNegs)
-      this.#negs.push(this);
-    this.#parentIndex = this.#parent ? this.#parent.#parts.length : 0;
+      __privateSet(this, _hasMagic, true);
+    __privateSet(this, _parent, parent);
+    __privateSet(this, _root, __privateGet(this, _parent) ? __privateGet(__privateGet(this, _parent), _root) : this);
+    __privateSet(this, _options, __privateGet(this, _root) === this ? options : __privateGet(__privateGet(this, _root), _options));
+    __privateSet(this, _negs, __privateGet(this, _root) === this ? [] : __privateGet(__privateGet(this, _root), _negs));
+    if (type === "!" && !__privateGet(__privateGet(this, _root), _filledNegs))
+      __privateGet(this, _negs).push(this);
+    __privateSet(this, _parentIndex, __privateGet(this, _parent) ? __privateGet(__privateGet(this, _parent), _parts).length : 0);
   }
   get hasMagic() {
-    if (this.#hasMagic !== void 0)
-      return this.#hasMagic;
-    for (const p of this.#parts) {
+    if (__privateGet(this, _hasMagic) !== void 0)
+      return __privateGet(this, _hasMagic);
+    for (const p of __privateGet(this, _parts)) {
       if (typeof p === "string")
         continue;
       if (p.type || p.hasMagic)
-        return this.#hasMagic = true;
+        return __privateSet(this, _hasMagic, true);
     }
-    return this.#hasMagic;
+    return __privateGet(this, _hasMagic);
   }
   // reconstructs the pattern
   toString() {
-    if (this.#toString !== void 0)
-      return this.#toString;
+    if (__privateGet(this, _toString) !== void 0)
+      return __privateGet(this, _toString);
     if (!this.type) {
-      return this.#toString = this.#parts.map((p) => String(p)).join("");
+      return __privateSet(this, _toString, __privateGet(this, _parts).map((p) => String(p)).join(""));
     } else {
-      return this.#toString = this.type + "(" + this.#parts.map((p) => String(p)).join("|") + ")";
+      return __privateSet(this, _toString, this.type + "(" + __privateGet(this, _parts).map((p) => String(p)).join("|") + ")");
     }
-  }
-  #fillNegs() {
-    if (this !== this.#root)
-      throw new Error("should only call on root");
-    if (this.#filledNegs)
-      return this;
-    this.toString();
-    this.#filledNegs = true;
-    let n;
-    while (n = this.#negs.pop()) {
-      if (n.type !== "!")
-        continue;
-      let p = n;
-      let pp = p.#parent;
-      while (pp) {
-        for (let i = p.#parentIndex + 1; !pp.type && i < pp.#parts.length; i++) {
-          for (const part of n.#parts) {
-            if (typeof part === "string") {
-              throw new Error("string part in extglob AST??");
-            }
-            part.copyIn(pp.#parts[i]);
-          }
-        }
-        p = pp;
-        pp = p.#parent;
-      }
-    }
-    return this;
   }
   push(...parts) {
     for (const p of parts) {
       if (p === "")
         continue;
-      if (typeof p !== "string" && !(p instanceof _AST && p.#parent === this)) {
+      if (typeof p !== "string" && !(p instanceof _AST && __privateGet(p, _parent) === this)) {
         throw new Error("invalid part: " + p);
       }
-      this.#parts.push(p);
+      __privateGet(this, _parts).push(p);
     }
   }
   toJSON() {
-    const ret = this.type === null ? this.#parts.slice().map((p) => typeof p === "string" ? p : p.toJSON()) : [this.type, ...this.#parts.map((p) => p.toJSON())];
+    const ret = this.type === null ? __privateGet(this, _parts).slice().map((p) => typeof p === "string" ? p : p.toJSON()) : [this.type, ...__privateGet(this, _parts).map((p) => p.toJSON())];
     if (this.isStart() && !this.type)
       ret.unshift([]);
-    if (this.isEnd() && (this === this.#root || this.#root.#filledNegs && this.#parent?.type === "!")) {
+    if (this.isEnd() && (this === __privateGet(this, _root) || __privateGet(__privateGet(this, _root), _filledNegs) && __privateGet(this, _parent)?.type === "!")) {
       ret.push({});
     }
     return ret;
   }
   isStart() {
-    if (this.#root === this)
+    if (__privateGet(this, _root) === this)
       return true;
-    if (!this.#parent?.isStart())
+    if (!__privateGet(this, _parent)?.isStart())
       return false;
-    if (this.#parentIndex === 0)
+    if (__privateGet(this, _parentIndex) === 0)
       return true;
-    const p = this.#parent;
-    for (let i = 0; i < this.#parentIndex; i++) {
-      const pp = p.#parts[i];
+    const p = __privateGet(this, _parent);
+    for (let i = 0; i < __privateGet(this, _parentIndex); i++) {
+      const pp = __privateGet(p, _parts)[i];
       if (!(pp instanceof _AST && pp.type === "!")) {
         return false;
       }
@@ -20554,16 +20174,16 @@ var AST = class _AST {
     return true;
   }
   isEnd() {
-    if (this.#root === this)
+    if (__privateGet(this, _root) === this)
       return true;
-    if (this.#parent?.type === "!")
+    if (__privateGet(this, _parent)?.type === "!")
       return true;
-    if (!this.#parent?.isEnd())
+    if (!__privateGet(this, _parent)?.isEnd())
       return false;
     if (!this.type)
-      return this.#parent?.isEnd();
-    const pl = this.#parent ? this.#parent.#parts.length : 0;
-    return this.#parentIndex === pl - 1;
+      return __privateGet(this, _parent)?.isEnd();
+    const pl = __privateGet(this, _parent) ? __privateGet(__privateGet(this, _parent), _parts).length : 0;
+    return __privateGet(this, _parentIndex) === pl - 1;
   }
   copyIn(part) {
     if (typeof part === "string")
@@ -20573,132 +20193,29 @@ var AST = class _AST {
   }
   clone(parent) {
     const c = new _AST(this.type, parent);
-    for (const p of this.#parts) {
+    for (const p of __privateGet(this, _parts)) {
       c.copyIn(p);
     }
     return c;
   }
-  static #parseAST(str, ast, pos, opt) {
-    let escaping = false;
-    let inBrace = false;
-    let braceStart = -1;
-    let braceNeg = false;
-    if (ast.type === null) {
-      let i2 = pos;
-      let acc2 = "";
-      while (i2 < str.length) {
-        const c = str.charAt(i2++);
-        if (escaping || c === "\\") {
-          escaping = !escaping;
-          acc2 += c;
-          continue;
-        }
-        if (inBrace) {
-          if (i2 === braceStart + 1) {
-            if (c === "^" || c === "!") {
-              braceNeg = true;
-            }
-          } else if (c === "]" && !(i2 === braceStart + 2 && braceNeg)) {
-            inBrace = false;
-          }
-          acc2 += c;
-          continue;
-        } else if (c === "[") {
-          inBrace = true;
-          braceStart = i2;
-          braceNeg = false;
-          acc2 += c;
-          continue;
-        }
-        if (!opt.noext && isExtglobType(c) && str.charAt(i2) === "(") {
-          ast.push(acc2);
-          acc2 = "";
-          const ext2 = new _AST(c, ast);
-          i2 = _AST.#parseAST(str, ext2, i2, opt);
-          ast.push(ext2);
-          continue;
-        }
-        acc2 += c;
-      }
-      ast.push(acc2);
-      return i2;
-    }
-    let i = pos + 1;
-    let part = new _AST(null, ast);
-    const parts = [];
-    let acc = "";
-    while (i < str.length) {
-      const c = str.charAt(i++);
-      if (escaping || c === "\\") {
-        escaping = !escaping;
-        acc += c;
-        continue;
-      }
-      if (inBrace) {
-        if (i === braceStart + 1) {
-          if (c === "^" || c === "!") {
-            braceNeg = true;
-          }
-        } else if (c === "]" && !(i === braceStart + 2 && braceNeg)) {
-          inBrace = false;
-        }
-        acc += c;
-        continue;
-      } else if (c === "[") {
-        inBrace = true;
-        braceStart = i;
-        braceNeg = false;
-        acc += c;
-        continue;
-      }
-      if (isExtglobType(c) && str.charAt(i) === "(") {
-        part.push(acc);
-        acc = "";
-        const ext2 = new _AST(c, part);
-        part.push(ext2);
-        i = _AST.#parseAST(str, ext2, i, opt);
-        continue;
-      }
-      if (c === "|") {
-        part.push(acc);
-        acc = "";
-        parts.push(part);
-        part = new _AST(null, ast);
-        continue;
-      }
-      if (c === ")") {
-        if (acc === "" && ast.#parts.length === 0) {
-          ast.#emptyExt = true;
-        }
-        part.push(acc);
-        acc = "";
-        ast.push(...parts, part);
-        return i;
-      }
-      acc += c;
-    }
-    ast.type = null;
-    ast.#hasMagic = void 0;
-    ast.#parts = [str.substring(pos - 1)];
-    return i;
-  }
   static fromGlob(pattern, options = {}) {
+    var _a;
     const ast = new _AST(null, void 0, options);
-    _AST.#parseAST(pattern, ast, 0, options);
+    __privateMethod(_a = _AST, _parseAST, parseAST_fn).call(_a, pattern, ast, 0, options);
     return ast;
   }
   // returns the regular expression if there's magic, or the unescaped
   // string if not.
   toMMPattern() {
-    if (this !== this.#root)
-      return this.#root.toMMPattern();
+    if (this !== __privateGet(this, _root))
+      return __privateGet(this, _root).toMMPattern();
     const glob2 = this.toString();
     const [re, body, hasMagic2, uflag] = this.toRegExpSource();
-    const anyMagic = hasMagic2 || this.#hasMagic || this.#options.nocase && !this.#options.nocaseMagicOnly && glob2.toUpperCase() !== glob2.toLowerCase();
+    const anyMagic = hasMagic2 || __privateGet(this, _hasMagic) || __privateGet(this, _options).nocase && !__privateGet(this, _options).nocaseMagicOnly && glob2.toUpperCase() !== glob2.toLowerCase();
     if (!anyMagic) {
       return body;
     }
-    const flags = (this.#options.nocase ? "i" : "") + (uflag ? "u" : "");
+    const flags = (__privateGet(this, _options).nocase ? "i" : "") + (uflag ? "u" : "");
     return Object.assign(new RegExp(`^${re}$`, flags), {
       _src: re,
       _glob: glob2
@@ -20774,21 +20291,22 @@ var AST = class _AST {
   // is ^(?!\.), we can just prepend (?!\.) to the pattern (either root
   // or start or whatever) and prepend ^ or / at the Regexp construction.
   toRegExpSource(allowDot) {
-    const dot = allowDot ?? !!this.#options.dot;
-    if (this.#root === this)
-      this.#fillNegs();
+    const dot = allowDot ?? !!__privateGet(this, _options).dot;
+    if (__privateGet(this, _root) === this)
+      __privateMethod(this, _fillNegs, fillNegs_fn).call(this);
     if (!this.type) {
       const noEmpty = this.isStart() && this.isEnd();
-      const src = this.#parts.map((p) => {
-        const [re, _, hasMagic2, uflag] = typeof p === "string" ? _AST.#parseGlob(p, this.#hasMagic, noEmpty) : p.toRegExpSource(allowDot);
-        this.#hasMagic = this.#hasMagic || hasMagic2;
-        this.#uflag = this.#uflag || uflag;
+      const src = __privateGet(this, _parts).map((p) => {
+        var _a;
+        const [re, _, hasMagic2, uflag] = typeof p === "string" ? __privateMethod(_a = _AST, _parseGlob, parseGlob_fn).call(_a, p, __privateGet(this, _hasMagic), noEmpty) : p.toRegExpSource(allowDot);
+        __privateSet(this, _hasMagic, __privateGet(this, _hasMagic) || hasMagic2);
+        __privateSet(this, _uflag, __privateGet(this, _uflag) || uflag);
         return re;
       }).join("");
       let start2 = "";
       if (this.isStart()) {
-        if (typeof this.#parts[0] === "string") {
-          const dotTravAllowed = this.#parts.length === 1 && justDots.has(this.#parts[0]);
+        if (typeof __privateGet(this, _parts)[0] === "string") {
+          const dotTravAllowed = __privateGet(this, _parts).length === 1 && justDots.has(__privateGet(this, _parts)[0]);
           if (!dotTravAllowed) {
             const aps = addPatternStart;
             const needNoTrav = (
@@ -20803,28 +20321,28 @@ var AST = class _AST {
         }
       }
       let end = "";
-      if (this.isEnd() && this.#root.#filledNegs && this.#parent?.type === "!") {
+      if (this.isEnd() && __privateGet(__privateGet(this, _root), _filledNegs) && __privateGet(this, _parent)?.type === "!") {
         end = "(?:$|\\/)";
       }
       const final2 = start2 + src + end;
       return [
         final2,
         unescape(src),
-        this.#hasMagic = !!this.#hasMagic,
-        this.#uflag
+        __privateSet(this, _hasMagic, !!__privateGet(this, _hasMagic)),
+        __privateGet(this, _uflag)
       ];
     }
     const repeated = this.type === "*" || this.type === "+";
     const start = this.type === "!" ? "(?:(?!(?:" : "(?:";
-    let body = this.#partsToRegExp(dot);
+    let body = __privateMethod(this, _partsToRegExp, partsToRegExp_fn).call(this, dot);
     if (this.isStart() && this.isEnd() && !body && this.type !== "!") {
       const s = this.toString();
-      this.#parts = [s];
+      __privateSet(this, _parts, [s]);
       this.type = null;
-      this.#hasMagic = void 0;
+      __privateSet(this, _hasMagic, void 0);
       return [s, unescape(this.toString()), false, false];
     }
-    let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot ? "" : this.#partsToRegExp(true);
+    let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot ? "" : __privateMethod(this, _partsToRegExp, partsToRegExp_fn).call(this, true);
     if (bodyDotAllowed === body) {
       bodyDotAllowed = "";
     }
@@ -20832,7 +20350,7 @@ var AST = class _AST {
       body = `(?:${body})(?:${bodyDotAllowed})*?`;
     }
     let final = "";
-    if (this.type === "!" && this.#emptyExt) {
+    if (this.type === "!" && __privateGet(this, _emptyExt)) {
       final = (this.isStart() && !dot ? startNoDot : "") + starNoEmpty;
     } else {
       const close2 = this.type === "!" ? (
@@ -20844,67 +20362,218 @@ var AST = class _AST {
     return [
       final,
       unescape(body),
-      this.#hasMagic = !!this.#hasMagic,
-      this.#uflag
+      __privateSet(this, _hasMagic, !!__privateGet(this, _hasMagic)),
+      __privateGet(this, _uflag)
     ];
   }
-  #partsToRegExp(dot) {
-    return this.#parts.map((p) => {
-      if (typeof p === "string") {
-        throw new Error("string type in extglob ast??");
-      }
-      const [re, _, _hasMagic, uflag] = p.toRegExpSource(dot);
-      this.#uflag = this.#uflag || uflag;
-      return re;
-    }).filter((p) => !(this.isStart() && this.isEnd()) || !!p).join("|");
-  }
-  static #parseGlob(glob2, hasMagic2, noEmpty = false) {
-    let escaping = false;
-    let re = "";
-    let uflag = false;
-    for (let i = 0; i < glob2.length; i++) {
-      const c = glob2.charAt(i);
-      if (escaping) {
-        escaping = false;
-        re += (reSpecials.has(c) ? "\\" : "") + c;
-        continue;
-      }
-      if (c === "\\") {
-        if (i === glob2.length - 1) {
-          re += "\\\\";
-        } else {
-          escaping = true;
-        }
-        continue;
-      }
-      if (c === "[") {
-        const [src, needUflag, consumed, magic] = parseClass(glob2, i);
-        if (consumed) {
-          re += src;
-          uflag = uflag || needUflag;
-          i += consumed - 1;
-          hasMagic2 = hasMagic2 || magic;
-          continue;
-        }
-      }
-      if (c === "*") {
-        if (noEmpty && glob2 === "*")
-          re += starNoEmpty;
-        else
-          re += star;
-        hasMagic2 = true;
-        continue;
-      }
-      if (c === "?") {
-        re += qmark;
-        hasMagic2 = true;
-        continue;
-      }
-      re += regExpEscape(c);
-    }
-    return [re, unescape(glob2), !!hasMagic2, uflag];
-  }
 };
+var AST = _AST;
+_root = new WeakMap();
+_hasMagic = new WeakMap();
+_uflag = new WeakMap();
+_parts = new WeakMap();
+_parent = new WeakMap();
+_parentIndex = new WeakMap();
+_negs = new WeakMap();
+_filledNegs = new WeakMap();
+_options = new WeakMap();
+_toString = new WeakMap();
+_emptyExt = new WeakMap();
+_fillNegs = new WeakSet();
+fillNegs_fn = function() {
+  if (this !== __privateGet(this, _root))
+    throw new Error("should only call on root");
+  if (__privateGet(this, _filledNegs))
+    return this;
+  this.toString();
+  __privateSet(this, _filledNegs, true);
+  let n;
+  while (n = __privateGet(this, _negs).pop()) {
+    if (n.type !== "!")
+      continue;
+    let p = n;
+    let pp = __privateGet(p, _parent);
+    while (pp) {
+      for (let i = __privateGet(p, _parentIndex) + 1; !pp.type && i < __privateGet(pp, _parts).length; i++) {
+        for (const part of __privateGet(n, _parts)) {
+          if (typeof part === "string") {
+            throw new Error("string part in extglob AST??");
+          }
+          part.copyIn(__privateGet(pp, _parts)[i]);
+        }
+      }
+      p = pp;
+      pp = __privateGet(p, _parent);
+    }
+  }
+  return this;
+};
+_parseAST = new WeakSet();
+parseAST_fn = function(str, ast, pos, opt) {
+  var _a, _b;
+  let escaping = false;
+  let inBrace = false;
+  let braceStart = -1;
+  let braceNeg = false;
+  if (ast.type === null) {
+    let i2 = pos;
+    let acc2 = "";
+    while (i2 < str.length) {
+      const c = str.charAt(i2++);
+      if (escaping || c === "\\") {
+        escaping = !escaping;
+        acc2 += c;
+        continue;
+      }
+      if (inBrace) {
+        if (i2 === braceStart + 1) {
+          if (c === "^" || c === "!") {
+            braceNeg = true;
+          }
+        } else if (c === "]" && !(i2 === braceStart + 2 && braceNeg)) {
+          inBrace = false;
+        }
+        acc2 += c;
+        continue;
+      } else if (c === "[") {
+        inBrace = true;
+        braceStart = i2;
+        braceNeg = false;
+        acc2 += c;
+        continue;
+      }
+      if (!opt.noext && isExtglobType(c) && str.charAt(i2) === "(") {
+        ast.push(acc2);
+        acc2 = "";
+        const ext2 = new _AST(c, ast);
+        i2 = __privateMethod(_a = _AST, _parseAST, parseAST_fn).call(_a, str, ext2, i2, opt);
+        ast.push(ext2);
+        continue;
+      }
+      acc2 += c;
+    }
+    ast.push(acc2);
+    return i2;
+  }
+  let i = pos + 1;
+  let part = new _AST(null, ast);
+  const parts = [];
+  let acc = "";
+  while (i < str.length) {
+    const c = str.charAt(i++);
+    if (escaping || c === "\\") {
+      escaping = !escaping;
+      acc += c;
+      continue;
+    }
+    if (inBrace) {
+      if (i === braceStart + 1) {
+        if (c === "^" || c === "!") {
+          braceNeg = true;
+        }
+      } else if (c === "]" && !(i === braceStart + 2 && braceNeg)) {
+        inBrace = false;
+      }
+      acc += c;
+      continue;
+    } else if (c === "[") {
+      inBrace = true;
+      braceStart = i;
+      braceNeg = false;
+      acc += c;
+      continue;
+    }
+    if (isExtglobType(c) && str.charAt(i) === "(") {
+      part.push(acc);
+      acc = "";
+      const ext2 = new _AST(c, part);
+      part.push(ext2);
+      i = __privateMethod(_b = _AST, _parseAST, parseAST_fn).call(_b, str, ext2, i, opt);
+      continue;
+    }
+    if (c === "|") {
+      part.push(acc);
+      acc = "";
+      parts.push(part);
+      part = new _AST(null, ast);
+      continue;
+    }
+    if (c === ")") {
+      if (acc === "" && __privateGet(ast, _parts).length === 0) {
+        __privateSet(ast, _emptyExt, true);
+      }
+      part.push(acc);
+      acc = "";
+      ast.push(...parts, part);
+      return i;
+    }
+    acc += c;
+  }
+  ast.type = null;
+  __privateSet(ast, _hasMagic, void 0);
+  __privateSet(ast, _parts, [str.substring(pos - 1)]);
+  return i;
+};
+_partsToRegExp = new WeakSet();
+partsToRegExp_fn = function(dot) {
+  return __privateGet(this, _parts).map((p) => {
+    if (typeof p === "string") {
+      throw new Error("string type in extglob ast??");
+    }
+    const [re, _, _hasMagic2, uflag] = p.toRegExpSource(dot);
+    __privateSet(this, _uflag, __privateGet(this, _uflag) || uflag);
+    return re;
+  }).filter((p) => !(this.isStart() && this.isEnd()) || !!p).join("|");
+};
+_parseGlob = new WeakSet();
+parseGlob_fn = function(glob2, hasMagic2, noEmpty = false) {
+  let escaping = false;
+  let re = "";
+  let uflag = false;
+  for (let i = 0; i < glob2.length; i++) {
+    const c = glob2.charAt(i);
+    if (escaping) {
+      escaping = false;
+      re += (reSpecials.has(c) ? "\\" : "") + c;
+      continue;
+    }
+    if (c === "\\") {
+      if (i === glob2.length - 1) {
+        re += "\\\\";
+      } else {
+        escaping = true;
+      }
+      continue;
+    }
+    if (c === "[") {
+      const [src, needUflag, consumed, magic] = parseClass(glob2, i);
+      if (consumed) {
+        re += src;
+        uflag = uflag || needUflag;
+        i += consumed - 1;
+        hasMagic2 = hasMagic2 || magic;
+        continue;
+      }
+    }
+    if (c === "*") {
+      if (noEmpty && glob2 === "*")
+        re += starNoEmpty;
+      else
+        re += star;
+      hasMagic2 = true;
+      continue;
+    }
+    if (c === "?") {
+      re += qmark;
+      hasMagic2 = true;
+      continue;
+    }
+    re += regExpEscape(c);
+  }
+  return [re, unescape(glob2), !!hasMagic2, uflag];
+};
+__privateAdd(AST, _parseAST);
+__privateAdd(AST, _parseGlob);
 
 // node_modules/minimatch/dist/mjs/escape.js
 var escape = (s, { windowsPathsNoEscape = false } = {}) => {
@@ -21678,22 +21347,21 @@ var ZeroArray = class extends Array {
     this.fill(0);
   }
 };
-var Stack = class _Stack {
+var _constructing;
+var _Stack = class {
   heap;
   length;
-  // private constructor
-  static #constructing = false;
   static create(max) {
     const HeapCls = getUintArray(max);
     if (!HeapCls)
       return [];
-    _Stack.#constructing = true;
+    __privateSet(_Stack, _constructing, true);
     const s = new _Stack(max, HeapCls);
-    _Stack.#constructing = false;
+    __privateSet(_Stack, _constructing, false);
     return s;
   }
   constructor(max, HeapCls) {
-    if (!_Stack.#constructing) {
+    if (!__privateGet(_Stack, _constructing)) {
       throw new TypeError("instantiate Stack using Stack.create(n)");
     }
     this.heap = new HeapCls(max);
@@ -21706,7 +21374,11 @@ var Stack = class _Stack {
     return this.heap[--this.length];
   }
 };
-var LRUCache = class _LRUCache {
+var Stack = _Stack;
+_constructing = new WeakMap();
+// private constructor
+__privateAdd(Stack, _constructing, false);
+var LRUCache = class {
   // properties coming in from the options of these, only max and maxSize
   // really *need* to be protected. The rest can be modified, as they just
   // set defaults for various methods.
@@ -21958,7 +21630,7 @@ var LRUCache = class _LRUCache {
       if (shouldWarn(code3)) {
         warned.add(code3);
         const msg = "TTL caching without ttlAutopurge, max, or maxSize can result in unbounded memory consumption.";
-        emitWarning(msg, "UnboundedCacheWarning", code3, _LRUCache);
+        emitWarning(msg, "UnboundedCacheWarning", code3, LRUCache);
       }
     }
   }
@@ -24755,7 +24427,7 @@ var PathBase = class {
     }
   }
 };
-var PathWin32 = class _PathWin32 extends PathBase {
+var PathWin32 = class extends PathBase {
   /**
    * Separator for generating path strings.
    */
@@ -24777,7 +24449,7 @@ var PathWin32 = class _PathWin32 extends PathBase {
    * @internal
    */
   newChild(name, type = UNKNOWN, opts = {}) {
-    return new _PathWin32(name, type, this.root, this.roots, this.nocase, this.childrenCache(), opts);
+    return new PathWin32(name, type, this.root, this.roots, this.nocase, this.childrenCache(), opts);
   }
   /**
    * @internal
@@ -24808,7 +24480,7 @@ var PathWin32 = class _PathWin32 extends PathBase {
     return rootPath === compare;
   }
 };
-var PathPosix = class _PathPosix extends PathBase {
+var PathPosix = class extends PathBase {
   /**
    * separator for parsing path strings
    */
@@ -24842,7 +24514,7 @@ var PathPosix = class _PathPosix extends PathBase {
    * @internal
    */
   newChild(name, type = UNKNOWN, opts = {}) {
-    return new _PathPosix(name, type, this.root, this.roots, this.nocase, this.childrenCache(), opts);
+    return new PathPosix(name, type, this.root, this.roots, this.nocase, this.childrenCache(), opts);
   }
 };
 var PathScurryBase = class {
@@ -25492,7 +25164,7 @@ var import_url3 = require("url");
 // node_modules/glob/dist/esm/pattern.js
 var isPatternList = (pl) => pl.length >= 1;
 var isGlobList = (gl) => gl.length >= 1;
-var Pattern = class _Pattern {
+var Pattern = class {
   #patternList;
   #globList;
   #index;
@@ -25594,7 +25266,7 @@ var Pattern = class _Pattern {
       return this.#rest;
     if (!this.hasMore())
       return this.#rest = null;
-    this.#rest = new _Pattern(this.#patternList, this.#globList, this.#index + 1, this.#platform);
+    this.#rest = new Pattern(this.#patternList, this.#globList, this.#index + 1, this.#platform);
     this.#rest.#isAbsolute = this.#isAbsolute;
     this.#rest.#isUNC = this.#isUNC;
     this.#rest.#isDrive = this.#isDrive;
@@ -25733,13 +25405,13 @@ var Ignore = class {
 };
 
 // node_modules/glob/dist/esm/processor.js
-var HasWalkedCache = class _HasWalkedCache {
+var HasWalkedCache = class {
   store;
   constructor(store = /* @__PURE__ */ new Map()) {
     this.store = store;
   }
   copy() {
-    return new _HasWalkedCache(new Map(this.store));
+    return new HasWalkedCache(new Map(this.store));
   }
   hasWalked(target, pattern) {
     return this.store.get(target.fullpath())?.has(pattern.globString());
@@ -25797,7 +25469,7 @@ var SubWalks = class {
     return [...this.store.keys()].filter((t) => t.canReaddir());
   }
 };
-var Processor = class _Processor {
+var Processor = class {
   hasWalkedCache;
   matches = new MatchRecord();
   subwalks = new SubWalks();
@@ -25878,7 +25550,7 @@ var Processor = class _Processor {
     return this.subwalks.keys();
   }
   child() {
-    return new _Processor(this.opts, this.hasWalkedCache);
+    return new Processor(this.opts, this.hasWalkedCache);
   }
   // return a new Processor containing the subwalks for each
   // child entry, and a set of matches, and
@@ -26547,21 +26219,48 @@ function setQuiet(v) {
 }
 
 // src/hostimpl.ts
-var NodeHost = class _NodeHost {
+var NodeHost = class {
   constructor() {
     this.userState = {};
     this.virtualFiles = {};
   }
   static install() {
-    setHost(new _NodeHost());
+    setHost(new NodeHost());
   }
   async askToken() {
-    return void 0;
+    const path3 = dotGptoolsPath("tmp/token.txt");
+    logWarn(`reading token from ${path3}`);
+    return this.createUTF8Decoder().decode(await this.readFile(path3));
   }
   async getSecretToken() {
-    return await parseTokenFromEnv(process.env);
+    if (process.env.GPTOOLS_TOKEN) {
+      const tok2 = await parseToken(process.env.GPTOOLS_TOKEN);
+      tok2.source = "env: gptools_token";
+      return tok2;
+    }
+    if (process.env.OPENAI_API_KEY) {
+      const key = process.env.OPENAI_API_KEY;
+      const base2 = process.env.OPENAI_API_BASE;
+      const type = process.env.OPENAI_API_TYPE;
+      const version = process.env.OPENAI_API_VERSION;
+      if (!base2)
+        throw new Error("OPENAI_API_BASE not set");
+      if (type && type !== "azure")
+        throw new Error("OPENAI_API_TYPE must be azure");
+      if (version && version !== "2023-03-15-preview")
+        throw new Error("OPENAI_API_VERSION must be 2023-03-15-preview");
+      const tok2 = await parseToken(`${base2}#oaikey=${key}`);
+      tok2.source = "env: openai_api_...";
+      return tok2;
+    }
+    const keyp = dotGptoolsPath("tmp/token.json");
+    const tok = await tryReadJSON(keyp);
+    if (tok)
+      tok.source = keyp;
+    return tok;
   }
   async setSecretToken(tok) {
+    await writeJSON(dotGptoolsPath("tmp/token.json"), tok);
   }
   setVirtualFile(name, content3) {
     this.virtualFiles = {};
@@ -26672,34 +26371,28 @@ var import_node_path2 = require("node:path");
 // package.json
 var package_default = {
   name: "gptools-cli",
-  version: "1.4.1",
+  version: "1.2.30",
   main: "built/gptools.js",
   license: "MIT",
   private: true,
   dependencies: {
     commander: "^11.1.0",
-    dotenv: "^16.3.1",
-    esbuild: "^0.19.9",
-    "fs-extra": "^11.2.0",
+    esbuild: "^0.17.18",
+    "fs-extra": "^11.1.1",
+    openai: "^3.3.0",
     "get-stdin": "^9.0.0",
     glob: "^10.3.10",
-    openai: "^3.3.0",
     typescript: "^5.3.3"
   },
-  engines: {
-    node: ">=20.0.0"
-  },
   devDependencies: {
-    "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.10.4",
-    "gptools-core": "*",
-    tsx: "^4.6.2"
+    "@types/fs-extra": "^11.0.1",
+    "@types/node": "^18.16.3",
+    "gptools-core": "*"
   },
   scripts: {
     compile: "esbuild src/main.ts --bundle --platform=node --target=node18 --outfile=built/gptools.js",
     postcompile: "cp built/gptools.js ../vscode/gptools.js",
     go: "yarn compile && node built/gptools.js",
-    test: "node --import tsx --test src/**.test.ts",
     typecheck: "tsc -p src"
   }
 };
@@ -26883,12 +26576,10 @@ async function listSpecs() {
 }
 async function main() {
   process.on("uncaughtException", (err) => {
-    error(isQuiet ? err : err.message);
-    if (isRequestError(err)) {
-      const exitCode = err.status;
-      process.exit(exitCode);
-    } else
-      process.exit(-1);
+    error(err.stack);
+    if (isRequestError(err))
+      process.exit(err.status);
+    process.exit(-1);
   });
   NodeHost.install();
   program.name("gptools").version(package_default.version).description("CLI for GPTools https://github.com/microsoft/gptools").showHelpAfterError(true).option("--no-colors", "disable color output").option("-q, --quiet", "disable verbose output");
@@ -26916,9 +26607,9 @@ async function main() {
     "after",
     `The OpenAI configuration keys can be set in various ways:
 
+-   use 'gptools keys set <key>' to set the key to a specific value. The key will be stored in a file in the .gptools folder in clear text.
 -   set the GPTOOLS_TOKEN environment variable. The format is 'https://base-url#key=secret-token'
 -   set the OPENAI_API_BASE, OPENAI_API_KEY environment variables. OPENAI_API_TYPE is optional or must be 'azure' and OPENAI_API_VERSION is optional or must be '2023-03-15-preview'.
--   '.env' file with the same variables
 `
   );
   keys2.command("show", { isDefault: true }).description("Parse and show current key information").action(async () => {
@@ -26927,6 +26618,10 @@ async function main() {
       key ? `${key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url} (from ${key.source})` : "no key set"
     );
   });
+  keys2.command("set").description("store OpenAI connection string in .gptools folder").argument("<key>", "key to set").action(async (tok) => {
+    await setToken(tok);
+  });
+  keys2.command("clear").description("Clear any OpenAI connection string").action(async () => await clearToken());
   const tools = program.command("tools").description("Manage GPTools");
   tools.command("list", { isDefault: true }).description("List all available tools").action(listTools);
   const specs = program.command("specs").description("Manage GPSpecs");
