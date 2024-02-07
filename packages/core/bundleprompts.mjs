@@ -10,7 +10,7 @@ for (const prompt of prompts) {
     const text = readFileSync(`${dir}/${prompt}`, "utf-8")
 
     if (prompt.endsWith(".genai.js"))
-        promptMap[prompt.replace(/\.genai\.js$/, "")] = text
+        promptMap[prompt.replace(/\.genai\.js$/i, "")] = text
 }
 const promptDefs = {
     ".gitattributes": "genaiscript.d.ts -diff merge=ours linguist-generated",

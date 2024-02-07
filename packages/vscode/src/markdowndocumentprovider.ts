@@ -83,7 +83,7 @@ ${pretifyMarkdown(md)}
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
                 .slice(builtinPrefix.length)
-                .replace(/\.genai\.js$/, "")
+                .replace(/\.genai\.js$/i, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""
