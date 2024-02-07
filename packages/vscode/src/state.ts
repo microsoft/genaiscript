@@ -26,7 +26,7 @@ import {
     MarkdownTrace,
     coreVersion,
     sha256string,
-} from "gptools-core"
+} from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
@@ -47,8 +47,8 @@ export const CONTEXT_LENGTH_DOCUMENTATION_URL =
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
-export const REQUEST_OUTPUT_FILENAME = "GPTools Output.md"
-export const REQUEST_TRACE_FILENAME = "GPTools Trace.md"
+export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
+export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 
 export interface ChatRequestContext {
     context: ChatAgentContext
@@ -153,7 +153,7 @@ export class ExtensionState extends EventTarget {
 
     constructor(public readonly context: ExtensionContext) {
         super()
-        this.output = vscode.window.createOutputChannel("GPTools", {
+        this.output = vscode.window.createOutputChannel("GenAIScript", {
             log: true,
         })
         this.host = new VSCodeHost(this)
@@ -161,7 +161,7 @@ export class ExtensionState extends EventTarget {
         const { subscriptions } = context
         subscriptions.push(this)
 
-        this._diagColl = vscode.languages.createDiagnosticCollection("GPTools")
+        this._diagColl = vscode.languages.createDiagnosticCollection("GenAIScript")
         subscriptions.push(this._diagColl)
 
         this._aiRequestCache = getAIRequestCache()
@@ -177,8 +177,8 @@ export class ExtensionState extends EventTarget {
     }
 
     private async saveGptoolsJs() {
-        const p = Utils.joinPath(this.context.extensionUri, "gptools.js")
-        const cli = vscode.Uri.file(dotGptoolsPath("gptools.js"))
+        const p = Utils.joinPath(this.context.extensionUri, "genaiscript.js")
+        const cli = vscode.Uri.file(dotGptoolsPath("genaiscript.js"))
         await vscode.workspace.fs.createDirectory(
             vscode.Uri.file(dotGptoolsPath("."))
         )
@@ -493,14 +493,14 @@ ${e.message}`
     }
 
     async fixPromptDefinitions() {
-        const prompts = await vscode.workspace.findFiles("**/*.gptool.js")
+        const prompts = await vscode.workspace.findFiles("**/*.genai.js")
         const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
         for (const folder of folders) {
             const f = vscode.Uri.file(folder)
             for (let [defName, defContent] of Object.entries(
                 promptDefinitions
             )) {
-                if (this.project && defName === "gptools.d.ts") {
+                if (this.project && defName === "genaiscript.d.ts") {
                     const systems = this.project.templates
                         .filter((t) => t.isSystem)
                         .map((s) => `"${s.id}"`)
@@ -522,7 +522,7 @@ ${e.message}`
         performance.mark(`project-start`)
         const gpspecFiles = await findFiles("**/*.gpspec.md")
         performance.mark(`scan-tools`)
-        const gptoolFiles = await findFiles("**/*.gptool.js")
+        const gptoolFiles = await findFiles("**/*.genai.js")
         performance.mark(`parse-project`)
         const newProject = await parseProject({
             gpspecFiles,
@@ -554,7 +554,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
         )
 
         const gpspecFiles = [specn]
-        const gptoolFiles = await findFiles("**/*.gptool.js")
+        const gptoolFiles = await findFiles("**/*.genai.js")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
@@ -580,7 +580,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
 `
         )
         const gpspecFiles = [specn]
-        const gptoolFiles = await findFiles("**/*.gptool.js")
+        const gptoolFiles = await findFiles("**/*.genai.js")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
@@ -624,7 +624,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
                     message || "...",
                     severities[d.severity]
                 )
-                r.source = "GPTools"
+                r.source = "GenAIScript"
                 r.code = target
                     ? {
                           value,

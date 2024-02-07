@@ -6,7 +6,7 @@ import {
     groupBy,
     rootFragment,
     templateGroup,
-} from "gptools-core"
+} from "genaiscript-core"
 import { ChatRequestContext, ExtensionState } from "./state"
 import {
     checkDirectoryExists,
@@ -114,7 +114,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         fragment = await resolveSpec(fragment)
         if (!fragment) {
             vscode.window.showErrorMessage(
-                "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
+                "GenAIScript - sorry, we could not find where to apply the tool. Please try to launch GenAIScript from the editor."
             )
             return
         }

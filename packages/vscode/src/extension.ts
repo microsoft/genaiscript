@@ -3,19 +3,19 @@ import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { initToken, isCancelError } from "gptools-core"
+import { initToken, isCancelError } from "genaiscript-core"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
-import { clearToken } from "gptools-core"
+import { clearToken } from "genaiscript-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 
-export const TOOL_NAME = "GPTools"
-export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
+export const TOOL_NAME = "GenAIScript"
+export const COARCH_EXTENSION_ID = "coarch.genaiscript-vscode"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)

@@ -1,10 +1,10 @@
-# GPTools FAQ
+# GenAIScript FAQ
 
-## What is GPTools?
+## What is GenAIScript?
 
 Describe the system in plain English. What type of system is this? What does it do? At a high level, what does the system take as input? What kind of outputs does the system produce?
 
-## What can GPTools do?
+## What can GenAIScript do?
 
 Building on the previous question, provide semi-technical, high-level information on how the system offers functionality for various uses.
 
@@ -12,7 +12,7 @@ Building on the previous question, provide semi-technical, high-level informatio
 
 Explain intended use(s), as identified in your Impact Assessment.
 
-## How was GPTools evaluated? What metrics are used to measure performance?
+## How was GenAIScript evaluated? What metrics are used to measure performance?
 
 Provide evidence of system accuracy and performance as well as a description of the extent to which these results are generalizable across use cases that were not part of the evaluation.
 

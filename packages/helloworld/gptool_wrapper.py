@@ -3,7 +3,7 @@ from typing import Optional, List
 
 class GPTOOL_CLI:
     """
-    Python wrapper for the GPTools CLI.
+    Python wrapper for the GenAIScripts CLI.
     """
 
     def run(self, tool: str, spec: List[str], out: Optional[str] = None, out_trace: Optional[str] = None,
@@ -14,7 +14,7 @@ class GPTOOL_CLI:
             seed: Optional[int] = None, apply_edits: bool = False, no_cache: bool = False,
             csv_separator: Optional[str] = None) -> None:
         """
-        Runs a GPTools against a GPSpec.
+        Runs a GenAIScripts against a GPSpec.
 
         :param tool: The tool to run.
         :param spec: The specification to use.

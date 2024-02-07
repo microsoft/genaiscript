@@ -6,7 +6,7 @@ import {
     RunTemplateOptions,
     logInfo,
     logVerbose,
-} from "gptools-core"
+} from "genaiscript-core"
 
 const AGENT_ID = "gptools"
 
@@ -154,14 +154,14 @@ export function activateChatAgent(state: ExtensionState) {
         context.extension.packageJSON
     if (!packageJSON.displayName?.includes("Insiders")) {
         vscode.window.showWarningMessage(
-            "GPTools - chat agent only available with gptools.insiders.vsix"
+            "GenAIScript - chat agent only available with genaiscript.insiders.vsix"
         )
         return
     }
 
     if (!vscode.env.appName.includes("Insiders")) {
         vscode.window.showWarningMessage(
-            "GPTools - chat agent only available with Visual Studio Code Insiders"
+            "GenAIScript - chat agent only available with Visual Studio Code Insiders"
         )
         return
     }
@@ -170,7 +170,7 @@ export function activateChatAgent(state: ExtensionState) {
         const configure = "Configure"
         vscode.window
             .showWarningMessage(
-                "GPTools - chat agent proposal api not enabled.",
+                "GenAIScript - chat agent proposal api not enabled.",
                 configure
             )
             .then(async (res) => {
@@ -254,7 +254,7 @@ These steps will not be needed once the API gets fully released.
     const agent = vscode.chat.createChatAgent(AGENT_ID, handler)
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
     agent.description = "Run conversation as GPTool script..."
-    agent.fullName = "GPTools"
+    agent.fullName = "GenAIScript"
     agent.subCommandProvider = {
         provideSubCommands(token) {
             const templates =
@@ -271,7 +271,7 @@ These steps will not be needed once the API gets fully released.
                 {
                     name: "run",
                     description:
-                        "Run a GPTools script against the current context",
+                        "Run a GenAIScript script against the current context",
                 },
             ]
         },

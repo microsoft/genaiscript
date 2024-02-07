@@ -12,4 +12,4 @@ CHANNEL. WHERE WILL YOU HELP PEOPLE?**.
 
 ## Microsoft Support Policy  
 
-Support for this **GPTools** is limited to the resources listed above.
+Support for this **GenAIScript** is limited to the resources listed above.

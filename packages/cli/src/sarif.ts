@@ -1,4 +1,4 @@
-import { Diagnostic, coreVersion } from "gptools-core"
+import { Diagnostic, coreVersion } from "genaiscript-core"
 import {
     SarifBuilder,
     SarifRunBuilder,

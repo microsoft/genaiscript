@@ -9,7 +9,7 @@ import {
     logVerbose,
     parseTokenFromEnv,
     setHost,
-} from "gptools-core"
+} from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
 import { Utils } from "vscode-uri"
@@ -82,7 +82,7 @@ export class VSCodeHost extends EventTarget implements Host {
                 },
             ],
             {
-                title: "GPTools - OpenAI token configuration",
+                title: "GenAIScript - OpenAI token configuration",
             }
         )
 
@@ -91,7 +91,7 @@ export class VSCodeHost extends EventTarget implements Host {
         if (pick.id === "workspace") {
             let t = await window.showInputBox({
                 placeHolder: "Paste OpenAI token",
-                title: "GPTools - OpenAI token configuration",
+                title: "GenAIScript - OpenAI token configuration",
                 prompt: `Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets. [Learn more...](${TOKEN_DOCUMENTATION_URL})`,
                 value: this.lastToken,
             })
@@ -255,7 +255,7 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const terminal = vscode.window.createTerminal({
             cwd,
             isTransient: true,
-            name: "GPTools",
+            name: "GenAIScript",
         })
         let watcher: vscode.FileSystemWatcher
         this.state.context.subscriptions.push(terminal)

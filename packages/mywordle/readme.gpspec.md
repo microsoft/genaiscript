@@ -1,10 +1,10 @@
-# Exploring GPTools with the mywordle Sample
+# Exploring GenAIScript with the mywordle Sample
 
 ## Prompts
 
 There are 5 general prompts in this directory that are intended to reflect 4 personas associated with software development.  These prompts appear in the "appdev" folder of the prompts menu.
 
-- **PM-planning.gptool.js** - This prompt takes a project description in a ```<app>.gpspec.md``` file (a paragraph describing the application), and generates another file, ```<app>.pm.gpspec.md``` that expands the contents the project description to include specific instructions for the software architect, the software developer, quality assurance engineer, and the technical writer on their roles in the project.
+- **PM-planning.genai.js** - This prompt takes a project description in a ```<app>.gpspec.md``` file (a paragraph describing the application), and generates another file, ```<app>.pm.gpspec.md``` that expands the contents the project description to include specific instructions for the software architect, the software developer, quality assurance engineer, and the technical writer on their roles in the project.
 - **SA-planning.js** - This prompt takes the contents of the ```<app>.gpspec.md``` and generates a new CoArch file (```<app>.saplan.gpspec.md```) with detailed instructions for the software developer.  It expands the general guidance to include specific aspects of the application, including what files it should contain and how they interact.
 - **SDE-Coding** - This prompt takes the ```<app>.saplan.gpspec.md``` file, including descriptions of the files and the interfaces between them, and generates Python code to implement the application.
 - **SDE-update** - When the implementation has been generated and the developer wants to make an update, they can run this prompt over the ```<app>.saplan.gpspec.md``` file to update the implementation files. The prompt looks in the file ```bugnotes.md``` for a list of bugs and updates the implementation files to fix the bugs.  

@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { parseLLMDiffs } from "gptools-core"
+import { parseLLMDiffs } from "genaiscript-core"
 
 describe("diff", () => {
     test("is_valid_email", () => {

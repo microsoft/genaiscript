@@ -1,4 +1,4 @@
-# Story Writing Prompt for GPTools
+# Story Writing Prompt for GenAIScript
 
 -   [prompt-critique](./storywriting.prompt-critic.gpspec.md)
 

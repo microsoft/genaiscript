@@ -1,6 +1,6 @@
 system({
     title: "File generation",
-    description: "Teaches the file format supported by GPTools",
+    description: "Teaches the file format supported by GenAIScripts",
 })
 
 const folder =

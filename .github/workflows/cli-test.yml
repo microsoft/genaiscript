@@ -23,5 +23,5 @@ jobs:
               run: yarn compile
             - name: unit tests
               run: yarn test:unit
-            - name: run gptools
-              run: node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
+            - name: run script
+              run: node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY

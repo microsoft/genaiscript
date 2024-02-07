@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { Fragment, TextFile } from "gptools-core"
+import { Fragment, TextFile } from "genaiscript-core"
 import { Utils } from "vscode-uri"
 
 class CodeActionProvider implements vscode.CodeActionProvider {

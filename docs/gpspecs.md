@@ -1,6 +1,6 @@
 # Authoring GPSpecs
 
-To start using GPTools, create a new `.gpspec.md` file and start adding content as markdown. You can use the CodeAction QuickFix light bulb to launch the gptools on this file.
+To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. You can use the CodeAction QuickFix light bulb to launch the gptools on this file.
 
 ```markdown A sample CoArch document.
 # email address recognizer

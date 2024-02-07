@@ -94,5 +94,5 @@ export function setHost(h: Host) {
     host = h
 }
 
-export const coarchFolder = ".gptools"
-export const coarchExt = ".gptools.jsonl"
+export const coarchFolder = ".genaiscript"
+export const coarchExt = ".genaiscript.jsonl"

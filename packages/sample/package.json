@@ -1,5 +1,5 @@
 {
-  "name": "gptools-sample",
+  "name": "genaiscript-sample",
   "version": "1.8.1",
   "license": "MIT",
   "private": true,
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "go": "node ../cli/built/main.js src/sample.ts",
-    "token": "mkdir -p .gptools/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .gptools/tmp/request.txt",
+    "token": "mkdir -p .genaiscript/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .genaiscript/tmp/request.txt",
     "typecheck": "tsc -p src"
   },
   "dependencies": {

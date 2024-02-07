@@ -569,7 +569,7 @@ type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 interface PromptContext {
     writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
-    gptool(options: PromptArgs): void
+    script(options: PromptArgs): void
     system(options: PromptArgs): void
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void

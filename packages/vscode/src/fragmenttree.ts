@@ -5,7 +5,7 @@ import {
     FRAGMENTS_CHANGE,
     FragmentsEvent,
 } from "./state"
-import { Fragment, allChildren, concatArrays } from "gptools-core"
+import { Fragment, allChildren, concatArrays } from "genaiscript-core"
 
 type FragmentTreeNode = Fragment & { reference?: string }
 

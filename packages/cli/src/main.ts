@@ -21,7 +21,7 @@ import {
     dotGptoolsPath,
     parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
-} from "gptools-core"
+} from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
@@ -70,7 +70,7 @@ async function buildProject(options?: {
     const {
         toolFiles,
         specFiles,
-        toolsPath = "**/*.gptool.js",
+        toolsPath = "**/*.genai.js",
         specsPath = "**/*.gpspec.md",
     } = options || {}
 
@@ -89,7 +89,7 @@ async function buildProject(options?: {
 }
 
 const gpspecRx = /\.gpspec\.md$/i
-const gptoolRx = /\.gptool\.js$/i
+const gptoolRx = /\.genai\.js$/i
 async function batch(
     tool: string,
     specs: string[],
@@ -597,7 +597,7 @@ async function listTools() {
 }
 
 async function helpAll() {
-    console.log(`# GPTools CLI\n`)
+    console.log(`# GenAIScriptsriptsriptsriptsripts CLI\n`)
 
     const visit = (
         header: string,
@@ -656,7 +656,7 @@ async function main() {
     program
         .name("gptools")
         .version(coreVersion)
-        .description("CLI for GPTools https://github.com/microsoft/gptools")
+        .description("CLI for GenAIScript https://github.com/microsoft/gptools")
         .showHelpAfterError(true)
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
@@ -666,7 +666,7 @@ async function main() {
 
     program
         .command("run")
-        .description("Runs a GPTools against files or stdin.")
+        .description("Runs a GenAIScript against files or stdin.")
         .arguments("<tool> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
@@ -776,7 +776,7 @@ async function main() {
             )
         })
 
-    const tools = program.command("tools").description("Manage GPTools")
+    const tools = program.command("tools").description("Manage GenAIScript")
     tools
         .command("list", { isDefault: true })
         .description("List all available tools")

@@ -5,7 +5,7 @@ import { fileExists, writeText } from "./util"
 function promptPath(id: string) {
     const prompts = host.resolvePath(host.projectFolder(), "gptools")
     if (id === null) return prompts
-    return host.resolvePath(prompts, id + ".gptool.js")
+    return host.resolvePath(prompts, id + ".genai.js")
 }
 export async function copyPrompt(
     t: PromptTemplate,

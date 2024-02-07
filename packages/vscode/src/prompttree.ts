@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { CHANGE, PromptTemplate, groupBy, templateGroup } from "gptools-core"
+import { CHANGE, PromptTemplate, groupBy, templateGroup } from "genaiscript-core"
 
 type PromptTreeNode = string | PromptTemplate
 

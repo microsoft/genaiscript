@@ -4,8 +4,8 @@ import {
     AIRequestSnapshotKey,
     ExtensionState,
 } from "./state"
-import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "gptools-core"
-import { Cache } from "gptools-core"
+import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "genaiscript-core"
+import { Cache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
 

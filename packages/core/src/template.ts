@@ -327,7 +327,7 @@ class MetaFoundError extends Error {
 async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
     let text = ""
-    function gptool(m: PromptArgs) {
+    function script(m: PromptArgs) {
         if (meta !== null) throw new Error(`more than one gptool() call`)
         meta = m
         throw new MetaFoundError()
@@ -350,11 +350,11 @@ async function parseMeta(r: PromptTemplate) {
                     text +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
                 },
-                gptool,
+                script,
                 system: (meta) => {
                     meta.unlisted = true
                     meta.isSystem = true
-                    gptool(meta)
+                    script(meta)
                 },
                 readFile: async (filename: string) => ({
                     label: filename,

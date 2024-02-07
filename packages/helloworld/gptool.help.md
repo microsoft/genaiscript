@@ -1,10 +1,10 @@
-# GPTools CLI
+# GenAIScript CLI
 
 ## run
 
 Usage: gptools run [options] <tool> [spec...]
 
-Runs a GPTools against a GPSpec
+Runs a GenAIScript against a GPSpec
 
 Options:
   -o, --out <string>               output file. Extra markdown fields for

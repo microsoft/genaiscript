@@ -1,10 +1,10 @@
 # Authoring GPTool scripts
 
-GPTools has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
+GenAIScript has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
-All prompts are JS files named as `*.gptool.js`. You can use the `GPTools - Fork a gptool...` to fork any known prompt.
+All prompts are JS files named as `*.genai.js`. You can use the `GenAIScript - Fork a gptool...` to fork any known prompt.
 
-All `system.*.gptool.js` are considered system prompt templates
+All `system.*.genai.js` are considered system prompt templates
 and are unlisted by default. There is no variable expansion in those.
 
 ## Example
@@ -31,12 +31,12 @@ $`Shorten the following FILE. Limit changes to minimum. Respond with the new FIL
 
 The section links to various samples of gptools; most of which are shipped with the extension.
 
--   [code optimizer](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-optimizer.gptool.js)
--   [code xray](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-xray.gptool.js)
--   [BDD feature generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/bdd-feature.gptool.js)
--   [front matter generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/front-matter.gptool.js)
--   [slides](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/slides.gptool.js)
--   [peer review](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/peer-review.gptool.js)
+-   [code optimizer](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-optimizer.genai.js)
+-   [code xray](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-xray.genai.js)
+-   [BDD feature generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/bdd-feature.genai.js)
+-   [front matter generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/front-matter.genai.js)
+-   [slides](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/slides.genai.js)
+-   [peer review](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/peer-review.genai.js)
 -   [more samples...](https://github.com/microsoft/gptools/tree/main/packages/core/src/gptools)
 
 ## Metadata
@@ -200,7 +200,7 @@ A function that merges the generated content with the original content. The defa
 
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
-See `gptools.d.ts` in the sources for details.
+See `genaiscript.d.ts` in the sources for details.
 
 ## JSON output
 
@@ -229,7 +229,7 @@ When you apply a prompt to a given fragment, a number of variables are set inclu
 -   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
 -   `env.links` set of linked files and content
 
-> For a full list with values, run any prompt, click on the "GPTools" in the status bar and look at prompt expansion trace.
+> For a full list with values, run any prompt, click on the "GenAIScript" in the status bar and look at prompt expansion trace.
 
 ### Fenced variables
 
@@ -452,20 +452,20 @@ const myvalue = env.vars["myvar"]
 Use the `vars` field in the CLI to override variables. vars takes a sequence of `key=value` pairs.
 
 ```bash
-node .gptools/gptools.js run ... --vars myvar=myvalue myvar2=myvalue2 ...
+node .genaiscript/genaiscript.js run ... --vars myvar=myvalue myvar2=myvalue2 ...
 ```
 
 ## Errors, warnings and SARIF
 
 Using the `system.annotations` system prompt, you can have the LLM generate errors, warnings and notes.
-GPTools will convert those into SARIF files that can be uploaded to GitHub Actions as security reports,
+GenAIScript will convert those into SARIF files that can be uploaded to GitHub Actions as security reports,
 similarly to CodeQL reports. The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 extension can be used to visualize the reports.
 
 ```yaml
 # workflow.yml
-    - name: Run GPTools
-      run: node .gptools/gptools.js ... -oa result.sarif
+    - name: Run GenAIScript
+      run: node .genaiscript/genaiscript.js ... -oa result.sarif
     - name: Upload SARIF file
         if: success() || failure()
         uses: github/codeql-action/upload-sarif@v3

@@ -16,12 +16,12 @@ import {
     getChatCompletionCache,
     pretifyMarkdown,
     renderFencedVariables,
-} from "gptools-core"
+} from "genaiscript-core"
 
 const SCHEME = "gptools"
 
 const noRequest = `
-No GPTools request found yet. Please run a GPTool.
+No GenAIScript request found yet. Please run a GPTool.
 `
 const noResponse = `
 Waiting for GPTool response...
@@ -83,7 +83,7 @@ ${pretifyMarkdown(md)}
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
                 .slice(builtinPrefix.length)
-                .replace(/\.gptool\.js$/, "")
+                .replace(/\.genai\.js$/, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""
@@ -159,7 +159,7 @@ export function infoUri(path: string) {
 export function builtinPromptUri(id: string) {
     return vscode.Uri.from({
         scheme: SCHEME,
-        path: builtinPrefix + id + ".gptool.js",
+        path: builtinPrefix + id + ".genai.js",
     })
 }
 

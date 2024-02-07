@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { Utils } from "vscode-uri"
 import { ExtensionState } from "./state"
-import { PromptTemplate, copyPrompt } from "gptools-core"
+import { PromptTemplate, copyPrompt } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 
@@ -81,7 +81,7 @@ def("FILE", env.files)
                     template = picked.template
                 }
                 const name = await vscode.window.showInputBox({
-                    title: "Pick a file name for the new .gptool.js file.",
+                    title: "Pick a file name for the new .genai.js file.",
                     value: template.id,
                 })
                 if (name === undefined) return

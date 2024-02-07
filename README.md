@@ -1,6 +1,6 @@
-# GPTools - GenAI Scripting
+# GenAIScript - GenAI Scripting
 
-GPTools (formerly CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GPTools uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
+GenAIScript (formerly GenAIScript, CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 ```js
 gptool({ title: "Code XRay" })
@@ -15,16 +15,16 @@ that ignores the internal details of the implementation.'
 ## Overview
 
 -   🔑 [Building a Azure Bicep Analyzer](https://github.com/microsoft/gptools/assets/4175913/d8e9f080-9e47-4667-b10a-ea5b544b1125)
--   💬 [Copilot Chat to GPTools](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
+-   💬 [Copilot Chat to GenAIScript](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
 -   📑 [Structured Data Extraction](https://github.com/microsoft/gptools/assets/4175913/907ca886-7344-4341-986c-e288148fd501)
 -   🎥 [Video transcript converter](https://github.com/microsoft/gptools/assets/4175913/9b49d291-91f2-4739-b8f4-aa4332dc08ac)
 
-The key elements of the gptools framework are:
+The key elements of GenAIScript are:
 
 -   🪄 [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM.
 -   🖼 [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
 
-GPTools automatically parses the LLM output into various formats:
+GenAIScript automatically parses the LLM output into various formats:
 
 -   🗂 file edits (full or diffs) with preview support in VSCode
 -   📊 structured data extracted with JSON schema definition and validation
@@ -36,7 +36,7 @@ The tooling supports a short developer loop in VS Code and automation CI/CD pipe
 -   [Visual Studio Code extension](./docs/vscode.md): User interaction with gptools and conversion of LLM results into workspace edits.
 -   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
 
-GPTools uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
+GenAIScript uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
 
 ## Getting started
 
@@ -47,7 +47,7 @@ See Insiders for Copilot Chat integration.
 
 -   install [Visual Studio Code](https://code.visualstudio.com/Download),
 -   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
--   download the `gptools.vsix` into your project in VSCode
+-   download the `genaiscript.vsix` into your project in VSCode
 -   right click on the `.vsix` file and select **Install Extension VSIX...**
 
 Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
@@ -58,7 +58,7 @@ To leverage the Copilot Chat integration, you will need to do the follwing.
 
 -   install [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
 -   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
--   download the `gptools.insiders.vsix` into your project in **Visual Studio Code - Insiders**
+-   download the `genaiscript.insiders.vsix` into your project in **Visual Studio Code - Insiders**
 -   right click on the `.vsix` file and select **Install Extension VSIX...**
 -   follow the instructions to install the extension ([more information](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api))
 
@@ -66,7 +66,7 @@ Until this extension is in the Marketplace, you will have to repeat these steps 
 
 ## GPTool scripts
 
-GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.gptool.js`) in your project.
+GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
 
 > Use the `Create a GPTool...` command in the command palette to create a new gptool script.
 
@@ -86,10 +86,10 @@ to fix grammatical errors,
 fix spelling errors and make it technical.`
 ```
 
-GPTools comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
+GenAIScript comes with builtin tools and allows you to fork and customize the AI prompts to your project specific needs.
 This leverages VSCode language support (completion, coloring, error checking)
 while remaining friendly to people not very familiar with JavaScript.
-GPTools also provides detailed expansion logs to help you debug your templates.
+GenAIScript also provides detailed expansion logs to help you debug your templates.
 
 Since gptool scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
@@ -100,7 +100,7 @@ In the future, we foresee that developers will create libraries of gptools and s
 
 ## (Optional) GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GPTools parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
+Natural language documents that instantiate gptools in a particular context. GenAIScript parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
 
 The `.gpspec` context is automatically generate when running a tool on a file or set of files.
 

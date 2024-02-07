@@ -6,8 +6,8 @@ import {
     CreateChatCompletionRequest,
     cachedOpenAIRequestPrefix,
     getChatCompletionCache,
-} from "gptools-core"
-import { Cache } from "gptools-core"
+} from "genaiscript-core"
+import { Cache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 
 type OpenAIRequestTreeNode = CacheEntry<CreateChatCompletionRequest, string>
