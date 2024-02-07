@@ -178,7 +178,7 @@ export class ExtensionState extends EventTarget {
         )
     }
 
-    private async saveGptoolsJs() {
+    private async saveScripts() {
         const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
         const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
         await vscode.workspace.fs.createDirectory(
@@ -478,7 +478,7 @@ ${e.message}`
         }, 1000)
 
         this._watcher = vscode.workspace.createFileSystemWatcher(
-            "**/*.{gpspec.md,gptool.js}"
+            "**/*.{gpspec.md,genai.js}"
         )
         this._watcher.onDidChange(handleChange)
         this._watcher.onDidCreate(handleChange)
@@ -487,7 +487,7 @@ ${e.message}`
 
     async activate() {
         this.initWatcher()
-        await this.saveGptoolsJs()
+        await this.saveScripts()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
 
@@ -524,11 +524,11 @@ ${e.message}`
         performance.mark(`project-start`)
         const gpspecFiles = await findFiles("**/*.gpspec.md")
         performance.mark(`scan-tools`)
-        const gptoolFiles = await findFiles("**/*.genai.js")
+        const scriptFiles = await findFiles("**/*.genai.js")
         performance.mark(`parse-project`)
         const newProject = await parseProject({
             gpspecFiles,
-            gptoolFiles,
+            scriptFiles,
         })
         await this.setProject(newProject)
         this.setDiagnostics()
@@ -556,12 +556,12 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
         )
 
         const gpspecFiles = [specn]
-        const gptoolFiles = await findFiles("**/*.genai.js")
+        const scriptFiles = await findFiles("**/*.genai.js")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             gpspecFiles,
-            gptoolFiles,
+            scriptFiles,
         })
         return newProject
     }
@@ -582,12 +582,12 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
 `
         )
         const gpspecFiles = [specn]
-        const gptoolFiles = await findFiles("**/*.genai.js")
+        const scriptFiles = await findFiles("**/*.genai.js")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             gpspecFiles,
-            gptoolFiles,
+            scriptFiles,
         })
         return newProject
     }

@@ -20,7 +20,7 @@ export function activatePromptCommands(state: ExtensionState) {
     }
 
     subscriptions.push(
-        vscode.commands.registerCommand("genaiscript.newfile.gptool", () =>
+        vscode.commands.registerCommand("genaiscript.newfile.script", () =>
             vscode.commands.executeCommand("genaiscript.prompt.create")
         ),
         vscode.commands.registerCommand("genaiscript.newfile.gpspec", async () => {
@@ -46,7 +46,7 @@ export function activatePromptCommands(state: ExtensionState) {
                     template || {
                         id: "",
                         title: "my tool",
-                        text: "New GPtool empty template",
+                        text: "New script empty template",
                         jsSource: `script({
 title: "${name}",
 })
@@ -122,7 +122,7 @@ export function commandButtons(state: ExtensionState) {
     else if (request)
         cmds.push({
             label: retry,
-            description: "Run last gptool and gpspec again.",
+            description: "Run last script and gpspec again.",
             cmd: "genaiscript.request.retry",
         })
     if (text)
@@ -134,7 +134,7 @@ export function commandButtons(state: ExtensionState) {
     if (request)
         cmds.push({
             label: trace,
-            description: "Inspect gptool execution and LLM response.",
+            description: "Inspect script execution and LLM response.",
             cmd: "genaiscript.request.open.trace",
         })
 

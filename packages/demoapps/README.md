@@ -23,12 +23,12 @@ Create a command line application that allows users to play blackjack with it. I
 
 Generation steps:
 1. Place the description above in ```game.gpspec.md```
-2. Run the PM-planning gptool over the gpspec to expand the description.
-3. Run the SA-planning gptool over the same file to generate the file ```game.saplan.gpspec.md```
-4. Run the SDE-planning gptool over the ```game.gpspec.md``` file to generate a set of Python files that implement the application.
+2. Run the PM-planning script over the gpspec to expand the description.
+3. Run the SA-planning script over the same file to generate the file ```game.saplan.gpspec.md```
+4. Run the SDE-planning script over the ```game.gpspec.md``` file to generate a set of Python files that implement the application.
 5. Test the application, edit the files as needed, and rerun the prompts as needed.
 6. To create unit tests for the python files generated for the application, 
-run the QA-coding gptool over the ```game.gpspec.md``` file.  This should
+run the QA-coding script over the ```game.gpspec.md``` file.  This should
 generate parallel test files to the previous .py files as well as a file that can run all the tests from the command line.
 
 ## Running the application

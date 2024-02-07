@@ -68,7 +68,7 @@ Until this extension is in the Marketplace, you will have to repeat these steps 
 
 GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
 
-> Use the `Create a GenAiScript...` command in the command palette to create a new gptool script.
+> Use the `Create a GenAiScript...` command in the command palette to create a new script.
 
 ```js
 // metadata
@@ -91,7 +91,7 @@ This leverages VSCode language support (completion, coloring, error checking)
 while remaining friendly to people not very familiar with JavaScript.
 GenAIScript also provides detailed expansion logs to help you debug your templates.
 
-Since gptool scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
+Since scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of genaiscript and share them as libraries on their favorite package manager.

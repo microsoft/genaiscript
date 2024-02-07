@@ -77,19 +77,19 @@ async function buildProject(options?: {
     const gpspecFiles = specFiles?.length
         ? specFiles
         : await host.findFiles(specsPath)
-    const gptoolFiles = toolFiles?.length
+    const scriptFiles = toolFiles?.length
         ? toolFiles
         : await host.findFiles(toolsPath)
 
     const newProject = await parseProject({
         gpspecFiles,
-        gptoolFiles,
+        scriptFiles,
     })
     return newProject
 }
 
 const gpspecRx = /\.gpspec\.md$/i
-const gptoolRx = /\.genai\.js$/i
+const scriptRx = /\.genai\.js$/i
 async function batch(
     tool: string,
     specs: string[],
@@ -140,7 +140,7 @@ async function batch(
     const path = createNodePath()
 
     const toolFiles: string[] = []
-    if (gptoolRx.test(tool)) toolFiles.push(tool)
+    if (scriptRx.test(tool)) toolFiles.push(tool)
     const specFiles = new Set<string>()
     for (const arg of specs) {
         const ffs = await host.findFiles(arg)
@@ -173,17 +173,17 @@ async function batch(
         toolFiles,
         specFiles: Array.from(specFiles),
     })
-    const gptool = prj.templates.find(
+    const script = prj.templates.find(
         (t) =>
             t.id === tool ||
             (t.filename &&
-                gptoolRx.test(tool) &&
+                scriptRx.test(tool) &&
                 resolve(t.filename) === resolve(tool))
     )
-    if (!gptool) throw new Error(`tool ${tool} not found`)
+    if (!script) throw new Error(`tool ${tool} not found`)
 
     spinner.succeed(
-        `tool: ${gptool.id} (${gptool.title}), files: ${specFiles.size}, out: ${resolve(out)}`
+        `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
     spinner.start(`validating token`)
@@ -206,7 +206,7 @@ async function batch(
             ).roots[0]
             let tokens = 0
             const result: FragmentTransformResponse = await runTemplate(
-                gptool,
+                script,
                 fragment,
                 {
                     infoCb: () => {},
@@ -392,7 +392,7 @@ async function run(
     let md: string
     const files = new Set<string>()
 
-    if (gptoolRx.test(tool)) toolFiles.push(tool)
+    if (scriptRx.test(tool)) toolFiles.push(tool)
 
     if (!specs?.length) {
         specContent = await getStdin()
@@ -435,14 +435,14 @@ ${Array.from(files)
         toolFiles,
         specFiles: [spec],
     })
-    const gptool = prj.templates.find(
+    const script = prj.templates.find(
         (t) =>
             t.id === tool ||
             (t.filename &&
-                gptoolRx.test(tool) &&
+                scriptRx.test(tool) &&
                 resolve(t.filename) === resolve(tool))
     )
-    if (!gptool) throw new Error(`tool ${tool} not found`)
+    if (!script) throw new Error(`tool ${tool} not found`)
     const gpspec = prj.rootFiles.find(
         (f) => resolve(f.filename) === resolve(spec)
     )
@@ -452,7 +452,7 @@ ${Array.from(files)
     spinner?.start("Querying")
 
     let tokens = 0
-    const res: FragmentTransformResponse = await runTemplate(gptool, fragment, {
+    const res: FragmentTransformResponse = await runTemplate(script, fragment, {
         infoCb: ({ text }) => {
             spinner?.start(text)
         },
@@ -493,7 +493,7 @@ ${Array.from(files)
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(res.annotations)
                       : /\.sarif$/.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(gptool, res.annotations)
+                        ? convertDiagnosticsToSARIF(script, res.annotations)
                         : JSON.stringify(res.annotations, null, 2)
             )
     }
@@ -553,7 +553,7 @@ ${Array.from(files)
         if (sariff)
             await write(
                 sariff,
-                convertDiagnosticsToSARIF(gptool, res.annotations)
+                convertDiagnosticsToSARIF(script, res.annotations)
             )
         if (changelogf && res.changelogs?.length)
             await write(changelogf, res.changelogs.join("\n"))

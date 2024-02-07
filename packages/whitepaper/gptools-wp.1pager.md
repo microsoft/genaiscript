@@ -25,7 +25,7 @@ Today, software development and other complex workflows involve a mix of manual 
 
 ### What is new in your approach, and why do you think it will be successful?
 
-Our approach separates scripts into two related parts: a generic reusable _gptool_ and a natural language _gpspec_ that instantiates the gptool in a particular context. This allows for modularity, reuse, and easier understanding by non-developers. We believe this approach will be successful because it combines the power of AI with human oversight and understanding.
+Our approach separates scripts into two related parts: a generic reusable _genaiscript_ and a natural language _gpspec_ that instantiates the genaiscript in a particular context. This allows for modularity, reuse, and easier understanding by non-developers. We believe this approach will be successful because it combines the power of AI with human oversight and understanding.
 
 ### Who cares? If you are successful, what difference will it make?
 

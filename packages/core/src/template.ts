@@ -8,7 +8,7 @@ import { throwError } from "./error"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
-        .replace(/\.gptool$/, "")
+        .replace(/\.script$/, "")
         .replace(/.*[\/\\]/, "")
 }
 
@@ -328,7 +328,7 @@ async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
     let text = ""
     function script(m: PromptArgs) {
-        if (meta !== null) throw new Error(`more than one gptool() call`)
+        if (meta !== null) throw new Error(`more than one script() call`)
         meta = m
         throw new MetaFoundError()
     }
@@ -345,7 +345,7 @@ async function parseMeta(r: PromptTemplate) {
                 parsers: undefined,
                 writeText: (body) => {
                     if (meta == null)
-                        throw new Error(`gptool()/system() has to come first`)
+                        throw new Error(`script()/system() has to come first`)
 
                     text +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"

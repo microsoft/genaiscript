@@ -595,7 +595,7 @@ interface PromptContext {
 declare function script(options: PromptArgs): void
 
 /**
- * Equivalent of gptool() for system prompts.
+ * Equivalent of script() for system prompts.
  */
 declare function system(options: PromptArgs): void
 

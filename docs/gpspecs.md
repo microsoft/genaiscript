@@ -56,7 +56,7 @@ Lorem ipsum...
 <!-- @myvar myvalue -->
 ```
 
-and somewhere in the GPtool:
+and somewhere in the script:
 
 ```js
 const myvalue = env.vars.myvar

@@ -43,7 +43,7 @@ This leverages VSCode language support (completion, coloring, error checking)
 while remaining friendly to people not very familiar with JavaScript.
 GenAIScript also provides detailed expansion logs to help you debug your templates.
 
-Since gptool scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
+Since script scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of genaiscript and share them as libraries on their favorite package manager.

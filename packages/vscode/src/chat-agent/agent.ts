@@ -136,7 +136,7 @@ function chatRequestToPromptTemplate(
 
     if (!request.subCommand) appendPrompt(context.prompt)
 
-    jsSource = `gptool(${JSON.stringify({ ...args }, null, 4)})\n\n${jsSource}`
+    jsSource = `script(${JSON.stringify({ ...args }, null, 4)})\n\n${jsSource}`
 
     const template: PromptTemplate = {
         ...args,
@@ -316,7 +316,7 @@ export function configureChatCompletionForChatAgent(
             function: 3,
         }
         const { model, temperature, top_p, seed, ...rest } = req
-        trace.item(`gptool model: ${model}`)
+        trace.item(`script model: ${model}`)
         trace.item(`copilot llm model: ${access.model || "unknown"}`)
 
         if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())

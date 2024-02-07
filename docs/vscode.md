@@ -2,7 +2,7 @@
 
 ## User experience
 
-This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
+This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec starts the `script`, which reads the `gpspec`, interacts with the gpvm and foundation model.
 The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the genaiscript extension to VS code.
 
 ```mermaid
@@ -10,15 +10,15 @@ sequenceDiagram
 participant User
 participant VSCode
 participant gpspec
-participant gptool
+participant script
 participant gpvm
 User->>VSCode: Create/Edit gpspec
 VSCode->>gpspec: Save gpspec
-User->>VSCode: Invoke gptool
-VSCode->>gptool: Execute gptool with gpspec + workspace
-gptool->>gpvm: Request foundation model execution
-gpvm->>gptool: Return AI-generated output
-gptool->>VSCode: Update workspace with output
+User->>VSCode: Invoke script
+VSCode->>script: Execute script with gpspec + workspace
+script->>gpvm: Request foundation model execution
+gpvm->>script: Return AI-generated output
+script->>VSCode: Update workspace with output
 VSCode->>User: Display updated workspace
 ```
 
@@ -29,12 +29,12 @@ GenAIScript is exposed as the `@genaiscript` agent in Copilot Chat
 ### Chat REPL
 
 When invoking the @genaiscript agent without a subcommand, the agent will aggregate the conversation
-into a gptool script and execute it. This is a great way to explore the capabilities of GenAIScript
-and interactively create a new gptool script.
+into a script script and execute it. This is a great way to explore the capabilities of GenAIScript
+and interactively create a new script script.
 
 ### Tools as slash commands
 
-Each `gptool` is exposed as a sub command
+Each `script` is exposed as a sub command
 using the tool id, e.g. the file name.
 
 > [!IMPORTANT]
@@ -43,7 +43,7 @@ using the tool id, e.g. the file name.
 For example, to run the `front-matter` tool on the current file, type in the Copilot chat:
 
 ```bash
-@gptool /front-matter
+@script /front-matter
 ```
 
 When invoked from Copilot Chat, the `env.chat` variable is populated and contains the history of messages

@@ -252,7 +252,7 @@ async function expandTemplate(
 
     traceVars()
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-    trace.startDetails("🛠️ gptool")
+    trace.startDetails("🛠️ script")
 
     const prompt = await callExpander(template, env, path, trace)
     const expanded = prompt.text
@@ -312,7 +312,7 @@ async function expandTemplate(
         trace.endDetails()
     }
 
-    trace.detailsFenced("📓 gptool source", template.jsSource, "js")
+    trace.detailsFenced("📓 script source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??

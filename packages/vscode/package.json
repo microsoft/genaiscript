@@ -77,7 +77,7 @@
             ],
             "file/newFile": [
                 {
-                    "command": "genaiscript.newfile.gptool"
+                    "command": "genaiscript.newfile.script"
                 },
                 {
                     "command": "genaiscript.newfile.gpspec"
@@ -85,7 +85,7 @@
             ],
             "commandPalette": [
                 {
-                    "command": "genaiscript.newfile.gptool",
+                    "command": "genaiscript.newfile.script",
                     "when": "false"
                 },
                 {
@@ -222,7 +222,7 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.newfile.gptool",
+                "command": "genaiscript.newfile.script",
                 "title": "GenAiScript File",
                 "category": "GenAIScript"
             },

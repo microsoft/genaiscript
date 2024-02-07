@@ -194,7 +194,7 @@ export function templatesToQuickPickItems(
         })
         items.push(<TemplateQuickPickItem>{
             label: "Create a new GenAiScript script...",
-            description: "Create a new gptool script in the current workspace.",
+            description: "Create a new script script in the current workspace.",
             action: "create",
         })
     }

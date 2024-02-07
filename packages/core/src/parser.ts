@@ -295,9 +295,9 @@ async function fragmentHash(t: Fragment) {
 
 export async function parseProject(options: {
     gpspecFiles: string[]
-    gptoolFiles: string[]
+    scriptFiles: string[]
 }) {
-    const { gpspecFiles, gptoolFiles } = options
+    const { gpspecFiles, scriptFiles } = options
     const prj = new Project()
     const runFinalizers = () => {
         const fins = prj._finalizers.slice()
@@ -308,7 +308,7 @@ export async function parseProject(options: {
     runFinalizers()
 
     const deflPr = Object.assign({}, defaultPrompts)
-    for (const f of gptoolFiles) {
+    for (const f of scriptFiles) {
         const tmpl = await parsePromptTemplate(f, await readText(f), prj)
         if (!tmpl) continue
         delete deflPr[tmpl.id]
