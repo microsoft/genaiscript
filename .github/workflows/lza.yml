@@ -44,12 +44,6 @@ jobs:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            - name: Upload SARIF file
-              if: success() || failure() # run this step even if previous step failed
-              uses: github/codeql-action/upload-sarif@v3
-              with:
-                  # Path to SARIF file relative to the root of the repository
-                  sarif_file: all.sarif
             - name: lza_review test
               run: yarn test:lza
               env:
