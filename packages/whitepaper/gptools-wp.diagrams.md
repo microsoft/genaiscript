@@ -1,4 +1,4 @@
-### Diagram 1: gptools Workflow Overview
+### Diagram 1: genaiscript Workflow Overview
 
 ```mermaid
 graph LR
@@ -10,11 +10,11 @@ D --> E[gpvm post]
 E --> F[User]
 ```
 
-This diagram illustrates the workflow of gptools, which includes the user, gpspec, gptool, gpvm, and foundation model. The user creates a gpspec, which instantiates a gptool. The gpvm executes the gptool with the gpspec, which invokes the foundation model. The foundation model returns a result to the gpvm, which postprocesses it and returns it to the user.
+This diagram illustrates the workflow of genaiscript, which includes the user, gpspec, gptool, gpvm, and foundation model. The user creates a gpspec, which instantiates a gptool. The gpvm executes the gptool with the gpspec, which invokes the foundation model. The foundation model returns a result to the gpvm, which postprocesses it and returns it to the user.
 
 ---
 
-### Diagram 2: AI-Enhanced Workflow Process in gptools
+### Diagram 2: AI-Enhanced Workflow Process in genaiscript
 
 ```mermaid
 graph LR
@@ -26,9 +26,9 @@ E --> F[Updated Context]
 F --> G[User Interaction]
 ```
 
-This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec instantiates the gptool, which interacts with the gpvm and foundation model. The AI-generated output is used to update the context, and the user interacts with the updated context through the gptools extension to VS code.
+This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec instantiates the gptool, which interacts with the gpvm and foundation model. The AI-generated output is used to update the context, and the user interacts with the updated context through the genaiscript extension to VS code.
 
-### Diagram 5: AI-Enhanced Workflow Process in gptools
+### Diagram 5: AI-Enhanced Workflow Process in genaiscript
 
 ```mermaid
 sequenceDiagram
@@ -47,4 +47,4 @@ gptool->>VSCode: Update context with output
 VSCode->>User: Display updated context
 ```
 
-This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec instantiates the gptool, which interacts with the gpvm and foundation model. The AI-generated output is used to update the context, and the user interacts with the updated context through the gptools extension to VS code.
+This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec instantiates the gptool, which interacts with the gpvm and foundation model. The AI-generated output is used to update the context, and the user interacts with the updated context through the genaiscript extension to VS code.

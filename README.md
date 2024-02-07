@@ -14,14 +14,14 @@ that ignores the internal details of the implementation.'
 
 ## Overview
 
--   🔑 [Building a Azure Bicep Analyzer](https://github.com/microsoft/gptools/assets/4175913/d8e9f080-9e47-4667-b10a-ea5b544b1125)
--   💬 [Copilot Chat to GenAIScript](https://github.com/microsoft/gptools/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
--   📑 [Structured Data Extraction](https://github.com/microsoft/gptools/assets/4175913/907ca886-7344-4341-986c-e288148fd501)
--   🎥 [Video transcript converter](https://github.com/microsoft/gptools/assets/4175913/9b49d291-91f2-4739-b8f4-aa4332dc08ac)
+-   🔑 [Building a Azure Bicep Analyzer](https://github.com/microsoft/genaiscript/assets/4175913/d8e9f080-9e47-4667-b10a-ea5b544b1125)
+-   💬 [Copilot Chat to GenAIScript](https://github.com/microsoft/genaiscript/assets/4175913/7bf8e458-8dac-4021-b820-b95237aad7b8)
+-   📑 [Structured Data Extraction](https://github.com/microsoft/genaiscript/assets/4175913/907ca886-7344-4341-986c-e288148fd501)
+-   🎥 [Video transcript converter](https://github.com/microsoft/genaiscript/assets/4175913/9b49d291-91f2-4739-b8f4-aa4332dc08ac)
 
 The key elements of GenAIScript are:
 
--   🪄 [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM.
+-   🪄 [genaiscript](./docs/genaiscript.md): Scripts that use the editor context to create prompts and query a LLM.
 -   🖼 [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
 
 GenAIScript automatically parses the LLM output into various formats:
@@ -33,8 +33,8 @@ GenAIScript automatically parses the LLM output into various formats:
 
 The tooling supports a short developer loop in VS Code and automation CI/CD pipelines.
 
--   [Visual Studio Code extension](./docs/vscode.md): User interaction with gptools and conversion of LLM results into workspace edits.
--   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
+-   [Visual Studio Code extension](./docs/vscode.md): User interaction with genaiscript and conversion of LLM results into workspace edits.
+-   [cli](./docs/cli.md): Command line interface to run genaiscript in a CI/CD pipeline.
 
 GenAIScript uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
 
@@ -46,7 +46,7 @@ These are the instructions to install the latest build of the extension manually
 See Insiders for Copilot Chat integration.
 
 -   install [Visual Studio Code](https://code.visualstudio.com/Download),
--   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
+-   open the [latest release](https://github.com/microsoft/genaiscript/releases/latest/),
 -   download the `genaiscript.vsix` into your project in VSCode
 -   right click on the `.vsix` file and select **Install Extension VSIX...**
 
@@ -57,7 +57,7 @@ Until this extension is in the Marketplace, you will have to repeat these steps 
 To leverage the Copilot Chat integration, you will need to do the follwing.
 
 -   install [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
--   open the [latest release](https://github.com/microsoft/gptools/releases/latest/),
+-   open the [latest release](https://github.com/microsoft/genaiscript/releases/latest/),
 -   download the `genaiscript.insiders.vsix` into your project in **Visual Studio Code - Insiders**
 -   right click on the `.vsix` file and select **Install Extension VSIX...**
 -   follow the instructions to install the extension ([more information](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api))
@@ -94,13 +94,13 @@ GenAIScript also provides detailed expansion logs to help you debug your templat
 Since gptool scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
-In the future, we foresee that developers will create libraries of gptools and share them as libraries on their favorite package manager.
+In the future, we foresee that developers will create libraries of genaiscript and share them as libraries on their favorite package manager.
 
--   [Read more about gptools](./docs/gptools.md).
+-   [Read more about genaiscript](./docs/genaiscript.md).
 
 ## (Optional) GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GenAIScript parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
+Natural language documents that instantiate genaiscript in a particular context. GenAIScript parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
 
 The `.gpspec` context is automatically generate when running a tool on a file or set of files.
 

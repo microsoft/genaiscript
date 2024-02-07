@@ -3,7 +3,7 @@ import { host } from "./host"
 import { fileExists, writeText } from "./util"
 
 function promptPath(id: string) {
-    const prompts = host.resolvePath(host.projectFolder(), "gptools")
+    const prompts = host.resolvePath(host.projectFolder(), "genaiscript")
     if (id === null) return prompts
     return host.resolvePath(prompts, id + ".genai.js")
 }

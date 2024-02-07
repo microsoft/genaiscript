@@ -4,23 +4,23 @@ GenAIScript (formerly GenAIScript) allows teams, including non-developers, to cr
 
 ## Overview
 
-The key elements of the gptools framework are:
+The key elements of the genaiscript framework are:
 
--   [gptools](./docs/gptools.md): Scripts that use the editor context to create prompts and query a LLM. The scripting environment provides convinient tooling to acheive common tasks
+-   [genaiscript](./docs/genaiscript.md): Scripts that use the editor context to create prompts and query a LLM. The scripting environment provides convinient tooling to acheive common tasks
     such as extracting generate code into files, JSON parsing and validation, function calls...
 -   [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification documents to define the prompt context.
 
 The tooling supports a short dev loop in VS Code and automated CI/CD pipelines.
 
--   [Visual Studio Code extension](./docs/vscode.md): User interaction with gptools and conversion of LLM results into workspace edits.
--   [cli](./docs/cli.md): Command line interface to run gptools in a CI/CD pipeline.
+-   [Visual Studio Code extension](./docs/vscode.md): User interaction with genaiscript and conversion of LLM results into workspace edits.
+-   [cli](./docs/cli.md): Command line interface to run genaiscript in a CI/CD pipeline.
 
 GenAIScript uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
 To access GenAIScript from GitHub Copilot Chat, use [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
 
 ### GenAiScript scripts
 
-GenAiScript scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.genai.js`) in your project.
+GenAiScript scripts use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
 
 ```js
 // metadata
@@ -46,13 +46,13 @@ GenAIScript also provides detailed expansion logs to help you debug your templat
 Since gptool scripts are stored as files in the project, they can be shared, versioned, collaborated on by the entire development team
 using the existing team development cycle.
 
-In the future, we foresee that developers will create libraries of gptools and share them as libraries on their favorite package manager.
+In the future, we foresee that developers will create libraries of genaiscript and share them as libraries on their favorite package manager.
 
--   [Read more about gptools](./docs/gptools.md).
+-   [Read more about genaiscript](./docs/genaiscript.md).
 
 ## GPSpec specifications
 
-Natural language documents that instantiate gptools in a particular context. GenAIScript parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
+Natural language documents that instantiate genaiscript in a particular context. GenAIScript parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
 
 The `.gpspec` context is automatically generate when running a tool on a file or set of files.
 

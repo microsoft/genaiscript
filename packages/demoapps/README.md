@@ -33,7 +33,7 @@ generate parallel test files to the previous .py files as well as a file that ca
 
 ## Running the application
 
-The gptools place files in the directory ```game/blackjack```.  We have saved an example of the output in ```game/blackjack.saved```.  To run the application, you need to add the directory to your PYTHONPATH.  On a Mac, you can do this with:
+The genaiscript place files in the directory ```game/blackjack```.  We have saved an example of the output in ```game/blackjack.saved```.  To run the application, you need to add the directory to your PYTHONPATH.  On a Mac, you can do this with:
 ```???```
 
 The Python files in the application directory were generated using the process above and edited either by hand or by rewriting the architecture document and rerunning the SDE prompts. The file 

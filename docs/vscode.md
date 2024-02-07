@@ -2,8 +2,8 @@
 
 ## User experience
 
-This diagram demonstrates the AI-enhanced workflow process in gptools. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
-The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the gptools extension to VS code.
+This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec starts the `gptool`, which reads the `gpspec`, interacts with the gpvm and foundation model.
+The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the genaiscript extension to VS code.
 
 ```mermaid
 sequenceDiagram
@@ -24,11 +24,11 @@ VSCode->>User: Display updated workspace
 
 ## Copilot Chat integration
 
-GenAIScript is exposed as the `@gptools` agent in Copilot Chat
+GenAIScript is exposed as the `@genaiscript` agent in Copilot Chat
 
 ### Chat REPL
 
-When invoking the @gptools agent without a subcommand, the agent will aggregate the conversation
+When invoking the @genaiscript agent without a subcommand, the agent will aggregate the conversation
 into a gptool script and execute it. This is a great way to explore the capabilities of GenAIScript
 and interactively create a new gptool script.
 

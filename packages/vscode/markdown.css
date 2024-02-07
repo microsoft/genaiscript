@@ -1,9 +1,9 @@
-.vscode-body details.gptools {
+.vscode-body details.genaiscript {
     font-size: var(--markdown-font-size, 14px);
     margin-left: 1rem;
 }
 
-.vscode-body details.gptools summary {
+.vscode-body details.genaiscript summary {
     font-size: 1.25em;
     cursor: pointer;
 }

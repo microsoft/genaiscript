@@ -1,6 +1,6 @@
 # Hello world demo
 
-In this demo, we will create a Python wrapper for the gptools CLI, as documented in `gptool.help.md`.
+In this demo, we will create a Python wrapper for the genaiscript CLI, as documented in `gptool.help.md`.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ Add all options as optional arguments
 - type
 
 ```
-@gptools /chat-toolify
+@genaiscript /chat-toolify
 ```
 
 -  run generate tool on `gptool.help.md` and tweak as needed

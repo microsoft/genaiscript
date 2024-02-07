@@ -575,7 +575,7 @@ ${Array.from(files)
         console.log`error annotations found, exiting with error code`
         process.exit(ANNOTATION_ERROR_CODE)
     }
-    logVerbose(`gptools run completed with ${tokens} tokens`)
+    logVerbose(`genaiscript run completed with ${tokens} tokens`)
 }
 
 async function writeFileEdits(res: FragmentTransformResponse) {
@@ -654,9 +654,9 @@ async function main() {
 
     NodeHost.install()
     program
-        .name("gptools")
+        .name("genaiscript")
         .version(coreVersion)
-        .description("CLI for GenAIScript https://github.com/microsoft/gptools")
+        .description("CLI for GenAIScript https://github.com/microsoft/genaiscript")
         .showHelpAfterError(true)
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")

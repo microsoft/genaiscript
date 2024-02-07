@@ -562,7 +562,7 @@ interface Parsers {
 interface PromptContext {
     writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
-    gptool(options: PromptArgs): void
+    script(options: PromptArgs): void
     system(options: PromptArgs): void
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
@@ -594,9 +594,9 @@ interface PromptContext {
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .gptool.js file.
+ * Exactly one call should be present on top of .genai.js file.
  */
-declare function gptool(options: PromptArgs): void
+declare function script(options: PromptArgs): void
 
 /**
  * Equivalent of gptool() for system prompts.

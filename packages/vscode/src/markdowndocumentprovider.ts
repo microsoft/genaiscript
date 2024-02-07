@@ -18,7 +18,7 @@ import {
     renderFencedVariables,
 } from "genaiscript-core"
 
-const SCHEME = "gptools"
+const SCHEME = "genaiscript"
 
 const noRequest = `
 No GenAIScript request found yet. Please run a GenAiScript.

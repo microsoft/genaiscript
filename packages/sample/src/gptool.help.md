@@ -2,7 +2,7 @@
 
 ## run
 
-Usage: gptools run [options] <tool> [spec...]
+Usage: genaiscript run [options] <tool> [spec...]
 
 Runs a GenAIScript against a GPSpec
 
@@ -35,7 +35,7 @@ Options:
 
 ## keys
 
-Usage: gptools keys [options] [command]
+Usage: genaiscript keys [options] [command]
 
 Manage OpenAI keys
 
@@ -54,7 +54,7 @@ The OpenAI configuration keys can be set in various ways:
 
 ## tools
 
-Usage: gptools tools [options] [command]
+Usage: genaiscript tools [options] [command]
 
 Manage GenAIScript
 
@@ -67,7 +67,7 @@ Commands:
 
 ## specs
 
-Usage: gptools specs [options] [command]
+Usage: genaiscript specs [options] [command]
 
 Manage GPSpecs
 
@@ -80,7 +80,7 @@ Commands:
 
 ## convert
 
-Usage: gptools convert [options] <path>
+Usage: genaiscript convert [options] <path>
 
 Convert HTML files or URLs to markdown format
 
@@ -90,7 +90,7 @@ Options:
 
 ## help-all
 
-Usage: gptools help-all [options]
+Usage: genaiscript help-all [options]
 
 Show help for all commands
 

@@ -3,11 +3,11 @@
 The GenAIScript CLI is a command line packaged as a Node.JS javascript file (`genaiscript.js`). It is used to run GenAIScript from the command line.
 
 -   The VS Code extension automatically installs the CLI at `.genaiscript/genaiscript.js` in your project.
--   Download `genaiscript.js` from the [latest release assets](https://github.com/microsoft/gptools/releases/latest).
+-   Download `genaiscript.js` from the [latest release assets](https://github.com/microsoft/genaiscripts/releases/latest).
 
 ## run a tool on a file
 
-Runs a gptool on a file and streams the LLM output to stdout.
+Runs a genai script on a file and streams the LLM output to stdout.
 
 ```bash
 node .genaiscript/genaiscript.js run <tool> [spec...]
@@ -48,7 +48,7 @@ By default, results will be saved in the `.genaiscript/results` folder, this can
 In a GitHub Actions workflow, you can inject a report in the step summary (`GITHUB_STEP_SUMMARY`) using `--out-summary` (`-os`).
 
 ```yaml
-- name: Batch gptools <toolname> on <files>
+- name: Batch genaiscript <toolname> on <files>
   run: |
       node .genaiscript/genaiscript.js batch <toolname> <files> -os $GITHUB_STEP_SUMMARY
 - name: Upload GenAIScript results
@@ -184,15 +184,15 @@ Overrides the LLM model identifier.
 
 Apply file modifications to the file system.
 
-## `tools`, manage GPtools
+## `tools`, manage tools
 
-### gptools tools list
+### tools list
 
 Lists the tools available in the current workspace.
 
 ## `specs`, manage GPSpecs
 
-### gptools specs list
+### specs list
 
 Lists the specs available in the current workspace.
 
@@ -200,15 +200,15 @@ Lists the specs available in the current workspace.
 
 Commands to manage the OpenAI token on file. You can also use the `GENAISCRIPT_TOKEN` environment variable or from `OPENAI_API_KEY/BASE` keys.
 
-### gptools keys set <token>
+### keys set <token>
 
 Stores the OpenAI token in `.genaiscript/tmp/token.json`.
 
-### gptools keys clear
+### keys clear
 
 Clears the OpenAI token from `.genaiscript/tmp/token.json`.
 
-### gptools keys show
+### keys show
 
 Shows information about the current key.
 

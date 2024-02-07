@@ -1182,9 +1182,9 @@ ${generateCliArguments(template, fragment, options)}
 \`\`\`
 
 -   You will need to install [Node.js](https://nodejs.org/en/).
--   Configure the OpenAI token in environment variables (run \`node .genaiscript/gptools help keys\` for help).
+-   Configure the OpenAI token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
 -   The \`.genaiscript/genaiscript.js\` is written by the Visual Studio Code extension automatically.
--   Run \`node .genaiscript/gptools help run\` for the full list of options.
+-   Run \`node .genaiscript/genaiscript help run\` for the full list of options.
 `
     )
 }

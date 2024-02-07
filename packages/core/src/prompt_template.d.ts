@@ -423,7 +423,7 @@ interface ExpansionVariables {
     schemas?: Record<string, JSONSchema>
 
     /**
-     * List of secrets used by the prompt, must be registred in `gptools`.
+     * List of secrets used by the prompt, must be registred in `genaiscript`.
      */
     secrets?: Record<string, string>
 }

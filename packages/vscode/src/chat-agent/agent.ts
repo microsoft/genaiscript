@@ -182,11 +182,11 @@ export function activateChatAgent(state: ExtensionState) {
                         content: `# Configuring Copilot Chat Agents
                         
 The Copilot Chat Agents are still under the proposal APIs phase so you need a configuration
-step to enable them for gptools (Learn about [proposed apis](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api)).
+step to enable them for genaiscript (Learn about [proposed apis](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api)).
 
 These steps will not be needed once the API gets fully released.
 
--   edit the \`.vscode-insiders/argv.json\` file to add the gptools extension
+-   edit the \`.vscode-insiders/argv.json\` file to add the genaiscript extension
 
 \`\`\`json
 {

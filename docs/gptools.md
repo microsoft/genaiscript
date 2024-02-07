@@ -27,17 +27,7 @@ def("FILE", env.files)
 $`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
 ```
 
-## Samples
 
-The section links to various samples of gptools; most of which are shipped with the extension.
-
--   [code optimizer](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-optimizer.genai.js)
--   [code xray](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-xray.genai.js)
--   [BDD feature generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/bdd-feature.genai.js)
--   [front matter generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/front-matter.genai.js)
--   [slides](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/slides.genai.js)
--   [peer review](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/peer-review.genai.js)
--   [more samples...](https://github.com/microsoft/gptools/tree/main/packages/core/src/gptools)
 
 ## Metadata
 
@@ -109,7 +99,7 @@ mysrc
 ### model
 
 You can specify the LLM `model` identifier in the script. The default is `gpt-4`.
-The intellisense provided by `gptools.g.ts` will help with discovering the list of supported models.
+The intellisense provided by `genaiscript.g.ts` will help with discovering the list of supported models.
 
 ```js
 script({
@@ -357,7 +347,7 @@ defSchema("TARGET_SCHEMA", {
 ```
 
 When a JSON/YAML payload is generated with the schema identifier,
-gptools automatically validates the payload against the schema.
+genaiscript automatically validates the payload against the schema.
 
 ## Functions
 
@@ -411,7 +401,7 @@ defFunction(
             type: "shell",
             stdin: code,
             command: "node",
-            args: ["gptools/check-syntax.js"],
+            args: ["genaiscript/check-syntax.js"],
         }
     }
 )

@@ -1,19 +1,19 @@
 ### Introduction
-- gptools: AI-Enhanced Workflows
+- genaiscript: AI-Enhanced Workflows
 - Empower teams, including non-developers
 - Leverage foundation models (LLMs)
 
 ---
 
 ### Key Elements
-- gptools: Scripts with code and natural language
-- gpspecs: Instantiate gptools in context
+- genaiscript: Scripts with code and natural language
+- gpspecs: Instantiate genaiscript in context
 - gpvm: Framework and runtime system
 - VS code extension: Seamless user interaction
 
 ---
 
-### gptools Benefits
+### genaiscript Benefits
 - Modularity and reuse
 - Easier understanding for non-developers
 - Customization and authoring at various expertise levels

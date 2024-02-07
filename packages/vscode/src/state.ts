@@ -42,9 +42,9 @@ import { TOOL_NAME } from "./extension"
 const MAX_HISTORY_LENGTH = 500
 
 export const TOKEN_DOCUMENTATION_URL =
-    "https://github.com/microsoft/gptools/blob/main/docs/token.md"
+    "https://github.com/microsoft/genaiscript/blob/main/docs/token.md"
 export const CONTEXT_LENGTH_DOCUMENTATION_URL =
-    "https://github.com/microsoft/gptools/blob/main/docs/token.md"
+    "https://github.com/microsoft/genaiscript/blob/main/docs/token.md"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -302,7 +302,7 @@ ${e.message}`
         options: AIRequestOptions
     ): Promise<AIRequest> {
         const controller = new AbortController()
-        const config = vscode.workspace.getConfiguration("gptools")
+        const config = vscode.workspace.getConfiguration("genaiscript")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
@@ -491,7 +491,7 @@ ${e.message}`
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
 
-        logInfo("gptools extension acticated")
+        logInfo("genaiscript extension acticated")
     }
 
     async fixPromptDefinitions() {

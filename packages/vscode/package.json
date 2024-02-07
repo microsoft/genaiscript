@@ -25,7 +25,7 @@
     "main": "./built/extension.js",
     "browser": "./built/extension.js",
     "repository": {
-        "url": "https://github.com/microsoft/gptools",
+        "url": "https://github.com/microsoft/genaiscript",
         "directory": "packages/vscode"
     },
     "files": [

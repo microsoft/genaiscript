@@ -2,7 +2,7 @@
 
 ## run
 
-Usage: gptools run [options] <tool> [spec...]
+Usage: genaiscript run [options] <tool> [spec...]
 
 Runs a GenAIScript against a GPSpec
 
