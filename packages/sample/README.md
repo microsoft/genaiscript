@@ -1,6 +1,6 @@
 # GenAIScript - GenAI Scripting
 
-GenAIScript (formerly CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
+GenAIScript (formerly GenAIScript) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 ## Overview
 

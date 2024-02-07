@@ -2,7 +2,7 @@
 
 To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. You can use the CodeAction QuickFix light bulb to launch the gptools on this file.
 
-```markdown A sample CoArch document.
+```markdown A sample GenAIScript document.
 # email address recognizer
 
 Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
@@ -19,7 +19,7 @@ You can accept or cancel the changes using the buttons at the bottom of the view
 You can link other local documents using the markdown link syntax. These documents are accessible during the GPTool
 execution through the `env.links` variable.
 
-```markdown A sample CoArch document.
+```markdown A sample GenAIScript document.
 # email address recognizer
 
 -   [email_validator.py](./email_validator.py)
