@@ -16,7 +16,7 @@ You can accept or cancel the changes using the buttons at the bottom of the view
 
 ## Linked documents
 
-You can link other local documents using the markdown link syntax. These documents are accessible during the GPTool
+You can link other local documents using the markdown link syntax. These documents are accessible during the GenAiScript
 execution through the `env.links` variable.
 
 ```markdown A sample GenAIScript document.
@@ -29,7 +29,7 @@ Write a function that takes a string argument and returns true if the whole stri
 ...
 ```
 
-and somewhere in the GPTool:
+and somewhere in the GenAiScript:
 
 ```js
 def(
@@ -44,7 +44,7 @@ You can also link to `https://` resource that will automatically be download and
 -   [driver.ts](https://github.com/microsoft/devicescript/blob/main/packages/drivers/src/driver.ts)
 ```
 
-> For GitHub.com source files, GPTool will automatically update the URL to point to the raw file.
+> For GitHub.com source files, GenAiScript will automatically update the URL to point to the raw file.
 
 ## Variables
 
@@ -61,14 +61,14 @@ and somewhere in the GPtool:
 ```js
 const myvalue = env.vars.myvar
 ```
-For example, if you want to customize a GPTool to focus on a particular file mentioned in the GPSpec file, you can do the following in the GPSpec file:
+For example, if you want to customize a GenAiScript to focus on a particular file mentioned in the GPSpec file, you can do the following in the GPSpec file:
 
 ```markdown
 <!-- @focusdoc
 my-focus-doc.md
 -->
 ```
-and refer to that variable in the GPTool as follows:
+and refer to that variable in the GenAiScript as follows:
 
 ```js
 const focusFileName = env.vars.focusdoc

@@ -28,7 +28,7 @@ Aditionaly
 
 ## Connection string Formats
 
-Following connection string formats are supported in the `GPTOOLS_TOKEN` environment variables:
+Following connection string formats are supported in the `GENAISCRIPT_TOKEN` environment variables:
 
 -   `sk-???` will use https://api.openai.com/v1/
 -   `https://???.openai.azure.com#key=???` will use Azure OpenAI endpoint

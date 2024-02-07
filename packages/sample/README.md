@@ -18,9 +18,9 @@ The tooling supports a short dev loop in VS Code and automated CI/CD pipelines.
 GenAIScript uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
 To access GenAIScript from GitHub Copilot Chat, use [Visual Studio Code - Insiders](https://code.visualstudio.com/insiders/).
 
-### GPTool scripts
+### GenAiScript scripts
 
-GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.genai.js`) in your project.
+GenAiScript scripts use stylized JavaScript with minimal syntax. They are stored as files (`gptools/*.genai.js`) in your project.
 
 ```js
 // metadata

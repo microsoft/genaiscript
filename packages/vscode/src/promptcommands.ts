@@ -39,7 +39,7 @@ export function activatePromptCommands(state: ExtensionState) {
             "genaiscript.prompt.create",
             async (template?: PromptTemplate) => {
                 const name = await vscode.window.showInputBox({
-                    title: "Pick a file name for the new GPTool.",
+                    title: "Pick a file name for the new GenAiScript.",
                 })
                 if (name === undefined) return
                 const t = structuredClone(
@@ -74,7 +74,7 @@ def("FILE", env.files)
                     const picked = await vscode.window.showQuickPick(
                         templatesToQuickPickItems(templates),
                         {
-                            title: `Pick a GPTool to fork`,
+                            title: `Pick a GenAiScript to fork`,
                         }
                     )
                     if (picked === undefined) return

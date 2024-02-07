@@ -64,11 +64,11 @@ To leverage the Copilot Chat integration, you will need to do the follwing.
 
 Until this extension is in the Marketplace, you will have to repeat these steps each time you want to upgrade the extension.
 
-## GPTool scripts
+## GenAI scripts
 
-GPTool scripts use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
+GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
 
-> Use the `Create a GPTool...` command in the command palette to create a new gptool script.
+> Use the `Create a GenAiScript...` command in the command palette to create a new gptool script.
 
 ```js
 // metadata

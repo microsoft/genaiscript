@@ -35,7 +35,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
             {
-                title: `Pick a GPTool to apply to ${fragment.title}`,
+                title: `Pick a GenAiScript to apply to ${fragment.title}`,
             }
         )
         if (picked?.action === "create") {
@@ -193,7 +193,7 @@ export function templatesToQuickPickItems(
             kind: vscode.QuickPickItemKind.Separator,
         })
         items.push(<TemplateQuickPickItem>{
-            label: "Create a new GPTool script...",
+            label: "Create a new GenAiScript script...",
             description: "Create a new gptool script in the current workspace.",
             action: "create",
         })

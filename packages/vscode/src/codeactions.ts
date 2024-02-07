@@ -20,12 +20,12 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         if (!templates?.length) return []
 
         const action = new vscode.CodeAction(
-            `Run GPTool...`,
+            `Run GenAiScript...`,
             vscode.CodeActionKind.QuickFix
         )
         action.command = <vscode.Command>{
             command: "genaiscript.fragment.prompt",
-            tooltip: "Apply a GPTool script to this file.",
+            tooltip: "Apply a GenAiScript script to this file.",
             arguments: [{ fragment }],
         }
         const filename =

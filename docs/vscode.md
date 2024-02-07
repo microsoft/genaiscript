@@ -57,7 +57,7 @@ by creating a new gpspec with more instructions.
 ### Fork a tool
 
 -   open the command palette
--   type "Fork a GPTool..." and select the tool you want to fork
+-   type "Fork a GenAiScript..." and select the tool you want to fork
 -   pick a new name and start editing the tool
 
-The tool will be available in the dropdown of the "Run GPTool..." command.
+The tool will be available in the dropdown of the "Run GenAiScript..." command.

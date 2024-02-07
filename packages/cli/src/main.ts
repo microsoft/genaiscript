@@ -758,7 +758,7 @@ async function main() {
             "after",
             `The OpenAI configuration keys can be set in various ways:
 
--   set the GPTOOLS_TOKEN environment variable. The format is 'https://base-url#key=secret-token'
+-   set the GENAISCRIPT_TOKEN environment variable. The format is 'https://base-url#key=secret-token'
 -   set the OPENAI_API_BASE, OPENAI_API_KEY environment variables. OPENAI_API_TYPE is optional or must be 'azure' and OPENAI_API_VERSION is optional or must be '2023-03-15-preview'.
 -   '.env' file with the same variables
 `

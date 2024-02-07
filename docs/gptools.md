@@ -1,4 +1,4 @@
-# Authoring GPTool scripts
+# Authoring GenAiScript scripts
 
 GenAIScript has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
@@ -441,7 +441,7 @@ Lorem ipsum...
 <!-- @myvar myvalue -->
 ```
 
-And somewhere in the GPTool:
+And somewhere in the GenAiScript:
 
 ```js
 const myvalue = env.vars["myvar"]

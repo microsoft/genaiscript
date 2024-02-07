@@ -8,7 +8,7 @@ Describe the system in plain English. What type of system is this? What does it 
 
 Building on the previous question, provide semi-technical, high-level information on how the system offers functionality for various uses.
 
-## What is/are GPTools’s intended use(s)?
+## What is/are GenAIScript’s intended use(s)?
 
 Explain intended use(s), as identified in your Impact Assessment.
 

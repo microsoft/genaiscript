@@ -21,10 +21,10 @@ import {
 const SCHEME = "gptools"
 
 const noRequest = `
-No GenAIScript request found yet. Please run a GPTool.
+No GenAIScript request found yet. Please run a GenAiScript.
 `
 const noResponse = `
-Waiting for GPTool response...
+Waiting for GenAiScript response...
 `
 
 class MarkdownTextDocumentContentProvider
@@ -54,7 +54,7 @@ class MarkdownTextDocumentContentProvider
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
             if (!md) return noResponse
-            return `${computing ? `> **GPTool run in progress.**\n` : ""} 
+            return `${computing ? `> **GenAiScript run in progress.**\n` : ""} 
 ${pretifyMarkdown(md)}    
             `
         }

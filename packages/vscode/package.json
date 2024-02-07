@@ -191,7 +191,7 @@
             },
             {
                 "command": "genaiscript.request.retry",
-                "title": "Retry last GPTool",
+                "title": "Retry last GenAiScript",
                 "category": "GenAIScript"
             },
             {
@@ -206,7 +206,7 @@
             },
             {
                 "command": "genaiscript.fragment.prompt",
-                "title": "Run GPTool...",
+                "title": "Run GenAiScript...",
                 "category": "GenAIScript",
                 "icon": "$(lightbulb)"
             },
@@ -217,13 +217,13 @@
             },
             {
                 "command": "genaiscript.prompt.create",
-                "title": "Create new GPTool...",
+                "title": "Create new GenAiScript...",
                 "icon": "$(add)",
                 "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.newfile.gptool",
-                "title": "GPTool File",
+                "title": "GenAiScript File",
                 "category": "GenAIScript"
             },
             {
@@ -233,7 +233,7 @@
             },
             {
                 "command": "genaiscript.prompt.fork",
-                "title": "Fork GPTool...",
+                "title": "Fork GenAiScript...",
                 "category": "GenAIScript",
                 "icon": "$(repo-forked)"
             },

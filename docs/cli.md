@@ -198,7 +198,7 @@ Lists the specs available in the current workspace.
 
 ## `keys`, manage OpenAI Token
 
-Commands to manage the OpenAI token on file. You can also use the `GPTOOLS_TOKEN` environment variable or from `OPENAI_API_KEY/BASE` keys.
+Commands to manage the OpenAI token on file. You can also use the `GENAISCRIPT_TOKEN` environment variable or from `OPENAI_API_KEY/BASE` keys.
 
 ### gptools keys set <token>
 
