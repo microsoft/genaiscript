@@ -5,6 +5,7 @@ import {
     SarifResultBuilder,
     SarifRuleBuilder,
 } from "node-sarif-builder"
+import { relative } from "node:path"
 
 export function isSARIFFilename(f: string) {
     return /\.sarif$/i.test(f)
@@ -32,7 +33,10 @@ export function convertDiagnosticsToSARIF(
             level: issue.severity === "info" ? "note" : issue.severity,
             messageText: issue.message,
             ruleId: template.id,
-            fileUri: issue.filename,
+            fileUri: relative(process.cwd(), issue.filename).replace(
+                /\\/g,
+                "/"
+            ),
             startLine: issue.range[0][0] + 1 || undefined,
             endLine: issue.range[1][0] + 1 || undefined,
         })
