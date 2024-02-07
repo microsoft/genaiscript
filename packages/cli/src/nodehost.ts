@@ -9,7 +9,7 @@ import {
     UTF8Encoder,
     parseTokenFromEnv,
     setHost,
-} from "gptools-core"
+} from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "fs/promises"
 import { ensureDir, remove } from "fs-extra"

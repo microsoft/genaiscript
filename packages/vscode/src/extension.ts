@@ -3,19 +3,20 @@ import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { initToken, isCancelError } from "gptools-core"
+import { initToken, isCancelError } from "genaiscript-core"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
-import { clearToken } from "gptools-core"
+import { clearToken } from "genaiscript-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 
-export const TOOL_NAME = "GPTools"
-export const COARCH_EXTENSION_ID = "coarch.gptools-vscode"
+export const TOOL_NAME = "GenAIScript"
+export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
+export const AGENT_ID = "genaiscript"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -32,17 +33,17 @@ export async function activate(context: ExtensionContext) {
     activateChatAgent(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("coarch.request.abort", async () => {
+        vscode.commands.registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(
                 `${TOOL_NAME} - request aborted.`
             )
         }),
-        vscode.commands.registerCommand("coarch.request.retry", () =>
+        vscode.commands.registerCommand("genaiscript.request.retry", () =>
             state.retryAIRequest()
         ),
         vscode.commands.registerCommand(
-            "coarch.openai.token.clear",
+            "genaiscript.openai.token.clear",
             async () => {
                 await clearToken()
                 await vscode.window.showInformationMessage(
@@ -51,7 +52,7 @@ export async function activate(context: ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "coarch.openai.token.update",
+            "genaiscript.openai.token.update",
             async () => {
                 try {
                     await clearToken()
@@ -62,7 +63,7 @@ export async function activate(context: ExtensionContext) {
                 }
             }
         ),
-        vscode.commands.registerCommand("coarch.request.status", async () => {
+        vscode.commands.registerCommand("genaiscript.request.status", async () => {
             const cmds = commandButtons(state)
             if (!cmds.length)
                 await vscode.window.showInformationMessage(
@@ -76,7 +77,7 @@ export async function activate(context: ExtensionContext) {
             }
         }),
         vscode.commands.registerCommand(
-            "coarch.openIssueReporter",
+            "genaiscript.openIssueReporter",
             async () => {
                 const issueBody: string[] = [
                     `## Describe the issue`,
@@ -106,7 +107,7 @@ export async function activate(context: ExtensionContext) {
                 await vscode.commands.executeCommand(
                     "workbench.action.openIssueReporter",
                     {
-                        extensionId: COARCH_EXTENSION_ID,
+                        extensionId: EXTENSION_ID,
                         issueBody: issueBody.join("\n"),
                     }
                 )

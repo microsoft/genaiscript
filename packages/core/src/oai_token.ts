@@ -131,9 +131,9 @@ export async function parseToken(f: string) {
 export async function parseTokenFromEnv(
     env: Record<string, string>
 ): Promise<OAIToken> {
-    if (env.GPTOOLS_TOKEN) {
-        const tok = await parseToken(env.GPTOOLS_TOKEN)
-        tok.source = "env: GPTOOLS_TOKEN"
+    if (env.GENAISCRIPT_TOKEN) {
+        const tok = await parseToken(env.GENAISCRIPT_TOKEN)
+        tok.source = "env: GENAISCRIPT_TOKEN"
         return tok
     }
     if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {

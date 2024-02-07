@@ -27,10 +27,10 @@ jobs:
             - name: unit tests
               run: yarn test:unit
             - name: run cli
-              run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.gpspec.md --prompt -ot $GITHUB_STEP_SUMMARY -l single
+              run: node packages/cli/built/genaiscript.js run code-xray packages/sample/src/counting.gpspec.md --prompt -ot $GITHUB_STEP_SUMMARY -l single
             - name: run cli pipe
-              run: cat packages/sample/src/counting.gpspec.md | node packages/cli/built/gptools.js run code-xray --prompt -ot $GITHUB_STEP_SUMMARY -l multi
+              run: cat packages/sample/src/counting.gpspec.md | node packages/cli/built/genaiscript.js run code-xray --prompt -ot $GITHUB_STEP_SUMMARY -l multi
             - name: run cli glob
-              run: node packages/cli/built/gptools.js run code-xray packages/sample/src/counting.py packages/sample/src/*.ts --prompt -o .gptools/tmp/cli -ot $GITHUB_STEP_SUMMARY -l glob
+              run: node packages/cli/built/genaiscript.js run code-xray packages/sample/src/counting.py packages/sample/src/*.ts --prompt -o .genaiscript/tmp/cli -ot $GITHUB_STEP_SUMMARY -l glob
             - name: package vscode
               run: yarn package

@@ -1,6 +1,6 @@
 import { Host, ShellOutput } from "./host"
 import { MarkdownTrace } from "./trace"
-import { dotGptoolsPath, fileExists, readText, writeText } from "./util"
+import { dotGenaiscriptPath, fileExists, readText, writeText } from "./util"
 
 export async function exec(
     host: Host,
@@ -19,7 +19,7 @@ export async function exec(
         trace.startDetails(label)
 
         // configure the output folder
-        outputdir = dotGptoolsPath(
+        outputdir = dotGenaiscriptPath(
             "temp",
             Math.random().toString(36).substring(2, 15)
         )

@@ -1,5 +1,5 @@
 {
-  "name": "gptools-core",
+  "name": "genaiscript-core",
   "version": "1.8.1",
   "main": "src/index.ts",
   "license": "MIT",

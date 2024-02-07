@@ -1,16 +1,16 @@
-# Authoring GPTool scripts
+# Authoring GenAiScript scripts
 
-GPTools has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
+GenAIScript has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
-All prompts are JS files named as `*.gptool.js`. You can use the `GPTools - Fork a gptool...` to fork any known prompt.
+All prompts are JS files named as `*.genai.js`. You can use the `GenAIScript - Fork a script...` to fork any known prompt.
 
-All `system.*.gptool.js` are considered system prompt templates
+All `system.*.genai.js` are considered system prompt templates
 and are unlisted by default. There is no variable expansion in those.
 
 ## Example
 
 ```js
-gptool({
+script({
     title: "Shorten", // displayed in UI and Copilot Chat
     // also displayed, but grayed out:
     description:
@@ -27,25 +27,15 @@ def("FILE", env.files)
 $`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
 ```
 
-## Samples
 
-The section links to various samples of gptools; most of which are shipped with the extension.
-
--   [code optimizer](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-optimizer.gptool.js)
--   [code xray](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/code-xray.gptool.js)
--   [BDD feature generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/bdd-feature.gptool.js)
--   [front matter generator](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/front-matter.gptool.js)
--   [slides](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/slides.gptool.js)
--   [peer review](https://github.com/microsoft/gptools/blob/main/packages/core/src/gptools/peer-review.gptool.js)
--   [more samples...](https://github.com/microsoft/gptools/tree/main/packages/core/src/gptools)
 
 ## Metadata
 
-Prompts use `gptool({ ... })` function call
+Prompts use `script({ ... })` function call
 to configure the title and other user interface elements.
 
 ```js
-gptool({
+script({
     title: "Shorten", // displayed in UI
     // also displayed, but grayed out:
     description:
@@ -59,7 +49,7 @@ gptool({
 `title` is used as the prompt name, displayed in the light-bulb UI
 
 ```js
-gptool({ title: "Shorten" })
+script({ title: "Shorten" })
 ```
 
 #### description: string
@@ -67,7 +57,7 @@ gptool({ title: "Shorten" })
 `description` provides more details and context about the prompt.
 
 ```js
-gptool({
+script({
     title: "Shorten",
     description:
         "A prompt that shrinks the size of text without losing meaning.",
@@ -79,7 +69,7 @@ gptool({
 Override the system prompts with a custom prompt.
 
 ```js
-gptool({
+script({
     title: "Generate code",
     system: ["system.code"],
 })
@@ -90,7 +80,7 @@ gptool({
 You can specify an output folder using `outputFolder` in the script.
 
 ```js
-gptool({
+script({
     ...,
     outputFolder: "src",
 })
@@ -109,10 +99,10 @@ mysrc
 ### model
 
 You can specify the LLM `model` identifier in the script. The default is `gpt-4`.
-The intellisense provided by `gptools.g.ts` will help with discovering the list of supported models.
+The intellisense provided by `genaiscript.g.ts` will help with discovering the list of supported models.
 
 ```js
-gptool({
+script({
     ...,
     model: "gpt-4-32k",
 })
@@ -129,7 +119,7 @@ You can specify the temperate using `model` variable in the gpspec file.
 You can specify the LLM `max tokens` in the script. The default is unspecified.
 
 ```js
-gptool({
+script({
     ...,
     maxTokens: 2000,
 })
@@ -146,7 +136,7 @@ You can specify the maxTokens using `maxTokens` variable in the gpspec file.
 You can specify the LLM `temperature` in the script. The default is `0.2`.
 
 ```js
-gptool({
+script({
     ...,
     temperature: 0.8,
 })
@@ -163,7 +153,7 @@ You can specify the temperate using `temperature` variable in the gpspec file.
 You can specify the LLM `top_p` in the script. The default is not specified
 
 ```js
-gptool({
+script({
     ...,
     top_p: 0.5,
 })
@@ -180,7 +170,7 @@ You can specify the temperate using `top_p` variable in the gpspec file.
 For some models,You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
 
 ```js
-gptool({
+script({
     ...,
     seed: 12345678,
 })
@@ -200,7 +190,7 @@ A function that merges the generated content with the original content. The defa
 
 -   `unlisted: true`, don't show it to the user in lists. Template `system.*` are automatically unlisted.
 
-See `gptools.d.ts` in the sources for details.
+See `genaiscript.d.ts` in the sources for details.
 
 ## JSON output
 
@@ -208,7 +198,7 @@ You can use `system.json` system message to force a single JSON output file. Thi
 enables the [JSON mode](https://platform.openai.com/docs/guides/text-generation/json-mode) of OpenAI.
 
 ```js
-gptool({
+script({
     ...,
     system: ["system.json"],
 })
@@ -229,7 +219,7 @@ When you apply a prompt to a given fragment, a number of variables are set inclu
 -   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
 -   `env.links` set of linked files and content
 
-> For a full list with values, run any prompt, click on the "GPTools" in the status bar and look at prompt expansion trace.
+> For a full list with values, run any prompt, click on the "GenAIScript" in the status bar and look at prompt expansion trace.
 
 ### Fenced variables
 
@@ -276,7 +266,7 @@ Use documentation from DOCS.
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
 
-In the coarch files, those link you be part of a bulletted list.
+In the genai files, those link you be part of a bulletted list.
 
 ### Context/spec file
 
@@ -314,10 +304,10 @@ def("README", file)
 ### env.secrets
 
 The `env.secrets` object is used to access secrets from the environment. The secrets are typically stored in the `.env` file in the root of the project (or in the `process.env` for the CLI).
-You will need to declare the list of secrets needed in `gptool({ secrets: ... })`.
+You will need to declare the list of secrets needed in `script({ secrets: ... })`.
 
 ```js
-gptool({
+script({
     ...
     secrets: ["SECRET_TOKEN"]
 })
@@ -357,7 +347,7 @@ defSchema("TARGET_SCHEMA", {
 ```
 
 When a JSON/YAML payload is generated with the schema identifier,
-gptools automatically validates the payload against the schema.
+genaiscript automatically validates the payload against the schema.
 
 ## Functions
 
@@ -411,7 +401,7 @@ defFunction(
             type: "shell",
             stdin: code,
             command: "node",
-            args: ["gptools/check-syntax.js"],
+            args: ["genaiscript/check-syntax.js"],
         }
     }
 )
@@ -441,7 +431,7 @@ Lorem ipsum...
 <!-- @myvar myvalue -->
 ```
 
-And somewhere in the GPTool:
+And somewhere in the GenAiScript:
 
 ```js
 const myvalue = env.vars["myvar"]
@@ -452,20 +442,20 @@ const myvalue = env.vars["myvar"]
 Use the `vars` field in the CLI to override variables. vars takes a sequence of `key=value` pairs.
 
 ```bash
-node .gptools/gptools.js run ... --vars myvar=myvalue myvar2=myvalue2 ...
+node .genaiscript/genaiscript.js run ... --vars myvar=myvalue myvar2=myvalue2 ...
 ```
 
 ## Errors, warnings and SARIF
 
 Using the `system.annotations` system prompt, you can have the LLM generate errors, warnings and notes.
-GPTools will convert those into SARIF files that can be uploaded to GitHub Actions as security reports,
+GenAIScript will convert those into SARIF files that can be uploaded to GitHub Actions as security reports,
 similarly to CodeQL reports. The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 extension can be used to visualize the reports.
 
 ```yaml
 # workflow.yml
-    - name: Run GPTools
-      run: node .gptools/gptools.js ... -oa result.sarif
+    - name: Run GenAIScript
+      run: node .genaiscript/genaiscript.js ... -oa result.sarif
     - name: Upload SARIF file
         if: success() || failure()
         uses: github/codeql-action/upload-sarif@v3

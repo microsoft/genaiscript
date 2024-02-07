@@ -1,7 +1,7 @@
 {
-  "name": "gptools-cli",
+  "name": "genaiscript-cli",
   "version": "1.8.1",
-  "main": "built/gptools.js",
+  "main": "built/genaiscript.js",
   "license": "MIT",
   "private": true,
   "dependencies": {
@@ -22,16 +22,16 @@
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.5",
     "@types/replace-ext": "^2.0.2",
-    "gptools-core": "*",
+    "genaiscript-core": "*",
     "node-sarif-builder": "^3.0.0",
     "ora": "^8.0.1",
     "replace-ext": "^2.0.0",
     "tsx": "^4.7.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/gptools.js --minify-whitespace",
-    "postcompile": "cp built/gptools.js ../vscode/gptools.js",
-    "go": "yarn compile && node built/gptools.js",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --minify-whitespace",
+    "postcompile": "cp built/genaiscript.js ../vscode/genaiscript.js",
+    "go": "yarn compile && node built/genaiscript.js",
     "test": "node --import tsx --test src/**.test.ts",
     "typecheck": "tsc -p src"
   }

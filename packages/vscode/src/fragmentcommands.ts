@@ -6,7 +6,7 @@ import {
     groupBy,
     rootFragment,
     templateGroup,
-} from "gptools-core"
+} from "genaiscript-core"
 import { ChatRequestContext, ExtensionState } from "./state"
 import {
     checkDirectoryExists,
@@ -35,11 +35,11 @@ export function activateFragmentCommands(state: ExtensionState) {
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
             {
-                title: `Pick a GPTool to apply to ${fragment.title}`,
+                title: `Pick a GenAiScript to apply to ${fragment.title}`,
             }
         )
         if (picked?.action === "create") {
-            vscode.commands.executeCommand("coarch.prompt.create")
+            vscode.commands.executeCommand("genaiscript.prompt.create")
             return undefined
         } else return (picked as TemplateQuickPickItem)?.template
     }
@@ -114,7 +114,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         fragment = await resolveSpec(fragment)
         if (!fragment) {
             vscode.window.showErrorMessage(
-                "GPTools - sorry, we could not find where to apply the tool. Please try to launch GPTools from the editor."
+                "GenAIScript - sorry, we could not find where to apply the tool. Please try to launch GenAIScript from the editor."
             )
             return
         }
@@ -151,14 +151,14 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     subscriptions.push(
         vscode.commands.registerCommand(
-            "coarch.fragment.prompt",
+            "genaiscript.fragment.prompt",
             fragmentPrompt
         ),
         vscode.commands.registerCommand(
-            "coarch.fragment.navigate",
+            "genaiscript.fragment.navigate",
             fragmentNavigate
         ),
-        vscode.commands.registerCommand("coarch.request.applyEdits", applyEdits)
+        vscode.commands.registerCommand("genaiscript.request.applyEdits", applyEdits)
     )
 }
 
@@ -193,8 +193,8 @@ export function templatesToQuickPickItems(
             kind: vscode.QuickPickItemKind.Separator,
         })
         items.push(<TemplateQuickPickItem>{
-            label: "Create a new GPTool script...",
-            description: "Create a new gptool script in the current workspace.",
+            label: "Create a new GenAiScript script...",
+            description: "Create a new script script in the current workspace.",
             action: "create",
         })
     }

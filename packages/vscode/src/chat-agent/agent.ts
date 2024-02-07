@@ -6,9 +6,9 @@ import {
     RunTemplateOptions,
     logInfo,
     logVerbose,
-} from "gptools-core"
+} from "genaiscript-core"
+import { TOOL_NAME, AGENT_ID } from "../extension"
 
-const AGENT_ID = "gptools"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     template?: PromptTemplate
@@ -136,7 +136,7 @@ function chatRequestToPromptTemplate(
 
     if (!request.subCommand) appendPrompt(context.prompt)
 
-    jsSource = `gptool(${JSON.stringify({ ...args }, null, 4)})\n\n${jsSource}`
+    jsSource = `script(${JSON.stringify({ ...args }, null, 4)})\n\n${jsSource}`
 
     const template: PromptTemplate = {
         ...args,
@@ -154,14 +154,14 @@ export function activateChatAgent(state: ExtensionState) {
         context.extension.packageJSON
     if (!packageJSON.displayName?.includes("Insiders")) {
         vscode.window.showWarningMessage(
-            "GPTools - chat agent only available with gptools.insiders.vsix"
+            "GenAIScript - chat agent only available with genaiscript.insiders.vsix"
         )
         return
     }
 
     if (!vscode.env.appName.includes("Insiders")) {
         vscode.window.showWarningMessage(
-            "GPTools - chat agent only available with Visual Studio Code Insiders"
+            "GenAIScript - chat agent only available with Visual Studio Code Insiders"
         )
         return
     }
@@ -170,7 +170,7 @@ export function activateChatAgent(state: ExtensionState) {
         const configure = "Configure"
         vscode.window
             .showWarningMessage(
-                "GPTools - chat agent proposal api not enabled.",
+                "GenAIScript - chat agent proposal api not enabled.",
                 configure
             )
             .then(async (res) => {
@@ -182,11 +182,11 @@ export function activateChatAgent(state: ExtensionState) {
                         content: `# Configuring Copilot Chat Agents
                         
 The Copilot Chat Agents are still under the proposal APIs phase so you need a configuration
-step to enable them for gptools (Learn about [proposed apis](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api)).
+step to enable them for genaiscript (Learn about [proposed apis](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api)).
 
 These steps will not be needed once the API gets fully released.
 
--   edit the \`.vscode-insiders/argv.json\` file to add the gptools extension
+-   edit the \`.vscode-insiders/argv.json\` file to add the genaiscript extension
 
 \`\`\`json
 {
@@ -236,7 +236,7 @@ These steps will not be needed once the API gets fully released.
 
         const access = await vscode.chat.requestChatAccess("copilot")
         logVerbose(`chat access model: ${access.model || "unknown"}`)
-        await vscode.commands.executeCommand("coarch.fragment.prompt", {
+        await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
             chat: <ChatRequestContext>{
                 context,
                 progress,
@@ -253,8 +253,8 @@ These steps will not be needed once the API gets fully released.
     // that appear when you type `/`.
     const agent = vscode.chat.createChatAgent(AGENT_ID, handler)
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
-    agent.description = "Run conversation as GPTool script..."
-    agent.fullName = "GPTools"
+    agent.description = "Run conversation as genaiscript..."
+    agent.fullName = TOOL_NAME
     agent.subCommandProvider = {
         provideSubCommands(token) {
             const templates =
@@ -271,7 +271,7 @@ These steps will not be needed once the API gets fully released.
                 {
                     name: "run",
                     description:
-                        "Run a GPTools script against the current context",
+                        "Run a GenAIScript script against the current context",
                 },
             ]
         },
@@ -288,7 +288,7 @@ These steps will not be needed once the API gets fully released.
                 state.aiRequest?.response?.edits?.length
             ) {
                 follows.push({
-                    commandId: "coarch.request.applyEdits",
+                    commandId: "genaiscript.request.applyEdits",
                     message: "Review the changes in the Refactorings view.",
                     title: "Preview Edits",
                 })
@@ -316,7 +316,7 @@ export function configureChatCompletionForChatAgent(
             function: 3,
         }
         const { model, temperature, top_p, seed, ...rest } = req
-        trace.item(`gptool model: ${model}`)
+        trace.item(`script model: ${model}`)
         trace.item(`copilot llm model: ${access.model || "unknown"}`)
 
         if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())

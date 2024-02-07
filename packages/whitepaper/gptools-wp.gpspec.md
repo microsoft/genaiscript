@@ -1,14 +1,14 @@
-# gptools gpspec to generate project documentation
+# genaiscript gpspec to generate project documentation
 
-This file is used to generate documents related to the gptools project.  
+This file is used to generate documents related to the genaiscript project.  
 
--   [basefile](./gptools-overview.md)
+-   [basefile](./genaiscript-overview.md)
 
--   [gptools-wp.slides.md](gptools-wp.slides.md)
+-   [genaiscript-wp.slides.md](genaiscript-wp.slides.md)
     -   write the result to a file
--   [gptools-wp.diagrams.md](gptools-wp.diagrams.md)
--   [gptools-wp.1pager.md](gptools-wp.1pager.md)
--   [gptools-wp.tex](gptools-wp.tex)
+-   [genaiscript-wp.diagrams.md](genaiscript-wp.diagrams.md)
+-   [genaiscript-wp.1pager.md](genaiscript-wp.1pager.md)
+-   [genaiscript-wp.tex](genaiscript-wp.tex)
 
 ## Slide notes
  - If slides are generated be sure to include slides mentioning related work

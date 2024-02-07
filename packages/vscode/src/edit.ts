@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { Fragment, eolPosition } from "gptools-core"
+import { Fragment, eolPosition } from "genaiscript-core"
 
 export function toPos(p: CharPosition | number) {
     if (typeof p === "number") return new vscode.Position(p, 0)

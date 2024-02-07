@@ -1,6 +1,6 @@
 import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
-import { host, coarchExt } from "./host"
-import { dotGptoolsPath, sha256string } from "./util"
+import { host } from "./host"
+import { dotGenaiscriptPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
 
 export type CacheEntry<K, V> = { sha: string; key: K; val: V }
@@ -20,10 +20,10 @@ export class Cache<K, V> extends EventTarget {
     }
 
     private folder() {
-        return dotGptoolsPath("cache")
+        return dotGenaiscriptPath("cache")
     }
     private path() {
-        return host.resolvePath(this.folder(), this.name + coarchExt)
+        return host.resolvePath(this.folder(), this.name + ".jsonl")
     }
     private async initialize() {
         if (this._entries) return

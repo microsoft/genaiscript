@@ -2,7 +2,7 @@ import { $, glob, path } from 'zx'
 import { test, describe, expect } from "vitest"
 import "dotenv/config"
 
-const gptoolsjs = `../../packages/cli/built/gptools.js`
+const scriptsjs = `../../packages/cli/built/genaiscript.js`
 const tools = ['lza_review']
 const annotationsf = `./annotations.jsonl`
 
@@ -12,7 +12,7 @@ tools.forEach(tool => describe(tool, async () => {
     files.forEach(file => {
         const name = file.substring(dir.length + 1)
         return test(name.replace(/\.bicep$/, ''), async () => {
-            const { review, stderr } = await $`node ${gptoolsjs} run ${tool} ${file} --no-colors --out ./test-results/${tool}/${name} --out-annotations ${annotationsf}`
+            const { review, stderr } = await $`node ${scriptsjs} run ${tool} ${file} --no-colors --out ./test-results/${tool}/${name} --out-annotations ${annotationsf}`
             console.log(stderr)
             expect(review).toBe(undefined)
         }, { timeout: 120000 })

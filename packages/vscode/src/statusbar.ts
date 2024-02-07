@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
-import { CHANGE } from "gptools-core"
+import { CHANGE } from "genaiscript-core"
 import { Utils } from "vscode-uri"
 import { commandButtonsMarkdown } from "./promptcommands"
 
@@ -17,14 +17,14 @@ export function activateStatusBar(state: ExtensionState) {
         vscode.StatusBarAlignment.Right,
         120
     )
-    statusBarItem.command = "coarch.request.status"
+    statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
         const { computing, progress, options, editsApplied } =
             state.aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
         const token = await host.getSecretToken()
-        statusBarItem.text = "GPTools " + toStringList(
+        statusBarItem.text = "GenAIScript " + toStringList(
             computing && !tokensSoFar ? `$(loading~spin)` : undefined,
             tokensSoFar ? `${tokensSoFar} tokens` : undefined
         )

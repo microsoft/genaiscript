@@ -1,4 +1,4 @@
-import { CoArchProject, Diagnostic, Fragment, PromptTemplate } from "./ast"
+import { Project, Diagnostic, Fragment, PromptTemplate } from "./ast"
 import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
@@ -8,7 +8,7 @@ import { throwError } from "./error"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
-        .replace(/\.gptool$/, "")
+        .replace(/\.genai$/, "")
         .replace(/.*[\/\\]/, "")
 }
 
@@ -327,8 +327,8 @@ class MetaFoundError extends Error {
 async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
     let text = ""
-    function gptool(m: PromptArgs) {
-        if (meta !== null) throw new Error(`more than one gptool() call`)
+    function script(m: PromptArgs) {
+        if (meta !== null) throw new Error(`more than one script() call`)
         meta = m
         throw new MetaFoundError()
     }
@@ -345,16 +345,16 @@ async function parseMeta(r: PromptTemplate) {
                 parsers: undefined,
                 writeText: (body) => {
                     if (meta == null)
-                        throw new Error(`gptool()/system() has to come first`)
+                        throw new Error(`script()/system() has to come first`)
 
                     text +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
                 },
-                gptool,
+                script,
                 system: (meta) => {
                     meta.unlisted = true
                     meta.isSystem = true
-                    gptool(meta)
+                    script(meta)
                 },
                 readFile: async (filename: string) => ({
                     label: filename,
@@ -448,7 +448,7 @@ export interface DataFrame {
 }
 
 /**
- * Parse output of LLM similar to output of coarch def() function.
+ * Parse output of LLM similar to output of genaiscript def() function.
  *
  * Expect text to look something like this:
  *
@@ -606,7 +606,7 @@ const metaCache: Record<string, { meta: PromptArgs; text: string }> = {}
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
-    prj: CoArchProject,
+    prj: Project,
     finalizer: (checker: Checker<PromptTemplate>) => void
 ) {
     const r = {
@@ -647,7 +647,7 @@ async function parsePromptTemplateCore(
 export async function parsePromptTemplate(
     filename: string,
     content: string,
-    prj: CoArchProject
+    prj: Project
 ) {
     return await parsePromptTemplateCore(filename, content, prj, (c) => {
         const obj = c.validateKV(() => {
