@@ -1,6 +1,4 @@
 import { stdout } from "node:process"
-export const coarchFolder = ".gptools"
-export const coarchExt = ".gptools.jsonl"
 
 export const info = console.error
 

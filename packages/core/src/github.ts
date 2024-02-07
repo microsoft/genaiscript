@@ -31,7 +31,7 @@ function createClient(conn: GithubConnectionInfo) {
     const ThrottledOctokit = Octokit.plugin(throttling)
     const octokit = new ThrottledOctokit({
         ...rest,
-        userAgent: `gptools`,
+        userAgent: `genaiscript`,
         throttle: {
             onRateLimit: (retryAfter, options, octokit, retryCount) => {
                 octokit.log.warn(

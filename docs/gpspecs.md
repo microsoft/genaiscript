@@ -1,8 +1,8 @@
 # Authoring GPSpecs
 
-To start using GPTools, create a new `.gpspec.md` file and start adding content as markdown. You can use the CodeAction QuickFix light bulb to launch the gptools on this file.
+To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run "Run GenAIScript" to see the results.
 
-```markdown A sample CoArch document.
+```markdown A sample GenAIScript document.
 # email address recognizer
 
 Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
@@ -16,10 +16,10 @@ You can accept or cancel the changes using the buttons at the bottom of the view
 
 ## Linked documents
 
-You can link other local documents using the markdown link syntax. These documents are accessible during the GPTool
+You can link other local documents using the markdown link syntax. These documents are accessible during the GenAiScript
 execution through the `env.links` variable.
 
-```markdown A sample CoArch document.
+```markdown A sample GenAIScript document.
 # email address recognizer
 
 -   [email_validator.py](./email_validator.py)
@@ -29,7 +29,7 @@ Write a function that takes a string argument and returns true if the whole stri
 ...
 ```
 
-and somewhere in the GPTool:
+and somewhere in the GenAiScript:
 
 ```js
 def(
@@ -44,7 +44,7 @@ You can also link to `https://` resource that will automatically be download and
 -   [driver.ts](https://github.com/microsoft/devicescript/blob/main/packages/drivers/src/driver.ts)
 ```
 
-> For GitHub.com source files, GPTool will automatically update the URL to point to the raw file.
+> For GitHub.com source files, GenAiScript will automatically update the URL to point to the raw file.
 
 ## Variables
 
@@ -56,19 +56,19 @@ Lorem ipsum...
 <!-- @myvar myvalue -->
 ```
 
-and somewhere in the GPtool:
+and somewhere in the script:
 
 ```js
 const myvalue = env.vars.myvar
 ```
-For example, if you want to customize a GPTool to focus on a particular file mentioned in the GPSpec file, you can do the following in the GPSpec file:
+For example, if you want to customize a GenAiScript to focus on a particular file mentioned in the GPSpec file, you can do the following in the GPSpec file:
 
 ```markdown
 <!-- @focusdoc
 my-focus-doc.md
 -->
 ```
-and refer to that variable in the GPTool as follows:
+and refer to that variable in the GenAiScript as follows:
 
 ```js
 const focusFileName = env.vars.focusdoc

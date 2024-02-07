@@ -34,7 +34,7 @@ export class MarkdownTrace
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
-        )}" class="gptools"><summary>
+        )}" class="genaiscript"><summary>
 ${title}
 </summary>
 

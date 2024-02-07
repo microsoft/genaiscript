@@ -1,4 +1,5 @@
-import { LogLevel, ReadFileOptions, coarchFolder, host } from "./host"
+import { GENAISCRIPT_FOLDER } from "./constants"
+import { LogLevel, ReadFileOptions, host } from "./host"
 
 export function delay<T>(millis: number, value?: T): Promise<T | undefined> {
     return new Promise((resolve) => setTimeout(() => resolve(value), millis))
@@ -152,8 +153,8 @@ export function toBase64(data: Uint8Array): string {
     else return btoa(uint8ArrayToString(data))
 }
 
-export function dotGptoolsPath(...segments: string[]) {
-    return host.resolvePath(host.projectFolder(), coarchFolder, ...segments)
+export function dotGenaiscriptPath(...segments: string[]) {
+    return host.resolvePath(host.projectFolder(), GENAISCRIPT_FOLDER, ...segments)
 }
 
 export function splitPath(path: string) {

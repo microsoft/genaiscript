@@ -100,7 +100,7 @@ export interface FragmentTransformResponse {
     label?: string
 
     /**
-     * GPTools version
+     * GenAIScript version
      */
     version: string
 
@@ -167,7 +167,7 @@ async function callExpander(
                         throw new Error(msg)
                     }
                 },
-                gptool: () => { },
+                script: () => { },
                 system: () => { },
                 readFile: async (filename: string) => {
                     let content: string
@@ -252,7 +252,7 @@ async function expandTemplate(
 
     traceVars()
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-    trace.startDetails("🛠️ gptool")
+    trace.startDetails("🛠️ script")
 
     const prompt = await callExpander(template, env, path, trace)
     const expanded = prompt.text
@@ -312,12 +312,11 @@ async function expandTemplate(
         trace.endDetails()
     }
 
-    trace.detailsFenced("📓 gptool source", template.jsSource, "js")
+    trace.detailsFenced("📓 script source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
         model ??
-        fragment.project.coarchJson.model ??
         defaultModel) as any
     temperature =
         options.temperature ??
@@ -573,7 +572,7 @@ export function generateCliArguments(
 
     const cli = [
         "node",
-        ".gptools/gptools.js",
+        ".genaiscript/genaiscript.js",
         "run",
         template.id,
         cliInfo.spec,
@@ -1183,9 +1182,9 @@ ${generateCliArguments(template, fragment, options)}
 \`\`\`
 
 -   You will need to install [Node.js](https://nodejs.org/en/).
--   Configure the OpenAI token in environment variables (run \`node .gptools/gptools help keys\` for help).
--   The \`.gptools/gptools.js\` is written by the Visual Studio Code extension automatically.
--   Run \`node .gptools/gptools help run\` for the full list of options.
+-   Configure the OpenAI token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
+-   The \`.genaiscript/genaiscript.js\` is written by the Visual Studio Code extension automatically.
+-   Run \`node .genaiscript/genaiscript help run\` for the full list of options.
 `
     )
 }

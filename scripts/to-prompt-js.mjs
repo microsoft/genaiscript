@@ -26,5 +26,5 @@ for (const fn of process.argv.slice(2)) {
             return `\${env.${vn}}`;
         });
     const newText = `prompt(${str(obj)},\`\n${text}\`);\n`;
-    writeFileSync(fn.slice(0, -suff.length) + ".gptool.js", newText);
+    writeFileSync(fn.slice(0, -suff.length) + ".genai.js", newText);
 }

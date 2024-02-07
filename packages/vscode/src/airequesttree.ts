@@ -4,8 +4,8 @@ import {
     AIRequestSnapshotKey,
     ExtensionState,
 } from "./state"
-import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "gptools-core"
-import { Cache } from "gptools-core"
+import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "genaiscript-core"
+import { Cache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
 
@@ -85,7 +85,7 @@ export function activateAIRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new AIRequestTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("coarch.prompts.requests", {
+    const treeView = vscode.window.createTreeView("genaiscript.prompts.requests", {
         treeDataProvider,
     })
     subscriptions.push(treeView)

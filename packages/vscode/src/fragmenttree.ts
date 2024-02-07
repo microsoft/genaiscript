@@ -5,7 +5,7 @@ import {
     FRAGMENTS_CHANGE,
     FragmentsEvent,
 } from "./state"
-import { Fragment, allChildren, concatArrays } from "gptools-core"
+import { Fragment, allChildren, concatArrays } from "genaiscript-core"
 
 type FragmentTreeNode = Fragment & { reference?: string }
 
@@ -51,7 +51,7 @@ class FragmentsTreeDataProvider
                 ? vscode.TreeItemCollapsibleState.Expanded
                 : vscode.TreeItemCollapsibleState.None
         )
-        item.id = `coarch.frag.${file.filename}${fullId}${
+        item.id = `genaiscript.frag.${file.filename}${fullId}${
             reference ? `<${reference}` : ""
         }`
         item.contextValue = `fragment ${hasChildren ? `node` : `leaf`} ${
@@ -61,7 +61,7 @@ class FragmentsTreeDataProvider
             generating ? `, ${progress?.tokensSoFar || 0} tokens` : ""
         }`
         item.command = {
-            command: "coarch.fragment.navigate",
+            command: "genaiscript.fragment.navigate",
             title: "Navigate to...",
             arguments: [element],
         }
@@ -164,7 +164,7 @@ export function activateFragmentTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new FragmentsTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("coarch.fragments", {
+    const treeView = vscode.window.createTreeView("genaiscript.fragments", {
         treeDataProvider,
     })
     subscriptions.push(treeView)
@@ -175,7 +175,7 @@ export function activateFragmentTreeDataProvider(state: ExtensionState) {
     }
     subscriptions.push(
         vscode.commands.registerCommand(
-            "coarch.fragment.reveal",
+            "genaiscript.fragment.reveal",
             fragmentReveal
         )
     )

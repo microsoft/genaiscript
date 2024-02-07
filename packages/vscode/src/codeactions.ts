@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { Fragment, TextFile } from "gptools-core"
+import { Fragment, TextFile } from "genaiscript-core"
 import { Utils } from "vscode-uri"
 
 class CodeActionProvider implements vscode.CodeActionProvider {
@@ -20,12 +20,12 @@ class CodeActionProvider implements vscode.CodeActionProvider {
         if (!templates?.length) return []
 
         const action = new vscode.CodeAction(
-            `Run GPTool...`,
+            `Run GenAiScript...`,
             vscode.CodeActionKind.QuickFix
         )
         action.command = <vscode.Command>{
-            command: "coarch.fragment.prompt",
-            tooltip: "Apply a GPTool script to this file.",
+            command: "genaiscript.fragment.prompt",
+            tooltip: "Apply a GenAiScript script to this file.",
             arguments: [{ fragment }],
         }
         const filename =
@@ -53,7 +53,7 @@ class CodeActionProvider implements vscode.CodeActionProvider {
                     vscode.CodeActionKind.QuickFix
                 )
                 a.command = <vscode.Command>{
-                    command: "coarch.fragment.prompt",
+                    command: "genaiscript.fragment.prompt",
                     tooltip: `Apply ${t.title} to this file.`,
                     arguments: [{ fragment, template: t }],
                 }

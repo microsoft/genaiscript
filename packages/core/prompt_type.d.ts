@@ -4,12 +4,12 @@
 
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .gptool.js file.
+ * Exactly one call should be present on top of .genai.js file.
  */
-declare function gptool(options: PromptArgs): void
+declare function script(options: PromptArgs): void
 
 /**
- * Equivalent of gptool() for system prompts.
+ * Equivalent of script() for system prompts.
  */
 declare function system(options: PromptArgs): void
 

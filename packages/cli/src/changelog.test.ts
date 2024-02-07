@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { parseChangeLogs } from "gptools-core"
+import { parseChangeLogs } from "genaiscript-core"
 
 describe("changelog", () => {
     test("template", () => {

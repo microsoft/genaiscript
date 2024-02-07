@@ -1,19 +1,19 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
-const dir = "./src/gptools"
+const dir = "./src/genaiscript"
 const fp = "./src/default_prompts.ts"
-console.debug(`bundling ${dir}/*.gptool.js into default_prompts.ts`)
+console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`)
 const promptMap = {}
 const ftMap = {}
-const prompts = readdirSync("./src/gptools")
+const prompts = readdirSync(dir)
 for (const prompt of prompts) {
     if (!prompt.endsWith(".js")) continue
     const text = readFileSync(`${dir}/${prompt}`, "utf-8")
 
-    if (prompt.endsWith(".gptool.js"))
-        promptMap[prompt.replace(/\.gptool\.js$/, "")] = text
+    if (prompt.endsWith(".genai.js"))
+        promptMap[prompt.replace(/\.genai\.js$/i, "")] = text
 }
 const promptDefs = {
-    ".gitattributes": "gptools.d.ts -diff merge=ours linguist-generated",
+    ".gitattributes": "genaiscript.d.ts -diff merge=ours linguist-generated",
     "jsconfig.json": JSON.stringify(
         {
             compilerOptions: {
@@ -24,12 +24,12 @@ const promptDefs = {
                 checkJs: true,
                 allowJs: true,
             },
-            include: ["*.js", "./gptools.d.ts"],
+            include: ["*.js", "./genaiscript.d.ts"],
         },
         null,
         4
     ),
-    "gptools.d.ts": ["./src/prompt_template.d.ts", "./prompt_type.d.ts"]
+    "genaiscript.d.ts": ["./src/prompt_template.d.ts", "./prompt_type.d.ts"]
         .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
         .map((src) =>
             src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, "")

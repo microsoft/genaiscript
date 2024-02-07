@@ -16,15 +16,15 @@ import {
     getChatCompletionCache,
     pretifyMarkdown,
     renderFencedVariables,
-} from "gptools-core"
+} from "genaiscript-core"
 
-const SCHEME = "gptools"
+const SCHEME = "genaiscript"
 
 const noRequest = `
-No GPTools request found yet. Please run a GPTool.
+No GenAIScript request found yet. Please run a GenAiScript.
 `
 const noResponse = `
-Waiting for GPTool response...
+Waiting for GenAiScript response...
 `
 
 class MarkdownTextDocumentContentProvider
@@ -54,7 +54,7 @@ class MarkdownTextDocumentContentProvider
         const wrap = (md: string) => {
             if (!aiRequest) return noRequest
             if (!md) return noResponse
-            return `${computing ? `> **GPTool run in progress.**\n` : ""} 
+            return `${computing ? `> **GenAiScript run in progress.**\n` : ""} 
 ${pretifyMarkdown(md)}    
             `
         }
@@ -83,7 +83,7 @@ ${pretifyMarkdown(md)}
         if (uri.path.startsWith(builtinPrefix)) {
             const id = uri.path
                 .slice(builtinPrefix.length)
-                .replace(/\.gptool\.js$/, "")
+                .replace(/\.genai\.js$/i, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""
@@ -159,7 +159,7 @@ export function infoUri(path: string) {
 export function builtinPromptUri(id: string) {
     return vscode.Uri.from({
         scheme: SCHEME,
-        path: builtinPrefix + id + ".gptool.js",
+        path: builtinPrefix + id + ".genai.js",
     })
 }
 
@@ -172,7 +172,7 @@ export function activateMarkdownTextDocumentContentProvider(
     subscriptions.push(
         vscode.workspace.registerTextDocumentContentProvider(SCHEME, provider),
         vscode.commands.registerCommand(
-            "coarch.request.open",
+            "genaiscript.request.open",
             async (id: string) => {
                 if (state.aiRequest) {
                     const uri = infoUri(id || REQUEST_TRACE_FILENAME)
@@ -180,15 +180,15 @@ export function activateMarkdownTextDocumentContentProvider(
                 }
             }
         ),
-        vscode.commands.registerCommand("coarch.request.open.trace", () =>
+        vscode.commands.registerCommand("genaiscript.request.open.trace", () =>
             vscode.commands.executeCommand(
-                "coarch.request.open",
+                "genaiscript.request.open",
                 REQUEST_TRACE_FILENAME
             )
         ),
-        vscode.commands.registerCommand("coarch.request.open.output", () =>
+        vscode.commands.registerCommand("genaiscript.request.open.output", () =>
             vscode.commands.executeCommand(
-                "coarch.request.open",
+                "genaiscript.request.open",
                 REQUEST_OUTPUT_FILENAME
             )
         )

@@ -1,4 +1,4 @@
-gptool({
+script({
     title: "LZA File Analysis - Targets and Deployment",    
     description: "Analyze the contents of SPEC files from a git repository of a Microsoft Azure Landing Zone Accelerator (LZA) for an enterprise software company. The user will share a file and its dependencies for you to analyze.",
     categories: ["Azure Landing Zone"],

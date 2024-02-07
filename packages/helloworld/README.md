@@ -1,6 +1,6 @@
 # Hello world demo
 
-In this demo, we will create a Python wrapper for the gptools CLI, as documented in `gptool.help.md`.
+In this demo, we will create a Python wrapper for the genaiscript CLI, as documented in `script.help.md`.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ The demo uses GitHub Copilot Chat so you'll need Insiders.
 - type
 
 ```
-Generate a python wrapper for a CLI that is documented in gptool.help.md. Generate comments and Pylance type annotations.
+Generate a python wrapper for a CLI that is documented in script.help.md. Generate comments and Pylance type annotations.
 ```
 
 - type
@@ -28,9 +28,9 @@ Add all options as optional arguments
 - type
 
 ```
-@gptools /chat-toolify
+@genaiscript /chat-toolify
 ```
 
--  run generate tool on `gptool.help.md` and tweak as needed
+-  run generate tool on `script.help.md` and tweak as needed
 
 

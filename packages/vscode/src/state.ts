@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import {
     ChatCompletionsProgressReport,
-    CoArchProject,
+    Project,
     Fragment,
     PromptTemplate,
     concatArrays,
@@ -19,14 +19,15 @@ import {
     delay,
     CHANGE,
     Cache,
-    dotGptoolsPath,
     logInfo,
     logMeasure,
     parseAnnotations,
     MarkdownTrace,
     coreVersion,
     sha256string,
-} from "gptools-core"
+    dotGenaiscriptPath,
+    CLI_JS,
+} from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
@@ -36,19 +37,20 @@ import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
 import { infoUri } from "./markdowndocumentprovider"
 import { createVSPath } from "./vspath"
+import { TOOL_NAME } from "./extension"
 
 const MAX_HISTORY_LENGTH = 500
 
 export const TOKEN_DOCUMENTATION_URL =
-    "https://github.com/microsoft/gptools/blob/main/docs/token.md"
+    "https://github.com/microsoft/genaiscript/blob/main/docs/token.md"
 export const CONTEXT_LENGTH_DOCUMENTATION_URL =
-    "https://github.com/microsoft/gptools/blob/main/docs/token.md"
+    "https://github.com/microsoft/genaiscript/blob/main/docs/token.md"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
-export const REQUEST_OUTPUT_FILENAME = "GPTools Output.md"
-export const REQUEST_TRACE_FILENAME = "GPTools Trace.md"
+export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
+export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 
 export interface ChatRequestContext {
     context: ChatAgentContext
@@ -140,7 +142,7 @@ function getAIRequestCache() {
 
 export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
-    private _project: CoArchProject = undefined
+    private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _watcher: vscode.FileSystemWatcher | undefined
     private _diagColl: vscode.DiagnosticCollection
@@ -150,10 +152,9 @@ export class ExtensionState extends EventTarget {
 
     readonly aiRequestContext: AIRequestContextOptions = {}
 
-
     constructor(public readonly context: ExtensionContext) {
         super()
-        this.output = vscode.window.createOutputChannel("GPTools", {
+        this.output = vscode.window.createOutputChannel(TOOL_NAME, {
             log: true,
         })
         this.host = new VSCodeHost(this)
@@ -161,7 +162,8 @@ export class ExtensionState extends EventTarget {
         const { subscriptions } = context
         subscriptions.push(this)
 
-        this._diagColl = vscode.languages.createDiagnosticCollection("GPTools")
+        this._diagColl =
+            vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
         this._aiRequestCache = getAIRequestCache()
@@ -176,11 +178,11 @@ export class ExtensionState extends EventTarget {
         )
     }
 
-    private async saveGptoolsJs() {
-        const p = Utils.joinPath(this.context.extensionUri, "gptools.js")
-        const cli = vscode.Uri.file(dotGptoolsPath("gptools.js"))
+    private async saveScripts() {
+        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
+        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
         await vscode.workspace.fs.createDirectory(
-            vscode.Uri.file(dotGptoolsPath("."))
+            vscode.Uri.file(dotGenaiscriptPath("."))
         )
         await vscode.workspace.fs.copy(p, cli, { overwrite: true })
     }
@@ -224,7 +226,7 @@ export class ExtensionState extends EventTarget {
             const res = await req?.request
             const { edits, text } = res || {}
             if (text && !options.chat)
-                vscode.commands.executeCommand("coarch.request.open.output")
+                vscode.commands.executeCommand("genaiscript.request.open.output")
 
             const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
@@ -261,7 +263,7 @@ export class ExtensionState extends EventTarget {
                     trace
                 )
                 if (res === trace)
-                    vscode.commands.executeCommand("coarch.request.open.trace")
+                    vscode.commands.executeCommand("genaiscript.request.open.trace")
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
@@ -300,7 +302,7 @@ ${e.message}`
         options: AIRequestOptions
     ): Promise<AIRequest> {
         const controller = new AbortController()
-        const config = vscode.workspace.getConfiguration("gptools")
+        const config = vscode.workspace.getConfiguration("genaiscript")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
@@ -407,7 +409,7 @@ ${e.message}`
         r.request = runTemplate(template, fragment, runOptions)
 
         if (!options.chat)
-            vscode.commands.executeCommand("coarch.request.open.output")
+            vscode.commands.executeCommand("genaiscript.request.open.output")
 
         r.request
             .then((resp) => {
@@ -454,7 +456,7 @@ ${e.message}`
             : []
     }
 
-    private async setProject(prj: CoArchProject) {
+    private async setProject(prj: Project) {
         this._project = prj
         await this.fixPromptDefinitions()
         this.dispatchFragments()
@@ -476,7 +478,7 @@ ${e.message}`
         }, 1000)
 
         this._watcher = vscode.workspace.createFileSystemWatcher(
-            "**/*.{gpspec.md,gptool.js}"
+            "**/*.{gpspec.md,genai.js}"
         )
         this._watcher.onDidChange(handleChange)
         this._watcher.onDidCreate(handleChange)
@@ -485,22 +487,22 @@ ${e.message}`
 
     async activate() {
         this.initWatcher()
-        await this.saveGptoolsJs()
+        await this.saveScripts()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
 
-        logInfo("gptools extension acticated")
+        logInfo("genaiscript extension acticated")
     }
 
     async fixPromptDefinitions() {
-        const prompts = await vscode.workspace.findFiles("**/*.gptool.js")
+        const prompts = await vscode.workspace.findFiles("**/*.genai.js")
         const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
         for (const folder of folders) {
             const f = vscode.Uri.file(folder)
             for (let [defName, defContent] of Object.entries(
                 promptDefinitions
             )) {
-                if (this.project && defName === "gptools.d.ts") {
+                if (this.project && defName === "genaiscript.d.ts") {
                     const systems = this.project.templates
                         .filter((t) => t.isSystem)
                         .map((s) => `"${s.id}"`)
@@ -522,11 +524,11 @@ ${e.message}`
         performance.mark(`project-start`)
         const gpspecFiles = await findFiles("**/*.gpspec.md")
         performance.mark(`scan-tools`)
-        const gptoolFiles = await findFiles("**/*.gptool.js")
+        const scriptFiles = await findFiles("**/*.genai.js")
         performance.mark(`parse-project`)
         const newProject = await parseProject({
             gpspecFiles,
-            gptoolFiles,
+            scriptFiles,
         })
         await this.setProject(newProject)
         this.setDiagnostics()
@@ -554,12 +556,12 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
         )
 
         const gpspecFiles = [specn]
-        const gptoolFiles = await findFiles("**/*.gptool.js")
+        const scriptFiles = await findFiles("**/*.genai.js")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             gpspecFiles,
-            gptoolFiles,
+            scriptFiles,
         })
         return newProject
     }
@@ -580,12 +582,12 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
 `
         )
         const gpspecFiles = [specn]
-        const gptoolFiles = await findFiles("**/*.gptool.js")
+        const scriptFiles = await findFiles("**/*.genai.js")
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
             gpspecFiles,
-            gptoolFiles,
+            scriptFiles,
         })
         return newProject
     }
@@ -624,7 +626,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
                     message || "...",
                     severities[d.severity]
                 )
-                r.source = "GPTools"
+                r.source = TOOL_NAME
                 r.code = target
                     ? {
                           value,
