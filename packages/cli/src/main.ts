@@ -22,7 +22,7 @@ import {
     parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
 } from "gptools-core"
-import ora from "ora"
+import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
 import getStdin from "get-stdin"
@@ -380,6 +380,11 @@ async function run(
     const removeOut = options.removeOut
     const vars = options.vars
 
+    const spinner: Ora =
+        !stream && !isQuiet
+            ? ora({ interval: 200 }).start("preparing tool and files")
+            : undefined
+
     let spec: string
     let specContent: string
     const toolFiles: string[] = []
@@ -444,13 +449,17 @@ ${Array.from(files)
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.roots[0]
 
+    spinner?.start("Querying")
+
     let tokens = 0
     const res: FragmentTransformResponse = await runTemplate(gptool, fragment, {
-        infoCb: () => {},
+        infoCb: ({ text }) => {
+            spinner?.start(text)
+        },
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
             if (stream) process.stdout.write(responseChunk)
-            else if (!isQuiet) process.stderr.write(".")
+            else if (spinner) spinner.suffixText = `${tokens} tokens`
         },
         skipLLM,
         label,
@@ -466,7 +475,12 @@ ${Array.from(files)
         vars: parseVars(vars),
     })
 
-    logVerbose(``)
+    if (spinner) {
+        if (res.error) spinner?.fail(`${spinner.text}, ${res.error}`)
+        else spinner.succeed()
+        spinner.stopAndPersist()
+    }
+
     if (outTrace && res.trace) await write(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
@@ -486,8 +500,7 @@ ${Array.from(files)
     if (outChangelogs && res.changelogs?.length)
         await write(outChangelogs, res.changelogs.join("\n"))
     if (outData && res.frames?.length)
-        if (isJSONLFilename(outData))
-            await appendJSONL(outData, res.frames)
+        if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
         else await write(outData, JSON.stringify(res.frames, null, 2))
 
     if (applyEdits && !res.error && Object.keys(res.fileEdits || {}).length)
