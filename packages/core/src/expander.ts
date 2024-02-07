@@ -317,7 +317,6 @@ async function expandTemplate(
     model = (options.model ??
         env.vars["model"] ??
         model ??
-        fragment.project.coarchJson.model ??
         defaultModel) as any
     temperature =
         options.temperature ??
