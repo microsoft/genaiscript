@@ -3,7 +3,7 @@
 The GenAIScript CLI is a command line packaged as a Node.JS javascript file (`genaiscript.js`). It is used to run GenAIScript from the command line.
 
 -   The VS Code extension automatically installs the CLI at `.genaiscript/genaiscript.js` in your project.
--   Download `genaiscript.js` from the [latest release assets](https://github.com/microsoft/genaiscripts/releases/latest).
+-   Download `genaiscript.js` from the [latest release assets](https://github.com/microsoft/genaiscript/releases/latest).
 
 ## run a tool on a file
 
