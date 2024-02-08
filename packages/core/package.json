@@ -28,7 +28,7 @@
         "yaml": "^2.3.4"
     },
     "scripts": {
-        "build:openapi": "openapi-typescript http://127.0.0.1:8000/openapi.json -o ./src/services/retreival.ts",
+        "build:openapi": "openapi-typescript http://127.0.0.1:8000/openapi.json -o ./src/openapi.ts",
         "typecheck": "tsc -p src",
         "prompts:bundle": "node bundleprompts.mjs",
         "pretypecheck": "yarn prompts:bundle"
