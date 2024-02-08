@@ -17,7 +17,7 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 You can open this repo in a codespace to get the build environment needed.
 
--   Install Node.JS 16+
+-   Install Node.JS 20+
 -   Run yarn
 
 ```bash
@@ -32,4 +32,20 @@ Run the `release` script.
 
 ```bash
 yarn release
+```
+
+## chatgpt retreival
+
+Generate a bearer token using scripts/bearer.mjs.
+
+Follow the instructino and also pin langchain if you get
+
+```
+ImportError: cannot import name 'BaseLanguageModel' from 'langchain.schema'
+```
+
+To pin,
+
+```
+pip install langchain==0.0.153
 ```
