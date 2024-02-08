@@ -597,7 +597,7 @@ async function listTools() {
 }
 
 async function helpAll() {
-    console.log(`# GenAIScriptsriptsriptsriptsripts CLI\n`)
+    console.log(`# GenAIScript CLI\n`)
 
     const visit = (
         header: string,
