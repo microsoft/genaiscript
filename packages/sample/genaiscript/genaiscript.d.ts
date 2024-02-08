@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = string
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -152,6 +152,11 @@ interface PromptTemplate extends PromptLike {
      * If running in chat, use copilot LLM model
      */
     copilot?: boolean
+
+    /**
+     * Secrets required by the prompt
+     */
+    secrets?: string[]
 }
 
 /**
@@ -416,6 +421,11 @@ interface ExpansionVariables {
      * List of JSON schemas; if any
      */
     schemas?: Record<string, JSONSchema>
+
+    /**
+     * List of secrets used by the prompt, must be registred in `genaiscript`.
+     */
+    secrets?: Record<string, string>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -426,15 +436,15 @@ type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
     language?:
-        | "markdown"
-        | "json"
-        | "yaml"
-        | "javascript"
-        | "typescript"
-        | "python"
-        | "shell"
-        | "toml"
-        | string
+    | "markdown"
+    | "json"
+    | "yaml"
+    | "javascript"
+    | "typescript"
+    | "python"
+    | "shell"
+    | "toml"
+    | string
     lineNumbers?: boolean
     /**
      * JSON schema identifier
@@ -553,6 +563,8 @@ interface Parsers {
     TOML(text: string): unknown | undefined
 }
 
+type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -571,7 +583,7 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
-    fetchText(urlOrFile: string | LinkedFile): Promise<{
+    fetchText(urlOrFile: string | LinkedFile, options?: FetchTextOptions): Promise<{
         ok: boolean
         status: number
         text?: string
@@ -672,7 +684,8 @@ declare var parsers: Parsers
  * @param url
  */
 declare function fetchText(
-    url: string | LinkedFile
+    url: string | LinkedFile,
+    options?: FetchTextOptions
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
