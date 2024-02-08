@@ -5,12 +5,21 @@
 
 
 export interface paths {
+  "/upsert-file": {
+    /** Upsert File */
+    post: operations["upsert_file_upsert_file_post"];
+  };
+  "/upsert": {
+    /** Upsert */
+    post: operations["upsert_upsert_post"];
+  };
   "/query": {
-    /**
-     * Query
-     * @description Accepts search query objects array each with query and optional filter. Break down complex questions into sub-questions. Refine results by criteria, e.g. time / source, don't do this often. Split queries if ResponseTooLargeError occurs.
-     */
-    post: operations["query_query_post"];
+    /** Query Main */
+    post: operations["query_main_query_post"];
+  };
+  "/delete": {
+    /** Delete */
+    delete: operations["delete_delete_delete"];
   };
 }
 
@@ -18,6 +27,40 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    /** Body_upsert_file_upsert_file_post */
+    Body_upsert_file_upsert_file_post: {
+      /**
+       * File
+       * Format: binary
+       */
+      file: string;
+      /** Metadata */
+      metadata?: string;
+    };
+    /** DeleteRequest */
+    DeleteRequest: {
+      /** Ids */
+      ids?: string[];
+      filter?: components["schemas"]["DocumentMetadataFilter"];
+      /**
+       * Delete All
+       * @default false
+       */
+      delete_all?: boolean;
+    };
+    /** DeleteResponse */
+    DeleteResponse: {
+      /** Success */
+      success: boolean;
+    };
+    /** Document */
+    Document: {
+      /** Id */
+      id?: string;
+      /** Text */
+      text: string;
+      metadata?: components["schemas"]["DocumentMetadata"];
+    };
     /** DocumentChunkMetadata */
     DocumentChunkMetadata: {
       source?: components["schemas"]["Source"];
@@ -43,6 +86,18 @@ export interface components {
       embedding?: number[];
       /** Score */
       score: number;
+    };
+    /** DocumentMetadata */
+    DocumentMetadata: {
+      source?: components["schemas"]["Source"];
+      /** Source Id */
+      source_id?: string;
+      /** Url */
+      url?: string;
+      /** Created At */
+      created_at?: string;
+      /** Author */
+      author?: string;
     };
     /** DocumentMetadataFilter */
     DocumentMetadataFilter: {
@@ -97,6 +152,16 @@ export interface components {
      * @enum {string}
      */
     Source: "email" | "file" | "chat";
+    /** UpsertRequest */
+    UpsertRequest: {
+      /** Documents */
+      documents: components["schemas"]["Document"][];
+    };
+    /** UpsertResponse */
+    UpsertResponse: {
+      /** Ids */
+      ids: string[];
+    };
     /** ValidationError */
     ValidationError: {
       /** Location */
@@ -120,11 +185,52 @@ export type external = Record<string, never>;
 
 export interface operations {
 
-  /**
-   * Query
-   * @description Accepts search query objects array each with query and optional filter. Break down complex questions into sub-questions. Refine results by criteria, e.g. time / source, don't do this often. Split queries if ResponseTooLargeError occurs.
-   */
-  query_query_post: {
+  /** Upsert File */
+  upsert_file_upsert_file_post: {
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_upsert_file_upsert_file_post"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UpsertResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Upsert */
+  upsert_upsert_post: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpsertRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UpsertResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Query Main */
+  query_main_query_post: {
     requestBody: {
       content: {
         "application/json": components["schemas"]["QueryRequest"];
@@ -135,6 +241,28 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["QueryResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  /** Delete */
+  delete_delete_delete: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeleteRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        content: {
+          "application/json": components["schemas"]["DeleteResponse"];
         };
       };
       /** @description Validation Error */
