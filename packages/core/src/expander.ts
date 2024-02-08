@@ -37,6 +37,7 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { coreVersion } from "./version"
 import { isCancelError } from "./error"
+import { upsertFiles, queryFiles } from "./retreival"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -118,8 +119,8 @@ export interface FragmentTransformResponse {
 function trimNewlines(s: string) {
     return s.replace(/^\n*/, "").replace(/\n*$/, "")
 }
-const fence = "```"
-const markdownFence = "``````"
+//const fence = "```"
+//const markdownFence = "``````"
 const systemFence = "---"
 
 export function fenceMD(t: string, contentType?: string) {
@@ -167,14 +168,19 @@ async function callExpander(
                         throw new Error(msg)
                     }
                 },
-                script: () => { },
-                system: () => { },
+                script: () => {},
+                system: () => {},
                 readFile: async (filename: string) => {
                     let content: string
                     try {
                         content = await readText("workspace://" + filename)
-                    } catch (e) { }
+                    } catch (e) {}
                     return { label: filename, filename, content }
+                },
+                retreive: async (q: string, files: LinkedFile[]) => {
+                    await upsertFiles(files)
+                    const res = await queryFiles(q)
+                    return res
                 },
                 fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {
@@ -314,10 +320,7 @@ async function expandTemplate(
 
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
-    model = (options.model ??
-        env.vars["model"] ??
-        model ??
-        defaultModel) as any
+    model = (options.model ?? env.vars["model"] ?? model ?? defaultModel) as any
     temperature =
         options.temperature ??
         tryParseFloat(env.vars["temperature"]) ??
@@ -505,7 +508,7 @@ async function fragmentVars(
         })
     const attrs = commentAttributes(frag)
     const secrets: Record<string, string> = {}
-    for (const secret of (template.secrets || [])) {
+    for (const secret of template.secrets || []) {
         const value = await host.readSecret(secret)
         if (value) {
             trace.item(`secret \`${secret}\` used`)
@@ -528,7 +531,7 @@ async function fragmentVars(
             description: template.description,
         },
         vars: attrs,
-        secrets
+        secrets,
     }
     return vars
 }
@@ -721,9 +724,9 @@ export async function runTemplate(
     })
     const tools: ChatCompletionTool[] = vars.functions?.length
         ? vars.functions.map((f) => ({
-            type: "function",
-            function: f.definition as any,
-        }))
+              type: "function",
+              function: f.definition as any,
+          }))
         : undefined
     const schemas = vars.schemas || {}
 
@@ -1130,23 +1133,23 @@ export async function runTemplate(
         trace.details(
             "🖊 edits",
             `| Type | Filename | Message |\n| --- | --- | --- |\n` +
-            edits
-                .map(
-                    (e) =>
-                        `| ${e.type} | ${e.filename} | ${e.label || ""} |`
-                )
-                .join("\n")
+                edits
+                    .map(
+                        (e) =>
+                            `| ${e.type} | ${e.filename} | ${e.label || ""} |`
+                    )
+                    .join("\n")
         )
     if (annotations.length)
         trace.details(
             "⚠️ annotations",
             `| Severity | Filename | Line | Message |\n| --- | --- | --- | --- |\n` +
-            annotations
-                .map(
-                    (e) =>
-                        `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
-                )
-                .join("\n")
+                annotations
+                    .map(
+                        (e) =>
+                            `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
+                    )
+                    .join("\n")
         )
 
     const res: FragmentTransformResponse = {

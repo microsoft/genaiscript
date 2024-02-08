@@ -361,6 +361,7 @@ async function parseMeta(r: PromptTemplate) {
                     filename,
                     content: undefined,
                 }),
+                retreive: async () => [],
                 fetchText: async (urlOrFile: string | LinkedFile, options) => {
                     const url =
                         typeof urlOrFile === "string"
