@@ -5,24 +5,7 @@
 This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec starts the `script`, which reads the `gpspec`, interacts with the gpvm and foundation model.
 The AI-generated output is used to update the workspace, and the user interacts with the updated workspace through the genaiscript extension to VS code.
 
-```mermaid
-sequenceDiagram
-participant User
-participant VSCode
-participant gpspec
-participant script
-participant gpvm
-User->>VSCode: Create/Edit gpspec
-VSCode->>gpspec: Save gpspec
-User->>VSCode: Invoke script
-VSCode->>script: Execute script with gpspec + workspace
-script->>gpvm: Request foundation model execution
-gpvm->>script: Return AI-generated output
-script->>VSCode: Update workspace with output
-VSCode->>User: Display updated workspace
-```
-
-## Copilot Chat integration
+## Copilot Chat integration (requires Visual Studio Code Insiders)
 
 GenAIScript is exposed as the `@genaiscript` agent in Copilot Chat
 
@@ -43,7 +26,7 @@ using the tool id, e.g. the file name.
 For example, to run the `front-matter` tool on the current file, type in the Copilot chat:
 
 ```bash
-@script /front-matter
+@genaiscript /front-matter
 ```
 
 When invoked from Copilot Chat, the `env.chat` variable is populated and contains the history of messages

@@ -1,4 +1,4 @@
-# GenAIScript - GenAI Scripting
+# GenAIScript - Generative AI Scripting
 
 GenAIScript (formerly GenAIScript, CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
@@ -21,8 +21,8 @@ that ignores the internal details of the implementation.'
 
 The key elements of GenAIScript are:
 
--   🪄 [genaiscript](./docs/genaiscript.md): Scripts that use the editor context to create prompts and query a LLM.
--   🖼 [gpspecs](./docs/gpspecs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
+-   🪄 [scripts](./docs/scripts.md): Scripts that use the editor context to create prompts and query a LLM.
+-   🖼 [specs](./docs/specs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
 
 GenAIScript automatically parses the LLM output into various formats:
 
