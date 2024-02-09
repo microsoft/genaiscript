@@ -1,8 +1,26 @@
 import type { paths } from "./openapi"
 import { host } from "./host"
 import createClient from "openapi-fetch"
+import { lookup } from "mime-types"
+import { Progress } from "./progress"
 
-export interface RetreivalClientOptions {}
+export interface RetreivalClientOptions {
+    progress?: Progress
+}
+
+const SUPPORTED_MIME_TYPES = [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+]
+
+export function isIndexable(filename: string) {
+    const type = lookup(filename) || "text/plain"
+    return SUPPORTED_MIME_TYPES.includes(type)
+}
 
 async function createRetreivalClient() {
     const token = await host.readSecret("RETREIVAL_TOKEN")
@@ -36,7 +54,7 @@ export async function upsert(
     options?: RetreivalClientOptions
 ) {
     if (!fileOrUrls.length) return
-
+    const { progress } = options || {}
     const fetcher = await createRetreivalClient()
 
     const files: LinkedFile[] = fileOrUrls.map((f) =>
@@ -45,6 +63,7 @@ export async function upsert(
 
     const filesWithText = files.filter((f) => f.content)
     const filesWithoutText = files.filter((f) => !f.content)
+    const increment = 100 / (filesWithText.length + filesWithoutText.length)
 
     if (filesWithText.length) {
         const { response } = await fetcher.POST("/upsert", {
@@ -53,28 +72,43 @@ export async function upsert(
             },
         })
         if (!response.ok)
-            throw new Error(`${response.status} ${response.statusText}`)
+            console.log(
+                `failed to insert files ${response.status} ${response.statusText}`
+            )
+        progress?.report({ increment: increment * filesWithText.length })
     }
     if (filesWithoutText.length) {
-        const body: Record<string, Blob> = {}
         for (const f of filesWithoutText) {
+            progress?.report({ increment, message: f.filename })
             const body: any = {
                 file: undefined,
                 metadata: {
+                    id: f.filename,
                     source: undefined,
                     url: undefined,
                 },
             }
             if (/^http?s:\/\//i.test(f.filename)) {
                 const res = await fetch(f.filename)
-                body.file = await res.blob()
-                body.url = f.filename
+                const blob = await res.blob()
+                body.file = blob
+                body.metadata.url = f.filename
             } else {
+                const type = lookup(f.filename) || "text/plain"
                 const buffer = await host.readFile(f.filename)
-                body.file = new Blob([buffer])
-                body.source = "file"
+                body.file = new Blob([buffer], {
+                    type,
+                })
+                body.metadata.source = "file"
+            }
+            if (!SUPPORTED_MIME_TYPES.includes(body.file.type)) {
+                console.debug(`unsupported file type ${f.filename}`)
+                continue
             }
             const { response } = await fetcher.POST("/upsert-file", {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
                 body,
                 bodySerializer(body) {
                     const fd = new FormData()
@@ -85,7 +119,7 @@ export async function upsert(
                 },
             })
             if (!response.ok)
-                throw new Error(`${response.status} ${response.statusText}`)
+                console.log(`failed to upsert ${f.filename}`, response)
         }
     }
 }

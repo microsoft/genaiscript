@@ -4,8 +4,10 @@ import { checkDirectoryExists, checkFileExists } from "./fs"
 import {
     GENAISCRIPT_FOLDER,
     dotGenaiscriptPath,
+    isIndexable,
     upsert,
 } from "genaiscript-core"
+import { TOOL_NAME } from "./extension"
 
 export function activateRetreivalCommands(state: ExtensionState) {
     const { context, host } = state
@@ -51,20 +53,26 @@ export function activateRetreivalCommands(state: ExtensionState) {
             files = [vscode.workspace.asRelativePath(uri)]
         }
 
-        files = files.filter((f) => !f.includes(GENAISCRIPT_FOLDER))
+        files = files
+            .filter((f) => !f.includes(GENAISCRIPT_FOLDER))
+            .filter((f) => isIndexable(f))
 
-        if (!files?.length) return
+        if (!files?.length) {
+            vscode.window.showInformationMessage(
+                `${TOOL_NAME} - No files to index`
+            )
+            return
+        }
 
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: "Indexing files",
+                title: `${TOOL_NAME} - Indexing`,
                 cancellable: false,
             },
             async (progress) => {
                 try {
-                    progress.report({ increment: 0, message: "Indexing files" })
-                    await upsert(files)
+                    await upsert(files, { progress })
                 } catch (e) {
                     vscode.window.showErrorMessage(e.message)
                 }
