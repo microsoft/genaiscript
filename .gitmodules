@@ -1,3 +1,6 @@
 [submodule "applications/lza/aca-landing-zone-accelerator"]
 	path = applications/lza/aca-landing-zone-accelerator
 	url = https://github.com/Azure/aca-landing-zone-accelerator/
+[submodule "chatgpt-retrieval-plugin"]
+	path = chatgpt-retrieval-plugin
+	url = https://github.com/pelikhan/chatgpt-retrieval-plugin/
