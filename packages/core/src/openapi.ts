@@ -36,6 +36,8 @@ export interface components {
       file: string;
       /** Metadata */
       metadata?: string;
+      /** Id */
+      id?: string;
     };
     /** DeleteRequest */
     DeleteRequest: {
