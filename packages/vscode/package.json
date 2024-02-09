@@ -271,6 +271,11 @@
                 "command": "genaiscript.openIssueReporter",
                 "title": "Report Issue...",
                 "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.retreival.index",
+                "title": "Index files...",
+                "category": "GenAIScript"
             }
         ]
     },

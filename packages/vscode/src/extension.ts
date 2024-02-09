@@ -13,6 +13,7 @@ import { clearToken } from "genaiscript-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
+import { activateRetreivalCommands } from "./retreivalcommands"
 
 export const TOOL_NAME = "GenAIScript"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
@@ -22,6 +23,7 @@ export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
+    activateRetreivalCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
     //activateFragmentTreeDataProvider(state)

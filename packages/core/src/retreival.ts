@@ -5,9 +5,11 @@ import { host } from "./host"
 export interface RetreivalClientOptions {}
 
 async function createRetreivalClient() {
+    const token = await host.readSecret("RETREIVAL_TOKEN")
+    if (!token) throw new Error("RETREIVAL_TOKEN not found")
+
     const baseUrl =
         (await host.readSecret("RETREIVAL_BASE_URL")) || "http://127.0.0.1:8000"
-    const token = await host.readSecret("BEARER_TOKEN")
     const fetcher = Fetcher.for<paths>()
     fetcher.configure({
         baseUrl,
@@ -20,43 +22,80 @@ async function createRetreivalClient() {
     return fetcher
 }
 
-export async function upsertFiles(
-    files: LinkedFile[],
-    options?: RetreivalClientOptions
-) {
-    const fetcher = await createRetreivalClient()
-    const api = fetcher.path("/upsert").method("post").create()
-
-    const res = await api({
-        documents: files.map((f) => ({
-            id: f.filename,
-            text: f.content,
-            metadata: {
-                source: "file",
-                url: /^https:\/\//.test(f.filename) ? f.filename : undefined,
-            },
-        })),
-    })
-
+export function toDocument(f: LinkedFile) {
     return {
-        ok: res.ok,
-        status: res.status,
-        statusText: res.statusText,
+        id: f.filename,
+        text: f.content,
+        metadata: {
+            source: "file" as "file",
+            url: /^https:\/\//.test(f.filename) ? f.filename : undefined,
+        },
     }
 }
 
-export async function queryFiles(
-    query: string,
+export async function upsert(
+    fileOrUrls: (string | LinkedFile)[],
     options?: RetreivalClientOptions
 ) {
+    if (!fileOrUrls.length) return
+
+    const fetcher = await createRetreivalClient()
+
+    const files: LinkedFile[] = fileOrUrls.map((f) =>
+        typeof f === "string" ? <LinkedFile>{ filename: f } : f
+    )
+
+    const filesWithText = files.filter((f) => f.content)
+    const filesWithoutText = files.filter((f) => !f.content)
+
+    if (filesWithText.length) {
+        const upsertApi = fetcher.path("/upsert").method("post").create()
+        const res = await upsertApi({
+            documents: filesWithText.map(toDocument),
+        })
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+    }
+    if (filesWithoutText.length) {
+        const formData = new FormData()
+        for (const f of filesWithoutText) {
+            if (/^http?s:\/\//.test(f.filename)) {
+                const res = await fetch(f.filename)
+                const blob = await res.blob()
+                formData.append(f.filename, blob)
+            } else {
+                const buffer = await host.readFile(f.filename)
+                formData.append(f.filename, new Blob([buffer]))
+            }
+        }
+        const upsertFileApi = fetcher
+            .path("/upsert-file")
+            .method("post")
+            .create()
+        const res = await upsertFileApi(
+            {},
+            {
+                body: formData,
+            }
+        )
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+    }
+}
+
+export async function query(
+    q: string,
+    options?: RetreivalClientOptions & { filename?: string }
+) {
+    const { filename } = options || {}
     const fetcher = await createRetreivalClient()
     const api = fetcher.path("/query").method("post").create()
 
     const res = await api({
         queries: [
             {
-                query,
-                filter: { source: "file" },
+                query: q,
+                filter: {
+                    document_id: filename,
+                },
             },
         ],
     })

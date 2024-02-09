@@ -37,7 +37,7 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { coreVersion } from "./version"
 import { isCancelError } from "./error"
-import { upsertFiles, queryFiles } from "./retreival"
+import { upsert, query } from "./retreival"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -178,8 +178,8 @@ async function callExpander(
                     return { label: filename, filename, content }
                 },
                 retreive: async (q: string, files: LinkedFile[]) => {
-                    await upsertFiles(files)
-                    const { ok, results } = await queryFiles(q)
+                    await upsert(files)
+                    const { ok, results } = await query(q)
                     if (!ok) return []
 
                     const found = results.map((r) => {

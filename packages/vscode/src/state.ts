@@ -162,8 +162,7 @@ export class ExtensionState extends EventTarget {
         const { subscriptions } = context
         subscriptions.push(this)
 
-        this._diagColl =
-            vscode.languages.createDiagnosticCollection(TOOL_NAME)
+        this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
         this._aiRequestCache = getAIRequestCache()
@@ -226,7 +225,9 @@ export class ExtensionState extends EventTarget {
             const res = await req?.request
             const { edits, text } = res || {}
             if (text && !options.chat)
-                vscode.commands.executeCommand("genaiscript.request.open.output")
+                vscode.commands.executeCommand(
+                    "genaiscript.request.open.output"
+                )
 
             const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
@@ -263,7 +264,9 @@ export class ExtensionState extends EventTarget {
                     trace
                 )
                 if (res === trace)
-                    vscode.commands.executeCommand("genaiscript.request.open.trace")
+                    vscode.commands.executeCommand(
+                        "genaiscript.request.open.trace"
+                    )
                 else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
@@ -538,9 +541,8 @@ ${e.message}`
     async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
         const fspath = uri.fsPath
         const specn = fspath + "/dir.gpspec.md"
-        const files = await (
-            await vscode.workspace.fs.readDirectory(uri)
-        )
+        const dir = await vscode.workspace.fs.readDirectory(uri)
+        const files = dir
             .filter(([, type]) => type === vscode.FileType.File)
             .map(([name]) => name)
             .filter((name) => !name.endsWith(".gpspec.md"))

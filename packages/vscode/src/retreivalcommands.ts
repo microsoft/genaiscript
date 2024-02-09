@@ -1,0 +1,71 @@
+import * as vscode from "vscode"
+import { ExtensionState } from "./state"
+import { checkDirectoryExists, checkFileExists } from "./fs"
+import {
+    GENAISCRIPT_FOLDER,
+    dotGenaiscriptPath,
+    upsert,
+} from "genaiscript-core"
+
+export function activateRetreivalCommands(state: ExtensionState) {
+    const { context, host } = state
+    const { subscriptions } = context
+
+    const getToken = async () => {
+        let token = await host.readSecret("RETREIVAL_TOKEN")
+        if (!token) {
+            const newToken = await vscode.window.showInputBox({
+                prompt: "Enter your Retreival API token",
+                placeHolder: "Retreiaval API token",
+            })
+            if (newToken === undefined) return undefined
+
+            // save in .env file
+            token = newToken
+        }
+
+        return token
+    }
+
+    const index = async (uri: vscode.Uri) => {
+        if (!(await getToken())) return
+
+        let files: string[] = []
+        if (!uri) {
+            files = (await vscode.workspace.findFiles("**/*")).map((f) =>
+                vscode.workspace.asRelativePath(f)
+            )
+        } else if (await checkDirectoryExists(uri)) {
+            const dir = await vscode.workspace.fs.readDirectory(uri)
+            files = dir
+                .filter(([, type]) => type === vscode.FileType.File)
+                .map(([name]) =>
+                    vscode.workspace.asRelativePath(
+                        vscode.Uri.joinPath(uri, name)
+                    )
+                )
+        } else if (await checkFileExists(uri)) {
+            files = [vscode.workspace.asRelativePath(uri)]
+        }
+
+        files = files.filter((f) => !f.includes(GENAISCRIPT_FOLDER))
+
+        if (!files?.length) return
+
+        await vscode.window.withProgress(
+            {
+                location: vscode.ProgressLocation.Notification,
+                title: "Indexing files",
+                cancellable: false,
+            },
+            async (progress) => {
+                progress.report({ increment: 0, message: "Indexing files" })
+                await upsert(files)
+            }
+        )
+    }
+
+    subscriptions.push(
+        vscode.commands.registerCommand("genaiscript.retreival.index", index)
+    )
+}
