@@ -107,6 +107,12 @@ ${title}
         this.content += `${"#".repeat(level)} ${message}\n\n`
     }
 
+    resultItem(value: boolean, message: string) {
+        this.item(
+            `${value === true ? `✅` : value === false ? `❌` : "?"} ${message}`
+        )
+    }
+
     error(message: string, exception?: unknown) {
         this.guarded(() => {
             this.content += `\n> error: ${message}\n`

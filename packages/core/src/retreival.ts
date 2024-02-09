@@ -3,9 +3,11 @@ import { host } from "./host"
 import createClient from "openapi-fetch"
 import { lookup } from "mime-types"
 import { Progress } from "./progress"
+import { MarkdownTrace } from "./trace"
 
 export interface RetreivalClientOptions {
     progress?: Progress
+    trace?: MarkdownTrace
 }
 
 const SUPPORTED_MIME_TYPES = [
@@ -54,7 +56,7 @@ export async function upsert(
     options?: RetreivalClientOptions
 ) {
     if (!fileOrUrls.length) return
-    const { progress } = options || {}
+    const { progress, trace } = options || {}
     const fetcher = await createRetreivalClient()
 
     const files: LinkedFile[] = fileOrUrls.map((f) =>
@@ -76,6 +78,9 @@ export async function upsert(
                 `failed to insert files ${response.status} ${response.statusText}`
             )
         progress?.report({ increment: increment * filesWithText.length })
+        if (trace)
+            for (const f of filesWithText)
+                trace.resultItem(response.ok, f.filename)
     }
     if (filesWithoutText.length) {
         for (const f of filesWithoutText) {
@@ -102,7 +107,7 @@ export async function upsert(
                 body.metadata.source = "file"
             }
             if (!SUPPORTED_MIME_TYPES.includes(body.file.type)) {
-                console.debug(`unsupported file type ${f.filename}`)
+                trace?.resultItem(false, `${f.filename}, unsupported file type`)
                 continue
             }
             const { response } = await fetcher.POST("/upsert-file", {
@@ -120,6 +125,7 @@ export async function upsert(
             })
             if (!response.ok)
                 console.log(`failed to upsert ${f.filename}`, response)
+            trace?.resultItem(response.ok, f.filename)
         }
     }
 }
