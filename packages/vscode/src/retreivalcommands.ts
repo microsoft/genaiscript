@@ -42,7 +42,9 @@ export function activateRetreivalCommands(state: ExtensionState) {
             files = dir
                 .filter(
                     ([name, type]) =>
-                        type === vscode.FileType.File && !name.startsWith(".")
+                        type === vscode.FileType.File &&
+                        !name.startsWith(".") &&
+                        name.startsWith("node_modules")
                 )
                 .map(([name]) =>
                     vscode.workspace.asRelativePath(
