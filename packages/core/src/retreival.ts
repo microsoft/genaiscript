@@ -10,7 +10,7 @@ export interface RetreivalClientOptions {
     trace?: MarkdownTrace
 }
 
-const SUPPORTED_MIME_TYPES = [
+const UPSERTFILE_MIME_TYPES = [
     "text/plain",
     "text/markdown",
     "text/csv",
@@ -19,9 +19,11 @@ const SUPPORTED_MIME_TYPES = [
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ]
 
+const UPSERT_MIME_TYPES = ["text/plain", "text/markdown", "text/csv"]
+
 export function isIndexable(filename: string) {
     const type = lookup(filename) || "text/plain"
-    return SUPPORTED_MIME_TYPES.includes(type)
+    return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
 async function createRetreivalClient() {
@@ -63,9 +65,13 @@ export async function upsert(
         typeof f === "string" ? <LinkedFile>{ filename: f } : f
     )
 
-    const filesWithText = files.filter((f) => f.content)
-    const filesWithoutText = files.filter((f) => !f.content)
-    const increment = 100 / (filesWithText.length + filesWithoutText.length)
+    const filesWithText = files.filter(
+        (f) =>
+            f.content &&
+            UPSERT_MIME_TYPES.includes(lookup(f.filename) || "text/plain")
+    )
+    const filesWithoutText = files.filter((f) => !filesWithText.includes(f))
+    const increment = 100 / files.length
 
     if (filesWithText.length) {
         const { response } = await fetcher.POST("/upsert", {
@@ -80,7 +86,7 @@ export async function upsert(
         progress?.report({ increment: increment * filesWithText.length })
         if (trace)
             for (const f of filesWithText)
-                trace.resultItem(response.ok, `index` + f.filename)
+                trace.resultItem(response.ok, `index ` + f.filename)
     }
     if (filesWithoutText.length) {
         for (const f of filesWithoutText) {
@@ -106,7 +112,7 @@ export async function upsert(
                 })
                 body.metadata.source = "file"
             }
-            if (!SUPPORTED_MIME_TYPES.includes(body.file.type)) {
+            if (!UPSERTFILE_MIME_TYPES.includes(body.file.type)) {
                 trace?.resultItem(false, `${f.filename}, unsupported file type`)
                 continue
             }
