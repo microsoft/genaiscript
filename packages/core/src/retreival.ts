@@ -80,7 +80,7 @@ export async function upsert(
         progress?.report({ increment: increment * filesWithText.length })
         if (trace)
             for (const f of filesWithText)
-                trace.resultItem(response.ok, f.filename)
+                trace.resultItem(response.ok, `index` + f.filename)
     }
     if (filesWithoutText.length) {
         for (const f of filesWithoutText) {
@@ -125,7 +125,7 @@ export async function upsert(
             })
             if (!response.ok)
                 console.log(`failed to upsert ${f.filename}`, response)
-            trace?.resultItem(response.ok, f.filename)
+            trace?.resultItem(response.ok, `index` + f.filename)
         }
     }
 }
@@ -155,7 +155,7 @@ export async function query(
         statusText: res.response.statusText,
         results: res.data?.results?.[0]?.results?.map(
             ({ id, text, score, metadata }) => ({
-                filename: metadata?.document_id,
+                filename: metadata?.url || metadata?.document_id,
                 id,
                 text,
                 score,

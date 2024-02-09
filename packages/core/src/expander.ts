@@ -178,19 +178,25 @@ async function callExpander(
                     return { label: filename, filename, content }
                 },
                 retreive: async (q: string, files: LinkedFile[]) => {
-                    await upsert(files)
-                    const { ok, results } = await query(q)
-                    if (!ok) return []
-
-                    const found = results.map((r) => {
-                        const { id, filename, text } = r
-                        return <LinkedFile>{
-                            filename,
-                            content: text,
-                            label: id,
-                        }
-                    })
-                    return found
+                    try {
+                        trace.startDetails("retreival")
+                        trace.item(`query: \`${q}\``)
+                        await upsert(files, { trace })
+                        const { results } = await query(q)
+                        const found =
+                            results?.map((r) => {
+                                const { id, filename, text } = r
+                                return <LinkedFile>{
+                                    filename,
+                                    content: text,
+                                    label: id,
+                                }
+                            }) || []
+                        trace.fence(results, "yaml")
+                        return found
+                    } finally {
+                        trace.endDetails()
+                    }
                 },
                 fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {

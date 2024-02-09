@@ -1,3 +1,4 @@
+import { CHANGE } from "./constants"
 import { fenceMD } from "./expander"
 import { stringify as yamlStringify } from "yaml"
 
@@ -7,16 +8,13 @@ export class MarkdownTrace
 {
     private _content: string = ""
 
-    static readonly CHANGE = "change"
-
     constructor() {
         super()
     }
 
     private disableChangeDispatch = 0
     dispatchChange() {
-        if (!this.disableChangeDispatch)
-            this.dispatchEvent(new Event(MarkdownTrace.CHANGE))
+        if (!this.disableChangeDispatch) this.dispatchEvent(new Event(CHANGE))
     }
 
     get content() {
