@@ -94,8 +94,6 @@ export async function upsert(
             progress?.report({ increment, message: f.filename })
             let file: Blob = undefined
             let metadata: any = {
-                id: f.filename,
-                document_id: f.filename,
                 source: undefined,
                 url: undefined,
             }
@@ -121,6 +119,7 @@ export async function upsert(
                     "Content-Type": "multipart/form-data",
                 },
                 body: {
+                    id: f.filename,
                     file: file as any as string,
                     metadata: JSON.stringify(metadata),
                 },
