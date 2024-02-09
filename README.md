@@ -1,6 +1,6 @@
 # GenAIScript - Generative AI Scripting
 
-GenAIScript (formerly GenAIScript, CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
+GenAIScript (formerly GPTools, CoArch) allows teams, including non-developers, to create and use GenAI-enhanced scripts. GenAIScript uses LLMs to enable a new kind of scripting that combines traditional code and natural language.
 
 ```js
 script({ title: "Code XRay" })
