@@ -32,13 +32,16 @@ export function activateRetreivalCommands(state: ExtensionState) {
 
         let files: string[] = []
         if (!uri) {
-            files = (await vscode.workspace.findFiles("**/*")).map((f) =>
-                vscode.workspace.asRelativePath(f)
-            )
+            files = (await vscode.workspace.findFiles("**/*"))
+                .map((f) => vscode.workspace.asRelativePath(f))
+                .filter((f) => !f.startsWith("."))
         } else if (await checkDirectoryExists(uri)) {
             const dir = await vscode.workspace.fs.readDirectory(uri)
             files = dir
-                .filter(([, type]) => type === vscode.FileType.File)
+                .filter(
+                    ([name, type]) =>
+                        type === vscode.FileType.File && !name.startsWith(".")
+                )
                 .map(([name]) =>
                     vscode.workspace.asRelativePath(
                         vscode.Uri.joinPath(uri, name)
@@ -59,8 +62,12 @@ export function activateRetreivalCommands(state: ExtensionState) {
                 cancellable: false,
             },
             async (progress) => {
-                progress.report({ increment: 0, message: "Indexing files" })
-                await upsert(files)
+                try {
+                    progress.report({ increment: 0, message: "Indexing files" })
+                    await upsert(files)
+                } catch (e) {
+                    vscode.window.showErrorMessage(e.message)
+                }
             }
         )
     }

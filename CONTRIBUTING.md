@@ -36,9 +36,9 @@ yarn release
 
 ## chatgpt retreival
 
-Generate a bearer token using scripts/bearer.mjs.
+- Generate a bearer token using scripts/bearer.mjs.
 
-Follow the instructino and also pin langchain if you get
+- Follow the install insructions and also pin langchain if you get
 
 ```
 ImportError: cannot import name 'BaseLanguageModel' from 'langchain.schema'
@@ -49,3 +49,11 @@ To pin,
 ```
 pip install langchain==0.0.153
 ```
+
+- Add .env support 
+
+```bash
+poetry self add poetry-plugin-dotenv
+```
+
+- Fill .env with secrets

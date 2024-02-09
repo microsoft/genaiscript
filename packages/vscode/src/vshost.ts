@@ -170,10 +170,12 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
         const wksrx = /^workspace:\/\//i
         const uri = wksrx.test(name)
             ? Utils.joinPath(
-                workspace.workspaceFolders[0].uri,
-                name.replace(wksrx, "")
-            )
-            : Uri.file(name)
+                  workspace.workspaceFolders[0].uri,
+                  name.replace(wksrx, "")
+              )
+            : name[0] === "/"
+              ? Uri.file(name)
+              : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
 
         const v = this.virtualFiles[uri.fsPath]
         if (options?.virtual) {
