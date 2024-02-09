@@ -436,15 +436,15 @@ type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
     language?:
-    | "markdown"
-    | "json"
-    | "yaml"
-    | "javascript"
-    | "typescript"
-    | "python"
-    | "shell"
-    | "toml"
-    | string
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | "toml"
+        | string
     lineNumbers?: boolean
     /**
      * JSON schema identifier
@@ -583,7 +583,10 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
-    fetchText(urlOrFile: string | LinkedFile, options?: FetchTextOptions): Promise<{
+    fetchText(
+        urlOrFile: string | LinkedFile,
+        options?: FetchTextOptions
+    ): Promise<{
         ok: boolean
         status: number
         text?: string
@@ -591,6 +594,7 @@ interface PromptContext {
     }>
     readFile(file: string): Promise<LinkedFile>
     cancel(reason?: string): void
+    retreive(query: string, files: LinkedFile[]): Promise<LinkedFile[]>
     env: ExpansionVariables
     path: Path
     parsers: Parsers
@@ -706,3 +710,13 @@ declare function defSchema(name: string, schema: JSONSchema): void
  * @param reason
  */
 declare function cancel(reason?: string): void
+
+/**
+ * Index and execute a query against the list of files
+ * @param query
+ * @param files
+ */
+declare function retreive(
+    query: string,
+    files: LinkedFile[]
+): Promise<LinkedFile[]>

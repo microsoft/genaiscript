@@ -179,8 +179,18 @@ async function callExpander(
                 },
                 retreive: async (q: string, files: LinkedFile[]) => {
                     await upsertFiles(files)
-                    const res = await queryFiles(q)
-                    return res
+                    const { ok, results } = await queryFiles(q)
+                    if (!ok) return []
+
+                    const found = results.map((r) => {
+                        const { id, filename, text } = r
+                        return <LinkedFile>{
+                            filename,
+                            content: text,
+                            label: id,
+                        }
+                    })
+                    return found
                 },
                 fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {

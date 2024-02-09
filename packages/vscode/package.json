@@ -217,7 +217,7 @@
             },
             {
                 "command": "genaiscript.prompt.create",
-                "title": "Create new GenAiScript...",
+                "title": "Create new script...",
                 "icon": "$(add)",
                 "category": "GenAIScript"
             },

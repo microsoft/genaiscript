@@ -1,34 +1,19 @@
 import { Fetcher } from "openapi-typescript-fetch"
 import { paths } from "./openapi"
+import { host } from "./host"
 
-export interface RetreivalClientOptions {
-    baseUrl?: string
-    token: string
-    headers?: HeadersInit
-}
+export interface RetreivalClientOptions {}
 
-export async function parseTokenFromEnv(
-    env: Record<string, string>
-): Promise<RetreivalClientOptions> {
-    return {
-        baseUrl: env.RETREIVAL_BASE_URL,
-        token: env.RETREIVAL_BEARER_TOKEN || env.BEARER_TOKEN,
-    }
-}
-
-function createRetreivalClient(options: RetreivalClientOptions) {
-    const {
-        baseUrl = "http://localhost:8000/",
-        token,
-        headers = {},
-    } = options ?? {}
+async function createRetreivalClient() {
+    const baseUrl =
+        (await host.readSecret("RETREIVAL_BASE_URL")) || "http://127.0.0.1:8000"
+    const token = await host.readSecret("BEARER_TOKEN")
     const fetcher = Fetcher.for<paths>()
     fetcher.configure({
         baseUrl,
         init: {
             headers: {
                 Authorization: `Bearer ${token}`,
-                ...headers,
             },
         },
     })
@@ -37,9 +22,9 @@ function createRetreivalClient(options: RetreivalClientOptions) {
 
 export async function upsertFiles(
     files: LinkedFile[],
-    options: RetreivalClientOptions
+    options?: RetreivalClientOptions
 ) {
-    const fetcher = createRetreivalClient(options)
+    const fetcher = await createRetreivalClient()
     const api = fetcher.path("/upsert").method("post").create()
 
     const res = await api({
@@ -62,9 +47,9 @@ export async function upsertFiles(
 
 export async function queryFiles(
     query: string,
-    options: RetreivalClientOptions
+    options?: RetreivalClientOptions
 ) {
-    const fetcher = createRetreivalClient(options)
+    const fetcher = await createRetreivalClient()
     const api = fetcher.path("/query").method("post").create()
 
     const res = await api({
@@ -81,7 +66,8 @@ export async function queryFiles(
         status: res.status,
         statusText: res.statusText,
         results: res.data?.results?.[0]?.results?.map(
-            ({ id, text, score }) => ({
+            ({ id, text, score, metadata }) => ({
+                filename: metadata?.document_id,
                 id,
                 text,
                 score,
