@@ -74,53 +74,56 @@ export async function upsert(
     const increment = 100 / files.length
 
     if (filesWithText.length) {
-        const { response } = await fetcher.POST("/upsert", {
+        const { response, data } = await fetcher.POST("/upsert", {
             body: {
                 documents: filesWithText.map(toDocument),
             },
         })
-        if (!response.ok)
-            console.log(
-                `failed to insert files ${response.status} ${response.statusText}`
-            )
         progress?.report({ increment: increment * filesWithText.length })
         if (trace)
-            for (const f of filesWithText)
-                trace.resultItem(response.ok, `index ` + f.filename)
+            for (let i = 0; i < filesWithText.length; i++) {
+                const f = filesWithText[i]
+                trace.resultItem(
+                    response.ok,
+                    `indexed ${f.filename} -> ${data?.ids?.[i] || ""}`
+                )
+            }
     }
     if (filesWithoutText.length) {
         for (const f of filesWithoutText) {
             progress?.report({ increment, message: f.filename })
-            const body: any = {
-                file: undefined,
-                metadata: {
-                    id: f.filename,
-                    source: undefined,
-                    url: undefined,
-                },
+            let file: Blob = undefined
+            let metadata: any = {
+                id: f.filename,
+                document_id: f.filename,
+                source: undefined,
+                url: undefined,
             }
             if (/^http?s:\/\//i.test(f.filename)) {
                 const res = await fetch(f.filename)
                 const blob = await res.blob()
-                body.file = blob
-                body.metadata.url = f.filename
+                file = blob
+                metadata.url = f.filename
             } else {
                 const type = lookup(f.filename) || "text/plain"
                 const buffer = await host.readFile(f.filename)
-                body.file = new Blob([buffer], {
+                file = new Blob([buffer], {
                     type,
                 })
-                body.metadata.source = "file"
+                metadata.source = "file"
             }
-            if (!UPSERTFILE_MIME_TYPES.includes(body.file.type)) {
+            if (!UPSERTFILE_MIME_TYPES.includes(file.type)) {
                 trace?.resultItem(false, `${f.filename}, unsupported file type`)
                 continue
             }
-            const { response } = await fetcher.POST("/upsert-file", {
+            const { response, data } = await fetcher.POST("/upsert-file", {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-                body,
+                body: {
+                    file: file as any as string,
+                    metadata: JSON.stringify(metadata),
+                },
                 bodySerializer(body) {
                     const fd = new FormData()
                     for (const [k, v] of Object.entries(body)) {
@@ -131,7 +134,10 @@ export async function upsert(
             })
             if (!response.ok)
                 console.log(`failed to upsert ${f.filename}`, response)
-            trace?.resultItem(response.ok, `index` + f.filename)
+            trace?.resultItem(
+                response.ok,
+                `indexed ${f.filename} -> ${data?.ids?.[0] || ""}`
+            )
         }
     }
 }
