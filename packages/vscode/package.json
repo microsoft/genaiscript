@@ -1,6 +1,9 @@
 {
     "name": "genaiscript-vscode",
-    "publisher": "Microsoft",
+    "publisher": "devicescript",
+    "author": {
+        "name": "Microsoft Corporation"
+    },    
     "displayName": "GenAIScript Insiders",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
     "version": "1.9.0",
@@ -29,7 +32,7 @@
         "directory": "packages/vscode"
     },
     "files": [
-        "./built/genaiscript.js"
+        "./genaiscript.js"
     ],
     "contributes": {
         "markdown.previewStyles": [
@@ -217,7 +220,7 @@
             },
             {
                 "command": "genaiscript.prompt.create",
-                "title": "Create new GenAiScript...",
+                "title": "Create new script...",
                 "icon": "$(add)",
                 "category": "GenAIScript"
             },
@@ -270,6 +273,11 @@
             {
                 "command": "genaiscript.openIssueReporter",
                 "title": "Report Issue...",
+                "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.retreival.index",
+                "title": "Index files...",
                 "category": "GenAIScript"
             }
         ]

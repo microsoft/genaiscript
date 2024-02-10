@@ -13,15 +13,17 @@ import { clearToken } from "genaiscript-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
+import { activateRetreivalCommands } from "./retreivalcommands"
 
 export const TOOL_NAME = "GenAIScript"
-export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
+export const EXTENSION_ID = "devicescript.genaiscript-vscode"
 export const AGENT_ID = "genaiscript"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
+    activateRetreivalCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
     //activateFragmentTreeDataProvider(state)
@@ -33,12 +35,15 @@ export async function activate(context: ExtensionContext) {
     activateChatAgent(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand("genaiscript.request.abort", async () => {
-            await state.cancelAiRequest()
-            await vscode.window.showInformationMessage(
-                `${TOOL_NAME} - request aborted.`
-            )
-        }),
+        vscode.commands.registerCommand(
+            "genaiscript.request.abort",
+            async () => {
+                await state.cancelAiRequest()
+                await vscode.window.showInformationMessage(
+                    `${TOOL_NAME} - request aborted.`
+                )
+            }
+        ),
         vscode.commands.registerCommand("genaiscript.request.retry", () =>
             state.retryAIRequest()
         ),
@@ -63,19 +68,22 @@ export async function activate(context: ExtensionContext) {
                 }
             }
         ),
-        vscode.commands.registerCommand("genaiscript.request.status", async () => {
-            const cmds = commandButtons(state)
-            if (!cmds.length)
-                await vscode.window.showInformationMessage(
-                    `${TOOL_NAME} - no request.`
-                )
-            else {
-                const res = await vscode.window.showQuickPick(cmds, {
-                    canPickMany: false,
-                })
-                if (res) vscode.commands.executeCommand(res.cmd)
+        vscode.commands.registerCommand(
+            "genaiscript.request.status",
+            async () => {
+                const cmds = commandButtons(state)
+                if (!cmds.length)
+                    await vscode.window.showInformationMessage(
+                        `${TOOL_NAME} - no request.`
+                    )
+                else {
+                    const res = await vscode.window.showQuickPick(cmds, {
+                        canPickMany: false,
+                    })
+                    if (res) vscode.commands.executeCommand(res.cmd)
+                }
             }
-        }),
+        ),
         vscode.commands.registerCommand(
             "genaiscript.openIssueReporter",
             async () => {

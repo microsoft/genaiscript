@@ -6,12 +6,9 @@ import {
     assert,
     fileExists,
     last,
-    logVerbose,
-    logWarn,
     readText,
     sha256string,
     strcmp,
-    tryReadJSON,
 } from "./util"
 import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
@@ -122,11 +119,7 @@ function removeIds(str: string, cb: (id: string) => void) {
     })
 }
 
-const parseMdFile: Parser = (
-    prj: Project,
-    filename: string,
-    md: string
-) => {
+const parseMdFile: Parser = (prj: Project, filename: string, md: string) => {
     const processor = remark().use(remarkGfm).use(remarkFrontmatter)
     const rootAST = processor.parse(md)
     let currElt: FragmentAST = {
