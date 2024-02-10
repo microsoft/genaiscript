@@ -7,6 +7,7 @@ import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
+    TOOL_ID,
 } from "./constants"
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
@@ -212,7 +213,7 @@ export async function getChatCompletions(
             authorization:
                 cfg.token && cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
             "api-key": cfg.token && !cfg.isOpenAI ? cfg.token : undefined,
-            "user-agent": "genaiscript",
+            "user-agent": TOOL_ID,
             "content-type": "application/json",
             ...(headers || {}),
         },

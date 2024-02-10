@@ -3,5 +3,9 @@ export const MAX_CACHED_TEMPERATURE = 0.01
 export const MAX_CACHED_TOP_P = 0.5
 //https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 export const AZURE_OPENAI_API_VERSION = "2023-09-01-preview"
-export const GENAISCRIPT_FOLDER = ".genaiscript"
-export const CLI_JS = "genaiscript.js"
+export const TOOL_ID = "genaiscript"
+export const GENAISCRIPT_FOLDER = "." + TOOL_ID
+export const CLI_JS = TOOL_ID + ".js"
+export const GENAI_SRC = "genaisrc"
+export const GENAI_EXT = ".genai.js"
+export const TOOL_NAME = "GenAIScript"

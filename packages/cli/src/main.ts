@@ -2,7 +2,7 @@ import {
     FragmentTransformResponse,
     RequestError,
     YAMLStringify,
-    coreVersion,
+    CORE_VERSION,
     diagnosticsToCSV,
     extractFenced,
     host,
@@ -24,6 +24,10 @@ import {
     upsert,
     Progress,
     query,
+    TOOL_ID,
+    GENAI_EXT,
+    TOOL_NAME,
+    GITHUB_REPO,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -99,7 +103,7 @@ async function buildProject(options?: {
     const {
         toolFiles,
         specFiles,
-        toolsPath = "**/*.genai.js",
+        toolsPath = "**/*" + GENAI_EXT,
         specsPath = "**/*.gpspec.md",
     } = options || {}
 
@@ -703,11 +707,9 @@ async function main() {
 
     NodeHost.install()
     program
-        .name("genaiscript")
-        .version(coreVersion)
-        .description(
-            "CLI for GenAIScript https://github.com/microsoft/genaiscript"
-        )
+        .name(TOOL_ID)
+        .version(CORE_VERSION)
+        .description(`CLI for ${TOOL_NAME} ${GITHUB_REPO}`)
         .showHelpAfterError(true)
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")

@@ -1,11 +1,12 @@
 import { PromptTemplate } from "./ast"
+import { GENAI_EXT, GENAI_SRC } from "./constants"
 import { host } from "./host"
 import { fileExists, writeText } from "./util"
 
 function promptPath(id: string) {
-    const prompts = host.resolvePath(host.projectFolder(), "genaiscript")
+    const prompts = host.resolvePath(host.projectFolder(), GENAI_SRC)
     if (id === null) return prompts
-    return host.resolvePath(prompts, id + ".genai.js")
+    return host.resolvePath(prompts, id + GENAI_EXT)
 }
 export async function copyPrompt(
     t: PromptTemplate,
