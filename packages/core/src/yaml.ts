@@ -1,4 +1,4 @@
-import { parse } from "yaml"
+import { parse, stringify } from "yaml"
 
 export function YAMLTryParse<T = any>(text: string, defaultValue?: T): T {
     try {
@@ -9,5 +9,5 @@ export function YAMLTryParse<T = any>(text: string, defaultValue?: T): T {
 }
 
 export function YAMLStringify(obj: any): string {
-    return JSON.stringify(obj, undefined, 2)
+    return stringify(obj, undefined, 2)
 }

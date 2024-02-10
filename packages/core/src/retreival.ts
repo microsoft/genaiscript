@@ -181,12 +181,14 @@ export async function query(
     const files: LinkedFile[] = []
     for (const fr of fragments) {
         let file = files.find((f) => f.filename === fr.filename)
-        if (!file)
+        if (!file) {
             file = <LinkedFile>{
                 filename: fr.filename,
                 label: `fragments`,
                 content: "...\n",
             }
+            files.push(file)
+        }
         file.content += fr.content + `\n...`
     }
     return {
