@@ -198,14 +198,14 @@ export class TextFile {
     readonly roots: Fragment[] = []
     readonly fragments: Fragment[] = []
     isStructured = false
-    frontMatter = ""
-    filesyntax = "markdown"
 
     constructor(
         public readonly project: Project,
         public readonly filename: string,
+        public readonly mime: string,
         public readonly content: string
-    ) {}
+    ) {
+    }
 
     relativeName() {
         const prj = host.projectFolder()
