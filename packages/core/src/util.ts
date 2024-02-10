@@ -154,7 +154,11 @@ export function toBase64(data: Uint8Array): string {
 }
 
 export function dotGenaiscriptPath(...segments: string[]) {
-    return host.resolvePath(host.projectFolder(), GENAISCRIPT_FOLDER, ...segments)
+    return host.resolvePath(
+        host.projectFolder(),
+        GENAISCRIPT_FOLDER,
+        ...segments
+    )
 }
 
 export function splitPath(path: string) {
