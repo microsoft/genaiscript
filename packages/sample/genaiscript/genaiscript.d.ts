@@ -436,15 +436,15 @@ type StringLike = string | LinkedFile | LinkedFile[]
 
 interface DefOptions {
     language?:
-    | "markdown"
-    | "json"
-    | "yaml"
-    | "javascript"
-    | "typescript"
-    | "python"
-    | "shell"
-    | "toml"
-    | string
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | "toml"
+        | string
     lineNumbers?: boolean
     /**
      * JSON schema identifier
@@ -563,6 +563,28 @@ interface Parsers {
     TOML(text: string): unknown | undefined
 }
 
+interface Retreival {
+    /**
+     * Add files to the search index
+     */
+    index(files: (string | LinkedFile)[]): Promise<void>
+
+    /**
+     * Search for embeddings
+     */
+    search(
+        query: string,
+        options?: {
+            /**
+             * Filter results for the following files
+             */
+            files?: (string | LinkedFile)[]
+        }
+    ): Promise<{
+        fragments: LinkedFile[]
+    }>
+}
+
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
 // keep in sync with prompt_type.d.ts
@@ -583,7 +605,10 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
-    fetchText(urlOrFile: string | LinkedFile, options?: FetchTextOptions): Promise<{
+    fetchText(
+        urlOrFile: string | LinkedFile,
+        options?: FetchTextOptions
+    ): Promise<{
         ok: boolean
         status: number
         text?: string
@@ -594,6 +619,7 @@ interface PromptContext {
     env: ExpansionVariables
     path: Path
     parsers: Parsers
+    retreival: Retreival
 }
 
 
@@ -680,6 +706,11 @@ declare var path: Path
 declare var parsers: Parsers
 
 /**
+ * Retreival Augmented Generation services
+ */
+declare var retreival: Retreival
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
@@ -706,3 +737,13 @@ declare function defSchema(name: string, schema: JSONSchema): void
  * @param reason
  */
 declare function cancel(reason?: string): void
+
+/**
+ * Index and execute a query against the list of files
+ * @param query
+ * @param files
+ */
+declare function retreive(
+    query: string,
+    files: LinkedFile[]
+): Promise<LinkedFile[]>
