@@ -2,6 +2,7 @@ import remarkFrontmatter from "remark-frontmatter"
 import remarkGfm from "remark-gfm"
 import { remark } from "remark"
 import { Content, Heading, Parent } from "mdast"
+import { lookup } from "mime-types"
 import {
     assert,
     fileExists,
@@ -14,22 +15,6 @@ import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { builtinPrefix, parsePromptTemplate } from "./template"
 import { host } from "./host"
-
-const extToType: Record<string, string> = {
-    c: "c",
-    h: "c",
-    m: "c", // assume Objective-C not matlab
-    cpp: "cpp",
-    cc: "cpp",
-    js: "js",
-    ts: "ts",
-    jsx: "jsx",
-    tsx: "tsx",
-    mjs: "js",
-    mts: "ts",
-    pas: "pascal",
-    rs: "rust",
-}
 
 // TODO make this configurable
 // default is '#'
@@ -110,7 +95,12 @@ function toPosition(p: { line: number; column: number }): CharPosition {
     return [p.line - 1, p.column - 1]
 }
 
-type Parser = (prj: Project, filename: string, md: string) => TextFile
+type Parser = (
+    prj: Project,
+    filename: string,
+    mime: string,
+    md: string
+) => TextFile
 
 function removeIds(str: string, cb: (id: string) => void) {
     return str.replace(new RegExp(nodeIdRx.source, "g"), (_, id) => {
@@ -119,7 +109,12 @@ function removeIds(str: string, cb: (id: string) => void) {
     })
 }
 
-const parseMdFile: Parser = (prj: Project, filename: string, md: string) => {
+const parseMdFile: Parser = (
+    prj: Project,
+    filename: string,
+    mime: string,
+    md: string
+) => {
     const processor = remark().use(remarkGfm).use(remarkFrontmatter)
     const rootAST = processor.parse(md)
     let currElt: FragmentAST = {
@@ -139,8 +134,7 @@ const parseMdFile: Parser = (prj: Project, filename: string, md: string) => {
         }
     }
 
-    const file = new TextFile(prj, filename, md)
-    file.frontMatter = sourceRange(md, elements[0].body)
+    const file = new TextFile(prj, filename, mime, md)
     file.isStructured = true
 
     const stack: Fragment[] = []
@@ -227,11 +221,11 @@ export function stringToPos(str: string): CharPosition {
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
 
-const parseGeneric: Parser = (prj, filename, content) => {
-    const file = new TextFile(prj, filename, content)
+const parseTextPlain: Parser = (prj, filename, mime, content) => {
+    const file = new TextFile(prj, filename, mime, content)
+    if (!content) return file
 
     const ext = filename.replace(/.*\./, "")
-    file.filesyntax = extToType[ext] ?? ext
     const cmt = lineCommentByExt(ext)
     let defaultTitle = file.relativeName()
 
@@ -278,9 +272,48 @@ const parseGeneric: Parser = (prj, filename, content) => {
     return file
 }
 
-const parsers: Record<string, Parser> = {
-    ".md": parseMdFile,
+const PARSERS: Record<string, Parser> = {
+    "text/markdown": parseMdFile,
+    "text/plain": parseTextPlain,
+    "application/javascript": parseTextPlain,
 }
+function isBinaryMimeType(mimeType: string) {
+    return (
+        /^(image|audio|video)\//.test(mimeType) ||
+        BINARY_MIME_TYPES.includes(mimeType)
+    )
+}
+const BINARY_MIME_TYPES = [
+    // Documents
+    "application/pdf",
+    "application/msword",
+    "application/vnd.ms-excel",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
+
+    // Archives
+    "application/zip",
+    "application/x-rar-compressed",
+    "application/x-7z-compressed",
+    "application/x-tar",
+    "application/x-bzip",
+    "application/x-bzip2",
+    "application/x-gzip",
+
+    // Executables and binaries
+    "application/octet-stream", // General binary type (often default for unknown binary files)
+    "application/x-msdownload", // Executables
+    "application/x-shockwave-flash", // SWF
+    "application/java-archive", // JAR (Java)
+
+    // Others
+    "application/vnd.google-earth.kml+xml", // KML (though XML based, often treated as binary in context of HTTP)
+    "application/vnd.android.package-archive", // APK (Android package)
+    "application/x-iso9660-image", // ISO images
+    "application/vnd.apple.installer+xml", // Apple Installer Package (though XML, often handled as binary)
+]
 
 async function fragmentHash(t: Fragment) {
     return (await sha256string(t.fullId + "\n" + t.text)).slice(0, 16)
@@ -327,23 +360,21 @@ export async function parseProject(options: {
         const f = todos.shift()!
         if (seen.has(f)) continue
         seen.add(f)
-        const ext = /\.[^\.]+$/.exec(f)?.[0]
-        let parser = parsers[ext ?? ""]
-        if (!parser) {
-            parser = parseGeneric
-        }
+
         if (!(await fileExists(f))) {
-            //logWarn(`file not found: ${f}`)
             continue
-        } else {
-            const text = await readText(f)
-            const file = parser(prj, f, text)
-            prj.allFiles.push(file)
-            if (gpspecFiles.includes(f)) prj.rootFiles.push(file)
-            file.forEachFragment((frag) => {
-                todos.push(...frag.references.map((r) => r.filename))
-            })
         }
+
+        const mime = lookup(f) || ""
+        const binary = isBinaryMimeType(mime)
+        const text = binary ? undefined : await readText(f)
+        const parser = PARSERS[mime] || parseTextPlain
+        const file = parser(prj, f, mime, text)
+        prj.allFiles.push(file)
+        if (gpspecFiles.includes(f)) prj.rootFiles.push(file)
+        file.forEachFragment((frag) => {
+            todos.push(...frag.references.map((r) => r.filename))
+        })
     }
     prj.forEachFragment((t) => {
         prj.allFragments.push(t)
