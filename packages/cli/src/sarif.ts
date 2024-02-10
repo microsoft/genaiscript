@@ -1,4 +1,4 @@
-import { Diagnostic, coreVersion } from "genaiscript-core"
+import { Diagnostic, TOOL_ID, CORE_VERSION } from "genaiscript-core"
 import {
     SarifBuilder,
     SarifRunBuilder,
@@ -17,8 +17,8 @@ export function convertDiagnosticsToSARIF(
     issues: Diagnostic[]
 ) {
     const sarifRunBuilder = new SarifRunBuilder().initSimple({
-        toolDriverName: "genaiscript",
-        toolDriverVersion: coreVersion,
+        toolDriverName: TOOL_ID,
+        toolDriverVersion: CORE_VERSION,
         url: "https://github.com/microsoft/genaiscript/",
     })
     const sarifRuleBuiler = new SarifRuleBuilder().initSimple({

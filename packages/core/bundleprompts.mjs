@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
-const dir = "./src/genaiscript"
+const dir = "./src/genaisrc"
 const fp = "./src/default_prompts.ts"
 console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`)
 const promptMap = {}

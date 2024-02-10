@@ -23,10 +23,13 @@ import {
     logMeasure,
     parseAnnotations,
     MarkdownTrace,
-    coreVersion,
+    CORE_VERSION,
     sha256string,
     dotGenaiscriptPath,
     CLI_JS,
+    TOOL_ID,
+    GENAI_EXT,
+    TOOL_NAME,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -37,7 +40,6 @@ import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
 import { infoUri } from "./markdowndocumentprovider"
 import { createVSPath } from "./vspath"
-import { TOOL_NAME } from "./extension"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -118,7 +120,7 @@ export async function snapshotAIRequestKey(
             fullId: options.fragment.fullId,
             hash: options.fragment.hash,
         },
-        version: coreVersion,
+        version: CORE_VERSION,
     }
     return key
 }
@@ -305,7 +307,7 @@ ${e.message}`
         options: AIRequestOptions
     ): Promise<AIRequest> {
         const controller = new AbortController()
-        const config = vscode.workspace.getConfiguration("genaiscript")
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
@@ -498,7 +500,7 @@ ${e.message}`
     }
 
     async fixPromptDefinitions() {
-        const prompts = await vscode.workspace.findFiles("**/*.genai.js")
+        const prompts = await vscode.workspace.findFiles("**/*" + GENAI_EXT)
         const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
         for (const folder of folders) {
             const f = vscode.Uri.file(folder)
@@ -527,7 +529,7 @@ ${e.message}`
         performance.mark(`project-start`)
         const gpspecFiles = await findFiles("**/*.gpspec.md")
         performance.mark(`scan-tools`)
-        const scriptFiles = await findFiles("**/*.genai.js")
+        const scriptFiles = await findFiles("**/*" + GENAI_EXT)
         performance.mark(`parse-project`)
         const newProject = await parseProject({
             gpspecFiles,
@@ -558,7 +560,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
         )
 
         const gpspecFiles = [specn]
-        const scriptFiles = await findFiles("**/*.genai.js")
+        const scriptFiles = await findFiles("**/*" + GENAI_EXT)
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
@@ -584,7 +586,7 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
 `
         )
         const gpspecFiles = [specn]
-        const scriptFiles = await findFiles("**/*.genai.js")
+        const scriptFiles = await findFiles("**/*" + GENAI_EXT)
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({

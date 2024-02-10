@@ -4,11 +4,11 @@ import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
 import {
     MarkdownTrace,
     RunTemplateOptions,
+    TOOL_NAME,
     logInfo,
     logVerbose,
 } from "genaiscript-core"
-import { TOOL_NAME, AGENT_ID } from "../extension"
-
+import { AGENT_ID } from "../extension"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     template?: PromptTemplate
