@@ -8,7 +8,6 @@
 		"bierner.markdown-mermaid",
 		"github.vscode-github-actions",
 		"yoavbls.pretty-ts-errors",
-		"kejun.markdown-alert",
-		"ms-sarifvscode.sarif-viewer"
+		"kejun.markdown-alert"
 	]
 }
