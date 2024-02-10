@@ -82,6 +82,11 @@ declare var path: Path
 declare var parsers: Parsers
 
 /**
+ * Retreival Augmented Generation services
+ */
+declare var retreival: Retreival
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
@@ -108,3 +113,13 @@ declare function defSchema(name: string, schema: JSONSchema): void
  * @param reason
  */
 declare function cancel(reason?: string): void
+
+/**
+ * Index and execute a query against the list of files
+ * @param query
+ * @param files
+ */
+declare function retreive(
+    query: string,
+    files: LinkedFile[]
+): Promise<LinkedFile[]>
