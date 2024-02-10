@@ -49,14 +49,11 @@ class ProgressSpinner implements Progress {
         succeeded?: boolean
     }): void {
         const { message, increment, succeeded } = value
-        this.spinner.text = message
         if (succeeded === true) {
-            this.spinner.succeed()
-            this.spinner.suffixText = ""
+            this.spinner.succeed(message)
         } else if (succeeded === false) {
-            this.spinner.fail()
-            this.spinner.suffixText = ""
-        }
+            this.spinner.fail(message)
+        } else this.spinner.text = message
     }
 }
 
@@ -679,10 +676,10 @@ async function retreivalIndex(
     options: { excludedFiles: string[] }
 ) {
     const { excludedFiles } = options || {}
-    const fs = expandFiles(files, excludedFiles)
+    const fs = await expandFiles(files, excludedFiles)
     const spinner = ora({ interval: 200 }).start("indexing")
 
-    await upsert(files, {
+    await upsert(fs, {
         progress: new ProgressSpinner(spinner),
     })
 }
