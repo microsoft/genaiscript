@@ -3,11 +3,11 @@ import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import {
     GENAISCRIPT_FOLDER,
+    TOOL_NAME,
     dotGenaiscriptPath,
     isIndexable,
     upsert,
 } from "genaiscript-core"
-import { TOOL_NAME } from "./extension"
 
 export function activateRetreivalCommands(state: ExtensionState) {
     const { context, host } = state

@@ -23,18 +23,21 @@ export function activatePromptCommands(state: ExtensionState) {
         vscode.commands.registerCommand("genaiscript.newfile.script", () =>
             vscode.commands.executeCommand("genaiscript.prompt.create")
         ),
-        vscode.commands.registerCommand("genaiscript.newfile.gpspec", async () => {
-            const newFile = Utils.joinPath(
-                vscode.workspace.workspaceFolders[0]?.uri,
-                "untitled.gpspec.md"
-            ).with({
-                scheme: "untitled",
-            })
-            await vscode.workspace.openTextDocument(newFile)
-            const edit = new vscode.WorkspaceEdit()
-            edit.insert(newFile, new vscode.Position(0, 0), TEMPLATE)
-            vscode.workspace.applyEdit(edit)
-        }),
+        vscode.commands.registerCommand(
+            "genaiscript.newfile.gpspec",
+            async () => {
+                const newFile = Utils.joinPath(
+                    vscode.workspace.workspaceFolders[0]?.uri,
+                    "untitled.gpspec.md"
+                ).with({
+                    scheme: "untitled",
+                })
+                await vscode.workspace.openTextDocument(newFile)
+                const edit = new vscode.WorkspaceEdit()
+                edit.insert(newFile, new vscode.Position(0, 0), TEMPLATE)
+                vscode.workspace.applyEdit(edit)
+            }
+        ),
         vscode.commands.registerCommand(
             "genaiscript.prompt.create",
             async (template?: PromptTemplate) => {
@@ -81,7 +84,7 @@ def("FILE", env.files)
                     template = picked.template
                 }
                 const name = await vscode.window.showInputBox({
-                    title: "Pick a file name for the new .genai.js file.",
+                    title: `Pick a file name for the new GenAIScript script.`,
                     value: template.id,
                 })
                 if (name === undefined) return

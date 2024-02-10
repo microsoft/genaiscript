@@ -35,7 +35,7 @@ import { pretifyMarkdown } from "./markdown"
 import { YAMLTryParse } from "./yaml"
 import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
-import { coreVersion } from "./version"
+import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, query } from "./retreival"
 
@@ -618,7 +618,7 @@ export async function runTemplate(
         trace = new MarkdownTrace(),
     } = options || {}
     const { signal } = requestOptions
-    const version = coreVersion
+    const version = CORE_VERSION
 
     trace.heading(2, label || template.id)
 

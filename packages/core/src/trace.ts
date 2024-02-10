@@ -1,4 +1,4 @@
-import { CHANGE } from "./constants"
+import { CHANGE, TOOL_ID } from "./constants"
 import { fenceMD } from "./expander"
 import { stringify as yamlStringify } from "yaml"
 
@@ -32,7 +32,7 @@ export class MarkdownTrace
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
-        )}" class="genaiscript"><summary>
+        )}" class="${TOOL_ID}"><summary>
 ${title}
 </summary>
 

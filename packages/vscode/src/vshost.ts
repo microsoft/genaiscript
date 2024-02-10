@@ -6,6 +6,7 @@ import {
     ReadFileOptions,
     ShellCallOptions,
     ShellOutput,
+    TOOL_NAME,
     logVerbose,
     parseTokenFromEnv,
     setHost,
@@ -16,7 +17,6 @@ import { Utils } from "vscode-uri"
 import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
-import { TOOL_NAME } from "./extension"
 
 const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 
