@@ -21,6 +21,8 @@ import {
     parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
     dotGenaiscriptPath,
+    upsert,
+    Progress,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -39,13 +41,42 @@ const ANNOTATION_ERROR_CODE = -2
 const FILES_NOT_FOUND = -3
 const GENERATION_ERROR = -4
 
-async function expandFiles(files: string[]) {
-    const res: string[] = []
-    for (const file of files) {
-        const f = await host.findFiles(file)
-        res.push(...f)
+class ProgressSpinner implements Progress {
+    constructor(readonly spinner: Ora) {}
+    report(value: {
+        message?: string
+        increment?: number
+        succeeded?: boolean
+    }): void {
+        const { message, increment, succeeded } = value
+        this.spinner.text = message
+        if (succeeded === true) {
+            this.spinner.succeed()
+            this.spinner.suffixText = ""
+        } else if (succeeded === false) {
+            this.spinner.fail()
+            this.spinner.suffixText = ""
+        }
     }
-    return res
+}
+
+async function expandFiles(files: string[], excludedFiles?: string[]) {
+    const res = new Set<string>()
+    for (const file of files) {
+        const fs = await host.findFiles(file)
+        for (const f of fs) res.add(f)
+    }
+
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs) {
+                res.delete(f)
+            }
+        }
+    }
+
+    return Array.from(res.values())
 }
 
 async function write(name: string, content: string) {
@@ -643,6 +674,19 @@ async function jsonl2json(files: string[]) {
     }
 }
 
+async function retreivalIndex(
+    files: string[],
+    options: { excludedFiles: string[] }
+) {
+    const { excludedFiles } = options || {}
+    const fs = expandFiles(files, excludedFiles)
+    const spinner = ora({ interval: 200 }).start("indexing")
+
+    await upsert(files, {
+        progress: new ProgressSpinner(spinner),
+    })
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -656,7 +700,9 @@ async function main() {
     program
         .name("genaiscript")
         .version(coreVersion)
-        .description("CLI for GenAIScript https://github.com/microsoft/genaiscript")
+        .description(
+            "CLI for GenAIScript https://github.com/microsoft/genaiscript"
+        )
         .showHelpAfterError(true)
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
@@ -781,6 +827,13 @@ async function main() {
         .command("list", { isDefault: true })
         .description("List all available tools")
         .action(listTools)
+
+    const retreival = program.command("retreival").description("RAG support")
+    retreival
+        .command("index")
+        .description("Index a set of documents")
+        .argument("<file...>", "Files to index")
+        .action(retreivalIndex)
 
     program
         .command("jsonl2json", "Converts JSONL files to a JSON file")

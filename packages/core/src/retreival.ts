@@ -79,7 +79,10 @@ export async function upsert(
                 documents: filesWithText.map(toDocument),
             },
         })
-        progress?.report({ increment: increment * filesWithText.length })
+        progress?.report({
+            increment: increment * filesWithText.length,
+            succeeded: response.ok,
+        })
         if (trace)
             for (let i = 0; i < filesWithText.length; i++) {
                 const f = filesWithText[i]
@@ -91,7 +94,6 @@ export async function upsert(
     }
     if (filesWithoutText.length) {
         for (const f of filesWithoutText) {
-            progress?.report({ increment, message: f.filename })
             let file: Blob = undefined
             let metadata: any = {
                 source: undefined,
@@ -131,12 +133,12 @@ export async function upsert(
                     return fd
                 },
             })
-            if (!response.ok)
-                console.log(`failed to upsert ${f.filename}`, response)
-            trace?.resultItem(
-                response.ok,
-                `indexed ${f.filename} -> ${data?.ids?.[0] || ""}`
-            )
+            progress?.report({
+                increment,
+                message: f.filename,
+                succeeded: response.ok,
+            })
+            trace?.resultItem(response.ok, f.filename)
         }
     }
 }

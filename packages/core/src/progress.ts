@@ -10,5 +10,6 @@ export interface Progress {
     report(value: {
         message?: string
         increment?: number
+        succeeded?: boolean | undefined
     }): void
 }
