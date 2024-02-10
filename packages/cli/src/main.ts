@@ -23,6 +23,7 @@ import {
     dotGenaiscriptPath,
     upsert,
     Progress,
+    query,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -684,6 +685,13 @@ async function retreivalIndex(
     })
 }
 
+async function retreivalSearch(q: string) {
+    const spinner = ora({ interval: 200 }).start("searching")
+    const res = await query(q)
+    spinner.succeed()
+    console.log(YAMLStringify(res))
+}
+
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -831,6 +839,11 @@ async function main() {
         .description("Index a set of documents")
         .argument("<file...>", "Files to index")
         .action(retreivalIndex)
+    retreival
+        .command("search")
+        .description("Search index")
+        .argument("<query>", "Search query")
+        .action(retreivalSearch)
 
     program
         .command("jsonl2json", "Converts JSONL files to a JSON file")
