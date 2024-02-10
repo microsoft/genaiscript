@@ -327,7 +327,7 @@ ${e.message}`
                 this.dispatchChange()
             }
         }
-        trace.addEventListener(MarkdownTrace.CHANGE, reqChange)
+        trace.addEventListener(CHANGE, reqChange)
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
             if (r.response) {

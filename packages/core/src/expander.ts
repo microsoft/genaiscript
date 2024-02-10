@@ -149,6 +149,36 @@ async function callExpander(
             return v
         },
     })
+
+    const retreival: Retreival = {
+        index: async(files) => {
+            await upsert(files, { trace })
+        },
+        search: async(q, options) => {
+            const { files = env.files } = options || {}
+            try {
+                trace.startDetails(`retreive \`${q}\``)
+                await upsert(files, { trace })
+                const { results } = await query(q)
+                const fragments =
+                    (results || []).map((r) => {
+                        const { id, filename, text } = r
+                        return <LinkedFile>{
+                            filename,
+                            content: text,
+                            label: id,
+                        }
+                    })
+                trace.fence(fragments, "yaml")
+                return {
+                    fragments
+                }
+            } finally {
+                trace.endDetails()
+            }            
+        }
+    }
+
     let logs = ""
     try {
         await evalPrompt(
@@ -156,6 +186,7 @@ async function callExpander(
                 env,
                 path,
                 parsers,
+                retreival,
                 writeText: (body) => {
                     promptText +=
                         body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
@@ -176,27 +207,6 @@ async function callExpander(
                         content = await readText("workspace://" + filename)
                     } catch (e) {}
                     return { label: filename, filename, content }
-                },
-                retreive: async (q: string, files: LinkedFile[]) => {
-                    try {
-                        trace.startDetails("retreival")
-                        trace.item(`query: \`${q}\``)
-                        await upsert(files, { trace })
-                        const { results } = await query(q)
-                        const found =
-                            results?.map((r) => {
-                                const { id, filename, text } = r
-                                return <LinkedFile>{
-                                    filename,
-                                    content: text,
-                                    label: id,
-                                }
-                            }) || []
-                        trace.fence(results, "yaml")
-                        return found
-                    } finally {
-                        trace.endDetails()
-                    }
                 },
                 fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {

@@ -82,6 +82,11 @@ declare var path: Path
 declare var parsers: Parsers
 
 /**
+ * Retreival Augmented Generation services
+ */
+declare var retreival: Retreival
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

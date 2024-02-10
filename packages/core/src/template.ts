@@ -343,6 +343,7 @@ async function parseMeta(r: PromptTemplate) {
                 }),
                 path: undefined,
                 parsers: undefined,
+                retreival: undefined,
                 writeText: (body) => {
                     if (meta == null)
                         throw new Error(`script()/system() has to come first`)
@@ -361,7 +362,6 @@ async function parseMeta(r: PromptTemplate) {
                     filename,
                     content: undefined,
                 }),
-                retreive: async () => [],
                 fetchText: async (urlOrFile: string | LinkedFile, options) => {
                     const url =
                         typeof urlOrFile === "string"

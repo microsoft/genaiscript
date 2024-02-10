@@ -563,6 +563,28 @@ interface Parsers {
     TOML(text: string): unknown | undefined
 }
 
+interface Retreival {
+    /**
+     * Add files to the search index
+     */
+    index(files: (string | LinkedFile)[]): Promise<void>
+
+    /**
+     * Search for embeddings
+     */
+    search(
+        query: string,
+        options?: {
+            /**
+             * Filter results for the following files
+             */
+            files?: (string | LinkedFile)[]
+        }
+    ): Promise<{
+        fragments: LinkedFile[]
+    }>
+}
+
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
 // keep in sync with prompt_type.d.ts
@@ -594,10 +616,10 @@ interface PromptContext {
     }>
     readFile(file: string): Promise<LinkedFile>
     cancel(reason?: string): void
-    retreive(query: string, files: LinkedFile[]): Promise<LinkedFile[]>
     env: ExpansionVariables
     path: Path
     parsers: Parsers
+    retreival: Retreival
 }
 
 
@@ -682,6 +704,11 @@ declare var path: Path
  * A set of parsers for well-known file formats
  */
 declare var parsers: Parsers
+
+/**
+ * Retreival Augmented Generation services
+ */
+declare var retreival: Retreival
 
 /**
  * Fetches a given URL and returns the response.
