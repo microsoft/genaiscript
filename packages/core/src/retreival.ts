@@ -145,7 +145,7 @@ export async function query(
     q: string,
     options?: RetreivalClientOptions & { filename?: string }
 ) {
-    const { filename } = options || {}
+    const { filename, trace } = options || {}
     const fetcher = await createRetreivalClient()
     const res = await fetcher.POST("/query", {
         body: {
@@ -160,17 +160,35 @@ export async function query(
         },
     })
 
+    const results = res.data?.results?.[0]?.results?.map(
+        ({ id, text, score, metadata }) => ({
+            filename: metadata?.url || metadata?.document_id,
+            id,
+            text,
+            score,
+        })
+    )
+    const fragments = (results || []).map((r) => {
+        const { id, filename, text } = r
+        return <LinkedFile>{
+            filename,
+            content: text,
+            label: id,
+        }
+    })
+    const files: LinkedFile[] = []
+    for (const fr of fragments) {
+        let file = files.find((f) => f.filename === fr.filename)
+        if (!file)
+            file = <LinkedFile>{
+                filename: fr.filename,
+                label: `fragments`,
+                content: "...\n",
+            }
+        file.content += fr.content + `\n...`
+    }
     return {
-        ok: res.response.ok,
-        status: res.response.status,
-        statusText: res.response.statusText,
-        results: res.data?.results?.[0]?.results?.map(
-            ({ id, text, score, metadata }) => ({
-                filename: metadata?.url || metadata?.document_id,
-                id,
-                text,
-                score,
-            })
-        ),
+        files,
+        fragments,
     }
 }

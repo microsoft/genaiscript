@@ -159,20 +159,9 @@ async function callExpander(
             try {
                 trace.startDetails(`retreive \`${q}\``)
                 await upsert(files, { trace })
-                const { results } = await query(q)
-                const fragments =
-                    (results || []).map((r) => {
-                        const { id, filename, text } = r
-                        return <LinkedFile>{
-                            filename,
-                            content: text,
-                            label: id,
-                        }
-                    })
-                trace.fence(fragments, "yaml")
-                return {
-                    fragments
-                }
+                const res = await query(q)
+                trace.fence(res, "yaml")
+                return res
             } finally {
                 trace.endDetails()
             }            

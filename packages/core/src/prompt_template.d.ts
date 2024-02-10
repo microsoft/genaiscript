@@ -581,6 +581,7 @@ interface Retreival {
             files?: (string | LinkedFile)[]
         }
     ): Promise<{
+        files: LinkedFile[]
         fragments: LinkedFile[]
     }>
 }
