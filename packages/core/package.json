@@ -5,7 +5,7 @@
     "license": "MIT",
     "private": true,
     "repository": {
-        "type": "git",
+        "directory": "packages/core",
         "url": "https://github.com/microsoft/genaiscript"
     },
     "devDependencies": {
