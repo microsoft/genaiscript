@@ -3,7 +3,9 @@ import {
     Host,
     LogLevel,
     OAIToken,
+    OpenAPIRetreivalSerivce,
     ReadFileOptions,
+    RetreivalService,
     ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
@@ -22,6 +24,11 @@ import { join } from "node:path"
 export class NodeHost implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
+    retreival: RetreivalService
+
+    constructor() {
+        this.retreival = new OpenAPIRetreivalSerivce(this)
+    }
 
     static install() {
         setHost(new NodeHost())
@@ -38,7 +45,7 @@ export class NodeHost implements Host {
     async getSecretToken(): Promise<OAIToken> {
         return await parseTokenFromEnv(process.env)
     }
-    async setSecretToken(tok: OAIToken): Promise<void> { }
+    async setSecretToken(tok: OAIToken): Promise<void> {}
 
     clearVirtualFiles(): void {
         this.virtualFiles = {}

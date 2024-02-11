@@ -3,7 +3,9 @@ import {
     Host,
     LogLevel,
     OAIToken,
+    OpenAPIRetreivalSerivce,
     ReadFileOptions,
+    RetreivalService,
     ShellCallOptions,
     ShellOutput,
     TOOL_NAME,
@@ -23,10 +25,12 @@ const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
+    retreival: RetreivalService
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
+        this.retreival = new OpenAPIRetreivalSerivce(this)
         this.state.context.subscriptions.push(this)
     }
 

@@ -58,16 +58,24 @@ export interface RetreivalClientOptions {
     trace?: MarkdownTrace
 }
 
+export interface ResponseStatus {
+    ok: boolean
+    status: number
+    statusText: string
+}
+
 export interface RetreivalService {
-    upsert(
-        filename: string,
-        content: Uint8Array,
-        options?: RetreivalClientOptions
-    ): Promise<void>
-    query(
-        text: string,
-        options?: RetreivalClientOptions
-    ): Promise<{ files: LinkedFile; fragments: LinkedFile[] }>
+    upsert(filenameOrUrl: string, content: Blob): Promise<ResponseStatus>
+    query(text: string): Promise<
+        ResponseStatus & {
+            results: {
+                filename: string
+                id: string
+                text: string
+                score: number
+            }[]
+        }
+    >
 }
 
 export interface Host {
