@@ -1,3 +1,6 @@
+import { Progress } from "./progress"
+import { MarkdownTrace } from "./trace"
+
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
     decode(
@@ -50,8 +53,27 @@ export interface ShellCallOptions {
     exitcodefile: string
 }
 
+export interface RetreivalClientOptions {
+    progress?: Progress
+    trace?: MarkdownTrace
+}
+
+export interface RetreivalService {
+    upsert(
+        filename: string,
+        content: Uint8Array,
+        options?: RetreivalClientOptions
+    ): Promise<void>
+    query(
+        text: string,
+        options?: RetreivalClientOptions
+    ): Promise<{ files: LinkedFile; fragments: LinkedFile[] }>
+}
+
 export interface Host {
     userState: any
+
+    retreival: RetreivalService
 
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder

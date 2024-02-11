@@ -23,6 +23,7 @@
     "@types/node": "^20.11.5",
     "@types/replace-ext": "^2.0.2",
     "genaiscript-core": "*",
+    "llamaindex": "^0.1.10",
     "node-sarif-builder": "^3.0.0",
     "ora": "^8.0.1",
     "replace-ext": "^2.0.0",
