@@ -19,8 +19,11 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
+    "@google/generative-ai": "^0.2.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.5",
+    "@types/papaparse": "^5.3.14",
+    "@types/pg": "^8.11.0",
     "@types/replace-ext": "^2.0.2",
     "genaiscript-core": "*",
     "llamaindex": "^0.1.10",

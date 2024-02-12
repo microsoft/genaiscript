@@ -1,11 +1,10 @@
 import {
-    JSON5TryParse,
+    Host,
     ResponseStatus,
     RetreivalService,
     dotGenaiscriptPath,
 } from "genaiscript-core"
 import {
-    Document,
     MetadataMode,
     storageContextFromDefaults,
     VectorStoreIndex,
@@ -50,6 +49,8 @@ const READERS: Record<string, BaseReader> = {
 }
 
 export class LlamaIndexRetreivalService implements RetreivalService {
+    constructor(readonly host: Host) {}
+
     private async createStorageContext() {
         const storageContext = await storageContextFromDefaults({
             persistDir: dotGenaiscriptPath("retreival"),
