@@ -643,7 +643,7 @@ async function helpAll() {
             )
             c.outputHelp()
             if (c.commands?.length) {
-                console.log(`\n${header + "#"} Subcommands\n`)
+                console.log(`\n${header + "#"} commands\n`)
                 visit(header + "##", c, c.commands)
             }
         })

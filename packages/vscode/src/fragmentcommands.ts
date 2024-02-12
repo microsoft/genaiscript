@@ -105,8 +105,8 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         await state.cancelAiRequest()
 
-        if (chat?.progress)
-            chat.progress.report({ message: "Preparing script" })
+        if (chat?.response)
+            chat.response.progress("Preparing script")
 
         await saveAllTextDocuments
         await state.parseWorkspace()
