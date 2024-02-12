@@ -16,6 +16,7 @@ import {
     HTMLReader,
     BaseReader,
     GenericFileSystem,
+    Document,
 } from "llamaindex"
 
 class BlobFileSystem implements GenericFileSystem {
@@ -66,6 +67,12 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return storageContext
     }
 
+    async clear() {
+        const persistDir = dotGenaiscriptPath("retreival")
+        await this.host.deleteDirectory(persistDir)
+        return { ok: true }
+    }
+
     async upsert(
         filenameOrUrl: string,
         content: Blob
@@ -79,10 +86,18 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             }
         const storageContext = await this.createStorageContext()
         const fs = new BlobFileSystem(filenameOrUrl, content)
-        const documents = await reader.loadData(filenameOrUrl, fs)
+        const documents = (await reader.loadData(filenameOrUrl, fs)).map(
+            (doc) =>
+                new Document({
+                    text: doc.text,
+                    metadata: { filename: filenameOrUrl },
+                })
+        )
+        await storageContext.docStore.addDocuments(documents, true)
         await VectorStoreIndex.fromDocuments(documents, {
             storageContext,
         })
+        await storageContext.docStore.persist()
         return { ok: true }
     }
 
@@ -102,13 +117,12 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         })
         const retreiver = index.asRetriever()
         const results = await retreiver.retrieve(text)
-        console.log(YAMLStringify(results))
         return {
             ok: true,
             results: results.map((r) => ({
-                filename: r.node.sourceNode.nodeId,
+                filename: r.node.metadata.filename,
                 id: r.node.id_,
-                text: r.node.getContent(MetadataMode.ALL),
+                text: r.node.getContent(MetadataMode.NONE),
                 score: r.score,
             })),
         }

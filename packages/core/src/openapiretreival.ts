@@ -21,6 +21,10 @@ export class OpenAPIRetreivalService implements RetreivalService {
         return fetcher
     }
 
+    async clear() {
+        return { ok: false, error: "not implemented" }
+    }
+
     async upsert(filenameOrUrl: string, content: Blob) {
         const fetcher = await this.createRetreivalClient()
         const { response } = await fetcher.POST("/upsert-file", {

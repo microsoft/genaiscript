@@ -65,6 +65,7 @@ export interface ResponseStatus {
 }
 
 export interface RetreivalService {
+    clear(): Promise<ResponseStatus>
     upsert(filenameOrUrl: string, content: Blob): Promise<ResponseStatus>
     query(text: string): Promise<
         ResponseStatus & {
