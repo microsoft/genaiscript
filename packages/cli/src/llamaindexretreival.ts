@@ -18,14 +18,19 @@ import {
 } from "llamaindex"
 
 class BlobFileSystem implements GenericFileSystem {
-    constructor(readonly blob: Blob) {}
+    constructor(
+        readonly filename: string,
+        readonly blob: Blob
+    ) {}
     writeFile(path: string, content: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
     async readRawFile(path: string): Promise<Buffer> {
+        if (path !== this.filename) throw new Error("Trying to read wrong file")
         return Buffer.from(await this.blob.arrayBuffer())
     }
     async readFile(path: string): Promise<string> {
+        if (path !== this.filename) throw new Error("Trying to read wrong file")
         return await this.blob.text()
     }
     access(path: string): Promise<void> {
@@ -70,8 +75,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                 ok: false,
                 error: `no reader for content type ${type}`,
             }
-
-        const fs = new BlobFileSystem(content)
+        const fs = new BlobFileSystem(filenameOrUrl, content)
         const documents = await reader.loadData(filenameOrUrl, fs)
         await storageContext.docStore.addDocuments(documents, true)
         return { ok: true }

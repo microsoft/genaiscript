@@ -18,16 +18,17 @@
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "package": "cd packages/vscode && yarn package:insiders && yarn package",
         "release:draft": "npx --yes release-it",
-        "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --github.assets=packages/vscode/genaiscript.insiders.vsix --github.assets=packages/cli/built/gptools.js --no-github.draft",
+        "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --github.assets=packages/vscode/genaiscript.insiders.vsix --github.assets=packages/cli/built/genaiscript.js --no-github.draft",
         "patch-versions": "npx --yes zx scripts/patch-version.mjs",
         "commit-versions": "git add packages/**/package.json && git commit -m '[skip ci] updated version numbers' && git push",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
         "test:unit": "cd packages/cli && yarn test",
-        "test:cli": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli -ot .gptools/tmp/tests/cli/outtrace.md -oa .gptools/tmp/tests/cli/diags.sarif",
-        "test:live": "node packages/cli/built/gptools.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temperature 0.5 --no-cache",
-        "test:front-matter": "node packages/cli/built/gptools.js run front-matter SUPPORT.md",
-        "test:lza": "cd applications/lza && yarn test"
+        "test:cli": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli -ot .gptools/tmp/tests/cli/outtrace.md -oa .gptools/tmp/tests/cli/diags.sarif",
+        "test:live": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temperature 0.5 --no-cache",
+        "test:front-matter": "node packages/cli/built/genaiscript.js run front-matter SUPPORT.md",
+        "test:lza": "cd applications/lza && yarn test",
+        "test:index": "cd packages/sample/src/rag/ && node ../../cli/built/genaiscript.js run index *"
     },
     "release-it": {
         "github": {
