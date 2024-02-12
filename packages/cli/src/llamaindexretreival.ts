@@ -2,6 +2,7 @@ import {
     Host,
     ResponseStatus,
     RetreivalService,
+    YAMLStringify,
     dotGenaiscriptPath,
 } from "genaiscript-core"
 import {
@@ -57,8 +58,10 @@ export class LlamaIndexRetreivalService implements RetreivalService {
     constructor(readonly host: Host) {}
 
     private async createStorageContext() {
+        const persistDir = dotGenaiscriptPath("retreival")
+        await this.host.createDirectory(persistDir)
         const storageContext = await storageContextFromDefaults({
-            persistDir: dotGenaiscriptPath("retreival"),
+            persistDir,
         })
         return storageContext
     }
@@ -68,16 +71,18 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         content: Blob
     ): Promise<ResponseStatus> {
         const { type } = content
-        const storageContext = await this.createStorageContext()
         const reader = READERS[content.type]
         if (!reader)
             return {
                 ok: false,
                 error: `no reader for content type ${type}`,
             }
+        const storageContext = await this.createStorageContext()
         const fs = new BlobFileSystem(filenameOrUrl, content)
         const documents = await reader.loadData(filenameOrUrl, fs)
-        await storageContext.docStore.addDocuments(documents, true)
+        await VectorStoreIndex.fromDocuments(documents, {
+            storageContext,
+        })
         return { ok: true }
     }
 
@@ -97,6 +102,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         })
         const retreiver = index.asRetriever()
         const results = await retreiver.retrieve(text)
+        console.log(YAMLStringify(results))
         return {
             ok: true,
             results: results.map((r) => ({
