@@ -25,7 +25,6 @@
     },
     "devDependencies": {
         "@google/generative-ai": "^0.2.0",
-        "@trpc/server": "^11.0.0-next-beta.281",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.11.5",
         "@types/replace-ext": "^2.0.2",
