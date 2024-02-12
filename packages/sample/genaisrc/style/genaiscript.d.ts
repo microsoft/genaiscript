@@ -179,18 +179,22 @@ interface LinkedFile {
     content: string
 }
 
-type ChatMessageRole = "user" | "system" | "assistant" | "function"
+type ChatMessageRole = "user" | "system" | "assistant"
 
 interface ChatMessageRequest {
     content: string
     agentId?: string
-    subCommand?: string
+    command?: string
     name?: string
     variables: Record<string, (string | { uri: string })[]>
 }
 
-interface ChatMessageFileTreeNode {
+interface ChatMessageFileTree {
     uri: string
+    children?: ChatMessageFileTreeNode[]
+}
+
+interface ChatMessageFileTreeNode {
     label: string
     children?: ChatMessageFileTreeNode[]
 }
@@ -198,8 +202,7 @@ interface ChatMessageFileTreeNode {
 interface ChatMessageResponse {
     content?: string
     uri?: string
-    position?: CharPosition
-    fileTree?: ChatMessageFileTreeNode
+    fileTree?: ChatMessageFileTree
 }
 
 // ChatML
