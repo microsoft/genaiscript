@@ -47,7 +47,7 @@ export class OpenAPIRetreivalService implements RetreivalService {
         return { ok, status, error: !ok ? statusText : undefined }
     }
 
-    async query(text: string) {
+    async search(text: string) {
         const fetcher = await this.createRetreivalClient()
         const { response, data } = await fetcher.POST("/query", {
             body: {

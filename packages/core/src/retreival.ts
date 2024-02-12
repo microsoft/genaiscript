@@ -7,15 +7,18 @@ const UPSERTFILE_MIME_TYPES = [
     "text/csv",
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ]
 
-export function isIndexable(filename: string) {
+export function retreivalIsIndexable(filename: string) {
     const type = lookup(filename) || "text/plain"
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function upsert(
+export async function retreivalClear(): Promise<void> {
+    await host.retreival.clear()
+}
+
+export async function retreivalUpsert(
     fileOrUrls: (string | LinkedFile)[],
     options?: RetreivalClientOptions
 ) {
@@ -58,10 +61,12 @@ export async function upsert(
     }
 }
 
-export async function query(q: string, options?: RetreivalClientOptions) {
-    const { trace } = options || {}
+export async function retreivalSearch(
+    q: string,
+    options?: RetreivalClientOptions
+) {
     const retreival = host.retreival
-    const { results } = await retreival.query(q)
+    const { results } = await retreival.search(q)
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r
         return <LinkedFile>{

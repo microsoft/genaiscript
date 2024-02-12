@@ -10,25 +10,27 @@
         "esbuild": "^0.19.12",
         "execa": "^8.0.1",
         "fs-extra": "^11.2.0",
+        "genaiscript-core": "*",
         "get-stdin": "^9.0.0",
         "glob": "^10.3.10",
         "llamaindex": "^0.1.10",
-        "openai": "^4.25.0",
-        "typescript": "^5.3.3",
-        "genaiscript-core": "*",
         "node-sarif-builder": "^3.0.0",
+        "openai": "^4.25.0",
         "ora": "^8.0.1",
-        "replace-ext": "^2.0.0"
+        "replace-ext": "^2.0.0",
+        "typescript": "^5.3.3"
     },
     "engines": {
         "node": ">=20.0.0"
     },
     "devDependencies": {
         "@google/generative-ai": "^0.2.0",
+        "@trpc/server": "^11.0.0-next-beta.281",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.11.5",
         "@types/replace-ext": "^2.0.2",
-        "tsx": "^4.7.0"
+        "tsx": "^4.7.0",
+        "zod": "^3.22.4"
     },
     "scripts": {
         "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --minify-whitespace --external:llamaindex",

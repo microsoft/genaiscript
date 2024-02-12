@@ -17,6 +17,7 @@ import {
     BaseReader,
     GenericFileSystem,
     Document,
+    PapaCSVReader,
 } from "llamaindex"
 
 class BlobFileSystem implements GenericFileSystem {
@@ -53,6 +54,7 @@ const READERS: Record<string, BaseReader> = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         new DocxReader(),
     "text/html": new HTMLReader(),
+    "text/csv": new PapaCSVReader(),
 }
 
 export class LlamaIndexRetreivalService implements RetreivalService {
@@ -101,7 +103,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return { ok: true }
     }
 
-    async query(text: string): Promise<
+    async search(text: string): Promise<
         ResponseStatus & {
             results: {
                 filename: string

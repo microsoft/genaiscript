@@ -21,13 +21,14 @@ import {
     parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
     dotGenaiscriptPath,
-    upsert,
+    retreivalUpsert,
     Progress,
-    query,
+    retreivalSearch,
     TOOL_ID,
     GENAI_EXT,
     TOOL_NAME,
     GITHUB_REPO,
+    retreivalClear,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -40,6 +41,7 @@ import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
 import { convertDiagnosticsToSARIF } from "./sarif"
+import { startServer } from "./server"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
@@ -676,10 +678,6 @@ async function jsonl2json(files: string[]) {
     }
 }
 
-async function retreivalClear() {
-    await host.retreival.clear()
-}
-
 async function retreivalIndex(
     files: string[],
     options: { excludedFiles: string[] }
@@ -688,14 +686,14 @@ async function retreivalIndex(
     const fs = await expandFiles(files, excludedFiles)
     const spinner = ora({ interval: 200 }).start("indexing")
 
-    await upsert(fs, {
+    await retreivalUpsert(fs, {
         progress: new ProgressSpinner(spinner),
     })
 }
 
 async function retreivalSearch(q: string) {
     const spinner = ora({ interval: 200 }).start("searching")
-    const res = await query(q)
+    const res = await retreivalSearch(q)
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
@@ -854,6 +852,11 @@ async function main() {
         .command("clear")
         .description("Clear index to force re-indexing")
         .action(retreivalClear)
+
+    program.command("serve")
+        .description("Start a GenAIScript local server")
+        .option("-p, --port <number>", "Specify the port number, default: 3000")
+        .action(startServer)
 
     program
         .command("jsonl2json", "Converts JSONL files to a JSON file")
