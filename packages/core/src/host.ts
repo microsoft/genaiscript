@@ -60,8 +60,8 @@ export interface RetreivalClientOptions {
 
 export interface ResponseStatus {
     ok: boolean
-    status: number
-    statusText: string
+    error?: string
+    status?: number
 }
 
 export interface RetreivalService {

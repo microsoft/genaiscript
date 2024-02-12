@@ -3,7 +3,7 @@ import {
     Host,
     LogLevel,
     OAIToken,
-    OpenAPIRetreivalSerivce,
+    OpenAPIRetreivalService,
     ReadFileOptions,
     RetreivalService,
     ShellCallOptions,
@@ -30,7 +30,7 @@ export class VSCodeHost extends EventTarget implements Host {
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
-        this.retreival = new OpenAPIRetreivalSerivce(this)
+        this.retreival = new OpenAPIRetreivalService(this)
         this.state.context.subscriptions.push(this)
     }
 

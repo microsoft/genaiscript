@@ -1,8 +1,8 @@
 import type { paths } from "./openapi"
-import { Host, ResponseStatus, RetreivalService, host } from "./host"
+import { Host, RetreivalService, host } from "./host"
 import createClient from "openapi-fetch"
 
-export class OpenAPIRetreivalSerivce implements RetreivalService {
+export class OpenAPIRetreivalService implements RetreivalService {
     constructor(readonly host: Host) {}
 
     private async createRetreivalClient() {
@@ -40,7 +40,7 @@ export class OpenAPIRetreivalSerivce implements RetreivalService {
             },
         })
         const { ok, status, statusText } = response
-        return { ok, status, statusText }
+        return { ok, status, error: !ok ? statusText : undefined }
     }
 
     async query(text: string) {
@@ -65,6 +65,6 @@ export class OpenAPIRetreivalSerivce implements RetreivalService {
                     score,
                 })
             ) || []
-        return { ok, status, statusText, results }
+        return { ok, status, error: !ok ? statusText : undefined, results }
     }
 }

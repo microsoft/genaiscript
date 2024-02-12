@@ -3,7 +3,6 @@ import {
     Host,
     LogLevel,
     OAIToken,
-    OpenAPIRetreivalSerivce,
     ReadFileOptions,
     RetreivalService,
     ShellCallOptions,
@@ -20,6 +19,7 @@ import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
+import { LlamaIndexRetreivalService } from "./llamaindexretreival"
 
 export class NodeHost implements Host {
     userState: any = {}
@@ -27,7 +27,7 @@ export class NodeHost implements Host {
     retreival: RetreivalService
 
     constructor() {
-        this.retreival = new OpenAPIRetreivalSerivce(this)
+        this.retreival = new LlamaIndexRetreivalService(this)
     }
 
     static install() {
