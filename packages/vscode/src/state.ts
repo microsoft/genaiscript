@@ -56,8 +56,8 @@ export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 
 export interface ChatRequestContext {
     context: ChatAgentContext
-    access: vscode.ChatAccess
-    progress: vscode.Progress<vscode.ChatAgentProgress>
+    access: vscode.LanguageModelAccess
+    response: vscode.ChatAgentResponseStream
     token: vscode.CancellationToken
 }
 
@@ -240,19 +240,16 @@ export class ExtensionState extends EventTarget {
             if (edits?.length) {
                 if (!options.chat) this.applyEdits()
                 else {
-                    options.chat.progress.report(<vscode.ChatAgentFileTree>{
-                        treeData: {
-                            label: "edits",
-                            uri: vscode.Uri.parse(REQUEST_OUTPUT_FILENAME),
-                            children: edits.map(
-                                (e) =>
-                                    <vscode.ChatAgentFileTreeData>{
-                                        label: e.label,
-                                        uri: infoUri(REQUEST_OUTPUT_FILENAME),
-                                    }
-                            ),
-                        },
-                    })
+                    options.chat.response.filetree(
+                        edits.map(
+                            (e) =>
+                                <vscode.ChatResponseFileTree>{
+                                    name: e.label,
+                                    // TODO
+                                }
+                        ),
+                        vscode.Uri.parse(REQUEST_OUTPUT_FILENAME)
+                    )
                 }
             }
         } catch (e) {
@@ -337,10 +334,8 @@ ${e.message}`
                 if (/\n/.test(progress.responseChunk))
                     r.response.annotations = parseAnnotations(r.response.text)
             }
-            if (r.options.chat?.progress)
-                r.options.chat?.progress?.report({
-                    content: progress.responseChunk,
-                })
+            if (r.options.chat?.response)
+                r.options.chat?.response?.markdown(progress.responseChunk)
             reqChange()
         }
         this.aiRequest = r
@@ -352,16 +347,10 @@ ${e.message}`
             trace,
             infoCb: (data) => {
                 r.response = data
-                const progress = r.options.chat?.progress
+                const progress = r.options.chat?.response
                 if (progress) {
-                    if (data.text)
-                        progress.report(<vscode.ChatAgentProgressMessage>{
-                            message: data.text,
-                        })
-                    if (data.summary)
-                        progress.report({
-                            content: data.summary,
-                        })
+                    if (data.text) progress.progress(data.text)
+                    if (data.summary) progress.text(data.summary)
                     if (data.vars && !varsProgressReported) {
                         varsProgressReported = true
                         data.vars.files
@@ -374,9 +363,7 @@ ${e.message}`
                                       )
                             })
                             ?.forEach((reference) =>
-                                progress.report(<
-                                    vscode.ChatAgentContentReference
-                                >{ reference })
+                                progress.reference(reference)
                             )
                     }
                 }
