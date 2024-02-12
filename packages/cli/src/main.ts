@@ -676,6 +676,10 @@ async function jsonl2json(files: string[]) {
     }
 }
 
+async function retreivalClear() {
+    await host.retreival.clear()
+}
+
 async function retreivalIndex(
     files: string[],
     options: { excludedFiles: string[] }
@@ -846,6 +850,10 @@ async function main() {
         .description("Search index")
         .argument("<query>", "Search query")
         .action(retreivalSearch)
+    retreival
+        .command("clear")
+        .description("Clear index to force re-indexing")
+        .action(retreivalClear)
 
     program
         .command("jsonl2json", "Converts JSONL files to a JSON file")
