@@ -12,7 +12,7 @@ import { AGENT_ID } from "../extension"
 
 interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
     template?: PromptTemplate
-    subCommand: string
+    command: string
 }
 
 // follow https://github.com/microsoft/vscode/issues/199908
@@ -32,7 +32,7 @@ function toChatAgentVariables(
 function toChatAgentRequest(request: vscode.ChatAgentRequest) {
     return {
         content: request.prompt,
-        subCommand: request.subCommand,
+        command: request.command,
         agentId: request.agentId,
         variables: toChatAgentVariables(request.variables),
     }
@@ -51,31 +51,49 @@ function uriPosToPosition(uri: vscode.Uri | vscode.Location): CharPosition {
 }
 
 function toChatAgentFileTree(
-    tree: vscode.ChatAgentFileTreeData
+    tree: vscode.ChatResponseFileTreePart
+): ChatMessageFileTree {
+    if (!tree?.value?.length) return undefined
+    return <ChatMessageFileTree>{
+        uri: tree.baseUri?.fsPath,
+        children: tree?.value?.map((c) => toChatAgentFileTreeNode(c)),
+    }
+}
+
+function toChatAgentFileTreeNode(
+    node: vscode.ChatResponseFileTree
 ): ChatMessageFileTreeNode {
-    if (!tree) return undefined
+    if (!node) return undefined
     return {
-        uri: tree.uri.fsPath,
-        label: tree.label,
-        children: tree.children?.map((c) => toChatAgentFileTree(c)),
+        label: node.name,
+        children: node.children?.map((c) => toChatAgentFileTreeNode(c)),
     }
 }
 
 function toChatAgentResponse(
-    response: vscode.ChatAgentContentProgress[]
+    response: readonly (
+        | vscode.ChatResponseTextPart
+        | vscode.ChatResponseMarkdownPart
+        | vscode.ChatResponseFileTreePart
+        | vscode.ChatResponseAnchorPart
+        | vscode.ChatResponseCommandButtonPart
+    )[]
 ): ChatMessageResponse[] {
-    return response.map((resp) => ({
-        content: (resp as vscode.ChatAgentContent)?.content,
-        uri: uriPosToUri(
-            (resp as vscode.ChatAgentInlineContentReference)?.inlineReference
-        ),
-        position: uriPosToPosition(
-            (resp as vscode.ChatAgentInlineContentReference)?.inlineReference
-        ),
-        fileTree: toChatAgentFileTree(
-            (resp as vscode.ChatAgentFileTree)?.treeData
-        ),
-    }))
+    return response.map(
+        (resp) =>
+            <ChatMessageResponse>{
+                content:
+                    (resp as vscode.ChatResponseMarkdownPart)?.value?.value ||
+                    (resp as vscode.ChatResponseTextPart)?.value,
+                //TODO
+                //       uri: (resp as vscode.ChatResponseAnchorPart)?.value,
+                fileTree:
+                    typeof resp.value !== "string" &&
+                    toChatAgentFileTree(
+                        resp as vscode.ChatResponseFileTreePart
+                    ),
+            }
+    )
 }
 
 function toChatAgentContext(
@@ -115,11 +133,11 @@ function chatRequestToPromptTemplate(
 
     for (const msg of context.history) {
         const { request, response } = msg
-        const { agentId, subCommand, content } = request
+        const { agentId, command, content } = request
 
         // process input
         if (agentId === AGENT_ID) {
-            if (subCommand) {
+            if (command) {
                 // calling into another template
                 // TODO
                 jsSource += wrapComment(`${agentId}: ${content}`)
@@ -134,7 +152,7 @@ function chatRequestToPromptTemplate(
         } else jsSource += wrapComment(`${agentId}: ${content}`)
     }
 
-    if (!request.subCommand) appendPrompt(context.prompt)
+    if (!request.command) appendPrompt(context.prompt)
 
     jsSource = `script(${JSON.stringify({ ...args }, null, 4)})\n\n${jsSource}`
 
@@ -210,36 +228,42 @@ These steps will not be needed once the API gets fully released.
     const handler: vscode.ChatAgentHandler = async (
         request: vscode.ChatAgentRequest,
         chatContext: vscode.ChatAgentContext,
-        progress: vscode.Progress<vscode.ChatAgentProgress>,
+        response: vscode.ChatAgentResponseStream,
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
-        const { subCommand } = request
+        const { command } = request
         const res = <ICatChatAgentResult>{
-            subCommand,
+            command: command,
         }
         const context = toChatAgentContext(request, chatContext)
-        let template = state.project?.templates.find(
-            ({ id }) => id === subCommand
-        )
+        let template = state.project?.templates.find(({ id }) => id === command)
         if (!template) {
-            progress.report({ message: "Generating script" })
+            response.progress("Generating script")
             template = chatRequestToPromptTemplate(request, context)
             res.template = template
 
             const message = new MarkdownTrace()
             message.log(`We generated this script from the chat history:`)
             message.fence(res.template.jsSource, "javascript")
-            progress.report(<vscode.ChatAgentContent>{
-                content: message.content,
-            })
+            response.markdown(message.content)
         }
 
-        const access = await vscode.chat.requestChatAccess("copilot")
+        const models = vscode.chat.languageModels
+        // TODO: resolve correct model
+        const tmodel = template.model || "gpt-4"
+        let model = models.find((m) => m === "copilot-" + tmodel)
+        if (!model) {
+            model = await vscode.window.showQuickPick(models, {
+                title: "Pick a Language Model",
+            })
+            if (model === undefined) return undefined
+        }
+        const access = await vscode.chat.requestLanguageModelAccess(model)
         logVerbose(`chat access model: ${access.model || "unknown"}`)
         await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
             chat: <ChatRequestContext>{
                 context,
-                progress,
+                response,
                 token,
                 access,
             },
@@ -255,8 +279,8 @@ These steps will not be needed once the API gets fully released.
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
     agent.description = "Run conversation as genaiscript..."
     agent.fullName = TOOL_NAME
-    agent.subCommandProvider = {
-        provideSubCommands(token) {
+    agent.commandProvider = {
+        provideCommands(token) {
             const templates =
                 state.project?.templates.filter(
                     (t) => !t.isSystem && t.chat !== false
@@ -268,34 +292,10 @@ These steps will not be needed once the API gets fully released.
                         .filter((s) => s)
                         .join("\n"),
                 })),
-                {
-                    name: "run",
-                    description:
-                        "Run a GenAIScript script against the current context",
-                },
             ]
         },
     }
-
-    agent.followupProvider = {
-        provideFollowups(
-            result: ICatChatAgentResult,
-            token: vscode.CancellationToken
-        ) {
-            const follows: vscode.ChatAgentFollowup[] = []
-            if (
-                result.subCommand === "run" &&
-                state.aiRequest?.response?.edits?.length
-            ) {
-                follows.push({
-                    commandId: "genaiscript.request.applyEdits",
-                    message: "Review the changes in the Refactorings view.",
-                    title: "Preview Edits",
-                })
-            }
-            return follows
-        },
-    }
+    // TODO apply edits
 }
 
 export function configureChatCompletionForChatAgent(
@@ -303,7 +303,7 @@ export function configureChatCompletionForChatAgent(
     runOptions: RunTemplateOptions
 ): void {
     logVerbose("using copilot llm")
-    const { access, progress, token } = options.chat
+    const { access, response: progress, token } = options.chat
     const { partialCb, infoCb } = runOptions
 
     runOptions.cache = false
@@ -330,14 +330,14 @@ export function configureChatCompletionForChatAgent(
             role: roles[m.role],
             content: typeof m.content === "string" ? m.content : "...",
         }))
-        const request = access.makeRequest(
+        const request = access.makeChatRequest(
             messages,
             { model, temperature, top_p, seed },
             token
         )
 
         let text = ""
-        for await (const fragment of request.response) {
+        for await (const fragment of request.stream) {
             text += fragment
             partialCb?.({
                 responseSoFar: text,
