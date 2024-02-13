@@ -81,6 +81,14 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return storageContext
     }
 
+    private async createServiceContext() {
+        const { serviceContextFromDefaults, OpenAI } = this.module
+        const serviceContext = serviceContextFromDefaults({
+            llm: new OpenAI({}),
+        })
+        return serviceContext
+    }
+
     async clear() {
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.deleteDirectory(persistDir)
@@ -100,6 +108,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                 error: `no reader for content type ${type}`,
             }
         const storageContext = await this.createStorageContext()
+        const serviceContext = await this.createServiceContext()
         const fs = new BlobFileSystem(filenameOrUrl, content)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
             (doc) =>
@@ -111,11 +120,37 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         await storageContext.docStore.addDocuments(documents, true)
         await VectorStoreIndex.fromDocuments(documents, {
             storageContext,
+            serviceContext,
+            logProgress: true,
         })
         await storageContext.docStore.persist()
         return { ok: true }
     }
 
+    async query(text: string): Promise<
+        ResponseStatus & {
+            response: string
+        }
+    > {
+        const { VectorStoreIndex, MetadataMode } = this.module
+
+        const storageContext = await this.createStorageContext()
+        const serviceContext = await this.createServiceContext()
+        const index = await VectorStoreIndex.init({
+            storageContext,
+            serviceContext,
+        })
+        const retreiver = index.asQueryEngine()
+        const results = await retreiver.query({
+            query: text,
+            stream: false,
+        })
+        return {
+            ok: true,
+            response: results.response,
+        }
+    }
+    
     async search(text: string): Promise<
         ResponseStatus & {
             results: {
@@ -129,8 +164,10 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const { VectorStoreIndex, MetadataMode } = this.module
 
         const storageContext = await this.createStorageContext()
+        const serviceContext = await this.createServiceContext()
         const index = await VectorStoreIndex.init({
             storageContext,
+            serviceContext,
         })
         const retreiver = index.asRetriever()
         const results = await retreiver.retrieve(text)
