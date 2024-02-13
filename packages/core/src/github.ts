@@ -1,6 +1,3 @@
-import { Octokit, App } from "octokit"
-import { throttling } from "@octokit/plugin-throttling"
-
 export interface GithubConnectionInfo {
     auth: string
     baseUrl?: string
@@ -24,47 +21,4 @@ export function parseGHTokenFromEnv(
         owner,
         repo,
     }
-}
-
-function createClient(conn: GithubConnectionInfo) {
-    const { owner, repo, ...rest } = conn
-    const ThrottledOctokit = Octokit.plugin(throttling)
-    const octokit = new ThrottledOctokit({
-        ...rest,
-        userAgent: `genaiscript`,
-        throttle: {
-            onRateLimit: (retryAfter, options, octokit, retryCount) => {
-                octokit.log.warn(
-                    `request quota exhausted for ${options.method} ${options.url}`
-                )
-                return true
-            },
-            onSecondaryRateLimit: (retryAfter, options, octokit) => {
-                // does not retry, only logs a warning
-                octokit.log.warn(
-                    `secondary rate limit detected for request ${options.method} ${options.url}`
-                )
-                return true
-            },
-        },
-    })
-
-    return octokit
-}
-
-export async function createIssue(
-    conn: GithubConnectionInfo,
-    title: string,
-    body: string
-) {
-    const { owner, repo } = conn
-    const octokit = createClient(conn)
-
-    const res = await octokit.rest.issues.create({
-        owner,
-        repo,
-        title,
-        body,
-    })
-    console.log(`created issue: ${res.data.html_url}`)
 }
