@@ -25,7 +25,7 @@ export class ServerManager {
             cwd: context.extensionPath,
         })
         this._terminal.show()
-        this._terminal.sendText(`npm install --no-save llamaindex pdfjs-dist`)
+        this._terminal.sendText(`npm install --no-save llamaindex`)
         this._terminal.sendText(`node ${CLI_JS} serve`)
     }
 
