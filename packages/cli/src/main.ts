@@ -28,6 +28,7 @@ import {
     GENAI_EXT,
     TOOL_NAME,
     GITHUB_REPO,
+    PDFTryParse,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -659,6 +660,12 @@ async function parseFence(language: string) {
     console.log(fences.map((f) => f.content).join("\n\n"))
 }
 
+async function parsePDF(file: string) {
+    const pages = await PDFTryParse(file)
+    const out = YAMLStringify(pages)
+    console.log(out)
+}
+
 async function jsonl2json(files: string[]) {
     const spinner = ora({ interval: 200 })
     for (const file of await expandFiles(files)) {
@@ -852,13 +859,16 @@ async function main() {
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
 
-    const parser = program
-        .command("parse")
-        .description("Parse output of a GPSpec in various formats")
+    const parser = program.command("parse").description("Parse various outputs")
     parser
-        .command("region <language>")
+        .command("fence <language>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
+
+    parser
+        .command("pdf <file>")
+        .description("Parse a PDF into a list of files")
+        .action(parsePDF)
 
     program
         .command("help-all", { hidden: true })

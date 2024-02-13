@@ -7,8 +7,8 @@ temp/
 .env
 __pycache__/
 packages/sample/*.slides.md
-**/.gptools/gptools.js
+**/.genaiscript/genaiscript.js
 vscode-extension-samples/
 .DS_Store
-.gptools/temp
+.genaiscript/temp
 results/
