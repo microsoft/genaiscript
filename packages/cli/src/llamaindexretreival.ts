@@ -5,6 +5,7 @@ import {
     RetreivalService,
     dotGenaiscriptPath,
     installImport,
+    writeText,
 } from "genaiscript-core"
 import type { BaseReader, GenericFileSystem } from "llamaindex"
 
@@ -75,6 +76,10 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const { storageContextFromDefaults } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
+        await writeText(
+            this.host.path.join(persistDir, ".gitignore"),
+            "*.json -diff merge=ours linguist-generated"
+        )
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
@@ -150,7 +155,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             response: results.response,
         }
     }
-    
+
     async search(text: string): Promise<
         ResponseStatus & {
             results: {
