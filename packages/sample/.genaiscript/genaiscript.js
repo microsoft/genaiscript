@@ -56259,7 +56259,7 @@ function bail(error2) {
 var import_is_buffer2 = __toESM(require_is_buffer(), 1);
 var import_extend = __toESM(require_extend(), 1);
 
-// ../../node_modules/unified/node_modules/is-plain-obj/index.js
+// ../../node_modules/is-plain-obj/index.js
 function isPlainObject(value2) {
   if (typeof value2 !== "object" || value2 === null) {
     return false;
@@ -65319,6 +65319,8 @@ async function exec(host2, trace, options) {
         (m2) => subs[m2.toLowerCase()] || "???"
       )
     );
+    if (cwd)
+      trace.item(`cwd: ${cwd}`);
     trace.item(`shell command: \`${command}\` ${patchedArgs.join(" ")}`);
     const res = await host2.exec(command, patchedArgs, {
       cwd,
@@ -65572,16 +65574,20 @@ function validateJSONSchema(trace, object, schema) {
 // ../core/src/pdf.ts
 async function tryImportPdfjs(trace) {
   try {
-    const pdfjs = await import("pdfjs-dist");
-    return pdfjs;
+    throw new Error("");
   } catch (e2) {
-    trace.error("pdfjs-dist not found, installing...", e2);
+    trace.error("pdfjs-dist not found, installing...");
+    const cwd = host.installFolder();
+    const yarn = await fileExists("yarn.lock");
+    const command = yarn ? "yarn" : "npm";
+    const args = yarn ? ["add", "pdfjs-dist"] : ["install", "pdfjs-dist"];
     await exec(host, trace, {
       label: "install pdfjs-dist",
       call: {
         type: "shell",
-        command: "npm",
-        args: ["install", "-g", "pdfjs-dist"]
+        command,
+        args,
+        cwd
       }
     });
     const pdfjs = await import("pdfjs-dist");
@@ -65594,7 +65600,8 @@ async function PDFTryParse(fileOrUrl, content3) {
     const { getDocument } = pdfjs;
     const data = content3 || await host.readFile(fileOrUrl);
     const loader = await getDocument({
-      data
+      data,
+      useSystemFonts: true
     });
     const doc = await loader.promise;
     const numPages = doc.numPages;
@@ -65714,7 +65721,7 @@ function createParsers(trace) {
 // ../core/package.json
 var package_default = {
   name: "genaiscript-core",
-  version: "1.9.0",
+  version: "1.9.1",
   main: "src/index.ts",
   license: "MIT",
   private: true,
@@ -65723,7 +65730,6 @@ var package_default = {
     url: "https://github.com/microsoft/genaiscript"
   },
   devDependencies: {
-    "@octokit/plugin-throttling": "^8.1.3",
     "@types/mdast": "^3.0.11",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20.11.5",
@@ -65732,7 +65738,6 @@ var package_default = {
     "fetch-retry": "^5.0.6",
     json5: "^2.2.3",
     "mime-types": "^2.1.35",
-    octokit: "^3.1.2",
     openai: "^4.26.1",
     "openapi-fetch": "^0.8.2",
     "openapi-typescript": "^6.7.4",
@@ -66148,10 +66153,11 @@ ${trimNewlines(t2)}
 ${f2}
 `;
 }
-async function callExpander(r2, vars, path5, trace) {
+async function callExpander(r2, vars, trace) {
   let promptText = "";
   let success = true;
   const parsers = createParsers(trace);
+  const path5 = host.path;
   const env2 = new Proxy(vars, {
     get: (target, prop, recv) => {
       const v2 = target[prop];
@@ -66265,12 +66271,12 @@ async function callExpander(r2, vars, path5, trace) {
   }
   return { logs, success, text: promptText };
 }
-async function expandTemplate(template, fragment, options, env2, path5, trace) {
+async function expandTemplate(template, fragment, options, env2, trace) {
   const { jsSource } = template;
   traceVars();
   trace.detailsFenced("\u{1F4C4} spec", env2.spec.content, "markdown");
   trace.startDetails("\u{1F6E0}\uFE0F script");
-  const prompt = await callExpander(template, env2, path5, trace);
+  const prompt = await callExpander(template, env2, trace);
   const expanded = prompt.text;
   let success = prompt.success;
   let systemText = "";
@@ -66305,7 +66311,7 @@ async function expandTemplate(template, fragment, options, env2, path5, trace) {
       system = fragment.file.project.getTemplate(systemTemplate);
       assert(!!system);
     }
-    const sysr = await callExpander(system, env2, path5, trace);
+    const sysr = await callExpander(system, env2, trace);
     const sysex = sysr.text;
     success = success && sysr.success;
     if (!success)
@@ -66544,7 +66550,6 @@ async function runTemplate(template, fragment, options) {
     skipLLM,
     label,
     cliInfo,
-    path: path5,
     trace = new MarkdownTrace()
   } = options || {};
   const { signal } = requestOptions;
@@ -66576,7 +66581,6 @@ async function runTemplate(template, fragment, options) {
     fragment,
     options,
     vars,
-    path5,
     trace
   );
   const prompt = [
@@ -68080,7 +68084,7 @@ function ora(options) {
 })();
 
 // src/nodehost.ts
-var import_util13 = require("util");
+var import_util14 = require("util");
 var import_promises3 = require("fs/promises");
 var import_fs_extra = __toESM(require_lib4());
 var import_node_path3 = require("node:path");
@@ -69409,7 +69413,7 @@ minimatch.Minimatch = Minimatch;
 minimatch.escape = escape;
 minimatch.unescape = unescape;
 
-// ../../node_modules/lru-cache/dist/esm/index.js
+// ../../node_modules/path-scurry/node_modules/lru-cache/dist/esm/index.js
 var perf = typeof performance === "object" && performance && typeof performance.now === "function" ? performance : Date;
 var warned = /* @__PURE__ */ new Set();
 var PROCESS = typeof process === "object" && !!process ? process : {};
@@ -76788,9 +76792,25 @@ var $2 = create$();
 
 // src/nodehost.ts
 var import_node_path4 = require("node:path");
+
+// src/nodepath.ts
+var import_path4 = require("path");
+function createNodePath() {
+  return {
+    dirname: import_path4.dirname,
+    extname: import_path4.extname,
+    basename: import_path4.basename,
+    join: import_path4.join,
+    normalize: import_path4.normalize,
+    relative: import_path4.relative
+  };
+}
+
+// src/nodehost.ts
 var NodeHost = class _NodeHost {
   userState = {};
   virtualFiles = {};
+  path = createNodePath();
   static install() {
     setHost(new _NodeHost());
   }
@@ -76832,13 +76852,16 @@ var NodeHost = class _NodeHost {
     }
   }
   createUTF8Decoder() {
-    return new import_util13.TextDecoder("utf-8");
+    return new import_util14.TextDecoder("utf-8");
   }
   createUTF8Encoder() {
-    return new import_util13.TextEncoder();
+    return new import_util14.TextEncoder();
   }
   projectFolder() {
     return (0, import_node_path3.resolve)(".");
+  }
+  installFolder() {
+    return this.projectFolder();
   }
   resolvePath(...segments) {
     return (0, import_node_path3.resolve)(...segments);
@@ -76935,21 +76958,6 @@ getStdin.buffer = async () => {
 
 // src/main.ts
 var import_node_path6 = require("node:path");
-
-// src/nodepath.ts
-var import_path4 = require("path");
-function createNodePath() {
-  return {
-    dirname: import_path4.dirname,
-    extname: import_path4.extname,
-    basename: import_path4.basename,
-    join: import_path4.join,
-    normalize: import_path4.normalize,
-    relative: import_path4.relative
-  };
-}
-
-// src/main.ts
 var import_promises4 = require("node:fs/promises");
 var import_fs_extra2 = __toESM(require_lib4());
 var import_replace_ext = __toESM(require_replace_ext());
@@ -77080,7 +77088,7 @@ async function batch(tool, specs, options) {
   const temperature = normalizeFloat(options.temperature);
   const topP = normalizeFloat(options.topP);
   const seed = normalizeFloat(options.seed);
-  const path5 = createNodePath();
+  const path5 = host.path;
   const toolFiles = [];
   if (scriptRx.test(tool))
     toolFiles.push(tool);
@@ -77163,7 +77171,6 @@ async function batch(tool, specs, options) {
           retry,
           retryDelay,
           maxDelay,
-          path: path5,
           vars: parseVars(vars)
         }
       );
@@ -77355,7 +77362,6 @@ ${Array.from(files).map((f2) => `-   [${(0, import_node_path6.basename)(f2)}](./
     retry,
     retryDelay,
     maxDelay,
-    path: createNodePath(),
     vars: parseVars(vars)
   });
   if (spinner) {

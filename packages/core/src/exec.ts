@@ -57,6 +57,7 @@ export async function exec(
             )
         )
 
+        if (cwd) trace.item(`cwd: ${cwd}`)
         trace.item(`shell command: \`${command}\` ${patchedArgs.join(" ")}`)
         const res = await host.exec(command, patchedArgs, {
             cwd,

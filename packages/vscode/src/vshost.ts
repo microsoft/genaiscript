@@ -17,12 +17,14 @@ import { Utils } from "vscode-uri"
 import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
+import { createVSPath } from "./vspath"
 
 const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
+    readonly path = createVSPath()
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -57,6 +59,10 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     projectFolder(): string {
         return workspace.rootPath ?? "."
+    }
+    installFolder(): string {
+        const p = this.context.extensionUri
+        return p.fsPath
     }
     resolvePath(...segments: string[]): string {
         if (segments.length === 0) return "."
