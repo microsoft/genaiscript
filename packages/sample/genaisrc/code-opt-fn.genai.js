@@ -22,7 +22,7 @@ defFunction("check_syntax", "Checks code for syntax errors", {
         type: "shell",
         stdin: code,
         command: "node",
-        args: ["gptools/check-syntax.js"],
+        args: ["genaisrc/check-syntax.js"],
     }
 })
 

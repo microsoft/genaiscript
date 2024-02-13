@@ -38,8 +38,6 @@ import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
-import { infoUri } from "./markdowndocumentprovider"
-import { createVSPath } from "./vspath"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -180,11 +178,14 @@ export class ExtensionState extends EventTarget {
     }
 
     private async saveScripts() {
-        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
-        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
         await vscode.workspace.fs.createDirectory(
             vscode.Uri.file(dotGenaiscriptPath("."))
         )
+
+        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
+        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
+
+        // genaiscript.js + pdfjs.min.mjs
         await vscode.workspace.fs.copy(p, cli, { overwrite: true })
     }
 
@@ -382,7 +383,6 @@ ${e.message}`
                 ),
             },
             chat: options.chat?.context,
-            path: createVSPath(),
         }
 
         if (options.chat) {

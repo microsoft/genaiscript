@@ -20,6 +20,7 @@ import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
 import { LlamaIndexRetreivalService } from "./llamaindexretreival"
+import { createNodePath } from "./nodepath"
 
 export class NodeHost implements Host {
     userState: any = {}
@@ -29,6 +30,7 @@ export class NodeHost implements Host {
     constructor() {
         this.retreival = new LlamaIndexRetreivalService(this)
     }
+    readonly path = createNodePath()
 
     static install() {
         setHost(new NodeHost())
@@ -84,6 +86,9 @@ export class NodeHost implements Host {
     }
     projectFolder(): string {
         return resolve(".")
+    }
+    installFolder(): string {
+        return this.projectFolder()
     }
     resolvePath(...segments: string[]) {
         return resolve(...segments)

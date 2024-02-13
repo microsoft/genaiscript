@@ -4,7 +4,7 @@ script({
     categories: ["code.python"],
 })
 
-const pythonFileName = env.spec.filename.replace(".gpspec.md", ".gptools.py")
+const pythonFileName = env.spec.filename.replace(".gpspec.md", ".genai.py")
 const python = env.files.find(lk => lk.filename === pythonFileName)
 
 $`

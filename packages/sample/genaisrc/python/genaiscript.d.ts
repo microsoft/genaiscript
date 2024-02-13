@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = string
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -553,17 +553,25 @@ interface Parsers {
     /**
      * Parses text as a JSON5 payload
      */
-    JSON5(text: string): unknown | undefined
+    JSON5(content: string | LinkedFile): unknown | undefined
     /**
      * Parses text as a YAML paylaod
      */
-    YAML(text: string): unknown | undefined
+    YAML(content: string | LinkedFile): unknown | undefined
 
     /**
      * Parses text as TOML payload
      * @param text text as TOML payload
      */
-    TOML(text: string): unknown | undefined
+    TOML(content: string | LinkedFile): unknown | undefined
+
+    /**
+     * Parses a file or URL as PDF
+     * @param content
+     */
+    PDF(
+        content: string | LinkedFile
+    ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 }
 
 interface Retreival {

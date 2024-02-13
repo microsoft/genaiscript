@@ -19,6 +19,7 @@ import { Utils } from "vscode-uri"
 import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
+import { createVSPath } from "./vspath"
 
 const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 
@@ -26,6 +27,7 @@ export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
     retreival: RetreivalService
+    readonly path = createVSPath()
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -61,6 +63,9 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     projectFolder(): string {
         return workspace.rootPath ?? "."
+    }
+    installFolder(): string {
+        return this.context.extensionUri.fsPath, "built"
     }
     resolvePath(...segments: string[]): string {
         if (segments.length === 0) return "."
@@ -187,7 +192,8 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             return v // alway return virtual files
         } else if (options?.virtual !== false && !!v) return v // optional return virtual files
 
-        return await workspace.fs.readFile(uri)
+        const buffer = await workspace.fs.readFile(uri)
+        return new Uint8Array(buffer)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         const uri = Uri.file(name)

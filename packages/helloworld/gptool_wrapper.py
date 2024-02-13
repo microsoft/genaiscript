@@ -39,7 +39,7 @@ class GPTOOL_CLI:
         :param csv_separator: CSV separator.
         """
         # Construct the command with the provided options
-        command = ['gptools', 'run', tool] + spec
+        command = ['genaiscript', 'run', tool] + spec
         if out:
             command += ['-o', out]
         if out_trace:

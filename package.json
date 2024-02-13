@@ -1,6 +1,6 @@
 {
-    "name": "gptools",
-    "version": "1.9.0",
+    "name": "genaiscript",
+    "version": "1.9.2",
     "license": "MIT",
     "private": true,
     "workspaces": [
@@ -24,11 +24,11 @@
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
         "bump": "yarn release",
         "test:unit": "cd packages/cli && yarn test",
-        "test:cli": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli -ot .gptools/tmp/tests/cli/outtrace.md -oa .gptools/tmp/tests/cli/diags.sarif",
-        "test:live": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .gptools/tmp/tests/cli --retry 1 --temperature 0.5 --no-cache",
+        "test:cli": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli -ot .genaiscript/tmp/tests/cli/outtrace.md -oa .genaiscript/tmp/tests/cli/diags.sarif",
+        "test:live": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli --retry 1 --temperature 0.5 --no-cache",
         "test:front-matter": "node packages/cli/built/genaiscript.js run front-matter SUPPORT.md",
         "test:lza": "cd applications/lza && yarn test",
-        "test:index": "node packages/cli/built/genaiscript.js retreival index packages/sample/src/rag/* && node packages/cli/built/genaiscript.js retreival search lorem",
+        "test:pdf": "node packages/cli/built/genaiscript.js parse pdf packages/sample/src/rag/loremipsum.pdf",
         "serve": "node packages/cli/built/genaiscript.js serve"
     },
     "release-it": {

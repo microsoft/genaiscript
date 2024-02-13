@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["run", "code-xray", "packages/sample/src/counting.py"]
+            "args": ["parse", "pdf", "packages/sample/src/rag/loremipsum.pdf"]
         },
         {
             "name": "Run - sample",

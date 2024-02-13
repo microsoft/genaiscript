@@ -11,6 +11,6 @@
     },
     "include": [
         "*.js",
-        "./gptools.d.ts"
+        "./genaiscript.d.ts"
     ]
 }

@@ -133,12 +133,12 @@ export function fenceMD(t: string, contentType?: string) {
 async function callExpander(
     r: PromptTemplate,
     vars: ExpansionVariables,
-    path: Path,
     trace: MarkdownTrace
 ) {
     let promptText = ""
     let success = true
-    const parsers = createParsers()
+    const parsers = createParsers(trace)
+    const path = host.path
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
             const v = target[prop]
@@ -151,10 +151,10 @@ async function callExpander(
     })
 
     const retreival: Retreival = {
-        index: async(files) => {
-            await retreivalUpsert(files, { trace })
+        index: async (files) => {
+            await upsert(files, { trace })
         },
-        search: async(q, options) => {
+        search: async (q, options) => {
             const { files = env.files } = options || {}
             try {
                 trace.startDetails(`retreive \`${q}\``)
@@ -164,8 +164,8 @@ async function callExpander(
                 return res
             } finally {
                 trace.endDetails()
-            }            
-        }
+            }
+        },
     }
 
     let logs = ""
@@ -266,7 +266,6 @@ async function expandTemplate(
         max_tokens?: number
     },
     env: ExpansionVariables,
-    path: Path,
     trace: MarkdownTrace
 ) {
     const { jsSource } = template
@@ -275,7 +274,7 @@ async function expandTemplate(
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
     trace.startDetails("🛠️ script")
 
-    const prompt = await callExpander(template, env, path, trace)
+    const prompt = await callExpander(template, env, trace)
     const expanded = prompt.text
 
     let success = prompt.success
@@ -307,7 +306,7 @@ async function expandTemplate(
             assert(!!system)
         }
 
-        const sysr = await callExpander(system, env, path, trace)
+        const sysr = await callExpander(system, env, trace)
         const sysex = sysr.text
         success = success && sysr.success
         if (!success) break
@@ -577,7 +576,6 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
         req: CreateChatCompletionRequest,
         options?: ChatCompletionsOptions & { trace: MarkdownTrace }
     ) => Promise<ChatCompletionResponse>
-    path: Path
     vars?: Record<string, string>
 }
 
@@ -614,7 +612,6 @@ export async function runTemplate(
         skipLLM,
         label,
         cliInfo,
-        path,
         trace = new MarkdownTrace(),
     } = options || {}
     const { signal } = requestOptions
@@ -650,7 +647,6 @@ export async function runTemplate(
         fragment,
         options,
         vars as ExpansionVariables,
-        path,
         trace
     )
 

@@ -29,6 +29,7 @@ import {
     TOOL_NAME,
     GITHUB_REPO,
     retreivalClear,
+    PDFTryParse,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -36,7 +37,6 @@ import { Command, program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
-import { createNodePath } from "./nodepath"
 import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
@@ -172,7 +172,7 @@ async function batch(
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
-    const path = createNodePath()
+    const path = host.path
 
     const toolFiles: string[] = []
     if (scriptRx.test(tool)) toolFiles.push(tool)
@@ -259,7 +259,6 @@ async function batch(
                     retry,
                     retryDelay,
                     maxDelay,
-                    path,
                     vars: parseVars(vars),
                 }
             )
@@ -506,7 +505,6 @@ ${Array.from(files)
         retry,
         retryDelay,
         maxDelay,
-        path: createNodePath(),
         vars: parseVars(vars),
     })
 
@@ -659,6 +657,12 @@ async function parseFence(language: string) {
         (f) => f.language === language
     )
     console.log(fences.map((f) => f.content).join("\n\n"))
+}
+
+async function parsePDF(file: string) {
+    const pages = await PDFTryParse(file)
+    const out = YAMLStringify(pages)
+    console.log(out)
 }
 
 async function jsonl2json(files: string[]) {
@@ -863,13 +867,16 @@ async function main() {
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
 
-    const parser = program
-        .command("parse")
-        .description("Parse output of a GPSpec in various formats")
+    const parser = program.command("parse").description("Parse various outputs")
     parser
-        .command("region <language>")
+        .command("fence <language>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
+
+    parser
+        .command("pdf <file>")
+        .description("Parse a PDF into a list of files")
+        .action(parsePDF)
 
     program
         .command("help-all", { hidden: true })
