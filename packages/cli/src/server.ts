@@ -18,8 +18,11 @@ export function startServer(options: { port: string }) {
     const wss = new WebSocketServer({ port })
 
     wss.on("connection", function connection(ws) {
-        console.log(`client connected (${wss.clients.size} clients)`)
+        console.log(`clients: connected (${wss.clients.size} clients)`)
         ws.on("error", console.error)
+        ws.on("close", () =>
+            console.log(`clients: closed (${wss.clients.size} clients)`)
+        )
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
             const { id, type } = data
@@ -31,7 +34,7 @@ export function startServer(options: { port: string }) {
                         response = await host.retreival.clear()
                         break
                     case "retreival.upsert":
-                        console.log(`upsert ${data.filename}`)
+                        console.log(`retreival: upsert ${data.filename}`)
                         response = await host.retreival.upsert(
                             data.filename,
                             await b64toBlob(data.content)
