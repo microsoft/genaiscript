@@ -1,18 +1,19 @@
 import type { TextItem } from "pdfjs-dist/types/src/display/api"
+import { host } from "./host"
 declare global {
     export type SVGGraphics = any
 }
 
 export async function PDFTryParse(
     fileOrUrl: string,
-    data?: ArrayBuffer
+    content?: Uint8Array
 ): Promise<string[]> {
     try {
         const pdfjs = await import("pdfjs-dist")
         const { getDocument } = pdfjs
+        const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
             data,
-            url: fileOrUrl,
         })
         const doc = await loader.promise
         const numPages = doc.numPages
