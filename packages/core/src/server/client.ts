@@ -4,6 +4,7 @@ import {
     ResponseStatus,
     RetreivalSearchResponse,
     RetreivalService,
+    host,
 } from "../host"
 import {
     RequestMessage,
@@ -28,9 +29,10 @@ export class WebSocketRetreivalService implements RetreivalService {
     private ws: WebSocket
     constructor(readonly url: string) {}
 
-    init(): Promise<void> {
+    async init(): Promise<void> {
         if (this.ws) return Promise.resolve(undefined)
 
+        await host.server.start()
         return new Promise<void>((resolve, reject) => {
             this.ws = new WebSocket(this.url)
             this.ws.addEventListener("open", () => {

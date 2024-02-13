@@ -4,6 +4,7 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
+    ServerManager,
     ShellCallOptions,
     ShellOutput,
     TOOL_NAME,
@@ -20,18 +21,21 @@ import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
+import { TerminalServerManager } from "./servermanager"
 
 const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
-    retreival: WebSocketRetreivalService
+    readonly retreival: WebSocketRetreivalService
     readonly path = createVSPath()
+    readonly server: ServerManager
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
+        this.server = new TerminalServerManager(state)
         this.retreival = createRetreivalClient(this)
         this.state.context.subscriptions.push(this.retreival)
         this.state.context.subscriptions.push(this)

@@ -84250,14 +84250,23 @@ function createNodePath() {
 }
 
 // src/nodehost.ts
+var NodeServerManager = class {
+  async start() {
+    throw new Error("not implement");
+  }
+  async close() {
+    throw new Error("not implement");
+  }
+};
 var NodeHost = class _NodeHost {
   userState = {};
   virtualFiles = {};
   retreival;
+  path = createNodePath();
+  server = new NodeServerManager();
   constructor() {
     this.retreival = new LlamaIndexRetreivalService(this);
   }
-  path = createNodePath();
   static install() {
     setHost(new _NodeHost());
   }

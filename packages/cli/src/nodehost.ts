@@ -5,6 +5,7 @@ import {
     OAIToken,
     ReadFileOptions,
     RetreivalService,
+    ServerManager,
     ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
@@ -22,15 +23,25 @@ import { join } from "node:path"
 import { LlamaIndexRetreivalService } from "./llamaindexretreival"
 import { createNodePath } from "./nodepath"
 
+class NodeServerManager implements ServerManager {
+    async start(): Promise<void> {
+        throw new Error("not implement")
+    }
+    async close(): Promise<void> {
+        throw new Error("not implement")
+    }
+}
+
 export class NodeHost implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
     retreival: RetreivalService
+    readonly path = createNodePath()
+    readonly server = new NodeServerManager()
 
     constructor() {
         this.retreival = new LlamaIndexRetreivalService(this)
     }
-    readonly path = createNodePath()
 
     static install() {
         setHost(new NodeHost())

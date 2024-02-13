@@ -80,11 +80,16 @@ export interface RetreivalService {
     search(text: string): Promise<RetreivalSearchResponse>
 }
 
+export interface ServerManager {
+    start(): Promise<void>
+    close(): Promise<void>
+}
+
 export interface Host {
     userState: any
 
     retreival: RetreivalService
-
+    server: ServerManager
     path: Path
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder
