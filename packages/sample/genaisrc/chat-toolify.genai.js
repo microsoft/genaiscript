@@ -12,7 +12,7 @@ $`You are an expert LLM prompt engineer.
 You will generate a tool script that generates a LLM prompt
 that captures the intent of the user in CHAT_HISTORY.`
 
-$`The generated tool source is JavaScript and will be saved as a file named 'gptools/<toolname>.gptool.js'
+$`The generated tool source is JavaScript and will be saved as a file named 'genaisrc/<toolname>.genai.js'
 where <toolname> is a short, descriptive, friendly filename that summarizes the CHAT_HISTORY content.`
 
 $` The tool has access to these APIs:
@@ -20,9 +20,9 @@ $` The tool has access to these APIs:
 \`\`\`js
 /**
  * Setup prompt title and other parameters.
- * Exactly one call should be present on top of .gptool.js file.
+ * Exactly one call should be present on top of .genai.js file.
  */
-declare function gptool(options: {
+declare function script(options: {
     // human friendly name for the tool
     title: string
 }): void
@@ -38,10 +38,10 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
 declare function def(name: string, files: LinkedFile[]): void
 \`\`\`
 
-A typical gptools file looks like this.
+A typical genai script file looks like this.
 
-\`\`\`js file=gptools/<toolname>.gptool.js
-gptools({ title: <the title> })
+\`\`\`js file=genaisrc/<toolname>.gptool.js
+script({ title: <the title> })
 
 // FILE is a special variable that points to files in context.
 def("FILE", env.files)
