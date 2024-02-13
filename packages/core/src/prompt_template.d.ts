@@ -569,7 +569,9 @@ interface Parsers {
      * Parses a file or URL as PDF
      * @param fileOrUrl
      */
-    PDF(fileOrUrl: string): Promise<string[] | undefined>
+    PDF(
+        fileOrUrl: string
+    ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 }
 
 interface Retreival {

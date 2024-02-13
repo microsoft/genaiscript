@@ -899,13 +899,6 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/pdfjs-dist@^2.10.378":
-  version "2.10.378"
-  resolved "https://registry.yarnpkg.com/@types/pdfjs-dist/-/pdfjs-dist-2.10.378.tgz#7f28ca75e43e88dd1d283f16c6786422df41063f"
-  integrity sha512-TRdIPqdsvKmPla44kVy4jv5Nt5vjMfVjbIEke1CRULIrwKNRC4lIiZvNYDJvbUMNCFPNIUcOKhXTyMJrX18IMA==
-  dependencies:
-    pdfjs-dist "*"
-
 "@types/ps-tree@^1.1.2":
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/@types/ps-tree/-/ps-tree-1.1.6.tgz#fbb22dabe3d64b79295f37ce0afb7320a26ac9a6"
@@ -4359,18 +4352,18 @@ pdf-text-reader@^4.0.1:
   dependencies:
     pdfjs-dist "3.9.179"
 
-pdfjs-dist@*, pdfjs-dist@^4.0.379:
-  version "4.0.379"
-  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz#e2e967255d63c9caf0b6fe944e99ec9a746649da"
-  integrity sha512-6H0Gv1nna+wmrr3CakaKlZ4rbrL8hvGIFAgg4YcoFuGC0HC4B2DVjXEGTFjJEjLlf8nYi3C3/MYRcM5bNx0elA==
-  optionalDependencies:
-    canvas "^2.11.2"
-    path2d-polyfill "^2.0.1"
-
 pdfjs-dist@3.9.179:
   version "3.9.179"
   resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-3.9.179.tgz#db442d1d7359b51dd02623ea2fc5e4ad436b6945"
   integrity sha512-AZBEIAORYDaOAlM0/A4Zg465+XF3ugYDdgrVmioVvNW5tH3xs3RpGFBYOG5PM9/vLM3M/wNncsMLTgyIKdqMKg==
+  optionalDependencies:
+    canvas "^2.11.2"
+    path2d-polyfill "^2.0.1"
+
+pdfjs-dist@^4.0.379:
+  version "4.0.379"
+  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz#e2e967255d63c9caf0b6fe944e99ec9a746649da"
+  integrity sha512-6H0Gv1nna+wmrr3CakaKlZ4rbrL8hvGIFAgg4YcoFuGC0HC4B2DVjXEGTFjJEjLlf8nYi3C3/MYRcM5bNx0elA==
   optionalDependencies:
     canvas "^2.11.2"
     path2d-polyfill "^2.0.1"

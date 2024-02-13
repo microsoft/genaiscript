@@ -8,6 +8,19 @@ export function createParsers(): Parsers {
         JSON5: (text) => JSON5TryParse(text),
         YAML: (text) => YAMLTryParse(text),
         TOML: (text) => TOMLTryParse(text),
-        PDF: (fileOrUrl) => PDFTryParse(fileOrUrl)
+        PDF: async (fileOrUrl) => {
+            const pages = await PDFTryParse(fileOrUrl)
+            return {
+                file: pages
+                    ? <LinkedFile>{
+                          filename: fileOrUrl,
+                          content: pages.join(
+                              "\n\n-------- Page Break --------\n\n"
+                          ),
+                      }
+                    : undefined,
+                pages,
+            }
+        },
     }
 }
