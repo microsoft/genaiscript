@@ -15089,7 +15089,7 @@ var require_lib3 = __commonJS({
     }
     var INTERNALS$1 = Symbol("Response internals");
     var STATUS_CODES = http.STATUS_CODES;
-    var Response3 = class _Response {
+    var Response4 = class _Response {
       constructor() {
         let body = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : null;
         let opts = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
@@ -15147,8 +15147,8 @@ var require_lib3 = __commonJS({
         });
       }
     };
-    Body.mixIn(Response3.prototype);
-    Object.defineProperties(Response3.prototype, {
+    Body.mixIn(Response4.prototype);
+    Object.defineProperties(Response4.prototype, {
       url: { enumerable: true },
       status: { enumerable: true },
       ok: { enumerable: true },
@@ -15157,7 +15157,7 @@ var require_lib3 = __commonJS({
       headers: { enumerable: true },
       clone: { enumerable: true }
     });
-    Object.defineProperty(Response3.prototype, Symbol.toStringTag, {
+    Object.defineProperty(Response4.prototype, Symbol.toStringTag, {
       value: "Response",
       writable: false,
       enumerable: false,
@@ -15495,7 +15495,7 @@ var require_lib3 = __commonJS({
           };
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-            response = new Response3(body, response_options);
+            response = new Response4(body, response_options);
             resolve3(response);
             return;
           }
@@ -15505,7 +15505,7 @@ var require_lib3 = __commonJS({
           };
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
-            response = new Response3(body, response_options);
+            response = new Response4(body, response_options);
             resolve3(response);
             return;
           }
@@ -15517,12 +15517,12 @@ var require_lib3 = __commonJS({
               } else {
                 body = body.pipe(zlib.createInflateRaw());
               }
-              response = new Response3(body, response_options);
+              response = new Response4(body, response_options);
               resolve3(response);
             });
             raw.on("end", function() {
               if (!response) {
-                response = new Response3(body, response_options);
+                response = new Response4(body, response_options);
                 resolve3(response);
               }
             });
@@ -15530,11 +15530,11 @@ var require_lib3 = __commonJS({
           }
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
-            response = new Response3(body, response_options);
+            response = new Response4(body, response_options);
             resolve3(response);
             return;
           }
-          response = new Response3(body, response_options);
+          response = new Response4(body, response_options);
           resolve3(response);
         });
         writeToStream(req, request);
@@ -15576,7 +15576,7 @@ var require_lib3 = __commonJS({
     exports2.default = exports2;
     exports2.Headers = Headers3;
     exports2.Request = Request4;
-    exports2.Response = Response3;
+    exports2.Response = Response4;
     exports2.FetchError = FetchError;
     exports2.AbortError = AbortError;
   }
@@ -67545,7 +67545,7 @@ var auto = false;
 var kind = void 0;
 var fetch2 = void 0;
 var Request2 = void 0;
-var Response = void 0;
+var Response2 = void 0;
 var Headers = void 0;
 var FormData = void 0;
 var Blob2 = void 0;
@@ -67566,7 +67566,7 @@ function setShims(shims, options = { auto: false }) {
   kind = shims.kind;
   fetch2 = shims.fetch;
   Request2 = shims.Request;
-  Response = shims.Response;
+  Response2 = shims.Response;
   Headers = shims.Headers;
   FormData = shims.FormData;
   Blob2 = shims.Blob;
@@ -84453,17 +84453,22 @@ var import_websocket = __toESM(require_websocket(), 1);
 var import_websocket_server = __toESM(require_websocket_server(), 1);
 
 // src/server.ts
-async function b64toBlob(base64, type = "application/octet-stream") {
+async function b64toBlob(base64, type) {
   const res = await fetch(`data:${type};base64,${base64}`);
   const blob = await res.blob();
   return blob;
 }
-function startServer(options) {
+async function startServer(options) {
+  await host.retreival.init();
   const port = parseInt(options.port) || SERVER_PORT;
   const wss = new import_websocket_server.default({ port });
   wss.on("connection", function connection(ws) {
-    console.log(`client connected (${wss.clients.size} clients)`);
+    console.log(`clients: connected (${wss.clients.size} clients)`);
     ws.on("error", console.error);
+    ws.on(
+      "close",
+      () => console.log(`clients: closed (${wss.clients.size} clients)`)
+    );
     ws.on("message", async (msg) => {
       const data = JSON.parse(msg.toString());
       const { id, type } = data;
@@ -84475,10 +84480,10 @@ function startServer(options) {
             response = await host.retreival.clear();
             break;
           case "retreival.upsert":
-            console.log(`upsert ${data.filename}`);
+            console.log(`retreival: upsert ${data.filename}`);
             response = await host.retreival.upsert(
               data.filename,
-              await b64toBlob(data.content)
+              await b64toBlob(data.content, data.type)
             );
             break;
           case "retreival.search":
@@ -84492,6 +84497,8 @@ function startServer(options) {
       } catch (e2) {
         response = { ok: false, error: e2.message };
       } finally {
+        if (response.error)
+          console.error(response.error);
         ws.send(JSON.stringify({ id, response }));
       }
     });

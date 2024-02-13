@@ -7,13 +7,15 @@ import {
     host,
 } from "genaiscript-core"
 
-async function b64toBlob(base64: string, type = "application/octet-stream") {
+async function b64toBlob(base64: string, type: string) {
     const res = await fetch(`data:${type};base64,${base64}`)
     const blob = await res.blob()
     return blob
 }
 
-export function startServer(options: { port: string }) {
+export async function startServer(options: { port: string }) {
+    await host.retreival.init()
+
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
 
@@ -37,7 +39,7 @@ export function startServer(options: { port: string }) {
                         console.log(`retreival: upsert ${data.filename}`)
                         response = await host.retreival.upsert(
                             data.filename,
-                            await b64toBlob(data.content)
+                            await b64toBlob(data.content, data.type)
                         )
                         break
                     case "retreival.search":
@@ -51,6 +53,7 @@ export function startServer(options: { port: string }) {
             } catch (e) {
                 response = { ok: false, error: e.message }
             } finally {
+                if (response.error) console.error(response.error)
                 ws.send(JSON.stringify({ id, response }))
             }
         })
