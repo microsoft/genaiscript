@@ -28,7 +28,9 @@
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.11.5",
         "@types/replace-ext": "^2.0.2",
+        "@types/ws": "^8.5.10",
         "tsx": "^4.7.0",
+        "ws": "^8.16.0",
         "zod": "^3.22.4"
     },
     "scripts": {

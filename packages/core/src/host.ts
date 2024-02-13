@@ -64,19 +64,19 @@ export interface ResponseStatus {
     status?: number
 }
 
+export type RetreivalSearchResponse = ResponseStatus & {
+    results: {
+        filename: string
+        id: string
+        text: string
+        score: number
+    }[]
+}
+
 export interface RetreivalService {
     clear(): Promise<ResponseStatus>
     upsert(filenameOrUrl: string, content: Blob): Promise<ResponseStatus>
-    search(text: string): Promise<
-        ResponseStatus & {
-            results: {
-                filename: string
-                id: string
-                text: string
-                score: number
-            }[]
-        }
-    >
+    search(text: string): Promise<RetreivalSearchResponse>
 }
 
 export interface Host {
