@@ -315,9 +315,6 @@
         "vscode-uri": "^3.0.8",
         "zx": "^7.2.3"
     },
-    "dependencies": {
-        "pdfjs-dist": "^4.0.379"
-    },
     "enabledApiProposals": [
         "chatAgents2",
         "chatRequestAccess"
