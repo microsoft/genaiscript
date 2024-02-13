@@ -2,6 +2,7 @@ import type { TextItem } from "pdfjs-dist/types/src/display/api"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { exec } from "./exec"
+import { fileExists } from "./util"
 
 // please some typescript warnings
 declare global {
@@ -13,13 +14,20 @@ export async function tryImportPdfjs(trace?: MarkdownTrace) {
         const pdfjs = await import("pdfjs-dist")
         return pdfjs
     } catch (e) {
-        trace.error("pdfjs-dist not found, installing...", e)
+        trace.error("pdfjs-dist not found, installing...")
+        const cwd = host.installFolder()
+        const yarn = await fileExists(host.path.join(cwd, "yarn.lock"))
+        const command = yarn ? "yarn" : "npm"
+        const args = yarn
+            ? ["add", "pdfjs-dist"]
+            : ["install", "--no-save", "--ignore-scripts", "pdfjs-dist"]
         await exec(host, trace, {
             label: "install pdfjs-dist",
             call: {
                 type: "shell",
-                command: "npm",
-                args: ["install", "-g", "pdfjs-dist"],
+                command,
+                args,
+                cwd,
             },
         })
         const pdfjs = await import("pdfjs-dist")

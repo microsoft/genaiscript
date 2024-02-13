@@ -36,7 +36,6 @@ import { Command, program } from "commander"
 import getStdin from "get-stdin"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
-import { createNodePath } from "./nodepath"
 import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
@@ -171,7 +170,7 @@ async function batch(
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
-    const path = createNodePath()
+    const path = host.path
 
     const toolFiles: string[] = []
     if (scriptRx.test(tool)) toolFiles.push(tool)
@@ -258,7 +257,6 @@ async function batch(
                     retry,
                     retryDelay,
                     maxDelay,
-                    path,
                     vars: parseVars(vars),
                 }
             )
@@ -505,7 +503,6 @@ ${Array.from(files)
         retry,
         retryDelay,
         maxDelay,
-        path: createNodePath(),
         vars: parseVars(vars),
     })
 
