@@ -38,6 +38,7 @@ import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
 import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
+import { ServerManager } from "./servermanager"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -149,7 +150,7 @@ export class ExtensionState extends EventTarget {
     private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
         undefined
     readonly output: vscode.LogOutputChannel
-
+    readonly server: ServerManager
     readonly aiRequestContext: AIRequestContextOptions = {}
 
     constructor(public readonly context: ExtensionContext) {
@@ -164,6 +165,8 @@ export class ExtensionState extends EventTarget {
 
         this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
+        this.server = new ServerManager(this)
+        subscriptions.push(this.server)
 
         this._aiRequestCache = getAIRequestCache()
 
