@@ -13,15 +13,10 @@ import {
     RetreivalUpsert,
 } from "./messages"
 
-function blobToBase64(blob: Blob) {
-    return new Promise<string>((resolve) => {
-        const reader = new FileReader()
-        reader.onloadend = function () {
-            let base64data = reader.result
-            resolve(base64data as string)
-        }
-        reader.readAsDataURL(blob)
-    })
+async function blobToBase64(blob: Blob): Promise<string> {
+    const arrayBuffer = await new Response(blob).arrayBuffer()
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+    return base64
 }
 
 export class WebSocketRetreivalService implements RetreivalService {
@@ -33,21 +28,26 @@ export class WebSocketRetreivalService implements RetreivalService {
     private ws: WebSocket
     constructor(readonly url: string) {}
 
-    async init() {
-        if (this.ws) return
+    init(): Promise<void> {
+        if (this.ws) return Promise.resolve(undefined)
 
-        this.ws = new WebSocket(this.url)
-        this.ws.addEventListener("message", async (event) => {
-            const { data }: { data: RequestMessages } = event
-            const { id } = data
-            const awaiter = this.awaiters[id]
-            if (awaiter) {
-                delete this.awaiters[id]
-                await awaiter.resolve(data)
-            }
-        })
-        this.ws.addEventListener("close", () => {
-            this.cancel()
+        return new Promise<void>((resolve, reject) => {
+            this.ws = new WebSocket(this.url)
+            this.ws.addEventListener("open", () => {
+                resolve(undefined)
+            })
+            this.ws.addEventListener("message", async (event) => {
+                const data: RequestMessages = JSON.parse(event.data)
+                const { id } = data
+                const awaiter = this.awaiters[id]
+                if (awaiter) {
+                    delete this.awaiters[id]
+                    await awaiter.resolve(data)
+                }
+            })
+            this.ws.addEventListener("close", () => {
+                this.cancel()
+            })
         })
     }
 

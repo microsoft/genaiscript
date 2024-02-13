@@ -52,5 +52,5 @@ export function startServer(options: { port: string }) {
             }
         })
     })
-    console.log(`server started on port ${port}`)
+    console.log(`GenAIScript server started on port ${port}`)
 }
