@@ -284,7 +284,7 @@
     },
     "scripts": {
         "vscode:prepublish": "yarn run compile",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:canvas",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist",
         "compile": "yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
@@ -309,7 +309,6 @@
         "genaiscript-core": "*",
         "isomorphic-fetch": "^3.0.0",
         "mocha": "^10.2.0",
-        "pdf-text-reader": "^4.0.1",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
         "typescript": "^5.3.3",

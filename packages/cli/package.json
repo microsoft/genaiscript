@@ -13,6 +13,7 @@
     "get-stdin": "^9.0.0",
     "glob": "^10.3.10",
     "openai": "^4.25.0",
+    "pdfjs-dist": "^4.0.379",
     "typescript": "^5.3.3"
   },
   "engines": {
@@ -29,7 +30,7 @@
     "tsx": "^4.7.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:canvas",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist",
     "postcompile": "cp built/genaiscript.js ../vscode/genaiscript.js",
     "go": "yarn compile && node built/genaiscript.js",
     "test": "node --import tsx --test src/**.test.ts",
