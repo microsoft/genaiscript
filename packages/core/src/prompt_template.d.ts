@@ -564,6 +564,12 @@ interface Parsers {
      * @param text text as TOML payload
      */
     TOML(text: string): unknown | undefined
+
+    /**
+     * Parses a file or URL as PDF
+     * @param fileOrUrl
+     */
+    PDF(fileOrUrl: string): Promise<string[] | undefined>
 }
 
 interface Retreival {

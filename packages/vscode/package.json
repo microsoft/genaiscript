@@ -3,7 +3,7 @@
     "publisher": "devicescript",
     "author": {
         "name": "Microsoft Corporation"
-    },    
+    },
     "displayName": "GenAIScript Insiders",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
     "version": "1.9.0",
@@ -284,7 +284,7 @@
     },
     "scripts": {
         "vscode:prepublish": "yarn run compile",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist",
         "compile": "yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
@@ -314,6 +314,9 @@
         "vscode-uri": "^3.0.8",
         "zx": "^7.2.3",
         "dotenv": "^16.4.1"
+    },
+    "dependencies": {
+        "pdf-text-reader": "^4.0.1"
     },
     "enabledApiProposals": [
         "chatAgents2",

@@ -29,7 +29,7 @@
     "tsx": "^4.7.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --minify-whitespace",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist",
     "postcompile": "cp built/genaiscript.js ../vscode/genaiscript.js",
     "go": "yarn compile && node built/genaiscript.js",
     "test": "node --import tsx --test src/**.test.ts",
