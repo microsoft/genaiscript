@@ -3,12 +3,12 @@ import {
     Host,
     LogLevel,
     OAIToken,
-    OpenAPIRetreivalService,
     ReadFileOptions,
-    RetreivalService,
     ShellCallOptions,
     ShellOutput,
     TOOL_NAME,
+    WebSocketRetreivalService,
+    createRetreivalClient,
     logVerbose,
     parseTokenFromEnv,
     setHost,
@@ -26,13 +26,14 @@ const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
-    retreival: RetreivalService
+    retreival: WebSocketRetreivalService
     readonly path = createVSPath()
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
-        this.retreival = new OpenAPIRetreivalService(this)
+        this.retreival = createRetreivalClient(this)
+        this.state.context.subscriptions.push(this.retreival)
         this.state.context.subscriptions.push(this)
     }
 

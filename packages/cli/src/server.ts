@@ -3,6 +3,7 @@ import http from "http"
 import {
     RequestMessages,
     ResponseStatus,
+    SERVER_PORT,
     host,
 } from "genaiscript-core"
 
@@ -13,7 +14,7 @@ async function b64toBlob(base64: string, type = "application/octet-stream") {
 }
 
 export function startServer(options: { port: string }) {
-    const port = parseInt(options.port) || 3000
+    const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
 
     wss.on("connection", function connection(ws) {

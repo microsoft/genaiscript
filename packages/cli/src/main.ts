@@ -30,6 +30,7 @@ import {
     GITHUB_REPO,
     clear,
     PDFTryParse,
+    SERVER_PORT,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -857,9 +858,13 @@ async function main() {
         .description("Clear index to force re-indexing")
         .action(clear)
 
-    program.command("serve")
+    program
+        .command("serve")
         .description("Start a GenAIScript local server")
-        .option("-p, --port <number>", "Specify the port number, default: 3000")
+        .option(
+            "-p, --port <number>",
+            `Specify the port number, default: ${SERVER_PORT}`
+        )
         .action(startServer)
 
     program
