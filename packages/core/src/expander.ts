@@ -901,23 +901,20 @@ export async function runTemplate(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
                         status()
-                        const { stdout, stderr, exitCode } = await exec(
-                            host,
+                        const { stdout, stderr, exitCode } = await exec(host, {
                             trace,
-                            {
-                                label: call.name,
-                                call: {
-                                    type: "shell",
-                                    command,
-                                    args,
-                                    stdin,
-                                    files,
-                                    outputFile,
-                                    cwd: cwd ?? projFolder,
-                                    timeout: timeout ?? 60000,
-                                },
-                            }
-                        )
+                            label: call.name,
+                            call: {
+                                type: "shell",
+                                command,
+                                args,
+                                stdin,
+                                files,
+                                outputFile,
+                                cwd: cwd ?? projFolder,
+                                timeout: timeout ?? 60000,
+                            },
+                        })
                         output = { content: stdout }
                         trace.item(`exit code: ${exitCode}`)
                         if (stdout) trace.details("📩 shell output", stdout)

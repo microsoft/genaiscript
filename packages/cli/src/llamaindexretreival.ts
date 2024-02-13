@@ -1,24 +1,15 @@
 import {
     Host,
+    MarkdownTrace,
     ResponseStatus,
     RetreivalService,
-    YAMLStringify,
     dotGenaiscriptPath,
+    installImport,
 } from "genaiscript-core"
-import {
-    MetadataMode,
-    storageContextFromDefaults,
-    VectorStoreIndex,
-    TextFileReader,
-    PDFReader,
-    MarkdownReader,
-    DocxReader,
-    HTMLReader,
-    BaseReader,
-    GenericFileSystem,
-    Document,
-    PapaCSVReader,
-} from "llamaindex"
+import type { BaseReader, GenericFileSystem } from "llamaindex"
+
+type PromiseType<T extends Promise<any>> =
+    T extends Promise<infer U> ? U : never
 
 class BlobFileSystem implements GenericFileSystem {
     constructor(
@@ -46,21 +37,42 @@ class BlobFileSystem implements GenericFileSystem {
     }
 }
 
-const READERS: Record<string, BaseReader> = {
-    "text/plain": new TextFileReader(),
-    "application/javascript": new TextFileReader(),
-    "application/pdf": new PDFReader(),
-    "text/markdown": new MarkdownReader(),
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        new DocxReader(),
-    "text/html": new HTMLReader(),
-    "text/csv": new PapaCSVReader(),
+async function tryImportLlamaIndex(trace: MarkdownTrace) {
+    try {
+        const m = await import("llamaindex")
+        return m
+    } catch (e) {
+        trace?.error("llamaindex not found, installing...")
+        await installImport("llamaindex", trace)
+        const m = await import("llamaindex")
+        return m
+    }
 }
 
 export class LlamaIndexRetreivalService implements RetreivalService {
+    private module: PromiseType<ReturnType<typeof tryImportLlamaIndex>>
+    private READERS: Record<string, BaseReader>
+
     constructor(readonly host: Host) {}
 
+    async init(trace?: MarkdownTrace) {
+        if (this.module) return
+
+        this.module = await tryImportLlamaIndex(trace)
+        this.READERS = {
+            "text/plain": new this.module.TextFileReader(),
+            "application/javascript": new this.module.TextFileReader(),
+            "application/pdf": new this.module.PDFReader(),
+            "text/markdown": new this.module.MarkdownReader(),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                new this.module.DocxReader(),
+            "text/html": new this.module.HTMLReader(),
+            "text/csv": new this.module.PapaCSVReader(),
+        }
+    }
+
     private async createStorageContext() {
+        const { storageContextFromDefaults } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
         const storageContext = await storageContextFromDefaults({
@@ -79,8 +91,9 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         filenameOrUrl: string,
         content: Blob
     ): Promise<ResponseStatus> {
+        const { Document, VectorStoreIndex } = this.module
         const { type } = content
-        const reader = READERS[content.type]
+        const reader = this.READERS[content.type]
         if (!reader)
             return {
                 ok: false,
@@ -113,6 +126,8 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             }[]
         }
     > {
+        const { VectorStoreIndex, MetadataMode } = this.module
+
         const storageContext = await this.createStorageContext()
         const index = await VectorStoreIndex.init({
             storageContext,

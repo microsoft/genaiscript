@@ -13,8 +13,8 @@ export async function tryImportPdfjs(trace?: MarkdownTrace) {
         const pdfjs = await import("pdfjs-dist")
         return pdfjs
     } catch (e) {
-        trace.error("pdfjs-dist not found, installing...")
-        await installImport(trace, "pdfjs-dist")
+        trace?.error("pdfjs-dist not found, installing...")
+        await installImport("pdfjs-dist", trace)
         const pdfjs = await import("pdfjs-dist")
         return pdfjs
     }

@@ -21,6 +21,10 @@ export class OpenAPIRetreivalService implements RetreivalService {
         return fetcher
     }
 
+    async init() {
+        // ping?
+    }
+
     async clear() {
         return { ok: false, error: "not implemented" }
     }

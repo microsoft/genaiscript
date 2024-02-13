@@ -4,10 +4,9 @@ import { dotGenaiscriptPath, fileExists, readText, writeText } from "./util"
 
 export async function exec(
     host: Host,
-    trace: MarkdownTrace,
-    options: { label: string; call: ChatFunctionCallShell }
+    options: { trace?: MarkdownTrace, label: string; call: ChatFunctionCallShell }
 ): Promise<ShellOutput> {
-    const { label, call } = options
+    const { label, call, trace } = options
     let { stdin, command, args, cwd, timeout, files, outputFile } = call
 
     let outputdir: string
@@ -16,7 +15,7 @@ export async function exec(
     let stderrfile: string
     let exitcodefile: string
     try {
-        trace.startDetails(label)
+        trace?.startDetails(label)
 
         // configure the output folder
         outputdir = dotGenaiscriptPath(
@@ -57,8 +56,8 @@ export async function exec(
             )
         )
 
-        if (cwd) trace.item(`cwd: ${cwd}`)
-        trace.item(`shell command: \`${command}\` ${patchedArgs.join(" ")}`)
+        if (cwd) trace?.item(`cwd: ${cwd}`)
+        trace?.item(`shell command: \`${command}\` ${patchedArgs.join(" ")}`)
         const res = await host.exec(command, patchedArgs, {
             cwd,
             timeout,
@@ -69,7 +68,7 @@ export async function exec(
         if (res.exitCode === undefined && (await fileExists(exitcodefile)))
             res.exitCode = parseInt(await readText(exitcodefile))
 
-        trace.item(`exit code: ${res.exitCode}`)
+        trace?.item(`exit code: ${res.exitCode}`)
 
         if (res.stdout === undefined && (await fileExists(stdoutfile)))
             res.stdout = await readText(stdoutfile)
@@ -78,7 +77,7 @@ export async function exec(
         if (outputFile && (await fileExists(outputFile)))
             res.output = await readText(outputFile)
 
-        trace.detailsFenced(`📩 output`, res.stdout || "")
+        trace?.detailsFenced(`📩 output`, res.stdout || "")
 
         return <ShellOutput>res
     } finally {
@@ -86,7 +85,7 @@ export async function exec(
             await host.deleteDirectory(outputdir)
         } finally {
             // todo delete directory
-            trace.endDetails()
+            trace?.endDetails()
         }
     }
 }

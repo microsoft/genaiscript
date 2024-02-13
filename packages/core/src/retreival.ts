@@ -14,7 +14,11 @@ export function retreivalIsIndexable(filename: string) {
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function retreivalClear(): Promise<void> {
+export async function retreivalClear(
+    options?: RetreivalClientOptions
+): Promise<void> {
+    const { trace } = options || {}
+    await host.retreival.init(trace)
     await host.retreival.clear()
 }
 
@@ -25,7 +29,7 @@ export async function retreivalUpsert(
     if (!fileOrUrls?.length) return
     const { progress, trace } = options || {}
     const retreival = host.retreival
-
+    await retreival.init(trace)
     const files: LinkedFile[] = fileOrUrls.map((f) =>
         typeof f === "string" ? <LinkedFile>{ filename: f } : f
     )
@@ -65,7 +69,10 @@ export async function retreivalSearch(
     q: string,
     options?: RetreivalClientOptions
 ) {
+    const { trace } = options || {}
     const retreival = host.retreival
+    await host.retreival.init(trace)
+
     const { results } = await retreival.search(q)
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r
