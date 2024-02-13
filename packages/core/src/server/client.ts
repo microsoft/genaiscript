@@ -83,6 +83,7 @@ export class WebSocketRetreivalService implements RetreivalService {
             type: "retreival.upsert",
             filename,
             content: await blobToBase64(content),
+            mimeType: content.type,
         })
         return res.response
     }

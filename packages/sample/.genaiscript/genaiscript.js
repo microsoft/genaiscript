@@ -84483,7 +84483,7 @@ async function startServer(options) {
             console.log(`retreival: upsert ${data.filename}`);
             response = await host.retreival.upsert(
               data.filename,
-              await b64toBlob(data.content, data.type)
+              await b64toBlob(data.content, data.mimeType)
             );
             break;
           case "retreival.search":

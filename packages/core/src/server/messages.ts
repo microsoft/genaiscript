@@ -14,6 +14,7 @@ export interface RetreivalUpsert extends RequestMessage {
     type: "retreival.upsert"
     filename: string
     content: string
+    mimeType: string
 }
 
 export interface RetreivalSearch extends RequestMessage {
