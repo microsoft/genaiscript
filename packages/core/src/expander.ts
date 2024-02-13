@@ -37,7 +37,7 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
-import { retreivalUpsert, retreivalSearch } from "./retreival"
+import { upsert, search } from "./retreival"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -152,14 +152,14 @@ async function callExpander(
 
     const retreival: Retreival = {
         index: async (files) => {
-            await retreivalUpsert(files, { trace })
+            await upsert(files, { trace })
         },
         search: async (q, options) => {
             const { files = env.files } = options || {}
             try {
                 trace.startDetails(`retreive \`${q}\``)
-                await retreivalUpsert(files, { trace })
-                const res = await retreivalSearch(q)
+                await upsert(files, { trace })
+                const res = await search(q)
                 trace.fence(res, "yaml")
                 return res
             } finally {

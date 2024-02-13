@@ -4,9 +4,8 @@ import { checkDirectoryExists, checkFileExists } from "./fs"
 import {
     GENAISCRIPT_FOLDER,
     TOOL_NAME,
-    dotGenaiscriptPath,
-    retreivalIsIndexable,
-    retreivalUpsert,
+    isIndexable,
+    upsert,
 } from "genaiscript-core"
 
 export function activateRetreivalCommands(state: ExtensionState) {
@@ -57,7 +56,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
 
         files = files
             .filter((f) => !f.includes(GENAISCRIPT_FOLDER))
-            .filter((f) => retreivalIsIndexable(f))
+            .filter((f) => isIndexable(f))
 
         if (!files?.length) {
             vscode.window.showInformationMessage(
@@ -74,7 +73,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             },
             async (progress) => {
                 try {
-                    await retreivalUpsert(files, { progress })
+                    await upsert(files, { progress })
                 } catch (e) {
                     vscode.window.showErrorMessage(e.message)
                 }

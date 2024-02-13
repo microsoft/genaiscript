@@ -9,12 +9,12 @@ const UPSERTFILE_MIME_TYPES = [
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]
 
-export function retreivalIsIndexable(filename: string) {
+export function isIndexable(filename: string) {
     const type = lookup(filename) || "text/plain"
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function retreivalClear(
+export async function clear(
     options?: RetreivalClientOptions
 ): Promise<void> {
     const { trace } = options || {}
@@ -22,7 +22,7 @@ export async function retreivalClear(
     await host.retreival.clear()
 }
 
-export async function retreivalUpsert(
+export async function upsert(
     fileOrUrls: (string | LinkedFile)[],
     options?: RetreivalClientOptions
 ) {
@@ -65,7 +65,7 @@ export async function retreivalUpsert(
     }
 }
 
-export async function retreivalSearch(
+export async function search(
     q: string,
     options?: RetreivalClientOptions
 ) {

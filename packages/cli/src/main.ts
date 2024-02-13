@@ -21,14 +21,14 @@ import {
     parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
     dotGenaiscriptPath,
-    retreivalUpsert,
+    upsert,
     Progress,
-    retreivalSearch,
+    search,
     TOOL_ID,
     GENAI_EXT,
     TOOL_NAME,
     GITHUB_REPO,
-    retreivalClear,
+    clear,
     PDFTryParse,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
@@ -690,14 +690,14 @@ async function retreivalIndex(
     const fs = await expandFiles(files, excludedFiles)
     const spinner = ora({ interval: 200 }).start("indexing")
 
-    await retreivalUpsert(fs, {
+    await upsert(fs, {
         progress: new ProgressSpinner(spinner),
     })
 }
 
 async function retreivalSearch(q: string) {
     const spinner = ora({ interval: 200 }).start("searching")
-    const res = await retreivalSearch(q)
+    const res = await search(q)
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
@@ -855,7 +855,7 @@ async function main() {
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
-        .action(retreivalClear)
+        .action(clear)
 
     program.command("serve")
         .description("Start a GenAIScript local server")

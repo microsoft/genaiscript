@@ -3,15 +3,21 @@ import http from "http"
 import {
     RequestMessages,
     ResponseStatus,
-    RetreivalSearchResponse,
     host,
 } from "genaiscript-core"
 
-export function startServer() {
-    const port = 3000
+async function b64toBlob(base64: string, type = "application/octet-stream") {
+    const res = await fetch(`data:${type};base64,${base64}`)
+    const blob = await res.blob()
+    return blob
+}
+
+export function startServer(options: { port: string }) {
+    const port = parseInt(options.port) || 3000
     const wss = new WebSocketServer({ port })
 
     wss.on("connection", function connection(ws) {
+        console.log(`client connected (${wss.clients.size} clients)`)
         ws.on("error", console.error)
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
@@ -20,15 +26,18 @@ export function startServer() {
             try {
                 switch (type) {
                     case "retreival.clear":
+                        console.log(`retreival: clear`)
                         response = await host.retreival.clear()
                         break
                     case "retreival.upsert":
+                        console.log(`upsert ${data.filename}`)
                         response = await host.retreival.upsert(
                             data.filename,
-                            data.content
+                            await b64toBlob(data.content)
                         )
                         break
                     case "retreival.search":
+                        console.log(`retreival: search ${data.text}`)
                         response = await host.retreival.search(data.text)
                         break
                     default:
@@ -41,6 +50,6 @@ export function startServer() {
                 ws.send(JSON.stringify({ id, response }))
             }
         })
-        ws.send("something")
     })
+    console.log(`server started on port ${port}`)
 }

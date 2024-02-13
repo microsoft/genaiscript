@@ -23,8 +23,10 @@
         "node": ">=20.0.0"
     },
     "devDependencies": {
+        "@types/pg": "^8.11.0",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.11.5",
+        "@types/papaparse": "^5.3.14",
         "@types/replace-ext": "^2.0.2",
         "@types/ws": "^8.5.10",
         "genaiscript-core": "*",
