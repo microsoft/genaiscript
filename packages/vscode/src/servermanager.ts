@@ -1,4 +1,9 @@
-import { CLI_JS, ServerManager, TOOL_NAME } from "genaiscript-core"
+import {
+    CLI_JS,
+    ServerManager,
+    TOOL_NAME,
+    dotGenaiscriptPath,
+} from "genaiscript-core"
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 
@@ -22,10 +27,9 @@ export class TerminalServerManager implements ServerManager {
         const { context } = this.state
         this._terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Server`,
-            cwd: context.extensionPath,
         })
         this._terminal.show()
-        this._terminal.sendText(`node ${CLI_JS} serve`)
+        this._terminal.sendText(`node ${dotGenaiscriptPath(CLI_JS)} serve`)
     }
 
     async close() {
