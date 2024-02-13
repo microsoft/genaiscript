@@ -180,11 +180,14 @@ export class ExtensionState extends EventTarget {
     }
 
     private async saveScripts() {
-        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
-        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
         await vscode.workspace.fs.createDirectory(
             vscode.Uri.file(dotGenaiscriptPath("."))
         )
+
+        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
+        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
+
+        // genaiscript.js + pdfjs.min.mjs
         await vscode.workspace.fs.copy(p, cli, { overwrite: true })
     }
 

@@ -1,2 +1,2 @@
-*.gptools.jsonl -diff merge=union linguist-generated
-**/gptools.d.ts -diff merge=ours linguist-generated
+*.genaiscript.jsonl -diff merge=union linguist-generated
+**/genaiscript.d.ts -diff merge=ours linguist-generated

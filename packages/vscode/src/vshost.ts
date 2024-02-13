@@ -183,7 +183,8 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             return v // alway return virtual files
         } else if (options?.virtual !== false && !!v) return v // optional return virtual files
 
-        return await workspace.fs.readFile(uri)
+        const buffer = await workspace.fs.readFile(uri)
+        return new Uint8Array(buffer)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         const uri = Uri.file(name)
