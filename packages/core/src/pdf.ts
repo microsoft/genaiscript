@@ -2,6 +2,8 @@ import type { TextItem } from "pdfjs-dist/types/src/display/api"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { exec } from "./exec"
+
+// please some typescript warnings
 declare global {
     export type SVGGraphics = any
 }
@@ -27,9 +29,9 @@ export async function tryImportPdfjs(trace?: MarkdownTrace) {
 
 /**
  * parses pdfs, require pdfjs-dist to be installed
- * @param fileOrUrl 
- * @param content 
- * @returns 
+ * @param fileOrUrl
+ * @param content
+ * @returns
  */
 export async function PDFTryParse(
     fileOrUrl: string,
@@ -41,6 +43,7 @@ export async function PDFTryParse(
         const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
             data,
+            useSystemFonts: true,
         })
         const doc = await loader.promise
         const numPages = doc.numPages
