@@ -53,9 +53,11 @@ export interface ShellCallOptions {
 export interface Host {
     userState: any
 
+    path: Path
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder
     projectFolder(): string
+    installFolder(): string
     resolvePath(...segments: string[]): string
 
     // read a secret from the environment or a .env file
