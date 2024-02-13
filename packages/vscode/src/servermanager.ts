@@ -1,8 +1,9 @@
 import {
     CLI_JS,
+    GENAISCRIPT_FOLDER,
     ServerManager,
     TOOL_NAME,
-    dotGenaiscriptPath,
+    host,
 } from "genaiscript-core"
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
@@ -24,12 +25,17 @@ export class TerminalServerManager implements ServerManager {
     async start() {
         if (this._terminal) return
 
-        const { context } = this.state
+        vscode.window.showInformationMessage(
+            `${TOOL_NAME} - starting server...`
+        )
         this._terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Server`,
+            cwd: host.projectFolder(),
         })
-        this._terminal.show()
-        this._terminal.sendText(`node ${dotGenaiscriptPath(CLI_JS)} serve`)
+        this._terminal.sendText(
+            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`
+        )
+        await new Promise((resolve) => setTimeout(resolve, 2000))
     }
 
     async close() {

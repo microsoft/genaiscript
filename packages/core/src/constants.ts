@@ -10,3 +10,4 @@ export const GENAI_SRC = "genaisrc"
 export const GENAI_EXT = ".genai.js"
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 3000
+export const CLIENT_RECONNECT_DELAY = 2000

@@ -1,4 +1,4 @@
-import { SERVER_PORT } from "../constants"
+import { CLIENT_RECONNECT_DELAY, SERVER_PORT } from "../constants"
 import {
     Host,
     ResponseStatus,
@@ -6,6 +6,7 @@ import {
     RetreivalService,
     host,
 } from "../host"
+import { assert } from "../util"
 import {
     RequestMessage,
     RequestMessages,
@@ -26,42 +27,68 @@ export class WebSocketRetreivalService implements RetreivalService {
         { resolve: (data: any) => void; reject: (error: unknown) => void }
     > = {}
     private _nextId = 1
-    private ws: WebSocket
+    private _ws: WebSocket
+    private _pendingMessages: RequestMessages[] = []
+    private _reconnectTimeout: number
+
     constructor(readonly url: string) {}
 
     async init(): Promise<void> {
-        if (this.ws) return Promise.resolve(undefined)
+        if (this._ws) return Promise.resolve(undefined)
 
         await host.server.start()
-        return new Promise<void>((resolve, reject) => {
-            this.ws = new WebSocket(this.url)
-            this.ws.addEventListener("open", () => {
-                resolve(undefined)
-            })
-            this.ws.addEventListener("message", async (event) => {
-                const data: RequestMessages = JSON.parse(event.data)
-                const { id } = data
-                const awaiter = this.awaiters[id]
-                if (awaiter) {
-                    delete this.awaiters[id]
-                    await awaiter.resolve(data)
-                }
-            })
-            this.ws.addEventListener("close", () => {
-                this.cancel()
-            })
+        return this.connect()
+    }
+
+    private connect(): void {
+        assert(!this._ws, "already connected")
+        this._ws = new WebSocket(this.url)
+        this._ws.addEventListener("open", () => {
+            // flush cached messages
+            let m: RequestMessages
+            while (
+                this._ws &&
+                this._ws.readyState === WebSocket.OPEN &&
+                (m = this._pendingMessages.pop())
+            )
+                this._ws.send(JSON.stringify(m))
         })
+        this._ws.addEventListener("close", () => {
+            this._ws = undefined
+            this.cancel()
+            this._reconnectTimeout = setTimeout(() => {
+                this.connect()
+            }, CLIENT_RECONNECT_DELAY)
+        })
+        this._ws.addEventListener("message", <
+            (event: MessageEvent<any>) => void
+        >(async (event) => {
+            const data: RequestMessages = JSON.parse(event.data)
+            const { id } = data
+            const awaiter = this.awaiters[id]
+            if (awaiter) {
+                delete this.awaiters[id]
+                await awaiter.resolve(data)
+            }
+        }))
     }
 
     private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             const id = this._nextId++ + ""
             this.awaiters[id] = { resolve: (data) => resolve(data), reject }
-            this.ws.send(JSON.stringify({ ...msg, id }))
+            const m = { ...msg, id }
+            if (this._ws) this._ws.send(JSON.stringify(m))
+            else this._pendingMessages.push(m)
         })
     }
 
     cancel() {
+        if (this._reconnectTimeout) {
+            clearTimeout(this._reconnectTimeout)
+            this._reconnectTimeout = undefined
+        }
+        this._pendingMessages = []
         const cancellers = Object.values(this.awaiters)
         this.awaiters = {}
         cancellers.forEach((a) => a.reject("cancelled"))
@@ -91,9 +118,9 @@ export class WebSocketRetreivalService implements RetreivalService {
     }
 
     dispose(): any {
-        if (this.ws) {
-            this.ws.close()
-            this.ws = undefined
+        if (this._ws) {
+            this._ws.close()
+            this._ws = undefined
         }
         this.cancel()
         return undefined
