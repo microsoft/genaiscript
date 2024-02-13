@@ -1,9 +1,36 @@
 import type { TextItem } from "pdfjs-dist/types/src/display/api"
 import { host } from "./host"
+import { MarkdownTrace } from "./trace"
+import { exec } from "./exec"
 declare global {
     export type SVGGraphics = any
 }
 
+export async function tryImportPdfjs(trace?: MarkdownTrace) {
+    try {
+        const pdfjs = await import("pdfjs-dist")
+        return pdfjs
+    } catch (e) {
+        trace.error("pdfjs-dist not found, installing...", e)
+        await exec(host, trace, {
+            label: "install pdfjs-dist",
+            call: {
+                type: "shell",
+                command: "npm",
+                args: ["install", "-g", "pdfjs-dist"],
+            },
+        })
+        const pdfjs = await import("pdfjs-dist")
+        return pdfjs
+    }
+}
+
+/**
+ * parses pdfs, require pdfjs-dist to be installed
+ * @param fileOrUrl 
+ * @param content 
+ * @returns 
+ */
 export async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array

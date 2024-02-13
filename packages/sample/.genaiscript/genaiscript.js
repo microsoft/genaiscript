@@ -65570,6 +65570,24 @@ function validateJSONSchema(trace, object, schema) {
 }
 
 // ../core/src/pdf.ts
+async function tryImportPdfjs(trace) {
+  try {
+    const pdfjs = await import("pdfjs-dist");
+    return pdfjs;
+  } catch (e2) {
+    trace.error("pdfjs-dist not found, installing...", e2);
+    await exec(host, trace, {
+      label: "install pdfjs-dist",
+      call: {
+        type: "shell",
+        command: "npm",
+        args: ["install", "-g", "pdfjs-dist"]
+      }
+    });
+    const pdfjs = await import("pdfjs-dist");
+    return pdfjs;
+  }
+}
 async function PDFTryParse(fileOrUrl, content3) {
   try {
     const pdfjs = await import("pdfjs-dist");
@@ -65668,16 +65686,21 @@ function TOMLTryParse(text5) {
 }
 
 // ../core/src/parsers.ts
-function createParsers() {
+function filenameOrFileToContent(fileOrContent) {
+  return typeof fileOrContent === "string" ? fileOrContent : fileOrContent.content;
+}
+function createParsers(trace) {
   return {
-    JSON5: (text5) => JSON5TryParse(text5),
-    YAML: (text5) => YAMLTryParse(text5),
-    TOML: (text5) => TOMLTryParse(text5),
-    PDF: async (fileOrUrl) => {
-      const pages = await PDFTryParse(fileOrUrl);
+    JSON5: (text5) => JSON5TryParse(filenameOrFileToContent(text5)),
+    YAML: (text5) => YAMLTryParse(filenameOrFileToContent(text5)),
+    TOML: (text5) => TOMLTryParse(filenameOrFileToContent(text5)),
+    PDF: async (file) => {
+      await tryImportPdfjs(trace);
+      const filename = typeof file === "string" ? file : file.filename;
+      const pages = await PDFTryParse(filename);
       return {
         file: pages ? {
-          filename: fileOrUrl,
+          filename,
           content: pages.join(
             "\n\n-------- Page Break --------\n\n"
           )
@@ -66128,7 +66151,7 @@ ${f2}
 async function callExpander(r2, vars, path5, trace) {
   let promptText = "";
   let success = true;
-  const parsers = createParsers();
+  const parsers = createParsers(trace);
   const env2 = new Proxy(vars, {
     get: (target, prop, recv) => {
       const v2 = target[prop];
