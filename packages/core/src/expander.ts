@@ -138,7 +138,7 @@ async function callExpander(
 ) {
     let promptText = ""
     let success = true
-    const parsers = createParsers()
+    const parsers = createParsers(trace)
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
             const v = target[prop]

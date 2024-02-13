@@ -349,6 +349,14 @@ defSchema("TARGET_SCHEMA", {
 When a JSON/YAML payload is generated with the schema identifier,
 genaiscript automatically validates the payload against the schema.
 
+## Parsers
+
+The `parsers` object contains methods to parse various file formats such as JSON5 (friendlier JSON), YAML, TOML and PDF.
+
+```js
+const { file, pages } = await parsers.PDF(env.files[0])
+```
+
 ## Functions
 
 You can register functions that the LLM may decide to call as part of assembling the answer.
