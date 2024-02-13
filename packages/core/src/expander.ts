@@ -152,7 +152,7 @@ async function callExpander(
 
     const retreival: Retreival = {
         index: async (files) => {
-            await upsert(files, { trace })
+            await retreivalUpsert(files, { trace })
         },
         search: async (q, options) => {
             const { files = env.files } = options || {}

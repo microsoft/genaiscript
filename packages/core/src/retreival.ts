@@ -22,7 +22,7 @@ export async function retreivalUpsert(
     fileOrUrls: (string | LinkedFile)[],
     options?: RetreivalClientOptions
 ) {
-    if (!fileOrUrls.length) return
+    if (!fileOrUrls?.length) return
     const { progress, trace } = options || {}
     const retreival = host.retreival
 
