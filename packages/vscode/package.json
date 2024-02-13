@@ -305,8 +305,6 @@
         "assert": "^2.1.0",
         "dotenv": "^16.4.1",
         "eslint": "^8.56.0",
-        "genaiscript-cli": "*",
-        "genaiscript-core": "*",
         "isomorphic-fetch": "^3.0.0",
         "mocha": "^10.2.0",
         "process": "^0.11.10",
@@ -314,6 +312,10 @@
         "typescript": "^5.3.3",
         "vscode-uri": "^3.0.8",
         "zx": "^7.2.3"
+    },
+    "optionalDependencies": {
+        "genaiscript-cli": "*",
+        "genaiscript-core": "*"
     },
     "enabledApiProposals": [
         "chatAgents2",
