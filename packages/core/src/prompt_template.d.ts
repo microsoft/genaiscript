@@ -553,17 +553,25 @@ interface Parsers {
     /**
      * Parses text as a JSON5 payload
      */
-    JSON5(text: string): unknown | undefined
+    JSON5(content: string | LinkedFile): unknown | undefined
     /**
      * Parses text as a YAML paylaod
      */
-    YAML(text: string): unknown | undefined
+    YAML(content: string | LinkedFile): unknown | undefined
 
     /**
      * Parses text as TOML payload
      * @param text text as TOML payload
      */
-    TOML(text: string): unknown | undefined
+    TOML(content: string | LinkedFile): unknown | undefined
+
+    /**
+     * Parses a file or URL as PDF
+     * @param content
+     */
+    PDF(
+        content: string | LinkedFile
+    ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 }
 
 interface Retreival {
