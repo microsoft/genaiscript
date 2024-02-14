@@ -1,6 +1,7 @@
 import {
     Host,
     MarkdownTrace,
+    RETREIVAL_PERSIST_DIR,
     ResponseStatus,
     RetreivalQueryOptions,
     RetreivalQueryResponse,
@@ -126,7 +127,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
     }
 
     async clear() {
-        const persistDir = dotGenaiscriptPath("retreival")
+        const persistDir = dotGenaiscriptPath(RETREIVAL_PERSIST_DIR)
         await this.host.deleteDirectory(persistDir)
         return { ok: true }
     }

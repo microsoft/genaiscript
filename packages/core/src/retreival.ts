@@ -14,7 +14,7 @@ export function isIndexable(filename: string) {
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function clear(options?: RetreivalClientOptions): Promise<void> {
+export async function clearIndex(options?: RetreivalClientOptions): Promise<void> {
     const { trace } = options || {}
     await host.retreival.init(trace)
     await host.retreival.clear()

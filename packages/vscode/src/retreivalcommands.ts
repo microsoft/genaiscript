@@ -4,6 +4,7 @@ import { checkDirectoryExists, checkFileExists } from "./fs"
 import {
     GENAISCRIPT_FOLDER,
     TOOL_NAME,
+    clearIndex,
     isIndexable,
     upsert,
 } from "genaiscript-core"
@@ -82,6 +83,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
     }
 
     subscriptions.push(
-        vscode.commands.registerCommand("genaiscript.retreival.index", index)
+        vscode.commands.registerCommand("genaiscript.retreival.index", index),
+        vscode.commands.registerCommand("genaiscript.retreival.clear", clearIndex)
     )
 }

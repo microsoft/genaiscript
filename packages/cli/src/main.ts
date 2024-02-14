@@ -28,7 +28,7 @@ import {
     GENAI_EXT,
     TOOL_NAME,
     GITHUB_REPO,
-    clear,
+    clearIndex,
     PDFTryParse,
     SERVER_PORT,
     query,
@@ -891,7 +891,7 @@ async function main() {
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
-        .action(clear)
+        .action(clearIndex)
 
     program
         .command("serve")
