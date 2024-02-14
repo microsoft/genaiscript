@@ -3,13 +3,12 @@ import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { TOOL_ID, TOOL_NAME, initToken, isCancelError } from "genaiscript-core"
+import { TOOL_ID, TOOL_NAME } from "genaiscript-core"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
-import { clearToken } from "genaiscript-core"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
@@ -19,11 +18,12 @@ export const EXTENSION_ID = "devicescript.genaiscript-vscode"
 export const AGENT_ID = TOOL_ID
 
 export async function activate(context: ExtensionContext) {
-    try {
-        require("websocket-polyfill")
-        global.Blob = global.Blob || require("buffer").Blob
-    } catch (err) {
-        console.error(err)
+    if (typeof WebSocket === "undefined") {
+        try {
+            require("websocket-polyfill")
+        } catch (err) {
+            console.error(err)
+        }
     }
 
     const state = new ExtensionState(context)
