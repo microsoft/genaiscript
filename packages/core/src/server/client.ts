@@ -82,7 +82,6 @@ export class WebSocketClient implements RetreivalService {
             this.awaiters[id] = { resolve: (data) => resolve(data), reject }
             const m = JSON.stringify({ ...msg, id })
             if (this._ws?.readyState === WebSocket.OPEN) {
-                console.log("send", this._ws)
                 this._ws.send(m)
             } else this._pendingMessages.push(m)
         })
