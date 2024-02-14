@@ -198,16 +198,6 @@ Lists the specs available in the current workspace.
 
 ## `keys`, manage OpenAI Token
 
-Commands to manage the OpenAI token on file. You can also use the `GENAISCRIPT_TOKEN` environment variable or from `OPENAI_API_KEY/BASE` keys.
-
-### keys set <token>
-
-Stores the OpenAI token in `.genaiscript/tmp/token.json`.
-
-### keys clear
-
-Clears the OpenAI token from `.genaiscript/tmp/token.json`.
-
 ### keys show
 
 Shows information about the current key.
