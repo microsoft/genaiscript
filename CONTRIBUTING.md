@@ -33,17 +33,3 @@ Run the `release` script.
 ```bash
 yarn release
 ```
-
-## chatgpt retreival
-
-- Generate a bearer token using scripts/bearer.mjs.
-- Fill .env with secrets
-
-```
-DATASTORE="chroma"
-BEARER_TOKEN="..."
-OPENAI_API_BASE="https://tnrllmproxy.azurewebsites.net/v1"
-OPENAI_API_KEY="..."
-EMBEDDING_MODEL="text-embedding-ada-002"
-```
-
