@@ -1,8 +1,10 @@
 import {
     CLI_JS,
     GENAISCRIPT_FOLDER,
+    SERVER_PORT,
     ServerManager,
     TOOL_NAME,
+    WebSocketClient,
     host,
 } from "genaiscript-core"
 import * as vscode from "vscode"
@@ -10,6 +12,7 @@ import { ExtensionState } from "./state"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
+    readonly client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
         state.context.subscriptions.push(this)
@@ -20,6 +23,8 @@ export class TerminalServerManager implements ServerManager {
                 }
             })
         )
+        this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
+        state.context.subscriptions.push(this.client)
     }
 
     async start() {
@@ -37,6 +42,7 @@ export class TerminalServerManager implements ServerManager {
     }
 
     async close() {
+        this.client.kill()
         this._terminal?.dispose()
         this._terminal = undefined
     }

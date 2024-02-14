@@ -31,6 +31,11 @@ export async function startServer(options: { port: string }) {
             let response: ResponseStatus
             try {
                 switch (type) {
+                    case "server.kill": {
+                        console.log(`server: kill`)
+                        process.exit(0)
+                        break
+                    }
                     case "retreival.clear":
                         console.log(`retreival: clear`)
                         response = await host.retreival.clear()

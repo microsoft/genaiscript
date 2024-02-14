@@ -3,15 +3,7 @@
 GenAIScript will try to find the connection token from various sources:
 
 -   a `.env` file in your root project.
--   workspace secrets when using the Visual Studio Code extension
 -   process environment variables from the CLI
-
-## Visual Studio Code secrets
-
-GenAIScript will automatically ask you for a token when needed and will store it in the workspace secret storage. The token is **never** stored in the clear or shared outside the project.
-The token will be cleared once we detect it expired; but you can also _forget_ the token by using the `GenAIScript - Clear OpenAI Token` command.
-
-The extension also support a root `.env` file in your project.
 
 ## .env file
 

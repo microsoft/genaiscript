@@ -125,14 +125,6 @@
                     "command": "genaiscript.prompt.create",
                     "when": "view == genaiscript.prompts",
                     "group": "navigation"
-                },
-                {
-                    "command": "genaiscript.openai.token.update",
-                    "when": "view == genaiscript.prompts"
-                },
-                {
-                    "command": "genaiscript.openai.token.clear",
-                    "when": "view == genaiscript.prompts"
                 }
             ],
             "view/item/context": [
@@ -175,18 +167,6 @@
             }
         ],
         "commands": [
-            {
-                "command": "genaiscript.openai.token.clear",
-                "shortTitle": "Clear OpenAI token",
-                "title": "Clear OpenAI token in workspace secrets",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.openai.token.update",
-                "shortTitle": "Update OpenAI token",
-                "title": "Update OpenAI token in workspace secrets",
-                "category": "GenAIScript"
-            },
             {
                 "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",

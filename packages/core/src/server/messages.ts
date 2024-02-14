@@ -6,6 +6,10 @@ export interface RequestMessage {
     response?: ResponseStatus
 }
 
+export interface ServerKill extends RequestMessage {
+    type: "server.kill"
+}
+
 export interface RetreivalClear extends RequestMessage {
     type: "retreival.clear"
 }
@@ -23,4 +27,8 @@ export interface RetreivalSearch extends RequestMessage {
     response?: RetreivalSearchResponse
 }
 
-export type RequestMessages = RetreivalClear | RetreivalUpsert | RetreivalSearch
+export type RequestMessages =
+    | ServerKill
+    | RetreivalClear
+    | RetreivalUpsert
+    | RetreivalSearch
