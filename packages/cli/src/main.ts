@@ -706,8 +706,10 @@ async function retreivalSearch(
     filesGlobs: string[],
     options: { excludedFiles: string[]; topK: string }
 ) {
-    const spinner = ora({ interval: 200 }).start(`searching '${q}'`)
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const spinner = ora({ interval: 200 }).start(
+        `searching '${q}' in ${files.length} files`
+    )
     const res = await search(q, { files, topK: normalizeInt(options?.topK) })
     spinner.succeed()
     console.log(YAMLStringify(res))
@@ -718,8 +720,10 @@ async function retreivalQuery(
     filesGlobs: string[],
     options: { excludedFiles: string[]; topK: string }
 ) {
-    const spinner = ora({ interval: 200 }).start(`querying '${q}'`)
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const spinner = ora({ interval: 200 }).start(
+        `querying '${q}' in ${files.length} files`
+    )
     const res = await query(q, { files, topK: normalizeInt(options?.topK) })
     spinner.succeed()
     console.log(res)
