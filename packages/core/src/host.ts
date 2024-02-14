@@ -1,3 +1,6 @@
+import { Progress } from "./progress"
+import { MarkdownTrace } from "./trace"
+
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
     decode(
@@ -50,9 +53,43 @@ export interface ShellCallOptions {
     exitcodefile: string
 }
 
+export interface RetreivalClientOptions {
+    progress?: Progress
+    trace?: MarkdownTrace
+}
+
+export interface ResponseStatus {
+    ok: boolean
+    error?: string
+    status?: number
+}
+
+export type RetreivalSearchResponse = ResponseStatus & {
+    results: {
+        filename: string
+        id: string
+        text: string
+        score: number
+    }[]
+}
+
+export interface RetreivalService {
+    init(trace?: MarkdownTrace): Promise<void>
+    clear(): Promise<ResponseStatus>
+    upsert(filenameOrUrl: string, content: Blob): Promise<ResponseStatus>
+    search(text: string): Promise<RetreivalSearchResponse>
+}
+
+export interface ServerManager {
+    start(): Promise<void>
+    close(): Promise<void>
+}
+
 export interface Host {
     userState: any
 
+    retreival: RetreivalService
+    server: ServerManager
     path: Path
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder

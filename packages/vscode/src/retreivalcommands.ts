@@ -4,7 +4,6 @@ import { checkDirectoryExists, checkFileExists } from "./fs"
 import {
     GENAISCRIPT_FOLDER,
     TOOL_NAME,
-    dotGenaiscriptPath,
     isIndexable,
     upsert,
 } from "genaiscript-core"
