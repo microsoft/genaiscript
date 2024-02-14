@@ -160,7 +160,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         text: string,
         options?: RetreivalQueryOptions
     ): Promise<RetreivalQueryResponse> {
-        const { VectorStoreIndex, SimpleDocumentStore } = this.module
+        const { VectorStoreIndex } = this.module
 
         const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
