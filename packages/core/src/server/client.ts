@@ -47,8 +47,7 @@ export class WebSocketClient implements RetreivalService {
             // flush cached messages
             let m: string
             while (
-                this._ws &&
-                this._ws.readyState === WebSocket.OPEN &&
+                this._ws?.readyState === WebSocket.OPEN &&
                 (m = this._pendingMessages.pop())
             )
                 this._ws.send(m)
@@ -78,8 +77,10 @@ export class WebSocketClient implements RetreivalService {
             const id = this._nextId++ + ""
             this.awaiters[id] = { resolve: (data) => resolve(data), reject }
             const m = JSON.stringify({ ...msg, id })
-            if (this._ws) this._ws.send(m)
-            else this._pendingMessages.push(m)
+            if (this._ws?.readyState === WebSocket.OPEN) {
+                console.log("send", this._ws)
+                this._ws.send(m)
+            } else this._pendingMessages.push(m)
         })
     }
 
@@ -118,13 +119,15 @@ export class WebSocketClient implements RetreivalService {
     }
 
     kill(): void {
-        if (this._ws)
+        if (this._ws?.readyState === WebSocket.OPEN)
             this._ws.send(
                 JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
             )
+        this.cancel()
     }
 
     dispose(): any {
+        this.kill()
         if (this._ws) {
             this._ws.close()
             this._ws = undefined
@@ -133,4 +136,3 @@ export class WebSocketClient implements RetreivalService {
         return undefined
     }
 }
-
