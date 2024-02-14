@@ -6,6 +6,7 @@ import {
     TOOL_NAME,
     WebSocketClient,
     host,
+    logError,
 } from "genaiscript-core"
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
@@ -22,7 +23,7 @@ export class TerminalServerManager implements ServerManager {
                     try {
                         this.client?.kill()
                     } catch (error) {
-                        console.error(error)
+                        logError(error.message)
                     }
                     this._terminal = undefined
                 }

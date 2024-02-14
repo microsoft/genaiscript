@@ -3,7 +3,7 @@ import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { TOOL_ID, TOOL_NAME } from "genaiscript-core"
+import { TOOL_ID, TOOL_NAME, logError } from "genaiscript-core"
 import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
@@ -22,7 +22,7 @@ export async function activate(context: ExtensionContext) {
         try {
             require("websocket-polyfill")
         } catch (err) {
-            console.error(err)
+            logError("websocket polyfill failed")
         }
     }
 
