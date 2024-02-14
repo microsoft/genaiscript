@@ -21,7 +21,7 @@ async function blobToBase64(blob: Blob): Promise<string> {
     return base64
 }
 
-export class WebSocketRetreivalService implements RetreivalService {
+export class WebSocketClient implements RetreivalService {
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -117,6 +117,13 @@ export class WebSocketRetreivalService implements RetreivalService {
         return res.response
     }
 
+    kill(): void {
+        if (this._ws)
+            this._ws.send(
+                JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
+            )
+    }
+
     dispose(): any {
         if (this._ws) {
             this._ws.close()
@@ -127,9 +134,3 @@ export class WebSocketRetreivalService implements RetreivalService {
     }
 }
 
-export function createRetreivalClient(host: Host): WebSocketRetreivalService {
-    const port = SERVER_PORT
-    const url = `http://localhost:${port}`
-    const client = new WebSocketRetreivalService(url)
-    return client
-}

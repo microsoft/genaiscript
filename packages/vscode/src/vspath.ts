@@ -1,4 +1,12 @@
-import { dirname, extname, basename, join, normalize, relative } from "path"
+import {
+    dirname,
+    extname,
+    basename,
+    join,
+    normalize,
+    relative,
+    resolve,
+} from "path"
 
 export function createVSPath(): Path {
     return <Path>{
@@ -7,6 +15,7 @@ export function createVSPath(): Path {
         basename,
         join,
         normalize,
-        relative
+        relative,
+        resolve,
     }
 }

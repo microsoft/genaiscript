@@ -54,27 +54,6 @@ export async function activate(context: ExtensionContext) {
             state.retryAIRequest()
         ),
         vscode.commands.registerCommand(
-            "genaiscript.openai.token.clear",
-            async () => {
-                await clearToken()
-                await vscode.window.showInformationMessage(
-                    `${TOOL_NAME} - authentication token cleared.`
-                )
-            }
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.openai.token.update",
-            async () => {
-                try {
-                    await clearToken()
-                    await initToken(true)
-                } catch (e) {
-                    if (isCancelError(e)) return
-                    throw e
-                }
-            }
-        ),
-        vscode.commands.registerCommand(
             "genaiscript.request.status",
             async () => {
                 const cmds = commandButtons(state)
