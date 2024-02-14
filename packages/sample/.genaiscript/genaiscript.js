@@ -84317,6 +84317,7 @@ var LlamaIndexRetreivalService = class {
       const toRemove = Object.keys(docs).filter(
         (id) => !files.includes(id)
       );
+      console.log({ docs, toRemove, files });
       for (const doc of toRemove)
         vectorStore.delete(doc);
       storageContext.vectorStore = vectorStore;
@@ -84362,6 +84363,7 @@ var LlamaIndexRetreivalService = class {
     return { ok: true };
   }
   async query(text5, options) {
+    console.log(options);
     const { topK } = options ?? {};
     const { VectorStoreIndex } = this.module;
     const storageContext = await this.createStorageContext(options);
