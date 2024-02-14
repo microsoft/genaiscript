@@ -82,8 +82,9 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    private async createStorageContext() {
-        const { storageContextFromDefaults } = this.module
+    private async createStorageContext(options?: { files?: string[] }) {
+        const { files } = options ?? {}
+        const { storageContextFromDefaults, SimpleVectorStore } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
         await writeText(
@@ -93,6 +94,23 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
+        if (files?.length) {
+            // get all documents
+            const docs = await storageContext.docStore.getAllRefDocInfo()
+            // reload vector store
+            const vectorStore = await SimpleVectorStore.fromDict(
+                await (
+                    await SimpleVectorStore.fromPersistDir(persistDir)
+                ).toDict()
+            )
+            // remove uneeded documents
+            const toRemove = Object.keys(docs).filter(
+                (id) => !files.includes(id)
+            )
+            for (const doc of toRemove) vectorStore.delete(doc)
+            // swap in storateContext
+            storageContext.vectorStore = vectorStore
+        }
         return storageContext
     }
 
@@ -151,7 +169,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const { topK } = options ?? {}
         const { VectorStoreIndex } = this.module
 
-        const storageContext = await this.createStorageContext()
+        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
 
         const index = await VectorStoreIndex.init({
@@ -178,7 +196,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const { topK } = options ?? {}
         const { VectorStoreIndex, MetadataMode } = this.module
 
-        const storageContext = await this.createStorageContext()
+        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
 
         const index = await VectorStoreIndex.init({
