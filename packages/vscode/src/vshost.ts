@@ -13,6 +13,7 @@ import {
     logVerbose,
     parseTokenFromEnv,
     setHost,
+    writeText,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
@@ -126,15 +127,29 @@ export class VSCodeHost extends EventTarget implements Host {
 
             return t
         } else {
+            // update .gitignore file
+            if (!(await checkFileExists(this.projectUri, ".gitignore")))
+                await writeFile(this.projectUri, ".gitignore", ".env\n")
+            else {
+                const content = await readFileText(
+                    this.projectUri,
+                    ".gitignore"
+                )
+                if (!content.includes(".env"))
+                    await writeFile(
+                        this.projectUri,
+                        ".gitignore",
+                        content + "\n.env\n"
+                    )
+            }
+
+            // update .env
             const uri = Uri.joinPath(this.projectUri, ".env")
             if (!(await checkFileExists(uri)))
                 await writeFile(
                     this.projectUri,
                     ".env",
-                    `#/-------------------OpenAI configuration---------------------/
-OPENAI_API_KEY="<your token>"
-OPENAI_API_BASE="https://api.openai.com/v1/"
-# OPENAI_API_TYPE="azure"
+                    `OPENAI_API_KEY="<your token>"
 `
                 )
 
@@ -144,10 +159,6 @@ OPENAI_API_BASE="https://api.openai.com/v1/"
             let nextText = text
             if (!/OPENAI_API_KEY/.test(text))
                 nextText += `\nOPENAI_API_KEY="<your token>"`
-            if (!/OPENAI_API_BASE/.test(text))
-                nextText += `\nOPENAI_API_BASE="https://api.openai.com/v1"`
-            if (!/OPENAI_API_TYPE/.test(text))
-                nextText += `\n# OPENAI_API_TYPE="azure"`
             if (nextText !== text) {
                 const edit = new vscode.WorkspaceEdit()
                 edit.replace(
