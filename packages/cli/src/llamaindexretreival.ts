@@ -2,13 +2,20 @@ import {
     Host,
     MarkdownTrace,
     ResponseStatus,
+    RetreivalQueryOptions,
     RetreivalQueryResponse,
+    RetreivalSearchResponse,
     RetreivalService,
     dotGenaiscriptPath,
     installImport,
     writeText,
 } from "genaiscript-core"
-import type { BaseReader, GenericFileSystem } from "llamaindex"
+import type {
+    BaseReader,
+    GenericFileSystem,
+    Metadata,
+    BaseNode,
+} from "llamaindex"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
@@ -73,8 +80,9 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    private async createStorageContext() {
-        const { storageContextFromDefaults } = this.module
+    private async createStorageContext(options?: RetreivalQueryOptions) {
+        const { files } = options ?? {}
+        const { storageContextFromDefaults, SimpleDocumentStore } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
         await writeText(
@@ -84,6 +92,21 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
+
+        if (files?.length) {
+            debugger
+            const { docStore } = storageContext
+            const nodes: BaseNode<Metadata>[] = []
+            for (const file of files) {
+                const doc = await docStore.getDocument(file, false)
+                if (doc) nodes.push(doc)
+                else console.warn(`${file} not indexed`)
+            }
+            const queryDocStore = new SimpleDocumentStore()
+            await queryDocStore.addDocuments(nodes, true)
+            storageContext.docStore = queryDocStore
+        }
+
         return storageContext
     }
 
@@ -133,11 +156,15 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return { ok: true }
     }
 
-    async query(text: string): Promise<RetreivalQueryResponse> {
-        const { VectorStoreIndex, MetadataMode } = this.module
+    async query(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalQueryResponse> {
+        const { VectorStoreIndex, SimpleDocumentStore } = this.module
 
-        const storageContext = await this.createStorageContext()
+        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
+
         const index = await VectorStoreIndex.init({
             storageContext,
             serviceContext,
@@ -153,19 +180,13 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    async search(text: string): Promise<
-        ResponseStatus & {
-            results: {
-                filename: string
-                id: string
-                text: string
-                score: number
-            }[]
-        }
-    > {
+    async search(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalSearchResponse> {
         const { VectorStoreIndex, MetadataMode } = this.module
 
-        const storageContext = await this.createStorageContext()
+        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
 
         const index = await VectorStoreIndex.init({

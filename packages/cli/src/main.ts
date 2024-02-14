@@ -697,16 +697,26 @@ async function retreivalIndex(
     })
 }
 
-async function retreivalSearch(q: string) {
+async function retreivalSearch(
+    q: string,
+    filesGlobs: string[],
+    options: { excludedFiles: string[] }
+) {
     const spinner = ora({ interval: 200 }).start(`searching '${q}'`)
-    const res = await search(q)
+    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const res = await search(q, { files })
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
 
-async function retreivalQuery(q: string) {
+async function retreivalQuery(
+    q: string,
+    filesGlobs: string[],
+    options: { excludedFiles: string[] }
+) {
     const spinner = ora({ interval: 200 }).start(`querying '${q}'`)
-    const res = await query(q)
+    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const res = await query(q, { files })
     spinner.succeed()
     console.log(res)
 }
@@ -859,12 +869,14 @@ async function main() {
     retreival
         .command("search")
         .description("Search index")
-        .argument("<query>", "Search query")
+        .arguments("<query> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
         .action(retreivalSearch)
     retreival
         .command("query")
         .description("Ask a question on the index")
-        .argument("<query>", "Question")
+        .arguments("<question> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
         .action(retreivalQuery)
     retreival
         .command("clear")
