@@ -22,7 +22,7 @@
                 "${workspaceFolder}/packages/sample"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
-            "preLaunchTask": "npm: compile-ext",
+            "preLaunchTask": "npm: compile",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
                 "!**/node_modules/**"
@@ -39,7 +39,7 @@
                 "${workspaceFolder}/applications/lza"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
-            "preLaunchTask": "npm: compile-ext",
+            "preLaunchTask": "npm: compile",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
                 "!**/node_modules/**"
@@ -56,7 +56,7 @@
                 "${workspaceFolder}/packages/helloworld"
             ],
             "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
-            "preLaunchTask": "npm: compile-ext",
+            "preLaunchTask": "npm: compile",
             "resolveSourceMapLocations": [
                 "${workspaceFolder}/**",
                 "!**/node_modules/**"

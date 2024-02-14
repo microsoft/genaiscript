@@ -88,11 +88,19 @@ export class WebSocketClient implements RetreivalService {
         })
     }
 
-    cancel() {
+    stop() {
         if (this._reconnectTimeout) {
             clearTimeout(this._reconnectTimeout)
             this._reconnectTimeout = undefined
         }
+        if (this._ws) {
+            this._ws.close()
+            this._ws = undefined
+        }
+        this.cancel()
+    }
+
+    cancel() {
         this._pendingMessages = []
         const cancellers = Object.values(this.awaiters)
         this.awaiters = {}
@@ -142,16 +150,11 @@ export class WebSocketClient implements RetreivalService {
             this._ws.send(
                 JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
             )
-        this.cancel()
+        this.stop()
     }
 
     dispose(): any {
         this.kill()
-        if (this._ws) {
-            this._ws.close()
-            this._ws = undefined
-        }
-        this.cancel()
         return undefined
     }
 }

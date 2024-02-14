@@ -67,21 +67,12 @@ export function activateFragmentCommands(state: ExtensionState) {
         let fragment: Fragment
         if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
             const fragUri = vscode.Uri.file(frag)
-            let document = vscode.workspace.textDocuments.find(
-                (document) => document.uri.fsPath === frag
-            )
-            if (!document && (await checkFileExists(fragUri)))
-                document = await vscode.workspace.openTextDocument(fragUri)
-            if (document) {
-                const prj = await state.parseDocument(document)
+            if (await checkFileExists(fragUri)) {
+                const prj = await state.parseDocument(fragUri)
                 fragment = prj?.rootFiles?.[0].fragments?.[0]
-            }
-
-            if (!fragment) {
-                if (await checkDirectoryExists(fragUri)) {
-                    const prj = await state.parseDirectory(fragUri)
-                    fragment = prj?.rootFiles?.[0].fragments?.[0]
-                }
+            } else if (await checkDirectoryExists(fragUri)) {
+                const prj = await state.parseDirectory(fragUri)
+                fragment = prj?.rootFiles?.[0].fragments?.[0]
             }
         } else {
             fragment = project.resolveFragment(frag)
@@ -105,8 +96,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         await state.cancelAiRequest()
 
-        if (chat?.response)
-            chat.response.progress("Preparing script")
+        if (chat?.response) chat.response.progress("Preparing script")
 
         await saveAllTextDocuments
         await state.parseWorkspace()
@@ -158,7 +148,10 @@ export function activateFragmentCommands(state: ExtensionState) {
             "genaiscript.fragment.navigate",
             fragmentNavigate
         ),
-        vscode.commands.registerCommand("genaiscript.request.applyEdits", applyEdits)
+        vscode.commands.registerCommand(
+            "genaiscript.request.applyEdits",
+            applyEdits
+        )
     )
 }
 
