@@ -73,7 +73,7 @@ export type RetreivalSearchResponse = ResponseStatus & {
         filename: string
         id: string
         text: string
-        score: number
+        score?: number
     }[]
 }
 

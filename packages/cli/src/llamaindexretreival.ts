@@ -205,4 +205,22 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             })),
         }
     }
+
+    /**
+     * Returns all embeddings
+     * @returns
+     */
+    async embeddings(): Promise<RetreivalSearchResponse> {
+        const { MetadataMode } = this.module
+        const storageContext = await this.createStorageContext()
+        const docs = await storageContext.docStore.docs()
+        return {
+            ok: true,
+            results: Object.values(docs).map((r) => ({
+                filename: r.metadata.filename,
+                id: r.id_,
+                text: r.getContent(MetadataMode.NONE),
+            })),
+        }
+    }
 }
