@@ -6,7 +6,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
-    "version": "1.9.3",
+    "version": "1.9.4",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.86.0"
