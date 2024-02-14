@@ -28,8 +28,8 @@ export class WebSocketRetreivalService implements RetreivalService {
     > = {}
     private _nextId = 1
     private _ws: WebSocket
-    private _pendingMessages: RequestMessages[] = []
-    private _reconnectTimeout: number
+    private _pendingMessages: string[] = []
+    private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
 
     constructor(readonly url: string) {}
 
@@ -45,13 +45,13 @@ export class WebSocketRetreivalService implements RetreivalService {
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener("open", () => {
             // flush cached messages
-            let m: RequestMessages
+            let m: string
             while (
                 this._ws &&
                 this._ws.readyState === WebSocket.OPEN &&
                 (m = this._pendingMessages.pop())
             )
-                this._ws.send(JSON.stringify(m))
+                this._ws.send(m)
         })
         this._ws.addEventListener("close", () => {
             this._ws = undefined
@@ -77,8 +77,8 @@ export class WebSocketRetreivalService implements RetreivalService {
         return new Promise<T>((resolve, reject) => {
             const id = this._nextId++ + ""
             this.awaiters[id] = { resolve: (data) => resolve(data), reject }
-            const m = { ...msg, id }
-            if (this._ws) this._ws.send(JSON.stringify(m))
+            const m = JSON.stringify({ ...msg, id })
+            if (this._ws) this._ws.send(m)
             else this._pendingMessages.push(m)
         })
     }
