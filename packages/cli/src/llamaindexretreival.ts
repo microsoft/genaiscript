@@ -138,7 +138,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             serviceContext,
             logProgress: false,
         })
-        await storageContext.docStore.persist()
         return { ok: true }
     }
 
