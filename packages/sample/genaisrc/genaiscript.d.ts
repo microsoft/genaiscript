@@ -587,6 +587,19 @@ interface Retreival {
     index(files: (string | LinkedFile)[]): Promise<void>
 
     /**
+     * Query files with a question
+     */
+    query(
+        question: string,
+        options?: {
+            /**
+             * Filter results for the following files
+             */
+            files?: (string | LinkedFile)[]
+        }
+    ): Promise<string>
+
+    /**
      * Search for embeddings
      */
     search(

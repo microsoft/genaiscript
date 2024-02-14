@@ -130,6 +130,10 @@ export function fenceMD(t: string, contentType?: string) {
     return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
 }
 
+function stringLikeToFileName(f: string | LinkedFile) {
+    return typeof f === "string" ? f : f?.filename
+}
+
 async function callExpander(
     r: PromptTemplate,
     vars: ExpansionVariables,
@@ -159,7 +163,9 @@ async function callExpander(
             try {
                 trace.startDetails(`retreival query \`${q}\``)
                 await upsert(files, { trace })
-                const res = await query(q)
+                const res = await query(q, {
+                    files: files.map(stringLikeToFileName),
+                })
                 return res
             } finally {
                 trace.endDetails()
@@ -170,7 +176,9 @@ async function callExpander(
             try {
                 trace.startDetails(`retreival search \`${q}\``)
                 await upsert(files, { trace })
-                const res = await search(q)
+                const res = await search(q, {
+                    files: files.map(stringLikeToFileName),
+                })
                 trace.fence(res, "yaml")
                 return res
             } finally {
