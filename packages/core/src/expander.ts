@@ -165,6 +165,7 @@ async function callExpander(
                 await upsert(files, { trace })
                 const res = await query(q, {
                     files: files.map(stringLikeToFileName),
+                    topK: options?.topK,
                 })
                 return res
             } finally {
@@ -178,6 +179,7 @@ async function callExpander(
                 await upsert(files, { trace })
                 const res = await search(q, {
                     files: files.map(stringLikeToFileName),
+                    topK: options?.topK,
                 })
                 trace.fence(res, "yaml")
                 return res
