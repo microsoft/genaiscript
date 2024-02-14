@@ -1,4 +1,4 @@
-import { RetreivalClientOptions, host } from "./host"
+import { RetreivalClientOptions, RetreivalQueryOptions, host } from "./host"
 import { lookup } from "mime-types"
 
 const UPSERTFILE_MIME_TYPES = [
@@ -14,7 +14,7 @@ export function isIndexable(filename: string) {
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function clear(options?: RetreivalClientOptions): Promise<void> {
+export async function clearIndex(options?: RetreivalClientOptions): Promise<void> {
     const { trace } = options || {}
     await host.retreival.init(trace)
     await host.retreival.clear()
@@ -63,21 +63,27 @@ export async function upsert(
     }
 }
 
-export async function query(q: string, options?: RetreivalClientOptions) {
-    const { trace } = options || {}
+export async function query(
+    q: string,
+    options?: RetreivalClientOptions & RetreivalQueryOptions
+) {
+    const { trace, ...rest } = options || {}
     const retreival = host.retreival
     await host.retreival.init(trace)
 
-    const res = await retreival.query(q)
+    const res = await retreival.query(q, rest)
     return res?.response || ""
 }
 
-export async function search(q: string, options?: RetreivalClientOptions) {
-    const { trace } = options || {}
+export async function search(
+    q: string,
+    options?: RetreivalClientOptions & RetreivalQueryOptions
+) {
+    const { trace, ...rest } = options || {}
     const retreival = host.retreival
     await host.retreival.init(trace)
 
-    const { results } = await retreival.search(q)
+    const { results } = await retreival.search(q, rest)
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r
         return <LinkedFile>{

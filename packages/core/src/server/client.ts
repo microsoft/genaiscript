@@ -1,6 +1,7 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
     ResponseStatus,
+    RetreivalQueryOptions,
     RetreivalQueryResponse,
     RetreivalSearchResponse,
     RetreivalService,
@@ -104,17 +105,25 @@ export class WebSocketClient implements RetreivalService {
         })
         return res.response
     }
-    async query(text: string): Promise<RetreivalQueryResponse> {
+    async query(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalQueryResponse> {
         const res = await this.queue<RetreivalQuery>({
             type: "retreival.query",
             text,
+            options,
         })
         return res.response
     }
-    async search(text: string): Promise<RetreivalSearchResponse> {
+    async search(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalSearchResponse> {
         const res = await this.queue<RetreivalSearch>({
             type: "retreival.search",
             text,
+            options,
         })
         return res.response
     }

@@ -257,7 +257,12 @@
             },
             {
                 "command": "genaiscript.retreival.index",
-                "title": "Index files...",
+                "title": "Index files for retreival...",
+                "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.retreival.clear",
+                "title": "Clear retreival index",
                 "category": "GenAIScript"
             }
         ]
