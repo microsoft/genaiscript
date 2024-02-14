@@ -19,7 +19,11 @@ export class TerminalServerManager implements ServerManager {
         state.context.subscriptions.push(
             vscode.window.onDidCloseTerminal((e) => {
                 if (e === this._terminal) {
-                    this.client?.kill()
+                    try {
+                        this.client?.kill()
+                    } catch (error) {
+                        console.error(error)
+                    }
                     this._terminal = undefined
                 }
             })
@@ -33,7 +37,7 @@ export class TerminalServerManager implements ServerManager {
         this._terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Server`,
             cwd: host.projectFolder(),
-            isTransient: true
+            isTransient: true,
         })
         this._terminal.sendText(
             `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`

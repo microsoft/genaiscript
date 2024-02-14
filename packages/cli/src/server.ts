@@ -1,10 +1,10 @@
 import { WebSocketServer } from "ws"
-import http from "http"
 import {
     RequestMessages,
     ResponseStatus,
     SERVER_PORT,
     host,
+    YAMLStringify
 } from "genaiscript-core"
 
 async function b64toBlob(base64: string, type: string) {
@@ -49,11 +49,13 @@ export async function startServer(options: { port: string }) {
                         break
                     case "retreival.query":
                         console.log(`retreival: query ${data.text}`)
-                        response = await host.retreival.query(data.text)
+                        console.debug(YAMLStringify(data.options))
+                        response = await host.retreival.query(data.text, data.options)
                         break
                     case "retreival.search":
                         console.log(`retreival: search ${data.text}`)
-                        response = await host.retreival.search(data.text)
+                        console.debug(YAMLStringify(data.options))
+                        response = await host.retreival.search(data.text, data.options)
                         break
                     default:
                         throw new Error(`unknown message type ${type}`)

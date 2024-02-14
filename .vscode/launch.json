@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["parse", "pdf", "packages/sample/src/rag/loremipsum.pdf"]
+            "args": ["retreival", "search", "lorem", "packages/sample/src/rag/loremipsum.pdf"]
         },
         {
             "name": "Run - sample",

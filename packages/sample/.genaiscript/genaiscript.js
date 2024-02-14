@@ -35711,9 +35711,9 @@ var require_uri_all = __commonJS({
             wsComponents.secure = void 0;
           }
           if (wsComponents.resourceName) {
-            var _wsComponents$resourc = wsComponents.resourceName.split("?"), _wsComponents$resourc2 = slicedToArray(_wsComponents$resourc, 2), path5 = _wsComponents$resourc2[0], query = _wsComponents$resourc2[1];
+            var _wsComponents$resourc = wsComponents.resourceName.split("?"), _wsComponents$resourc2 = slicedToArray(_wsComponents$resourc, 2), path5 = _wsComponents$resourc2[0], query2 = _wsComponents$resourc2[1];
             wsComponents.path = path5 && path5 !== "/" ? path5 : void 0;
-            wsComponents.query = query;
+            wsComponents.query = query2;
             wsComponents.resourceName = void 0;
           }
           wsComponents.fragment = void 0;
@@ -68807,10 +68807,10 @@ var APIClient = class {
     return null;
   }
   buildRequest(options) {
-    const { method, path: path5, query, headers = {} } = options;
+    const { method, path: path5, query: query2, headers = {} } = options;
     const body = isMultipartBody(options.body) ? options.body.body : options.body ? JSON.stringify(options.body, null, 2) : null;
     const contentLength = this.calculateContentLength(body);
-    const url2 = this.buildURL(path5, query);
+    const url2 = this.buildURL(path5, query2);
     if ("timeout" in options)
       validatePositiveInteger("timeout", options.timeout);
     const timeout = options.timeout ?? this.timeout;
@@ -68919,19 +68919,19 @@ var APIClient = class {
     const request = this.makeRequest(options, null);
     return new PagePromise(this, request, Page2);
   }
-  buildURL(path5, query) {
+  buildURL(path5, query2) {
     const url2 = isAbsoluteURL(path5) ? new URL(path5) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path5.startsWith("/") ? path5.slice(1) : path5));
     const defaultQuery = this.defaultQuery();
     if (!isEmptyObj(defaultQuery)) {
-      query = { ...defaultQuery, ...query };
+      query2 = { ...defaultQuery, ...query2 };
     }
-    if (typeof query === "object" && query && !Array.isArray(query)) {
-      url2.search = this.stringifyQuery(query);
+    if (typeof query2 === "object" && query2 && !Array.isArray(query2)) {
+      url2.search = this.stringifyQuery(query2);
     }
     return url2.toString();
   }
-  stringifyQuery(query) {
-    return Object.entries(query).filter(([_2, value2]) => typeof value2 !== "undefined").map(([key, value2]) => {
+  stringifyQuery(query2) {
+    return Object.entries(query2).filter(([_2, value2]) => typeof value2 !== "undefined").map(([key, value2]) => {
       if (typeof value2 === "string" || typeof value2 === "number" || typeof value2 === "boolean") {
         return `${encodeURIComponent(key)}=${encodeURIComponent(value2)}`;
       }
@@ -69449,12 +69449,12 @@ var Files = class extends APIResource {
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
   }
-  list(assistantId, query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list(assistantId, {}, query);
+  list(assistantId, query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list(assistantId, {}, query2);
     }
     return this._client.getAPIList(`/assistants/${assistantId}/files`, AssistantFilesPage, {
-      query,
+      query: query2,
       ...options,
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
@@ -69510,12 +69510,12 @@ var Assistants = class extends APIResource {
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
   }
-  list(query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list({}, query);
+  list(query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list({}, query2);
     }
     return this._client.getAPIList("/assistants", AssistantsPage, {
-      query,
+      query: query2,
       ...options,
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
@@ -70458,12 +70458,12 @@ var Files2 = class extends APIResource {
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
   }
-  list(threadId, messageId, query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list(threadId, messageId, {}, query);
+  list(threadId, messageId, query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list(threadId, messageId, {}, query2);
     }
     return this._client.getAPIList(`/threads/${threadId}/messages/${messageId}/files`, MessageFilesPage, {
-      query,
+      query: query2,
       ...options,
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
@@ -70510,12 +70510,12 @@ var Messages = class extends APIResource {
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
   }
-  list(threadId, query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list(threadId, {}, query);
+  list(threadId, query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list(threadId, {}, query2);
     }
     return this._client.getAPIList(`/threads/${threadId}/messages`, ThreadMessagesPage, {
-      query,
+      query: query2,
       ...options,
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
@@ -70540,12 +70540,12 @@ var Steps = class extends APIResource {
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
   }
-  list(threadId, runId, query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list(threadId, runId, {}, query);
+  list(threadId, runId, query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list(threadId, runId, {}, query2);
     }
     return this._client.getAPIList(`/threads/${threadId}/runs/${runId}/steps`, RunStepsPage, {
-      query,
+      query: query2,
       ...options,
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
@@ -70592,12 +70592,12 @@ var Runs = class extends APIResource {
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
   }
-  list(threadId, query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list(threadId, {}, query);
+  list(threadId, query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list(threadId, {}, query2);
     }
     return this._client.getAPIList(`/threads/${threadId}/runs`, RunsPage, {
-      query,
+      query: query2,
       ...options,
       headers: { "OpenAI-Beta": "assistants=v1", ...options?.headers }
     });
@@ -70757,11 +70757,11 @@ var Files3 = class extends APIResource {
   retrieve(fileId, options) {
     return this._client.get(`/files/${fileId}`, options);
   }
-  list(query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list({}, query);
+  list(query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list({}, query2);
     }
-    return this._client.getAPIList("/files", FileObjectsPage, { query, ...options });
+    return this._client.getAPIList("/files", FileObjectsPage, { query: query2, ...options });
   }
   /**
    * Delete a file.
@@ -70833,11 +70833,11 @@ var Jobs = class extends APIResource {
   retrieve(fineTuningJobId, options) {
     return this._client.get(`/fine_tuning/jobs/${fineTuningJobId}`, options);
   }
-  list(query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.list({}, query);
+  list(query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.list({}, query2);
     }
-    return this._client.getAPIList("/fine_tuning/jobs", FineTuningJobsPage, { query, ...options });
+    return this._client.getAPIList("/fine_tuning/jobs", FineTuningJobsPage, { query: query2, ...options });
   }
   /**
    * Immediately cancel a fine-tune job.
@@ -70845,12 +70845,12 @@ var Jobs = class extends APIResource {
   cancel(fineTuningJobId, options) {
     return this._client.post(`/fine_tuning/jobs/${fineTuningJobId}/cancel`, options);
   }
-  listEvents(fineTuningJobId, query = {}, options) {
-    if (isRequestOptions(query)) {
-      return this.listEvents(fineTuningJobId, {}, query);
+  listEvents(fineTuningJobId, query2 = {}, options) {
+    if (isRequestOptions(query2)) {
+      return this.listEvents(fineTuningJobId, {}, query2);
     }
     return this._client.getAPIList(`/fine_tuning/jobs/${fineTuningJobId}/events`, FineTuningJobEventsPage, {
-      query,
+      query: query2,
       ...options
     });
   }
@@ -73424,7 +73424,7 @@ function createParsers(trace) {
 // ../core/package.json
 var package_default = {
   name: "genaiscript-core",
-  version: "1.9.3",
+  version: "1.9.4",
   main: "src/index.ts",
   license: "MIT",
   private: true,
@@ -73518,11 +73518,18 @@ async function upsert(fileOrUrls, options) {
     trace?.resultItem(ok2, f2.filename);
   }
 }
-async function search2(q2, options) {
-  const { trace } = options || {};
+async function query(q2, options) {
+  const { trace, ...rest } = options || {};
   const retreival = host.retreival;
   await host.retreival.init(trace);
-  const { results } = await retreival.search(q2);
+  const res = await retreival.query(q2, rest);
+  return res?.response || "";
+}
+async function search2(q2, options) {
+  const { trace, ...rest } = options || {};
+  const retreival = host.retreival;
+  await host.retreival.init(trace);
+  const { results } = await retreival.search(q2, rest);
   const fragments = (results || []).map((r2) => {
     const { id, filename, text: text5 } = r2;
     return {
@@ -73573,6 +73580,9 @@ ${trimNewlines(t2)}
 ${f2}
 `;
 }
+function stringLikeToFileName(f2) {
+  return typeof f2 === "string" ? f2 : f2?.filename;
+}
 async function callExpander(r2, vars, trace) {
   let promptText = "";
   let success = true;
@@ -73592,12 +73602,27 @@ async function callExpander(r2, vars, trace) {
     index: async (files) => {
       await upsert(files, { trace });
     },
+    query: async (q2, options) => {
+      const { files = env2.files } = options || {};
+      try {
+        trace.startDetails(`retreival query \`${q2}\``);
+        await upsert(files, { trace });
+        const res = await query(q2, {
+          files: files.map(stringLikeToFileName)
+        });
+        return res;
+      } finally {
+        trace.endDetails();
+      }
+    },
     search: async (q2, options) => {
       const { files = env2.files } = options || {};
       try {
-        trace.startDetails(`retreive \`${q2}\``);
+        trace.startDetails(`retreival search \`${q2}\``);
         await upsert(files, { trace });
-        const res = await search2(q2);
+        const res = await search2(q2, {
+          files: files.map(stringLikeToFileName)
+        });
         trace.fence(res, "yaml");
         return res;
       } finally {
@@ -84272,8 +84297,9 @@ var LlamaIndexRetreivalService = class {
       "text/csv": new this.module.PapaCSVReader()
     };
   }
-  async createStorageContext() {
-    const { storageContextFromDefaults } = this.module;
+  async createStorageContext(options) {
+    const { files } = options ?? {};
+    const { storageContextFromDefaults, SimpleVectorStore } = this.module;
     const persistDir = dotGenaiscriptPath("retreival");
     await this.host.createDirectory(persistDir);
     await writeText(
@@ -84283,12 +84309,25 @@ var LlamaIndexRetreivalService = class {
     const storageContext = await storageContextFromDefaults({
       persistDir
     });
+    if (files?.length) {
+      const docs = await storageContext.docStore.getAllRefDocInfo();
+      const vectorStore = await SimpleVectorStore.fromDict(
+        await (await SimpleVectorStore.fromPersistDir(persistDir)).toDict()
+      );
+      const toRemove = Object.keys(docs).filter(
+        (id) => !files.includes(id)
+      );
+      console.log({ docs, toRemove, files });
+      for (const doc of toRemove)
+        vectorStore.delete(doc);
+      storageContext.vectorStore = vectorStore;
+    }
     return storageContext;
   }
-  async createServiceContext() {
+  async createServiceContext(options) {
     const { serviceContextFromDefaults, OpenAI: OpenAI2 } = this.module;
     const serviceContext = serviceContextFromDefaults({
-      llm: new OpenAI2({})
+      llm: new OpenAI2(options)
     });
     return serviceContext;
   }
@@ -84312,27 +84351,30 @@ var LlamaIndexRetreivalService = class {
     const documents = (await reader.loadData(filenameOrUrl, fs2)).map(
       (doc) => new Document({
         text: doc.text,
+        id_: filenameOrUrl,
         metadata: { filename: filenameOrUrl }
       })
     );
     await storageContext.docStore.addDocuments(documents, true);
     await VectorStoreIndex.fromDocuments(documents, {
       storageContext,
-      serviceContext,
-      logProgress: false
+      serviceContext
     });
-    await storageContext.docStore.persist();
     return { ok: true };
   }
-  async query(text5) {
-    const { VectorStoreIndex, MetadataMode } = this.module;
-    const storageContext = await this.createStorageContext();
+  async query(text5, options) {
+    console.log(options);
+    const { topK } = options ?? {};
+    const { VectorStoreIndex } = this.module;
+    const storageContext = await this.createStorageContext(options);
     const serviceContext = await this.createServiceContext();
     const index2 = await VectorStoreIndex.init({
       storageContext,
       serviceContext
     });
-    const retreiver = index2.asQueryEngine();
+    const retreiver = index2.asQueryEngine({
+      retriever: index2.asRetriever({ similarityTopK: topK })
+    });
     const results = await retreiver.query({
       query: text5,
       stream: false
@@ -84342,15 +84384,16 @@ var LlamaIndexRetreivalService = class {
       response: results.response
     };
   }
-  async search(text5) {
+  async search(text5, options) {
+    const { topK } = options ?? {};
     const { VectorStoreIndex, MetadataMode } = this.module;
-    const storageContext = await this.createStorageContext();
+    const storageContext = await this.createStorageContext(options);
     const serviceContext = await this.createServiceContext();
     const index2 = await VectorStoreIndex.init({
       storageContext,
       serviceContext
     });
-    const retreiver = index2.asRetriever();
+    const retreiver = index2.asRetriever({ similarityTopK: topK });
     const results = await retreiver.retrieve(text5);
     return {
       ok: true,
@@ -84359,6 +84402,23 @@ var LlamaIndexRetreivalService = class {
         id: r2.node.id_,
         text: r2.node.getContent(MetadataMode.NONE),
         score: r2.score
+      }))
+    };
+  }
+  /**
+   * Returns all embeddings
+   * @returns
+   */
+  async embeddings() {
+    const { MetadataMode } = this.module;
+    const storageContext = await this.createStorageContext();
+    const docs = await storageContext.docStore.docs();
+    return {
+      ok: true,
+      results: Object.values(docs).map((r2) => ({
+        filename: r2.metadata.filename,
+        id: r2.id_,
+        text: r2.getContent(MetadataMode.NONE)
       }))
     };
   }
@@ -84629,9 +84689,15 @@ async function startServer(options) {
               await b64toBlob(data.content, data.mimeType)
             );
             break;
+          case "retreival.query":
+            console.log(`retreival: query ${data.text}`);
+            console.debug(YAMLStringify(data.options));
+            response = await host.retreival.query(data.text, data.options);
+            break;
           case "retreival.search":
             console.log(`retreival: search ${data.text}`);
-            response = await host.retreival.search(data.text);
+            console.debug(YAMLStringify(data.options));
+            response = await host.retreival.search(data.text, data.options);
             break;
           default:
             throw new Error(`unknown message type ${type}`);
@@ -84739,7 +84805,6 @@ async function batch(tool, specs, options) {
   const temperature = normalizeFloat(options.temperature);
   const topP = normalizeFloat(options.topP);
   const seed = normalizeFloat(options.seed);
-  const path5 = host.path;
   const toolFiles = [];
   if (scriptRx.test(tool))
     toolFiles.push(tool);
@@ -84900,6 +84965,10 @@ async function batch(tool, specs, options) {
 }
 function normalizeFloat(s2) {
   const f2 = parseFloat(s2);
+  return isNaN(f2) ? void 0 : f2;
+}
+function normalizeInt(s2) {
+  const f2 = parseInt(s2);
   return isNaN(f2) ? void 0 : f2;
 }
 function parseVars(vars) {
@@ -85177,11 +85246,23 @@ async function retreivalIndex(files, options) {
     progress: new ProgressSpinner(spinner)
   });
 }
-async function retreivalSearch(q2) {
-  const spinner = ora({ interval: 200 }).start("searching");
-  const res = await search2(q2);
+async function retreivalSearch(q2, filesGlobs, options) {
+  const files = await expandFiles(filesGlobs, options?.excludedFiles);
+  const spinner = ora({ interval: 200 }).start(
+    `searching '${q2}' in ${files.length} files`
+  );
+  const res = await search2(q2, { files, topK: normalizeInt(options?.topK) });
   spinner.succeed();
   console.log(YAMLStringify(res));
+}
+async function retreivalQuery(q2, filesGlobs, options) {
+  const files = await expandFiles(filesGlobs, options?.excludedFiles);
+  const spinner = ora({ interval: 200 }).start(
+    `querying '${q2}' in ${files.length} files`
+  );
+  const res = await query(q2, { files, topK: normalizeInt(options?.topK) });
+  spinner.succeed();
+  console.log(res);
 }
 async function main2() {
   process.on("uncaughtException", (err) => {
@@ -85254,7 +85335,8 @@ async function main2() {
   tools.command("list", { isDefault: true }).description("List all available tools").action(listTools);
   const retreival = program.command("retreival").description("RAG support");
   retreival.command("index").description("Index a set of documents").argument("<file...>", "Files to index").action(retreivalIndex);
-  retreival.command("search").description("Search index").argument("<query>", "Search query").action(retreivalSearch);
+  retreival.command("search").description("Search index").arguments("<query> [files...]").option("-ef, --excluded-files <string...>", "excluded files").option("-tk, --top-k <number>", "maximum number of embeddings").action(retreivalSearch);
+  retreival.command("query").description("Ask a question on the index").arguments("<question> [files...]").option("-ef, --excluded-files <string...>", "excluded files").option("-tk, --top-k <number>", "maximum number of embeddings").action(retreivalQuery);
   retreival.command("clear").description("Clear index to force re-indexing").action(clear);
   program.command("serve").description("Start a GenAIScript local server").option(
     "-p, --port <number>",
