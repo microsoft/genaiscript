@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-core",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
