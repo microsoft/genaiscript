@@ -12,19 +12,19 @@ import { ExtensionState } from "./state"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
-    readonly client: WebSocketClient
+    private readonly client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
         state.context.subscriptions.push(this)
         state.context.subscriptions.push(
             vscode.window.onDidCloseTerminal((e) => {
                 if (e === this._terminal) {
+                    this.client?.kill()
                     this._terminal = undefined
                 }
             })
         )
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
-        state.context.subscriptions.push(this.client)
     }
 
     async start() {
@@ -33,16 +33,20 @@ export class TerminalServerManager implements ServerManager {
         this._terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Server`,
             cwd: host.projectFolder(),
+            isTransient: true
         })
         this._terminal.sendText(
             `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`
         )
         this._terminal.show()
-        await new Promise((resolve) => setTimeout(resolve, 2000))
+    }
+
+    get retreival() {
+        return this.client
     }
 
     async close() {
-        this.client.kill()
+        this.client?.kill()
         this._terminal?.dispose()
         this._terminal = undefined
     }

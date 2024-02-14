@@ -24,7 +24,6 @@ import { TerminalServerManager } from "./servermanager"
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
-    readonly retreival: RetreivalService
     readonly path = createVSPath()
     readonly server: TerminalServerManager
 
@@ -32,8 +31,11 @@ export class VSCodeHost extends EventTarget implements Host {
         super()
         setHost(this)
         this.server = new TerminalServerManager(state)
-        this.retreival = this.server.client
         this.state.context.subscriptions.push(this)
+    }
+
+    get retreival() {
+        return this.server.retreival
     }
 
     get context() {
