@@ -19,6 +19,13 @@ export const EXTENSION_ID = "devicescript.genaiscript-vscode"
 export const AGENT_ID = TOOL_ID
 
 export async function activate(context: ExtensionContext) {
+    try {
+        require("websocket-polyfill")
+        global.Blob = global.Blob || require("buffer").Blob
+    } catch (err) {
+        console.error(err)
+    }
+
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)

@@ -37,7 +37,7 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
-import { upsert, query } from "./retreival"
+import { upsert, search } from "./retreival"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -159,7 +159,7 @@ async function callExpander(
             try {
                 trace.startDetails(`retreive \`${q}\``)
                 await upsert(files, { trace })
-                const res = await query(q)
+                const res = await search(q)
                 trace.fence(res, "yaml")
                 return res
             } finally {
@@ -901,23 +901,20 @@ export async function runTemplate(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
                         status()
-                        const { stdout, stderr, exitCode } = await exec(
-                            host,
+                        const { stdout, stderr, exitCode } = await exec(host, {
                             trace,
-                            {
-                                label: call.name,
-                                call: {
-                                    type: "shell",
-                                    command,
-                                    args,
-                                    stdin,
-                                    files,
-                                    outputFile,
-                                    cwd: cwd ?? projFolder,
-                                    timeout: timeout ?? 60000,
-                                },
-                            }
-                        )
+                            label: call.name,
+                            call: {
+                                type: "shell",
+                                command,
+                                args,
+                                stdin,
+                                files,
+                                outputFile,
+                                cwd: cwd ?? projFolder,
+                                timeout: timeout ?? 60000,
+                            },
+                        })
                         output = { content: stdout }
                         trace.item(`exit code: ${exitCode}`)
                         if (stdout) trace.details("📩 shell output", stdout)

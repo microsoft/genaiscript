@@ -28,7 +28,10 @@
         "test:live": "node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -o .genaiscript/tmp/tests/cli --retry 1 --temperature 0.5 --no-cache",
         "test:front-matter": "node packages/cli/built/genaiscript.js run front-matter SUPPORT.md",
         "test:lza": "cd applications/lza && yarn test",
-        "test:pdf": "node packages/cli/built/genaiscript.js parse pdf packages/sample/src/rag/loremipsum.pdf"
+        "test:pdf": "node packages/cli/built/genaiscript.js parse pdf packages/sample/src/rag/loremipsum.pdf",
+        "test:index": "node packages/cli/built/genaiscript.js retreival index packages/sample/src/rag/*",
+        "test:search": "node packages/cli/built/genaiscript.js retreival search lorem",
+        "serve": "node packages/cli/built/genaiscript.js serve"
     },
     "release-it": {
         "github": {
@@ -38,7 +41,7 @@
         }
     },
     "devDependencies": {
-        "vitest": "^1.2.1",
+        "vitest": "^1.2.2",
         "zx": "^7.2.3"
     }
 }

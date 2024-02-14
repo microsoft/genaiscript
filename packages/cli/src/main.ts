@@ -23,12 +23,14 @@ import {
     dotGenaiscriptPath,
     upsert,
     Progress,
-    query,
+    search,
     TOOL_ID,
     GENAI_EXT,
     TOOL_NAME,
     GITHUB_REPO,
+    clear,
     PDFTryParse,
+    SERVER_PORT,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -40,6 +42,7 @@ import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
 import { convertDiagnosticsToSARIF } from "./sarif"
+import { startServer } from "./server"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
@@ -695,7 +698,7 @@ async function retreivalIndex(
 
 async function retreivalSearch(q: string) {
     const spinner = ora({ interval: 200 }).start("searching")
-    const res = await query(q)
+    const res = await search(q)
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
@@ -850,6 +853,19 @@ async function main() {
         .description("Search index")
         .argument("<query>", "Search query")
         .action(retreivalSearch)
+    retreival
+        .command("clear")
+        .description("Clear index to force re-indexing")
+        .action(clear)
+
+    program
+        .command("serve")
+        .description("Start a GenAIScript local server")
+        .option(
+            "-p, --port <number>",
+            `Specify the port number, default: ${SERVER_PORT}`
+        )
+        .action(startServer)
 
     program
         .command("jsonl2json", "Converts JSONL files to a JSON file")
