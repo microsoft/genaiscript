@@ -1,4 +1,8 @@
-import { ResponseStatus, RetreivalSearchResponse } from "../host"
+import {
+    ResponseStatus,
+    RetreivalQueryResponse,
+    RetreivalSearchResponse,
+} from "../host"
 
 export interface RequestMessage {
     type: string
@@ -27,8 +31,15 @@ export interface RetreivalSearch extends RequestMessage {
     response?: RetreivalSearchResponse
 }
 
+export interface RetreivalQuery extends RequestMessage {
+    type: "retreival.query"
+    text: string
+    response?: RetreivalQueryResponse
+}
+
 export type RequestMessages =
     | ServerKill
     | RetreivalClear
     | RetreivalUpsert
     | RetreivalSearch
+    | RetreivalQuery

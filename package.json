@@ -31,6 +31,7 @@
         "test:pdf": "node packages/cli/built/genaiscript.js parse pdf packages/sample/src/rag/loremipsum.pdf",
         "test:index": "node packages/cli/built/genaiscript.js retreival index packages/sample/src/rag/*",
         "test:search": "node packages/cli/built/genaiscript.js retreival search lorem",
+        "test:query": "node packages/cli/built/genaiscript.js retreival query \"what is lorem ipsum?\"",
         "serve": "node packages/cli/built/genaiscript.js serve"
     },
     "release-it": {

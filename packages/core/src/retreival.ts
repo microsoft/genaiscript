@@ -14,9 +14,7 @@ export function isIndexable(filename: string) {
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function clear(
-    options?: RetreivalClientOptions
-): Promise<void> {
+export async function clear(options?: RetreivalClientOptions): Promise<void> {
     const { trace } = options || {}
     await host.retreival.init(trace)
     await host.retreival.clear()
@@ -65,10 +63,16 @@ export async function upsert(
     }
 }
 
-export async function search(
-    q: string,
-    options?: RetreivalClientOptions
-) {
+export async function query(q: string, options?: RetreivalClientOptions) {
+    const { trace } = options || {}
+    const retreival = host.retreival
+    await host.retreival.init(trace)
+
+    const res = await retreival.query(q)
+    return res?.response || ""
+}
+
+export async function search(q: string, options?: RetreivalClientOptions) {
     const { trace } = options || {}
     const retreival = host.retreival
     await host.retreival.init(trace)

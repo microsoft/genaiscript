@@ -47,6 +47,10 @@ export async function startServer(options: { port: string }) {
                             await b64toBlob(data.content, data.mimeType)
                         )
                         break
+                    case "retreival.query":
+                        console.log(`retreival: query ${data.text}`)
+                        response = await host.retreival.query(data.text)
+                        break
                     case "retreival.search":
                         console.log(`retreival: search ${data.text}`)
                         response = await host.retreival.search(data.text)

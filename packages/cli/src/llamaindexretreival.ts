@@ -2,12 +2,16 @@ import {
     Host,
     MarkdownTrace,
     ResponseStatus,
+    RetreivalQueryResponse,
     RetreivalService,
     dotGenaiscriptPath,
     installImport,
     writeText,
 } from "genaiscript-core"
-import type { BaseReader, GenericFileSystem } from "llamaindex"
+import {
+    type BaseReader,
+    type GenericFileSystem,
+} from "llamaindex"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
@@ -132,11 +136,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return { ok: true }
     }
 
-    async query(text: string): Promise<
-        ResponseStatus & {
-            response: string
-        }
-    > {
+    async query(text: string): Promise<RetreivalQueryResponse> {
         const { VectorStoreIndex, MetadataMode } = this.module
 
         const storageContext = await this.createStorageContext()
@@ -170,6 +170,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
         const storageContext = await this.createStorageContext()
         const serviceContext = await this.createServiceContext()
+
         const index = await VectorStoreIndex.init({
             storageContext,
             serviceContext,
