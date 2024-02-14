@@ -8,10 +8,7 @@ import {
     installImport,
     writeText,
 } from "genaiscript-core"
-import {
-    type BaseReader,
-    type GenericFileSystem,
-} from "llamaindex"
+import type { BaseReader, GenericFileSystem } from "llamaindex"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
