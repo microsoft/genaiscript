@@ -4,16 +4,13 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
-    ServerManager,
+    RetreivalService,
     ShellCallOptions,
     ShellOutput,
     TOOL_NAME,
-    WebSocketRetreivalService,
-    createRetreivalClient,
     logVerbose,
     parseTokenFromEnv,
     setHost,
-    writeText,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
@@ -24,21 +21,18 @@ import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 
-const OPENAI_TOKEN_KEY = "genaiscript.openAIToken"
-
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
-    readonly retreival: WebSocketRetreivalService
+    readonly retreival: RetreivalService
     readonly path = createVSPath()
-    readonly server: ServerManager
+    readonly server: TerminalServerManager
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
         this.server = new TerminalServerManager(state)
-        this.retreival = createRetreivalClient(this)
-        this.state.context.subscriptions.push(this.retreival)
+        this.retreival = this.server.client
         this.state.context.subscriptions.push(this)
     }
 
@@ -83,93 +77,45 @@ export class VSCodeHost extends EventTarget implements Host {
 
     private lastToken: string
     async askToken(): Promise<string> {
-        const pick = await window.showQuickPick(
-            [
-                {
-                    id: "workspace",
-                    label: "Use workspace secrets",
-                    description:
-                        "Use the OpenAI token stored in the workspace secrets",
-                },
-                {
-                    id: "env",
-                    label: "Use .env",
-                    description: "Store OpenAI configuration in a .env file",
-                },
-            ],
-            {
-                title: "GenAIScript - OpenAI token configuration",
-            }
-        )
-
-        if (pick === undefined) return undefined
-
-        if (pick.id === "workspace") {
-            let t = await window.showInputBox({
-                placeHolder: "Paste OpenAI token",
-                title: "GenAIScript - OpenAI token configuration",
-                prompt: `Please enter your OpenAI token or Azure AI key. It will be stored in the workspace secrets. [Learn more...](${TOKEN_DOCUMENTATION_URL})`,
-                value: this.lastToken,
-            })
-            this.lastToken = t
-
-            // looks like a token, missing endpoint
-            if (/^[a-z0-9]{32,}$/i.test(t) && !/sk-/.test(t)) {
-                const endpoint = await window.showInputBox({
-                    placeHolder: "Paste deployment endpoint",
-                    prompt: "The token looks like an Azure AI service token. Please paste de Azure AI endpoint or leave empty to ignore.",
-                })
-                if (endpoint && /^https:\/\//.test(endpoint)) {
-                    t = `${endpoint}#key=${t}`
-                    this.lastToken = undefined
-                } else t = undefined // don't know how to handle this token
-            }
-
-            return t
-        } else {
-            // update .gitignore file
-            if (!(await checkFileExists(this.projectUri, ".gitignore")))
-                await writeFile(this.projectUri, ".gitignore", ".env\n")
-            else {
-                const content = await readFileText(
-                    this.projectUri,
-                    ".gitignore"
-                )
-                if (!content.includes(".env"))
-                    await writeFile(
-                        this.projectUri,
-                        ".gitignore",
-                        content + "\n.env\n"
-                    )
-            }
-
-            // update .env
-            const uri = Uri.joinPath(this.projectUri, ".env")
-            if (!(await checkFileExists(uri)))
+        // update .gitignore file
+        if (!(await checkFileExists(this.projectUri, ".gitignore")))
+            await writeFile(this.projectUri, ".gitignore", ".env\n")
+        else {
+            const content = await readFileText(this.projectUri, ".gitignore")
+            if (!content.includes(".env"))
                 await writeFile(
                     this.projectUri,
-                    ".env",
-                    `OPENAI_API_KEY="<your token>"
-`
+                    ".gitignore",
+                    content + "\n.env\n"
                 )
-
-            const doc = await workspace.openTextDocument(uri)
-            await window.showTextDocument(doc)
-            const text = doc.getText()
-            let nextText = text
-            if (!/OPENAI_API_KEY/.test(text))
-                nextText += `\nOPENAI_API_KEY="<your token>"`
-            if (nextText !== text) {
-                const edit = new vscode.WorkspaceEdit()
-                edit.replace(
-                    uri,
-                    doc.validateRange(new vscode.Range(0, 0, 999, 999)),
-                    nextText
-                )
-                await workspace.applyEdit(edit)
-            }
-            return undefined
         }
+
+        // update .env
+        const uri = Uri.joinPath(this.projectUri, ".env")
+        if (!(await checkFileExists(uri)))
+            await writeFile(
+                this.projectUri,
+                ".env",
+                `OPENAI_API_KEY="<your token>"
+`
+            )
+
+        const doc = await workspace.openTextDocument(uri)
+        await window.showTextDocument(doc)
+        const text = doc.getText()
+        let nextText = text
+        if (!/OPENAI_API_KEY/.test(text))
+            nextText += `\nOPENAI_API_KEY="<your token>"`
+        if (nextText !== text) {
+            const edit = new vscode.WorkspaceEdit()
+            edit.replace(
+                uri,
+                doc.validateRange(new vscode.Range(0, 0, 999, 999)),
+                nextText
+            )
+            await workspace.applyEdit(edit)
+        }
+        return undefined
     }
     log(level: LogLevel, msg: string): void {
         const output = this.state.output
@@ -198,7 +144,8 @@ export class VSCodeHost extends EventTarget implements Host {
                   workspace.workspaceFolders[0].uri,
                   name.replace(wksrx, "")
               )
-            : name[0] === "/"
+            : /^(\/|\w:\\)/i.test(name) ||
+                name.startsWith(workspace.workspaceFolders[0].uri.fsPath)
               ? Uri.file(name)
               : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
 
@@ -243,13 +190,6 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async getSecretToken(): Promise<OAIToken> {
-        const s = await this.context.secrets.get(OPENAI_TOKEN_KEY)
-        if (s) {
-            const res = JSON.parse(s)
-            res.source = "workspace secrets"
-            return res
-        }
-
         try {
             const dotenv = await readFileText(this.projectUri, ".env")
             const env = parse(dotenv)
@@ -263,13 +203,6 @@ export class VSCodeHost extends EventTarget implements Host {
         return undefined
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
-        if (!tok || !tok.token)
-            await this.context.secrets.delete(OPENAI_TOKEN_KEY)
-        else
-            await this.context.secrets.store(
-                OPENAI_TOKEN_KEY,
-                JSON.stringify(tok)
-            )
         this.dispatchEvent(new Event(CHANGE))
     }
 

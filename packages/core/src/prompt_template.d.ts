@@ -547,6 +547,12 @@ interface Path {
      * The path.relative() method returns the relative path from from to to based on the current working directory. If from and to each resolve to the same path (after calling path.resolve() on each), a zero-length string is returned.
      */
     relative(from: string, to: string): string
+
+    /**
+     * The path.resolve() method resolves a sequence of paths or path segments into an absolute path.
+     * @param pathSegments
+     */
+    resolve(...pathSegments: string[]): string
 }
 
 interface Parsers {
