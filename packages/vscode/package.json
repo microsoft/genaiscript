@@ -9,7 +9,7 @@
     "version": "1.9.2",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.85.0"
+        "vscode": "^1.86.0"
     },
     "categories": [
         "Other"
@@ -284,7 +284,7 @@
     },
     "scripts": {
         "vscode:prepublish": "yarn run compile",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:llamaindex",
         "compile": "yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
@@ -297,20 +297,21 @@
     "devDependencies": {
         "@types/isomorphic-fetch": "^0.0.39",
         "@types/mocha": "^10.0.6",
-        "@types/vscode": "^1.85.0",
-        "@typescript-eslint/eslint-plugin": "^6.20.0",
-        "@typescript-eslint/parser": "^6.20.0",
+        "@types/vscode": "^1.86.0",
+        "@typescript-eslint/eslint-plugin": "^7.0.1",
+        "@typescript-eslint/parser": "^7.0.1",
         "@vscode/test-web": "^0.0.51",
         "@vscode/vsce": "^2.23.0",
         "assert": "^2.1.0",
-        "dotenv": "^16.4.1",
+        "dotenv": "^16.4.4",
         "eslint": "^8.56.0",
         "isomorphic-fetch": "^3.0.0",
-        "mocha": "^10.2.0",
+        "mocha": "^10.3.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
         "typescript": "^5.3.3",
         "vscode-uri": "^3.0.8",
+        "websocket-polyfill": "^0.0.3",
         "zx": "^7.2.3"
     },
     "optionalDependencies": {

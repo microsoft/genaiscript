@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = string
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -749,13 +749,3 @@ declare function defSchema(name: string, schema: JSONSchema): void
  * @param reason
  */
 declare function cancel(reason?: string): void
-
-/**
- * Index and execute a query against the list of files
- * @param query
- * @param files
- */
-declare function retreive(
-    query: string,
-    files: LinkedFile[]
-): Promise<LinkedFile[]>

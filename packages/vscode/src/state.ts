@@ -149,7 +149,6 @@ export class ExtensionState extends EventTarget {
     private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
         undefined
     readonly output: vscode.LogOutputChannel
-
     readonly aiRequestContext: AIRequestContextOptions = {}
 
     constructor(public readonly context: ExtensionContext) {
