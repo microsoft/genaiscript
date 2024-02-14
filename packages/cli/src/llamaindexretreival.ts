@@ -1,14 +1,24 @@
 import {
     Host,
     MarkdownTrace,
+    RETREIVAL_PERSIST_DIR,
     ResponseStatus,
+    RetreivalQueryOptions,
     RetreivalQueryResponse,
+    RetreivalSearchResponse,
     RetreivalService,
     dotGenaiscriptPath,
     installImport,
     writeText,
 } from "genaiscript-core"
-import type { BaseReader, GenericFileSystem } from "llamaindex"
+import type {
+    BaseReader,
+    GenericFileSystem,
+    Metadata,
+    BaseNode,
+    StorageContext,
+    NodeParser,
+} from "llamaindex"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
@@ -73,8 +83,9 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    private async createStorageContext() {
-        const { storageContextFromDefaults } = this.module
+    private async createStorageContext(options?: { files?: string[] }) {
+        const { files } = options ?? {}
+        const { storageContextFromDefaults, SimpleVectorStore } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
         await writeText(
@@ -84,19 +95,39 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
+        if (files?.length) {
+            // get all documents
+            const docs = await storageContext.docStore.getAllRefDocInfo()
+            // reload vector store
+            const vectorStore = await SimpleVectorStore.fromDict(
+                await (
+                    await SimpleVectorStore.fromPersistDir(persistDir)
+                ).toDict()
+            )
+            // remove uneeded documents
+            const toRemove = Object.keys(docs).filter(
+                (id) => !files.includes(id)
+            )
+            for (const doc of toRemove) vectorStore.delete(doc)
+            // swap in storateContext
+            storageContext.vectorStore = vectorStore
+        }
         return storageContext
     }
 
-    private async createServiceContext() {
+    private async createServiceContext(options?: {
+        model?: string
+        temperature?: number
+    }) {
         const { serviceContextFromDefaults, OpenAI } = this.module
         const serviceContext = serviceContextFromDefaults({
-            llm: new OpenAI({}),
+            llm: new OpenAI(options),
         })
         return serviceContext
     }
 
     async clear() {
-        const persistDir = dotGenaiscriptPath("retreival")
+        const persistDir = dotGenaiscriptPath(RETREIVAL_PERSIST_DIR)
         await this.host.deleteDirectory(persistDir)
         return { ok: true }
     }
@@ -120,6 +151,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             (doc) =>
                 new Document({
                     text: doc.text,
+                    id_: filenameOrUrl,
                     metadata: { filename: filenameOrUrl },
                 })
         )
@@ -127,22 +159,27 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         await VectorStoreIndex.fromDocuments(documents, {
             storageContext,
             serviceContext,
-            logProgress: false,
         })
-        await storageContext.docStore.persist()
         return { ok: true }
     }
 
-    async query(text: string): Promise<RetreivalQueryResponse> {
-        const { VectorStoreIndex, MetadataMode } = this.module
+    async query(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalQueryResponse> {
+        const { topK } = options ?? {}
+        const { VectorStoreIndex } = this.module
 
-        const storageContext = await this.createStorageContext()
+        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
+
         const index = await VectorStoreIndex.init({
             storageContext,
             serviceContext,
         })
-        const retreiver = index.asQueryEngine()
+        const retreiver = index.asQueryEngine({
+            retriever: index.asRetriever({ similarityTopK: topK }),
+        })
         const results = await retreiver.query({
             query: text,
             stream: false,
@@ -153,26 +190,21 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    async search(text: string): Promise<
-        ResponseStatus & {
-            results: {
-                filename: string
-                id: string
-                text: string
-                score: number
-            }[]
-        }
-    > {
+    async search(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalSearchResponse> {
+        const { topK } = options ?? {}
         const { VectorStoreIndex, MetadataMode } = this.module
 
-        const storageContext = await this.createStorageContext()
+        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
 
         const index = await VectorStoreIndex.init({
             storageContext,
             serviceContext,
         })
-        const retreiver = index.asRetriever()
+        const retreiver = index.asRetriever({ similarityTopK: topK })
         const results = await retreiver.retrieve(text)
         return {
             ok: true,
@@ -181,6 +213,24 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                 id: r.node.id_,
                 text: r.node.getContent(MetadataMode.NONE),
                 score: r.score,
+            })),
+        }
+    }
+
+    /**
+     * Returns all embeddings
+     * @returns
+     */
+    async embeddings(): Promise<RetreivalSearchResponse> {
+        const { MetadataMode } = this.module
+        const storageContext = await this.createStorageContext()
+        const docs = await storageContext.docStore.docs()
+        return {
+            ok: true,
+            results: Object.values(docs).map((r) => ({
+                filename: r.metadata.filename,
+                id: r.id_,
+                text: r.getContent(MetadataMode.NONE),
             })),
         }
     }

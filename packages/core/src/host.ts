@@ -64,12 +64,17 @@ export interface ResponseStatus {
     status?: number
 }
 
+export interface RetreivalQueryOptions {
+    files?: string[]
+    topK?: number
+}
+
 export type RetreivalSearchResponse = ResponseStatus & {
     results: {
         filename: string
         id: string
         text: string
-        score: number
+        score?: number
     }[]
 }
 
@@ -81,8 +86,8 @@ export interface RetreivalService {
     init(trace?: MarkdownTrace): Promise<void>
     clear(): Promise<ResponseStatus>
     upsert(filenameOrUrl: string, content: Blob): Promise<ResponseStatus>
-    search(text: string): Promise<RetreivalSearchResponse>
-    query(text: string): Promise<RetreivalQueryResponse>
+    search(text: string, options?: RetreivalQueryOptions): Promise<RetreivalSearchResponse>
+    query(text: string, options?: RetreivalQueryOptions): Promise<RetreivalQueryResponse>
 }
 
 export interface ServerManager {
