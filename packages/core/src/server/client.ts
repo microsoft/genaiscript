@@ -35,9 +35,16 @@ export class WebSocketClient implements RetreivalService {
 
     async init(): Promise<void> {
         if (this._ws) return Promise.resolve(undefined)
-
         await host.server.start()
         return this.connect()
+    }
+
+    private reconnect() {
+        this._ws = undefined
+        clearTimeout(this._reconnectTimeout)
+        this._reconnectTimeout = setTimeout(() => {
+            this.connect()
+        }, CLIENT_RECONNECT_DELAY)
     }
 
     private connect(): void {
@@ -52,13 +59,8 @@ export class WebSocketClient implements RetreivalService {
             )
                 this._ws.send(m)
         })
-        this._ws.addEventListener("close", () => {
-            this._ws = undefined
-            this.cancel()
-            this._reconnectTimeout = setTimeout(() => {
-                this.connect()
-            }, CLIENT_RECONNECT_DELAY)
-        })
+        this._ws.addEventListener("error", () => this.reconnect())
+        this._ws.addEventListener("close", () => this.reconnect())
         this._ws.addEventListener("message", <
             (event: MessageEvent<any>) => void
         >(async (event) => {
