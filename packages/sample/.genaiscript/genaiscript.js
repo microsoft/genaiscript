@@ -44202,9 +44202,9 @@ var require_emoji_regex = __commonJS({
   }
 });
 
-// node_modules/dotenv/package.json
+// ../../node_modules/dotenv/package.json
 var require_package = __commonJS({
-  "node_modules/dotenv/package.json"(exports2, module2) {
+  "../../node_modules/dotenv/package.json"(exports2, module2) {
     module2.exports = {
       name: "dotenv",
       version: "16.4.0",
@@ -44272,9 +44272,9 @@ var require_package = __commonJS({
   }
 });
 
-// node_modules/dotenv/lib/main.js
+// ../../node_modules/dotenv/lib/main.js
 var require_main = __commonJS({
-  "node_modules/dotenv/lib/main.js"(exports2, module2) {
+  "../../node_modules/dotenv/lib/main.js"(exports2, module2) {
     var fs2 = require("fs");
     var path5 = require("path");
     var os3 = require("os");
@@ -44524,9 +44524,9 @@ var require_main = __commonJS({
   }
 });
 
-// node_modules/dotenv/lib/env-options.js
+// ../../node_modules/dotenv/lib/env-options.js
 var require_env_options = __commonJS({
-  "node_modules/dotenv/lib/env-options.js"(exports2, module2) {
+  "../../node_modules/dotenv/lib/env-options.js"(exports2, module2) {
     var options = {};
     if (process.env.DOTENV_CONFIG_ENCODING != null) {
       options.encoding = process.env.DOTENV_CONFIG_ENCODING;
@@ -44547,9 +44547,9 @@ var require_env_options = __commonJS({
   }
 });
 
-// node_modules/dotenv/lib/cli-options.js
+// ../../node_modules/dotenv/lib/cli-options.js
 var require_cli_options = __commonJS({
-  "node_modules/dotenv/lib/cli-options.js"(exports2, module2) {
+  "../../node_modules/dotenv/lib/cli-options.js"(exports2, module2) {
     var re2 = /^dotenv_config_(encoding|path|debug|override|DOTENV_KEY)=(.+)$/;
     module2.exports = function optionMatcher(args) {
       return args.reduce(function(acc, cur) {
@@ -63835,7 +63835,7 @@ function bail(error2) {
 var import_is_buffer2 = __toESM(require_is_buffer(), 1);
 var import_extend = __toESM(require_extend(), 1);
 
-// ../../node_modules/unified/node_modules/is-plain-obj/index.js
+// ../../node_modules/is-plain-obj/index.js
 function isPlainObject(value2) {
   if (typeof value2 !== "object" || value2 === null) {
     return false;
@@ -75030,7 +75030,7 @@ function isInteractive({ stream: stream2 = process.stdout } = {}) {
   );
 }
 
-// ../../node_modules/ora/node_modules/is-unicode-supported/index.js
+// ../../node_modules/is-unicode-supported/index.js
 var import_node_process5 = __toESM(require("node:process"), 1);
 function isUnicodeSupported2() {
   if (import_node_process5.default.platform !== "win32") {
@@ -75370,7 +75370,7 @@ function ora(options) {
   return new Ora(options);
 }
 
-// node_modules/dotenv/config.js
+// ../../node_modules/dotenv/config.js
 (function() {
   require_main().config(
     Object.assign(
@@ -75382,7 +75382,7 @@ function ora(options) {
 })();
 
 // src/nodehost.ts
-var import_util14 = require("util");
+var import_util15 = require("util");
 var import_promises3 = require("fs/promises");
 var import_fs_extra = __toESM(require_lib5());
 var import_node_path3 = require("node:path");
@@ -84152,6 +84152,10 @@ var LlamaIndexRetreivalService = class {
     const { storageContextFromDefaults } = this.module;
     const persistDir = dotGenaiscriptPath("retreival");
     await this.host.createDirectory(persistDir);
+    await writeText(
+      this.host.path.join(persistDir, ".gitignore"),
+      "*.json -diff merge=ours linguist-generated"
+    );
     const storageContext = await storageContextFromDefaults({
       persistDir
     });
@@ -84308,10 +84312,10 @@ var NodeHost = class _NodeHost {
     }
   }
   createUTF8Decoder() {
-    return new import_util14.TextDecoder("utf-8");
+    return new import_util15.TextDecoder("utf-8");
   }
   createUTF8Encoder() {
-    return new import_util14.TextEncoder();
+    return new import_util15.TextEncoder();
   }
   projectFolder() {
     return (0, import_node_path3.resolve)(".");

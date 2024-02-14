@@ -25,9 +25,6 @@ export class TerminalServerManager implements ServerManager {
     async start() {
         if (this._terminal) return
 
-        vscode.window.showInformationMessage(
-            `${TOOL_NAME} - starting server...`
-        )
         this._terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Server`,
             cwd: host.projectFolder(),
@@ -35,6 +32,7 @@ export class TerminalServerManager implements ServerManager {
         this._terminal.sendText(
             `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`
         )
+        this._terminal.show()
         await new Promise((resolve) => setTimeout(resolve, 2000))
     }
 

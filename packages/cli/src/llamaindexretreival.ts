@@ -126,7 +126,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         await VectorStoreIndex.fromDocuments(documents, {
             storageContext,
             serviceContext,
-            logProgress: true,
+            logProgress: false,
         })
         await storageContext.docStore.persist()
         return { ok: true }
