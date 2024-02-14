@@ -80,9 +80,8 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    private async createStorageContext(options?: RetreivalQueryOptions) {
-        const { files } = options ?? {}
-        const { storageContextFromDefaults, SimpleDocumentStore } = this.module
+    private async createStorageContext() {
+        const { storageContextFromDefaults } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
         await writeText(
@@ -92,20 +91,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
-
-        if (files?.length) {
-            debugger
-            const { docStore } = storageContext
-            const nodes: BaseNode<Metadata>[] = []
-            for (const file of files) {
-                const doc = await docStore.getDocument(file, false)
-                if (doc) nodes.push(doc)
-                else console.warn(`${file} not indexed`)
-            }
-            const queryDocStore = new SimpleDocumentStore()
-            await queryDocStore.addDocuments(nodes, true)
-            storageContext.docStore = queryDocStore
-        }
 
         return storageContext
     }
@@ -161,16 +146,19 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         text: string,
         options?: RetreivalQueryOptions
     ): Promise<RetreivalQueryResponse> {
+        const { topK } = options ?? {}
         const { VectorStoreIndex } = this.module
 
-        const storageContext = await this.createStorageContext(options)
+        const storageContext = await this.createStorageContext()
         const serviceContext = await this.createServiceContext()
 
         const index = await VectorStoreIndex.init({
             storageContext,
             serviceContext,
         })
-        const retreiver = index.asQueryEngine()
+        const retreiver = index.asQueryEngine({
+            retriever: index.asRetriever({ similarityTopK: topK }),
+        })
         const results = await retreiver.query({
             query: text,
             stream: false,
@@ -185,16 +173,17 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         text: string,
         options?: RetreivalQueryOptions
     ): Promise<RetreivalSearchResponse> {
+        const { topK } = options ?? {}
         const { VectorStoreIndex, MetadataMode } = this.module
 
-        const storageContext = await this.createStorageContext(options)
+        const storageContext = await this.createStorageContext()
         const serviceContext = await this.createServiceContext()
 
         const index = await VectorStoreIndex.init({
             storageContext,
             serviceContext,
         })
-        const retreiver = index.asRetriever()
+        const retreiver = index.asRetriever({ similarityTopK: topK })
         const results = await retreiver.retrieve(text)
         return {
             ok: true,

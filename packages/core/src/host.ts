@@ -66,6 +66,7 @@ export interface ResponseStatus {
 
 export interface RetreivalQueryOptions {
     files?: string[]
+    topK?: number
 }
 
 export type RetreivalSearchResponse = ResponseStatus & {

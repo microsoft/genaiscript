@@ -174,7 +174,6 @@ async function batch(
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
-    const path = host.path
 
     const toolFiles: string[] = []
     if (scriptRx.test(tool)) toolFiles.push(tool)
@@ -354,6 +353,11 @@ async function batch(
 
 function normalizeFloat(s: string) {
     const f = parseFloat(s)
+    return isNaN(f) ? undefined : f
+}
+
+function normalizeInt(s: string) {
+    const f = parseInt(s)
     return isNaN(f) ? undefined : f
 }
 
@@ -700,11 +704,11 @@ async function retreivalIndex(
 async function retreivalSearch(
     q: string,
     filesGlobs: string[],
-    options: { excludedFiles: string[] }
+    options: { excludedFiles: string[]; topK: string }
 ) {
     const spinner = ora({ interval: 200 }).start(`searching '${q}'`)
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
-    const res = await search(q, { files })
+    const res = await search(q, { files, topK: normalizeInt(options?.topK) })
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
@@ -712,11 +716,11 @@ async function retreivalSearch(
 async function retreivalQuery(
     q: string,
     filesGlobs: string[],
-    options: { excludedFiles: string[] }
+    options: { excludedFiles: string[]; topK: string }
 ) {
     const spinner = ora({ interval: 200 }).start(`querying '${q}'`)
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
-    const res = await query(q, { files })
+    const res = await query(q, { files, topK: normalizeInt(options?.topK) })
     spinner.succeed()
     console.log(res)
 }
@@ -871,12 +875,14 @@ async function main() {
         .description("Search index")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
+        .option("-tk, --top-k <number>", "maximum number of embeddings")
         .action(retreivalSearch)
     retreival
         .command("query")
         .description("Ask a question on the index")
         .arguments("<question> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
+        .option("-tk, --top-k <number>", "maximum number of embeddings")
         .action(retreivalQuery)
     retreival
         .command("clear")
