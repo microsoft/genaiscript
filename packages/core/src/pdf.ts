@@ -2,6 +2,7 @@ import type { TextItem } from "pdfjs-dist/types/src/display/api"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { installImport } from "./import"
+import { logError } from "./util"
 
 // please some typescript warnings
 declare global {
@@ -52,7 +53,7 @@ export async function PDFTryParse(
         }
         return pages
     } catch (error) {
-        console.error(error)
+        logError(error.message)
         return undefined
     }
 }

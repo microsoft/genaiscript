@@ -4,7 +4,8 @@ import {
     ResponseStatus,
     SERVER_PORT,
     host,
-    YAMLStringify
+    YAMLStringify,
+    logError,
 } from "genaiscript-core"
 
 async function b64toBlob(base64: string, type: string) {
@@ -50,12 +51,18 @@ export async function startServer(options: { port: string }) {
                     case "retreival.query":
                         console.log(`retreival: query ${data.text}`)
                         console.debug(YAMLStringify(data.options))
-                        response = await host.retreival.query(data.text, data.options)
+                        response = await host.retreival.query(
+                            data.text,
+                            data.options
+                        )
                         break
                     case "retreival.search":
                         console.log(`retreival: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))
-                        response = await host.retreival.search(data.text, data.options)
+                        response = await host.retreival.search(
+                            data.text,
+                            data.options
+                        )
                         break
                     default:
                         throw new Error(`unknown message type ${type}`)
@@ -64,7 +71,7 @@ export async function startServer(options: { port: string }) {
             } catch (e) {
                 response = { ok: false, error: e.message }
             } finally {
-                if (response.error) console.error(response.error)
+                if (response.error) logError(response.error)
                 ws.send(JSON.stringify({ id, response }))
             }
         })
