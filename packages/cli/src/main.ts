@@ -31,6 +31,7 @@ import {
     clear,
     PDFTryParse,
     SERVER_PORT,
+    query,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -697,10 +698,17 @@ async function retreivalIndex(
 }
 
 async function retreivalSearch(q: string) {
-    const spinner = ora({ interval: 200 }).start("searching")
+    const spinner = ora({ interval: 200 }).start(`searching '${q}'`)
     const res = await search(q)
     spinner.succeed()
     console.log(YAMLStringify(res))
+}
+
+async function retreivalQuery(q: string) {
+    const spinner = ora({ interval: 200 }).start(`querying '${q}'`)
+    const res = await query(q)
+    spinner.succeed()
+    console.log(res)
 }
 
 async function main() {
@@ -853,6 +861,11 @@ async function main() {
         .description("Search index")
         .argument("<query>", "Search query")
         .action(retreivalSearch)
+    retreival
+        .command("query")
+        .description("Ask a question on the index")
+        .argument("<query>", "Question")
+        .action(retreivalQuery)
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
