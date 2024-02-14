@@ -596,6 +596,10 @@ interface Retreival {
              * Filter results for the following files
              */
             files?: (string | LinkedFile)[]
+            /**
+             * Maximum number of embeddings to use
+             */
+            topK?: number
         }
     ): Promise<string>
 
@@ -609,6 +613,10 @@ interface Retreival {
              * Filter results for the following files
              */
             files?: (string | LinkedFile)[]
+            /**
+             * Maximum number of embeddings to use
+             */
+            topK?: number
         }
     ): Promise<{
         files: LinkedFile[]

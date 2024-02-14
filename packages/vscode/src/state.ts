@@ -432,6 +432,7 @@ ${e.message}`
         const a = this.aiRequest
         if (a && a.computing && !a?.controller?.signal?.aborted) {
             a.controller?.abort("user cancelled")
+            this.host.server.client.cancel()
             this.dispatchChange()
             await delay(100)
         }
@@ -557,11 +558,11 @@ ${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
     }
 
     async parseDocument(
-        document: vscode.TextDocument,
+        document: vscode.Uri,
         token?: vscode.CancellationToken
     ) {
-        const fspath = document.uri.fsPath
-        const fn = Utils.basename(document.uri)
+        const fspath = document.fsPath
+        const fn = Utils.basename(document)
         const specn = fspath + ".gpspec.md"
         this.host.clearVirtualFiles()
         this.host.setVirtualFile(

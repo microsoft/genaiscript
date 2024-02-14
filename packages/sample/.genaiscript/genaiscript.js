@@ -55532,6 +55532,7 @@ var CLI_JS = TOOL_ID + ".js";
 var GENAI_EXT = ".genai.js";
 var TOOL_NAME = "GenAIScript";
 var SERVER_PORT = 3e3;
+var RETREIVAL_PERSIST_DIR = "retreival";
 
 // ../core/src/host.ts
 var host;
@@ -71234,11 +71235,6 @@ async function parseToken(f2) {
   );
 }
 async function parseTokenFromEnv(env2) {
-  if (env2.GENAISCRIPT_TOKEN) {
-    const tok = await parseToken(env2.GENAISCRIPT_TOKEN);
-    tok.source = "env: GENAISCRIPT_TOKEN";
-    return tok;
-  }
   if (env2.OPENAI_API_KEY || env2.OPENAI_API_BASE) {
     const key = env2.OPENAI_API_KEY;
     let base2 = env2.OPENAI_API_BASE;
@@ -73424,7 +73420,7 @@ function createParsers(trace) {
 // ../core/package.json
 var package_default = {
   name: "genaiscript-core",
-  version: "1.9.4",
+  version: "1.9.5",
   main: "src/index.ts",
   license: "MIT",
   private: true,
@@ -73473,7 +73469,7 @@ var UPSERTFILE_MIME_TYPES = [
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 ];
-async function clear(options) {
+async function clearIndex(options) {
   const { trace } = options || {};
   await host.retreival.init(trace);
   await host.retreival.clear();
@@ -73608,7 +73604,8 @@ async function callExpander(r2, vars, trace) {
         trace.startDetails(`retreival query \`${q2}\``);
         await upsert(files, { trace });
         const res = await query(q2, {
-          files: files.map(stringLikeToFileName)
+          files: files.map(stringLikeToFileName),
+          topK: options?.topK
         });
         return res;
       } finally {
@@ -73621,7 +73618,8 @@ async function callExpander(r2, vars, trace) {
         trace.startDetails(`retreival search \`${q2}\``);
         await upsert(files, { trace });
         const res = await search2(q2, {
-          files: files.map(stringLikeToFileName)
+          files: files.map(stringLikeToFileName),
+          topK: options?.topK
         });
         trace.fence(res, "yaml");
         return res;
@@ -84317,7 +84315,6 @@ var LlamaIndexRetreivalService = class {
       const toRemove = Object.keys(docs).filter(
         (id) => !files.includes(id)
       );
-      console.log({ docs, toRemove, files });
       for (const doc of toRemove)
         vectorStore.delete(doc);
       storageContext.vectorStore = vectorStore;
@@ -84332,7 +84329,7 @@ var LlamaIndexRetreivalService = class {
     return serviceContext;
   }
   async clear() {
-    const persistDir = dotGenaiscriptPath("retreival");
+    const persistDir = dotGenaiscriptPath(RETREIVAL_PERSIST_DIR);
     await this.host.deleteDirectory(persistDir);
     return { ok: true };
   }
@@ -84363,7 +84360,6 @@ var LlamaIndexRetreivalService = class {
     return { ok: true };
   }
   async query(text5, options) {
-    console.log(options);
     const { topK } = options ?? {};
     const { VectorStoreIndex } = this.module;
     const storageContext = await this.createStorageContext(options);
@@ -85316,15 +85312,7 @@ async function main2() {
     "--vars <string...>",
     "variables, as name=value, stored in env.vars"
   ).action(batch);
-  const keys2 = program.command("keys").description("Manage OpenAI keys").addHelpText(
-    "after",
-    `The OpenAI configuration keys can be set in various ways:
-
--   set the GENAISCRIPT_TOKEN environment variable. The format is 'https://base-url#key=secret-token'
--   set the OPENAI_API_BASE, OPENAI_API_KEY environment variables. OPENAI_API_TYPE is optional or must be 'azure' and OPENAI_API_VERSION is optional or must be '2023-03-15-preview'.
--   '.env' file with the same variables
-`
-  );
+  const keys2 = program.command("keys").description("Manage OpenAI keys");
   keys2.command("show", { isDefault: true }).description("Parse and show current key information").action(async () => {
     const key = await host.getSecretToken();
     console.log(
@@ -85337,7 +85325,7 @@ async function main2() {
   retreival.command("index").description("Index a set of documents").argument("<file...>", "Files to index").action(retreivalIndex);
   retreival.command("search").description("Search index").arguments("<query> [files...]").option("-ef, --excluded-files <string...>", "excluded files").option("-tk, --top-k <number>", "maximum number of embeddings").action(retreivalSearch);
   retreival.command("query").description("Ask a question on the index").arguments("<question> [files...]").option("-ef, --excluded-files <string...>", "excluded files").option("-tk, --top-k <number>", "maximum number of embeddings").action(retreivalQuery);
-  retreival.command("clear").description("Clear index to force re-indexing").action(clear);
+  retreival.command("clear").description("Clear index to force re-indexing").action(clearIndex);
   program.command("serve").description("Start a GenAIScript local server").option(
     "-p, --port <number>",
     `Specify the port number, default: ${SERVER_PORT}`

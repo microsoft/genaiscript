@@ -12,7 +12,7 @@ import { ExtensionState } from "./state"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
-    private readonly client: WebSocketClient
+    readonly client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
         state.context.subscriptions.push(this)
