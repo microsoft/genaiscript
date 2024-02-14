@@ -1,7 +1,7 @@
-import { CLIENT_RECONNECT_DELAY, SERVER_PORT } from "../constants"
+import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
-    Host,
     ResponseStatus,
+    RetreivalQueryResponse,
     RetreivalSearchResponse,
     RetreivalService,
     host,
@@ -11,6 +11,7 @@ import {
     RequestMessage,
     RequestMessages,
     RetreivalClear,
+    RetreivalQuery,
     RetreivalSearch,
     RetreivalUpsert,
 } from "./messages"
@@ -100,6 +101,13 @@ export class WebSocketClient implements RetreivalService {
     async clear(): Promise<ResponseStatus> {
         const res = await this.queue(<RetreivalClear>{
             type: "retreival.clear",
+        })
+        return res.response
+    }
+    async query(text: string): Promise<RetreivalQueryResponse> {
+        const res = await this.queue<RetreivalQuery>({
+            type: "retreival.query",
+            text,
         })
         return res.response
     }
