@@ -143,6 +143,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             (doc) =>
                 new Document({
                     text: doc.text,
+                    id_: filenameOrUrl,
                     metadata: { filename: filenameOrUrl },
                 })
         )
