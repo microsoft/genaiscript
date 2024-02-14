@@ -15,6 +15,8 @@ import type {
     GenericFileSystem,
     Metadata,
     BaseNode,
+    StorageContext,
+    NodeParser,
 } from "llamaindex"
 
 type PromiseType<T extends Promise<any>> =
@@ -91,14 +93,16 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
-
         return storageContext
     }
 
-    private async createServiceContext() {
+    private async createServiceContext(options?: {
+        model?: string
+        temperature?: number
+    }) {
         const { serviceContextFromDefaults, OpenAI } = this.module
         const serviceContext = serviceContextFromDefaults({
-            llm: new OpenAI({}),
+            llm: new OpenAI(options),
         })
         return serviceContext
     }
@@ -136,7 +140,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         await VectorStoreIndex.fromDocuments(documents, {
             storageContext,
             serviceContext,
-            logProgress: false,
         })
         return { ok: true }
     }
