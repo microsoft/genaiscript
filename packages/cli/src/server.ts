@@ -45,7 +45,8 @@ export async function startServer(options: { port: string }) {
                         console.log(`retreival: upsert ${data.filename}`)
                         response = await host.retreival.upsert(
                             data.filename,
-                            await b64toBlob(data.content, data.mimeType)
+                            data.content,
+                            data.mimeType
                         )
                         break
                     case "retreival.query":
