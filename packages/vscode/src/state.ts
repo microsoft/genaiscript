@@ -30,6 +30,7 @@ import {
     TOOL_ID,
     GENAI_EXT,
     TOOL_NAME,
+    RetreivalSearchResult,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -51,6 +52,7 @@ export const AI_REQUEST_CHANGE = "aiRequestChange"
 
 export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
 export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
+export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface ChatRequestContext {
     context: ChatAgentContext
@@ -150,6 +152,8 @@ export class ExtensionState extends EventTarget {
         undefined
     readonly output: vscode.LogOutputChannel
     readonly aiRequestContext: AIRequestContextOptions = {}
+
+    lastSearch: RetreivalSearchResult
 
     constructor(public readonly context: ExtensionContext) {
         super()
