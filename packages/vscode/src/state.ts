@@ -188,7 +188,7 @@ export class ExtensionState extends EventTarget {
         // add .gitignore
         await writeFile(
             dir,
-            ".gitignore",
+            ".gitattributes",
             `# avoid merge issues and ignore files in diffs
 *.json -diff merge=ours linguist-generated
 *.jsonl -diff merge=ours linguist-generated        
