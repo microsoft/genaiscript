@@ -13,6 +13,7 @@ import {
 import prettyBytes from "pretty-bytes"
 import { type BaseReader, type GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
+import { lookup } from "mime-types"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
@@ -139,9 +140,12 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             blob = await res.blob()
         } else {
             const buffer = await this.host.readFile(filenameOrUrl)
-            const t = await fileTypeFromBuffer(buffer)
+            const type =
+                (await fileTypeFromBuffer(buffer))?.mime ||
+                lookup(filenameOrUrl) ||
+                undefined
             blob = new Blob([buffer], {
-                type: t?.mime,
+                type,
             })
         }
 
@@ -152,7 +156,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         if (!reader)
             return {
                 ok: false,
-                error: `no reader for content type ${type}`,
+                error: `no reader for content type '${type}'`,
             }
         const storageContext = await this.createStorageContext()
         const serviceContext = await this.createServiceContext()

@@ -1,10 +1,15 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { checkDirectoryExists, checkFileExists } from "./fs"
+import {
+    checkDirectoryExists,
+    checkFileExists,
+    saveAllTextDocuments,
+} from "./fs"
 import {
     GENAISCRIPT_FOLDER,
     TOOL_NAME,
     clearIndex,
+    initToken,
     isIndexable,
     upsert,
 } from "genaiscript-core"
@@ -13,25 +18,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
     const { context, host } = state
     const { subscriptions } = context
 
-    const getToken = async () => {
-        let token = await host.readSecret("RETREIVAL_TOKEN")
-        if (!token) {
-            const newToken = await vscode.window.showInputBox({
-                prompt: "Enter your Retreival API token",
-                placeHolder: "Retreiaval API token",
-            })
-            if (newToken === undefined) return undefined
-
-            // save in .env file
-            token = newToken
-        }
-
-        return token
-    }
-
     const index = async (uri: vscode.Uri) => {
-        if (!(await getToken())) return
-
         let files: string[] = []
         if (!uri) {
             files = (await vscode.workspace.findFiles("**/*"))
@@ -40,12 +27,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
         } else if (await checkDirectoryExists(uri)) {
             const dir = await vscode.workspace.fs.readDirectory(uri)
             files = dir
-                .filter(
-                    ([name, type]) =>
-                        type === vscode.FileType.File &&
-                        !name.startsWith(".") &&
-                        name.startsWith("node_modules")
-                )
+                .filter(([name, type]) => type === vscode.FileType.File)
                 .map(([name]) =>
                     vscode.workspace.asRelativePath(
                         vscode.Uri.joinPath(uri, name)
@@ -57,6 +39,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
 
         files = files
             .filter((f) => !f.includes(GENAISCRIPT_FOLDER))
+            .filter((f) => !f.startsWith(".") && !f.startsWith("node_modules"))
             .filter((f) => isIndexable(f))
 
         if (!files?.length) {
@@ -66,6 +49,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             return
         }
 
+        await initToken()
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
@@ -84,6 +68,9 @@ export function activateRetreivalCommands(state: ExtensionState) {
 
     subscriptions.push(
         vscode.commands.registerCommand("genaiscript.retreival.index", index),
-        vscode.commands.registerCommand("genaiscript.retreival.clear", clearIndex)
+        vscode.commands.registerCommand(
+            "genaiscript.retreival.clear",
+            clearIndex
+        )
     )
 }
