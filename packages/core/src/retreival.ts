@@ -14,7 +14,9 @@ export function isIndexable(filename: string) {
     return UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function clearIndex(options?: RetreivalClientOptions): Promise<void> {
+export async function clearIndex(
+    options?: RetreivalClientOptions
+): Promise<void> {
     const { trace } = options || {}
     await host.retreival.init(trace)
     await host.retreival.clear()
@@ -33,27 +35,7 @@ export async function upsert(
     )
     const increment = 100 / files.length
     for (const f of files) {
-        let file: Blob = undefined
-        if (f.content) {
-            file = new Blob([f.content], {
-                type: lookup(f.filename) || "text/plain",
-            })
-        } else if (/^http?s:\/\//i.test(f.filename)) {
-            const res = await fetch(f.filename)
-            const blob = await res.blob()
-            file = blob
-        } else {
-            const type = lookup(f.filename) || "text/plain"
-            const buffer = await host.readFile(f.filename)
-            file = new Blob([buffer], {
-                type,
-            })
-        }
-        if (!UPSERTFILE_MIME_TYPES.includes(file.type)) {
-            trace?.resultItem(false, `${f.filename}, unsupported file type`)
-            continue
-        }
-        const { ok } = await retreival.upsert(f.filename, file)
+        const { ok } = await retreival.upsert(f.filename, f.content)
         progress?.report({
             increment,
             message: f.filename,
