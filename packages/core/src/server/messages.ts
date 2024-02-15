@@ -40,9 +40,22 @@ export interface RetreivalQuery extends RequestMessage {
     response?: RetreivalQueryResponse
 }
 
+export interface RetreivalFileOutline extends RequestMessage {
+    type: "retreival.highlights.file"
+    files: string[]
+    response: ResponseStatus & { content: string }
+}
+export interface RetreivalCodeOutline extends RequestMessage {
+    type: "retreival.highlights.code"
+    files: string[]
+    response: ResponseStatus & { content: string }
+}
+
 export type RequestMessages =
     | ServerKill
     | RetreivalClear
     | RetreivalUpsert
     | RetreivalSearch
     | RetreivalQuery
+    | RetreivalFileOutline
+    | RetreivalCodeOutline

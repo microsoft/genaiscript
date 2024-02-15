@@ -65,6 +65,9 @@ export async function startServer(options: { port: string }) {
                             data.options
                         )
                         break
+                    case "retreival.highlights.code":
+                        console.log(`retreival: highlights code ${data.files}`)
+                        break
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }
