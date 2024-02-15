@@ -177,15 +177,24 @@ export class ExtensionState extends EventTarget {
     }
 
     private async saveScripts() {
-        await vscode.workspace.fs.createDirectory(
-            vscode.Uri.file(dotGenaiscriptPath("."))
-        )
+        const dir = vscode.Uri.file(dotGenaiscriptPath("."))
+        await vscode.workspace.fs.createDirectory(dir)
 
         const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
         const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
 
-        // genaiscript.js + pdfjs.min.mjs
+        // genaiscript.js
         await vscode.workspace.fs.copy(p, cli, { overwrite: true })
+        // add .gitignore
+        await writeFile(
+            dir,
+            ".gitignore",
+            `# avoid merge issues and ignore files in diffs
+*.json -diff merge=ours linguist-generated
+*.jsonl -diff merge=ours linguist-generated        
+*.js -diff merge=ours linguist-generated
+`
+        )
     }
 
     aiRequestCache() {

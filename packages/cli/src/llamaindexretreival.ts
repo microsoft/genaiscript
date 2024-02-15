@@ -15,13 +15,8 @@ import prettyBytes from "pretty-bytes"
 import type {
     BaseReader,
     GenericFileSystem,
-    Metadata,
-    BaseNode,
-    StorageContext,
-    NodeParser,
 } from "llamaindex"
-import { fileTypeFromBuffer, fileTypeFromFile } from "file-type"
-import { lookup } from "dns"
+import { fileTypeFromBuffer } from "file-type"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
@@ -91,10 +86,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const { storageContextFromDefaults, SimpleVectorStore } = this.module
         const persistDir = dotGenaiscriptPath("retreival")
         await this.host.createDirectory(persistDir)
-        await writeText(
-            this.host.path.join(persistDir, ".gitignore"),
-            "*.json -diff merge=ours linguist-generated"
-        )
         const storageContext = await storageContextFromDefaults({
             persistDir,
         })
