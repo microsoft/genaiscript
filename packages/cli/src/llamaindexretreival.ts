@@ -11,7 +11,7 @@ import {
     installImport,
 } from "genaiscript-core"
 import prettyBytes from "pretty-bytes"
-import type { BaseReader, GenericFileSystem } from "llamaindex"
+import { type BaseReader, type GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
 
 type PromiseType<T extends Promise<any>> =
@@ -109,9 +109,10 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         model?: string
         temperature?: number
     }) {
+        const { model = "gpt-4", temperature } = options ?? {}
         const { serviceContextFromDefaults, OpenAI } = this.module
         const serviceContext = serviceContextFromDefaults({
-            llm: new OpenAI(options),
+            llm: new OpenAI({ model, temperature }),
         })
         return serviceContext
     }
