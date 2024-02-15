@@ -1,5 +1,5 @@
 script({
-    title: "rag",
+    title: "Impact tool",
 })
 
 // use $ to output formatted text to the prompt

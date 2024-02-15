@@ -167,6 +167,7 @@ async function callExpander(
                     files: files.map(stringLikeToFileName),
                     topK: options?.topK,
                 })
+                trace.fence(res, "markdown")
                 return res
             } finally {
                 trace.endDetails()
