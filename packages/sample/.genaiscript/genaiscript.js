@@ -73316,7 +73316,7 @@ async function PDFTryParse(fileOrUrl, content3) {
     }
     return pages;
   } catch (error2) {
-    console.error(error2);
+    logError(error2.message);
     return void 0;
   }
 }
@@ -73420,7 +73420,7 @@ function createParsers(trace) {
 // ../core/package.json
 var package_default = {
   name: "genaiscript-core",
-  version: "1.9.5",
+  version: "1.9.6",
   main: "src/index.ts",
   license: "MIT",
   private: true,
@@ -75524,7 +75524,7 @@ function ora(options) {
 })();
 
 // src/nodehost.ts
-var import_util15 = require("util");
+var import_util16 = require("util");
 var import_promises3 = require("fs/promises");
 var import_fs_extra = __toESM(require_lib5());
 var import_node_path3 = require("node:path");
@@ -84493,10 +84493,10 @@ var NodeHost = class _NodeHost {
     }
   }
   createUTF8Decoder() {
-    return new import_util15.TextDecoder("utf-8");
+    return new import_util16.TextDecoder("utf-8");
   }
   createUTF8Encoder() {
-    return new import_util15.TextEncoder();
+    return new import_util16.TextEncoder();
   }
   projectFolder() {
     return (0, import_node_path3.resolve)(".");
@@ -84688,12 +84688,18 @@ async function startServer(options) {
           case "retreival.query":
             console.log(`retreival: query ${data.text}`);
             console.debug(YAMLStringify(data.options));
-            response = await host.retreival.query(data.text, data.options);
+            response = await host.retreival.query(
+              data.text,
+              data.options
+            );
             break;
           case "retreival.search":
             console.log(`retreival: search ${data.text}`);
             console.debug(YAMLStringify(data.options));
-            response = await host.retreival.search(data.text, data.options);
+            response = await host.retreival.search(
+              data.text,
+              data.options
+            );
             break;
           default:
             throw new Error(`unknown message type ${type}`);
@@ -84703,7 +84709,7 @@ async function startServer(options) {
         response = { ok: false, error: e2.message };
       } finally {
         if (response.error)
-          console.error(response.error);
+          logError(response.error);
         ws.send(JSON.stringify({ id, response }));
       }
     });
