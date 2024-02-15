@@ -57,10 +57,15 @@ export async function query(
     return res?.response || ""
 }
 
+export interface RetreivalSearchResult {
+    files: LinkedFile[]
+    fragments: LinkedFile[]
+}
+
 export async function search(
     q: string,
     options?: RetreivalClientOptions & RetreivalQueryOptions
-) {
+): Promise<RetreivalSearchResult> {
     const { trace, ...rest } = options || {}
     const retreival = host.retreival
     await host.retreival.init(trace)

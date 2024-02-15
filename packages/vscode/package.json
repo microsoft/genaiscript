@@ -150,14 +150,18 @@
                 },
                 {
                     "submenu": "genaiscript.explorer.retreival",
-                    "when": "explorerViewletVisible"
+                    "when": "explorerViewletVisible",
+                    "group": "genaiscript@2"
                 }
             ],
             "genaiscript.explorer.retreival": [
                 {
                     "command": "genaiscript.retreival.index",
-                    "when": "explorerViewletVisible",
-                    "group": "genaiscript@2"
+                    "when": "explorerViewletVisible"
+                },
+                {
+                    "command": "genaiscript.retreival.search",
+                    "when": "explorerViewletVisible"
                 }
             ]
         },
@@ -274,8 +278,13 @@
                 "category": "GenAIScript"
             },
             {
+                "command": "genaiscript.retreival.search",
+                "title": "Search",
+                "category": "GenAIScript"
+            },
+            {
                 "command": "genaiscript.retreival.index",
-                "title": "Index...",
+                "title": "Index",
                 "category": "GenAIScript"
             },
             {
