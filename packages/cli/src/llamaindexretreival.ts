@@ -11,6 +11,7 @@ import {
     installImport,
     writeText,
 } from "genaiscript-core"
+import prettyBytes from "pretty-bytes"
 import type {
     BaseReader,
     GenericFileSystem,
@@ -19,6 +20,8 @@ import type {
     StorageContext,
     NodeParser,
 } from "llamaindex"
+import { fileTypeFromBuffer, fileTypeFromFile } from "file-type"
+import { lookup } from "dns"
 
 type PromiseType<T extends Promise<any>> =
     T extends Promise<infer U> ? U : never
@@ -134,11 +137,30 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     async upsert(
         filenameOrUrl: string,
-        content: Blob
+        content?: string,
+        mimeType?: string
     ): Promise<ResponseStatus> {
         const { Document, VectorStoreIndex } = this.module
-        const { type } = content
-        const reader = this.READERS[content.type]
+        let blob: Blob = undefined
+        if (content) {
+            blob = new Blob([content], {
+                type: mimeType || "text/plain",
+            })
+        } else if (/^http?s:\/\//i.test(filenameOrUrl)) {
+            const res = await fetch(filenameOrUrl)
+            blob = await res.blob()
+        } else {
+            const buffer = await this.host.readFile(filenameOrUrl)
+            const t = await fileTypeFromBuffer(buffer)
+            blob = new Blob([buffer], {
+                type: t?.mime,
+            })
+        }
+
+        const { type } = blob
+        console.debug(`${filenameOrUrl}, ${type}, ${prettyBytes(blob.size)}`)
+
+        const reader = this.READERS[type]
         if (!reader)
             return {
                 ok: false,
@@ -146,7 +168,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             }
         const storageContext = await this.createStorageContext()
         const serviceContext = await this.createServiceContext()
-        const fs = new BlobFileSystem(filenameOrUrl, content)
+        const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
             (doc) =>
                 new Document({
