@@ -39,12 +39,10 @@ export class TerminalServerManager implements ServerManager {
             name: `${TOOL_NAME} Server`,
             cwd: host.projectFolder(),
             isTransient: true,
-            shellPath: "node",
-            shellArgs: [
-                `${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)}`,
-                "serve",
-            ],
         })
+        this._terminal.sendText(
+            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`
+        )
     }
 
     get retreival() {
