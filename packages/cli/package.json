@@ -23,15 +23,17 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.17",
     "@types/papaparse": "^5.3.14",
+    "@types/pg": "^8.11.0",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.10",
+    "file-type": "^19.0.0",
     "genaiscript-core": "*",
     "node-sarif-builder": "^3.0.0",
     "ora": "^8.0.1",
+    "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "tsx": "^4.7.1"
   },
