@@ -43,6 +43,7 @@ export class TerminalServerManager implements ServerManager {
         this._terminal.sendText(
             `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`
         )
+        this._terminal.show()
     }
 
     get retreival() {
