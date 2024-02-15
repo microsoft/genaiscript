@@ -145,10 +145,28 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
+                    "when": "explorerViewletVisible",
+                    "group": "genaiscript@1"
+                },
+                {
+                    "submenu": "genaiscript.explorer.retreival",
                     "when": "explorerViewletVisible"
+                }
+            ],
+            "genaiscript.explorer.retreival": [
+                {
+                    "command": "genaiscript.retreival.index",
+                    "when": "explorerViewletVisible",
+                    "group": "genaiscript@2"
                 }
             ]
         },
+        "submenus": [
+            {
+                "id": "genaiscript.explorer.retreival",
+                "label": "Retreival"
+            }
+        ],
         "configuration": [
             {
                 "title": "GenAIScript",
@@ -257,7 +275,7 @@
             },
             {
                 "command": "genaiscript.retreival.index",
-                "title": "Index files for retreival...",
+                "title": "Index...",
                 "category": "GenAIScript"
             },
             {
