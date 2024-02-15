@@ -9,13 +9,9 @@ import {
     RetreivalService,
     dotGenaiscriptPath,
     installImport,
-    writeText,
 } from "genaiscript-core"
 import prettyBytes from "pretty-bytes"
-import type {
-    BaseReader,
-    GenericFileSystem,
-} from "llamaindex"
+import type { BaseReader, GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
 
 type PromiseType<T extends Promise<any>> =
