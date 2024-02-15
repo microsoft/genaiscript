@@ -14,6 +14,7 @@ import {
     search as retreivalSearch,
 } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
+import { showMarkdownPreview } from "./markdown"
 
 export function activateRetreivalCommands(state: ExtensionState) {
     const { context, host } = state
@@ -71,10 +72,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
                     state.lastSearch = undefined
                     const res = await retreivalSearch(keywords, { files })
                     state.lastSearch = res
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open",
-                        infoUri(SEARCH_OUTPUT_FILENAME)
-                    )
+                    await showMarkdownPreview(infoUri(SEARCH_OUTPUT_FILENAME))
                 } catch (e) {
                     vscode.window.showErrorMessage(e.message)
                 }
