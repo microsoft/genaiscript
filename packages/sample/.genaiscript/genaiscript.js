@@ -8827,7 +8827,7 @@ var require_mime_types = __commonJS({
       }
       return exports2.types[extension3] || false;
     }
-    function populateMaps(extensions, types2) {
+    function populateMaps(extensions2, types2) {
       var preference = ["nginx", "apache", void 0, "iana"];
       Object.keys(db).forEach(function forEachMimeType(type) {
         var mime = db[type];
@@ -8835,7 +8835,7 @@ var require_mime_types = __commonJS({
         if (!exts || !exts.length) {
           return;
         }
-        extensions[type] = exts;
+        extensions2[type] = exts;
         for (var i2 = 0; i2 < exts.length; i2++) {
           var extension3 = exts[i2];
           if (types2[extension3]) {
@@ -10632,7 +10632,7 @@ var require_safer = __commonJS({
   "../../node_modules/safer-buffer/safer.js"(exports2, module2) {
     "use strict";
     var buffer2 = require("buffer");
-    var Buffer4 = buffer2.Buffer;
+    var Buffer7 = buffer2.Buffer;
     var safer = {};
     var key;
     for (key in buffer2) {
@@ -10643,14 +10643,14 @@ var require_safer = __commonJS({
       safer[key] = buffer2[key];
     }
     var Safer = safer.Buffer = {};
-    for (key in Buffer4) {
-      if (!Buffer4.hasOwnProperty(key))
+    for (key in Buffer7) {
+      if (!Buffer7.hasOwnProperty(key))
         continue;
       if (key === "allocUnsafe" || key === "allocUnsafeSlow")
         continue;
-      Safer[key] = Buffer4[key];
+      Safer[key] = Buffer7[key];
     }
-    safer.Buffer.prototype = Buffer4.prototype;
+    safer.Buffer.prototype = Buffer7.prototype;
     if (!Safer.from || Safer.from === Uint8Array.from) {
       Safer.from = function(value2, encodingOrOffset, length) {
         if (typeof value2 === "number") {
@@ -10659,7 +10659,7 @@ var require_safer = __commonJS({
         if (value2 && typeof value2.length === "undefined") {
           throw new TypeError("The first argument must be one of type string, Buffer, ArrayBuffer, Array, or Array-like Object. Received type " + typeof value2);
         }
-        return Buffer4(value2, encodingOrOffset, length);
+        return Buffer7(value2, encodingOrOffset, length);
       };
     }
     if (!Safer.alloc) {
@@ -10670,7 +10670,7 @@ var require_safer = __commonJS({
         if (size < 0 || size >= 2 * (1 << 30)) {
           throw new RangeError('The value "' + size + '" is invalid for option "size"');
         }
-        var buf = Buffer4(size);
+        var buf = Buffer7(size);
         if (!fill || fill.length === 0) {
           buf.fill(0);
         } else if (typeof encoding === "string") {
@@ -10747,7 +10747,7 @@ var require_bom_handling = __commonJS({
 var require_internal = __commonJS({
   "../../node_modules/iconv-lite/encodings/internal.js"(exports2, module2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     module2.exports = {
       // Encodings
       utf8: { type: "_internal", bomAware: true },
@@ -10769,7 +10769,7 @@ var require_internal = __commonJS({
       else if (this.enc === "cesu8") {
         this.enc = "utf8";
         this.encoder = InternalEncoderCesu8;
-        if (Buffer4.from("eda0bdedb2a9", "hex").toString() !== "\u{1F4A9}") {
+        if (Buffer7.from("eda0bdedb2a9", "hex").toString() !== "\u{1F4A9}") {
           this.decoder = InternalDecoderCesu8;
           this.defaultCharUnicode = iconv.defaultCharUnicode;
         }
@@ -10785,8 +10785,8 @@ var require_internal = __commonJS({
       this.decoder = new StringDecoder3(codec.enc);
     }
     InternalDecoder.prototype.write = function(buf) {
-      if (!Buffer4.isBuffer(buf)) {
-        buf = Buffer4.from(buf);
+      if (!Buffer7.isBuffer(buf)) {
+        buf = Buffer7.from(buf);
       }
       return this.decoder.write(buf);
     };
@@ -10797,7 +10797,7 @@ var require_internal = __commonJS({
       this.enc = codec.enc;
     }
     InternalEncoder.prototype.write = function(str2) {
-      return Buffer4.from(str2, this.enc);
+      return Buffer7.from(str2, this.enc);
     };
     InternalEncoder.prototype.end = function() {
     };
@@ -10809,15 +10809,15 @@ var require_internal = __commonJS({
       var completeQuads = str2.length - str2.length % 4;
       this.prevStr = str2.slice(completeQuads);
       str2 = str2.slice(0, completeQuads);
-      return Buffer4.from(str2, "base64");
+      return Buffer7.from(str2, "base64");
     };
     InternalEncoderBase64.prototype.end = function() {
-      return Buffer4.from(this.prevStr, "base64");
+      return Buffer7.from(this.prevStr, "base64");
     };
     function InternalEncoderCesu8(options, codec) {
     }
     InternalEncoderCesu8.prototype.write = function(str2) {
-      var buf = Buffer4.alloc(str2.length * 3), bufIdx = 0;
+      var buf = Buffer7.alloc(str2.length * 3), bufIdx = 0;
       for (var i2 = 0; i2 < str2.length; i2++) {
         var charCode = str2.charCodeAt(i2);
         if (charCode < 128)
@@ -10899,7 +10899,7 @@ var require_internal = __commonJS({
 var require_utf32 = __commonJS({
   "../../node_modules/iconv-lite/encodings/utf32.js"(exports2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     exports2._utf32 = Utf32Codec;
     function Utf32Codec(codecOptions, iconv) {
       this.iconv = iconv;
@@ -10917,8 +10917,8 @@ var require_utf32 = __commonJS({
       this.highSurrogate = 0;
     }
     Utf32Encoder.prototype.write = function(str2) {
-      var src = Buffer4.from(str2, "ucs2");
-      var dst = Buffer4.alloc(src.length * 2);
+      var src = Buffer7.from(str2, "ucs2");
+      var dst = Buffer7.alloc(src.length * 2);
       var write32 = this.isLE ? dst.writeUInt32LE : dst.writeUInt32BE;
       var offset = 0;
       for (var i2 = 0; i2 < src.length; i2 += 2) {
@@ -10952,7 +10952,7 @@ var require_utf32 = __commonJS({
     Utf32Encoder.prototype.end = function() {
       if (!this.highSurrogate)
         return;
-      var buf = Buffer4.alloc(4);
+      var buf = Buffer7.alloc(4);
       if (this.isLE)
         buf.writeUInt32LE(this.highSurrogate, 0);
       else
@@ -10970,7 +10970,7 @@ var require_utf32 = __commonJS({
         return "";
       var i2 = 0;
       var codepoint = 0;
-      var dst = Buffer4.alloc(src.length + 4);
+      var dst = Buffer7.alloc(src.length + 4);
       var offset = 0;
       var isLE = this.isLE;
       var overflow = this.overflow;
@@ -11124,7 +11124,7 @@ var require_utf32 = __commonJS({
 var require_utf16 = __commonJS({
   "../../node_modules/iconv-lite/encodings/utf16.js"(exports2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     exports2.utf16be = Utf16BECodec;
     function Utf16BECodec() {
     }
@@ -11134,7 +11134,7 @@ var require_utf16 = __commonJS({
     function Utf16BEEncoder() {
     }
     Utf16BEEncoder.prototype.write = function(str2) {
-      var buf = Buffer4.from(str2, "ucs2");
+      var buf = Buffer7.from(str2, "ucs2");
       for (var i2 = 0; i2 < buf.length; i2 += 2) {
         var tmp = buf[i2];
         buf[i2] = buf[i2 + 1];
@@ -11150,7 +11150,7 @@ var require_utf16 = __commonJS({
     Utf16BEDecoder.prototype.write = function(buf) {
       if (buf.length == 0)
         return "";
-      var buf2 = Buffer4.alloc(buf.length + 1), i2 = 0, j2 = 0;
+      var buf2 = Buffer7.alloc(buf.length + 1), i2 = 0, j2 = 0;
       if (this.overflowByte !== -1) {
         buf2[0] = buf[0];
         buf2[1] = this.overflowByte;
@@ -11264,7 +11264,7 @@ var require_utf16 = __commonJS({
 var require_utf7 = __commonJS({
   "../../node_modules/iconv-lite/encodings/utf7.js"(exports2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     exports2.utf7 = Utf7Codec;
     exports2.unicode11utf7 = "utf7";
     function Utf7Codec(codecOptions, iconv) {
@@ -11278,7 +11278,7 @@ var require_utf7 = __commonJS({
       this.iconv = codec.iconv;
     }
     Utf7Encoder.prototype.write = function(str2) {
-      return Buffer4.from(str2.replace(nonDirectChars, function(chunk) {
+      return Buffer7.from(str2.replace(nonDirectChars, function(chunk) {
         return "+" + (chunk === "+" ? "" : this.iconv.encode(chunk, "utf16-be").toString("base64").replace(/=+$/, "")) + "-";
       }.bind(this)));
     };
@@ -11312,7 +11312,7 @@ var require_utf7 = __commonJS({
               res += "+";
             } else {
               var b64str = base64Accum + this.iconv.decode(buf.slice(lastI, i3), "ascii");
-              res += this.iconv.decode(Buffer4.from(b64str, "base64"), "utf16-be");
+              res += this.iconv.decode(Buffer7.from(b64str, "base64"), "utf16-be");
             }
             if (buf[i3] != minusChar)
               i3--;
@@ -11329,7 +11329,7 @@ var require_utf7 = __commonJS({
         var canBeDecoded = b64str.length - b64str.length % 8;
         base64Accum = b64str.slice(canBeDecoded);
         b64str = b64str.slice(0, canBeDecoded);
-        res += this.iconv.decode(Buffer4.from(b64str, "base64"), "utf16-be");
+        res += this.iconv.decode(Buffer7.from(b64str, "base64"), "utf16-be");
       }
       this.inBase64 = inBase64;
       this.base64Accum = base64Accum;
@@ -11338,7 +11338,7 @@ var require_utf7 = __commonJS({
     Utf7Decoder.prototype.end = function() {
       var res = "";
       if (this.inBase64 && this.base64Accum.length > 0)
-        res = this.iconv.decode(Buffer4.from(this.base64Accum, "base64"), "utf16-be");
+        res = this.iconv.decode(Buffer7.from(this.base64Accum, "base64"), "utf16-be");
       this.inBase64 = false;
       this.base64Accum = "";
       return res;
@@ -11353,11 +11353,11 @@ var require_utf7 = __commonJS({
     function Utf7IMAPEncoder(options, codec) {
       this.iconv = codec.iconv;
       this.inBase64 = false;
-      this.base64Accum = Buffer4.alloc(6);
+      this.base64Accum = Buffer7.alloc(6);
       this.base64AccumIdx = 0;
     }
     Utf7IMAPEncoder.prototype.write = function(str2) {
-      var inBase64 = this.inBase64, base64Accum = this.base64Accum, base64AccumIdx = this.base64AccumIdx, buf = Buffer4.alloc(str2.length * 5 + 10), bufIdx = 0;
+      var inBase64 = this.inBase64, base64Accum = this.base64Accum, base64AccumIdx = this.base64AccumIdx, buf = Buffer7.alloc(str2.length * 5 + 10), bufIdx = 0;
       for (var i3 = 0; i3 < str2.length; i3++) {
         var uChar = str2.charCodeAt(i3);
         if (32 <= uChar && uChar <= 126) {
@@ -11394,7 +11394,7 @@ var require_utf7 = __commonJS({
       return buf.slice(0, bufIdx);
     };
     Utf7IMAPEncoder.prototype.end = function() {
-      var buf = Buffer4.alloc(10), bufIdx = 0;
+      var buf = Buffer7.alloc(10), bufIdx = 0;
       if (this.inBase64) {
         if (this.base64AccumIdx > 0) {
           bufIdx += buf.write(this.base64Accum.slice(0, this.base64AccumIdx).toString("base64").replace(/\//g, ",").replace(/=+$/, ""), bufIdx);
@@ -11427,7 +11427,7 @@ var require_utf7 = __commonJS({
               res += "&";
             } else {
               var b64str = base64Accum + this.iconv.decode(buf.slice(lastI, i3), "ascii").replace(/,/g, "/");
-              res += this.iconv.decode(Buffer4.from(b64str, "base64"), "utf16-be");
+              res += this.iconv.decode(Buffer7.from(b64str, "base64"), "utf16-be");
             }
             if (buf[i3] != minusChar)
               i3--;
@@ -11444,7 +11444,7 @@ var require_utf7 = __commonJS({
         var canBeDecoded = b64str.length - b64str.length % 8;
         base64Accum = b64str.slice(canBeDecoded);
         b64str = b64str.slice(0, canBeDecoded);
-        res += this.iconv.decode(Buffer4.from(b64str, "base64"), "utf16-be");
+        res += this.iconv.decode(Buffer7.from(b64str, "base64"), "utf16-be");
       }
       this.inBase64 = inBase64;
       this.base64Accum = base64Accum;
@@ -11453,7 +11453,7 @@ var require_utf7 = __commonJS({
     Utf7IMAPDecoder.prototype.end = function() {
       var res = "";
       if (this.inBase64 && this.base64Accum.length > 0)
-        res = this.iconv.decode(Buffer4.from(this.base64Accum, "base64"), "utf16-be");
+        res = this.iconv.decode(Buffer7.from(this.base64Accum, "base64"), "utf16-be");
       this.inBase64 = false;
       this.base64Accum = "";
       return res;
@@ -11465,7 +11465,7 @@ var require_utf7 = __commonJS({
 var require_sbcs_codec = __commonJS({
   "../../node_modules/iconv-lite/encodings/sbcs-codec.js"(exports2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     exports2._sbcs = SBCSCodec;
     function SBCSCodec(codecOptions, iconv) {
       if (!codecOptions)
@@ -11478,8 +11478,8 @@ var require_sbcs_codec = __commonJS({
           asciiString += String.fromCharCode(i2);
         codecOptions.chars = asciiString + codecOptions.chars;
       }
-      this.decodeBuf = Buffer4.from(codecOptions.chars, "ucs2");
-      var encodeBuf = Buffer4.alloc(65536, iconv.defaultCharSingleByte.charCodeAt(0));
+      this.decodeBuf = Buffer7.from(codecOptions.chars, "ucs2");
+      var encodeBuf = Buffer7.alloc(65536, iconv.defaultCharSingleByte.charCodeAt(0));
       for (var i2 = 0; i2 < codecOptions.chars.length; i2++)
         encodeBuf[codecOptions.chars.charCodeAt(i2)] = i2;
       this.encodeBuf = encodeBuf;
@@ -11490,7 +11490,7 @@ var require_sbcs_codec = __commonJS({
       this.encodeBuf = codec.encodeBuf;
     }
     SBCSEncoder.prototype.write = function(str2) {
-      var buf = Buffer4.alloc(str2.length);
+      var buf = Buffer7.alloc(str2.length);
       for (var i2 = 0; i2 < str2.length; i2++)
         buf[i2] = this.encodeBuf[str2.charCodeAt(i2)];
       return buf;
@@ -11502,7 +11502,7 @@ var require_sbcs_codec = __commonJS({
     }
     SBCSDecoder.prototype.write = function(buf) {
       var decodeBuf = this.decodeBuf;
-      var newBuf = Buffer4.alloc(buf.length * 2);
+      var newBuf = Buffer7.alloc(buf.length * 2);
       var idx1 = 0, idx2 = 0;
       for (var i2 = 0; i2 < buf.length; i2++) {
         idx1 = buf[i2] * 2;
@@ -12129,7 +12129,7 @@ var require_sbcs_data_generated = __commonJS({
 var require_dbcs_codec = __commonJS({
   "../../node_modules/iconv-lite/encodings/dbcs-codec.js"(exports2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     exports2._dbcs = DBCSCodec;
     var UNASSIGNED = -1;
     var GB18030_CODE = -2;
@@ -12344,7 +12344,7 @@ var require_dbcs_codec = __commonJS({
       this.gb18030 = codec.gb18030;
     }
     DBCSEncoder.prototype.write = function(str2) {
-      var newBuf = Buffer4.alloc(str2.length * (this.gb18030 ? 4 : 3)), leadSurrogate = this.leadSurrogate, seqObj = this.seqObj, nextChar = -1, i3 = 0, j2 = 0;
+      var newBuf = Buffer7.alloc(str2.length * (this.gb18030 ? 4 : 3)), leadSurrogate = this.leadSurrogate, seqObj = this.seqObj, nextChar = -1, i3 = 0, j2 = 0;
       while (true) {
         if (nextChar === -1) {
           if (i3 == str2.length)
@@ -12441,7 +12441,7 @@ var require_dbcs_codec = __commonJS({
     DBCSEncoder.prototype.end = function() {
       if (this.leadSurrogate === -1 && this.seqObj === void 0)
         return;
-      var newBuf = Buffer4.alloc(10), j2 = 0;
+      var newBuf = Buffer7.alloc(10), j2 = 0;
       if (this.seqObj) {
         var dbcsCode = this.seqObj[DEF_CHAR];
         if (dbcsCode !== void 0) {
@@ -12471,7 +12471,7 @@ var require_dbcs_codec = __commonJS({
       this.gb18030 = codec.gb18030;
     }
     DBCSDecoder.prototype.write = function(buf) {
-      var newBuf = Buffer4.alloc(buf.length * 2), nodeIdx = this.nodeIdx, prevBytes = this.prevBytes, prevOffset = this.prevBytes.length, seqStart = -this.prevBytes.length, uCode;
+      var newBuf = Buffer7.alloc(buf.length * 2), nodeIdx = this.nodeIdx, prevBytes = this.prevBytes, prevOffset = this.prevBytes.length, seqStart = -this.prevBytes.length, uCode;
       for (var i3 = 0, j2 = 0; i3 < buf.length; i3++) {
         var curByte = i3 >= 0 ? buf[i3] : prevBytes[i3 + prevOffset];
         var uCode = this.decodeTables[nodeIdx][curByte];
@@ -14072,7 +14072,7 @@ var require_encodings = __commonJS({
 var require_streams = __commonJS({
   "../../node_modules/iconv-lite/lib/streams.js"(exports2, module2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     module2.exports = function(stream_module) {
       var Transform = stream_module.Transform;
       function IconvLiteEncoderStream(conv, options) {
@@ -14113,7 +14113,7 @@ var require_streams = __commonJS({
           chunks.push(chunk);
         });
         this.on("end", function() {
-          cb(null, Buffer4.concat(chunks));
+          cb(null, Buffer7.concat(chunks));
         });
         return this;
       };
@@ -14127,7 +14127,7 @@ var require_streams = __commonJS({
         constructor: { value: IconvLiteDecoderStream }
       });
       IconvLiteDecoderStream.prototype._transform = function(chunk, encoding, done) {
-        if (!Buffer4.isBuffer(chunk) && !(chunk instanceof Uint8Array))
+        if (!Buffer7.isBuffer(chunk) && !(chunk instanceof Uint8Array))
           return done(new Error("Iconv decoding stream needs buffers as its input."));
         try {
           var res = this.conv.write(chunk);
@@ -14171,7 +14171,7 @@ var require_streams = __commonJS({
 var require_lib2 = __commonJS({
   "../../node_modules/iconv-lite/lib/index.js"(exports2, module2) {
     "use strict";
-    var Buffer4 = require_safer().Buffer;
+    var Buffer7 = require_safer().Buffer;
     var bomHandling = require_bom_handling();
     var iconv = module2.exports;
     iconv.encodings = null;
@@ -14182,7 +14182,7 @@ var require_lib2 = __commonJS({
       var encoder = iconv.getEncoder(encoding, options);
       var res = encoder.write(str2);
       var trail2 = encoder.end();
-      return trail2 && trail2.length > 0 ? Buffer4.concat([res, trail2]) : res;
+      return trail2 && trail2.length > 0 ? Buffer7.concat([res, trail2]) : res;
     };
     iconv.decode = function decode2(buf, encoding, options) {
       if (typeof buf === "string") {
@@ -14190,7 +14190,7 @@ var require_lib2 = __commonJS({
           console.error("Iconv-lite warning: decode()-ing strings is deprecated. Refer to https://github.com/ashtuchkin/iconv-lite/wiki/Use-Buffers-when-decoding");
           iconv.skipDecodeWarning = true;
         }
-        buf = Buffer4.from("" + (buf || ""), "binary");
+        buf = Buffer7.from("" + (buf || ""), "binary");
       }
       var decoder = iconv.getDecoder(encoding, options);
       var res = decoder.write(buf);
@@ -15089,7 +15089,7 @@ var require_lib3 = __commonJS({
     }
     var INTERNALS$1 = Symbol("Response internals");
     var STATUS_CODES = http.STATUS_CODES;
-    var Response4 = class _Response {
+    var Response3 = class _Response {
       constructor() {
         let body = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : null;
         let opts = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
@@ -15147,8 +15147,8 @@ var require_lib3 = __commonJS({
         });
       }
     };
-    Body.mixIn(Response4.prototype);
-    Object.defineProperties(Response4.prototype, {
+    Body.mixIn(Response3.prototype);
+    Object.defineProperties(Response3.prototype, {
       url: { enumerable: true },
       status: { enumerable: true },
       ok: { enumerable: true },
@@ -15157,7 +15157,7 @@ var require_lib3 = __commonJS({
       headers: { enumerable: true },
       clone: { enumerable: true }
     });
-    Object.defineProperty(Response4.prototype, Symbol.toStringTag, {
+    Object.defineProperty(Response3.prototype, Symbol.toStringTag, {
       value: "Response",
       writable: false,
       enumerable: false,
@@ -15495,7 +15495,7 @@ var require_lib3 = __commonJS({
           };
           const codings = headers.get("Content-Encoding");
           if (!request.compress || request.method === "HEAD" || codings === null || res.statusCode === 204 || res.statusCode === 304) {
-            response = new Response4(body, response_options);
+            response = new Response3(body, response_options);
             resolve4(response);
             return;
           }
@@ -15505,7 +15505,7 @@ var require_lib3 = __commonJS({
           };
           if (codings == "gzip" || codings == "x-gzip") {
             body = body.pipe(zlib.createGunzip(zlibOptions));
-            response = new Response4(body, response_options);
+            response = new Response3(body, response_options);
             resolve4(response);
             return;
           }
@@ -15517,12 +15517,12 @@ var require_lib3 = __commonJS({
               } else {
                 body = body.pipe(zlib.createInflateRaw());
               }
-              response = new Response4(body, response_options);
+              response = new Response3(body, response_options);
               resolve4(response);
             });
             raw.on("end", function() {
               if (!response) {
-                response = new Response4(body, response_options);
+                response = new Response3(body, response_options);
                 resolve4(response);
               }
             });
@@ -15530,11 +15530,11 @@ var require_lib3 = __commonJS({
           }
           if (codings == "br" && typeof zlib.createBrotliDecompress === "function") {
             body = body.pipe(zlib.createBrotliDecompress());
-            response = new Response4(body, response_options);
+            response = new Response3(body, response_options);
             resolve4(response);
             return;
           }
-          response = new Response4(body, response_options);
+          response = new Response3(body, response_options);
           resolve4(response);
         });
         writeToStream(req, request);
@@ -15576,7 +15576,7 @@ var require_lib3 = __commonJS({
     exports2.default = exports2;
     exports2.Headers = Headers3;
     exports2.Request = Request4;
-    exports2.Response = Response4;
+    exports2.Response = Response3;
     exports2.FetchError = FetchError;
     exports2.AbortError = AbortError;
   }
@@ -20667,12 +20667,12 @@ var require_ponyfill_es2018 = __commonJS({
         const close2 = original === null || original === void 0 ? void 0 : original.close;
         const start = original === null || original === void 0 ? void 0 : original.start;
         const type = original === null || original === void 0 ? void 0 : original.type;
-        const write2 = original === null || original === void 0 ? void 0 : original.write;
+        const write3 = original === null || original === void 0 ? void 0 : original.write;
         return {
           abort: abort === void 0 ? void 0 : convertUnderlyingSinkAbortCallback(abort, original, `${context} has member 'abort' that`),
           close: close2 === void 0 ? void 0 : convertUnderlyingSinkCloseCallback(close2, original, `${context} has member 'close' that`),
           start: start === void 0 ? void 0 : convertUnderlyingSinkStartCallback(start, original, `${context} has member 'start' that`),
-          write: write2 === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write2, original, `${context} has member 'write' that`),
+          write: write3 === void 0 ? void 0 : convertUnderlyingSinkWriteCallback(write3, original, `${context} has member 'write' that`),
           type
         };
       }
@@ -30813,7 +30813,7 @@ var require_parse = __commonJS({
         return String.fromCodePoint(source.codePointAt(pos));
       }
     }
-    function read() {
+    function read2() {
       const c3 = peek();
       if (c3 === "\n") {
         line++;
@@ -30841,18 +30841,18 @@ var require_parse = __commonJS({
           case "\r":
           case "\u2028":
           case "\u2029":
-            read();
+            read2();
             return;
           case "/":
-            read();
+            read2();
             lexState = "comment";
             return;
           case void 0:
-            read();
+            read2();
             return newToken("eof");
         }
         if (util.isSpaceSeparator(c2)) {
-          read();
+          read2();
           return;
         }
         return lexStates[parseState]();
@@ -30860,40 +30860,40 @@ var require_parse = __commonJS({
       comment() {
         switch (c2) {
           case "*":
-            read();
+            read2();
             lexState = "multiLineComment";
             return;
           case "/":
-            read();
+            read2();
             lexState = "singleLineComment";
             return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       multiLineComment() {
         switch (c2) {
           case "*":
-            read();
+            read2();
             lexState = "multiLineCommentAsterisk";
             return;
           case void 0:
-            throw invalidChar(read());
+            throw invalidChar(read2());
         }
-        read();
+        read2();
       },
       multiLineCommentAsterisk() {
         switch (c2) {
           case "*":
-            read();
+            read2();
             return;
           case "/":
-            read();
+            read2();
             lexState = "default";
             return;
           case void 0:
-            throw invalidChar(read());
+            throw invalidChar(read2());
         }
-        read();
+        read2();
         lexState = "multiLineComment";
       },
       singleLineComment() {
@@ -30902,45 +30902,45 @@ var require_parse = __commonJS({
           case "\r":
           case "\u2028":
           case "\u2029":
-            read();
+            read2();
             lexState = "default";
             return;
           case void 0:
-            read();
+            read2();
             return newToken("eof");
         }
-        read();
+        read2();
       },
       value() {
         switch (c2) {
           case "{":
           case "[":
-            return newToken("punctuator", read());
+            return newToken("punctuator", read2());
           case "n":
-            read();
+            read2();
             literal("ull");
             return newToken("null", null);
           case "t":
-            read();
+            read2();
             literal("rue");
             return newToken("boolean", true);
           case "f":
-            read();
+            read2();
             literal("alse");
             return newToken("boolean", false);
           case "-":
           case "+":
-            if (read() === "-") {
+            if (read2() === "-") {
               sign = -1;
             }
             lexState = "sign";
             return;
           case ".":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "decimalPointLeading";
             return;
           case "0":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "zero";
             return;
           case "1":
@@ -30952,31 +30952,31 @@ var require_parse = __commonJS({
           case "7":
           case "8":
           case "9":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "decimalInteger";
             return;
           case "I":
-            read();
+            read2();
             literal("nfinity");
             return newToken("numeric", Infinity);
           case "N":
-            read();
+            read2();
             literal("aN");
             return newToken("numeric", NaN);
           case '"':
           case "'":
-            doubleQuote = read() === '"';
+            doubleQuote = read2() === '"';
             buffer2 = "";
             lexState = "string";
             return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       identifierNameStartEscape() {
         if (c2 !== "u") {
-          throw invalidChar(read());
+          throw invalidChar(read2());
         }
-        read();
+        read2();
         const u2 = unicodeEscape();
         switch (u2) {
           case "$":
@@ -30997,24 +30997,24 @@ var require_parse = __commonJS({
           case "_":
           case "\u200C":
           case "\u200D":
-            buffer2 += read();
+            buffer2 += read2();
             return;
           case "\\":
-            read();
+            read2();
             lexState = "identifierNameEscape";
             return;
         }
         if (util.isIdContinueChar(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           return;
         }
         return newToken("identifier", buffer2);
       },
       identifierNameEscape() {
         if (c2 !== "u") {
-          throw invalidChar(read());
+          throw invalidChar(read2());
         }
-        read();
+        read2();
         const u2 = unicodeEscape();
         switch (u2) {
           case "$":
@@ -31034,11 +31034,11 @@ var require_parse = __commonJS({
       sign() {
         switch (c2) {
           case ".":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "decimalPointLeading";
             return;
           case "0":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "zero";
             return;
           case "1":
@@ -31050,34 +31050,34 @@ var require_parse = __commonJS({
           case "7":
           case "8":
           case "9":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "decimalInteger";
             return;
           case "I":
-            read();
+            read2();
             literal("nfinity");
             return newToken("numeric", sign * Infinity);
           case "N":
-            read();
+            read2();
             literal("aN");
             return newToken("numeric", NaN);
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       zero() {
         switch (c2) {
           case ".":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalPoint";
             return;
           case "e":
           case "E":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalExponent";
             return;
           case "x":
           case "X":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "hexadecimal";
             return;
         }
@@ -31086,39 +31086,39 @@ var require_parse = __commonJS({
       decimalInteger() {
         switch (c2) {
           case ".":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalPoint";
             return;
           case "e":
           case "E":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalExponent";
             return;
         }
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           return;
         }
         return newToken("numeric", sign * Number(buffer2));
       },
       decimalPointLeading() {
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           lexState = "decimalFraction";
           return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       decimalPoint() {
         switch (c2) {
           case "e":
           case "E":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalExponent";
             return;
         }
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           lexState = "decimalFraction";
           return;
         }
@@ -31128,12 +31128,12 @@ var require_parse = __commonJS({
         switch (c2) {
           case "e":
           case "E":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalExponent";
             return;
         }
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           return;
         }
         return newToken("numeric", sign * Number(buffer2));
@@ -31142,43 +31142,43 @@ var require_parse = __commonJS({
         switch (c2) {
           case "+":
           case "-":
-            buffer2 += read();
+            buffer2 += read2();
             lexState = "decimalExponentSign";
             return;
         }
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           lexState = "decimalExponentInteger";
           return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       decimalExponentSign() {
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           lexState = "decimalExponentInteger";
           return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       decimalExponentInteger() {
         if (util.isDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           return;
         }
         return newToken("numeric", sign * Number(buffer2));
       },
       hexadecimal() {
         if (util.isHexDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           lexState = "hexadecimalInteger";
           return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       hexadecimalInteger() {
         if (util.isHexDigit(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           return;
         }
         return newToken("numeric", sign * Number(buffer2));
@@ -31186,40 +31186,40 @@ var require_parse = __commonJS({
       string() {
         switch (c2) {
           case "\\":
-            read();
+            read2();
             buffer2 += escape2();
             return;
           case '"':
             if (doubleQuote) {
-              read();
+              read2();
               return newToken("string", buffer2);
             }
-            buffer2 += read();
+            buffer2 += read2();
             return;
           case "'":
             if (!doubleQuote) {
-              read();
+              read2();
               return newToken("string", buffer2);
             }
-            buffer2 += read();
+            buffer2 += read2();
             return;
           case "\n":
           case "\r":
-            throw invalidChar(read());
+            throw invalidChar(read2());
           case "\u2028":
           case "\u2029":
             separatorChar(c2);
             break;
           case void 0:
-            throw invalidChar(read());
+            throw invalidChar(read2());
         }
-        buffer2 += read();
+        buffer2 += read2();
       },
       start() {
         switch (c2) {
           case "{":
           case "[":
-            return newToken("punctuator", read());
+            return newToken("punctuator", read2());
         }
         lexState = "value";
       },
@@ -31227,33 +31227,33 @@ var require_parse = __commonJS({
         switch (c2) {
           case "$":
           case "_":
-            buffer2 = read();
+            buffer2 = read2();
             lexState = "identifierName";
             return;
           case "\\":
-            read();
+            read2();
             lexState = "identifierNameStartEscape";
             return;
           case "}":
-            return newToken("punctuator", read());
+            return newToken("punctuator", read2());
           case '"':
           case "'":
-            doubleQuote = read() === '"';
+            doubleQuote = read2() === '"';
             lexState = "string";
             return;
         }
         if (util.isIdStartChar(c2)) {
-          buffer2 += read();
+          buffer2 += read2();
           lexState = "identifierName";
           return;
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       afterPropertyName() {
         if (c2 === ":") {
-          return newToken("punctuator", read());
+          return newToken("punctuator", read2());
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       beforePropertyValue() {
         lexState = "value";
@@ -31262,13 +31262,13 @@ var require_parse = __commonJS({
         switch (c2) {
           case ",":
           case "}":
-            return newToken("punctuator", read());
+            return newToken("punctuator", read2());
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       beforeArrayValue() {
         if (c2 === "]") {
-          return newToken("punctuator", read());
+          return newToken("punctuator", read2());
         }
         lexState = "value";
       },
@@ -31276,12 +31276,12 @@ var require_parse = __commonJS({
         switch (c2) {
           case ",":
           case "]":
-            return newToken("punctuator", read());
+            return newToken("punctuator", read2());
         }
-        throw invalidChar(read());
+        throw invalidChar(read2());
       },
       end() {
-        throw invalidChar(read());
+        throw invalidChar(read2());
       }
     };
     function newToken(type, value2) {
@@ -31296,53 +31296,53 @@ var require_parse = __commonJS({
       for (const c3 of s2) {
         const p2 = peek();
         if (p2 !== c3) {
-          throw invalidChar(read());
+          throw invalidChar(read2());
         }
-        read();
+        read2();
       }
     }
     function escape2() {
       const c3 = peek();
       switch (c3) {
         case "b":
-          read();
+          read2();
           return "\b";
         case "f":
-          read();
+          read2();
           return "\f";
         case "n":
-          read();
+          read2();
           return "\n";
         case "r":
-          read();
+          read2();
           return "\r";
         case "t":
-          read();
+          read2();
           return "	";
         case "v":
-          read();
+          read2();
           return "\v";
         case "0":
-          read();
+          read2();
           if (util.isDigit(peek())) {
-            throw invalidChar(read());
+            throw invalidChar(read2());
           }
           return "\0";
         case "x":
-          read();
+          read2();
           return hexEscape();
         case "u":
-          read();
+          read2();
           return unicodeEscape();
         case "\n":
         case "\u2028":
         case "\u2029":
-          read();
+          read2();
           return "";
         case "\r":
-          read();
+          read2();
           if (peek() === "\n") {
-            read();
+            read2();
           }
           return "";
         case "1":
@@ -31354,24 +31354,24 @@ var require_parse = __commonJS({
         case "7":
         case "8":
         case "9":
-          throw invalidChar(read());
+          throw invalidChar(read2());
         case void 0:
-          throw invalidChar(read());
+          throw invalidChar(read2());
       }
-      return read();
+      return read2();
     }
     function hexEscape() {
       let buffer3 = "";
       let c3 = peek();
       if (!util.isHexDigit(c3)) {
-        throw invalidChar(read());
+        throw invalidChar(read2());
       }
-      buffer3 += read();
+      buffer3 += read2();
       c3 = peek();
       if (!util.isHexDigit(c3)) {
-        throw invalidChar(read());
+        throw invalidChar(read2());
       }
-      buffer3 += read();
+      buffer3 += read2();
       return String.fromCodePoint(parseInt(buffer3, 16));
     }
     function unicodeEscape() {
@@ -31380,9 +31380,9 @@ var require_parse = __commonJS({
       while (count-- > 0) {
         const c3 = peek();
         if (!util.isHexDigit(c3)) {
-          throw invalidChar(read());
+          throw invalidChar(read2());
         }
-        buffer3 += read();
+        buffer3 += read2();
       }
       return String.fromCodePoint(parseInt(buffer3, 16));
     }
@@ -44708,7 +44708,7 @@ var require_polyfills = __commonJS({
         }(fs2.rename);
       }
       fs2.read = typeof fs2.read !== "function" ? fs2.read : function(fs$read) {
-        function read(fd, buffer2, offset, length, position2, callback_) {
+        function read2(fd, buffer2, offset, length, position2, callback_) {
           var callback;
           if (callback_ && typeof callback_ === "function") {
             var eagCounter = 0;
@@ -44723,8 +44723,8 @@ var require_polyfills = __commonJS({
           return fs$read.call(fs2, fd, buffer2, offset, length, position2, callback);
         }
         if (Object.setPrototypeOf)
-          Object.setPrototypeOf(read, fs$read);
-        return read;
+          Object.setPrototypeOf(read2, fs$read);
+        return read2;
       }(fs2.read);
       fs2.readSync = typeof fs2.readSync !== "function" ? fs2.readSync : /* @__PURE__ */ function(fs$readSync) {
         return function(fd, buffer2, offset, length, position2) {
@@ -47528,6 +47528,89 @@ var require_merge_stream = __commonJS({
   }
 });
 
+// ../../node_modules/ieee754/index.js
+var require_ieee754 = __commonJS({
+  "../../node_modules/ieee754/index.js"(exports2) {
+    exports2.read = function(buffer2, offset, isLE, mLen, nBytes) {
+      var e2, m2;
+      var eLen = nBytes * 8 - mLen - 1;
+      var eMax = (1 << eLen) - 1;
+      var eBias = eMax >> 1;
+      var nBits = -7;
+      var i2 = isLE ? nBytes - 1 : 0;
+      var d2 = isLE ? -1 : 1;
+      var s2 = buffer2[offset + i2];
+      i2 += d2;
+      e2 = s2 & (1 << -nBits) - 1;
+      s2 >>= -nBits;
+      nBits += eLen;
+      for (; nBits > 0; e2 = e2 * 256 + buffer2[offset + i2], i2 += d2, nBits -= 8) {
+      }
+      m2 = e2 & (1 << -nBits) - 1;
+      e2 >>= -nBits;
+      nBits += mLen;
+      for (; nBits > 0; m2 = m2 * 256 + buffer2[offset + i2], i2 += d2, nBits -= 8) {
+      }
+      if (e2 === 0) {
+        e2 = 1 - eBias;
+      } else if (e2 === eMax) {
+        return m2 ? NaN : (s2 ? -1 : 1) * Infinity;
+      } else {
+        m2 = m2 + Math.pow(2, mLen);
+        e2 = e2 - eBias;
+      }
+      return (s2 ? -1 : 1) * m2 * Math.pow(2, e2 - mLen);
+    };
+    exports2.write = function(buffer2, value2, offset, isLE, mLen, nBytes) {
+      var e2, m2, c2;
+      var eLen = nBytes * 8 - mLen - 1;
+      var eMax = (1 << eLen) - 1;
+      var eBias = eMax >> 1;
+      var rt2 = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;
+      var i2 = isLE ? 0 : nBytes - 1;
+      var d2 = isLE ? 1 : -1;
+      var s2 = value2 < 0 || value2 === 0 && 1 / value2 < 0 ? 1 : 0;
+      value2 = Math.abs(value2);
+      if (isNaN(value2) || value2 === Infinity) {
+        m2 = isNaN(value2) ? 1 : 0;
+        e2 = eMax;
+      } else {
+        e2 = Math.floor(Math.log(value2) / Math.LN2);
+        if (value2 * (c2 = Math.pow(2, -e2)) < 1) {
+          e2--;
+          c2 *= 2;
+        }
+        if (e2 + eBias >= 1) {
+          value2 += rt2 / c2;
+        } else {
+          value2 += rt2 * Math.pow(2, 1 - eBias);
+        }
+        if (value2 * c2 >= 2) {
+          e2++;
+          c2 /= 2;
+        }
+        if (e2 + eBias >= eMax) {
+          m2 = 0;
+          e2 = eMax;
+        } else if (e2 + eBias >= 1) {
+          m2 = (value2 * c2 - 1) * Math.pow(2, mLen);
+          e2 = e2 + eBias;
+        } else {
+          m2 = value2 * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+          e2 = 0;
+        }
+      }
+      for (; mLen >= 8; buffer2[offset + i2] = m2 & 255, i2 += d2, m2 /= 256, mLen -= 8) {
+      }
+      e2 = e2 << mLen | m2;
+      eLen += mLen;
+      for (; eLen > 0; buffer2[offset + i2] = e2 & 255, i2 += d2, e2 /= 256, eLen -= 8) {
+      }
+      buffer2[offset + i2 - d2] |= s2 * 128;
+    };
+  }
+});
+
 // ../../node_modules/commander/lib/error.js
 var require_error = __commonJS({
   "../../node_modules/commander/lib/error.js"(exports2) {
@@ -48478,7 +48561,7 @@ var require_command = __commonJS({
           writeErr: (str2) => process14.stderr.write(str2),
           getOutHelpWidth: () => process14.stdout.isTTY ? process14.stdout.columns : void 0,
           getErrHelpWidth: () => process14.stderr.isTTY ? process14.stderr.columns : void 0,
-          outputError: (str2, write2) => write2(str2)
+          outputError: (str2, write3) => write3(str2)
         };
         this._hidden = false;
         this._helpOption = void 0;
@@ -50202,13 +50285,13 @@ Expecting one of '${allowedValues.join("', '")}'`);
       _getHelpContext(contextOptions) {
         contextOptions = contextOptions || {};
         const context = { error: !!contextOptions.error };
-        let write2;
+        let write3;
         if (context.error) {
-          write2 = (arg) => this._outputConfiguration.writeErr(arg);
+          write3 = (arg) => this._outputConfiguration.writeErr(arg);
         } else {
-          write2 = (arg) => this._outputConfiguration.writeOut(arg);
+          write3 = (arg) => this._outputConfiguration.writeOut(arg);
         }
-        context.write = contextOptions.write || write2;
+        context.write = contextOptions.write || write3;
         context.command = this;
         return context;
       }
@@ -53402,8 +53485,8 @@ var require_sender = __commonJS({
        * @param {Function} [generateMask] The function used to generate the masking
        *     key
        */
-      constructor(socket, extensions, generateMask) {
-        this._extensions = extensions || {};
+      constructor(socket, extensions2, generateMask) {
+        this._extensions = extensions2 || {};
         if (generateMask) {
           this._generateMask = generateMask;
           this._maskBuffer = Buffer.alloc(4);
@@ -54170,9 +54253,9 @@ var require_extension = __commonJS({
       }
       return offers;
     }
-    function format(extensions) {
-      return Object.keys(extensions).map((extension2) => {
-        let configurations = extensions[extension2];
+    function format(extensions2) {
+      return Object.keys(extensions2).map((extension2) => {
+        let configurations = extensions2[extension2];
         if (!Array.isArray(configurations))
           configurations = [configurations];
         return configurations.map((params) => {
@@ -54905,22 +54988,22 @@ var require_websocket = __commonJS({
             abortHandshake(websocket, socket, message);
             return;
           }
-          let extensions;
+          let extensions2;
           try {
-            extensions = parse5(secWebSocketExtensions);
+            extensions2 = parse5(secWebSocketExtensions);
           } catch (err) {
             const message = "Invalid Sec-WebSocket-Extensions header";
             abortHandshake(websocket, socket, message);
             return;
           }
-          const extensionNames = Object.keys(extensions);
+          const extensionNames = Object.keys(extensions2);
           if (extensionNames.length !== 1 || extensionNames[0] !== PerMessageDeflate.extensionName) {
             const message = "Server indicated an extension that was not requested";
             abortHandshake(websocket, socket, message);
             return;
           }
           try {
-            perMessageDeflate.accept(extensions[PerMessageDeflate.extensionName]);
+            perMessageDeflate.accept(extensions2[PerMessageDeflate.extensionName]);
           } catch (err) {
             const message = "Invalid Sec-WebSocket-Extensions header";
             abortHandshake(websocket, socket, message);
@@ -55365,7 +55448,7 @@ var require_websocket_server = __commonJS({
           }
         }
         const secWebSocketExtensions = req.headers["sec-websocket-extensions"];
-        const extensions = {};
+        const extensions2 = {};
         if (this.options.perMessageDeflate && secWebSocketExtensions !== void 0) {
           const perMessageDeflate = new PerMessageDeflate(
             this.options.perMessageDeflate,
@@ -55376,7 +55459,7 @@ var require_websocket_server = __commonJS({
             const offers = extension2.parse(secWebSocketExtensions);
             if (offers[PerMessageDeflate.extensionName]) {
               perMessageDeflate.accept(offers[PerMessageDeflate.extensionName]);
-              extensions[PerMessageDeflate.extensionName] = perMessageDeflate;
+              extensions2[PerMessageDeflate.extensionName] = perMessageDeflate;
             }
           } catch (err) {
             const message = "Invalid or unacceptable Sec-WebSocket-Extensions header";
@@ -55396,7 +55479,7 @@ var require_websocket_server = __commonJS({
                 return abortHandshake(socket, code3 || 401, message, headers);
               }
               this.completeUpgrade(
-                extensions,
+                extensions2,
                 key,
                 protocols,
                 req,
@@ -55410,7 +55493,7 @@ var require_websocket_server = __commonJS({
           if (!this.options.verifyClient(info2))
             return abortHandshake(socket, 401);
         }
-        this.completeUpgrade(extensions, key, protocols, req, socket, head, cb);
+        this.completeUpgrade(extensions2, key, protocols, req, socket, head, cb);
       }
       /**
        * Upgrade the connection to WebSocket.
@@ -55425,7 +55508,7 @@ var require_websocket_server = __commonJS({
        * @throws {Error} If called more than once with the same socket
        * @private
        */
-      completeUpgrade(extensions, key, protocols, req, socket, head, cb) {
+      completeUpgrade(extensions2, key, protocols, req, socket, head, cb) {
         if (!socket.readable || !socket.writable)
           return socket.destroy();
         if (socket[kWebSocket]) {
@@ -55450,13 +55533,13 @@ var require_websocket_server = __commonJS({
             ws._protocol = protocol;
           }
         }
-        if (extensions[PerMessageDeflate.extensionName]) {
-          const params = extensions[PerMessageDeflate.extensionName].params;
+        if (extensions2[PerMessageDeflate.extensionName]) {
+          const params = extensions2[PerMessageDeflate.extensionName].params;
           const value2 = extension2.format({
             [PerMessageDeflate.extensionName]: [params]
           });
           headers.push(`Sec-WebSocket-Extensions: ${value2}`);
-          ws._extensions = extensions;
+          ws._extensions = extensions2;
         }
         this.emit("headers", headers, req);
         socket.write(headers.concat("\r\n").join("\r\n"));
@@ -56122,11 +56205,11 @@ function push(list3, items) {
 
 // ../../node_modules/micromark-util-combine-extensions/index.js
 var hasOwnProperty = {}.hasOwnProperty;
-function combineExtensions(extensions) {
+function combineExtensions(extensions2) {
   const all2 = {};
   let index2 = -1;
-  while (++index2 < extensions.length) {
-    syntaxExtension(all2, extensions[index2]);
+  while (++index2 < extensions2.length) {
+    syntaxExtension(all2, extensions2[index2]);
   }
   return all2;
 }
@@ -63954,7 +64037,7 @@ function bail(error2) {
 var import_is_buffer2 = __toESM(require_is_buffer(), 1);
 var import_extend = __toESM(require_extend(), 1);
 
-// ../../node_modules/is-plain-obj/index.js
+// ../../node_modules/unified/node_modules/is-plain-obj/index.js
 function isPlainObject(value2) {
   if (typeof value2 !== "object" || value2 === null) {
     return false;
@@ -65279,7 +65362,7 @@ function createTokenizer(parser, initialize, from) {
     sliceSerialize,
     now,
     defineSkip,
-    write: write2
+    write: write3
   };
   let state = initialize.tokenize.call(context, effects);
   let expectedCode;
@@ -65287,7 +65370,7 @@ function createTokenizer(parser, initialize, from) {
     resolveAllConstructs.push(initialize);
   }
   return context;
-  function write2(slice) {
+  function write3(slice) {
     chunks = push(chunks, slice);
     main3();
     if (chunks[chunks.length - 1] !== null) {
@@ -66427,10 +66510,10 @@ function point2(d2) {
     offset: d2.offset
   };
 }
-function configure(combined, extensions) {
+function configure(combined, extensions2) {
   let index2 = -1;
-  while (++index2 < extensions.length) {
-    const value2 = extensions[index2];
+  while (++index2 < extensions2.length) {
+    const value2 = extensions2[index2];
     if (Array.isArray(value2)) {
       configure(combined, value2);
     } else {
@@ -67664,7 +67747,7 @@ var auto = false;
 var kind = void 0;
 var fetch2 = void 0;
 var Request2 = void 0;
-var Response2 = void 0;
+var Response = void 0;
 var Headers = void 0;
 var FormData = void 0;
 var Blob2 = void 0;
@@ -67685,7 +67768,7 @@ function setShims(shims, options = { auto: false }) {
   kind = shims.kind;
   fetch2 = shims.fetch;
   Request2 = shims.Request;
-  Response2 = shims.Response;
+  Response = shims.Response;
   Headers = shims.Headers;
   FormData = shims.FormData;
   Blob2 = shims.Blob;
@@ -73316,7 +73399,7 @@ async function PDFTryParse(fileOrUrl, content3) {
     }
     return pages;
   } catch (error2) {
-    console.error(error2);
+    logError(error2.message);
     return void 0;
   }
 }
@@ -73420,7 +73503,7 @@ function createParsers(trace) {
 // ../core/package.json
 var package_default = {
   name: "genaiscript-core",
-  version: "1.9.5",
+  version: "1.9.6",
   main: "src/index.ts",
   license: "MIT",
   private: true,
@@ -73462,13 +73545,6 @@ var GITHUB_REPO = package_default.repository.url;
 
 // ../core/src/retreival.ts
 var import_mime_types2 = __toESM(require_mime_types());
-var UPSERTFILE_MIME_TYPES = [
-  "text/plain",
-  "text/markdown",
-  "text/csv",
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-];
 async function clearIndex(options) {
   const { trace } = options || {};
   await host.retreival.init(trace);
@@ -73485,27 +73561,7 @@ async function upsert(fileOrUrls, options) {
   );
   const increment = 100 / files.length;
   for (const f2 of files) {
-    let file = void 0;
-    if (f2.content) {
-      file = new Blob([f2.content], {
-        type: (0, import_mime_types2.lookup)(f2.filename) || "text/plain"
-      });
-    } else if (/^http?s:\/\//i.test(f2.filename)) {
-      const res = await fetch(f2.filename);
-      const blob = await res.blob();
-      file = blob;
-    } else {
-      const type = (0, import_mime_types2.lookup)(f2.filename) || "text/plain";
-      const buffer2 = await host.readFile(f2.filename);
-      file = new Blob([buffer2], {
-        type
-      });
-    }
-    if (!UPSERTFILE_MIME_TYPES.includes(file.type)) {
-      trace?.resultItem(false, `${f2.filename}, unsupported file type`);
-      continue;
-    }
-    const { ok: ok2 } = await retreival.upsert(f2.filename, file);
+    const { ok: ok2 } = await retreival.upsert(f2.filename, f2.content);
     progress?.report({
       increment,
       message: f2.filename,
@@ -75524,7 +75580,7 @@ function ora(options) {
 })();
 
 // src/nodehost.ts
-var import_util15 = require("util");
+var import_util17 = require("util");
 var import_promises3 = require("fs/promises");
 var import_fs_extra = __toESM(require_lib5());
 var import_node_path3 = require("node:path");
@@ -79585,8 +79641,8 @@ var PathBase = class {
       return void 0;
     }
     try {
-      const read = await this.#fs.promises.readlink(this.fullpath());
-      const linkTarget = this.parent.resolve(read);
+      const read2 = await this.#fs.promises.readlink(this.fullpath());
+      const linkTarget = this.parent.resolve(read2);
       if (linkTarget) {
         return this.#linkTarget = linkTarget;
       }
@@ -79610,8 +79666,8 @@ var PathBase = class {
       return void 0;
     }
     try {
-      const read = this.#fs.readlinkSync(this.fullpath());
-      const linkTarget = this.parent.resolve(read);
+      const read2 = this.#fs.readlinkSync(this.fullpath());
+      const linkTarget = this.parent.resolve(read2);
       if (linkTarget) {
         return this.#linkTarget = linkTarget;
       }
@@ -84238,6 +84294,2361 @@ var $2 = create$();
 // src/nodehost.ts
 var import_node_path4 = require("node:path");
 
+// ../../node_modules/pretty-bytes/index.js
+var BYTE_UNITS = [
+  "B",
+  "kB",
+  "MB",
+  "GB",
+  "TB",
+  "PB",
+  "EB",
+  "ZB",
+  "YB"
+];
+var BIBYTE_UNITS = [
+  "B",
+  "KiB",
+  "MiB",
+  "GiB",
+  "TiB",
+  "PiB",
+  "EiB",
+  "ZiB",
+  "YiB"
+];
+var BIT_UNITS = [
+  "b",
+  "kbit",
+  "Mbit",
+  "Gbit",
+  "Tbit",
+  "Pbit",
+  "Ebit",
+  "Zbit",
+  "Ybit"
+];
+var BIBIT_UNITS = [
+  "b",
+  "kibit",
+  "Mibit",
+  "Gibit",
+  "Tibit",
+  "Pibit",
+  "Eibit",
+  "Zibit",
+  "Yibit"
+];
+var toLocaleString = (number, locale, options) => {
+  let result = number;
+  if (typeof locale === "string" || Array.isArray(locale)) {
+    result = number.toLocaleString(locale, options);
+  } else if (locale === true || options !== void 0) {
+    result = number.toLocaleString(void 0, options);
+  }
+  return result;
+};
+function prettyBytes(number, options) {
+  if (!Number.isFinite(number)) {
+    throw new TypeError(`Expected a finite number, got ${typeof number}: ${number}`);
+  }
+  options = {
+    bits: false,
+    binary: false,
+    space: true,
+    ...options
+  };
+  const UNITS = options.bits ? options.binary ? BIBIT_UNITS : BIT_UNITS : options.binary ? BIBYTE_UNITS : BYTE_UNITS;
+  const separator = options.space ? " " : "";
+  if (options.signed && number === 0) {
+    return ` 0${separator}${UNITS[0]}`;
+  }
+  const isNegative = number < 0;
+  const prefix = isNegative ? "-" : options.signed ? "+" : "";
+  if (isNegative) {
+    number = -number;
+  }
+  let localeOptions;
+  if (options.minimumFractionDigits !== void 0) {
+    localeOptions = { minimumFractionDigits: options.minimumFractionDigits };
+  }
+  if (options.maximumFractionDigits !== void 0) {
+    localeOptions = { maximumFractionDigits: options.maximumFractionDigits, ...localeOptions };
+  }
+  if (number < 1) {
+    const numberString2 = toLocaleString(number, options.locale, localeOptions);
+    return prefix + numberString2 + separator + UNITS[0];
+  }
+  const exponent = Math.min(Math.floor(options.binary ? Math.log(number) / Math.log(1024) : Math.log10(number) / 3), UNITS.length - 1);
+  number /= (options.binary ? 1024 : 1e3) ** exponent;
+  if (!localeOptions) {
+    number = number.toPrecision(3);
+  }
+  const numberString = toLocaleString(Number(number), options.locale, localeOptions);
+  const unit = UNITS[exponent];
+  return prefix + numberString + separator + unit;
+}
+
+// ../../node_modules/peek-readable/lib/EndOfFileStream.js
+var defaultMessages = "End-Of-Stream";
+var EndOfStreamError = class extends Error {
+  constructor() {
+    super(defaultMessages);
+  }
+};
+
+// ../../node_modules/peek-readable/lib/Deferred.js
+var Deferred = class {
+  constructor() {
+    this.resolve = () => null;
+    this.reject = () => null;
+    this.promise = new Promise((resolve4, reject) => {
+      this.reject = reject;
+      this.resolve = resolve4;
+    });
+  }
+};
+
+// ../../node_modules/peek-readable/lib/StreamReader.js
+var maxStreamReadSize = 1 * 1024 * 1024;
+var StreamReader = class {
+  constructor(s2) {
+    this.s = s2;
+    this.deferred = null;
+    this.endOfStream = false;
+    this.peekQueue = [];
+    if (!s2.read || !s2.once) {
+      throw new Error("Expected an instance of stream.Readable");
+    }
+    this.s.once("end", () => this.reject(new EndOfStreamError()));
+    this.s.once("error", (err) => this.reject(err));
+    this.s.once("close", () => this.reject(new Error("Stream closed")));
+  }
+  /**
+   * Read ahead (peek) from stream. Subsequent read or peeks will return the same data
+   * @param uint8Array - Uint8Array (or Buffer) to store data read from stream in
+   * @param offset - Offset target
+   * @param length - Number of bytes to read
+   * @returns Number of bytes peeked
+   */
+  async peek(uint8Array, offset, length) {
+    const bytesRead = await this.read(uint8Array, offset, length);
+    this.peekQueue.push(uint8Array.subarray(offset, offset + bytesRead));
+    return bytesRead;
+  }
+  /**
+   * Read chunk from stream
+   * @param buffer - Target Uint8Array (or Buffer) to store data read from stream in
+   * @param offset - Offset target
+   * @param length - Number of bytes to read
+   * @returns Number of bytes read
+   */
+  async read(buffer2, offset, length) {
+    if (length === 0) {
+      return 0;
+    }
+    if (this.peekQueue.length === 0 && this.endOfStream) {
+      throw new EndOfStreamError();
+    }
+    let remaining = length;
+    let bytesRead = 0;
+    while (this.peekQueue.length > 0 && remaining > 0) {
+      const peekData = this.peekQueue.pop();
+      if (!peekData)
+        throw new Error("peekData should be defined");
+      const lenCopy = Math.min(peekData.length, remaining);
+      buffer2.set(peekData.subarray(0, lenCopy), offset + bytesRead);
+      bytesRead += lenCopy;
+      remaining -= lenCopy;
+      if (lenCopy < peekData.length) {
+        this.peekQueue.push(peekData.subarray(lenCopy));
+      }
+    }
+    while (remaining > 0 && !this.endOfStream) {
+      const reqLen = Math.min(remaining, maxStreamReadSize);
+      const chunkLen = await this.readFromStream(buffer2, offset + bytesRead, reqLen);
+      bytesRead += chunkLen;
+      if (chunkLen < reqLen)
+        break;
+      remaining -= chunkLen;
+    }
+    return bytesRead;
+  }
+  /**
+   * Read chunk from stream
+   * @param buffer Target Uint8Array (or Buffer) to store data read from stream in
+   * @param offset Offset target
+   * @param length Number of bytes to read
+   * @returns Number of bytes read
+   */
+  async readFromStream(buffer2, offset, length) {
+    const readBuffer = this.s.read(length);
+    if (readBuffer) {
+      buffer2.set(readBuffer, offset);
+      return readBuffer.length;
+    } else {
+      const request = {
+        buffer: buffer2,
+        offset,
+        length,
+        deferred: new Deferred()
+      };
+      this.deferred = request.deferred;
+      this.s.once("readable", () => {
+        this.readDeferred(request);
+      });
+      return request.deferred.promise;
+    }
+  }
+  /**
+   * Process deferred read request
+   * @param request Deferred read request
+   */
+  readDeferred(request) {
+    const readBuffer = this.s.read(request.length);
+    if (readBuffer) {
+      request.buffer.set(readBuffer, request.offset);
+      request.deferred.resolve(readBuffer.length);
+      this.deferred = null;
+    } else {
+      this.s.once("readable", () => {
+        this.readDeferred(request);
+      });
+    }
+  }
+  reject(err) {
+    this.endOfStream = true;
+    if (this.deferred) {
+      this.deferred.reject(err);
+      this.deferred = null;
+    }
+  }
+};
+
+// ../../node_modules/strtok3/lib/AbstractTokenizer.js
+var import_node_buffer3 = require("node:buffer");
+var AbstractTokenizer = class {
+  constructor(fileInfo) {
+    this.position = 0;
+    this.numBuffer = new Uint8Array(8);
+    this.fileInfo = fileInfo ? fileInfo : {};
+  }
+  /**
+   * Read a token from the tokenizer-stream
+   * @param token - The token to read
+   * @param position - If provided, the desired position in the tokenizer-stream
+   * @returns Promise with token data
+   */
+  async readToken(token, position2 = this.position) {
+    const uint8Array = import_node_buffer3.Buffer.alloc(token.len);
+    const len = await this.readBuffer(uint8Array, { position: position2 });
+    if (len < token.len)
+      throw new EndOfStreamError();
+    return token.get(uint8Array, 0);
+  }
+  /**
+   * Peek a token from the tokenizer-stream.
+   * @param token - Token to peek from the tokenizer-stream.
+   * @param position - Offset where to begin reading within the file. If position is null, data will be read from the current file position.
+   * @returns Promise with token data
+   */
+  async peekToken(token, position2 = this.position) {
+    const uint8Array = import_node_buffer3.Buffer.alloc(token.len);
+    const len = await this.peekBuffer(uint8Array, { position: position2 });
+    if (len < token.len)
+      throw new EndOfStreamError();
+    return token.get(uint8Array, 0);
+  }
+  /**
+   * Read a numeric token from the stream
+   * @param token - Numeric token
+   * @returns Promise with number
+   */
+  async readNumber(token) {
+    const len = await this.readBuffer(this.numBuffer, { length: token.len });
+    if (len < token.len)
+      throw new EndOfStreamError();
+    return token.get(this.numBuffer, 0);
+  }
+  /**
+   * Read a numeric token from the stream
+   * @param token - Numeric token
+   * @returns Promise with number
+   */
+  async peekNumber(token) {
+    const len = await this.peekBuffer(this.numBuffer, { length: token.len });
+    if (len < token.len)
+      throw new EndOfStreamError();
+    return token.get(this.numBuffer, 0);
+  }
+  /**
+   * Ignore number of bytes, advances the pointer in under tokenizer-stream.
+   * @param length - Number of bytes to ignore
+   * @return resolves the number of bytes ignored, equals length if this available, otherwise the number of bytes available
+   */
+  async ignore(length) {
+    if (this.fileInfo.size !== void 0) {
+      const bytesLeft = this.fileInfo.size - this.position;
+      if (length > bytesLeft) {
+        this.position += bytesLeft;
+        return bytesLeft;
+      }
+    }
+    this.position += length;
+    return length;
+  }
+  async close() {
+  }
+  normalizeOptions(uint8Array, options) {
+    if (options && options.position !== void 0 && options.position < this.position) {
+      throw new Error("`options.position` must be equal or greater than `tokenizer.position`");
+    }
+    if (options) {
+      return {
+        mayBeLess: options.mayBeLess === true,
+        offset: options.offset ? options.offset : 0,
+        length: options.length ? options.length : uint8Array.length - (options.offset ? options.offset : 0),
+        position: options.position ? options.position : this.position
+      };
+    }
+    return {
+      mayBeLess: false,
+      offset: 0,
+      length: uint8Array.length,
+      position: this.position
+    };
+  }
+};
+
+// ../../node_modules/strtok3/lib/ReadStreamTokenizer.js
+var maxBufferSize = 256e3;
+var ReadStreamTokenizer = class extends AbstractTokenizer {
+  constructor(stream2, fileInfo) {
+    super(fileInfo);
+    this.streamReader = new StreamReader(stream2);
+  }
+  /**
+   * Get file information, an HTTP-client may implement this doing a HEAD request
+   * @return Promise with file information
+   */
+  async getFileInfo() {
+    return this.fileInfo;
+  }
+  /**
+   * Read buffer from tokenizer
+   * @param uint8Array - Target Uint8Array to fill with data read from the tokenizer-stream
+   * @param options - Read behaviour options
+   * @returns Promise with number of bytes read
+   */
+  async readBuffer(uint8Array, options) {
+    const normOptions = this.normalizeOptions(uint8Array, options);
+    const skipBytes = normOptions.position - this.position;
+    if (skipBytes > 0) {
+      await this.ignore(skipBytes);
+      return this.readBuffer(uint8Array, options);
+    } else if (skipBytes < 0) {
+      throw new Error("`options.position` must be equal or greater than `tokenizer.position`");
+    }
+    if (normOptions.length === 0) {
+      return 0;
+    }
+    const bytesRead = await this.streamReader.read(uint8Array, normOptions.offset, normOptions.length);
+    this.position += bytesRead;
+    if ((!options || !options.mayBeLess) && bytesRead < normOptions.length) {
+      throw new EndOfStreamError();
+    }
+    return bytesRead;
+  }
+  /**
+   * Peek (read ahead) buffer from tokenizer
+   * @param uint8Array - Uint8Array (or Buffer) to write data to
+   * @param options - Read behaviour options
+   * @returns Promise with number of bytes peeked
+   */
+  async peekBuffer(uint8Array, options) {
+    const normOptions = this.normalizeOptions(uint8Array, options);
+    let bytesRead = 0;
+    if (normOptions.position) {
+      const skipBytes = normOptions.position - this.position;
+      if (skipBytes > 0) {
+        const skipBuffer = new Uint8Array(normOptions.length + skipBytes);
+        bytesRead = await this.peekBuffer(skipBuffer, { mayBeLess: normOptions.mayBeLess });
+        uint8Array.set(skipBuffer.subarray(skipBytes), normOptions.offset);
+        return bytesRead - skipBytes;
+      } else if (skipBytes < 0) {
+        throw new Error("Cannot peek from a negative offset in a stream");
+      }
+    }
+    if (normOptions.length > 0) {
+      try {
+        bytesRead = await this.streamReader.peek(uint8Array, normOptions.offset, normOptions.length);
+      } catch (err) {
+        if (options && options.mayBeLess && err instanceof EndOfStreamError) {
+          return 0;
+        }
+        throw err;
+      }
+      if (!normOptions.mayBeLess && bytesRead < normOptions.length) {
+        throw new EndOfStreamError();
+      }
+    }
+    return bytesRead;
+  }
+  async ignore(length) {
+    const bufSize = Math.min(maxBufferSize, length);
+    const buf = new Uint8Array(bufSize);
+    let totBytesRead = 0;
+    while (totBytesRead < length) {
+      const remaining = length - totBytesRead;
+      const bytesRead = await this.readBuffer(buf, { length: Math.min(bufSize, remaining) });
+      if (bytesRead < 0) {
+        return bytesRead;
+      }
+      totBytesRead += bytesRead;
+    }
+    return totBytesRead;
+  }
+};
+
+// ../../node_modules/strtok3/lib/BufferTokenizer.js
+var BufferTokenizer = class extends AbstractTokenizer {
+  /**
+   * Construct BufferTokenizer
+   * @param uint8Array - Uint8Array to tokenize
+   * @param fileInfo - Pass additional file information to the tokenizer
+   */
+  constructor(uint8Array, fileInfo) {
+    super(fileInfo);
+    this.uint8Array = uint8Array;
+    this.fileInfo.size = this.fileInfo.size ? this.fileInfo.size : uint8Array.length;
+  }
+  /**
+   * Read buffer from tokenizer
+   * @param uint8Array - Uint8Array to tokenize
+   * @param options - Read behaviour options
+   * @returns {Promise<number>}
+   */
+  async readBuffer(uint8Array, options) {
+    if (options && options.position) {
+      if (options.position < this.position) {
+        throw new Error("`options.position` must be equal or greater than `tokenizer.position`");
+      }
+      this.position = options.position;
+    }
+    const bytesRead = await this.peekBuffer(uint8Array, options);
+    this.position += bytesRead;
+    return bytesRead;
+  }
+  /**
+   * Peek (read ahead) buffer from tokenizer
+   * @param uint8Array
+   * @param options - Read behaviour options
+   * @returns {Promise<number>}
+   */
+  async peekBuffer(uint8Array, options) {
+    const normOptions = this.normalizeOptions(uint8Array, options);
+    const bytes2read = Math.min(this.uint8Array.length - normOptions.position, normOptions.length);
+    if (!normOptions.mayBeLess && bytes2read < normOptions.length) {
+      throw new EndOfStreamError();
+    } else {
+      uint8Array.set(this.uint8Array.subarray(normOptions.position, normOptions.position + bytes2read), normOptions.offset);
+      return bytes2read;
+    }
+  }
+  async close() {
+  }
+};
+
+// ../../node_modules/strtok3/lib/core.js
+function fromStream(stream2, fileInfo) {
+  fileInfo = fileInfo ? fileInfo : {};
+  return new ReadStreamTokenizer(stream2, fileInfo);
+}
+function fromBuffer(uint8Array, fileInfo) {
+  return new BufferTokenizer(uint8Array, fileInfo);
+}
+
+// ../../node_modules/file-type/core.js
+var import_node_buffer5 = require("node:buffer");
+
+// ../../node_modules/token-types/lib/index.js
+var ieee754 = __toESM(require_ieee754(), 1);
+var import_node_buffer4 = require("node:buffer");
+function dv(array) {
+  return new DataView(array.buffer, array.byteOffset);
+}
+var UINT8 = {
+  len: 1,
+  get(array, offset) {
+    return dv(array).getUint8(offset);
+  },
+  put(array, offset, value2) {
+    dv(array).setUint8(offset, value2);
+    return offset + 1;
+  }
+};
+var UINT16_LE = {
+  len: 2,
+  get(array, offset) {
+    return dv(array).getUint16(offset, true);
+  },
+  put(array, offset, value2) {
+    dv(array).setUint16(offset, value2, true);
+    return offset + 2;
+  }
+};
+var UINT16_BE = {
+  len: 2,
+  get(array, offset) {
+    return dv(array).getUint16(offset);
+  },
+  put(array, offset, value2) {
+    dv(array).setUint16(offset, value2);
+    return offset + 2;
+  }
+};
+var UINT32_LE = {
+  len: 4,
+  get(array, offset) {
+    return dv(array).getUint32(offset, true);
+  },
+  put(array, offset, value2) {
+    dv(array).setUint32(offset, value2, true);
+    return offset + 4;
+  }
+};
+var UINT32_BE = {
+  len: 4,
+  get(array, offset) {
+    return dv(array).getUint32(offset);
+  },
+  put(array, offset, value2) {
+    dv(array).setUint32(offset, value2);
+    return offset + 4;
+  }
+};
+var INT32_BE = {
+  len: 4,
+  get(array, offset) {
+    return dv(array).getInt32(offset);
+  },
+  put(array, offset, value2) {
+    dv(array).setInt32(offset, value2);
+    return offset + 4;
+  }
+};
+var UINT64_LE = {
+  len: 8,
+  get(array, offset) {
+    return dv(array).getBigUint64(offset, true);
+  },
+  put(array, offset, value2) {
+    dv(array).setBigUint64(offset, value2, true);
+    return offset + 8;
+  }
+};
+var StringType = class {
+  constructor(len, encoding) {
+    this.len = len;
+    this.encoding = encoding;
+  }
+  get(uint8Array, offset) {
+    return import_node_buffer4.Buffer.from(uint8Array).toString(this.encoding, offset, offset + this.len);
+  }
+};
+var AnsiStringType = class _AnsiStringType {
+  constructor(len) {
+    this.len = len;
+  }
+  static decode(buffer2, offset, until) {
+    let str2 = "";
+    for (let i2 = offset; i2 < until; ++i2) {
+      str2 += _AnsiStringType.codePointToString(_AnsiStringType.singleByteDecoder(buffer2[i2]));
+    }
+    return str2;
+  }
+  static inRange(a2, min, max) {
+    return min <= a2 && a2 <= max;
+  }
+  static codePointToString(cp) {
+    if (cp <= 65535) {
+      return String.fromCharCode(cp);
+    } else {
+      cp -= 65536;
+      return String.fromCharCode((cp >> 10) + 55296, (cp & 1023) + 56320);
+    }
+  }
+  static singleByteDecoder(bite) {
+    if (_AnsiStringType.inRange(bite, 0, 127)) {
+      return bite;
+    }
+    const codePoint = _AnsiStringType.windows1252[bite - 128];
+    if (codePoint === null) {
+      throw Error("invaliding encoding");
+    }
+    return codePoint;
+  }
+  get(buffer2, offset = 0) {
+    return _AnsiStringType.decode(buffer2, offset, offset + this.len);
+  }
+};
+AnsiStringType.windows1252 = [
+  8364,
+  129,
+  8218,
+  402,
+  8222,
+  8230,
+  8224,
+  8225,
+  710,
+  8240,
+  352,
+  8249,
+  338,
+  141,
+  381,
+  143,
+  144,
+  8216,
+  8217,
+  8220,
+  8221,
+  8226,
+  8211,
+  8212,
+  732,
+  8482,
+  353,
+  8250,
+  339,
+  157,
+  382,
+  376,
+  160,
+  161,
+  162,
+  163,
+  164,
+  165,
+  166,
+  167,
+  168,
+  169,
+  170,
+  171,
+  172,
+  173,
+  174,
+  175,
+  176,
+  177,
+  178,
+  179,
+  180,
+  181,
+  182,
+  183,
+  184,
+  185,
+  186,
+  187,
+  188,
+  189,
+  190,
+  191,
+  192,
+  193,
+  194,
+  195,
+  196,
+  197,
+  198,
+  199,
+  200,
+  201,
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  210,
+  211,
+  212,
+  213,
+  214,
+  215,
+  216,
+  217,
+  218,
+  219,
+  220,
+  221,
+  222,
+  223,
+  224,
+  225,
+  226,
+  227,
+  228,
+  229,
+  230,
+  231,
+  232,
+  233,
+  234,
+  235,
+  236,
+  237,
+  238,
+  239,
+  240,
+  241,
+  242,
+  243,
+  244,
+  245,
+  246,
+  247,
+  248,
+  249,
+  250,
+  251,
+  252,
+  253,
+  254,
+  255
+];
+
+// ../../node_modules/file-type/util.js
+function stringToBytes(string3) {
+  return [...string3].map((character) => character.charCodeAt(0));
+}
+function tarHeaderChecksumMatches(buffer2, offset = 0) {
+  const readSum = Number.parseInt(buffer2.toString("utf8", 148, 154).replace(/\0.*$/, "").trim(), 8);
+  if (Number.isNaN(readSum)) {
+    return false;
+  }
+  let sum = 8 * 32;
+  for (let index2 = offset; index2 < offset + 148; index2++) {
+    sum += buffer2[index2];
+  }
+  for (let index2 = offset + 156; index2 < offset + 512; index2++) {
+    sum += buffer2[index2];
+  }
+  return readSum === sum;
+}
+var uint32SyncSafeToken = {
+  get: (buffer2, offset) => buffer2[offset + 3] & 127 | buffer2[offset + 2] << 7 | buffer2[offset + 1] << 14 | buffer2[offset] << 21,
+  len: 4
+};
+
+// ../../node_modules/file-type/supported.js
+var extensions = [
+  "jpg",
+  "png",
+  "apng",
+  "gif",
+  "webp",
+  "flif",
+  "xcf",
+  "cr2",
+  "cr3",
+  "orf",
+  "arw",
+  "dng",
+  "nef",
+  "rw2",
+  "raf",
+  "tif",
+  "bmp",
+  "icns",
+  "jxr",
+  "psd",
+  "indd",
+  "zip",
+  "tar",
+  "rar",
+  "gz",
+  "bz2",
+  "7z",
+  "dmg",
+  "mp4",
+  "mid",
+  "mkv",
+  "webm",
+  "mov",
+  "avi",
+  "mpg",
+  "mp2",
+  "mp3",
+  "m4a",
+  "oga",
+  "ogg",
+  "ogv",
+  "opus",
+  "flac",
+  "wav",
+  "spx",
+  "amr",
+  "pdf",
+  "epub",
+  "elf",
+  "macho",
+  "exe",
+  "swf",
+  "rtf",
+  "wasm",
+  "woff",
+  "woff2",
+  "eot",
+  "ttf",
+  "otf",
+  "ico",
+  "flv",
+  "ps",
+  "xz",
+  "sqlite",
+  "nes",
+  "crx",
+  "xpi",
+  "cab",
+  "deb",
+  "ar",
+  "rpm",
+  "Z",
+  "lz",
+  "cfb",
+  "mxf",
+  "mts",
+  "blend",
+  "bpg",
+  "docx",
+  "pptx",
+  "xlsx",
+  "3gp",
+  "3g2",
+  "j2c",
+  "jp2",
+  "jpm",
+  "jpx",
+  "mj2",
+  "aif",
+  "qcp",
+  "odt",
+  "ods",
+  "odp",
+  "xml",
+  "mobi",
+  "heic",
+  "cur",
+  "ktx",
+  "ape",
+  "wv",
+  "dcm",
+  "ics",
+  "glb",
+  "pcap",
+  "dsf",
+  "lnk",
+  "alias",
+  "voc",
+  "ac3",
+  "m4v",
+  "m4p",
+  "m4b",
+  "f4v",
+  "f4p",
+  "f4b",
+  "f4a",
+  "mie",
+  "asf",
+  "ogm",
+  "ogx",
+  "mpc",
+  "arrow",
+  "shp",
+  "aac",
+  "mp1",
+  "it",
+  "s3m",
+  "xm",
+  "ai",
+  "skp",
+  "avif",
+  "eps",
+  "lzh",
+  "pgp",
+  "asar",
+  "stl",
+  "chm",
+  "3mf",
+  "zst",
+  "jxl",
+  "vcf",
+  "jls",
+  "pst",
+  "dwg",
+  "parquet",
+  "class",
+  "arj",
+  "cpio",
+  "ace",
+  "avro",
+  "icc",
+  "fbx"
+];
+var mimeTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+  "image/flif",
+  "image/x-xcf",
+  "image/x-canon-cr2",
+  "image/x-canon-cr3",
+  "image/tiff",
+  "image/bmp",
+  "image/vnd.ms-photo",
+  "image/vnd.adobe.photoshop",
+  "application/x-indesign",
+  "application/epub+zip",
+  "application/x-xpinstall",
+  "application/vnd.oasis.opendocument.text",
+  "application/vnd.oasis.opendocument.spreadsheet",
+  "application/vnd.oasis.opendocument.presentation",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/zip",
+  "application/x-tar",
+  "application/x-rar-compressed",
+  "application/gzip",
+  "application/x-bzip2",
+  "application/x-7z-compressed",
+  "application/x-apple-diskimage",
+  "application/x-apache-arrow",
+  "video/mp4",
+  "audio/midi",
+  "video/x-matroska",
+  "video/webm",
+  "video/quicktime",
+  "video/vnd.avi",
+  "audio/wav",
+  "audio/qcelp",
+  "audio/x-ms-asf",
+  "video/x-ms-asf",
+  "application/vnd.ms-asf",
+  "video/mpeg",
+  "video/3gpp",
+  "audio/mpeg",
+  "audio/mp4",
+  // RFC 4337
+  "audio/opus",
+  "video/ogg",
+  "audio/ogg",
+  "application/ogg",
+  "audio/x-flac",
+  "audio/ape",
+  "audio/wavpack",
+  "audio/amr",
+  "application/pdf",
+  "application/x-elf",
+  "application/x-mach-binary",
+  "application/x-msdownload",
+  "application/x-shockwave-flash",
+  "application/rtf",
+  "application/wasm",
+  "font/woff",
+  "font/woff2",
+  "application/vnd.ms-fontobject",
+  "font/ttf",
+  "font/otf",
+  "image/x-icon",
+  "video/x-flv",
+  "application/postscript",
+  "application/eps",
+  "application/x-xz",
+  "application/x-sqlite3",
+  "application/x-nintendo-nes-rom",
+  "application/x-google-chrome-extension",
+  "application/vnd.ms-cab-compressed",
+  "application/x-deb",
+  "application/x-unix-archive",
+  "application/x-rpm",
+  "application/x-compress",
+  "application/x-lzip",
+  "application/x-cfb",
+  "application/x-mie",
+  "application/mxf",
+  "video/mp2t",
+  "application/x-blender",
+  "image/bpg",
+  "image/j2c",
+  "image/jp2",
+  "image/jpx",
+  "image/jpm",
+  "image/mj2",
+  "audio/aiff",
+  "application/xml",
+  "application/x-mobipocket-ebook",
+  "image/heif",
+  "image/heif-sequence",
+  "image/heic",
+  "image/heic-sequence",
+  "image/icns",
+  "image/ktx",
+  "application/dicom",
+  "audio/x-musepack",
+  "text/calendar",
+  "text/vcard",
+  "model/gltf-binary",
+  "application/vnd.tcpdump.pcap",
+  "audio/x-dsf",
+  // Non-standard
+  "application/x.ms.shortcut",
+  // Invented by us
+  "application/x.apple.alias",
+  // Invented by us
+  "audio/x-voc",
+  "audio/vnd.dolby.dd-raw",
+  "audio/x-m4a",
+  "image/apng",
+  "image/x-olympus-orf",
+  "image/x-sony-arw",
+  "image/x-adobe-dng",
+  "image/x-nikon-nef",
+  "image/x-panasonic-rw2",
+  "image/x-fujifilm-raf",
+  "video/x-m4v",
+  "video/3gpp2",
+  "application/x-esri-shape",
+  "audio/aac",
+  "audio/x-it",
+  "audio/x-s3m",
+  "audio/x-xm",
+  "video/MP1S",
+  "video/MP2P",
+  "application/vnd.sketchup.skp",
+  "image/avif",
+  "application/x-lzh-compressed",
+  "application/pgp-encrypted",
+  "application/x-asar",
+  "model/stl",
+  "application/vnd.ms-htmlhelp",
+  "model/3mf",
+  "image/jxl",
+  "application/zstd",
+  "image/jls",
+  "application/vnd.ms-outlook",
+  "image/vnd.dwg",
+  "application/x-parquet",
+  "application/java-vm",
+  "application/x-arj",
+  "application/x-cpio",
+  "application/x-ace-compressed",
+  "application/avro",
+  "application/vnd.iccprofile",
+  "application/x.autodesk.fbx"
+  // Invented by us
+];
+
+// ../../node_modules/file-type/core.js
+var minimumBytes = 4100;
+async function fileTypeFromBuffer(input) {
+  return new FileTypeParser().fromBuffer(input);
+}
+function _check(buffer2, headers, options) {
+  options = {
+    offset: 0,
+    ...options
+  };
+  for (const [index2, header] of headers.entries()) {
+    if (options.mask) {
+      if (header !== (options.mask[index2] & buffer2[index2 + options.offset])) {
+        return false;
+      }
+    } else if (header !== buffer2[index2 + options.offset]) {
+      return false;
+    }
+  }
+  return true;
+}
+var FileTypeParser = class {
+  constructor(options) {
+    this.detectors = options?.customDetectors;
+    this.fromTokenizer = this.fromTokenizer.bind(this);
+    this.fromBuffer = this.fromBuffer.bind(this);
+    this.parse = this.parse.bind(this);
+  }
+  async fromTokenizer(tokenizer) {
+    const initialPosition = tokenizer.position;
+    for (const detector of this.detectors || []) {
+      const fileType = await detector(tokenizer);
+      if (fileType) {
+        return fileType;
+      }
+      if (initialPosition !== tokenizer.position) {
+        return void 0;
+      }
+    }
+    return this.parse(tokenizer);
+  }
+  async fromBuffer(input) {
+    if (!(input instanceof Uint8Array || input instanceof ArrayBuffer)) {
+      throw new TypeError(`Expected the \`input\` argument to be of type \`Uint8Array\` or \`Buffer\` or \`ArrayBuffer\`, got \`${typeof input}\``);
+    }
+    const buffer2 = input instanceof Uint8Array ? input : new Uint8Array(input);
+    if (!(buffer2?.length > 1)) {
+      return;
+    }
+    return this.fromTokenizer(fromBuffer(buffer2));
+  }
+  async fromBlob(blob) {
+    const buffer2 = await blob.arrayBuffer();
+    return this.fromBuffer(new Uint8Array(buffer2));
+  }
+  async fromStream(stream2) {
+    const tokenizer = await fromStream(stream2);
+    try {
+      return await this.fromTokenizer(tokenizer);
+    } finally {
+      await tokenizer.close();
+    }
+  }
+  async toDetectionStream(readableStream, options = {}) {
+    const { default: stream2 } = await import("node:stream");
+    const { sampleSize = minimumBytes } = options;
+    return new Promise((resolve4, reject) => {
+      readableStream.on("error", reject);
+      readableStream.once("readable", () => {
+        (async () => {
+          try {
+            const pass = new stream2.PassThrough();
+            const outputStream = stream2.pipeline ? stream2.pipeline(readableStream, pass, () => {
+            }) : readableStream.pipe(pass);
+            const chunk = readableStream.read(sampleSize) ?? readableStream.read() ?? import_node_buffer5.Buffer.alloc(0);
+            try {
+              pass.fileType = await this.fromBuffer(chunk);
+            } catch (error2) {
+              if (error2 instanceof EndOfStreamError) {
+                pass.fileType = void 0;
+              } else {
+                reject(error2);
+              }
+            }
+            resolve4(outputStream);
+          } catch (error2) {
+            reject(error2);
+          }
+        })();
+      });
+    });
+  }
+  check(header, options) {
+    return _check(this.buffer, header, options);
+  }
+  checkString(header, options) {
+    return this.check(stringToBytes(header), options);
+  }
+  async parse(tokenizer) {
+    this.buffer = import_node_buffer5.Buffer.alloc(minimumBytes);
+    if (tokenizer.fileInfo.size === void 0) {
+      tokenizer.fileInfo.size = Number.MAX_SAFE_INTEGER;
+    }
+    this.tokenizer = tokenizer;
+    await tokenizer.peekBuffer(this.buffer, { length: 12, mayBeLess: true });
+    if (this.check([66, 77])) {
+      return {
+        ext: "bmp",
+        mime: "image/bmp"
+      };
+    }
+    if (this.check([11, 119])) {
+      return {
+        ext: "ac3",
+        mime: "audio/vnd.dolby.dd-raw"
+      };
+    }
+    if (this.check([120, 1])) {
+      return {
+        ext: "dmg",
+        mime: "application/x-apple-diskimage"
+      };
+    }
+    if (this.check([77, 90])) {
+      return {
+        ext: "exe",
+        mime: "application/x-msdownload"
+      };
+    }
+    if (this.check([37, 33])) {
+      await tokenizer.peekBuffer(this.buffer, { length: 24, mayBeLess: true });
+      if (this.checkString("PS-Adobe-", { offset: 2 }) && this.checkString(" EPSF-", { offset: 14 })) {
+        return {
+          ext: "eps",
+          mime: "application/eps"
+        };
+      }
+      return {
+        ext: "ps",
+        mime: "application/postscript"
+      };
+    }
+    if (this.check([31, 160]) || this.check([31, 157])) {
+      return {
+        ext: "Z",
+        mime: "application/x-compress"
+      };
+    }
+    if (this.check([199, 113])) {
+      return {
+        ext: "cpio",
+        mime: "application/x-cpio"
+      };
+    }
+    if (this.check([96, 234])) {
+      return {
+        ext: "arj",
+        mime: "application/x-arj"
+      };
+    }
+    if (this.check([239, 187, 191])) {
+      this.tokenizer.ignore(3);
+      return this.parse(tokenizer);
+    }
+    if (this.check([71, 73, 70])) {
+      return {
+        ext: "gif",
+        mime: "image/gif"
+      };
+    }
+    if (this.check([73, 73, 188])) {
+      return {
+        ext: "jxr",
+        mime: "image/vnd.ms-photo"
+      };
+    }
+    if (this.check([31, 139, 8])) {
+      return {
+        ext: "gz",
+        mime: "application/gzip"
+      };
+    }
+    if (this.check([66, 90, 104])) {
+      return {
+        ext: "bz2",
+        mime: "application/x-bzip2"
+      };
+    }
+    if (this.checkString("ID3")) {
+      await tokenizer.ignore(6);
+      const id3HeaderLength = await tokenizer.readToken(uint32SyncSafeToken);
+      if (tokenizer.position + id3HeaderLength > tokenizer.fileInfo.size) {
+        return {
+          ext: "mp3",
+          mime: "audio/mpeg"
+        };
+      }
+      await tokenizer.ignore(id3HeaderLength);
+      return this.fromTokenizer(tokenizer);
+    }
+    if (this.checkString("MP+")) {
+      return {
+        ext: "mpc",
+        mime: "audio/x-musepack"
+      };
+    }
+    if ((this.buffer[0] === 67 || this.buffer[0] === 70) && this.check([87, 83], { offset: 1 })) {
+      return {
+        ext: "swf",
+        mime: "application/x-shockwave-flash"
+      };
+    }
+    if (this.check([255, 216, 255])) {
+      if (this.check([247], { offset: 3 })) {
+        return {
+          ext: "jls",
+          mime: "image/jls"
+        };
+      }
+      return {
+        ext: "jpg",
+        mime: "image/jpeg"
+      };
+    }
+    if (this.check([79, 98, 106, 1])) {
+      return {
+        ext: "avro",
+        mime: "application/avro"
+      };
+    }
+    if (this.checkString("FLIF")) {
+      return {
+        ext: "flif",
+        mime: "image/flif"
+      };
+    }
+    if (this.checkString("8BPS")) {
+      return {
+        ext: "psd",
+        mime: "image/vnd.adobe.photoshop"
+      };
+    }
+    if (this.checkString("WEBP", { offset: 8 })) {
+      return {
+        ext: "webp",
+        mime: "image/webp"
+      };
+    }
+    if (this.checkString("MPCK")) {
+      return {
+        ext: "mpc",
+        mime: "audio/x-musepack"
+      };
+    }
+    if (this.checkString("FORM")) {
+      return {
+        ext: "aif",
+        mime: "audio/aiff"
+      };
+    }
+    if (this.checkString("icns", { offset: 0 })) {
+      return {
+        ext: "icns",
+        mime: "image/icns"
+      };
+    }
+    if (this.check([80, 75, 3, 4])) {
+      try {
+        while (tokenizer.position + 30 < tokenizer.fileInfo.size) {
+          await tokenizer.readBuffer(this.buffer, { length: 30 });
+          const zipHeader = {
+            compressedSize: this.buffer.readUInt32LE(18),
+            uncompressedSize: this.buffer.readUInt32LE(22),
+            filenameLength: this.buffer.readUInt16LE(26),
+            extraFieldLength: this.buffer.readUInt16LE(28)
+          };
+          zipHeader.filename = await tokenizer.readToken(new StringType(zipHeader.filenameLength, "utf-8"));
+          await tokenizer.ignore(zipHeader.extraFieldLength);
+          if (zipHeader.filename === "META-INF/mozilla.rsa") {
+            return {
+              ext: "xpi",
+              mime: "application/x-xpinstall"
+            };
+          }
+          if (zipHeader.filename.endsWith(".rels") || zipHeader.filename.endsWith(".xml")) {
+            const type = zipHeader.filename.split("/")[0];
+            switch (type) {
+              case "_rels":
+                break;
+              case "word":
+                return {
+                  ext: "docx",
+                  mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                };
+              case "ppt":
+                return {
+                  ext: "pptx",
+                  mime: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                };
+              case "xl":
+                return {
+                  ext: "xlsx",
+                  mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                };
+              default:
+                break;
+            }
+          }
+          if (zipHeader.filename.startsWith("xl/")) {
+            return {
+              ext: "xlsx",
+              mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            };
+          }
+          if (zipHeader.filename.startsWith("3D/") && zipHeader.filename.endsWith(".model")) {
+            return {
+              ext: "3mf",
+              mime: "model/3mf"
+            };
+          }
+          if (zipHeader.filename === "mimetype" && zipHeader.compressedSize === zipHeader.uncompressedSize) {
+            let mimeType = await tokenizer.readToken(new StringType(zipHeader.compressedSize, "utf-8"));
+            mimeType = mimeType.trim();
+            switch (mimeType) {
+              case "application/epub+zip":
+                return {
+                  ext: "epub",
+                  mime: "application/epub+zip"
+                };
+              case "application/vnd.oasis.opendocument.text":
+                return {
+                  ext: "odt",
+                  mime: "application/vnd.oasis.opendocument.text"
+                };
+              case "application/vnd.oasis.opendocument.spreadsheet":
+                return {
+                  ext: "ods",
+                  mime: "application/vnd.oasis.opendocument.spreadsheet"
+                };
+              case "application/vnd.oasis.opendocument.presentation":
+                return {
+                  ext: "odp",
+                  mime: "application/vnd.oasis.opendocument.presentation"
+                };
+              default:
+            }
+          }
+          if (zipHeader.compressedSize === 0) {
+            let nextHeaderIndex = -1;
+            while (nextHeaderIndex < 0 && tokenizer.position < tokenizer.fileInfo.size) {
+              await tokenizer.peekBuffer(this.buffer, { mayBeLess: true });
+              nextHeaderIndex = this.buffer.indexOf("504B0304", 0, "hex");
+              await tokenizer.ignore(nextHeaderIndex >= 0 ? nextHeaderIndex : this.buffer.length);
+            }
+          } else {
+            await tokenizer.ignore(zipHeader.compressedSize);
+          }
+        }
+      } catch (error2) {
+        if (!(error2 instanceof EndOfStreamError)) {
+          throw error2;
+        }
+      }
+      return {
+        ext: "zip",
+        mime: "application/zip"
+      };
+    }
+    if (this.checkString("OggS")) {
+      await tokenizer.ignore(28);
+      const type = import_node_buffer5.Buffer.alloc(8);
+      await tokenizer.readBuffer(type);
+      if (_check(type, [79, 112, 117, 115, 72, 101, 97, 100])) {
+        return {
+          ext: "opus",
+          mime: "audio/opus"
+        };
+      }
+      if (_check(type, [128, 116, 104, 101, 111, 114, 97])) {
+        return {
+          ext: "ogv",
+          mime: "video/ogg"
+        };
+      }
+      if (_check(type, [1, 118, 105, 100, 101, 111, 0])) {
+        return {
+          ext: "ogm",
+          mime: "video/ogg"
+        };
+      }
+      if (_check(type, [127, 70, 76, 65, 67])) {
+        return {
+          ext: "oga",
+          mime: "audio/ogg"
+        };
+      }
+      if (_check(type, [83, 112, 101, 101, 120, 32, 32])) {
+        return {
+          ext: "spx",
+          mime: "audio/ogg"
+        };
+      }
+      if (_check(type, [1, 118, 111, 114, 98, 105, 115])) {
+        return {
+          ext: "ogg",
+          mime: "audio/ogg"
+        };
+      }
+      return {
+        ext: "ogx",
+        mime: "application/ogg"
+      };
+    }
+    if (this.check([80, 75]) && (this.buffer[2] === 3 || this.buffer[2] === 5 || this.buffer[2] === 7) && (this.buffer[3] === 4 || this.buffer[3] === 6 || this.buffer[3] === 8)) {
+      return {
+        ext: "zip",
+        mime: "application/zip"
+      };
+    }
+    if (this.checkString("ftyp", { offset: 4 }) && (this.buffer[8] & 96) !== 0) {
+      const brandMajor = this.buffer.toString("binary", 8, 12).replace("\0", " ").trim();
+      switch (brandMajor) {
+        case "avif":
+        case "avis":
+          return { ext: "avif", mime: "image/avif" };
+        case "mif1":
+          return { ext: "heic", mime: "image/heif" };
+        case "msf1":
+          return { ext: "heic", mime: "image/heif-sequence" };
+        case "heic":
+        case "heix":
+          return { ext: "heic", mime: "image/heic" };
+        case "hevc":
+        case "hevx":
+          return { ext: "heic", mime: "image/heic-sequence" };
+        case "qt":
+          return { ext: "mov", mime: "video/quicktime" };
+        case "M4V":
+        case "M4VH":
+        case "M4VP":
+          return { ext: "m4v", mime: "video/x-m4v" };
+        case "M4P":
+          return { ext: "m4p", mime: "video/mp4" };
+        case "M4B":
+          return { ext: "m4b", mime: "audio/mp4" };
+        case "M4A":
+          return { ext: "m4a", mime: "audio/x-m4a" };
+        case "F4V":
+          return { ext: "f4v", mime: "video/mp4" };
+        case "F4P":
+          return { ext: "f4p", mime: "video/mp4" };
+        case "F4A":
+          return { ext: "f4a", mime: "audio/mp4" };
+        case "F4B":
+          return { ext: "f4b", mime: "audio/mp4" };
+        case "crx":
+          return { ext: "cr3", mime: "image/x-canon-cr3" };
+        default:
+          if (brandMajor.startsWith("3g")) {
+            if (brandMajor.startsWith("3g2")) {
+              return { ext: "3g2", mime: "video/3gpp2" };
+            }
+            return { ext: "3gp", mime: "video/3gpp" };
+          }
+          return { ext: "mp4", mime: "video/mp4" };
+      }
+    }
+    if (this.checkString("MThd")) {
+      return {
+        ext: "mid",
+        mime: "audio/midi"
+      };
+    }
+    if (this.checkString("wOFF") && (this.check([0, 1, 0, 0], { offset: 4 }) || this.checkString("OTTO", { offset: 4 }))) {
+      return {
+        ext: "woff",
+        mime: "font/woff"
+      };
+    }
+    if (this.checkString("wOF2") && (this.check([0, 1, 0, 0], { offset: 4 }) || this.checkString("OTTO", { offset: 4 }))) {
+      return {
+        ext: "woff2",
+        mime: "font/woff2"
+      };
+    }
+    if (this.check([212, 195, 178, 161]) || this.check([161, 178, 195, 212])) {
+      return {
+        ext: "pcap",
+        mime: "application/vnd.tcpdump.pcap"
+      };
+    }
+    if (this.checkString("DSD ")) {
+      return {
+        ext: "dsf",
+        mime: "audio/x-dsf"
+        // Non-standard
+      };
+    }
+    if (this.checkString("LZIP")) {
+      return {
+        ext: "lz",
+        mime: "application/x-lzip"
+      };
+    }
+    if (this.checkString("fLaC")) {
+      return {
+        ext: "flac",
+        mime: "audio/x-flac"
+      };
+    }
+    if (this.check([66, 80, 71, 251])) {
+      return {
+        ext: "bpg",
+        mime: "image/bpg"
+      };
+    }
+    if (this.checkString("wvpk")) {
+      return {
+        ext: "wv",
+        mime: "audio/wavpack"
+      };
+    }
+    if (this.checkString("%PDF")) {
+      try {
+        await tokenizer.ignore(1350);
+        const maxBufferSize2 = 10 * 1024 * 1024;
+        const buffer2 = import_node_buffer5.Buffer.alloc(Math.min(maxBufferSize2, tokenizer.fileInfo.size));
+        await tokenizer.readBuffer(buffer2, { mayBeLess: true });
+        if (buffer2.includes(import_node_buffer5.Buffer.from("AIPrivateData"))) {
+          return {
+            ext: "ai",
+            mime: "application/postscript"
+          };
+        }
+      } catch (error2) {
+        if (!(error2 instanceof EndOfStreamError)) {
+          throw error2;
+        }
+      }
+      return {
+        ext: "pdf",
+        mime: "application/pdf"
+      };
+    }
+    if (this.check([0, 97, 115, 109])) {
+      return {
+        ext: "wasm",
+        mime: "application/wasm"
+      };
+    }
+    if (this.check([73, 73])) {
+      const fileType = await this.readTiffHeader(false);
+      if (fileType) {
+        return fileType;
+      }
+    }
+    if (this.check([77, 77])) {
+      const fileType = await this.readTiffHeader(true);
+      if (fileType) {
+        return fileType;
+      }
+    }
+    if (this.checkString("MAC ")) {
+      return {
+        ext: "ape",
+        mime: "audio/ape"
+      };
+    }
+    if (this.check([26, 69, 223, 163])) {
+      async function readField() {
+        const msb = await tokenizer.peekNumber(UINT8);
+        let mask = 128;
+        let ic = 0;
+        while ((msb & mask) === 0 && mask !== 0) {
+          ++ic;
+          mask >>= 1;
+        }
+        const id = import_node_buffer5.Buffer.alloc(ic + 1);
+        await tokenizer.readBuffer(id);
+        return id;
+      }
+      async function readElement() {
+        const id = await readField();
+        const lengthField = await readField();
+        lengthField[0] ^= 128 >> lengthField.length - 1;
+        const nrLength = Math.min(6, lengthField.length);
+        return {
+          id: id.readUIntBE(0, id.length),
+          len: lengthField.readUIntBE(lengthField.length - nrLength, nrLength)
+        };
+      }
+      async function readChildren(children) {
+        while (children > 0) {
+          const element = await readElement();
+          if (element.id === 17026) {
+            const rawValue = await tokenizer.readToken(new StringType(element.len, "utf-8"));
+            return rawValue.replaceAll(/\00.*$/g, "");
+          }
+          await tokenizer.ignore(element.len);
+          --children;
+        }
+      }
+      const re2 = await readElement();
+      const docType = await readChildren(re2.len);
+      switch (docType) {
+        case "webm":
+          return {
+            ext: "webm",
+            mime: "video/webm"
+          };
+        case "matroska":
+          return {
+            ext: "mkv",
+            mime: "video/x-matroska"
+          };
+        default:
+          return;
+      }
+    }
+    if (this.check([82, 73, 70, 70])) {
+      if (this.check([65, 86, 73], { offset: 8 })) {
+        return {
+          ext: "avi",
+          mime: "video/vnd.avi"
+        };
+      }
+      if (this.check([87, 65, 86, 69], { offset: 8 })) {
+        return {
+          ext: "wav",
+          mime: "audio/wav"
+        };
+      }
+      if (this.check([81, 76, 67, 77], { offset: 8 })) {
+        return {
+          ext: "qcp",
+          mime: "audio/qcelp"
+        };
+      }
+    }
+    if (this.checkString("SQLi")) {
+      return {
+        ext: "sqlite",
+        mime: "application/x-sqlite3"
+      };
+    }
+    if (this.check([78, 69, 83, 26])) {
+      return {
+        ext: "nes",
+        mime: "application/x-nintendo-nes-rom"
+      };
+    }
+    if (this.checkString("Cr24")) {
+      return {
+        ext: "crx",
+        mime: "application/x-google-chrome-extension"
+      };
+    }
+    if (this.checkString("MSCF") || this.checkString("ISc(")) {
+      return {
+        ext: "cab",
+        mime: "application/vnd.ms-cab-compressed"
+      };
+    }
+    if (this.check([237, 171, 238, 219])) {
+      return {
+        ext: "rpm",
+        mime: "application/x-rpm"
+      };
+    }
+    if (this.check([197, 208, 211, 198])) {
+      return {
+        ext: "eps",
+        mime: "application/eps"
+      };
+    }
+    if (this.check([40, 181, 47, 253])) {
+      return {
+        ext: "zst",
+        mime: "application/zstd"
+      };
+    }
+    if (this.check([127, 69, 76, 70])) {
+      return {
+        ext: "elf",
+        mime: "application/x-elf"
+      };
+    }
+    if (this.check([33, 66, 68, 78])) {
+      return {
+        ext: "pst",
+        mime: "application/vnd.ms-outlook"
+      };
+    }
+    if (this.checkString("PAR1")) {
+      return {
+        ext: "parquet",
+        mime: "application/x-parquet"
+      };
+    }
+    if (this.check([207, 250, 237, 254])) {
+      return {
+        ext: "macho",
+        mime: "application/x-mach-binary"
+      };
+    }
+    if (this.check([79, 84, 84, 79, 0])) {
+      return {
+        ext: "otf",
+        mime: "font/otf"
+      };
+    }
+    if (this.checkString("#!AMR")) {
+      return {
+        ext: "amr",
+        mime: "audio/amr"
+      };
+    }
+    if (this.checkString("{\\rtf")) {
+      return {
+        ext: "rtf",
+        mime: "application/rtf"
+      };
+    }
+    if (this.check([70, 76, 86, 1])) {
+      return {
+        ext: "flv",
+        mime: "video/x-flv"
+      };
+    }
+    if (this.checkString("IMPM")) {
+      return {
+        ext: "it",
+        mime: "audio/x-it"
+      };
+    }
+    if (this.checkString("-lh0-", { offset: 2 }) || this.checkString("-lh1-", { offset: 2 }) || this.checkString("-lh2-", { offset: 2 }) || this.checkString("-lh3-", { offset: 2 }) || this.checkString("-lh4-", { offset: 2 }) || this.checkString("-lh5-", { offset: 2 }) || this.checkString("-lh6-", { offset: 2 }) || this.checkString("-lh7-", { offset: 2 }) || this.checkString("-lzs-", { offset: 2 }) || this.checkString("-lz4-", { offset: 2 }) || this.checkString("-lz5-", { offset: 2 }) || this.checkString("-lhd-", { offset: 2 })) {
+      return {
+        ext: "lzh",
+        mime: "application/x-lzh-compressed"
+      };
+    }
+    if (this.check([0, 0, 1, 186])) {
+      if (this.check([33], { offset: 4, mask: [241] })) {
+        return {
+          ext: "mpg",
+          // May also be .ps, .mpeg
+          mime: "video/MP1S"
+        };
+      }
+      if (this.check([68], { offset: 4, mask: [196] })) {
+        return {
+          ext: "mpg",
+          // May also be .mpg, .m2p, .vob or .sub
+          mime: "video/MP2P"
+        };
+      }
+    }
+    if (this.checkString("ITSF")) {
+      return {
+        ext: "chm",
+        mime: "application/vnd.ms-htmlhelp"
+      };
+    }
+    if (this.check([202, 254, 186, 190])) {
+      return {
+        ext: "class",
+        mime: "application/java-vm"
+      };
+    }
+    if (this.check([253, 55, 122, 88, 90, 0])) {
+      return {
+        ext: "xz",
+        mime: "application/x-xz"
+      };
+    }
+    if (this.checkString("<?xml ")) {
+      return {
+        ext: "xml",
+        mime: "application/xml"
+      };
+    }
+    if (this.check([55, 122, 188, 175, 39, 28])) {
+      return {
+        ext: "7z",
+        mime: "application/x-7z-compressed"
+      };
+    }
+    if (this.check([82, 97, 114, 33, 26, 7]) && (this.buffer[6] === 0 || this.buffer[6] === 1)) {
+      return {
+        ext: "rar",
+        mime: "application/x-rar-compressed"
+      };
+    }
+    if (this.checkString("solid ")) {
+      return {
+        ext: "stl",
+        mime: "model/stl"
+      };
+    }
+    if (this.checkString("AC")) {
+      const version = this.buffer.toString("binary", 2, 6);
+      if (version.match("^d*") && version >= 1e3 && version <= 1050) {
+        return {
+          ext: "dwg",
+          mime: "image/vnd.dwg"
+        };
+      }
+    }
+    if (this.checkString("070707")) {
+      return {
+        ext: "cpio",
+        mime: "application/x-cpio"
+      };
+    }
+    if (this.checkString("BLENDER")) {
+      return {
+        ext: "blend",
+        mime: "application/x-blender"
+      };
+    }
+    if (this.checkString("!<arch>")) {
+      await tokenizer.ignore(8);
+      const string3 = await tokenizer.readToken(new StringType(13, "ascii"));
+      if (string3 === "debian-binary") {
+        return {
+          ext: "deb",
+          mime: "application/x-deb"
+        };
+      }
+      return {
+        ext: "ar",
+        mime: "application/x-unix-archive"
+      };
+    }
+    if (this.checkString("**ACE", { offset: 7 })) {
+      await tokenizer.peekBuffer(this.buffer, { length: 14, mayBeLess: true });
+      if (this.checkString("**", { offset: 12 })) {
+        return {
+          ext: "ace",
+          mime: "application/x-ace-compressed"
+        };
+      }
+    }
+    if (this.check([137, 80, 78, 71, 13, 10, 26, 10])) {
+      await tokenizer.ignore(8);
+      async function readChunkHeader() {
+        return {
+          length: await tokenizer.readToken(INT32_BE),
+          type: await tokenizer.readToken(new StringType(4, "binary"))
+        };
+      }
+      do {
+        const chunk = await readChunkHeader();
+        if (chunk.length < 0) {
+          return;
+        }
+        switch (chunk.type) {
+          case "IDAT":
+            return {
+              ext: "png",
+              mime: "image/png"
+            };
+          case "acTL":
+            return {
+              ext: "apng",
+              mime: "image/apng"
+            };
+          default:
+            await tokenizer.ignore(chunk.length + 4);
+        }
+      } while (tokenizer.position + 8 < tokenizer.fileInfo.size);
+      return {
+        ext: "png",
+        mime: "image/png"
+      };
+    }
+    if (this.check([65, 82, 82, 79, 87, 49, 0, 0])) {
+      return {
+        ext: "arrow",
+        mime: "application/x-apache-arrow"
+      };
+    }
+    if (this.check([103, 108, 84, 70, 2, 0, 0, 0])) {
+      return {
+        ext: "glb",
+        mime: "model/gltf-binary"
+      };
+    }
+    if (this.check([102, 114, 101, 101], { offset: 4 }) || this.check([109, 100, 97, 116], { offset: 4 }) || this.check([109, 111, 111, 118], { offset: 4 }) || this.check([119, 105, 100, 101], { offset: 4 })) {
+      return {
+        ext: "mov",
+        mime: "video/quicktime"
+      };
+    }
+    if (this.check([73, 73, 82, 79, 8, 0, 0, 0, 24])) {
+      return {
+        ext: "orf",
+        mime: "image/x-olympus-orf"
+      };
+    }
+    if (this.checkString("gimp xcf ")) {
+      return {
+        ext: "xcf",
+        mime: "image/x-xcf"
+      };
+    }
+    if (this.check([73, 73, 85, 0, 24, 0, 0, 0, 136, 231, 116, 216])) {
+      return {
+        ext: "rw2",
+        mime: "image/x-panasonic-rw2"
+      };
+    }
+    if (this.check([48, 38, 178, 117, 142, 102, 207, 17, 166, 217])) {
+      async function readHeader() {
+        const guid = import_node_buffer5.Buffer.alloc(16);
+        await tokenizer.readBuffer(guid);
+        return {
+          id: guid,
+          size: Number(await tokenizer.readToken(UINT64_LE))
+        };
+      }
+      await tokenizer.ignore(30);
+      while (tokenizer.position + 24 < tokenizer.fileInfo.size) {
+        const header = await readHeader();
+        let payload = header.size - 24;
+        if (_check(header.id, [145, 7, 220, 183, 183, 169, 207, 17, 142, 230, 0, 192, 12, 32, 83, 101])) {
+          const typeId = import_node_buffer5.Buffer.alloc(16);
+          payload -= await tokenizer.readBuffer(typeId);
+          if (_check(typeId, [64, 158, 105, 248, 77, 91, 207, 17, 168, 253, 0, 128, 95, 92, 68, 43])) {
+            return {
+              ext: "asf",
+              mime: "audio/x-ms-asf"
+            };
+          }
+          if (_check(typeId, [192, 239, 25, 188, 77, 91, 207, 17, 168, 253, 0, 128, 95, 92, 68, 43])) {
+            return {
+              ext: "asf",
+              mime: "video/x-ms-asf"
+            };
+          }
+          break;
+        }
+        await tokenizer.ignore(payload);
+      }
+      return {
+        ext: "asf",
+        mime: "application/vnd.ms-asf"
+      };
+    }
+    if (this.check([171, 75, 84, 88, 32, 49, 49, 187, 13, 10, 26, 10])) {
+      return {
+        ext: "ktx",
+        mime: "image/ktx"
+      };
+    }
+    if ((this.check([126, 16, 4]) || this.check([126, 24, 4])) && this.check([48, 77, 73, 69], { offset: 4 })) {
+      return {
+        ext: "mie",
+        mime: "application/x-mie"
+      };
+    }
+    if (this.check([39, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], { offset: 2 })) {
+      return {
+        ext: "shp",
+        mime: "application/x-esri-shape"
+      };
+    }
+    if (this.check([255, 79, 255, 81])) {
+      return {
+        ext: "j2c",
+        mime: "image/j2c"
+      };
+    }
+    if (this.check([0, 0, 0, 12, 106, 80, 32, 32, 13, 10, 135, 10])) {
+      await tokenizer.ignore(20);
+      const type = await tokenizer.readToken(new StringType(4, "ascii"));
+      switch (type) {
+        case "jp2 ":
+          return {
+            ext: "jp2",
+            mime: "image/jp2"
+          };
+        case "jpx ":
+          return {
+            ext: "jpx",
+            mime: "image/jpx"
+          };
+        case "jpm ":
+          return {
+            ext: "jpm",
+            mime: "image/jpm"
+          };
+        case "mjp2":
+          return {
+            ext: "mj2",
+            mime: "image/mj2"
+          };
+        default:
+          return;
+      }
+    }
+    if (this.check([255, 10]) || this.check([0, 0, 0, 12, 74, 88, 76, 32, 13, 10, 135, 10])) {
+      return {
+        ext: "jxl",
+        mime: "image/jxl"
+      };
+    }
+    if (this.check([254, 255])) {
+      if (this.check([0, 60, 0, 63, 0, 120, 0, 109, 0, 108], { offset: 2 })) {
+        return {
+          ext: "xml",
+          mime: "application/xml"
+        };
+      }
+      return void 0;
+    }
+    if (this.check([0, 0, 1, 186]) || this.check([0, 0, 1, 179])) {
+      return {
+        ext: "mpg",
+        mime: "video/mpeg"
+      };
+    }
+    if (this.check([0, 1, 0, 0, 0])) {
+      return {
+        ext: "ttf",
+        mime: "font/ttf"
+      };
+    }
+    if (this.check([0, 0, 1, 0])) {
+      return {
+        ext: "ico",
+        mime: "image/x-icon"
+      };
+    }
+    if (this.check([0, 0, 2, 0])) {
+      return {
+        ext: "cur",
+        mime: "image/x-icon"
+      };
+    }
+    if (this.check([208, 207, 17, 224, 161, 177, 26, 225])) {
+      return {
+        ext: "cfb",
+        mime: "application/x-cfb"
+      };
+    }
+    await tokenizer.peekBuffer(this.buffer, { length: Math.min(256, tokenizer.fileInfo.size), mayBeLess: true });
+    if (this.check([97, 99, 115, 112], { offset: 36 })) {
+      return {
+        ext: "icc",
+        mime: "application/vnd.iccprofile"
+      };
+    }
+    if (this.checkString("BEGIN:")) {
+      if (this.checkString("VCARD", { offset: 6 })) {
+        return {
+          ext: "vcf",
+          mime: "text/vcard"
+        };
+      }
+      if (this.checkString("VCALENDAR", { offset: 6 })) {
+        return {
+          ext: "ics",
+          mime: "text/calendar"
+        };
+      }
+    }
+    if (this.checkString("FUJIFILMCCD-RAW")) {
+      return {
+        ext: "raf",
+        mime: "image/x-fujifilm-raf"
+      };
+    }
+    if (this.checkString("Extended Module:")) {
+      return {
+        ext: "xm",
+        mime: "audio/x-xm"
+      };
+    }
+    if (this.checkString("Creative Voice File")) {
+      return {
+        ext: "voc",
+        mime: "audio/x-voc"
+      };
+    }
+    if (this.check([4, 0, 0, 0]) && this.buffer.length >= 16) {
+      const jsonSize = this.buffer.readUInt32LE(12);
+      if (jsonSize > 12 && this.buffer.length >= jsonSize + 16) {
+        try {
+          const header = this.buffer.slice(16, jsonSize + 16).toString();
+          const json = JSON.parse(header);
+          if (json.files) {
+            return {
+              ext: "asar",
+              mime: "application/x-asar"
+            };
+          }
+        } catch {
+        }
+      }
+    }
+    if (this.check([6, 14, 43, 52, 2, 5, 1, 1, 13, 1, 2, 1, 1, 2])) {
+      return {
+        ext: "mxf",
+        mime: "application/mxf"
+      };
+    }
+    if (this.checkString("SCRM", { offset: 44 })) {
+      return {
+        ext: "s3m",
+        mime: "audio/x-s3m"
+      };
+    }
+    if (this.check([71]) && this.check([71], { offset: 188 })) {
+      return {
+        ext: "mts",
+        mime: "video/mp2t"
+      };
+    }
+    if (this.check([71], { offset: 4 }) && this.check([71], { offset: 196 })) {
+      return {
+        ext: "mts",
+        mime: "video/mp2t"
+      };
+    }
+    if (this.check([66, 79, 79, 75, 77, 79, 66, 73], { offset: 60 })) {
+      return {
+        ext: "mobi",
+        mime: "application/x-mobipocket-ebook"
+      };
+    }
+    if (this.check([68, 73, 67, 77], { offset: 128 })) {
+      return {
+        ext: "dcm",
+        mime: "application/dicom"
+      };
+    }
+    if (this.check([76, 0, 0, 0, 1, 20, 2, 0, 0, 0, 0, 0, 192, 0, 0, 0, 0, 0, 0, 70])) {
+      return {
+        ext: "lnk",
+        mime: "application/x.ms.shortcut"
+        // Invented by us
+      };
+    }
+    if (this.check([98, 111, 111, 107, 0, 0, 0, 0, 109, 97, 114, 107, 0, 0, 0, 0])) {
+      return {
+        ext: "alias",
+        mime: "application/x.apple.alias"
+        // Invented by us
+      };
+    }
+    if (this.checkString("Kaydara FBX Binary  \0")) {
+      return {
+        ext: "fbx",
+        mime: "application/x.autodesk.fbx"
+        // Invented by us
+      };
+    }
+    if (this.check([76, 80], { offset: 34 }) && (this.check([0, 0, 1], { offset: 8 }) || this.check([1, 0, 2], { offset: 8 }) || this.check([2, 0, 2], { offset: 8 }))) {
+      return {
+        ext: "eot",
+        mime: "application/vnd.ms-fontobject"
+      };
+    }
+    if (this.check([6, 6, 237, 245, 216, 29, 70, 229, 189, 49, 239, 231, 254, 116, 183, 29])) {
+      return {
+        ext: "indd",
+        mime: "application/x-indesign"
+      };
+    }
+    await tokenizer.peekBuffer(this.buffer, { length: Math.min(512, tokenizer.fileInfo.size), mayBeLess: true });
+    if (tarHeaderChecksumMatches(this.buffer)) {
+      return {
+        ext: "tar",
+        mime: "application/x-tar"
+      };
+    }
+    if (this.check([255, 254])) {
+      if (this.check([60, 0, 63, 0, 120, 0, 109, 0, 108, 0], { offset: 2 })) {
+        return {
+          ext: "xml",
+          mime: "application/xml"
+        };
+      }
+      if (this.check([255, 14, 83, 0, 107, 0, 101, 0, 116, 0, 99, 0, 104, 0, 85, 0, 112, 0, 32, 0, 77, 0, 111, 0, 100, 0, 101, 0, 108, 0], { offset: 2 })) {
+        return {
+          ext: "skp",
+          mime: "application/vnd.sketchup.skp"
+        };
+      }
+      return void 0;
+    }
+    if (this.checkString("-----BEGIN PGP MESSAGE-----")) {
+      return {
+        ext: "pgp",
+        mime: "application/pgp-encrypted"
+      };
+    }
+    if (this.buffer.length >= 2 && this.check([255, 224], { offset: 0, mask: [255, 224] })) {
+      if (this.check([16], { offset: 1, mask: [22] })) {
+        if (this.check([8], { offset: 1, mask: [8] })) {
+          return {
+            ext: "aac",
+            mime: "audio/aac"
+          };
+        }
+        return {
+          ext: "aac",
+          mime: "audio/aac"
+        };
+      }
+      if (this.check([2], { offset: 1, mask: [6] })) {
+        return {
+          ext: "mp3",
+          mime: "audio/mpeg"
+        };
+      }
+      if (this.check([4], { offset: 1, mask: [6] })) {
+        return {
+          ext: "mp2",
+          mime: "audio/mpeg"
+        };
+      }
+      if (this.check([6], { offset: 1, mask: [6] })) {
+        return {
+          ext: "mp1",
+          mime: "audio/mpeg"
+        };
+      }
+    }
+  }
+  async readTiffTag(bigEndian) {
+    const tagId = await this.tokenizer.readToken(bigEndian ? UINT16_BE : UINT16_LE);
+    this.tokenizer.ignore(10);
+    switch (tagId) {
+      case 50341:
+        return {
+          ext: "arw",
+          mime: "image/x-sony-arw"
+        };
+      case 50706:
+        return {
+          ext: "dng",
+          mime: "image/x-adobe-dng"
+        };
+      default:
+    }
+  }
+  async readTiffIFD(bigEndian) {
+    const numberOfTags = await this.tokenizer.readToken(bigEndian ? UINT16_BE : UINT16_LE);
+    for (let n2 = 0; n2 < numberOfTags; ++n2) {
+      const fileType = await this.readTiffTag(bigEndian);
+      if (fileType) {
+        return fileType;
+      }
+    }
+  }
+  async readTiffHeader(bigEndian) {
+    const version = (bigEndian ? UINT16_BE : UINT16_LE).get(this.buffer, 2);
+    const ifdOffset = (bigEndian ? UINT32_BE : UINT32_LE).get(this.buffer, 4);
+    if (version === 42) {
+      if (ifdOffset >= 6) {
+        if (this.checkString("CR", { offset: 8 })) {
+          return {
+            ext: "cr2",
+            mime: "image/x-canon-cr2"
+          };
+        }
+        if (ifdOffset >= 8 && (this.check([28, 0, 254, 0], { offset: 8 }) || this.check([31, 0, 11, 0], { offset: 8 }))) {
+          return {
+            ext: "nef",
+            mime: "image/x-nikon-nef"
+          };
+        }
+      }
+      await this.tokenizer.ignore(ifdOffset);
+      const fileType = await this.readTiffIFD(bigEndian);
+      return fileType ?? {
+        ext: "tif",
+        mime: "image/tiff"
+      };
+    }
+    if (version === 43) {
+      return {
+        ext: "tif",
+        mime: "image/tiff"
+      };
+    }
+  }
+};
+var supportedExtensions = new Set(extensions);
+var supportedMimeTypes = new Set(mimeTypes);
+
 // src/llamaindexretreival.ts
 var BlobFileSystem = class {
   constructor(filename, blob) {
@@ -84333,10 +86744,26 @@ var LlamaIndexRetreivalService = class {
     await this.host.deleteDirectory(persistDir);
     return { ok: true };
   }
-  async upsert(filenameOrUrl, content3) {
+  async upsert(filenameOrUrl, content3, mimeType) {
     const { Document, VectorStoreIndex } = this.module;
-    const { type } = content3;
-    const reader = this.READERS[content3.type];
+    let blob = void 0;
+    if (content3) {
+      blob = new Blob([content3], {
+        type: mimeType || "text/plain"
+      });
+    } else if (/^http?s:\/\//i.test(filenameOrUrl)) {
+      const res = await fetch(filenameOrUrl);
+      blob = await res.blob();
+    } else {
+      const buffer2 = await this.host.readFile(filenameOrUrl);
+      const t2 = await fileTypeFromBuffer(buffer2);
+      blob = new Blob([buffer2], {
+        type: t2?.mime
+      });
+    }
+    const { type } = blob;
+    console.debug(`${filenameOrUrl}, ${type}, ${prettyBytes(blob.size)}`);
+    const reader = this.READERS[type];
     if (!reader)
       return {
         ok: false,
@@ -84344,7 +86771,7 @@ var LlamaIndexRetreivalService = class {
       };
     const storageContext = await this.createStorageContext();
     const serviceContext = await this.createServiceContext();
-    const fs2 = new BlobFileSystem(filenameOrUrl, content3);
+    const fs2 = new BlobFileSystem(filenameOrUrl, blob);
     const documents = (await reader.loadData(filenameOrUrl, fs2)).map(
       (doc) => new Document({
         text: doc.text,
@@ -84493,10 +86920,10 @@ var NodeHost = class _NodeHost {
     }
   }
   createUTF8Decoder() {
-    return new import_util15.TextDecoder("utf-8");
+    return new import_util17.TextDecoder("utf-8");
   }
   createUTF8Encoder() {
-    return new import_util15.TextEncoder();
+    return new import_util17.TextEncoder();
   }
   projectFolder() {
     return (0, import_node_path3.resolve)(".");
@@ -84647,11 +87074,6 @@ var import_websocket = __toESM(require_websocket(), 1);
 var import_websocket_server = __toESM(require_websocket_server(), 1);
 
 // src/server.ts
-async function b64toBlob(base64, type) {
-  const res = await fetch(`data:${type};base64,${base64}`);
-  const blob = await res.blob();
-  return blob;
-}
 async function startServer(options) {
   await host.retreival.init();
   const port = parseInt(options.port) || SERVER_PORT;
@@ -84682,18 +87104,25 @@ async function startServer(options) {
             console.log(`retreival: upsert ${data.filename}`);
             response = await host.retreival.upsert(
               data.filename,
-              await b64toBlob(data.content, data.mimeType)
+              data.content,
+              data.mimeType
             );
             break;
           case "retreival.query":
             console.log(`retreival: query ${data.text}`);
             console.debug(YAMLStringify(data.options));
-            response = await host.retreival.query(data.text, data.options);
+            response = await host.retreival.query(
+              data.text,
+              data.options
+            );
             break;
           case "retreival.search":
             console.log(`retreival: search ${data.text}`);
             console.debug(YAMLStringify(data.options));
-            response = await host.retreival.search(data.text, data.options);
+            response = await host.retreival.search(
+              data.text,
+              data.options
+            );
             break;
           default:
             throw new Error(`unknown message type ${type}`);
@@ -84703,7 +87132,7 @@ async function startServer(options) {
         response = { ok: false, error: e2.message };
       } finally {
         if (response.error)
-          console.error(response.error);
+          logError(response.error);
         ws.send(JSON.stringify({ id, response }));
       }
     });
@@ -84747,7 +87176,7 @@ async function expandFiles(files, excludedFiles) {
   }
   return Array.from(res.values());
 }
-async function write(name, content3) {
+async function write2(name, content3) {
   await writeText(name, content3);
 }
 async function appendJSONL2(name, objs, meta) {
@@ -85088,23 +87517,23 @@ ${Array.from(files).map((f2) => `-   [${(0, import_node_path6.basename)(f2)}](./
     spinner.stopAndPersist();
   }
   if (outTrace && res.trace)
-    await write(outTrace, res.trace);
+    await write2(outTrace, res.trace);
   if (outAnnotations && res.annotations?.length) {
     if (isJSONLFilename(outAnnotations))
       await appendJSONL2(outAnnotations, res.annotations);
     else
-      await write(
+      await write2(
         outAnnotations,
         /\.(c|t)sv$/i.test(outAnnotations) ? diagnosticsToCSV(res.annotations, csvSeparator) : /\.ya?ml$/i.test(outAnnotations) ? YAMLStringify(res.annotations) : /\.sarif$/.test(outAnnotations) ? convertDiagnosticsToSARIF(script, res.annotations) : JSON.stringify(res.annotations, null, 2)
       );
   }
   if (outChangelogs && res.changelogs?.length)
-    await write(outChangelogs, res.changelogs.join("\n"));
+    await write2(outChangelogs, res.changelogs.join("\n"));
   if (outData && res.frames?.length)
     if (isJSONLFilename(outData))
       await appendJSONL2(outData, res.frames);
     else
-      await write(outData, JSON.stringify(res.frames, null, 2));
+      await write2(outData, JSON.stringify(res.frames, null, 2));
   if (applyEdits && !res.error && Object.keys(res.fileEdits || {}).length)
     await writeFileEdits(res);
   const promptjson = res.prompt?.length ? JSON.stringify(res.prompt, null, 2) : void 0;
@@ -85122,21 +87551,21 @@ ${Array.from(files).map((f2) => `-   [${(0, import_node_path6.basename)(f2)}](./
     const sariff = res.annotations?.length ? mkfn(".sarif") : void 0;
     const specf = specContent ? mkfn(".gpspec.md") : void 0;
     const changelogf = res.changelogs?.length ? mkfn(".changelog.txt") : void 0;
-    await write(jsonf, JSON.stringify(res, null, 2));
-    await write(yamlf, YAMLStringify(res));
+    await write2(jsonf, JSON.stringify(res, null, 2));
+    await write2(yamlf, YAMLStringify(res));
     if (promptjson) {
-      await write(promptf, promptjson);
+      await write2(promptf, promptjson);
     }
     if (res.text)
-      await write(outputf, res.text);
+      await write2(outputf, res.text);
     if (res.trace)
-      await write(tracef, res.trace);
+      await write2(tracef, res.trace);
     if (specf) {
       const spect = await readText(spec);
-      await write(specf, spect);
+      await write2(specf, spect);
     }
     if (annotationf) {
-      await write(
+      await write2(
         annotationf,
         `severity, filename, start, end, message
 ` + res.annotations.map(
@@ -85145,12 +87574,12 @@ ${Array.from(files).map((f2) => `-   [${(0, import_node_path6.basename)(f2)}](./
       );
     }
     if (sariff)
-      await write(
+      await write2(
         sariff,
         convertDiagnosticsToSARIF(script, res.annotations)
       );
     if (changelogf && res.changelogs?.length)
-      await write(changelogf, res.changelogs.join("\n"));
+      await write2(changelogf, res.changelogs.join("\n"));
   } else {
     if (options.json)
       console.log(JSON.stringify(res, null, 2));
@@ -85174,7 +87603,7 @@ async function writeFileEdits(res) {
   for (const fileEdit of Object.entries(res.fileEdits)) {
     const [fn, { before, after }] = fileEdit;
     if (after !== before)
-      await write(fn, after ?? before);
+      await write2(fn, after ?? before);
   }
 }
 async function listTools() {
@@ -85230,7 +87659,7 @@ async function jsonl2json(files) {
     }
     const objs = await readJSONL(file);
     const out = (0, import_replace_ext.default)(file, ".json");
-    await write(out, JSON.stringify(objs, null, 2));
+    await write2(out, JSON.stringify(objs, null, 2));
     spinner.succeed();
   }
 }
@@ -85400,4 +87829,7 @@ node-domexception/index.js:
 
 uri-js/dist/es5/uri.all.js:
   (** @license URI.js v4.4.1 (c) 2011 Gary Court. License: http://github.com/garycourt/uri-js *)
+
+ieee754/index.js:
+  (*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> *)
 */

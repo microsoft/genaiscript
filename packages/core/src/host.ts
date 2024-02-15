@@ -85,9 +85,19 @@ export type RetreivalQueryResponse = ResponseStatus & {
 export interface RetreivalService {
     init(trace?: MarkdownTrace): Promise<void>
     clear(): Promise<ResponseStatus>
-    upsert(filenameOrUrl: string, content: Blob): Promise<ResponseStatus>
-    search(text: string, options?: RetreivalQueryOptions): Promise<RetreivalSearchResponse>
-    query(text: string, options?: RetreivalQueryOptions): Promise<RetreivalQueryResponse>
+    upsert(
+        filenameOrUrl: string,
+        content?: string,
+        mimeType?: string
+    ): Promise<ResponseStatus>
+    search(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalSearchResponse>
+    query(
+        text: string,
+        options?: RetreivalQueryOptions
+    ): Promise<RetreivalQueryResponse>
 }
 
 export interface ServerManager {

@@ -17,12 +17,6 @@ import {
     RetreivalUpsert,
 } from "./messages"
 
-async function blobToBase64(blob: Blob): Promise<string> {
-    const arrayBuffer = await new Response(blob).arrayBuffer()
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-    return base64
-}
-
 export class WebSocketClient implements RetreivalService {
     private awaiters: Record<
         string,
@@ -134,12 +128,12 @@ export class WebSocketClient implements RetreivalService {
         })
         return res.response
     }
-    async upsert(filename: string, content: Blob) {
+    async upsert(filename: string, content?: string, mimeType?: string) {
         const res = await this.queue(<RetreivalUpsert>{
             type: "retreival.upsert",
             filename,
-            content: await blobToBase64(content),
-            mimeType: content.type,
+            content,
+            mimeType,
         })
         return res.response
     }
