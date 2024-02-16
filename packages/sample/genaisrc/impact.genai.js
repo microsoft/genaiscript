@@ -1,18 +1,17 @@
 script({
     title: "generate impact assessment",
     description: "Generate an impact assessment for a given project.",
+    categories: ["impact assessment"],
 })
 
 def("README", env.files.filter((f) => f.filename.endsWith("README.md")))
 def("DIRECTIONS", env.files.filter((f) => f.filename.endsWith("how-to.md")))
 def("TEMPLATE", env.files.filter((f) => f.filename.endsWith("template.md")))
 
-const fname = env.files.filter((f) => f.filename.endsWith(".pdf"))
-console.log("pdf files: ", fname)
+const pdfs = env.files.filter((f) => f.filename.endsWith(".pdf"))
+console.log("pdf files: ", pdfs)
 
-
-const { file, pages } = await parsers.PDF(env.files.filter((f) => f.filename.endsWith(".pdf"))[0])
-
+const { file, pages } = await parsers.PDF(pdfs[0])
 def("PROJECTPDF", file)
 
 const outputName = "assessment-draft.md"
