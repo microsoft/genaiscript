@@ -65,8 +65,20 @@ export async function startServer(options: { port: string }) {
                             data.options
                         )
                         break
-                    case "retreival.highlights.code":
-                        console.log(`retreival: highlights code ${data.files}`)
+                    case "retreival.highlight":
+                        console.log(`retreival: highlight ${data.files} files`)
+                        console.debug(YAMLStringify(data.files))
+                        response = await host.highlight.highlight(
+                            data.files,
+                            data.options
+                        )
+                        break
+                    case "retreival.outline":
+                        console.log(
+                            `retreival: outline ${data.files.length} files`
+                        )
+                        console.debug(YAMLStringify(data.files))
+                        response = await host.highlight.outline(data.files)
                         break
                     default:
                         throw new Error(`unknown message type ${type}`)

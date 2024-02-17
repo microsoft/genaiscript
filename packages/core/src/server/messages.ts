@@ -1,4 +1,6 @@
 import {
+    HighlightOptions,
+    HighlightResponse,
     ResponseStatus,
     RetreivalQueryOptions,
     RetreivalQueryResponse,
@@ -40,15 +42,17 @@ export interface RetreivalQuery extends RequestMessage {
     response?: RetreivalQueryResponse
 }
 
-export interface RetreivalFileOutline extends RequestMessage {
-    type: "retreival.highlights.file"
-    files: string[]
-    response: ResponseStatus & { content: string }
+export interface RetreivalHighlight extends RequestMessage {
+    type: "retreival.highlight"
+    files: LinkedFile[]
+    options?: HighlightOptions
+    response?: HighlightResponse
 }
-export interface RetreivalCodeOutline extends RequestMessage {
-    type: "retreival.highlights.code"
-    files: string[]
-    response: ResponseStatus & { content: string }
+
+export interface RetreivalOutline extends RequestMessage {
+    type: "retreival.outline"
+    files: LinkedFile[]
+    response?: HighlightResponse
 }
 
 export type RequestMessages =
@@ -57,5 +61,5 @@ export type RequestMessages =
     | RetreivalUpsert
     | RetreivalSearch
     | RetreivalQuery
-    | RetreivalFileOutline
-    | RetreivalCodeOutline
+    | RetreivalOutline
+    | RetreivalHighlight

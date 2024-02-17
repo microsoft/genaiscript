@@ -100,6 +100,17 @@ export interface RetreivalService {
     ): Promise<RetreivalQueryResponse>
 }
 
+export interface HighlightOptions {
+    maxLength?: number
+}
+
+export type HighlightResponse = ResponseStatus & { response: string }
+
+export interface HighlightService {
+    highlight(files: LinkedFile[], options?: HighlightOptions): Promise<HighlightResponse>
+    outline(files: LinkedFile[]): Promise<HighlightResponse>
+}
+
 export interface ServerManager {
     start(): Promise<void>
     close(): Promise<void>
@@ -109,6 +120,7 @@ export interface Host {
     userState: any
 
     retreival: RetreivalService
+    highlight: HighlightService
     server: ServerManager
     path: Path
     createUTF8Decoder(): UTF8Decoder
