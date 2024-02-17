@@ -1,10 +1,9 @@
 # sample spec for impact assessment
--   [assessment-draft-queries.md](assessment-draft-queries.md)
 
 ## Links
 - [README.md](./README.md)
 - [impact-assessment-how-to.md](./impact-assessment-how-to.md)
 - [template](./impact-assessment-template.md)
-- [project](./orca.pdf)
+
  
 
