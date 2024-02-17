@@ -38,6 +38,7 @@ import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, search, query } from "./retreival"
+import { highlight, outline } from "./highlights"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -155,9 +156,6 @@ async function callExpander(
     })
 
     const retreival: Retreival = {
-        index: async (files) => {
-            await upsert(files, { trace })
-        },
         query: async (q, options) => {
             const { files = env.files } = options || {}
             try {
@@ -184,6 +182,24 @@ async function callExpander(
                 })
                 trace.fence(res, "yaml")
                 return res
+            } finally {
+                trace.endDetails()
+            }
+        },
+        hightlight: async (files, options) => {
+            try {
+                trace.startDetails(`retreival highlight`)
+                const res = await highlight(files, options)
+                return res?.response
+            } finally {
+                trace.endDetails()
+            }
+        },
+        outline: async (files) => {
+            try {
+                trace.startDetails(`retreival outline`)
+                const res = await outline(files)
+                return res?.response
             } finally {
                 trace.endDetails()
             }

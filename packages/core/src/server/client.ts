@@ -1,7 +1,5 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
-    HighlightOptions,
-    HighlightResponse,
     HighlightService,
     ResponseStatus,
     RetreivalQueryOptions,

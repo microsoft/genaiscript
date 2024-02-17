@@ -1,5 +1,4 @@
 import {
-    HighlightOptions,
     HighlightResponse,
     HighlightService,
     Host,

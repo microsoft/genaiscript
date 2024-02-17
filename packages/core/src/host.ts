@@ -100,10 +100,6 @@ export interface RetreivalService {
     ): Promise<RetreivalQueryResponse>
 }
 
-export interface HighlightOptions {
-    maxLength?: number
-}
-
 export type HighlightResponse = ResponseStatus & { response: string }
 
 export interface HighlightService {
