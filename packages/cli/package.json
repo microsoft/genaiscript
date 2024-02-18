@@ -17,8 +17,7 @@
   },
   "optionalDependencies": {
     "llamaindex": "^0.1.10",
-    "pdfjs-dist": "^4.0.379",
-    "gpt-tokens": "^1.3.2"
+    "pdfjs-dist": "^4.0.379"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -39,7 +38,7 @@
     "tsx": "^4.7.1"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist --external:llamaindex --external:gpt-tokens",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist --external:llamaindex",
     "postcompile": "cp built/genaiscript.js ../vscode/genaiscript.js",
     "go": "yarn compile && node built/genaiscript.js",
     "test": "node --import tsx --test src/**.test.ts",

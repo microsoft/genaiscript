@@ -786,8 +786,7 @@ export async function runTemplate(
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
-                const info = await estimateTokens(model, messages, tools)
-                if (info) trace.item(`tokens: ${info.tokens}`)
+                trace.item(`tokens: ${estimateTokens(model, messages, tools)}`)
                 status()
                 resp = await completer(
                     {
