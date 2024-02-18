@@ -1,7 +1,7 @@
 import { PromptTemplate } from "./ast"
 import { GENAI_EXT, GENAI_SRC } from "./constants"
 import { host } from "./host"
-import { fileExists, writeText } from "./util"
+import { fileExists, writeText } from "./fs"
 
 function promptPath(id: string) {
     const prompts = host.resolvePath(host.projectFolder(), GENAI_SRC)

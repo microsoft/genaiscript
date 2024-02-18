@@ -8,7 +8,7 @@ import {
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, fileExists, logVerbose, readText, relativePath } from "./util"
+import { assert, logVerbose, relativePath } from "./util"
 import {
     DataFrame,
     Fenced,
@@ -39,6 +39,7 @@ import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, search, query } from "./retreival"
 import { highlight, outline } from "./highlights"
+import { fileExists, readText } from "./fs"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0

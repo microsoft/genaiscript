@@ -1,16 +1,18 @@
-import { highlightsLanguages, host } from "genaiscript-core"
+import { MarkdownTrace, highlightsLanguages, host } from "genaiscript-core"
 
-function isSupported(f: string) {
+const EXT_MAP: Record<string, string> = {
+    js: "javascript",
+    cs: "c_sharp",
+    sh: "bash",
+    py: "python",
+    rs: "rust",
+    ts: "typescript",
+}
+
+export function isHighlightSupported(f: string) {
+    if (!f) return false
     const ext = host.path.extname(f).slice(1).toLowerCase()
-    const map: Record<string, string> = {
-        js: "javascript",
-        cs: "c_sharp",
-        sh: "bash",
-        py: "python",
-        rs: "rust",
-        ts: "typescript",
-    }
-    return ext && highlightsLanguages.includes(map[ext] || ext)
+    return ext && highlightsLanguages.includes(EXT_MAP[ext] || ext)
 }
 
 /*
@@ -19,19 +21,25 @@ export const highlightsLanguages: string[] = ["bash","c","c_sharp","cpp","css","
 
 export async function highlight(
     files: LinkedFile[],
-    options: HighlightOptions
+    options: HighlightOptions & { trace?: MarkdownTrace }
 ) {
-    const codeFiles = files.filter(
-        ({ filename, content }) => !!content && isSupported(filename)
-    )
     const service = host.highlight
+    await service.init(options?.trace)
+    const codeFiles = files.filter(
+        ({ filename, content }) => !!content && isHighlightSupported(filename)
+    )
     return await service.highlight(codeFiles, options)
 }
 
-export async function outline(files: LinkedFile[]) {
-    const codeFiles = files.filter(
-        ({ filename, content }) => !!content && isSupported(filename)
-    )
+export async function outline(
+    files: LinkedFile[],
+    options?: { trace?: MarkdownTrace }
+) {
     const service = host.highlight
+    await service.init(options?.trace)
+
+    const codeFiles = files.filter(
+        ({ filename, content }) => !!content && isHighlightSupported(filename)
+    )
     return await service.outline(codeFiles)
 }

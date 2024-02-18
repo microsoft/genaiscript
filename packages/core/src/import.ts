@@ -1,7 +1,7 @@
 import { exec } from "./exec"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
-import { fileExists } from "./util"
+import { fileExists } from "./fs"
 
 export async function installImport(id: string, trace?: MarkdownTrace) {
     const cwd = host.installFolder()
