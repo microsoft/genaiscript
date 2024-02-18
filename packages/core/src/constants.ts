@@ -12,3 +12,4 @@ export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8002
 export const CLIENT_RECONNECT_DELAY = 2000
 export const RETREIVAL_PERSIST_DIR = "retreival"
+export const HIGHLIGHT_LENGTH = 4000

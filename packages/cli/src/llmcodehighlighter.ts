@@ -1,4 +1,5 @@
 import {
+    HIGHLIGHT_LENGTH,
     HighlightResponse,
     HighlightService,
     Host,
@@ -42,17 +43,14 @@ export class LLMCodeHighlighterService implements HighlightService {
         files: LinkedFile[],
         options?: HighlightOptions
     ): Promise<HighlightResponse> {
-        const { maxLength = Number.MAX_VALUE } = options || {}
+        const { maxLength = HIGHLIGHT_LENGTH } = options || {}
         const { getHighlightsThatFit } = this.module
         const sizer = new NumCharSizer(maxLength)
-        const response = await getHighlightsThatFit(
-            sizer,
-            files.map(({ filename, content }) => ({
-                relPath: filename,
-                code: content,
-            })),
-            []
-        )
+        const sources = files.map(({ filename, content }) => ({
+            relPath: filename,
+            code: content,
+        }))
+        const response = await getHighlightsThatFit(sizer, [],sources)
         return <HighlightResponse>{
             ok: true,
             response,

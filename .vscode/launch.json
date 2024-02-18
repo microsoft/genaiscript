@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["retreival", "search", "lorem", "packages/sample/src/rag/loremipsum.pdf"]
+            "args": ["retreival", "highlight", "packages/core/src/*.ts"]
         },
         {
             "name": "Run - sample",
