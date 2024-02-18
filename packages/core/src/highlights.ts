@@ -2,6 +2,7 @@ import { MarkdownTrace, highlightsLanguages, host } from "genaiscript-core"
 
 const EXT_MAP: Record<string, string> = {
     js: "javascript",
+    mjs: "javascript",
     cs: "c_sharp",
     sh: "bash",
     py: "python",

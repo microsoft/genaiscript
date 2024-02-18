@@ -39,7 +39,7 @@
         "tsx": "^4.7.1"
     },
     "scripts": {
-        "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist --external:llamaindex",
+        "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist --external:llamaindex --external:llm-code-highlighter",
         "postcompile": "cp built/genaiscript.js ../vscode/genaiscript.js",
         "go": "yarn compile && node built/genaiscript.js",
         "test": "node --import tsx --test src/**.test.ts",

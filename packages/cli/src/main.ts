@@ -742,6 +742,7 @@ async function codeHighlight(
             isHighlightSupported
         )
     )
+    console.log(YAMLStringify(files.map(({filename}) => filename)))
     const res = await highlight(files, {
         maxLength: normalizeInt(options.maxChars),
     })
