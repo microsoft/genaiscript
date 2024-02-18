@@ -1870,6 +1870,11 @@ decamelize@^4.0.0:
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-4.0.0.tgz#aa472d7bf660eb15f3494efd531cab7f2a709837"
   integrity sha512-9iE1PgSik9HeIIw2JO94IidnE3eBoQrFJ3w7sFuzSX4DpmZ3v5sZpUiV5Swcf6mQEF+Y0ru8Neo+p+nyh2J+hQ==
 
+decimal.js@^10.4.3:
+  version "10.4.3"
+  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-10.4.3.tgz#1044092884d245d1b7f65725fa4ad4c6f781cc23"
+  integrity sha512-VBBaLc1MgL5XpzgIP7ny5Z6Nx3UrRkIViUkPUdtl9aya5amy3De1gsUUSB1g3+3sExYNjCAsAznmukyxCb1GRA==
+
 decode-named-character-reference@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/decode-named-character-reference/-/decode-named-character-reference-1.0.2.tgz#daabac9690874c394c81e4162a0304b35d824f0e"
@@ -2827,6 +2832,15 @@ gopd@^1.0.1:
   dependencies:
     get-intrinsic "^1.1.3"
 
+gpt-tokens@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/gpt-tokens/-/gpt-tokens-1.3.2.tgz#9fdf42ec5de1e2192a66a145899e2127db29d8a5"
+  integrity sha512-kef4GajN/a5tJrx5JK4ujctbIHxOXyyd+I+NNbD0mYG5ZaHkkV3EsjL8r3hi3wOGF41/3n40LtNVBDga333dYw==
+  dependencies:
+    decimal.js "^10.4.3"
+    js-tiktoken "^1.0.10"
+    openai-chat-tokens "^0.2.8"
+
 graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.4:
   version "4.2.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
@@ -3227,7 +3241,7 @@ jackspeak@^2.3.5:
   optionalDependencies:
     "@pkgjs/parseargs" "^0.11.0"
 
-js-tiktoken@^1.0.10:
+js-tiktoken@^1.0.10, js-tiktoken@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/js-tiktoken/-/js-tiktoken-1.0.10.tgz#2b343ec169399dcee8f9ef9807dbd4fafd3b30dc"
   integrity sha512-ZoSxbGjvGyMT13x6ACo9ebhDha/0FHdKA+OsQcMOWcm1Zs7r90Rhk5lhERLzji+3rA7EKpXCgwXcM5fF3DMpdA==
@@ -4517,6 +4531,13 @@ onnxruntime-web@1.14.0:
     onnx-proto "^4.0.4"
     onnxruntime-common "~1.14.0"
     platform "^1.3.6"
+
+openai-chat-tokens@^0.2.8:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/openai-chat-tokens/-/openai-chat-tokens-0.2.8.tgz#cc4a5a8e2d7c8d66b9dea472911d79301cc02422"
+  integrity sha512-nW7QdFDIZlAYe6jsCT/VPJ/Lam3/w2DX9oxf/5wHpebBT49KI3TN43PPhYlq1klq2ajzXWKNOLY6U4FNZM7AoA==
+  dependencies:
+    js-tiktoken "^1.0.7"
 
 openai@^4.26.1, openai@^4.28.0:
   version "4.28.0"

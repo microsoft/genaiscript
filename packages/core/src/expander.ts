@@ -38,6 +38,7 @@ import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, search, query } from "./retreival"
+import { estimateTokens } from "./tokens"
 
 const defaultModel = "gpt-4"
 const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
@@ -785,6 +786,8 @@ export async function runTemplate(
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
+                const info = estimateTokens(model, messages, tools)
+                if (info) trace.item(`tokens: ${info.tokens}`)
                 status()
                 resp = await completer(
                     {
