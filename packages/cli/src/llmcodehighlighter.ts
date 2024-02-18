@@ -50,7 +50,7 @@ export class LLMCodeHighlighterService implements HighlightService {
             relPath: filename,
             code: content,
         }))
-        const response = await getHighlightsThatFit(sizer, [],sources)
+        const response = await getHighlightsThatFit(sizer, [], sources)
         return <HighlightResponse>{
             ok: true,
             response,
@@ -63,7 +63,6 @@ export class LLMCodeHighlighterService implements HighlightService {
             relPath: filename,
             code: content,
         }))
-        console.log(JSON.stringify(req, null, 2))
         const response = await getFileOutlineHighlights(req)
         return <HighlightResponse>{
             ok: true,

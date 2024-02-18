@@ -33,7 +33,7 @@
         "test:search": "node packages/cli/built/genaiscript.js retreival search lorem packages/sample/src/rag/*",
         "test:query": "node packages/cli/built/genaiscript.js retreival query \"what is lorem ipsum?\" packages/sample/src/rag/*",
         "serve": "node packages/cli/built/genaiscript.js serve",
-        "test:outline": "node packages/cli/built/genaiscript.js retreival outline packages/core/**/*.ts",
+        "test:outline": "node packages/cli/built/genaiscript.js retreival outline packages/core/src/server/*.ts",
         "test:highlight": "node packages/cli/built/genaiscript.js retreival highlight packages/core/src/server/*.ts"
     },
     "release-it": {
