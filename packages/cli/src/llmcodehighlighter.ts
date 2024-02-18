@@ -58,12 +58,12 @@ export class LLMCodeHighlighterService implements HighlightService {
     }
 
     async outline(files: LinkedFile[]): Promise<HighlightResponse> {
-        const { getFileOutlineHighlights } = this.module
+        const { getOutlines } = this.module
         const req = files.map(({ filename, content }) => ({
             relPath: filename,
             code: content,
         }))
-        const response = await getFileOutlineHighlights(req)
+        const response = await getOutlines(req)
         return <HighlightResponse>{
             ok: true,
             response,

@@ -3508,10 +3508,10 @@ llamaindex@^0.1.10:
     string-strip-html "^13.4.6"
     wink-nlp "^1.14.3"
 
-llm-code-highlighter@^0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/llm-code-highlighter/-/llm-code-highlighter-0.0.11.tgz#566840235bd004e1ae7e2abf45d15f9760c16c0d"
-  integrity sha512-lbFKZLDrUSC53UjD9ucK/L3+A5r0eSjiGSnPXot4X7a5EYTGz1RzT9tqaSuWeDZl0eBzx5ryPpZ8JyIc+sjlag==
+llm-code-highlighter@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/llm-code-highlighter/-/llm-code-highlighter-0.0.13.tgz#dcdbb2e3f674e1f423857dc245a23e3a7a22941e"
+  integrity sha512-dkJ8yKXiy3tMHJEA1p1ougAA5wE9K+vZKIkIjG7h+HHDoFy1yMLYIEBQIqofTI+/IwxibebC37Ijhm7qkanRJQ==
   dependencies:
     graphology "^0.25.4"
     graphology-metrics "^2.2.0"
