@@ -3234,7 +3234,7 @@ jackspeak@^2.3.5:
   optionalDependencies:
     "@pkgjs/parseargs" "^0.11.0"
 
-js-tiktoken@^1.0.10, js-tiktoken@^1.0.7:
+js-tiktoken@^1.0.10:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/js-tiktoken/-/js-tiktoken-1.0.10.tgz#2b343ec169399dcee8f9ef9807dbd4fafd3b30dc"
   integrity sha512-ZoSxbGjvGyMT13x6ACo9ebhDha/0FHdKA+OsQcMOWcm1Zs7r90Rhk5lhERLzji+3rA7EKpXCgwXcM5fF3DMpdA==
@@ -4524,13 +4524,6 @@ onnxruntime-web@1.14.0:
     onnx-proto "^4.0.4"
     onnxruntime-common "~1.14.0"
     platform "^1.3.6"
-
-openai-chat-tokens@^0.2.8:
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/openai-chat-tokens/-/openai-chat-tokens-0.2.8.tgz#cc4a5a8e2d7c8d66b9dea472911d79301cc02422"
-  integrity sha512-nW7QdFDIZlAYe6jsCT/VPJ/Lam3/w2DX9oxf/5wHpebBT49KI3TN43PPhYlq1klq2ajzXWKNOLY6U4FNZM7AoA==
-  dependencies:
-    js-tiktoken "^1.0.7"
 
 openai@^4.26.1, openai@^4.28.0:
   version "4.28.0"
