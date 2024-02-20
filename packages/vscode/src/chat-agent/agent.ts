@@ -5,6 +5,7 @@ import {
     MarkdownTrace,
     RunTemplateOptions,
     TOOL_NAME,
+    estimateTokens,
     logInfo,
     logVerbose,
 } from "genaiscript-core"
@@ -342,7 +343,7 @@ export function configureChatCompletionForChatAgent(
             partialCb?.({
                 responseSoFar: text,
                 responseChunk: fragment,
-                tokensSoFar: text.length,
+                tokensSoFar: estimateTokens(model, text),
             })
         }
         return { text }

@@ -4,12 +4,13 @@ import { encodeChat, encode } from "gpt-tokenizer"
 import { logError } from "./util"
 
 export function estimateTokens(model: string, text: string) {
-    return estimateChatTokens(model, [
-        {
-            role: "user",
-            content: text,
-        },
-    ])
+    if (!text?.length) return 0
+    try {
+        return encode(text).length
+    } catch (e) {
+        logError(e.message)
+        return text.length / 4
+    }
 }
 
 export function estimateChatTokens(
@@ -27,6 +28,6 @@ export function estimateChatTokens(
         return chatTokens.length
     } catch (e) {
         logError(e.message)
-        return 0
+        return JSON.stringify(chat).length / 4
     }
 }
