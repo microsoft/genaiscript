@@ -38,10 +38,9 @@ import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, search, query } from "./retreival"
-import { estimateTokens } from "./tokens"
+import { estimateChatTokens, estimateTokens } from "./tokens"
+import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 
-const defaultModel = "gpt-4"
-const defaultTemperature = 0.2 // 0.0-2.0, defaults to 1.0
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
 const defaultMaxTokens: number = undefined
@@ -343,6 +342,9 @@ async function expandTemplate(
         responseType = responseType ?? system.responseType
         trace.startDetails(`👾 ${systemTemplate}`)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
+        trace.item(
+            `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysex)}`
+        )
         if (system.temperature !== undefined)
             trace.item(`temperature: ${system.temperature || ""}`)
         if (system.topP !== undefined) trace.item(`top_p: ${system.topP || ""}`)
@@ -357,12 +359,15 @@ async function expandTemplate(
 
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
-    model = (options.model ?? env.vars["model"] ?? model ?? defaultModel) as any
+    model = (options.model ??
+        env.vars["model"] ??
+        model ??
+        DEFAULT_MODEL) as any
     temperature =
         options.temperature ??
         tryParseFloat(env.vars["temperature"]) ??
         temperature ??
-        defaultTemperature
+        DEFAULT_TEMPERATURE
     topP =
         options.topP ?? tryParseFloat(env.vars["top_p"]) ?? topP ?? defaultTopP
     max_tokens =
@@ -375,7 +380,8 @@ async function expandTemplate(
     if (prompt.logs?.length) trace.details("console.log", prompt.logs)
     {
         trace.startDetails("🧬 expanded prompt")
-        if (model) trace.item(`model: \`${model || ""}\``)
+        trace.item(`model: \`${model || ""}\``)
+        trace.item(`tokens: ${estimateTokens(model, prompt.text)}`)
         if (temperature !== undefined)
             trace.item(`temperature: ${temperature || ""}`)
         if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
@@ -786,7 +792,9 @@ export async function runTemplate(
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
-                trace.item(`tokens: ${estimateTokens(model, messages, tools)}`)
+                trace.item(
+                    `tokens: ${estimateChatTokens(model, messages, tools)}`
+                )
                 status()
                 resp = await completer(
                     {
