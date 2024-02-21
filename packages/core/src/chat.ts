@@ -11,6 +11,7 @@ import {
 } from "./constants"
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
+import { estimateTokens } from "./tokens"
 
 export type CreateChatCompletionRequest =
     OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
@@ -118,8 +119,11 @@ export async function getChatCompletions(
     } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
+    let model = req.model.replace("-35-", "-3.5-")
 
-    trace.item(`temperature: ${temperature} (max cached: ${maxCachedTemperature})`)
+    trace.item(
+        `temperature: ${temperature} (max cached: ${maxCachedTemperature})`
+    )
     trace.item(`top_p: ${top_p} (max cached: ${maxCachedTopP})`)
     if (seed) trace.item(`seed: ${seed}`)
 
@@ -133,7 +137,7 @@ export async function getChatCompletions(
     const cached = caching ? await cache.get(req) : undefined
     if (cached !== undefined) {
         partialCb?.({
-            tokensSoFar: Math.round(cached.length / 4),
+            tokensSoFar: estimateTokens(model, cached),
             responseSoFar: cached,
             responseChunk: cached,
         })
@@ -145,7 +149,6 @@ export async function getChatCompletions(
     const r2 = { ...req }
     let postReq: any = r2
 
-    let model = req.model.replace("-35-", "-3.5-")
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
@@ -305,7 +308,7 @@ export async function getChatCompletions(
                     const choice = obj.choices[0]
                     const { finish_reason, delta } = choice
                     if (typeof delta?.content == "string") {
-                        numTokens++
+                        numTokens+= estimateTokens(model, delta.content)
                         chatResp += delta.content
                     } else if (delta?.tool_calls?.length) {
                         const { tool_calls } = delta
