@@ -42,6 +42,11 @@ import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
+import {
+    PromptNode,
+    appendTextChild,
+    renderNode,
+} from "./promptdom"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -141,7 +146,9 @@ async function callExpander(
     vars: ExpansionVariables,
     trace: MarkdownTrace
 ) {
-    let promptText = ""
+    const root: PromptNode = { children: [] }
+    const scope: PromptNode[] = [root]
+
     let success = true
     const parsers = createParsers(trace)
     const path = host.path
@@ -199,17 +206,21 @@ async function callExpander(
     }
 
     let logs = ""
+    let text = ""
     try {
         await evalPrompt(
             {
+                script: () => {},
+                system: () => {},
                 env,
                 path,
                 parsers,
                 retreival,
                 writeText: (body) => {
-                    promptText +=
-                        body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
-
+                    appendTextChild(
+                        scope[0],
+                        body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n"
+                    )
                     const idx = body.indexOf(vars.error)
                     if (idx >= 0) {
                         const msg = body
@@ -218,8 +229,6 @@ async function callExpander(
                         throw new Error(msg)
                     }
                 },
-                script: () => {},
-                system: () => {},
                 readFile: async (filename: string) => {
                     let content: string
                     try {
@@ -272,6 +281,7 @@ async function callExpander(
                 logs += msg + "\n"
             }
         )
+        text = await renderNode(root)
     } catch (e) {
         success = false
         if (isCancelError(e)) {
@@ -282,7 +292,8 @@ async function callExpander(
             trace.error(info, e)
         }
     }
-    return { logs, success, text: promptText }
+    
+    return { logs, success, text }
 }
 
 async function expandTemplate(
