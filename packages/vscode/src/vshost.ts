@@ -71,7 +71,7 @@ export class VSCodeHost extends EventTarget implements Host {
         return workspace.rootPath ?? "."
     }
     installFolder(): string {
-        return this.context.extensionUri.fsPath, "built"
+        return Utils.joinPath(this.context.extensionUri, "built").fsPath
     }
     resolvePath(...segments: string[]): string {
         if (segments.length === 0) return "."

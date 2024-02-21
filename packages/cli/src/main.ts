@@ -36,6 +36,7 @@ import {
     highlight,
     loadFiles,
     outline,
+    estimateTokens,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -761,6 +762,56 @@ async function codeOutline(
     console.log(res?.response || "")
 }
 
+async function codeHighlight(
+    fileGlobs: string[],
+    options: { excludedFiles: string[]; maxChars: string }
+) {
+    const files = await loadFiles(
+        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
+            isHighlightSupported
+        )
+    )
+    const res = await highlight(files, {
+        maxLength: normalizeInt(options.maxChars),
+    })
+    console.log(res?.response || "")
+}
+
+async function codeOutline(
+    fileGlobs: string[],
+    options: { excludedFiles: string[] }
+) {
+    const files = await loadFiles(
+        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
+            isHighlightSupported
+        )
+    )
+    const res = await outline(files)
+    console.log(res?.response || "")
+}
+
+async function retreivalTokens(
+    filesGlobs: string[],
+    options: { excludedFiles: string[]; model: string }
+) {
+    const { model = "gpt4" } = options || {}
+
+    const print = (file: string, content: string) =>
+        console.log(
+            `${file}, ${content.length} chars, ${estimateTokens(model, content)} tokens`
+        )
+
+    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    let text = ""
+    for (const file of files) {
+        const content = await readText(file)
+        if (content) {
+            print(file, content)
+            text += content
+        }
+    }
+    print("total", text)
+}
 async function main() {
     process.on("uncaughtException", (err) => {
         error(isQuiet ? err : err.message)
@@ -909,6 +960,12 @@ async function main() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .action(retreivalQuery)
+    retreival
+        .command("tokens")
+        .description("Count tokens in a set of files")
+        .arguments("<files...>")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .action(retreivalTokens)
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")

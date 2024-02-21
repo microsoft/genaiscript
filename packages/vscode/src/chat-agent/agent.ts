@@ -5,6 +5,7 @@ import {
     MarkdownTrace,
     RunTemplateOptions,
     TOOL_NAME,
+    estimateTokens,
     logInfo,
     logVerbose,
 } from "genaiscript-core"
@@ -16,6 +17,7 @@ interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
 }
 
 // follow https://github.com/microsoft/vscode/issues/199908
+// https://github.com/microsoft/vscode/issues/205609#issue-2143213494
 
 function toChatAgentVariables(
     variables: Record<string, vscode.ChatVariableValue[]>
@@ -342,7 +344,7 @@ export function configureChatCompletionForChatAgent(
             partialCb?.({
                 responseSoFar: text,
                 responseChunk: fragment,
-                tokensSoFar: text.length,
+                tokensSoFar: estimateTokens(model, text),
             })
         }
         return { text }
