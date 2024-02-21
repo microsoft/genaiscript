@@ -3,18 +3,12 @@ import remarkGfm from "remark-gfm"
 import { remark } from "remark"
 import { Content, Heading, Parent } from "mdast"
 import { lookup } from "mime-types"
-import {
-    assert,
-    fileExists,
-    last,
-    readText,
-    sha256string,
-    strcmp,
-} from "./util"
+import { assert, last, sha256string, strcmp } from "./util"
 import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { builtinPrefix, parsePromptTemplate } from "./template"
 import { host } from "./host"
+import { fileExists, readText } from "./fs"
 
 // TODO make this configurable
 // default is '#'

@@ -1,5 +1,5 @@
 import { GENAISCRIPT_FOLDER } from "./constants"
-import { LogLevel, ReadFileOptions, host } from "./host"
+import { LogLevel, host } from "./host"
 
 export function delay<T>(millis: number, value?: T): Promise<T | undefined> {
     return new Promise((resolve) => setTimeout(() => resolve(value), millis))
@@ -194,40 +194,6 @@ export function logWarn(msg: string) {
 
 export function logError(msg: string) {
     host.log(LogLevel.Error, msg)
-}
-
-export async function readText(fn: string) {
-    const curr = await host.readFile(fn)
-    return utf8Decode(curr)
-}
-
-export async function writeText(fn: string, content: string) {
-    await host.writeFile(fn, utf8Encode(content))
-}
-
-export async function fileExists(fn: string, options?: ReadFileOptions) {
-    try {
-        await host.readFile(fn, options)
-        return true
-    } catch {
-        return false
-    }
-}
-
-export async function readJSON(fn: string) {
-    return JSON.parse(await readText(fn))
-}
-
-export async function tryReadJSON(fn: string) {
-    try {
-        return JSON.parse(await readText(fn))
-    } catch {
-        return undefined
-    }
-}
-
-export async function writeJSON(fn: string, obj: any) {
-    await writeText(fn, JSON.stringify(obj))
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {

@@ -1,10 +1,15 @@
+import { fileExists, readText, writeText } from "./fs"
 import { Host, ShellOutput } from "./host"
 import { MarkdownTrace } from "./trace"
-import { dotGenaiscriptPath, fileExists, readText, writeText } from "./util"
+import { dotGenaiscriptPath } from "./util"
 
 export async function exec(
     host: Host,
-    options: { trace?: MarkdownTrace, label: string; call: ChatFunctionCallShell }
+    options: {
+        trace?: MarkdownTrace
+        label: string
+        call: ChatFunctionCallShell
+    }
 ): Promise<ShellOutput> {
     const { label, call, trace } = options
     let { stdin, command, args, cwd, timeout, files, outputFile } = call

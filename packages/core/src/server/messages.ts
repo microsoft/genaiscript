@@ -1,4 +1,5 @@
 import {
+    HighlightResponse,
     ResponseStatus,
     RetreivalQueryOptions,
     RetreivalQueryResponse,
@@ -40,9 +41,16 @@ export interface RetreivalQuery extends RequestMessage {
     response?: RetreivalQueryResponse
 }
 
+export interface RetreivalOutline extends RequestMessage {
+    type: "retreival.outline"
+    files: LinkedFile[]
+    response?: HighlightResponse
+}
+
 export type RequestMessages =
     | ServerKill
     | RetreivalClear
     | RetreivalUpsert
     | RetreivalSearch
     | RetreivalQuery
+    | RetreivalOutline
