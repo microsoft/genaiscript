@@ -8,7 +8,7 @@ import {
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, fileExists, logVerbose, readText, relativePath } from "./util"
+import { assert, logVerbose, relativePath } from "./util"
 import {
     DataFrame,
     Fenced,
@@ -38,6 +38,8 @@ import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, search, query } from "./retreival"
+import { outline } from "./highlights"
+import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 
@@ -155,9 +157,6 @@ async function callExpander(
     })
 
     const retreival: Retreival = {
-        index: async (files) => {
-            await upsert(files, { trace })
-        },
         query: async (q, options) => {
             const { files = env.files } = options || {}
             try {
@@ -184,6 +183,15 @@ async function callExpander(
                 })
                 trace.fence(res, "yaml")
                 return res
+            } finally {
+                trace.endDetails()
+            }
+        },
+        outline: async (files) => {
+            try {
+                trace.startDetails(`retreival outline`)
+                const res = await outline(files)
+                return res?.response
             } finally {
                 trace.endDetails()
             }

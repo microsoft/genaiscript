@@ -38,6 +38,10 @@ export class VSCodeHost extends EventTarget implements Host {
         return this.server.retreival
     }
 
+    get highlight() {
+        return this.server.highlight
+    }
+
     get context() {
         return this.state.context
     }
