@@ -1,6 +1,8 @@
 import {
     CLI_JS,
     GENAISCRIPT_FOLDER,
+    HighlightService,
+    RetreivalService,
     SERVER_PORT,
     ServerManager,
     TOOL_NAME,
@@ -46,7 +48,11 @@ export class TerminalServerManager implements ServerManager {
         this._terminal.show()
     }
 
-    get retreival() {
+    get retreival(): RetreivalService {
+        return this.client
+    }
+
+    get highlight(): HighlightService {
         return this.client
     }
 

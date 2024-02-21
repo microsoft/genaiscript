@@ -12,5 +12,6 @@ export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8002
 export const CLIENT_RECONNECT_DELAY = 2000
 export const RETREIVAL_PERSIST_DIR = "retreival"
+export const HIGHLIGHT_LENGTH = 4000
 export const DEFAULT_MODEL = "gpt-4"
 export const DEFAULT_TEMPERATURE = 0.2 // 0.0-2.0, defaults to 1.0

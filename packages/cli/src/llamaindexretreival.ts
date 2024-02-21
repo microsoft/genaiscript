@@ -1,6 +1,7 @@
 import {
     Host,
     MarkdownTrace,
+    PromiseType,
     RETREIVAL_PERSIST_DIR,
     ResponseStatus,
     RetreivalQueryOptions,
@@ -14,9 +15,6 @@ import prettyBytes from "pretty-bytes"
 import { type BaseReader, type GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
 import { lookup } from "mime-types"
-
-type PromiseType<T extends Promise<any>> =
-    T extends Promise<infer U> ? U : never
 
 class BlobFileSystem implements GenericFileSystem {
     constructor(

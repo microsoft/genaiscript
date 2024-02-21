@@ -65,6 +65,13 @@ export async function startServer(options: { port: string }) {
                             data.options
                         )
                         break
+                    case "retreival.outline":
+                        console.log(
+                            `retreival: outline ${data.files.length} files`
+                        )
+                        console.debug(YAMLStringify(data.files))
+                        response = await host.highlight.outline(data.files)
+                        break
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }

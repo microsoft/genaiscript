@@ -32,6 +32,9 @@ import {
     PDFTryParse,
     SERVER_PORT,
     query,
+    isHighlightSupported,
+    loadFiles,
+    outline,
     estimateTokens,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
@@ -730,6 +733,19 @@ async function retreivalQuery(
     console.log(res)
 }
 
+async function codeOutline(
+    fileGlobs: string[],
+    options: { excludedFiles: string[] }
+) {
+    const files = await loadFiles(
+        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
+            isHighlightSupported
+        )
+    )
+    const res = await outline(files)
+    console.log(res?.response || "")
+}
+
 async function retreivalTokens(
     filesGlobs: string[],
     options: { excludedFiles: string[]; model: string }
@@ -910,6 +926,13 @@ async function main() {
         .command("clear")
         .description("Clear index to force re-indexing")
         .action(clearIndex)
+
+    retreival
+        .command("outline")
+        .description("Generates a compact code repository outline")
+        .arguments("<files...>")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .action(codeOutline)
 
     program
         .command("serve")

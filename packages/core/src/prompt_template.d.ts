@@ -580,12 +580,12 @@ interface Parsers {
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 }
 
-interface Retreival {
-    /**
-     * Add files to the search index
-     */
-    index(files: (string | LinkedFile)[]): Promise<void>
 
+interface HighlightOptions {
+    maxLength?: number
+}
+
+interface Retreival {
     /**
      * Query files with a question
      */
@@ -622,6 +622,12 @@ interface Retreival {
         files: LinkedFile[]
         fragments: LinkedFile[]
     }>
+
+    /**
+     * Generate an outline of the files
+     * @param files
+     */
+    outline(files: LinkedFile[]): Promise<string>
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
