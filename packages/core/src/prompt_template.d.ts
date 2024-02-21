@@ -624,17 +624,6 @@ interface Retreival {
     }>
 
     /**
-     * Generates a highlight version of the code files based
-     * on the maximum number of tokens
-     * @param files
-     * @param options
-     */
-    hightlight(
-        files: LinkedFile[],
-        options: HighlightOptions
-    ): Promise<string>
-
-    /**
      * Generate an outline of the files
      * @param files
      */

@@ -41,13 +41,6 @@ export interface RetreivalQuery extends RequestMessage {
     response?: RetreivalQueryResponse
 }
 
-export interface RetreivalHighlight extends RequestMessage {
-    type: "retreival.highlight"
-    files: LinkedFile[]
-    options?: HighlightOptions
-    response?: HighlightResponse
-}
-
 export interface RetreivalOutline extends RequestMessage {
     type: "retreival.outline"
     files: LinkedFile[]
@@ -61,4 +54,3 @@ export type RequestMessages =
     | RetreivalSearch
     | RetreivalQuery
     | RetreivalOutline
-    | RetreivalHighlight

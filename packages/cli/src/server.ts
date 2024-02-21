@@ -65,14 +65,6 @@ export async function startServer(options: { port: string }) {
                             data.options
                         )
                         break
-                    case "retreival.highlight":
-                        console.log(`retreival: highlight ${data.files} files`)
-                        console.debug(YAMLStringify(data.files))
-                        response = await host.highlight.highlight(
-                            data.files,
-                            data.options
-                        )
-                        break
                     case "retreival.outline":
                         console.log(
                             `retreival: outline ${data.files.length} files`

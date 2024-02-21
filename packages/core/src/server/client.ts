@@ -13,7 +13,6 @@ import {
     RequestMessage,
     RequestMessages,
     RetreivalClear,
-    RetreivalHighlight,
     RetreivalOutline,
     RetreivalQuery,
     RetreivalSearch,
@@ -137,15 +136,6 @@ export class WebSocketClient implements RetreivalService, HighlightService {
             filename,
             content,
             mimeType,
-        })
-        return res.response
-    }
-
-    async highlight(files: LinkedFile[], options?: HighlightOptions) {
-        const res = await this.queue<RetreivalHighlight>({
-            type: "retreival.highlight",
-            files,
-            options,
         })
         return res.response
     }

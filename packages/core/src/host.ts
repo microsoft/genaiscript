@@ -104,7 +104,6 @@ export type HighlightResponse = ResponseStatus & { response: string }
 
 export interface HighlightService {
     init(trace?: MarkdownTrace): Promise<void>
-    highlight(files: LinkedFile[], options?: HighlightOptions): Promise<HighlightResponse>
     outline(files: LinkedFile[]): Promise<HighlightResponse>
 }
 

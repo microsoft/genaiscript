@@ -33,7 +33,6 @@ import {
     SERVER_PORT,
     query,
     isHighlightSupported,
-    highlight,
     loadFiles,
     outline,
     estimateTokens,
@@ -734,49 +733,6 @@ async function retreivalQuery(
     console.log(res)
 }
 
-async function codeHighlight(
-    fileGlobs: string[],
-    options: { excludedFiles: string[]; maxChars: string }
-) {
-    const files = await loadFiles(
-        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
-            isHighlightSupported
-        )
-    )
-    const res = await highlight(files, {
-        maxLength: normalizeInt(options.maxChars),
-    })
-    console.log(res?.response || "")
-}
-
-async function codeOutline(
-    fileGlobs: string[],
-    options: { excludedFiles: string[] }
-) {
-    const files = await loadFiles(
-        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
-            isHighlightSupported
-        )
-    )
-    const res = await outline(files)
-    console.log(res?.response || "")
-}
-
-async function codeHighlight(
-    fileGlobs: string[],
-    options: { excludedFiles: string[]; maxChars: string }
-) {
-    const files = await loadFiles(
-        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
-            isHighlightSupported
-        )
-    )
-    const res = await highlight(files, {
-        maxLength: normalizeInt(options.maxChars),
-    })
-    console.log(res?.response || "")
-}
-
 async function codeOutline(
     fileGlobs: string[],
     options: { excludedFiles: string[] }
@@ -970,14 +926,6 @@ async function main() {
         .command("clear")
         .description("Clear index to force re-indexing")
         .action(clearIndex)
-
-    retreival
-        .command("highlight")
-        .description("Extract snippets of code given a character budget")
-        .arguments("<files...>")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .option("-mc, --max-chars", "maximum number of characters")
-        .action(codeHighlight)
 
     retreival
         .command("outline")

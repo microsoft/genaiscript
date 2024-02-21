@@ -38,7 +38,7 @@ import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
 import { upsert, search, query } from "./retreival"
-import { highlight, outline } from "./highlights"
+import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
@@ -183,15 +183,6 @@ async function callExpander(
                 })
                 trace.fence(res, "yaml")
                 return res
-            } finally {
-                trace.endDetails()
-            }
-        },
-        hightlight: async (files, options) => {
-            try {
-                trace.startDetails(`retreival highlight`)
-                const res = await highlight(files, options)
-                return res?.response
             } finally {
                 trace.endDetails()
             }
