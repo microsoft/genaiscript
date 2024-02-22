@@ -13,6 +13,7 @@
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20.11.17",
     "ajv": "^8.12.0",
+    "csv-parse": "^5.5.3",
     "esbuild": "^0.20.0",
     "fetch-retry": "^5.0.6",
     "gpt-tokenizer": "^2.1.2",

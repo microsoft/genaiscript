@@ -45,3 +45,9 @@ export async function loadFiles(files: string[], options?: ReadFileOptions) {
     }
     return res
 }
+
+export function filenameOrFileToContent(fileOrContent: string | LinkedFile): string {
+    return typeof fileOrContent === "string"
+        ? fileOrContent
+        : fileOrContent.content
+}

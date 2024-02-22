@@ -578,8 +578,13 @@ interface Parsers {
     PDF(
         content: string | LinkedFile
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
-}
 
+    /**
+     * Parses a CSV file or text
+     * @param content
+     */
+    CSV(content: string | LinkedFile): Promise<object[][] | undefined>
+}
 
 interface HighlightOptions {
     maxLength?: number
