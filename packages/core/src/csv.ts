@@ -1,5 +1,6 @@
 import { parse } from "csv-parse"
 import { logInfo } from "./util"
+import { markdownTable } from "markdown-table"
 
 export function CSVTryParse(
     text: string,
@@ -7,7 +8,7 @@ export function CSVTryParse(
         delimiter?: string
     }
 ) {
-    return new Promise<object[][]>((resolve, reject) => {
+    return new Promise<object[]>((resolve, reject) => {
         parse(
             text,
             {
@@ -28,5 +29,16 @@ export function CSVTryParse(
                 }
             }
         )
+    })
+}
+
+export function CSVToMarkdown(csv: object[]) {
+    const table: string[][] = [
+        Object.keys(csv[0]),
+        ...csv.map((row) => Object.values(row).map((v) => "" + v)),
+    ]
+    return markdownTable(table, {
+        align: "left",
+        stringLength: (str) => str.length,
     })
 }
