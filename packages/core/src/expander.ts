@@ -43,6 +43,7 @@ import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import { PromptNode, appendTextChild, renderNode } from "./promptdom"
+import { CSVToMarkdown } from "./csv"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -1187,24 +1188,17 @@ export async function runTemplate(
     if (edits.length)
         trace.details(
             "🖊 edits",
-            `| Type | Filename | Message |\n| --- | --- | --- |\n` +
-                edits
-                    .map(
-                        (e) =>
-                            `| ${e.type} | ${e.filename} | ${e.label || ""} |`
-                    )
-                    .join("\n")
+            CSVToMarkdown(edits, ["type", "filename", "message"])
         )
     if (annotations.length)
         trace.details(
             "⚠️ annotations",
-            `| Severity | Filename | Line | Message |\n| --- | --- | --- | --- |\n` +
-                annotations
-                    .map(
-                        (e) =>
-                            `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
-                    )
-                    .join("\n")
+            CSVToMarkdown(annotations, [
+                "severity",
+                "filename",
+                "line",
+                "message",
+            ])
         )
 
     const res: FragmentTransformResponse = {
@@ -1240,7 +1234,7 @@ ${generateCliArguments(template, fragment, options)}
 \`\`\`
 
 -   You will need to install [Node.js](https://nodejs.org/en/).
--   Configure the OpenAI token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
+-   Configure the LLM token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
 -   The \`.genaiscript/genaiscript.js\` is written by the Visual Studio Code extension automatically.
 -   Run \`node .genaiscript/genaiscript help run\` for the full list of options.
 `
