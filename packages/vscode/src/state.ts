@@ -68,8 +68,6 @@ export interface AIRequestOptions {
     chat?: ChatRequestContext
 }
 
-export interface AIRequestContextOptions {}
-
 export class FragmentsEvent extends Event {
     constructor(readonly fragments?: Fragment[]) {
         super(FRAGMENTS_CHANGE)
@@ -151,7 +149,6 @@ export class ExtensionState extends EventTarget {
     private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
         undefined
     readonly output: vscode.LogOutputChannel
-    readonly aiRequestContext: AIRequestContextOptions = {}
 
     lastSearch: RetreivalSearchResult
 
@@ -382,7 +379,6 @@ ${e.message}`
                 }
                 reqChange()
             },
-            promptOptions: this.aiRequestContext,
             maxCachedTemperature,
             maxCachedTopP,
             cache: true,

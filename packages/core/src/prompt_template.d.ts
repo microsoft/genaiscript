@@ -391,16 +391,6 @@ interface ExpansionVariables {
     error: string
 
     /**
-     * Prompt execution options specified in the UI
-     */
-    promptOptions: {
-        /**
-         * Ignore existing output
-         */
-        ignoreOutput?: boolean
-    } & Record<string, string | boolean>
-
-    /**
      * current prompt template
      */
     template: PromptDefinition

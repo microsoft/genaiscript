@@ -407,7 +407,6 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
         fence: promptFence,
         markdownFence: markdownPromptFence,
         error: errorId(),
-        promptOptions: {},
         vars: {} as Record<string, string>,
         functions: [] as ChatFunctionCallback[],
         schemas: {} as Record<string, JSONSchema>,

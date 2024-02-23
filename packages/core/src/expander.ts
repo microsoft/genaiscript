@@ -496,8 +496,7 @@ async function expandTemplate(
 async function fragmentVars(
     trace: MarkdownTrace,
     template: PromptTemplate,
-    frag: Fragment,
-    promptOptions: any
+    frag: Fragment
 ) {
     const { file } = frag
     const project = file.project
@@ -592,7 +591,6 @@ async function fragmentVars(
         },
         files,
         parents,
-        promptOptions,
         template: {
             id: template.id,
             title: template.title,
@@ -612,7 +610,6 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
         vars?: Partial<ExpansionVariables>
     }) => void
     trace?: MarkdownTrace
-    promptOptions?: any
     maxCachedTemperature?: number
     maxCachedTopP?: number
     skipLLM?: boolean
@@ -678,8 +675,7 @@ export async function runTemplate(
     const vars = await fragmentVars(
         trace,
         template,
-        fragment,
-        options.promptOptions
+        fragment
     )
     // override with options vars
     if (options.vars)
