@@ -445,16 +445,25 @@ async function expandTemplate(
         trace.startDetails("🎰 variables")
         trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
-        for (const k of Object.keys(env)) {
-            if (isComplex(k)) continue
+        const files = env.files
+        trace.item(`env.**files**:`)
+        for (const file of files) {
+            const ftokens = estimateTokens(model, file.content)
+            trace.detailsFenced(
+                `${file.filename}, ${ftokens} tokens`,
+                file.content
+            )
+        }
+
+        const keys = Object.keys(env).filter((k) => k !== "files")
+        for (const k of keys.filter((k) => !isComplex(k))) {
             const v = varMap[k]
             if (typeof v === "string" && varName[v] != k)
                 trace.item(`env.**${k}**: same as **${varName[v]}**`)
             else trace.item(`env.**${k}**: \`${v}\``)
         }
 
-        for (const k of Object.keys(env)) {
-            if (!isComplex(k)) continue
+        for (const k of keys.filter(isComplex)) {
             const v = varMap[k]
             trace.item(`env.**${k}**`)
             trace.fence(
