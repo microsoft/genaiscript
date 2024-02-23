@@ -4,6 +4,7 @@ import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
+import { CSVToMarkdown, CSVTryParse } from "./csv"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -224,12 +225,13 @@ export async function evalPrompt(
                         ? env.markdownFence
                         : fence
                 const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
+                const body = norm(file.content, dfence)
                 writeText(
                     (name ? name + ":\n" : "") +
                         dfence +
                         dtype +
                         ` file=${file.filename}\n` +
-                        norm(file.content, dfence) +
+                        body +
                         (schema ? ` schema=${schema}` : "") +
                         dfence
                 )

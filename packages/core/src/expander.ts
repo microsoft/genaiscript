@@ -42,11 +42,7 @@ import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import {
-    PromptNode,
-    appendTextChild,
-    renderNode,
-} from "./promptdom"
+import { PromptNode, appendTextChild, renderNode } from "./promptdom"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -219,7 +215,7 @@ async function callExpander(
                 writeText: (body) => {
                     appendTextChild(
                         scope[0],
-                        body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n"
+                        body.replace(/\n*$/, "").replace(/^\n*/, "")
                     )
                     const idx = body.indexOf(vars.error)
                     if (idx >= 0) {
@@ -292,7 +288,7 @@ async function callExpander(
             trace.error(info, e)
         }
     }
-    
+
     return { logs, success, text }
 }
 
