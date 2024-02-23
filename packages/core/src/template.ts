@@ -4,7 +4,7 @@ import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
-import { CSVToMarkdown, CSVTryParse } from "./csv"
+import { BUILTIN_PREFIX } from "./constants"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -12,10 +12,6 @@ function templateIdFromFileName(filename: string) {
         .replace(/\.genai$/, "")
         .replace(/.*[\/\\]/, "")
 }
-
-export const builtinPrefix = "_builtin/"
-export const cachedOpenAIRequestPrefix = "cache.openai.request/"
-export const cachedAIRequestPrefix = "cache.ai.request/"
 
 type KeysOfType<T, S> = {
     [K in keyof T]: T[K] extends S ? K : never
@@ -618,7 +614,7 @@ async function parsePromptTemplateCore(
         text: "<nothing yet>",
         jsSource: content,
     } as PromptTemplate
-    if (!filename.startsWith(builtinPrefix)) r.filename = filename
+    if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
 
     try {
         const key = (await sha256string(`${r.id}-${r.jsSource}`)).slice(0, 16)

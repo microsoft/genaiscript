@@ -10,9 +10,9 @@ import { showMarkdownPreview } from "./markdown"
 import {
     GENAI_EXT,
     YAMLStringify,
-    builtinPrefix,
-    cachedAIRequestPrefix,
-    cachedOpenAIRequestPrefix,
+    BUILTIN_PREFIX,
+    CACHE_AIREQUEST_PREFIX,
+    CACHE_LLMREQUEST_PREFIX,
     defaultPrompts,
     extractFenced,
     fenceMD,
@@ -76,21 +76,21 @@ ${pretifyMarkdown(md)}
                     "yaml"
                 )
         }
-        if (uri.path.startsWith(cachedOpenAIRequestPrefix)) {
+        if (uri.path.startsWith(CACHE_LLMREQUEST_PREFIX)) {
             const sha = uri.path
-                .slice(cachedOpenAIRequestPrefix.length)
+                .slice(CACHE_LLMREQUEST_PREFIX.length)
                 .replace(/\.md$/, "")
             return previewOpenAICacheEntry(sha)
         }
-        if (uri.path.startsWith(cachedAIRequestPrefix)) {
+        if (uri.path.startsWith(CACHE_AIREQUEST_PREFIX)) {
             const sha = uri.path
-                .slice(cachedAIRequestPrefix.length)
+                .slice(CACHE_AIREQUEST_PREFIX.length)
                 .replace(/\.md$/, "")
             return this.previewAIRequest(sha)
         }
-        if (uri.path.startsWith(builtinPrefix)) {
+        if (uri.path.startsWith(BUILTIN_PREFIX)) {
             const id = uri.path
-                .slice(builtinPrefix.length)
+                .slice(BUILTIN_PREFIX.length)
                 .replace(/\.genai\.js$/i, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
@@ -167,7 +167,7 @@ export function infoUri(path: string) {
 export function builtinPromptUri(id: string) {
     return vscode.Uri.from({
         scheme: SCHEME,
-        path: builtinPrefix + id + GENAI_EXT,
+        path: BUILTIN_PREFIX + id + GENAI_EXT,
     })
 }
 
