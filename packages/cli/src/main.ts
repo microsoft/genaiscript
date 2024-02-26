@@ -36,6 +36,7 @@ import {
     loadFiles,
     outline,
     estimateTokens,
+    assert,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -244,6 +245,7 @@ async function batch(
             const fragment = prj.rootFiles.find(
                 (f) => resolve(f.filename) === resolve(specFile)
             ).roots[0]
+            assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
             const result: FragmentTransformResponse = await runTemplate(
                 script,
@@ -448,7 +450,7 @@ async function run(
             const ffs = await host.findFiles(arg)
             for (const file of ffs) {
                 if (gpspecRx.test(file)) {
-                    md += (await host.readFile(file)) + "\n"
+                    md = (md || "") + (await readText(file)) + "\n"
                 } else {
                     files.add(file)
                 }
@@ -492,6 +494,7 @@ ${Array.from(files)
     )
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.roots[0]
+    assert(fragment !== undefined, `fragment not found`)
 
     spinner?.start("Querying")
 
@@ -618,7 +621,7 @@ ${Array.from(files)
         console.log`error annotations found, exiting with error code`
         process.exit(ANNOTATION_ERROR_CODE)
     }
-    logVerbose(`genaiscript run completed with ${tokens} tokens`)
+    logVerbose(`genaiscript generated ${tokens} tokens`)
 }
 
 async function writeFileEdits(res: FragmentTransformResponse) {

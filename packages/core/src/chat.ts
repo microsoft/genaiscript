@@ -197,16 +197,11 @@ export async function getChatCompletions(
         retryOn: [429],
         retries: retry,
         retryDelay: (attempt, error, response) => {
-            const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
             if (attempt > 0) {
-                trace.item(`retry #${attempt} after ${delay}ms`)
-                logVerbose(
-                    `LLM throttled, retry #${attempt} in ${
-                        (delay / 1000) | 0
-                    }s...`
-                )
+                trace.item(`retry #${attempt}`)
+                logVerbose(`LLM throttled, retry #${attempt}...`)
             }
-            return delay
+            return 0
         },
     })
 
@@ -308,7 +303,7 @@ export async function getChatCompletions(
                     const choice = obj.choices[0]
                     const { finish_reason, delta } = choice
                     if (typeof delta?.content == "string") {
-                        numTokens+= estimateTokens(model, delta.content)
+                        numTokens += estimateTokens(model, delta.content)
                         chatResp += delta.content
                     } else if (delta?.tool_calls?.length) {
                         const { tool_calls } = delta

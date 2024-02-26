@@ -4,7 +4,6 @@ import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
 import { TOOL_ID, TOOL_NAME, logError } from "genaiscript-core"
-import { activateCodeActions } from "./codeactions"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
@@ -13,6 +12,7 @@ import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 import { activateRetreivalCommands } from "./retreivalcommands"
+import { activateTokensStatusBar } from "./tokenstatusbar"
 
 export const EXTENSION_ID = "devicescript.genaiscript-vscode"
 export const AGENT_ID = TOOL_ID
@@ -32,12 +32,10 @@ export async function activate(context: ExtensionContext) {
     activateRetreivalCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
-    //activateFragmentTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
-    // activateRunnerView(state)
     activateStatusBar(state)
-    activateCodeActions(state)
+    activateTokensStatusBar(state)
     activateChatAgent(state)
 
     context.subscriptions.push(

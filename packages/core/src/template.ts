@@ -4,6 +4,8 @@ import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
+import { BUILTIN_PREFIX } from "./constants"
+import { CSVToMarkdown, CSVTryParse } from "./csv"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -11,10 +13,6 @@ function templateIdFromFileName(filename: string) {
         .replace(/\.genai$/, "")
         .replace(/.*[\/\\]/, "")
 }
-
-export const builtinPrefix = "_builtin/"
-export const cachedOpenAIRequestPrefix = "cache.openai.request/"
-export const cachedAIRequestPrefix = "cache.ai.request/"
 
 type KeysOfType<T, S> = {
     [K in keyof T]: T[K] extends S ? K : never
@@ -211,25 +209,35 @@ export async function evalPrompt(
                 s = (s || "").replace(/\n*$/, "")
                 if (s && lineNumbers) s = addLineNumbers(s)
                 if (s) s += "\n"
-                if (s.includes(f)) error = true
+                if (f && s.includes(f)) 
+                    error = true
                 return s
             }
             const df = (file: LinkedFile) => {
                 const defsn = defs[name] || (defs[name] = [])
                 if (defsn.includes(file.filename)) return // duplicate
                 defsn.push(file.filename)
-                const dfence =
+                let dfence =
                     /\.md$/i.test(file.filename) ||
                     file.content?.includes(fence)
                         ? env.markdownFence
                         : fence
                 const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
+                let body = file.content
+                if (/^(c|t)sv$/i.test(dtype)) {
+                    const parsed = CSVTryParse(file.content)
+                    if (parsed) {
+                        body = CSVToMarkdown(parsed)
+                        dfence = ""
+                    }
+                }
+                body = norm(body, dfence)
                 writeText(
                     (name ? name + ":\n" : "") +
                         dfence +
                         dtype +
                         ` file=${file.filename}\n` +
-                        norm(file.content, dfence) +
+                        body +
                         (schema ? ` schema=${schema}` : "") +
                         dfence
                 )
@@ -409,7 +417,6 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
         fence: promptFence,
         markdownFence: markdownPromptFence,
         error: errorId(),
-        promptOptions: {},
         vars: {} as Record<string, string>,
         functions: [] as ChatFunctionCallback[],
         schemas: {} as Record<string, JSONSchema>,
@@ -616,7 +623,7 @@ async function parsePromptTemplateCore(
         text: "<nothing yet>",
         jsSource: content,
     } as PromptTemplate
-    if (!filename.startsWith(builtinPrefix)) r.filename = filename
+    if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
 
     try {
         const key = (await sha256string(`${r.id}-${r.jsSource}`)).slice(0, 16)
