@@ -94,10 +94,6 @@ export interface RetreivalService {
         text: string,
         options?: RetreivalQueryOptions
     ): Promise<RetreivalSearchResponse>
-    query(
-        text: string,
-        options?: RetreivalQueryOptions
-    ): Promise<RetreivalQueryResponse>
 }
 
 export type HighlightResponse = ResponseStatus & { response: string }

@@ -37,7 +37,7 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
-import { upsert, search, query } from "./retreival"
+import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
@@ -161,21 +161,6 @@ async function callExpander(
     })
 
     const retreival: Retreival = {
-        query: async (q, options) => {
-            const { files = env.files } = options || {}
-            try {
-                trace.startDetails(`retreival query \`${q}\``)
-                await upsert(files, { trace })
-                const res = await query(q, {
-                    files: files.map(stringLikeToFileName),
-                    topK: options?.topK,
-                })
-                trace.fence(res, "markdown")
-                return res
-            } finally {
-                trace.endDetails()
-            }
-        },
         search: async (q, options) => {
             const { files = env.files } = options || {}
             try {

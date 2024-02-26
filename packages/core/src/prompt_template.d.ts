@@ -582,23 +582,6 @@ interface HighlightOptions {
 
 interface Retreival {
     /**
-     * Query files with a question
-     */
-    query(
-        question: string,
-        options?: {
-            /**
-             * Filter results for the following files
-             */
-            files?: (string | LinkedFile)[]
-            /**
-             * Maximum number of embeddings to use
-             */
-            topK?: number
-        }
-    ): Promise<string>
-
-    /**
      * Search for embeddings
      */
     search(
