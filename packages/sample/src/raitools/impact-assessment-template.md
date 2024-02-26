@@ -8,11 +8,6 @@ Champ**](https://microsoft.sharepoint.com/teams/RIInternal/SitePages/RAIcontacts
 or find resources on **[Impact Assessments in
 T&R](aka.ms/tnrImpactAssessment)[.]{.underline}**
 
-**TIP:** Before you begin, review the links on [T&R Compliance AI
-Resources](https://microsoft.sharepoint.com/teams/RIInternal/SitePages/AI.aspx?xsdata=MDV8MDF8fGUwYzg5NDNhNDEyNjRhNmZmZGIxMDhkYjQxYTdjNjE2fDcyZjk4OGJmODZmMTQxYWY5MWFiMmQ3Y2QwMTFkYjQ3fDB8MHw2MzgxNzU5NjEwNDE3OTY1Mjl8VW5rbm93bnxWR1ZoYlhOVFpXTjFjbWwwZVZObGNuWnBZMlY4ZXlKV0lqb2lNQzR3TGpBd01EQWlMQ0pRSWpvaVYybHVNeklpTENKQlRpSTZJazkwYUdWeUlpd2lWMVFpT2pFeGZRPT18MXxNVFk0TVRrNU9UTXdNek0zTkRzeE5qZ3hPVGs1TXpBek16YzBPekU1T2pBMVltTmxabUUwT0dRNFpEUmhZVGxpTTJJeE56VmxNV1k0T0RsbU9XUTBRSFJvY21WaFpDNTJNZz09fGRhNGFiYjg0OWVmZjQwZGI5YjY2MDhkYjQxYTdjNjE0fGQ3MTE2ZTA5MzU5ZjQ4ZGU4ZDFjYWExNjEzMTE1ZDBk&sdata=TlJzVFhHZW52SHRTMUdDYWcvaEtrSnI2UTdVZlEzd3VOWDFQaURPeEVJUT0%3D&ovuser=72f988bf-86f1-41af-91ab-2d7cd011db47%2Caliciaep%40microsoft.com&OR=Teams-HL&CT=1682130835860&clickparams=eyJBcHBOYW1lIjoiVGVhbXMtRGVza3RvcCIsIkFwcFZlcnNpb24iOiIyNy8yMzA0MDIwMjcwMyIsIkhhc0ZlZGVyYXRlZFVzZXIiOmZhbHNlfQ%3D%3D)
-for guidance documents with examples of harms and mitigations that you
-can use below, based on what type of model you may be using.
-
 **SENSITIVE USES:** If you are currently preparing for a Sensitive Use
 review, please complete sections 2-5 of this form before your intake
 meeting. Watch [this video](https://aka.ms/compliance23SU) for more

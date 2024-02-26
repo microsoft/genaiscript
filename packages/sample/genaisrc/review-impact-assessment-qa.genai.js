@@ -8,12 +8,12 @@ def("README", env.files.filter((f) => f.filename.endsWith("README.md")))
 def("DIRECTIONS", env.files.filter((f) => f.filename.endsWith("how-to.md")))
 def("TEMPLATE", env.files.filter((f) => f.filename.endsWith("template.md")))
 def("QUESTIONS", env.files.filter((f) => f.filename.endsWith("questions.md")))
-//def("ASSESSMENTPDF", env.files.filter((f) => f.filename.endsWith("assessment-draft.md")))
+def("ASSESSMENTPDF", env.files.filter((f) => f.filename.endsWith("assessment.md")))
 
 const pdfs = env.files.filter((f) => f.filename.endsWith(".pdf"))
 
-const { file, pages } = await parsers.PDF(pdfs[0])
-def("ASSESSMENTPDF", file)
+//const { file, pages } = await parsers.PDF(pdfs[0])
+//def("ASSESSMENTPDF", file)
 
 const outputName = "assessment-draft-review.md"
 

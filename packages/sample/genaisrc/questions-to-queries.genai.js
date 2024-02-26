@@ -1,7 +1,7 @@
 script({
     title: "convert questions to RAG queries",
     description: "Given a list of questoins, generate a RAG retrieval call.",
-    categories: ["impact assessment"],
+    categories: ["RAI tools"],
 })
 
 def("QUESTIONS", env.files.filter((f) => f.filename.endsWith("questions.md")))

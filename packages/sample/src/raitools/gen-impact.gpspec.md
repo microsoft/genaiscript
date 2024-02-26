@@ -1,5 +1,5 @@
-# sample spec for impact assessment
--   [assessment-draft-queries.md](assessment-draft-queries.md)
+# sample spec for generating an impact assessment
+-   [/workspaces/genaiscript/packages/sample/assessment-draft.md](/workspaces/genaiscript/packages/sample/assessment-draft.md)
 
 ## Links
 - [README.md](./README.md)
