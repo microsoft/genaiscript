@@ -42,7 +42,13 @@ import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { PromptNode, appendTextChild, renderNode } from "./promptdom"
+import {
+    PromptImage,
+    PromptNode,
+    appendChild,
+    createTextNode,
+    renderPromptNode,
+} from "./promptdom"
 import { CSVToMarkdown } from "./csv"
 
 const defaultTopP: number = undefined
@@ -189,6 +195,7 @@ async function callExpander(
 
     let logs = ""
     let text = ""
+    let images: PromptImage[] = []
     try {
         await evalPrompt(
             {
@@ -199,9 +206,11 @@ async function callExpander(
                 parsers,
                 retreival,
                 writeText: (body) => {
-                    appendTextChild(
+                    appendChild(
                         scope[0],
-                        body.replace(/\n*$/, "").replace(/^\n*/, "")
+                        createTextNode(
+                            body.replace(/\n*$/, "").replace(/^\n*/, "")
+                        )
                     )
                     const idx = body.indexOf(vars.error)
                     if (idx >= 0) {
@@ -263,7 +272,9 @@ async function callExpander(
                 logs += msg + "\n"
             }
         )
-        text = await renderNode(root)
+        const { prompt, images: imgs } = await renderPromptNode(root)
+        text = prompt
+        images = imgs
     } catch (e) {
         success = false
         if (isCancelError(e)) {
@@ -275,7 +286,7 @@ async function callExpander(
         }
     }
 
-    return { logs, success, text }
+    return { logs, success, text, images }
 }
 
 async function expandTemplate(
@@ -299,6 +310,7 @@ async function expandTemplate(
 
     const prompt = await callExpander(template, env, trace)
     const expanded = prompt.text
+    const images: PromptImage[] = prompt.images
 
     let success = prompt.success
     let systemText = ""
@@ -333,6 +345,7 @@ async function expandTemplate(
         const sysex = sysr.text
         success = success && sysr.success
         if (!success) break
+        if (sysr.images) images.push(...sysr.images)
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -400,6 +413,7 @@ async function expandTemplate(
 
     return {
         expanded,
+        images,
         success,
         model,
         temperature,
@@ -668,6 +682,7 @@ export async function runTemplate(
 
     let {
         expanded,
+        images,
         success,
         temperature,
         topP,
@@ -694,6 +709,19 @@ export async function runTemplate(
             content: expanded,
         },
     ]
+
+    if (images.length) {
+        prompt.push({
+            role: "user",
+            content: images.map(({ url, details }) => ({
+                type: "image_url",
+                image_url: {
+                    url,
+                    details,
+                },
+            })),
+        })
+    }
 
     // if the expansion failed, show the user the trace
     if (!success) {
