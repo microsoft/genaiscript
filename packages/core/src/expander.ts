@@ -660,6 +660,7 @@ export async function runTemplate(
     fragment: Fragment,
     options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
+    assert(fragment !== undefined)
     const {
         requestOptions = {},
         skipLLM,
