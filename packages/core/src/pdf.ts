@@ -43,7 +43,7 @@ export async function PDFTryParse(
         const numPages = doc.numPages
         const pages: string[] = []
         for (let i = 0; i < numPages; i++) {
-            const page = await doc.getPage(1) // 1-indexed
+            const page = await doc.getPage(1 + i) // 1-indexed
             const content = await page.getTextContent()
             const items: TextItem[] = content.items.filter(
                 (item): item is TextItem => "str" in item
