@@ -31,6 +31,7 @@ $`Use full path of filename in code section header.`
 if (folder !== ".") $`When generating new files, place files in folder "${folder}".`
 $`If a file does not have changes, do not regenerate.`
 $`Do NOT emit line numbers in file.`
+$`CSV files are inlined as markdown tables.`
 
 $`
 ### JSON Schema

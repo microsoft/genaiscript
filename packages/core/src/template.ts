@@ -5,6 +5,7 @@ import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
+import { CSVToMarkdown, CSVTryParse } from "./csv"
 
 function templateIdFromFileName(filename: string) {
     return filename
@@ -215,13 +216,21 @@ export async function evalPrompt(
                 const defsn = defs[name] || (defs[name] = [])
                 if (defsn.includes(file.filename)) return // duplicate
                 defsn.push(file.filename)
-                const dfence =
+                let dfence =
                     /\.md$/i.test(file.filename) ||
                     file.content?.includes(fence)
                         ? env.markdownFence
                         : fence
                 const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
-                const body = norm(file.content, dfence)
+                let body = file.content
+                if (/^(c|t)sv$/i.test(dtype)) {
+                    const parsed = CSVTryParse(file.content)
+                    if (parsed) {
+                        body = CSVToMarkdown(parsed)
+                        dfence = ""
+                    }
+                }
+                body = norm(body, dfence)
                 writeText(
                     (name ? name + ":\n" : "") +
                         dfence +
