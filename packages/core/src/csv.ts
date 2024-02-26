@@ -25,9 +25,12 @@ export function CSVTryParse(
 }
 
 export function CSVToMarkdown(csv: object[], headers?: string[]) {
+    if (!csv?.length) return ""
+
+    headers = headers || Object.keys(csv[0])
     const table: string[][] = [
-        headers || Object.keys(csv[0]),
-        ...csv.map((row) => Object.values(row).map((v) => "" + v)),
+        headers,
+        ...csv.map((row) => headers.map((v) => "" + (row as any)[v])),
     ]
     return markdownTable(table, {
         align: "left",
