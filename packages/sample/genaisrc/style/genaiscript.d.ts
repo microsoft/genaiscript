@@ -445,6 +445,10 @@ interface DefOptions {
     schema?: string
 }
 
+interface DefImagesOptions {
+    details?: "high" | "low"
+}
+
 interface ChatTaskOptions {
     command: string
     cwd?: string
@@ -582,23 +586,6 @@ interface HighlightOptions {
 
 interface Retreival {
     /**
-     * Query files with a question
-     */
-    query(
-        question: string,
-        options?: {
-            /**
-             * Filter results for the following files
-             */
-            files?: (string | LinkedFile)[]
-            /**
-             * Maximum number of embeddings to use
-             */
-            topK?: number
-        }
-    ): Promise<string>
-
-    /**
      * Search for embeddings
      */
     search(
@@ -636,6 +623,7 @@ interface PromptContext {
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
     defFiles(files: LinkedFile[]): void
+    defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
         description: string,
@@ -771,6 +759,13 @@ declare function readFile(path: string): Promise<LinkedFile>
  * @param schema JSON schema instance
  */
 declare function defSchema(name: string, schema: JSONSchema): void
+
+/**
+ * Adds images to the prompt
+ * @param files
+ * @param options
+ */
+declare function defImages(files: StringLike, options?: DefImagesOptions): void
 
 /**
  * Cancels the current prompt generation/execution with the given reason.

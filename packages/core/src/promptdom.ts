@@ -28,7 +28,9 @@ export function createTextNode(
     return { type: "text", value }
 }
 
-export function createImageNode(value: PromptImage | Promise<PromptImage>): PromptImageNode {
+export function createImageNode(
+    value: PromptImage | Promise<PromptImage>
+): PromptImageNode {
     assert(value !== undefined)
     return { type: "image", value }
 }
