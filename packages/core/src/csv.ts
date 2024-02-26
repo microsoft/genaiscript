@@ -24,10 +24,10 @@ export function CSVTryParse(
     }
 }
 
-export function CSVToMarkdown(csv: object[], headers?: string[]) {
+export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
     if (!csv?.length) return ""
 
-    headers = headers || Object.keys(csv[0])
+    const { headers = Object.keys(csv[0]) } = options || {}
     const table: string[][] = [
         headers,
         ...csv.map((row) => headers.map((v) => "" + (row as any)[v])),

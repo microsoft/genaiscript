@@ -672,11 +672,7 @@ export async function runTemplate(
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
 
-    const vars = await fragmentVars(
-        trace,
-        template,
-        fragment
-    )
+    const vars = await fragmentVars(trace, template, fragment)
     // override with options vars
     if (options.vars)
         vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
@@ -1193,17 +1189,14 @@ export async function runTemplate(
     if (edits.length)
         trace.details(
             "🖊 edits",
-            CSVToMarkdown(edits, ["type", "filename", "message"])
+            CSVToMarkdown(edits, { headers: ["type", "filename", "message"] })
         )
     if (annotations.length)
         trace.details(
             "⚠️ annotations",
-            CSVToMarkdown(annotations, [
-                "severity",
-                "filename",
-                "line",
-                "message",
-            ])
+            CSVToMarkdown(annotations, {
+                headers: ["severity", "filename", "line", "message"],
+            })
         )
 
     const res: FragmentTransformResponse = {
