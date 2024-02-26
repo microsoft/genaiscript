@@ -395,6 +395,7 @@ async function expandTemplate(
         trace.fence(system.jsSource, "js")
         trace.heading(3, "expanded")
         trace.fence(sysex, "markdown")
+        sysr.images?.forEach(img => trace.image(img.url))
         trace.endDetails()
     }
 
@@ -434,6 +435,7 @@ async function expandTemplate(
         }
         if (responseType) trace.item(`response type: ${responseType}`)
         trace.fence(expanded, "markdown")
+        prompt.images?.forEach(img => trace.image(img.url))
         trace.endDetails() // expanded prompt
     }
     trace.endDetails()
