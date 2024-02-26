@@ -621,7 +621,7 @@ ${Array.from(files)
         console.log`error annotations found, exiting with error code`
         process.exit(ANNOTATION_ERROR_CODE)
     }
-    logVerbose(`genaiscript run completed with ${tokens} tokens`)
+    logVerbose(`genaiscript generated ${tokens} tokens`)
 }
 
 async function writeFileEdits(res: FragmentTransformResponse) {
