@@ -15,3 +15,7 @@ export const RETREIVAL_PERSIST_DIR = "retreival"
 export const HIGHLIGHT_LENGTH = 4000
 export const DEFAULT_MODEL = "gpt-4"
 export const DEFAULT_TEMPERATURE = 0.2 // 0.0-2.0, defaults to 1.0
+export const BUILTIN_PREFIX = "_builtin/"
+export const CACHE_LLMREQUEST_PREFIX = "cache.llm.request/"
+export const CACHE_AIREQUEST_PREFIX = "cache.ai.request/"
+export const TOKENS_STATUS_BAR_DEBOUNCE_TIME = 800

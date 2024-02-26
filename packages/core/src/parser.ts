@@ -6,9 +6,10 @@ import { lookup } from "mime-types"
 import { assert, last, sha256string, strcmp } from "./util"
 import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
-import { builtinPrefix, parsePromptTemplate } from "./template"
+import { parsePromptTemplate } from "./template"
 import { host } from "./host"
 import { fileExists, readText } from "./fs"
+import { BUILTIN_PREFIX } from "./constants"
 
 // TODO make this configurable
 // default is '#'
@@ -336,7 +337,7 @@ export async function parseProject(options: {
     }
     for (const [id, v] of Object.entries(deflPr)) {
         prj.templates.push(
-            await parsePromptTemplate(builtinPrefix + id, v, prj)
+            await parsePromptTemplate(BUILTIN_PREFIX + id, v, prj)
         )
     }
     runFinalizers()

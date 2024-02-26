@@ -42,11 +42,8 @@ import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import {
-    PromptNode,
-    appendTextChild,
-    renderNode,
-} from "./promptdom"
+import { PromptNode, appendTextChild, renderNode } from "./promptdom"
+import { CSVToMarkdown } from "./csv"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -219,7 +216,7 @@ async function callExpander(
                 writeText: (body) => {
                     appendTextChild(
                         scope[0],
-                        body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n"
+                        body.replace(/\n*$/, "").replace(/^\n*/, "")
                     )
                     const idx = body.indexOf(vars.error)
                     if (idx >= 0) {
@@ -292,7 +289,7 @@ async function callExpander(
             trace.error(info, e)
         }
     }
-    
+
     return { logs, success, text }
 }
 
@@ -448,16 +445,27 @@ async function expandTemplate(
         trace.startDetails("🎰 variables")
         trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
-        for (const k of Object.keys(env)) {
-            if (isComplex(k)) continue
+        const files = env.files
+        if (files?.length) {
+            trace.item(`env.**files**:`)
+            for (const file of files) {
+                const { filename, content } = file
+                trace.detailsFenced(
+                    `${file.filename}, ${content?.length || 0} chars`,
+                    inspect(file.content)
+                )
+            }
+        }
+
+        const keys = Object.keys(env).filter((k) => k !== "files")
+        for (const k of keys.filter((k) => !isComplex(k))) {
             const v = varMap[k]
             if (typeof v === "string" && varName[v] != k)
                 trace.item(`env.**${k}**: same as **${varName[v]}**`)
             else trace.item(`env.**${k}**: \`${v}\``)
         }
 
-        for (const k of Object.keys(env)) {
-            if (!isComplex(k)) continue
+        for (const k of keys.filter(isComplex)) {
             const v = varMap[k]
             trace.item(`env.**${k}**`)
             trace.fence(
@@ -490,8 +498,7 @@ async function expandTemplate(
 async function fragmentVars(
     trace: MarkdownTrace,
     template: PromptTemplate,
-    frag: Fragment,
-    promptOptions: any
+    frag: Fragment
 ) {
     const { file } = frag
     const project = file.project
@@ -586,7 +593,6 @@ async function fragmentVars(
         },
         files,
         parents,
-        promptOptions,
         template: {
             id: template.id,
             title: template.title,
@@ -606,7 +612,6 @@ export type RunTemplateOptions = ChatCompletionsOptions & {
         vars?: Partial<ExpansionVariables>
     }) => void
     trace?: MarkdownTrace
-    promptOptions?: any
     maxCachedTemperature?: number
     maxCachedTopP?: number
     skipLLM?: boolean
@@ -655,6 +660,7 @@ export async function runTemplate(
     fragment: Fragment,
     options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {
+    assert(fragment !== undefined)
     const {
         requestOptions = {},
         skipLLM,
@@ -669,12 +675,7 @@ export async function runTemplate(
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
 
-    const vars = await fragmentVars(
-        trace,
-        template,
-        fragment,
-        options.promptOptions
-    )
+    const vars = await fragmentVars(trace, template, fragment)
     // override with options vars
     if (options.vars)
         vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
@@ -1191,24 +1192,14 @@ export async function runTemplate(
     if (edits.length)
         trace.details(
             "🖊 edits",
-            `| Type | Filename | Message |\n| --- | --- | --- |\n` +
-                edits
-                    .map(
-                        (e) =>
-                            `| ${e.type} | ${e.filename} | ${e.label || ""} |`
-                    )
-                    .join("\n")
+            CSVToMarkdown(edits, { headers: ["type", "filename", "message"] })
         )
     if (annotations.length)
         trace.details(
             "⚠️ annotations",
-            `| Severity | Filename | Line | Message |\n| --- | --- | --- | --- |\n` +
-                annotations
-                    .map(
-                        (e) =>
-                            `| ${e.severity} | ${e.filename} | ${e.range[0]} | ${e.message} |`
-                    )
-                    .join("\n")
+            CSVToMarkdown(annotations, {
+                headers: ["severity", "filename", "line", "message"],
+            })
         )
 
     const res: FragmentTransformResponse = {
@@ -1244,7 +1235,7 @@ ${generateCliArguments(template, fragment, options)}
 \`\`\`
 
 -   You will need to install [Node.js](https://nodejs.org/en/).
--   Configure the OpenAI token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
+-   Configure the LLM token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
 -   The \`.genaiscript/genaiscript.js\` is written by the Visual Studio Code extension automatically.
 -   Run \`node .genaiscript/genaiscript help run\` for the full list of options.
 `

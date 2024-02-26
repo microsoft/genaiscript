@@ -4,7 +4,7 @@ import {
     AIRequestSnapshotKey,
     ExtensionState,
 } from "./state"
-import { CHANGE, CacheEntry, cachedAIRequestPrefix } from "genaiscript-core"
+import { CACHE_AIREQUEST_PREFIX, CHANGE, CacheEntry } from "genaiscript-core"
 import { Cache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
@@ -30,7 +30,7 @@ class AIRequestTreeDataProvider
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
-            arguments: [infoUri(cachedAIRequestPrefix + sha + ".md")],
+            arguments: [infoUri(CACHE_AIREQUEST_PREFIX + sha + ".md")],
             title: "Show Trace",
         }
         return item
@@ -85,8 +85,11 @@ export function activateAIRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new AIRequestTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("genaiscript.prompts.requests", {
-        treeDataProvider,
-    })
+    const treeView = vscode.window.createTreeView(
+        "genaiscript.prompts.requests",
+        {
+            treeDataProvider,
+        }
+    )
     subscriptions.push(treeView)
 }
