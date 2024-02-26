@@ -209,7 +209,8 @@ export async function evalPrompt(
                 s = (s || "").replace(/\n*$/, "")
                 if (s && lineNumbers) s = addLineNumbers(s)
                 if (s) s += "\n"
-                if (s.includes(f)) error = true
+                if (f && s.includes(f)) 
+                    error = true
                 return s
             }
             const df = (file: LinkedFile) => {

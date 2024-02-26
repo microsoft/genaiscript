@@ -32,8 +32,11 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
         headers,
         ...csv.map((row) => headers.map((v) => "" + (row as any)[v])),
     ]
-    return markdownTable(table, {
+    const md = markdownTable(table, {
         align: "left",
         stringLength: (str) => str.length,
     })
+    // improves LLM performance
+    const mdcompact = md.replace(/[\t ]+/g, ' ')
+    return mdcompact
 }

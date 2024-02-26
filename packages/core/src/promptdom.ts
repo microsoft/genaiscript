@@ -1,3 +1,5 @@
+import { assert } from "./util"
+
 export interface PromptNode {
     value?: string | Promise<string>
     children?: PromptNode[]
@@ -5,6 +7,7 @@ export interface PromptNode {
 }
 
 export function createTextNode(value: string | Promise<string>): PromptNode {
+    assert(value !== undefined)
     return { value }
 }
 
@@ -37,7 +40,9 @@ export async function visitNode(
 export async function renderNode(node: PromptNode) {
     let output = ""
     await visitNode(node, async (n) => {
-        output += (await n.value) + "\n"
+        const value = await n.value
+        assert(value !== undefined)
+        output += value + "\n"
     })
     return output
 }

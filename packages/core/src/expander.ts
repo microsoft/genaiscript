@@ -446,13 +446,13 @@ async function expandTemplate(
         trace.tip("Variables are referenced through `env.NAME` in prompts.")
 
         const files = env.files
-        if (files) {
+        if (files?.length) {
             trace.item(`env.**files**:`)
             for (const file of files) {
-                const ftokens = estimateTokens(model, file.content)
+                const { filename, content } = file
                 trace.detailsFenced(
-                    `${file.filename}, ${ftokens} tokens`,
-                    file.content || ''
+                    `${file.filename}, ${content?.length || 0} chars`,
+                    inspect(file.content)
                 )
             }
         }

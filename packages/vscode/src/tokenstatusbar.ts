@@ -1,10 +1,13 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { estimateTokens } from "genaiscript-core"
+import {
+    TOKENS_STATUS_BAR_DEBOUNCE_TIME,
+    estimateTokens,
+} from "genaiscript-core"
 import { debounceAsync } from "./debounce"
 
 export function activateTokensStatusBar(state: ExtensionState) {
-    const { context, host } = state
+    const { context } = state
 
     const statusBarItem = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Right,
@@ -18,10 +21,9 @@ export function activateTokensStatusBar(state: ExtensionState) {
             return
         }
         const document = editor.document
-        const selections = editor.selections.filter((s) => !s.isEmpty)
         const docTokens = estimateTokens(model, document.getText())
-        statusBarItem.text = `Tks: ${docTokens}`
-    }, 500)
+        statusBarItem.text = `toks: ${docTokens}`
+    }, TOKENS_STATUS_BAR_DEBOUNCE_TIME)
     updateStatusBar()
     context.subscriptions.push(
         statusBarItem,
