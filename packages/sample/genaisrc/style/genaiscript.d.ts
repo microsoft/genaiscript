@@ -391,16 +391,6 @@ interface ExpansionVariables {
     error: string
 
     /**
-     * Prompt execution options specified in the UI
-     */
-    promptOptions: {
-        /**
-         * Ignore existing output
-         */
-        ignoreOutput?: boolean
-    } & Record<string, string | boolean>
-
-    /**
      * current prompt template
      */
     template: PromptDefinition
@@ -578,8 +568,13 @@ interface Parsers {
     PDF(
         content: string | LinkedFile
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
-}
 
+    /**
+     * Parses a CSV file or text
+     * @param content
+     */
+    CSV(content: string | LinkedFile): object[] | undefined
+}
 
 interface HighlightOptions {
     maxLength?: number
@@ -622,17 +617,6 @@ interface Retreival {
         files: LinkedFile[]
         fragments: LinkedFile[]
     }>
-
-    /**
-     * Generates a highlight version of the code files based
-     * on the maximum number of tokens
-     * @param files
-     * @param options
-     */
-    hightlight(
-        files: LinkedFile[],
-        options: HighlightOptions
-    ): Promise<string>
 
     /**
      * Generate an outline of the files

@@ -4,7 +4,7 @@ import {
     CHANGE,
     CacheEntry,
     CreateChatCompletionRequest,
-    cachedOpenAIRequestPrefix,
+    CACHE_LLMREQUEST_PREFIX,
     getChatCompletionCache,
 } from "genaiscript-core"
 import { Cache } from "genaiscript-core"
@@ -32,7 +32,7 @@ class OpenAIRequestTreeDataProvider
         item.id = sha
         item.command = {
             command: "markdown.showPreview",
-            arguments: [infoUri(cachedOpenAIRequestPrefix + sha + ".md")],
+            arguments: [infoUri(CACHE_LLMREQUEST_PREFIX + sha + ".md")],
             title: "Show Preview",
         }
         return item
@@ -74,8 +74,11 @@ export function activateOpenAIRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
     const treeDataProvider = new OpenAIRequestTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView("genaiscript.openai.requests", {
-        treeDataProvider,
-    })
+    const treeView = vscode.window.createTreeView(
+        "genaiscript.openai.requests",
+        {
+            treeDataProvider,
+        }
+    )
     subscriptions.push(treeView)
 }

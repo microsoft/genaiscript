@@ -7,7 +7,7 @@ interface PromptDefinition {
     /**
      * Something like "Summarize children", show in UI.
      */
-    title: string
+    title?: string
 
     /**
      * Longer description of the prompt. Shows in UI grayed-out.
@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.diff" | "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.json" | "system.json" | "system" | "system" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.technical" | "system.technical" | "system.typescript" | "system.typescript" | "system.functions" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -149,14 +149,14 @@ interface PromptTemplate extends PromptLike {
     chat?: boolean
 
     /**
-     * Indicates what output should be included in the chat response.
-     */
-    chatOutput?: "inline" | "summary"
-
-    /**
      * If running in chat, use copilot LLM model
      */
     copilot?: boolean
+
+    /**
+     * Secrets required by the prompt
+     */
+    secrets?: string[]
 }
 
 /**
@@ -179,18 +179,22 @@ interface LinkedFile {
     content: string
 }
 
-type ChatMessageRole = "user" | "system" | "assistant" | "function"
+type ChatMessageRole = "user" | "system" | "assistant"
 
 interface ChatMessageRequest {
     content: string
     agentId?: string
-    subCommand?: string
+    command?: string
     name?: string
     variables: Record<string, (string | { uri: string })[]>
 }
 
-interface ChatMessageFileTreeNode {
+interface ChatMessageFileTree {
     uri: string
+    children?: ChatMessageFileTreeNode[]
+}
+
+interface ChatMessageFileTreeNode {
     label: string
     children?: ChatMessageFileTreeNode[]
 }
@@ -198,8 +202,7 @@ interface ChatMessageFileTreeNode {
 interface ChatMessageResponse {
     content?: string
     uri?: string
-    position?: CharPosition
-    fileTree?: ChatMessageFileTreeNode
+    fileTree?: ChatMessageFileTree
 }
 
 // ChatML
@@ -388,16 +391,6 @@ interface ExpansionVariables {
     error: string
 
     /**
-     * Prompt execution options specified in the UI
-     */
-    promptOptions: {
-        /**
-         * Ignore existing output
-         */
-        ignoreOutput?: boolean
-    } & Record<string, string | boolean>
-
-    /**
      * current prompt template
      */
     template: PromptDefinition
@@ -421,6 +414,11 @@ interface ExpansionVariables {
      * List of JSON schemas; if any
      */
     schemas?: Record<string, JSONSchema>
+
+    /**
+     * List of secrets used by the prompt, must be registred in `genaiscript`.
+     */
+    secrets?: Record<string, string>
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -539,24 +537,95 @@ interface Path {
      * The path.relative() method returns the relative path from from to to based on the current working directory. If from and to each resolve to the same path (after calling path.resolve() on each), a zero-length string is returned.
      */
     relative(from: string, to: string): string
+
+    /**
+     * The path.resolve() method resolves a sequence of paths or path segments into an absolute path.
+     * @param pathSegments
+     */
+    resolve(...pathSegments: string[]): string
 }
 
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
      */
-    JSON5(text: string): unknown | undefined
+    JSON5(content: string | LinkedFile): unknown | undefined
     /**
      * Parses text as a YAML paylaod
      */
-    YAML(text: string): unknown | undefined
+    YAML(content: string | LinkedFile): unknown | undefined
 
     /**
      * Parses text as TOML payload
      * @param text text as TOML payload
      */
-    TOML(text: string): unknown | undefined
+    TOML(content: string | LinkedFile): unknown | undefined
+
+    /**
+     * Parses a file or URL as PDF
+     * @param content
+     */
+    PDF(
+        content: string | LinkedFile
+    ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
+
+    /**
+     * Parses a CSV file or text
+     * @param content
+     */
+    CSV(content: string | LinkedFile): object[] | undefined
 }
+
+interface HighlightOptions {
+    maxLength?: number
+}
+
+interface Retreival {
+    /**
+     * Query files with a question
+     */
+    query(
+        question: string,
+        options?: {
+            /**
+             * Filter results for the following files
+             */
+            files?: (string | LinkedFile)[]
+            /**
+             * Maximum number of embeddings to use
+             */
+            topK?: number
+        }
+    ): Promise<string>
+
+    /**
+     * Search for embeddings
+     */
+    search(
+        query: string,
+        options?: {
+            /**
+             * Filter results for the following files
+             */
+            files?: (string | LinkedFile)[]
+            /**
+             * Maximum number of embeddings to use
+             */
+            topK?: number
+        }
+    ): Promise<{
+        files: LinkedFile[]
+        fragments: LinkedFile[]
+    }>
+
+    /**
+     * Generate an outline of the files
+     * @param files
+     */
+    outline(files: LinkedFile[]): Promise<string>
+}
+
+type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
@@ -576,16 +645,21 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
-    fetchText(urlOrFile: string | LinkedFile): Promise<{
+    fetchText(
+        urlOrFile: string | LinkedFile,
+        options?: FetchTextOptions
+    ): Promise<{
         ok: boolean
         status: number
         text?: string
         file?: LinkedFile
     }>
     readFile(file: string): Promise<LinkedFile>
+    cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
+    retreival: Retreival
 }
 
 
@@ -672,16 +746,22 @@ declare var path: Path
 declare var parsers: Parsers
 
 /**
+ * Retreival Augmented Generation services
+ */
+declare var retreival: Retreival
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
 declare function fetchText(
-    url: string | LinkedFile
+    url: string | LinkedFile,
+    options?: FetchTextOptions
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
  * Reads the content of a file
- * @param path 
+ * @param path
  */
 declare function readFile(path: string): Promise<LinkedFile>
 
@@ -691,3 +771,9 @@ declare function readFile(path: string): Promise<LinkedFile>
  * @param schema JSON schema instance
  */
 declare function defSchema(name: string, schema: JSONSchema): void
+
+/**
+ * Cancels the current prompt generation/execution with the given reason.
+ * @param reason
+ */
+declare function cancel(reason?: string): void
