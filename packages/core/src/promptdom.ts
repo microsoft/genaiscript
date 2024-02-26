@@ -41,8 +41,8 @@ export async function renderNode(node: PromptNode) {
     let output = ""
     await visitNode(node, async (n) => {
         const value = await n.value
-        assert(value !== undefined)
-        output += value + "\n"
+        if (value != undefined)
+            output += value + "\n"
     })
     return output
 }
