@@ -445,6 +445,10 @@ interface DefOptions {
     schema?: string
 }
 
+interface DefImagesOptions {
+    details?: "high" | "low"
+}
+
 interface ChatTaskOptions {
     command: string
     cwd?: string
@@ -619,6 +623,7 @@ interface PromptContext {
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
     defFiles(files: LinkedFile[]): void
+    defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
         description: string,

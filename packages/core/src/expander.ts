@@ -8,7 +8,7 @@ import {
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, logVerbose, relativePath } from "./util"
+import { assert, logVerbose, relativePath, toBase64 } from "./util"
 import {
     DataFrame,
     Fenced,
@@ -46,10 +46,12 @@ import {
     PromptImage,
     PromptNode,
     appendChild,
+    createImageNode,
     createTextNode,
     renderPromptNode,
 } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
+import { lookup } from "mime-types"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -193,6 +195,30 @@ async function callExpander(
         },
     }
 
+    const defImages = (files: StringLike, options?: DefImagesOptions) => {
+        const { details } = options || {}
+        if (Array.isArray(files))
+            files.forEach((file) => defImages(file, options))
+        else if (typeof files === "string")
+            appendChild(scope[0], createImageNode({ url: files, details }))
+        else {
+            const file: LinkedFile = files
+            appendChild(
+                scope[0],
+                createImageNode(
+                    (async () => {
+                        const mime = lookup(file.filename)
+                        if (!mime) return undefined
+
+                        const bytes = await host.readFile(file.filename)
+                        const b64 = toBase64(bytes)
+                        return { url: `data:${mime};base64,${b64}`, details }
+                    })()
+                )
+            )
+        }
+    }
+
     let logs = ""
     let text = ""
     let images: PromptImage[] = []
@@ -205,6 +231,7 @@ async function callExpander(
                 path,
                 parsers,
                 retreival,
+                defImages,
                 writeText: (body) => {
                     appendChild(
                         scope[0],
