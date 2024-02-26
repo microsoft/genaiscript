@@ -106,7 +106,7 @@ ${title}
     }
 
     image(url: string, caption?: string) {
-        this.content += `![${caption || url}](${url})\n`
+        this.content += `\n![${caption || url}](${url})\n`
     }
 
     resultItem(value: boolean, message: string) {
