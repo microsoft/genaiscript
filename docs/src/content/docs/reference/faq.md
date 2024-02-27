@@ -1,4 +1,6 @@
-# GenAIScript FAQ
+---
+title: FAQ
+---
 
 ## What is GenAIScript?
 
