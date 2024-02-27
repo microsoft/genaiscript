@@ -12,7 +12,8 @@ export function YAMLTryParse<T = any>(
             ignoreLiterals &&
             ["number", "boolean", "string"].includes(typeof res)
         )
-            return undefined
+            return defaultValue
+        return res
     } catch (e) {
         return defaultValue
     }
