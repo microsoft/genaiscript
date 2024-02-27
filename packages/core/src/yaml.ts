@@ -1,8 +1,18 @@
 import { parse, stringify } from "yaml"
 
-export function YAMLTryParse<T = any>(text: string, defaultValue?: T): T {
+export function YAMLTryParse<T = any>(
+    text: string,
+    defaultValue?: T,
+    options?: { ignoreLiterals?: boolean }
+): T {
+    const { ignoreLiterals } = options || {}
     try {
-        return parse(text)
+        const res = parse(text)
+        if (
+            ignoreLiterals &&
+            ["number", "boolean", "string"].includes(typeof res)
+        )
+            return undefined
     } catch (e) {
         return defaultValue
     }
