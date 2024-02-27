@@ -1,10 +1,10 @@
 #!/usr/bin/env zx
 
-import 'zx/globals'
+import "zx/globals"
 
-const { version } = await fs.readJSON('package.json')
+const { version } = await fs.readJSON("package.json")
 console.log(`version: ${version}`)
-const packages = await glob(['packages/*/package.json'])
+const packages = await glob(["packages/*/package.json", "docs/package.json"])
 for (const pkgp of packages) {
     console.log(`updated ${pkgp}`)
     const pkg = await fs.readJSON(pkgp)
