@@ -27,8 +27,6 @@ def("FILE", env.files)
 $`Shorten the following FILE. Limit changes to minimum. Respond with the new FILE.`
 ```
 
-
-
 ## Metadata
 
 Prompts use `script({ ... })` function call
@@ -348,6 +346,16 @@ defSchema("TARGET_SCHEMA", {
 
 When a JSON/YAML payload is generated with the schema identifier,
 genaiscript automatically validates the payload against the schema.
+
+## Images
+
+Images can be added to the prompt for models that support this feature (like `gpt-4-turbo-v`).
+Use the `defImages` function to declare the images. Supported images will vary
+with models but most likely PNG, JPEG, WEBP and GIF. Local files or URLs are supported.
+
+```js
+defImages(env.files)
+```
 
 ## Parsers
 

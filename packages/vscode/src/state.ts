@@ -395,8 +395,9 @@ ${e.message}`
 
         if (options.chat) {
             const hasToken = await this.host.getSecretToken()
-            if (!hasToken && template.copilot)
+            if (!hasToken && template.copilot) {
                 configureChatCompletionForChatAgent(options, runOptions)
+            }
         }
 
         this.requestHistory.push({

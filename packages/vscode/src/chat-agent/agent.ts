@@ -10,7 +10,7 @@ import {
     logVerbose,
 } from "genaiscript-core"
 
-interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
+interface ICatChatAgentResult extends vscode.ChatResult {
     template?: PromptTemplate
     command: string
 }
@@ -19,22 +19,23 @@ interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
 // https://github.com/microsoft/vscode/issues/205609#issue-2143213494
 
 function toChatAgentVariables(
-    variables: Record<string, vscode.ChatVariableValue[]>
+    variables: readonly vscode.ChatResolvedVariable[]
 ) {
     const res: Record<string, (string | { uri: string })[]> = {}
-    for (const [key, values] of Object.entries(variables)) {
-        res[key] = values.map((v) =>
-            v.value instanceof vscode.Uri ? { uri: v.value.fsPath } : v.value
+    for (const v of variables) {
+        res[v.name] = v.values.map(({ value }) =>
+            value instanceof vscode.Uri ? { uri: value.fsPath } : value
         )
     }
     return res
 }
 
-function toChatAgentRequest(request: vscode.ChatRequest) {
+function toChatAgentRequest(request: vscode.ChatRequestTurn) {
+    if (!request?.prompt) return undefined
     return {
         content: request.prompt,
         command: request.command,
-        agentId: request.agentId,
+        agentId: request.participant.name,
         variables: toChatAgentVariables(request.variables),
     }
 }
@@ -60,9 +61,10 @@ function toChatAgentFileTreeNode(
 }
 
 function toChatAgentResponse(
-    response: readonly vscode.ChatResponsePart[]
+    response: vscode.ChatResponseTurn
 ): ChatMessageResponse[] {
-    return response.map(
+    if (!response?.response) return undefined
+    return response.response.map(
         (resp) =>
             <ChatMessageResponse>{
                 content: (resp as vscode.ChatResponseMarkdownPart)?.value
@@ -79,15 +81,15 @@ function toChatAgentResponse(
 }
 
 function toChatAgentContext(
-    request: vscode.ChatAgentRequest,
-    chatContext: vscode.ChatAgentContext
+    request: vscode.ChatRequest,
+    chatContext: vscode.ChatContext
 ): ChatAgentContext {
     const res: ChatAgentContext = {
         history: chatContext.history.map(
             (m) =>
                 <ChatMessage>{
-                    request: toChatAgentRequest(m.request),
-                    response: toChatAgentResponse(m.response),
+                    request: toChatAgentRequest(m as vscode.ChatRequestTurn),
+                    response: toChatAgentResponse(m as vscode.ChatResponseTurn),
                 }
         ),
         prompt: request.prompt || "",
@@ -103,7 +105,7 @@ function wrapComment(text: string) {
 }
 
 function chatRequestToPromptTemplate(
-    request: vscode.ChatAgentRequest,
+    request: vscode.ChatRequest,
     context: ChatAgentContext
 ): PromptTemplate {
     const args: PromptArgs = {}
@@ -118,7 +120,7 @@ function chatRequestToPromptTemplate(
         const { agentId, command, content } = request
 
         // process input
-        if (agentId === PARTICIPANT_ID) {
+        if (agentId === CHAT_PARTICIPANT_ID) {
             if (command) {
                 // calling into another template
                 // TODO
@@ -152,18 +154,13 @@ export function activateChatAgent(state: ExtensionState) {
 
     const packageJSON: { displayName: string; enabledApiProposals?: string } =
         context.extension.packageJSON
-    if (!packageJSON.displayName?.includes("Insiders")) {
-        vscode.window.showWarningMessage(
-            "GenAIScript - chat agent only available with genaiscript.insiders.vsix"
-        )
-        return
-    }
-
     if (
+        !packageJSON.displayName?.includes("Insiders") ||
         !vscode.env.appName.includes("Insiders") ||
         !packageJSON.enabledApiProposals?.includes("chatParticipant")
-    )
+    ) {
         return
+    }
 
     logInfo("activating chat agent")
     const { extensionUri } = context
@@ -254,25 +251,17 @@ export function configureChatCompletionForChatAgent(
     runOptions.cache = false
     runOptions.getChatCompletions = async (req, chatOptions) => {
         const { trace } = chatOptions
-        const roles: Record<string, vscode.ChatMessageRole> = {
-            system: 0,
-            user: 1,
-            assistant: 2,
-            function: 3,
-        }
         const { model, temperature, top_p, seed, ...rest } = req
         trace.item(`script model: ${model}`)
         trace.item(`copilot llm model: ${access.model || "unknown"}`)
 
         if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())
-            progress.report(<vscode.ChatAgentContent>{
-                content: `⚠ expected model \`${model}\` but got \`${access.model}\`.
+            progress.progress(
+                `⚠ expected model \`${model}\` but got \`${access.model}\``
+            )
 
-`,
-            })
-
-        const messages: vscode.chat.ChatMessage[] = req.messages.map((m) => ({
-            role: roles[m.role],
+        const messages = req.messages.map((m) => ({
+            role: m.role,
             content: typeof m.content === "string" ? m.content : "...",
         }))
         const request = access.makeChatRequest(
