@@ -13,6 +13,7 @@ export function createParsers(trace: MarkdownTrace): Parsers {
         TOML: (text) => TOMLTryParse(filenameOrFileToContent(text)),
         CSV: (text) => CSVTryParse(filenameOrFileToContent(text)),
         PDF: async (file, options) => {
+            if (!file) return { file: undefined, pages: [] }
             const { filter = () => true } = options || {}
             await tryImportPdfjs(trace)
             const filename = typeof file === "string" ? file : file.filename
