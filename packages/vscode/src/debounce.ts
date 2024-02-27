@@ -1,12 +1,14 @@
 export function debounceAsync(
     handler: () => Promise<void>,
-    delay: number
+    delay: number,
+    start?: () => void
 ): () => void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let timeOutId: any
     let running = false
     let again = false // try to run while handler is running
     const res = function () {
+        start?.()
         // try to run while handler is running
         if (timeOutId && running) {
             again = true
