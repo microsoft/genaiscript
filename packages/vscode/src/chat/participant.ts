@@ -1,17 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
-import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
-import {
-    MarkdownTrace,
-    RunTemplateOptions,
-    TOOL_NAME,
-    estimateTokens,
-    logInfo,
-    logVerbose,
-} from "genaiscript-core"
-import { AGENT_ID } from "../extension"
+import { ChatRequestContext, ExtensionState } from "../state"
+import { CHAT_PARTICIPANT_ID, MarkdownTrace, logInfo } from "genaiscript-core"
 
-interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
+interface ICatChatAgentResult extends vscode.ChatResult {
     template?: PromptTemplate
     command: string
 }
@@ -20,22 +12,23 @@ interface ICatChatAgentResult extends vscode.ChatAgentResult2 {
 // https://github.com/microsoft/vscode/issues/205609#issue-2143213494
 
 function toChatAgentVariables(
-    variables: Record<string, vscode.ChatVariableValue[]>
+    variables: readonly vscode.ChatResolvedVariable[]
 ) {
     const res: Record<string, (string | { uri: string })[]> = {}
-    for (const [key, values] of Object.entries(variables)) {
-        res[key] = values.map((v) =>
-            v.value instanceof vscode.Uri ? { uri: v.value.fsPath } : v.value
+    for (const v of variables) {
+        res[v.name] = v.values.map(({ value }) =>
+            value instanceof vscode.Uri ? { uri: value.fsPath } : value
         )
     }
     return res
 }
 
-function toChatAgentRequest(request: vscode.ChatAgentRequest) {
+function toChatAgentRequest(request: vscode.ChatRequestTurn) {
+    if (!request?.prompt) return undefined
     return {
         content: request.prompt,
         command: request.command,
-        agentId: request.agentId,
+        agentId: request.participant.name,
         variables: toChatAgentVariables(request.variables),
     }
 }
@@ -61,20 +54,14 @@ function toChatAgentFileTreeNode(
 }
 
 function toChatAgentResponse(
-    response: readonly (
-        | vscode.ChatResponseTextPart
-        | vscode.ChatResponseMarkdownPart
-        | vscode.ChatResponseFileTreePart
-        | vscode.ChatResponseAnchorPart
-        | vscode.ChatResponseCommandButtonPart
-    )[]
+    response: vscode.ChatResponseTurn
 ): ChatMessageResponse[] {
-    return response.map(
+    if (!response?.response) return undefined
+    return response.response.map(
         (resp) =>
             <ChatMessageResponse>{
-                content:
-                    (resp as vscode.ChatResponseMarkdownPart)?.value?.value ||
-                    (resp as vscode.ChatResponseTextPart)?.value,
+                content: (resp as vscode.ChatResponseMarkdownPart)?.value
+                    ?.value,
                 //TODO
                 //       uri: (resp as vscode.ChatResponseAnchorPart)?.value,
                 fileTree:
@@ -87,15 +74,15 @@ function toChatAgentResponse(
 }
 
 function toChatAgentContext(
-    request: vscode.ChatAgentRequest,
-    chatContext: vscode.ChatAgentContext
+    request: vscode.ChatRequest,
+    chatContext: vscode.ChatContext
 ): ChatAgentContext {
     const res: ChatAgentContext = {
         history: chatContext.history.map(
             (m) =>
                 <ChatMessage>{
-                    request: toChatAgentRequest(m.request),
-                    response: toChatAgentResponse(m.response),
+                    request: toChatAgentRequest(m as vscode.ChatRequestTurn),
+                    response: toChatAgentResponse(m as vscode.ChatResponseTurn),
                 }
         ),
         prompt: request.prompt || "",
@@ -111,7 +98,7 @@ function wrapComment(text: string) {
 }
 
 function chatRequestToPromptTemplate(
-    request: vscode.ChatAgentRequest,
+    request: vscode.ChatRequest,
     context: ChatAgentContext
 ): PromptTemplate {
     const args: PromptArgs = {}
@@ -126,7 +113,7 @@ function chatRequestToPromptTemplate(
         const { agentId, command, content } = request
 
         // process input
-        if (agentId === AGENT_ID) {
+        if (agentId === CHAT_PARTICIPANT_ID) {
             if (command) {
                 // calling into another template
                 // TODO
@@ -155,7 +142,7 @@ function chatRequestToPromptTemplate(
     return template
 }
 
-export function activateChatAgent(state: ExtensionState) {
+export function activateChatParticipant(state: ExtensionState) {
     const { context } = state
 
     const packageJSON: { displayName: string; enabledApiProposals?: string } =
@@ -163,7 +150,7 @@ export function activateChatAgent(state: ExtensionState) {
     if (
         !packageJSON.displayName?.includes("Insiders") ||
         !vscode.env.appName.includes("Insiders") ||
-        !packageJSON.enabledApiProposals?.includes("chatAgents2")
+        !packageJSON.enabledApiProposals?.includes("chatParticipant")
     ) {
         return
     }
@@ -171,10 +158,10 @@ export function activateChatAgent(state: ExtensionState) {
     logInfo("activating chat agent")
     const { extensionUri } = context
 
-    const handler: vscode.ChatAgentHandler = async (
-        request: vscode.ChatAgentRequest,
-        chatContext: vscode.ChatAgentContext,
-        response: vscode.ChatAgentResponseStream,
+    const handler: vscode.ChatExtendedRequestHandler = async (
+        request: vscode.ChatRequest,
+        chatContext: vscode.ChatContext,
+        response: vscode.ChatResponseStream,
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
         const { command } = request
@@ -194,24 +181,11 @@ export function activateChatAgent(state: ExtensionState) {
             response.markdown(message.content)
         }
 
-        const models = vscode.chat.languageModels
-        // TODO: resolve correct model
-        const tmodel = template.model || "gpt-4"
-        let model = models.find((m) => m === "copilot-" + tmodel)
-        if (!model) {
-            model = await vscode.window.showQuickPick(models, {
-                title: "Pick a Language Model",
-            })
-            if (model === undefined) return undefined
-        }
-        const access = await vscode.chat.requestLanguageModelAccess(model)
-        logVerbose(`chat access model: ${access.model || "unknown"}`)
         await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
             chat: <ChatRequestContext>{
                 context,
                 response,
                 token,
-                access,
             },
             template,
         })
@@ -221,10 +195,12 @@ export function activateChatAgent(state: ExtensionState) {
     // Agents appear as top-level options in the chat input
     // when you type `@`, and can contribute sub-commands in the chat input
     // that appear when you type `/`.
-    const agent = vscode.chat.createChatAgent(AGENT_ID, handler)
+    const agent = vscode.chat.createChatParticipant(
+        CHAT_PARTICIPANT_ID,
+        handler
+    )
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
     agent.description = "Run conversation as genaiscript..."
-    agent.fullName = TOOL_NAME
     agent.commandProvider = {
         provideCommands(token) {
             const templates =
@@ -242,55 +218,4 @@ export function activateChatAgent(state: ExtensionState) {
         },
     }
     // TODO apply edits
-}
-
-export function configureChatCompletionForChatAgent(
-    options: AIRequestOptions,
-    runOptions: RunTemplateOptions
-): void {
-    logVerbose("using copilot llm")
-    const { access, response: progress, token } = options.chat
-    const { partialCb, infoCb } = runOptions
-
-    runOptions.cache = false
-    runOptions.getChatCompletions = async (req, chatOptions) => {
-        const { trace } = chatOptions
-        const roles: Record<string, vscode.ChatMessageRole> = {
-            system: 0,
-            user: 1,
-            assistant: 2,
-            function: 3,
-        }
-        const { model, temperature, top_p, seed, ...rest } = req
-        trace.item(`script model: ${model}`)
-        trace.item(`copilot llm model: ${access.model || "unknown"}`)
-
-        if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())
-            progress.report(<vscode.ChatAgentContent>{
-                content: `⚠ expected model \`${model}\` but got \`${access.model}\`.
-
-`,
-            })
-
-        const messages: vscode.ChatMessage[] = req.messages.map((m) => ({
-            role: roles[m.role],
-            content: typeof m.content === "string" ? m.content : "...",
-        }))
-        const request = access.makeChatRequest(
-            messages,
-            { model, temperature, top_p, seed },
-            token
-        )
-
-        let text = ""
-        for await (const fragment of request.stream) {
-            text += fragment
-            partialCb?.({
-                responseSoFar: text,
-                responseChunk: fragment,
-                tokensSoFar: estimateTokens(model, text),
-            })
-        }
-        return { text }
-    }
 }

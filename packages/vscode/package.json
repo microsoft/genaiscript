@@ -310,7 +310,7 @@
         "@typescript-eslint/eslint-plugin": "^7.0.1",
         "@typescript-eslint/parser": "^7.0.1",
         "@vscode/test-web": "^0.0.51",
-        "@vscode/vsce": "^2.23.0",
+        "@vscode/vsce": "^2.24.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.4",
         "eslint": "^8.56.0",
@@ -328,7 +328,8 @@
         "genaiscript-core": "*"
     },
     "enabledApiProposals": [
-        "chatAgents2",
-        "chatRequestAccess"
+        "chatParticipant",
+        "chatParticipantAdditions",
+        "languageModels"
     ]
 }

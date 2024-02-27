@@ -38,7 +38,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
-import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
+import { configureLanguageModelAccess } from "./chat/lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -56,8 +56,7 @@ export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface ChatRequestContext {
     context: ChatAgentContext
-    access: vscode.LanguageModelAccess
-    response: vscode.ChatAgentResponseStream
+    response: vscode.ChatResponseStream
     token: vscode.CancellationToken
 }
 
@@ -360,7 +359,7 @@ ${e.message}`
                 const progress = r.options.chat?.response
                 if (progress) {
                     if (data.text) progress.progress(data.text)
-                    if (data.summary) progress.text(data.summary)
+                    if (data.summary) progress.markdown(data.summary)
                     if (data.vars && !varsProgressReported) {
                         varsProgressReported = true
                         data.vars.files
@@ -393,10 +392,9 @@ ${e.message}`
             chat: options.chat?.context,
         }
 
-        if (options.chat) {
-            const hasToken = await this.host.getSecretToken()
-            if (!hasToken && template.copilot)
-                configureChatCompletionForChatAgent(options, runOptions)
+        const hasToken = await this.host.getSecretToken()
+        if (!hasToken && template.copilot) {
+            configureLanguageModelAccess(options, runOptions)
         }
 
         this.requestHistory.push({
