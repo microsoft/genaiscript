@@ -108,17 +108,6 @@ export class WebSocketClient implements RetreivalService, HighlightService {
         })
         return res.response
     }
-    async query(
-        text: string,
-        options?: RetreivalQueryOptions
-    ): Promise<RetreivalQueryResponse> {
-        const res = await this.queue<RetreivalQuery>({
-            type: "retreival.query",
-            text,
-            options,
-        })
-        return res.response
-    }
     async search(
         text: string,
         options?: RetreivalQueryOptions

@@ -109,6 +109,13 @@ declare function readFile(path: string): Promise<LinkedFile>
 declare function defSchema(name: string, schema: JSONSchema): void
 
 /**
+ * Adds images to the prompt
+ * @param files
+ * @param options
+ */
+declare function defImages(files: StringLike, options?: DefImagesOptions): void
+
+/**
  * Cancels the current prompt generation/execution with the given reason.
  * @param reason
  */

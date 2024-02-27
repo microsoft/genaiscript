@@ -49,14 +49,6 @@ export async function startServer(options: { port: string }) {
                             data.mimeType
                         )
                         break
-                    case "retreival.query":
-                        console.log(`retreival: query ${data.text}`)
-                        console.debug(YAMLStringify(data.options))
-                        response = await host.retreival.query(
-                            data.text,
-                            data.options
-                        )
-                        break
                     case "retreival.search":
                         console.log(`retreival: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))

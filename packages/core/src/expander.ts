@@ -1,4 +1,5 @@
 import {
+    ChatCompletionContentPartImage,
     ChatCompletionRequestMessage,
     ChatCompletionResponse,
     ChatCompletionsOptions,
@@ -8,7 +9,7 @@ import {
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, logVerbose, relativePath } from "./util"
+import { assert, logVerbose, relativePath, toBase64 } from "./util"
 import {
     DataFrame,
     Fenced,
@@ -37,13 +38,21 @@ import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
-import { upsert, search, query } from "./retreival"
+import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { PromptNode, appendTextChild, renderNode } from "./promptdom"
+import {
+    PromptImage,
+    PromptNode,
+    appendChild,
+    createImageNode,
+    createTextNode,
+    renderPromptNode,
+} from "./promptdom"
 import { CSVToMarkdown } from "./csv"
+import { lookup } from "mime-types"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -161,21 +170,6 @@ async function callExpander(
     })
 
     const retreival: Retreival = {
-        query: async (q, options) => {
-            const { files = env.files } = options || {}
-            try {
-                trace.startDetails(`retreival query \`${q}\``)
-                await upsert(files, { trace })
-                const res = await query(q, {
-                    files: files.map(stringLikeToFileName),
-                    topK: options?.topK,
-                })
-                trace.fence(res, "markdown")
-                return res
-            } finally {
-                trace.endDetails()
-            }
-        },
         search: async (q, options) => {
             const { files = env.files } = options || {}
             try {
@@ -202,8 +196,33 @@ async function callExpander(
         },
     }
 
+    const defImages = (files: StringLike, options?: DefImagesOptions) => {
+        const { detail } = options || {}
+        if (Array.isArray(files))
+            files.forEach((file) => defImages(file, options))
+        else if (typeof files === "string")
+            appendChild(scope[0], createImageNode({ url: files, detail }))
+        else {
+            const file: LinkedFile = files
+            appendChild(
+                scope[0],
+                createImageNode(
+                    (async () => {
+                        const mime = lookup(file.filename)
+                        if (!mime) return undefined
+
+                        const bytes = await host.readFile(file.filename)
+                        const b64 = toBase64(bytes)
+                        return { url: `data:${mime};base64,${b64}`, detail }
+                    })()
+                )
+            )
+        }
+    }
+
     let logs = ""
     let text = ""
+    let images: PromptImage[] = []
     try {
         await evalPrompt(
             {
@@ -213,10 +232,13 @@ async function callExpander(
                 path,
                 parsers,
                 retreival,
+                defImages,
                 writeText: (body) => {
-                    appendTextChild(
+                    appendChild(
                         scope[0],
-                        body.replace(/\n*$/, "").replace(/^\n*/, "")
+                        createTextNode(
+                            body.replace(/\n*$/, "").replace(/^\n*/, "")
+                        )
                     )
                     const idx = body.indexOf(vars.error)
                     if (idx >= 0) {
@@ -278,7 +300,9 @@ async function callExpander(
                 logs += msg + "\n"
             }
         )
-        text = await renderNode(root)
+        const { prompt, images: imgs } = await renderPromptNode(root)
+        text = prompt
+        images = imgs
     } catch (e) {
         success = false
         if (isCancelError(e)) {
@@ -290,7 +314,7 @@ async function callExpander(
         }
     }
 
-    return { logs, success, text }
+    return { logs, success, text, images }
 }
 
 async function expandTemplate(
@@ -314,6 +338,7 @@ async function expandTemplate(
 
     const prompt = await callExpander(template, env, trace)
     const expanded = prompt.text
+    const images: PromptImage[] = prompt.images
 
     let success = prompt.success
     let systemText = ""
@@ -325,7 +350,7 @@ async function expandTemplate(
     let responseType = template.responseType
 
     const systems = (template.system ?? []).slice(0)
-    if (!systems.length) {
+    if (template.system === undefined) {
         systems.push("system")
         systems.push("system.explanations")
         systems.push("system.files")
@@ -348,6 +373,7 @@ async function expandTemplate(
         const sysex = sysr.text
         success = success && sysr.success
         if (!success) break
+        if (sysr.images) images.push(...sysr.images)
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -370,6 +396,7 @@ async function expandTemplate(
         trace.fence(system.jsSource, "js")
         trace.heading(3, "expanded")
         trace.fence(sysex, "markdown")
+        sysr.images?.forEach((img) => trace.image(img.url))
         trace.endDetails()
     }
 
@@ -409,12 +436,14 @@ async function expandTemplate(
         }
         if (responseType) trace.item(`response type: ${responseType}`)
         trace.fence(expanded, "markdown")
+        prompt.images?.forEach((img) => trace.image(img.url))
         trace.endDetails() // expanded prompt
     }
     trace.endDetails()
 
     return {
         expanded,
+        images,
         success,
         model,
         temperature,
@@ -683,6 +712,7 @@ export async function runTemplate(
 
     let {
         expanded,
+        images,
         success,
         temperature,
         topP,
@@ -699,14 +729,30 @@ export async function runTemplate(
         trace
     )
 
-    const prompt: ChatCompletionMessageParam[] = [
+    // initial messages (before tools)
+    const messages: ChatCompletionRequestMessage[] = [
         {
             role: "system",
             content: systemText,
         },
         {
-            role: "assistant",
-            content: expanded,
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: expanded,
+                },
+                ...(images || []).map(
+                    ({ url, detail }) =>
+                        <ChatCompletionContentPartImage>{
+                            type: "image_url",
+                            image_url: {
+                                url,
+                                detail,
+                            },
+                        }
+                ),
+            ],
         },
     ]
 
@@ -714,7 +760,7 @@ export async function runTemplate(
     if (!success) {
         return <FragmentTransformResponse>{
             error: new Error("Template failed"),
-            prompt,
+            prompt: messages,
             vars,
             trace: trace.content,
             text: "# Template failed\nSee trace.",
@@ -730,7 +776,7 @@ export async function runTemplate(
     // don't run LLM
     if (skipLLM) {
         return <FragmentTransformResponse>{
-            prompt,
+            prompt: messages,
             vars,
             trace: trace.content,
             text: undefined,
@@ -744,18 +790,6 @@ export async function runTemplate(
     }
     const response_format = responseType ? { type: responseType } : undefined
     const completer = options.getChatCompletions || getChatCompletions
-
-    // initial messages (before tools)
-    const messages: ChatCompletionRequestMessage[] = [
-        {
-            role: "system",
-            content: systemText,
-        },
-        {
-            role: "user",
-            content: expanded,
-        },
-    ]
 
     const status = (text?: string) => {
         options.infoCb?.({
@@ -867,7 +901,7 @@ export async function runTemplate(
 
             status(`error`)
             return <FragmentTransformResponse>{
-                prompt,
+                prompt: messages,
                 vars,
                 trace: trace.content,
                 error,
@@ -1203,7 +1237,7 @@ export async function runTemplate(
         )
 
     const res: FragmentTransformResponse = {
-        prompt,
+        prompt: messages,
         vars,
         edits,
         annotations,
