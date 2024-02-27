@@ -1,5 +1,7 @@
 ---
-title: CLI
+title: GenAIScript CLI Documentation
+description: Comprehensive guide to using the GenAIScript CLI for automating tasks with AI scripts in Node.js environments.
+keywords: GenAIScript CLI, Node.js automation, AI scripting, command line interface, JavaScript automation
 ---
 
 The GenAIScript CLI is a command line packaged as a Node.JS javascript file (`genaiscript.js`). It is used to run GenAIScript from the command line.
