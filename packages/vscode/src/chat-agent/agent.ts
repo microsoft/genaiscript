@@ -160,55 +160,11 @@ export function activateChatAgent(state: ExtensionState) {
 
     const packageJSON: { displayName: string; enabledApiProposals?: string } =
         context.extension.packageJSON
-    if (!packageJSON.displayName?.includes("Insiders")) {
-        vscode.window.showWarningMessage(
-            "GenAIScript - chat agent only available with genaiscript.insiders.vsix"
-        )
-        return
-    }
-
-    if (!vscode.env.appName.includes("Insiders")) {
-        vscode.window.showWarningMessage(
-            "GenAIScript - chat agent only available with Visual Studio Code Insiders"
-        )
-        return
-    }
-
-    if (!packageJSON.enabledApiProposals?.includes("chatAgents2")) {
-        const configure = "Configure"
-        vscode.window
-            .showWarningMessage(
-                "GenAIScript - chat agent proposal api not enabled.",
-                configure
-            )
-            .then(async (res) => {
-                if (res === configure) {
-                    await vscode.commands.executeCommand(
-                        "workbench.action.configureRuntimeArguments"
-                    )
-                    await vscode.workspace.openTextDocument({
-                        content: `# Configuring Copilot Chat Agents
-                        
-The Copilot Chat Agents are still under the proposal APIs phase so you need a configuration
-step to enable them for genaiscript (Learn about [proposed apis](https://code.visualstudio.com/api/advanced-topics/using-proposed-api#sharing-extensions-using-the-proposed-api)).
-
-These steps will not be needed once the API gets fully released.
-
--   edit the \`.vscode-insiders/argv.json\` file to add the genaiscript extension
-
-\`\`\`json
-{
-    ...
-    "enable-proposed-api": ["${context.extension.id}"]
-}
-\`\`\`
--   close **all instances** of VS Code Insiders
--   reopen VS Code Insiders
-`,
-                        language: "markdown",
-                    })
-                }
-            })
+    if (
+        !packageJSON.displayName?.includes("Insiders") ||
+        !vscode.env.appName.includes("Insiders") ||
+        !packageJSON.enabledApiProposals?.includes("chatAgents2")
+    ) {
         return
     }
 
