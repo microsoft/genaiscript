@@ -12,10 +12,13 @@ export function createParsers(trace: MarkdownTrace): Parsers {
         YAML: (text) => YAMLTryParse(filenameOrFileToContent(text)),
         TOML: (text) => TOMLTryParse(filenameOrFileToContent(text)),
         CSV: (text) => CSVTryParse(filenameOrFileToContent(text)),
-        PDF: async (file) => {
+        PDF: async (file, options) => {
+            const { filter = () => true } = options || {}
             await tryImportPdfjs(trace)
             const filename = typeof file === "string" ? file : file.filename
-            const pages = await PDFTryParse(filename)
+            const pages = (await PDFTryParse(filename))?.filter((text, index) =>
+                filter(index + 1, text)
+            )
             return {
                 file: pages
                     ? <LinkedFile>{
