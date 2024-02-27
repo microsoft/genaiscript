@@ -1,7 +1,8 @@
 script({
     title: "describe-image",
-    model: "gpt-4-turbo-v"
+    model: "gpt-4-turbo-v",
+    system: [],
 })
 
-$`You are a helpful assistant. Describe each image.`
+$`Return the list of objects in the images.`
 defImages(env.files)

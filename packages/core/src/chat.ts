@@ -19,6 +19,9 @@ export type CreateChatCompletionRequest =
 export type ChatCompletionRequestMessage =
     OpenAI.Chat.Completions.ChatCompletionMessageParam
 
+export type ChatCompletionContentPartImage =
+    OpenAI.Chat.Completions.ChatCompletionContentPartImage
+
 export interface ChatCompletionToolCall {
     id: string
     name: string

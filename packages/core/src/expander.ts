@@ -1,4 +1,5 @@
 import {
+    ChatCompletionContentPartImage,
     ChatCompletionRequestMessage,
     ChatCompletionResponse,
     ChatCompletionsOptions,
@@ -196,11 +197,11 @@ async function callExpander(
     }
 
     const defImages = (files: StringLike, options?: DefImagesOptions) => {
-        const { details } = options || {}
+        const { detail } = options || {}
         if (Array.isArray(files))
             files.forEach((file) => defImages(file, options))
         else if (typeof files === "string")
-            appendChild(scope[0], createImageNode({ url: files, details }))
+            appendChild(scope[0], createImageNode({ url: files, detail }))
         else {
             const file: LinkedFile = files
             appendChild(
@@ -212,7 +213,7 @@ async function callExpander(
 
                         const bytes = await host.readFile(file.filename)
                         const b64 = toBase64(bytes)
-                        return { url: `data:${mime};base64,${b64}`, details }
+                        return { url: `data:${mime};base64,${b64}`, detail }
                     })()
                 )
             )
@@ -349,7 +350,7 @@ async function expandTemplate(
     let responseType = template.responseType
 
     const systems = (template.system ?? []).slice(0)
-    if (!systems.length) {
+    if (template.system === undefined) {
         systems.push("system")
         systems.push("system.explanations")
         systems.push("system.files")
@@ -728,35 +729,38 @@ export async function runTemplate(
         trace
     )
 
-    const prompt: ChatCompletionMessageParam[] = [
+    // initial messages (before tools)
+    const messages: ChatCompletionRequestMessage[] = [
         {
             role: "system",
             content: systemText,
         },
         {
-            role: "assistant",
-            content: expanded,
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: expanded,
+                },
+                ...(images || []).map(
+                    ({ url, detail }) =>
+                        <ChatCompletionContentPartImage>{
+                            type: "image_url",
+                            image_url: {
+                                url,
+                                detail,
+                            },
+                        }
+                ),
+            ],
         },
     ]
-
-    if (images.length) {
-        prompt.push({
-            role: "user",
-            content: images.map(({ url, details }) => ({
-                type: "image_url",
-                image_url: {
-                    url,
-                    details,
-                },
-            })),
-        })
-    }
 
     // if the expansion failed, show the user the trace
     if (!success) {
         return <FragmentTransformResponse>{
             error: new Error("Template failed"),
-            prompt,
+            prompt: messages,
             vars,
             trace: trace.content,
             text: "# Template failed\nSee trace.",
@@ -772,7 +776,7 @@ export async function runTemplate(
     // don't run LLM
     if (skipLLM) {
         return <FragmentTransformResponse>{
-            prompt,
+            prompt: messages,
             vars,
             trace: trace.content,
             text: undefined,
@@ -786,18 +790,6 @@ export async function runTemplate(
     }
     const response_format = responseType ? { type: responseType } : undefined
     const completer = options.getChatCompletions || getChatCompletions
-
-    // initial messages (before tools)
-    const messages: ChatCompletionRequestMessage[] = [
-        {
-            role: "system",
-            content: systemText,
-        },
-        {
-            role: "user",
-            content: expanded,
-        },
-    ]
 
     const status = (text?: string) => {
         options.infoCb?.({
@@ -909,7 +901,7 @@ export async function runTemplate(
 
             status(`error`)
             return <FragmentTransformResponse>{
-                prompt,
+                prompt: messages,
                 vars,
                 trace: trace.content,
                 error,
@@ -1245,7 +1237,7 @@ export async function runTemplate(
         )
 
     const res: FragmentTransformResponse = {
-        prompt,
+        prompt: messages,
         vars,
         edits,
         annotations,

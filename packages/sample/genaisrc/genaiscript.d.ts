@@ -446,7 +446,7 @@ interface DefOptions {
 }
 
 interface DefImagesOptions {
-    details?: "high" | "low"
+    detail?: "high" | "low"
 }
 
 interface ChatTaskOptions {

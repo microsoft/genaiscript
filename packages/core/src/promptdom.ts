@@ -13,7 +13,7 @@ export interface PromptTextNode extends PromptNode {
 
 export interface PromptImage {
     url: string
-    details?: "low" | "high"
+    detail?: "low" | "high"
 }
 
 export interface PromptImageNode extends PromptNode {
