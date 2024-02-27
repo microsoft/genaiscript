@@ -6,7 +6,9 @@ jobs:
     build:
         runs-on: ubuntu-latest
         env:
-            GENAISCRIPT_TOKEN: ${{ secrets.GENAISCRIPT_TOKEN }}
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+            OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+            OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
         steps:
             - uses: actions/checkout@v3
               with:
