@@ -201,6 +201,8 @@ export async function evalPrompt(
             writeText(r)
         },
         def(name, body, options) {
+            if (body === undefined) return dontuse("def")
+
             const { language, lineNumbers, schema } = options || {}
             const fence =
                 language === "markdown" ? env.markdownFence : env.fence
@@ -209,8 +211,7 @@ export async function evalPrompt(
                 s = (s || "").replace(/\n*$/, "")
                 if (s && lineNumbers) s = addLineNumbers(s)
                 if (s) s += "\n"
-                if (f && s.includes(f)) 
-                    error = true
+                if (f && s.includes(f)) error = true
                 return s
             }
             const df = (file: LinkedFile) => {
