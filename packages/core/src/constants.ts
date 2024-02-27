@@ -19,3 +19,5 @@ export const BUILTIN_PREFIX = "_builtin/"
 export const CACHE_LLMREQUEST_PREFIX = "cache.llm.request/"
 export const CACHE_AIREQUEST_PREFIX = "cache.ai.request/"
 export const TOKENS_STATUS_BAR_DEBOUNCE_TIME = 800
+export const EXTENSION_ID = "devicescript.genaiscript-vscode"
+export const CHAT_PARTICIPANT_ID = TOOL_ID

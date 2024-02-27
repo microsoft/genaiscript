@@ -3,7 +3,7 @@ import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
 import "isomorphic-fetch"
-import { TOOL_ID, TOOL_NAME, logError } from "genaiscript-core"
+import { EXTENSION_ID, TOOL_NAME, logError } from "genaiscript-core"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
@@ -13,9 +13,6 @@ import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateChatAgent } from "./chat-agent/agent"
 import { activateRetreivalCommands } from "./retreivalcommands"
 import { activateTokensStatusBar } from "./tokenstatusbar"
-
-export const EXTENSION_ID = "devicescript.genaiscript-vscode"
-export const AGENT_ID = TOOL_ID
 
 export async function activate(context: ExtensionContext) {
     if (typeof WebSocket === "undefined") {
