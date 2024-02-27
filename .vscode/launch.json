@@ -64,11 +64,21 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
-            "command": "./node_modules/.bin/astro dev",
-            "cwd": "${workspaceFolder}/docs",
-            "name": "Docs Development server",
+            "name": "Run - Docs",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
             "request": "launch",
-            "type": "node-terminal"
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/docs"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/vscode"
         }
     ]
 }
