@@ -18,7 +18,7 @@ export function createParsers(trace: MarkdownTrace): Parsers {
             await tryImportPdfjs(trace)
             const filename = typeof file === "string" ? file : file.filename
             const pages = (await PDFTryParse(filename))?.filter((text, index) =>
-                filter(index + 1, text)
+                filter(index, text)
             )
             return {
                 file: pages
