@@ -16,6 +16,7 @@
     "csv-parse": "^5.5.3",
     "esbuild": "^0.20.0",
     "fetch-retry": "^5.0.6",
+    "file-type": "^19.0.0",
     "gpt-tokenizer": "^2.1.2",
     "json5": "^2.2.3",
     "markdown-table": "^3.0.3",
