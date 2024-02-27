@@ -38,7 +38,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
-import { configureChatCompletionForChatAgent } from "./chat/lmaccess"
+import { configureLanguageModelAccess } from "./chat/lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -392,11 +392,9 @@ ${e.message}`
             chat: options.chat?.context,
         }
 
-        if (options.chat) {
-            const hasToken = await this.host.getSecretToken()
-            if (!hasToken && template.copilot) {
-                configureChatCompletionForChatAgent(options, runOptions)
-            }
+        const hasToken = await this.host.getSecretToken()
+        if (!hasToken && template.copilot) {
+            configureLanguageModelAccess(options, runOptions)
         }
 
         this.requestHistory.push({

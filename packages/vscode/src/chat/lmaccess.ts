@@ -7,7 +7,7 @@ import {
     logVerbose,
 } from "genaiscript-core"
 
-async function getChatAccess(model: string) {
+async function getChatAccess(model: string, template: PromptTemplate) {
     const models = vscode.lm.languageModels
     const tmodel = model || "gpt-4"
     let cmodel = models.find((m) => m === "copilot-" + tmodel)
@@ -18,16 +18,17 @@ async function getChatAccess(model: string) {
         if (cmodel === undefined) return undefined
     }
     const access = await vscode.lm.requestLanguageModelAccess(model, {
-        justification: "Running GenAIScript",
+        justification: `Running GenAiScript ${template.id}`,
     })
     return access
 }
 
-export function configureChatCompletionForChatAgent(
+export function configureLanguageModelAccess(
     options: AIRequestOptions,
     runOptions: RunTemplateOptions
 ): void {
     logVerbose("using copilot llm")
+    const { template } = options
     const { partialCb, infoCb } = runOptions
 
     runOptions.cache = false
@@ -38,7 +39,7 @@ export function configureChatCompletionForChatAgent(
         const { model, temperature, top_p, seed, ...rest } = req
 
         trace.item(`script model: ${model}`)
-        const access = await getChatAccess(model)
+        const access = await getChatAccess(model, template)
         if (!access) {
             infoCb({ text: `⚠ failed to get access to model \`${model}\`` })
             return { text: "" }
