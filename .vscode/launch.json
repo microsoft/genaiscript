@@ -62,6 +62,13 @@
                 "!**/node_modules/**"
             ],
             "cwd": "${workspaceFolder}/packages/vscode"
+        },
+        {
+            "command": "./node_modules/.bin/astro dev",
+            "cwd": "${workspaceFolder}/docs",
+            "name": "Docs Development server",
+            "request": "launch",
+            "type": "node-terminal"
         }
     ]
 }

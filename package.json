@@ -4,7 +4,8 @@
     "license": "MIT",
     "private": true,
     "workspaces": [
-        "packages/*"
+        "packages/*",
+        "docs"
     ],
     "scripts": {
         "setup": "git submodule update --init --recursive",
@@ -34,7 +35,8 @@
         "test:query": "node packages/cli/built/genaiscript.js retreival query \"what is lorem ipsum?\" packages/sample/src/rag/*",
         "test:outline": "node packages/cli/built/genaiscript.js retreival outline packages/core/src/server/*.ts",
         "test:tokens": "node packages/cli/built/genaiscript.js retreival tokens packages/sample/src/rag/*",
-        "serve": "node packages/cli/built/genaiscript.js serve"
+        "serve": "node packages/cli/built/genaiscript.js serve",
+        "dev:docs": "cd docs && ./node_modules/.bin/astro dev"
     },
     "release-it": {
         "github": {

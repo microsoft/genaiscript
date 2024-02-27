@@ -1,3 +1,7 @@
+---
+title: CLI
+---
+
 # CLI
 
 The GenAIScript CLI is a command line packaged as a Node.JS javascript file (`genaiscript.js`). It is used to run GenAIScript from the command line.
