@@ -2,8 +2,6 @@
 title: Specs
 ---
 
-# Authoring GPSpecs
-
 To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run "Run GenAIScript" to see the results.
 
 ```markdown A sample GenAIScript document.

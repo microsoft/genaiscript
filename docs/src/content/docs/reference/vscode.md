@@ -2,8 +2,6 @@
 title: VSCode
 ---
 
-# Visual Studio Code Extension
-
 ## User experience
 
 This diagram demonstrates the AI-enhanced workflow process in genaiscript. The gpspec starts the `script`, which reads the `gpspec`, interacts with the gpvm and foundation model.

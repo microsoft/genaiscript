@@ -2,8 +2,6 @@
 title: Authorization
 ---
 
-# OpenAI or Llama Token
-
 GenAIScript will try to find the connection token from various sources:
 
 -   a `.env` file in your root project.
