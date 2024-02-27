@@ -45,18 +45,6 @@ export async function upsert(
     }
 }
 
-export async function query(
-    q: string,
-    options?: RetreivalClientOptions & RetreivalQueryOptions
-) {
-    const { trace, ...rest } = options || {}
-    const retreival = host.retreival
-    await host.retreival.init(trace)
-
-    const res = await retreival.query(q, rest)
-    return res?.response || ""
-}
-
 export interface RetreivalSearchResult {
     files: LinkedFile[]
     fragments: LinkedFile[]

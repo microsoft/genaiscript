@@ -175,33 +175,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return { ok: true }
     }
 
-    async query(
-        text: string,
-        options?: RetreivalQueryOptions
-    ): Promise<RetreivalQueryResponse> {
-        const { topK } = options ?? {}
-        const { VectorStoreIndex } = this.module
-
-        const storageContext = await this.createStorageContext(options)
-        const serviceContext = await this.createServiceContext()
-
-        const index = await VectorStoreIndex.init({
-            storageContext,
-            serviceContext,
-        })
-        const retreiver = index.asQueryEngine({
-            retriever: index.asRetriever({ similarityTopK: topK }),
-        })
-        const results = await retreiver.query({
-            query: text,
-            stream: false,
-        })
-        return {
-            ok: true,
-            response: results.response,
-        }
-    }
-
     async search(
         text: string,
         options?: RetreivalQueryOptions

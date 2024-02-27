@@ -40,18 +40,6 @@ function toChatAgentRequest(request: vscode.ChatAgentRequest) {
     }
 }
 
-function uriPosToUri(uri: vscode.Uri | vscode.Location) {
-    if (!uri) return undefined
-    if (uri instanceof vscode.Location) return uri.uri.fsPath
-    return uri.fsPath
-}
-
-function uriPosToPosition(uri: vscode.Uri | vscode.Location): CharPosition {
-    if (uri instanceof vscode.Location)
-        return [uri.range.start.line, uri.range.end.line]
-    return undefined
-}
-
 function toChatAgentFileTree(
     tree: vscode.ChatResponseFileTreePart
 ): ChatMessageFileTree {

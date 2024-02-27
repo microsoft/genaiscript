@@ -352,6 +352,7 @@ async function parseMeta(r: PromptTemplate) {
                 path: undefined,
                 parsers: undefined,
                 retreival: undefined,
+                defImages: () => undefined,
                 writeText: (body) => {
                     if (meta == null)
                         throw new Error(`script()/system() has to come first`)
