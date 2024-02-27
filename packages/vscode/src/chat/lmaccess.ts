@@ -6,6 +6,7 @@ import {
     estimateTokens,
     logVerbose,
 } from "genaiscript-core"
+import { isApiProposalEnabled } from "../proposals"
 
 async function getChatAccess(model: string, template: PromptTemplate) {
     const models = vscode.lm.languageModels
@@ -24,12 +25,17 @@ async function getChatAccess(model: string, template: PromptTemplate) {
 }
 
 export function configureLanguageModelAccess(
+    context: vscode.ExtensionContext,
     options: AIRequestOptions,
     runOptions: RunTemplateOptions
 ): void {
     logVerbose("using copilot llm")
     const { template } = options
     const { partialCb, infoCb } = runOptions
+
+    // test if extension is loaded
+    if (!isApiProposalEnabled(context, "languageModels", "github.copilot-chat"))
+        return
 
     runOptions.cache = false
     runOptions.getChatCompletions = async (req, chatOptions) => {
