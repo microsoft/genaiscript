@@ -18,9 +18,6 @@
     "extensionKind": [
         "workspace"
     ],
-    "extensionDependencies": [
-        "github.copilot-chat"
-    ],
     "activationEvents": [
         "workspaceContains:**/*.gpspec.md",
         "workspaceContains:**/*.genai.js"

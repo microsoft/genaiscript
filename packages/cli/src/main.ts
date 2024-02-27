@@ -31,7 +31,6 @@ import {
     clearIndex,
     PDFTryParse,
     SERVER_PORT,
-    query,
     isHighlightSupported,
     loadFiles,
     outline,
@@ -722,20 +721,6 @@ async function retreivalSearch(
     console.log(YAMLStringify(res))
 }
 
-async function retreivalQuery(
-    q: string,
-    filesGlobs: string[],
-    options: { excludedFiles: string[]; topK: string }
-) {
-    const files = await expandFiles(filesGlobs, options?.excludedFiles)
-    const spinner = ora({ interval: 200 }).start(
-        `querying '${q}' in ${files.length} files`
-    )
-    const res = await query(q, { files, topK: normalizeInt(options?.topK) })
-    spinner.succeed()
-    console.log(res)
-}
-
 async function codeOutline(
     fileGlobs: string[],
     options: { excludedFiles: string[] }
@@ -912,13 +897,6 @@ async function main() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .action(retreivalSearch)
-    retreival
-        .command("query")
-        .description("Ask a question on the index")
-        .arguments("<question> [files...]")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .option("-tk, --top-k <number>", "maximum number of embeddings")
-        .action(retreivalQuery)
     retreival
         .command("tokens")
         .description("Count tokens in a set of files")
