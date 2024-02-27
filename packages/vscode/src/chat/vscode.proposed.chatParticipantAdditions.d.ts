@@ -275,14 +275,4 @@ declare module 'vscode' {
 	}
 
 	export type ChatVariableResolverResponsePart = ChatResponseProgressPart | ChatResponseReferencePart;
-
-	export interface ChatVariableResolver {
-		/**
-		 * A callback to resolve the value of a chat variable.
-		 * @param name The name of the variable.
-		 * @param context Contextual information about this chat request.
-		 * @param token A cancellation token.
-		 */
-		resolve2?(name: string, context: ChatVariableContext, stream: ChatVariableResolverResponseStream, token: CancellationToken): ProviderResult<ChatVariableValue[]>;
-	}
 }
