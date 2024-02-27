@@ -10,6 +10,7 @@ import {
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath, toBase64 } from "./util"
+import { fileTypeFromBuffer } from "file-type"
 import {
     DataFrame,
     Fenced,
@@ -208,10 +209,23 @@ async function callExpander(
                 scope[0],
                 createImageNode(
                     (async () => {
-                        const mime = lookup(file.filename)
-                        if (!mime) return undefined
-
-                        const bytes = await host.readFile(file.filename)
+                        let bytes: Uint8Array
+                        if (/^https?:\/\//i.test(file.filename)) {
+                            const resp = await fetch(file.filename)
+                            if (!resp.ok) return undefined
+                            const buffer = await resp.arrayBuffer()
+                            bytes = new Uint8Array(buffer)
+                        } else {
+                            bytes = new Uint8Array(
+                                await host.readFile(file.filename)
+                            )
+                        }
+                        const mime = (await fileTypeFromBuffer(bytes))?.mime
+                        if (
+                            !mime ||
+                            !/^image\/(png|jpeg|webp|gif)$/i.test(mime)
+                        )
+                            return undefined
                         const b64 = toBase64(bytes)
                         return { url: `data:${mime};base64,${b64}`, detail }
                     })()
@@ -1055,7 +1069,7 @@ export async function runTemplate(
 
     annotations = parseAnnotations(text)
     const json = JSON5TryParse(text, undefined)
-    const yaml = YAMLTryParse(text, undefined)
+    const yaml = YAMLTryParse(text, undefined, { ignoreLiterals: true })
     const fences =
         json === undefined && yaml === yaml ? extractFenced(text) : []
     const frames: DataFrame[] = []
