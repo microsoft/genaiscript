@@ -56,8 +56,7 @@ export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface ChatRequestContext {
     context: ChatAgentContext
-    access: vscode.LanguageModelAccess
-    response: vscode.ChatAgentResponseStream
+    response: vscode.ChatResponseStream
     token: vscode.CancellationToken
 }
 

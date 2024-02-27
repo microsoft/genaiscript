@@ -10,7 +10,7 @@ import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
-import { activateChatAgent } from "./chat-agent/agent"
+import { activateChatParticipant } from "./chat/participant"
 import { activateRetreivalCommands } from "./retreivalcommands"
 import { activateTokensStatusBar } from "./tokenstatusbar"
 
@@ -33,7 +33,7 @@ export async function activate(context: ExtensionContext) {
     activateOpenAIRequestTreeDataProvider(state)
     activateStatusBar(state)
     activateTokensStatusBar(state)
-    activateChatAgent(state)
+    activateChatParticipant(state)
 
     context.subscriptions.push(
         vscode.commands.registerCommand(

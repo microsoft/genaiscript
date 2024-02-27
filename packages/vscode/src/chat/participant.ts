@@ -1,14 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
-import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
-import {
-    CHAT_PARTICIPANT_ID,
-    MarkdownTrace,
-    RunTemplateOptions,
-    estimateTokens,
-    logInfo,
-    logVerbose,
-} from "genaiscript-core"
+import { ChatRequestContext, ExtensionState } from "../state"
+import { CHAT_PARTICIPANT_ID, MarkdownTrace, logInfo } from "genaiscript-core"
 
 interface ICatChatAgentResult extends vscode.ChatResult {
     template?: PromptTemplate
@@ -149,7 +142,7 @@ function chatRequestToPromptTemplate(
     return template
 }
 
-export function activateChatAgent(state: ExtensionState) {
+export function activateChatParticipant(state: ExtensionState) {
     const { context } = state
 
     const packageJSON: { displayName: string; enabledApiProposals?: string } =
@@ -188,24 +181,11 @@ export function activateChatAgent(state: ExtensionState) {
             response.markdown(message.content)
         }
 
-        const models = vscode.lm.languageModels
-        // TODO: resolve correct model
-        const tmodel = template.model || "gpt-4"
-        let model = models.find((m) => m === "copilot-" + tmodel)
-        if (!model) {
-            model = await vscode.window.showQuickPick(models, {
-                title: "Pick a Language Model",
-            })
-            if (model === undefined) return undefined
-        }
-        const access = await vscode.lm.requestLanguageModelAccess(model)
-        logVerbose(`chat access model: ${access.model || "unknown"}`)
         await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
             chat: <ChatRequestContext>{
                 context,
                 response,
                 token,
-                access,
             },
             template,
         })
@@ -238,47 +218,4 @@ export function activateChatAgent(state: ExtensionState) {
         },
     }
     // TODO apply edits
-}
-
-export function configureChatCompletionForChatAgent(
-    options: AIRequestOptions,
-    runOptions: RunTemplateOptions
-): void {
-    logVerbose("using copilot llm")
-    const { access, response: progress, token } = options.chat
-    const { partialCb, infoCb } = runOptions
-
-    runOptions.cache = false
-    runOptions.getChatCompletions = async (req, chatOptions) => {
-        const { trace } = chatOptions
-        const { model, temperature, top_p, seed, ...rest } = req
-        trace.item(`script model: ${model}`)
-        trace.item(`copilot llm model: ${access.model || "unknown"}`)
-
-        if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())
-            progress.progress(
-                `⚠ expected model \`${model}\` but got \`${access.model}\``
-            )
-
-        const messages = req.messages.map((m) => ({
-            role: m.role,
-            content: typeof m.content === "string" ? m.content : "...",
-        }))
-        const request = access.makeChatRequest(
-            messages,
-            { model, temperature, top_p, seed },
-            token
-        )
-
-        let text = ""
-        for await (const fragment of request.stream) {
-            text += fragment
-            partialCb?.({
-                responseSoFar: text,
-                responseChunk: fragment,
-                tokensSoFar: estimateTokens(model, text),
-            })
-        }
-        return { text }
-    }
 }
