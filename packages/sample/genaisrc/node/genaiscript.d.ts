@@ -570,7 +570,10 @@ interface Parsers {
      * @param content
      */
     PDF(
-        content: string | LinkedFile
+        content: string | LinkedFile,
+        options?: {
+            filter?: (pageIndex: number, text?: string) => boolean
+        }
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 
     /**
