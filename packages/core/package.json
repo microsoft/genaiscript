@@ -11,10 +11,10 @@
   "devDependencies": {
     "@types/mdast": "^3.0.11",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.11.20",
     "ajv": "^8.12.0",
-    "csv-parse": "^5.5.3",
-    "esbuild": "^0.20.0",
+    "csv-parse": "^5.5.4",
+    "esbuild": "^0.20.1",
     "fetch-retry": "^5.0.6",
     "file-type": "^19.0.0",
     "gpt-tokenizer": "^2.1.2",
@@ -32,7 +32,7 @@
     "toml": "^3.0.0",
     "typescript": "^5.3.3",
     "unified": "^10.1.2",
-    "yaml": "^2.3.4"
+    "yaml": "^2.4.0"
   },
   "scripts": {
     "typecheck": "tsc -p src",
