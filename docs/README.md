@@ -1,41 +1,20 @@
+# Starlight Starter Kit: Basics
 
-# Contributing
+[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
-This project welcomes contributions and suggestions. Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
-
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## Developer setup
-
-You can open this repo in a codespace to get the build environment needed.
-
--   Install Node.JS 20+
--   Run yarn
-
-```bash
-yarn install --frozen-lockfile
+```
+npm create astro@latest -- --template starlight
 ```
 
--   Press F5 to launch VS Code in debugging mode
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/starlight/tree/main/examples/basics)
+[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/starlight/tree/main/examples/basics)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwithastro%2Fstarlight%2Ftree%2Fmain%2Fexamples%2Fbasics&project-name=my-starlight-docs&repository-name=my-starlight-docs)
 
-## Release
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
-Run the `release` script.
+## 🚀 Project Structure
 
-```bash
-yarn release
-```
-
-## Documentation basics
-
+Inside of your Astro + Starlight project, you'll see the following folders and files:
 
 ```
 .
