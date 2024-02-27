@@ -38,7 +38,7 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
-import { configureChatCompletionForChatAgent } from "./chat-agent/agent"
+import { configureChatCompletionForChatAgent } from "./chat/lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -359,7 +359,7 @@ ${e.message}`
                 const progress = r.options.chat?.response
                 if (progress) {
                     if (data.text) progress.progress(data.text)
-                    if (data.summary) progress.text(data.summary)
+                    if (data.summary) progress.markdown(data.summary)
                     if (data.vars && !varsProgressReported) {
                         varsProgressReported = true
                         data.vars.files

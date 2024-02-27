@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
-import { AIRequestOptions, ChatRequestContext, ExtensionState } from "../state"
+import { AIRequestOptions } from "../state"
 import {
-    CHAT_PARTICIPANT_ID,
-    MarkdownTrace,
     RunTemplateOptions,
     estimateTokens,
-    logInfo,
     logVerbose,
 } from "genaiscript-core"
 
@@ -31,7 +28,6 @@ export function configureChatCompletionForChatAgent(
     runOptions: RunTemplateOptions
 ): void {
     logVerbose("using copilot llm")
-    // todo: token
     const { partialCb, infoCb } = runOptions
 
     runOptions.cache = false
