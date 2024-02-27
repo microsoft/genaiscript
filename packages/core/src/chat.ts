@@ -12,6 +12,7 @@ import {
 import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
 import { estimateTokens } from "./tokens"
+import { YAMLStringify } from "./yaml"
 
 export type CreateChatCompletionRequest =
     OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
@@ -302,7 +303,8 @@ export async function getChatCompletions(
             else
                 try {
                     const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
-                    if (obj.choices?.length != 1) throw new Error()
+                    if (!obj.choices?.length) return ""
+                    else if (obj.choices?.length != 1) throw new Error()
                     const choice = obj.choices[0]
                     const { finish_reason, delta } = choice
                     if (typeof delta?.content == "string") {
@@ -328,6 +330,10 @@ export async function getChatCompletions(
                         // apply tools and restart
                         seenDone = true
                         logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
+                    } else if (finish_reason === "length") {
+                        logVerbose(`finish: length`)
+                    } else {
+                        logVerbose(YAMLStringify(choice))
                     }
                 } catch {
                     logError(`invalid json in chat response: ${json}`)
