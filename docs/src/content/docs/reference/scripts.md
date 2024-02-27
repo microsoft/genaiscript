@@ -1,4 +1,8 @@
-# Authoring GenAiScript scripts
+---
+title: Script Templates
+description: Learn how to use and customize GenAIScript templates for efficient AI prompt expansion.
+keywords: script templates, AI prompts, prompt expansion, OpenAI integration, template customization
+---
 
 GenAIScript has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 

@@ -21,8 +21,8 @@ that ignores the internal details of the implementation.'
 
 The key elements of GenAIScript are:
 
--   🪄 [scripts](./docs/scripts.md): Scripts that use the editor context to create prompts and query a LLM.
--   🖼 [specs](./docs/specs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
+-   🪄 [scripts](./docs/src/content/docs/reference/scripts.md): Scripts that use the editor context to create prompts and query a LLM.
+-   🖼 [specs](./docs/src/content/docs/reference/specs.md): (Optional) Natural language specification of the prompt context (content, files, ...).
 
 GenAIScript automatically parses the LLM output into various formats:
 
@@ -33,10 +33,10 @@ GenAIScript automatically parses the LLM output into various formats:
 
 The tooling supports a short developer loop in VS Code and automation CI/CD pipelines.
 
--   [Visual Studio Code extension](./docs/vscode.md): User interaction with genaiscript and conversion of LLM results into workspace edits.
--   [cli](./docs/cli.md): Command line interface to run genaiscript in a CI/CD pipeline.
+-   [Visual Studio Code extension](./docs/src/content/docs/reference/vscode.md): User interaction with genaiscript and conversion of LLM results into workspace edits.
+-   [cli](./docs/src/content/docs/reference/cli.md): Command line interface to run genaiscript in a CI/CD pipeline.
 
-GenAIScript uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/token.md) or the LLM provided by Copilot if run from the chat.
+GenAIScript uses hosted AI foundation models (OpenAI, Azure OpenAI, Llama, ...) using a [user-provided token](./docs/src/content/docs/reference/token.md) or the LLM provided by Copilot if run from the chat.
 
 ## Getting started
 
@@ -96,8 +96,6 @@ using the existing team development cycle.
 
 In the future, we foresee that developers will create libraries of genaiscript and share them as libraries on their favorite package manager.
 
--   [Read more about genaiscript](./docs/genaiscript.md).
-
 ## (Optional) GPSpec specifications
 
 Natural language documents that instantiate genaiscript in a particular context. GenAIScript parses `*.gpspec.md` markdown files as specification (`env.spec`). Links define the content (`env.files`).
@@ -115,7 +113,7 @@ and returns true if the whole string is a valid email address,
 false otherwise.
 ```
 
--   [Read more about gpspecs](./docs/gpspecs.md).
+-   [Read more about gpspecs](./docs/src/content/docs/reference/specs.md).
 
 ## Contributing
 

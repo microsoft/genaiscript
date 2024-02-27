@@ -1,4 +1,6 @@
-# OpenAI or Llama Token
+---
+title: Authorization
+---
 
 GenAIScript will try to find the connection token from various sources:
 

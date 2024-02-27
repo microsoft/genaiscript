@@ -394,7 +394,7 @@ ${e.message}`
 
         const hasToken = await this.host.getSecretToken()
         if (!hasToken && template.copilot) {
-            configureLanguageModelAccess(options, runOptions)
+            configureLanguageModelAccess(this.context, options, runOptions)
         }
 
         this.requestHistory.push({

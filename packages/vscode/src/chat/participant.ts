@@ -2,6 +2,7 @@
 import * as vscode from "vscode"
 import { ChatRequestContext, ExtensionState } from "../state"
 import { CHAT_PARTICIPANT_ID, MarkdownTrace, logInfo } from "genaiscript-core"
+import { isApiProposalEnabled } from "../proposals"
 
 interface ICatChatAgentResult extends vscode.ChatResult {
     template?: PromptTemplate
@@ -145,15 +146,8 @@ function chatRequestToPromptTemplate(
 export function activateChatParticipant(state: ExtensionState) {
     const { context } = state
 
-    const packageJSON: { displayName: string; enabledApiProposals?: string } =
-        context.extension.packageJSON
-    if (
-        !packageJSON.displayName?.includes("Insiders") ||
-        !vscode.env.appName.includes("Insiders") ||
-        !packageJSON.enabledApiProposals?.includes("chatParticipant")
-    ) {
-        return
-    }
+    if (!isApiProposalEnabled(context, "chatParticipant", "github.copilot-chat"))
+        return 
 
     logInfo("activating chat agent")
     const { extensionUri } = context
