@@ -1,14 +1,15 @@
 import { defineConfig } from "astro/config"
 import starlight from "@astrojs/starlight"
-import packageJson from "../package.json"
 
 // https://astro.build/config
 export default defineConfig({
+    site: "https://microsoft.github.io",
+    base: "/genaiscript",
     integrations: [
         starlight({
-            title: packageJson.title,
+            title: "GenAIScript",
             social: {
-                github: packageJson.repository.url,
+                github: "https://github.com/microsoft/genaiscript",
             },
             sidebar: [
                 {
