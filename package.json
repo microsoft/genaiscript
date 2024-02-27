@@ -36,7 +36,7 @@
         "test:outline": "node packages/cli/built/genaiscript.js retreival outline packages/core/src/server/*.ts",
         "test:tokens": "node packages/cli/built/genaiscript.js retreival tokens packages/sample/src/rag/*",
         "serve": "node packages/cli/built/genaiscript.js serve",
-        "dev:docs": "cd docs && ./node_modules/.bin/astro dev"
+        "dev:docs": "cd docs && ./node_modules/.bin/astro dev --host"
     },
     "release-it": {
         "github": {

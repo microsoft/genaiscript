@@ -1,3 +1,7 @@
+---
+title: Scripts
+---
+
 # Authoring GenAiScript scripts
 
 GenAIScript has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.

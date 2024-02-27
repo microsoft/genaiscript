@@ -1,3 +1,7 @@
+---
+title: VSCode
+---
+
 # Visual Studio Code Extension
 
 ## User experience
