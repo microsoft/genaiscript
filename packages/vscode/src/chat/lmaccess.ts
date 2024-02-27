@@ -32,6 +32,8 @@ export function configureChatCompletionForChatAgent(
 
     runOptions.cache = false
     runOptions.getChatCompletions = async (req, chatOptions) => {
+        const { token = new vscode.CancellationTokenSource().token } =
+            options.chat || {}
         const { trace } = chatOptions
         const { model, temperature, top_p, seed, ...rest } = req
 
