@@ -1,12 +1,12 @@
 import { Project, Diagnostic, Fragment, PromptTemplate } from "./ast"
-import { addLineNumbers } from "./liner"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
-import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { minimatch } from "minimatch"
+import { PromptNode } from "./promptdom"
+import { createDefNode } from "./filedom"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -180,14 +180,15 @@ class Checker<T extends PromptLike> {
 export type BasePromptContext = Omit<
     PromptContext,
     "fence" | "def" | "$" | "defFunction" | "defSchema" | "cancel"
->
+> & {
+    appendPromptChild(node: PromptNode): void
+}
 export async function evalPrompt(
     ctx0: BasePromptContext,
     jstext: string,
     logCb?: (msg: string) => void
 ) {
     const { writeText, env } = ctx0
-    const defs: Record<string, string[]> = {}
     const dontuse = (name: string) =>
         `${env.error} ${name}() should not be used inside of \${ ... }\n`
     const ctx: PromptContext & { console: Partial<typeof console> } = {
@@ -202,8 +203,7 @@ export async function evalPrompt(
         },
         def(name, body, options) {
             name = name ?? ""
-            const { language, lineNumbers, schema, glob, endsWith } =
-                options || {}
+            const { glob, endsWith } = options || {}
 
             // shortcuts
             if (body === undefined) return dontuse("def")
@@ -214,65 +214,20 @@ export async function evalPrompt(
             if (endsWith && name.endsWith(endsWith)) {
                 return dontuse("def")
             }
-            const fence =
-                language === "markdown" ? env.markdownFence : env.fence
-            let error = false
-            const norm = (s: string, f: string) => {
-                s = (s || "").replace(/\n*$/, "")
-                if (s && lineNumbers) s = addLineNumbers(s)
-                if (s) s += "\n"
-                if (f && s.includes(f)) error = true
-                return s
-            }
-            const df = (file: LinkedFile) => {
-                const defsn = defs[name] || (defs[name] = [])
-                if (defsn.includes(file.filename)) return // duplicate
-                defsn.push(file.filename)
-                let dfence =
-                    /\.md$/i.test(file.filename) ||
-                    file.content?.includes(fence)
-                        ? env.markdownFence
-                        : fence
-                const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
-                let body = file.content
-                if (/^(c|t)sv$/i.test(dtype)) {
-                    const parsed = CSVTryParse(file.content)
-                    if (parsed) {
-                        body = CSVToMarkdown(parsed)
-                        dfence = ""
-                    }
-                }
-                body = norm(body, dfence)
-                writeText(
-                    (name ? name + ":\n" : "") +
-                        dfence +
-                        dtype +
-                        ` file=${file.filename}\n` +
-                        body +
-                        (schema ? ` schema=${schema}` : "") +
-                        dfence
+            if (Array.isArray(body))
+                body.forEach((f) =>
+                    ctx0.appendPromptChild(createDefNode(name, f, env, options))
                 )
-            }
-
-            if (Array.isArray(body)) body.forEach(df)
-            else if (typeof body != "string") df(body as LinkedFile)
-            else {
-                body = norm(body, fence)
-                writeText(
-                    (name ? name + ":\n" : "") +
-                        fence +
-                        (language || "") +
-                        (schema ? ` schema=${schema}` : "") +
-                        "\n" +
-                        body +
-                        fence
-                )
-                if (body.includes(fence)) error = true
-            }
-
-            if (error)
-                writeText(
-                    env.error + " fenced body already included fence: " + fence
+            else if (typeof body != "string")
+                ctx0.appendPromptChild(createDefNode(name, body, env, options))
+            else
+                ctx0.appendPromptChild(
+                    createDefNode(
+                        name,
+                        { filename: "", label: "", content: body },
+                        env,
+                        options
+                    )
                 )
             return dontuse("def")
         },
@@ -340,11 +295,14 @@ class MetaFoundError extends Error {
 
 async function parseMeta(r: PromptTemplate) {
     let meta: PromptArgs = null
-    let text = ""
-    function script(m: PromptArgs) {
+    const script = (m: PromptArgs) => {
         if (meta !== null) throw new Error(`more than one script() call`)
         meta = m
         throw new MetaFoundError()
+    }
+
+    const error = () => {
+        if (meta == null) throw new Error(`script()/system() has to come first`)
     }
 
     try {
@@ -358,14 +316,9 @@ async function parseMeta(r: PromptTemplate) {
                 path: undefined,
                 parsers: undefined,
                 retreival: undefined,
-                defImages: () => undefined,
-                writeText: (body) => {
-                    if (meta == null)
-                        throw new Error(`script()/system() has to come first`)
-
-                    text +=
-                        body.replace(/\n*$/, "").replace(/^\n*/, "") + "\n\n"
-                },
+                defImages: error,
+                appendPromptChild: error,
+                writeText: error,
                 script,
                 system: (meta) => {
                     meta.unlisted = true
@@ -401,7 +354,7 @@ async function parseMeta(r: PromptTemplate) {
         if (!meta || !(e instanceof MetaFoundError)) throw e
     }
 
-    return { meta, text }
+    return meta
 }
 
 const promptFence = "```"
@@ -616,7 +569,7 @@ ${validation.errors.split("\n").join("\n> ")}`
         .join("\n")
 }
 
-const metaCache: Record<string, { meta: PromptArgs; text: string }> = {}
+const metaCache: Record<string, PromptArgs> = {}
 
 async function parsePromptTemplateCore(
     filename: string,
@@ -634,15 +587,14 @@ async function parsePromptTemplateCore(
 
     try {
         const key = (await sha256string(`${r.id}-${r.jsSource}`)).slice(0, 16)
-        const obj = metaCache[key] || (metaCache[key] = await parseMeta(r))
+        const meta = metaCache[key] || (metaCache[key] = await parseMeta(r))
         const checker = new Checker<PromptTemplate>(
             r,
             filename,
             prj.diagnostics,
             content,
-            obj.meta
+            meta
         )
-        if (obj.meta.isSystem) r.text = obj.text
         prj._finalizers.push(() => finalizer(checker))
         return checker.template
     } catch (e) {
