@@ -6,7 +6,7 @@ script({
 })
 
 def("FILE", env.spec)
-def("FEATURE", env.files.filter(f => f.filename.endsWith(".feature")))
+def("FEATURE", env.files, { endsWith: ".feature" })
 
 $`
 You are an expert system designer that writes scenarios 

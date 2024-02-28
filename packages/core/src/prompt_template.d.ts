@@ -443,6 +443,16 @@ interface DefOptions {
      * JSON schema identifier
      */
     schema?: string
+
+    /**
+     * Filename filter based on file suffix. Case insensitive.
+     */
+    endsWith?: string
+
+    /**
+     * Filename filter using glob syntax.
+     */
+    glob?: string
 }
 
 interface DefImagesOptions {
@@ -625,7 +635,6 @@ interface PromptContext {
     system(options: PromptArgs): void
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
-    defFiles(files: LinkedFile[]): void
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,

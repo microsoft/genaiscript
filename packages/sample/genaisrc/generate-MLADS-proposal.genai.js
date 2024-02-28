@@ -4,7 +4,7 @@ script({
     categories: ["RAI tools"],
 })
 
-def("INFO", env.files.filter((f) => f.filename.endsWith("-info.md")))
+def("INFO", env.files, { endsWith: "-info.md" })
 
 const pdfs = env.files.find((f) => f.filename.endsWith("-template.pdf"))
 const { file, pages } = await parsers.PDF(pdfs)
@@ -19,7 +19,6 @@ const projectObj = await parsers.PDF(projectPDF)
 def("PROJECT", projectObj.file)
 
 const outputName = "MLADS-draft.md"
-
 
 // use $ to output formatted text to the prompt
 $`You are a helpful assistant. Your goal is to generate a submission for the MLADS conference 
