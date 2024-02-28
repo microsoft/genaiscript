@@ -1,5 +1,6 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { addLineNumbers } from "./liner"
+import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { createTextNode } from "./promptdom"
 
 export function createDefNode(
@@ -20,6 +21,11 @@ export function createDefNode(
     }
 
     const render = async () => {
+        if (!file.content && /\.pdf$/i.test(file.filename)) {
+            const pages = await PDFTryParse(file.filename)
+            file.content = PDFPagesToString(pages)
+        }
+
         let dfence =
             /\.md$/i.test(file.filename) || file.content?.includes(fence)
                 ? env.markdownFence

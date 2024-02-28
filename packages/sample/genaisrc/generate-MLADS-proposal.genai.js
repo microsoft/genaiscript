@@ -5,18 +5,9 @@ script({
 })
 
 def("INFO", env.files, { endsWith: "-info.md" })
-
-const pdfs = env.files.find((f) => f.filename.endsWith("-template.pdf"))
-const { file, pages } = await parsers.PDF(pdfs)
-def("TEMPLATE", file)
-
-const examplePDF = env.files.find((f) => f.filename.endsWith("-example.pdf"))
-const exampleObj = await parsers.PDF(examplePDF)
-def("EXAMPLE", exampleObj.file)
-
-const projectPDF = env.files.find((f) => f.filename.endsWith("-project.pdf"))
-const projectObj = await parsers.PDF(projectPDF)
-def("PROJECT", projectObj.file)
+def("TEMPLATE", env.files, { endsWith: "-template.pdf" })
+def("EXAMPLE", env.files, { endsWith: "-example.pdf" })
+def("PROJECT", env.files, { endsWith: "-project.pdf" })
 
 const outputName = "MLADS-draft.md"
 

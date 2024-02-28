@@ -29,9 +29,12 @@ export async function tryImportPdfjs(trace?: MarkdownTrace) {
  */
 export async function PDFTryParse(
     fileOrUrl: string,
-    content?: Uint8Array
+    content?: Uint8Array,
+    options?: { trace: MarkdownTrace }
 ): Promise<string[]> {
+    const { trace } = options || {}
     try {
+        await tryImportPdfjs(trace)
         const pdfjs = await import("pdfjs-dist")
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
@@ -56,6 +59,10 @@ export async function PDFTryParse(
         logError(error.message)
         return undefined
     }
+}
+
+export function PDFPagesToString(pages: string[]) {
+    return pages?.join("\n\n-------- Page Break --------\n\n")
 }
 
 // to avoid cjs loading issues of pdfjs-dist, move this function in house
