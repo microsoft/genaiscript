@@ -9,15 +9,26 @@ declare global {
     export type SVGGraphics = any
 }
 
-export async function tryImportPdfjs(trace?: MarkdownTrace) {
+async function tryImportPdfjs(trace?: MarkdownTrace) {
     try {
         const pdfjs = await import("pdfjs-dist")
+        pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
+            "pdfjs-dist/build/pdf.worker.min.mjs"
+        )
         return pdfjs
     } catch (e) {
         trace?.error("pdfjs-dist not found, installing...")
-        await installImport("pdfjs-dist", trace)
-        const pdfjs = await import("pdfjs-dist")
-        return pdfjs
+        try {
+            await installImport("pdfjs-dist", trace)
+            const pdfjs = await import("pdfjs-dist")
+            pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
+                "pdfjs-dist/build/pdf.worker.min.mjs"
+            )
+            return pdfjs
+        } catch (e) {
+            trace?.error("pdfjs-dist failed to load")
+            return undefined
+        }
     }
 }
 
@@ -29,10 +40,12 @@ export async function tryImportPdfjs(trace?: MarkdownTrace) {
  */
 export async function PDFTryParse(
     fileOrUrl: string,
-    content?: Uint8Array
+    content?: Uint8Array,
+    options?: { trace: MarkdownTrace; disableCleanup?: boolean }
 ): Promise<string[]> {
+    const { trace, disableCleanup } = options || {}
     try {
-        const pdfjs = await import("pdfjs-dist")
+        const pdfjs = await tryImportPdfjs(trace)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
@@ -48,14 +61,21 @@ export async function PDFTryParse(
             const items: TextItem[] = content.items.filter(
                 (item): item is TextItem => "str" in item
             )
-            const parsedPage = parsePageItems(items)
-            pages.push(parsedPage.lines.join("\n"))
+            let { lines } = parsePageItems(items)
+            if (!disableCleanup)
+                lines = lines.map((line) => line.replace(/[\t ]+$/g, ""))
+            // collapse trailing spaces
+            pages.push(lines.join("\n"))
         }
         return pages
     } catch (error) {
         logError(error.message)
         return undefined
     }
+}
+
+export function PDFPagesToString(pages: string[]) {
+    return pages?.join("\n\n-------- Page Break --------\n\n")
 }
 
 // to avoid cjs loading issues of pdfjs-dist, move this function in house

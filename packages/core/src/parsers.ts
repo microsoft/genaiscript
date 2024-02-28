@@ -1,7 +1,7 @@
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
-import { PDFTryParse, tryImportPdfjs } from "./pdf"
+import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { TOMLTryParse } from "./toml"
 import { MarkdownTrace } from "./trace"
 import { YAMLTryParse } from "./yaml"
@@ -15,18 +15,15 @@ export function createParsers(trace: MarkdownTrace): Parsers {
         PDF: async (file, options) => {
             if (!file) return { file: undefined, pages: [] }
             const { filter = () => true } = options || {}
-            await tryImportPdfjs(trace)
             const filename = typeof file === "string" ? file : file.filename
-            const pages = (await PDFTryParse(filename))?.filter((text, index) =>
-                filter(index, text)
-            )
+            const pages = (
+                await PDFTryParse(filename, undefined, { trace })
+            )?.filter((text, index) => filter(index, text))
             return {
                 file: pages
                     ? <LinkedFile>{
                           filename,
-                          content: pages.join(
-                              "\n\n-------- Page Break --------\n\n"
-                          ),
+                          content: PDFPagesToString(pages),
                       }
                     : undefined,
                 pages,
