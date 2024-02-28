@@ -1,7 +1,7 @@
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
-import { PDFPagesToString, PDFTryParse, tryImportPdfjs } from "./pdf"
+import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { TOMLTryParse } from "./toml"
 import { MarkdownTrace } from "./trace"
 import { YAMLTryParse } from "./yaml"

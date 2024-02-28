@@ -47,7 +47,8 @@ export function createDefNode(
             ` file=${file.filename}\n` +
             body +
             (schema ? ` schema=${schema}` : "") +
-            dfence
+            dfence +
+            "\n"
 
         return res
     }

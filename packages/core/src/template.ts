@@ -203,24 +203,21 @@ export async function evalPrompt(
         },
         def(name, body, options) {
             name = name ?? ""
-            const { glob, endsWith } = options || {}
-
             // shortcuts
             if (body === undefined) return dontuse("def")
-            if (glob && name) {
-                const match = minimatch(name, glob)
-                if (!match) return dontuse("def")
-            }
-            if (endsWith && name.endsWith(endsWith)) {
-                return dontuse("def")
-            }
-            if (Array.isArray(body))
-                body.forEach((f) =>
-                    ctx0.appendPromptChild(createDefNode(name, f, env, options))
-                )
-            else if (typeof body != "string")
+            else if (Array.isArray(body))
+                body.forEach((f) => ctx.def(name, f, options))
+            else if (typeof body != "string") {
+                const { glob, endsWith } = options || {}
+                const filename = body.filename
+                if (glob && filename) {
+                    const match = minimatch(filename, glob)
+                    if (!match) return dontuse("def")
+                }
+                if (endsWith && !filename.endsWith(endsWith))
+                    return dontuse("def")
                 ctx0.appendPromptChild(createDefNode(name, body, env, options))
-            else
+            } else {
                 ctx0.appendPromptChild(
                     createDefNode(
                         name,
@@ -229,6 +226,7 @@ export async function evalPrompt(
                         options
                     )
                 )
+            }
             return dontuse("def")
         },
         defSchema(name, schema) {

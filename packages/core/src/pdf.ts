@@ -9,15 +9,26 @@ declare global {
     export type SVGGraphics = any
 }
 
-export async function tryImportPdfjs(trace?: MarkdownTrace) {
+async function tryImportPdfjs(trace?: MarkdownTrace) {
     try {
         const pdfjs = await import("pdfjs-dist")
+        pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
+            "pdfjs-dist/build/pdf.worker.min.mjs"
+        )
         return pdfjs
     } catch (e) {
         trace?.error("pdfjs-dist not found, installing...")
-        await installImport("pdfjs-dist", trace)
-        const pdfjs = await import("pdfjs-dist")
-        return pdfjs
+        try {
+            await installImport("pdfjs-dist", trace)
+            const pdfjs = await import("pdfjs-dist")
+            pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
+                "pdfjs-dist/build/pdf.worker.min.mjs"
+            )
+            return pdfjs
+        } catch (e) {
+            trace?.error("pdfjs-dist failed to load")
+            return undefined
+        }
     }
 }
 
@@ -34,8 +45,7 @@ export async function PDFTryParse(
 ): Promise<string[]> {
     const { trace } = options || {}
     try {
-        await tryImportPdfjs(trace)
-        const pdfjs = await import("pdfjs-dist")
+        const pdfjs = await tryImportPdfjs(trace)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
         const loader = await getDocument({
