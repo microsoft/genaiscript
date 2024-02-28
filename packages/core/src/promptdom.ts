@@ -4,6 +4,7 @@ export interface PromptNode {
     type?: "text" | "image" | undefined
     children?: PromptNode[]
     priority?: number
+    error?: unknown
 }
 
 export interface PromptTextNode extends PromptNode {
@@ -68,18 +69,29 @@ export async function visitNode(
 
 export async function renderPromptNode(
     node: PromptNode
-): Promise<{ prompt: string; images: PromptImage[] }> {
+): Promise<{ prompt: string; images: PromptImage[]; errors: unknown[] }> {
     let prompt = ""
     const images: PromptImage[] = []
+    const errors: unknown[] = []
     await visitNode(node, {
         text: async (n) => {
-            const value = await n.value
-            if (value != undefined) prompt += value + "\n"
+            try {
+                const value = await n.value
+                if (value != undefined) prompt += value + "\n"
+            } catch (e) {
+                node.error = e
+                errors.push(e)
+            }
         },
         image: async (n) => {
-            const v = await n.value
-            if (v !== undefined) images.push(v)
+            try {
+                const v = await n.value
+                if (v !== undefined) images.push(v)
+            } catch (e) {
+                node.error = e
+                errors.push(e)
+            }
         },
     })
-    return { prompt, images }
+    return { prompt, images, errors }
 }
