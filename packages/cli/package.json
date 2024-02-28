@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-cli",
-  "version": "1.9.12",
+  "version": "1.9.13",
   "main": "built/genaiscript.js",
   "license": "MIT",
   "private": true,
