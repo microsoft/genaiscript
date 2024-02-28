@@ -9,7 +9,7 @@ def("TEMPLATE", env.files, { endsWith: "-template.pdf" })
 def("EXAMPLE", env.files, { endsWith: "-example.pdf" })
 def("PROJECT", env.files, { endsWith: "-project.pdf" })
 
-const outputName = "MLADS-draft.md"
+const outputName = path.join(path.dirname(env.spec.filename), "MLADS-draft.md")
 
 // use $ to output formatted text to the prompt
 $`You are a helpful assistant. Your goal is to generate a submission for the MLADS conference 
