@@ -6,7 +6,7 @@ import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
 import { CSVToMarkdown, CSVTryParse } from "./csv"
-
+import { minimatch } from "minimatch"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -179,7 +179,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "defFiles" | "$" | "defFunction" | "defSchema" | "cancel"
+    "fence" | "def" | "$" | "defFunction" | "defSchema" | "cancel"
 >
 export async function evalPrompt(
     ctx0: BasePromptContext,
@@ -201,9 +201,19 @@ export async function evalPrompt(
             writeText(r)
         },
         def(name, body, options) {
-            if (body === undefined) return dontuse("def")
+            name = name ?? ""
+            const { language, lineNumbers, schema, glob, endsWith } =
+                options || {}
 
-            const { language, lineNumbers, schema } = options || {}
+            // shortcuts
+            if (body === undefined) return dontuse("def")
+            if (glob && name) {
+                const match = minimatch(name, glob)
+                if (!match) return dontuse("def")
+            }
+            if (endsWith && name.endsWith(endsWith)) {
+                return dontuse("def")
+            }
             const fence =
                 language === "markdown" ? env.markdownFence : env.fence
             let error = false
@@ -265,11 +275,6 @@ export async function evalPrompt(
                     env.error + " fenced body already included fence: " + fence
                 )
             return dontuse("def")
-        },
-        defFiles(files) {
-            for (const f of files.filter((f) => !!f))
-                ctx.def("File " + f.filename, f.content)
-            return dontuse("defFiles")
         },
         defSchema(name, schema) {
             ctx.def(name, JSON.stringify(schema, null, 2), {

@@ -21,6 +21,7 @@
     "json5": "^2.2.3",
     "markdown-table": "^3.0.3",
     "mime-types": "^2.1.35",
+    "minimatch": "^9.0.3",
     "openai": "^4.28.0",
     "prettier": "^3.2.5",
     "pretty-bytes": "^6.1.1",

@@ -5,4 +5,4 @@ script({
 
 $`You are a export technical writer. Summarize the files below.`
 
-defFiles(env.files)
+def("FILE", env.files)
