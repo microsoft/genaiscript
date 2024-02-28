@@ -314,9 +314,10 @@ async function callExpander(
                 logs += msg + "\n"
             }
         )
-        const { prompt, images: imgs } = await renderPromptNode(root)
+        const { prompt, images: imgs, errors } = await renderPromptNode(root)
         text = prompt
         images = imgs
+        for (const error of errors) trace.error(``, error)
     } catch (e) {
         success = false
         if (isCancelError(e)) {
