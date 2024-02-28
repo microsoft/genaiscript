@@ -247,6 +247,7 @@ async function callExpander(
                 parsers,
                 retreival,
                 defImages,
+                appendPromptChild: (node) => appendChild(scope[0], node),
                 writeText: (body) => {
                     appendChild(
                         scope[0],
