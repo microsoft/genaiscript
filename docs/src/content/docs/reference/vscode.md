@@ -1,5 +1,6 @@
 ---
-title: VSCode
+title: Visual Studio Code
+order: 3
 description: Explore the integration of GenAIScript with VS Code, including AI workflow, gpspec creation, and Copilot Chat commands.
 keywords: VSCode, GenAIScript, AI workflow, gpspec, Copilot Chat
 ---
