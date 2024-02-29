@@ -1,5 +1,6 @@
 ---
 title: Authorization
+order: 2
 description: Learn how to set up authorization tokens for API access in your project using environment variables and .env files.
 keywords: authorization, token, environment variables, .env, API access
 ---
@@ -7,7 +8,7 @@ keywords: authorization, token, environment variables, .env, API access
 GenAIScript will try to find the connection token from various sources:
 
 -   a `.env` file in your root project.
--   process environment variables from the CLI
+-   process environment variables from the CLI , typically in your CI/CD environment.
 
 ## .env file
 

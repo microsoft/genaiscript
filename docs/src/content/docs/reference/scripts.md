@@ -1,5 +1,6 @@
 ---
 title: Script Templates
+order: 1
 description: Learn how to use and customize GenAIScript templates for efficient AI prompt expansion.
 keywords: script templates, AI prompts, prompt expansion, OpenAI integration, template customization
 ---

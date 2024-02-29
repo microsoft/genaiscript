@@ -3,7 +3,7 @@ title: Welcome to GenAiScript
 description: Get started building your GenAI scripts.
 template: splash
 hero:
-  tagline: GenAI scripting, yay!
+  tagline: Scripting for GenAI.
   actions:
     - text: Getting Started
       link: /genaiscript/guides/getting-started/
@@ -16,11 +16,22 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
+GenAIScript lets you write javascript script that prompt LLMs in a flexible and powerful way.
+
+```js
+// metadata and model configuration
+script({ title: "Shorten", model: "gpt4" })
+// insert the context 
+def("FILE", env.files)
+// appends text to the prompt
+$`Shorten the following FILE. Limit changes to minimum.`
+```
+
 ## Next steps
 
-<CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+<CardGrid>
+	<Card title="Getting Started" icon="pencil">
+		Use the [Getting Started](/genaiscript/guides/getting-started/) to write your first script.
 	</Card>
 	<Card title="Scripting Reference" icon="open-book">
 		Learn more about GenAIScript in the [Scripting Reference](/genaiscript/reference/).
