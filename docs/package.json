@@ -8,7 +8,8 @@
     "start": "astro dev --host",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch front-matter src/**/*.md --apply-edits"
   },
   "dependencies": {
     "@astrojs/check": "^0.5.6",

@@ -332,6 +332,7 @@ export async function getChatCompletions(
                         logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                     } else if (finish_reason === "length") {
                         logVerbose(`finish: length`)
+                    } else if (finish_reason === "stop") {
                     } else {
                         logVerbose(YAMLStringify(choice))
                     }

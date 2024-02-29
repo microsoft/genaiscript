@@ -1,7 +1,7 @@
 ---
 title: FAQ
-description: Find answers to common questions about GenAIScript, its uses, performance, limitations, and operational factors for effective use.
-keywords: GenAIScript, AI Script Generation, System Limitations, Performance Metrics, Operational Factors
+description: Answers to common queries about AI script generation, including uses, performance, and limitations for optimal operation.
+keywords: AI Scripting, Performance, Limitations, Operational Guide, FAQ
 ---
 
 ## What is GenAIScript?
