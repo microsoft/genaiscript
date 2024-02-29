@@ -1,5 +1,6 @@
 ---
 title: Getting Started
+order: 1
 description: A short introducation on GenAIScript.
 ---
 
