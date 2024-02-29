@@ -114,8 +114,7 @@ def("FILE", env.files)
 
 export function commandButtons(state: ExtensionState) {
     const request = state.aiRequest
-    const { computing, response } = request || {}
-    const { text } = response || {}
+    const { computing } = request || {}
     const abort = "Abort"
     const retry = "Retry"
     const output = "Output"
@@ -128,18 +127,18 @@ export function commandButtons(state: ExtensionState) {
             description: "Run last script and gpspec again.",
             cmd: "genaiscript.request.retry",
         })
-    if (text)
+    if (request) {
         cmds.push({
             label: output,
             description: "Preview AI response.",
             cmd: "genaiscript.request.open.output",
         })
-    if (request)
         cmds.push({
             label: trace,
             description: "Inspect script execution and LLM response.",
             cmd: "genaiscript.request.open.trace",
         })
+    }
 
     return cmds
 }
