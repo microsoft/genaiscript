@@ -936,6 +936,8 @@ export async function runTemplate(
 
         if (resp.text) {
             trace.startDetails("📩 llm response")
+            if (resp.finishReason)
+                trace.item(`finish reason: \`${resp.finishReason}\``)
             trace.content += pretifyMarkdown(resp.text)
             trace.detailsFenced(`markdown`, resp.text, "markdown")
             trace.endDetails()

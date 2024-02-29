@@ -32,6 +32,7 @@ export interface ChatCompletionToolCall {
 export interface ChatCompletionResponse {
     text?: string
     toolCalls?: ChatCompletionToolCall[]
+    finishReason?: string
 }
 
 export const ModelError = OpenAI.APIError
@@ -244,6 +245,7 @@ export async function getChatCompletions(
         )
     }
 
+    let finishReason = ""
     let seenDone = false
     let chatResp = ""
 
@@ -267,7 +269,7 @@ export async function getChatCompletions(
 
     if (seenDone) {
         if (caching && !cfg.isTGI) await cache.set(req, chatResp)
-        return { text: chatResp, toolCalls }
+        return { text: chatResp, toolCalls, finishReason }
     } else {
         trace.error(`invalid response`)
         trace.fence(pref)
@@ -328,11 +330,16 @@ export async function getChatCompletions(
                         }
                     } else if (finish_reason == "tool_calls") {
                         // apply tools and restart
+                        finishReason = finish_reason
                         seenDone = true
                         logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                     } else if (finish_reason === "length") {
-                        logVerbose(`finish: length`)
+                        finishReason = finish_reason
+                        logVerbose(`response too long`)
+                        trace.error(`response too long, increase maxTokens.`)
                     } else if (finish_reason === "stop") {
+                        finishReason = finish_reason
+                        seenDone = true
                     } else {
                         logVerbose(YAMLStringify(choice))
                     }
