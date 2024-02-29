@@ -12,7 +12,7 @@ export function estimateTokens(model: string, text: string) {
         return encode(text).length
     } catch (e) {
         logError(e.message)
-        return text.length / 4
+        return text.length >> 2
     }
 }
 
