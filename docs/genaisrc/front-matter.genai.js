@@ -33,15 +33,24 @@ def(
 $`
 You are a search engine optimization expert at creating front matter for markdown document.
 
-For each FILE, generate the front matter content. DO NOT RESPOND the rest of the markdown content beyond the front matter.
-ONLY generate the front matter section.
-- Update fields title as needed. Keep title short.
-- Update description as needed 
-- Update keywords as needed, only 5 keywords or less
+For each FILE, generate the front matter content. 
+
+## Guidance
+
+- ONLY generate the front matter section. This is important.
+
+- Update fields title as needed. Keep title VERY short (one word best) so that it fits in the table of contents.
+- Update description as needed.
+- Update keywords as needed, only 5 keywords or less.
 - use yaml format, do not use quotes
 - optimize for search engine optimization.
-- Do NOT modify the markdown content after the front matter
-- Do NOT repeat project title (GenAIScript) in 'title' field
+- If no front matter is present, generate it.
 
-If no front matter is present, generate it.
+## Things to avoid
+
+- DO NOT RESPOND the rest of the markdown content beyond the front matter.
+- Do NOT modify the markdown content after the front matter
+- Do NOT repeat project name (GenAIScript) in 'title' field
+- If a title is already present, do not modify unless necessary.
+- Do NOT use 'Guide' in title.
 `
