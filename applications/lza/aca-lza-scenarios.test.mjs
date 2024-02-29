@@ -2,7 +2,7 @@ import { $, glob, path } from 'zx'
 import { test, describe, expect } from "vitest"
 import "dotenv/config"
 
-const scriptsjs = `../../packages/cli/built/genaiscript.js`
+const scriptsjs = `../../packages/cli/built/genaiscript.cjs`
 const tools = ['lza_review']
 const annotationsf = `./annotations.jsonl`
 

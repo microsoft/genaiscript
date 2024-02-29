@@ -462,7 +462,7 @@ const myvalue = env.vars["myvar"]
 Use the `vars` field in the CLI to override variables. vars takes a sequence of `key=value` pairs.
 
 ```bash
-node .genaiscript/genaiscript.js run ... --vars myvar=myvalue myvar2=myvalue2 ...
+node .genaiscript/genaiscript.cjs run ... --vars myvar=myvalue myvar2=myvalue2 ...
 ```
 
 ## Errors, warnings and SARIF
@@ -475,7 +475,7 @@ extension can be used to visualize the reports.
 ```yaml
 # workflow.yml
     - name: Run GenAIScript
-      run: node .genaiscript/genaiscript.js ... -oa result.sarif
+      run: node .genaiscript/genaiscript.cjs ... -oa result.sarif
     - name: Upload SARIF file
         if: success() || failure()
         uses: github/codeql-action/upload-sarif@v3

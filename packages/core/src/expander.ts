@@ -43,7 +43,11 @@ import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
+import {
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    GENAISCRIPT_CLI_JS,
+} from "./constants"
 import {
     PromptImage,
     PromptNode,
@@ -53,7 +57,6 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
-import { lookup } from "mime-types"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -686,7 +689,7 @@ export function generateCliArguments(
 
     const cli = [
         "node",
-        ".genaiscript/genaiscript.js",
+        GENAISCRIPT_CLI_JS,
         "run",
         template.id,
         cliInfo.spec,
@@ -1286,7 +1289,7 @@ ${generateCliArguments(template, fragment, options)}
 
 -   You will need to install [Node.js](https://nodejs.org/en/).
 -   Configure the LLM token in environment variables (run \`node .genaiscript/genaiscript help keys\` for help).
--   The \`.genaiscript/genaiscript.js\` is written by the Visual Studio Code extension automatically.
+-   The \`${GENAISCRIPT_CLI_JS}\` is written by the Visual Studio Code extension automatically.
 -   Run \`node .genaiscript/genaiscript help run\` for the full list of options.
 `
     )

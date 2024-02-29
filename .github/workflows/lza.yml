@@ -28,7 +28,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: lza_review 02-spoke
-              run: node packages/cli/built/genaiscript.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "review of 02-spoke" -oa spoke.sarif
+              run: node packages/cli/built/genaiscript.cjs run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/02-spoke/deploy.spoke.bicep -ot $GITHUB_STEP_SUMMARY -l "review of 02-spoke" -oa spoke.sarif
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
@@ -39,7 +39,7 @@ jobs:
               with:
                   sarif_file: spoke.sarif
             - name: lza_review all
-              run: node packages/cli/built/genaiscript.js run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/**/deploy.*.bicep -ot $GITHUB_STEP_SUMMARY -l "review of scenarios" -oa all.sarif
+              run: node packages/cli/built/genaiscript.cjs run lza_review applications/lza/aca-landing-zone-accelerator/scenarios/aca-internal/bicep/modules/**/deploy.*.bicep -ot $GITHUB_STEP_SUMMARY -l "review of scenarios" -oa all.sarif
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}

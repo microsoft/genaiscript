@@ -1,7 +1,7 @@
 {
   "name": "genaiscript-cli",
   "version": "1.9.13",
-  "main": "built/genaiscript.js",
+  "main": "built/genaiscript.cjs",
   "license": "MIT",
   "private": true,
   "dependencies": {
@@ -40,9 +40,9 @@
     "typescript": "^5.3.3"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.js --external:pdfjs-dist --external:llamaindex --external:llm-code-highlighter",
-    "postcompile": "cp built/genaiscript.js ../vscode/genaiscript.js",
-    "go": "yarn compile && node built/genaiscript.js",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:llm-code-highlighter",
+    "postcompile": "cp built/genaiscript.cjs ../vscode/genaiscript.cjs",
+    "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",
     "typecheck": "tsc -p src"
   }

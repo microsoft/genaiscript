@@ -183,7 +183,7 @@ export class ExtensionState extends EventTarget {
         const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
         const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
 
-        // genaiscript.js
+        // genaiscript.cjs
         await vscode.workspace.fs.copy(p, cli, { overwrite: true })
         // add .gitignore
         await writeFile(
