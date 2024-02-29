@@ -17,7 +17,7 @@ and are unlisted by default. There is no variable expansion in those.
 ```js
 script({
     title: "Shorten", // displayed in UI and Copilot Chat
-    // also displayed, but grayed out:
+    // also displayed but grayed out:
     description:
         "A prompt that shrinks the size of text without losing meaning",
 })
@@ -40,7 +40,7 @@ to configure the title and other user interface elements.
 ```js
 script({
     title: "Shorten", // displayed in UI
-    // also displayed, but grayed out:
+    // also displayed but grayed out:
     description:
         "A prompt that shrinks the size of text without losing meaning",
     categories: ["shorten"], // see Inline prompts later
@@ -102,7 +102,7 @@ mysrc
 ### model
 
 You can specify the LLM `model` identifier in the script. The default is `gpt-4`.
-The intellisense provided by `genaiscript.g.ts` will help with discovering the list of supported models.
+The IntelliSense provided by `genaiscript.g.ts` will assist in discovering the list of supported models.
 
 ```js
 script({
@@ -171,6 +171,7 @@ You can specify the temperate using `top_p` variable in the gpspec file.
 ### seed
 
 For some models,You can specify the LLM `seed` in the script, for models that support it. The default is not specified.
+For some models, you can specify the LLM `seed` in the script, for models that support it. The default is unspecified.
 
 ```js
 script({
@@ -180,7 +181,6 @@ script({
 ```
 
 You can specify the seed using `seed` variable in the gpspec file.
-
 ```markdown
 <!-- @seed 12345678 -->
 ```
@@ -269,7 +269,7 @@ Use documentation from DOCS.
 def("DOCS", env.links.filter(f => f.filename.endsWith(".md")))
 ```
 
-In the genai files, those link you be part of a bulletted list.
+In the genai files, those links should be part of a bulleted list.
 
 ### Context/spec file
 
@@ -288,7 +288,7 @@ defFile("README", content)
 
 ### fetchText(url: string | LinkedFile): Promise<{ ok: boolean; status: number; statusText: string; text?: string; file: LinkedFile }>
 
-Use `fetchText` to to issue GET requests and download text from the internet.
+Use `fetchText` to issue GET requests and download text from the internet.
 
 ```ts
 const { text, file } = await fetchText("https://....")
@@ -307,7 +307,7 @@ def("README", file)
 ### env.secrets
 
 The `env.secrets` object is used to access secrets from the environment. The secrets are typically stored in the `.env` file in the root of the project (or in the `process.env` for the CLI).
-You will need to declare the list of secrets needed in `script({ secrets: ... })`.
+You need to declare the list of secrets required in `script({ secrets: ... })`.
 
 ```js
 script({
@@ -441,10 +441,10 @@ const ext = path.extname(filename)
 ### `parsers`
 
 The `parsers` object contains methods to parse various file formats such as JSON5 and YAML.
+## Inline Variables
 
-## Inline variable
 
-You can inject custom variables in the process by authoring them as markdown comments in your `.gpspec.md` files. The variable are accessible through the `env.vars` field.
+You can inject custom variables into the process by authoring them as markdown comments in your `.gpspec.md` files. The variables are accessible through the `env.vars` field.
 
 ```markdown
 Lorem ipsum...
@@ -489,6 +489,6 @@ extension can be used to visualize the reports.
 The Visual Studio Code extension has various configuration settings:
 
 ### `max cached temperature`
+This setting controls the threshold to disable caching for prompts with high temperature, as the temperature increases the randomness
 
-This setting controls the threshold to disable caching for prompts with high temperature; since the temperature increases the randomness
 of the response. Default is `0.1`.
