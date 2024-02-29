@@ -22,7 +22,7 @@ export function activateTokensStatusBar(state: ExtensionState) {
         }
         const document = editor.document
         const docTokens = estimateTokens(model, document.getText())
-        statusBarItem.text = `Toks: ${docTokens}`
+        statusBarItem.text = `${docTokens}T`
     }, TOKENS_STATUS_BAR_DEBOUNCE_TIME)
     updateStatusBar()
     context.subscriptions.push(
