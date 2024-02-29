@@ -443,6 +443,16 @@ interface DefOptions {
      * JSON schema identifier
      */
     schema?: string
+
+    /**
+     * Filename filter based on file suffix. Case insensitive.
+     */
+    endsWith?: string
+
+    /**
+     * Filename filter using glob syntax.
+     */
+    glob?: string
 }
 
 interface DefImagesOptions {
@@ -570,7 +580,10 @@ interface Parsers {
      * @param content
      */
     PDF(
-        content: string | LinkedFile
+        content: string | LinkedFile,
+        options?: {
+            filter?: (pageIndex: number, text?: string) => boolean
+        }
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 
     /**
@@ -622,7 +635,6 @@ interface PromptContext {
     system(options: PromptArgs): void
     fence(body: StringLike, options?: DefOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
-    defFiles(files: LinkedFile[]): void
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
@@ -693,14 +705,6 @@ declare function fence(body: StringLike, options?: DefOptions): void
  * @param body string to be fenced/defined
  */
 declare function def(name: string, body: StringLike, options?: DefOptions): void
-
-/**
- * Inline supplied files in the prompt.
- * Similar to `for (const f in files) { def("File " + f.filename, f.contents) }`
- *
- * @param files files to define, eg. `env.files` or a subset thereof
- */
-declare function defFiles(files: LinkedFile[]): void
 
 /**
  * Declares a function that can be called from the prompt.

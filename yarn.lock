@@ -9645,7 +9645,7 @@ zwitch@^2.0.0, zwitch@^2.0.4:
 
 zx@^7.2.3:
   version "7.2.3"
-  resolved "https://registry.npmjs.org/zx/-/zx-7.2.3.tgz"
+  resolved "https://registry.yarnpkg.com/zx/-/zx-7.2.3.tgz#d9fef6bd084f7e21994080de09fb20e441074c39"
   integrity sha512-QODu38nLlYXg/B/Gw7ZKiZrvPkEsjPN3LQ5JFXM7h0JvwhEdPNNl+4Ao1y4+o3CLNiDUNcwzQYZ4/Ko7kKzCMA==
   dependencies:
     "@types/fs-extra" "^11.0.1"

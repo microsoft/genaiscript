@@ -4,7 +4,7 @@
     "configurations": [
         {
             "name": "Run - cli",
-            "program": "${workspaceFolder}/packages/cli/built/genaiscript.js",
+            "program": "${workspaceFolder}/packages/cli/built/genaiscript.cjs",
             "request": "launch",
             "skipFiles": ["<node_internals>/**"],
             "type": "node",

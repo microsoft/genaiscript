@@ -2,4 +2,4 @@
 dist
 built
 *.vsix
-genaiscript.js
+genaiscript.cjs

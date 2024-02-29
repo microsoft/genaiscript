@@ -1,2 +1,2 @@
-*.genaiscript.jsonl -diff merge=union linguist-generated
+*.genaiscript.cjsonl -diff merge=union linguist-generated
 **/genaiscript.d.ts -diff merge=ours linguist-generated
