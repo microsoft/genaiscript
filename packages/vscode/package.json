@@ -29,7 +29,7 @@
         "directory": "packages/vscode"
     },
     "files": [
-        "./genaiscript.js"
+        "./genaiscript.cjs"
     ],
     "contributes": {
         "markdown.previewStyles": [

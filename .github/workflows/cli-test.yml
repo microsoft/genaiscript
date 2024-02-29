@@ -26,4 +26,4 @@ jobs:
             - name: unit tests
               run: yarn test:unit
             - name: run script
-              run: node packages/cli/built/genaiscript.js run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
