@@ -1,5 +1,7 @@
 ---
 title: Specs
+description: Learn how to create and run GenAIScript specifications with markdown files.
+keywords: GenAIScript, markdown, specs, documentation, AI
 ---
 
 To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run "Run GenAIScript" to see the results.

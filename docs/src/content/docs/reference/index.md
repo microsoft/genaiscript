@@ -1,5 +1,7 @@
 ---
 title: Reference
+description: Comprehensive reference for GenAIScript documentation including scripts, specs, authorization, VSCode extension, and CLI.
+keywords: GenAIScript, scripts, specs, authorization, CLI
 ---
 
 - [scripts](./scripts) provide a domain-specific javascript framework to build LLM requests.
