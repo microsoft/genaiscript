@@ -20,6 +20,10 @@ Repeat these steps each time you need to upgrade (annoying, I know).
 
 GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project. The execution of a genaiscript creates the prompt that will be sent to the LLM.
 
+:::tip
+Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
+:::
+
 ### the Metadata
 
 A script must start with a call to the `script` function that provides metadata about the script
@@ -32,10 +36,6 @@ script({
     description: "Reviews the text as a tech writer.",
 })
 ```
-
-:::tip
-Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
-:::
 
 ### the Context
 
