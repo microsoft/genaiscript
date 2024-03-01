@@ -50,16 +50,16 @@ export function activatePromptCommands(state: ExtensionState) {
                         id: "",
                         title: "my tool",
                         text: "New script empty template",
-                        jsSource: `script({
-title: "${name}",
-})
-
-// use $ to output formatted text to the prompt
-$\`You are a helpful assistant.\`
+                        jsSource: `// metadata (including model parameters)
+script({ title: "${name}" })
 
 // use def to emit LLM variables
 def("FILE", env.files)
-        `,
+// use $ to output formatted text to the prompt
+$\`You are a helpful assistant.
+TELL THE LLM WHAT TO DO...
+\`        
+`,
                     }
                 )
                 t.id = ""

@@ -21,7 +21,7 @@ You can accept or cancel the changes using the buttons at the bottom of the view
 ## Linked documents
 
 You can link other local documents using the markdown link syntax. These documents are accessible during the GenAiScript
-execution through the `env.links` variable.
+execution through the `env.files` variable.
 
 ```markdown A sample GenAIScript document.
 # email address recognizer
@@ -38,7 +38,7 @@ and somewhere in the GenAiScript:
 ```js
 def(
     "FILES",
-    env.links.filter((f) => f.filename.endsWith(".py"))
+    env.files.filter((f) => f.filename.endsWith(".py"))
 )
 ```
 
@@ -76,6 +76,6 @@ and refer to that variable in the GenAiScript as follows:
 
 ```js
 const focusFileName = env.vars.focusdoc
-def("FOCUSDOC", env.links.filter(f => f.filename.endsWith(focusFileName)))
+def("FOCUSDOC", env.files.filter(f => f.filename.endsWith(focusFileName)))
 ```
 Note that the variable reference in the GPSpec file is treated as a string and does not need to be quoted.

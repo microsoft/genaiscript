@@ -372,10 +372,12 @@ async function expandTemplate(
     if (template.system === undefined) {
         systems.push("system")
         systems.push("system.explanations")
-        systems.push("system.files")
+        // select file expansion type
         if (/diff/i.test(jsSource)) systems.push("system.diff")
+        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
+        else systems.push("system.files")
+
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
-        if (/changelog/i.test(jsSource)) systems.push("system.changelog")
     }
     for (let i = 0; i < systems.length && success; ++i) {
         let systemTemplate = systems[i]
