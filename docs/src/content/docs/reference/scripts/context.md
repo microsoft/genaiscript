@@ -6,18 +6,42 @@ sidebar:
 
 The information about the context of the script execution are available in the `env` global object.
 
-## Variable Expansion
+## `def`
 
-Variables are referenced and injected using `env.variableName` syntax.
+The `def("FILE", file)` is a shorthand to generate a fence variable output.
+The "meta-variable" (`FILE` in this example) name should be all uppercase (but can include
+additional description, eg. `"This is text before FILE"`).
 
-When you apply a prompt to a given fragment, a number of variables are set including
+```js
+def("FILE", file)
+```
 
--   `env.fence` set to a suitable fencing delimiter that will not interfere with the user content delimiters.
--   `env.files` set of linked files and content
+approximately equivalent to:
 
-> For a full list with values, run any prompt, click on the "GenAIScript" in the status bar and look at prompt expansion trace.
+````js
+$`FILE ${file.filename}:
+```
+${env.file.content}
+```
+````
 
-### Fenced variables
+## `env.files`
+
+The `env.files` is an array of all the files in the context. The context is defined implicitely
+by the user based on the UI location to start the tool or from the CLI arguments.
+
+```js
+def("FILE", env.files)
+```
+
+Or filtered,
+
+```js
+def("DOCS", env.files, { endsWith: ".md" })
+def("CODE", env.files, { endsWith: ".py" })
+```
+
+## Fencing
 
 As you expand user markdown into your prompt, it is important to properly fence the user code, to prevent (accidental) prompt injection and confusion.
 
@@ -26,43 +50,20 @@ The `env.fence` variable is set to a suitable fencing delimiter that will not in
 ```js
 $`
 ${env.fence}
-${env.fragment}
+...
 ${env.fence}
 `
 ```
 
-The `def("SUMMARY", env.fragment)` is a shorthand to generate a fence variable output.
-The "meta-variable" (`SUMMARY` in this example) name should be all uppercase (but can include
-additional description, eg. `"This is text before SUMMARY"`).
-
-```js
-def("SUMMARY", env.fragment)
-
-// approximately equivalent to:
-
-$`SUMMARY:`
-fence(env.fragment)
-
-// approximately equivalent to:
-
-$`SUMMARY:
-${env.fence}
-${env.fragment}
-${env.fence}
-`
-```
-
-### Linked files
+## Linked files
 
 When the markdown references to a local file, the link name and content will be available through `env.files`
 
 ```js
-Use documentation from DOCS.
-
 def("DOCS", env.files, { endsWith: ".md" })
-```
 
-In the genai files, those links should be part of a bulleted list.
+$`Use documentation from DOCS.`
+```
 
 ### Context/spec file
 
