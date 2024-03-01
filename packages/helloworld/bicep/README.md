@@ -23,7 +23,7 @@ After executing these steps you'll have the spoke resource group (`rg-lzaaca-spo
 
 1. Create the regional spoke network.
 
-   ```bash
+   ```sh
    RESOURCEID_VNET_HUB=$(az deployment sub show -n acalza01-hub --query properties.outputs.hubVNetId.value -o tsv)
    echo RESOURCEID_VNET_HUB: $RESOURCEID_VNET_HUB
 
@@ -39,7 +39,7 @@ After executing these steps you'll have the spoke resource group (`rg-lzaaca-spo
 
    You may wish to take this moment to familiarize yourself with the resources that have been deployed so far to Azure. They have all been networking resources, establishing the network and access boundaries from within which your application platform will be executing. Check out the following resource groups in the [Azure portal](https://portal.azure.com).
 
-   ```bash
+   ```sh
    RESOURCENAME_RESOURCEGROUP_HUB=$(az deployment sub show -n acalza01-hub --query properties.outputs.resourceGroupName.value -o tsv)
    RESOURCENAME_RESOURCEGROUP_SPOKE=$(az deployment sub show -n acalza01-spokenetwork --query properties.outputs.spokeResourceGroupName.value -o tsv)
 

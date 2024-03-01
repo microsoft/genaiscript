@@ -20,7 +20,7 @@ You can open this repo in a codespace to get the build environment needed.
 -   Install Node.JS 20+
 -   Run yarn
 
-```bash
+```sh
 yarn install --frozen-lockfile
 ```
 
@@ -30,7 +30,7 @@ yarn install --frozen-lockfile
 
 Run the `release` script.
 
-```bash
+```sh
 yarn release
 ```
 
