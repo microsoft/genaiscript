@@ -43,7 +43,7 @@ using the tool id, e.g. the file name.
 
 For example, to run the `front-matter` tool on the current file, type in the Copilot chat:
 
-```bash
+```sh
 @genaiscript /front-matter
 ```
 

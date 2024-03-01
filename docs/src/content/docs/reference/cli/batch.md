@@ -6,7 +6,7 @@ sidebar:
 
 To run the tool over many files in a batch mode (one full LLM iteration per file), use the `batch` command.
 
-```bash
+```sh
 node .genaiscript/genaiscript.cjs batch <tool> src/*.bicep
 ```
 

@@ -15,7 +15,7 @@ The GenAIScript CLI is a command line packaged as a Node.JS javascript file (`ge
 
 Runs a genai script on a file and streams the LLM output to stdout.
 
-```bash
+```sh
 node .genaiscript/genaiscript.cjs run <tool> [spec...]
 ```
 
