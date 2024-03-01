@@ -1,10 +1,11 @@
 ---
-title: Using GenAIScript with .pdf files
+title: Using GenAIScript with image files
 ---
 
-The quick-start guide illustrates how to write a GenAIScript that takes input from a pdf file.
+The quick-start guide illustrates how to write a GenAIScript that applies a LLM that understands
+images to an image file.
 
-1) Put your pdf document in a directory visible in VS Code Explorer
+1) Put your image in a directory visible in VS Code Explorer
 2) Open the panel for GenAIScript (robot)
 3) Create a GenAIScript from the menu with + button 
 ![Quick start view of creating an empty GenAIScript](../../../assets/create-new-GenAIScript.png)
