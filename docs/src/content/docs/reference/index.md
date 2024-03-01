@@ -2,6 +2,8 @@
 title: Reference
 description: Comprehensive reference for GenAIScript documentation including scripts, specs, authorization, VSCode extension, and CLI.
 keywords: GenAIScript, scripts, specs, authorization, CLI
+sidebar:
+    order: 0
 ---
 
 GenAISCripts are a way to automate AI transformations in your codebase. This reference guide provides comprehensive documentation for GenAIScript, including scripts, specs, authorization, VSCode extension, and CLI.
