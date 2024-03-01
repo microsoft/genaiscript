@@ -8,6 +8,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: "GenAIScript",
+            favicon: "/genaiscript/favicon.svg",
             social: {
                 github: "https://github.com/microsoft/genaiscript",
             },
