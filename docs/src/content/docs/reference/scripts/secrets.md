@@ -9,11 +9,22 @@ The `env.secrets` object is used to access secrets from the environment. The sec
 You need to declare the list of secrets required in `script({ secrets: ... })`
 in order to use them in the script.
 
+```txt title=".env"
+SECRET_TOKEN="..."
+...
+```
+
+-  declare use in `script`
+
 ```js
 script({
     ...
     secrets: ["SECRET_TOKEN"]
 })
+```
+-  access the secret in the script through `env.secrets`
 
+```js
 const token = env.secrets.SECRET_TOKEN
+...
 ```
