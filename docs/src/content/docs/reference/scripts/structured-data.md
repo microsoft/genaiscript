@@ -1,16 +1,8 @@
 ---
-title: JSON and YAML
+title: Structured Data
 sidebar:
-    order: 9
+    order: 6
 ---
-
-In general, GenAIScript will try to handle JSON(5) and YAML seamlessly.
-
-:::tip
-Use YAML instead of JSON as it works better with the LLM tokenizers.
-:::
-
-## Schemas
 
 Use `defSchema` to define a JSON/YAML schema for the prompt output.
 
@@ -48,16 +40,6 @@ $`Use the TARGET_SCHEMA for the JSON schema.`
 When a JSON/YAML payload is generated with the schema identifier,
 genaiscript automatically validates the payload against the schema.
 
-## JSON output
-
-You can use `system.json` system message to force a single JSON output file. This
-enables the [JSON mode](https://platform.openai.com/docs/guides/text-generation/json-mode) of OpenAI.
-
-```js
-script({
-    ...,
-    system: ["system.json"],
-})
-```
-
-The generated file name will be `[spec].[template].json`.
+:::tip
+Use YAML instead of JSON as it works better with the LLM tokenizers.
+:::
