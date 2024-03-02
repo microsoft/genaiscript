@@ -6,7 +6,7 @@ sidebar:
 
 The `env.vars` object contains a set of variable values. You can use these variables to parameterize your script.
 
-```js
+```javascript
 // grab locale from variable or default to en-US
 const locale = env.vars.locale || "en-US"
 ```

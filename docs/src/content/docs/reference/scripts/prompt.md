@@ -6,7 +6,7 @@ sidebar:
 
 The `$` is a JavaScript [tagged template](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) that expands the string into the final prompt.
 
-```js title="example.genai.js"
+```javascript title="example.genai.js"
 ...
 $`You are a helpful assistant.`
 ```

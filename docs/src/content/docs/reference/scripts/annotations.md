@@ -6,9 +6,9 @@ sidebar:
 
 Using the `system.annotations` system prompt, you can have the LLM generate errors, warnings and notes.
 GenAIScript will convert those into SARIF files that can be uploaded to GitHub Actions as security reports, similarly to CodeQL reports. 
+## Static Analysis Results Interchange Format (SARIF)
 
-## SARIF
-
+The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 extension can be used to visualize the reports.
 

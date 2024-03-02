@@ -9,7 +9,7 @@ keywords: AI Scripting, Performance, Limitations, Operational Guide, FAQ
 
 Describe the system in plain English. What type of system is this? What does it do? At a high level, what does the system take as input? What kind of outputs does the system produce?
 
-## What can GenAIScript do?
+## What Capabilities Does GenAIScript Offer?
 
 Building on the previous question, provide semi-technical, high-level information on how the system offers functionality for various uses.
 

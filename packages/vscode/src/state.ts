@@ -37,7 +37,13 @@ import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { findFiles, readFileText, saveAllTextDocuments, writeFile } from "./fs"
+import {
+    findFiles,
+    listFiles,
+    readFileText,
+    saveAllTextDocuments,
+    writeFile,
+} from "./fs"
 import { configureLanguageModelAccess } from "./chat/lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
@@ -537,21 +543,20 @@ ${e.message}`
     async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
         const fspath = uri.fsPath
         const specn = fspath + "/dir.gpspec.md"
-        const dir = await vscode.workspace.fs.readDirectory(uri)
-        const files = dir
-            .filter(([, type]) => type === vscode.FileType.File)
-            .map(([name]) => name)
-            .filter((name) => !name.endsWith(".gpspec.md"))
+        const files = (await listFiles(uri)).filter(
+            (uri) => !uri.fsPath.endsWith(".gpspec.md")
+        )
         if (token?.isCancellationRequested) return undefined
 
-        this.host.clearVirtualFiles()
-        this.host.setVirtualFile(
-            specn,
-            `# Specification
+        const spec = `# Specification
 
-${files.map((fn) => `-   [${fn}](./${fn})`).join("\n")}
+${files
+    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
+    .map((fn) => `-   [${fn}](./${fn})`)
+    .join("\n")}
 `
-        )
+        this.host.clearVirtualFiles()
+        this.host.setVirtualFile(specn, spec)
 
         const gpspecFiles = [specn]
         const scriptFiles = await findFiles("**/*" + GENAI_EXT)
