@@ -14,7 +14,7 @@ The quick-start guide illustrates how to write a GenAIScript that takes input fr
 def("PDFSOURCE", env.files, { endsWith: ".pdf" })
 ```
 
-4. Replace the text "TELL THE LLM WHAT TO DO..." with what you want it to do with your pdf file. Use the name in the def to refer to the file.
+4. Replace the text `"TELL THE LLM WHAT TO DO..."` with what you want it to do with your pdf file. Use the name in the def to refer to the file.
 
 ```js
 // use $ to output formatted text to the prompt
@@ -23,6 +23,6 @@ Summarize the content of PDFSOURCE and critique the document.
 `
 ```
 
-6. Right click on the pdf document in VS Code Explorer. Select "Run GenAIScript". Select the script you just wrote.
+6. Right click on the pdf document in VS Code Explorer. Select `"Run GenAIScript"`. Select the script you just wrote.
 
-7. Output will be displayed in a new buffer
+7. Output will be displayed in a new document tab.

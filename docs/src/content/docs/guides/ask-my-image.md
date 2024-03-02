@@ -1,7 +1,7 @@
 ---
 title: Ask My Image
 sidebar:
-    order: 5
+    order: 6
 ---
 
 The quick-start guide illustrates how to write a GenAIScript that takes input from an image file.
@@ -17,13 +17,13 @@ script({
 })
 ```
 
-3. Use defImages to ingest the image file into the model context:
+3. Use [defImages](/genaiscript/reference/scripts/images/) to ingest the image file into the model context:
 
 ```js
 defImages(env.files, { detail: "low" })
 ```
 
-4. Replace the text "TELL THE LLM WHAT TO DO..." with what you want it to do with your image file.
+4. Replace the text `"TELL THE LLM WHAT TO DO..."` with what you want it to do with your image file.
 
 ```js
 $`You are a helpful assistant. Your goal is to look at the image of a chart provided
@@ -33,4 +33,4 @@ and extract the data it is presented in a tabular format.
 
 6. Right click on the image file in VS Code Explorer. Select "Run GenAIScript". Select the script you just wrote.
 
-7. Output will be displayed in a new buffer
+7. The Output will be displayed in a new document tab.
