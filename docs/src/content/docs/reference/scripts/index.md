@@ -8,7 +8,7 @@ keywords: script templates, AI prompts, prompt expansion, OpenAI integration, te
 
 GenAIScript has a text template engine that is used to expand and assemble prompts before being sent to OpenAI. These templates can be forked and modified.
 
-All prompts are JS files named as `*.genai.js`. You can use the `GenAIScript - Fork a script...` to fork any known prompt.
+All prompts are JavaScript files named as `*.genai.js`. You can use the `GenAIScript - Fork a script...` command to fork any known prompt.
 
 All `system.*.genai.js` are considered system prompt templates
 and are unlisted by default. There is no variable expansion in those.

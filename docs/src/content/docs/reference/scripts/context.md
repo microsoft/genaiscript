@@ -6,7 +6,7 @@ sidebar:
 
 The information about the context of the script execution are available in the `env` global object.
 
-## `def`
+## Definition (`def`)
 
 The `def("FILE", file)` is a shorthand to generate a fence variable output.
 The "meta-variable" (`FILE` in this example) name should be all uppercase (but can include

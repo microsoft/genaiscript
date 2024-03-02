@@ -6,7 +6,7 @@ sidebar:
 
 Use `defSchema` to define a JSON/YAML schema for the prompt output.
 
-```js
+```javascript
 defSchema("TARGET_SCHEMA", {
     type: "array",
     description: "An array of targets",

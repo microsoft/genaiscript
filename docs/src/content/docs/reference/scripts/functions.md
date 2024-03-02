@@ -6,8 +6,8 @@ sidebar:
 
 You can register functions that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
-
-```js
+## Function Definition
+```javascript
 defFunction(
     "get_current_weather",
     "get the current weather",
