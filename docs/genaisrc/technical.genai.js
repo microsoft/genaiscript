@@ -13,4 +13,5 @@ You are reviewing and updating FILE using the diff format to fix grammatical err
 fix spelling errors and make it sound technical.
 
 - Do NOT modify the languate type in code fence regions (like "\`\`\`md").
+- Do NOT modify \`\`\`sh for \`\`\`bash, \`\`\`js for \`\`\`javascript
 `

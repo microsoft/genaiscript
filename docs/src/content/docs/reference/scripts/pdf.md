@@ -6,7 +6,7 @@ sidebar:
 
 The `def` function will automatically parse PDF files and extract text from them. This is useful for generating prompts from PDF files.
 
-```js
+```javascript
 def("DOCS", env.files) // contains some pdfs
 ```
 

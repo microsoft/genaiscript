@@ -6,7 +6,7 @@ sidebar:
 
 The quick-start guide illustrates how to write a GenAIScript that takes input from a pdf file.
 
-1. Put your pdf document in a directory visible in VS Code Explorer
+1. Place your PDF document in a directory visible in VS Code Explorer
 2. Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
 3. Define and name the pdf file as an input:
 

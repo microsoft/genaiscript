@@ -6,7 +6,7 @@ sidebar:
 
 All files are resolved relative to the current workspace project folder.
 
-## readFile
+## Read File (`readFile`)
 
 Reads the content of a local text file.
 

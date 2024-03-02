@@ -6,7 +6,7 @@ sidebar:
 
 The quick-start guide illustrates how to write a GenAIScript that takes input from an image file.
 
-1. Put your image in a directory visible in VS Code Explorer
+1. Place your image in a directory visible in VS Code Explorer
 2. Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
 3. Update the model in the script header to refer to a model that understands images:
 

@@ -6,9 +6,10 @@ keywords: GenAIScript, markdown, specs, documentation, AI
 
 To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run "Run GenAIScript" to see the results.
 
-```markdown A sample GenAIScript document.
+```markdown
+A sample GenAIScript document.
 # email address recognizer
-
+# email address recognizer
 Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
 
 ...

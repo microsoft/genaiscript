@@ -6,8 +6,8 @@ sidebar:
 
 To run the tool over many files in a batch mode (one full LLM iteration per file), use the `batch` command.
 
-```sh
-node .genaiscript/genaiscript.cjs batch <tool> src/*.bicep
+```bash
+node .genaiscript/genaiscript.cjs batch <tool> "src/*.bicep"
 ```
 
 The tool will create various JSON Lines files with the results (JSON Lines is a file format where each line is a valid JSON object, which allows for appending results). You can post-process those results using your favorite script environment.

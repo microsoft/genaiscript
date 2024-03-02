@@ -6,8 +6,8 @@ sidebar:
 
 Prompts use `script({ ... })` function call
 to configure the title and other user interface elements.
-
-```js
+## Script Metadata Configuration
+```javascript
 script({
     title: "Shorten", // displayed in UI
     // also displayed but grayed out:

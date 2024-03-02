@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
 import { JSON5TryParse } from "genaiscript-core"
+import { Utils } from "vscode-uri"
 
 export async function findFiles(pattern: string) {
     return (await vscode.workspace.findFiles(pattern)).map((f) => f.fsPath)
@@ -91,4 +92,18 @@ export async function readFileJSON<T>(
     } catch (e) {
         return undefined
     }
+}
+
+export async function listFiles(uri: vscode.Uri): Promise<vscode.Uri[]> {
+    const files: vscode.Uri[] = []
+    const dir = await vscode.workspace.fs.readDirectory(uri)
+    for (const [name, type] of dir) {
+        const newUri = Utils.joinPath(uri, name)
+        if (type === vscode.FileType.Directory) {
+            files.push(...(await listFiles(newUri)))
+        } else if (type === vscode.FileType.File) {
+            files.push(newUri)
+        }
+    }
+    return files
 }
