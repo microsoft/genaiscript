@@ -21,8 +21,8 @@ def("PDFSOURCE", env.files, { endsWith: ".pdf" })
 $`You are a helpful assistant.
 Summarize the content of PDFSOURCE and critique the document.
 `
-``` 
-6. Right click on the pdf document in VS Code Explorer. Select "Run GenAIScript". Select the script you just wrote. 
+```
+
+6. Right click on the pdf document in VS Code Explorer. Select "Run GenAIScript". Select the script you just wrote.
 
 7. Output will be displayed in a new buffer
-
