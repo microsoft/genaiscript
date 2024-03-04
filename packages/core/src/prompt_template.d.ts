@@ -590,7 +590,16 @@ interface Parsers {
      * Parses a CSV file or text
      * @param content
      */
-    CSV(content: string | LinkedFile): object[] | undefined
+    CSV(
+        content: string | LinkedFile,
+        options?: { delimiter?: string; headers?: string[] }
+    ): object[] | undefined
+
+    /**
+     * Estimates the number of tokens in the content.
+     * @param content content to tokenize
+     */
+    tokens(content: string | LinkedFile): number
 }
 
 interface HighlightOptions {

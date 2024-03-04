@@ -1,4 +1,4 @@
-import { parse } from "csv-parse/sync"
+import { ColumnOption, parse } from "csv-parse/sync"
 import { markdownTable } from "markdown-table"
 import { logInfo } from "./util"
 
@@ -6,17 +6,19 @@ export function CSVTryParse(
     text: string,
     options?: {
         delimiter?: string
+        headers?: string[]
     }
 ): object[] {
+    const { delimiter, headers } = options || {}
     try {
         return parse(text, {
             autoParse: true,
             castDate: false,
             comment: "#",
-            columns: true,
+            columns: headers || true,
             skipEmptyLines: true,
             skipRecordsWithError: true,
-            ...(options || {}),
+            delimiter,
         })
     } catch (e) {
         logInfo(e)
@@ -37,6 +39,6 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
         stringLength: (str) => str.length,
     })
     // improves LLM performance
-    const mdcompact = md.replace(/[\t ]+/g, ' ')
+    const mdcompact = md.replace(/[\t ]+/g, " ")
     return mdcompact
 }
