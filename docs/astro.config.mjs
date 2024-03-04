@@ -14,6 +14,10 @@ export default defineConfig({
             },
             sidebar: [
                 {
+                    label: "Start Here",
+                    autogenerate: { directory: "getting-started" },
+                },
+                {
                     label: "Guides",
                     autogenerate: { directory: "guides" },
                 },
