@@ -34,7 +34,7 @@ node .genaiscript/genaiscript.cjs run <tool> src/*.bicep src/*.ts
 
 The token is read from the usual OpenAI (or Azure OpenAI) environment variables or from a `.env` file in the current directory.
 
-See [token format](./token.md).
+See [token format](/genaiscript/reference/token).
 
 ### --excluded-files <files...>
 
