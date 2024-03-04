@@ -26,6 +26,14 @@ yarn install --frozen-lockfile
 
 -   Press F5 to launch VS Code in debugging mode
 
+## Docs
+
+Run `docs` to launch the documentation site.
+
+```sh
+yarn docs
+```
+
 ## Release
 
 Run the `release` script.
