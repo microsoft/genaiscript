@@ -6,7 +6,7 @@ sidebar:
 
 You will need to configure the LLM connection and authorizion secrets. GenAIScript uses a `.env` file to store the secrets (this file should never be commited to your source control!)
 
-```txt
+```txt title=".env"
 OPENAI_API_KEY="..."
 ```
 

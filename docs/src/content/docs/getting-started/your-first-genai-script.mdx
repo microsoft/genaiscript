@@ -3,19 +3,30 @@ title: Your first GenAI script
 sidebar:
     order: 3
 ---
+import { FileTree } from '@astrojs/starlight/components';
 
-GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project. The execution of a genaiscript creates the prompt that will be sent to the LLM.
+GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaisrc/*.genai.js`) in your project. The execution of a genaiscript creates the prompt that will be sent to the LLM.
 
-:::tip
-Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
-:::
+- Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
+
+<FileTree>
+
+- …
+- genaisrc scripts are created here by default
+  - genaiscript.d.ts (TypeScript type definitions)
+  - tsconfig.json (TypeScript configuration)
+  - **myscript.genai.js**
+  - …
+- …
+
+</FileTree>
 
 ## the Metadata
 
 A script must start with a call to the `script` function that provides metadata about the script
 and the model. The metadata is used to display the script in the UI and configure the LLM model.
 
-```js
+```js title="myscript.genai.js"
 // the metadata
 script({
     title: "Technical proofreading",

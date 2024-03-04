@@ -20,7 +20,7 @@ To access GenAIScript from GitHub Copilot Chat, use [Visual Studio Code - Inside
 
 ### GenAiScript scripts
 
-GenAiScript scripts use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
+GenAiScript scripts use stylized JavaScript with minimal syntax. They are stored as files (`genaisrc/*.genai.js`) in your project.
 
 ```js
 // metadata

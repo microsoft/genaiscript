@@ -3,6 +3,7 @@ title: Installation
 sidebar:
     order: 1
 ---
+import { FileTree } from '@astrojs/starlight/components';
 
 ## Install in Visual Studio Code
 
@@ -13,7 +14,20 @@ GenAiScript is available as a Visual Studio Code Extension. It is not yet availa
 -   download the `genaiscript.vsix` into your project in VSCode
 -   right click on the `.vsix` file and select **Install Extension VSIX...**
 
-Repeat these steps each time you need to upgrade (annoying, I know).
+<FileTree>
+-  ...
+-  .genaiscript/ folder created by the extension to store supporting files
+    -  genaiscript.cjs command line
+    -  cache/ various cache files
+    -  retreival/ retreival database caches
+    -  ... supporting files
+-   **genaiscript.vsix**
+
+</FileTree>
+## Upgrade
+
+Repeat these steps each time you need to upgrade. Once the extension is public, upgrade
+will be available through the marketplace.
 
 ## Next steps
 
