@@ -608,6 +608,12 @@ interface HighlightOptions {
 
 interface Retreival {
     /**
+     * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
+     * @param query
+     */
+    webSearch(query: string): Promise<any>
+
+    /**
      * Search for embeddings
      */
     search(
