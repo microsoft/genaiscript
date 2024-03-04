@@ -159,8 +159,9 @@ async function callExpander(
     const root: PromptNode = { children: [] }
     const scope: PromptNode[] = [root]
 
+    const model = r.model || DEFAULT_MODEL
     let success = true
-    const parsers = createParsers(trace)
+    const parsers = createParsers({ trace, model })
     const path = host.path
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
