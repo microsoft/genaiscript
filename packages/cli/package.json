@@ -11,7 +11,7 @@
     "fs-extra": "^11.2.0",
     "get-stdin": "^9.0.0",
     "glob": "^10.3.10",
-    "openai": "^4.28.0"
+    "openai": "^4.28.4"
   },
   "optionalDependencies": {
     "llamaindex": "0.1.10",
