@@ -12,6 +12,10 @@ export default defineConfig({
             social: {
                 github: "https://github.com/microsoft/genaiscript",
             },
+            editLink: {
+                baseUrl:
+                    "https://github.com/microsoft/genaiscript/edit/main/docs/",
+            },
             sidebar: [
                 {
                     label: "Start Here",
