@@ -4,9 +4,20 @@ sidebar:
     order: 4
 ---
 
-Right click on a file or folder in the explorer and select `Run GenAIScript` to execute the script with the context of the file or folder. This defines the content.
+The location where you start running a script determines the entries in the `env.files` variable.
 
-Select the tool you want to run... and it'll most likely stop because we haven't configured the LLM authorization yet.
+## Single file
+
+- Right click on a file in the Explorer and select `Run GenAIScript`.
+- Or right click in a file editor and select `Run GenAIScript`.
+
+The `env.files` will contain a single element with the selected file.
+
+## Folder
+
+- Right click on a folder in the Explorer and select `Run GenAIScript`.
+
+The `env.files` will contain all nested files under that folder.
 
 ## Analyze results
 
