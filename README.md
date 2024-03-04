@@ -66,7 +66,7 @@ Until this extension is in the Marketplace, you will have to repeat these steps 
 
 ## GenAI scripts
 
-GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaiscript/*.genai.js`) in your project.
+GenAIScript use stylized JavaScript with minimal syntax. They are stored as files (`genaisrc/*.genai.js`) in your project.
 
 > Use the `Create a GenAiScript...` command in the command palette to create a new script.
 
