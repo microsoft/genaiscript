@@ -6,6 +6,22 @@ sidebar:
 
 The information about the context of the script execution are available in the `env` global object.
 
+## `env.files`
+
+The `env.files` is an array of all the files in the context. The context is defined implicitely
+by the user based on the UI location to start the tool or from the CLI arguments.
+
+```js
+def("FILE", env.files)
+```
+
+Or filtered,
+
+```js
+def("DOCS", env.files, { endsWith: ".md" })
+def("CODE", env.files, { endsWith: ".py" })
+```
+
 ## Definition (`def`)
 
 The `def("FILE", file)` is a shorthand to generate a fence variable output.
@@ -25,21 +41,6 @@ ${env.file.content}
 ```
 ````
 
-## `env.files`
-
-The `env.files` is an array of all the files in the context. The context is defined implicitely
-by the user based on the UI location to start the tool or from the CLI arguments.
-
-```js
-def("FILE", env.files)
-```
-
-Or filtered,
-
-```js
-def("DOCS", env.files, { endsWith: ".md" })
-def("CODE", env.files, { endsWith: ".py" })
-```
 
 ## Fencing
 
