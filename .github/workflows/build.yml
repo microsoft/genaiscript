@@ -36,3 +36,16 @@ jobs:
               run: node packages/cli/built/genaiscript.cjs run code-xray packages/sample/src/counting.py packages/sample/src/*.ts --prompt -o .genaiscript/tmp/cli -ot $GITHUB_STEP_SUMMARY -l glob
             - name: package vscode
               run: yarn package
+            - name: Azure Build And Deploy
+              if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+              id: builddeploy
+              uses: Azure/static-web-apps-deploy@v1
+              with:
+                azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_RED_MUD_00CE5491E }}
+                action: "upload"
+                ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+                # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+                app_location: "/docs" # App source code path
+                api_location: "" # Api source code path - optional
+                output_location: "dist" # Built app content directory - optional
+                ###### End of Repository/Build Configurations ######              
