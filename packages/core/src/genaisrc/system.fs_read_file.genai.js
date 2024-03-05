@@ -1,6 +1,7 @@
 system({
-    title: "File Read functions",
-    description: "Functions to read file content."
+    title: "File Read File",
+    description: "Function to read file content.",
+    categories: ["Functions"]
 })
 
 defFunction(

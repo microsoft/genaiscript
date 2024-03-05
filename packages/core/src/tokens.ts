@@ -21,8 +21,11 @@ export function estimateChatTokens(
     messages: ChatCompletionRequestMessage[],
     tools?: ChatCompletionTool[]
 ): number {
-    const chat: { role: "user" | "system" | "assistant"; content: string }[] =
-        messages
+    try {
+        const chat: {
+            role: "user" | "system" | "assistant"
+            content: string
+        }[] = messages
             .filter(
                 ({ role }) =>
                     role === "user" || role === "system" || role === "assistant"
@@ -40,11 +43,10 @@ export function estimateChatTokens(
                               )
                               .join("\n"),
             }))
-    try {
         const chatTokens = encodeChat(chat, model as any)
         return chatTokens.length | 0
     } catch (e) {
         logError(e.message)
-        return JSON.stringify(chat).length >> 2
+        return JSON.stringify(messages).length >> 2
     }
 }

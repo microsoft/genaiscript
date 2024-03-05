@@ -314,6 +314,7 @@ async function parseMeta(r: PromptTemplate) {
                 path: undefined,
                 parsers: undefined,
                 retreival: undefined,
+                YAML: undefined,
                 defImages: error,
                 appendPromptChild: error,
                 writeText: error,

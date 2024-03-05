@@ -33,7 +33,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -469,6 +469,7 @@ interface ChatTaskOptions {
 type JSONSchemaTypeName =
     | "string"
     | "number"
+    | "integer"
     | "boolean"
     | "object"
     | "array"
@@ -488,7 +489,7 @@ interface JSONSchemaString {
 }
 
 interface JSONSchemaNumber {
-    type: "number"
+    type: "number" | "integer"
     description?: string
 }
 
@@ -602,6 +603,18 @@ interface Parsers {
     tokens(content: string | LinkedFile): number
 }
 
+interface YAML {
+    /**
+     * Converts an object to its YAML representation
+     * @param obj 
+     */
+    stringify(obj: any): string
+    /**
+     * Parses a YAML string to object
+     */
+    parse(text: string): any
+}
+
 interface HighlightOptions {
     maxLength?: number
 }
@@ -679,6 +692,7 @@ interface PromptContext {
     path: Path
     parsers: Parsers
     retreival: Retreival
+    YAML: YAML
 }
 
 
@@ -760,6 +774,11 @@ declare var parsers: Parsers
  * Retreival Augmented Generation services
  */
 declare var retreival: Retreival
+
+/**
+ * YAML parsing and stringifying functions.
+ */
+declare var YAML: YAML
 
 /**
  * Fetches a given URL and returns the response.
