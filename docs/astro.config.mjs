@@ -8,7 +8,7 @@ export default defineConfig({
     integrations: [
         starlight({
             title: "GenAIScript",
-            favicon: "/genaiscript/favicon.svg",
+            favicon: "/images/favicon.png",
             components: {
                 Footer: "./src/components/Footer.astro",
             },
