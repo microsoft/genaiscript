@@ -10,7 +10,8 @@ See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling)
 ## Definition
 
 The `defFunction` function is used to define a function that can be called by the LLM.
-It takes a JSON schema to define the input and expects a string output.
+It takes a JSON schema to define the input and expects a string output. **The LLM decides to call 
+this function on its own!**
 
 ```javascript
 defFunction(
@@ -84,3 +85,34 @@ defFunction("current_weather", ...)
 - [system.web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.web_search.genai.js): Search the web for a user query.
 - [system.fs_find_files](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.fs_find_files.genai.js): List files for a filename query.
 - [system.fs_read_file](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.fs_read_file.genai.js): Read the content of a file.
+
+## Example
+
+Let's illustrate how functions come together with a question answering script.
+
+In the script below, we add the ``system.web_search` which registers the `web_search` function. This function
+will call into `retreival.webSearch` as needed.
+
+```js file="answers.genai.js"
+script({
+    title: "Answer questions",
+    system: ["system", "system.web_search"]
+})
+
+def("FILES", env.files)
+
+$`Answer the questions in FILES using a web search. 
+
+- List a summary of the answers and the sources used to create the answers.
+```
+
+We can then apply this script to the `questions.md` file blow.
+
+```md file="questions.md"
+- What is weather in Seattle?
+- What laws were voted in the USA congress last week?
+```
+
+After the first request, the LLM requests to call the `web_search` for each questions. 
+The web search answers are then added to the LLM message history and the request is made again.
+The second yields the final result which includes the web search results.
