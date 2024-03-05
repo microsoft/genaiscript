@@ -9,6 +9,9 @@ export default defineConfig({
         starlight({
             title: "GenAIScript",
             favicon: "/genaiscript/favicon.svg",
+            components: {
+                Footer: "./src/components/Footer.astro",
+            },
             social: {
                 github: "https://github.com/microsoft/genaiscript",
             },
