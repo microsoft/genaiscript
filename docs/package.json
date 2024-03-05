@@ -9,7 +9,7 @@
         "start": "astro dev --host",
         "check": "astro check",
         "build": "astro build",
-        "build:asw": "rm -Rf distasw && mkdir distasw && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
+        "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
         "preview": "astro preview",
         "astro": "astro",
         "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch front-matter src/**/*.md --apply-edits"
