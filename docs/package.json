@@ -1,25 +1,25 @@
 {
-    "name": "docs",
-    "type": "module",
-    "private": true,
-    "version": "1.9.14",
-    "license": "MIT",
-    "scripts": {
-        "dev": "astro dev --host",
-        "start": "astro dev --host",
-        "check": "astro check",
-        "build": "astro build",
-        "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
-        "preview": "astro preview",
-        "astro": "astro",
-        "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch front-matter src/**/*.md --apply-edits"
-    },
-    "dependencies": {
-        "@astrojs/check": "^0.5.6",
-        "@astrojs/starlight": "^0.21.0",
-        "astro": "^4.4.8",
-        "sharp": "^0.33.2",
-        "typescript": "^5.3.3",
-        "zx": "^7.2.3"
-    }
+  "name": "docs",
+  "type": "module",
+  "private": true,
+  "version": "1.9.15",
+  "license": "MIT",
+  "scripts": {
+    "dev": "astro dev --host",
+    "start": "astro dev --host",
+    "check": "astro check",
+    "build": "astro build",
+    "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
+    "preview": "astro preview",
+    "astro": "astro",
+    "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch front-matter src/**/*.md --apply-edits"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.5.6",
+    "@astrojs/starlight": "^0.21.0",
+    "astro": "^4.4.8",
+    "sharp": "^0.33.2",
+    "typescript": "^5.3.3",
+    "zx": "^7.2.3"
+  }
 }
