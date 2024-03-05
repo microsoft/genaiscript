@@ -1,5 +1,5 @@
 ---
-title: $ (prompt)
+title: Prompt ($)
 sidebar:
     order: 2
 ---
