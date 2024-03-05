@@ -183,10 +183,10 @@ async function callExpander(
                 return <SearchResult>{
                     webPages: webPages?.value?.map(
                         ({ url, name, snippet }) =>
-                            <WebpageSearchResult>{
-                                url,
-                                name,
-                                snippet,
+                            <LinkedFile>{
+                                filename: url,
+                                label: name,
+                                content: snippet,
                             }
                     ),
                 }
