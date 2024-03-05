@@ -1,20 +1,21 @@
 system({
     title: "File Find Files",
-    description: "Functions to list files."
+    description: "Functions to list files.",
+    categories: ["Functions"],
 })
 
 defFunction(
     "fs_find_files",
     "Finds file matching a glob pattern.",
     {
-        "type": "object",
-        "properties": {
-            "glob": {
-                "type": "string",
-                "description": "Search path.",
+        type: "object",
+        properties: {
+            glob: {
+                type: "string",
+                description: "Search path.",
             },
         },
-        "required": ["glob"],
+        required: ["glob"],
     },
     async (args) => {
         const { context, glob } = args

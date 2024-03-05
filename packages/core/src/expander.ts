@@ -34,7 +34,7 @@ import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
-import { YAMLTryParse } from "./yaml"
+import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
 import { validateJSONSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
@@ -163,6 +163,10 @@ async function callExpander(
     const model = r.model || DEFAULT_MODEL
     let success = true
     const parsers = createParsers({ trace, model })
+    const YAML: YAML = {
+        stringify: YAMLStringify,
+        parse: YAMLParse
+    }
     const path = host.path
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
@@ -271,6 +275,7 @@ async function callExpander(
                 env,
                 path,
                 parsers,
+                YAML,
                 retreival,
                 defImages,
                 appendPromptChild: (node) => appendChild(scope[0], node),
@@ -1018,7 +1023,7 @@ export async function runTemplate(
 
                     let output = await fd.fn({ context, ...callArgs })
                     if (typeof output === "string") output = { content: output }
-                    if (output.type === "shell") {
+                    if (output?.type === "shell") {
                         let {
                             command,
                             args = [],
