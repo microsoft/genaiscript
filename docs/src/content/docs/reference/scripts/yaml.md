@@ -19,7 +19,7 @@ const str = YAML.stringify(obj)
 
 ## `parsers`
 
-The [parsers](/genaiscript/reference/parsers) also provides merciful parser for YAML.
+The [parsers](/genaiscript/reference/scripts/parsers) also provides merciful parser for YAML.
 
 ```js
 const res = parsers.YAML("...")
