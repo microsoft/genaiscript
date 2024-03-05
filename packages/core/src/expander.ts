@@ -179,7 +179,15 @@ async function callExpander(
         webSearch: async (q) => {
             try {
                 trace.startDetails(`retreival web search \`${q}\``)
-                return bingSearch(q, { trace })
+                const { webPages } = (await bingSearch(q, { trace })) || {}
+                return webPages?.value?.map(
+                    ({ url, name, snippet }) =>
+                        <SearchResult>{
+                            url,
+                            name,
+                            snippet,
+                        }
+                )
             } catch (e) {
                 trace.error(`web search error`, e)
                 return undefined

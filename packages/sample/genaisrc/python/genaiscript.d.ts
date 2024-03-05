@@ -590,14 +590,35 @@ interface Parsers {
      * Parses a CSV file or text
      * @param content
      */
-    CSV(content: string | LinkedFile): object[] | undefined
+    CSV(
+        content: string | LinkedFile,
+        options?: { delimiter?: string; headers?: string[] }
+    ): object[] | undefined
+
+    /**
+     * Estimates the number of tokens in the content.
+     * @param content content to tokenize
+     */
+    tokens(content: string | LinkedFile): number
 }
 
 interface HighlightOptions {
     maxLength?: number
 }
 
+interface SearchResult {
+    name: string
+    url: string
+    snippet: string
+}
+
 interface Retreival {
+    /**
+     * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
+     * @param query
+     */
+    webSearch(query: string): Promise<SearchResult[]>
+
     /**
      * Search for embeddings
      */

@@ -5,7 +5,7 @@ import { host } from "./host"
 function toURLSearchParams(o: any) {
     const params = new URLSearchParams()
     for (const key in o) {
-        if (o.hasOwnProperty(key)) {
+        if (o.hasOwnProperty(key) && o[key] !== undefined) {
             params.append(key, o[key])
         }
     }
@@ -14,6 +14,9 @@ function toURLSearchParams(o: any) {
 
 export interface SearchResponse {
     _type: string
+    webPages?: {
+        value: WebpageResponse[]
+    }
 }
 
 export interface WebpageResponse {
@@ -34,7 +37,7 @@ export async function bingSearch(
         responseFilter?: string
         safeSearch?: string
     }
-): Promise<SearchResponse[]> {
+): Promise<SearchResponse> {
     const {
         trace,
         endPoint = BING_SEARCH_ENDPOINT,
@@ -46,27 +49,33 @@ export async function bingSearch(
     } = options || {}
     if (!q) return []
 
-    const apiKey = host.readSecret("BING_SEARCH_API_KEY")
+    const apiKey = await host.readSecret("BING_SEARCH_API_KEY")
     if (!apiKey)
         throw new Error(
             "BING_SEARCH_API_KEY secret is required to use bing search"
         )
-    const query = {
+    const query = toURLSearchParams({
         q,
         count,
         cc,
         freshness,
         responseFilter,
         safeSearch,
-    }
-    const res = await fetch(endPoint + "?" + toURLSearchParams(query), {
+    })
+    const url = endPoint + "?" + query
+    const res = await fetch(url, {
         method: "GET",
-        headers: <any>{
+        headers: {
             "Ocp-Apim-Subscription-Key": apiKey,
         },
     })
-    if (!res.ok) throw new Error("Bing search failed: " + (await res.text()))
+    trace?.item(`Bing search: ${res.statusText}`)
+    if (!res.ok) {
+        trace?.detailsFenced("error response", await res.text())
+        throw new Error(`Bing search failed: ${res.statusText}`)
+    }
 
     const json = await res.json()
+    trace?.detailsFenced("results", json, "yaml")
     return json
 }
