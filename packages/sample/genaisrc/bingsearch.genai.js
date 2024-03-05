@@ -1,6 +1,6 @@
 script({
-    title: "bing search"
+    title: "bing search",
 })
 
-const res = await retreival.webSearch("microsoft")
-def("RES", JSON.stringify(res), { language: "json"})
+const { webPages } = await retreival.webSearch("microsoft")
+def("RES", webPages, { language: "json" })

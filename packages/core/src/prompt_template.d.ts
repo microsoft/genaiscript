@@ -606,14 +606,8 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface WebpageSearchResult {
-    name: string
-    url: string
-    snippet: string
-}
-
 interface SearchResult {
-    webPages: WebpageSearchResult[]
+    webPages: LinkedFile[]
 }
 
 interface Retreival {

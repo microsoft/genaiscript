@@ -6,9 +6,18 @@ sidebar:
 
 The `retreival.webSearch` executes a web search using the Bing Web Search API.
 
+## Web Pages
+
+By default, the API returns the first 10 web pages in the `webPages` field
+as an array of files, similarly to `env.files`. The content contains
+the summary snippet returned by the search engine.
+
 ```js
-const pages = await retreival.webSearch("microsoft")
+const { webPages } = await retreival.webSearch("microsoft")
+def("PAGES", webPages)
 ```
+
+You can use `fetchText` to download the full content of the web page.
 
 ## Bing Web Search configuration
 
