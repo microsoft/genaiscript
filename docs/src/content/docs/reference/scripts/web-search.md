@@ -27,6 +27,22 @@ The API uses [Bing Web Search v7](https://learn.microsoft.com/en-us/bing/search-
 BING_SEARCH_API_KEY="your-api-key"
 ```
 
+## Function
+
+Add the `system.web_search` system script to register a [function](/genaiscript/reference/scripts/functions) that uses `retreival.webSearch`.
+
+```js
+script({
+    ...,
+    system: ["system.web_search"]
+})
+...
+```
+
 ## Trace
 
 You will find the internal details of the web search in the trace.
+
+```
+
+```

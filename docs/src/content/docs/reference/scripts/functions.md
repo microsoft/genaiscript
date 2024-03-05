@@ -6,10 +6,15 @@ sidebar:
 
 You can register functions that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
-## Function Definition
+
+## Definition
+
+The `defFunction` function is used to define a function that can be called by the LLM.
+It takes a JSON schema to define the input and expects a string output.
+
 ```javascript
 defFunction(
-    "get_current_weather",
+    "current_weather",
     "get the current weather",
     {
         type: "object",
@@ -59,3 +64,23 @@ defFunction(
     }
 )
 ```
+
+## Packaging as System scripts
+
+To pick and choose which functions to include in a script,
+you can group them in system prompt scripts. For example,
+the `current_weather` function can be included the `system.current_weather.genai.js` script.
+
+```javascript file="system.current_weather.genai.js"
+script({
+    title: "Function to get the current weather",
+    categories: ["Functions"],
+})
+defFunction("current_weather", ...)
+```
+
+## Builtin functions
+
+- [system.web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.web_search.genai.js): Search the web for a user query.
+- [system.fs_find_files](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.fs_find_files.genai.js): List files for a filename query.
+- [system.fs_read_file](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.fs_read_file.genai.js): Read the content of a file.
