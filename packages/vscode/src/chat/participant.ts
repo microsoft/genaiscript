@@ -6,7 +6,6 @@ import { isApiProposalEnabled } from "../proposals"
 
 interface ICatChatAgentResult extends vscode.ChatResult {
     template?: PromptTemplate
-    command: string
 }
 
 // follow https://github.com/microsoft/vscode/issues/199908
@@ -146,8 +145,10 @@ function chatRequestToPromptTemplate(
 export function activateChatParticipant(state: ExtensionState) {
     const { context } = state
 
-    if (!isApiProposalEnabled(context, "chatParticipant", "github.copilot-chat"))
-        return 
+    if (
+        !isApiProposalEnabled(context, "chatParticipant", "github.copilot-chat")
+    )
+        return
 
     logInfo("activating chat agent")
     const { extensionUri } = context
@@ -158,22 +159,16 @@ export function activateChatParticipant(state: ExtensionState) {
         response: vscode.ChatResponseStream,
         token: vscode.CancellationToken
     ): Promise<ICatChatAgentResult> => {
-        const { command } = request
-        const res = <ICatChatAgentResult>{
-            command: command,
-        }
+        const res = <ICatChatAgentResult>{}
         const context = toChatAgentContext(request, chatContext)
-        let template = state.project?.templates.find(({ id }) => id === command)
-        if (!template) {
-            response.progress("Generating script")
-            template = chatRequestToPromptTemplate(request, context)
-            res.template = template
+        response.progress("Generating script")
+        const template = chatRequestToPromptTemplate(request, context)
+        res.template = template
 
-            const message = new MarkdownTrace()
-            message.log(`We generated this script from the chat history:`)
-            message.fence(res.template.jsSource, "javascript")
-            response.markdown(message.content)
-        }
+        const message = new MarkdownTrace()
+        message.log(`We generated this script from the chat history:`)
+        message.fence(res.template.jsSource, "javascript")
+        response.markdown(message.content)
 
         await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
             chat: <ChatRequestContext>{
@@ -194,22 +189,5 @@ export function activateChatParticipant(state: ExtensionState) {
         handler
     )
     agent.iconPath = vscode.Uri.joinPath(extensionUri, "icon.png")
-    agent.description = "Run conversation as genaiscript..."
-    agent.commandProvider = {
-        provideCommands(token) {
-            const templates =
-                state.project?.templates.filter(
-                    (t) => !t.isSystem && t.chat !== false
-                ) || []
-            return [
-                ...templates.map(({ id, title, description }) => ({
-                    name: id,
-                    description: [title, description]
-                        .filter((s) => s)
-                        .join("\n"),
-                })),
-            ]
-        },
-    }
-    // TODO apply edits
+    agent.description = "Generate script from history..."
 }

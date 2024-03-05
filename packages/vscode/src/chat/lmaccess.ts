@@ -8,7 +8,7 @@ import {
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "../proposals"
 
-async function getChatAccess(model: string, template: PromptTemplate) {
+async function getLanguageModel(model: string, template: PromptTemplate) {
     const models = vscode.lm.languageModels
     const tmodel = model || "gpt-4"
     let cmodel = models.find((m) => m === "copilot-" + tmodel)
@@ -18,10 +18,7 @@ async function getChatAccess(model: string, template: PromptTemplate) {
         })
         if (cmodel === undefined) return undefined
     }
-    const access = await vscode.lm.requestLanguageModelAccess(model, {
-        justification: `Running GenAiScript ${template.id}`,
-    })
-    return access
+    return cmodel
 }
 
 export function configureLanguageModelAccess(
@@ -45,25 +42,22 @@ export function configureLanguageModelAccess(
         const { model, temperature, top_p, seed, ...rest } = req
 
         trace.item(`script model: ${model}`)
-        const access = await getChatAccess(model, template)
-        if (!access) {
-            infoCb({ text: `⚠ failed to get access to model \`${model}\`` })
+        const chatModel = await getLanguageModel(model, template)
+        if (chatModel === undefined) {
             return { text: "" }
         }
-        trace.item(`copilot llm model: ${access.model || "unknown"}`)
-
-        if (model.toLocaleLowerCase() !== access.model?.toLocaleLowerCase())
-            infoCb({
-                text: `⚠ expected model \`${model}\` but got \`${access.model}\``,
-            })
-
+        trace.item(`copilot llm model: ${chatModel}`)
         const messages = req.messages.map((m) => ({
             role: m.role,
             content: typeof m.content === "string" ? m.content : "...",
         }))
-        const request = access.makeChatRequest(
+        const request = await vscode.lm.sendChatRequest(
+            chatModel,
             messages,
-            { model, temperature, top_p, seed },
+            {
+                justification: `Run GenAIScript ${template.title || template.id}`,
+                modelOptions: { temperature, top_p, seed },
+            },
             token
         )
 
