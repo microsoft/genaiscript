@@ -17,3 +17,7 @@ The API uses [Bing Web Search v7](https://learn.microsoft.com/en-us/bing/search-
 ```txt title=".env"
 BING_SEARCH_API_KEY="your-api-key"
 ```
+
+## Trace
+
+You will find the internal details of the web search in the trace.

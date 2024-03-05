@@ -13,14 +13,12 @@ function toURLSearchParams(o: any) {
 }
 
 export interface SearchResponse {
-    _type: string
     webPages?: {
         value: WebpageResponse[]
     }
 }
 
 export interface WebpageResponse {
-    _type: "webPages"
     name: string
     snippet: string
     url: string
@@ -47,7 +45,7 @@ export async function bingSearch(
         responseFilter = "Webpages",
         safeSearch = "strict",
     } = options || {}
-    if (!q) return []
+    if (!q) return {}
 
     const apiKey = await host.readSecret("BING_SEARCH_API_KEY")
     if (!apiKey)
