@@ -8,7 +8,7 @@
         "dev": "astro dev --host",
         "start": "astro dev --host",
         "check": "astro check",
-        "build": "astro build",
+        "build": "astro build && mkdir distasw && mkdir distasw/genaiscript && cp -r dist distasw/genaiscript",
         "preview": "astro preview",
         "astro": "astro",
         "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch front-matter src/**/*.md --apply-edits"
