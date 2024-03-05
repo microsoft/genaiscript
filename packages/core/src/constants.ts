@@ -22,3 +22,4 @@ export const CACHE_AIREQUEST_PREFIX = "cache.ai.request/"
 export const TOKENS_STATUS_BAR_DEBOUNCE_TIME = 800
 export const EXTENSION_ID = "devicescript.genaiscript-vscode"
 export const CHAT_PARTICIPANT_ID = TOOL_ID
+export const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"

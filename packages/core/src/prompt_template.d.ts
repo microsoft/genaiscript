@@ -606,7 +606,23 @@ interface HighlightOptions {
     maxLength?: number
 }
 
+interface WebpageSearchResult {
+    name: string
+    url: string
+    snippet: string
+}
+
+interface SearchResult {
+    webPages: WebpageSearchResult[]
+}
+
 interface Retreival {
+    /**
+     * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
+     * @param query
+     */
+    webSearch(query: string): Promise<SearchResult>
+
     /**
      * Search for embeddings
      */

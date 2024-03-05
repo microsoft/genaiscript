@@ -57,6 +57,7 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
+import { bingSearch } from "./search"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -175,6 +176,27 @@ async function callExpander(
     })
 
     const retreival: Retreival = {
+        webSearch: async (q) => {
+            try {
+                trace.startDetails(`retreival web search \`${q}\``)
+                const { webPages } = (await bingSearch(q, { trace })) || {}
+                return <SearchResult>{
+                    webPages: webPages?.value?.map(
+                        ({ url, name, snippet }) =>
+                            <WebpageSearchResult>{
+                                url,
+                                name,
+                                snippet,
+                            }
+                    ),
+                }
+            } catch (e) {
+                trace.error(`web search error`, e)
+                return undefined
+            } finally {
+                trace.endDetails()
+            }
+        },
         search: async (q, options) => {
             const { files = env.files } = options || {}
             try {
