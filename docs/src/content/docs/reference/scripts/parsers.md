@@ -41,7 +41,7 @@ const res = parsers.JSON5("...")
 
 ## YAML
 
-The `parsers.YAML` function parses for the [YAML format](https://yaml.org/).
+The `parsers.YAML` function parses for the [YAML format](/genaiscript/reference/yaml).
 YAML is more friendly to the LLM tokenizer than JSON. YAML is commonly used in configuration
 files.
 
