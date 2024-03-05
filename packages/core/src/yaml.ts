@@ -19,6 +19,10 @@ export function YAMLTryParse<T = any>(
     }
 }
 
+export function YAMLParse(text: string): any {
+    return parse(text)
+}
+
 export function YAMLStringify(obj: any): string {
     return stringify(obj, undefined, 2)
 }

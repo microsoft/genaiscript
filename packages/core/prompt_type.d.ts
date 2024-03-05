@@ -79,6 +79,11 @@ declare var parsers: Parsers
 declare var retreival: Retreival
 
 /**
+ * YAML parsing and stringifying functions.
+ */
+declare var YAML: YAML
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

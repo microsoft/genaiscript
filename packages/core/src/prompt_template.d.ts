@@ -469,6 +469,7 @@ interface ChatTaskOptions {
 type JSONSchemaTypeName =
     | "string"
     | "number"
+    | "integer"
     | "boolean"
     | "object"
     | "array"
@@ -488,7 +489,7 @@ interface JSONSchemaString {
 }
 
 interface JSONSchemaNumber {
-    type: "number"
+    type: "number" | "integer"
     description?: string
 }
 
@@ -602,6 +603,18 @@ interface Parsers {
     tokens(content: string | LinkedFile): number
 }
 
+interface YAML {
+    /**
+     * Converts an object to its YAML representation
+     * @param obj 
+     */
+    stringify(obj: any): string
+    /**
+     * Parses a YAML string to object
+     */
+    parse(text: string): any
+}
+
 interface HighlightOptions {
     maxLength?: number
 }
@@ -679,4 +692,5 @@ interface PromptContext {
     path: Path
     parsers: Parsers
     retreival: Retreival
+    YAML: YAML
 }
