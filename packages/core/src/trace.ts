@@ -117,7 +117,7 @@ ${title}
 
     error(message: string, exception?: unknown) {
         this.guarded(() => {
-            this.content += `\n> error: ${message}\n`
+            this.content += `\n> ❌ error: ${message}\n`
             if (typeof exception === "string") this.fence(exception)
             else if (exception)
                 this.fence(
