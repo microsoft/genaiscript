@@ -296,7 +296,10 @@ async function callExpander(
                         r.temperature ||
                         options.temperature,
                     top_p: promptOptions.topP || r.topP || options.topP,
-                    max_tokens: promptOptions.maxTokens || r.maxTokens,
+                    max_tokens:
+                        promptOptions.maxTokens ||
+                        r.maxTokens ||
+                        options.maxTokens,
                     seed: promptOptions.seed || r.seed || options.seed,
                     stream: true,
                     messages: [toChatCompletionUserMessage(prompt, images)],
@@ -505,7 +508,7 @@ async function expandTemplate(
     topP =
         options.topP ?? tryParseFloat(env.vars["top_p"]) ?? topP ?? defaultTopP
     max_tokens =
-        options.max_tokens ??
+        options.maxTokens ??
         tryParseInt(env.vars["maxTokens"]) ??
         max_tokens ??
         defaultMaxTokens
@@ -724,33 +727,30 @@ async function fragmentVars(
     return vars
 }
 
-export type RunTemplateOptions = ChatCompletionsOptions & {
-    infoCb?: (partialResponse: {
-        text: string
+export type RunTemplateOptions = ChatCompletionsOptions &
+    ModelOptions & {
+        infoCb?: (partialResponse: {
+            text: string
+            label?: string
+            summary?: string
+            vars?: Partial<ExpansionVariables>
+        }) => void
+        trace?: MarkdownTrace
+        maxCachedTemperature?: number
+        maxCachedTopP?: number
+        skipLLM?: boolean
         label?: string
-        summary?: string
-        vars?: Partial<ExpansionVariables>
-    }) => void
-    trace?: MarkdownTrace
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    skipLLM?: boolean
-    label?: string
-    temperature?: number
-    topP?: number
-    seed?: number
-    model?: string
-    cache?: boolean
-    cliInfo?: {
-        spec: string
+        cache?: boolean
+        cliInfo?: {
+            spec: string
+        }
+        chat?: ChatAgentContext
+        getChatCompletions?: (
+            req: CreateChatCompletionRequest,
+            options?: ChatCompletionsOptions & { trace: MarkdownTrace }
+        ) => Promise<ChatCompletionResponse>
+        vars?: Record<string, string>
     }
-    chat?: ChatAgentContext
-    getChatCompletions?: (
-        req: CreateChatCompletionRequest,
-        options?: ChatCompletionsOptions & { trace: MarkdownTrace }
-    ) => Promise<ChatCompletionResponse>
-    vars?: Record<string, string>
-}
 
 export function generateCliArguments(
     template: PromptTemplate,
