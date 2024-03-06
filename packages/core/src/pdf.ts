@@ -3,6 +3,7 @@ import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { installImport } from "./import"
 import { logError } from "./util"
+import { PDFJS_DIST_VERSION } from "./version"
 
 // please some typescript warnings
 declare global {
@@ -17,9 +18,11 @@ async function tryImportPdfjs(trace?: MarkdownTrace) {
         )
         return pdfjs
     } catch (e) {
-        trace?.error("pdfjs-dist not found, installing...")
+        trace?.error(
+            `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`
+        )
         try {
-            await installImport("pdfjs-dist", trace)
+            await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
             const pdfjs = await import("pdfjs-dist")
             pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
                 "pdfjs-dist/build/pdf.worker.min.mjs"
