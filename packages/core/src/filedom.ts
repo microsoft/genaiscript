@@ -44,7 +44,8 @@ export function createDefNode(
             (name ? name + ":\n" : "") +
             dfence +
             dtype +
-            ` file=${file.filename}\n` +
+            (file.filename ? ` file="${file.filename}"` : "") +
+            "\n" +
             body +
             (schema ? ` schema=${schema}` : "") +
             dfence +
