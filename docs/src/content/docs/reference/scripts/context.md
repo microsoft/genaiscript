@@ -41,6 +41,17 @@ ${env.file.content}
 ```
 ````
 
+## Data definition (`defData`)
+
+The `defData` function provides additional formatting options to convert a data object into a text representation. It can render objects to YAML, JSON or CSV (as a markdown table).
+
+```js
+// render to YAML by default
+defData("DATA", data)
+
+// render to YAML by default
+defData("DATA", csv, { format: "csv" })
+```
 
 ## Fencing
 

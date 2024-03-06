@@ -10,7 +10,13 @@ import {
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, logVerbose, relativePath, toBase64 } from "./util"
+import {
+    assert,
+    logVerbose,
+    relativePath,
+    toBase64,
+    trimNewlines,
+} from "./util"
 import { fileTypeFromBuffer } from "file-type"
 import {
     DataFrame,
@@ -59,6 +65,7 @@ import {
 } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
 import { bingSearch } from "./search"
+import { createDefDataNode } from "./filedom"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -135,19 +142,9 @@ export interface FragmentTransformResponse {
     frames?: DataFrame[]
 }
 
-function trimNewlines(s: string) {
-    return s.replace(/^\n*/, "").replace(/\n*$/, "")
-}
 //const fence = "```"
 //const markdownFence = "``````"
 const systemFence = "---"
-
-export function fenceMD(t: string, contentType?: string) {
-    if (!contentType) contentType = "markdown"
-    let f = "```"
-    while (f.includes(f) && f.length < 8) f += "`"
-    return `\n${f}${contentType}\n${trimNewlines(t)}\n${f}\n`
-}
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -310,6 +307,7 @@ async function callExpander(
             trace.endDetails()
         }
     }
+    const appendPromptChild = (node: PromptNode) => appendChild(scope[0], node)
 
     let logs = ""
     let text = ""
@@ -326,10 +324,13 @@ async function callExpander(
                 YAML,
                 retreival,
                 defImages,
-                appendPromptChild: (node) => appendChild(scope[0], node),
+                defData: (name, data, options) =>
+                    appendPromptChild(
+                        createDefDataNode(name, data, env, options)
+                    ),
+                appendPromptChild,
                 writeText: (body) => {
-                    appendChild(
-                        scope[0],
+                    appendPromptChild(
                         createTextNode(
                             body.replace(/\n*$/, "").replace(/^\n*/, "")
                         )
@@ -996,8 +997,8 @@ export async function runTemplate(
             trace.startDetails("📩 llm response")
             if (resp.finishReason)
                 trace.item(`finish reason: \`${resp.finishReason}\``)
-            trace.content += pretifyMarkdown(resp.text)
-            trace.detailsFenced(`markdown`, resp.text, "markdown")
+            trace.detailsFenced(`output (raw)`, resp.text, "markdown")
+            trace.details(`output (rendered)`, pretifyMarkdown(resp.text))
             trace.endDetails()
         }
 

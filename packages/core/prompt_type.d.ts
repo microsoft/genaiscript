@@ -113,6 +113,18 @@ declare function defSchema(name: string, schema: JSONSchema): void
 declare function defImages(files: StringLike, options?: DefImagesOptions): void
 
 /**
+ * Renders a table or object in the prompt
+ * @param name
+ * @param data
+ * @param options
+ */
+declare function defData(
+    name: string,
+    data: object[] | object,
+    options?: DefDataOptions
+): void
+
+/**
  * Cancels the current prompt generation/execution with the given reason.
  * @param reason
  */
