@@ -6,6 +6,7 @@ import {
     CreateChatCompletionRequest,
     RequestError,
     getChatCompletions,
+    toChatCompletionUserMessage,
 } from "./chat"
 import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
@@ -155,7 +156,8 @@ function stringLikeToFileName(f: string | LinkedFile) {
 async function callExpander(
     r: PromptTemplate,
     vars: ExpansionVariables,
-    trace: MarkdownTrace
+    trace: MarkdownTrace,
+    options: RunTemplateOptions
 ) {
     const root: PromptNode = { children: [] }
     const scope: PromptNode[] = [root]
@@ -165,7 +167,7 @@ async function callExpander(
     const parsers = createParsers({ trace, model })
     const YAML: YAML = {
         stringify: YAMLStringify,
-        parse: YAMLParse
+        parse: YAMLParse,
     }
     const path = host.path
     const env = new Proxy(vars, {
@@ -264,6 +266,51 @@ async function callExpander(
         }
     }
 
+    const runPrompt: (
+        generator: () => Promise<void>,
+        promptOptions?: ModelOptions
+    ) => Promise<string> = async (generator, promptOptions) => {
+        let output = ""
+        try {
+            trace.startDetails(`run prompt`)
+            const node: PromptNode = { children: [] }
+            try {
+                scope.push(node)
+                await generator()
+            } finally {
+                scope.pop()
+            }
+
+            // expand template
+            const { prompt, images, errors } = await renderPromptNode(node)
+            trace.fence(prompt, "markdown")
+            trace.fence({ images, errors }, "yaml")
+
+            // call LLM
+            const completer = options.getChatCompletions || getChatCompletions
+            const res = await completer(
+                {
+                    model: promptOptions.model || r.model || options.model,
+                    temperature:
+                        promptOptions.temperature ||
+                        r.temperature ||
+                        options.temperature,
+                    top_p: promptOptions.topP || r.topP || options.topP,
+                    max_tokens: promptOptions.maxTokens || r.maxTokens,
+                    seed: promptOptions.seed || r.seed || options.seed,
+                    stream: true,
+                    messages: [toChatCompletionUserMessage(prompt, images)],
+                },
+                { ...options, trace }
+            )
+            trace.details("output", res.text)
+            return res.text
+        } finally {
+            trace.endDetails()
+        }
+        return output
+    }
+
     let logs = ""
     let text = ""
     let images: PromptImage[] = []
@@ -294,6 +341,7 @@ async function callExpander(
                         throw new Error(msg)
                     }
                 },
+                runPrompt,
                 readFile: async (filename: string) => {
                     let content: string
                     try {
@@ -367,13 +415,7 @@ async function callExpander(
 async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
-    options: {
-        temperature?: number
-        topP?: number
-        model?: string
-        seed?: number
-        max_tokens?: number
-    },
+    options: RunTemplateOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
@@ -383,7 +425,7 @@ async function expandTemplate(
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
     trace.startDetails("🛠️ script")
 
-    const prompt = await callExpander(template, env, trace)
+    const prompt = await callExpander(template, env, trace, options)
     const expanded = prompt.text
     const images: PromptImage[] = prompt.images
 
@@ -418,7 +460,7 @@ async function expandTemplate(
             assert(!!system)
         }
 
-        const sysr = await callExpander(system, env, trace)
+        const sysr = await callExpander(system, env, trace, options)
         const sysex = sysr.text
         success = success && sysr.success
         if (!success) break
@@ -784,25 +826,7 @@ export async function runTemplate(
             role: "system",
             content: systemText,
         },
-        {
-            role: "user",
-            content: [
-                {
-                    type: "text",
-                    text: expanded,
-                },
-                ...(images || []).map(
-                    ({ url, detail }) =>
-                        <ChatCompletionContentPartImage>{
-                            type: "image_url",
-                            image_url: {
-                                url,
-                                detail,
-                            },
-                        }
-                ),
-            ],
-        },
+        toChatCompletionUserMessage(expanded, images),
     ]
 
     // if the expansion failed, show the user the trace
@@ -838,7 +862,6 @@ export async function runTemplate(
         }
     }
     const response_format = responseType ? { type: responseType } : undefined
-    const completer = options.getChatCompletions || getChatCompletions
 
     const status = (text?: string) => {
         options.infoCb?.({
@@ -899,6 +922,8 @@ export async function runTemplate(
                     `tokens: ${estimateChatTokens(model, messages, tools)}`
                 )
                 status()
+                const completer =
+                    options.getChatCompletions || getChatCompletions
                 resp = await completer(
                     {
                         model,

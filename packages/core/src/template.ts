@@ -319,6 +319,7 @@ async function parseMeta(r: PromptTemplate) {
                 appendPromptChild: error,
                 writeText: error,
                 script,
+                runPrompt: async () => undefined,
                 system: (meta) => {
                     meta.unlisted = true
                     meta.isSystem = true

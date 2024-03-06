@@ -13,6 +13,8 @@ import wrapFetch from "fetch-retry"
 import { MarkdownTrace } from "./trace"
 import { estimateTokens } from "./tokens"
 import { YAMLStringify } from "./yaml"
+import { ChatCompletionUserMessageParam } from "openai/resources"
+import { PromptImage } from "./promptdom"
 
 export type CreateChatCompletionRequest =
     OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
@@ -71,6 +73,28 @@ export class RequestError extends Error {
                 body?.message ? body?.message : `${statusText} (${status})`
             }`
         )
+    }
+}
+
+export function toChatCompletionUserMessage(expanded: string, images?: PromptImage[]) {
+    return <ChatCompletionUserMessageParam>{
+        role: "user",
+        content: [
+            {
+                type: "text",
+                text: expanded,
+            },
+            ...(images || []).map(
+                ({ url, detail }) =>
+                    <ChatCompletionContentPartImage>{
+                        type: "image_url",
+                        image_url: {
+                            url,
+                            detail,
+                        },
+                    }
+            ),
+        ],
     }
 }
 
