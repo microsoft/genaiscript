@@ -183,7 +183,7 @@ async function callExpander(
     const retreival: Retreival = {
         webSearch: async (q) => {
             try {
-                trace.startDetails(`retreival web search \`${q}\``)
+                trace.startDetails(`🌐 retreival web search \`${q}\``)
                 const { webPages } = (await bingSearch(q, { trace })) || {}
                 return <SearchResult>{
                     webPages: webPages?.value?.map(
@@ -205,7 +205,7 @@ async function callExpander(
         search: async (q, options) => {
             const { files = env.files } = options || {}
             try {
-                trace.startDetails(`retreival search \`${q}\``)
+                trace.startDetails(`🔍 retreival search \`${q}\``)
                 await upsert(files, { trace })
                 const res = await search(q, {
                     files: files.map(stringLikeToFileName),
@@ -219,7 +219,7 @@ async function callExpander(
         },
         outline: async (files) => {
             try {
-                trace.startDetails(`retreival outline`)
+                trace.startDetails(`🫥 retreival outline`)
                 const res = await outline(files)
                 return res?.response
             } finally {
@@ -270,7 +270,7 @@ async function callExpander(
         promptOptions?: ModelOptions
     ) => Promise<RunPromptResult> = async (generator, promptOptions) => {
         try {
-            trace.startDetails(`run prompt`)
+            trace.startDetails(`🎁 run prompt`)
             const node: PromptNode = { children: [] }
             try {
                 scope.unshift(node)
