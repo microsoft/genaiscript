@@ -1,7 +1,7 @@
 ---
 title: Variables
 sidebar:
-    order: 8
+    order: 3.5
 ---
 
 The `env.vars` object contains a set of variable values. You can use these variables to parameterize your script.
@@ -21,7 +21,7 @@ node .genaiscript/genaiscript.cjs run ... --vars myvar=myvalue myvar2=myvalue2 .
 
 ## Spec Variables
 
-If a [spec](/genaiscript/reference/specs/), you can configure variables as well.
+If you manually author a [spec](/genaiscript/reference/specs/), you can configure variables as well.
 
 ```markdown
 Lorem ipsum...
