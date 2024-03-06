@@ -641,11 +641,8 @@ interface Retreival {
      */
     search(
         query: string,
+        files: (string | LinkedFile)[],
         options?: {
-            /**
-             * Filter results for the following files
-             */
-            files?: (string | LinkedFile)[]
             /**
              * Maximum number of embeddings to use
              */
@@ -688,7 +685,11 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
-    defData(name: string, data: object[] | object, options?: DefDataOptions): void
+    defData(
+        name: string,
+        data: object[] | object,
+        options?: DefDataOptions
+    ): void
     runPrompt(
         generator: () => void | Promise<void>,
         options?: ModelOptions

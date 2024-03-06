@@ -199,17 +199,21 @@ async function callExpander(
                 trace.endDetails()
             }
         },
-        search: async (q, options) => {
-            const { files = env.files } = options || {}
+        search: async (q, files, options) => {
             try {
                 trace.startDetails(`🔍 retreival search \`${q}\``)
-                await upsert(files, { trace })
-                const res = await search(q, {
-                    files: files.map(stringLikeToFileName),
-                    topK: options?.topK,
-                })
-                trace.fence(res, "yaml")
-                return res
+                if (!files?.length) {
+                    trace.error("no files provided")
+                    return { files: [], fragments: [] }
+                } else {
+                    await upsert(files, { trace })
+                    const res = await search(q, {
+                        files: files.map(stringLikeToFileName),
+                        topK: options?.topK,
+                    })
+                    trace.fence(res, "yaml")
+                    return res
+                }
             } finally {
                 trace.endDetails()
             }
