@@ -24,8 +24,8 @@ export async function outline(
     const service = host.highlight
     await service.init(trace)
 
-    const codeFiles = files.filter(
-        ({ filename, content }) => !!content && isHighlightSupported(filename)
+    const codeFiles = files.filter(({ filename }) =>
+        isHighlightSupported(filename)
     )
     trace?.item(
         `supported files: ${codeFiles.map(({ filename }) => filename).join(", ")}`
