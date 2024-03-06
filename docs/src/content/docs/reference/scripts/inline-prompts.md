@@ -16,7 +16,8 @@ const { text } = await runPrompt(async () => {
 
 ## Limitations
 
-- Functions are not supported in the inner prompt.
+- Nested [functions](/genaiscript/reference/scripts/functions)
+and [schemas](/genaiscript/reference/scripts/schemas) are not supported in the inner prompt.
 
 ## Example: Summarize files
 
