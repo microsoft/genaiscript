@@ -14,4 +14,4 @@ GenAiScript supports OpenAI, Azure OpenAI, as well as locally-hosted models. See
 
 ## Next steps
 
-Lets guide your through your [first script](/genaiscript/getting-started/your-first-genai-script).
+Write your [first script](/genaiscript/getting-started/your-first-genai-script).
