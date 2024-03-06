@@ -117,3 +117,12 @@ declare function defImages(files: StringLike, options?: DefImagesOptions): void
  * @param reason
  */
 declare function cancel(reason?: string): void
+
+/**
+ * Expands and executes prompt
+ * @param generator
+ */
+declare function runPrompt(
+    generator: () => void | Promise<void>,
+    options?: ModelOptions
+): Promise<string>
