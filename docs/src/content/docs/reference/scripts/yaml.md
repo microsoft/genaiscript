@@ -27,4 +27,4 @@ const res = parsers.YAML("...")
 
 ## Schemas
 
-JSON schemas defined with [defSchema](/reference/scripts/structured-data) can also be used to validate YAML data.
+JSON schemas defined with [defSchema](/genaiscript/reference/scripts/schemas) can also be used to validate YAML data.
