@@ -129,10 +129,10 @@
     sitemap "^7.1.1"
     zod "^3.22.4"
 
-"@astrojs/starlight@^0.21.0":
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.21.0.tgz#fe68ccb5270d4db1922f313c6856211439705fe6"
-  integrity sha512-mUUPFLs/UwXy0DK+hR1yNvAK50yc6JqEGyWMFmqOJeoPXm7CEOtXAoJtDGe8PLzTTbiJCG3bxh86eKPp5fUTkg==
+"@astrojs/starlight@^0.21.1":
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.21.1.tgz#2cc475e45f51c1004557581ff775bd42e49a0d3e"
+  integrity sha512-nQ5EwKnB3eI8jxQrbgzZJJcyxeIiL3GzsAhl//1fE541MlD+PKy53v1PsYPi/RILdjt1Pg39rf1fkJC/rhXRgw==
   dependencies:
     "@astrojs/mdx" "^2.1.1"
     "@astrojs/sitemap" "^3.0.5"
@@ -1445,6 +1445,13 @@
   dependencies:
     undici-types "~5.26.4"
 
+"@types/node@^20.11.25":
+  version "20.11.25"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.25.tgz#0f50d62f274e54dd7a49f7704cc16bfbcccaf49f"
+  integrity sha512-TBHyJxk2b7HceLVGFcpAUjsa5zIdsPWlR6XHfyGzd0SFu+/NFgQgMAl96MSDZgQDvJAvV6BKsFOrt6zIL09JDw==
+  dependencies:
+    undici-types "~5.26.4"
+
 "@types/papaparse@^5.3.14":
   version "5.3.14"
   resolved "https://registry.npmjs.org/@types/papaparse/-/papaparse-5.3.14.tgz"
@@ -2048,10 +2055,10 @@ astro-expressive-code@^0.33.4:
     hast-util-to-html "^8.0.4"
     remark-expressive-code "^0.33.4"
 
-astro@^4.4.8:
-  version "4.4.8"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-4.4.8.tgz#7729fcf7b9776db703d91fb5253f34c12d298cd7"
-  integrity sha512-jAAfzvgHOfuZmqJjnSDownVNuWKYmsGkrFqecEppHarMA/cZ5QIboW6GQHZ8eGZQdtYRCjON3h4i64XFZfuwSg==
+astro@^4.4.13:
+  version "4.4.13"
+  resolved "https://registry.yarnpkg.com/astro/-/astro-4.4.13.tgz#889b418b823e3987fba542feb3c2d9e47d222773"
+  integrity sha512-kx2k2DJd9Os15zJBo8fK01/2F7/4wH6sAKmlBHlkGHIFm6CKSSzWCK/IWQ0DybNWtthK9A3HDZ4VYWv0BJDOBg==
   dependencies:
     "@astrojs/compiler" "^2.5.3"
     "@astrojs/internal-helpers" "0.2.1"
@@ -9443,10 +9450,10 @@ yaml@^2.2.2:
   resolved "https://registry.npmjs.org/yaml/-/yaml-2.3.4.tgz"
   integrity sha512-8aAvwVUSHpfEqTQ4w/KMlf3HcRdt50E5ODIQJBw1fQ5RL34xabzxtUlzTXVqc4rkZsPbvrXKWnABCD7kWSmocA==
 
-yaml@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.npmjs.org/yaml/-/yaml-2.4.0.tgz"
-  integrity sha512-j9iR8g+/t0lArF4V6NE/QCfT+CO7iLqrXAHZbJdo+LfjqP1vR8Fg5bSiaq6Q2lOD1AUEVrEVIgABvBFYojJVYQ==
+yaml@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-2.4.1.tgz#2e57e0b5e995292c25c75d2658f0664765210eed"
+  integrity sha512-pIXzoImaqmfOrL7teGUBt/T7ZDnyeGBWyXQBvOVhLkWLN37GXv8NMLK406UY6dS51JfcQHsmcW5cJ441bHg6Lg==
 
 yargs-parser@20.2.4:
   version "20.2.4"

@@ -23,7 +23,7 @@
     "devDependencies": {
         "@llamaindex/env": "^0.0.4",
         "@types/fs-extra": "^11.0.4",
-        "@types/node": "^20.11.20",
+        "@types/node": "^20.11.25",
         "@types/papaparse": "^5.3.14",
         "@types/pg": "^8.11.2",
         "@types/replace-ext": "^2.0.2",
