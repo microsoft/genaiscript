@@ -1,7 +1,6 @@
-import { Project, Diagnostic, Fragment, PromptTemplate } from "./ast"
+import { Project, Fragment, PromptTemplate } from "./ast"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
-import { JSONSchemaValidation } from "./schema"
 import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
 import { minimatch } from "minimatch"
@@ -430,6 +429,8 @@ export interface DataFrame {
  * Note that outside we can treat keys like "File some/thing.js" specially.
  */
 export function extractFenced(text: string): Fenced[] {
+    if (!text) return []
+    
     let currLbl = ""
     let currText = ""
     let currLanguage = ""

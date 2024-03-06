@@ -1,4 +1,4 @@
-import { Diagnostic, TOOL_ID, CORE_VERSION } from "genaiscript-core"
+import { TOOL_ID, CORE_VERSION } from "genaiscript-core"
 import {
     SarifBuilder,
     SarifRunBuilder,

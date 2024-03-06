@@ -108,3 +108,44 @@ const count = parsers.tokens("...")
 ## PDF
 
 The `parsers.PDF` function reads a PDF file and attempts to cleanly convert it into a text format. Read the [/genaiscript/reference/scripts/pdf](/genaiscript/reference/scripts/pdf) for more information.
+
+## fences
+
+Parse output of LLM similar to output of genaiscript def() function.
+Expect text to look something like this:
+
+````
+Foo bar:
+```js
+var x = 1
+...
+```
+
+Baz qux:
+````
+
+Also supported.
+...
+
+```
+
+```
+
+Returns a list of parsed code sections.
+
+```js
+const fences = parsers.fences("...")
+```
+
+## annotations
+
+Parses error, warning annotations in various formats
+into a list of objects.
+
+-   [GitHub Actions](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions)
+-   [Azure DevOps Pipeline](https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file)
+-
+
+```js
+const annotations = parsers.annotations("...")
+```
