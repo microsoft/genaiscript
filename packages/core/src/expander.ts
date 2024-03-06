@@ -159,8 +159,7 @@ async function callExpander(
     trace: MarkdownTrace,
     options: RunTemplateOptions
 ) {
-    const root: PromptNode = { children: [] }
-    const scope: PromptNode[] = [root]
+    const scope: PromptNode[] = [{ children: [] }]
 
     const model = r.model || DEFAULT_MODEL
     let success = true
@@ -275,15 +274,15 @@ async function callExpander(
             trace.startDetails(`run prompt`)
             const node: PromptNode = { children: [] }
             try {
-                scope.push(node)
+                scope.unshift(node)
                 await generator()
             } finally {
-                scope.pop()
+                scope.shift()
             }
 
             // expand template
             const { prompt, images, errors } = await renderPromptNode(node)
-            trace.fence(prompt, "markdown")
+            trace.fence(prompt, "markdown")            
             trace.fence({ images, errors }, "yaml")
 
             // call LLM
@@ -397,7 +396,12 @@ async function callExpander(
                 logs += msg + "\n"
             }
         )
-        const { prompt, images: imgs, errors } = await renderPromptNode(root)
+        assert(scope.length === 1, "scope stack should have 1 root")
+        const {
+            prompt,
+            images: imgs,
+            errors,
+        } = await renderPromptNode(scope[0])
         text = prompt
         images = imgs
         for (const error of errors) trace.error(``, error)

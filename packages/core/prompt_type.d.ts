@@ -120,6 +120,9 @@ declare function cancel(reason?: string): void
 
 /**
  * Expands and executes prompt
- * @param generator 
+ * @param generator
  */
-declare function runPrompt(generator: () => Promise<void>, options?: ModelOptions): Promise<string>
+declare function runPrompt(
+    generator: () => void | Promise<void>,
+    options?: ModelOptions
+): Promise<string>

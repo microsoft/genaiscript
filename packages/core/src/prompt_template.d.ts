@@ -680,7 +680,7 @@ interface PromptContext {
     ): void
     defSchema(name: string, schema: JSONSchema): void
     runPrompt(
-        generator: () => Promise<void>,
+        generator: () => void | Promise<void>,
         options?: ModelOptions
     ): Promise<string>
     fetchText(
