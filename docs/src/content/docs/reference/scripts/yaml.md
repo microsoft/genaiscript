@@ -8,6 +8,14 @@ sidebar:
 
 In the context of LLM, YAML is friendlier to the tokenizer algorithm and can generally be preferred to JSON to represent structured data.
 
+## `defData`
+
+The `defData` function renders an object to YAML in the prompt (and other formats if needed).
+
+```js
+defData("DATA", data)
+```
+
 ## `YAML`
 
 Similarly to the `JSON` class in JavaScript, the `YAML` class in LLM provides methods to parse and stringify YAML data.
