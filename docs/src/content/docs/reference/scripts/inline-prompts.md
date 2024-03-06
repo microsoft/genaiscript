@@ -14,6 +14,10 @@ const output = await runPrompt(() => {
 })
 ```
 
+## Limitations
+
+- Functions are not supported in the inner prompt.
+
 ## Example: Summarize files
 
 The snippet below uses `gpt-3.5` to summarize files individually before
