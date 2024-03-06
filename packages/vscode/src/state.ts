@@ -9,7 +9,6 @@ import {
     FragmentTransformResponse,
     runTemplate,
     groupBy,
-    DiagnosticSeverity,
     promptDefinitions,
     RunTemplateOptions,
     isCancelError,

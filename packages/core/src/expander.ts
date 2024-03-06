@@ -8,7 +8,7 @@ import {
     getChatCompletions,
     toChatCompletionUserMessage,
 } from "./chat"
-import { Diagnostic, Fragment, PromptTemplate, allChildren } from "./ast"
+import { Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import {
     assert,

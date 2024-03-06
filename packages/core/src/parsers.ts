@@ -1,3 +1,4 @@
+import { extractFenced, parseAnnotations } from "."
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
@@ -19,6 +20,8 @@ export function createParsers(options: {
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
+        fences: (text) => extractFenced(filenameOrFileToContent(text)),
+        annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
         PDF: async (file, options) => {
             if (!file) return { file: undefined, pages: [] }
             const { filter = () => true } = options || {}

@@ -11,14 +11,6 @@ export interface FileReference {
     filename: string
 }
 
-export type DiagnosticSeverity = "error" | "warning" | "info"
-export interface Diagnostic {
-    filename: string
-    range: CharRange
-    severity: DiagnosticSeverity
-    message: string
-}
-
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
     return diagnostics
         .map(({ severity, filename, range, message }) =>
