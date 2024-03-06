@@ -55,7 +55,7 @@ interface UrlAdapter {
 
 type PromptTemplateResponseType = "json_object" | undefined
 
-interface PromptTemplate extends PromptLike {
+interface ModelOptions {
     /**
      * Which LLM model to use.
      *
@@ -89,7 +89,9 @@ interface PromptTemplate extends PromptLike {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
+}
 
+interface PromptTemplate extends PromptLike, ModelOptions {
     /**
      * If this is `["a", "b.c"]` then the prompt will include values of variables:
      * `@prompt`, `@prompt.a`, `@prompt.b`, `@prompt.b.c`
@@ -606,7 +608,7 @@ interface Parsers {
 interface YAML {
     /**
      * Converts an object to its YAML representation
-     * @param obj 
+     * @param obj
      */
     stringify(obj: any): string
     /**
@@ -677,6 +679,10 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
+    runPrompt(
+        generator: () => void | Promise<void>,
+        options?: ModelOptions
+    ): Promise<string>
     fetchText(
         urlOrFile: string | LinkedFile,
         options?: FetchTextOptions
