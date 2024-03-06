@@ -1,5 +1,5 @@
 ---
-title: Structured Data
+title: Data Schemas
 sidebar:
     order: 6
 ---
