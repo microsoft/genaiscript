@@ -6,16 +6,12 @@ import {
     host,
     YAMLStringify,
     logError,
+    outline,
 } from "genaiscript-core"
-
-async function b64toBlob(base64: string, type: string) {
-    const res = await fetch(`data:${type};base64,${base64}`)
-    const blob = await res.blob()
-    return blob
-}
 
 export async function startServer(options: { port: string }) {
     await host.retreival.init()
+    await host.highlight.init()
 
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
@@ -62,7 +58,7 @@ export async function startServer(options: { port: string }) {
                             `retreival: outline ${data.files.length} files`
                         )
                         console.debug(YAMLStringify(data.files))
-                        response = await host.highlight.outline(data.files)
+                        response = await outline(data.files)
                         break
                     default:
                         throw new Error(`unknown message type ${type}`)

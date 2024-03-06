@@ -220,8 +220,10 @@ async function callExpander(
         },
         outline: async (files) => {
             try {
-                trace.startDetails(`🫥 retreival outline`)
-                const res = await outline(files)
+                trace.startDetails(
+                    `🫥 retreival outline (${files?.length || 0} files)`
+                )
+                const res = await outline(files, { trace })
                 return res?.response
             } finally {
                 trace.endDetails()
