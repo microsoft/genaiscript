@@ -189,6 +189,7 @@ export async function evalPrompt(
     logCb?: (msg: string) => void
 ) {
     const { writeText, env } = ctx0
+        
     const dontuse = (name: string) =>
         `${env.error} ${name}() should not be used inside of \${ ... }\n`
     const ctx: PromptContext & { console: Partial<typeof console> } = {
@@ -299,18 +300,25 @@ async function parseMeta(r: PromptTemplate) {
         throw new MetaFoundError()
     }
 
-    const error = () => {
+    const error: () => any = () => {
         if (meta == null) throw new Error(`script()/system() has to come first`)
     }
+    const env = new Proxy<ExpansionVariables>(staticVars() as any, {
+        get: (target: any, prop, recv) => {
+            return target[prop] ?? "<empty>"
+        },
+    })
 
     try {
         await evalPrompt(
             {
-                env: new Proxy<ExpansionVariables>(staticVars() as any, {
-                    get: (target: any, prop, recv) => {
-                        return target[prop] ?? "<empty>"
-                    },
-                }),
+                script,
+                system: (meta) => {
+                    meta.unlisted = true
+                    meta.isSystem = true
+                    script(meta)
+                },
+                env,
                 path: undefined,
                 parsers: undefined,
                 retreival: undefined,
@@ -318,35 +326,9 @@ async function parseMeta(r: PromptTemplate) {
                 defImages: error,
                 appendPromptChild: error,
                 writeText: error,
-                script,
-                runPrompt: async () => undefined,
-                system: (meta) => {
-                    meta.unlisted = true
-                    meta.isSystem = true
-                    script(meta)
-                },
-                readFile: async (filename: string) => ({
-                    label: filename,
-                    filename,
-                    content: undefined,
-                }),
-                fetchText: async (urlOrFile: string | LinkedFile, options) => {
-                    const url =
-                        typeof urlOrFile === "string"
-                            ? urlOrFile
-                            : urlOrFile?.filename
-                    return {
-                        ok: false,
-                        status: 404,
-                        statusText: "not supported in meta mode",
-                        text: "",
-                        file: {
-                            label: url,
-                            filename: url,
-                            content: undefined,
-                        },
-                    }
-                },
+                runPrompt: error,
+                readFile: error,
+                fetchText: error,
             },
             r.jsSource
         )
