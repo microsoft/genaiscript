@@ -665,6 +665,11 @@ interface Retreival {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
+interface DefDataOptions {
+    format?: "json" | "yaml" | "csv"
+    headers?: string[]
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -683,6 +688,7 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
+    defData(name: string, data: object[] | object, options?: DefDataOptions): void
     runPrompt(
         generator: () => void | Promise<void>,
         options?: ModelOptions

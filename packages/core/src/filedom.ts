@@ -1,7 +1,9 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { addLineNumbers } from "./liner"
+import { fenceMD } from "./markdown"
 import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { createTextNode } from "./promptdom"
+import { YAMLStringify } from "./yaml"
 
 export function createDefNode(
     name: string,
@@ -55,4 +57,32 @@ export function createDefNode(
     }
 
     return createTextNode(render())
+}
+
+export function createDefDataNode(
+    name: string,
+    data: object | object[],
+    env: ExpansionVariables,
+    options?: DefDataOptions
+) {
+    if (data === undefined) return undefined
+
+    let { format, headers } = options || {}
+    if (!format && headers && Array.isArray(data)) format = "csv"
+    else if (!format) format = "yaml"
+
+    let text: string
+    let lang: string
+    if (Array.isArray(data) && format === "csv") {
+        text = CSVToMarkdown(data, { headers })
+    } else if (format === "json") {
+        text = JSON.stringify(data)
+        lang = "json"
+    } else {
+        text = YAMLStringify(data)
+        lang = "yaml"
+    }
+
+    return createTextNode(`${name}:
+${lang ? fenceMD(text, lang) : text}`)
 }
