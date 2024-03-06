@@ -7,7 +7,7 @@ sidebar:
 The `runPrompt` function allows to build an inner LLM invocation. It returns the output of the prompt.
 
 ```js
-const output = await runPrompt(() => {
+const { text } = await runPrompt(async () => {
     // use def, $ and other helpers
     def("FILE", file)
     $`Summarize the FILE. Be concise.`
@@ -25,7 +25,7 @@ adding them to the main prompt.
 
 ```js
 for (const file of env.files) {
-    const summary = await runPrompt(
+    const { text } = await runPrompt(
         () => {
             def("FILE", file)
             $`Summarize the FILE. Be concise.`
@@ -35,6 +35,6 @@ for (const file of env.files) {
             model: "gpt-3.5-turbo",
         }
     )
-    def("FILE", { ...file, content: summary })
+    def("FILE", { ...file, content: text })
 }
 ```

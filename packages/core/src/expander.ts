@@ -268,8 +268,7 @@ async function callExpander(
     const runPrompt: (
         generator: () => Promise<void>,
         promptOptions?: ModelOptions
-    ) => Promise<string> = async (generator, promptOptions) => {
-        let output = ""
+    ) => Promise<RunPromptResult> = async (generator, promptOptions) => {
         try {
             trace.startDetails(`run prompt`)
             const node: PromptNode = { children: [] }
@@ -282,7 +281,7 @@ async function callExpander(
 
             // expand template
             const { prompt, images, errors } = await renderPromptNode(node)
-            trace.fence(prompt, "markdown")            
+            trace.fence(prompt, "markdown")
             trace.fence({ images, errors }, "yaml")
 
             // call LLM
@@ -306,11 +305,10 @@ async function callExpander(
                 { ...options, trace }
             )
             trace.details("output", res.text)
-            return res.text
+            return { text: res.text }
         } finally {
             trace.endDetails()
         }
-        return output
     }
 
     let logs = ""
