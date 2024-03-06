@@ -5005,16 +5005,16 @@ llamaindex@0.1.10:
     string-strip-html "^13.4.6"
     wink-nlp "^1.14.3"
 
-llm-code-highlighter@^0.0.13:
-  version "0.0.13"
-  resolved "https://registry.npmjs.org/llm-code-highlighter/-/llm-code-highlighter-0.0.13.tgz"
-  integrity sha512-dkJ8yKXiy3tMHJEA1p1ougAA5wE9K+vZKIkIjG7h+HHDoFy1yMLYIEBQIqofTI+/IwxibebC37Ijhm7qkanRJQ==
+llm-code-highlighter@^0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/llm-code-highlighter/-/llm-code-highlighter-0.0.14.tgz#4ecc11a452be029eea1c6f81007c654726eff417"
+  integrity sha512-FxGAmu4zRp3Xi+9esP5SYrr4neC6SZqP+YnP/IfksT9k+AdnoemkQopUtilqKAWZp5c2VqG6NDMnHp6zyadebg==
   dependencies:
     graphology "^0.25.4"
     graphology-metrics "^2.2.0"
     lodash "^4.17.21"
     tree-sitter-wasms "^0.1.6"
-    web-tree-sitter "^0.20.8"
+    web-tree-sitter "^0.21.0"
 
 load-yaml-file@^0.2.0:
   version "0.2.0"
@@ -9209,10 +9209,10 @@ web-streams-polyfill@^3.0.3, web-streams-polyfill@^3.2.1:
   resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.2.tgz"
   integrity sha512-3pRGuxRF5gpuZc0W+EpwQRmCD7gRqcDOMt688KmdlDAgAyaB1XlN0zq2njfDNm44XVdIouE7pZ6GzbdyH47uIQ==
 
-web-tree-sitter@^0.20.8:
-  version "0.20.8"
-  resolved "https://registry.npmjs.org/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz"
-  integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==
+web-tree-sitter@^0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.21.0.tgz#5f92f28f67049c3d1da450b3e88ee28df2fc1909"
+  integrity sha512-iJ+QJ6ikN9D9cG7Kh6q3KtAstYFUQbYZ8OjuPEJYWfj2kLrmp5I3C2n6WjE1Y3jvj7nJbkcrJytJGWUEhCxn+g==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
