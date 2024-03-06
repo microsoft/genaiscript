@@ -40,7 +40,6 @@ export class LLMCodeHighlighterService implements HighlightService {
 
     async init(trace?: MarkdownTrace) {
         if (this.module) return
-
         this.module = await tryImportLLMCodeHighlighter(trace)
     }
 
