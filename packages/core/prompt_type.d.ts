@@ -125,4 +125,4 @@ declare function cancel(reason?: string): void
 declare function runPrompt(
     generator: () => void | Promise<void>,
     options?: ModelOptions
-): Promise<string>
+): Promise<RunPromptResult>
