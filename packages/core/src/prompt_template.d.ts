@@ -518,6 +518,10 @@ interface JSONSchemaArray {
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
+interface RunPromptResult {
+    text: string
+}
+
 /**
  * Path manipulation functions.
  */
@@ -682,7 +686,7 @@ interface PromptContext {
     runPrompt(
         generator: () => void | Promise<void>,
         options?: ModelOptions
-    ): Promise<string>
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | LinkedFile,
         options?: FetchTextOptions

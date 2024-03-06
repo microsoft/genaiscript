@@ -3,7 +3,7 @@ script({
 })
 
 for (const file of env.files) {
-    const summary = await runPrompt(
+    const { text } = await runPrompt(
         () => {
             def("FILE", file)
             $`Summarize the FILE. Be concise.`
@@ -13,7 +13,7 @@ for (const file of env.files) {
         }
     )
 
-    def("FILE", { ...file, content: summary })
+    def("FILE", { ...file, content: text })
 }
 
 $`Summarized all files in one paragraph.`
