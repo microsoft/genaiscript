@@ -20,11 +20,15 @@ export async function outline(
     files: LinkedFile[],
     options?: { trace?: MarkdownTrace }
 ) {
+    const { trace } = options || {}
     const service = host.highlight
-    await service.init(options?.trace)
+    await service.init(trace)
 
     const codeFiles = files.filter(
         ({ filename, content }) => !!content && isHighlightSupported(filename)
+    )
+    trace?.item(
+        `supported files: ${codeFiles.map(({ filename }) => filename).join(", ")}`
     )
     return await service.outline(codeFiles)
 }
