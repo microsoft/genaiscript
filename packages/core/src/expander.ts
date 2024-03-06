@@ -317,6 +317,7 @@ async function callExpander(
     try {
         await evalPrompt(
             {
+                scope,
                 script: () => {},
                 system: () => {},
                 env,

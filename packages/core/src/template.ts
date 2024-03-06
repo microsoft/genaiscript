@@ -182,6 +182,7 @@ export type BasePromptContext = Omit<
     "fence" | "def" | "$" | "defFunction" | "defSchema" | "cancel"
 > & {
     appendPromptChild(node: PromptNode): void
+    scope: PromptNode[]
 }
 export async function evalPrompt(
     ctx0: BasePromptContext,
@@ -189,9 +190,9 @@ export async function evalPrompt(
     logCb?: (msg: string) => void
 ) {
     const { writeText, env } = ctx0
-        
-    const dontuse = (name: string) =>
-        `${env.error} ${name}() should not be used inside of \${ ... }\n`
+
+    const dontuse = (name: string, inside = "${ ... }") =>
+        `${env.error} ${name}() should not be used inside of ${inside}\n`
     const ctx: PromptContext & { console: Partial<typeof console> } = {
         ...ctx0,
         $(strings, ...args) {
@@ -231,6 +232,7 @@ export async function evalPrompt(
             return dontuse("def")
         },
         defSchema(name, schema) {
+            if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
             ctx.def(name, JSON.stringify(schema, null, 2), {
                 language: "json-schema",
             })
@@ -245,6 +247,7 @@ export async function evalPrompt(
             return dontuse("defSchema")
         },
         defFunction(name, description, parameters, fn) {
+            if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
             env.functions.push({
                 definition: { name, description, parameters },
                 fn,
@@ -293,6 +296,7 @@ class MetaFoundError extends Error {
 }
 
 async function parseMeta(r: PromptTemplate) {
+    const scope: PromptNode[] = []
     let meta: PromptArgs = null
     const script = (m: PromptArgs) => {
         if (meta !== null) throw new Error(`more than one script() call`)
@@ -312,6 +316,7 @@ async function parseMeta(r: PromptTemplate) {
     try {
         await evalPrompt(
             {
+                scope,
                 script,
                 system: (meta) => {
                     meta.unlisted = true
