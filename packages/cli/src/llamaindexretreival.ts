@@ -5,7 +5,6 @@ import {
     RETREIVAL_PERSIST_DIR,
     ResponseStatus,
     RetreivalQueryOptions,
-    RetreivalQueryResponse,
     RetreivalSearchResponse,
     RetreivalService,
     dotGenaiscriptPath,
@@ -15,6 +14,7 @@ import prettyBytes from "pretty-bytes"
 import { type BaseReader, type GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
 import { lookup } from "mime-types"
+import { LLAMAINDEX_VERSION } from "./version"
 
 class BlobFileSystem implements GenericFileSystem {
     constructor(
@@ -47,8 +47,8 @@ async function tryImportLlamaIndex(trace: MarkdownTrace) {
         const m = await import("llamaindex")
         return m
     } catch (e) {
-        trace?.error("llamaindex not found, installing...")
-        await installImport("llamaindex", trace)
+        trace?.error(`llamaindex not found, installing ${LLAMAINDEX_VERSION}...`)
+        await installImport("llamaindex", LLAMAINDEX_VERSION, trace)
         const m = await import("llamaindex")
         return m
     }

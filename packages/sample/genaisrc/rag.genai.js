@@ -14,8 +14,18 @@ def(
 )
 def(
     "PDF",
-    await retreival.query("what is the story behind lorem ipsum?", {
-        files: env.files.filter((f) => f.filename.endsWith(".pdf")),
-    })
+    (
+        await retreival.search("lorem ipsum", {
+            files: env.files.filter((f) => f.filename.endsWith(".pdf")),
+        })
+    ).files
 )
-def("WORD", (await retreival.search("word")).files)
+def(
+    "WORD",
+    (
+        await retreival.search("lorem ipsum", {
+            files: env.files.filter((f) => f.filename.endsWith(".docx")),
+        })
+    ).files
+)
+def("ALL", (await retreival.search("lorem ipsum")).files)
