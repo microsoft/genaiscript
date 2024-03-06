@@ -1,9 +1,11 @@
 ---
 title: Visual Studio Code
-order: 3
-description: Explore the integration of GenAIScript with VS Code, including AI workflow, gpspec creation, and Copilot Chat commands.
-keywords: VSCode, GenAIScript, AI workflow, gpspec, Copilot Chat
+sidebar:
+    order: 10
 ---
+
+GenAIScript provides a seamless integration with Visual Studio Code. The GenAIScript extension for Visual Studio Code provides a rich set of features to help you create, edit, and run GenAIScript scripts. See [installation instructions](/genaiscript/getting-started/installation) to get started.
+
 
 ## User experience
 
