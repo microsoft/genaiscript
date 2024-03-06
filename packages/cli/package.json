@@ -15,7 +15,7 @@
   },
   "optionalDependencies": {
     "llamaindex": "0.1.10",
-    "llm-code-highlighter": "^0.0.13",
+    "llm-code-highlighter": "^0.0.14",
     "pdfjs-dist": "^4.0.379"
   },
   "engines": {
