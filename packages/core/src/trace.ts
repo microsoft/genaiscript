@@ -1,5 +1,5 @@
 import { CHANGE, TOOL_ID } from "./constants"
-import { fenceMD } from "./expander"
+import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 
 export class MarkdownTrace

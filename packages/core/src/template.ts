@@ -329,6 +329,7 @@ async function parseMeta(r: PromptTemplate) {
                 retreival: undefined,
                 YAML: undefined,
                 defImages: error,
+                defData: error,
                 appendPromptChild: error,
                 writeText: error,
                 runPrompt: error,

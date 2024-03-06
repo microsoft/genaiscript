@@ -518,6 +518,10 @@ interface JSONSchemaArray {
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
+interface RunPromptResult {
+    text: string
+}
+
 /**
  * Path manipulation functions.
  */
@@ -661,6 +665,11 @@ interface Retreival {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
+interface DefDataOptions {
+    format?: "json" | "yaml" | "csv"
+    headers?: string[]
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -679,10 +688,11 @@ interface PromptContext {
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
     defSchema(name: string, schema: JSONSchema): void
+    defData(name: string, data: object[] | object, options?: DefDataOptions): void
     runPrompt(
         generator: () => void | Promise<void>,
         options?: ModelOptions
-    ): Promise<string>
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | LinkedFile,
         options?: FetchTextOptions
@@ -816,6 +826,18 @@ declare function defSchema(name: string, schema: JSONSchema): void
 declare function defImages(files: StringLike, options?: DefImagesOptions): void
 
 /**
+ * Renders a table or object in the prompt
+ * @param name
+ * @param data
+ * @param options
+ */
+declare function defData(
+    name: string,
+    data: object[] | object,
+    options?: DefDataOptions
+): void
+
+/**
  * Cancels the current prompt generation/execution with the given reason.
  * @param reason
  */
@@ -828,4 +850,4 @@ declare function cancel(reason?: string): void
 declare function runPrompt(
     generator: () => void | Promise<void>,
     options?: ModelOptions
-): Promise<string>
+): Promise<RunPromptResult>

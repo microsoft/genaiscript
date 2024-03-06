@@ -1,6 +1,10 @@
 import { GENAISCRIPT_FOLDER } from "./constants"
 import { LogLevel, host } from "./host"
 
+export function trimNewlines(s: string) {
+    return s?.replace(/^\n*/, "").replace(/\n*$/, "")
+}
+
 export function delay<T>(millis: number, value?: T): Promise<T | undefined> {
     return new Promise((resolve) => setTimeout(() => resolve(value), millis))
 }
