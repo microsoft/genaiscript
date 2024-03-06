@@ -8,14 +8,19 @@ import {
     installImport,
 } from "genaiscript-core"
 import type { ILLMContextSizer } from "llm-code-highlighter"
+import { LLM_CODE_HIGHLIGHTER_VERSION } from "./version"
 
 async function tryImportLLMCodeHighlighter(trace: MarkdownTrace) {
     try {
         const m = await import("llm-code-highlighter")
         return m
     } catch (e) {
-        trace?.error("llamaindex not found, installing...")
-        await installImport("llm-code-highlighter", trace)
+        trace?.error(`llm-code-highlighter not found, installing ${LLM_CODE_HIGHLIGHTER_VERSION}...`)
+        await installImport(
+            "llm-code-highlighter",
+            LLM_CODE_HIGHLIGHTER_VERSION,
+            trace
+        )
         const m = await import("llm-code-highlighter")
         return m
     }

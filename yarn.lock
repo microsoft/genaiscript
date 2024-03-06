@@ -5005,7 +5005,7 @@ llamaindex@0.1.10:
     string-strip-html "^13.4.6"
     wink-nlp "^1.14.3"
 
-llm-code-highlighter@^0.0.13:
+llm-code-highlighter@0.0.13:
   version "0.0.13"
   resolved "https://registry.yarnpkg.com/llm-code-highlighter/-/llm-code-highlighter-0.0.13.tgz#dcdbb2e3f674e1f423857dc245a23e3a7a22941e"
   integrity sha512-dkJ8yKXiy3tMHJEA1p1ougAA5wE9K+vZKIkIjG7h+HHDoFy1yMLYIEBQIqofTI+/IwxibebC37Ijhm7qkanRJQ==
@@ -7045,9 +7045,9 @@ pdf2json@^3.0.5:
   dependencies:
     "@xmldom/xmldom" "^0.8.8"
 
-pdfjs-dist@^4.0.379:
+pdfjs-dist@4.0.379:
   version "4.0.379"
-  resolved "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz"
+  resolved "https://registry.yarnpkg.com/pdfjs-dist/-/pdfjs-dist-4.0.379.tgz#e2e967255d63c9caf0b6fe944e99ec9a746649da"
   integrity sha512-6H0Gv1nna+wmrr3CakaKlZ4rbrL8hvGIFAgg4YcoFuGC0HC4B2DVjXEGTFjJEjLlf8nYi3C3/MYRcM5bNx0elA==
   optionalDependencies:
     canvas "^2.11.2"
