@@ -2,7 +2,7 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.9.15",
+  "version": "1.10.2",
   "license": "MIT",
   "scripts": {
     "dev": "astro dev --host",
