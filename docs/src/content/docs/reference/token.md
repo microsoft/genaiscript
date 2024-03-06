@@ -24,7 +24,7 @@ OPENAI_API_BASE="https://mywebsite.azurewebsites.net"
 OPENAI_API_KEY="oaip_SomethingSecret"
 ```
 
-Aditionaly
+Additionally,
 
 -   the `OPENAI_API_BASE` can point to a local server, e.g. using [https://jan.ai/api-reference/](https://jan.ai/api-reference/) at `http://localhost:1337/v1`.
 -   the `OPENAI_API_TYPE` should be `azure` or `local`. If not specified, we'll try to guess based on the `OPENAI_API_BASE` value.
