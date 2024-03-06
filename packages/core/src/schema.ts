@@ -1,12 +1,6 @@
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
 
-export interface JSONSchemaValidation {
-    schema?: JSONSchema
-    valid: boolean
-    errors?: string
-}
-
 export async function validateSchema(trace: MarkdownTrace, schema: JSONSchema) {
     const ajv = new Ajv()
     return await ajv.validateSchema(schema, false)

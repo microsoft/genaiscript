@@ -1,3 +1,11 @@
+type DiagnosticSeverity = "error" | "warning" | "info"
+interface Diagnostic {
+    filename: string
+    range: CharRange
+    severity: DiagnosticSeverity
+    message: string
+}
+
 interface PromptDefinition {
     /**
      * Based on file name.
@@ -518,6 +526,12 @@ interface JSONSchemaArray {
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
 
+interface JSONSchemaValidation {
+    schema?: JSONSchema
+    valid: boolean
+    errors?: string
+}
+
 interface RunPromptResult {
     text: string
 }
@@ -566,6 +580,15 @@ interface Path {
     resolve(...pathSegments: string[]): string
 }
 
+interface Fenced {
+    label: string
+    language?: string
+    content: string
+    args?: { schema?: string } & Record<string, string>
+
+    validation?: JSONSchemaValidation
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -607,6 +630,17 @@ interface Parsers {
      * @param content content to tokenize
      */
     tokens(content: string | LinkedFile): number
+
+    /**
+     * Parses fenced code sections in a markdown text
+     */
+    fences(content: string | LinkedFile): Fenced[]
+
+    /**
+     * Parses various format of annotations (error, warning, ...)
+     * @param content
+     */
+    annotations(content: string | LinkedFile): Diagnostic[]
 }
 
 interface YAML {
