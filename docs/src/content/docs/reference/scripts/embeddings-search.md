@@ -1,15 +1,10 @@
 ---
-title: Retreival
+title: Embeddings Search
 sidebar:
     order: 10
 ---
 
-The `retreival` object provides various ways to retreive text from files and data.
-This is commonly referred as Retreival Augmented Generation (RAG).
-
-## Embedding search
-
-The `retreival.search` indexes the input files using embeddings into a vector data base that can be used for similarity search.
+The `retreival.search` indexes the input files using [embeddings](https://platform.openai.com/docs/guides/embeddings) into a vector database that can be used for similarity search. This is commonly referred as Retreival Augmented Generation (RAG).
 
 ```js
 const { files, fragments } = await retreival.search("keyword", env.files)
