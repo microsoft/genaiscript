@@ -178,7 +178,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "$" | "defFunction" | "defSchema" | "cancel"
+    "fence" | "def" | "$" | "defFunction" | "cancel"
 > & {
     appendPromptChild(node: PromptNode): void
     scope: PromptNode[]
@@ -229,21 +229,6 @@ export async function evalPrompt(
                 )
             }
             return dontuse("def")
-        },
-        defSchema(name, schema) {
-            if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
-            ctx.def(name, JSON.stringify(schema, null, 2), {
-                language: "json-schema",
-            })
-            if (env.schemas[name])
-                writeText(
-                    env.error +
-                        " schema " +
-                        name +
-                        " defined in multiple places"
-                )
-            env.schemas[name] = schema
-            return dontuse("defSchema")
         },
         defFunction(name, description, parameters, fn) {
             if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
@@ -327,6 +312,7 @@ async function parseMeta(r: PromptTemplate) {
                 parsers: undefined,
                 retreival: undefined,
                 YAML: undefined,
+                defSchema: error,
                 defImages: error,
                 defData: error,
                 appendPromptChild: error,
@@ -430,7 +416,7 @@ export interface DataFrame {
  */
 export function extractFenced(text: string): Fenced[] {
     if (!text) return []
-    
+
     let currLbl = ""
     let currText = ""
     let currLanguage = ""
