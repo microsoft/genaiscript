@@ -13,7 +13,6 @@ import {
 import prettyBytes from "pretty-bytes"
 import { type BaseReader, type GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
-import { lookup } from "mime-types"
 import { LLAMAINDEX_VERSION } from "./version"
 
 class BlobFileSystem implements GenericFileSystem {
