@@ -3,7 +3,7 @@ title: Welcome to GenAiScript
 description: Get started building your GenAI scripts.
 template: splash
 hero:
-  tagline: Scripting for GenAI.
+  tagline: Scripting for Generative AI.
   actions:
     - text: Getting Started
       link: /genaiscript/getting-started/
@@ -16,6 +16,7 @@ hero:
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 import { FileTree } from '@astrojs/starlight/components';
+import packageJson from "../../../package.json"
 
 :::caution[Internal project]
 
@@ -23,14 +24,14 @@ Please do not share outside Microsoft.
 
 :::
 
-GenAIScript lets you write javascript script that prompt LLMs in a flexible and powerful way.
+GenAIScript uses stylized javascript to prompt LLMs in a flexible and convinient way.
 
 ```js wrap
 // metadata and model configuration
 script({ title: "Shorten", model: "gpt4" })
-// insert the context 
+// define the context 
 def("FILE", env.files)
-// appends text to the prompt
+// define the task
 $`Shorten the following FILE. Limit changes to minimum.`
 ```
 
@@ -39,6 +40,7 @@ $`Shorten the following FILE. Limit changes to minimum.`
 <CardGrid stagger>
 	<Card title="Install the extension" icon="puzzle">
 		Install the [Visual Studio Code Extension](/genaiscript/getting-started/installation/)
+v{packageJson.version}
 		to get started.
 	</Card>
 	<Card title="Configure your LLMs" icon="setting">
