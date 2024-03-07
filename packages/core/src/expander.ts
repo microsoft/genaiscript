@@ -276,7 +276,7 @@ async function callExpander(
         try {
             trace.startDetails(`schema ${name}`)
             trace.item("source:")
-            trace.fence(schema, "yaml")
+            trace.fence(JSON.stringify(schema, null, 2), "json")
             const { format = "typescript" } = options || {}
             let schemaText: string
             switch (format) {
@@ -292,8 +292,10 @@ async function callExpander(
                     })
                     break
             }
-            trace.item("prompt:")
-            trace.fence(schemaText, format)
+            if (format !== "json") {
+                trace.item(`prompt (rendered as ${format}):`)
+                trace.fence(schemaText, format)
+            }
 
             appendPromptChild(
                 createTextNode(`${name}:\n

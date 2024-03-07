@@ -35,17 +35,14 @@ describe("schema", () => {
         assert.equal(
             ts,
             '// A list of cities with population and elevation information.\n'
-        +    'type Foo =\n'
-        +   '  Array<\n'
-        +   '    {\n'
-        +   '      // The name of the city.\n'
-        +   '      name: string,\n'
-        +   '      // The population of the city.\n'
-        +   '      population: number,\n'
-        +   "      // The URL of the city's Wikipedia page.\n"
-        +   '      url: string,\n'
-        +   '    }\n'
-        +   '  >'
+        +    'type Foo = Array<{\n'
+        +   '    // The name of the city.\n'
+        +   '    name: string,\n'
+        +   '    // The population of the city.\n'
+        +   '    population: number,\n'
+        +   "    // The URL of the city's Wikipedia page.\n"
+        +   '    url: string,\n'
+        +   '  }>'
         )
     }),
         test("city", () => {
@@ -76,16 +73,15 @@ of the city.`,
             assert.equal(
                 ts,
                 "// A city with population and elevation information.\n" +
-                    "type Response =\n" +
-                    "  {\n" +
-                    "    // The name of the city.\n" +
-                    "    name: string,\n" +
-                    "    /* The population \n" +
-                    "    of the city. */\n" +
-                    "    population?: number,\n" +
-                    "    // The URL of the city's Wikipedia page.\n" +
-                    "    url: string,\n" +
-                    "  }"
+                    "type Response = {\n" +
+                    "  // The name of the city.\n" +
+                    "  name: string,\n" +
+                    "  /* The population \n" +
+                    "  of the city. */\n" +
+                    "  population?: number,\n" +
+                    "  // The URL of the city's Wikipedia page.\n" +
+                    "  url: string,\n" +
+                    "}"
             )
         })
 })

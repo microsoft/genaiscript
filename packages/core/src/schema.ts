@@ -11,13 +11,15 @@ export function stringifySchemaToTypeScript(
 
     appendJsDoc(schema.description)
     append(`type ${typeName.replace(/\s+/g, "_")} =`)
-    indent++
     stringifyNode(schema)
-    indent--
     return lines.join("\n")
 
     function append(line: string) {
-        lines.push("  ".repeat(indent) + line)
+        if (/=$/.test(lines[lines.length - 1]))
+            lines[lines.length - 1] = lines[lines.length - 1] + " " + line
+        else if (/[<}]$/.test(lines[lines.length - 1]))
+            lines[lines.length - 1] = lines[lines.length - 1] + line
+        else lines.push("  ".repeat(indent) + line)
     }
 
     function appendJsDoc(text: string) {
