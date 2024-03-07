@@ -51,6 +51,7 @@ export function activatePromptCommands(state: ExtensionState) {
                         title: "my tool",
                         text: "New script empty template",
                         jsSource: `// metadata (including model parameters)
+// learn more at https://aka.ms/genaiscript
 script({ title: "${name}" })
 
 // use def to emit LLM variables
