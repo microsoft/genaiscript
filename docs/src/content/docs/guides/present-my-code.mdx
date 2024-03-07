@@ -1,0 +1,40 @@
+---
+title: Present My Code
+---
+import { Code, Steps } from '@astrojs/starlight/components';
+import importedCode from "../../../../../packages/sample/genaisrc/slides.genai?raw"
+
+<Steps>
+
+<ol>
+
+<li> 
+
+Save script below in your project to `genaisrc/slides.genai.js`.
+
+<Code code={importedCode} lang="js" title="slides.genai.js" />
+
+</li>
+
+<li>
+
+Right click on the code file or folder, select **Run GenAIScript...** and select **Generate Slides**.
+
+</li>
+
+<li>
+
+Apply the refactoring to save the generated slides file.
+
+</li>
+
+<li>
+
+To visualize the slides, install the [vscode-reveal extension](https://marketplace.visualstudio.com/items?itemName=evilz.vscode-reveal).
+Open the slides file and click **slides** in the status bar.
+
+</li>
+
+</ol>
+
+</Steps>
