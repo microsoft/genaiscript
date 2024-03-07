@@ -26,6 +26,11 @@ yarn install --frozen-lockfile
 
 -   Press F5 to launch VS Code in debugging mode
 
+## Dependencies
+
+- run `yarn install` to refresh the lock file
+- run `yarn gen:licenses` to refresh the 3rd party licenses
+
 ## Docs
 
 Run `docs` to launch the documentation site.
