@@ -6,34 +6,68 @@ export function stringifySchemaToTypeScript(
     options?: { typeName?: string }
 ) {
     const { typeName = "Response" } = options || {}
-    let res = stringifyNode(schema)
-    if (schema.type === "object") res = `interface ${typeName} ${res}`
-    else if (schema.type === "array") res = `type ${typeName} = ${res}`
-    return res
+    let lines: string[] = []
+    let indent = 0
+
+    appendJsDoc(schema.description)
+    append(`type ${typeName.replace(/\s+/g, "_")} =`)
+    indent++
+    stringifyNode(schema)
+    indent--
+    return lines.join("\n")
+
+    function append(line: string) {
+        lines.push("  ".repeat(indent) + line)
+    }
+
+    function appendJsDoc(text: string) {
+        if (!text) return
+        if (text.indexOf("\n") > -1)
+            append(
+                `/* ${text.split(/\n/g).join("\n" + "  ".repeat(indent))} */`
+            )
+        else append(`// ${text}`)
+    }
 
     function stringifyNode(node: JSONSchemaType): string {
         if (node === undefined) return "any"
-        else if (node.type === "array") return stringifyArray(node)
-        else if (node.type === "object") return stringifyObject(node)
-        else if (node.type === "string") return "string"
+        else if (node.type === "array") {
+            stringifyArray(node)
+            return undefined
+        } else if (node.type === "object") {
+            stringifyObject(node)
+            return undefined
+        } else if (node.type === "string") return "string"
         else if (node.type === "boolean") return "boolean"
         else if (node.type === "number" || node.type === "integer")
             return "number"
         else return "unknown"
     }
 
-    function stringifyObject(object: JSONSchemaObject): string {
-        const required = object.required
-        return `{ ${Object.keys(object.properties)
-            .map(
-                (key) =>
-                    `${key}${required?.includes(key) ? "" : "?"}: ${stringifyNode(object.properties[key])}`
-            )
-            .join(", ")} }`
+    function stringifyObject(object: JSONSchemaObject): void {
+        const { required, description } = object
+        append(`{`)
+        indent++
+        Object.keys(object.properties).forEach((key) => {
+            const prop = object.properties[key]
+            const field = `${key}${required?.includes(key) ? "" : "?"}`
+            appendJsDoc(prop.description)
+            append(`${field}:`)
+            const v = stringifyNode(prop)
+            if (v) lines[lines.length - 1] = lines[lines.length - 1] + " " + v
+            lines[lines.length - 1] = lines[lines.length - 1] + ","
+        })
+        indent--
+        append(`}`)
     }
 
-    function stringifyArray(array: JSONSchemaArray): string {
-        return `Array<${stringifyNode(array.items)}>`
+    function stringifyArray(array: JSONSchemaArray): void {
+        append(`Array<`)
+        indent++
+        const v = stringifyNode(array.items)
+        indent--
+        if (v) lines[lines.length - 1] = lines[lines.length - 1] + v + ">"
+        else append(`>`)
     }
 }
 

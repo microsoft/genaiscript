@@ -34,7 +34,18 @@ describe("schema", () => {
         console.log(ts)
         assert.equal(
             ts,
-            `type Foo = Array<{ name: string, population: number, url: string }>`
+            '// A list of cities with population and elevation information.\n'
+        +    'type Foo =\n'
+        +   '  Array<\n'
+        +   '    {\n'
+        +   '      // The name of the city.\n'
+        +   '      name: string,\n'
+        +   '      // The population of the city.\n'
+        +   '      population: number,\n'
+        +   "      // The URL of the city's Wikipedia page.\n"
+        +   '      url: string,\n'
+        +   '    }\n'
+        +   '  >'
         )
     }),
         test("city", () => {
@@ -49,7 +60,8 @@ describe("schema", () => {
                     },
                     population: {
                         type: "number",
-                        description: "The population of the city.",
+                        description: `The population 
+of the city.`,
                     },
                     url: {
                         type: "string",
@@ -63,7 +75,17 @@ describe("schema", () => {
             console.log(ts)
             assert.equal(
                 ts,
-                `interface Response { name: string, population?: number, url: string }`
+                "// A city with population and elevation information.\n" +
+                    "type Response =\n" +
+                    "  {\n" +
+                    "    // The name of the city.\n" +
+                    "    name: string,\n" +
+                    "    /* The population \n" +
+                    "    of the city. */\n" +
+                    "    population?: number,\n" +
+                    "    // The URL of the city's Wikipedia page.\n" +
+                    "    url: string,\n" +
+                    "  }"
             )
         })
 })
