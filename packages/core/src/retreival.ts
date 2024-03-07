@@ -1,17 +1,14 @@
 import { RetreivalClientOptions, RetreivalQueryOptions, host } from "./host"
-import { lookup } from "mime-types"
+import { lookupMime } from "./mime"
 
 const UPSERTFILE_MIME_TYPES = [
-    "text/plain",
-    "text/markdown",
-    "text/csv",
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]
 
 export function isIndexable(filename: string) {
-    const type = lookup(filename) || "text/plain"
-    return UPSERTFILE_MIME_TYPES.includes(type)
+    const type = lookupMime(filename) || "text/plain"
+    return /^text\//i.test(type) || UPSERTFILE_MIME_TYPES.includes(type)
 }
 
 export async function clearIndex(
