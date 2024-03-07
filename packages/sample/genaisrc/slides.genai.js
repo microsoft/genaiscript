@@ -1,6 +1,7 @@
 script({
     title: "Generate Slides",
-    description: "Generate a slidedeck in markdown. Install extension 'vscode-reveal'.",
+    description:
+        "Generate a slidedeck in markdown. Install extension 'vscode-reveal'.",
     categories: ["samples"],
     temperature: 0.1,
 })
@@ -8,10 +9,7 @@ script({
 const output = env.spec.filename.replace(/\.gpspec\.md$/, ".slides.md")
 def(
     "SOURCE",
-    [env.spec,
-    ...env.files.filter(
-        (f) => !f.filename.endsWith(".slides.md")
-    )]
+    env.files.filter((f) => !f.filename.endsWith(".slides.md"))
 )
 
 $`Generate a slidedeck in markdown format for the content in SOURCE
