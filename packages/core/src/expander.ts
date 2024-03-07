@@ -299,7 +299,7 @@ async function callExpander(
 
             appendPromptChild(
                 createTextNode(`${name}:\n
-${fenceMD(schemaText, format)}`)
+${fenceMD(schemaText, format + "-schema")}`)
             )
             if (env.schemas[name])
                 trace.error("schema " + name + " defined in multiple places")
