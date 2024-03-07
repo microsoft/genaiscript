@@ -7,6 +7,7 @@ import { minimatch } from "minimatch"
 import { PromptNode } from "./promptdom"
 import { createDefNode } from "./filedom"
 import { stringifySchemaToTypeScript } from "./schema"
+import { YAMLStringify } from "./yaml"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -231,13 +232,25 @@ export async function evalPrompt(
             }
             return dontuse("def")
         },
-        defSchema(name, schema) {
+        defSchema(name, schema, options) {
+            const { format = "typescript" } = options
             if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
-            const schemaText = stringifySchemaToTypeScript(schema, {
-                typeName: name,
-            })
+            let schemaText: string
+            switch (format) {
+                case "json":
+                    schemaText = JSON.stringify(schema, null, 2)
+                    break
+                case "yaml":
+                    schemaText = YAMLStringify(schema)
+                    break
+                default:
+                    schemaText = stringifySchemaToTypeScript(schema, {
+                        typeName: name,
+                    })
+                    break
+            }
             ctx.def(name, schemaText, {
-                language: "ts",
+                language: format,
             })
             if (env.schemas[name])
                 writeText(

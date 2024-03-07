@@ -701,6 +701,10 @@ interface DefDataOptions {
     headers?: string[]
 }
 
+interface DefSchemaOptions {
+    format?: "typescript" | "json" | "yaml"
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -718,7 +722,11 @@ interface PromptContext {
             args: { context: ChatFunctionCallContext } & Record<string, any>
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
-    defSchema(name: string, schema: JSONSchema): void
+    defSchema(
+        name: string,
+        schema: JSONSchema,
+        options?: DefSchemaOptions
+    ): void
     defData(
         name: string,
         data: object[] | object,
