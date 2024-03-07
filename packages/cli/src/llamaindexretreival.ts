@@ -9,6 +9,7 @@ import {
     RetreivalService,
     dotGenaiscriptPath,
     installImport,
+    lookupMime,
 } from "genaiscript-core"
 import prettyBytes from "pretty-bytes"
 import { type BaseReader, type GenericFileSystem } from "llamaindex"
@@ -46,7 +47,9 @@ async function tryImportLlamaIndex(trace: MarkdownTrace) {
         const m = await import("llamaindex")
         return m
     } catch (e) {
-        trace?.error(`llamaindex not found, installing ${LLAMAINDEX_VERSION}...`)
+        trace?.error(
+            `llamaindex not found, installing ${LLAMAINDEX_VERSION}...`
+        )
         await installImport("llamaindex", LLAMAINDEX_VERSION, trace)
         const m = await import("llamaindex")
         return m
@@ -139,7 +142,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             const buffer = await this.host.readFile(filenameOrUrl)
             const type =
                 (await fileTypeFromBuffer(buffer))?.mime ||
-                lookup(filenameOrUrl) ||
+                lookupMime(filenameOrUrl) ||
                 undefined
             blob = new Blob([buffer], {
                 type,
