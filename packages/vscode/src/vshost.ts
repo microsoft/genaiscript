@@ -4,16 +4,16 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
-    RetreivalService,
     ShellCallOptions,
     ShellOutput,
     TOOL_NAME,
     logVerbose,
     parseTokenFromEnv,
+    readText,
     setHost,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
-import { ExtensionState, TOKEN_DOCUMENTATION_URL } from "./state"
+import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
@@ -26,10 +26,15 @@ export class VSCodeHost extends EventTarget implements Host {
     virtualFiles: Record<string, Uint8Array> = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
+    readonly fs: FileSystem
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
+        this.fs = <FileSystem>{
+            findFiles: async (glob) => this.findFiles(glob),
+            readText: async (file) => readText("workspace://" + file),
+        }
         this.server = new TerminalServerManager(state)
         this.state.context.subscriptions.push(this)
     }

@@ -79,6 +79,11 @@ declare var parsers: Parsers
 declare var retreival: Retreival
 
 /**
+ * Access to file system operation on the current workspace.
+ */
+declare var fs: FileSystem
+
+/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML

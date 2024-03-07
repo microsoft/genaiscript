@@ -1,5 +1,4 @@
 import {
-    ChatCompletionContentPartImage,
     ChatCompletionRequestMessage,
     ChatCompletionResponse,
     ChatCompletionsOptions,
@@ -10,13 +9,7 @@ import {
 } from "./chat"
 import { Fragment, PromptTemplate, allChildren } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import {
-    assert,
-    logVerbose,
-    relativePath,
-    toBase64,
-    trimNewlines,
-} from "./util"
+import { assert, logVerbose, relativePath, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
 import {
     DataFrame,
@@ -166,6 +159,7 @@ async function callExpander(
         parse: YAMLParse,
     }
     const path = host.path
+    const fs = host.fs
     const env = new Proxy(vars, {
         get: (target: any, prop, recv) => {
             const v = target[prop]
@@ -367,6 +361,7 @@ ${fenceMD(schemaText, format + "-schema")}`)
                 system: () => {},
                 env,
                 path,
+                fs,
                 parsers,
                 YAML,
                 retreival,
@@ -1088,14 +1083,8 @@ export async function runTemplate(
                     )
                     if (!fd) throw new Error(`function ${call.name} not found`)
 
-                    const callHost: ChatFunctionCallHost = {
-                        findFiles: async (glob) => host.findFiles(glob),
-                        readText: async (file) =>
-                            readText("workspace://" + file),
-                    }
                     const context: ChatFunctionCallContext = {
                         trace,
-                        host: callHost,
                     }
 
                     let output = await fd.fn({ context, ...callArgs })
