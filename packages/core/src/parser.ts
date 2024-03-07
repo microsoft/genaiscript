@@ -2,7 +2,7 @@ import remarkFrontmatter from "remark-frontmatter"
 import remarkGfm from "remark-gfm"
 import { remark } from "remark"
 import { Content, Heading, Parent } from "mdast"
-import { lookup } from "mime-types"
+import { lookupMime } from "./mime"
 import { assert, last, sha256string, strcmp } from "./util"
 import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
@@ -360,7 +360,7 @@ export async function parseProject(options: {
             continue
         }
 
-        const mime = lookup(f) || ""
+        const mime = lookupMime(f)
         const binary = isBinaryMimeType(mime)
         const text = binary ? undefined : await readText(f)
         const parser = PARSERS[mime] || parseTextPlain
