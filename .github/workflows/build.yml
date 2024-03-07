@@ -24,6 +24,8 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: core tests
+              run: yarn test:core
             - name: unit tests
               run: yarn test:unit
             - name: docs

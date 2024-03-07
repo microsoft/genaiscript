@@ -40,9 +40,9 @@ import type {
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
-import { pretifyMarkdown } from "./markdown"
+import { fenceMD, pretifyMarkdown } from "./markdown"
 import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
-import { validateJSONSchema } from "./schema"
+import { stringifySchemaToTypeScript, validateJSONWithSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
@@ -268,6 +268,47 @@ async function callExpander(
         }
     }
 
+    const defSchema = (
+        name: string,
+        schema: JSONSchema,
+        options?: DefSchemaOptions
+    ) => {
+        try {
+            trace.startDetails(`schema ${name}`)
+            trace.item("source:")
+            trace.fence(JSON.stringify(schema, null, 2), "json")
+            const { format = "typescript" } = options || {}
+            let schemaText: string
+            switch (format) {
+                case "json":
+                    schemaText = JSON.stringify(schema, null, 2)
+                    break
+                case "yaml":
+                    schemaText = YAMLStringify(schema)
+                    break
+                default:
+                    schemaText = stringifySchemaToTypeScript(schema, {
+                        typeName: name,
+                    })
+                    break
+            }
+            if (format !== "json") {
+                trace.item(`prompt (rendered as ${format}):`)
+                trace.fence(schemaText, format)
+            }
+
+            appendPromptChild(
+                createTextNode(`${name}:\n
+${fenceMD(schemaText, format)}`)
+            )
+            if (env.schemas[name])
+                trace.error("schema " + name + " defined in multiple places")
+            env.schemas[name] = schema
+        } finally {
+            trace.endDetails()
+        }
+    }
+
     const runPrompt: (
         generator: () => Promise<void>,
         promptOptions?: ModelOptions
@@ -330,6 +371,7 @@ async function callExpander(
                 YAML,
                 retreival,
                 defImages,
+                defSchema,
                 defData: (name, data, options) =>
                     appendPromptChild(
                         createDefDataNode(name, data, env, options)
@@ -1163,7 +1205,7 @@ export async function runTemplate(
         const schemaObj = schema && schemas[schema]
         if (schema) {
             if (!schemaObj) trace.error(`schema ${schema} not found`)
-            fence.validation = validateJSONSchema(trace, data, schemaObj)
+            fence.validation = validateJSONWithSchema(trace, data, schemaObj)
             frames.push({
                 schema,
                 data,
