@@ -35,8 +35,21 @@ defSchema("CITY_SCHEMA", {
 
 ### Prompt encoding
 
-Following the [TypeChat approach](https://microsoft.github.io/TypeChat/docs/introduction/),
-the schema is converted TypeScript types before being injected in the LLM prompt.
+Following the ["All You Need Is Types" approach](https://microsoft.github.io/TypeChat/docs/introduction/)
+from TypeChat, the schema is converted TypeScript types before being injected in the LLM prompt.
+
+````typescript
+// A list of cities with population and elevation information.
+type CITY_SCHEMA = Array<{
+    // The name of the city.
+    name: string,
+    // The population of the city.
+    population: number,
+    // The URL of the city's Wikipedia page.
+    url: string,
+  }>
+````
+
 You can change this behavior by using the `{ format: "json" }` option.
 
 ```js
