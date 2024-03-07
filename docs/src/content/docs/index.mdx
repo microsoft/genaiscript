@@ -15,6 +15,7 @@ hero:
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
+import { FileTree } from '@astrojs/starlight/components';
 
 :::caution[Internal project]
 
@@ -37,7 +38,8 @@ $`Shorten the following FILE. Limit changes to minimum.`
 
 <CardGrid stagger>
 	<Card title="Install the extension" icon="puzzle">
-		Check the [Getting Started](/genaiscript/getting-started/installation/) installation instructions.
+		Install the [Visual Studio Code Extension](/genaiscript/getting-started/installation/)
+		to get started.
 	</Card>
 	<Card title="Configure your LLMs" icon="setting">
 		Configure the [secrets](/genaiscript/reference/token) to access your LLMs.
@@ -48,4 +50,95 @@ $`Shorten the following FILE. Limit changes to minimum.`
 	<Card title="Read the docs" icon="open-book">
 		Learn more about GenAIScript in the [Scripting Reference](/genaiscript/reference/).
 	</Card>
+</CardGrid>
+
+## Features
+
+GenAIScript brings essential LLM prompt tooling into a cohesive scripting environment.
+
+<CardGrid>
+
+<Card title="Stylized Javascript" icon="seti:javascript">
+
+Build prompts programmatically using [a stylized JavaScript syntax](/genaiscript/reference/scripts/).
+
+```js
+// $ writes the prompt text
+$`Your are a helpful assistant. Today is ${new Date()}.`
+```
+
+</Card>
+
+<Card title="Fast Development Loop" icon="rocket">
+
+Develop your scripts iteratively using the intuitive [Visual Studio Code integration](/genaiscript/reference/vscode).
+
+</Card>
+
+<Card title="Data Schemas" icon="list-format">
+
+Define, use and validate structured data using [schemas](/genaiscript/reference/scripts/schemas).
+
+```js
+defSchema("MY_DATA", { type: "array", items: { ... }, })
+$`Extract data from files using MY_DATA schema.
+```
+
+</Card>
+
+<Card title="Ingest PDFs, DOCX, CSV, .." icon="seti:pdf">
+
+Seamlessly ingest and manipulate [PDFs](/genaiscript/reference/scripts/pdfs), DOCX, CSV, and other file formats.
+
+```js
+def("FILES", env.files, { endsWith: ".pdf"})
+$`Summarize the FILES.`
+```
+
+</Card>
+
+<Card title="LLM Composition" icon="external">
+
+Use LLMs to build your LLM prompts.
+
+```js
+// summarize files
+const { text } = await runPrompt(() => {
+    def("FILE", env.files)
+	$`Summarize the FILES.`
+})
+// use summary
+def("SUMMARY", text)
+```
+
+</Card>
+
+<Card title="Reuse and Share Scripts" icon="star">
+
+Scripts are files! They can be versioned, shared, forked, ...
+
+<FileTree>
+
+- …
+- genaisrc
+  - my-script.genai.js
+  - another-great-script.genai.js
+  - …
+
+
+</FileTree>
+
+</Card>
+
+<Card title="Automate" icon="github">
+
+Automate your scripts using the [CLI](/genaiscript/reference/cli).
+
+```bash frame="none"
+node .genaiscript/genaiscript.cjs run my-script *.pdf
+```
+
+</Card>
+
+
 </CardGrid>
