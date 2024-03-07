@@ -6,8 +6,6 @@ import { BUILTIN_PREFIX } from "./constants"
 import { minimatch } from "minimatch"
 import { PromptNode } from "./promptdom"
 import { createDefNode } from "./filedom"
-import { stringifySchemaToTypeScript } from "./schema"
-import { YAMLStringify } from "./yaml"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -180,7 +178,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "$" | "defFunction" | "defSchema" | "cancel"
+    "fence" | "def" | "$" | "defFunction" | "cancel"
 > & {
     appendPromptChild(node: PromptNode): void
     scope: PromptNode[]
@@ -231,36 +229,6 @@ export async function evalPrompt(
                 )
             }
             return dontuse("def")
-        },
-        defSchema(name, schema, options) {
-            const { format = "typescript" } = options
-            if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
-            let schemaText: string
-            switch (format) {
-                case "json":
-                    schemaText = JSON.stringify(schema, null, 2)
-                    break
-                case "yaml":
-                    schemaText = YAMLStringify(schema)
-                    break
-                default:
-                    schemaText = stringifySchemaToTypeScript(schema, {
-                        typeName: name,
-                    })
-                    break
-            }
-            ctx.def(name, schemaText, {
-                language: format,
-            })
-            if (env.schemas[name])
-                writeText(
-                    env.error +
-                        " schema " +
-                        name +
-                        " defined in multiple places"
-                )
-            env.schemas[name] = schema
-            return dontuse("defSchema")
         },
         defFunction(name, description, parameters, fn) {
             if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
@@ -344,6 +312,7 @@ async function parseMeta(r: PromptTemplate) {
                 parsers: undefined,
                 retreival: undefined,
                 YAML: undefined,
+                defSchema: error,
                 defImages: error,
                 defData: error,
                 appendPromptChild: error,
