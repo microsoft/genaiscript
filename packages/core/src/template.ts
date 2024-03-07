@@ -6,6 +6,7 @@ import { BUILTIN_PREFIX } from "./constants"
 import { minimatch } from "minimatch"
 import { PromptNode } from "./promptdom"
 import { createDefNode } from "./filedom"
+import { stringifySchemaToTypeScript } from "./schema"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -232,8 +233,11 @@ export async function evalPrompt(
         },
         defSchema(name, schema) {
             if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
-            ctx.def(name, JSON.stringify(schema, null, 2), {
-                language: "json-schema",
+            const schemaText = stringifySchemaToTypeScript(schema, {
+                typeName: name,
+            })
+            ctx.def(name, schemaText, {
+                language: "ts",
             })
             if (env.schemas[name])
                 writeText(
@@ -430,7 +434,7 @@ export interface DataFrame {
  */
 export function extractFenced(text: string): Fenced[] {
     if (!text) return []
-    
+
     let currLbl = ""
     let currText = ""
     let currLanguage = ""

@@ -42,7 +42,7 @@ import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { pretifyMarkdown } from "./markdown"
 import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
-import { validateJSONSchema } from "./schema"
+import { validateJSONWithSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
 import { isCancelError } from "./error"
@@ -1163,7 +1163,7 @@ export async function runTemplate(
         const schemaObj = schema && schemas[schema]
         if (schema) {
             if (!schemaObj) trace.error(`schema ${schema} not found`)
-            fence.validation = validateJSONSchema(trace, data, schemaObj)
+            fence.validation = validateJSONWithSchema(trace, data, schemaObj)
             frames.push({
                 schema,
                 data,
