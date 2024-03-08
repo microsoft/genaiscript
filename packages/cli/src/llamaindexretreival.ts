@@ -152,7 +152,9 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const { type } = blob
         console.debug(`${filenameOrUrl}, ${type}, ${prettyBytes(blob.size)}`)
 
-        const reader = this.READERS[type]
+        const reader =
+            this.READERS[type] ||
+            (/^text\//.test(type) && this.READERS["text/plain"])
         if (!reader)
             return {
                 ok: false,
