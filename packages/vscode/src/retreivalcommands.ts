@@ -1,9 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState, SEARCH_OUTPUT_FILENAME } from "./state"
-import {
-    checkDirectoryExists,
-    checkFileExists,
-} from "./fs"
+import { checkDirectoryExists, checkFileExists, listFiles } from "./fs"
 import {
     GENAISCRIPT_FOLDER,
     TOOL_NAME,
@@ -17,7 +14,7 @@ import { infoUri } from "./markdowndocumentprovider"
 import { showMarkdownPreview } from "./markdown"
 
 export function activateRetreivalCommands(state: ExtensionState) {
-    const { context, host } = state
+    const { context } = state
     const { subscriptions } = context
 
     const resolveFiles = async (uri: vscode.Uri) => {
@@ -27,14 +24,9 @@ export function activateRetreivalCommands(state: ExtensionState) {
                 .map((f) => vscode.workspace.asRelativePath(f))
                 .filter((f) => !f.startsWith("."))
         } else if (await checkDirectoryExists(uri)) {
-            const dir = await vscode.workspace.fs.readDirectory(uri)
-            files = dir
-                .filter(([name, type]) => type === vscode.FileType.File)
-                .map(([name]) =>
-                    vscode.workspace.asRelativePath(
-                        vscode.Uri.joinPath(uri, name)
-                    )
-                )
+            files = (await listFiles(uri)).map((u) =>
+                vscode.workspace.asRelativePath(u)
+            )
         } else if (await checkFileExists(uri)) {
             files = [vscode.workspace.asRelativePath(uri)]
         }

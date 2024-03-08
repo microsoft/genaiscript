@@ -32,6 +32,10 @@ export async function upsert(
     )
     const increment = 100 / files.length
     for (const f of files) {
+        progress?.report({
+            increment,
+            message: f.filename,
+        })
         const { ok } = await retreival.upsert(f.filename, f.content)
         progress?.report({
             increment,
