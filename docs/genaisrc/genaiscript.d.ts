@@ -1,3 +1,11 @@
+type DiagnosticSeverity = "error" | "warning" | "info"
+interface Diagnostic {
+    filename: string
+    range: CharRange
+    severity: DiagnosticSeverity
+    message: string
+}
+
 interface PromptDefinition {
     /**
      * Based on file name.
@@ -33,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.functions"
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -55,7 +63,7 @@ interface UrlAdapter {
 
 type PromptTemplateResponseType = "json_object" | undefined
 
-interface PromptTemplate extends PromptLike {
+interface ModelOptions {
     /**
      * Which LLM model to use.
      *
@@ -89,7 +97,9 @@ interface PromptTemplate extends PromptLike {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
+}
 
+interface PromptTemplate extends PromptLike, ModelOptions {
     /**
      * If this is `["a", "b.c"]` then the prompt will include values of variables:
      * `@prompt`, `@prompt.a`, `@prompt.b`, `@prompt.b.c`
@@ -337,14 +347,17 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface ChatFunctionCallHost {
+interface FileSystem {
     findFiles(glob: string): Promise<string[]>
-    readText(file: string): Promise<string>
+    /**
+     * Reads the content of a file
+     * @param path
+     */
+    readFile(path: string): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
     trace: ChatFunctionCallTrace
-    host: ChatFunctionCallHost
 }
 
 interface ChatFunctionCallback {
@@ -469,6 +482,7 @@ interface ChatTaskOptions {
 type JSONSchemaTypeName =
     | "string"
     | "number"
+    | "integer"
     | "boolean"
     | "object"
     | "array"
@@ -488,7 +502,7 @@ interface JSONSchemaString {
 }
 
 interface JSONSchemaNumber {
-    type: "number"
+    type: "number" | "integer"
     description?: string
 }
 
@@ -514,6 +528,16 @@ interface JSONSchemaArray {
 }
 
 type JSONSchema = JSONSchemaObject | JSONSchemaArray
+
+interface JSONSchemaValidation {
+    schema?: JSONSchema
+    valid: boolean
+    errors?: string
+}
+
+interface RunPromptResult {
+    text: string
+}
 
 /**
  * Path manipulation functions.
@@ -559,6 +583,15 @@ interface Path {
     resolve(...pathSegments: string[]): string
 }
 
+interface Fenced {
+    label: string
+    language?: string
+    content: string
+    args?: { schema?: string } & Record<string, string>
+
+    validation?: JSONSchemaValidation
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -590,24 +623,63 @@ interface Parsers {
      * Parses a CSV file or text
      * @param content
      */
-    CSV(content: string | LinkedFile): object[] | undefined
+    CSV(
+        content: string | LinkedFile,
+        options?: { delimiter?: string; headers?: string[] }
+    ): object[] | undefined
+
+    /**
+     * Estimates the number of tokens in the content.
+     * @param content content to tokenize
+     */
+    tokens(content: string | LinkedFile): number
+
+    /**
+     * Parses fenced code sections in a markdown text
+     */
+    fences(content: string | LinkedFile): Fenced[]
+
+    /**
+     * Parses various format of annotations (error, warning, ...)
+     * @param content
+     */
+    annotations(content: string | LinkedFile): Diagnostic[]
+}
+
+interface YAML {
+    /**
+     * Converts an object to its YAML representation
+     * @param obj
+     */
+    stringify(obj: any): string
+    /**
+     * Parses a YAML string to object
+     */
+    parse(text: string): any
 }
 
 interface HighlightOptions {
     maxLength?: number
 }
 
+interface SearchResult {
+    webPages: LinkedFile[]
+}
+
 interface Retreival {
+    /**
+     * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
+     * @param query
+     */
+    webSearch(query: string): Promise<SearchResult>
+
     /**
      * Search for embeddings
      */
     search(
         query: string,
+        files: (string | LinkedFile)[],
         options?: {
-            /**
-             * Filter results for the following files
-             */
-            files?: (string | LinkedFile)[]
             /**
              * Maximum number of embeddings to use
              */
@@ -627,6 +699,15 @@ interface Retreival {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
+interface DefDataOptions {
+    format?: "json" | "yaml" | "csv"
+    headers?: string[]
+}
+
+interface DefSchemaOptions {
+    format?: "typescript" | "json" | "yaml"
+}
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -644,7 +725,20 @@ interface PromptContext {
             args: { context: ChatFunctionCallContext } & Record<string, any>
         ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
     ): void
-    defSchema(name: string, schema: JSONSchema): void
+    defSchema(
+        name: string,
+        schema: JSONSchema,
+        options?: DefSchemaOptions
+    ): void
+    defData(
+        name: string,
+        data: object[] | object,
+        options?: DefDataOptions
+    ): void
+    runPrompt(
+        generator: () => void | Promise<void>,
+        options?: ModelOptions
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | LinkedFile,
         options?: FetchTextOptions
@@ -654,12 +748,13 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
-    readFile(file: string): Promise<LinkedFile>
     cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
     retreival: Retreival
+    fs: FileSystem
+    YAML: YAML
 }
 
 
@@ -743,6 +838,16 @@ declare var parsers: Parsers
 declare var retreival: Retreival
 
 /**
+ * Access to file system operation on the current workspace.
+ */
+declare var fs: FileSystem
+
+/**
+ * YAML parsing and stringifying functions.
+ */
+declare var YAML: YAML
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
@@ -752,17 +857,11 @@ declare function fetchText(
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
 
 /**
- * Reads the content of a file
- * @param path
- */
-declare function readFile(path: string): Promise<LinkedFile>
-
-/**
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchema): void
+declare function defSchema(name: string, schema: JSONSchema, options?: DefSchemaOptions): void
 
 /**
  * Adds images to the prompt
@@ -772,7 +871,28 @@ declare function defSchema(name: string, schema: JSONSchema): void
 declare function defImages(files: StringLike, options?: DefImagesOptions): void
 
 /**
+ * Renders a table or object in the prompt
+ * @param name
+ * @param data
+ * @param options
+ */
+declare function defData(
+    name: string,
+    data: object[] | object,
+    options?: DefDataOptions
+): void
+
+/**
  * Cancels the current prompt generation/execution with the given reason.
  * @param reason
  */
 declare function cancel(reason?: string): void
+
+/**
+ * Expands and executes prompt
+ * @param generator
+ */
+declare function runPrompt(
+    generator: () => void | Promise<void>,
+    options?: ModelOptions
+): Promise<RunPromptResult>
