@@ -21,7 +21,7 @@ node .genaiscript/genaiscript.cjs run ... --vars myvar=myvalue myvar2=myvalue2 .
 
 ## Spec Variables
 
-If you manually author a [spec](/genaiscript/reference/specs/), you can configure variables as well.
+If you manually author a [spec](/genaiscript/reference/scripts/specs/), you can configure variables as well.
 
 ```markdown
 Lorem ipsum...
