@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["retreival", "outline", "packages/core/src/**.ts"]
+            "args": ["retreival", "index", "\"docs/**\""]
         },
         {
             "name": "Run - sample",
