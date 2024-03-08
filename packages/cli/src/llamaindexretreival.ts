@@ -1,5 +1,6 @@
 import {
     Host,
+    LLAMAINDEX_SIMILARITY_TOPK,
     MarkdownTrace,
     PromiseType,
     RETREIVAL_PERSIST_DIR,
@@ -183,7 +184,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         text: string,
         options?: RetreivalSearchOptions
     ): Promise<RetreivalSearchResponse> {
-        const { topK } = options ?? {}
+        const { topK = LLAMAINDEX_SIMILARITY_TOPK } = options ?? {}
         const { VectorStoreIndex, MetadataMode } = this.module
 
         const storageContext = await this.createStorageContext(options)
