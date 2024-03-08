@@ -57,9 +57,9 @@ export function activateRetreivalCommands(state: ExtensionState) {
             {
                 location: vscode.ProgressLocation.Notification,
                 title: `${TOOL_NAME} - Searching`,
-                cancellable: false,
+                cancellable: true,
             },
-            async (progress) => {
+            async (progress, token) => {
                 try {
                     state.lastSearch = undefined
                     const res = await retreivalSearch(keywords, { files })
@@ -85,9 +85,9 @@ export function activateRetreivalCommands(state: ExtensionState) {
             {
                 location: vscode.ProgressLocation.Notification,
                 title: `${TOOL_NAME} - Indexing`,
-                cancellable: false,
+                cancellable: true,
             },
-            async (progress) => {
+            async (progress, token) => {
                 try {
                     await upsert(files, { progress })
                 } catch (e) {
