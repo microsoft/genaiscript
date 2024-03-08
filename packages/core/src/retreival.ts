@@ -57,9 +57,13 @@ export async function search(
     options?: RetreivalClientOptions & RetreivalSearchOptions
 ): Promise<RetreivalSearchResult> {
     const { trace, token, ...rest } = options || {}
+    const files: LinkedFile[] = []
     const retreival = host.retreival
     await host.retreival.init(trace)
+    if (token?.isCancellationRequested) return { files, fragments: [] }
+
     const { results } = await retreival.search(q, rest)
+
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r
         return <LinkedFile>{
@@ -68,7 +72,6 @@ export async function search(
             label: id,
         }
     })
-    const files: LinkedFile[] = []
     for (const fr of fragments) {
         let file = files.find((f) => f.filename === fr.filename)
         if (!file) {

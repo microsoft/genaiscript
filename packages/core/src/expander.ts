@@ -59,6 +59,7 @@ import {
 import { CSVToMarkdown } from "./csv"
 import { bingSearch } from "./search"
 import { createDefDataNode } from "./filedom"
+import { CancellationToken } from "./cancellation"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -149,6 +150,7 @@ async function callExpander(
     trace: MarkdownTrace,
     options: RunTemplateOptions
 ) {
+    const cancellationToken = options?.cancellationToken
     const scope: PromptNode[] = [{ children: [] }]
 
     const model = r.model || DEFAULT_MODEL
@@ -317,6 +319,9 @@ ${fenceMD(schemaText, format + "-schema")}`)
                 scope.shift()
             }
 
+            if (cancellationToken?.isCancellationRequested)
+                return { text: "Prompt cancelled" }
+
             // expand template
             const { prompt, images, errors } = await renderPromptNode(node)
             trace.fence(prompt, "markdown")
@@ -468,6 +473,7 @@ async function expandTemplate(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
+    const cancellationToken = options?.cancellationToken
     const { jsSource } = template
 
     traceVars()
@@ -475,6 +481,8 @@ async function expandTemplate(
     trace.startDetails("🛠️ script")
 
     const prompt = await callExpander(template, env, trace, options)
+    if (cancellationToken?.isCancellationRequested) return { success: false }
+
     const expanded = prompt.text
     const images: PromptImage[] = prompt.images
 
@@ -499,6 +507,9 @@ async function expandTemplate(
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
     }
     for (let i = 0; i < systems.length && success; ++i) {
+        if (cancellationToken?.isCancellationRequested)
+            return { success: false }
+
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
         if (!system) {
@@ -775,6 +786,7 @@ async function fragmentVars(
 
 export type RunTemplateOptions = ChatCompletionsOptions &
     ModelOptions & {
+        cancellationToken?: CancellationToken
         infoCb?: (partialResponse: {
             text: string
             label?: string
@@ -834,8 +846,10 @@ export async function runTemplate(
         cliInfo,
         trace = new MarkdownTrace(),
     } = options || {}
-    const { signal } = requestOptions
+    const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
+
+    const isCancelled = () => cancellationToken?.isCancellationRequested
 
     trace.heading(2, label || template.id)
 
@@ -956,7 +970,7 @@ export async function runTemplate(
         return fileEdit
     }
 
-    while (!signal?.aborted) {
+    while (!isCancelled()) {
         let resp: ChatCompletionResponse
         try {
             try {
@@ -1008,7 +1022,7 @@ export async function runTemplate(
                 resp = {
                     text: `Request error: \`${error.status}\`, ${error.statusText}\n`,
                 }
-            } else if (signal?.aborted) {
+            } else if (isCancelled()) {
                 trace.heading(3, `Request cancelled`)
                 trace.log(`The user requested to cancel the request.`)
                 resp = { text: "Request cancelled" }
@@ -1066,7 +1080,7 @@ export async function runTemplate(
 
             // call tool and run again
             for (const call of resp.toolCalls) {
-                if (signal?.aborted) break
+                if (isCancelled()) break
                 try {
                     status(`running tool ${call.name}`)
                     trace.startDetails(`📠 tool call ${call.name}`)
