@@ -620,6 +620,14 @@ interface Parsers {
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 
     /**
+     * Parses a .docx file
+     * @param content
+     */
+    DOCX(
+        content: string | LinkedFile
+    ): Promise<{ file: LinkedFile } | undefined>
+
+    /**
      * Parses a CSV file or text
      * @param content
      */
