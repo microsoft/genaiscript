@@ -1,8 +1,7 @@
 import {
     HighlightResponse,
     ResponseStatus,
-    RetreivalQueryOptions,
-    RetreivalQueryResponse,
+    RetreivalSearchOptions,
     RetreivalSearchResponse,
 } from "../host"
 
@@ -30,15 +29,8 @@ export interface RetreivalUpsert extends RequestMessage {
 export interface RetreivalSearch extends RequestMessage {
     type: "retreival.search"
     text: string
-    options?: RetreivalQueryOptions
+    options?: RetreivalSearchOptions
     response?: RetreivalSearchResponse
-}
-
-export interface RetreivalQuery extends RequestMessage {
-    type: "retreival.query"
-    text: string
-    options?: RetreivalQueryOptions
-    response?: RetreivalQueryResponse
 }
 
 export interface RetreivalOutline extends RequestMessage {
@@ -52,5 +44,4 @@ export type RequestMessages =
     | RetreivalClear
     | RetreivalUpsert
     | RetreivalSearch
-    | RetreivalQuery
     | RetreivalOutline

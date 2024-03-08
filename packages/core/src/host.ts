@@ -64,7 +64,7 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetreivalQueryOptions {
+export interface RetreivalSearchOptions {
     files?: string[]
     topK?: number
 }
@@ -78,10 +78,6 @@ export type RetreivalSearchResponse = ResponseStatus & {
     }[]
 }
 
-export type RetreivalQueryResponse = ResponseStatus & {
-    response: string
-}
-
 export interface RetreivalService {
     init(trace?: MarkdownTrace): Promise<void>
     clear(): Promise<ResponseStatus>
@@ -92,7 +88,7 @@ export interface RetreivalService {
     ): Promise<ResponseStatus>
     search(
         text: string,
-        options?: RetreivalQueryOptions
+        options?: RetreivalSearchOptions
     ): Promise<RetreivalSearchResponse>
 }
 
