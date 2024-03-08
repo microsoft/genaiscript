@@ -5248,6 +5248,22 @@ mammoth@^1.6.0:
     underscore "^1.13.1"
     xmlbuilder "^10.0.0"
 
+mammoth@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/mammoth/-/mammoth-1.7.0.tgz#e59b2d89a4907595906429c9d3313729d67afca7"
+  integrity sha512-ptFhft61dqieLffpdpHD7PUS0cX9YvHQIO3n3ejRhj1bi5Na+RL5wovtNHHXAK6Oj554XfGrVcyTuxgegN6umw==
+  dependencies:
+    "@xmldom/xmldom" "^0.8.6"
+    argparse "~1.0.3"
+    base64-js "^1.5.1"
+    bluebird "~3.4.0"
+    dingbat-to-unicode "^1.0.1"
+    jszip "^3.7.1"
+    lop "^0.4.1"
+    path-is-absolute "^1.0.0"
+    underscore "^1.13.1"
+    xmlbuilder "^10.0.0"
+
 map-stream@~0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/map-stream/-/map-stream-0.1.0.tgz"
