@@ -38,7 +38,7 @@ export async function DOCXTryParse(
     try {
         const mammoth = await tryImportMammoth(trace)
         const data = content || (await host.readFile(fileOrUrl))
-        const results = await mammoth.extractRawText({ arrayBuffer: data })
+        const results = await mammoth.extractRawText({ arrayBuffer: data.buffer })
         return results.value
     } catch (error) {
         logError(error.message)
