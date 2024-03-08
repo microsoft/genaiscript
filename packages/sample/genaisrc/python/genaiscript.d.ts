@@ -347,14 +347,17 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface ChatFunctionCallHost {
+interface FileSystem {
     findFiles(glob: string): Promise<string[]>
-    readText(file: string): Promise<string>
+    /**
+     * Reads the content of a file
+     * @param path
+     */
+    readFile(path: string): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
     trace: ChatFunctionCallTrace
-    host: ChatFunctionCallHost
 }
 
 interface ChatFunctionCallback {
@@ -745,12 +748,12 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
-    readFile(file: string): Promise<LinkedFile>
     cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
     retreival: Retreival
+    fs: FileSystem
     YAML: YAML
 }
 
@@ -835,6 +838,11 @@ declare var parsers: Parsers
 declare var retreival: Retreival
 
 /**
+ * Access to file system operation on the current workspace.
+ */
+declare var fs: FileSystem
+
+/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -847,12 +855,6 @@ declare function fetchText(
     url: string | LinkedFile,
     options?: FetchTextOptions
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
-
-/**
- * Reads the content of a file
- * @param path
- */
-declare function readFile(path: string): Promise<LinkedFile>
 
 /**
  * Declares a JSON schema variable.
