@@ -20,6 +20,7 @@ export async function activate(context: ExtensionContext) {
             require("websocket-polyfill")
         } catch (err) {
             console.error("websocket polyfill failed")
+            console.error(err)
         }
     }
 
