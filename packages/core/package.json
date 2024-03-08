@@ -1,48 +1,48 @@
 {
-    "name": "genaiscript-core",
-    "version": "1.10.6",
-    "main": "src/index.ts",
-    "license": "MIT",
-    "private": true,
-    "repository": {
-        "directory": "packages/core",
-        "url": "https://github.com/microsoft/genaiscript"
-    },
-    "optionalDependencies": {
-        "pdfjs-dist": "4.0.379",
-        "mammoth": "^1.7.0"
-    },
-    "devDependencies": {
-        "@types/mdast": "^3.0.11",
-        "@types/mime-types": "^2.1.4",
-        "@types/node": "^20.11.25",
-        "ajv": "^8.12.0",
-        "csv-parse": "^5.5.5",
-        "esbuild": "^0.20.1",
-        "fetch-retry": "^5.0.6",
-        "file-type": "^19.0.0",
-        "gpt-tokenizer": "^2.1.2",
-        "json5": "^2.2.3",
-        "markdown-table": "^3.0.3",
-        "mime-types": "^2.1.35",
-        "minimatch": "^9.0.3",
-        "openai": "^4.28.4",
-        "prettier": "^3.2.5",
-        "pretty-bytes": "^6.1.1",
-        "remark": "^14.0.3",
-        "remark-frontmatter": "^4.0.1",
-        "remark-gfm": "^3.0.1",
-        "remark-heading-id": "^1.0.0",
-        "remark-parse": "^10.0.2",
-        "toml": "^3.0.0",
-        "typescript": "^5.3.3",
-        "unified": "^10.1.2",
-        "yaml": "^2.4.1"
-    },
-    "scripts": {
-        "typecheck": "tsc -p src",
-        "prompts:bundle": "node bundleprompts.mjs",
-        "pretypecheck": "yarn prompts:bundle",
-        "test": "node --import tsx --test src/**.test.ts"
-    }
+  "name": "genaiscript-core",
+  "version": "1.11.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "directory": "packages/core",
+    "url": "https://github.com/microsoft/genaiscript"
+  },
+  "optionalDependencies": {
+    "pdfjs-dist": "4.0.379",
+    "mammoth": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/mdast": "^3.0.11",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^20.11.25",
+    "ajv": "^8.12.0",
+    "csv-parse": "^5.5.5",
+    "esbuild": "^0.20.1",
+    "fetch-retry": "^5.0.6",
+    "file-type": "^19.0.0",
+    "gpt-tokenizer": "^2.1.2",
+    "json5": "^2.2.3",
+    "markdown-table": "^3.0.3",
+    "mime-types": "^2.1.35",
+    "minimatch": "^9.0.3",
+    "openai": "^4.28.4",
+    "prettier": "^3.2.5",
+    "pretty-bytes": "^6.1.1",
+    "remark": "^14.0.3",
+    "remark-frontmatter": "^4.0.1",
+    "remark-gfm": "^3.0.1",
+    "remark-heading-id": "^1.0.0",
+    "remark-parse": "^10.0.2",
+    "toml": "^3.0.0",
+    "typescript": "^5.3.3",
+    "unified": "^10.1.2",
+    "yaml": "^2.4.1"
+  },
+  "scripts": {
+    "typecheck": "tsc -p src",
+    "prompts:bundle": "node bundleprompts.mjs",
+    "pretypecheck": "yarn prompts:bundle",
+    "test": "node --import tsx --test src/**.test.ts"
+  }
 }
