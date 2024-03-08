@@ -56,7 +56,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: `${TOOL_NAME} - Searching`,
+                title: `${TOOL_NAME} - Searching...`,
                 cancellable: true,
             },
             async (progress, token) => {
