@@ -29,10 +29,6 @@ export default defineConfig({
                     autogenerate: { directory: "guides" },
                 },
                 {
-                    label: "Prompt Engineering",
-                    autogenerate: { directory: "prompt-engineering" },
-                },
-                {
                     label: "Reference",
                     autogenerate: { directory: "reference" },
                 },
