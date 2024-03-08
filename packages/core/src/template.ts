@@ -330,8 +330,8 @@ async function parseMeta(r: PromptTemplate) {
     return meta
 }
 
-const promptFence = "```"
-const markdownPromptFence = "`````"
+const PROMPT_FENCE = "```"
+const MARKDOWN_PROMPT_FENCE = "`````"
 
 function errorId() {
     let r = "ERROR-"
@@ -347,8 +347,8 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
         spec: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
         files: [] as LinkedFile[],
         parents: [] as LinkedFile[],
-        fence: promptFence,
-        markdownFence: markdownPromptFence,
+        fence: PROMPT_FENCE,
+        markdownFence: MARKDOWN_PROMPT_FENCE,
         error: errorId(),
         vars: {} as Record<string, string>,
         functions: [] as ChatFunctionCallback[],
