@@ -79,6 +79,11 @@ declare var parsers: Parsers
 declare var retreival: Retreival
 
 /**
+ * Access to file system operation on the current workspace.
+ */
+declare var fs: FileSystem
+
+/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -91,12 +96,6 @@ declare function fetchText(
     url: string | LinkedFile,
     options?: FetchTextOptions
 ): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
-
-/**
- * Reads the content of a file
- * @param path
- */
-declare function readFile(path: string): Promise<LinkedFile>
 
 /**
  * Declares a JSON schema variable.
