@@ -4,7 +4,7 @@ import {
     PromiseType,
     RETREIVAL_PERSIST_DIR,
     ResponseStatus,
-    RetreivalQueryOptions,
+    RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalService,
     dotGenaiscriptPath,
@@ -181,7 +181,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     async search(
         text: string,
-        options?: RetreivalQueryOptions
+        options?: RetreivalSearchOptions
     ): Promise<RetreivalSearchResponse> {
         const { topK } = options ?? {}
         const { VectorStoreIndex, MetadataMode } = this.module
