@@ -61,12 +61,13 @@ class ProgressSpinner implements Progress {
         increment?: number
         succeeded?: boolean
     }): void {
-        const { message, increment, succeeded } = value
+        const { message, succeeded } = value
         if (succeeded === true) {
             this.spinner.succeed(message)
         } else if (succeeded === false) {
             this.spinner.fail(message)
-        } else this.spinner.text = message
+        } else if (message)
+            this.spinner.start(message)
     }
 }
 
@@ -889,6 +890,7 @@ async function main() {
         .command("index")
         .description("Index a set of documents")
         .argument("<file...>", "Files to index")
+        .option("-ef, --excluded-files <string...>", "excluded files")
         .action(retreivalIndex)
     retreival
         .command("search")

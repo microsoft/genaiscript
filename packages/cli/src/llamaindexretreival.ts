@@ -11,7 +11,6 @@ import {
     installImport,
     lookupMime,
 } from "genaiscript-core"
-import prettyBytes from "pretty-bytes"
 import { type BaseReader, type GenericFileSystem } from "llamaindex"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
@@ -69,6 +68,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         this.READERS = {
             "text/plain": new this.module.TextFileReader(),
             "application/javascript": new this.module.TextFileReader(),
+            "application/json": new this.module.TextFileReader(),
             "application/pdf": new this.module.PDFReader(),
             "text/markdown": new this.module.MarkdownReader(),
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
@@ -150,7 +150,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
 
         const { type } = blob
-        console.debug(`${filenameOrUrl}, ${type}, ${prettyBytes(blob.size)}`)
+        //console.debug(`${filenameOrUrl}, ${type}, ${prettyBytes(blob.size)}`)
 
         const reader =
             this.READERS[type] ||
