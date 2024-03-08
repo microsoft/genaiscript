@@ -14,7 +14,10 @@ export function createDefNode(
 ) {
     name = name ?? ""
     const { language, lineNumbers, schema } = options || {}
-    const fence = language === "markdown" ? env.markdownFence : env.fence
+    const fence =
+        language === "markdown" || language === "mdx"
+            ? env.markdownFence
+            : env.fence
     const norm = (s: string, f: string) => {
         s = (s || "").replace(/\n*$/, "")
         if (s && lineNumbers) s = addLineNumbers(s)
@@ -32,7 +35,7 @@ export function createDefNode(
         }
 
         let dfence =
-            /\.md$/i.test(file.filename) || file.content?.includes(fence)
+            /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
                 ? env.markdownFence
                 : fence
         const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""

@@ -136,8 +136,6 @@ export interface FragmentTransformResponse {
     frames?: DataFrame[]
 }
 
-//const fence = "```"
-//const markdownFence = "``````"
 const systemFence = "---"
 
 function stringLikeToFileName(f: string | LinkedFile) {
