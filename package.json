@@ -33,7 +33,6 @@
         "test:pdf": "node packages/cli/built/genaiscript.cjs parse pdf packages/sample/src/rag/loremipsum.pdf",
         "test:index": "node packages/cli/built/genaiscript.cjs retreival index \"packages/sample/src/rag/*\" \"docs/src/**/*\"",
         "test:search": "node packages/cli/built/genaiscript.cjs retreival search rag \"packages/sample/src/rag/*\" \"docs/src/**/*\"",
-        "test:query": "node packages/cli/built/genaiscript.cjs retreival query \"what is lorem ipsum?\" packages/sample/src/rag/*",
         "test:outline": "node packages/cli/built/genaiscript.cjs retreival outline packages/core/src/server/*.ts",
         "test:tokens": "node packages/cli/built/genaiscript.cjs retreival tokens packages/sample/src/rag/*",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
