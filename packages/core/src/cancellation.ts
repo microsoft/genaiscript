@@ -12,3 +12,10 @@ export interface CancellationToken {
      */
     isCancellationRequested: boolean
 }
+
+export class AbortSignalCancellationToken implements CancellationToken {
+    constructor(private readonly signal: AbortSignal) {}
+    get isCancellationRequested() {
+        return this.signal.aborted
+    }
+}

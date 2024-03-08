@@ -62,7 +62,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             async (progress, token) => {
                 try {
                     state.lastSearch = undefined
-                    const res = await retreivalSearch(keywords, { files })
+                    const res = await retreivalSearch(keywords, { files, token })
                     state.lastSearch = res
                     await showMarkdownPreview(infoUri(SEARCH_OUTPUT_FILENAME))
                 } catch (e) {
