@@ -30,6 +30,7 @@ import {
     GENAI_EXT,
     TOOL_NAME,
     RetreivalSearchResult,
+    AbortSignalCancellationToken,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -322,6 +323,7 @@ ${e.message}`
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
+        const cancellationToken = new AbortSignalCancellationToken(signal)
         const trace = new MarkdownTrace()
 
         const r: AIRequest = {
@@ -357,6 +359,7 @@ ${e.message}`
         let varsProgressReported = false
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
+            cancellationToken,
             partialCb,
             trace,
             infoCb: (data) => {
