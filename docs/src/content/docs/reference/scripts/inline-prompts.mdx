@@ -3,6 +3,8 @@ title: Inline prompts
 sidebar:
     order: 10
 ---
+import { Code } from '@astrojs/starlight/components';
+import summaryOfSummary from "../../../../../../packages/sample/genaisrc/summary-of-summary.genai.js?raw"
 
 The `runPrompt` function allows to build an inner LLM invocation. It returns the output of the prompt.
 
@@ -19,23 +21,9 @@ const { text } = await runPrompt(async () => {
 - Nested [functions](/genaiscript/reference/scripts/functions)
 and [schemas](/genaiscript/reference/scripts/schemas) are not supported in the inner prompt.
 
-## Example: Summarize files
+## Example: Summary of file summaries
 
 The snippet below uses `gpt-3.5` to summarize files individually before
 adding them to the main prompt.
 
-```js
-for (const file of env.files) {
-    const { text } = await runPrompt(
-        () => {
-            def("FILE", file)
-            $`Summarize the FILE. Be concise.`
-        },
-        {
-            // Use a different model!
-            model: "gpt-3.5-turbo",
-        }
-    )
-    def("FILE", { ...file, content: text })
-}
-```
+<Code code={summaryOfSummary} lang="js" />

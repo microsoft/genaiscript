@@ -77,6 +77,20 @@ Develop your scripts iteratively using the intuitive [Visual Studio Code integra
 
 </Card>
 
+<Card title="Reuse and Share Scripts" icon="star">
+
+Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
+
+<FileTree>
+
+- genaisrc
+  - my-script.genai.js
+  - another-great-script.genai.js
+
+</FileTree>
+
+</Card>
+
 <Card title="Data Schemas" icon="list-format">
 
 Define, use and validate structured data using [schemas](/genaiscript/reference/scripts/schemas).
@@ -93,42 +107,20 @@ $`Extract data from files using MY_DATA schema.`
 Seamlessly ingest and manipulate [PDFs](/genaiscript/reference/scripts/pdfs), DOCX, CSV, and other file formats.
 
 ```js
-def("FILES", env.files, { endsWith: ".pdf"})
-$`Summarize the FILES.`
+const { file } = await parsers.PDF(env.files[0])
+const { file } = await parsers.DOCX(env.files[1])
 ```
 
 </Card>
 
-<Card title="LLM Composition" icon="external">
+<Card title="RAG built-in" icon="magnifier">
 
-Use LLMs to build your LLM prompts.
+[Embeddings vector search](/genaiscript/reference/scripts/embedding-search) powered by LLamaIndex.
 
 ```js
-// summarize files
-const { text } = await runPrompt(() => {
-    def("FILE", env.files)
-	$`Summarize the FILES.`
-})
-// use summary
-def("SUMMARY", text)
+// embedding vector index and search
+const { files } = await retreival.search("cats", env.files)
 ```
-
-</Card>
-
-<Card title="Reuse and Share Scripts" icon="star">
-
-Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
-
-<FileTree>
-
-- …
-- genaisrc
-  - my-script.genai.js
-  - another-great-script.genai.js
-  - …
-
-
-</FileTree>
 
 </Card>
 
@@ -142,5 +134,25 @@ node .genaiscript/genaiscript.cjs run my-script "*.pdf"
 
 </Card>
 
+
+<Card title="LLM Composition" icon="external">
+
+Use LLMs to build your LLM prompts.
+
+```js
+// summarize each files individually
+for(const file of env.files) {
+	const { text } = await runPrompt(() => {
+		def("FILE", file)
+		$`Summarize the FILE.`
+	})
+	// use result in main prompt
+	def("SUMMARY", text)
+}
+// use summary
+$`Summarize all the summaries.`
+```
+
+</Card>
 
 </CardGrid>
