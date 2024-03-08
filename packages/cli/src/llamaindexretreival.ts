@@ -155,7 +155,8 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
         const reader =
             this.READERS[type] ||
-            (/^text\//.test(type) && this.READERS["text/plain"])
+            (/^text\//.test(type) && this.READERS["text/plain"]) ||
+            (!type && this.READERS["text/plain"]) // assume unknown type is text
         if (!reader)
             return {
                 ok: false,
