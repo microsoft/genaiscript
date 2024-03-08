@@ -9,5 +9,6 @@ export function lookupMime(filename: string) {
     if (/\.ts$/i.test(filename)) return TYPESCRIPT_MIME_TYPE
     if (/\.cs$/i.test(filename)) return CSHARP_MIME_TYPE
     if (/\.py$/i.test(filename)) return PYTHON_MIME_TYPE
+    if (/\.astro$/i.test(filename)) return "text/x-astro"
     return mimeTypesLookup(filename) || ""
 }
