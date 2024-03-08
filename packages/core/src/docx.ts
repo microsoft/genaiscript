@@ -30,15 +30,13 @@ async function tryImportMammoth(trace?: MarkdownTrace) {
  * @returns
  */
 export async function DOCXTryParse(
-    fileOrUrl: string,
-    content?: Uint8Array,
-    options?: { trace: MarkdownTrace; disableCleanup?: boolean }
+    file: string,
+    options?: { trace: MarkdownTrace }
 ): Promise<string> {
-    const { trace, disableCleanup } = options || {}
+    const { trace } = options || {}
     try {
         const mammoth = await tryImportMammoth(trace)
-        const data = content || (await host.readFile(fileOrUrl))
-        const results = await mammoth.extractRawText({ arrayBuffer: data.buffer })
+        const results = await mammoth.extractRawText({ path: file })
         return results.value
     } catch (error) {
         logError(error.message)
