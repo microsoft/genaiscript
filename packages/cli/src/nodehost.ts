@@ -129,7 +129,7 @@ export class NodeHost implements Host {
         return new Uint8Array(await readFile(name))
     }
     async findFiles(path: string): Promise<string[]> {
-        const files = await glob(path)
+        const files = await glob(path, { nodir: true })
         return files
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {

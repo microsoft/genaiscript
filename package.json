@@ -31,8 +31,8 @@
         "test:front-matter": "node packages/cli/built/genaiscript.cjs run front-matter SUPPORT.md",
         "test:lza": "cd applications/lza && yarn test",
         "test:pdf": "node packages/cli/built/genaiscript.cjs parse pdf packages/sample/src/rag/loremipsum.pdf",
-        "test:index": "node packages/cli/built/genaiscript.cjs retreival index packages/sample/src/rag/*",
-        "test:search": "node packages/cli/built/genaiscript.cjs retreival search lorem packages/sample/src/rag/*",
+        "test:index": "node packages/cli/built/genaiscript.cjs retreival index \"packages/sample/src/rag/*\" \"docs/src/**/*\"",
+        "test:search": "node packages/cli/built/genaiscript.cjs retreival search rag \"packages/sample/src/rag/*\" \"docs/src/**/*\"",
         "test:query": "node packages/cli/built/genaiscript.cjs retreival query \"what is lorem ipsum?\" packages/sample/src/rag/*",
         "test:outline": "node packages/cli/built/genaiscript.cjs retreival outline packages/core/src/server/*.ts",
         "test:tokens": "node packages/cli/built/genaiscript.cjs retreival tokens packages/sample/src/rag/*",
@@ -49,6 +49,7 @@
         }
     },
     "devDependencies": {
+        "glob": "^10.3.10",
         "vitest": "^1.3.1",
         "zx": "^7.2.3"
     }
