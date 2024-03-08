@@ -2,8 +2,7 @@ import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
     HighlightService,
     ResponseStatus,
-    RetreivalQueryOptions,
-    RetreivalQueryResponse,
+    RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalService,
     host,
@@ -14,7 +13,6 @@ import {
     RequestMessages,
     RetreivalClear,
     RetreivalOutline,
-    RetreivalQuery,
     RetreivalSearch,
     RetreivalUpsert,
 } from "./messages"
@@ -110,7 +108,7 @@ export class WebSocketClient implements RetreivalService, HighlightService {
     }
     async search(
         text: string,
-        options?: RetreivalQueryOptions
+        options?: RetreivalSearchOptions
     ): Promise<RetreivalSearchResponse> {
         const res = await this.queue<RetreivalSearch>({
             type: "retreival.search",

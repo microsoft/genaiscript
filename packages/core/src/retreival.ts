@@ -1,4 +1,4 @@
-import { RetreivalClientOptions, RetreivalQueryOptions, host } from "./host"
+import { RetreivalClientOptions, RetreivalSearchOptions, host } from "./host"
 import { lookupMime } from "./mime"
 
 const UPSERTFILE_MIME_TYPES = [
@@ -53,7 +53,7 @@ export interface RetreivalSearchResult {
 
 export async function search(
     q: string,
-    options?: RetreivalClientOptions & RetreivalQueryOptions
+    options?: RetreivalClientOptions & RetreivalSearchOptions
 ): Promise<RetreivalSearchResult> {
     const { trace, ...rest } = options || {}
     const retreival = host.retreival
