@@ -52,6 +52,7 @@ export async function startServer(options: { port: string }) {
                             data.text,
                             data.options
                         )
+                        console.debug(YAMLStringify(response))
                         break
                     case "retreival.outline":
                         console.log(
@@ -59,6 +60,7 @@ export async function startServer(options: { port: string }) {
                         )
                         console.debug(YAMLStringify(data.files))
                         response = await outline(data.files)
+                        console.debug(YAMLStringify(response))
                         break
                     default:
                         throw new Error(`unknown message type ${type}`)
