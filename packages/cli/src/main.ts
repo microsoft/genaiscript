@@ -36,6 +36,7 @@ import {
     outline,
     estimateTokens,
     assert,
+    DOCXTryParse,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -66,8 +67,7 @@ class ProgressSpinner implements Progress {
             this.spinner.succeed(message)
         } else if (succeeded === false) {
             this.spinner.fail(message)
-        } else if (message)
-            this.spinner.start(message)
+        } else if (message) this.spinner.start(message)
     }
 }
 
@@ -678,6 +678,11 @@ async function parsePDF(file: string) {
     console.log(out)
 }
 
+async function parseDOCX(file: string) {
+    const text = await DOCXTryParse(file)
+    console.log(text)
+}
+
 async function jsonl2json(files: string[]) {
     const spinner = ora({ interval: 200 })
     for (const file of await expandFiles(files)) {
@@ -939,8 +944,13 @@ async function main() {
 
     parser
         .command("pdf <file>")
-        .description("Parse a PDF into a list of files")
+        .description("Parse a PDF into text")
         .action(parsePDF)
+
+    parser
+        .command("docx <file>")
+        .description("Parse a DOCX into texts")
+        .action(parseDOCX)
 
     program
         .command("help-all", { hidden: true })

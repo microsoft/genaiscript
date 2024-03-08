@@ -96,18 +96,13 @@ pass an array of header names in the options.
 const res = parsers.CSV("...", { delimiter: "\t", headers: ["name", "age"] })
 ```
 
-## tokens
-
-The `parsers.tokens` estimates the number of tokens in a string
-for the current model. This is useful for estimating the number of prompts that can be generated from a string.
-
-```js
-const count = parsers.tokens("...")
-```
-
 ## PDF
 
 The `parsers.PDF` function reads a PDF file and attempts to cleanly convert it into a text format. Read the [/genaiscript/reference/scripts/pdf](/genaiscript/reference/scripts/pdf) for more information.
+
+## DOCX
+
+The `parsers.DOCX` function reads a .docx file as raw text.
 
 ## fences
 
@@ -148,4 +143,13 @@ into a list of objects.
 
 ```js
 const annotations = parsers.annotations("...")
+```
+
+## tokens
+
+The `parsers.tokens` estimates the number of tokens in a string
+for the current model. This is useful for estimating the number of prompts that can be generated from a string.
+
+```js
+const count = parsers.tokens("...")
 ```
