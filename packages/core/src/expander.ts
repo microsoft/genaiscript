@@ -320,23 +320,29 @@ ${fenceMD(schemaText, format + "-schema")}`)
             // expand template
             const { prompt, images, errors } = await renderPromptNode(node)
             trace.fence(prompt, "markdown")
-            trace.fence({ images, errors }, "yaml")
+            if (images?.length || errors?.length)
+                trace.fence({ images, errors }, "yaml")
 
             // call LLM
             const completer = options.getChatCompletions || getChatCompletions
             const res = await completer(
                 {
-                    model: promptOptions.model || r.model || options.model,
+                    model:
+                        promptOptions?.model ||
+                        r.model ||
+                        options.model ||
+                        DEFAULT_MODEL,
                     temperature:
-                        promptOptions.temperature ||
-                        r.temperature ||
-                        options.temperature,
-                    top_p: promptOptions.topP || r.topP || options.topP,
+                        promptOptions?.temperature ??
+                        r.temperature ??
+                        options.temperature ??
+                        DEFAULT_TEMPERATURE,
+                    top_p: promptOptions?.topP ?? r.topP ?? options.topP,
                     max_tokens:
-                        promptOptions.maxTokens ||
-                        r.maxTokens ||
+                        promptOptions?.maxTokens ??
+                        r.maxTokens ??
                         options.maxTokens,
-                    seed: promptOptions.seed || r.seed || options.seed,
+                    seed: promptOptions?.seed ?? r.seed ?? options.seed,
                     stream: true,
                     messages: [toChatCompletionUserMessage(prompt, images)],
                 },
