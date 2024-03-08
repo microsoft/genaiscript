@@ -69,6 +69,7 @@ export interface ResponseStatus {
 export interface RetreivalSearchOptions {
     files?: string[]
     topK?: number
+    minScore?: number
 }
 
 export type RetreivalSearchResponse = ResponseStatus & {

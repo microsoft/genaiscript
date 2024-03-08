@@ -1,5 +1,6 @@
 import {
     Host,
+    LLAMAINDEX_MIN_SCORE,
     LLAMAINDEX_SIMILARITY_TOPK,
     MarkdownTrace,
     PromiseType,
@@ -185,7 +186,10 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         text: string,
         options?: RetreivalSearchOptions
     ): Promise<RetreivalSearchResponse> {
-        const { topK = LLAMAINDEX_SIMILARITY_TOPK } = options ?? {}
+        const {
+            topK = LLAMAINDEX_SIMILARITY_TOPK,
+            minScore = LLAMAINDEX_MIN_SCORE,
+        } = options ?? {}
         const { VectorStoreIndex, MetadataMode } = this.module
 
         const storageContext = await this.createStorageContext(options)
@@ -199,12 +203,14 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const results = await retreiver.retrieve(text)
         return {
             ok: true,
-            results: results.map((r) => ({
-                filename: r.node.metadata.filename,
-                id: r.node.id_,
-                text: r.node.getContent(MetadataMode.NONE),
-                score: r.score,
-            })),
+            results: results
+                .filter((r) => r.score >= minScore)
+                .map((r) => ({
+                    filename: r.node.metadata.filename,
+                    id: r.node.id_,
+                    text: r.node.getContent(MetadataMode.NONE),
+                    score: r.score,
+                })),
         }
     }
 

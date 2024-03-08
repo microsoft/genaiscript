@@ -24,3 +24,4 @@ export const EXTENSION_ID = "devicescript.genaiscript-vscode"
 export const CHAT_PARTICIPANT_ID = TOOL_ID
 export const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 export const LLAMAINDEX_SIMILARITY_TOPK = 5
+export const LLAMAINDEX_MIN_SCORE = 0.7
