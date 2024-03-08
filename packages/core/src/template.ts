@@ -311,6 +311,7 @@ async function parseMeta(r: PromptTemplate) {
                 path: undefined,
                 parsers: undefined,
                 retreival: undefined,
+                fs: undefined,
                 YAML: undefined,
                 defSchema: error,
                 defImages: error,
@@ -318,7 +319,6 @@ async function parseMeta(r: PromptTemplate) {
                 appendPromptChild: error,
                 writeText: error,
                 runPrompt: error,
-                readFile: error,
                 fetchText: error,
             },
             r.jsSource

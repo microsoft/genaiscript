@@ -10,6 +10,7 @@ import {
     ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
+    createFileSystem,
     parseTokenFromEnv,
     setHost,
 } from "genaiscript-core"
@@ -41,6 +42,7 @@ export class NodeHost implements Host {
     highlight: HighlightService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
+    readonly fs = createFileSystem()
 
     constructor() {
         this.retreival = new LlamaIndexRetreivalService(this)
