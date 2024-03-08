@@ -1,5 +1,5 @@
 ---
-title: Reference
+title: Overview
 description: Comprehensive reference for GenAIScript documentation including scripts, specs, authorization, VSCode extension, and CLI.
 keywords: GenAIScript, scripts, specs, authorization, CLI
 sidebar:
