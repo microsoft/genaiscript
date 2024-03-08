@@ -3,15 +3,22 @@ script({
     description: "Given a problem desciption and code, write a code review",
     maxTokens: 4000,
     categories: ["samples"],
-    temperature: 0
+    temperature: 0,
 })
 
 // content
 def("SPEC", env.spec)
-def("CODE", env.files.filter((f) => path.extname(f.filename) === ".py" && !path.basename(f.filename).startsWith("test_")))
+def(
+    "CODE",
+    env.files.filter(
+        (f) =>
+            path.extname(f.filename) === ".py" &&
+            !path.basename(f.filename).startsWith("test_")
+    )
+)
 
 // workspace
-const file = await readFile("README.md")
+const file = await fs.readFile("README.md")
 def("README", file)
 
 // prompt generation

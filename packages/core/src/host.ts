@@ -115,6 +115,7 @@ export interface Host {
     highlight: HighlightService
     server: ServerManager
     path: Path
+    fs: FileSystem
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder
     projectFolder(): string
