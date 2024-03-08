@@ -387,13 +387,6 @@ ${fenceMD(schemaText, format + "-schema")}`)
                     }
                 },
                 runPrompt,
-                readFile: async (filename: string) => {
-                    let content: string
-                    try {
-                        content = await readText("workspace://" + filename)
-                    } catch (e) {}
-                    return { label: filename, filename, content }
-                },
                 fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {
                         urlOrFile = {

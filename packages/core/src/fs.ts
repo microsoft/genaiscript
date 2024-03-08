@@ -1,4 +1,4 @@
-import { ReadFileOptions, host } from "."
+import { ReadFileOptions, host } from "./host"
 import { utf8Decode, utf8Encode } from "./util"
 
 export async function readText(fn: string) {
@@ -53,4 +53,17 @@ export function filenameOrFileToContent(
     return typeof fileOrContent === "string"
         ? fileOrContent
         : fileOrContent?.content
+}
+
+export function createFileSystem() {
+    return <FileSystem>{
+        findFiles: async (glob) => host.findFiles(glob),
+        readFile: async (filename: string) => {
+            let content: string
+            try {
+                content = await readText("workspace://" + filename)
+            } catch (e) {}
+            return { label: filename, filename, content }
+        },
+    }
 }

@@ -319,7 +319,6 @@ async function parseMeta(r: PromptTemplate) {
                 appendPromptChild: error,
                 writeText: error,
                 runPrompt: error,
-                readFile: error,
                 fetchText: error,
             },
             r.jsSource

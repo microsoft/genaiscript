@@ -349,7 +349,11 @@ type ChatFunctionCallOutput =
 
 interface FileSystem {
     findFiles(glob: string): Promise<string[]>
-    readText(file: string): Promise<string>
+    /**
+     * Reads the content of a file
+     * @param path
+     */
+    readFile(path: string): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
@@ -744,7 +748,6 @@ interface PromptContext {
         text?: string
         file?: LinkedFile
     }>
-    readFile(file: string): Promise<LinkedFile>
     cancel(reason?: string): void
     env: ExpansionVariables
     path: Path

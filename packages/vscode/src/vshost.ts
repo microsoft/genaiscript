@@ -7,9 +7,9 @@ import {
     ShellCallOptions,
     ShellOutput,
     TOOL_NAME,
+    createFileSystem,
     logVerbose,
     parseTokenFromEnv,
-    readText,
     setHost,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
@@ -26,15 +26,11 @@ export class VSCodeHost extends EventTarget implements Host {
     virtualFiles: Record<string, Uint8Array> = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly fs: FileSystem
+    readonly fs = createFileSystem()
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
-        this.fs = <FileSystem>{
-            findFiles: async (glob) => this.findFiles(glob),
-            readText: async (file) => readText("workspace://" + file),
-        }
         this.server = new TerminalServerManager(state)
         this.state.context.subscriptions.push(this)
     }

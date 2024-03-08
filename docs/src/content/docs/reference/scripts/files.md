@@ -4,35 +4,37 @@ sidebar:
     order: 13
 ---
 
-All files are resolved relative to the current workspace project folder.
+## `fs`
 
-## Read File (`readFile`)
+The `fs` object gives access to file system operations
 
-Reads the content of a local text file.
+### `readFile`
+
+Reads the content of a file, relative to the workspace root.
 
 ```ts
-const content = await readFile("/README.md")
-defFile("README", content)
+const file = await fs.readFile("README.md")
+defFile("README", file)
+```
+
+### `findFiles`
+
+Performs a blog search for files under the workspace.
+
+```ts
+const mds = await fs.findFiles("**/*.md")
+defFile("DOCS", mds)
 ```
 
 ## paths
 
 The `paths` object contains helper methods to manipulate file names.
 
-## fetchText
+### Current path vs workspace path
 
-Use `fetchText` to issue GET requests and download text from the internet.
-
-```ts
-const { text, file } = await fetchText("https://....")
-if (text) $`And also ${text}`
-
-def("FILE", file)
-```
-
-fetchText will also resolve the contents of file in the current workspace if the url is a relative path.
+By default, files are resolved relative to the workspace root. You can use the `path` object to resolve paths relative to the current spec, `env.spec`.
 
 ```ts
-const { file } = await fetchText("README.md")
-def("README", file)
+const cur = path.dirname(env.spec.filename)
+const fs = path.join(cur, "myfile.md)
 ```

@@ -10,8 +10,8 @@ import {
     ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
+    createFileSystem,
     parseTokenFromEnv,
-    readText,
     setHost,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
@@ -42,16 +42,11 @@ export class NodeHost implements Host {
     highlight: HighlightService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
-    readonly fs: FileSystem
+    readonly fs = createFileSystem()
 
     constructor() {
         this.retreival = new LlamaIndexRetreivalService(this)
         this.highlight = new LLMCodeHighlighterService(this)
-        this.fs = <FileSystem>{
-            findFiles: async (glob) => this.findFiles(glob),
-            readText: async (file) =>
-                readText("workspace://" + file),
-        }
     }
 
     static install() {
