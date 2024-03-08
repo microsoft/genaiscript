@@ -1,3 +1,4 @@
+import { CancellationToken } from "./cancellation"
 import { Progress } from "./progress"
 import { MarkdownTrace } from "./trace"
 
@@ -55,6 +56,7 @@ export interface ShellCallOptions {
 
 export interface RetreivalClientOptions {
     progress?: Progress
+    token?: CancellationToken
     trace?: MarkdownTrace
 }
 

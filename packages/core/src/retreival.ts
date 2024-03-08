@@ -24,7 +24,7 @@ export async function upsert(
     options?: RetreivalClientOptions
 ) {
     if (!fileOrUrls?.length) return
-    const { progress, trace } = options || {}
+    const { progress, trace, token } = options || {}
     const retreival = host.retreival
     await retreival.init(trace)
     const files: LinkedFile[] = fileOrUrls.map((f) =>
@@ -32,6 +32,7 @@ export async function upsert(
     )
     const increment = 100 / files.length
     for (const f of files) {
+        if (token?.isCancellationRequested) break
         progress?.report({
             increment,
             message: f.filename,
@@ -55,10 +56,9 @@ export async function search(
     q: string,
     options?: RetreivalClientOptions & RetreivalSearchOptions
 ): Promise<RetreivalSearchResult> {
-    const { trace, ...rest } = options || {}
+    const { trace, token, ...rest } = options || {}
     const retreival = host.retreival
     await host.retreival.init(trace)
-
     const { results } = await retreival.search(q, rest)
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r

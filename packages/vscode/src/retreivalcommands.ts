@@ -89,7 +89,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             },
             async (progress, token) => {
                 try {
-                    await upsert(files, { progress })
+                    await upsert(files, { progress, token })
                 } catch (e) {
                     vscode.window.showErrorMessage(e.message)
                 }
