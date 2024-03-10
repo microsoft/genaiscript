@@ -1,7 +1,11 @@
+import { fenceMD } from "./markdown"
+import { stringifySchemaToTypeScript } from "./schema"
+import { MarkdownTrace } from "./trace"
 import { assert } from "./util"
+import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
-    type?: "text" | "image" | undefined
+    type?: "text" | "image" | "schema" | undefined
     children?: PromptNode[]
     priority?: number
     error?: unknown
@@ -22,6 +26,13 @@ export interface PromptImageNode extends PromptNode {
     value: PromptImage | Promise<PromptImage>
 }
 
+export interface PromptSchemaNode extends PromptNode {
+    type: "schema"
+    name: string
+    value: JSONSchema
+    options?: DefSchemaOptions
+}
+
 export function createTextNode(
     value: string | Promise<string>
 ): PromptTextNode {
@@ -34,6 +45,16 @@ export function createImageNode(
 ): PromptImageNode {
     assert(value !== undefined)
     return { type: "image", value }
+}
+
+export function createSchemaNode(
+    name: string,
+    value: JSONSchema,
+    options?: DefSchemaOptions
+): PromptSchemaNode {
+    assert(!!name)
+    assert(value !== undefined)
+    return { type: "schema", name, value, options }
 }
 
 export function appendChild(parent: PromptNode, child: PromptNode): void {
@@ -49,6 +70,7 @@ export async function visitNode(
         node?: (node: PromptNode) => Promise<void>
         text?: (node: PromptTextNode) => Promise<void>
         image?: (node: PromptImageNode) => Promise<void>
+        schema?: (node: PromptSchemaNode) => Promise<void>
     }
 ) {
     await visitor.node?.(node)
@@ -59,6 +81,9 @@ export async function visitNode(
         case "image":
             await visitor.image?.(node as PromptImageNode)
             break
+        case "schema":
+            await visitor.schema?.(node as PromptSchemaNode)
+            break
     }
     if (node.children) {
         for (const child of node.children) {
@@ -68,11 +93,20 @@ export async function visitNode(
 }
 
 export async function renderPromptNode(
-    node: PromptNode
-): Promise<{ prompt: string; images: PromptImage[]; errors: unknown[] }> {
+    node: PromptNode,
+    options?: { trace: MarkdownTrace }
+): Promise<{
+    prompt: string
+    images: PromptImage[]
+    errors: unknown[]
+    schemas: Record<string, JSONSchema>
+}> {
+    const { trace } = options || {}
+
     let prompt = ""
     const images: PromptImage[] = []
     const errors: unknown[] = []
+    const schemas: Record<string, JSONSchema> = {}
     await visitNode(node, {
         text: async (n) => {
             try {
@@ -92,6 +126,26 @@ export async function renderPromptNode(
                 errors.push(e)
             }
         },
+        schema: async (n) => {
+            const { name: schemaName, value: schema, options } = n
+            const { format = "typescript" } = options || {}
+            let schemaText: string
+            switch (format) {
+                case "json":
+                    schemaText = JSON.stringify(schema, null, 2)
+                    break
+                case "yaml":
+                    schemaText = YAMLStringify(schema)
+                    break
+                default:
+                    schemaText = stringifySchemaToTypeScript(schema, {
+                        typeName: schemaName,
+                    })
+                    break
+            }
+            prompt += `${name}:\n
+            ${fenceMD(schemaText, format + "-schema")}`
+        },
     })
-    return { prompt, images, errors }
+    return { prompt, images, errors, schemas }
 }
