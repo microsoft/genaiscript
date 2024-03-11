@@ -4,7 +4,7 @@ import { randomRange, sha256string } from "./util"
 import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
 import { minimatch } from "minimatch"
-import { PromptNode, createFunctioNode } from "./promptdom"
+import { PromptNode, createFileMergeNode, createFunctioNode } from "./promptdom"
 import { createDefNode } from "./filedom"
 function templateIdFromFileName(filename: string) {
     return filename
@@ -178,7 +178,7 @@ class Checker<T extends PromptLike> {
 // fills missing utility functions
 export type BasePromptContext = Omit<
     PromptContext,
-    "fence" | "def" | "$" | "defFunction" | "cancel"
+    "fence" | "def" | "$" | "defFunction" | "defFileMerge" | "cancel"
 > & {
     appendPromptChild(node: PromptNode): void
     scope: PromptNode[]
@@ -231,11 +231,18 @@ export async function evalPrompt(
             return dontuse("def")
         },
         defFunction(name, description, parameters, fn) {
-            if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
+            if (ctx0.scope.length > 1)
+                return dontuse("defFunction", "runPrompt")
             ctx0.appendPromptChild(
                 createFunctioNode(name, description, parameters, fn)
             )
             return dontuse("defFunction")
+        },
+        defFileMerge(fn) {
+            if (ctx0.scope.length > 1)
+                return dontuse("defFileMerge", "runPrompt")
+            ctx0.appendPromptChild(createFileMergeNode(fn))
+            return dontuse("defFileMerge")
         },
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
@@ -609,10 +616,7 @@ export async function parsePromptTemplate(
             c.checkStringArray("categories")
 
             c.checkBool("isSystem")
-            c.checkFunction("fileMerge")
             c.checkObjectArray("urlAdapters")
-            c.checkObjectArray("functions")
-            c.checkObjectArray("schemas")
         })
 
         const r = c.template
