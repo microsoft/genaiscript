@@ -506,7 +506,7 @@ async function expandTemplate(
         if (/diff/i.test(jsSource)) systems.push("system.diff")
         else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
         else systems.push("system.files")
-        if (/\wannotations?\w/i.test(jsSource)) systems.push("system.annotations")
+        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
     }
     for (let i = 0; i < systems.length && success; ++i) {
