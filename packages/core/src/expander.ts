@@ -283,6 +283,11 @@ async function callExpander(
         try {
             trace.startDetails(`🎁 run prompt`)
             const node: PromptNode = { children: [] }
+            const model =
+                promptOptions?.model ||
+                r.model ||
+                options.model ||
+                DEFAULT_MODEL
             try {
                 scope.unshift(node)
                 await generator()
@@ -294,9 +299,13 @@ async function callExpander(
                 return { text: "Prompt cancelled" }
 
             // expand template
-            const { prompt, images, errors } = await renderPromptNode(node, {
-                trace,
-            })
+            const { prompt, images, errors } = await renderPromptNode(
+                model,
+                node,
+                {
+                    trace,
+                }
+            )
             trace.fence(prompt, "markdown")
             if (images?.length || errors?.length)
                 trace.fence({ images, errors }, "yaml")
@@ -305,11 +314,7 @@ async function callExpander(
             const completer = options.getChatCompletions || getChatCompletions
             const res = await completer(
                 {
-                    model:
-                        promptOptions?.model ||
-                        r.model ||
-                        options.model ||
-                        DEFAULT_MODEL,
+                    model,
                     temperature:
                         promptOptions?.temperature ??
                         r.temperature ??
@@ -427,7 +432,7 @@ async function callExpander(
             schemas: schs,
             functions: fns,
             fileMerges: fms,
-        } = await renderPromptNode(scope[0], { trace })
+        } = await renderPromptNode(model, scope[0], { trace })
         text = prompt
         images = imgs
         schemas = schs
@@ -518,6 +523,7 @@ async function expandTemplate(
             assert(!!system)
         }
 
+        trace.startDetails(`👾 ${systemTemplate}`)
         const sysr = await callExpander(system, env, trace, options)
         const sysex = sysr.text
         success = success && sysr.success
@@ -534,7 +540,6 @@ async function expandTemplate(
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
-        trace.startDetails(`👾 ${systemTemplate}`)
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
         trace.item(
