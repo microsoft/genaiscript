@@ -268,41 +268,12 @@ async function callExpander(
         schema: JSONSchema,
         options?: DefSchemaOptions
     ) => {
-        try {
-            trace.startDetails(`schema ${name}`)
-            trace.item("source:")
-            trace.fence(JSON.stringify(schema, null, 2), "json")
-            /*
-            const { format = "typescript" } = options || {}
-            let schemaText: string
-            switch (format) {
-                case "json":
-                    schemaText = JSON.stringify(schema, null, 2)
-                    break
-                case "yaml":
-                    schemaText = YAMLStringify(schema)
-                    break
-                default:
-                    schemaText = stringifySchemaToTypeScript(schema, {
-                        typeName: name,
-                    })
-                    break
-            }
-            if (format !== "json") {
-                trace.item(`prompt (rendered as ${format}):`)
-                trace.fence(schemaText, format)
-            }*/
-
-            appendPromptChild(createSchemaNode(name, schema, options))
-            //                createTextNode(`${name}:\n
-            //${fenceMD(schemaText, format + "-schema")}`)
-            //          )
-            //        if (env.schemas[name])
-            //          trace.error("schema " + name + " defined in multiple places")
-            //    env.schemas[name] = schema
-        } finally {
-            trace.endDetails()
-        }
+        trace.detailsFenced(
+            `schema ${name}`,
+            JSON.stringify(schema, null, 2),
+            "json"
+        )
+        appendPromptChild(createSchemaNode(name, schema, options))
     }
 
     const runPrompt: (
