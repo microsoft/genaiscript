@@ -29,12 +29,12 @@ export default defineConfig({
                     autogenerate: { directory: "guides" },
                 },
                 {
-                    label: "Scripting",
-                    autogenerate: { directory: "reference/scripts" },
+                    label: "Case Studies",
+                    autogenerate: { directory: "case-studies" },
                 },
                 {
-                    label: "CLI",
-                    autogenerate: { directory: "reference/cli" },
+                    label: "Reference",
+                    autogenerate: { directory: "reference" },
                 },
                 {
                     label: "FAQ",
