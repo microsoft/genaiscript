@@ -28,6 +28,8 @@ jobs:
               run: yarn test:core
             - name: unit tests
               run: yarn test:unit
+            - name: install sharp
+              run: cd docs && yarn add sharp
             - name: docs
               run: yarn build:docs
             - name: run cli
