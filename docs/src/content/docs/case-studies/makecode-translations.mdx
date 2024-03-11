@@ -128,7 +128,7 @@ input.onGesture(Gesture.Shake, function() {
 ```
 ````
 
-### Automation
+## Automation
 
 Note that we use `env.vargs.lang` [variable](/genaiscript/reference/scripts/variables) which allows to modify this value through the command line.
 
@@ -142,11 +142,23 @@ Using the genaiscript CLI, we can run the script for each desired language in a 
 node .genaiscript/genaiscript.cjs run translate ... --vars lang=German
 ```
 
+### Validation and upload
+
 The CLI can be automated using your favorite bash/script runtime.
-For example, using [zx](https://google.github.io/zx/), translate for a number of locales:
+For example, using [zx](https://google.github.io/zx/), we automate for a number of locales:
+
+- translate documentation,
+- save translation to files,
+- run the MakeCode compiler to validate the translations
+- upload/update translation to the translation database
 
 ```js
 const langs = ["French", "German", ...]
 for(const lang of langs) {
-    await $`node .genaiscript/genaiscript.cjs run translate ... --vars lang=${lang} ...`
+    // run script and create translations
+    await $`node .genaiscript/genaiscript.cjs run translate ... --vars lang=${lang} ... --apply-edits`
+    // run MakeCode compiler to validate translations 
+    await $`makecode check-docs ...`
+    // upload the database
+    await $`translation upload ...`
 }
