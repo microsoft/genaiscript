@@ -218,6 +218,7 @@ ${trimNewlines(schemaText)}
         },
         fileMerge: async (n) => {
             fileMerges.push(n.fn)
+            trace.item(`file merge added`)
         },
     })
     return { prompt, images, errors, schemas, functions, fileMerges }
