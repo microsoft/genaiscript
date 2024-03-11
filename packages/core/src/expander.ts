@@ -338,6 +338,7 @@ async function callExpander(
     let text = ""
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
+    let functions: ChatFunctionCallback[] = []
     try {
         await evalPrompt(
             {
@@ -423,10 +424,12 @@ async function callExpander(
             images: imgs,
             errors,
             schemas: schs,
+            functions: fns,
         } = await renderPromptNode(scope[0], { trace })
         text = prompt
         images = imgs
         schemas = schs
+        functions = fns
         for (const error of errors) trace.error(``, error)
     } catch (e) {
         success = false
@@ -439,7 +442,7 @@ async function callExpander(
         }
     }
 
-    return { logs, success, text, images, schemas }
+    return { logs, success, text, images, schemas, functions }
 }
 
 async function expandTemplate(
@@ -454,7 +457,7 @@ async function expandTemplate(
 
     traceVars()
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-    trace.startDetails("🛠️ script")
+    trace.startDetails("💾 script")
 
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
@@ -462,6 +465,7 @@ async function expandTemplate(
     const expanded = prompt.text
     const images = prompt.images
     const schemas = prompt.schemas
+    const functions = prompt.functions
 
     let success = prompt.success
     let model = template.model
@@ -516,6 +520,7 @@ async function expandTemplate(
         if (!success) break
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
+        if (sysr.functions) functions.push(...sysr.functions)
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -581,6 +586,7 @@ async function expandTemplate(
         expanded,
         images,
         schemas,
+        functions,
         success,
         model,
         temperature,
@@ -844,6 +850,7 @@ export async function runTemplate(
         expanded,
         images,
         schemas,
+        functions,
         success,
         temperature,
         topP,
@@ -928,8 +935,8 @@ export async function runTemplate(
     const fragmentVirtual = await fileExists(fragment.file.filename, {
         virtual: true,
     })
-    const tools: ChatCompletionTool[] = vars.functions?.length
-        ? vars.functions.map((f) => ({
+    const tools: ChatCompletionTool[] = functions?.length
+        ? functions.map((f) => ({
               type: "function",
               function: f.definition as any,
           }))
@@ -1069,7 +1076,7 @@ export async function runTemplate(
                     const callArgs: any = call.arguments
                         ? JSON5TryParse(call.arguments)
                         : undefined
-                    const fd = vars.functions.find(
+                    const fd = functions.find(
                         (f) => f.definition.name === call.name
                     )
                     if (!fd) throw new Error(`function ${call.name} not found`)

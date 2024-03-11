@@ -53,9 +53,7 @@ declare function defFunction(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
-    fn: (
-        args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+    fn: ChatFunctionHandler
 ): void
 
 /**
@@ -102,7 +100,11 @@ declare function fetchText(
  * @param name name of the variable
  * @param schema JSON schema instance
  */
-declare function defSchema(name: string, schema: JSONSchema, options?: DefSchemaOptions): void
+declare function defSchema(
+    name: string,
+    schema: JSONSchema,
+    options?: DefSchemaOptions
+): void
 
 /**
  * Adds images to the prompt
