@@ -1,7 +1,7 @@
 import { fenceMD } from "./markdown"
 import { stringifySchemaToTypeScript } from "./schema"
 import { MarkdownTrace } from "./trace"
-import { assert } from "./util"
+import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
@@ -120,7 +120,10 @@ export async function renderPromptNode(
         image: async (n) => {
             try {
                 const v = await n.value
-                if (v !== undefined) images.push(v)
+                if (v !== undefined) {
+                    images.push(v)
+                    trace?.image(v.url, v.detail)
+                }
             } catch (e) {
                 node.error = e
                 errors.push(e)
@@ -128,6 +131,9 @@ export async function renderPromptNode(
         },
         schema: async (n) => {
             const { name: schemaName, value: schema, options } = n
+            if (schemas[schemaName])
+                trace.error("duplicate schema name: " + schemaName)
+            schemas[schemaName] = schema
             const { format = "typescript" } = options || {}
             let schemaText: string
             switch (format) {
@@ -144,7 +150,10 @@ export async function renderPromptNode(
                     break
             }
             prompt += `${schemaName}:
-${fenceMD(schemaText, format + "-schema")}`
+\`\`\`${format + "-schema"}
+${trimNewlines(schemaText)}
+\`\`\`
+`
             if (trace && format !== "json")
                 trace.detailsFenced(
                     `🧬 schema ${schemaName} as ${format}`,

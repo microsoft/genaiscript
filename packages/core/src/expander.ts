@@ -294,10 +294,9 @@ async function callExpander(
                 return { text: "Prompt cancelled" }
 
             // expand template
-            const { prompt, images, errors, schemas } = await renderPromptNode(
-                node,
-                { trace }
-            )
+            const { prompt, images, errors } = await renderPromptNode(node, {
+                trace,
+            })
             trace.fence(prompt, "markdown")
             if (images?.length || errors?.length)
                 trace.fence({ images, errors }, "yaml")
@@ -457,15 +456,14 @@ async function expandTemplate(
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
     trace.startDetails("🛠️ script")
 
+    trace.startDetails("🧬 prompt")
+    trace.detailsFenced("📓 script source", template.jsSource, "js")
     const prompt = await callExpander(template, env, trace, options)
-    if (cancellationToken?.isCancellationRequested) return { success: false }
-
     const expanded = prompt.text
     const images = prompt.images
     const schemas = prompt.schemas
 
     let success = prompt.success
-    let systemText = ""
     let model = template.model
     let temperature = template.temperature
     let topP = template.topP
@@ -473,6 +471,20 @@ async function expandTemplate(
     let seed = template.seed
     let responseType = template.responseType
 
+    if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
+    if (model) trace.item(`model: \`${model || ""}\``)
+    trace.item(
+        `tokens: ${estimateTokens(template.model || DEFAULT_MODEL, expanded)}`
+    )
+    if (temperature !== undefined) trace.item(`temperature: ${temperature}`)
+    if (topP !== undefined) trace.item(`top_p: ${topP}`)
+    if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens}`)
+    trace.fence(expanded, "markdown")
+    trace.endDetails()
+
+    if (cancellationToken?.isCancellationRequested) return { success: false }
+
+    let systemText = ""
     const systems = (template.system ?? []).slice(0)
     if (template.system === undefined) {
         systems.push("system")
@@ -513,6 +525,7 @@ async function expandTemplate(
         seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
         trace.startDetails(`👾 ${systemTemplate}`)
+        if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
         trace.item(
             `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysex)}`
@@ -526,12 +539,8 @@ async function expandTemplate(
         trace.fence(system.jsSource, "js")
         trace.heading(3, "expanded")
         trace.fence(sysex, "markdown")
-        sysr.images?.forEach((img) => trace.image(img.url))
-        // trace schemas
         trace.endDetails()
     }
-
-    trace.detailsFenced("📓 script source", template.jsSource, "js")
 
     model = (options.model ??
         env.vars["model"] ??
@@ -551,26 +560,21 @@ async function expandTemplate(
         defaultMaxTokens
     seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
-    if (prompt.logs?.length) trace.details("console.log", prompt.logs)
     {
-        trace.startDetails("🧬 expanded prompt")
+        trace.startDetails("⚙️ configuration")
         trace.item(`model: \`${model || ""}\``)
-        trace.item(`tokens: ${estimateTokens(model, prompt.text)}`)
-        if (temperature !== undefined)
-            trace.item(`temperature: ${temperature || ""}`)
-        if (topP !== undefined) trace.item(`top_p: ${topP || ""}`)
-        if (max_tokens !== undefined)
-            trace.item(`max tokens: ${max_tokens || ""}`)
+        trace.item(`tokens: ${estimateTokens(model, expanded)}`)
+        if (temperature !== undefined) trace.item(`temperature: ${temperature}`)
+        if (topP !== undefined) trace.item(`top_p: ${topP}`)
+        if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens}`)
         if (seed !== undefined) {
             seed = seed >> 0
             trace.item(`seed: ${seed}`)
         }
         if (responseType) trace.item(`response type: ${responseType}`)
-        trace.fence(expanded, "markdown")
-        prompt.images?.forEach((img) => trace.image(img.url))
-        // trace schemas
         trace.endDetails() // expanded prompt
     }
+
     trace.endDetails()
 
     return {
@@ -1329,7 +1333,7 @@ export async function runTemplate(
 
     if (edits.length)
         trace.details(
-            "🖊 edits",
+            "✏️ edits",
             CSVToMarkdown(edits, { headers: ["type", "filename", "message"] })
         )
     if (annotations.length)
