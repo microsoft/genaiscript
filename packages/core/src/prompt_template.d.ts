@@ -424,11 +424,6 @@ interface ExpansionVariables {
     functions?: ChatFunctionCallback[]
 
     /**
-     * List of JSON schemas; if any
-     */
-    schemas?: Record<string, JSONSchema>
-
-    /**
      * List of secrets used by the prompt, must be registred in `genaiscript`.
      */
     secrets?: Record<string, string>
