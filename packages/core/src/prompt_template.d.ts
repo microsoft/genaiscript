@@ -429,7 +429,10 @@ type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 
 type StringLike = string | LinkedFile | LinkedFile[]
 
-interface DefOptions {
+interface FenceOptions {
+    /**
+     * Language of the fenced code block. Defaults to "markdown".
+     */
     language?:
         | "markdown"
         | "json"
@@ -440,12 +443,19 @@ interface DefOptions {
         | "shell"
         | "toml"
         | string
+
+    /**
+     * Prepend each line with a line numbers. Helps with generating diffs.
+     */
     lineNumbers?: boolean
+
     /**
      * JSON schema identifier
      */
     schema?: string
+}
 
+interface DefOptions extends FenceOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -715,7 +725,7 @@ interface PromptContext {
     $(strings: TemplateStringsArray, ...args: any[]): void
     script(options: PromptArgs): void
     system(options: PromptArgs): void
-    fence(body: StringLike, options?: DefOptions): void
+    fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(

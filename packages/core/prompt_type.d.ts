@@ -31,7 +31,7 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
  *
  * @param body string to be fenced
  */
-declare function fence(body: StringLike, options?: DefOptions): void
+declare function fence(body: StringLike, options?: FenceOptions): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
