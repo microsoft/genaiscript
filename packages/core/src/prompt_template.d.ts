@@ -419,11 +419,6 @@ interface ExpansionVariables {
     chat?: ChatAgentContext
 
     /**
-     * List of functions defined in the prompt
-     */
-    functions?: ChatFunctionCallback[]
-
-    /**
      * List of secrets used by the prompt, must be registred in `genaiscript`.
      */
     secrets?: Record<string, string>
@@ -711,6 +706,10 @@ interface DefSchemaOptions {
     format?: "typescript" | "json" | "yaml"
 }
 
+type ChatFunctionHandler = (
+    args: { context: ChatFunctionCallContext } & Record<string, any>
+) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+
 // keep in sync with prompt_type.d.ts
 interface PromptContext {
     writeText(body: string): void
@@ -724,9 +723,7 @@ interface PromptContext {
         name: string,
         description: string,
         parameters: ChatFunctionParameters,
-        fn: (
-            args: { context: ChatFunctionCallContext } & Record<string, any>
-        ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+        fn: ChatFunctionHandler
     ): void
     defSchema(
         name: string,

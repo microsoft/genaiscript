@@ -5,7 +5,7 @@ import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
-    type?: "text" | "image" | "schema" | undefined
+    type?: "text" | "image" | "schema" | "function" | undefined
     children?: PromptNode[]
     priority?: number
     error?: unknown
@@ -33,6 +33,14 @@ export interface PromptSchemaNode extends PromptNode {
     options?: DefSchemaOptions
 }
 
+export interface PromptFunctionNode extends PromptNode {
+    type: "function"
+    name: string
+    description: string
+    parameters: ChatFunctionParameters
+    fn: ChatFunctionHandler
+}
+
 export function createTextNode(
     value: string | Promise<string>
 ): PromptTextNode {
@@ -57,6 +65,19 @@ export function createSchemaNode(
     return { type: "schema", name, value, options }
 }
 
+export function createFunctioNode(
+    name: string,
+    description: string,
+    parameters: ChatFunctionParameters,
+    fn: ChatFunctionHandler
+): PromptFunctionNode {
+    assert(!!name)
+    assert(!!description)
+    assert(parameters !== undefined)
+    assert(fn !== undefined)
+    return { type: "function", name, description, parameters, fn }
+}
+
 export function appendChild(parent: PromptNode, child: PromptNode): void {
     if (!parent.children) {
         parent.children = []
@@ -71,6 +92,7 @@ export async function visitNode(
         text?: (node: PromptTextNode) => Promise<void>
         image?: (node: PromptImageNode) => Promise<void>
         schema?: (node: PromptSchemaNode) => Promise<void>
+        function?: (node: PromptFunctionNode) => Promise<void>
     }
 ) {
     await visitor.node?.(node)
@@ -83,6 +105,9 @@ export async function visitNode(
             break
         case "schema":
             await visitor.schema?.(node as PromptSchemaNode)
+            break
+        case "function":
+            await visitor.function?.(node as PromptFunctionNode)
             break
     }
     if (node.children) {
@@ -100,6 +125,7 @@ export async function renderPromptNode(
     images: PromptImage[]
     errors: unknown[]
     schemas: Record<string, JSONSchema>
+    functions: ChatFunctionCallback[]
 }> {
     const { trace } = options || {}
 
@@ -107,6 +133,7 @@ export async function renderPromptNode(
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
+    const functions: ChatFunctionCallback[] = []
     await visitNode(node, {
         text: async (n) => {
             try {
@@ -161,6 +188,18 @@ ${trimNewlines(schemaText)}
                     format
                 )
         },
+        function: async (n) => {
+            const { name, description, parameters, fn } = n
+            functions.push({
+                definition: { name, description, parameters },
+                fn,
+            })
+            trace.detailsFenced(
+                `🛠️ function ${name}`,
+                { description, parameters },
+                "yaml"
+            )
+        },
     })
-    return { prompt, images, errors, schemas }
+    return { prompt, images, errors, schemas, functions }
 }
