@@ -10,7 +10,7 @@ script({
 })
 
 defFileMerge((fn, label, before, generated) => {
-    if (!/.mdx?$/i.test(fn)) return undefined
+    if (!/\.mdx?$/i.test(fn)) return undefined
     let start = 0,
         end = 0
     const lines = (before || "").split("\n")
