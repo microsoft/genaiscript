@@ -1,5 +1,5 @@
 script({
-    title: "blog using generated knownledge",
+    title: "blog using generated knowledge",
     description:
         "Using Generatored Knowledge technique. More at https://learnprompting.org/docs/intermediate/generated_knowledge",
 })
