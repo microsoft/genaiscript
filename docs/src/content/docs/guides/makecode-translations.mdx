@@ -71,7 +71,7 @@ input.onGesture(Gesture.Shake, function() {
 GenAIScript allowed to develop and automate a script that create high-quality LLM-based translations
 for the MakeCode documentation.
 
-A simplified version of the script is shown below and annotated with comments.
+A (simplified) version of the script is shown below and annotated with comments.
 
 ````js wrap
 script({
@@ -89,8 +89,6 @@ def("ORIGINAL", file, { language: "markdown" })
 
 // task
 $`You are an expert at Computer Science education. 
-You are an expert TypeScript coder. 
-You are an expert at Microsoft MakeCode.
 You are an expert at writing MakeCode documentation and tutorials. 
 You are an expert ${langName} translator.`
 
@@ -104,10 +102,7 @@ $`Translate the documentation in ORIGINAL to ${langName}.
 - When you encounter a snippet like "\`\`||<namespace>:<text>||\`\`", DO NOT translate <namespace> and DO translate text.
 
 \`\`||<namespace>:<text>||\`\` --> \`\`||<namespace>:<translated text>||\`\`
-
-- Do not translate snippets like \`\`<text>\`\` 
-- Do not translate snippets like \`||variables:<text>||\` 
-- Do not translate markdown anchors like \`#anchor\`
+...
 `
 ````
 
