@@ -10,8 +10,5 @@
     "go": "node ../cli/built/main.js src/sample.ts",
     "token": "mkdir -p .genaiscript/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .genaiscript/tmp/request.txt",
     "typecheck": "tsc -p src"
-  },
-  "dependencies": {
-    "sharp": "^0.33.0"
   }
 }
