@@ -352,7 +352,6 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
         error: errorId(),
         vars: {} as Record<string, string>,
         functions: [] as ChatFunctionCallback[],
-        schemas: {} as Record<string, JSONSchema>,
     }
 }
 

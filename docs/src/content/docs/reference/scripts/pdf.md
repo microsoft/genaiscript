@@ -8,6 +8,7 @@ The `def` function will automatically parse PDF files and extract text from them
 
 ```javascript
 def("DOCS", env.files) // contains some pdfs
+def("PDFS", env.files, { endsWith: ".pdf" }) // only pdfs
 ```
 
 ## Parsers
@@ -22,8 +23,15 @@ const { file, pages } = await parsers.PDF(env.files[0])
 Once parse, you can use the `file` and `pages` to generate prompts. If the parsing fails, `file` will be `undefined`.
 
 ```js
-const { file } = await parsers.PDF(env.files[0])
+const { file, pages } = await parsers.PDF(env.files[0])
+
+// inline the entire file
 def("FILE", file)
+
+// or analyze page per page
+pages.forEach((page, i) => {
+    def(`PAGE_${i}`, page)
+})
 ```
 
 ## PDF are messy
