@@ -294,8 +294,10 @@ async function callExpander(
                 return { text: "Prompt cancelled" }
 
             // expand template
-            const { prompt, images, errors, schemas } =
-                await renderPromptNode(node)
+            const { prompt, images, errors, schemas } = await renderPromptNode(
+                node,
+                { trace }
+            )
             trace.fence(prompt, "markdown")
             if (images?.length || errors?.length)
                 trace.fence({ images, errors }, "yaml")
@@ -422,7 +424,7 @@ async function callExpander(
             images: imgs,
             errors,
             schemas: schs,
-        } = await renderPromptNode(scope[0])
+        } = await renderPromptNode(scope[0], { trace })
         text = prompt
         images = imgs
         schemas = schs

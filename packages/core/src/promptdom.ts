@@ -143,12 +143,13 @@ export async function renderPromptNode(
                     })
                     break
             }
-            prompt += `${name}:\n
-            ${fenceMD(schemaText, format + "-schema")}`
+            prompt += `${schemaName}:
+${fenceMD(schemaText, format + "-schema")}`
             if (trace && format !== "json")
                 trace.detailsFenced(
-                    `🧬 schema as ${format}: ${schemaName}`,
-                    schemaText
+                    `🧬 schema ${schemaName} as ${format}`,
+                    schemaText,
+                    format
                 )
         },
     })
