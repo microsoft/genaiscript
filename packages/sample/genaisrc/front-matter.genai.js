@@ -9,7 +9,7 @@ script({
     model: "gpt-4",
 })
 
-defFileMerge((fn, label, before, generated) => {
+defFileMerge(function frontmatter(fn, label, before, generated) {
     if (!/\.mdx?$/i.test(fn)) return undefined
     let start = 0,
         end = 0
