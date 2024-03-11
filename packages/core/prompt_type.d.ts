@@ -31,7 +31,7 @@ declare function $(strings: TemplateStringsArray, ...args: any[]): string
  *
  * @param body string to be fenced
  */
-declare function fence(body: StringLike, options?: DefOptions): void
+declare function fence(body: StringLike, options?: FenceOptions): void
 
 /**
  * Defines `name` to be the (often multi-line) string `body`.
@@ -55,6 +55,12 @@ declare function defFunction(
     parameters: ChatFunctionParameters,
     fn: ChatFunctionHandler
 ): void
+
+/**
+ * Registers a callback to be called when a file is being merged
+ * @param fn
+ */
+declare function defFileMerge(fn: FileMergeHandler): void
 
 /**
  * Variables coming from the fragment on which the prompt is operating.

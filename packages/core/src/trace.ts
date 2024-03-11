@@ -29,10 +29,12 @@ export class MarkdownTrace
     }
 
     startDetails(title: string) {
+        title = title?.trim() || ""
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
-        )}" class="${TOOL_ID}">\n<summary>
+        )}" class="${TOOL_ID}">
+<summary>
 ${title}
 </summary>
 

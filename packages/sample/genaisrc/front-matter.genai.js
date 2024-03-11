@@ -7,22 +7,24 @@ script({
     maxTokens: 2000,
     temperature: 0,
     model: "gpt-4",
-    fileMerge: (label, before, generated) => {
-        let start = 0,
-            end = 0
-        const lines = (before || "").split("\n")
-        if (lines[0] === "---") end = lines.indexOf("---", 1)
-        let gstart = 0,
-            gend = 0
-        const glines = generated.split("\n")
-        if (glines[0] === "---") gend = glines.indexOf("---", 1)
-        if (gend > 0) {
-            const res = lines.slice(0)
-            res.splice(start, end - start, ...glines.slice(gstart, gend + 1))
-            return res.join("\n")
-        }
-        return before
-    },
+})
+
+defFileMerge(function frontmatter(fn, label, before, generated) {
+    if (!/\.mdx?$/i.test(fn)) return undefined
+    let start = 0,
+        end = 0
+    const lines = (before || "").split("\n")
+    if (lines[0] === "---") end = lines.indexOf("---", 1)
+    let gstart = 0,
+        gend = 0
+    const glines = generated.split("\n")
+    if (glines[0] === "---") gend = glines.indexOf("---", 1)
+    if (gend > 0) {
+        const res = lines.slice(0)
+        res.splice(start, end - start, ...glines.slice(gstart, gend))
+        return res.join("\n")
+    }
+    return before
 })
 
 def(

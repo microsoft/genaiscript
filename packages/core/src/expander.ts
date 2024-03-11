@@ -283,6 +283,11 @@ async function callExpander(
         try {
             trace.startDetails(`🎁 run prompt`)
             const node: PromptNode = { children: [] }
+            const model =
+                promptOptions?.model ||
+                r.model ||
+                options.model ||
+                DEFAULT_MODEL
             try {
                 scope.unshift(node)
                 await generator()
@@ -294,9 +299,13 @@ async function callExpander(
                 return { text: "Prompt cancelled" }
 
             // expand template
-            const { prompt, images, errors } = await renderPromptNode(node, {
-                trace,
-            })
+            const { prompt, images, errors } = await renderPromptNode(
+                model,
+                node,
+                {
+                    trace,
+                }
+            )
             trace.fence(prompt, "markdown")
             if (images?.length || errors?.length)
                 trace.fence({ images, errors }, "yaml")
@@ -305,11 +314,7 @@ async function callExpander(
             const completer = options.getChatCompletions || getChatCompletions
             const res = await completer(
                 {
-                    model:
-                        promptOptions?.model ||
-                        r.model ||
-                        options.model ||
-                        DEFAULT_MODEL,
+                    model,
                     temperature:
                         promptOptions?.temperature ??
                         r.temperature ??
@@ -339,6 +344,7 @@ async function callExpander(
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ChatFunctionCallback[] = []
+    let fileMerges: FileMergeHandler[] = []
     try {
         await evalPrompt(
             {
@@ -425,11 +431,13 @@ async function callExpander(
             errors,
             schemas: schs,
             functions: fns,
-        } = await renderPromptNode(scope[0], { trace })
+            fileMerges: fms,
+        } = await renderPromptNode(model, scope[0], { trace })
         text = prompt
         images = imgs
         schemas = schs
         functions = fns
+        fileMerges = fms
         for (const error of errors) trace.error(``, error)
     } catch (e) {
         success = false
@@ -442,7 +450,7 @@ async function callExpander(
         }
     }
 
-    return { logs, success, text, images, schemas, functions }
+    return { logs, success, text, images, schemas, functions, fileMerges }
 }
 
 async function expandTemplate(
@@ -466,6 +474,7 @@ async function expandTemplate(
     const images = prompt.images
     const schemas = prompt.schemas
     const functions = prompt.functions
+    const fileMerges = prompt.fileMerges
 
     let success = prompt.success
     let model = template.model
@@ -514,6 +523,7 @@ async function expandTemplate(
             assert(!!system)
         }
 
+        trace.startDetails(`👾 ${systemTemplate}`)
         const sysr = await callExpander(system, env, trace, options)
         const sysex = sysr.text
         success = success && sysr.success
@@ -521,6 +531,7 @@ async function expandTemplate(
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
+        if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -529,7 +540,6 @@ async function expandTemplate(
         max_tokens = max_tokens ?? system.maxTokens
         seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
-        trace.startDetails(`👾 ${systemTemplate}`)
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (system.model) trace.item(`model: \`${system.model || ""}\``)
         trace.item(
@@ -595,6 +605,7 @@ async function expandTemplate(
         seed,
         systemText,
         responseType,
+        fileMerges,
     }
 
     function tryParseInt(v: string) {
@@ -851,6 +862,7 @@ export async function runTemplate(
         images,
         schemas,
         functions,
+        fileMerges,
         success,
         temperature,
         topP,
@@ -1238,14 +1250,16 @@ export async function runTemplate(
 
                 const fileEdit = await getFileEdit(fn)
                 if (kw === "file") {
-                    if (template.fileMerge) {
+                    if (fileMerges.length) {
                         try {
-                            fileEdit.after =
-                                template.fileMerge(
-                                    label,
-                                    fileEdit.after ?? fileEdit.before,
-                                    val
-                                ) ?? val
+                            for (const fileMerge of fileMerges)
+                                fileEdit.after =
+                                    fileMerge(
+                                        fn,
+                                        label,
+                                        fileEdit.after ?? fileEdit.before,
+                                        val
+                                    ) ?? val
                         } catch (e) {
                             logVerbose(e)
                             trace.error(`error custom merging diff in ${fn}`, e)
