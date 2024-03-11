@@ -4,7 +4,7 @@ import { randomRange, sha256string } from "./util"
 import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
 import { minimatch } from "minimatch"
-import { PromptNode } from "./promptdom"
+import { PromptNode, createFunctioNode } from "./promptdom"
 import { createDefNode } from "./filedom"
 function templateIdFromFileName(filename: string) {
     return filename
@@ -232,10 +232,9 @@ export async function evalPrompt(
         },
         defFunction(name, description, parameters, fn) {
             if (ctx0.scope.length > 1) return dontuse("defSchema", "runPrompt")
-            env.functions.push({
-                definition: { name, description, parameters },
-                fn,
-            })
+            ctx0.appendPromptChild(
+                createFunctioNode(name, description, parameters, fn)
+            )
             return dontuse("defFunction")
         },
         fence(body, options?: DefOptions) {
@@ -351,7 +350,6 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
         markdownFence: MARKDOWN_PROMPT_FENCE,
         error: errorId(),
         vars: {} as Record<string, string>,
-        functions: [] as ChatFunctionCallback[],
     }
 }
 
