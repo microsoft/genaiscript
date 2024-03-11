@@ -339,6 +339,7 @@ async function callExpander(
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ChatFunctionCallback[] = []
+    let fileMerges: FileMergeHandler[] = []
     try {
         await evalPrompt(
             {
@@ -425,11 +426,13 @@ async function callExpander(
             errors,
             schemas: schs,
             functions: fns,
+            fileMerges: fms,
         } = await renderPromptNode(scope[0], { trace })
         text = prompt
         images = imgs
         schemas = schs
         functions = fns
+        fileMerges = fms
         for (const error of errors) trace.error(``, error)
     } catch (e) {
         success = false
@@ -442,7 +445,7 @@ async function callExpander(
         }
     }
 
-    return { logs, success, text, images, schemas, functions }
+    return { logs, success, text, images, schemas, functions, fileMerges }
 }
 
 async function expandTemplate(
@@ -466,6 +469,7 @@ async function expandTemplate(
     const images = prompt.images
     const schemas = prompt.schemas
     const functions = prompt.functions
+    const fileMerges = prompt.fileMerges
 
     let success = prompt.success
     let model = template.model
@@ -521,6 +525,7 @@ async function expandTemplate(
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
+        if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
         systemText += systemFence + "\n" + sysex + "\n"
 
         model = model ?? system.model
@@ -595,6 +600,7 @@ async function expandTemplate(
         seed,
         systemText,
         responseType,
+        fileMerges,
     }
 
     function tryParseInt(v: string) {
@@ -851,6 +857,7 @@ export async function runTemplate(
         images,
         schemas,
         functions,
+        fileMerges,
         success,
         temperature,
         topP,
@@ -1238,14 +1245,16 @@ export async function runTemplate(
 
                 const fileEdit = await getFileEdit(fn)
                 if (kw === "file") {
-                    if (template.fileMerge) {
+                    if (fileMerges.length) {
                         try {
-                            fileEdit.after =
-                                template.fileMerge(
-                                    label,
-                                    fileEdit.after ?? fileEdit.before,
-                                    val
-                                ) ?? val
+                            for (const fileMerge of fileMerges)
+                                fileEdit.after =
+                                    fileMerge(
+                                        fn,
+                                        label,
+                                        fileEdit.after ?? fileEdit.before,
+                                        val
+                                    ) ?? val
                         } catch (e) {
                             logVerbose(e)
                             trace.error(`error custom merging diff in ${fn}`, e)

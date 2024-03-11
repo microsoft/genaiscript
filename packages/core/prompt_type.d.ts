@@ -57,6 +57,12 @@ declare function defFunction(
 ): void
 
 /**
+ * Registers a callback to be called when a file is being merged
+ * @param fn
+ */
+declare function defFileMerge(fn: FileMergeHandler): void
+
+/**
  * Variables coming from the fragment on which the prompt is operating.
  */
 declare var env: ExpansionVariables

@@ -5,7 +5,7 @@ import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
-    type?: "text" | "image" | "schema" | "function" | undefined
+    type?: "text" | "image" | "schema" | "function" | "fileMerge" | undefined
     children?: PromptNode[]
     priority?: number
     error?: unknown
@@ -39,6 +39,11 @@ export interface PromptFunctionNode extends PromptNode {
     description: string
     parameters: ChatFunctionParameters
     fn: ChatFunctionHandler
+}
+
+export interface PromptFileMergeNode extends PromptNode {
+    type: "fileMerge"
+    fn: FileMergeHandler
 }
 
 export function createTextNode(
@@ -78,6 +83,11 @@ export function createFunctioNode(
     return { type: "function", name, description, parameters, fn }
 }
 
+export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
+    assert(fn !== undefined)
+    return { type: "fileMerge", fn }
+}
+
 export function appendChild(parent: PromptNode, child: PromptNode): void {
     if (!parent.children) {
         parent.children = []
@@ -93,6 +103,7 @@ export async function visitNode(
         image?: (node: PromptImageNode) => Promise<void>
         schema?: (node: PromptSchemaNode) => Promise<void>
         function?: (node: PromptFunctionNode) => Promise<void>
+        fileMerge?: (node: PromptFileMergeNode) => Promise<void>
     }
 ) {
     await visitor.node?.(node)
@@ -108,6 +119,9 @@ export async function visitNode(
             break
         case "function":
             await visitor.function?.(node as PromptFunctionNode)
+            break
+        case "fileMerge":
+            await visitor.fileMerge?.(node as PromptFileMergeNode)
             break
     }
     if (node.children) {
@@ -126,6 +140,7 @@ export async function renderPromptNode(
     errors: unknown[]
     schemas: Record<string, JSONSchema>
     functions: ChatFunctionCallback[]
+    fileMerges: FileMergeHandler[]
 }> {
     const { trace } = options || {}
 
@@ -134,6 +149,7 @@ export async function renderPromptNode(
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
     const functions: ChatFunctionCallback[] = []
+    const fileMerges: FileMergeHandler[] = []
     await visitNode(node, {
         text: async (n) => {
             try {
@@ -200,6 +216,9 @@ ${trimNewlines(schemaText)}
                 "yaml"
             )
         },
+        fileMerge: async (n) => {
+            fileMerges.push(n.fn)
+        },
     })
-    return { prompt, images, errors, schemas, functions }
+    return { prompt, images, errors, schemas, functions, fileMerges }
 }
