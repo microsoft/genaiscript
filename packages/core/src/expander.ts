@@ -269,7 +269,7 @@ async function callExpander(
         options?: DefSchemaOptions
     ) => {
         trace.detailsFenced(
-            `schema ${name}`,
+            `🧬 schema ${name}`,
             JSON.stringify(schema, null, 2),
             "json"
         )

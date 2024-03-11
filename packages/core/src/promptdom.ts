@@ -145,6 +145,11 @@ export async function renderPromptNode(
             }
             prompt += `${name}:\n
             ${fenceMD(schemaText, format + "-schema")}`
+            if (trace && format !== "json")
+                trace.detailsFenced(
+                    `🧬 schema as ${format}: ${schemaName}`,
+                    schemaText
+                )
         },
     })
     return { prompt, images, errors, schemas }
