@@ -133,11 +133,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     system?: SystemPromptId[]
 
     /**
-     * File extension this prompt applies to; if present. Defaults to `.md`.
-     */
-    input?: string
-
-    /**
      * Specifies a folder to create output files into
      */
     outputFolder?: string
