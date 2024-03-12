@@ -1,5 +1,7 @@
 ---
 title: Secrets
+description: Learn how to securely access and manage environment secrets in your scripts with env.secrets object.
+keywords: secrets management, environment variables, secure access, .env file, script configuration
 sidebar:
     order: 16
 ---

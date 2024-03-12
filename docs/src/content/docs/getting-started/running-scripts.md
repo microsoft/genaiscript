@@ -1,7 +1,7 @@
 ---
 title: Running scripts
-description: Learn how to execute scripts within the GenAIScript environment, including single files and folders, and how to analyze script results.
-keywords: script execution, GenAIScript running, script analysis, script automation, GenAIScript environment
+description: Discover how to run scripts in your development environment, manage script execution, and interpret the results for enhanced productivity.
+keywords: script execution, script management, result analysis, development automation, script workflow
 sidebar:
     order: 4
 ---

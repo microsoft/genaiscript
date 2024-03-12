@@ -2,8 +2,8 @@
 title: Authorization
 sidebar:
     order: 20
-description: Set up API authorization tokens using .env files and environment variables for secure API access.
-keywords: API token, authorization setup, environment variables, secure access, .env configuration
+description: Learn how to configure API authorization tokens with .env files for secure API access in your development environment.
+keywords: API authorization, .env setup, secure API tokens, environment configuration, API access security
 ---
 
 GenAIScript will try to find the connection token from various sources:

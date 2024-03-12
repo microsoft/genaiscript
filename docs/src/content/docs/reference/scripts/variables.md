@@ -1,7 +1,7 @@
 ---
 title: Variables
-description: Learn how to use and override script variables in your projects with env.vars for dynamic scripting.
-keywords: scripting variables, env.vars, CLI variables, spec configuration, dynamic scripts
+description: Discover how to utilize and customize script variables for dynamic scripting capabilities with env.vars.
+keywords: script variables, environment variables, CLI overrides, dynamic scripting, configuration
 sidebar:
     order: 3.5
 ---

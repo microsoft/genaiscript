@@ -1,8 +1,8 @@
 ---
 title: FAQ
 order: faq
-description: Discover answers to frequently asked questions about AI-driven script generation, its applications, performance metrics, and usage guidelines.
-keywords: AI Script Generation, FAQ, Performance Metrics, Usage Guidelines, Limitations
+description: Find answers to common questions about AI script generation, its uses, performance, and best practices for effective application.
+keywords: AI, script generation, performance, best practices, limitations
 ---
 
 #### What is GenAIScript?

@@ -1,7 +1,9 @@
 ---
 title: YAML
+description: Learn how to use YAML for data serialization, configuration, and parsing in LLM with defData, YAML class, and JSON schema validation.
 sidebar:
     order: 16
+keywords: YAML serialization, configuration files, data parsing, YAML stringify, YAML parse
 ---
 
 [YAML](https://yaml.org/) is a human-readable data serialization format that is commonly used for configuration files and data exchange.
