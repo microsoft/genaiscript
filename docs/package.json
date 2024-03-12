@@ -13,7 +13,8 @@
         "preview": "astro preview",
         "astro": "astro",
         "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch frontmatter src/**/*.md --apply-edits",
-        "genai:technical": "node .genaiscript/genaiscript.cjs batch technical src/**/*.md --apply-edits"
+        "genai:technical": "node .genaiscript/genaiscript.cjs batch technical src/**/*.md --apply-edits",
+        "genai:alt-text": "node scripts/image-alt-text.mjs"
     },
     "dependencies": {
         "@astrojs/check": "^0.5.6",
@@ -21,5 +22,8 @@
         "astro": "^4.4.14",
         "sharp": "^0.33.2",
         "typescript": "^5.4.2"
+    },
+    "devDependencies": {
+        "zx": "^7.2.3"
     }
 }
