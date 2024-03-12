@@ -28,6 +28,13 @@ For example, overriding files in the project with new malicious code.
 - in Visual Studio Code, use the refactoring preview
 - in your CI/CD, create a pull request with the changes and review them
 
+
 ## Visual Studio Code Workspace Trust
 
 The extension is not **disabled** when opening a folder in [Restricted Mode](https://code.visualstudio.com/docs/editor/workspace-trust) in Visual Studio Code.
+
+## Visual Studio Code Markdown Preview
+
+The output of the LLM and the trace use the built-in markdown preview of Visual Studio Code.
+By default, [VS Code restricts the content displayed in the Markdown preview](https://code.visualstudio.com/Docs/languages/markdown#_markdown-preview-security). 
+This includes disabling script execution and only allowing resources to be loaded over `https`.
