@@ -27,14 +27,30 @@ sample template in the [bicep playground](https://azure.github.io/bicep/).
 The file is `linter` clean, but some improvements could be made with best practices.
 The following script will apply best practices to the Bicep file.
 
-The script uses a builtin support for [annotations](/genaiscript/reference/scripts/annotations) 
+<Code code={scriptSource} wrap={true} lang="js" title="bicep-best-practices.genai.js" />
+
+- line numbers are added to the file content to help the LLM precisely locate the issues.
+
+```js "lineNumbers"
+def("FILE", env.files, { endsWith: ".bicep", lineNumbers: true })
+```
+
+- the script uses a builtin support for [annotations](/genaiscript/reference/scripts/annotations) 
 to generate parseable warnings and errors. Annotations are automatically integrated as problems 
 in VSCode or as build errors in the CI/CD pipeline.
 
-<Code code={scriptSource} wrap={true} lang="js" title="bicep-best-practices.genai.js" />
+```js "annotations"
+$`... and generate annotations ...`
+```
 
-Notice that we added support to ignore false positives using the `#disable-next-line genaiscript`
-annotation as well.
+- added support to ignore false positives using the `#disable-next-line genaiscript`
+comment
+
+```js wrap
+$`- If a line starts with "#disable-next-line genaiscript", ignore the next line.`
+```
+
+- GPT-4 already knows about the best practices for Bicep, no need to repeat them!
 
 ## Results
 
