@@ -1,0 +1,1 @@
+Screenshot of a code editor displaying a Bicep file with parameters for an Azure web app. The parameters include webAppName, sku, linuxFxVersion, and location with their respective descriptions and default values. The editor also shows warnings for potential improvements in the code.

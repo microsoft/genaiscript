@@ -256,7 +256,11 @@ async function callExpander(
                         )
                             return undefined
                         const b64 = toBase64(bytes)
-                        return { url: `data:${mime};base64,${b64}`, detail }
+                        return {
+                            url: `data:${mime};base64,${b64}`,
+                            filename: file.filename,
+                            detail,
+                        }
                     })()
                 )
             )

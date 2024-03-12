@@ -18,6 +18,7 @@ export interface PromptTextNode extends PromptNode {
 
 export interface PromptImage {
     url: string
+    filename?: string
     detail?: "low" | "high"
 }
 
@@ -147,8 +148,6 @@ export async function renderPromptNode(
 }> {
     const { trace } = options || {}
 
-    if (trace) await tracePromptNode(model, node, trace)
-
     let prompt = ""
     const images: PromptImage[] = []
     const errors: unknown[] = []
@@ -170,7 +169,13 @@ export async function renderPromptNode(
                 const v = await n.value
                 if (v !== undefined) {
                     images.push(v)
-                    trace?.image(v.url, v.detail)
+                    if (trace) {
+                        trace.startDetails(
+                            `🖼 image: ${v.detail || ""} ${v.filename || v.url.slice(0, 64) + "..."}`
+                        )
+                        trace.image(v.url, v.filename)
+                        trace.endDetails()
+                    }
                 }
             } catch (e) {
                 node.error = e
@@ -227,43 +232,4 @@ ${trimNewlines(schemaText)}
         },
     })
     return { prompt, images, errors, schemas, functions, fileMerges }
-}
-
-export async function tracePromptNode(
-    model: string,
-    root: PromptNode,
-    trace: MarkdownTrace
-) {
-    await visitNode(root, {
-        node: (n) =>
-            n === root
-                ? trace.startDetails(`prompt tree: model ${model}`)
-                : undefined,
-        afterNode: (n) =>
-            n.type !== "fileMerge" ? trace.endDetails() : undefined,
-        text: async (n) => {
-            const text = await n.value
-            trace.startDetails(
-                `<em>${text.slice(0, 20)}</em>... ${estimateTokens(model, text)}T`
-            )
-            trace.fence(text)
-        },
-        image: async (n) => {
-            const img = await n.value
-            trace.startDetails(`image: ${img.url}`)
-            trace.image(img.url, img.detail)
-        },
-        function: (n) => {
-            const { name, description, parameters } = n
-            trace.startDetails(`function: ${name}`)
-            trace.fence({ description, parameters }, "yaml")
-        },
-        schema: (n) => {
-            trace.startDetails(`schema: ${n.name}`)
-            trace.fence(n.value, "yaml")
-        },
-        fileMerge: (n) => {
-            trace.item(`name: ${n.fn.name || ""}`)
-        },
-    })
 }
