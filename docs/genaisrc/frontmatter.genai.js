@@ -28,7 +28,13 @@ defFileMerge((fn, label, before, generated) => {
     return before
 })
 
-def("FILE", env.files, { glob: "**/*.{md,mdx}" })
+// filter out files that don't have a front matter.description
+const files = env.files.filter(
+    (f) => !parsers.frontmatter(f.content)?.description
+)
+if (!files.length) cancel("No files to process")
+
+def("FILE", files, { glob: "**/*.{md,mdx}" })
 
 $`
 You are a search engine optimization expert at creating front matter for markdown document.

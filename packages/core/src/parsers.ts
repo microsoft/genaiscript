@@ -1,5 +1,5 @@
 import { DOCUMENT } from "yaml/dist/parse/cst"
-import { extractFenced, parseAnnotations } from "."
+import { extractFenced, frontmatterTryParse, parseAnnotations } from "."
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
@@ -16,9 +16,14 @@ export function createParsers(options: {
 }): Parsers {
     const { trace, model } = options
     return {
-        JSON5: (text, defaultValue) => JSON5TryParse(filenameOrFileToContent(text)) ?? defaultValue,
-        YAML: (text, defaultValue) => YAMLTryParse(filenameOrFileToContent(text)) ?? defaultValue,
-        TOML: (text, defaultValue) => TOMLTryParse(filenameOrFileToContent(text)) ?? defaultValue,
+        JSON5: (text, options) =>
+            JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
+        YAML: (text, options) =>
+            YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
+        TOML: (text, options) =>
+            TOMLTryParse(filenameOrFileToContent(text), options),
+        frontmatter: (text, options) =>
+            frontmatterTryParse(filenameOrFileToContent(text), options),
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),

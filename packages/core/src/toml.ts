@@ -1,9 +1,9 @@
 import { parse } from "toml"
 
-export function TOMLTryParse(text: string) {
+export function TOMLTryParse(text: string, options?: { defaultValue?: any }) {
     try {
         return parse(text)
     } catch (e) {
-        return undefined
+        return options?.defaultValue
     }
 }
