@@ -498,7 +498,7 @@ ${e.message}`
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
 
-        logInfo("genaiscript extension acticated")
+        logInfo("genaiscript extension activated")
     }
 
     async fixPromptDefinitions() {
