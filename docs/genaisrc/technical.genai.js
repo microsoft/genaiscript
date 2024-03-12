@@ -15,4 +15,5 @@ fix spelling errors and make it sound technical.
 - Do NOT modify \`\`\`sh for \`\`\`bash, \`\`\`js for \`\`\`javascript
 - Do NOT modify the frontmatter.
 - Do NOT modify URLs.
+- Do NOT modify code blocks.
 `
