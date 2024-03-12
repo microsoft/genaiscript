@@ -16,9 +16,9 @@ export function createParsers(options: {
 }): Parsers {
     const { trace, model } = options
     return {
-        JSON5: (text) => JSON5TryParse(filenameOrFileToContent(text)),
-        YAML: (text) => YAMLTryParse(filenameOrFileToContent(text)),
-        TOML: (text) => TOMLTryParse(filenameOrFileToContent(text)),
+        JSON5: (text, defaultValue) => JSON5TryParse(filenameOrFileToContent(text)) ?? defaultValue,
+        YAML: (text, defaultValue) => YAMLTryParse(filenameOrFileToContent(text)) ?? defaultValue,
+        TOML: (text, defaultValue) => TOMLTryParse(filenameOrFileToContent(text)) ?? defaultValue,
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),

@@ -422,7 +422,10 @@ type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
 type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 
-type PromptSystemArgs = Omit<PromptArgs, "model" | "temperature" | "topP" | "maxTokens" | "seed">
+type PromptSystemArgs = Omit<
+    PromptArgs,
+    "model" | "temperature" | "topP" | "maxTokens" | "seed"
+>
 
 type StringLike = string | LinkedFile | LinkedFile[]
 
@@ -592,17 +595,17 @@ interface Parsers {
     /**
      * Parses text as a JSON5 payload
      */
-    JSON5(content: string | LinkedFile): unknown | undefined
+    JSON5(content: string | LinkedFile, defaultValue?: any): any | undefined
     /**
      * Parses text as a YAML paylaod
      */
-    YAML(content: string | LinkedFile): unknown | undefined
+    YAML(content: string | LinkedFile, defaultValue?: any): any | undefined
 
     /**
      * Parses text as TOML payload
      * @param text text as TOML payload
      */
-    TOML(content: string | LinkedFile): unknown | undefined
+    TOML(content: string | LinkedFile, defaultValue?: any): any | undefined
 
     /**
      * Parses a file or URL as PDF
