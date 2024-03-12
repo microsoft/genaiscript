@@ -12,7 +12,7 @@ For each FILE, extract the code structure
 that ignores the internal details of the implementation.'
 ```
 
--   **Read the [online documentation](https://aka.ms/genaiscript)**
+-   **Read the online documentation at https://red-mud-00ce5491e.5.azurestaticapps.net/genaiscript
 
 ## Contributing
 
