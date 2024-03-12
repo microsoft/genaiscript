@@ -5,11 +5,11 @@ sidebar:
 ---
 
 The JavaScript `fetch` API is available; but we also provide a helper
-`fetchText` for issuing GET requests into a friendly format.
+`fetchText` for issuing requests into a friendly format.
 
 ## `fetchText`
 
-Use `fetchText` to issue GET requests and download text from the internet.
+Use `fetchText` to issue requests and download text from the internet.
 
 ```ts
 const { text, file } = await fetchText("https://....")
