@@ -3,6 +3,7 @@ title: Security and Trust
 sidebar:
     order: 99
 ---
+import WarningCode from "../../../components/WarningCode.astro"
 
 We discuss various security risks and possible mitigations when using GenAIScript.
 GenAISCript inherits the same security risks as running scripts, and adds some new threats due to the nature of the LLM-generated outputs.
@@ -22,11 +23,7 @@ Do not run `.genai.js` scripts from untrusted sources.
 A trusted script might use malicious files form the context to generate a malicious output.
 For example, overriding files in the project with new malicious code.
 
-:::caution
-
-Always validate the output of a LLM generation.
-
-:::
+<WarningCode />
 
 - in Visual Studio Code, use the refactoring preview
 - in your CI/CD, create a pull request with the changes and review them
