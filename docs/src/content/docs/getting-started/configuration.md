@@ -1,5 +1,7 @@
 ---
 title: Configuration
+description: Learn how to set up LLM connection and authorization for GenAIScript using environment variables.
+keywords: configuration, environment setup, API key, authorization, LLM connection
 sidebar:
     order: 2
 ---

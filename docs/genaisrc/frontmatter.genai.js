@@ -39,7 +39,7 @@ For each FILE, re-generate the front matter content as the new file content.
 
 - ONLY generate the front matter section. This is important.
 - Update description as needed.
-- Update keywords as needed, only 5 keywords or less.
+- Update keywords as needed, only 5 keywords or less. Use comma separated list for keywords.
 - use yaml format, do not use quotes
 - optimize for search engine optimization.
 - If no front matter is present, generate it.
@@ -49,6 +49,6 @@ For each FILE, re-generate the front matter content as the new file content.
 - DO NOT RESPOND the rest of the markdown content beyond the front matter.
 - Do NOT modify the markdown content after the front matter
 - Do NOT repeat project name (GenAIScript) in 'title' field
-- DO NOT modify the existing title field.
+- DO NOT modify the existing 'title' or 'sidebar' fields.
 - Do NOT use 'Guide' in title.
 `
