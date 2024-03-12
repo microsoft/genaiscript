@@ -12,7 +12,7 @@
         "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
         "preview": "astro preview",
         "astro": "astro",
-        "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch front-matter src/**/*.md --apply-edits",
+        "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch frontmatter src/**/*.md --apply-edits",
         "genai:technical": "node .genaiscript/genaiscript.cjs batch technical src/**/*.md --apply-edits"
     },
     "dependencies": {

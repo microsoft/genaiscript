@@ -2,7 +2,13 @@
 title: Getting Started
 sidebar:
     order: 0
-description: A short introducation on GenAIScript.
+description: Learn how to get started with the GenAIScript VS Code Extension for creating AI scripts.
+keywords:
+    - GenAIScript Setup
+    - AI Scripting
+    - VS Code AI Extension
+    - Generative AI
+    - AI Development Tools
 ---
 
 GenAiScript is a Visual Studio Code Extension that uses
