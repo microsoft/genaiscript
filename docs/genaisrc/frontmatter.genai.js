@@ -15,6 +15,9 @@ defFileMerge((fn, label, before, generated) => {
     let end = 0
     const lines = (before || "").split("\n")
     if (lines[0] === "---") end = lines.indexOf("---", 1)
+    const fm = parsers.YAML(lines.slice(start, end + 1).join("\n"))
+    if (fm?.description && fm?.keywords) cancel("Front matter already present")
+
     const gstart = 0
     let gend = 0
     const glines = generated.split("\n")
@@ -28,7 +31,12 @@ defFileMerge((fn, label, before, generated) => {
     return before
 })
 
-def("FILE", env.files, { glob: "**/*.{md,mdx}" })
+// filter out files that don't have a front matter.description
+const files = env.files.filter(f => !parsers.frontmatter(f.content)?.description)
+if (!files.length)
+    cancel("No files to process")
+
+def("FILE", files, { glob: "**/*.{md,mdx}" })
 
 $`
 You are a search engine optimization expert at creating front matter for markdown document.
