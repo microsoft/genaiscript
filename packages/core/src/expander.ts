@@ -1036,10 +1036,9 @@ export async function runTemplate(
 
         if (resp.text) {
             trace.startDetails("📩 llm response")
-            if (resp.finishReason)
+            if (resp.finishReason && resp.finishReason !== "stop")
                 trace.item(`finish reason: \`${resp.finishReason}\``)
-            trace.detailsFenced(`output (raw)`, resp.text, "markdown")
-            trace.details(`output (rendered)`, pretifyMarkdown(resp.text))
+            trace.detailsFenced(`output`, resp.text, "markdown")
             trace.endDetails()
         }
 
