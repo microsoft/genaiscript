@@ -5,7 +5,7 @@ script({
     temperature: 0,
 })
 
-def("FILE", env.files, { lineNumbers: true })
+def("FILE", env.files)
 
 $`You are a helpful expert writer at technical documentation.
 You are reviewing and updating FILE to fix grammatical errors, 
