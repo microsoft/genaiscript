@@ -1,7 +1,9 @@
 ---
 title: PDF
+description: Learn how to extract text from PDF files for prompt generation using GenAIScript's PDF parsing capabilities.
 sidebar:
     order: 9
+keywords: PDF parsing, text extraction, pdf-parse, document conversion, prompt generation
 ---
 
 The `def` function will automatically parse PDF files and extract text from them. This is useful for generating prompts from PDF files.

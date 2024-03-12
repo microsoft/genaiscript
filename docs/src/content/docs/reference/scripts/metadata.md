@@ -2,6 +2,8 @@
 title: Metadata
 sidebar:
     order: 2
+description: Learn how to configure script metadata to enhance functionality and user experience in GenAIScript.
+keywords: script metadata, configuration, LLM parameters, customization, script management
 ---
 
 Prompts use `script({ ... })` function call

@@ -1,7 +1,7 @@
 ---
 title: Web Search
-description: Learn how to execute web searches using the Bing Web Search API with the retrieval.webSearch function in GenAIScript.
-keywords: web search, Bing API, web retrieval, search automation, API key configuration
+description: Execute web searches with Bing API using retrieval.webSearch in scripts.
+keywords: web search, Bing API, search automation, API configuration, search function
 sidebar:
     order: 15
 ---

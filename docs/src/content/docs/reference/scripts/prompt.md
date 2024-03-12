@@ -2,6 +2,8 @@
 title: Prompt ($)
 sidebar:
     order: 2
+description: Learn how to use the tagged template literal for dynamic prompt generation in GenAI scripts.
+keywords: tagged template, prompt expansion, dynamic prompts, JavaScript templates, GenAI scripting
 ---
 
 The `$` is a JavaScript [tagged template](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) that expands the string into the final prompt.

@@ -1,7 +1,7 @@
 ---
 title: Overview
-description: Explore the GenAIScript reference for scripting, specifications, access management, and tools like the VSCode extension and CLI.
-keywords: automation, scripting, AI code transformation, VSCode plugin, command line
+description: Comprehensive documentation for scripting automation, LLM configurations, and developer tools including a VSCode extension and CLI for codebase AI transformations.
+keywords: scripting automation, LLM configurations, VSCode extension, CLI, codebase AI
 sidebar:
     order: 0
 ---
