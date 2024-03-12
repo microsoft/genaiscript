@@ -13,7 +13,7 @@ export function frontmatterTryParse(
     const delimiter = "---\n"
     if (!text.startsWith(delimiter)) return undefined
 
-    const end = text.indexOf(delimiter, delimiter.length)
+    const end = text.indexOf("\n" + delimiter, delimiter.length)
     if (end < 0) return undefined
 
     const fm = text.slice(delimiter.length, end).trim()
