@@ -1,6 +1,7 @@
 ---
 title: FAQ
-order: faq
+sidebar:
+    order: 100
 description: Find answers to common questions about AI script generation, its uses, performance, and best practices for effective application.
 keywords: AI, script generation, performance, best practices, limitations
 ---
