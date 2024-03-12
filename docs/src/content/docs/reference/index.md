@@ -1,7 +1,7 @@
 ---
 title: Overview
-description: Comprehensive reference for GenAIScript documentation including scripts, specs, authorization, VSCode extension, and CLI.
-keywords: GenAIScript, scripts, specs, authorization, CLI
+description: Explore the GenAIScript reference for scripting, specifications, access management, and tools like the VSCode extension and CLI.
+keywords: automation, scripting, AI code transformation, VSCode plugin, command line
 sidebar:
     order: 0
 ---
