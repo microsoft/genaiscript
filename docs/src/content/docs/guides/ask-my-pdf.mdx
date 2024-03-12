@@ -1,7 +1,9 @@
 ---
 title: Ask My PDF
+description: Quick-start guide to using GenAIScript for summarizing and critiquing PDF documents with AI assistance.
+keywords: PDF analysis, AI summarization, document critique, GenAIScript, PDF processing
 sidebar:
-    order: 5
+  order: 5
 ---
 import { Steps } from '@astrojs/starlight/components';
 
@@ -10,7 +12,7 @@ The quick-start guide illustrates how to write a GenAIScript that takes input fr
 <Steps>
 
 1. Place your PDF document in a directory visible in VS Code Explorer
-2. Use the `GenAiScript: Create new script...` command in the command palette to create a new script.
+2. Use the `GenAIScript: Create new script...` command in the command palette to create a new script.
 3. Define and name the pdf file as an input:
     ```js
     def("PDFSOURCE", env.files, { endsWith: ".pdf" })

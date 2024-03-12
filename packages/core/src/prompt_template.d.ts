@@ -427,6 +427,8 @@ type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
 type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
 
+type PromptSystemArgs = Omit<PromptArgs, "model" | "temperature" | "topP" | "maxTokens" | "seed">
+
 type StringLike = string | LinkedFile | LinkedFile[]
 
 interface FenceOptions {
@@ -724,7 +726,7 @@ interface PromptContext {
     writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     script(options: PromptArgs): void
-    system(options: PromptArgs): void
+    system(options: PromptSystemArgs): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): void
     defImages(files: StringLike, options?: DefImagesOptions): void

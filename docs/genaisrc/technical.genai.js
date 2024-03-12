@@ -4,6 +4,7 @@ script({
     categories: ["samples"],
     system: ["system.diff"],
     temperature: 0,
+    seed: 0xc3d3
 })
 
 def("FILE", env.files, { lineNumbers: true })
