@@ -83,6 +83,24 @@ To parse, use `parsers.TOML`. It supports both a text content or a file as input
 const res = parsers.TOML("...")
 ```
 
+## front matter
+
+[Front matter](https://jekyllrb.com/docs/front-matter/) is a metadata section at the head of a file, typically formatted as YAML.
+
+```markdown
+---
+title: "Hello, World!"
+---
+
+...
+```
+
+You can use the `parsers.frontmatter` to parse out the metadata into an object
+
+```js
+const meta = parsers.frontmatter(file)
+```
+
 ## CSV
 
 The `parsers.CSV` function parses for the [CSV format](https://en.wikipedia.org/wiki/Comma-separated_values). If successful, the function returns an array of object where each object represents a row in the CSV file.

@@ -595,17 +595,36 @@ interface Parsers {
     /**
      * Parses text as a JSON5 payload
      */
-    JSON5(content: string | LinkedFile, defaultValue?: any): any | undefined
+    JSON5(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
     /**
      * Parses text as a YAML paylaod
      */
-    YAML(content: string | LinkedFile, defaultValue?: any): any | undefined
+    YAML(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
 
     /**
      * Parses text as TOML payload
      * @param text text as TOML payload
      */
-    TOML(content: string | LinkedFile, defaultValue?: any): any | undefined
+    TOML(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
+
+    /**
+     * Parses the front matter of a markdown file
+     * @param content
+     * @param defaultValue
+     */
+    frontmatter(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any; format: "yaml" | "json" | "toml" }
+    ): any | undefined
 
     /**
      * Parses a file or URL as PDF
