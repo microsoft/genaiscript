@@ -3,9 +3,12 @@ title: Bicep Best Practices
 sidebar:
     order: 2
 ---
+import { Image } from 'astro:assets';
 import { Code } from '@astrojs/starlight/components';
 import bicepSource from "../../../../../packages/sample/src/bicep/web-app-basic-linux.bicep?raw"
 import scriptSource from "../../../../../packages/sample/genaisrc/bicep-best-practices.genai.js?raw"
+import src from './bicep-best-practices.png';
+import alt from "./bicep-best-practices.png.txt?raw"
 
 [Azure Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep) is a Domain Specific Language (DSL) for deploying Azure resources declaratively. 
 It is a language that is designed to be a more readable 
@@ -57,4 +60,4 @@ $`- If a line starts with "#disable-next-line genaiscript", ignore the next line
 The LLM generates 3 annotations for the Bicep file. The annotations are surfaced 
 as squiggly lines in VSCode.
 
-![Output window](./bicep-best-practices.png)
+<Image src={src} alt={alt} />
