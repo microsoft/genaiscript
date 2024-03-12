@@ -23,12 +23,12 @@ If you use `annotation` in your script and you do not specify the `system` scrip
 ## GitHub Action Commands
 
 By default, the annotation use the [GitHub Action Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) syntax.
-This means that the annotatios will automatically be extract by GitHub if you run your script in a GitHub Action.
+This means that the annotations will automatically be extracted by GitHub if you run your script in a GitHub Action.
 
 ## Visual Studio Code Programs
 
 The annotation are converted into Visual Studio **Diagnostics** which are presented to the user
-through the **Problems** panel. The diagnostics should also show up as squiggly lines in the editor.
+through the **Problems** panel. The diagnostics will also appear as squiggly lines in the editor.
 
 ## Static Analysis Results Interchange Format (SARIF)
 
