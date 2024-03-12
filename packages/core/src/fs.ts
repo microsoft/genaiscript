@@ -55,13 +55,16 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
+const DOT_ENV_RX = /\.env$/i
 export function createFileSystem() {
     return <FileSystem>{
-        findFiles: async (glob) => host.findFiles(glob),
+        findFiles: async (glob) =>
+            (await host.findFiles(glob)).filter((f) => !DOT_ENV_RX.test(f)),
         readFile: async (filename: string) => {
             let content: string
             try {
-                content = await readText("workspace://" + filename)
+                if (!DOT_ENV_RX.test(filename))
+                    content = await readText("workspace://" + filename)
             } catch (e) {}
             return { label: filename, filename, content }
         },
