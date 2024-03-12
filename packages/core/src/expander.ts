@@ -477,11 +477,30 @@ async function expandTemplate(
     const fileMerges = prompt.fileMerges
 
     let success = prompt.success
-    let model = template.model
-    let temperature = template.temperature
-    let topP = template.topP
-    let max_tokens = template.maxTokens
-    let seed = template.seed
+    const model =
+        options.model ?? env.vars["model"] ?? template.model ?? DEFAULT_MODEL
+    const temperature =
+        options.temperature ??
+        tryParseFloat(env.vars["temperature"]) ??
+        template.temperature ??
+        DEFAULT_TEMPERATURE
+    const topP =
+        options.topP ??
+        tryParseFloat(env.vars["top_p"]) ??
+        template.topP ??
+        defaultTopP
+    const max_tokens =
+        options.maxTokens ??
+        tryParseInt(env.vars["maxTokens"]) ??
+        template.maxTokens ??
+        defaultMaxTokens
+    let seed =
+        options.seed ??
+        tryParseInt(env.vars["seed"]) ??
+        template.seed ??
+        defaultSeed
+    if (seed !== undefined) seed = seed >> 0
+
     let responseType = template.responseType
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
@@ -534,46 +553,17 @@ async function expandTemplate(
         if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
         systemText += systemFence + "\n" + sysex + "\n"
 
-        model = model ?? system.model
-        temperature = temperature ?? system.temperature
-        topP = topP ?? system.topP
-        max_tokens = max_tokens ?? system.maxTokens
-        seed = seed ?? system.seed
         responseType = responseType ?? system.responseType
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
-        if (system.model) trace.item(`model: \`${system.model || ""}\``)
         trace.item(
             `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysex)}`
         )
-        if (system.temperature !== undefined)
-            trace.item(`temperature: ${system.temperature || ""}`)
-        if (system.topP !== undefined) trace.item(`top_p: ${system.topP || ""}`)
-        if (system.maxTokens !== undefined)
-            trace.item(`max tokens: ${system.maxTokens || ""}`)
 
         trace.fence(system.jsSource, "js")
         trace.heading(3, "expanded")
         trace.fence(sysex, "markdown")
         trace.endDetails()
     }
-
-    model = (options.model ??
-        env.vars["model"] ??
-        model ??
-        DEFAULT_MODEL) as any
-    temperature =
-        options.temperature ??
-        tryParseFloat(env.vars["temperature"]) ??
-        temperature ??
-        DEFAULT_TEMPERATURE
-    topP =
-        options.topP ?? tryParseFloat(env.vars["top_p"]) ?? topP ?? defaultTopP
-    max_tokens =
-        options.maxTokens ??
-        tryParseInt(env.vars["maxTokens"]) ??
-        max_tokens ??
-        defaultMaxTokens
-    seed = options.seed ?? tryParseInt(env.vars["seed"]) ?? seed ?? defaultSeed
 
     {
         trace.startDetails("⚙️ configuration")
@@ -582,10 +572,7 @@ async function expandTemplate(
         if (temperature !== undefined) trace.item(`temperature: ${temperature}`)
         if (topP !== undefined) trace.item(`top_p: ${topP}`)
         if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens}`)
-        if (seed !== undefined) {
-            seed = seed >> 0
-            trace.item(`seed: ${seed}`)
-        }
+        if (seed !== undefined) trace.item(`seed: ${seed}`)
         if (responseType) trace.item(`response type: ${responseType}`)
         trace.endDetails() // expanded prompt
     }

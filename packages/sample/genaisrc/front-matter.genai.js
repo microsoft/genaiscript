@@ -11,17 +11,18 @@ script({
 
 defFileMerge(function frontmatter(fn, label, before, generated) {
     if (!/\.mdx?$/i.test(fn)) return undefined
-    let start = 0,
-        end = 0
+    const start = 0
+    let end = 0
     const lines = (before || "").split("\n")
     if (lines[0] === "---") end = lines.indexOf("---", 1)
-    let gstart = 0,
-        gend = 0
+    const gstart = 0
+    let gend = 0
     const glines = generated.split("\n")
     if (glines[0] === "---") gend = glines.indexOf("---", 1)
     if (gend > 0) {
         const res = lines.slice(0)
-        res.splice(start, end - start, ...glines.slice(gstart, gend))
+        const newfm = glines.slice(gstart, gend + 1)
+        res.splice(start, end > 0 ? end + 1 - start : 0, ...newfm)
         return res.join("\n")
     }
     return before

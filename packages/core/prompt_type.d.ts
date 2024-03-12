@@ -11,7 +11,7 @@ declare function script(options: PromptArgs): void
 /**
  * Equivalent of script() for system prompts.
  */
-declare function system(options: PromptArgs): void
+declare function system(options: PromptSystemArgs): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".

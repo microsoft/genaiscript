@@ -31,7 +31,7 @@ describe("schema", () => {
         }
 
         const ts = stringifySchemaToTypeScript(source, { typeName: "Foo" })
-        console.log(ts)
+     //   console.log(ts)
         assert.equal(
             ts,
             '// A list of cities with population and elevation information.\n'
@@ -69,7 +69,7 @@ of the city.`,
             }
 
             const ts = stringifySchemaToTypeScript(source)
-            console.log(ts)
+          //  console.log(ts)
             assert.equal(
                 ts,
                 "// A city with population and elevation information.\n" +
