@@ -6,7 +6,7 @@ script({
     temperature: 0.1,
 })
 
-const output = env.spec.filename.replace(/\.gpspec\.md$/, ".slides.md")
+const output = env.spec.filename + ".slides.md"
 def(
     "SOURCE",
     env.files.filter((f) => !f.filename.endsWith(".slides.md"))
