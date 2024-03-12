@@ -600,7 +600,6 @@ export async function parsePromptTemplate(
             c.checkString("title")
             c.checkString("description")
             c.checkString("model")
-            c.checkString("input")
             c.checkString("outputFolder")
             c.checkString("responseType")
 
@@ -622,8 +621,6 @@ export async function parsePromptTemplate(
 
         const r = c.template
         Object.assign(r, obj)
-
-        if (!r.input) r.input = ".md"
     })
 }
 
@@ -632,10 +629,6 @@ export function templateAppliesTo(
     fragment: Fragment
 ) {
     if (template.unlisted) return false
-
     if (/^system\./.test(template.id)) return false
-
-    if (!fragment.file.filename.endsWith(template.input)) return false
-
     return true
 }
