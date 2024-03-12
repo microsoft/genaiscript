@@ -27,7 +27,6 @@ export interface OAIToken {
     url: string
     token: string
     isOpenAI?: boolean
-    isTGI?: boolean
     source?: string
 }
 

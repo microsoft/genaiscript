@@ -76,7 +76,10 @@ export class RequestError extends Error {
     }
 }
 
-export function toChatCompletionUserMessage(expanded: string, images?: PromptImage[]) {
+export function toChatCompletionUserMessage(
+    expanded: string,
+    images?: PromptImage[]
+) {
     return <ChatCompletionUserMessageParam>{
         role: "user",
         content: [
@@ -181,20 +184,7 @@ export async function getChatCompletions(
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.isTGI) {
-        model = "TGI-model"
-        url = cfg.url + "/generate_stream"
-        postReq = {
-            parameters: {
-                temperature: temperature,
-                top_p: top_p,
-                return_full_text: false,
-                max_new_tokens: req.max_tokens,
-                seed: req.seed,
-            },
-            inputs: encodeMessagesForLlama(req),
-        }
-    } else if (cfg.isOpenAI) {
+    if (cfg.isOpenAI) {
         r2.stream = true
         url = cfg.url + "/chat/completions"
     } else {
@@ -206,7 +196,6 @@ export async function getChatCompletions(
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     }
 
-    trace.item(`${cfg.isTGI ? "TGI" : "OpenAI"} chat request`)
     trace.item(`model: ${model}`)
     trace.item(`url: [${url}](${url})`)
     if (response_format)
@@ -292,7 +281,7 @@ export async function getChatCompletions(
     }
 
     if (seenDone) {
-        if (caching && !cfg.isTGI) await cache.set(req, chatResp)
+        if (caching) await cache.set(req, chatResp)
         return { text: chatResp, toolCalls, finishReason }
     } else {
         trace.error(`invalid response`)
@@ -315,61 +304,49 @@ export async function getChatCompletions(
                 logError(`tokens after done! '${json}'`)
                 return ""
             }
-            if (cfg.isTGI)
-                try {
-                    const obj: TGIResponse = JSON.parse(json)
-                    if (typeof obj.token.text == "string") {
-                        numTokens++
-                        chatResp += obj.token.text
+            try {
+                const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
+                if (!obj.choices?.length) return ""
+                else if (obj.choices?.length != 1) throw new Error()
+                const choice = obj.choices[0]
+                const { finish_reason, delta } = choice
+                if (typeof delta?.content == "string") {
+                    numTokens += estimateTokens(model, delta.content)
+                    chatResp += delta.content
+                } else if (delta?.tool_calls?.length) {
+                    const { tool_calls } = delta
+                    logVerbose(
+                        `delta tool calls: ${JSON.stringify(tool_calls)}`
+                    )
+                    for (const call of tool_calls) {
+                        const tc =
+                            toolCalls[call.index] ||
+                            (toolCalls[call.index] = {
+                                id: call.id,
+                                name: call.function.name,
+                                arguments: "",
+                            })
+                        if (call.function.arguments)
+                            tc.arguments += call.function.arguments
                     }
-                    if (obj.generated_text != null) seenDone = true
-                } catch {
-                    logError(`invalid json in chat response: ${json}`)
+                } else if (finish_reason == "tool_calls") {
+                    // apply tools and restart
+                    finishReason = finish_reason
+                    seenDone = true
+                    logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
+                } else if (finish_reason === "length") {
+                    finishReason = finish_reason
+                    logVerbose(`response too long`)
+                    trace.error(`response too long, increase maxTokens.`)
+                } else if (finish_reason === "stop") {
+                    finishReason = finish_reason
+                    seenDone = true
+                } else {
+                    logVerbose(YAMLStringify(choice))
                 }
-            else
-                try {
-                    const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
-                    if (!obj.choices?.length) return ""
-                    else if (obj.choices?.length != 1) throw new Error()
-                    const choice = obj.choices[0]
-                    const { finish_reason, delta } = choice
-                    if (typeof delta?.content == "string") {
-                        numTokens += estimateTokens(model, delta.content)
-                        chatResp += delta.content
-                    } else if (delta?.tool_calls?.length) {
-                        const { tool_calls } = delta
-                        logVerbose(
-                            `delta tool calls: ${JSON.stringify(tool_calls)}`
-                        )
-                        for (const call of tool_calls) {
-                            const tc =
-                                toolCalls[call.index] ||
-                                (toolCalls[call.index] = {
-                                    id: call.id,
-                                    name: call.function.name,
-                                    arguments: "",
-                                })
-                            if (call.function.arguments)
-                                tc.arguments += call.function.arguments
-                        }
-                    } else if (finish_reason == "tool_calls") {
-                        // apply tools and restart
-                        finishReason = finish_reason
-                        seenDone = true
-                        logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
-                    } else if (finish_reason === "length") {
-                        finishReason = finish_reason
-                        logVerbose(`response too long`)
-                        trace.error(`response too long, increase maxTokens.`)
-                    } else if (finish_reason === "stop") {
-                        finishReason = finish_reason
-                        seenDone = true
-                    } else {
-                        logVerbose(YAMLStringify(choice))
-                    }
-                } catch {
-                    logError(`invalid json in chat response: ${json}`)
-                }
+            } catch {
+                logError(`invalid json in chat response: ${json}`)
+            }
             return ""
         })
         const progress = chatResp.slice(ch0.length)

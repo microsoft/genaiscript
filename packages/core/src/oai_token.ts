@@ -99,14 +99,6 @@ export async function parseToken(f: string) {
         return cfg
     }
 
-    m = /(https:\/\/[\-\w\.]+)\S*#tgikey=(\w+)/.exec(f)
-    if (m) {
-        const url = m[1]
-        const token = m[2]
-        cfg = { url, token, isTGI: true }
-        return cfg
-    }
-
     m = /https:\/\/[\-\w]+.openai\.azure\.com\/openai\//i.exec(f)
     if (m) {
         const url = m[0] + "deployments/"
