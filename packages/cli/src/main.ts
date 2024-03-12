@@ -878,7 +878,7 @@ async function main() {
             console.log(
                 key
                     ? `${
-                          key.isOpenAI ? "OpenAI" : key.isTGI ? "TGI" : key.url
+                          key.isOpenAI ? "OpenAI" : key.url
                       } (from ${key.source})`
                     : "no key set"
             )
