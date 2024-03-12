@@ -270,18 +270,15 @@ export class ExtensionState extends EventTarget {
         } catch (e) {
             if (isCancelError(e)) return
             else if (isTokenError(e)) {
-                const fix = "Fix Token"
                 const trace = "Open Trace"
                 const res = await vscode.window.showErrorMessage(
                     "OpenAI token refused (403).",
-                    fix,
                     trace
                 )
                 if (res === trace)
                     vscode.commands.executeCommand(
                         "genaiscript.request.open.trace"
                     )
-                else if (res === fix) await initToken(true)
             } else if (isRequestError(e, 400, "context_length_exceeded")) {
                 const help = "Documentation"
                 const title = `Context length exceeded.`
