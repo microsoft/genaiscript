@@ -2,6 +2,8 @@
 title: Parsers
 sidebar:
     order: 12
+description: Comprehensive guide on various data format parsers including JSON5, YAML, TOML, CSV, PDF, DOCX, and token estimation for LLM.
+keywords: parsers, JSON5, YAML, TOML, CSV, token estimation
 ---
 
 The `parsers` object provide various parers for commomn data formats.

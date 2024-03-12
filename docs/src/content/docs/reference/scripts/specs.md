@@ -1,7 +1,7 @@
 ---
 title: Specs
-description: Instructions for creating and executing GenAIScript specifications using markdown files for AI-powered code refactoring.
-keywords: specifications, markdown, scripting, refactoring, documentation
+description: Learn how to create and execute markdown-based specifications for AI-assisted code refactoring.
+keywords: AI scripting, code refactoring, markdown specifications, automation, documentation
 sidebar:
   order: 100
 ---
