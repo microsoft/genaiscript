@@ -3,7 +3,8 @@ title: Inline prompts
 sidebar:
     order: 10
 ---
-import { Code } from '@astrojs/starlight/components';
+
+import { Code } from "@astrojs/starlight/components"
 import summaryOfSummary from "../../../../../../packages/sample/genaisrc/summary-of-summary.genai.js?raw"
 
 The `runPrompt` function allows to build an inner LLM invocation. It returns the output of the prompt.
@@ -16,9 +17,16 @@ const { text } = await runPrompt(async () => {
 })
 ```
 
+:::caution
+
+Make sure to `await` all calls to `runPrompt` or you will find yourself in some weird race conditions.
+(To be improved)
+
+:::
+
 ## Limitations
 
-- Nested [functions](/genaiscript/reference/scripts/functions) are not supported in the inner prompt.
+-   Nested [functions](/genaiscript/reference/scripts/functions) are not supported in the inner prompt.
 
 ## Example: Summary of file summaries
 
