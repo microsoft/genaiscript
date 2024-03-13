@@ -2712,7 +2712,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.10.6
+ - genaiscript-vscode@1.12.0
 
 This package contains the following license and notice below:
 
@@ -17519,11 +17519,11 @@ The following npm packages may be included in this product:
  - agent-base@6.0.2
  - canvas@2.11.2
  - dlv@1.1.3
- - docs@1.10.6
+ - docs@1.12.0
  - eastasianwidth@0.2.0
- - genaiscript-cli@1.10.6
- - genaiscript-core@1.10.6
- - genaiscript-sample@1.10.6
+ - genaiscript-cli@1.12.0
+ - genaiscript-core@1.12.0
+ - genaiscript-sample@1.12.0
  - hast-util-to-string@3.0.0
  - https-proxy-agent@5.0.1
  - inline-style-parser@0.1.1
@@ -19509,7 +19509,6 @@ The following npm packages may be included in this product:
  - pkg-dir@4.2.0
  - shebang-regex@3.0.0
  - string-width-cjs@npm:string-width@4.2.3
- - string-width@4.2.3
  - strip-ansi-cjs@npm:strip-ansi@6.0.1
  - supports-color@5.5.0
 
