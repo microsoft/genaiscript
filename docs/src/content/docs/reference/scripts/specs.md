@@ -9,9 +9,8 @@ sidebar:
 To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run "Run GenAIScript" to see the results.
 
 ```markdown
-A sample GenAIScript document.
 # email address recognizer
-# email address recognizer
+
 Write a function that takes a string argument and returns true if the whole string is a valid email address, false otherwise.
 
 ...
@@ -26,7 +25,7 @@ You can accept or cancel the changes using the buttons at the bottom of the view
 You can link other local documents using the markdown link syntax. These documents are accessible during the GenAiScript
 execution through the `env.files` variable.
 
-```markdown A sample GenAIScript document.
+```markdown
 # email address recognizer
 
 -   [email_validator.py](./email_validator.py)
