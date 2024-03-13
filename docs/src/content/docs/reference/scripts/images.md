@@ -1,5 +1,7 @@
 ---
 title: Images
+description: Learn how to add images to prompts for AI models supporting visual inputs, including image formats and usage.
+keywords: images in prompts, AI model images, visual inputs, image formats, OpenAI Vision
 sidebar:
     order: 10
 ---

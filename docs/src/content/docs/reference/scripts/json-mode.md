@@ -1,5 +1,7 @@
 ---
 title: JSON Mode
+description: Learn how to enable JSON output mode in scripts for structured data generation with OpenAI's platform.
+keywords: JSON output, scripting, OpenAI JSON, structured data, automation
 sidebar:
     order: 12
 ---
