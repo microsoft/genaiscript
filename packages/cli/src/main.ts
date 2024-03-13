@@ -321,13 +321,14 @@ async function batch(
             })
 
             if (result.error) {
-                errors++
                 if (isCancelError(result.error as Error))
                     spinner.warn(`${spinner.text}, cancelled`)
-                else
+                else {
+                    errors++
                     spinner.fail(
                         `${spinner.text}, ${(result.error as any).message || result.error}`
                     )
+                }
             } else spinner.succeed()
 
             totalTokens += tokens
