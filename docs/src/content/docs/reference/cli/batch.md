@@ -1,7 +1,9 @@
 ---
 title: batch
+description: Learn how to use the batch command to process multiple files with GenAIScript, including JSON Lines output and GitHub Actions integration.
 sidebar:
   order: 4
+keywords: batch processing, JSON Lines, CLI tool, automation, GitHub Actions
 ---
 
 To run the tool over many files in a batch mode (one full LLM iteration per file), use the `batch` command.
