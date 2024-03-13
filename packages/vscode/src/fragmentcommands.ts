@@ -4,6 +4,7 @@ import {
     Fragment,
     PromptTemplate,
     groupBy,
+    host,
     rootFragment,
     templateGroup,
 } from "genaiscript-core"
@@ -30,7 +31,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         }
     ) => {
         const { filter = () => true } = options || {}
-        const templates = fragment.applicableTemplates().filter(filter)
+        const templates = fragment.file.project.templates.filter(filter)
 
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),

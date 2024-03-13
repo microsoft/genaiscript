@@ -1,7 +1,6 @@
 /// <reference path="./prompt_template.d.ts" />
-import { host } from "./host"
 
-import { templateAppliesTo } from "./template"
+import { host } from "./host"
 
 type PromptTemplate = globalThis.PromptTemplate
 export type { PromptTemplate }
@@ -20,7 +19,7 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
 }
 
 export type FragmentInit = Partial<
-    Pick<Fragment, "children" | "depth" | "references">
+    Pick<Fragment, "depth" | "references">
 > &
     Pick<Fragment, "id" | "title" | "startPos" | "endPos" | "text">
 
@@ -76,16 +75,6 @@ export class Fragment {
     text: string
 
     /**
-     * Sub-tasks, code fragments, possibly from different files.
-     */
-    children: Fragment[] = []
-
-    /**
-     * Instructions for this step after the body (description) if any.
-     */
-    postComment?: string
-
-    /**
      * Links to other files
      */
     references: FileReference[] = []
@@ -93,16 +82,6 @@ export class Fragment {
     constructor(init: FragmentInit) {
         Object.assign(this, init)
         if (!this.fullId) this.fullId = this.id
-    }
-
-    sameFileChildren() {
-        return this.children.filter((c) => c.file == this.file)
-    }
-
-    applicableTemplates() {
-        return this.file.project.templates.filter((t) =>
-            templateAppliesTo(t, this)
-        )
     }
 
     get project() {
@@ -114,21 +93,6 @@ export function rootFragment(fragment: Fragment): Fragment {
     if (!fragment) return undefined
     if (fragment.parent) return rootFragment(fragment.parent)
     else return fragment
-}
-
-export function allChildren(
-    fragment: Fragment,
-    includeSelf = false
-): Fragment[] {
-    const res = []
-    if (includeSelf) res.push(fragment)
-    const todo = fragment.children
-    while (todo.length) {
-        const f = todo.pop()
-        res.push(f)
-        if (f.children?.length) todo.push(...f.children)
-    }
-    return res
 }
 
 export function templateGroup(template: PromptTemplate) {
@@ -175,7 +139,7 @@ export class Project {
 
             // find by file
             if (!fragment) {
-                const file = fullId.replace(/:\d+:\d+$/, '')
+                const file = fullId.replace(/:\d+:\d+$/, "")
                 if (file) {
                     const f = this.resolve(file)
                     fragment = f?.roots?.[0]
@@ -196,8 +160,7 @@ export class TextFile {
         public readonly filename: string,
         public readonly mime: string,
         public readonly content: string
-    ) {
-    }
+    ) {}
 
     relativeName() {
         const prj = host.projectFolder()

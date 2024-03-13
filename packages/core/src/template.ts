@@ -352,7 +352,6 @@ export function staticVars(): Omit<ExpansionVariables, "template"> {
     return {
         spec: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
         files: [] as LinkedFile[],
-        parents: [] as LinkedFile[],
         fence: PROMPT_FENCE,
         markdownFence: MARKDOWN_PROMPT_FENCE,
         error: errorId(),

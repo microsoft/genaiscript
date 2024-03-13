@@ -165,20 +165,6 @@ export async function parseProject(options: {
     })
 
     for (const f of prj.allFiles) {
-        if (f.isStructured)
-            f.forEachFragment((t) => {
-                if (!t.id) return
-                const other = prj.fragmentById[t.id]
-                if (other.length == 1) return
-                for (const o of other) {
-                    if (o != t && !o.file.isStructured) {
-                        t.children.push(o)
-                        o.parent = t
-                    }
-                }
-            })
-    }
-    for (const f of prj.allFiles) {
         if (!f.isStructured) {
             assert(f.roots.length == 0)
             f.roots.push(...f.fragments.filter((f) => !f.parent))
@@ -199,8 +185,7 @@ export async function parseProject(options: {
 
 export function commentAttributes(frag: Fragment) {
     const r: Record<string, string> = {}
-    if (!frag.postComment) return r
-    frag.postComment.replace(/<!--([^]*?)-->/g, (_, txt) => {
+    frag.text.replace(/<!--([^]*?)-->/g, (_, txt) => {
         for (;;) {
             const m =
                 /(^|\n)\s*\@([\w\.\-]+)\s+([^]*?)($|\n\s*\@[\w\.\-]+\s+[^]*)/.exec(
