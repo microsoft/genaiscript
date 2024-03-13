@@ -1,5 +1,7 @@
 ---
 title: Annotations
+description: Learn how to add annotations such as errors, warnings, or notes to LLM output for integration with VSCode or CI environments.
+keywords: annotations, LLM output, VSCode integration, CI environment, GitHub Actions
 sidebar:
     order: 11
 ---
