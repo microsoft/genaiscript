@@ -313,7 +313,7 @@ async function batch(
             await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- ${result.error ? "❌" : "✅"} [${relative(".", specFile).replace(gpspecRx, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
+                `- ${result.error ? (isCancelError(result.error as any) ? "⚠" : "❌") : "✅"} [${relative(".", specFile).replace(gpspecRx, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
                 { encoding: "utf8" }
             )
             await writeFile(outJSON, JSON.stringify(result, null, 2), {
