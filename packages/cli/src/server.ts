@@ -7,6 +7,8 @@ import {
     YAMLStringify,
     logError,
     outline,
+    CORE_VERSION,
+    ServerResponse,
 } from "genaiscript-core"
 
 export async function startServer(options: { port: string }) {
@@ -28,6 +30,14 @@ export async function startServer(options: { port: string }) {
             let response: ResponseStatus
             try {
                 switch (type) {
+                    case "server.version": {
+                        console.log(`server: version ${CORE_VERSION}`)
+                        response = <ServerResponse>{
+                            ok: true,
+                            version: CORE_VERSION,
+                        }
+                        break
+                    }
                     case "server.kill": {
                         console.log(`server: kill`)
                         process.exit(0)
