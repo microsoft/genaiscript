@@ -5,56 +5,7 @@ import { defaultPrompts } from "./default_prompts"
 import { parsePromptTemplate } from "./template"
 import { fileExists, readText } from "./fs"
 import { BUILTIN_PREFIX } from "./constants"
-
-// TODO make this configurable
-// default is '#'
-const commentType: Record<string, string> = {
-    c: "//",
-    h: "//",
-    m: "//", // assume Objective-C not matlab
-    cpp: "//",
-    cc: "//",
-
-    js: "//",
-    ts: "//",
-    jsx: "//",
-    tsx: "//",
-    mjs: "//",
-    mts: "//",
-
-    java: "//",
-    cs: "//",
-    go: "//",
-    pas: "//",
-    rs: "//",
-    swift: "//",
-    zig: "//",
-    scala: "//",
-    php: "//",
-    dart: "//",
-    kt: "//",
-    kts: "//",
-
-    lua: "--",
-    sql: "--",
-    hs: "--",
-    ada: "--",
-    vhdl: "--",
-
-    tex: "%",
-    jl: "%",
-    matlab: "%", // .m used by Objective-C
-    prolog: "%", // .pl used by perl
-
-    vim: '"',
-
-    bas: "REM",
-}
-
-export function lineCommentByExt(ext: string) {
-    ext = ext.replace(/^\./, "").toLowerCase()
-    return commentType[ext] ?? "#"
-}
+import { host } from "./host"
 
 type Parser = (
     prj: Project,
@@ -72,7 +23,6 @@ function removeIds(str: string, cb: (id: string) => void) {
 
 const nodeIdRx = /\{(#[A-Z]{2,6}[0-9]{2,6})\}/
 
- 
 export function stringToPos(str: string): CharPosition {
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
@@ -81,50 +31,27 @@ const parseTextPlain: Parser = (prj, filename, mime, content) => {
     const file = new TextFile(prj, filename, mime, content)
     if (!content) return file
 
-    const ext = filename.replace(/.*\./, "")
-    const cmt = lineCommentByExt(ext)
     let defaultTitle = file.relativeName()
 
-    if (nodeIdRx.test(content)) {
-        const lines = content.split(/\n/)
-        for (let lineNo = 0; lineNo < lines.length; lineNo++) {
-            let line = lines[lineNo]
-            let id = ""
-            let title = removeIds(line, (i) => {
-                id = i
-            }).trim()
-            if (title.startsWith(cmt)) title = title.slice(cmt.length).trim()
-            else title = ""
-            if (!title) title = defaultTitle + " #" + file.roots.length
-
-            const startPos: CharPosition = [lineNo, 0]
-            lineNo++
-            let text = line + "\n"
-            while (lineNo < lines.length) {
-                line = lines[lineNo]
-                if (nodeIdRx.test(line)) break
-                text += line + "\n"
-                lineNo++
-            }
-            lineNo--
-
-            file.addFragment({
-                id,
-                title,
-                startPos,
-                endPos: [lineNo, line.length],
-                text,
+    const newelt = file.addFragment({
+        id: "",
+        title: defaultTitle,
+        startPos: [0, 0],
+        endPos: stringToPos(content),
+        text: content,
+    })
+    newelt.text.replace(
+        /^(?:-|\*)\s+\[(?<name>[^\]]+)\]\((?<file>(?:\.\/)?[^\)]+)\)/gm,
+        (_, name, file) => {
+            newelt.references.push({
+                name,
+                filename: /^\w+:\/\//.test(file)
+                    ? file
+                    : host.resolvePath(filename, "..", file),
             })
+            return ""
         }
-    } else {
-        file.addFragment({
-            id: "",
-            title: defaultTitle,
-            startPos: [0, 0],
-            endPos: stringToPos(content),
-            text: content,
-        })
-    }
+    )
     return file
 }
 
