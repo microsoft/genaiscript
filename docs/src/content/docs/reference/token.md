@@ -8,16 +8,16 @@ keywords: API authorization, .env setup, secure API tokens, environment configur
 
 GenAIScript will try to find the connection token from various sources:
 
--   a `.env` file in your root project.
--   process environment variables from the CLI , typically in your CI/CD environment.
+-   a `.env` file in the root of your project.
+-   environment variables set in the CLI, typically within your CI/CD environment.
 
 ## .env file
 
 The extension also supports the following set of variables:
 
--   `OPENAI_API_TYPE`, `OPENAI_API_BASE`, `OPENAI_API_KEY`, `OPENAI_API_VERSION` variables.
--   `AZURE_OPENAI_API_ENDPOINT` or `AZURE_OPENAI_API_BASE`, `AZURE_OPENAI_API_KEY` variables.
--   `AZURE_API_BASE`, `AZURE_API_KEY`, `AZURE_API_VERSION` variables.
+-   The `OPENAI_API_TYPE`, `OPENAI_API_BASE`, `OPENAI_API_KEY`, `OPENAI_API_VERSION` variables.
+-   Either `AZURE_OPENAI_API_ENDPOINT` or `AZURE_OPENAI_API_BASE`, and `AZURE_OPENAI_API_KEY` variables.
+-   The `AZURE_API_BASE`, `AZURE_API_KEY`, `AZURE_API_VERSION` variables.
 
 ```txt title=".env"
 OPENAI_API_TYPE="azure"
@@ -27,12 +27,12 @@ OPENAI_API_KEY="oaip_SomethingSecret"
 
 Additionally,
 
--   the `OPENAI_API_BASE` can point to a local server, e.g. using [https://jan.ai/api-reference/](https://jan.ai/api-reference/) at `http://localhost:1337/v1`.
--   the `OPENAI_API_TYPE` should be `azure` or `local`. If not specified, we'll try to guess based on the `OPENAI_API_BASE` value.
+-   The `OPENAI_API_BASE` can point to a local server, for example, `http://localhost:1337/v1` as seen at [https://jan.ai/api-reference/](https://jan.ai/api-reference/).
+-   The `OPENAI_API_TYPE` should be either `azure` or `local`. If not specified, the system will attempt to infer it based on the `OPENAI_API_BASE` value.
 
 :::caution[Don't commit your secrets]
 
-If you are using git to manage your project, make sure to add the `.env` file to your `.gitignore` file to avoid committing your secrets to your repository.
+If you are using Git to manage your project, ensure that the `.env` file is added to your `.gitignore` to prevent committing your secrets to the repository.
 
 ```txt title=".gitignore"
 ...

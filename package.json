@@ -39,8 +39,8 @@
         "docs": "cd docs && ./node_modules/.bin/astro dev --host",
         "build:docs": "cd docs && yarn build && yarn build:asw",
         "gen:licenses": "npx generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
-        "genai:technical": "node packages/cli/built/genaiscript.cjs batch technical docs/src/**/*.{md,mdx} --apply-edits",
-        "genai:frontmatter": "node packages/cli/built/genaiscript.cjs batch frontmatter docs/src/**/*.{md,mdx} --apply-edits"
+        "genai:technical": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/technical.genai.js \"docs/src/**/*.md\" --excluded-files \"docs/src/**/index.{md,mdx}\" --apply-edits",
+        "genai:frontmatter": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/frontmatter.genai.js \"docs/src/**/*.{md,mdx}\" --apply-edits"
     },
     "release-it": {
         "github": {
