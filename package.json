@@ -38,7 +38,8 @@
         "serve": "node packages/cli/built/genaiscript.cjs serve",
         "docs": "cd docs && ./node_modules/.bin/astro dev --host",
         "build:docs": "cd docs && yarn build && yarn build:asw",
-        "gen:licenses": "npx generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite"
+        "gen:licenses": "npx generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
+        "genai:frontmatter": "node packages/cli/built/genaiscript.cjs batch frontmatter docs/src/**/*.md --apply-edits"
     },
     "release-it": {
         "github": {

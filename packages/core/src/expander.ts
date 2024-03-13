@@ -38,7 +38,7 @@ import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
 import { stringifySchemaToTypeScript, validateJSONWithSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
-import { isCancelError } from "./error"
+import { createCancelError, isCancelError } from "./error"
 import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
@@ -447,6 +447,8 @@ async function callExpander(
         success = false
         if (isCancelError(e)) {
             trace.log(`cancelled: ${(e as Error).message}`)
+            // null is cancelled
+            success = null
         } else {
             const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
             const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
@@ -481,6 +483,10 @@ async function expandTemplate(
     const fileMerges = prompt.fileMerges
 
     let success = prompt.success
+    if (success === null)
+        // cancelled
+        return { success }
+
     const model =
         options.model ?? env.vars["model"] ?? template.model ?? DEFAULT_MODEL
     const temperature =
@@ -518,7 +524,7 @@ async function expandTemplate(
     trace.fence(expanded, "markdown")
     trace.endDetails()
 
-    if (cancellationToken?.isCancellationRequested) return { success: false }
+    if (cancellationToken?.isCancellationRequested) return { success: null }
 
     let systemText = ""
     const systems = (template.system ?? []).slice(0)
@@ -533,8 +539,7 @@ async function expandTemplate(
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
     }
     for (let i = 0; i < systems.length && success; ++i) {
-        if (cancellationToken?.isCancellationRequested)
-            return { success: false }
+        if (cancellationToken?.isCancellationRequested) return { success: null }
 
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
@@ -549,8 +554,9 @@ async function expandTemplate(
         trace.startDetails(`👾 ${systemTemplate}`)
         const sysr = await callExpander(system, env, trace, options)
         const sysex = sysr.text
-        success = success && sysr.success
-        if (!success) break
+        success = sysr.success
+        if (success === null) return { success }
+        else if (!success) break
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
@@ -882,12 +888,13 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (!success) {
+        const text = success === null ? "Script cancelled" : "Script failed"
         return <FragmentTransformResponse>{
-            error: new Error("Template failed"),
+            error: success === null ? createCancelError(text) : new Error(text),
             prompt: messages,
             vars,
             trace: trace.content,
-            text: "# Template failed\nSee trace.",
+            text,
             edits: [],
             annotations: [],
             changelogs: [],
