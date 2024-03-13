@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { extractFenced } from "genaiscript-core"
+import { extractFenced } from "./template"
 
 describe("fence", () => {
     test("fence opt", () => {

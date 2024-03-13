@@ -27,7 +27,7 @@ jobs:
             - name: core tests
               run: yarn test:core
             - name: unit tests
-              run: yarn test:unit
+              run: yarn test:samples
             - name: install sharp
               run: cd docs && yarn add sharp
             - name: docs

@@ -7,7 +7,7 @@ import {
     getChatCompletions,
     toChatCompletionUserMessage,
 } from "./chat"
-import { Fragment, PromptTemplate, allChildren } from "./ast"
+import { Fragment, PromptTemplate } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
@@ -678,76 +678,68 @@ async function fragmentVars(
     const prjFolder = host.projectFolder()
 
     const files: LinkedFile[] = []
-    for (const fr of allChildren(frag, true)) {
-        for (const ref of fr.references) {
-            // what about URLs?
-            if (/^https:\/\//.test(ref.filename)) {
-                if (!files.find((lk) => lk.filename === ref.filename)) {
-                    let content: string = ""
-                    try {
-                        const urlAdapters = defaultUrlAdapters.concat(
-                            template.urlAdapters ?? []
-                        )
-                        let url = ref.filename
-                        let adapter: UrlAdapter = undefined
-                        for (const a of urlAdapters) {
-                            const newUrl = a.matcher(url)
-                            if (newUrl) {
-                                url = newUrl
-                                adapter = a
-                                break
-                            }
+    const fr = frag
+    for (const ref of fr.references) {
+        // what about URLs?
+        if (/^https:\/\//.test(ref.filename)) {
+            if (!files.find((lk) => lk.filename === ref.filename)) {
+                let content: string = ""
+                try {
+                    const urlAdapters = defaultUrlAdapters.concat(
+                        template.urlAdapters ?? []
+                    )
+                    let url = ref.filename
+                    let adapter: UrlAdapter = undefined
+                    for (const a of urlAdapters) {
+                        const newUrl = a.matcher(url)
+                        if (newUrl) {
+                            url = newUrl
+                            adapter = a
+                            break
                         }
-                        trace.item(`fetch ${url}`)
-                        const resp = await fetch(url, {
-                            headers: {
-                                "Content-Type":
-                                    adapter?.contentType ?? "text/plain",
-                            },
-                        })
-                        trace.item(`status: ${resp.status}, ${resp.statusText}`)
-                        if (resp.ok)
-                            content =
-                                adapter?.contentType === "application/json"
-                                    ? adapter.adapter(await resp.json())
-                                    : await resp.text()
-                    } catch (e) {
-                        trace.error(`fetch def error`, e)
                     }
-                    files.push({
-                        label: ref.name,
-                        filename: ref.filename,
-                        content,
+                    trace.item(`fetch ${url}`)
+                    const resp = await fetch(url, {
+                        headers: {
+                            "Content-Type":
+                                adapter?.contentType ?? "text/plain",
+                        },
                     })
+                    trace.item(`status: ${resp.status}, ${resp.statusText}`)
+                    if (resp.ok)
+                        content =
+                            adapter?.contentType === "application/json"
+                                ? adapter.adapter(await resp.json())
+                                : await resp.text()
+                } catch (e) {
+                    trace.error(`fetch def error`, e)
                 }
-                continue
-            }
-
-            // check for existing file
-            const projectFile = project.allFiles.find(
-                (f) => f.filename === ref.filename
-            )
-            if (!projectFile) {
-                trace.error(`reference ${ref.filename} not found`)
-                continue
-            }
-
-            const fn = relativePath(host.projectFolder(), projectFile.filename)
-            if (!files.find((lk) => lk.filename === fn))
                 files.push({
                     label: ref.name,
-                    filename: fn,
-                    content: projectFile.content,
+                    filename: ref.filename,
+                    content,
                 })
+            }
+            continue
         }
+
+        // check for existing file
+        const projectFile = project.allFiles.find(
+            (f) => f.filename === ref.filename
+        )
+        if (!projectFile) {
+            trace.error(`reference ${ref.filename} not found`)
+            continue
+        }
+
+        const fn = relativePath(host.projectFolder(), projectFile.filename)
+        if (!files.find((lk) => lk.filename === fn))
+            files.push({
+                label: ref.name,
+                filename: fn,
+                content: projectFile.content,
+            })
     }
-    const parents: LinkedFile[] = []
-    if (frag.parent)
-        parents.push({
-            label: frag.parent.title,
-            filename: relativePath(prjFolder, frag.parent.file.filename),
-            content: frag.parent.file.content,
-        })
     const attrs = commentAttributes(frag)
     const secrets: Record<string, string> = {}
     for (const secret of template.secrets || []) {
@@ -765,7 +757,6 @@ async function fragmentVars(
             content: file.content,
         },
         files,
-        parents,
         template: {
             id: template.id,
             title: template.title,
@@ -970,7 +961,7 @@ export async function runTemplate(
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`Prompting model ${model}`)
+                status(`prompting model ${model}`)
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
