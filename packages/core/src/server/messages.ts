@@ -19,6 +19,11 @@ export interface RetreivalClear extends RequestMessage {
     type: "retreival.clear"
 }
 
+export interface ServerVersion extends RequestMessage {
+    type: "server.version"
+    version: string
+}
+
 export interface RetreivalUpsert extends RequestMessage {
     type: "retreival.upsert"
     filename: string
@@ -45,3 +50,4 @@ export type RequestMessages =
     | RetreivalUpsert
     | RetreivalSearch
     | RetreivalOutline
+    | ServerVersion

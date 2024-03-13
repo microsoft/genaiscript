@@ -96,6 +96,8 @@ export interface RetreivalService {
 
 export type HighlightResponse = ResponseStatus & { response: string }
 
+export type ServerResponse = ResponseStatus & { version: string }
+
 export interface HighlightService {
     init(trace?: MarkdownTrace): Promise<void>
     outline(files: LinkedFile[]): Promise<HighlightResponse>
