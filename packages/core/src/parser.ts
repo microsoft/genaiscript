@@ -1,13 +1,8 @@
-import remarkFrontmatter from "remark-frontmatter"
-import remarkGfm from "remark-gfm"
-import { remark } from "remark"
-import { Content, Heading, Parent } from "mdast"
 import { lookupMime } from "./mime"
-import { assert, last, sha256string, strcmp } from "./util"
+import { assert, sha256string, strcmp } from "./util"
 import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { parsePromptTemplate } from "./template"
-import { host } from "./host"
 import { fileExists, readText } from "./fs"
 import { BUILTIN_PREFIX } from "./constants"
 
@@ -61,35 +56,6 @@ export function lineCommentByExt(ext: string) {
     return commentType[ext] ?? "#"
 }
 
-function extractText(node: Content): string {
-    if (node.type == "text" || node.type == "inlineCode" || node.type == "code")
-        return node.value
-    const p = node as Parent
-    if (p.children?.length) return p.children.map(extractText).join("")
-    return ""
-}
-
-interface FragmentAST {
-    header: Heading
-    body: Content[]
-}
-
-function posRange(elts: Content[]) {
-    const start = elts[0].position.start
-    const stop = last(elts).position.end
-    return { start, stop }
-}
-
-function sourceRange(md: string, elts: Content[]) {
-    if (elts.length == 0) return ""
-    const { start, stop } = posRange(elts)
-    return md.slice(start.offset, stop.offset)
-}
-
-function toPosition(p: { line: number; column: number }): CharPosition {
-    return [p.line - 1, p.column - 1]
-}
-
 type Parser = (
     prj: Project,
     filename: string,
@@ -104,114 +70,9 @@ function removeIds(str: string, cb: (id: string) => void) {
     })
 }
 
-const parseMdFile: Parser = (
-    prj: Project,
-    filename: string,
-    mime: string,
-    md: string
-) => {
-    const processor = remark().use(remarkGfm).use(remarkFrontmatter)
-    const rootAST = processor.parse(md)
-    let currElt: FragmentAST = {
-        header: null, // front-matter
-        body: [],
-    }
-    const elements = [currElt]
-    for (const c of rootAST.children) {
-        if (c.type == "heading") {
-            currElt = {
-                header: c,
-                body: [],
-            }
-            elements.push(currElt)
-        } else {
-            currElt.body.push(c)
-        }
-    }
-
-    const file = new TextFile(prj, filename, mime, md)
-    file.isStructured = true
-
-    const stack: Fragment[] = []
-    for (const elt of elements.slice(1)) {
-        const lastChild = last(elt.header.children)
-        let id = ""
-        if (lastChild?.type == "text") {
-            const newVal = removeIds(lastChild.value, (i) => {
-                id = i
-            })
-            if (id) lastChild.value = newVal.replace(/\s*$/, "")
-        }
-
-        const cmt: Content[] = []
-        for (;;) {
-            const lst = last(elt.body)
-            if (lst?.type === "html" && lst.value.startsWith("<!--")) {
-                cmt.unshift(lst)
-                elt.body.pop()
-            } else {
-                break
-            }
-        }
-
-        const { start, stop } = posRange([elt.header, ...elt.body])
-        const newelt = file.addFragment({
-            id,
-            title: extractText(elt.header),
-            startPos: toPosition(start),
-            endPos: toPosition(stop),
-            depth: elt.header.depth,
-            text: sourceRange(md, [elt.header, ...elt.body]),
-        })
-        newelt.text.replace(
-            /^(?:-|\*)\s+\[(?<name>[^\]]+)\]\((?<file>(?:\.\/)?[^\)]+)\)/gm,
-            (_, name, file) => {
-                newelt.references.push({
-                    name,
-                    filename: /^\w+:\/\//.test(file)
-                        ? file
-                        : host.resolvePath(filename, "..", file),
-                })
-                return ""
-            }
-        )
-        if (cmt.length) newelt.postComment = sourceRange(md, cmt)
-
-        while (stack.length) {
-            const top = stack.pop()
-            if (top.depth < elt.header.depth) {
-                stack.push(top)
-                newelt.parent = top
-                top.children.push(newelt)
-                break
-            }
-        }
-        if (stack.length == 0) file.roots.push(newelt)
-        stack.push(newelt)
-    }
-
-    return file
-}
-
 const nodeIdRx = /\{(#[A-Z]{2,6}[0-9]{2,6})\}/
 
-export function fragmentIdRange(fragment: Fragment): CharRange {
-    const m = nodeIdRx.exec(fragment.text)
-    if (m) {
-        const off = fragment.text.indexOf(m[0])
-        const pref = fragment.text.slice(0, off)
-        if (!pref.includes("\n")) {
-            const [l, c] = fragment.startPos
-            const c2 = c + pref.length
-            return [
-                [l, c2],
-                [l, c2 + m[0].length],
-            ]
-        }
-    }
-    return undefined
-}
-
+ 
 export function stringToPos(str: string): CharPosition {
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
@@ -267,11 +128,6 @@ const parseTextPlain: Parser = (prj, filename, mime, content) => {
     return file
 }
 
-const PARSERS: Record<string, Parser> = {
-    "text/markdown": parseMdFile,
-    "text/plain": parseTextPlain,
-    "application/javascript": parseTextPlain,
-}
 function isBinaryMimeType(mimeType: string) {
     return (
         /^(image|audio|video)\//.test(mimeType) ||
@@ -363,8 +219,7 @@ export async function parseProject(options: {
         const mime = lookupMime(f)
         const binary = isBinaryMimeType(mime)
         const text = binary ? undefined : await readText(f)
-        const parser = PARSERS[mime] || parseTextPlain
-        const file = parser(prj, f, mime, text)
+        const file = parseTextPlain(prj, f, mime, text)
         prj.allFiles.push(file)
         if (gpspecFiles.includes(f)) prj.rootFiles.push(file)
         file.forEachFragment((frag) => {
