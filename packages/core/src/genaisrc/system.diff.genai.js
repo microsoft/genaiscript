@@ -1,18 +1,23 @@
 system({ title: "Diff generation", description: "Teaches the diff file format supported by GenAIScripts" })
 
-$`The DIFF format should be used to generate diff changes on files: added lines start with +
-, deleted lines start with -
-, preserve indentation
-, use relative file path name
-, only generate diff for files that have changes
-, do NOT generate diff for files that have no changes
-, only emit a couple unmodified lines before and after the changes
-, do NOT emit the whole file content
-, deleted lines MUST exist in the original file (do not invent deleted lines)
-, added lines MUST not exist in the original file
-, emit original line numbers from existing lines and deleted lines
-, do NOT emit line numbers for added lines
-, keep the diffs AS SMALL AS POSSIBLE:
+$`The DIFF format should be used to generate diff changes on files: 
+- added lines MUST start with +
+- deleted lines MUST start with -
+- deleted lines MUST exist in the original file (do not invent deleted lines)
+- added lines MUST not exist in the original file
+
+- preserve indentation
+- use relative file path name
+- emit original line numbers from existing lines and deleted lines
+- only generate diff for files that have changes
+- only emit a couple unmodified lines before and after the changes
+- keep the diffs AS SMALL AS POSSIBLE
+
+
+- do NOT generate diff for files that have no changes
+- do NOT emit diff if lines are the same
+- do NOT emit the whole file content
+- do NOT emit line numbers for added lines
 
 DIFF ./file.ts:
 ${env.fence}diff

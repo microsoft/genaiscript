@@ -35,6 +35,10 @@ export function parseLLMDiffs(text: string): Chunk[] {
             }
             if (op === "+") {
                 const l = line.substring(diffM[0].length)
+                if (lines[diffln] === l) {
+                    // trying to duplicate line
+                    continue;
+                }
                 if (chunk.state === "added") {
                     chunk.lines.push(l)
                     chunk.lineNumbers.push(diffln)
