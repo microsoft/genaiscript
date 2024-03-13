@@ -4,7 +4,7 @@ import {
     Fragment,
     PromptTemplate,
     groupBy,
-    rootFragment,
+    host,
     templateGroup,
 } from "genaiscript-core"
 import { ChatRequestContext, ExtensionState } from "./state"
@@ -30,7 +30,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         }
     ) => {
         const { filter = () => true } = options || {}
-        const templates = fragment.applicableTemplates().filter(filter)
+        const templates = fragment.file.project.templates.filter(filter)
 
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
@@ -78,7 +78,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment = project.resolveFragment(frag)
         }
 
-        return rootFragment(fragment)
+        return fragment
     }
 
     const fragmentPrompt = async (
