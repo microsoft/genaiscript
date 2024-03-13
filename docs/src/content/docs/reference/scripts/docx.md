@@ -1,5 +1,7 @@
 ---
 title: DOCX
+description: Learn how to parse and extract text from DOCX files for text analysis and processing.
+keywords: DOCX parsing, text extraction, document conversion, file processing, text analysis
 sidebar:
     order: 9
 ---

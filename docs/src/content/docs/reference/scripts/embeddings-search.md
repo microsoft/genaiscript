@@ -2,6 +2,8 @@
 title: Embeddings Search
 sidebar:
     order: 10
+description: Learn how to use the retrieval.search function to index files with embeddings for efficient similarity search in vector databases.
+keywords: embeddings search, similarity search, vector database, indexing, LLM API
 ---
 
 The `retrieval.search` indexes the input files using [embeddings](https://platform.openai.com/docs/guides/embeddings) into a vector database that can be used for similarity search. This is commonly referred to as Retrieval Augmented Generation (RAG).

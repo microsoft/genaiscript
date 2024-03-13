@@ -2,6 +2,8 @@
 title: Fetch
 sidebar:
     order: 14
+description: Learn how to use fetch and fetchText in scripts to make HTTP requests and handle text responses.
+keywords: fetch API, fetchText, HTTP requests, scripts, API key
 ---
 
 The JavaScript `fetch` API is available; but we also provide a helper
