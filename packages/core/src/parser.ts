@@ -164,13 +164,6 @@ export async function parseProject(options: {
         }
     })
 
-    for (const f of prj.allFiles) {
-        if (!f.isStructured) {
-            assert(f.roots.length == 0)
-            f.roots.push(...f.fragments.filter((f) => !f.parent))
-        }
-    }
-
     prj.forEachFragment((t) => {
         const pref = t.file.relativeName()
         if (t.id) t.fullId = pref + t.id

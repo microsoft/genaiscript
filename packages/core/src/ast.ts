@@ -18,9 +18,7 @@ export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
         .join("\n")
 }
 
-export type FragmentInit = Partial<
-    Pick<Fragment, "depth" | "references">
-> &
+export type FragmentInit = Partial<Pick<Fragment, "references">> &
     Pick<Fragment, "id" | "title" | "startPos" | "endPos" | "text">
 
 export class Fragment {
@@ -38,16 +36,6 @@ export class Fragment {
      * Title of fragment in plain text (no formatting).
      */
     title: string
-
-    /**
-     * Depth of the header.
-     */
-    depth: number = 1
-
-    /**
-     * The node up the tree if any.
-     */
-    parent?: Fragment
 
     /**
      * Collision-resistant hash of content, including title, body and id (but not children).
@@ -87,12 +75,6 @@ export class Fragment {
     get project() {
         return this.file.project
     }
-}
-
-export function rootFragment(fragment: Fragment): Fragment {
-    if (!fragment) return undefined
-    if (fragment.parent) return rootFragment(fragment.parent)
-    else return fragment
 }
 
 export function templateGroup(template: PromptTemplate) {

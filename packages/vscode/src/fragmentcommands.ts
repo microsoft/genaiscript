@@ -5,7 +5,6 @@ import {
     PromptTemplate,
     groupBy,
     host,
-    rootFragment,
     templateGroup,
 } from "genaiscript-core"
 import { ChatRequestContext, ExtensionState } from "./state"
@@ -79,7 +78,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment = project.resolveFragment(frag)
         }
 
-        return rootFragment(fragment)
+        return fragment
     }
 
     const fragmentPrompt = async (
