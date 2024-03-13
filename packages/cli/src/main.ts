@@ -915,12 +915,6 @@ async function main() {
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .action(retreivalSearch)
     retreival
-        .command("tokens")
-        .description("Count tokens in a set of files")
-        .arguments("<files...>")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .action(retreivalTokens)
-    retreival
         .command("clear")
         .description("Clear index to force re-indexing")
         .action(clearIndex)
@@ -941,11 +935,6 @@ async function main() {
         )
         .action(startServer)
 
-    program
-        .command("jsonl2json", "Converts JSONL files to a JSON file")
-        .argument("<file...>", "input JSONL files")
-        .action(jsonl2json)
-
     const parser = program.command("parse").description("Parse various outputs")
     parser
         .command("fence <language>")
@@ -961,6 +950,16 @@ async function main() {
         .command("docx <file>")
         .description("Parse a DOCX into texts")
         .action(parseDOCX)
+    parser
+        .command("tokens")
+        .description("Count tokens in a set of files")
+        .arguments("<files...>")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .action(retreivalTokens)
+    parser
+        .command("jsonl2json", "Converts JSONL files to a JSON file")
+        .argument("<file...>", "input JSONL files")
+        .action(jsonl2json)
 
     program
         .command("help-all", { hidden: true })
