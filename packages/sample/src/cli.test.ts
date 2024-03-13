@@ -16,6 +16,12 @@ describe("tools", () => {
     })
 })
 
+describe("cli", () => {
+    test("help-all", async () => {
+        $`node ${cli} help-all`
+    })
+})
+
 describe("parse", () => {
     const cmd = "parse"
     test("pdf", async () => {
@@ -24,9 +30,24 @@ describe("parse", () => {
     })
     test("docx", async () => {
         const res = await $`node ${cli} ${cmd} docx src/rag/Document.docx`
-        assert(res.stdout.includes("Microsoft Word is a word processor developed by Microsoft."))
+        assert(
+            res.stdout.includes(
+                "Microsoft Word is a word processor developed by Microsoft."
+            )
+        )
     })
     test("tokens", async () => {
         const res = await $`node ${cli} ${cmd} tokens "**/*.md"`
+    })
+})
+
+describe("retreival", () => {
+    const cmd = "retreival"
+    describe("outline", () => {
+        const action = "outline"
+        test("greeter.ts", async () => {
+            const res = await $`node ${cli} ${cmd} ${action} src/greeter.ts`
+            assert(res.stdout.includes("class Greeter"))
+        })
     })
 })
