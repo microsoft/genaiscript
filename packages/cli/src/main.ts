@@ -730,11 +730,16 @@ async function retreivalIndex(
 ) {
     const { excludedFiles } = options || {}
     const fs = await expandFiles(files, excludedFiles)
-    const spinner = ora({ interval: 200 }).start("indexing")
+    if (!fs.length) {
+        console.error("no files matching")
+        return
+    }
 
+    const spinner = ora({ interval: 200 }).start(`indexing ${fs.length} files`)
     await upsert(fs, {
         progress: new ProgressSpinner(spinner),
     })
+    spinner.stop()
 }
 
 async function retreivalSearch(
