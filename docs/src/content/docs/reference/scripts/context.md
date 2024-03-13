@@ -2,6 +2,8 @@
 title: Context (def)
 sidebar:
     order: 3
+description: Detailed documentation on the script execution context and environment variables in GenAIScript.
+keywords: script execution, env object, GenAIScript context, def function, env files
 ---
 
 The information about the context of the script execution are available in the `env` global object.
