@@ -27,6 +27,12 @@ You can index your project using the [CLI](/genaiscript/reference/cli).
 node .genaiscript/genaiscript.cjs retreive index "src/**"
 ```
 
+:::tip
+
+You can simulate an indexing command in Visual Studio Code by right-clicking on a folder and selecting **Retreival** > **Index**. Once indexed, you can test search using **Retreival** > **Search**.
+
+:::
+
 ## Web Search
 
 The `retreival.webSearch` performs a web search using a search engine API. You will need to provide API keys for the search engine you want to use.
