@@ -13,7 +13,8 @@ import {
     installImport,
     lookupMime,
 } from "genaiscript-core"
-import { type BaseReader, type GenericFileSystem } from "llamaindex"
+import { type BaseReader } from "llamaindex"
+import { type GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
 
