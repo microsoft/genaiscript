@@ -1,15 +1,15 @@
 ---
-title: run
+title: Run
 description: Learn how to execute genai scripts on files with streaming output to stdout, including usage of glob patterns, environment variables, and output options.
 sidebar:
-  order: 1
+    order: 1
 keywords: CLI tool execution, genai script running, stdout streaming, file globbing, environment configuration
 ---
 
 Runs a genai script on a file and streams the LLM output to stdout.
 
 ```bash
-node .genaiscript/genaiscript.cjs run <tool> "<spec...>"
+node .genaiscript/genaiscript.cjs run <tool> "<files...>"
 ```
 
 where `<tool>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
