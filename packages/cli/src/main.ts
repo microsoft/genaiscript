@@ -482,6 +482,11 @@ ${Array.from(files)
 `
     }
 
+    if (!spec) {
+        spinner?.fail(`genai spec not found`)
+        process.exit(FILES_NOT_FOUND)
+    }
+
     if (specContent) host.setVirtualFile(spec, specContent)
 
     const prj = await buildProject({

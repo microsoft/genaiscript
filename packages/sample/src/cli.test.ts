@@ -4,6 +4,27 @@ import { CLI_JS } from "genaiscript-core"
 import "zx/globals"
 
 const cli = `../cli/built/${CLI_JS}`
+
+describe("run", () => {
+    const cmd = "run"
+    describe("dry run", () => {
+        const flags = `--prompt`
+        test("slides greeter", async () => {
+            const res =
+                await $`node ${cli} ${cmd} slides src/greeter.ts ${flags}`
+            const resj = JSON.parse(res.stdout)
+            assert(Array.isArray(resj))
+            assert(
+                resj.some(
+                    (msg) =>
+                        msg.role === "user" &&
+                        msg.content[0].text.includes("src/greeter.ts")
+                )
+            )
+        })
+    })
+})
+
 describe("tools", () => {
     const cmd = "tools"
     test("list", async () => {
