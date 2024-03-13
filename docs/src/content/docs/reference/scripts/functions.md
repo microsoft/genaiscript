@@ -1,5 +1,7 @@
 ---
 title: Functions
+description: Learn how to define and use functions within GenAIScript to enhance answer assembly with custom logic and CLI tools.
+keywords: functions, custom logic, CLI integration, scripting, automation
 sidebar:
     order: 7
 ---

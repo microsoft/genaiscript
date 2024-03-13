@@ -1,5 +1,7 @@
 ---
 title: Files
+description: Learn how to perform file system operations using the fs object in your scripts.
+keywords: file system, fs object, readFile, findFiles, paths
 sidebar:
     order: 13
 ---

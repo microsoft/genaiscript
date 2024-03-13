@@ -1,5 +1,11 @@
 import { RequestError } from "./chat"
 
+export function createCancelError(msg: string) {
+    const e = new Error(msg)
+    ;(e as any).__cancel = true
+    return e
+}
+
 export function throwError(e: string | Error, cancel?: boolean) {
     if (typeof e === "string") e = new Error(e)
     if (cancel)
