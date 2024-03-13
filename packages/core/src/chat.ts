@@ -212,7 +212,7 @@ export async function getChatCompletions(
     let numTokens = 0
 
     const fetchRetry = await wrapFetch(fetch, {
-        retryOn: [429],
+        retryOn: [429, 500],
         retries: retry,
         retryDelay: (attempt, error, response) => {
             if (attempt > 0) {
