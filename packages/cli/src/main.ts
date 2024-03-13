@@ -245,7 +245,7 @@ async function batch(
             spinner.start(`${file} (${i + 1}/${specFiles.size})`)
             const fragment = prj.rootFiles.find(
                 (f) => resolve(f.filename) === resolve(specFile)
-            ).roots[0]
+            ).fragments[0]
             assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
             const result: FragmentTransformResponse = await runTemplate(
@@ -500,7 +500,7 @@ ${Array.from(files)
         (f) => resolve(f.filename) === resolve(spec)
     )
     if (!gpspec) throw new Error(`spec ${spec} not found`)
-    const fragment = gpspec.roots[0]
+    const fragment = gpspec.fragments[0]
     assert(fragment !== undefined, `fragment not found`)
 
     spinner?.start("Querying")

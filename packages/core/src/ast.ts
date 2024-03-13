@@ -124,7 +124,7 @@ export class Project {
                 const file = fullId.replace(/:\d+:\d+$/, "")
                 if (file) {
                     const f = this.resolve(file)
-                    fragment = f?.roots?.[0]
+                    fragment = f?.fragments?.[0]
                 }
             }
         }
@@ -133,9 +133,7 @@ export class Project {
 }
 
 export class TextFile {
-    readonly roots: Fragment[] = []
     readonly fragments: Fragment[] = []
-    isStructured = false
 
     constructor(
         public readonly project: Project,

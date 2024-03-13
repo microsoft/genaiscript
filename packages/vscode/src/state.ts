@@ -456,7 +456,7 @@ ${e.message}`
 
     get rootFragments() {
         return this._project
-            ? concatArrays(...this._project.rootFiles.map((p) => p.roots))
+            ? concatArrays(...this._project.rootFiles.map((p) => p.fragments))
             : []
     }
 
