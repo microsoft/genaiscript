@@ -6,14 +6,14 @@ sidebar:
     order: 0
 ---
 
-GenAISCripts are a way to automate AI transformations in your codebase. This reference guide provides comprehensive documentation for GenAIScript, including script syntax, LLM configuration, VSCode extension, and CLI.
+GenAIScripts are a way to automate AI transformations in your codebase. This reference guide provides comprehensive documentation for GenAIScripts, including script syntax, LLM configurations, the VSCode extension, and the CLI.
 
 :::caution[Internal project]
 
-Please do not share outside Microsoft.
+Please do not share this outside of Microsoft.
 
 :::
 
--   [scripts](./scripts) provide a domain-specific javascript framework to build LLM requests.
--   [authorization](./token) deals with provisioning the LLM access
--   [CLI](./cli) documents the command line interface to automate genaiscript script executions.
+-   [Scripts](./scripts) provide a domain-specific JavaScript framework to build LLM requests.
+-   [Authorization](./token) deals with provisioning LLM access.
+-   [CLI](./cli) documents the command-line interface to automate GenAIScripts executions.

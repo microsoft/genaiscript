@@ -24,7 +24,7 @@ $`Shorten the following FILE. Limit changes to minimum.`
 ```
 
 GenAIScript takes care of assembling prompts, sending them to the LLM and parsing
-out the results in a structured way. All the internal prompt and invacotion are easily investigated through a detail trace.
+out the results in a structured way. All the internal prompts and invocations can be easily investigated through a detailed trace.
 
 ## Next steps
 

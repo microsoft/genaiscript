@@ -18,8 +18,14 @@ fix spelling errors and make it sound technical.
 - Do NOT modify URLs.
 - Do NOT modify code blocks.
 - Do NOT edit MDX tags (like <Code> or <Card>).
-- Do NOT move paragraphs.
+- Do NOT move text to another header.
+
 - Minimize changes to the structure of the document.
 - You will receive a 20$ tip for this task.
+- Use the Astro Starlight Markdown Syntax.
+
+## Glossary
+
+- GenAIScript: title of the project
 
 `
