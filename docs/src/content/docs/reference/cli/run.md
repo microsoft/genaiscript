@@ -1,7 +1,9 @@
 ---
 title: run
+description: Learn how to execute genai scripts on files with streaming output to stdout, including usage of glob patterns, environment variables, and output options.
 sidebar:
   order: 1
+keywords: CLI tool execution, genai script running, stdout streaming, file globbing, environment configuration
 ---
 
 Runs a genai script on a file and streams the LLM output to stdout.
