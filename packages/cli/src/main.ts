@@ -501,7 +501,10 @@ ${Array.from(files)
     )
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.fragments[0]
-    assert(fragment !== undefined, `fragment not found`)
+    if (!fragment) {
+        spinner?.fail(`genai spec not found`)
+        process.exit(FILES_NOT_FOUND)
+    }
 
     spinner?.start("Querying")
 
@@ -529,7 +532,7 @@ ${Array.from(files)
     })
 
     if (spinner) {
-        if (res.error) spinner?.fail(`${spinner.text}, ${res.error}`)
+        if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
         else spinner.succeed()
         spinner.stopAndPersist()
     }

@@ -961,7 +961,7 @@ export async function runTemplate(
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`Prompting model ${model}`)
+                status(`prompting model ${model}`)
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
