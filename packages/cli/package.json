@@ -14,14 +14,14 @@
     "openai": "^4.28.4"
   },
   "optionalDependencies": {
-    "llamaindex": "0.1.10",
+    "llamaindex": "0.1.21",
     "llm-code-highlighter": "0.0.13"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@llamaindex/env": "^0.0.4",
+    "@llamaindex/env": "^0.0.5",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.25",
     "@types/papaparse": "^5.3.14",
