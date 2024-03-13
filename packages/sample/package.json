@@ -1,14 +1,15 @@
 {
-  "name": "genaiscript-sample",
-  "version": "1.12.0",
-  "license": "MIT",
-  "private": true,
-  "devDependencies": {
-    "typescript": "^5.3.3"
-  },
-  "scripts": {
-    "go": "node ../cli/built/main.js src/sample.ts",
-    "token": "mkdir -p .genaiscript/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .genaiscript/tmp/request.txt",
-    "typecheck": "tsc -p src"
-  }
+    "name": "genaiscript-sample",
+    "version": "1.12.0",
+    "license": "MIT",
+    "private": true,
+    "devDependencies": {
+        "typescript": "^5.3.3"
+    },
+    "scripts": {
+        "go": "node ../cli/built/main.js src/sample.ts",
+        "token": "mkdir -p .genaiscript/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .genaiscript/tmp/request.txt",
+        "typecheck": "tsc -p src",
+        "test": "node --import tsx --test src/**.test.ts"
+    }
 }
