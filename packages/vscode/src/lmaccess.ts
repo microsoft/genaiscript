@@ -10,7 +10,9 @@ import { isApiProposalEnabled } from "./proposals"
 import { setupDotEnv } from "./dotenv"
 
 export async function pickLanguageModel(state: ExtensionState) {
-    const models = vscode.lm.languageModels
+    const models = isLanguageModelsAvailable(state.context)
+        ? vscode.lm.languageModels
+        : []
     const dotenv = ".env"
     const cmodel = models?.length
         ? await vscode.window.showQuickPick<

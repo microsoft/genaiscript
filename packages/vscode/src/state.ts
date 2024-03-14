@@ -400,7 +400,7 @@ ${e.message}`
         }
 
         const hasToken = !!(await this.host.getSecretToken())
-        if (!hasToken && isLanguageModelsAvailable(this.context)) {
+        if (!hasToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this)
             if (lmmodel) {
