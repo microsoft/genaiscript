@@ -23,11 +23,6 @@ function validateTokenCore(token: string, quiet = false) {
     if (timeleft < 60) throw new Error("token expired")
 }
 
-export async function clearToken() {
-    await host.setSecretToken(undefined)
-    cfg = undefined
-}
-
 export async function initToken(force = false) {
     if (cfg && !force) {
         // already set? revalidate
@@ -47,27 +42,18 @@ export async function initToken(force = false) {
         }
     }
 
-    const f = await host.askToken()
-    if (!f)
-        throw new RequestError(
-            403,
-            "token not specified",
-            {
-                type: "no_token",
-                message: "token not configured, please run command 'key help'",
-                param: undefined,
-                code: "no_token",
-            },
-            '{ code: "no_token" }',
-            -1
-        )
-    return await setToken(f)
-}
-
-export async function setToken(token: string) {
-    const tok = await parseToken(token)
-    await host.setSecretToken(tok)
-    return tok
+    throw new RequestError(
+        403,
+        "token not specified",
+        {
+            type: "no_token",
+            message: "token not configured, please run command 'key help'",
+            param: undefined,
+            code: "no_token",
+        },
+        '{ code: "no_token" }',
+        -1
+    )
 }
 
 export async function parseToken(f: string) {
