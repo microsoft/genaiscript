@@ -2,42 +2,17 @@
 title: Transparency Note
 sidebar:
     order: 99
+lastUpdated: 2024-04-13
 ---
-# Transparency Note: GenAIScript 
 
-Updated March 13, 2024
+## The Basics of GenAIScript
 
-## Table of Contents
-
-- [The Basics of GenAIScript](#the-basics-of-genaiscript)
-- [Introduction](#introduction)
-- [Key terms](#key-terms)
-- [Capabilities](#capabilities)
-- [System behavior](#system-behavior)
-- [Documentation](#documentation)
-- [GenAIScript User Journey](#genaiscript-user-journey)
-- [Use cases](#use-cases)
-- [Intended uses](#intended-uses)
-- [Unintended uses](#unintended-uses)
-- [Foundation model best practices](#foundation-model-best-practices)
-- [Limitations(#limitations)](#limitations)
-- [Technical limitations, operational factors and range](#technical-limitations-operational-factors-and-ranges)
-- [System performance and errors](#system-performance-and-errors)
-- [Best practices for improving system performance](#best-practices-for-improving-system-performance)
-- [Learn more about responsible AI](#learn-more-about-responsible-ai)
-- [Learn more about the GenAIScript](#learn-more-about-the-genaiscript)
-- [Contact us](#contact-us)
-- [About this document](#about-this-document)
-
-
-# The Basics of GenAIScript
-
-## Introduction
+### Introduction
 
 GenAIScript is a framework that empowers teams, including
 non-developers, to create and use AI-enhanced scripts to support their
 workflows. GenAIScript provides support for authoring and debugging
-JavaScript scripts that incorporate calls to foundation models and LLMs
+JavaScript scripts that incorporate calls to foundation models and LLMs [^1]
 in their execution. GenAIScript is a programming framework that
 allows its users to author AI scripts (which we call a GenAIScript),
 debug those scripts in a development environment that is an extension of
@@ -55,7 +30,7 @@ forms of output from LLM generations, including output in files of
 different types, outputs intended as edits to existing files and outputs
 in structured formats, such as JSON.
 
-## Key terms
+### Key terms
 
 **GenAIScript** A stylized JavaScript program that defines the context
 for the LLM call, allows arbitrary JavaScript code execution, packages
@@ -80,9 +55,9 @@ GenAIScript.
 different LLMs, in the future we anticipate that we will incorporate
 additional foundation models beyond large language models.
 
-# Capabilities
+## Capabilities
 
-## System behavior
+### System behavior
 
 GenAIScript is a general-purpose AI-script authoring framework for
 seamlessly integrating code execution and foundation model/LLM
@@ -125,7 +100,7 @@ be to enable many non-developers to innovate and build GenAIScript that
 enhance their productivity. We illustrate this point with examples
 below.
 
-## Documentation
+### Documentation
 
 To help users get started with GenAIScript, we include documentation in
 our repository that illustrates in code snippets the contents of several
@@ -135,9 +110,9 @@ GenAIScript acting on a particular input. While these examples are
 intended to explain the technology, they are not intended to be the
 basis for user-written tools.
 
-## Use cases
+### Use cases
 
-### Intended uses
+#### Intended uses
 
 GenAIScript can be used in any context where a command line script
 written in another programming language might be used but the use cases
@@ -186,7 +161,7 @@ code. Here are some examples:
     a dialog between two individuals (akin to sports announcers talking
     to each other) to make the video more interesting and accessible.
 
-### Unintended uses
+#### Unintended uses
 
 GenAIScript is a general framework for authoring scripts. As a result,
 an adversary can use GenAIScript to author adversarial scripts that
@@ -201,7 +176,7 @@ Code and Visual Studio. While we cannot prevent unintended uses, we will
 encourage users to consider Responsible AI practices when then build
 GenAIScript.
 
-### Foundation model best practices
+#### Foundation model best practices
 
 We strongly encourage GenAIScript users to use foundation models and
 LLMs that support robust Responsible AI mitigations, such as the Azure
@@ -214,7 +189,7 @@ the RAI features in AOAI that were presented at Ignite 2023:
 Service at Ignite 2023
 (microsoft.com)](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
 
-# Limitations
+## Limitations
 
 GenAIScript is an evolving framework that will improve based on input
 from users. Existing limitations in the framework include weak support
@@ -243,19 +218,19 @@ implement their GenAIScript using Python instead of JavaScript. We
 anticipate building a Python binding form authoring GenAIScript in the
 future.
 
-## Technical limitations, operational factors and ranges
+### Technical limitations, operational factors and ranges
 
 GenAIScript does not use any AI model in executing the framework itself.
 Individuals using GenAIScript to author their own AI scripts will be
 subject to the technical limitations, operational factors, and ranges of
 the AI LLM their tool uses.
 
-## Best practices for improving system performance 
+### Best practices for improving system performance
 
 GenAIScript encourages users to consult the best practices for authoring
 effective prompts for the specific LLM they are invoking in their tool.
 
-# Learn more about responsible AI
+## Learn more about responsible AI
 
 [Microsoft AI
 principles](https://www.microsoft.com/en-us/ai/responsible-ai)
@@ -266,17 +241,17 @@ resources](https://www.microsoft.com/en-us/ai/responsible-ai-resources)
 [Microsoft Azure Learning courses on responsible
 AI](https://docs.microsoft.com/en-us/learn/paths/responsible-ai-business-principles/)
 
-# Learn more about the GenAIScript
+## Learn more about the GenAIScript
 
 Read more about GenAIScript at our GitHub site, [microsoft/GenAIScript: GenAI
 Scripting (github.com)](https://github.com/microsoft/genaiscript/)
 
-# Contact us
+## Contact us
 
-Give us feedback on this document: <zorn@microsoft.com>, 
+Give us feedback on this document: <zorn@microsoft.com>,
 <jhalleux@microsoft.com>
 
-# About this document
+## About this document
 
 © 2024 Microsoft Corporation. All rights reserved. This document is
 provided \"as-is\" and for informational purposes only. Information and
@@ -295,14 +270,18 @@ recommendations and resources will be appropriate for every scenario,
 and conversely, these recommendations and resources may be insufficient
 for some scenarios.
 
-Published: [\<date\>]{.mark}
+-   Published: March 13, 2024
 
-Last updated: [\<date\>]{.mark}
+-   Last updated: March 13, 2024
 
-[^1]: Throughout this document when we refer to LLMs we mean any
+---
+
+[^1]:
+    Throughout this document when we refer to LLMs we mean any
     foundation model that is compatible with our interfaces.
 
-[^2]: [Lint (software) -
-    Wikipedia](https://en.wikipedia.org/wiki/Lint_(software))
+[^2]:
+    [Lint (software) -
+    Wikipedia](<https://en.wikipedia.org/wiki/Lint_(software)>)
 
 [^3]: <https://makecode.org/>
