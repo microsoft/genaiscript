@@ -57,6 +57,7 @@ export function configureLanguageModelAccess(
     const { template } = options
     const { partialCb, infoCb } = runOptions
 
+    // sanity check
     if (!vscode.lm.languageModels.includes(chatModel))
         throw new Error("Language model not found")
 
@@ -69,10 +70,42 @@ export function configureLanguageModelAccess(
 
         trace.item(`script model: ${model}`)
         trace.item(`language model: ${chatModel}`)
-        const messages = req.messages.map((m) => ({
-            role: m.role,
-            content: typeof m.content === "string" ? m.content : "...",
-        }))
+        const messages: vscode.LanguageModelChatMessage[] = req.messages.map(
+            (m) => {
+                switch (m.role) {
+                    case "system":
+                        return new vscode.LanguageModelChatSystemMessage(
+                            m.content
+                        )
+                    case "user":
+                        return new vscode.LanguageModelChatUserMessage(
+                            typeof m.content === "string"
+                                ? m.content
+                                : m.content
+                                      .map((mc) => {
+                                          if (mc.type === "image_url")
+                                              throw new Error(
+                                                  "images not supported with copilot models"
+                                              )
+                                          else return mc.text
+                                      })
+                                      .join("\n"),
+                            "genaiscript"
+                        )
+                    case "assistant":
+                        return new vscode.LanguageModelChatAssistantMessage(
+                            m.content
+                        )
+                    case "function":
+                    case "tool":
+                        throw new Error(
+                            "functions not supported with copilot models"
+                        )
+                    default:
+                        throw new Error("uknown role")
+                }
+            }
+        )
         const request = await vscode.lm.sendChatRequest(
             chatModel,
             messages,
