@@ -125,8 +125,6 @@ export interface Host {
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
     getSecretToken(): Promise<OAIToken | undefined>
-    setSecretToken(tok: OAIToken): Promise<void>
-    askToken(): Promise<string>
 
     log(level: LogLevel, msg: string): void
 

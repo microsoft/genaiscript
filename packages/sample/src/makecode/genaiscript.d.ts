@@ -148,11 +148,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     urlAdapters?: UrlAdapter[]
 
     /**
-     * If running in chat, use copilot LLM model
-     */
-    copilot?: boolean
-
-    /**
      * Secrets required by the prompt
      */
     secrets?: string[]
@@ -685,7 +680,7 @@ interface PromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): void
+    def(name: string, body: StringLike, options?: DefOptions): string
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
@@ -698,12 +693,12 @@ interface PromptContext {
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
-    ): void
+    ): string
     defData(
         name: string,
         data: object[] | object,
         options?: DefDataOptions
-    ): void
+    ): string
     runPrompt(
         generator: () => void | Promise<void>,
         options?: ModelOptions
@@ -767,8 +762,9 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  *
  * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
  * @param body string to be fenced/defined
+ * @returns variable name
  */
-declare function def(name: string, body: StringLike, options?: DefOptions): void
+declare function def(name: string, body: StringLike, options?: DefOptions): string
 
 /**
  * Declares a function that can be called from the prompt.
@@ -833,6 +829,7 @@ declare function fetchText(
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance
+ * @returns variable name
  */
 declare function defSchema(
     name: string,
@@ -852,12 +849,13 @@ declare function defImages(files: StringLike, options?: DefImagesOptions): void
  * @param name
  * @param data
  * @param options
+ * @returns variable name
  */
 declare function defData(
     name: string,
     data: object[] | object,
     options?: DefDataOptions
-): void
+): string
 
 /**
  * Cancels the current prompt generation/execution with the given reason.
