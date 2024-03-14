@@ -44,7 +44,11 @@ import {
     saveAllTextDocuments,
     writeFile,
 } from "./fs"
-import { configureLanguageModelAccess } from "./chat/lmaccess"
+import {
+    configureLanguageModelAccess,
+    isLanguageModelsAvailable,
+    pickLanguageModel,
+} from "./lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -396,8 +400,16 @@ ${e.message}`
         }
 
         const hasToken = await this.host.getSecretToken()
-        if (!hasToken && template.copilot) {
-            configureLanguageModelAccess(this.context, options, runOptions)
+        if (!hasToken && isLanguageModelsAvailable(this.context)) {
+            // we don't have a token so ask user if they want to use copilot
+            const lmmodel = await pickLanguageModel()
+            if (lmmodel)
+                configureLanguageModelAccess(
+                    this.context,
+                    options,
+                    runOptions,
+                    lmmodel
+                )
         }
 
         this.requestHistory.push({

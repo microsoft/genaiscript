@@ -1,38 +1,55 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
-import { AIRequestOptions } from "../state"
+import { AIRequestOptions, ExtensionState } from "./state"
 import {
     RunTemplateOptions,
     estimateTokens,
     logVerbose,
 } from "genaiscript-core"
-import { isApiProposalEnabled } from "../proposals"
+import { isApiProposalEnabled } from "./proposals"
 
-async function getLanguageModel(model: string, template: PromptTemplate) {
+export async function pickLanguageModel() {
     const models = vscode.lm.languageModels
-    const tmodel = model || "gpt-4"
-    let cmodel = models.find((m) => m === "copilot-" + tmodel)
-    if (!cmodel) {
-        cmodel = await vscode.window.showQuickPick(models, {
+    const cmodel = await vscode.window.showQuickPick<
+        vscode.QuickPickItem & { model: string }
+    >(
+        [
+            {
+                label: "Configure .env file",
+                model: ".env",
+            },
+            ...models.map((model) => ({
+                label: model,
+                model,
+            })),
+        ],
+        {
             title: "Pick a Language Model",
-        })
-        if (cmodel === undefined) return undefined
-    }
-    return cmodel
+        }
+    )
+    return cmodel?.model
+}
+
+export function isLanguageModelsAvailable(context: vscode.ExtensionContext) {
+    return isApiProposalEnabled(
+        context,
+        "languageModels",
+        "github.copilot-chat"
+    )
 }
 
 export function configureLanguageModelAccess(
     context: vscode.ExtensionContext,
     options: AIRequestOptions,
-    runOptions: RunTemplateOptions
+    runOptions: RunTemplateOptions,
+    chatModel: string
 ): void {
     logVerbose("using copilot llm")
     const { template } = options
     const { partialCb, infoCb } = runOptions
 
-    // test if extension is loaded
-    if (!isApiProposalEnabled(context, "languageModels", "github.copilot-chat"))
-        return
+    if (!vscode.lm.languageModels.includes(chatModel))
+        throw new Error("Language model not found")
 
     runOptions.cache = false
     runOptions.getChatCompletions = async (req, chatOptions) => {
@@ -42,11 +59,7 @@ export function configureLanguageModelAccess(
         const { model, temperature, top_p, seed, ...rest } = req
 
         trace.item(`script model: ${model}`)
-        const chatModel = await getLanguageModel(model, template)
-        if (chatModel === undefined) {
-            return { text: "" }
-        }
-        trace.item(`copilot llm model: ${chatModel}`)
+        trace.item(`language model: ${chatModel}`)
         const messages = req.messages.map((m) => ({
             role: m.role,
             content: typeof m.content === "string" ? m.content : "...",

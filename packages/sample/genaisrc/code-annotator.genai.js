@@ -1,6 +1,5 @@
 script({
     title: "Code annotator",
-    copilot: true,
     description: "Given a problem desciption and code, write a code review",
     maxTokens: 4000,
     model: "gpt-4-32k",
