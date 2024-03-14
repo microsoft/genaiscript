@@ -393,7 +393,6 @@ ${e.message}`
                         : fragment.file.filename
                 ),
             },
-            chat: options.chat?.context,
         }
 
         const hasToken = await this.host.getSecretToken()
