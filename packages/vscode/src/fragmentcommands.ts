@@ -111,9 +111,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             return
         }
         if (!template) {
-            template = await pickTemplate(fragment, {
-                filter: (t) => t.chat !== true,
-            })
+            template = await pickTemplate(fragment)
             if (!template) return
         }
 

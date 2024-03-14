@@ -786,7 +786,6 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         cliInfo?: {
             spec: string
         }
-        chat?: ChatAgentContext
         getChatCompletions?: (
             req: CreateChatCompletionRequest,
             options?: ChatCompletionsOptions & { trace: MarkdownTrace }
@@ -844,7 +843,6 @@ export async function runTemplate(
     // override with options vars
     if (options.vars)
         vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
-    vars.chat = options.chat || { history: [], prompt: "" }
 
     let {
         expanded,
