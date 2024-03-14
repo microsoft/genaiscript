@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["retreival", "index", "\"docs/**\""]
+            "args": ["retreival", "outline", "packages/sample/src/counting.py"]
         },
         {
             "name": "Run - sample",

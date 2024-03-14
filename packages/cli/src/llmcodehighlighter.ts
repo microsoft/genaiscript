@@ -15,7 +15,9 @@ async function tryImportLLMCodeHighlighter(trace: MarkdownTrace) {
         const m = await import("llm-code-highlighter")
         return m
     } catch (e) {
-        trace?.error(`llm-code-highlighter not found, installing ${LLM_CODE_HIGHLIGHTER_VERSION}...`)
+        trace?.error(
+            `llm-code-highlighter not found, installing ${LLM_CODE_HIGHLIGHTER_VERSION}...`
+        )
         await installImport(
             "llm-code-highlighter",
             LLM_CODE_HIGHLIGHTER_VERSION,
@@ -43,34 +45,21 @@ export class LLMCodeHighlighterService implements HighlightService {
         this.module = await tryImportLLMCodeHighlighter(trace)
     }
 
-    async highlight(
-        files: LinkedFile[],
-        options?: HighlightOptions
-    ): Promise<HighlightResponse> {
-        const { maxLength = HIGHLIGHT_LENGTH } = options || {}
-        const { getHighlightsThatFit } = this.module
-        const sizer = new NumCharSizer(maxLength)
-        const sources = files.map(({ filename, content }) => ({
-            relPath: filename,
-            code: content,
-        }))
-        const response = await getHighlightsThatFit(sizer, [], sources)
-        return <HighlightResponse>{
-            ok: true,
-            response,
-        }
-    }
-
     async outline(files: LinkedFile[]): Promise<HighlightResponse> {
         const { getOutlines } = this.module
         const req = files.map(({ filename, content }) => ({
             relPath: filename,
             code: content,
         }))
-        const response = await getOutlines(req)
-        return <HighlightResponse>{
-            ok: true,
-            response,
+
+        try {
+            const response = await getOutlines(req)
+            return <HighlightResponse>{
+                ok: true,
+                response,
+            }
+        } catch (error) {
+            return { ok: false, error, response: "" }
         }
     }
 }
