@@ -278,6 +278,8 @@ async function callExpander(
             "json"
         )
         appendPromptChild(createSchemaNode(name, schema, options))
+
+        return name
     }
 
     const runPrompt: (
@@ -341,6 +343,7 @@ async function callExpander(
             trace.endDetails()
         }
     }
+
     const appendPromptChild = (node: PromptNode) => appendChild(scope[0], node)
 
     let logs = ""
@@ -363,10 +366,12 @@ async function callExpander(
                 retreival,
                 defImages,
                 defSchema,
-                defData: (name, data, options) =>
+                defData: (name, data, options) => {
                     appendPromptChild(
                         createDefDataNode(name, data, env, options)
-                    ),
+                    )
+                    return name
+                },
                 appendPromptChild,
                 writeText: (body) => {
                     appendPromptChild(
