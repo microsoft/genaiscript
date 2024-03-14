@@ -4,7 +4,6 @@
     "recommendations": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "evilz.vscode-reveal",
         "bierner.markdown-mermaid",
         "yoavbls.pretty-ts-errors",
         "kejun.markdown-alert",
