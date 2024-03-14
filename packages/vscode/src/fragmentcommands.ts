@@ -30,7 +30,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         }
     ) => {
         const { filter = () => true } = options || {}
-        const templates = fragment.file.project.templates.filter(filter)
+        const templates = fragment.file.project.templates
+            .filter((t) => !t.isSystem)
+            .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
