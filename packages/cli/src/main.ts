@@ -322,11 +322,13 @@ async function batch(
 
             if (result.error) {
                 if (isCancelError(result.error as Error))
-                    spinner.warn(`${spinner.text}, cancelled`)
+                    spinner.warn(
+                        `${spinner.text}, cancelled, ${(result.error as Error).message || result.error}`
+                    )
                 else {
                     errors++
                     spinner.fail(
-                        `${spinner.text}, ${(result.error as any).message || result.error}`
+                        `${spinner.text}, ${(result.error as Error).message || result.error}`
                     )
                 }
             } else spinner.succeed()

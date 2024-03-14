@@ -148,11 +148,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     urlAdapters?: UrlAdapter[]
 
     /**
-     * Indicate if the tool can be used in a copilot chat context. `true` is exclusive, `false` never and `undefined` is both.
-     */
-    chat?: boolean
-
-    /**
      * If running in chat, use copilot LLM model
      */
     copilot?: boolean
@@ -181,51 +176,6 @@ interface LinkedFile {
      * Content of the file.
      */
     content: string
-}
-
-type ChatMessageRole = "user" | "system" | "assistant"
-
-interface ChatMessageRequest {
-    content: string
-    agentId?: string
-    command?: string
-    name?: string
-    variables: Record<string, (string | { uri: string })[]>
-}
-
-interface ChatMessageFileTree {
-    uri: string
-    children?: ChatMessageFileTreeNode[]
-}
-
-interface ChatMessageFileTreeNode {
-    label: string
-    children?: ChatMessageFileTreeNode[]
-}
-
-interface ChatMessageResponse {
-    content?: string
-    uri?: string
-    fileTree?: ChatMessageFileTree
-}
-
-// ChatML
-interface ChatMessage {
-    request: ChatMessageRequest
-    response: ChatMessageResponse[]
-}
-
-interface ChatAgentContext {
-    /**
-    /**
-     * All of the chat messages so far in the current chat session.
-     */
-    history: ChatMessage[]
-
-    /**
-     * The prompt that was used to start the chat session.
-     */
-    prompt?: string
 }
 
 interface ChatFunctionDefinition {
@@ -401,11 +351,6 @@ interface ExpansionVariables {
      * User defined variables
      */
     vars: Record<string, string>
-
-    /**
-     * Chat context if called from a chat command
-     */
-    chat?: ChatAgentContext
 
     /**
      * List of secrets used by the prompt, must be registred in `genaiscript`.
