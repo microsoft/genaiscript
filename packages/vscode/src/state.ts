@@ -241,6 +241,7 @@ export class ExtensionState extends EventTarget {
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
             const req = await this.startAIRequest(options)
+            if (!req) return
             const res = await req?.request
             const { edits, text } = res || {}
             if (text && !options.chat)
@@ -398,17 +399,18 @@ ${e.message}`
             },
         }
 
-        const hasToken = await this.host.getSecretToken()
+        const hasToken = !!(await this.host.getSecretToken())
         if (!hasToken && isLanguageModelsAvailable(this.context)) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel()
-            if (lmmodel)
+            const lmmodel = await pickLanguageModel(this)
+            if (lmmodel) {
                 configureLanguageModelAccess(
                     this.context,
                     options,
                     runOptions,
                     lmmodel
                 )
+            } else return undefined
         }
 
         this.requestHistory.push({

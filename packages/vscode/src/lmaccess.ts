@@ -7,19 +7,21 @@ import {
     logVerbose,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
+import { setupDotEnv } from "./dotenv"
 
-export async function pickLanguageModel() {
+export async function pickLanguageModel(state: ExtensionState) {
     const models = vscode.lm.languageModels
+    const dotenv = ".env"
     const cmodel = await vscode.window.showQuickPick<
         vscode.QuickPickItem & { model: string }
     >(
         [
             {
                 label: "Configure .env file",
-                model: ".env",
+                model: dotenv,
             },
             ...models.map((model) => ({
-                label: model,
+                label: `Copilot: ${model}`,
                 model,
             })),
         ],
@@ -27,7 +29,14 @@ export async function pickLanguageModel() {
             title: "Pick a Language Model",
         }
     )
-    return cmodel?.model
+
+    const { model } = cmodel || {}
+    if (model === dotenv) {
+        await setupDotEnv(state.host.projectUri)
+        return undefined
+    } else {
+        return model
+    }
 }
 
 export function isLanguageModelsAvailable(context: vscode.ExtensionContext) {
