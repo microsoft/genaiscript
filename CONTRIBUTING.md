@@ -1,4 +1,3 @@
-
 # Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
@@ -15,21 +14,27 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Developer setup
 
-You can open this repo in a codespace to get the build environment needed.
+You can open this repo in GitHub Codespace/Docker to get the build environment needed.
 
--   Install Node.JS 20+
+-   Go to https://github.com/microsoft/genaiscript
+-   Click on **Code**
+-   Select Create new Codespace
+
+### Manual setup
+
+-   Install [Node.JS 20+](https://nodejs.org/en) or using [nvm](https://nvm.sh)
 -   Run yarn
 
 ```sh
-yarn install --frozen-lockfile
+yarn install --frozen-lockfile --prefer-offline
 ```
 
--   Press F5 to launch VS Code in debugging mode
+-   Start the **Run - sample** Debugger to launch the sample project in debugging mode
 
 ## Dependencies
 
-- run `yarn install` to refresh the lock file
-- run `yarn gen:licenses` to refresh the 3rd party licenses
+-   run `yarn install` to refresh the lock file
+-   run `yarn gen:licenses` to refresh the 3rd party licenses
 
 ## Docs
 
