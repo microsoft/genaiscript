@@ -1,10 +1,14 @@
 script({
     title: "MakeCode Blocks Localization",
-    description: "Translation block strings for MakeCode",
+    description: "Translate block strings that define blocks in MakeCode",
 })
 
 /**
- * The makecode localization files for block in packages is a JSON file that looks like this: key -> localized value
+ * The makecode localization files for block in packages 
+ * is a JSON record: key -> localized value.
+ * 
+ * Each localized files is placed in a subfolder with the language code and the same basename:
+ * jacdac-strings.json -> fr/jacdac-strings.json.
  * 
 ```json
   "modules.ServoClient.setEnabled|block": "set %servo %value=toggleOnOff",
@@ -123,8 +127,9 @@ defFileMerge((filename, label, before, generated) => {
     if (!filename.endsWith("-strings.json")) return undefined
     const olds = JSON.parse(before || "{}")
     const news = JSON.parse(generated)
-    // keep old translations
+    // merge new translations with olds ones
     Object.assign(olds, news)
+
     // return stringified json
     return JSON.stringify(olds, null, 2)
 })
