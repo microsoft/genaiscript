@@ -148,11 +148,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     urlAdapters?: UrlAdapter[]
 
     /**
-     * If running in chat, use copilot LLM model
-     */
-    copilot?: boolean
-
-    /**
      * Secrets required by the prompt
      */
     secrets?: string[]

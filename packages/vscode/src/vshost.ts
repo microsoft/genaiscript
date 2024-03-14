@@ -82,8 +82,7 @@ export class VSCodeHost extends EventTarget implements Host {
         return r.fsPath
     }
 
-    private lastToken: string
-    async askToken(): Promise<string> {
+    public async setupDotEnv(): Promise<string> {
         // update .gitignore file
         if (!(await checkFileExists(this.projectUri, ".gitignore")))
             await writeFile(this.projectUri, ".gitignore", ".env\n")

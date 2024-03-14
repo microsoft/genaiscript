@@ -54,10 +54,6 @@ export class NodeHost implements Host {
         setHost(new NodeHost())
     }
 
-    async askToken(): Promise<string> {
-        return undefined
-    }
-
     async readSecret(name: string): Promise<string | undefined> {
         return process.env[name]
     }
@@ -65,7 +61,6 @@ export class NodeHost implements Host {
     async getSecretToken(): Promise<OAIToken> {
         return await parseTokenFromEnv(process.env)
     }
-    async setSecretToken(tok: OAIToken): Promise<void> {}
 
     clearVirtualFiles(): void {
         this.virtualFiles = {}

@@ -8,10 +8,11 @@ keywords: API authorization, .env setup, secure API tokens, environment configur
 
 GenAIScript will try to find the connection token from various sources:
 
--   a `.env` file in the root of your project.
--   environment variables set in the CLI, typically within your CI/CD environment.
+-   a `.env` file in the root of your project (VSCode and CLI)
+-   environment variables, typically within your CI/CD environment (CLI only)
+-   Visual Studio Language Models (VSCode only)
 
-## .env file
+## .env file or process environment
 
 The extension also supports the following set of variables:
 
@@ -38,5 +39,29 @@ If you are using Git to manage your project, ensure that the `.env` file is adde
 ...
 .env
 ```
+
+:::
+
+### Multiple .env files
+
+You can override the default `.env` file name by adding the `--env myother.env` file.
+
+## Visual Studio Code Language Models (**Insiders only**)
+
+Visual Studio provides access to registered language models, including models
+provided through the GitHub Copilot subscription.
+
+When trying to run a script, the extension will automatically suggest to available models.
+
+### Limitations
+
+-   This feature is not still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the **Insiders** editor.
+-   Functions and Images are not supported.
+-   The model configuration, temperature, max tokens, may not be available depending on the language model provider.
+
+:::caution
+
+Requires running the Visual Studio Code Insiders edition and
+installing the **genaiscript.insiders.vsix** extension.
 
 :::
