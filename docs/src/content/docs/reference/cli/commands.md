@@ -10,7 +10,7 @@ A full list of the CLI command and its respective help text.
 ## `run`
 
 ```
-Usage: genaiscript run [options] <tool> [files...]
+Usage: genaiscript run [options] <script> [files...]
 
 Runs a GenAIScript against files or stdin.
 
@@ -54,7 +54,7 @@ Options:
 ## `batch`
 
 ```
-Usage: genaiscript batch [options] <tool> [files...]
+Usage: genaiscript batch [options] <script> [files...]
 
 Run a tool on a batch of specs
 

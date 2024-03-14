@@ -7,3 +7,10 @@ for c in range(ord('a'), ord('z') + 1):
 
 # And now, at the end:
 print("The end")
+
+class Dummy:
+    def __init__(self):
+        self.name = "Dummy Class"
+
+    def display_name(self):
+        return self.name
