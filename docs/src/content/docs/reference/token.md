@@ -55,7 +55,7 @@ When trying to run a script, the extension will automatically suggest to availab
 
 ### Limitations
 
--   This feature is not still a proposal and requires the **Insiders** editor.
+-   This feature is not still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the **Insiders** editor.
 -   Functions and Images are not supported.
 -   The model configuration, temperature, max tokens, may not be available depending on the language model provider.
 
