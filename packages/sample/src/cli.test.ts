@@ -25,10 +25,10 @@ describe("run", () => {
     })
 })
 
-describe("tools", () => {
-    const cmd = "tools"
+describe("scripts", () => {
+    const cmd = "scripts"
     test("list", async () => {
-        const res = await $`node ${cli} ${cmd} list`
+        const res = await $`node ${cli} ${cmd}`
         assert(
             res.stdout.includes(
                 "system.json, JSON system prompt, builtin, system"
