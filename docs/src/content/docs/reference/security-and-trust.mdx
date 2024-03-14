@@ -8,6 +8,9 @@ import WarningCode from "../../../components/WarningCode.astro"
 We discuss various security risks and possible mitigations when using GenAIScript.
 GenAISCript inherits the same security risks as running scripts, and adds some new threats due to the nature of the LLM-generated outputs.
 
+We also recommend reading the [Transparency Note](/genaiscript/reference/transparency-note) 
+to understand the capabilities and limitations of GenAIScript.
+
 ## Don't trust the scripts
 
 Since the GenAIScript files `.genai.js` are executable JavaScript files and are in fact using a JavaScript runtime (VSCode or Node). It is important to understand that the script can do anything that JavaScript can do. This includes reading and writing files, making network requests, and executing JavaScript arbitrary code.
