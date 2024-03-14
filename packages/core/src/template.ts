@@ -604,7 +604,6 @@ export async function parsePromptTemplate(
             c.checkString("responseType")
 
             c.checkBool("unlisted")
-            c.checkBool("copilot")
 
             c.checkNat("maxTokens")
             c.checkNumber("temperature")
