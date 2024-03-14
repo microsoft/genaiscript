@@ -802,22 +802,25 @@ async function main() {
         } else process.exit(UNHANDLED_ERROR_CODE)
     })
 
-    NodeHost.install()
+    program.hook("preAction", (cmd) => {
+        NodeHost.install(cmd.opts().env)
+    })
+
     program
         .name(TOOL_ID)
         .version(CORE_VERSION)
         .description(`CLI for ${TOOL_NAME} ${GITHUB_REPO}`)
         .showHelpAfterError(true)
+        .option("--env <path>", "path to .env file, default is './.env'")
         .option("--no-colors", "disable color output")
         .option("-q, --quiet", "disable verbose output")
-
     program.on("option:no-colors", () => setConsoleColors(false))
     program.on("option:quiet", () => setQuiet(true))
 
     program
         .command("run")
         .description("Runs a GenAIScript against files or stdin.")
-        .arguments("<tool> [files...]")
+        .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-o, --out <string>",
@@ -869,7 +872,7 @@ async function main() {
     program
         .command("batch")
         .description("Run a tool on a batch of specs")
-        .arguments("<tool> [files...]")
+        .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
             "-o, --out <folder>",
