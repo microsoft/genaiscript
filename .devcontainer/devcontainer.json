@@ -1,0 +1,11 @@
+{
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot-chat",
+				"esbenp.prettier-vscode"
+			]
+		}
+	}
+}
