@@ -914,7 +914,7 @@ async function main() {
         })
 
     program
-        .command("scripts", { isDefault: true })
+        .command("scripts")
         .description("List all available scripts in workspace")
         .action(listScripts)
 
