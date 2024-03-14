@@ -685,7 +685,7 @@ interface PromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): void
+    def(name: string, body: StringLike, options?: DefOptions): string
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
@@ -698,12 +698,12 @@ interface PromptContext {
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
-    ): void
+    ): string
     defData(
         name: string,
         data: object[] | object,
         options?: DefDataOptions
-    ): void
+    ): string
     runPrompt(
         generator: () => void | Promise<void>,
         options?: ModelOptions
