@@ -29,7 +29,6 @@ def("CODE", env.files, { endsWith: ".py" })
 The `def("FILE", file)` function is a shorthand for generating a fenced variable output.
 The "meta-variable" (`FILE` in this example) name should be all uppercase (but can include
 
-
 ```js
 def("FILE", file)
 ```
@@ -42,6 +41,17 @@ $`FILE ${file.filename}:
 ${env.file.content}
 ```
 ````
+
+### Referencing
+
+The `def` function returns a variable name that can be used in the prompt.
+The name might be formatted diferently to accomodate the model's preference.
+
+```js
+const filen = def("FILE", file)
+
+$`Summarize ${filen}.`
+```
 
 ## Data definition (`defData`)
 
