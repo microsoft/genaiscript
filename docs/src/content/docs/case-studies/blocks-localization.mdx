@@ -1,0 +1,23 @@
+---
+title: Blocks Localization
+sidebar:
+    order: 6
+---
+
+import { Code } from "@astrojs/starlight/components"
+import stringsJson from "../../../../../packages/sample/src/makecode/jacdac-servo-strings.json?raw"
+import scriptSource from "../../../../../packages/sample/src/makecode/makecode-loc.genai.js?raw"
+
+This is another instance of using the LLM to produce translation of natural strings with an embedded DSL, similarly to the [Documentation Translation](./documentation-translations.mdx) guide.
+
+[MakeCode](https://makecode.com) uses a [microformat](https://makecode.com/defining-blocks) to define the shape of coding blocks.
+When translating the format strings, it is critical to converse the properties of the blocks, such as the number of arguments, their types, and the order of the arguments.
+
+<Code code={stringsJson} wrap={true} lang="json" title="strings.json" />
+
+The challenge with translation is that the localized string often contain escaped characters that break formats like JSON or YAML. Therefore, we use a custom simple `key=value` format
+to encode the strings, to avoid encoding issues. We use the `defFileMerge` feature to convert the parse key-value file, and merge them with the existing translations.
+
+The full script is show below.
+
+<Code code={scriptSource} wrap={true} lang="js" title="loc-strings.genai.js" />
