@@ -12,23 +12,25 @@ import { setupDotEnv } from "./dotenv"
 export async function pickLanguageModel(state: ExtensionState) {
     const models = vscode.lm.languageModels
     const dotenv = ".env"
-    const cmodel = await vscode.window.showQuickPick<
-        vscode.QuickPickItem & { model: string }
-    >(
-        [
-            {
-                label: "Configure .env file",
-                model: dotenv,
-            },
-            ...models.map((model) => ({
-                label: `Copilot: ${model}`,
-                model,
-            })),
-        ],
-        {
-            title: "Pick a Language Model",
-        }
-    )
+    const cmodel = models?.length
+        ? await vscode.window.showQuickPick<
+              vscode.QuickPickItem & { model: string }
+          >(
+              [
+                  {
+                      label: "Configure .env file",
+                      model: dotenv,
+                  },
+                  ...models.map((model) => ({
+                      label: `Copilot: ${model}`,
+                      model,
+                  })),
+              ],
+              {
+                  title: "Pick a Language Model",
+              }
+          )
+        : { model: dotenv }
 
     const { model } = cmodel || {}
     if (model === dotenv) {
