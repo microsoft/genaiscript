@@ -61,7 +61,6 @@ export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface ChatRequestContext {
-    context: ChatAgentContext
     response: vscode.ChatResponseStream
     token: vscode.CancellationToken
 }
