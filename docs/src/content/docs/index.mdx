@@ -3,55 +3,59 @@ title: Welcome to GenAiScript
 description: Get started building your GenAI scripts.
 template: splash
 hero:
-  tagline: Scripting for Generative AI.
-  actions:
-    - text: Getting Started
-      link: /genaiscript/getting-started/
-      icon: right-arrow
-      variant: primary
-    - text: Read the GenAIScript docs
-      link: /genaiscript/reference/
-      icon: external
+    tagline: Stylized JavaScript for Generative AI.
+    actions:
+        - text: Getting Started
+          link: /genaiscript/getting-started/
+          icon: right-arrow
+          variant: primary
+        - text: Read the GenAIScript docs
+          link: /genaiscript/reference/
+          icon: external
+        - text: GitHub
+          link: https://github.com/microsot/genaiscript
+          icon: github
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
-import { FileTree } from '@astrojs/starlight/components';
+import { Card, CardGrid } from "@astrojs/starlight/components"
+import { FileTree } from "@astrojs/starlight/components"
 import packageJson from "../../../package.json"
 
-:::caution[Internal project]
-
-Please do not share outside Microsoft.
-
-:::
-
-GenAIScript uses stylized javascript to prompt LLMs in a flexible and convinient way.
+Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
 
 ```js wrap
 // metadata and model configuration
 script({ title: "Shorten", model: "gpt4" })
-// define the context 
-def("FILE", env.files)
+// define the context
+def("FILE", env.files, { endsWith: ".pdf" })
+// define the data
+defSchema("DATA", { type: "array", items: { type: "string" } })
 // define the task
-$`Shorten the following FILE. Limit changes to minimum.`
+$`Analyze FILE and extract titles to JSON using the DATA schema.`
 ```
 
 ## Next steps
 
 <CardGrid stagger>
-	<Card title="Install the extension" icon="puzzle">
-		Install the [Visual Studio Code Extension](/genaiscript/getting-started/installation/)
-v{packageJson.version}
-		to get started.
-	</Card>
-	<Card title="Configure your LLMs" icon="setting">
-		Configure the [secrets](/genaiscript/reference/token) to access your LLMs.
-	</Card>
-	<Card title="Write your first script" icon="pencil">
-		Follow [Getting Started](/genaiscript/getting-started/your-first-genai-script/) to write your first script.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more about GenAIScript in the [Scripting Reference](/genaiscript/reference/).
-	</Card>
+    <Card title="Install the extension" icon="puzzle">
+        Install the [Visual Studio Code
+        Extension](/genaiscript/getting-started/installation/) v
+        {packageJson.version}
+        to get started.
+    </Card>
+    <Card title="Configure your LLMs" icon="setting">
+        Configure the [secrets](/genaiscript/reference/token) to access your
+        LLMs.
+    </Card>
+    <Card title="Write your first script" icon="pencil">
+        Follow [Getting
+        Started](/genaiscript/getting-started/your-first-genai-script/) to write
+        your first script.
+    </Card>
+    <Card title="Read the docs" icon="open-book">
+        Learn more about GenAIScript in the [Scripting
+        Reference](/genaiscript/reference/).
+    </Card>
 </CardGrid>
 
 ## Features
@@ -64,7 +68,7 @@ GenAIScript brings essential LLM prompt tooling into a cohesive scripting enviro
 
 Build prompts programmatically using [a stylized JavaScript syntax](/genaiscript/reference/scripts/).
 
-```js
+```js wrap
 // $ writes the prompt text
 $`Your are a helpful assistant. Today is ${new Date()}.`
 ```
@@ -83,9 +87,9 @@ Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, sha
 
 <FileTree>
 
-- genaisrc
-  - my-script.genai.js
-  - another-great-script.genai.js
+-   genaisrc
+    -   my-script.genai.js
+    -   another-great-script.genai.js
 
 </FileTree>
 
@@ -95,7 +99,7 @@ Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, sha
 
 Define, use and validate structured data using [schemas](/genaiscript/reference/scripts/schemas).
 
-```js
+```js wrap
 defSchema("MY_DATA", { type: "array", items: { ... }, })
 $`Extract data from files using MY_DATA schema.`
 ```
@@ -117,7 +121,7 @@ const { file } = await parsers.DOCX(env.files[1])
 
 [Embeddings vector search](/genaiscript/reference/scripts/embedding-search) powered by LLamaIndex.
 
-```js
+```js wrap
 // embedding vector index and search
 const { files } = await retreival.search("cats", env.files)
 ```
@@ -128,26 +132,25 @@ const { files } = await retreival.search("cats", env.files)
 
 Automate your scripts using the [CLI](/genaiscript/reference/cli).
 
-```bash frame="none"
+```bash frame="none" wrap
 node .genaiscript/genaiscript.cjs run my-script "*.pdf"
 ```
 
 </Card>
 
-
 <Card title="LLM Composition" icon="external">
 
 Use LLMs to build your LLM prompts.
 
-```js
+```js wrap
 // summarize each files individually
-for(const file of env.files) {
-	const { text } = await runPrompt(() => {
-		def("FILE", file)
-		$`Summarize the FILE.`
-	})
-	// use result in main prompt
-	def("SUMMARY", text)
+for (const file of env.files) {
+    const { text } = await runPrompt(() => {
+        def("FILE", file)
+        $`Summarize the FILE.`
+    })
+    // use result in main prompt
+    def("SUMMARY", text)
 }
 // use summary
 $`Summarize all the summaries.`
