@@ -1,4 +1,4 @@
-import "dotenv/config"
+import dotenv from "dotenv"
 import {
     HighlightService,
     Host,
@@ -49,7 +49,8 @@ export class NodeHost implements Host {
         this.highlight = new LLMCodeHighlighterService(this)
     }
 
-    static install() {
+    static install(dotEnvPath: string) {
+        dotenv.config({ path: dotEnvPath })
         setHost(new NodeHost())
     }
 
