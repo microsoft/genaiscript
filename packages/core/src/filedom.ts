@@ -38,7 +38,7 @@ export function createDefNode(
             /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
                 ? env.markdownFence
                 : fence
-        const dtype = /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
+        const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
         let body = file.content
         if (/^(c|t)sv$/i.test(dtype)) {
             const parsed = CSVTryParse(file.content)
