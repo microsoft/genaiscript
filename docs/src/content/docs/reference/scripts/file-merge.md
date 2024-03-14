@@ -25,7 +25,7 @@ The callback below appends the content in generated `.txt` files.
 // append generated content
 defFileMerge((filename, label, before, generated) => {
     // only merge .txt files
-    if (!/\.txt$/i.test(filename)) return undefine
+    if (!/\.txt$/i.test(filename)) return undefined
     // if content already existing, append generated content
     if (before) return `${before}\n${generated}`
     // otherwise return generated content
