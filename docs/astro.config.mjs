@@ -40,6 +40,10 @@ export default defineConfig({
                     label: "FAQ",
                     link: "faq",
                 },
+                {
+                    label: "Contributing",
+                    link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md"
+                }
             ],
         }),
     ],
