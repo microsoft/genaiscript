@@ -218,12 +218,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
         } = options ?? {}
-        const {
-            VectorStoreIndex,
-            SummaryIndex,
-            SummaryRetrieverMode,
-            MetadataMode,
-        } = this.module
+        const { VectorStoreIndex, MetadataMode } = this.module
 
         const serviceContext = await this.createServiceContext()
 

@@ -471,7 +471,12 @@ interface JSONSchemaValidation {
 
 interface RunPromptResult {
     text: string
-    finishReason?: "stop" | "length" | "tool_calls" | "content_filter" | "cancel"
+    finishReason?:
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
 }
 
 /**
@@ -620,6 +625,28 @@ interface YAML {
     parse(text: string): any
 }
 
+interface CSV {
+    /**
+     * Parses a CSV string to an array of objects
+     * @param text
+     * @param options
+     */
+    parse(
+        text: string,
+        options?: {
+            delimiter?: string
+            headers?: string[]
+        }
+    ): object[]
+
+    /**
+     * Converts an array of object that represents a data table to a markdown table
+     * @param csv
+     * @param options
+     */
+    mardownify(csv: object[], options?: { headers?: string[] }): string
+}
+
 interface HighlightOptions {
     maxLength?: number
 }
@@ -645,7 +672,11 @@ interface Retreival {
             /**
              * Maximum number of embeddings to use
              */
-            topK?: number
+            topK?: number,
+            /**
+             * Retreive summaries
+             */
+            summary?: boolean
         }
     ): Promise<{
         files: LinkedFile[]
@@ -723,6 +754,7 @@ interface PromptContext extends RunPromptContext {
     retreival: Retreival
     fs: FileSystem
     YAML: YAML
+    CSV: CSV
 }
 
 
