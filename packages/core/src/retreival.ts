@@ -1,5 +1,6 @@
 import {
     RetreivalClientOptions,
+    RetreivalOptions,
     RetreivalSearchOptions,
     RetreivalUpsertOptions,
     host,
@@ -17,11 +18,11 @@ export function isIndexable(filename: string) {
 }
 
 export async function clearIndex(
-    options?: RetreivalClientOptions
+    options?: RetreivalClientOptions & RetreivalOptions
 ): Promise<void> {
     const { trace } = options || {}
     await host.retreival.init(trace)
-    await host.retreival.clear()
+    await host.retreival.clear(options)
 }
 
 export async function upsert(
@@ -44,7 +45,7 @@ export async function upsert(
         })
         const { ok } = await retreival.upsert(f.filename, {
             content: f.content,
-            ...rest
+            ...rest,
         })
         progress?.report({
             increment,

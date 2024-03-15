@@ -45,7 +45,7 @@ export async function startServer(options: { port: string }) {
                     }
                     case "retreival.clear":
                         console.log(`retreival: clear`)
-                        response = await host.retreival.clear()
+                        response = await host.retreival.clear(data.options)
                         break
                     case "retreival.upsert":
                         console.log(`retreival: upsert ${data.filename}`)

@@ -728,9 +728,23 @@ async function jsonl2json(files: string[]) {
 
 async function retreivalIndex(
     files: string[],
-    options: { excludedFiles: string[]; name: string }
+    options: {
+        excludedFiles: string[]
+        name: string
+        model: string
+        chunkSize: string
+        chunkOverlap: string
+        splitLongSentences: boolean
+    }
 ) {
-    const { excludedFiles, name: indexName } = options || {}
+    const {
+        excludedFiles,
+        name: indexName,
+        model,
+        chunkOverlap,
+        chunkSize,
+        splitLongSentences,
+    } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
         console.error("no files matching")
@@ -741,8 +755,17 @@ async function retreivalIndex(
     await upsert(fs, {
         progress: new ProgressSpinner(spinner),
         indexName,
+        model,
+        chunkOverlap: normalizeInt(chunkOverlap),
+        chunkSize: normalizeInt(chunkSize),
+        splitLongSentences,
     })
     spinner.stop()
+}
+
+async function retreivalClear(options: { name: string }) {
+    const { name: indexName } = options || {}
+    await clearIndex({ indexName })
 }
 
 async function retreivalSearch(
@@ -936,6 +959,13 @@ async function main() {
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-n, --name <string>", "index name")
+        .option("-cs, --chunk-size <number>", "chunk size")
+        .option("-co, --chunk-overlap <number>", "chunk overlap")
+        .option("-m, --model <string>", "model for embeddings (default gpt-4)")
+        .option(
+            "-sls, --split-long-sentences",
+            "split long sentences (default true)"
+        )
         .action(retreivalIndex)
     retreival
         .command("search")
@@ -948,7 +978,8 @@ async function main() {
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
-        .action(clearIndex)
+        .option("-n, --name <string>", "index name")
+        .action(retreivalClear)
 
     retreival
         .command("outline")

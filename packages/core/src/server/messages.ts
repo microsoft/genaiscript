@@ -1,6 +1,7 @@
 import {
     HighlightResponse,
     ResponseStatus,
+    RetreivalOptions,
     RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalUpsertOptions,
@@ -18,6 +19,7 @@ export interface ServerKill extends RequestMessage {
 
 export interface RetreivalClear extends RequestMessage {
     type: "retreival.clear"
+    options?: RetreivalOptions
 }
 
 export interface ServerVersion extends RequestMessage {
