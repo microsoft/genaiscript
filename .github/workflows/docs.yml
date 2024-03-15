@@ -1,0 +1,31 @@
+name: docs
+on:
+    workflow_dispatch:
+permissions:
+    contents: write
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: Typecheck
+              run: yarn typecheck
+            - name: Compile
+              run: yarn compile
+            - name: Install sharp
+              run: cd docs && yarn add sharp
+            - name: Build docs
+              run: yarn build:docs
+            - name: Deploy 🚀
+              uses: JamesIves/github-pages-deploy-action@v4
+              with:
+                  folder: docs/dist
+                  single-commit: true

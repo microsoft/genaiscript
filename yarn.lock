@@ -7906,7 +7906,7 @@ sharp@^0.32.0, sharp@^0.32.6:
 
 sharp@^0.33.2:
   version "0.33.2"
-  resolved "https://registry.npmjs.org/sharp/-/sharp-0.33.2.tgz"
+  resolved "https://registry.yarnpkg.com/sharp/-/sharp-0.33.2.tgz#fcd52f2c70effa8a02160b1bfd989a3de55f2dfb"
   integrity sha512-WlYOPyyPDiiM07j/UO+E720ju6gtNtHjEGg5vovUk1Lgxyjm2LFO+37Nt/UI3MMh2l6hxTWQWi7qk3cXJTutcQ==
   dependencies:
     color "^4.2.3"
