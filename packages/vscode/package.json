@@ -1,18 +1,20 @@
 {
     "name": "genaiscript-vscode",
     "publisher": "genaiscript",
+    "homepage": "https://microsoft.github.io/genaiscript/",
     "author": {
         "name": "Microsoft Corporation"
     },
     "displayName": "GenAIScript Insiders",
-    "description": "Iterative, refining copilot experience designed for Visual Studio Code.",
+    "description": "Generative AI Scripting.",
     "version": "1.14.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.86.0"
     },
     "categories": [
-        "Other"
+        "AI",
+        "Chat"
     ],
     "license": "MIT",
     "extensionKind": [
@@ -24,9 +26,11 @@
     ],
     "main": "./built/extension.js",
     "browser": "./built/extension.js",
+    "bugs": {
+        "url": "https://github.com/microsoft/genaiscript/issues"
+    },
     "repository": {
-        "url": "https://github.com/microsoft/genaiscript",
-        "directory": "packages/vscode"
+        "url": "https://github.com/microsoft/genaiscript"
     },
     "files": [
         "./genaiscript.cjs"
