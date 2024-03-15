@@ -41,10 +41,7 @@ import {
     DEFAULT_TEMPERATURE,
     GENAISCRIPT_CLI_JS,
 } from "./constants"
-import {
-    PromptImage,
-    renderPromptNode,
-} from "./promptdom"
+import { PromptImage, renderPromptNode } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 
@@ -350,13 +347,15 @@ async function expandTemplate(
             for (const file of files) {
                 const { filename, content } = file
                 trace.detailsFenced(
-                    `${file.filename}, ${content?.length || 0} chars`,
-                    inspect(file.content)
+                    `${filename}, ${content?.length || 0} chars`,
+                    inspect(content)
                 )
             }
         }
 
-        const keys = Object.keys(env).filter((k) => k !== "files")
+        const keys = Object.keys(env).filter(
+            (k) => k !== "files" && k !== "secrets"
+        )
         for (const k of keys.filter((k) => !isComplex(k))) {
             const v = varMap[k]
             if (typeof v === "string" && varName[v] != k)
