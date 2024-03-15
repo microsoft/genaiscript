@@ -728,9 +728,23 @@ async function jsonl2json(files: string[]) {
 
 async function retreivalIndex(
     files: string[],
-    options: { excludedFiles: string[] }
+    options: {
+        excludedFiles: string[]
+        name: string
+        model: string
+        chunkSize: string
+        chunkOverlap: string
+        splitLongSentences: boolean
+    }
 ) {
-    const { excludedFiles } = options || {}
+    const {
+        excludedFiles,
+        name: indexName,
+        model,
+        chunkOverlap,
+        chunkSize,
+        splitLongSentences,
+    } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
         console.error("no files matching")
@@ -740,20 +754,35 @@ async function retreivalIndex(
     const spinner = ora({ interval: 200 }).start(`indexing ${fs.length} files`)
     await upsert(fs, {
         progress: new ProgressSpinner(spinner),
+        indexName,
+        model,
+        chunkOverlap: normalizeInt(chunkOverlap),
+        chunkSize: normalizeInt(chunkSize),
+        splitLongSentences,
     })
     spinner.stop()
+}
+
+async function retreivalClear(options: { name: string }) {
+    const { name: indexName } = options || {}
+    await clearIndex({ indexName })
 }
 
 async function retreivalSearch(
     q: string,
     filesGlobs: string[],
-    options: { excludedFiles: string[]; topK: string }
+    options: { excludedFiles: string[]; topK: string; name: string }
 ) {
-    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const { excludedFiles, name: indexName, topK } = options || {}
+    const files = await expandFiles(filesGlobs, excludedFiles)
     const spinner = ora({ interval: 200 }).start(
         `searching '${q}' in ${files.length} files`
     )
-    const res = await search(q, { files, topK: normalizeInt(options?.topK) })
+    const res = await search(q, {
+        files,
+        topK: normalizeInt(topK),
+        indexName,
+    })
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
@@ -929,6 +958,14 @@ async function main() {
         .description("Index a set of documents")
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
+        .option("-n, --name <string>", "index name")
+        .option("-cs, --chunk-size <number>", "chunk size")
+        .option("-co, --chunk-overlap <number>", "chunk overlap")
+        .option("-m, --model <string>", "model for embeddings (default gpt-4)")
+        .option(
+            "-sls, --split-long-sentences",
+            "split long sentences (default true)"
+        )
         .action(retreivalIndex)
     retreival
         .command("search")
@@ -936,11 +973,13 @@ async function main() {
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
+        .option("-n, --name <string>", "index name")
         .action(retreivalSearch)
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
-        .action(clearIndex)
+        .option("-n, --name <string>", "index name")
+        .action(retreivalClear)
 
     retreival
         .command("outline")

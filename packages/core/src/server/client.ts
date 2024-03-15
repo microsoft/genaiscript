@@ -2,9 +2,11 @@ import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
     HighlightService,
     ResponseStatus,
+    RetreivalOptions,
     RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalService,
+    RetreivalUpsertOptions,
     host,
 } from "../host"
 import { assert } from "../util"
@@ -106,9 +108,10 @@ export class WebSocketClient implements RetreivalService, HighlightService {
         return res.version
     }
 
-    async clear(): Promise<ResponseStatus> {
+    async clear(options: RetreivalOptions): Promise<ResponseStatus> {
         const res = await this.queue<RetreivalClear>({
             type: "retreival.clear",
+            options,
         })
         return res.response
     }
@@ -124,12 +127,11 @@ export class WebSocketClient implements RetreivalService, HighlightService {
         })
         return res.response
     }
-    async upsert(filename: string, content?: string, mimeType?: string) {
+    async upsert(filename: string, options?: RetreivalUpsertOptions) {
         const res = await this.queue<RetreivalUpsert>({
             type: "retreival.upsert",
             filename,
-            content,
-            mimeType,
+            options,
         })
         return res.response
     }

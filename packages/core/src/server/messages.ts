@@ -1,8 +1,10 @@
 import {
     HighlightResponse,
     ResponseStatus,
+    RetreivalOptions,
     RetreivalSearchOptions,
     RetreivalSearchResponse,
+    RetreivalUpsertOptions,
 } from "../host"
 
 export interface RequestMessage {
@@ -17,6 +19,7 @@ export interface ServerKill extends RequestMessage {
 
 export interface RetreivalClear extends RequestMessage {
     type: "retreival.clear"
+    options?: RetreivalOptions
 }
 
 export interface ServerVersion extends RequestMessage {
@@ -27,8 +30,7 @@ export interface ServerVersion extends RequestMessage {
 export interface RetreivalUpsert extends RequestMessage {
     type: "retreival.upsert"
     filename: string
-    content?: string
-    mimeType?: string
+    options?: RetreivalUpsertOptions
 }
 
 export interface RetreivalSearch extends RequestMessage {

@@ -33,6 +33,10 @@ You can simulate an indexing command in Visual Studio Code by right-clicking on 
 
 :::
 
+### Indexing configuration
+
+You can control the chunk size, overlap and model used for index files. You can also create multiple indexes using the `indexName` option.
+
 ## Web Search
 
 The `retreival.webSearch` performs a web search using a search engine API. You will need to provide API keys for the search engine you want to use.
