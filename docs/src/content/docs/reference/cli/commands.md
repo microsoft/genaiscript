@@ -116,7 +116,7 @@ Options:
 Commands:
   index [options] <file...>            Index a set of documents
   search [options] <query> [files...]  Search index
-  clear                                Clear index to force re-indexing
+  clear [options]                      Clear index to force re-indexing
   outline [options] <files...>         Generates a compact code repository
                                        outline
   help [command]                       display help for command
@@ -135,6 +135,10 @@ Arguments:
 Options:
   -ef, --excluded-files <string...>  excluded files
   -n, --name <string>                index name
+  -cs, --chunk-size <number>         chunk size
+  -co, --chunk-overlap <number>      chunk overlap
+  -m, --model <string>               model for embeddings (default gpt-4)
+  -sls, --split-long-sentences       split long sentences (default true)
   -h, --help                         display help for command
 ```
 
@@ -160,7 +164,8 @@ Usage: genaiscript retreival clear [options]
 Clear index to force re-indexing
 
 Options:
-  -h, --help  display help for command
+  -n, --name <string>  index name
+  -h, --help           display help for command
 ```
 
 ### `retreival outline`
