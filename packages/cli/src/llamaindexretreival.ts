@@ -218,7 +218,8 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
         } = options ?? {}
-        const { VectorStoreIndex, MetadataMode } = this.module
+        const { VectorStoreIndex, MetadataMode, SimilarityPostprocessor } =
+            this.module
 
         const serviceContext = await this.createServiceContext()
 
@@ -228,18 +229,21 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             serviceContext,
         })
         const retreiver = index.asRetriever({ similarityTopK: topK })
-
         const results = await retreiver.retrieve(text)
+
+        const processor = new SimilarityPostprocessor({
+            similarityCutoff: minScore,
+        })
+        const postResults = await processor.postprocessNodes(results)
+
         return {
             ok: true,
-            results: results
-                .filter((r) => r.score >= minScore)
-                .map((r) => ({
-                    filename: r.node.metadata.filename,
-                    id: r.node.id_,
-                    text: r.node.getContent(MetadataMode.NONE),
-                    score: r.score,
-                })),
+            results: postResults.map((r) => ({
+                filename: r.node.metadata.filename,
+                id: r.node.id_,
+                text: r.node.getContent(MetadataMode.NONE),
+                score: r.score,
+            })),
         }
     }
 

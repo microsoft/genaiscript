@@ -677,6 +677,10 @@ interface Retreival {
              * Retreive summaries
              */
             summary?: boolean
+            /**
+             * Minimum similarity score
+             */
+            minScore?: number
         }
     ): Promise<{
         files: LinkedFile[]
