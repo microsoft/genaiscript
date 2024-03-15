@@ -3,6 +3,7 @@ import {
     Fragment,
     GENAISCRIPT_CLI_JS,
     PromptTemplate,
+    dotGenaiscriptPath,
     groupBy,
     templateGroup,
 } from "genaiscript-core"
@@ -130,7 +131,7 @@ export function activateFragmentCommands(state: ExtensionState) {
                 name: "GenAIScript",
                 program: GENAISCRIPT_CLI_JS,
                 request: "launch",
-                skipFiles: ["<node_internals>/**"],
+                skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
                 type: "node",
                 args: [
                     "run",
