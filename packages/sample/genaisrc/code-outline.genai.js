@@ -3,7 +3,6 @@ script({
 })
 
 const outline = await retreival.outline(env.files)
+const code = def("CODE", outline)
 
-def("CODE", outline)
-
-$`Summarize the code in OUTLINE.`
+$`Summarize the code in ${code}.`
