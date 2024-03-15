@@ -47,9 +47,10 @@ export function stringifySchemaToTypeScript(
     }
 
     function stringifyObject(object: JSONSchemaObject): void {
-        const { required, description } = object
+        const { required, additionalProperties } = object
         append(`{`)
         indent++
+        if (additionalProperties) append(`[key: string]: any,`)
         Object.keys(object.properties).forEach((key) => {
             const prop = object.properties[key]
             const field = `${key}${required?.includes(key) ? "" : "?"}`
