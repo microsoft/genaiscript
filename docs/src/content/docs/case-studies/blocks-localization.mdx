@@ -16,32 +16,53 @@ their types, and the order of the arguments.
 
 The [localization strings](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L1) for the buzzer library are:
 
-<Code code={stringsJson} wrap={true} lang="json" />
+<Code title="jacdac-buzzer-strings.json" code={stringsJson} wrap={true} lang="json" />
 
-The challenge with translation is that the localized string often contain escaped characters that break formats like JSON or YAML. Therefore, we use a custom simple `key=value` format
-to encode the strings, to avoid encoding issues. We use the `defFileMerge` feature to convert the parse key-value file, and merge them with the existing translations.
+For example, the string for the [Jacdac buzzer play tone block](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L5-L6) 
+contains reference to variables (`%music`) that should be maintained in the translated string.
 
-For example, the string for the [Jacdac buzzer play tone block](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L5-L6) is
-
-```txt
-play %music tone|at %note|for %duration
+```json
+{
+    ...
+    "modules.BuzzerClient.playTone|block": 
+        "play %music tone|at %note|for %duration",
+    ...
+}
 ```
 
 and Bing Translate gives us the following translation
 
-```txt
+```txt title="Bing Translator"
 %Musikton|bei %Note|für %Dauer abspielen
 ```
 
-As one can see, bing translated the `%variable` name which will break the block definition. 
+As one can see, bing translated the `%variable` name which will break the block definition.
+
 The [GenAIScript translation](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/de/jacdac-buzzer-strings.json#L5) is correct.
 
-```txt
+```txt title="GenAIScript"
 spiele %music Ton|bei %note|für %duration
 ```
+If you look closely in the script source, you will find guidance in the prompt to properly
+handle the variables.
+
+```js title="block-translator.genai.js"
+$`...
+- Every variable name is prefixed with a '%' or a '$', like %foo or $bar.
+- Do NOT translate variable names.
+...
+`
+```
+
+## Script
 
 The full script is show below.
 
-<Code code={scriptSource} wrap={true} lang="js" />
+Another challenge with translations is that the localized string often contain escaped characters that break formats like JSON or YAML. Therefore, we use a custom simple `key=value` format
+to encode the strings, to avoid encoding issues. We use the `defFileMerge` feature to convert the parse key-value file, and merge them with the existing translations.
 
-The result from this scrip can be inspected in this [pull request](https://github.com/microsoft/pxt-jacdac/pull/108).
+
+<Code code={scriptSource} title="block-translator.genai.js" wrap={true} lang="js" />
+
+The result from this script can be inspected 
+in this [pull request](https://github.com/microsoft/pxt-jacdac/pull/108).
