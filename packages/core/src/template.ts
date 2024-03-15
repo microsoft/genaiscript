@@ -222,7 +222,7 @@ async function parseMeta(r: PromptTemplate) {
     })
 
     try {
-        await evalPrompt(ctx, r)
+        await evalPrompt(ctx, r, { useFile: false })
     } catch (e) {
         if (!meta || !(e instanceof MetaFoundError)) throw e
     }
