@@ -1,5 +1,3 @@
-import { DOCUMENT } from "yaml/dist/parse/cst"
-import { extractFenced, frontmatterTryParse, parseAnnotations } from "."
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
@@ -9,6 +7,9 @@ import { TOMLTryParse } from "./toml"
 import { MarkdownTrace } from "./trace"
 import { YAMLTryParse } from "./yaml"
 import { DOCXTryParse } from "./docx"
+import { frontmatterTryParse } from "./frontmatter"
+import { extractFenced } from "./template"
+import { parseAnnotations } from "./annotations"
 
 export function createParsers(options: {
     trace: MarkdownTrace

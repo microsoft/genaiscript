@@ -9,9 +9,7 @@ async function tryImportMammoth(trace?: MarkdownTrace) {
         const mod = await import("mammoth")
         return mod
     } catch (e) {
-        trace?.error(
-            `mammoth not found, installing ${MAMMOTH_VERSION}...`
-        )
+        trace?.error(`mammoth not found, installing ${MAMMOTH_VERSION}...`)
         try {
             await installImport("mammoth", MAMMOTH_VERSION, trace)
             const mod = await import("mammoth")
@@ -36,10 +34,14 @@ export async function DOCXTryParse(
     const { trace } = options || {}
     try {
         const mammoth = await tryImportMammoth(trace)
-        const results = await mammoth.extractRawText({ path: file })
+        const path = !/^\//.test(file)
+            ? host.path.join(host.projectFolder(), file)
+            : file
+        const results = await mammoth.extractRawText({ path })
         return results.value
     } catch (error) {
         logError(error.message)
+        trace?.error(`reading docx`, error)
         return undefined
     }
 }
