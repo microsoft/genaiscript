@@ -69,13 +69,17 @@ export interface RetreivalSearchOptions {
     files?: string[]
     topK?: number
     minScore?: number
-    summary?: boolean
+    indexName?: string
 }
 
 export interface RetreivalUpsertOptions {
     content?: string
     mimeType?: string
-    summary?: boolean
+    indexName?: string
+    model?: string
+    chunkSize?: number
+    chunkOverlap?: number
+    splitLongSentences?: boolean
 }
 
 export type RetreivalSearchResponse = ResponseStatus & {

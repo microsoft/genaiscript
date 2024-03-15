@@ -88,17 +88,17 @@ export function createPromptContext(
             }
         },
         search: async (q, files, options) => {
+            options = options || {}
             try {
                 trace.startDetails(`🔍 retreival search \`${q}\``)
                 if (!files?.length) {
                     trace.error("no files provided")
                     return { files: [], fragments: [] }
                 } else {
-                    await upsert(files, { trace, summary: options?.summary })
+                    await upsert(files, { trace, ...options })
                     const res = await search(q, {
+                        ...options,
                         files: files.map(stringLikeToFileName),
-                        topK: options?.topK,
-                        summary: options?.summary,
                     })
                     trace.fence(res, "yaml")
                     return res

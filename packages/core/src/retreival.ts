@@ -29,7 +29,7 @@ export async function upsert(
     options?: RetreivalClientOptions & RetreivalUpsertOptions
 ) {
     if (!fileOrUrls?.length) return
-    const { progress, trace, token, summary, mimeType } = options || {}
+    const { progress, trace, token, ...rest } = options || {}
     const retreival = host.retreival
     await retreival.init(trace)
     const files: LinkedFile[] = fileOrUrls.map((f) =>
@@ -44,8 +44,7 @@ export async function upsert(
         })
         const { ok } = await retreival.upsert(f.filename, {
             content: f.content,
-            mimeType,
-            summary,
+            ...rest
         })
         progress?.report({
             increment,

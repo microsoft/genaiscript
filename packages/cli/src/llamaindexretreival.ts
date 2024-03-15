@@ -9,6 +9,7 @@ import {
     RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalService,
+    RetreivalUpsertOptions,
     dotGenaiscriptPath,
     installImport,
     lookupMime,
@@ -81,10 +82,16 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         }
     }
 
-    private async createStorageContext(options?: { files?: string[] }) {
-        const { files } = options ?? {}
+    private async createStorageContext(options?: {
+        files?: string[]
+        indexName?: string
+    }) {
+        const { files, indexName = "vector" } = options ?? {}
         const { storageContextFromDefaults, SimpleVectorStore } = this.module
-        const persistDir = dotGenaiscriptPath("retreival")
+        const persistDir = this.host.path.join(
+            dotGenaiscriptPath("retreival"),
+            indexName
+        )
         await this.host.createDirectory(persistDir)
         const storageContext = await storageContextFromDefaults({
             persistDir,
@@ -112,11 +119,24 @@ export class LlamaIndexRetreivalService implements RetreivalService {
     private async createServiceContext(options?: {
         model?: string
         temperature?: number
+        chunkSize?: number
+        chunkOverlap?: number
+        splitLongSentences?: boolean
     }) {
-        const { model = "gpt-4", temperature } = options ?? {}
-        const { serviceContextFromDefaults, OpenAI } = this.module
+        const {
+            model = "gpt-4",
+            temperature,
+            splitLongSentences = true,
+            ...rest
+        } = options ?? {}
+        const { SimpleNodeParser, serviceContextFromDefaults, OpenAI } =
+            this.module
         const serviceContext = serviceContextFromDefaults({
             llm: new OpenAI({ model, temperature }),
+            nodeParser: new SimpleNodeParser({
+                ...rest,
+                splitLongSentences,
+            }),
         })
         return serviceContext
     }
@@ -129,14 +149,10 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     async upsert(
         filenameOrUrl: string,
-        options?: {
-            content?: string
-            mimeType?: string
-            summary?: boolean
-        }
+        options?: RetreivalUpsertOptions
     ): Promise<ResponseStatus> {
-        const { Document, VectorStoreIndex, SummaryIndex } = this.module
-        const { content, mimeType, summary } = options ?? {}
+        const { Document, VectorStoreIndex } = this.module
+        const { content, mimeType } = options ?? {}
         let blob: Blob = undefined
         if (content) {
             blob = new Blob([content], {
@@ -168,8 +184,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                 ok: false,
                 error: `no reader for content type '${type}'`,
             }
-        const storageContext = await this.createStorageContext()
-        const serviceContext = await this.createServiceContext()
         const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
             (doc) =>
@@ -179,13 +193,11 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                     metadata: { filename: filenameOrUrl },
                 })
         )
-        await storageContext.docStore.addDocuments(documents, true)
-        await VectorStoreIndex.fromDocuments(documents, {
-            storageContext,
-            serviceContext,
-        })
-        if (summary) {
-            await SummaryIndex.fromDocuments(documents, {
+        {
+            const serviceContext = await this.createServiceContext(options)
+            const storageContext = await this.createStorageContext()
+            await storageContext.docStore.addDocuments(documents, true)
+            await VectorStoreIndex.fromDocuments(documents, {
                 storageContext,
                 serviceContext,
             })
@@ -200,7 +212,6 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
-            summary,
         } = options ?? {}
         const {
             VectorStoreIndex,
@@ -209,23 +220,14 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             MetadataMode,
         } = this.module
 
-        const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
 
-        let retreiver: BaseRetriever
-        if (summary) {
-            const index = await SummaryIndex.init({
-                storageContext,
-                serviceContext,
-            })
-            retreiver = index.asRetriever({ mode: SummaryRetrieverMode.LLM })
-        } else {
-            const index = await VectorStoreIndex.init({
-                storageContext,
-                serviceContext,
-            })
-            retreiver = index.asRetriever({ similarityTopK: topK })
-        }
+        const storageContext = await this.createStorageContext(options)
+        const index = await VectorStoreIndex.init({
+            storageContext,
+            serviceContext,
+        })
+        const retreiver = index.asRetriever({ similarityTopK: topK })
 
         const results = await retreiver.retrieve(text)
         return {
