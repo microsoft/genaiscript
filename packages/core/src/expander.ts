@@ -38,7 +38,7 @@ import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
 import { stringifySchemaToTypeScript, validateJSONWithSchema } from "./schema"
 import { createParsers } from "./parsers"
 import { CORE_VERSION } from "./version"
-import { createCancelError, isCancelError } from "./error"
+import { createCancelError, isCancelError, throwError } from "./error"
 import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { fileExists, readText } from "./fs"
@@ -52,6 +52,8 @@ import {
     PromptImage,
     PromptNode,
     appendChild,
+    createFileMergeNode,
+    createFunctioNode,
     createImageNode,
     createSchemaNode,
     createTextNode,
@@ -61,6 +63,7 @@ import { CSVToMarkdown } from "./csv"
 import { bingSearch } from "./search"
 import { createDefDataNode } from "./filedom"
 import { CancellationToken } from "./cancellation"
+import { createRunPromptContext } from "./runpromptcontext"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -149,9 +152,6 @@ async function callExpander(
     trace: MarkdownTrace,
     options: RunTemplateOptions
 ) {
-    const cancellationToken = options?.cancellationToken
-    const scope: PromptNode[] = [{ children: [] }]
-
     const model = r.model || DEFAULT_MODEL
     let success = true
     const parsers = createParsers({ trace, model })
@@ -171,6 +171,7 @@ async function callExpander(
             return v
         },
     })
+    const ctx = createRunPromptContext(options, env, trace)
 
     const retreival: Retreival = {
         webSearch: async (q) => {
@@ -231,11 +232,10 @@ async function callExpander(
         if (Array.isArray(files))
             files.forEach((file) => defImages(file, options))
         else if (typeof files === "string")
-            appendChild(scope[0], createImageNode({ url: files, detail }))
+            appendPromptChild(createImageNode({ url: files, detail }))
         else {
             const file: LinkedFile = files
-            appendChild(
-                scope[0],
+            appendPromptChild(
                 createImageNode(
                     (async () => {
                         let bytes: Uint8Array
@@ -282,69 +282,7 @@ async function callExpander(
         return name
     }
 
-    const runPrompt: (
-        generator: () => Promise<void>,
-        promptOptions?: ModelOptions
-    ) => Promise<RunPromptResult> = async (generator, promptOptions) => {
-        try {
-            trace.startDetails(`🎁 run prompt`)
-            const node: PromptNode = { children: [] }
-            const model =
-                promptOptions?.model ||
-                r.model ||
-                options.model ||
-                DEFAULT_MODEL
-            try {
-                scope.unshift(node)
-                await generator()
-            } finally {
-                scope.shift()
-            }
-
-            if (cancellationToken?.isCancellationRequested)
-                return { text: "Prompt cancelled" }
-
-            // expand template
-            const { prompt, images, errors } = await renderPromptNode(
-                model,
-                node,
-                {
-                    trace,
-                }
-            )
-            trace.fence(prompt, "markdown")
-            if (images?.length || errors?.length)
-                trace.fence({ images, errors }, "yaml")
-
-            // call LLM
-            const completer = options.getChatCompletions || getChatCompletions
-            const res = await completer(
-                {
-                    model,
-                    temperature:
-                        promptOptions?.temperature ??
-                        r.temperature ??
-                        options.temperature ??
-                        DEFAULT_TEMPERATURE,
-                    top_p: promptOptions?.topP ?? r.topP ?? options.topP,
-                    max_tokens:
-                        promptOptions?.maxTokens ??
-                        r.maxTokens ??
-                        options.maxTokens,
-                    seed: promptOptions?.seed ?? r.seed ?? options.seed,
-                    stream: true,
-                    messages: [toChatCompletionUserMessage(prompt, images)],
-                },
-                { ...options, trace }
-            )
-            trace.details("output", res.text)
-            return { text: res.text }
-        } finally {
-            trace.endDetails()
-        }
-    }
-
-    const appendPromptChild = (node: PromptNode) => appendChild(scope[0], node)
+    const appendPromptChild = (node: PromptNode) => appendChild(ctx.node, node)
 
     let logs = ""
     let text = ""
@@ -355,7 +293,7 @@ async function callExpander(
     try {
         await evalPrompt(
             {
-                scope,
+                ...ctx,
                 script: () => {},
                 system: () => {},
                 env,
@@ -366,13 +304,23 @@ async function callExpander(
                 retreival,
                 defImages,
                 defSchema,
+                defFunction: (name, description, parameters, fn) => {
+                    appendPromptChild(
+                        createFunctioNode(name, description, parameters, fn)
+                    )
+                },
+                defFileMerge: (fn) => {
+                    appendPromptChild(createFileMergeNode(fn))
+                },
+                cancel: (reason?: string) => {
+                    throwError(reason || "user cancelled", true)
+                },
                 defData: (name, data, options) => {
                     appendPromptChild(
                         createDefDataNode(name, data, env, options)
                     )
                     return name
                 },
-                appendPromptChild,
                 writeText: (body) => {
                     appendPromptChild(
                         createTextNode(
@@ -387,7 +335,6 @@ async function callExpander(
                         throw new Error(msg)
                     }
                 },
-                runPrompt,
                 fetchText: async (urlOrFile, options) => {
                     if (typeof urlOrFile === "string") {
                         urlOrFile = {
@@ -433,7 +380,6 @@ async function callExpander(
                 logs += msg + "\n"
             }
         )
-        assert(scope.length === 1, "scope stack should have 1 root")
         const {
             prompt,
             images: imgs,
@@ -441,7 +387,7 @@ async function callExpander(
             schemas: schs,
             functions: fns,
             fileMerges: fms,
-        } = await renderPromptNode(model, scope[0], { trace })
+        } = await renderPromptNode(model, ctx.node, { trace })
         text = prompt
         images = imgs
         schemas = schs
