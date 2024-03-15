@@ -84,6 +84,10 @@ export function createRunPromptContext(
         runPrompt: async (generator, promptOptions) => {
             try {
                 trace.startDetails(`🎁 run prompt`)
+                if (!generator) {
+                    trace.error("generator missing")
+                    return <RunPromptResult>{ text: "" }
+                }
                 const ctx = createRunPromptContext(options, env, trace)
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
@@ -92,7 +96,7 @@ export function createRunPromptContext(
                 ctx.node = undefined
 
                 if (cancellationToken?.isCancellationRequested)
-                    return { text: "Prompt cancelled" }
+                    return { text: "Prompt cancelled", finishReason: "cancel" }
 
                 // expand template
                 const { prompt, images, errors } = await renderPromptNode(
@@ -126,7 +130,7 @@ export function createRunPromptContext(
                     { ...options, trace }
                 )
                 trace.details("output", res.text)
-                return { text: res.text }
+                return { text: res.text, finishReason: res.finishReason }
             } finally {
                 trace.endDetails()
             }
