@@ -30,6 +30,7 @@ const str = YAML.stringify(obj)
 ## `parsers`
 
 The [parsers](/genaiscript/reference/scripts/parsers) also provides merciful parser for YAML.
+Returns `undefined` for invalid inputs.
 
 ```js
 const res = parsers.YAML("...")

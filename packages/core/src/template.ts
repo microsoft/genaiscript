@@ -243,6 +243,7 @@ async function parseMeta(r: PromptTemplate) {
                 retreival: undefined,
                 fs: undefined,
                 YAML: undefined,
+                CSV: undefined,
                 fence: error,
                 def: error,
                 defFunction: error,
