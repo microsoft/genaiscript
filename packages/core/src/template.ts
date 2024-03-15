@@ -2,6 +2,7 @@ import { Project, Fragment, PromptTemplate } from "./ast"
 import { randomRange, sha256string } from "./util"
 import { BUILTIN_PREFIX } from "./constants"
 import { evalPrompt } from "./evalprompt"
+import { JSON5TryParse } from "./json5"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -178,11 +179,29 @@ class MetaFoundError extends Error {
 }
 
 async function parseMeta(r: PromptTemplate) {
-    let meta: PromptArgs = null
+    // shortcut
+    const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
+        r.jsSource
+    )
+    let meta: PromptArgs = JSON5TryParse(m?.groups?.meta) || null
+    if (meta) {
+        if (m.groups.kind === "system") {
+            meta.unlisted = true
+            meta.isSystem = true
+        }
+        return meta
+    }
+
+    // execute
     const script = (m: PromptArgs) => {
         if (meta !== null) throw new Error(`more than one script() call`)
         meta = m
         throw new MetaFoundError()
+    }
+    const system = (m: PromptArgs) => {
+        m.unlisted = true
+        m.isSystem = true
+        script(meta)
     }
 
     const error: () => any = () => {
@@ -195,11 +214,7 @@ async function parseMeta(r: PromptTemplate) {
     })
     const ctx = Object.freeze<PromptContext>({
         script,
-        system: (meta) => {
-            meta.unlisted = true
-            meta.isSystem = true
-            script(meta)
-        },
+        system,
         env,
         path: undefined,
         parsers: undefined,
