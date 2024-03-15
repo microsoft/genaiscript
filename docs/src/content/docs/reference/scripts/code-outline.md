@@ -15,12 +15,4 @@ const code = def("CODE", outline)
 
 The `retreival.outline` supports the languages registered in [web-tree-sitter](https://www.npmjs.com/package/web-tree-sitter).
 
-Currently, the following list of file extensions are supported:
-
--   .js: "javascript",
--   .mjs: "javascript",
--   .cs: "c_sharp",
--   .sh: "bash",
--   .py: "python",
--   .rs: "rust",
--   .ts: "typescript",
+Currently, the following list of file extensions are supported: `.js`, `.mjs`, `.cs`, `.sh`, `.py`, `.rs`, `.ts`
