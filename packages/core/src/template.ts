@@ -183,6 +183,7 @@ export type BasePromptContext = Omit<
     appendPromptChild(node: PromptNode): void
     scope: PromptNode[]
 }
+
 export async function evalPrompt(
     ctx0: BasePromptContext,
     jstext: string,

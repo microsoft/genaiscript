@@ -142,12 +142,12 @@ Use LLMs to build your LLM prompts.
 ```js wrap
 // summarize each files individually
 for (const file of env.files) {
-    const { text } = await runPrompt(() => {
-        def("FILE", file)
-        $`Summarize the FILE.`
+    const { text } = await runPrompt(_ => {
+        _.def("FILE", file)
+        _.$`Summarize the FILE.`
     })
     // use result in main prompt
-    def("SUMMARY", text)
+    _.def("SUMMARY", text)
 }
 // use summary
 $`Summarize all the summaries.`
