@@ -1,10 +1,9 @@
 import * as vscode from "vscode"
-import { Utils } from "vscode-uri"
 import {
     Fragment,
+    GENAISCRIPT_CLI_JS,
     PromptTemplate,
     groupBy,
-    host,
     templateGroup,
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
@@ -23,21 +22,18 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const pickTemplate = async (
-        fragment: Fragment,
-        options?: {
-            filter?: (p: PromptTemplate) => boolean
-        }
-    ) => {
+    const pickTemplate = async (options?: {
+        filter?: (p: PromptTemplate) => boolean
+    }) => {
         const { filter = () => true } = options || {}
-        const templates = fragment.file.project.templates
+        const templates = state.project.templates
             .filter((t) => !t.isSystem)
             .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
             {
-                title: `Pick a GenAiScript to apply to ${fragment.title}`,
+                title: `Pick a GenAiScript`,
             }
         )
         if (picked?.action === "create") {
@@ -94,7 +90,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
             options = { fragment: options }
-        let { fragment, template } = options || {}
+        let { fragment, template, debug } = options || {}
 
         await state.cancelAiRequest()
 
@@ -109,13 +105,13 @@ export function activateFragmentCommands(state: ExtensionState) {
             return
         }
         if (!template) {
-            template = await pickTemplate(fragment)
+            template = await pickTemplate()
             if (!template) return
         }
 
         if (!fragment) return
-
         fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
+
         await state.requestAI({
             fragment,
             template,
@@ -123,8 +119,27 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
-    const fragmentDebug = async (fragment: vscode.Uri) =>
-        await fragmentPrompt({ fragment, debug: true })
+    const fragmentDebug = async (file: vscode.Uri) => {
+        await state.cancelAiRequest()
+        await saveAllTextDocuments
+        await state.parseWorkspace()
+        const template = await pickTemplate()
+        await vscode.debug.startDebugging(
+            vscode.workspace.workspaceFolders[0],
+            {
+                name: "GenAIScript",
+                program: GENAISCRIPT_CLI_JS,
+                request: "launch",
+                skipFiles: ["<node_internals>/**"],
+                type: "node",
+                args: [
+                    "run",
+                    template.filename,
+                    vscode.workspace.asRelativePath(file.fsPath),
+                ],
+            }
+        )
+    }
 
     const fragmentNavigate = async (fragment: Fragment | string) => {
         fragment = state.project.resolveFragment(fragment)

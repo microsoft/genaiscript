@@ -6,10 +6,11 @@ export async function evalPrompt(
     ctx0: PromptContext,
     r: PromptTemplate,
     options?: {
+        sourceMaps?: boolean
         logCb?: (msg: string) => void
     }
 ) {
-    const { logCb } = options || {}
+    const { logCb, sourceMaps } = options || {}
     const log = (...args: any[]) => {
         const line = consoleLogFormat(...args)
         logCb?.(line)
@@ -34,7 +35,7 @@ export async function evalPrompt(
     const jsSource = r.jsSource
     const src = [prefix, jsSource, suffix]
     // source map
-    if (r.filename) {
+    if (r.filename && sourceMaps) {
         const s = new MagicString(jsSource)
         s.prepend(prefix)
         s.append(suffix)

@@ -141,6 +141,7 @@ async function callExpander(
 
     try {
         await evalPrompt(ctx, r, {
+            sourceMaps: true,
             logCb: (msg: any) => {
                 logs += msg + "\n"
             },
