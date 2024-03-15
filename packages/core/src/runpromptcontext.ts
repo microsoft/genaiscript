@@ -84,11 +84,12 @@ export function createRunPromptContext(
         runPrompt: async (generator, promptOptions) => {
             try {
                 trace.startDetails(`🎁 run prompt`)
-                const node: PromptNode = { children: [] }
                 const ctx = createRunPromptContext(options, env, trace)
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
                 await generator(ctx)
+                const node = ctx.node
+                ctx.node = undefined
 
                 if (cancellationToken?.isCancellationRequested)
                     return { text: "Prompt cancelled" }

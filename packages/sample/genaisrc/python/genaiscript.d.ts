@@ -674,13 +674,20 @@ type ChatFunctionHandler = (
 ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 
 // keep in sync with prompt_type.d.ts
-interface PromptContext {
+interface RunPromptContext {
     writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
-    script(options: PromptArgs): void
-    system(options: PromptSystemArgs): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
+    runPrompt(
+        generator: (ctx: RunPromptContext) => void | Promise<void>,
+        options?: ModelOptions
+    ): Promise<RunPromptResult>
+}
+
+interface PromptContext extends RunPromptContext {
+    script(options: PromptArgs): void
+    system(options: PromptSystemArgs): void
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
@@ -699,10 +706,6 @@ interface PromptContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
-    runPrompt(
-        generator: () => void | Promise<void>,
-        options?: ModelOptions
-    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | LinkedFile,
         options?: FetchTextOptions
@@ -868,6 +871,6 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: () => void | Promise<void>,
+    generator: (ctx: RunPromptContext) => void | Promise<void>,
     options?: ModelOptions
 ): Promise<RunPromptResult>
