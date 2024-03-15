@@ -15,6 +15,7 @@ import {
     RetreivalOutline,
     RetreivalSearch,
     RetreivalUpsert,
+    ServerVersion,
 } from "./messages"
 
 export class WebSocketClient implements RetreivalService, HighlightService {
@@ -100,12 +101,18 @@ export class WebSocketClient implements RetreivalService, HighlightService {
         cancellers.forEach((a) => a.reject("cancelled"))
     }
 
+    async version(): Promise<string> {
+        const res = await this.queue<ServerVersion>({ type: "server.version" })
+        return res.version
+    }
+
     async clear(): Promise<ResponseStatus> {
-        const res = await this.queue(<RetreivalClear>{
+        const res = await this.queue<RetreivalClear>({
             type: "retreival.clear",
         })
         return res.response
     }
+
     async search(
         text: string,
         options?: RetreivalSearchOptions

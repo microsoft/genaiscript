@@ -21,7 +21,7 @@ export interface RetreivalClear extends RequestMessage {
 
 export interface ServerVersion extends RequestMessage {
     type: "server.version"
-    version: string
+    version?: string
 }
 
 export interface RetreivalUpsert extends RequestMessage {
