@@ -1,7 +1,7 @@
 import { Project, Fragment, PromptTemplate } from "./ast"
-import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
 import { BUILTIN_PREFIX } from "./constants"
+import { evalPrompt } from "./evalprompt"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -171,40 +171,6 @@ class Checker<T extends PromptLike> {
     }
 }
 
-export async function evalPrompt(
-    ctx0: PromptContext,
-    jstext: string,
-    logCb?: (msg: string) => void
-) {
-    const log = (...args: any[]) => {
-        const line = consoleLogFormat(...args)
-        logCb?.(line)
-    }
-    const ctx: PromptContext & { console: Partial<typeof console> } = {
-        ...ctx0,
-        console: {
-            log: log,
-            warn: log,
-            debug: log,
-            error: log,
-            info: log,
-            trace: log,
-        },
-    }
-
-    // in principle we could cache this function (but would have to do that based on hashed body or sth)
-    // but probably little point
-    const fn = (0, eval)(
-        "async (" +
-            Object.keys(ctx).join(", ") +
-            ") => { 'use strict'; " +
-            jstext +
-            "\n}"
-    )
-
-    return await fn(...Object.values(ctx))
-}
-
 class MetaFoundError extends Error {
     constructor() {
         super("meta found")
@@ -227,38 +193,36 @@ async function parseMeta(r: PromptTemplate) {
             return target[prop] ?? "<empty>"
         },
     })
+    const ctx = Object.freeze<PromptContext>({
+        script,
+        system: (meta) => {
+            meta.unlisted = true
+            meta.isSystem = true
+            script(meta)
+        },
+        env,
+        path: undefined,
+        parsers: undefined,
+        retreival: undefined,
+        fs: undefined,
+        YAML: undefined,
+        CSV: undefined,
+        fence: error,
+        def: error,
+        defFunction: error,
+        defFileMerge: error,
+        defSchema: error,
+        defImages: error,
+        defData: error,
+        writeText: error,
+        runPrompt: error,
+        fetchText: error,
+        cancel: error,
+        $: error,
+    })
 
     try {
-        await evalPrompt(
-            {
-                script,
-                system: (meta) => {
-                    meta.unlisted = true
-                    meta.isSystem = true
-                    script(meta)
-                },
-                env,
-                path: undefined,
-                parsers: undefined,
-                retreival: undefined,
-                fs: undefined,
-                YAML: undefined,
-                CSV: undefined,
-                fence: error,
-                def: error,
-                defFunction: error,
-                defFileMerge: error,
-                defSchema: error,
-                defImages: error,
-                defData: error,
-                writeText: error,
-                runPrompt: error,
-                fetchText: error,
-                cancel: error,
-                $: error,
-            },
-            r.jsSource
-        )
+        await evalPrompt(ctx, r)
     } catch (e) {
         if (!meta || !(e instanceof MetaFoundError)) throw e
     }

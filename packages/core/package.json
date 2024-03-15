@@ -9,8 +9,8 @@
     "url": "https://github.com/microsoft/genaiscript"
   },
   "optionalDependencies": {
-    "pdfjs-dist": "4.0.379",
-    "mammoth": "^1.7.0"
+    "mammoth": "^1.7.0",
+    "pdfjs-dist": "4.0.379"
   },
   "devDependencies": {
     "@types/mime-types": "^2.1.4",
@@ -37,5 +37,8 @@
     "prompts:bundle": "node bundleprompts.mjs",
     "pretypecheck": "yarn prompts:bundle",
     "test": "node --import tsx --test src/**.test.ts"
+  },
+  "dependencies": {
+    "magic-string": "^0.30.8"
   }
 }

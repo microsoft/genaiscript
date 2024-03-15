@@ -79,7 +79,13 @@
             "editor/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode"
+                    "when": "!inDebugMode",
+                    "group": "genaiscript@1"
+                },
+                {
+                    "command": "genaiscript.fragment.debug",
+                    "when": "!inDebugMode",
+                    "group": "genaiscript@2"
                 }
             ],
             "file/newFile": [
@@ -132,11 +138,6 @@
                 }
             ],
             "view/item/context": [
-                {
-                    "command": "genaiscript.fragment.prompt",
-                    "when": "view == genaiscript.fragments && viewItem  =~ /^fragment/",
-                    "group": "inline"
-                },
                 {
                     "command": "genaiscript.prompt.fork",
                     "when": "view == genaiscript.prompts && viewItem  =~ /^prompt/"
@@ -218,6 +219,12 @@
                 "title": "Run GenAiScript...",
                 "category": "GenAIScript",
                 "icon": "$(lightbulb)"
+            },
+            {
+                "command": "genaiscript.fragment.debug",
+                "title": "Debug GenAiScript...",
+                "category": "GenAIScript",
+                "icon": "$(debug)"
             },
             {
                 "command": "genaiscript.prompt.navigate",
