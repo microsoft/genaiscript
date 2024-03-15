@@ -1,11 +1,7 @@
 import { Project, Fragment, PromptTemplate } from "./ast"
 import { consoleLogFormat } from "./logging"
 import { randomRange, sha256string } from "./util"
-import { throwError } from "./error"
 import { BUILTIN_PREFIX } from "./constants"
-import { minimatch } from "minimatch"
-import { PromptNode, createFileMergeNode, createFunctioNode } from "./promptdom"
-import { createDefNode } from "./filedom"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.[jt]s$/, "")
@@ -175,83 +171,17 @@ class Checker<T extends PromptLike> {
     }
 }
 
-// fills missing utility functions
-export type BasePromptContext = Omit<
-    PromptContext,
-    "fence" | "def" | "$" | "defFunction" | "defFileMerge" | "cancel"
-> & {
-    appendPromptChild(node: PromptNode): void
-    scope: PromptNode[]
-}
 export async function evalPrompt(
-    ctx0: BasePromptContext,
+    ctx0: PromptContext,
     jstext: string,
     logCb?: (msg: string) => void
 ) {
-    const { writeText, env } = ctx0
-
-    const dontuse = (name: string, inside = "${ ... }") =>
-        `${env.error} ${name}() should not be used inside of ${inside}\n`
+    const log = (...args: any[]) => {
+        const line = consoleLogFormat(...args)
+        logCb?.(line)
+    }
     const ctx: PromptContext & { console: Partial<typeof console> } = {
         ...ctx0,
-        $(strings, ...args) {
-            let r = ""
-            for (let i = 0; i < strings.length; ++i) {
-                r += strings[i]
-                if (i < args.length) r += args[i] ?? ""
-            }
-            writeText(r)
-        },
-        def(name, body, options) {
-            name = name ?? ""
-            // shortcuts
-            if (body === undefined || body === null) return undefined
-            else if (Array.isArray(body))
-                body.forEach((f) => ctx.def(name, f, options))
-            else if (typeof body === "object" && body.filename) {
-                const { glob, endsWith } = options || {}
-                const filename = body.filename
-                if (glob && filename) {
-                    const match = minimatch(filename, glob)
-                    if (!match) return undefined
-                }
-                if (endsWith && !filename.endsWith(endsWith)) return undefined
-                ctx0.appendPromptChild(createDefNode(name, body, env, options))
-            } else if (typeof body === "string") {
-                ctx0.appendPromptChild(
-                    createDefNode(
-                        name,
-                        { filename: "", label: "", content: body },
-                        env,
-                        options
-                    )
-                )
-            }
-
-            // TODO: support clause
-            return name
-        },
-        defFunction(name, description, parameters, fn) {
-            if (ctx0.scope.length > 1)
-                return dontuse("defFunction", "runPrompt")
-            ctx0.appendPromptChild(
-                createFunctioNode(name, description, parameters, fn)
-            )
-            return dontuse("defFunction")
-        },
-        defFileMerge(fn) {
-            if (ctx0.scope.length > 1)
-                return dontuse("defFileMerge", "runPrompt")
-            ctx0.appendPromptChild(createFileMergeNode(fn))
-            return dontuse("defFileMerge")
-        },
-        fence(body, options?: DefOptions) {
-            ctx.def("", body, options)
-            return dontuse("fence")
-        },
-        cancel: (reason?: string) => {
-            throwError(reason || "user cancelled", true)
-        },
         console: {
             log: log,
             warn: log,
@@ -260,11 +190,6 @@ export async function evalPrompt(
             info: log,
             trace: log,
         },
-    }
-
-    function log(...args: any[]) {
-        const line = consoleLogFormat(...args)
-        logCb?.(line)
     }
 
     // in principle we could cache this function (but would have to do that based on hashed body or sth)
@@ -287,7 +212,6 @@ class MetaFoundError extends Error {
 }
 
 async function parseMeta(r: PromptTemplate) {
-    const scope: PromptNode[] = []
     let meta: PromptArgs = null
     const script = (m: PromptArgs) => {
         if (meta !== null) throw new Error(`more than one script() call`)
@@ -307,7 +231,6 @@ async function parseMeta(r: PromptTemplate) {
     try {
         await evalPrompt(
             {
-                scope,
                 script,
                 system: (meta) => {
                     meta.unlisted = true
@@ -320,13 +243,18 @@ async function parseMeta(r: PromptTemplate) {
                 retreival: undefined,
                 fs: undefined,
                 YAML: undefined,
+                fence: error,
+                def: error,
+                defFunction: error,
+                defFileMerge: error,
                 defSchema: error,
                 defImages: error,
                 defData: error,
-                appendPromptChild: error,
                 writeText: error,
                 runPrompt: error,
                 fetchText: error,
+                cancel: error,
+                $: error,
             },
             r.jsSource
         )

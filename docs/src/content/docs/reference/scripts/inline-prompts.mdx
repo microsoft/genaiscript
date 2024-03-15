@@ -10,10 +10,10 @@ import summaryOfSummary from "../../../../../../packages/sample/genaisrc/summary
 The `runPrompt` function allows to build an inner LLM invocation. It returns the output of the prompt.
 
 ```js
-const { text } = await runPrompt(async () => {
+const { text } = await runPrompt(_ => {
     // use def, $ and other helpers
-    def("FILE", file)
-    $`Summarize the FILE. Be concise.`
+    _.def("FILE", file)
+    _.$`Summarize the FILE. Be concise.`
 })
 ```
 
