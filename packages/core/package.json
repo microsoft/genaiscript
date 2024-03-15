@@ -30,15 +30,13 @@
     "pretty-bytes": "^6.1.1",
     "toml": "^3.0.0",
     "typescript": "^5.3.3",
-    "yaml": "^2.4.1"
+    "yaml": "^2.4.1",
+    "magic-string": "^0.30.8"
   },
   "scripts": {
     "typecheck": "tsc -p src",
     "prompts:bundle": "node bundleprompts.mjs",
     "pretypecheck": "yarn prompts:bundle",
     "test": "node --import tsx --test src/**.test.ts"
-  },
-  "dependencies": {
-    "magic-string": "^0.30.8"
   }
 }
