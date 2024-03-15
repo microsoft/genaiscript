@@ -1,6 +1,25 @@
-import { ColumnOption, parse } from "csv-parse/sync"
+import { parse } from "csv-parse/sync"
 import { markdownTable } from "markdown-table"
 import { logInfo } from "./util"
+
+export function CSVParse(
+    text: string,
+    options?: {
+        delimiter?: string
+        headers?: string[]
+    }
+): object[] {
+    const { delimiter, headers } = options || {}
+    return parse(text, {
+        autoParse: true,
+        castDate: false,
+        comment: "#",
+        columns: headers || true,
+        skipEmptyLines: true,
+        skipRecordsWithError: true,
+        delimiter,
+    })
+}
 
 export function CSVTryParse(
     text: string,
@@ -9,17 +28,8 @@ export function CSVTryParse(
         headers?: string[]
     }
 ): object[] {
-    const { delimiter, headers } = options || {}
     try {
-        return parse(text, {
-            autoParse: true,
-            castDate: false,
-            comment: "#",
-            columns: headers || true,
-            skipEmptyLines: true,
-            skipRecordsWithError: true,
-            delimiter,
-        })
+        return CSVTryParse(text, options)
     } catch (e) {
         logInfo(e)
         return undefined

@@ -1,7 +1,7 @@
 import { dirname, extname, basename, join, normalize, relative, resolve } from "path"
 
 export function createNodePath(): Path {
-    return <Path>{
+    return <Path>Object.freeze({
         dirname,
         extname,
         basename,
@@ -9,5 +9,5 @@ export function createNodePath(): Path {
         normalize,
         relative,
         resolve
-    }
+    })
 }

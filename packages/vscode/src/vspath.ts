@@ -9,7 +9,7 @@ import {
 } from "path"
 
 export function createVSPath(): Path {
-    return <Path>{
+    return <Path>Object.freeze({
         dirname,
         extname,
         basename,
@@ -17,5 +17,5 @@ export function createVSPath(): Path {
         normalize,
         relative,
         resolve,
-    }
+    })
 }
