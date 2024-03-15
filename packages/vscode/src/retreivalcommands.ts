@@ -9,6 +9,7 @@ import {
     isIndexable,
     upsert,
     search as retreivalSearch,
+    CLI_JS,
 } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { showMarkdownPreview } from "./markdown"
@@ -62,7 +63,10 @@ export function activateRetreivalCommands(state: ExtensionState) {
             async (progress, token) => {
                 try {
                     state.lastSearch = undefined
-                    const res = await retreivalSearch(keywords, { files, token })
+                    const res = await retreivalSearch(keywords, {
+                        files,
+                        token,
+                    })
                     state.lastSearch = res
                     await showMarkdownPreview(infoUri(SEARCH_OUTPUT_FILENAME))
                 } catch (e) {
@@ -73,28 +77,16 @@ export function activateRetreivalCommands(state: ExtensionState) {
     }
 
     const index = async (uri: vscode.Uri) => {
-        const files = await resolveFiles(uri)
-        if (!files?.length) {
-            vscode.window.showInformationMessage(
-                `${TOOL_NAME} - No files to index`
-            )
-            return
-        }
-        await initToken()
-        await vscode.window.withProgress(
-            {
-                location: vscode.ProgressLocation.Notification,
-                title: `${TOOL_NAME} - Indexing`,
-                cancellable: true,
-            },
-            async (progress, token) => {
-                try {
-                    await upsert(files, { progress, token })
-                } catch (e) {
-                    vscode.window.showErrorMessage(e.message)
-                }
-            }
+        const host = state.host
+        const terminal = vscode.window.createTerminal({
+            name: `${TOOL_NAME} Indexer`,
+            cwd: host.projectFolder(),
+            isTransient: true,
+        })
+        terminal.sendText(
+            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index ${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}`
         )
+        terminal.show()
     }
 
     subscriptions.push(
