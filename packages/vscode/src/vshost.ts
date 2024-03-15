@@ -24,7 +24,7 @@ import { TerminalServerManager } from "./servermanager"
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
-    readonly evalUseFile: false
+    readonly evalUseFile = false
     readonly path = createVSPath()
     readonly server: TerminalServerManager
     readonly fs = createFileSystem()

@@ -40,7 +40,7 @@ export class NodeHost implements Host {
     virtualFiles: Record<string, Uint8Array> = {}
     retreival: RetreivalService
     highlight: HighlightService
-    readonly evalUseFile: true
+    readonly evalUseFile = true
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly fs = createFileSystem()
