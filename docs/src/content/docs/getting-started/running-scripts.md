@@ -8,6 +8,13 @@ sidebar:
 
 The location where you start running a script determines the entries in the `env.files` variable.
 
+:::caution
+
+Script in the context of your environment.
+**Only run trusted scripts.**
+
+:::
+
 ## Single file
 
 -   Right click on a file in the Explorer and select `Run GenAIScript`.
