@@ -5,7 +5,7 @@ script({
 })
 
 // first prompt LLM to generate facts
-const { text } = await runPrompt(_ => {
+const { text } = await runPrompt((_) => {
     _.def("FILE", env.files)
     _.$`Generate 10 facts about the content of FILE.`
 })

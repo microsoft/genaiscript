@@ -4,9 +4,9 @@ script({
 
 for (const file of env.files) {
     const { text } = await runPrompt(
-        () => {
-            def("FILE", file)
-            $`Summarize the FILE. Be concise.`
+        (_) => {
+            _.def("FILE", file)
+            _.$`Summarize the FILE. Be concise.`
         },
         {
             model: "gpt-3.5-turbo",
