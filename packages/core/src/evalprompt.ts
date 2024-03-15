@@ -45,6 +45,7 @@ export async function evalPrompt(
             file: source + ".map",
         })
         src.push(`//# sourceMappingURL=${map.toUrl()}`)
+        src.push(`//# sourceURL=${source}`)
     }
     const fsrc = src.join("\n")
 
