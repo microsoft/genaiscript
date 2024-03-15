@@ -13,7 +13,7 @@ defSchema("DATA", { type: "array", items: { type: "string" } })
 $`Analyze FILE and extract titles to JSON using the DATA schema.`
 ```
 
--   **Read the online documentation at **https://microsoft.github.io/genaiscript/**
+-   **Read the online documentation at https://microsoft.github.io/genaiscript/**
 
 ## Contributing
 
