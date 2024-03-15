@@ -1,16 +1,13 @@
 import {
     ChatCompletionRequestMessage,
     ChatCompletionResponse,
-    ChatCompletionsOptions,
-    CreateChatCompletionRequest,
     RequestError,
     getChatCompletions,
     toChatCompletionUserMessage,
 } from "./chat"
 import { Fragment, PromptTemplate } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
-import { assert, logVerbose, relativePath, toBase64 } from "./util"
-import { fileTypeFromBuffer } from "file-type"
+import { assert, logVerbose, relativePath } from "./util"
 import {
     DataFrame,
     Fenced,
@@ -33,14 +30,10 @@ import type {
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
-import { fenceMD, pretifyMarkdown } from "./markdown"
-import { YAMLParse, YAMLStringify, YAMLTryParse } from "./yaml"
-import { stringifySchemaToTypeScript, validateJSONWithSchema } from "./schema"
-import { createParsers } from "./parsers"
+import { YAMLTryParse } from "./yaml"
+import { validateJSONWithSchema } from "./schema"
 import { CORE_VERSION } from "./version"
-import { createCancelError, isCancelError, throwError } from "./error"
-import { upsert, search } from "./retreival"
-import { outline } from "./highlights"
+import { createCancelError, isCancelError } from "./error"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens, estimateTokens } from "./tokens"
 import {
@@ -50,20 +43,10 @@ import {
 } from "./constants"
 import {
     PromptImage,
-    PromptNode,
-    appendChild,
-    createFileMergeNode,
-    createFunctioNode,
-    createImageNode,
-    createSchemaNode,
-    createTextNode,
     renderPromptNode,
 } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
-import { bingSearch } from "./search"
-import { createDefDataNode } from "./filedom"
-import { CancellationToken } from "./cancellation"
-import { createRunPromptContext } from "./runpromptcontext"
+import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -142,10 +125,6 @@ export interface FragmentTransformResponse {
 
 const systemFence = "---"
 
-function stringLikeToFileName(f: string | LinkedFile) {
-    return typeof f === "string" ? f : f?.filename
-}
-
 async function callExpander(
     r: PromptTemplate,
     vars: ExpansionVariables,
@@ -153,233 +132,22 @@ async function callExpander(
     options: RunTemplateOptions
 ) {
     const model = r.model || DEFAULT_MODEL
+    const ctx = createPromptContext(r, vars, trace, options, model)
+
     let success = true
-    const parsers = createParsers({ trace, model })
-    const YAML: YAML = {
-        stringify: YAMLStringify,
-        parse: YAMLParse,
-    }
-    const path = host.path
-    const fs = host.fs
-    const env = new Proxy(vars, {
-        get: (target: any, prop, recv) => {
-            const v = target[prop]
-            if (v === undefined) {
-                trace.error(`\`env.${String(prop)}\` not defined`)
-                return ""
-            }
-            return v
-        },
-    })
-    const ctx = createRunPromptContext(options, env, trace)
-
-    const retreival: Retreival = {
-        webSearch: async (q) => {
-            try {
-                trace.startDetails(`🌐 retreival web search \`${q}\``)
-                const { webPages } = (await bingSearch(q, { trace })) || {}
-                return <SearchResult>{
-                    webPages: webPages?.value?.map(
-                        ({ url, name, snippet }) =>
-                            <LinkedFile>{
-                                filename: url,
-                                label: name,
-                                content: snippet,
-                            }
-                    ),
-                }
-            } catch (e) {
-                trace.error(`web search error`, e)
-                return undefined
-            } finally {
-                trace.endDetails()
-            }
-        },
-        search: async (q, files, options) => {
-            try {
-                trace.startDetails(`🔍 retreival search \`${q}\``)
-                if (!files?.length) {
-                    trace.error("no files provided")
-                    return { files: [], fragments: [] }
-                } else {
-                    await upsert(files, { trace })
-                    const res = await search(q, {
-                        files: files.map(stringLikeToFileName),
-                        topK: options?.topK,
-                    })
-                    trace.fence(res, "yaml")
-                    return res
-                }
-            } finally {
-                trace.endDetails()
-            }
-        },
-        outline: async (files) => {
-            try {
-                trace.startDetails(
-                    `🫥 retreival outline (${files?.length || 0} files)`
-                )
-                const res = await outline(files, { trace })
-                return res?.response
-            } finally {
-                trace.endDetails()
-            }
-        },
-    }
-
-    const defImages = (files: StringLike, options?: DefImagesOptions) => {
-        const { detail } = options || {}
-        if (Array.isArray(files))
-            files.forEach((file) => defImages(file, options))
-        else if (typeof files === "string")
-            appendPromptChild(createImageNode({ url: files, detail }))
-        else {
-            const file: LinkedFile = files
-            appendPromptChild(
-                createImageNode(
-                    (async () => {
-                        let bytes: Uint8Array
-                        if (/^https?:\/\//i.test(file.filename)) {
-                            const resp = await fetch(file.filename)
-                            if (!resp.ok) return undefined
-                            const buffer = await resp.arrayBuffer()
-                            bytes = new Uint8Array(buffer)
-                        } else {
-                            bytes = new Uint8Array(
-                                await host.readFile(file.filename)
-                            )
-                        }
-                        const mime = (await fileTypeFromBuffer(bytes))?.mime
-                        if (
-                            !mime ||
-                            !/^image\/(png|jpeg|webp|gif)$/i.test(mime)
-                        )
-                            return undefined
-                        const b64 = toBase64(bytes)
-                        return {
-                            url: `data:${mime};base64,${b64}`,
-                            filename: file.filename,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        }
-    }
-
-    const defSchema = (
-        name: string,
-        schema: JSONSchema,
-        options?: DefSchemaOptions
-    ) => {
-        trace.detailsFenced(
-            `🧬 schema ${name}`,
-            JSON.stringify(schema, null, 2),
-            "json"
-        )
-        appendPromptChild(createSchemaNode(name, schema, options))
-
-        return name
-    }
-
-    const appendPromptChild = (node: PromptNode) => appendChild(ctx.node, node)
-
     let logs = ""
     let text = ""
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ChatFunctionCallback[] = []
     let fileMerges: FileMergeHandler[] = []
+
     try {
-        await evalPrompt(
-            {
-                ...ctx,
-                script: () => {},
-                system: () => {},
-                env,
-                path,
-                fs,
-                parsers,
-                YAML,
-                retreival,
-                defImages,
-                defSchema,
-                defFunction: (name, description, parameters, fn) => {
-                    appendPromptChild(
-                        createFunctioNode(name, description, parameters, fn)
-                    )
-                },
-                defFileMerge: (fn) => {
-                    appendPromptChild(createFileMergeNode(fn))
-                },
-                cancel: (reason?: string) => {
-                    throwError(reason || "user cancelled", true)
-                },
-                defData: (name, data, options) => {
-                    appendPromptChild(
-                        createDefDataNode(name, data, env, options)
-                    )
-                    return name
-                },
-                writeText: (body) => {
-                    appendPromptChild(
-                        createTextNode(
-                            body.replace(/\n*$/, "").replace(/^\n*/, "")
-                        )
-                    )
-                    const idx = body.indexOf(vars.error)
-                    if (idx >= 0) {
-                        const msg = body
-                            .slice(idx + vars.error.length)
-                            .replace(/\n[^]*/, "")
-                        throw new Error(msg)
-                    }
-                },
-                fetchText: async (urlOrFile, options) => {
-                    if (typeof urlOrFile === "string") {
-                        urlOrFile = {
-                            label: urlOrFile,
-                            filename: urlOrFile,
-                            content: "",
-                        }
-                    }
-                    const url = urlOrFile.filename
-                    let ok = false
-                    let status = 404
-                    let text: string
-                    if (/^https?:\/\//i.test(url)) {
-                        const resp = await fetch(url, options)
-                        ok = resp.ok
-                        status = resp.status
-                        if (ok) text = await resp.text()
-                    } else {
-                        try {
-                            text = await readText("workspace://" + url)
-                            ok = true
-                        } catch (e) {
-                            logVerbose(e)
-                            ok = false
-                            status = 404
-                        }
-                    }
-                    const file: LinkedFile = {
-                        label: urlOrFile.label,
-                        filename: urlOrFile.label,
-                        content: text,
-                    }
-                    return {
-                        ok,
-                        status,
-                        text,
-                        file,
-                    }
-                },
-            },
-            r.jsSource,
-            (msg) => {
-                logs += msg + "\n"
-            }
-        )
+        await evalPrompt(ctx, r.jsSource, (msg) => {
+            logs += msg + "\n"
+        })
+        const node = ctx.node
+        ctx.node = undefined // catch races
         const {
             prompt,
             images: imgs,
@@ -387,13 +155,13 @@ async function callExpander(
             schemas: schs,
             functions: fns,
             fileMerges: fms,
-        } = await renderPromptNode(model, ctx.node, { trace })
+        } = await renderPromptNode(model, node, { trace })
         text = prompt
         images = imgs
         schemas = schs
         functions = fns
         fileMerges = fms
-        for (const error of errors) trace.error(``, error)
+        if (errors) for (const error of errors) trace.error(``, error)
     } catch (e) {
         success = false
         if (isCancelError(e)) {
@@ -718,31 +486,6 @@ async function fragmentVars(
     }
     return vars
 }
-
-export type RunTemplateOptions = ChatCompletionsOptions &
-    ModelOptions & {
-        cancellationToken?: CancellationToken
-        infoCb?: (partialResponse: {
-            text: string
-            label?: string
-            summary?: string
-            vars?: Partial<ExpansionVariables>
-        }) => void
-        trace?: MarkdownTrace
-        maxCachedTemperature?: number
-        maxCachedTopP?: number
-        skipLLM?: boolean
-        label?: string
-        cache?: boolean
-        cliInfo?: {
-            spec: string
-        }
-        getChatCompletions?: (
-            req: CreateChatCompletionRequest,
-            options?: ChatCompletionsOptions & { trace: MarkdownTrace }
-        ) => Promise<ChatCompletionResponse>
-        vars?: Record<string, string>
-    }
 
 export function generateCliArguments(
     template: PromptTemplate,

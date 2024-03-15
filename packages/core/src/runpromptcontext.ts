@@ -8,8 +8,8 @@ import {
 import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { RunTemplateOptions } from "./expander"
 import { getChatCompletions, toChatCompletionUserMessage } from "./chat"
+import { RunTemplateOptions } from "./promptcontext"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
