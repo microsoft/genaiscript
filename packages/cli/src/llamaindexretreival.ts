@@ -6,6 +6,7 @@ import {
     PromiseType,
     RETREIVAL_PERSIST_DIR,
     ResponseStatus,
+    RetreivalOptions,
     RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalService,
@@ -14,7 +15,7 @@ import {
     installImport,
     lookupMime,
 } from "genaiscript-core"
-import type { BaseReader, BaseRetriever } from "llamaindex"
+import type { BaseReader } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
@@ -141,8 +142,12 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return serviceContext
     }
 
-    async clear() {
-        const persistDir = dotGenaiscriptPath(RETREIVAL_PERSIST_DIR)
+    async clear(options?: RetreivalOptions) {
+        const { indexName = "vector" } = options || {}
+        const persistDir = this.host.path.join(
+            dotGenaiscriptPath(RETREIVAL_PERSIST_DIR),
+            indexName
+        )
         await this.host.deleteDirectory(persistDir)
         return { ok: true }
     }
