@@ -471,6 +471,7 @@ interface JSONSchemaValidation {
 
 interface RunPromptResult {
     text: string
+    finishReason?: "stop" | "length" | "tool_calls" | "content_filter" | "cancel"
 }
 
 /**
