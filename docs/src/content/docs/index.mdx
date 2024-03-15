@@ -1,9 +1,9 @@
 ---
-title: Welcome to GenAiScript
-description: Get started building your GenAI scripts.
+title: Generative AI Scripting
+description: GenAIScript, scripting for Generative AI.
 template: splash
 hero:
-    tagline: Stylized JavaScript for Generative AI.
+    tagline: Programmatic Prompts powered by Stylized JavaScript.
     actions:
         - text: Getting Started
           link: /genaiscript/getting-started/
@@ -21,9 +21,7 @@ import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 import packageJson from "../../../package.json"
 
-Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
-
-```js wrap
+```js wrap title="extract-titles.genai.js"
 // metadata and model configuration
 script({ title: "Title Extractor", model: "gpt4" })
 // define the context
@@ -31,14 +29,17 @@ def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
 defSchema("DATA", { type: "array", items: { type: "string" } })
 // define the task
-$`Analyze FILE and extract titles to JSON using the DATA schema.`
+$`Analyze FILE and extract titles to JSON using the DATA schema.
+
+Pretty please.`
 ```
 
 ## Next steps
 
 <CardGrid stagger>
     <Card title="Install the extension" icon="puzzle">
-        Install the [Visual Studio Code Extension](/genaiscript/getting-started/installation/) v
+        Install the [Visual Studio Code
+        Extension](/genaiscript/getting-started/installation/) v
         {packageJson.version}
         to get started.
     </Card>
