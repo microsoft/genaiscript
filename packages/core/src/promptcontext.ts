@@ -94,10 +94,11 @@ export function createPromptContext(
                     trace.error("no files provided")
                     return { files: [], fragments: [] }
                 } else {
-                    await upsert(files, { trace })
+                    await upsert(files, { trace, summary: options?.summary })
                     const res = await search(q, {
                         files: files.map(stringLikeToFileName),
                         topK: options?.topK,
+                        summary: options?.summary,
                     })
                     trace.fence(res, "yaml")
                     return res

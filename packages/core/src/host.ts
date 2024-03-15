@@ -69,6 +69,13 @@ export interface RetreivalSearchOptions {
     files?: string[]
     topK?: number
     minScore?: number
+    summary?: boolean
+}
+
+export interface RetreivalUpsertOptions {
+    content?: string
+    mimeType?: string
+    summary?: boolean
 }
 
 export type RetreivalSearchResponse = ResponseStatus & {
@@ -85,8 +92,7 @@ export interface RetreivalService {
     clear(): Promise<ResponseStatus>
     upsert(
         filenameOrUrl: string,
-        content?: string,
-        mimeType?: string
+        options?: RetreivalUpsertOptions
     ): Promise<ResponseStatus>
     search(
         text: string,

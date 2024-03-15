@@ -728,9 +728,9 @@ async function jsonl2json(files: string[]) {
 
 async function retreivalIndex(
     files: string[],
-    options: { excludedFiles: string[] }
+    options: { excludedFiles: string[]; summary: boolean }
 ) {
-    const { excludedFiles } = options || {}
+    const { excludedFiles, summary } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
         console.error("no files matching")
@@ -740,6 +740,7 @@ async function retreivalIndex(
     const spinner = ora({ interval: 200 }).start(`indexing ${fs.length} files`)
     await upsert(fs, {
         progress: new ProgressSpinner(spinner),
+        summary,
     })
     spinner.stop()
 }
@@ -747,13 +748,18 @@ async function retreivalIndex(
 async function retreivalSearch(
     q: string,
     filesGlobs: string[],
-    options: { excludedFiles: string[]; topK: string }
+    options: { excludedFiles: string[]; topK: string; summary: boolean }
 ) {
-    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const { excludedFiles, summary, topK } = options || {}
+    const files = await expandFiles(filesGlobs, excludedFiles)
     const spinner = ora({ interval: 200 }).start(
         `searching '${q}' in ${files.length} files`
     )
-    const res = await search(q, { files, topK: normalizeInt(options?.topK) })
+    const res = await search(q, {
+        files,
+        topK: normalizeInt(topK),
+        summary,
+    })
     spinner.succeed()
     console.log(YAMLStringify(res))
 }
@@ -929,6 +935,7 @@ async function main() {
         .description("Index a set of documents")
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
+        .option("-s, --summary", "generate a summary index")
         .action(retreivalIndex)
     retreival
         .command("search")
@@ -936,6 +943,7 @@ async function main() {
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
+        .option("-s, --summary", "generate a summary index")
         .action(retreivalSearch)
     retreival
         .command("clear")

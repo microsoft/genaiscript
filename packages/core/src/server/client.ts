@@ -5,6 +5,7 @@ import {
     RetreivalSearchOptions,
     RetreivalSearchResponse,
     RetreivalService,
+    RetreivalUpsertOptions,
     host,
 } from "../host"
 import { assert } from "../util"
@@ -124,12 +125,11 @@ export class WebSocketClient implements RetreivalService, HighlightService {
         })
         return res.response
     }
-    async upsert(filename: string, content?: string, mimeType?: string) {
+    async upsert(filename: string, options?: RetreivalUpsertOptions) {
         const res = await this.queue<RetreivalUpsert>({
             type: "retreival.upsert",
             filename,
-            content,
-            mimeType,
+            options
         })
         return res.response
     }

@@ -1,4 +1,9 @@
-import { RetreivalClientOptions, RetreivalSearchOptions, host } from "./host"
+import {
+    RetreivalClientOptions,
+    RetreivalSearchOptions,
+    RetreivalUpsertOptions,
+    host,
+} from "./host"
 import { lookupMime } from "./mime"
 
 const UPSERTFILE_MIME_TYPES = [
@@ -21,10 +26,10 @@ export async function clearIndex(
 
 export async function upsert(
     fileOrUrls: (string | LinkedFile)[],
-    options?: RetreivalClientOptions
+    options?: RetreivalClientOptions & RetreivalUpsertOptions
 ) {
     if (!fileOrUrls?.length) return
-    const { progress, trace, token } = options || {}
+    const { progress, trace, token, summary, mimeType } = options || {}
     const retreival = host.retreival
     await retreival.init(trace)
     const files: LinkedFile[] = fileOrUrls.map((f) =>
@@ -37,7 +42,11 @@ export async function upsert(
             increment,
             message: f.filename,
         })
-        const { ok } = await retreival.upsert(f.filename, f.content)
+        const { ok } = await retreival.upsert(f.filename, {
+            content: f.content,
+            mimeType,
+            summary,
+        })
         progress?.report({
             increment,
             message: f.filename,

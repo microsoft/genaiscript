@@ -134,6 +134,7 @@ Arguments:
 
 Options:
   -ef, --excluded-files <string...>  excluded files
+  -s, --summary                      generate a summary index
   -h, --help                         display help for command
 ```
 
@@ -147,6 +148,7 @@ Search index
 Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of embeddings
+  -s, --summary                      generate a summary index
   -h, --help                         display help for command
 ```
 

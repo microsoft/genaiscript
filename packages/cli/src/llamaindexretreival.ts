@@ -13,8 +13,8 @@ import {
     installImport,
     lookupMime,
 } from "genaiscript-core"
-import { type BaseReader } from "llamaindex"
-import { type GenericFileSystem } from "@llamaindex/env"
+import type { BaseReader, BaseRetriever } from "llamaindex"
+import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
 
@@ -129,10 +129,14 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     async upsert(
         filenameOrUrl: string,
-        content?: string,
-        mimeType?: string
+        options?: {
+            content?: string
+            mimeType?: string
+            summary?: boolean
+        }
     ): Promise<ResponseStatus> {
-        const { Document, VectorStoreIndex } = this.module
+        const { Document, VectorStoreIndex, SummaryIndex } = this.module
+        const { content, mimeType, summary } = options ?? {}
         let blob: Blob = undefined
         if (content) {
             blob = new Blob([content], {
@@ -180,6 +184,12 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             storageContext,
             serviceContext,
         })
+        if (summary) {
+            await SummaryIndex.fromDocuments(documents, {
+                storageContext,
+                serviceContext,
+            })
+        }
         return { ok: true }
     }
 
@@ -190,17 +200,33 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         const {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
+            summary,
         } = options ?? {}
-        const { VectorStoreIndex, MetadataMode } = this.module
+        const {
+            VectorStoreIndex,
+            SummaryIndex,
+            SummaryRetrieverMode,
+            MetadataMode,
+        } = this.module
 
         const storageContext = await this.createStorageContext(options)
         const serviceContext = await this.createServiceContext()
 
-        const index = await VectorStoreIndex.init({
-            storageContext,
-            serviceContext,
-        })
-        const retreiver = index.asRetriever({ similarityTopK: topK })
+        let retreiver: BaseRetriever
+        if (summary) {
+            const index = await SummaryIndex.init({
+                storageContext,
+                serviceContext,
+            })
+            retreiver = index.asRetriever({ mode: SummaryRetrieverMode.LLM })
+        } else {
+            const index = await VectorStoreIndex.init({
+                storageContext,
+                serviceContext,
+            })
+            retreiver = index.asRetriever({ similarityTopK: topK })
+        }
+
         const results = await retreiver.retrieve(text)
         return {
             ok: true,
