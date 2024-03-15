@@ -4,7 +4,8 @@ import starlight from "@astrojs/starlight"
 // https://astro.build/config
 export default defineConfig({
     site: "https://microsoft.github.io",
-    base: "/genaiscript",
+    // no base in private github pages
+    // base: "/genaiscript",
     integrations: [
         starlight({
             title: "GenAIScript",
