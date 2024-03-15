@@ -77,6 +77,17 @@ export function activateRetreivalCommands(state: ExtensionState) {
     }
 
     const index = async (uri: vscode.Uri) => {
+        const indexName = await vscode.window.showInputBox({
+            title: "Enter an index name",
+            value: "vector",
+            validateInput: (value) => {
+                if (/[^a-z0-9_]/i.test(value))
+                    return "Only letters, numbers and underscores are allowed"
+                return null
+            },
+        })
+        if (indexName === undefined) return
+
         const host = state.host
         const terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Indexer`,
@@ -84,7 +95,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             isTransient: true,
         })
         terminal.sendText(
-            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index ${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}`
+            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index ${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")} --name ${indexName}`
         )
         terminal.show()
     }
