@@ -57,7 +57,7 @@ export function filenameOrFileToContent(
 
 const DOT_ENV_RX = /\.env$/i
 export function createFileSystem() {
-    return <FileSystem>{
+    return Object.freeze(<FileSystem>{
         findFiles: async (glob) =>
             (await host.findFiles(glob)).filter((f) => !DOT_ENV_RX.test(f)),
         readFile: async (filename: string) => {
@@ -68,5 +68,5 @@ export function createFileSystem() {
             } catch (e) {}
             return { label: filename, filename, content }
         },
-    }
+    })
 }

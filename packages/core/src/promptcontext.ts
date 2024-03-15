@@ -30,6 +30,7 @@ import {
     RunPromptContextNode,
     createRunPromptContext,
 } from "./runpromptcontext"
+import { CSVParse, CSVToMarkdown } from "./csv"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -53,10 +54,14 @@ export function createPromptContext(
         },
     })
     const parsers = createParsers({ trace, model })
-    const YAML: YAML = {
+    const YAML: YAML = Object.freeze({
         stringify: YAMLStringify,
         parse: YAMLParse,
-    }
+    })
+    const CSV: CSV = Object.freeze({
+        parse: CSVParse,
+        mardownify: CSVToMarkdown,
+    })
     const path = host.path
     const fs = host.fs
 
@@ -178,6 +183,7 @@ export function createPromptContext(
         fs,
         parsers,
         YAML,
+        CSV,
         retreival,
         defImages,
         defSchema,
