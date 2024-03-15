@@ -7,7 +7,7 @@ import {
     host,
     templateGroup,
 } from "genaiscript-core"
-import { ChatRequestContext, ExtensionState } from "./state"
+import { ExtensionState } from "./state"
 import {
     checkDirectoryExists,
     checkFileExists,
@@ -88,17 +88,15 @@ export function activateFragmentCommands(state: ExtensionState) {
             | {
                   fragment?: Fragment | string | vscode.Uri
                   template?: PromptTemplate
-                  chat?: ChatRequestContext
+                  debug?: boolean
               }
             | vscode.Uri
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
             options = { fragment: options }
-        let { fragment, template, chat } = options || {}
+        let { fragment, template } = options || {}
 
         await state.cancelAiRequest()
-
-        if (chat?.response) chat.response.progress("Preparing script")
 
         await saveAllTextDocuments
         await state.parseWorkspace()
@@ -122,9 +120,12 @@ export function activateFragmentCommands(state: ExtensionState) {
             fragment,
             template,
             label: template.id,
-            chat,
         })
     }
+
+    const fragmentDebug = async (fragment: vscode.Uri) =>
+        await fragmentPrompt({ fragment, debug: true })
+
     const fragmentNavigate = async (fragment: Fragment | string) => {
         fragment = state.project.resolveFragment(fragment)
         if (!fragment) return
@@ -143,6 +144,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.fragment.prompt",
             fragmentPrompt
+        ),
+        vscode.commands.registerCommand(
+            "genaiscript.fragment.debug",
+            fragmentDebug
         ),
         vscode.commands.registerCommand(
             "genaiscript.fragment.navigate",
