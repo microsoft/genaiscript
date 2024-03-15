@@ -44,6 +44,9 @@ Run `docs` to launch the documentation site.
 yarn docs
 ```
 
+GitHub Pages are automatically updated on new release; or thourh manual trigger at
+https://github.com/microsoft/genaiscript/actions/workflows/docs.yml .
+
 ## Release
 
 Run the `release` script.
