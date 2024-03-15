@@ -44,11 +44,7 @@ import {
     saveAllTextDocuments,
     writeFile,
 } from "./fs"
-import {
-    configureLanguageModelAccess,
-    isLanguageModelsAvailable,
-    pickLanguageModel,
-} from "./lmaccess"
+import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -64,16 +60,10 @@ export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
 export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
 export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
-export interface ChatRequestContext {
-    response: vscode.ChatResponseStream
-    token: vscode.CancellationToken
-}
-
 export interface AIRequestOptions {
     label: string
     template: PromptTemplate
     fragment: Fragment
-    chat?: ChatRequestContext
 }
 
 export class FragmentsEvent extends Event {
@@ -244,7 +234,7 @@ export class ExtensionState extends EventTarget {
             if (!req) return
             const res = await req?.request
             const { edits, text } = res || {}
-            if (text && !options.chat)
+            if (text)
                 vscode.commands.executeCommand(
                     "genaiscript.request.open.output"
                 )
@@ -255,21 +245,7 @@ export class ExtensionState extends EventTarget {
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (edits?.length) {
-                if (!options.chat) this.applyEdits()
-                else {
-                    options.chat.response.filetree(
-                        edits.map(
-                            (e) =>
-                                <vscode.ChatResponseFileTree>{
-                                    name: e.label,
-                                    // TODO
-                                }
-                        ),
-                        vscode.Uri.parse(REQUEST_OUTPUT_FILENAME)
-                    )
-                }
-            }
+            if (edits?.length) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
             else if (isTokenError(e)) {
@@ -350,8 +326,6 @@ ${e.message}`
                 if (/\n/.test(progress.responseChunk))
                     r.response.annotations = parseAnnotations(r.response.text)
             }
-            if (r.options.chat?.response)
-                r.options.chat?.response?.markdown(progress.responseChunk)
             reqChange()
         }
         this.aiRequest = r
@@ -364,26 +338,6 @@ ${e.message}`
             trace,
             infoCb: (data) => {
                 r.response = data
-                const progress = r.options.chat?.response
-                if (progress) {
-                    if (data.text) progress.progress(data.text)
-                    if (data.summary) progress.markdown(data.summary)
-                    if (data.vars && !varsProgressReported) {
-                        varsProgressReported = true
-                        data.vars.files
-                            ?.map(({ filename }) => {
-                                return /^https?:/i.test(filename)
-                                    ? vscode.Uri.parse(filename)
-                                    : vscode.Uri.joinPath(
-                                          this.host.projectUri,
-                                          filename
-                                      )
-                            })
-                            ?.forEach((reference) =>
-                                progress.reference(reference)
-                            )
-                    }
-                }
                 reqChange()
             },
             maxCachedTemperature,
@@ -421,10 +375,7 @@ ${e.message}`
             this.requestHistory.shift()
 
         r.request = runTemplate(template, fragment, runOptions)
-
-        if (!options.chat)
-            vscode.commands.executeCommand("genaiscript.request.open.output")
-
+        vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
                 r.response = resp

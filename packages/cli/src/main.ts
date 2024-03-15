@@ -55,6 +55,7 @@ const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
 const FILES_NOT_FOUND = -3
 const GENERATION_ERROR = -4
+const RUNTIME_ERROR_CODE = -5
 
 class ProgressSpinner implements Progress {
     constructor(readonly spinner: Ora) {}
@@ -630,8 +631,8 @@ ${Array.from(files)
 
     // final fail
     if (res.error) {
-        logVerbose(`error: ${res.error}`)
-        process.exit(ANNOTATION_ERROR_CODE)
+        logVerbose(`error: ${(res.error as Error).message || res.error}`)
+        process.exit(RUNTIME_ERROR_CODE)
     }
 
     if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {

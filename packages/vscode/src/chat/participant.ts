@@ -1,22 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
-import { ChatRequestContext, ExtensionState } from "../state"
+import { ExtensionState } from "../state"
 import { CHAT_PARTICIPANT_ID, MarkdownTrace, logInfo } from "genaiscript-core"
 import { isApiProposalEnabled } from "../proposals"
 
-interface ICatChatAgentResult extends vscode.ChatResult {
-    template?: PromptTemplate
-}
-
 // follow https://github.com/microsoft/vscode/issues/199908
 // https://github.com/microsoft/vscode/issues/205609#issue-2143213494
-
-function wrapComment(text: string) {
-    if (!text) return ""
-    const lines = text.split("\n")
-    if (lines.length === 1) return `// ${text}\n`
-    else return `/*\n${lines.map((l) => ` * ${l}`).join("\n")}\n */\n`
-}
 
 function chatRequestToPromptTemplate(
     request: vscode.ChatRequest,
@@ -81,25 +70,16 @@ export function activateChatParticipant(state: ExtensionState) {
         chatContext: vscode.ChatContext,
         response: vscode.ChatResponseStream,
         token: vscode.CancellationToken
-    ): Promise<ICatChatAgentResult> => {
-        const res = <ICatChatAgentResult>{}
+    ): Promise<vscode.ChatResult> => {
+        const res = <vscode.ChatResult>{}
         response.progress("Generating script")
         const template = chatRequestToPromptTemplate(request, chatContext)
-        res.template = template
 
         const message = new MarkdownTrace()
         message.log(`We generated this script from the chat history:`)
-        message.fence(res.template.jsSource, "javascript")
+        message.fence(template.jsSource, "javascript")
         response.markdown(message.content)
 
-        await vscode.commands.executeCommand("genaiscript.fragment.prompt", {
-            chat: <ChatRequestContext>{
-                context,
-                response,
-                token,
-            },
-            template,
-        })
         return res
     }
 

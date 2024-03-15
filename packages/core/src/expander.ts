@@ -11,7 +11,6 @@ import { assert, logVerbose, relativePath } from "./util"
 import {
     DataFrame,
     Fenced,
-    evalPrompt,
     extractFenced,
     renderFencedVariables,
     staticVars,
@@ -44,6 +43,7 @@ import {
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
+import { evalPrompt } from "./evalprompt"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -140,11 +140,13 @@ async function callExpander(
     let fileMerges: FileMergeHandler[] = []
 
     try {
-        await evalPrompt(ctx, r.jsSource, (msg) => {
-            logs += msg + "\n"
+        await evalPrompt(ctx, r, {
+            sourceMaps: true,
+            logCb: (msg: any) => {
+                logs += msg + "\n"
+            },
         })
         const node = ctx.node
-        ctx.node = undefined // catch races
         const {
             prompt,
             images: imgs,
