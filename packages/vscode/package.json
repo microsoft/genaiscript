@@ -79,11 +79,13 @@
             "editor/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode"
+                    "when": "!inDebugMode",
+                    "group": "genaiscript@1"
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode"
+                    "when": "!inDebugMode",
+                    "group": "genaiscript@2"
                 }
             ],
             "file/newFile": [
