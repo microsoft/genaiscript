@@ -1,4 +1,10 @@
-import { RetreivalClientOptions, RetreivalSearchOptions, host } from "./host"
+import {
+    RetreivalClientOptions,
+    RetreivalOptions,
+    RetreivalSearchOptions,
+    RetreivalUpsertOptions,
+    host,
+} from "./host"
 import { lookupMime } from "./mime"
 
 const UPSERTFILE_MIME_TYPES = [
@@ -12,19 +18,19 @@ export function isIndexable(filename: string) {
 }
 
 export async function clearIndex(
-    options?: RetreivalClientOptions
+    options?: RetreivalClientOptions & RetreivalOptions
 ): Promise<void> {
     const { trace } = options || {}
     await host.retreival.init(trace)
-    await host.retreival.clear()
+    await host.retreival.clear(options)
 }
 
 export async function upsert(
     fileOrUrls: (string | LinkedFile)[],
-    options?: RetreivalClientOptions
+    options?: RetreivalClientOptions & RetreivalUpsertOptions
 ) {
     if (!fileOrUrls?.length) return
-    const { progress, trace, token } = options || {}
+    const { progress, trace, token, ...rest } = options || {}
     const retreival = host.retreival
     await retreival.init(trace)
     const files: LinkedFile[] = fileOrUrls.map((f) =>
@@ -37,7 +43,10 @@ export async function upsert(
             increment,
             message: f.filename,
         })
-        const { ok } = await retreival.upsert(f.filename, f.content)
+        const { ok } = await retreival.upsert(f.filename, {
+            content: f.content,
+            ...rest,
+        })
         progress?.report({
             increment,
             message: f.filename,
