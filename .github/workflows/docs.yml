@@ -1,6 +1,9 @@
-name: docs
+name: GitHub Pages
 on:
     workflow_dispatch:
+    push:
+        tags:
+            - "[0-9]+.[0-9]+.[0-9]+"
 permissions:
     contents: write
 jobs:
