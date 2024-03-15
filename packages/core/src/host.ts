@@ -128,7 +128,6 @@ export interface Host {
     server: ServerManager
     path: Path
     fs: FileSystem
-    evalUseFile: boolean
 
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder

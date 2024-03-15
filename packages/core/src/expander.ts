@@ -129,7 +129,6 @@ async function callExpander(
     options: RunTemplateOptions
 ) {
     const model = r.model || DEFAULT_MODEL
-    const useFile = host.evalUseFile
     const ctx = createPromptContext(r, vars, trace, options, model)
 
     let success = true
@@ -142,7 +141,6 @@ async function callExpander(
 
     try {
         await evalPrompt(ctx, r, {
-            useFile,
             logCb: (msg: any) => {
                 logs += msg + "\n"
             },
