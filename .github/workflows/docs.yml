@@ -27,6 +27,8 @@ jobs:
               run: cd docs && yarn add sharp
             - name: Build docs
               run: yarn build:docs
+            - name: no jekyll
+              run: touch docs/dist/.nojekyll
             - name: Deploy 🚀
               uses: JamesIves/github-pages-deploy-action@v4
               with:
