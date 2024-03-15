@@ -71,7 +71,7 @@ $`Your are a helpful assistant. Today is ${new Date()}.`
 
 <Card title="Fast Development Loop" icon="rocket">
 
-Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/run-scripts/) your scripts in the [Visual Studio Code](/genaiscript/getting-started/installation).
+Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/running-scripts/) your scripts in the [Visual Studio Code](/genaiscript/getting-started/installation).
 
 ![Debugging a script](../../assets/debugger.png)
 
@@ -104,7 +104,7 @@ $`Extract data from files using MY_DATA schema.`
 
 <Card title="Ingest PDFs, DOCX, CSV, .." icon="seti:pdf">
 
-Seamlessly ingest and manipulate [PDFs](/genaiscript/reference/scripts/pdfs), DOCX, CSV, and other file formats.
+Seamlessly ingest and manipulate [PDFs](/genaiscript/reference/scripts/pdf), [DOCX](/genaiscript/reference/scripts/docx), CSV, and other file formats.
 
 ```js
 const { file } = await parsers.PDF(env.files[0])
@@ -115,7 +115,7 @@ const { file } = await parsers.DOCX(env.files[1])
 
 <Card title="RAG built-in" icon="magnifier">
 
-[Embeddings vector search](/genaiscript/reference/scripts/embedding-search) powered by [LLamaIndex](https://ts.llamaindex.ai/).
+[Embeddings vector search](/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
 
 ```js wrap
 // embedding vector index and search
@@ -136,7 +136,7 @@ node .genaiscript/genaiscript.cjs run my-script "*.pdf"
 
 <Card title="LLM Composition" icon="external">
 
-Use LLMs to build your LLM prompts.
+[Run LLMs](/genaiscript/reference/scripts/inline-prompts/) to build your LLM prompts.
 
 ```js wrap
 // summarize each files individually
