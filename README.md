@@ -13,7 +13,7 @@ defSchema("DATA", { type: "array", items: { type: "string" } })
 $`Analyze FILE and extract titles to JSON using the DATA schema.`
 ```
 
--   **Read the online documentation at https://red-mud-00ce5491e.5.azurestaticapps.net/genaiscript**
+-   **Read the online documentation at **https://expert-adventure-93g53mm.pages.github.io/**
 
 ## Contributing
 
