@@ -65,10 +65,23 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetreivalSearchOptions {
+export interface RetreivalOptions {
+    indexName?: string
+}
+
+export interface RetreivalSearchOptions extends RetreivalOptions {
     files?: string[]
     topK?: number
     minScore?: number
+}
+
+export interface RetreivalUpsertOptions extends RetreivalOptions {
+    content?: string
+    mimeType?: string
+    model?: string
+    chunkSize?: number
+    chunkOverlap?: number
+    splitLongSentences?: boolean
 }
 
 export type RetreivalSearchResponse = ResponseStatus & {
@@ -82,11 +95,10 @@ export type RetreivalSearchResponse = ResponseStatus & {
 
 export interface RetreivalService {
     init(trace?: MarkdownTrace): Promise<void>
-    clear(): Promise<ResponseStatus>
+    clear(options?: RetreivalOptions): Promise<ResponseStatus>
     upsert(
         filenameOrUrl: string,
-        content?: string,
-        mimeType?: string
+        options?: RetreivalUpsertOptions
     ): Promise<ResponseStatus>
     search(
         text: string,

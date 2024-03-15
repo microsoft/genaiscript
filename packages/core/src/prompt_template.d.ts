@@ -672,7 +672,11 @@ interface Retreival {
             /**
              * Maximum number of embeddings to use
              */
-            topK?: number
+            topK?: number,
+            /**
+             * Retreive summaries
+             */
+            summary?: boolean
         }
     ): Promise<{
         files: LinkedFile[]
