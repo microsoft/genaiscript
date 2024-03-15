@@ -3,7 +3,6 @@ title: Generative AI Scripting
 description: GenAIScript, scripting for Generative AI.
 template: splash
 hero:
-    tagline: Programmatic Prompts powered by Stylized JavaScript.
     actions:
         - text: Getting Started
           link: /genaiscript/getting-started/
@@ -23,7 +22,7 @@ import packageJson from "../../../package.json"
 
 ```js wrap title="extract-titles.genai.js"
 // metadata and model configuration
-script({ title: "Title Extractor", model: "gpt4" })
+script({ model: "gpt4", temperature: 0 })
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
