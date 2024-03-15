@@ -18,6 +18,19 @@ export function activateRetreivalCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
+    const resolveIndexName = async () => {
+        const indexName = await vscode.window.showInputBox({
+            title: "Enter an index name",
+            value: "vector",
+            validateInput: (value) => {
+                if (/[^a-z0-9_]/i.test(value))
+                    return "Only letters, numbers and underscores are allowed"
+                return null
+            },
+        })
+        return indexName
+    }
+
     const resolveFiles = async (uri: vscode.Uri) => {
         let files: string[] = []
         if (!uri) {
@@ -47,6 +60,8 @@ export function activateRetreivalCommands(state: ExtensionState) {
             )
             return
         }
+        const indexName = await resolveIndexName()
+        if (indexName === undefined) return
 
         const keywords = await vscode.window.showInputBox({
             title: "Enter search query",
@@ -77,15 +92,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
     }
 
     const index = async (uri: vscode.Uri) => {
-        const indexName = await vscode.window.showInputBox({
-            title: "Enter an index name",
-            value: "vector",
-            validateInput: (value) => {
-                if (/[^a-z0-9_]/i.test(value))
-                    return "Only letters, numbers and underscores are allowed"
-                return null
-            },
-        })
+        const indexName = await resolveIndexName()
         if (indexName === undefined) return
 
         const host = state.host
