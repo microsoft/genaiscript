@@ -34,7 +34,7 @@ export interface ChatCompletionToolCall {
 export interface ChatCompletionResponse {
     text?: string
     toolCalls?: ChatCompletionToolCall[]
-    finishReason?: string
+    finishReason?: "stop" | "length" | "tool_calls" | "content_filter" | "cancel"
 }
 
 export const ModelError = OpenAI.APIError
@@ -258,7 +258,7 @@ export async function getChatCompletions(
         )
     }
 
-    let finishReason = ""
+    let finishReason: ChatCompletionResponse["finishReason"] = undefined
     let seenDone = false
     let chatResp = ""
 

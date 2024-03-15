@@ -1,6 +1,6 @@
-import { MarkdownTrace, RequestError } from "."
 import { BING_SEARCH_ENDPOINT } from "./constants"
 import { host } from "./host"
+import { MarkdownTrace } from "./trace"
 
 function toURLSearchParams(o: any) {
     const params = new URLSearchParams()

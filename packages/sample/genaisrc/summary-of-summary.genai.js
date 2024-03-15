@@ -5,9 +5,9 @@ script({
 // summarize each files individually
 for (const file of env.files) {
     const { text } = await runPrompt(
-        () => {
-            def("FILE", file)
-            $`Summarize the FILE. Be consice.`
+        (_) => {
+            _.def("FILE", file)
+            _.$`Summarize the FILE. Be consice.`
         },
         { model: "gpt-3.5-turbo" }
     )
