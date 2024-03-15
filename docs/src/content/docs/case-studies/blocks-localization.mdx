@@ -5,18 +5,40 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import stringsJson from "../../../../../packages/sample/src/makecode/jacdac-servo-strings.json?raw"
+import stringsJson from "../../../../../packages/sample/src/makecode/jacdac-buzzer-strings.json?raw"
 import scriptSource from "../../../../../packages/sample/src/makecode/makecode-loc.genai.js?raw"
 
 This is another instance of using the LLM to produce translation of natural strings with an embedded DSL, similarly to the [Documentation Translation](./documentation-translations.mdx) guide.
 
 [MakeCode](https://makecode.com) uses a [microformat](https://makecode.com/defining-blocks) to define the shape of coding blocks.
-When translating the format strings, it is critical to converse the properties of the blocks, such as the number of arguments, their types, and the order of the arguments.
+When translating the format strings, it is critical to converse the properties of the blocks, such as the number of arguments, 
+their types, and the order of the arguments.
+
+The [localization strings](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L1) for the buzzer library are:
 
 <Code code={stringsJson} wrap={true} lang="json" />
 
 The challenge with translation is that the localized string often contain escaped characters that break formats like JSON or YAML. Therefore, we use a custom simple `key=value` format
 to encode the strings, to avoid encoding issues. We use the `defFileMerge` feature to convert the parse key-value file, and merge them with the existing translations.
+
+For example, the string for the [Jacdac buzzer play tone block](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/jacdac-buzzer-strings.json#L5-L6) is
+
+```txt
+play %music tone|at %note|for %duration
+```
+
+and Bing Translate gives us the following translation
+
+```txt
+%Musikton|bei %Note|für %Dauer abspielen
+```
+
+As one can see, bing translated the `%variable` name which will break the block definition. 
+The [GenAIScript translation](https://github.com/microsoft/pxt-jacdac/blob/45d3489c0b96ed0f74c9bbea53fb0714ae9f7fcc/buzzer/_locales/de/jacdac-buzzer-strings.json#L5) is correct.
+
+```txt
+spiele %music Ton|bei %note|für %duration
+```
 
 The full script is show below.
 
