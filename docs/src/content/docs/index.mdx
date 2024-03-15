@@ -21,11 +21,11 @@ import packageJson from "../../../package.json"
 // metadata and model configuration
 script({ model: "gpt4", temperature: 0 })
 // define the context
-const file = def("FILE", env.files, { endsWith: ".pdf" })
+def("FILE", env.files, { endsWith: ".pdf" })
 // define the data schema
 const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
 // define the task
-$`Analyze ${file} and extract titles to JSON using the ${schema} schema.
+$`Analyze FILE and extract titles to JSON using the ${schema} schema.
 
 Pretty please.`
 ```
