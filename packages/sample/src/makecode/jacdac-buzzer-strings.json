@@ -1,0 +1,9 @@
+{
+    "jacdac.BuzzerCmd.PlayNote": "Play a note at the given frequency and volume.",
+    "jacdac.BuzzerCmd.PlayTone": "Play a PWM tone with given period and duty for given duration.\nThe duty is scaled down with `volume` register.\nTo play tone at frequency `F` Hz and volume `V` (in `0..1`) you will want\nto send `P = 1000000 / F` and `D = P * V / 2`.\n* ```\nconst [period, duty, duration] = jdunpack<[number, number, number]>(buf, \"u16 u16 u16\")\n```",
+    "jacdac.BuzzerReg.Volume": "Read-write ratio u0.8 (uint8_t). The volume (duty cycle) of the buzzer.\n* ```\nconst [volume] = jdunpack<[number]>(buf, \"u0.8\")\n```",
+    "modules.BuzzerClient.playTone|block": "play %music tone|at %note|for %duration",
+    "{id:category}Jacdac": "Jacdac",
+    "{id:category}Modules": "Modules",
+    "{id:group}Music": "Music"
+}

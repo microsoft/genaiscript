@@ -175,7 +175,7 @@ export function createPromptContext(
         return name
     }
 
-    const ctx: PromptContext & RunPromptContextNode = {
+    const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
         script: () => {},
         system: () => {},
@@ -254,7 +254,7 @@ export function createPromptContext(
                 file,
             }
         },
-    }
+    })
     const appendPromptChild = (node: PromptNode) => {
         if (!ctx.node) throw new Error("Prompt closed")
         appendChild(ctx.node, node)

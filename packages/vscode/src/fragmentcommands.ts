@@ -1,13 +1,13 @@
 import * as vscode from "vscode"
-import { Utils } from "vscode-uri"
 import {
     Fragment,
+    GENAISCRIPT_CLI_JS,
     PromptTemplate,
+    dotGenaiscriptPath,
     groupBy,
-    host,
     templateGroup,
 } from "genaiscript-core"
-import { ChatRequestContext, ExtensionState } from "./state"
+import { ExtensionState } from "./state"
 import {
     checkDirectoryExists,
     checkFileExists,
@@ -23,21 +23,18 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const pickTemplate = async (
-        fragment: Fragment,
-        options?: {
-            filter?: (p: PromptTemplate) => boolean
-        }
-    ) => {
+    const pickTemplate = async (options?: {
+        filter?: (p: PromptTemplate) => boolean
+    }) => {
         const { filter = () => true } = options || {}
-        const templates = fragment.file.project.templates
+        const templates = state.project.templates
             .filter((t) => !t.isSystem)
             .filter(filter)
 
         const picked = await vscode.window.showQuickPick(
             templatesToQuickPickItems(templates, { create: true }),
             {
-                title: `Pick a GenAiScript to apply to ${fragment.title}`,
+                title: `Pick a GenAiScript`,
             }
         )
         if (picked?.action === "create") {
@@ -88,17 +85,15 @@ export function activateFragmentCommands(state: ExtensionState) {
             | {
                   fragment?: Fragment | string | vscode.Uri
                   template?: PromptTemplate
-                  chat?: ChatRequestContext
+                  debug?: boolean
               }
             | vscode.Uri
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
             options = { fragment: options }
-        let { fragment, template, chat } = options || {}
+        let { fragment, template, debug } = options || {}
 
         await state.cancelAiRequest()
-
-        if (chat?.response) chat.response.progress("Preparing script")
 
         await saveAllTextDocuments
         await state.parseWorkspace()
@@ -111,20 +106,42 @@ export function activateFragmentCommands(state: ExtensionState) {
             return
         }
         if (!template) {
-            template = await pickTemplate(fragment)
+            template = await pickTemplate()
             if (!template) return
         }
 
         if (!fragment) return
-
         fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
+
         await state.requestAI({
             fragment,
             template,
             label: template.id,
-            chat,
         })
     }
+
+    const fragmentDebug = async (file: vscode.Uri) => {
+        await state.cancelAiRequest()
+        await saveAllTextDocuments
+        await state.parseWorkspace()
+        const template = await pickTemplate()
+        await vscode.debug.startDebugging(
+            vscode.workspace.workspaceFolders[0],
+            {
+                name: "GenAIScript",
+                program: GENAISCRIPT_CLI_JS,
+                request: "launch",
+                skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
+                type: "node",
+                args: [
+                    "run",
+                    template.filename,
+                    vscode.workspace.asRelativePath(file.fsPath),
+                ],
+            }
+        )
+    }
+
     const fragmentNavigate = async (fragment: Fragment | string) => {
         fragment = state.project.resolveFragment(fragment)
         if (!fragment) return
@@ -143,6 +160,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.fragment.prompt",
             fragmentPrompt
+        ),
+        vscode.commands.registerCommand(
+            "genaiscript.fragment.debug",
+            fragmentDebug
         ),
         vscode.commands.registerCommand(
             "genaiscript.fragment.navigate",

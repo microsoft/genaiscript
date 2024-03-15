@@ -38,4 +38,4 @@ You can also use the **Trace** to review the each transformation step of the scr
 
 ## Next steps
 
-Keep iterating the script or [automated it in your CI/CD](/genaiscript/getting-started/automating-scripts).
+[Debug](./debugging-scripts.mdx) your scripts using the Visual Studio Code Debugger!

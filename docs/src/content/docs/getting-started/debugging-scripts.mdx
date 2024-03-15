@@ -1,0 +1,29 @@
+---
+title: Debugging Scripts
+sidebar:
+    order: 4.5
+---
+
+The GenAIScript script files are executable JavaScript and can be debugged
+using the [Visual Studio Code Debugger], just like any other JavaScript program.
+
+![Debugging](../../../assets/debugger.png)
+
+## Starting a debugging session
+
+- Open the `.genai.js` file to debug and add breakpoints.
+- Right click in the editor of the file you want in `env.files`.
+- Select the GenAiScript from the picker.
+
+The debugger will launch the [cli](/genaiscript/reference/cli) and run the script in debug mode.
+The debugger will stop at the breakpoints you set.
+
+## Limitations
+
+The JavaScript executes in an external node process. Therefore,
+
+- The trace preview and output is not supported while debugging.
+
+## Next steps
+
+Keep iterating the script or [automated it in your CI/CD](/genaiscript/getting-started/automating-scripts).
