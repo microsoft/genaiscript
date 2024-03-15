@@ -6,14 +6,14 @@ sidebar:
     order: 4
 ---
 
-The location where you start running a script determines the entries in the `env.files` variable.
-
 :::caution
 
 Script in the context of your environment.
 **Only run trusted scripts.**
 
 :::
+
+In Visual Studio Code, the location where you start running a script determines the entries in the `env.files` variable.
 
 ## Single file
 
