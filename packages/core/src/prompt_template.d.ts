@@ -613,6 +613,12 @@ interface Parsers {
     ): object[] | undefined
 
     /**
+     * Parses a .env file
+     * @param content
+     */
+    dotEnv(content: string | LinkedFile): Record<string, string>
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */

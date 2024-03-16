@@ -10,6 +10,7 @@ import { DOCXTryParse } from "./docx"
 import { frontmatterTryParse } from "./frontmatter"
 import { extractFenced } from "./template"
 import { parseAnnotations } from "./annotations"
+import { dotEnvTryParse } from "./dotenv"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -27,6 +28,7 @@ export function createParsers(options: {
             frontmatterTryParse(filenameOrFileToContent(text), options),
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
+        dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
