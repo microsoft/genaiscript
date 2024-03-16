@@ -142,7 +142,6 @@ export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
-    private _watcher: vscode.FileSystemWatcher | undefined
     private _diagColl: vscode.DiagnosticCollection
     private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
         undefined
@@ -437,22 +436,7 @@ ${e.message}`
         this.dispatchChange()
     }
 
-    private initWatcher() {
-        const handleChange = debounceAsync(async () => {
-            await this.fixPromptDefinitions()
-            await this.parseWorkspace()
-        }, 1000)
-
-        this._watcher = vscode.workspace.createFileSystemWatcher(
-            "**/*.{gpspec.md,genai.js}"
-        )
-        this._watcher.onDidChange(handleChange)
-        this._watcher.onDidCreate(handleChange)
-        this._watcher.onDidDelete(handleChange)
-    }
-
     async activate() {
-        this.initWatcher()
         await this.saveScripts()
         await this.fixPromptDefinitions()
         await this.parseWorkspace()
@@ -605,8 +589,6 @@ ${files
     }
 
     private clear() {
-        this._watcher?.dispose()
-        this._watcher = undefined
         this.dispatchChange()
     }
 

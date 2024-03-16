@@ -505,7 +505,7 @@ export async function parsePromptTemplate(
             c.checkNumber("seed")
 
             c.checkStringArray("system")
-            c.checkStringArray("group")
+            c.checkString("group")
 
             c.checkBool("isSystem")
             c.checkObjectArray("urlAdapters")
