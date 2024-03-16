@@ -172,7 +172,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.request.applyEdits",
             applyEdits
-        )
+        ),
     )
 }
 

@@ -17,11 +17,13 @@
     "@types/node": "^20.11.27",
     "ajv": "^8.12.0",
     "csv-parse": "^5.5.5",
+    "dotenv": "^16.4.5",
     "esbuild": "^0.20.1",
     "fetch-retry": "^5.0.6",
     "file-type": "^19.0.0",
     "gpt-tokenizer": "^2.1.2",
     "json5": "^2.2.3",
+    "magic-string": "^0.30.8",
     "markdown-table": "^3.0.3",
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.3",
@@ -30,8 +32,7 @@
     "pretty-bytes": "^6.1.1",
     "toml": "^3.0.0",
     "typescript": "^5.3.3",
-    "yaml": "^2.4.1",
-    "magic-string": "^0.30.8"
+    "yaml": "^2.4.1"
   },
   "scripts": {
     "typecheck": "tsc -p src",

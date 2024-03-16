@@ -1,8 +1,4 @@
-import {
-    ChatCompletionResponse,
-    ChatCompletionsOptions,
-    CreateChatCompletionRequest,
-} from "./chat"
+import { ChatCompletionsOptions, LanguageModel } from "./chat"
 import { PromptTemplate } from "./ast"
 import { logVerbose, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
@@ -20,6 +16,7 @@ import {
     createFileMergeNode,
     createFunctioNode,
     createImageNode,
+    createOutputProcessor,
     createSchemaNode,
     createTextNode,
 } from "./promptdom"
@@ -175,6 +172,11 @@ export function createPromptContext(
         return name
     }
 
+    const defOutput = (fn: PromptOutputProcessorHandler) => {
+        if (fn)
+            appendPromptChild(createOutputProcessor(fn))
+    }
+
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
         script: () => {},
@@ -188,6 +190,7 @@ export function createPromptContext(
         retreival,
         defImages,
         defSchema,
+        defOutput,
         defFunction: (name, description, parameters, fn) => {
             appendPromptChild(
                 createFunctioNode(name, description, parameters, fn)
@@ -281,9 +284,6 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         cliInfo?: {
             spec: string
         }
-        getChatCompletions?: (
-            req: CreateChatCompletionRequest,
-            options?: ChatCompletionsOptions & { trace: MarkdownTrace }
-        ) => Promise<ChatCompletionResponse>
+        languageModel?: LanguageModel
         vars?: Record<string, string>
     }
