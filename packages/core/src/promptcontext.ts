@@ -10,7 +10,7 @@ import { throwError } from "./error"
 import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { readText } from "./fs"
-import { dotEnvParse } from "./dotenv"
+import { dotEnvParse, dotEnvStringify } from "./dotenv"
 import {
     PromptNode,
     appendChild,
@@ -61,7 +61,8 @@ export function createPromptContext(
         mardownify: CSVToMarkdown,
     })
     const DotEnv = Object.freeze<DotEnv>({
-        parse: dotEnvParse
+        parse: dotEnvParse,
+        stringify: dotEnvStringify,
     })
     const path = host.path
     const fs = host.fs
@@ -177,8 +178,7 @@ export function createPromptContext(
     }
 
     const defOutput = (fn: PromptOutputProcessorHandler) => {
-        if (fn)
-            appendPromptChild(createOutputProcessor(fn))
+        if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({

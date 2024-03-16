@@ -654,6 +654,12 @@ interface DotEnv {
      * @param text
      */
     parse(text: string): Record<string, string>
+
+    /**
+     * Converts an object to .env string
+     * @param value
+     */
+    stringify(value: Record<string, string>): string
 }
 
 interface CSV {

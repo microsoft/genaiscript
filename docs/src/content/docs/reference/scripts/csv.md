@@ -4,11 +4,11 @@ sidebar:
     order: 17
 ---
 
-Convinience parses for CSV data.
+Parsing and stringifying of CSV data.
 
 ## `CSV`
 
-Similarly to the `JSON` class in JavaScript, the `CSV` class in LLM provides methods to parse and stringify YAML data.
+Similarly to the `JSON` class in JavaScript, the `CSV` class provides methods to parse and stringify comma separated values (csv) data.
 
 ```js
 const rows = CSV.parse(`...`)
@@ -21,5 +21,5 @@ The [parsers](/genaiscript/reference/scripts/parsers) also provides merciful par
 Returns `undefined` for invalid inputs.
 
 ```js
-const rows = parsers.CSV("...")
+const rows = parsers.CSV(env.files[0])
 ```
