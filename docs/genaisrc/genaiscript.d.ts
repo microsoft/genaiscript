@@ -41,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.functions"
+type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -108,14 +108,9 @@ interface ModelOptions {
 
 interface PromptTemplate extends PromptLike, ModelOptions {
     /**
-     * If this is `["a", "b.c"]` then the prompt will include values of variables:
-     * `@prompt`, `@prompt.a`, `@prompt.b`, `@prompt.b.c`
-     * TODO implement this
-     *
-     * @example ["summarize"]
-     * @example ["code.ts.node"]
+     * Groups template in UI
      */
-    categories?: string[]
+    group?: string
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -148,16 +143,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     urlAdapters?: UrlAdapter[]
 
     /**
-     * Indicate if the tool can be used in a copilot chat context. `true` is exclusive, `false` never and `undefined` is both.
-     */
-    chat?: boolean
-
-    /**
-     * If running in chat, use copilot LLM model
-     */
-    copilot?: boolean
-
-    /**
      * Secrets required by the prompt
      */
     secrets?: string[]
@@ -181,51 +166,6 @@ interface LinkedFile {
      * Content of the file.
      */
     content: string
-}
-
-type ChatMessageRole = "user" | "system" | "assistant"
-
-interface ChatMessageRequest {
-    content: string
-    agentId?: string
-    command?: string
-    name?: string
-    variables: Record<string, (string | { uri: string })[]>
-}
-
-interface ChatMessageFileTree {
-    uri: string
-    children?: ChatMessageFileTreeNode[]
-}
-
-interface ChatMessageFileTreeNode {
-    label: string
-    children?: ChatMessageFileTreeNode[]
-}
-
-interface ChatMessageResponse {
-    content?: string
-    uri?: string
-    fileTree?: ChatMessageFileTree
-}
-
-// ChatML
-interface ChatMessage {
-    request: ChatMessageRequest
-    response: ChatMessageResponse[]
-}
-
-interface ChatAgentContext {
-    /**
-    /**
-     * All of the chat messages so far in the current chat session.
-     */
-    history: ChatMessage[]
-
-    /**
-     * The prompt that was used to start the chat session.
-     */
-    prompt?: string
 }
 
 interface ChatFunctionDefinition {
@@ -388,11 +328,6 @@ interface ExpansionVariables {
     files: LinkedFile[]
 
     /**
-     * List of files pointing to this fragment
-     */
-    parents: LinkedFile[]
-
-    /**
      * If the contents of this variable occurs in output, an error message will be shown to the user.
      */
     error: string
@@ -406,11 +341,6 @@ interface ExpansionVariables {
      * User defined variables
      */
     vars: Record<string, string>
-
-    /**
-     * Chat context if called from a chat command
-     */
-    chat?: ChatAgentContext
 
     /**
      * List of secrets used by the prompt, must be registred in `genaiscript`.
@@ -536,6 +466,12 @@ interface JSONSchemaValidation {
 
 interface RunPromptResult {
     text: string
+    finishReason?:
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
 }
 
 /**
@@ -684,6 +620,28 @@ interface YAML {
     parse(text: string): any
 }
 
+interface CSV {
+    /**
+     * Parses a CSV string to an array of objects
+     * @param text
+     * @param options
+     */
+    parse(
+        text: string,
+        options?: {
+            delimiter?: string
+            headers?: string[]
+        }
+    ): object[]
+
+    /**
+     * Converts an array of object that represents a data table to a markdown table
+     * @param csv
+     * @param options
+     */
+    mardownify(csv: object[], options?: { headers?: string[] }): string
+}
+
 interface HighlightOptions {
     maxLength?: number
 }
@@ -709,7 +667,15 @@ interface Retreival {
             /**
              * Maximum number of embeddings to use
              */
-            topK?: number
+            topK?: number,
+            /**
+             * Retreive summaries
+             */
+            summary?: boolean
+            /**
+             * Minimum similarity score
+             */
+            minScore?: number
         }
     ): Promise<{
         files: LinkedFile[]
@@ -739,13 +705,20 @@ type ChatFunctionHandler = (
 ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 
 // keep in sync with prompt_type.d.ts
-interface PromptContext {
+interface RunPromptContext {
     writeText(body: string): void
     $(strings: TemplateStringsArray, ...args: any[]): void
+    fence(body: StringLike, options?: FenceOptions): void
+    def(name: string, body: StringLike, options?: DefOptions): string
+    runPrompt(
+        generator: (ctx: RunPromptContext) => void | Promise<void>,
+        options?: ModelOptions
+    ): Promise<RunPromptResult>
+}
+
+interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): void
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFunction(
         name: string,
@@ -758,16 +731,12 @@ interface PromptContext {
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
-    ): void
+    ): string
     defData(
         name: string,
         data: object[] | object,
         options?: DefDataOptions
-    ): void
-    runPrompt(
-        generator: () => void | Promise<void>,
-        options?: ModelOptions
-    ): Promise<RunPromptResult>
+    ): string
     fetchText(
         urlOrFile: string | LinkedFile,
         options?: FetchTextOptions
@@ -784,6 +753,7 @@ interface PromptContext {
     retreival: Retreival
     fs: FileSystem
     YAML: YAML
+    CSV: CSV
 }
 
 
@@ -827,8 +797,9 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  *
  * @param name name of defined entity, eg. "NOTE" or "This is text before NOTE"
  * @param body string to be fenced/defined
+ * @returns variable name
  */
-declare function def(name: string, body: StringLike, options?: DefOptions): void
+declare function def(name: string, body: StringLike, options?: DefOptions): string
 
 /**
  * Declares a function that can be called from the prompt.
@@ -893,6 +864,7 @@ declare function fetchText(
  * Declares a JSON schema variable.
  * @param name name of the variable
  * @param schema JSON schema instance
+ * @returns variable name
  */
 declare function defSchema(
     name: string,
@@ -912,12 +884,13 @@ declare function defImages(files: StringLike, options?: DefImagesOptions): void
  * @param name
  * @param data
  * @param options
+ * @returns variable name
  */
 declare function defData(
     name: string,
     data: object[] | object,
     options?: DefDataOptions
-): void
+): string
 
 /**
  * Cancels the current prompt generation/execution with the given reason.
@@ -930,6 +903,6 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: () => void | Promise<void>,
+    generator: (ctx: RunPromptContext) => void | Promise<void>,
     options?: ModelOptions
 ): Promise<RunPromptResult>
