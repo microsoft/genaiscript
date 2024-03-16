@@ -481,7 +481,7 @@ type JSONSchema = JSONSchemaObject | JSONSchemaArray
 interface JSONSchemaValidation {
     schema?: JSONSchema
     valid: boolean
-    errors?: string
+    error?: string
 }
 
 interface DataFrame {

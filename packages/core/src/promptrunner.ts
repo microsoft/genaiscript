@@ -22,8 +22,7 @@ import type { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
-import { YAMLTryParse } from "./yaml"
-import { validateJSONWithSchema } from "./schema"
+import { validateFencesWithSchema } from "./schema"
 import { CORE_VERSION } from "./version"
 import { createCancelError } from "./error"
 import { fileExists, readText } from "./fs"
@@ -33,6 +32,7 @@ import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./models"
+import { MAX_DATA_REPAIRS } from "./constants"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -278,6 +278,7 @@ export async function runTemplate(
         return fileEdit
     }
     const { completer } = resolveLanguageModel(model, options)
+    let repairs = 0
 
     while (!isCancelled()) {
         let resp: ChatCompletionResponse
@@ -481,6 +482,44 @@ export async function runTemplate(
                 }
             }
         } else {
+            // perform repair
+            const lastMessage = messages[messages.length - 1]
+            if (
+                lastMessage.role === "assistant" &&
+                repairs < MAX_DATA_REPAIRS
+            ) {
+                const fences = extractFenced(lastMessage.content)
+                validateFencesWithSchema(fences, schemas, { trace })
+                const invalids = fences.filter(
+                    (f) => f.validation?.valid === false
+                )
+                if (invalids.length) {
+                    repairs++
+                    trace.startDetails("🔧 repair")
+                    const repair = invalids
+                        .map((f) => `${f.label}: ${f.validation.error}`)
+                        .join("\n")
+                    trace.fence(repair, "txt")
+                    messages.push({
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: `Repair these FORMATTING_ISSUES and run the prompt again:
+
+FORMATTING_ISSUES:
+${repair}
+
+`,
+                            },
+                        ],
+                    })
+                    trace.endDetails()
+                    continue
+                }
+            }
+
+            // generate text and finish generation
             text =
                 messages
                     .filter((msg) => msg.role === "assistant" && msg.content)
@@ -496,33 +535,11 @@ export async function runTemplate(
     const frames: DataFrame[] = []
 
     // validate schemas in fences
-    for (const fence of fences.filter(
-        ({ language }) => language === "json" || language === "yaml"
-    )) {
-        const { language, content: val, args } = fence
-        // validate well formed json/yaml
-        const data =
-            language === "json" ? JSON5TryParse(val) : YAMLTryParse(val)
-        if (data === undefined) {
-            trace.error(`invalid ${language} syntax`)
-            continue
-        }
-        // check if schema specified
-        const schema = args?.schema
-        const schemaObj = schema && schemas[schema]
-        if (schema) {
-            if (!schemaObj) trace.error(`schema ${schema} not found`)
-            fence.validation = validateJSONWithSchema(trace, data, schemaObj)
-            frames.push({
-                schema,
-                data,
-                validation: fence.validation,
-            })
-        } else frames.push({ data })
-    }
 
-    if (fences?.length)
+    if (fences?.length) {
         trace.details("📩 code regions", renderFencedVariables(fences))
+        frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
+    }
 
     if (json !== undefined) {
         trace.detailsFenced("📩 json (parsed)", json)

@@ -433,9 +433,9 @@ export function renderFencedVariables(vars: Fenced[]) {
 ${v}
 \`\`\`\`\`
 ${
-    validation?.errors
+    validation?.error
         ? `> [!CAUTION] Schema ${args.schema} validation errors
-${validation.errors.split("\n").join("\n> ")}`
+${validation.error.split("\n").join("\n> ")}`
         : ""
 }
 `
