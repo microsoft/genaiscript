@@ -38,6 +38,8 @@ import {
     assert,
     DOCXTryParse,
     isCancelError,
+    normalizeInt,
+    normalizeFloat,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -175,9 +177,9 @@ async function batch(
     const outErrors = join(out, "errors.jsonl")
     const outFileEdits = join(out, "file-edits.jsonl")
 
-    const retry = parseInt(options.retry) || 12
-    const retryDelay = parseInt(options.retryDelay) || 15000
-    const maxDelay = parseInt(options.maxDelay) || 360000
+    const retry = normalizeInt(options.retry) || 12
+    const retryDelay = normalizeInt(options.retryDelay) || 15000
+    const maxDelay = normalizeInt(options.maxDelay) || 360000
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
@@ -365,16 +367,6 @@ async function batch(
     }
 
     if (errors) process.exit(GENERATION_ERROR)
-}
-
-function normalizeFloat(s: string) {
-    const f = parseFloat(s)
-    return isNaN(f) ? undefined : f
-}
-
-function normalizeInt(s: string) {
-    const f = parseInt(s)
-    return isNaN(f) ? undefined : f
 }
 
 function parseVars(vars: string[]) {
