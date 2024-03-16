@@ -1,7 +1,7 @@
 script({
     title: "explain-diagram",
     description: "Given an image of a diagram, explain what it contains",
-    categories: ["image tools"],
+    group: "image tools",
     model: "gpt-4-turbo-v",
     maxTokens: 4000,
 })

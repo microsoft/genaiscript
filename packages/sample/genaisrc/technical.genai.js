@@ -1,7 +1,7 @@
 script({
     title: "Technical proofreading",
     description: "Review the text as a technical document writer.",
-    categories: ["samples"],
+    group: "samples",
     system: ["system.files", "system.technical", "system.summary"],
     temperature: 0,
 })

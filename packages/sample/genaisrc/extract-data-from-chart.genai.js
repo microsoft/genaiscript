@@ -1,7 +1,7 @@
 script({
     title: "extract-data-from-chart",
     description: "Given an image of a chart, extract the data it shows into a CSV table",
-    categories: ["image tools"],
+    group: "image tools",
     model: "gpt-4-turbo-v",
     maxTokens: 4000,
 })

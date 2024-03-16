@@ -79,7 +79,7 @@ export class Fragment {
 
 export function templateGroup(template: PromptTemplate) {
     return (
-        template.categories?.[0] ||
+        template.group ||
         (/^system/i.test(template.id) ? "system" : "") ||
         "unassigned"
     )

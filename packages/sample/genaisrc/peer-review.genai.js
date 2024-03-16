@@ -1,7 +1,7 @@
 script({
     title: "peer review",
     description: "An expert academic is reviewing your submission.",
-    categories: ["samples"],
+    group: "samples",
     temperature: 0.3,
     maxTokens: 10000,
     model: "gpt-4-32k",

@@ -1,7 +1,7 @@
 script({
     title: "search committe member",
     description: "Given PC members, search for their information and summarize",
-    categories: ["conf review"],
+    group: "conf review",
     temperature: 0.3,
     maxTokens: 4000,
     model: "gpt-4-32k",

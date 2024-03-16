@@ -1,6 +1,6 @@
 // metadata (including model parameters)
 script({ title: "generate-doc-feature-guide",
-         categories: ["doc tools"], 
+         group: "doc tools", 
 })
 
 // use def to emit LLM variables

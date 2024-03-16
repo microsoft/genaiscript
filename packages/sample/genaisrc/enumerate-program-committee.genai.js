@@ -1,7 +1,7 @@
 script({
     title: "enumerate PC members",
     description: "Given a list of PC members, create a csv file",
-    categories: ["conf review"],
+    group: "conf review",
     temperature: 0.3,
     maxTokens: 4000,
     model: "gpt-4-32k",

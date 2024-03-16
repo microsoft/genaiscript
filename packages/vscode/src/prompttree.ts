@@ -67,7 +67,7 @@ ${description}
     ): Promise<PromptTreeNode[]> {
         const templates = this.state.project?.templates || []
         if (!element) {
-            // collect and sort all categories
+            // collect and sort all groups
             const cats = Object.keys(groupBy(templates, templateGroup))
             return [...cats.filter((t) => t !== "system"), "system"]
         } else if (typeof element === "string") {

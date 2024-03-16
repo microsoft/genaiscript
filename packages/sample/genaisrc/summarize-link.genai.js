@@ -2,7 +2,7 @@ script({
     title: "summarize links",
     model: "gpt-4-32k",
     description: "Given a URL, summarize the contents of the page",
-    categories: ["hello world"],
+    group: "hello world",
     system: ["system", "system.explanations", "system.files"],
     temperature: 0
 })
