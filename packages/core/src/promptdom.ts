@@ -5,10 +5,18 @@ import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
-    type?: "text" | "image" | "schema" | "function" | "fileMerge" | undefined
+    type?:
+        | "text"
+        | "image"
+        | "schema"
+        | "function"
+        | "fileMerge"
+        | "outputProcessor"
+        | undefined
     children?: PromptNode[]
     priority?: number
     error?: unknown
+    tokens?: number
 }
 
 export interface PromptTextNode extends PromptNode {
@@ -45,6 +53,11 @@ export interface PromptFunctionNode extends PromptNode {
 export interface PromptFileMergeNode extends PromptNode {
     type: "fileMerge"
     fn: FileMergeHandler
+}
+
+export interface PromptOutputProcessorNode extends PromptNode {
+    type: "outputProcessor"
+    fn: PromptOutputProcessorHandler
 }
 
 export function createTextNode(
@@ -89,6 +102,13 @@ export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
     return { type: "fileMerge", fn }
 }
 
+export function createOutputProcessor(
+    fn: PromptOutputProcessorHandler
+): PromptOutputProcessorNode {
+    assert(fn !== undefined)
+    return { type: "outputProcessor", fn }
+}
+
 export function appendChild(parent: PromptNode, child: PromptNode): void {
     if (!parent.children) {
         parent.children = []
@@ -106,6 +126,9 @@ export async function visitNode(
         schema?: (node: PromptSchemaNode) => void | Promise<void>
         function?: (node: PromptFunctionNode) => void | Promise<void>
         fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
+        outputProcessor?: (
+            node: PromptOutputProcessorNode
+        ) => void | Promise<void>
     }
 ) {
     await visitor.node?.(node)
@@ -125,6 +148,9 @@ export async function visitNode(
         case "fileMerge":
             await visitor.fileMerge?.(node as PromptFileMergeNode)
             break
+        case "outputProcessor":
+            await visitor.outputProcessor?.(node as PromptOutputProcessorNode)
+            break
     }
     if (node.children) {
         for (const child of node.children) {
@@ -134,18 +160,21 @@ export async function visitNode(
     await visitor.afterNode?.(node)
 }
 
-export async function renderPromptNode(
-    model: string,
-    node: PromptNode,
-    options?: { trace: MarkdownTrace }
-): Promise<{
+export interface PromptNodeRender {
     prompt: string
     images: PromptImage[]
     errors: unknown[]
     schemas: Record<string, JSONSchema>
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
-}> {
+    outputProcessors: PromptOutputProcessorHandler[]
+}
+
+export async function renderPromptNode(
+    model: string,
+    node: PromptNode,
+    options?: { trace: MarkdownTrace }
+): Promise<PromptNodeRender> {
     const { trace } = options || {}
 
     let prompt = ""
@@ -154,10 +183,12 @@ export async function renderPromptNode(
     const schemas: Record<string, JSONSchema> = {}
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
+    const outputProcessors: PromptOutputProcessorHandler[] = []
     await visitNode(node, {
         text: async (n) => {
             try {
                 const value = await n.value
+                n.tokens = estimateTokens(model, value)
                 if (value != undefined) prompt += value + "\n"
             } catch (e) {
                 node.error = e
@@ -202,11 +233,13 @@ export async function renderPromptNode(
                     })
                     break
             }
-            prompt += `${schemaName}:
+            const text = `${schemaName}:
 \`\`\`${format + "-schema"}
 ${trimNewlines(schemaText)}
 \`\`\`
 `
+            prompt += text
+            n.tokens = estimateTokens(model, text)
             if (trace && format !== "json")
                 trace.detailsFenced(
                     `🧬 schema ${schemaName} as ${format}`,
@@ -228,8 +261,20 @@ ${trimNewlines(schemaText)}
         },
         fileMerge: (n) => {
             fileMerges.push(n.fn)
-            trace.item(`file merge: ${n.fn.name || ""}`)
+            trace.itemValue(`file merge`, n.fn)
+        },
+        outputProcessor: (n) => {
+            outputProcessors.push(n.fn)
+            trace.itemValue(`output processor`, n.fn)
         },
     })
-    return { prompt, images, errors, schemas, functions, fileMerges }
+    return {
+        prompt,
+        images,
+        errors,
+        schemas,
+        functions,
+        fileMerges,
+        outputProcessors,
+    }
 }

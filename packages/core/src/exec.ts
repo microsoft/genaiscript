@@ -61,8 +61,11 @@ export async function exec(
             )
         )
 
-        if (cwd) trace?.item(`cwd: ${cwd}`)
-        trace?.item(`shell command: \`${command}\` ${patchedArgs.join(" ")}`)
+        trace?.itemValue(`cwd`, cwd)
+        trace?.itemValue(
+            `shell command`,
+            `\`${command}\` ${patchedArgs.join(" ")}`
+        )
         const res = await host.exec(command, patchedArgs, {
             cwd,
             timeout,
@@ -73,7 +76,7 @@ export async function exec(
         if (res.exitCode === undefined && (await fileExists(exitcodefile)))
             res.exitCode = parseInt(await readText(exitcodefile))
 
-        trace?.item(`exit code: ${res.exitCode}`)
+        trace?.itemValue(`exit code`, `${res.exitCode}`)
 
         if (res.stdout === undefined && (await fileExists(stdoutfile)))
             res.stdout = await readText(stdoutfile)

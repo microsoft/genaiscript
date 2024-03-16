@@ -4,6 +4,7 @@ import { ExtensionState } from "./state"
 import { PromptTemplate, copyPrompt } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
+import { saveAllTextDocuments } from "./fs"
 
 const TEMPLATE = `# New specification
     
@@ -36,6 +37,13 @@ export function activatePromptCommands(state: ExtensionState) {
                 const edit = new vscode.WorkspaceEdit()
                 edit.insert(newFile, new vscode.Position(0, 0), TEMPLATE)
                 vscode.workspace.applyEdit(edit)
+            }
+        ),
+        vscode.commands.registerCommand(
+            "genaiscript.prompt.refresh",
+            async () => {
+                await saveAllTextDocuments()
+                await state.parseWorkspace()
             }
         ),
         vscode.commands.registerCommand(

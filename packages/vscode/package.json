@@ -110,10 +110,6 @@
                     "when": "false"
                 },
                 {
-                    "command": "genaiscript.fragment.reveal",
-                    "when": "false"
-                },
-                {
                     "command": "genaiscript.prompt.unbuiltin",
                     "when": "false"
                 },
@@ -137,6 +133,11 @@
             "view/title": [
                 {
                     "command": "genaiscript.prompt.create",
+                    "when": "view == genaiscript.prompts",
+                    "group": "navigation"
+                },
+                {
+                    "command": "genaiscript.prompt.refresh",
                     "when": "view == genaiscript.prompts",
                     "group": "navigation"
                 }
@@ -214,11 +215,6 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.fragment.reveal",
-                "title": "Reveal fragment in tree",
-                "category": "GenAIScript"
-            },
-            {
                 "command": "genaiscript.fragment.prompt",
                 "title": "Run GenAiScript...",
                 "category": "GenAIScript",
@@ -232,13 +228,19 @@
             },
             {
                 "command": "genaiscript.prompt.navigate",
-                "title": "Navigate to prompt",
+                "title": "Navigate to script",
                 "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.prompt.create",
                 "title": "Create new script...",
                 "icon": "$(add)",
+                "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.prompt.refresh",
+                "title": "Refresh script list",
+                "icon": "$(refresh)",
                 "category": "GenAIScript"
             },
             {

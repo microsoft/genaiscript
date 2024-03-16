@@ -8,8 +8,9 @@ import {
 import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { getChatCompletions, toChatCompletionUserMessage } from "./chat"
+import { toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
+import { resolveLanguageModel } from "./models"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -110,8 +111,7 @@ export function createRunPromptContext(
                     trace.fence({ images, errors }, "yaml")
 
                 // call LLM
-                const completer =
-                    options.getChatCompletions || getChatCompletions
+                const { completer } = resolveLanguageModel(model, options)
                 const res = await completer(
                     {
                         model,

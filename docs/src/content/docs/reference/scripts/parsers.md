@@ -101,7 +101,7 @@ You can use the `parsers.frontmatter` to parse out the metadata into an object
 const meta = parsers.frontmatter(file)
 ```
 
-## CSV
+## [CSV](./csv.md)
 
 The `parsers.CSV` function parses for the [CSV format](https://en.wikipedia.org/wiki/Comma-separated_values). If successful, the function returns an array of object where each object represents a row in the CSV file.
 
@@ -116,13 +116,22 @@ pass an array of header names in the options.
 const res = parsers.CSV("...", { delimiter: "\t", headers: ["name", "age"] })
 ```
 
-## PDF
+## [PDF](./pdf.md)
 
 The `parsers.PDF` function reads a PDF file and attempts to cleanly convert it into a text format. Read the [/genaiscript/reference/scripts/pdf](/genaiscript/reference/scripts/pdf) for more information.
 
-## DOCX
+## [DOCX](./docx.md)
 
 The `parsers.DOCX` function reads a .docx file as raw text.
+
+## .env
+
+The `parsers.dotEnv` parses [.env](https://www.dotenv.org/) files, typically
+using for configuration files. This format is similar to the `key=value` format.
+
+```env
+KEY=VALUE
+```
 
 ## fences
 
