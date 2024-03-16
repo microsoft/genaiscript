@@ -32,7 +32,8 @@ import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
-import { OpenAIChatCompletation } from "./openai"
+import { OpenAIChatCompletion } from "./openai"
+import { resolveChatCompletion } from "./models"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -276,6 +277,7 @@ export async function runTemplate(
         }
         return fileEdit
     }
+    const { completer } = resolveChatCompletion(model, options)
 
     while (!isCancelled()) {
         let resp: ChatCompletionResponse
@@ -289,8 +291,6 @@ export async function runTemplate(
                     `tokens: ${estimateChatTokens(model, messages, tools)}`
                 )
                 status()
-                const completer =
-                    options.getChatCompletions || OpenAIChatCompletation
                 resp = await completer(
                     {
                         model,

@@ -19,7 +19,7 @@ import {
     getChatCompletionCache,
 } from "./chat"
 
-export const OpenAIChatCompletation: ChatCompletionHandler = async (
+export const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
     options
 ) => {

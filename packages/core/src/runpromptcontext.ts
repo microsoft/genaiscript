@@ -10,7 +10,8 @@ import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import { toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
-import { OpenAIChatCompletation } from "./openai"
+import { OpenAIChatCompletion } from "./openai"
+import { resolveChatCompletion } from "./models"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -111,8 +112,10 @@ export function createRunPromptContext(
                     trace.fence({ images, errors }, "yaml")
 
                 // call LLM
-                const completer =
-                    options.getChatCompletions || OpenAIChatCompletation
+                const { completer } = resolveChatCompletion(
+                    model,
+                    options
+                )
                 const res = await completer(
                     {
                         model,
