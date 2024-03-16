@@ -9,3 +9,5 @@ export function dotEnvTryParse(text: string): Record<string, string> {
         return {}
     }
 }
+
+export const dotEnvParse = parse
