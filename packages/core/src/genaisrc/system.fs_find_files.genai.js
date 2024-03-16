@@ -1,7 +1,7 @@
 system({
     title: "File Find Files",
     description: "Functions to list files.",
-    categories: ["Functions"],
+    group: "Functions",
 })
 
 defFunction(

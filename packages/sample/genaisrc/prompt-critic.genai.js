@@ -3,7 +3,7 @@ script({
     description: "Given a goal and a prompt, evaluate the prompt",
     maxTokens: 4000,
     model: "gpt-4",
-    categories: ["tutorial"],
+    group: "tutorial",
     system: ["system.summary"]
 })
 

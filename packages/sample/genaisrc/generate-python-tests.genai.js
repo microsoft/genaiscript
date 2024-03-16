@@ -2,7 +2,7 @@ script({
     title: "Generate python tests",
     model: "gpt-4-32k",
     description: "Given a task and code, generate tests",
-    categories: ["hello world"],
+    group: "hello world",
     system: ["system", "system.explanations", "system.files", "system.python"],
     temperature: 0
 })

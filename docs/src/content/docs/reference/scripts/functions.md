@@ -77,7 +77,7 @@ the `current_weather` function can be included the `system.current_weather.genai
 ```javascript file="system.current_weather.genai.js"
 script({
     title: "Function to get the current weather",
-    categories: ["Functions"],
+    group: "Functions",
 })
 defFunction("current_weather", ...)
 ```

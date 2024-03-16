@@ -15,7 +15,7 @@ script({
     // also displayed but grayed out:
     description:
         "A prompt that shrinks the size of text without losing meaning",
-    categories: ["shorten"], // see Inline prompts later
+    group: "shorten", // see Inline prompts later
 })
 ```
 
