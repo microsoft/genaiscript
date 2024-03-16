@@ -108,14 +108,9 @@ interface ModelOptions {
 
 interface PromptTemplate extends PromptLike, ModelOptions {
     /**
-     * If this is `["a", "b.c"]` then the prompt will include values of variables:
-     * `@prompt`, `@prompt.a`, `@prompt.b`, `@prompt.b.c`
-     * TODO implement this
-     *
-     * @example ["summarize"]
-     * @example ["code.ts.node"]
+     * Groups template in UI
      */
-    categories?: string[]
+    group?: string
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.

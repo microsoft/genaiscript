@@ -1,7 +1,7 @@
 script({
     title: "Generate Python Code",
     temperature: 0.01,
-    categories: ["code.python"],
+    group: "code.python",
 })
 
 const pythonFileName = env.spec.filename.replace(".gpspec.md", ".genai.py")

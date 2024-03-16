@@ -2,7 +2,7 @@ script({
     title: "SEO front matter",
     description:
         "Update or generate SEO-optimized front matter for a markdown file.",
-    categories: ["samples"],
+    group: "samples",
     system: ["system", "system.files"],
     maxTokens: 2000,
     temperature: 0,

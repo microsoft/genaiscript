@@ -1,7 +1,7 @@
 script({
     title: "Generate python code",
     description: "Given a task, generate python code.",
-    categories: ["hello world"],
+    group: "hello world",
     system: ["system", "system.files", "system.changelog"]
 })
 

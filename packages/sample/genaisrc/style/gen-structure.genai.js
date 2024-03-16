@@ -2,7 +2,7 @@ script({
     title: "Generate Project Structure",
     system: ["system.tasks"],
     description: "Generate project structure.",
-    categories: ["generate"],
+    group: "generate",
 })
 
 $`Given the following SUMMARY generate project structure with list of
