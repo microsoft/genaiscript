@@ -70,7 +70,10 @@ async function fragmentVars(
                                 adapter?.contentType ?? "text/plain",
                         },
                     })
-                    trace.item(`status: ${resp.status}, ${resp.statusText}`)
+                    trace.itemValue(
+                        `status`,
+                        `${resp.status}, ${resp.statusText}`
+                    )
                     if (resp.ok)
                         content =
                             adapter?.contentType === "application/json"
@@ -358,7 +361,7 @@ export async function runTemplate(
         if (resp.text) {
             trace.startDetails("📩 llm response")
             if (resp.finishReason && resp.finishReason !== "stop")
-                trace.item(`finish reason: \`${resp.finishReason}\``)
+                trace.itemValue(`finish reason`, resp.finishReason)
             trace.detailsFenced(`output`, resp.text, "markdown")
             trace.endDetails()
         }
@@ -389,9 +392,8 @@ export async function runTemplate(
                 try {
                     status(`running tool ${call.name}`)
                     trace.startDetails(`📠 tool call ${call.name}`)
-                    trace.item(`id: \`${call.id}\``)
-                    trace.item(`args:`)
-                    trace.fence(call.arguments)
+                    trace.itemValue(`id`, call.id)
+                    trace.itemValue(`args`, call.arguments)
 
                     const callArgs: any = call.arguments
                         ? JSON5TryParse(call.arguments)
@@ -437,7 +439,7 @@ export async function runTemplate(
                             },
                         })
                         output = { content: stdout }
-                        trace.item(`exit code: ${exitCode}`)
+                        trace.itemValue(`exit code`, exitCode)
                         if (stdout) trace.details("📩 shell output", stdout)
                         if (stderr) trace.details("📩 shell error", stderr)
                         if (exitCode !== 0 && !ignoreExitCode)

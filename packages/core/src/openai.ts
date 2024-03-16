@@ -39,11 +39,9 @@ export const OpenAIChatCompletation: ChatCompletionHandler = async (
     const { headers, ...rest } = requestOptions || {}
     let model = req.model.replace("-35-", "-3.5-")
 
-    trace.item(
-        `temperature: ${temperature} (max cached: ${maxCachedTemperature})`
-    )
-    trace.item(`top_p: ${top_p} (max cached: ${maxCachedTopP})`)
-    if (seed) trace.item(`seed: ${seed}`)
+    trace.itemValue(`temperature`, temperature)
+    trace.itemValue(`top_p`, top_p)
+    trace.itemValue(`seed`, seed)
 
     const cache = getChatCompletionCache()
     const caching =
@@ -59,7 +57,7 @@ export const OpenAIChatCompletation: ChatCompletionHandler = async (
             responseSoFar: cached,
             responseChunk: cached,
         })
-        trace.item(`found cached response ${await cache.getKeySHA(req)}`)
+        trace.itemValue(`cached sha`, await cache.getKeySHA(req))
         return { text: cached }
     }
 
@@ -82,15 +80,13 @@ export const OpenAIChatCompletation: ChatCompletionHandler = async (
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     }
 
-    trace.item(`model: ${model}`)
-    trace.item(`url: [${url}](${url})`)
-    if (response_format)
-        trace.item(
-            `response_format: ${JSON.stringify(response_format, null, 2)}`
-        )
+    trace.itemValue(`model`, model)
+    trace.itemValue(`url`, `[${url}](${url})`)
+    trace.itemValue(`response_format`, response_format)
     if (tools?.length) {
-        trace.item(
-            `tools: ${tools.map((t) => "`" + t.function.name + "`").join(", ")}`
+        trace.itemValue(
+            `tools`,
+            tools.map((t) => "`" + t.function.name + "`").join(", ")
         )
         trace.detailsFenced("🧱 schema", tools)
     }
@@ -124,7 +120,7 @@ export const OpenAIChatCompletation: ChatCompletionHandler = async (
         ...(rest || {}),
     })
 
-    trace.item(`response: ${r.status} ${r.statusText}`)
+    trace.itemValue(`response`, `${r.status} ${r.statusText}`)
     if (r.status !== 200) {
         trace.error(`request error: ${r.status}`)
         let body: string

@@ -1,6 +1,7 @@
 import { CHANGE, TOOL_ID } from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
+import { YAMLStringify } from "./yaml"
 
 export class MarkdownTrace
     extends EventTarget
@@ -76,6 +77,21 @@ ${title}
 
     item(message: string) {
         this.content += `-   ${message}\n`
+    }
+
+    itemValue(name: string, value: any) {
+        if (value === undefined || (typeof value === "number" && isNaN(value)))
+            return
+
+        if (typeof value === "function")
+            this.item(`${name}: ${value.name || "anonymous"}`)
+        else if (typeof value === "object" || Array.isArray(value)) {
+            const txt = YAMLStringify(value)
+            if (txt.includes("\n")) {
+                this.item(`${name}:`)
+                this.fence(YAMLStringify(value))
+            } else this.item(`${name}: ${txt}`)
+        } else this.item(`${name}: ${value}`)
     }
 
     log(message: string) {

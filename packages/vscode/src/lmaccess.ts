@@ -71,8 +71,8 @@ export function configureLanguageModelAccess(
         const { trace } = chatOptions
         const { model, temperature, top_p, seed, ...rest } = req
 
-        trace.item(`script model: ${model}`)
-        trace.item(`language model: ${chatModel}`)
+        trace.itemValue(`script model`, model)
+        trace.itemValue(`language model`, chatModel)
         const messages: vscode.LanguageModelChatMessage[] = req.messages.map(
             (m) => {
                 switch (m.role) {

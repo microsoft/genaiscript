@@ -261,11 +261,11 @@ ${trimNewlines(schemaText)}
         },
         fileMerge: (n) => {
             fileMerges.push(n.fn)
-            trace.item(`file merge: ${n.fn.name || ""}`)
+            trace.itemValue(`file merge`, n.fn)
         },
         outputProcessor: (n) => {
             outputProcessors.push(n.fn)
-            trace.item(`output processor: ${n.fn.name || ""}`)
+            trace.itemValue(`output processor`, n.fn)
         },
     })
     return {

@@ -179,13 +179,11 @@ export async function expandTemplate(
     let responseType = template.responseType
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (model) trace.item(`model: \`${model || ""}\``)
-    trace.item(
-        `tokens: ${estimateTokens(template.model || DEFAULT_MODEL, expanded)}`
-    )
-    if (temperature !== undefined) trace.item(`temperature: ${temperature}`)
-    if (topP !== undefined) trace.item(`top_p: ${topP}`)
-    if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens}`)
+    trace.itemValue(`model`, model)
+    trace.itemValue(`tokens`, estimateTokens(model, expanded))
+    trace.itemValue(`temperature`, temperature)
+    trace.itemValue(`top_p`, topP)
+    trace.itemValue(`max tokens`, max_tokens)
     trace.fence(expanded, "markdown")
     trace.endDetails()
 
@@ -242,13 +240,13 @@ export async function expandTemplate(
 
     {
         trace.startDetails("⚙️ configuration")
-        trace.item(`model: \`${model || ""}\``)
-        trace.item(`tokens: ${estimateTokens(model, expanded)}`)
-        if (temperature !== undefined) trace.item(`temperature: ${temperature}`)
-        if (topP !== undefined) trace.item(`top_p: ${topP}`)
-        if (max_tokens !== undefined) trace.item(`max tokens: ${max_tokens}`)
-        if (seed !== undefined) trace.item(`seed: ${seed}`)
-        if (responseType) trace.item(`response type: ${responseType}`)
+        trace.itemValue(`model`, model)
+        trace.itemValue(`tokens`, estimateTokens(model, expanded))
+        trace.itemValue(`temperature`, temperature)
+        trace.itemValue(`top_p`, topP)
+        trace.itemValue(`max tokens`, max_tokens)
+        trace.itemValue(`seed`, seed)
+        trace.itemValue(`response type`, responseType)
         trace.endDetails() // expanded prompt
     }
 
