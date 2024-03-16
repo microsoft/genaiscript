@@ -285,21 +285,6 @@ function startFence(text: string) {
     }
 }
 
-export interface Fenced {
-    label: string
-    language?: string
-    content: string
-    args?: { schema?: string } & Record<string, string>
-
-    validation?: JSONSchemaValidation
-}
-
-export interface DataFrame {
-    schema?: string
-    data: unknown
-    validation?: JSONSchemaValidation
-}
-
 /**
  * Parse output of LLM similar to output of genaiscript def() function.
  *

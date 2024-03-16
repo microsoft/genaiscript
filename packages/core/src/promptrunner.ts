@@ -9,7 +9,6 @@ import { Fragment, PromptTemplate } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
 import {
-    DataFrame,
     extractFenced,
     renderFencedVariables,
     staticVars,
@@ -206,6 +205,8 @@ export async function runTemplate(
             fileEdits: {},
             label,
             version,
+            fences: [],
+            frames: [],
         }
     }
 
@@ -222,6 +223,8 @@ export async function runTemplate(
             fileEdits: {},
             label,
             version,
+            fences: [],
+            frames: [],
         }
     }
     const response_format = responseType ? { type: responseType } : undefined
@@ -347,6 +350,8 @@ export async function runTemplate(
                 fileEdits,
                 label,
                 version,
+                fences: [],
+                frames: []
             }
         }
 
