@@ -67,7 +67,7 @@ export async function bingSearch(
             "Ocp-Apim-Subscription-Key": apiKey,
         },
     })
-    trace?.item(`Bing search: ${res.statusText}`)
+    trace?.itemValue(`Bing search`, res.statusText)
     if (!res.ok) {
         trace?.detailsFenced("error response", await res.text())
         throw new Error(`Bing search failed: ${res.statusText}`)

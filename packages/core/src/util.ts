@@ -227,3 +227,13 @@ export function groupBy<T>(
     })
     return r
 }
+
+export function normalizeFloat(s: string) {
+    const f = parseFloat(s)
+    return isNaN(f) ? undefined : f
+}
+
+export function normalizeInt(s: string) {
+    const f = parseInt(s)
+    return isNaN(f) ? undefined : f
+}

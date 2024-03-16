@@ -234,6 +234,7 @@ async function parseMeta(r: PromptTemplate) {
         fetchText: error,
         cancel: error,
         $: error,
+        defOutput: error,
     })
 
     try {
@@ -283,21 +284,6 @@ function startFence(text: string) {
         language: undoublequote(groups.language),
         args: parseKeyValuePairs(groups.args),
     }
-}
-
-export interface Fenced {
-    label: string
-    language?: string
-    content: string
-    args?: { schema?: string } & Record<string, string>
-
-    validation?: JSONSchemaValidation
-}
-
-export interface DataFrame {
-    schema?: string
-    data: unknown
-    validation?: JSONSchemaValidation
 }
 
 /**
@@ -519,7 +505,7 @@ export async function parsePromptTemplate(
             c.checkNumber("seed")
 
             c.checkStringArray("system")
-            c.checkStringArray("group")
+            c.checkString("group")
 
             c.checkBool("isSystem")
             c.checkObjectArray("urlAdapters")

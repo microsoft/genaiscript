@@ -48,7 +48,23 @@ type FileMergeHandler = (
     label: string,
     before: string,
     generated: string
-) => string
+) => string | Promise<string>
+
+interface PromptOutputProcessorResult {
+    /**
+     * Generated files from the output
+     */
+    files?: Record<string, string>
+
+    /**
+     * User defined errors
+     */
+    annotations?: Diagnostic[]
+}
+
+type PromptOutputProcessorHandler = (
+    output: PromptGenerationOutput
+) => PromptOutputProcessorResult | Promise<PromptOutputProcessorResult>
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -464,6 +480,12 @@ interface JSONSchemaValidation {
     errors?: string
 }
 
+interface DataFrame {
+    schema?: string
+    data: unknown
+    validation?: JSONSchemaValidation
+}
+
 interface RunPromptResult {
     text: string
     finishReason?:
@@ -667,7 +689,7 @@ interface Retreival {
             /**
              * Maximum number of embeddings to use
              */
-            topK?: number,
+            topK?: number
             /**
              * Retreive summaries
              */
@@ -716,6 +738,28 @@ interface RunPromptContext {
     ): Promise<RunPromptResult>
 }
 
+interface PromptGenerationOutput {
+    /**
+     * LLM output.
+     */
+    text: string
+
+    /**
+     * Parsed fence sections
+     */
+    fences: Fenced[]
+
+    /**
+     * Parsed data sections
+     */
+    frames: DataFrame[]
+
+    /**
+     * A map of file updates
+     */
+    fileEdits: Record<string, { before: string; after: string }>
+}
+
 interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
@@ -727,6 +771,7 @@ interface PromptContext extends RunPromptContext {
         fn: ChatFunctionHandler
     ): void
     defFileMerge(fn: FileMergeHandler): void
+    defOutput(fn: PromptOutputProcessorHandler): void
     defSchema(
         name: string,
         schema: JSONSchema,
@@ -906,3 +951,10 @@ declare function runPrompt(
     generator: (ctx: RunPromptContext) => void | Promise<void>,
     options?: ModelOptions
 ): Promise<RunPromptResult>
+
+
+/**
+ * Registers a callback to process the LLM output
+ * @param fn 
+ */
+declare function defOutput(fn: PromptOutputProcessorHandler): void

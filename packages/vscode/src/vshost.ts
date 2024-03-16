@@ -1,5 +1,6 @@
 import {
     CHANGE,
+    dotEnvTryParse,
     Host,
     LogLevel,
     OAIToken,
@@ -15,7 +16,6 @@ import {
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { parse } from "dotenv"
 import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
@@ -188,7 +188,7 @@ export class VSCodeHost extends EventTarget implements Host {
     async readSecret(name: string): Promise<string | undefined> {
         try {
             const dotenv = await readFileText(this.projectUri, ".env")
-            const env = parse(dotenv)
+            const env = dotEnvTryParse(dotenv)
             return env?.[name]
         } catch (e) {
             return undefined
@@ -198,7 +198,7 @@ export class VSCodeHost extends EventTarget implements Host {
     async getSecretToken(): Promise<OAIToken> {
         try {
             const dotenv = await readFileText(this.projectUri, ".env")
-            const env = parse(dotenv)
+            const env = dotEnvTryParse(dotenv)
             const tok = await parseTokenFromEnv(env)
             tok.source = ".env file"
             return tok

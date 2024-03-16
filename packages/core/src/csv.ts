@@ -42,7 +42,12 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
     const { headers = Object.keys(csv[0]) } = options || {}
     const table: string[][] = [
         headers,
-        ...csv.map((row) => headers.map((v) => "" + (row as any)[v])),
+        ...csv.map((row) =>
+            headers.map((v) => {
+                const rv = (row as any)[v]
+                return rv === undefined ? "" : "" + rv
+            })
+        ),
     ]
     const md = markdownTable(table, {
         align: "left",
