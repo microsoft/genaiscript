@@ -124,7 +124,7 @@ The `parsers.PDF` function reads a PDF file and attempts to cleanly convert it i
 
 The `parsers.DOCX` function reads a .docx file as raw text.
 
-## .env
+## [.env](./dotenv.md)
 
 The `parsers.dotEnv` parses [.env](https://www.dotenv.org/) files, typically
 using for configuration files. This format is similar to the `key=value` format.
