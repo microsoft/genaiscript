@@ -52,6 +52,10 @@ type FileMergeHandler = (
 
 interface PromptOutputProcessorResult {
     /**
+     * Updated text
+     */
+    text?: string
+    /**
      * Generated files from the output
      */
     files?: Record<string, string>
