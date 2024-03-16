@@ -623,22 +623,42 @@ export async function runTemplate(
     }
 
     // apply user output processors
-    try {
-        for (const outputProcessor of outputProcessors) {
-            const { files = {}, annotations: oannotations = [] } =
-                (await outputProcessor({
-                    text,
-                    fences,
-                    frames,
-                })) || {}
-            for (const [fn, content] of Object.entries(files)) {
-                const fileEdit = await getFileEdit(fn)
-                fileEdit.after = content
+    if (outputProcessors?.length) {
+        try {
+            trace.startDetails("🖨️ output processors")
+            for (const outputProcessor of outputProcessors) {
+                const { files = {}, annotations: oannotations = [] } =
+                    (await outputProcessor({
+                        text,
+                        fileEdits,
+                        fences,
+                        frames,
+                    })) || {}
+                for (const [fn, content] of Object.entries(files)) {
+                    trace.detailsFenced(`📁 file ${fn}`, content)
+                    const fileEdit = await getFileEdit(fn)
+                    fileEdit.after = content
+                }
+                if (oannotations.length) {
+                    trace.details(
+                        "⚠️ annotations",
+                        CSVToMarkdown(oannotations, {
+                            headers: [
+                                "severity",
+                                "filename",
+                                "line",
+                                "message",
+                            ],
+                        })
+                    )
+                    annotations.push(...oannotations)
+                }
             }
-            annotations.push(...oannotations)
+        } catch (e) {
+            trace.error(`output processor failed`, e)
+        } finally {
+            trace.endDetails()
         }
-    } catch (e) {
-        trace.error(`output processor failed`, e)
     }
 
     // convert file edits into edits

@@ -753,6 +753,11 @@ interface PromptGenerationOutput {
      * Parsed data sections
      */
     frames: DataFrame[]
+
+    /**
+     * A map of file updates
+     */
+    fileEdits: Record<string, { before: string; after: string }>
 }
 
 interface PromptContext extends RunPromptContext {
