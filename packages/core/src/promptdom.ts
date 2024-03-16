@@ -160,11 +160,7 @@ export async function visitNode(
     await visitor.afterNode?.(node)
 }
 
-export async function renderPromptNode(
-    model: string,
-    node: PromptNode,
-    options?: { trace: MarkdownTrace }
-): Promise<{
+export interface PromptNodeRender {
     prompt: string
     images: PromptImage[]
     errors: unknown[]
@@ -172,7 +168,13 @@ export async function renderPromptNode(
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: OutputProcessorHandler[]
-}> {
+}
+
+export async function renderPromptNode(
+    model: string,
+    node: PromptNode,
+    options?: { trace: MarkdownTrace }
+): Promise<PromptNodeRender> {
     const { trace } = options || {}
 
     let prompt = ""
