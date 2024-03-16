@@ -48,7 +48,11 @@ type FileMergeHandler = (
     label: string,
     before: string,
     generated: string
-) => string
+) => string | Promise<string>
+
+type OutputProcessorHandler = (
+    output: PromptGenerationOutput
+) => void | Promise<void>
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -760,6 +764,7 @@ interface PromptContext extends RunPromptContext {
         fn: ChatFunctionHandler
     ): void
     defFileMerge(fn: FileMergeHandler): void
+    defOutput(fn: OutputProcessorHandler): void
     defSchema(
         name: string,
         schema: JSONSchema,

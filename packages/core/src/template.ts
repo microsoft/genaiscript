@@ -234,6 +234,7 @@ async function parseMeta(r: PromptTemplate) {
         fetchText: error,
         cancel: error,
         $: error,
+        defOutput: error,
     })
 
     try {

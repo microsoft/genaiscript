@@ -562,7 +562,7 @@ export async function runTemplate(
                         try {
                             for (const fileMerge of fileMerges)
                                 fileEdit.after =
-                                    fileMerge(
+                                    await fileMerge(
                                         fn,
                                         label,
                                         fileEdit.after ?? fileEdit.before,

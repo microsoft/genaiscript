@@ -20,6 +20,7 @@ import {
     createFileMergeNode,
     createFunctioNode,
     createImageNode,
+    createOutputProcessor,
     createSchemaNode,
     createTextNode,
 } from "./promptdom"
@@ -175,6 +176,10 @@ export function createPromptContext(
         return name
     }
 
+    const defOutput = (fn: OutputProcessorHandler) => {
+        appendPromptChild(createOutputProcessor(fn))
+    }
+
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
         script: () => {},
@@ -188,6 +193,7 @@ export function createPromptContext(
         retreival,
         defImages,
         defSchema,
+        defOutput,
         defFunction: (name, description, parameters, fn) => {
             appendPromptChild(
                 createFunctioNode(name, description, parameters, fn)

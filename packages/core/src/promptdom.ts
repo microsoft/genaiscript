@@ -5,7 +5,7 @@ import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
-    type?: "text" | "image" | "schema" | "function" | "fileMerge" | undefined
+    type?: "text" | "image" | "schema" | "function" | "fileMerge" | "outputProcessor" | undefined
     children?: PromptNode[]
     priority?: number
     error?: unknown
@@ -45,6 +45,11 @@ export interface PromptFunctionNode extends PromptNode {
 export interface PromptFileMergeNode extends PromptNode {
     type: "fileMerge"
     fn: FileMergeHandler
+}
+
+export interface PromptOutputProcessorNode extends PromptNode {
+    type: "outputProcessor"
+    fn: OutputProcessorHandler
 }
 
 export function createTextNode(
@@ -87,6 +92,11 @@ export function createFunctioNode(
 export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
     assert(fn !== undefined)
     return { type: "fileMerge", fn }
+}
+
+export function createOutputProcessor(fn: OutputProcessorHandler): PromptOutputProcessorNode {
+    assert(fn !== undefined)
+    return { type: "outputProcessor", fn }
 }
 
 export function appendChild(parent: PromptNode, child: PromptNode): void {

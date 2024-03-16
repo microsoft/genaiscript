@@ -148,3 +148,10 @@ declare function runPrompt(
     generator: (ctx: RunPromptContext) => void | Promise<void>,
     options?: ModelOptions
 ): Promise<RunPromptResult>
+
+
+/**
+ * Registers a callback to process the LLM output
+ * @param fn 
+ */
+declare function defOutput(fn: OutputProcessorHandler): void
