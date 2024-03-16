@@ -168,6 +168,7 @@ export async function runTemplate(
         schemas,
         functions,
         fileMerges,
+        outputProcessors,
         success,
         temperature,
         topP,
@@ -621,6 +622,25 @@ export async function runTemplate(
         }
     }
 
+    // apply user output processors
+    try {
+        for (const outputProcessor of outputProcessors) {
+            const { files = {}, annotations: oannotations = [] } =
+                (await outputProcessor({
+                    text,
+                    fences,
+                    frames,
+                })) || {}
+            for (const [fn, content] of Object.entries(files)) {
+                const fileEdit = await getFileEdit(fn)
+                fileEdit.after = content
+            }
+            annotations.push(...oannotations)
+        }
+    } catch (e) {
+        trace.error(`output processor failed`, e)
+    }
+
     // convert file edits into edits
     Object.entries(fileEdits)
         .filter(([, { before, after }]) => before !== after) // ignore unchanged files
@@ -644,23 +664,7 @@ export async function runTemplate(
             }
         })
 
-    // add links to the end of the file
-    if (
-        links.length &&
-        (!fragmentVirtual || fileEdits[fragment.file.filename]?.after)
-    ) {
-        const obj = {
-            label: template.title,
-            filename: fragment.file.filename,
-        }
-        edits.push({
-            ...obj,
-            type: "insert",
-            pos: fragment.endPos,
-            text: `\n${links.join("\n")}`,
-        })
-    }
-
+    // reporting
     if (edits.length)
         trace.details(
             "✏️ edits",

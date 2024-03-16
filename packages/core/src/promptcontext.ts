@@ -172,8 +172,9 @@ export function createPromptContext(
         return name
     }
 
-    const defOutput = (fn: OutputProcessorHandler) => {
-        appendPromptChild(createOutputProcessor(fn))
+    const defOutput = (fn: PromptOutputProcessorHandler) => {
+        if (fn)
+            appendPromptChild(createOutputProcessor(fn))
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({

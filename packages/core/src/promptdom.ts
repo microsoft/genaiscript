@@ -57,7 +57,7 @@ export interface PromptFileMergeNode extends PromptNode {
 
 export interface PromptOutputProcessorNode extends PromptNode {
     type: "outputProcessor"
-    fn: OutputProcessorHandler
+    fn: PromptOutputProcessorHandler
 }
 
 export function createTextNode(
@@ -103,7 +103,7 @@ export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
 }
 
 export function createOutputProcessor(
-    fn: OutputProcessorHandler
+    fn: PromptOutputProcessorHandler
 ): PromptOutputProcessorNode {
     assert(fn !== undefined)
     return { type: "outputProcessor", fn }
@@ -167,7 +167,7 @@ export interface PromptNodeRender {
     schemas: Record<string, JSONSchema>
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
-    outputProcessors: OutputProcessorHandler[]
+    outputProcessors: PromptOutputProcessorHandler[]
 }
 
 export async function renderPromptNode(
@@ -183,7 +183,7 @@ export async function renderPromptNode(
     const schemas: Record<string, JSONSchema> = {}
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
-    const outputProcessors: OutputProcessorHandler[] = []
+    const outputProcessors: PromptOutputProcessorHandler[] = []
     await visitNode(node, {
         text: async (n) => {
             try {
