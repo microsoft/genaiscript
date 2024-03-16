@@ -15,14 +15,12 @@ import {
     ChatCompletionHandler,
     ChatCompletionResponse,
     ChatCompletionToolCall,
+    LanguageModel,
     RequestError,
     getChatCompletionCache,
 } from "./chat"
 
-export const OpenAIChatCompletion: ChatCompletionHandler = async (
-    req,
-    options
-) => {
+const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     const { temperature, top_p, seed, response_format, tools } = req
     const {
         requestOptions,
@@ -243,3 +241,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         pref = chunk
     }
 }
+
+export const OpenAIModel = Object.freeze<LanguageModel>({
+    completer: OpenAIChatCompletion,
+    id: "openai",
+})

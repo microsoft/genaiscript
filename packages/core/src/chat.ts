@@ -120,3 +120,8 @@ export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ) => Promise<ChatCompletionResponse>
+
+export interface LanguageModel {
+    id: string
+    completer: ChatCompletionHandler
+}

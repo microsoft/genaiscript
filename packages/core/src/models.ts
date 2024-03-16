@@ -1,18 +1,12 @@
-import { ChatCompletionHandler } from "./chat"
-import { OpenAIChatCompletion } from "./openai"
+import { LanguageModel } from "./chat"
+import { OpenAIModel } from "./openai"
 
-export function resolveChatCompletion(
+export function resolveLanguageModel(
     model: string,
     options?: {
-        getChatCompletions?: ChatCompletionHandler
-        modelApiType?: "openai"
+        languageModel?: LanguageModel
     }
-): { completer: ChatCompletionHandler; modelApiType?: "openai" } {
-    if (options?.getChatCompletions)
-        return {
-            completer: options?.getChatCompletions,
-            modelApiType: options?.modelApiType,
-        }
-
-    return { completer: OpenAIChatCompletion, modelApiType: "openai" }
+): LanguageModel {
+    if (options?.languageModel) return options?.languageModel
+    return OpenAIModel
 }

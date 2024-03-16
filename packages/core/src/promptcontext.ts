@@ -1,4 +1,4 @@
-import { ChatCompletionHandler, ChatCompletionsOptions } from "./chat"
+import { ChatCompletionsOptions, LanguageModel } from "./chat"
 import { PromptTemplate } from "./ast"
 import { logVerbose, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
@@ -283,6 +283,6 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         cliInfo?: {
             spec: string
         }
-        getChatCompletions?: ChatCompletionHandler
+        languageModel?: LanguageModel
         vars?: Record<string, string>
     }

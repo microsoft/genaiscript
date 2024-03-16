@@ -32,8 +32,7 @@ import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
-import { OpenAIChatCompletion } from "./openai"
-import { resolveChatCompletion } from "./models"
+import { resolveLanguageModel } from "./models"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -277,7 +276,7 @@ export async function runTemplate(
         }
         return fileEdit
     }
-    const { completer } = resolveChatCompletion(model, options)
+    const { completer } = resolveLanguageModel(model, options)
 
     while (!isCancelled()) {
         let resp: ChatCompletionResponse
