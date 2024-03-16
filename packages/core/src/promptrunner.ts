@@ -492,9 +492,7 @@ export async function runTemplate(
 
     annotations = parseAnnotations(text)
     const json = JSON5TryParse(text, undefined)
-    const yaml = YAMLTryParse(text, undefined, { ignoreLiterals: true })
-    const fences =
-        json === undefined && yaml === yaml ? extractFenced(text) : []
+    const fences = json === undefined ? extractFenced(text) : []
     const frames: DataFrame[] = []
 
     // validate schemas in fences
@@ -526,17 +524,8 @@ export async function runTemplate(
     if (fences?.length)
         trace.details("📩 code regions", renderFencedVariables(fences))
 
-    if (yaml !== undefined) trace.detailsFenced("📩 yaml (parsed)", yaml)
-    else if (json !== undefined) trace.detailsFenced("📩 json (parsed)", json)
-
-    if (yaml !== undefined) {
-        const fn = fragment.file.filename.replace(
-            /\.gpspec\.md$/i,
-            "." + template.id + ".yaml"
-        )
-        const fileEdit = await getFileEdit(fn)
-        fileEdit.after = text
-    } else if (json !== undefined) {
+    if (json !== undefined) {
+        trace.detailsFenced("📩 json (parsed)", json)
         const fn = fragment.file.filename.replace(
             /\.gpspec\.md$/i,
             "." + template.id + ".json"
