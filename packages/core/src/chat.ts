@@ -34,7 +34,12 @@ export interface ChatCompletionToolCall {
 export interface ChatCompletionResponse {
     text?: string
     toolCalls?: ChatCompletionToolCall[]
-    finishReason?: "stop" | "length" | "tool_calls" | "content_filter" | "cancel"
+    finishReason?:
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
 }
 
 export const ModelError = OpenAI.APIError

@@ -42,7 +42,6 @@ async function fragmentVars(
 ) {
     const { file } = frag
     const project = file.project
-    const prjFolder = host.projectFolder()
 
     const files: LinkedFile[] = []
     const fr = frag
@@ -142,7 +141,6 @@ export async function runTemplate(
 ): Promise<FragmentTransformResponse> {
     assert(fragment !== undefined)
     const {
-        requestOptions = {},
         skipLLM,
         label,
         cliInfo,

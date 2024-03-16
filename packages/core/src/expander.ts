@@ -5,7 +5,7 @@ import { MarkdownTrace } from "./trace"
 import type { ChatCompletionMessageParam } from "openai/resources"
 import { isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
+import { DEFAULT_MODEL, DEFAULT_TEMPERATURE, SYSTEM_FENCE } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
@@ -24,6 +24,7 @@ export interface FragmentTransformResponse {
      * Expanded prompt text
      */
     prompt: ChatCompletionMessageParam[]
+
     /**
      * Zero or more edits to apply.
      */
@@ -84,8 +85,6 @@ export interface FragmentTransformResponse {
      */
     frames?: DataFrame[]
 }
-
-const systemFence = "---"
 
 async function callExpander(
     r: PromptTemplate,
@@ -243,7 +242,7 @@ export async function expandTemplate(
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
         if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
-        systemText += systemFence + "\n" + sysex + "\n"
+        systemText += SYSTEM_FENCE + "\n" + sysex + "\n"
 
         responseType = responseType ?? system.responseType
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
