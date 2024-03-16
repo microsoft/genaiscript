@@ -8,8 +8,9 @@ import {
 import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { getChatCompletions, toChatCompletionUserMessage } from "./chat"
+import { toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
+import { OpenAIChatCompletation } from "./openai"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -111,7 +112,7 @@ export function createRunPromptContext(
 
                 // call LLM
                 const completer =
-                    options.getChatCompletions || getChatCompletions
+                    options.getChatCompletions || OpenAIChatCompletation
                 const res = await completer(
                     {
                         model,

@@ -2,7 +2,6 @@ import {
     ChatCompletionRequestMessage,
     ChatCompletionResponse,
     RequestError,
-    getChatCompletions,
     toChatCompletionUserMessage,
 } from "./chat"
 import { Fragment, PromptTemplate } from "./ast"
@@ -33,6 +32,7 @@ import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
+import { OpenAIChatCompletation } from "./openai"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -287,7 +287,7 @@ export async function runTemplate(
                 )
                 status()
                 const completer =
-                    options.getChatCompletions || getChatCompletions
+                    options.getChatCompletions || OpenAIChatCompletation
                 resp = await completer(
                     {
                         model,
@@ -351,7 +351,7 @@ export async function runTemplate(
                 label,
                 version,
                 fences: [],
-                frames: []
+                frames: [],
             }
         }
 
@@ -562,12 +562,12 @@ export async function runTemplate(
                         try {
                             for (const fileMerge of fileMerges)
                                 fileEdit.after =
-                                    await fileMerge(
+                                    (await fileMerge(
                                         fn,
                                         label,
                                         fileEdit.after ?? fileEdit.before,
                                         val
-                                    ) ?? val
+                                    )) ?? val
                         } catch (e) {
                             logVerbose(e)
                             trace.error(`error custom merging diff in ${fn}`, e)

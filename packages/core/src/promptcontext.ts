@@ -1,8 +1,4 @@
-import {
-    ChatCompletionResponse,
-    ChatCompletionsOptions,
-    CreateChatCompletionRequest,
-} from "./chat"
+import { ChatCompletionHandler, ChatCompletionsOptions } from "./chat"
 import { PromptTemplate } from "./ast"
 import { logVerbose, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
@@ -287,9 +283,6 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         cliInfo?: {
             spec: string
         }
-        getChatCompletions?: (
-            req: CreateChatCompletionRequest,
-            options?: ChatCompletionsOptions & { trace: MarkdownTrace }
-        ) => Promise<ChatCompletionResponse>
+        getChatCompletions?: ChatCompletionHandler
         vars?: Record<string, string>
     }
