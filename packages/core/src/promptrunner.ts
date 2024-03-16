@@ -627,13 +627,22 @@ export async function runTemplate(
         try {
             trace.startDetails("🖨️ output processors")
             for (const outputProcessor of outputProcessors) {
-                const { files = {}, annotations: oannotations = [] } =
-                    (await outputProcessor({
-                        text,
-                        fileEdits,
-                        fences,
-                        frames,
-                    })) || {}
+                const {
+                    text: newText,
+                    files = {},
+                    annotations: oannotations = [],
+                } = (await outputProcessor({
+                    text,
+                    fileEdits,
+                    fences,
+                    frames,
+                })) || {}
+
+                if (newText !== undefined) {
+                    text = newText
+                    trace.detailsFenced(`📝 text`, text)
+                }
+
                 for (const [fn, content] of Object.entries(files)) {
                     trace.detailsFenced(`📁 file ${fn}`, content)
                     const fileEdit = await getFileEdit(fn)
