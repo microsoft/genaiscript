@@ -10,6 +10,7 @@ import { throwError } from "./error"
 import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { readText } from "./fs"
+import { dotEnvParse } from "./dotenv"
 import {
     PromptNode,
     appendChild,
@@ -51,13 +52,16 @@ export function createPromptContext(
         },
     })
     const parsers = createParsers({ trace, model })
-    const YAML: YAML = Object.freeze({
+    const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
         parse: YAMLParse,
     })
-    const CSV: CSV = Object.freeze({
+    const CSV = Object.freeze<CSV>({
         parse: CSVParse,
         mardownify: CSVToMarkdown,
+    })
+    const DotEnv = Object.freeze<DotEnv>({
+        parse: dotEnvParse
     })
     const path = host.path
     const fs = host.fs
@@ -187,6 +191,7 @@ export function createPromptContext(
         parsers,
         YAML,
         CSV,
+        DotEnv,
         retreival,
         defImages,
         defSchema,

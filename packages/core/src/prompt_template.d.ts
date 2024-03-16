@@ -648,6 +648,14 @@ interface YAML {
     parse(text: string): any
 }
 
+interface DotEnv {
+    /**
+     * Parses a .env file
+     * @param text
+     */
+    parse(text: string): Record<string, string>
+}
+
 interface CSV {
     /**
      * Parses a CSV string to an array of objects
@@ -805,4 +813,5 @@ interface PromptContext extends RunPromptContext {
     fs: FileSystem
     YAML: YAML
     CSV: CSV
+    DotEnv: DotEnv
 }
