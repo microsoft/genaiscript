@@ -1,7 +1,7 @@
 script({
     title: "TODOs",
     description: "Try to implement TODOs found in source code.",
-    categories: ["samples"],
+    group: "samples",
     system: ["system", "system.diff"],
     temperature: 0,
 })

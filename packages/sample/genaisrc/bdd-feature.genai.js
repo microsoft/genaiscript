@@ -1,7 +1,7 @@
 script({
     title: "Generate BDD scenarios",
     description: "Generate a Gherkin .feature file from the node and children.",
-    categories: ["samples"],
+    group: "samples",
     temperature: 0.5
 })
 

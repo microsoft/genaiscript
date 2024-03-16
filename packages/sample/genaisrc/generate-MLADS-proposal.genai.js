@@ -1,7 +1,7 @@
 script({
     title: "generate an MLADS proposal for a project",
     description: "Generate an MLADS proposal from a project description.",
-    categories: ["RAI tools"],
+    group: "RAI tools",
 })
 
 def("INFO", env.files, { endsWith: "-info.md" })

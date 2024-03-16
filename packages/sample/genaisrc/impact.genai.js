@@ -1,7 +1,7 @@
 script({
     title: "generate impact assessment",
     description: "Generate an impact assessment for a given project.",
-    categories: ["RAI tools"],
+    group: "RAI tools",
 })
 
 

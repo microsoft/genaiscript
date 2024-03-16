@@ -1,7 +1,7 @@
 script({
     title: "MakeCode Blocks Localization",
     description: "Translate block strings that define blocks in MakeCode",
-    categories: ["MakeCode"],
+    group: "MakeCode",
     temperature: 0,
 })
 

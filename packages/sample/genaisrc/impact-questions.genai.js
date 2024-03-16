@@ -1,7 +1,7 @@
 script({
     title: "generate impact assessment questions",
     description: "Generate a list of impact assessment questions.",
-    categories: ["RAI tools"],
+    group: "RAI tools",
 })
 
 def("README", env.files.filter((f) => f.filename.endsWith("README.md")))

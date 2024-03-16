@@ -2,7 +2,7 @@ script({
     title: "Code XRay",
     model: "gpt-4-32k",
     maxTokens: 16000,
-    categories: ["samples"],
+    group: "samples",
     description:
         "Given a source file in a programming language, extract the structure necessary to do LLM queries",
 })

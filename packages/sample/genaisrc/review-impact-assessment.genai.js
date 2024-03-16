@@ -1,7 +1,7 @@
 script({
     title: "review an impact assessment",
     description: "Given an impact assessment, review it.",
-    categories: ["RAI tools"],
+    group: "RAI tools",
 })
 
 def("README", env.files.filter((f) => f.filename.endsWith("README.md")))
