@@ -96,15 +96,19 @@ Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, sha
 Define, use and validate structured data using [schemas](/genaiscript/reference/scripts/schemas).
 
 ```js wrap
-defSchema("MY_DATA", { type: "array", items: { ... }, })
-$`Extract data from files using MY_DATA schema.`
+const data = defSchema("MY_DATA", 
+    { type: "array", items: { ... }, })
+$`Extract data from files using ${data} schema.`
 ```
 
 </Card>
 
 <Card title="Ingest PDFs, DOCX, CSV, .." icon="seti:pdf">
 
-Seamlessly ingest and manipulate [PDFs](/genaiscript/reference/scripts/pdf), [DOCX](/genaiscript/reference/scripts/docx), CSV, and other file formats.
+Seamlessly ingest and manipulate 
+[PDFs](/genaiscript/reference/scripts/pdf), 
+[DOCX](/genaiscript/reference/scripts/docx), 
+[CSV](/genaiscript/reference/scripts/csv), and other file formats.
 
 ```js
 const { file } = await parsers.PDF(env.files[0])
