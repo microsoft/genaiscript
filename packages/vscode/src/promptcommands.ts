@@ -42,7 +42,6 @@ export function activatePromptCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.prompt.refresh",
             async () => {
-                await saveAllTextDocuments()
                 await state.parseWorkspace()
             }
         ),
@@ -73,7 +72,8 @@ TELL THE LLM WHAT TO DO...
                 )
                 t.id = ""
 
-                await showPrompt(await copyPrompt(t, { fork: false, name }))
+                const pr = await copyPrompt(t, { fork: false, name })
+                await showPrompt(pr)
             }
         ),
         vscode.commands.registerCommand(
