@@ -251,6 +251,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
             MetadataMode,
             SummaryIndex,
             SimilarityPostprocessor,
+            SummaryRetrieverMode,
         } = this.module
 
         const serviceContext = await this.createServiceContext()
@@ -261,14 +262,18 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                 storageContext,
                 serviceContext,
             })
-            const retreiver = index.asRetriever()
+            const retreiver = index.asRetriever({
+                mode: SummaryRetrieverMode.LLM,
+            })
             results = await retreiver.retrieve(text)
         } else {
             const index = await VectorStoreIndex.init({
                 storageContext,
                 serviceContext,
             })
-            const retreiver = index.asRetriever({ similarityTopK: topK })
+            const retreiver = index.asRetriever({
+                similarityTopK: topK,
+            })
             results = await retreiver.retrieve(text)
         }
 
