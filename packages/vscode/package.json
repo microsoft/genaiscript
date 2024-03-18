@@ -324,11 +324,8 @@
         "typecheck": "tsc -p .",
         "prepackage": "zx prepackage.mjs",
         "postpackage": "zx postpackage.mjs",
-        "package": "vsce package --dependencies --out genaiscript.vsix --yarn --pre-release",
-        "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn --pre-release",
-        "prevscepublish": "zx prepackage.mjs",
-        "postvscepublish": "zx postpackage.mjs",
-        "vscepublish": "vsce publish --yarn --pre-release"
+        "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
+        "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
     },
     "devDependencies": {
         "@types/isomorphic-fetch": "^0.0.39",
