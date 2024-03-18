@@ -5161,6 +5161,11 @@ jsonfile@^6.0.1:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
+jsonrepair@^3.6.0:
+  version "3.6.0"
+  resolved "https://registry.yarnpkg.com/jsonrepair/-/jsonrepair-3.6.0.tgz#995a85675ec0398dcd86d8dcb74206a53c6680f7"
+  integrity sha512-ZvOmoq35LhlDaf1W3uT7e17Bh2dYbln1+pdJ1KUIMkRAoUC4mvXX+dbr9Ih6dDmYvB0mdijAucyPk4xX1cEjww==
+
 jszip@^3.7.1:
   version "3.10.1"
   resolved "https://registry.npmjs.org/jszip/-/jszip-3.10.1.tgz"
