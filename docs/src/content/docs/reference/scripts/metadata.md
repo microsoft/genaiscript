@@ -8,7 +8,14 @@ keywords: script metadata, configuration, LLM parameters, customization, script 
 
 Prompts use `script({ ... })` function call
 to configure the title and other user interface elements.
-## Script Metadata Configuration
+
+The call to `script` is optional and can be omitted if you don't need to configure the prompt.
+However, the `script` argument should a valid [JSON5](https://json5.org/) literal as the script is parsed and not executed when mining metadata.
+
+## Title, description, group
+
+The `title`, `description` and `group` are used in the UI to display the prompt.
+
 ```javascript
 script({
     title: "Shorten", // displayed in UI

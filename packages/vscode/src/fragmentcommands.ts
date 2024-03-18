@@ -121,7 +121,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentDebug = async (file: vscode.Uri) => {
         await state.cancelAiRequest()
         await state.parseWorkspace()
-        
+
         const template = await pickTemplate()
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
@@ -170,7 +170,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.request.applyEdits",
             applyEdits
-        ),
+        )
     )
 }
 
@@ -190,7 +190,13 @@ export function templatesToQuickPickItems(
             ...cats[cat].map(
                 (template) =>
                     <TemplateQuickPickItem>{
-                        label: template.title,
+                        label:
+                            template.title ??
+                            (template.filename &&
+                                vscode.workspace.asRelativePath(
+                                    template.filename
+                                )) ??
+                            template.id,
                         description: `${template.id} ${
                             template.description || ""
                         }`,

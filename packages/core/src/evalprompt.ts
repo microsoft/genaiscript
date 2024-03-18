@@ -29,11 +29,11 @@ export async function evalPrompt(
         },
     })
     const keys = Object.keys(ctx)
-    const prefix = "async (" + keys.join(",") + ") => { 'use strict';"
-    const suffix = "}"
+    const prefix = "async (" + keys.join(",") + ") => { 'use strict';\n"
+    const suffix = "\n}"
 
     const jsSource = r.jsSource
-    const src = [prefix, jsSource, suffix]
+    let src = [prefix, jsSource, suffix].join("")
     // source map
     if (r.filename && sourceMaps) {
         const s = new MagicString(jsSource)
@@ -43,12 +43,12 @@ export async function evalPrompt(
         const map = s.generateMap({
             source,
             includeContent: true,
-            file: source + ".map",
+            hires: true,
         })
-        src.push(`//# sourceMappingURL=${map.toUrl()}`)
-        src.push(`//# sourceURL=${source}`)
+        src += `\n//# sourceMappingURL=${map.toUrl()}`
+        src += `\n//# sourceURL=${source}`
     }
-    const fsrc = src.join("\n")
+    const fsrc = src
 
     // in principle we could cache this function (but would have to do that based on hashed body or sth)
     // but probably little point
