@@ -52,6 +52,10 @@ type FileMergeHandler = (
 
 interface PromptOutputProcessorResult {
     /**
+     * Updated text
+     */
+    text?: string
+    /**
      * Generated files from the output
      */
     files?: Record<string, string>
@@ -477,7 +481,7 @@ type JSONSchema = JSONSchemaObject | JSONSchemaArray
 interface JSONSchemaValidation {
     schema?: JSONSchema
     valid: boolean
-    errors?: string
+    error?: string
 }
 
 interface DataFrame {
@@ -613,6 +617,21 @@ interface Parsers {
     ): object[] | undefined
 
     /**
+     * Parses a .env file
+     * @param content
+     */
+    dotEnv(content: string | LinkedFile): Record<string, string>
+
+    /**
+     * Parses a .ini file
+     * @param content
+     */
+    INI(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
@@ -640,6 +659,20 @@ interface YAML {
      * Parses a YAML string to object
      */
     parse(text: string): any
+}
+
+interface INI {
+    /**
+     * Parses a .ini file
+     * @param text
+     */
+    parse(text: string): any
+
+    /**
+     * Converts an object to.ini string
+     * @param value
+     */
+    stringify(value: any): string
 }
 
 interface CSV {
@@ -799,6 +832,7 @@ interface PromptContext extends RunPromptContext {
     fs: FileSystem
     YAML: YAML
     CSV: CSV
+    INI: INI
 }
 
 

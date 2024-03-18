@@ -140,6 +140,7 @@ function getAIRequestCache() {
 
 export class ExtensionState extends EventTarget {
     readonly host: VSCodeHost
+    private _parseWorkspacePromise: Promise<void>
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
@@ -389,6 +390,10 @@ ${e.message}`
         return r
     }
 
+    get parsing() {
+        return !!this._parseWorkspacePromise
+    }
+
     get aiRequest() {
         return this._aiRequest
     }
@@ -468,21 +473,40 @@ ${e.message}`
         }
     }
 
-    async parseWorkspace() {
-        this.dispatchChange()
-
-        performance.mark(`project-start`)
-        const gpspecFiles = await findFiles("**/*.gpspec.md")
-        performance.mark(`scan-tools`)
+    async findScripts() {
         const scriptFiles = await findFiles("**/*" + GENAI_EXT)
-        performance.mark(`parse-project`)
-        const newProject = await parseProject({
-            gpspecFiles,
-            scriptFiles,
-        })
-        await this.setProject(newProject)
-        this.setDiagnostics()
-        logMeasure(`project`, `project-start`, `project-end`)
+        return scriptFiles
+    }
+
+    async parseWorkspace() {
+        if (this._parseWorkspacePromise) return this._parseWorkspacePromise
+
+        const parser = async () => {
+            try {
+                this.dispatchChange()
+                performance.mark(`save-docs`)
+                await saveAllTextDocuments()
+                performance.mark(`project-start`)
+                const gpspecFiles = await findFiles("**/*.gpspec.md")
+                performance.mark(`scan-tools`)
+                const scriptFiles = await this.findScripts()
+                performance.mark(`parse-project`)
+                const newProject = await parseProject({
+                    gpspecFiles,
+                    scriptFiles,
+                })
+                await this.setProject(newProject)
+                this.setDiagnostics()
+                logMeasure(`project`, `project-start`, `project-end`)
+            } finally {
+                this._parseWorkspacePromise = undefined
+                this.dispatchChange()
+            }
+        }
+
+        this._parseWorkspacePromise = parser()
+        this.dispatchChange()
+        await this._parseWorkspacePromise
     }
 
     async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
@@ -504,7 +528,7 @@ ${files
         this.host.setVirtualFile(specn, spec)
 
         const gpspecFiles = [specn]
-        const scriptFiles = await findFiles("**/*" + GENAI_EXT)
+        const scriptFiles = await this.findScripts()
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
@@ -530,7 +554,7 @@ ${files
 `
         )
         const gpspecFiles = [specn]
-        const scriptFiles = await findFiles("**/*" + GENAI_EXT)
+        const scriptFiles = await this.findScripts()
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
