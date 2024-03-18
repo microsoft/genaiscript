@@ -13,8 +13,7 @@
         "vscode": "^1.86.0"
     },
     "categories": [
-        "AI",
-        "Chat"
+        "Other"
     ],
     "license": "MIT",
     "extensionKind": [
