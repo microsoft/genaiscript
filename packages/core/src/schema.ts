@@ -131,7 +131,7 @@ export function validateFencesWithSchema(
         // validate well formed json/yaml
         let data: any
         try {
-            if (language === "json") data = JSON5parse(val)
+            if (language === "json") data = JSON5parse(val, { repair: true })
             else if (language === "yaml") data = YAMLParse(val)
         } catch (e) {
             fence.validation = {
