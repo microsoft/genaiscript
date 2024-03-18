@@ -20,6 +20,9 @@
     "extensionKind": [
         "workspace"
     ],
+    "npm": {
+        "publish": false
+    },
     "activationEvents": [
         "workspaceContains:**/*.gpspec.md",
         "workspaceContains:**/*.genai.js"
