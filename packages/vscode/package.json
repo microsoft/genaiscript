@@ -326,7 +326,9 @@
         "postpackage": "zx postpackage.mjs",
         "package": "vsce package --dependencies --out genaiscript.vsix --yarn --pre-release",
         "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn --pre-release",
-        "vsce:publish": "vsce publish --yarn --pre-release"
+        "prevscepublish": "zx prepackage.mjs",
+        "postvscepublish": "zx postpackage.mjs",
+        "vscepublish": "vsce publish --yarn --pre-release"
     },
     "devDependencies": {
         "@types/isomorphic-fetch": "^0.0.39",
