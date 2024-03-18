@@ -32,7 +32,7 @@ const schema = defSchema("CITY_SCHEMA", {
     }
 })
 
-$`Generate ... using JSON compliant with ${schema}.
+$`Generate ... using JSON compliant with ${schema}.`
 ```
 
 ### Prompt encoding
@@ -40,7 +40,7 @@ $`Generate ... using JSON compliant with ${schema}.
 Following the ["All You Need Is Types" approach](https://microsoft.github.io/TypeChat/docs/introduction/)
 from TypeChat, the schema is converted TypeScript types before being injected in the LLM prompt.
 
-````typescript
+```typescript
 // A list of cities with population and elevation information.
 type CITY_SCHEMA = Array<{
     // The name of the city.
@@ -50,13 +50,13 @@ type CITY_SCHEMA = Array<{
     // The URL of the city's Wikipedia page.
     url: string,
   }>
-````
+```
 
 You can change this behavior by using the `{ format: "json" }` option.
 
-````javascript
+```javascript
 const schema = defSchema("CITY_SCHEMA", {...}, { format: "json" })
-````
+```
 
 :::tip[Read the Trace!]
 
@@ -108,6 +108,7 @@ type CITY_SCHEMA = Array<{
     // The URL of the city's Wikipedia page.
     url: string,
   }>
+  
 ```
 
 </details>
@@ -118,9 +119,9 @@ type CITY_SCHEMA = Array<{
 Then tell the LLM to use this schema to generate data.
 
 ```js
-$`Use the TARGET_SCHEMA for the JSON schema.`
+const schema = defSchema(...)
+$`Use ${schema} for the JSON schema.`
 ```
-
 
 ## Validation
 
@@ -129,7 +130,13 @@ GenAIScript automatically validates the payload against the schema.
 
 :::tip
 
-Tell the LLM to use YAML instead of JSON as it works better with the LLM tokenizers.
+Not all data formats are equal! Some data formats like JSON introduce ambiguity 
+and can confuse the LLM.
 [Read more...](https://betterprogramming.pub/yaml-vs-json-which-is-more-efficient-for-language-models-5bc11dd0f6df).
 
 :::
+
+## Repair
+
+GenAIScript will automatically try to repair the data by issues additional messages 
+back to the LLM with the parsing output.
