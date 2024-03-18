@@ -83,6 +83,14 @@ To parse, use `parsers.TOML`. It supports both a text content or a file as input
 const res = parsers.TOML("...")
 ```
 
+## XML
+
+The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/wiki/XML).
+
+```js
+const res = parsers.XML("<xml></xml>")
+```
+
 ## front matter
 
 [Front matter](https://jekyllrb.com/docs/front-matter/) is a metadata section at the head of a file, typically formatted as YAML.

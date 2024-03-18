@@ -20,6 +20,7 @@
     "csv-parse": "^5.5.5",
     "dotenv": "^16.4.5",
     "esbuild": "^0.20.1",
+    "fast-xml-parser": "^4.3.6",
     "fetch-retry": "^5.0.6",
     "file-type": "^19.0.0",
     "gpt-tokenizer": "^2.1.2",
