@@ -172,78 +172,16 @@ class Checker<T extends PromptLike> {
     }
 }
 
-class MetaFoundError extends Error {
-    constructor() {
-        super("meta found")
-    }
-}
-
 async function parseMeta(r: PromptTemplate) {
     // shortcut
     const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
         r.jsSource
     )
-    let meta: PromptArgs = JSON5TryParse(m?.groups?.meta) || null
-    if (meta) {
-        if (m.groups.kind === "system") {
-            meta.unlisted = true
-            meta.isSystem = true
-        }
-        return meta
+    const meta: PromptArgs = JSON5TryParse(m?.groups?.meta) ?? {}
+    if (m?.groups?.kind === "system") {
+        meta.unlisted = true
+        meta.isSystem = true
     }
-
-    // execute
-    const script = (m: PromptArgs) => {
-        if (meta !== null) throw new Error(`more than one script() call`)
-        meta = m
-        throw new MetaFoundError()
-    }
-    const system = (m: PromptArgs) => {
-        m.unlisted = true
-        m.isSystem = true
-        script(meta)
-    }
-
-    const error: () => any = () => {
-        if (meta == null) throw new Error(`script()/system() has to come first`)
-    }
-    const env = new Proxy<ExpansionVariables>(staticVars() as any, {
-        get: (target: any, prop, recv) => {
-            return target[prop] ?? "<empty>"
-        },
-    })
-    const ctx = Object.freeze<PromptContext>({
-        script,
-        system,
-        env,
-        path: undefined,
-        parsers: undefined,
-        retreival: undefined,
-        fs: undefined,
-        YAML: undefined,
-        CSV: undefined,
-        INI: undefined,
-        fence: error,
-        def: error,
-        defFunction: error,
-        defFileMerge: error,
-        defSchema: error,
-        defImages: error,
-        defData: error,
-        writeText: error,
-        runPrompt: error,
-        fetchText: error,
-        cancel: error,
-        $: error,
-        defOutput: error,
-    })
-
-    try {
-        await evalPrompt(ctx, r)
-    } catch (e) {
-        if (!meta || !(e instanceof MetaFoundError)) throw e
-    }
-
     return meta
 }
 
@@ -443,8 +381,6 @@ ${validation.error.split("\n").join("\n> ")}`
         .join("\n")
 }
 
-const metaCache: Record<string, PromptArgs> = {}
-
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
@@ -453,15 +389,13 @@ async function parsePromptTemplateCore(
 ) {
     const r = {
         id: templateIdFromFileName(filename),
-        title: filename,
         text: "<nothing yet>",
         jsSource: content,
     } as PromptTemplate
     if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
 
     try {
-        const key = (await sha256string(`${r.id}-${r.jsSource}`)).slice(0, 16)
-        const meta = metaCache[key] || (metaCache[key] = await parseMeta(r))
+        const meta = await parseMeta(r)
         const checker = new Checker<PromptTemplate>(
             r,
             filename,

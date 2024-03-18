@@ -156,3 +156,7 @@ Overrides the LLM model identifier.
 ### --apply-edits
 
 Apply file modifications to the file system.
+
+### --source-map
+
+Generate a source map for the script sources to allow debugging.

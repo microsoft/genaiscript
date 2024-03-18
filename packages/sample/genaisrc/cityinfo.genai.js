@@ -1,8 +1,3 @@
-script({
-    title: "City general information",
-    temperature: 0
-})
-
 // the data to analyze
 def("CITIES", env.files)
 
