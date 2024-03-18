@@ -743,10 +743,6 @@ interface Retreival {
              */
             topK?: number
             /**
-             * Retreive summaries
-             */
-            summary?: boolean
-            /**
              * Minimum similarity score
              */
             minScore?: number

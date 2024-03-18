@@ -67,6 +67,7 @@ export interface ResponseStatus {
 
 export interface RetreivalOptions {
     indexName?: string
+    summary?: boolean
 }
 
 export interface RetreivalSearchOptions extends RetreivalOptions {
