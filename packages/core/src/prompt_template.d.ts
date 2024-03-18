@@ -553,6 +553,16 @@ interface Fenced {
     validation?: JSONSchemaValidation
 }
 
+interface XMLParseOptions {
+    allowBooleanAttributes?: boolean
+    ignoreAttributes?: boolean
+    ignoreDeclaration?: boolean
+    ignorePiTags?: boolean
+    parseAttributeValue?: boolean
+    removeNSPrefix?: boolean
+    unpairedTags?: string[]
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -637,7 +647,7 @@ interface Parsers {
      */
     XML(
         content: string | LinkedFile,
-        options?: { defaultValue?: any }
+        options?: { defaultValue?: any } & XMLParseOptions
     ): any | undefined
 
     /**
