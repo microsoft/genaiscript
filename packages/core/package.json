@@ -1,12 +1,12 @@
 {
   "name": "genaiscript-core",
-  "version": "1.15.2",
+  "version": "1.15.4",
   "main": "src/index.ts",
   "license": "MIT",
   "private": true,
   "npm": {
     "publish": false
-  },  
+  },
   "repository": {
     "directory": "packages/core",
     "url": "https://github.com/microsoft/genaiscript"
