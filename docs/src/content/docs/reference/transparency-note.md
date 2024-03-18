@@ -74,13 +74,12 @@ GenAIScript users can implement tools that generate and edit multiple
 files with a single tool and our integration with VS Code leverages
 existing functionality in for refactoring to allow users to easily see
 the results of the tool execution. The add-in supports creating a new
-GenAIScript, creating a new GPSpec, invoking a given GenAIScript from a
-GPSpec, tracing the execution of the GenAIScript in establishing the LLM
+GenAIScript, invoking a given GenAIScript, tracing the execution of the GenAIScript in establishing the LLM
 context and final prompt, and unparsing the LLM output into the
 user-specified elements. Examples of all of these capabilities can be
-viewed in demo videos in the GenAIScript repository:
-[microsoft/GenAIScript: GenAI Scripting
-(github.com)](https://github.com/microsoft/genaiscript/)
+viewed in the documents in the GenAIScript repository:
+[microsoft/GenAIScript: Generative AI Scripting
+(github.com)](https://microsoft.github.io/genaiscript/)
 
 The goal of GenAIScript is to empower a broad range of potential users
 to innovate with building AI-powered scripts and identify new ways to
@@ -91,12 +90,12 @@ GenAIScript will give these users benefit because GenAIScript can do
 many things that existing scripts written in traditional scripting
 languages like JavaScript and Python cannot do. While developers can
 leverage other frameworks, such as langchain and Semantic Kernel, that
-integrate calls to LLMs into languages like Python and JavaScript, these
+integrate calls to LLMs into languages like Python, these
 frameworks require more user effort and have less IDE support than
 GenAIScript. Ultimately, because our goal is to make GenAIScript easy to
 author, modify, debug and run, we anticipate that they will be useful
-far beyond professional developers. The real impact of GenAIScript will
-be to enable many non-developers to innovate and build GenAIScript that
+far beyond professional developers. A major impact of GenAIScript will
+be to enable non-developers to innovate and build GenAIScripts that
 enhance their productivity. We illustrate this point with examples
 below.
 
@@ -104,7 +103,7 @@ below.
 
 To help users get started with GenAIScript, we include documentation in
 our repository that illustrates in code snippets the contents of several
-different GenAIScript. The documentation shows both what the example
+different GenAIScripts. The documentation shows both what the example
 GenAIScript looks like as well as what the effect is from the
 GenAIScript acting on a particular input. While these examples are
 intended to explain the technology, they are not intended to be the
@@ -137,14 +136,15 @@ code. Here are some examples:
     consider the task of maintaining the localization of the
     MakeCode[^3] documentation. MakeCode documentation has nearly 2M
     files, which are typically markdown with a mix of code snippets.
-    Many documents are partially translated (paragraph level). There are
+    Many documents are partially translated (at the paragraph level). To check the correctness of
+    document translations, there are
     3500 registered volunteer translators for 35+ languages. One cannot
-    just apply Bing translate as it typically destroys the code
+    just apply Bing translate for this use case, as it typically destroys the code
     snippets. With GenAIScript, we can have a script that goes through
     every documentation file, pulls the current localized version and
     assembles a prompt to ask the LLM to fill in the missing
-    translations, while leaving the existing ones alone. The LLM already
-    crawled MakeCode and is aware of the syntax.
+    translations, while leaving the existing ones alone. Because the LLM model we use has already been trained on 
+    MakeCode examples and documentation it is aware of the syntax.
 
 -   **Generating executable code from a natural language
     specification.** A GPSpec file can be used to specify the task being
@@ -173,8 +173,8 @@ make it easier to author adversarial scripts. This issue is present in
 any infrastructure that makes programming easier, including languages
 such as PowerShell, JavaScript, and Python, as well as IDEs such as VS
 Code and Visual Studio. While we cannot prevent unintended uses, we will
-encourage users to consider Responsible AI practices when then build
-GenAIScript.
+encourage users to consider Responsible AI practices when they build
+GenAIScripts.  We provide more details about issues related to security and trust in [security and trust](./security-and-trust.mdx).
 
 #### Foundation model best practices
 
@@ -192,30 +192,17 @@ Service at Ignite 2023
 ## Limitations
 
 GenAIScript is an evolving framework that will improve based on input
-from users. Existing limitations in the framework include weak support
-for Retrieval Augmented Generation (RAG), integration into only one IDE
+from users. Existing limitations in the framework include integration into only one IDE
 (VS code), and internal support for OpenAI APIs plus a relatively small
 number of other LLMs. We intend to allow users to integrate calls to
 external services (such as RAG) in GenAIScript to provide the LLM with
-more context. In these cases, users can choose to register a set of
-pre-existing functions and ask the LLM to choose which function to call
-and with what arguments. Such uses of LLMs have risks related to
-adversarial and poorly written extensions, which the user has the
-ability to choose and control. Our documentation will highlight the
-potential risks of such use cases, and recommend caution when using this
-feature.
-
-We anticipate adding support for more foundation models as the use cases
-evolve.
+more context.  We anticipate adding support for more foundation models as the use cases evolve.
 
 We also anticipate that the on-ramp to using GenAIScript will evolve. We
-currently support invoking the GenAIScript framework as part of a VS
-Code Copilot Chat experience (hosted in VS Code Insider's Edition). We
-are exploring ways to generate a GenAIScript directly from the user chat
-interactions which will lower the barrier to entry for using
-GenAIScript. We also understand that some developers would prefer to
+have explored supporting invoking the GenAIScript framework as part of a VS
+Code Copilot Chat experience (hosted in VS Code Insider's Edition). We also understand that some developers would prefer to
 implement their GenAIScript using Python instead of JavaScript. We
-anticipate building a Python binding form authoring GenAIScript in the
+anticipate building a Python binding form authoring GenAIScripts in the
 future.
 
 ### Technical limitations, operational factors and ranges
@@ -223,7 +210,7 @@ future.
 GenAIScript does not use any AI model in executing the framework itself.
 Individuals using GenAIScript to author their own AI scripts will be
 subject to the technical limitations, operational factors, and ranges of
-the AI LLM their tool uses.
+the AI LLM their script uses.
 
 ### Best practices for improving system performance
 
@@ -270,9 +257,9 @@ recommendations and resources will be appropriate for every scenario,
 and conversely, these recommendations and resources may be insufficient
 for some scenarios.
 
--   Published: March 13, 2024
+-   Published: March 18, 2024
 
--   Last updated: March 13, 2024
+-   Last updated: March 18, 2024
 
 ---
 
