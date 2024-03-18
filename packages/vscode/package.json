@@ -7,14 +7,13 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.15.2",
+    "version": "1.15.4",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.86.0"
     },
     "categories": [
-        "AI",
-        "Chat"
+        "Other"
     ],
     "license": "MIT",
     "extensionKind": [
@@ -324,8 +323,8 @@
         "typecheck": "tsc -p .",
         "prepackage": "zx prepackage.mjs",
         "postpackage": "zx postpackage.mjs",
-        "package": "vsce package --dependencies --out genaiscript.vsix --yarn --pre-release",
-        "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn --pre-release"
+        "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
+        "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
     },
     "devDependencies": {
         "@types/isomorphic-fetch": "^0.0.39",
