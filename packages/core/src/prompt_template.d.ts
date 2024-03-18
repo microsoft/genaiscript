@@ -623,6 +623,15 @@ interface Parsers {
     dotEnv(content: string | LinkedFile): Record<string, string>
 
     /**
+     * Parses a .ini file
+     * @param content
+     */
+    INI(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
@@ -652,18 +661,18 @@ interface YAML {
     parse(text: string): any
 }
 
-interface DotEnv {
+interface INI {
     /**
-     * Parses a .env file
+     * Parses a .ini file
      * @param text
      */
-    parse(text: string): Record<string, string>
+    parse(text: string): any
 
     /**
-     * Converts an object to .env string
+     * Converts an object to.ini string
      * @param value
      */
-    stringify(value: Record<string, string>): string
+    stringify(value: any): string
 }
 
 interface CSV {
@@ -823,5 +832,5 @@ interface PromptContext extends RunPromptContext {
     fs: FileSystem
     YAML: YAML
     CSV: CSV
-    DotEnv: DotEnv
+    INI: INI
 }

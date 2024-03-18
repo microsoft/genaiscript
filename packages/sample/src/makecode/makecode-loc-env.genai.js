@@ -43,7 +43,7 @@ if (Object.keys(strings).length === 0) cancel(`no strings to translate`)
 Object.keys(strings).forEach(
     (k) => (strings[k] = strings[k].replace(/(\.|\n).*/s, ".").trim())
 )
-const contentToTranslate = DotEnv.stringify(strings)
+const contentToTranslate = INI.stringify(strings)
 
 // the prompt engineering piece
 $`
@@ -91,7 +91,7 @@ ${contentToTranslate}
 `
 
 defOutput(async (o) => {
-    const news = DotEnv.parse(o.text)
+    const news = INI.parse(o.text)
     Object.assign(translated, news)
     return {
         files: {
