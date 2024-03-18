@@ -135,6 +135,7 @@ Arguments:
 Options:
   -ef, --excluded-files <string...>  excluded files
   -n, --name <string>                index name
+  -s, --summary                      use LLM-generated summaries
   -cs, --chunk-size <number>         chunk size
   -co, --chunk-overlap <number>      chunk overlap
   -m, --model <string>               model for embeddings (default gpt-4)
@@ -153,6 +154,7 @@ Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of embeddings
   -n, --name <string>                index name
+  -s, --summary                      use LLM-generated summaries
   -h, --help                         display help for command
 ```
 
@@ -165,6 +167,7 @@ Clear index to force re-indexing
 
 Options:
   -n, --name <string>  index name
+  -s, --summary        use LLM-generated summaries
   -h, --help           display help for command
 ```
 
