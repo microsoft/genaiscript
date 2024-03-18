@@ -27,7 +27,6 @@
         "workspaceContains:**/*.genai.js"
     ],
     "main": "./built/extension.js",
-    "browser": "./built/extension.js",
     "bugs": {
         "url": "https://github.com/microsoft/genaiscript/issues"
     },
