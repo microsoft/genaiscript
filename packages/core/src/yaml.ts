@@ -13,7 +13,7 @@ export function YAMLTryParse<T = any>(
             ["number", "boolean", "string"].includes(typeof res)
         )
             return defaultValue
-        return res
+        return res ?? defaultValue
     } catch (e) {
         return defaultValue
     }

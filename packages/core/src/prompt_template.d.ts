@@ -632,6 +632,15 @@ interface Parsers {
     ): any | undefined
 
     /**
+     * Parses a .xml file
+     * @param content
+     */
+    XML(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */

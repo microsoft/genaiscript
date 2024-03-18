@@ -23,7 +23,7 @@ export function JSON5parse<T = unknown>(
             } catch {
                 const repaired = JSONrepair(text)
                 const res = parse(repaired)
-                return res as T
+                return (res as T) ?? options?.defaultValue
             }
         } else {
             const res = parse(text)
