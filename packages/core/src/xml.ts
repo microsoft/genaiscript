@@ -1,16 +1,6 @@
 import { XMLParser } from "fast-xml-parser"
 import { logError } from "./util"
 
-export interface XMLParseOptions {
-    allowBooleanAttributes?: boolean
-    ignoreAttributes?: boolean
-    ignoreDeclaration?: boolean
-    ignorePiTags?: boolean
-    parseAttributeValue?: boolean
-    removeNSPrefix?: boolean
-    unpairedTags?: string[]
-}
-
 export function XMLTryParse(
     text: string,
     defaultValue?: any,

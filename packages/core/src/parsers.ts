@@ -24,8 +24,14 @@ export function createParsers(options: {
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
         YAML: (text, options) =>
             YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
-        XML: (text, options) =>
-            XMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
+        XML: (text, options) => {
+            const { defaultValue, ...rest } = options || {}
+            return XMLTryParse(
+                filenameOrFileToContent(text),
+                defaultValue,
+                rest
+            )
+        },
         TOML: (text, options) =>
             TOMLTryParse(filenameOrFileToContent(text), options),
         frontmatter: (text, options) =>
