@@ -29,6 +29,7 @@ import {
     createRunPromptContext,
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
+import { INIParse, INIStringify, INITryParse } from "./ini"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -60,9 +61,9 @@ export function createPromptContext(
         parse: CSVParse,
         mardownify: CSVToMarkdown,
     })
-    const DotEnv = Object.freeze<DotEnv>({
-        parse: dotEnvParse,
-        stringify: dotEnvStringify,
+    const INI = Object.freeze<INI>({
+        parse: INIParse,
+        stringify: INIStringify,
     })
     const path = host.path
     const fs = host.fs
@@ -191,7 +192,7 @@ export function createPromptContext(
         parsers,
         YAML,
         CSV,
-        DotEnv,
+        INI,
         retreival,
         defImages,
         defSchema,

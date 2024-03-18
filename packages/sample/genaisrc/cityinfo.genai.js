@@ -7,7 +7,7 @@ script({
 def("CITIES", env.files)
 
 // JSON schema to constrain the output of the tool.
-defSchema("CITY_SCHEMA", {
+const schema = defSchema("CITY_SCHEMA", {
     type: "array",
     description: "A list of cities with population and elevation information.",
     items: {
@@ -24,5 +24,5 @@ defSchema("CITY_SCHEMA", {
 
 // the task
 $`Generate a YAML data file with the information of the cities in the CITIES data set,
-compliant with the CITY_SCHEMA JSON schema.
+compliant with ${schema}.
 `

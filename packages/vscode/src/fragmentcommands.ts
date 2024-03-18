@@ -94,8 +94,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         let { fragment, template, debug } = options || {}
 
         await state.cancelAiRequest()
-
-        await saveAllTextDocuments
         await state.parseWorkspace()
 
         fragment = await resolveSpec(fragment)
@@ -122,8 +120,8 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     const fragmentDebug = async (file: vscode.Uri) => {
         await state.cancelAiRequest()
-        await saveAllTextDocuments
         await state.parseWorkspace()
+        
         const template = await pickTemplate()
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],

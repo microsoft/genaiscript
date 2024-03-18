@@ -1,5 +1,7 @@
+import { JSON5parse } from "./json5"
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
+import { YAMLParse } from "./yaml"
 
 export function stringifySchemaToTypeScript(
     schema: JSONSchema,
@@ -80,14 +82,15 @@ export async function validateSchema(trace: MarkdownTrace, schema: JSONSchema) {
 }
 
 export function validateJSONWithSchema(
-    trace: MarkdownTrace,
     object: any,
-    schema: JSONSchema
+    schema: JSONSchema,
+    options?: { trace: MarkdownTrace }
 ): JSONSchemaValidation {
+    const { trace } = options || {}
     if (!schema)
         return {
             valid: false,
-            errors: "no schema provided",
+            error: "no schema provided",
         }
 
     try {
@@ -95,18 +98,69 @@ export function validateJSONWithSchema(
         const validate = ajv.compile(schema)
         const valid = validate(object)
         if (!valid) {
-            trace.error(`schema validation failed`)
-            trace.fence(validate.errors)
-            trace.fence(schema, "json")
+            trace?.error(`schema validation failed`)
+            trace?.fence(validate.errors)
+            trace?.fence(schema, "json")
             return {
                 schema,
                 valid: false,
-                errors: ajv.errorsText(validate.errors),
+                error: ajv.errorsText(validate.errors),
             }
         }
         return { schema, valid: true }
     } catch (e) {
-        trace.error("schema validation failed", e)
-        return { schema, valid: false, errors: e.message }
+        trace?.error("schema validation failed", e)
+        return { schema, valid: false, error: e.message }
     }
+}
+
+export function validateFencesWithSchema(
+    fences: Fenced[],
+    schemas: Record<string, JSONSchema>,
+    options?: { trace: MarkdownTrace }
+): DataFrame[] {
+    const frames: DataFrame[] = []
+    // validate schemas in fences
+    for (const fence of fences?.filter(
+        ({ language, args }) =>
+            args?.schema && (language === "json" || language === "yaml")
+    )) {
+        const { language, content: val, args } = fence
+        const schema = args?.schema
+
+        // validate well formed json/yaml
+        let data: any
+        try {
+            if (language === "json") data = JSON5parse(val)
+            else if (language === "yaml") data = YAMLParse(val)
+        } catch (e) {
+            fence.validation = {
+                valid: false,
+                error: e.message,
+            }
+        }
+        if (!fence.validation) {
+            // check if schema specified
+            const schemaObj = schemas[schema]
+            if (!schemaObj) {
+                fence.validation = {
+                    valid: false,
+                    error: `schema ${schema} not found`,
+                }
+            } else
+                fence.validation = validateJSONWithSchema(
+                    data,
+                    schemaObj,
+                    options
+                )
+        }
+
+        // add to frames
+        frames.push({
+            schema,
+            data,
+            validation: fence.validation,
+        })
+    }
+    return frames
 }
