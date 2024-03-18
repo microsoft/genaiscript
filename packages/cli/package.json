@@ -9,6 +9,16 @@
     "repository": {
         "url": "https://github.com/microsoft/genaiscript"
     },
+    "homepage": "https://microsoft.github.io/genaiscript",
+    "keywords": [
+        "genai",
+        "ai",
+        "cli",
+        "prompt",
+        "llm",
+        "generative ai"
+    ],
+    "description": "A CLI for GenAIScript, a generative AI scripting framework.",
     "license": "MIT",
     "dependencies": {
         "commander": "^12.0.0",
