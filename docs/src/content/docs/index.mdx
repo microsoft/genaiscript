@@ -103,11 +103,10 @@ $`Extract data from files using ${data} schema.`
 Seamlessly ingest and manipulate
 [PDFs](/genaiscript/reference/scripts/pdf),
 [DOCX](/genaiscript/reference/scripts/docx),
-[CSV](/genaiscript/reference/scripts/csv), and other file formats.
+[CSV](/genaiscript/reference/scripts/csv), ...
 
 ```js
-const { file } = await parsers.PDF(env.files[0])
-const { file } = await parsers.DOCX(env.files[1])
+const { pages } = await parsers.PDF(env.files[0])
 ```
 
 </Card>

@@ -12,6 +12,7 @@ import { extractFenced } from "./template"
 import { parseAnnotations } from "./annotations"
 import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
+import { XMLTryParse } from "./xml"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -23,6 +24,8 @@ export function createParsers(options: {
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
         YAML: (text, options) =>
             YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
+        XML: (text, options) =>
+            XMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
         TOML: (text, options) =>
             TOMLTryParse(filenameOrFileToContent(text), options),
         frontmatter: (text, options) =>
