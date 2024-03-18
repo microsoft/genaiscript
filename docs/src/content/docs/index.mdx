@@ -15,27 +15,22 @@ hero:
 
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
-import packageJson from "../../../package.json"
 
 ```js wrap title="extract-titles.genai.js"
-// metadata and model configuration
-script({ model: "gpt4", temperature: 0 })
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
-// define the data schema
+// structure the data
 const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
-// define the task
-$`Analyze FILE and extract titles to JSON using the ${schema} schema.
-
-Pretty please.`
+// assign the task
+$`Analyze FILE and extract data to JSON using the ${schema} schema.`
 ```
 
 ## Next steps
 
 <CardGrid stagger>
     <Card title="Install the extension" icon="puzzle">
-        Install the [Visual Studio Code Extension v{packageJson.version}](/genaiscript/getting-started/installation/) 
-to get started.
+        Install the [Visual Studio Code
+        Extension](/genaiscript/getting-started/installation/) to get started.
     </Card>
     <Card title="Configure your LLMs" icon="setting">
         Configure the [secrets](/genaiscript/reference/token) to access your
@@ -60,18 +55,18 @@ GenAIScript brings essential LLM prompt tooling into a cohesive scripting enviro
 
 <Card title="Stylized Javascript" icon="seti:javascript">
 
-Build prompts programmatically using [a stylized JavaScript syntax](/genaiscript/reference/scripts/).
+Build prompts programmatically using [JavaScript](/genaiscript/reference/scripts/).
 
 ```js wrap
-// $ writes the prompt text
-$`Your are a helpful assistant. Today is ${new Date()}.`
+def("FILE", env.files, { endsWith: ".pdf" })
+$`Summarize FILE. Today is ${new Date()}.`
 ```
 
 </Card>
 
 <Card title="Fast Development Loop" icon="rocket">
 
-Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/running-scripts/) your scripts in the [Visual Studio Code](/genaiscript/getting-started/installation).
+Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](/genaiscript/getting-started/installation).
 
 ![Debugging a script](../../assets/debugger.png)
 
@@ -93,10 +88,10 @@ Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, sha
 
 <Card title="Data Schemas" icon="list-format">
 
-Define, use and validate structured data using [schemas](/genaiscript/reference/scripts/schemas).
+Define, validate, repair data using [schemas](/genaiscript/reference/scripts/schemas).
 
 ```js wrap
-const data = defSchema("MY_DATA", 
+const data = defSchema("MY_DATA",
     { type: "array", items: { ... }, })
 $`Extract data from files using ${data} schema.`
 ```
@@ -105,9 +100,9 @@ $`Extract data from files using ${data} schema.`
 
 <Card title="Ingest PDFs, DOCX, CSV, .." icon="seti:pdf">
 
-Seamlessly ingest and manipulate 
-[PDFs](/genaiscript/reference/scripts/pdf), 
-[DOCX](/genaiscript/reference/scripts/docx), 
+Seamlessly ingest and manipulate
+[PDFs](/genaiscript/reference/scripts/pdf),
+[DOCX](/genaiscript/reference/scripts/docx),
 [CSV](/genaiscript/reference/scripts/csv), and other file formats.
 
 ```js
@@ -119,7 +114,7 @@ const { file } = await parsers.DOCX(env.files[1])
 
 <Card title="RAG built-in" icon="magnifier">
 
-[Embeddings vector search](/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
+[Vector search](/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
 
 ```js wrap
 // embedding vector index and search
@@ -130,7 +125,7 @@ const { files } = await retreival.search("cats", env.files)
 
 <Card title="Automate" icon="github">
 
-Automate your scripts using the [CLI](/genaiscript/reference/cli).
+Automate using the [CLI](/genaiscript/reference/cli).
 
 ```bash frame="none" wrap
 node .genaiscript/genaiscript.cjs run my-script "*.pdf"
@@ -145,7 +140,7 @@ node .genaiscript/genaiscript.cjs run my-script "*.pdf"
 ```js wrap
 // summarize each files individually
 for (const file of env.files) {
-    const { text } = await runPrompt(_ => {
+    const { text } = await runPrompt((_) => {
         _.def("FILE", file)
         _.$`Summarize the FILE.`
     })
