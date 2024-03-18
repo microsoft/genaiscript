@@ -8,9 +8,9 @@ script({ title: "Title Extractor", model: "gpt4" })
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
-defSchema("DATA", { type: "array", items: { type: "string" } })
+const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
 // define the task
-$`Analyze FILE and extract titles to JSON using the DATA schema.`
+$`Analyze FILE and extract titles to JSON compliant with ${schema}.`
 ```
 
 -   **Read the online documentation at https://microsoft.github.io/genaiscript/**

@@ -17,7 +17,7 @@ specific data format later on.
 Use `defSchema` to define a JSON/YAML schema for the prompt output.
 
 ```javascript
-defSchema("CITY_SCHEMA", {
+const schema = defSchema("CITY_SCHEMA", {
     type: "array",
     description: "A list of cities with population and elevation information.",
     items: {
@@ -31,6 +31,8 @@ defSchema("CITY_SCHEMA", {
         required: ["name", "population", "url"]
     }
 })
+
+$`Generate ... using JSON compliant with ${schema}.
 ```
 
 ### Prompt encoding
@@ -52,9 +54,9 @@ type CITY_SCHEMA = Array<{
 
 You can change this behavior by using the `{ format: "json" }` option.
 
-```js
-defSchema("CITY_SCHEMA", {...}, { format: "json" })
-```
+````javascript
+const schema = defSchema("CITY_SCHEMA", {...}, { format: "json" })
+````
 
 :::tip[Read the Trace!]
 
