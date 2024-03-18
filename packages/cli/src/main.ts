@@ -723,6 +723,7 @@ async function retreivalIndex(
     files: string[],
     options: {
         excludedFiles: string[]
+        summary: boolean
         name: string
         model: string
         chunkSize: string
@@ -737,6 +738,7 @@ async function retreivalIndex(
         chunkOverlap,
         chunkSize,
         splitLongSentences,
+        summary,
     } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
@@ -752,21 +754,27 @@ async function retreivalIndex(
         chunkOverlap: normalizeInt(chunkOverlap),
         chunkSize: normalizeInt(chunkSize),
         splitLongSentences,
+        summary,
     })
     spinner.stop()
 }
 
-async function retreivalClear(options: { name: string }) {
-    const { name: indexName } = options || {}
-    await clearIndex({ indexName })
+async function retreivalClear(options: { name: string; summary: boolean }) {
+    const { name: indexName, summary } = options || {}
+    await clearIndex({ indexName, summary })
 }
 
 async function retreivalSearch(
     q: string,
     filesGlobs: string[],
-    options: { excludedFiles: string[]; topK: string; name: string }
+    options: {
+        excludedFiles: string[]
+        topK: string
+        name: string
+        summary: boolean
+    }
 ) {
-    const { excludedFiles, name: indexName, topK } = options || {}
+    const { excludedFiles, name: indexName, topK, summary } = options || {}
     const files = await expandFiles(filesGlobs, excludedFiles)
     const spinner = ora({ interval: 200 }).start(
         `searching '${q}' in ${files.length} files`
@@ -775,6 +783,7 @@ async function retreivalSearch(
         files,
         topK: normalizeInt(topK),
         indexName,
+        summary,
     })
     spinner.succeed()
     console.log(YAMLStringify(res))
@@ -952,6 +961,7 @@ async function main() {
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-n, --name <string>", "index name")
+//        .option("-s, --summary", "use LLM-generated summaries")
         .option("-cs, --chunk-size <number>", "chunk size")
         .option("-co, --chunk-overlap <number>", "chunk overlap")
         .option("-m, --model <string>", "model for embeddings (default gpt-4)")
@@ -967,11 +977,13 @@ async function main() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .option("-n, --name <string>", "index name")
+//        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalSearch)
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
+//        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalClear)
 
     retreival
