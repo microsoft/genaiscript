@@ -1,7 +1,7 @@
 /* eslint-disable curly */
 import { parse } from "json5"
 
-export function parseJSON5<T = unknown>(
+export function JSON5parse<T = unknown>(
     text: string,
     options?: { defaultValue?: T; errorAsDefaultValue?: boolean }
 ): T | undefined | null {
@@ -21,5 +21,5 @@ export function JSON5TryParse<T = unknown>(
 ): T | undefined | null {
     if (text === undefined) return undefined
     if (text === null) return null
-    return parseJSON5<T>(text, { defaultValue, errorAsDefaultValue: true })
+    return JSON5parse<T>(text, { defaultValue, errorAsDefaultValue: true })
 }

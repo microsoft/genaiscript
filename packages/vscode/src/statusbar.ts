@@ -19,15 +19,20 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
+        const { parsing } = state
         const { computing, progress, options, editsApplied } =
             state.aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
         const token = await host.getSecretToken()
-        statusBarItem.text = "GenAIScript " + toStringList(
-            computing && !tokensSoFar ? `$(loading~spin)` : undefined,
-            tokensSoFar ? `${tokensSoFar} tokens` : undefined
-        )
+        statusBarItem.text =
+            "GenAIScript " +
+            toStringList(
+                parsing || (computing && !tokensSoFar)
+                    ? `$(loading~spin)`
+                    : undefined,
+                tokensSoFar ? `${tokensSoFar} tokens` : undefined
+            )
 
         const md = new vscode.MarkdownString(
             toMarkdownString(
