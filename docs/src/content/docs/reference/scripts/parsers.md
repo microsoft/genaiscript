@@ -14,7 +14,7 @@ The `parsers.json5` function parses the JSON5 format.
 [JSON5](https://json5.org/) is an extension to the popular JSON file format that aims to be easier to write and maintain by hand (e.g. for config files).
 
 In general, parsing a JSON file as JSON5 does not hurt but it might be more merciful
-to syntactic errors.
+to syntactic errors. In addition to JSON5, [JSON repair](https://www.npmjs.com/package/jsonrepair) is applied with the initial parse fails.
 
 -   JSON5 example
 
