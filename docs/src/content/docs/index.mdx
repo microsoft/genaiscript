@@ -4,7 +4,7 @@ description: GenAIScript, scripting for Generative AI.
 template: splash
 hero:
     image:
-        file: ../../assets/hero.png
+        file: ../../assets/logo.svg
         alt: GenAIScript logo A yellow square with genai text
     actions:
         - text: Getting Started
@@ -19,7 +19,7 @@ hero:
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
-```js wrap title="extract-titles.genai.js"
+```js wrap title="extract-data.genai.js"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // structure the data
