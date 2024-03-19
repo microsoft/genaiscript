@@ -194,6 +194,12 @@ export class ExtensionState extends EventTarget {
 *.js -diff merge=ours linguist-generated
 `
         )
+        // add .gitignore
+        await writeFile(dir, ".gitignore", `# ignore local cli
+genaiscript.cjs
+cache/
+retrieval/
+`)
     }
 
     aiRequestCache() {
