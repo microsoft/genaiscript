@@ -139,7 +139,7 @@ const langName = env.vars.lang || "French"
 Using the genaiscript CLI, we can run the script for each desired language in a GitHub Action.
 
 ```sh
-node .genaiscript/genaiscript.cjs run translate ... --vars lang=German
+genaiscript run translate ... --vars lang=German
 ```
 
 ### Validation and upload
@@ -156,7 +156,7 @@ For example, using [2024-03-11-15-59-15.png2024-03-11-16-00-53.png2024-03-11-16-
 const langs = ["French", "German", ...]
 for(const lang of langs) {
     // run script and create translations
-    await $`node .genaiscript/genaiscript.cjs run translate ... --vars lang=${lang} ... --apply-edits`
+    await $`genaiscript run translate ... --vars lang=${lang} ... --apply-edits`
     // run MakeCode compiler to validate translations 
     await $`makecode check-docs ...`
     // upload the database
