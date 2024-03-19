@@ -46,6 +46,7 @@ export async function renderAICI(
             text: async (n) => {
                 const value = await n.value
                 if (value !== undefined)
+                    // TODO escape javascript string to `...`
                     push(`await fixed(${JSON.stringify(value)})`)
             },
             stringTemplate: async (n) => {
