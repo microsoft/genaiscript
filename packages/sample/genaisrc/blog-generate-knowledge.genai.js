@@ -7,7 +7,7 @@ script({
 // first prompt LLM to generate facts
 const { text } = await runPrompt((_) => {
     _.def("FILE", env.files)
-    _.$`Generate 10 facts about the content of FILE.`
+    _.$`Generate 5 facts about the content of FILE.`
 })
 
 // then use the facts to generate a blog
