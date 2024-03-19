@@ -7,26 +7,12 @@ import { FileTree } from '@astrojs/starlight/components';
 
 Once you have a script that you are happy with, you can automate it using the [command line interface](/genaiscript/reference/cli).
 
-## Installation
-
-The CLI, `.genaiscript/genaiscript.cjs` is copied as part of loading the GenAIScript extension. If you have not already installed the extension, you can do so by following the [installation instructions](/genaiscript/getting-started/installation).
-
-<FileTree>
-
-- …
-- .genaiscript
-  - …
-  - **genaiscript.cjs**
-- …
-
-</FileTree>
-
 ## Running a script using the CLI
 
 The basic usage of the CLI is to [run](/genaiscript/reference/cli/run/) a script with a tool name and a list of files.
 
 ```sh
-genaiscript run <toolname> <...files>
+npx --yes genaiscript run <toolname> <...files>
 ```
 
 The CLI will use the secrets in the `.env` file and emit the output to the standard output.
