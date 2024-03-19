@@ -23,19 +23,6 @@ The execution of a genaiscript creates the prompt that will be sent to the LLM.
 
 </FileTree>
 
-## the Metadata
-
-A script must start with a call to the `script` function that provides metadata about the script
-and the model. The metadata is used to display the script in the UI and configure the LLM model.
-
-```js title="myscript.genai.js"
-// the metadata
-script({
-    title: "Technical proofreading",
-    description: "Reviews the text as a tech writer.",
-})
-```
-
 ## the Context
 
 GenAIScript exposes the context through the `env` variable. The context is implicitely defined by the location you start executing the script.
@@ -45,14 +32,14 @@ GenAIScript exposes the context through the `env` variable. The context is impli
 -   you can define [spec](/genaisrc/reference/spec) files to define a context
 -   you can run the script using the [command line interface](/genaisrc/reference/cli) and specify content of `env.files` in the CLI arguments.
 
-```js
+```js title="proofreader.genai.js"
 // the context
 def("FILES", env.files)
 ```
 
 The `def` function inlines the content of `env.files` in the final prompt in a LLM friendly way. It also has a number of additional options to control precisely how the content should be inlined.
 
-```js
+```js title="proofreader.genai.js"
 def("FILES", env.files, {
     // line numbers help with generating diffs
     lineNumber: true,
@@ -65,11 +52,24 @@ def("FILES", env.files, {
 
 The `$` function is used to build the prompt text. The `$` renders and writes the text to the prompt. You can reference the LLM variable defined with `def` freely in the text as well.
 
-```js
+```js title="proofreader.genai.js"
 // the task
 $`You are an expert technical writer and proofreader.
 
 Review the documents in FILE and report the 5 most important issues.`
+```
+
+## the Metadata
+
+You can add a call to the `script` function to provides metadata about the script
+and the model. The metadata is used to display the script in the UI and configure the LLM model.
+
+```js title="proofreader.genai.js"
+// the metadata
+script({
+    title: "Technical proofreading",
+    description: "Reviews the text as a tech writer.",
+})
 ```
 
 ## Next steps
