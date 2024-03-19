@@ -20,9 +20,11 @@ import { FileTree } from "@astrojs/starlight/components"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // structure the data
-const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
+const schema = defSchema("DATA", 
+    { type: "array", items: { type: "string" } })
 // assign the task
-$`Analyze FILE and extract data to JSON using the ${schema} schema.`
+$`Analyze FILE and 
+extract data to JSON using the ${schema} schema.`
 ```
 
 ## Next steps

@@ -3,14 +3,14 @@
 Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
 
 ```js
-// metadata and model configuration
-script({ title: "Title Extractor", model: "gpt4" })
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
-const chema = defSchema("DATA", { type: "array", items: { type: "string" } })
+const chema = defSchema("DATA", 
+  { type: "array", items: { type: "string" } })
 // define the task
-$`Analyze FILE and extract titles to JSON compliant with ${schema}.`
+$`Analyze FILE and
+  extract titles to JSON compliant with ${schema}.`
 ```
 
 -   **Read the online documentation at https://microsoft.github.io/genaiscript/**

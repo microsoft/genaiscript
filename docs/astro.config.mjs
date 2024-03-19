@@ -25,12 +25,12 @@ export default defineConfig({
                     autogenerate: { directory: "getting-started" },
                 },
                 {
-                    label: "Guides",
-                    autogenerate: { directory: "guides" },
-                },
-                {
                     label: "Case Studies",
                     autogenerate: { directory: "case-studies" },
+                },
+                {
+                    label: "Guides",
+                    autogenerate: { directory: "guides" },
                 },
                 {
                     label: "Reference",
@@ -42,8 +42,8 @@ export default defineConfig({
                 },
                 {
                     label: "Contributing",
-                    link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md"
-                }
+                    link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md",
+                },
             ],
         }),
     ],
