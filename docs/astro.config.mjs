@@ -10,7 +10,7 @@ export default defineConfig({
             title: "GenAIScript",
             favicon: "/images/favicon.png",
             logo: {
-                src: "./src/assets/icon.svg",
+                src: "./src/assets/logo.svg",
             },
             components: {
                 Footer: "./src/components/Footer.astro",
