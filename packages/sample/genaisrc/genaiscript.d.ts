@@ -553,6 +553,16 @@ interface Fenced {
     validation?: JSONSchemaValidation
 }
 
+interface XMLParseOptions {
+    allowBooleanAttributes?: boolean
+    ignoreAttributes?: boolean
+    ignoreDeclaration?: boolean
+    ignorePiTags?: boolean
+    parseAttributeValue?: boolean
+    removeNSPrefix?: boolean
+    unpairedTags?: string[]
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -629,6 +639,15 @@ interface Parsers {
     INI(
         content: string | LinkedFile,
         options?: { defaultValue?: any }
+    ): any | undefined
+
+    /**
+     * Parses a .xml file
+     * @param content
+     */
+    XML(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any } & XMLParseOptions
     ): any | undefined
 
     /**
@@ -723,10 +742,6 @@ interface Retreival {
              * Maximum number of embeddings to use
              */
             topK?: number
-            /**
-             * Retreive summaries
-             */
-            summary?: boolean
             /**
              * Minimum similarity score
              */
