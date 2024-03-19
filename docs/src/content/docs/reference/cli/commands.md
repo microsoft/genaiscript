@@ -48,6 +48,7 @@ Options:
   -ae, --apply-edits                 apply file edits
   --vars <namevalue...>              variables, as name=value, stored in
                                      env.vars
+  --aici                             Trace converted AICI program
   -h, --help                         display help for command
 ```
 

@@ -291,4 +291,5 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         }
         languageModel?: LanguageModel
         vars?: Record<string, string>
+        aici?: boolean
     }

@@ -403,6 +403,7 @@ async function run(
         failOnErrors: boolean
         removeOut: boolean
         vars: string[]
+        aici: boolean
     }
 ) {
     const excludedFiles = options.excludedFiles
@@ -427,6 +428,7 @@ async function run(
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
     const vars = options.vars
+    const aici = options.aici
 
     const spinner: Ora =
         !stream && !isQuiet
@@ -529,6 +531,7 @@ ${Array.from(files)
         retryDelay,
         maxDelay,
         vars: parseVars(vars),
+        aici
     })
 
     if (spinner) {
@@ -898,6 +901,7 @@ async function main() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
+        .option("--aici", "Trace converted AICI program")
         .action(run)
 
     program
@@ -961,7 +965,7 @@ async function main() {
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-n, --name <string>", "index name")
-//        .option("-s, --summary", "use LLM-generated summaries")
+        //        .option("-s, --summary", "use LLM-generated summaries")
         .option("-cs, --chunk-size <number>", "chunk size")
         .option("-co, --chunk-overlap <number>", "chunk overlap")
         .option("-m, --model <string>", "model for embeddings (default gpt-4)")
@@ -977,13 +981,13 @@ async function main() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .option("-n, --name <string>", "index name")
-//        .option("-s, --summary", "use LLM-generated summaries")
+        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalSearch)
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
-//        .option("-s, --summary", "use LLM-generated summaries")
+        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalClear)
 
     retreival

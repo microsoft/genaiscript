@@ -14,7 +14,7 @@ function javascriptStringEscape(s: string) {
     return JSON.stringify(s).slice(1, -1)
 }
 
-export function renderAICINode(node: AICINode) {
+function renderAICINode(node: AICINode) {
     const { type, name } = node
     switch (name) {
         case "gen":
@@ -24,10 +24,10 @@ export function renderAICINode(node: AICINode) {
     }
 }
 
-export async function renderAici(
+export async function renderAICI(
     root: PromptNode,
     options?: { trace: MarkdownTrace }
-): Promise<{ source: string; controller: "jsctrl" }> {
+): Promise<{ source?: string; controller?: "jsctrl"; error?: unknown }> {
     const { trace } = options
     const notSupported = (reason: string) => (n: any) => {
         throw new NotSupportedError(reason)
@@ -35,6 +35,7 @@ export async function renderAici(
 
     try {
         trace?.startDetails("aici")
+        trace?.itemValue("controller", "jsctrl")
         let program: string[] = []
         let indent: string = ""
         const push = (text: string) => program.push(indent + text)
@@ -82,10 +83,13 @@ export async function renderAici(
         push("start(main)")
 
         const source = program.join("\n")
+
+        trace?.fence(source, "javascript")
+
         return { source, controller: "jsctrl" }
     } catch (error) {
         trace?.error("AICI code generation error", error)
-        throw error
+        return { error }
     } finally {
         trace?.endDetails()
     }

@@ -8,6 +8,7 @@ import { DEFAULT_MODEL, DEFAULT_TEMPERATURE, SYSTEM_FENCE } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
+import { renderAICI, renderAICINode } from "./aici"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -100,6 +101,9 @@ async function callExpander(
             fileMerges: fms,
             outputProcessors: ops,
         } = await renderPromptNode(model, node, { trace })
+
+        if (options?.aici) await renderAICI(node, { trace })
+
         text = prompt
         images = imgs
         schemas = schs
