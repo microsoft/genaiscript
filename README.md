@@ -1,3 +1,5 @@
+![GenAIScript logo a yellow square with genai text](./docs/public/images/favicon.png)
+
 # GenAIScript
 
 Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
