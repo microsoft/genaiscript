@@ -9,6 +9,9 @@ export default defineConfig({
         starlight({
             title: "GenAIScript",
             favicon: "/images/favicon.png",
+            logo: {
+                src: "./src/assets/icon.svg",
+            },
             components: {
                 Footer: "./src/components/Footer.astro",
             },
