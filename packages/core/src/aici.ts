@@ -14,20 +14,11 @@ function javascriptStringEscape(s: string) {
     return JSON.stringify(s).slice(1, -1)
 }
 
-export interface AiciNode {
-    type: "aici"
-    name: "gen"
-}
-
-export interface AiciGen extends AiciNode {
-    name: "gen"
-}
-
-export function renderAiciNode(node: AiciNode) {
-    const { type, name, ...rest } = node
+export function renderAICINode(node: AICINode) {
+    const { type, name } = node
     switch (name) {
         case "gen":
-            return `await gen(${JSON.stringify(rest)})`
+            return `await gen(${JSON.stringify((node as AiciGenNode).options)})`
         default:
             return "undefined"
     }
@@ -66,7 +57,7 @@ export async function renderAici(
                         if (typeof arg === "string") {
                             r += javascriptStringEscape(arg)
                         } else if (arg.type === "aici") {
-                            const rarg = renderAiciNode(arg)
+                            const rarg = renderAICINode(arg)
                             r += "${" + rarg + "}"
                         } else {
                             const rarg = JSON.stringify(arg)

@@ -94,6 +94,16 @@ declare var fs: FileSystem
 declare var YAML: YAML
 
 /**
+ * INI parsing and stringifying.
+ */
+declare var INI: INI
+
+/**
+ * AICI operations
+ */
+declare var AICI: AICI
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

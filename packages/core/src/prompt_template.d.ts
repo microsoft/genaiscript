@@ -663,6 +663,60 @@ interface Parsers {
     annotations(content: string | LinkedFile): Diagnostic[]
 }
 
+interface AICIGenOptions {
+    /**
+     * Make sure the generated text is one of the options.
+     */
+    options?: string[]
+    /**
+     * Make sure the generated text matches given regular expression.
+     */
+    regex?: string | RegExp
+    /**
+     * Make sure the generated text matches given yacc-like grammar.
+     */
+    yacc?: string
+    /**
+     * Make sure the generated text is a substring of the given string.
+     */
+    substring?: string
+    /**
+     * Used together with `substring` - treat the substring as ending the substring
+     * (typically '"' or similar).
+     */
+    substringEnd?: string
+    /**
+     * Store result of the generation (as bytes) into a shared variable.
+     */
+    storeVar?: string
+    /**
+     * Stop generation when the string is generated (the result includes the string and any following bytes (from the same token)).
+     */
+    stopAt?: string
+    /**
+     * Stop generation when the given number of tokens have been generated.
+     */
+    maxTokens?: number
+}
+
+interface AICINode {
+    type: "aici"
+    name: "gen"
+}
+
+interface AiciGenNode extends AICINode {
+    name: "gen"
+    options: AICIGenOptions
+}
+
+interface AICI {
+    /**
+     * Generate a string that matches given constraints.
+     * If the tokens do not map cleanly into strings, it will contain Unicode replacement characters.
+     */
+    gen(options: AICIGenOptions): AiciGenNode
+}
+
 interface YAML {
     /**
      * Converts an object to its YAML representation
@@ -843,4 +897,5 @@ interface PromptContext extends RunPromptContext {
     YAML: YAML
     CSV: CSV
     INI: INI
+    AICI: AICI
 }

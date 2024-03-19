@@ -65,6 +65,16 @@ export function createPromptContext(
         parse: INIParse,
         stringify: INIStringify,
     })
+    const AICI = Object.freeze<AICI>({
+        gen: (options: AICIGenOptions) => {
+            // validate options
+            return {
+                type: "aici",
+                name: "gen",
+                options,
+            }
+        },
+    })
     const path = host.path
     const fs = host.fs
 
@@ -193,6 +203,7 @@ export function createPromptContext(
         YAML,
         CSV,
         INI,
+        AICI,
         retreival,
         defImages,
         defSchema,
