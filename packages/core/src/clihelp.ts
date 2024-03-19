@@ -1,4 +1,4 @@
-import { RunTemplateOptions } from "."
+import { CORE_VERSION, RunTemplateOptions } from "."
 import { Fragment } from "./ast"
 import { GENAISCRIPT_CLI_JS, NPM_CLI_PACKAGE } from "./constants"
 import { MarkdownTrace } from "./trace"
@@ -14,7 +14,7 @@ export function generateCliArguments(
     const cli = [
         "npx",
         "--yes",
-        NPM_CLI_PACKAGE,
+        `${NPM_CLI_PACKAGE}@^${CORE_VERSION}`,
         command,
         template.id,
         `"${cliInfo.spec}"`,
