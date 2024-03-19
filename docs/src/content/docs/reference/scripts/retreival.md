@@ -24,7 +24,7 @@ By default, the retreival uses [OpenAI text-embedding-ada-002](https://ts.llamai
 You can index your project using the [CLI](/genaiscript/reference/cli).
 
 ```sh
-node .genaiscript/genaiscript.cjs retreive index "src/**"
+genaiscript retreive index "src/**"
 ```
 
 :::tip

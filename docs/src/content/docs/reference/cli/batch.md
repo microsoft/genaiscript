@@ -9,7 +9,7 @@ keywords: batch processing, JSON Lines, CLI tool, automation, GitHub Actions
 To run the tool over many files in a batch mode (one full LLM iteration per file), use the `batch` command.
 
 ```bash
-node .genaiscript/genaiscript.cjs batch <script> "<files...>"
+genaiscript batch <script> "<files...>"
 ```
 
 The script will create various JSON Lines files with the results (JSON Lines is a file format where each line is a valid JSON object, which allows for appending results). You can post-process those results using your favorite script environment.
@@ -21,7 +21,7 @@ In a GitHub Actions workflow, you can inject a report in the step summary (`GITH
 ```yaml
 - name: Batch genaiscript <toolname> on <files>
   run: |
-      node .genaiscript/genaiscript.cjs batch <toolname> <files> -os $GITHUB_STEP_SUMMARY
+      genaiscript batch <toolname> <files> -os $GITHUB_STEP_SUMMARY
 - name: Upload GenAIScript results
   if: success() || failure()
   uses: actions/upload-artifact@v4

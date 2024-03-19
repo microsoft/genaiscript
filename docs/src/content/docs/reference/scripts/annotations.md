@@ -41,7 +41,7 @@ extension can be used to visualize the reports.
 
 ```yaml title="GitHub Action"
     - name: Run GenAIScript
-      run: node .genaiscript/genaiscript.cjs ... -oa result.sarif
+      run: genaiscript ... -oa result.sarif
     - name: Upload SARIF file
         if: success() || failure()
         uses: github/codeql-action/upload-sarif@v3
