@@ -33,16 +33,17 @@ yarn add -D genaiscript-cli
 </Tabs>
 
 
-## Run a string on a file
+## Run a script
 
-Runs a genai script on a file and streams the LLM output to stdout.
+Runs a genai script on file and streams the LLM output to stdout.
 
 ```sh
 genaiscript run <script> [files...]
 ```
 
-where `<script>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
+where `<script>` is the id or file path of the tool to run, and `[files...]` is the name of the spec file to run it on.
 
 ## Secrets
 
-The CLI will load the secrets from the environment variables or a `./.env` file. You can also specigfy a different `.env` file using the `--env` option.
+The CLI will load the secrets from the environment variables or a `./.env` file. 
+You can also specify a different `.env` file using the `--env` option.
