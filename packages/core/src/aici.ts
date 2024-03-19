@@ -9,11 +9,6 @@ export class NotSupportedError extends Error {
     }
 }
 
-function javascriptStringEscape(s: string) {
-    assert(typeof s === "string")
-    return JSON.stringify(s).slice(1, -1)
-}
-
 function renderAICINode(node: AICINode) {
     const { type, name } = node
     switch (name) {
@@ -22,6 +17,10 @@ function renderAICINode(node: AICINode) {
         default:
             return "undefined"
     }
+}
+
+function escapeJavascriptString(s: string) {
+    return s.replace(/`/g, "\\`")
 }
 
 export async function renderAICI(
@@ -40,24 +39,24 @@ export async function renderAICI(
         let indent: string = ""
         const push = (text: string) => program.push(indent + text)
 
-        push("async main() {")
+        push("async function main() {")
         indent = "  "
         await visitNode(root, {
             text: async (n) => {
                 const value = await n.value
                 if (value !== undefined)
                     // TODO escape javascript string to `...`
-                    push(`await fixed(${JSON.stringify(value)})`)
+                    push(`await fixed(\`${escapeJavascriptString(value)}\``)
             },
             stringTemplate: async (n) => {
                 const { strings, args } = n
                 let r = "await $`"
                 for (let i = 0; i < strings.length; ++i) {
-                    r += javascriptStringEscape(strings[i])
+                    r += escapeJavascriptString(strings[i])
                     if (i < args.length) {
                         const arg = await args[i]
                         if (typeof arg === "string") {
-                            r += javascriptStringEscape(arg)
+                            r += escapeJavascriptString(arg)
                         } else if (arg.type === "aici") {
                             const rarg = renderAICINode(arg)
                             r += "${" + rarg + "}"
