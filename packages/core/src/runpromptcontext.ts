@@ -34,13 +34,6 @@ export function createRunPromptContext(
                 node,
                 createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
             )
-            const idx = body.indexOf(vars.error)
-            if (idx >= 0) {
-                const msg = body
-                    .slice(idx + vars.error.length)
-                    .replace(/\n[^]*/, "")
-                throw new Error(msg)
-            }
         },
         $(strings, ...args) {
             appendChild(node, createStringTemplateNode(strings, args))

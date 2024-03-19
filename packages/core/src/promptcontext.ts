@@ -212,18 +212,6 @@ export function createPromptContext(
             appendPromptChild(createDefDataNode(name, data, env, options))
             return name
         },
-        writeText: (body) => {
-            appendPromptChild(
-                createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
-            )
-            const idx = body.indexOf(vars.error)
-            if (idx >= 0) {
-                const msg = body
-                    .slice(idx + vars.error.length)
-                    .replace(/\n[^]*/, "")
-                throw new Error(msg)
-            }
-        },
         fetchText: async (urlOrFile, options) => {
             if (typeof urlOrFile === "string") {
                 urlOrFile = {

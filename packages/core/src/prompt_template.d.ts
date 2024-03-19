@@ -348,11 +348,6 @@ interface ExpansionVariables {
     files: LinkedFile[]
 
     /**
-     * If the contents of this variable occurs in output, an error message will be shown to the user.
-     */
-    error: string
-
-    /**
      * current prompt template
      */
     template: PromptDefinition

@@ -188,22 +188,12 @@ async function parseMeta(r: PromptTemplate) {
 const PROMPT_FENCE = "```"
 const MARKDOWN_PROMPT_FENCE = "`````"
 
-function errorId() {
-    let r = "ERROR-"
-    for (let i = 0; i < 6; ++i)
-        r += String.fromCharCode(
-            randomRange("A".charCodeAt(0), "Z".charCodeAt(0))
-        )
-    return r
-}
-
 export function staticVars(): Omit<ExpansionVariables, "template"> {
     return {
         spec: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
         files: [] as LinkedFile[],
         fence: PROMPT_FENCE,
         markdownFence: MARKDOWN_PROMPT_FENCE,
-        error: errorId(),
         vars: {} as Record<string, string>,
     }
 }
