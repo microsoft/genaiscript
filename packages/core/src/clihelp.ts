@@ -1,6 +1,6 @@
 import { RunTemplateOptions } from "."
 import { Fragment } from "./ast"
-import { GENAISCRIPT_CLI_JS } from "./constants"
+import { GENAISCRIPT_CLI_JS, NPM_CLI_PACKAGE } from "./constants"
 import { MarkdownTrace } from "./trace"
 
 export function generateCliArguments(
@@ -12,8 +12,9 @@ export function generateCliArguments(
     const { model, temperature, topP, seed, cliInfo } = options
 
     const cli = [
-        "node",
-        GENAISCRIPT_CLI_JS,
+        "npx",
+        "--yes",
+        NPM_CLI_PACKAGE,
         command,
         template.id,
         `"${cliInfo.spec}"`,

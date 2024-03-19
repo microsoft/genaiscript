@@ -29,3 +29,4 @@ export const RETRIEVAL_DEFAULT_INDEX = "default"
 export const RETRIEVAL_DEFAULT_MODEL = "gpt-4"
 export const SYSTEM_FENCE = "---"
 export const MAX_DATA_REPAIRS = 1
+export const NPM_CLI_PACKAGE = "genaiscript-cli"
