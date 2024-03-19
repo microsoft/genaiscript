@@ -23,10 +23,16 @@ function escapeJavascriptString(s: string) {
     return s.replace(/`/g, "\\`")
 }
 
+export interface AICIRequest {
+    source?: string
+    controller?: "jsctrl"
+    error?: unknown
+}
+
 export async function renderAICI(
     root: PromptNode,
     options?: { trace: MarkdownTrace }
-): Promise<{ source?: string; controller?: "jsctrl"; error?: unknown }> {
+): Promise<AICIRequest> {
     const { trace } = options
     const notSupported = (reason: string) => (n: any) => {
         throw new NotSupportedError(reason)
@@ -89,7 +95,7 @@ export async function renderAICI(
         return { source, controller: "jsctrl" }
     } catch (error) {
         trace?.error("AICI code generation error", error)
-        return { error }
+        throw error
     } finally {
         trace?.endDetails()
     }

@@ -177,6 +177,7 @@ export async function runTemplate(
         seed,
         systemText,
         responseType,
+        aici,
     } = await expandTemplate(
         template,
         fragment,

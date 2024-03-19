@@ -8,7 +8,7 @@ import { DEFAULT_MODEL, DEFAULT_TEMPERATURE, SYSTEM_FENCE } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
-import { renderAICI, renderAICINode } from "./aici"
+import { AICIRequest, renderAICI } from "./aici"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -83,6 +83,7 @@ async function callExpander(
     let functions: ChatFunctionCallback[] = []
     let fileMerges: FileMergeHandler[] = []
     let outputProcessors: PromptOutputProcessorHandler[] = []
+    let aici: AICIRequest
 
     try {
         await evalPrompt(ctx, r, {
@@ -102,7 +103,7 @@ async function callExpander(
             outputProcessors: ops,
         } = await renderPromptNode(model, node, { trace })
 
-        if (options?.aici) await renderAICI(node, { trace })
+        if (options?.aici) aici = await renderAICI(node, { trace })
 
         text = prompt
         images = imgs
@@ -133,6 +134,7 @@ async function callExpander(
         functions,
         fileMerges,
         outputProcessors,
+        aici,
     }
 }
 
@@ -158,6 +160,7 @@ export async function expandTemplate(
     const functions = prompt.functions
     const fileMerges = prompt.fileMerges
     const outputProcessors = prompt.outputProcessors
+    const aici = prompt.aici
 
     let success = prompt.success
     if (success === null)
@@ -203,16 +206,20 @@ export async function expandTemplate(
 
     let systemText = ""
     const systems = (template.system ?? []).slice(0)
-    if (template.system === undefined) {
+    if (template.system === undefined && !options?.aici) {
         systems.push("system")
         systems.push("system.explanations")
         // select file expansion type
         if (/diff/i.test(jsSource)) systems.push("system.diff")
         else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
         else systems.push("system.files")
+
         if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
         if (/defschema/i.test(jsSource)) systems.push("system.schema")
     }
+
+    // TODO: system prompt support?
+
     for (let i = 0; i < systems.length && success; ++i) {
         if (cancellationToken?.isCancellationRequested) return { success: null }
 
@@ -280,5 +287,6 @@ export async function expandTemplate(
         responseType,
         fileMerges,
         outputProcessors,
+        aici,
     }
 }
