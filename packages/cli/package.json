@@ -1,66 +1,66 @@
 {
-    "name": "genaiscript-cli",
-    "version": "1.15.8",
-    "main": "built/genaiscript.cjs",
-    "bin": {
-        "genaiscript": "./built/genaiscript.cjs"
-    },
-    "publisher": "Microsoft",
-    "repository": {
-        "url": "https://github.com/microsoft/genaiscript"
-    },
-    "homepage": "https://microsoft.github.io/genaiscript",
-    "keywords": [
-        "genai",
-        "ai",
-        "cli",
-        "prompt",
-        "llm",
-        "generative ai"
-    ],
-    "description": "A CLI for GenAIScript, a generative AI scripting framework.",
-    "license": "MIT",
-    "dependencies": {},
-    "optionalDependencies": {
-        "llamaindex": "0.1.21",
-        "llm-code-highlighter": "0.0.13",
-        "mammoth": "^1.7.0",
-        "pdfjs-dist": "4.0.379"
-    },
-    "engines": {
-        "node": ">=20.0.0"
-    },
-    "devDependencies": {
-        "commander": "^12.0.0",
-        "dotenv": "^16.4.5",
-        "execa": "^8.0.1",
-        "fs-extra": "^11.2.0",
-        "get-stdin": "^9.0.0",
-        "glob": "^10.3.10",
-        "openai": "^4.28.4",
-        "@llamaindex/env": "^0.0.5",
-        "@types/fs-extra": "^11.0.4",
-        "@types/node": "^20.11.27",
-        "@types/papaparse": "^5.3.14",
-        "@types/pg": "^8.11.2",
-        "@types/replace-ext": "^2.0.2",
-        "@types/ws": "^8.5.10",
-        "esbuild": "^0.20.2",
-        "file-type": "^19.0.0",
-        "genaiscript-core": "*",
-        "node-sarif-builder": "^3.0.0",
-        "ora": "^8.0.1",
-        "pretty-bytes": "^6.1.1",
-        "replace-ext": "^2.0.0",
-        "tsx": "^4.7.1",
-        "typescript": "^5.3.3",
-        "zx": "^7.2.3"
-    },
-    "scripts": {
-        "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:mammoth --external:llamaindex --external:llm-code-highlighter && echo '#!/usr/bin/env node' | cat - built/genaiscript.cjs > temp && mv temp built/genaiscript.cjs",
-        "postcompile": "cp built/genaiscript.cjs ../vscode/genaiscript.cjs && node built/genaiscript.cjs help-all > ../../docs/src/content/docs/reference/cli/commands.md",
-        "go": "yarn compile && node built/genaiscript.cjs",
-        "test": "node --import tsx --test src/**.test.ts",
-        "typecheck": "tsc -p src"
-    }
+  "name": "genaiscript-cli",
+  "version": "1.15.9",
+  "main": "built/genaiscript.cjs",
+  "bin": {
+    "genaiscript": "./built/genaiscript.cjs"
+  },
+  "publisher": "Microsoft",
+  "repository": {
+    "url": "https://github.com/microsoft/genaiscript"
+  },
+  "homepage": "https://microsoft.github.io/genaiscript",
+  "keywords": [
+    "genai",
+    "ai",
+    "cli",
+    "prompt",
+    "llm",
+    "generative ai"
+  ],
+  "description": "A CLI for GenAIScript, a generative AI scripting framework.",
+  "license": "MIT",
+  "dependencies": {},
+  "optionalDependencies": {
+    "llamaindex": "0.1.21",
+    "llm-code-highlighter": "0.0.13",
+    "mammoth": "^1.7.0",
+    "pdfjs-dist": "4.0.379"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5",
+    "execa": "^8.0.1",
+    "fs-extra": "^11.2.0",
+    "get-stdin": "^9.0.0",
+    "glob": "^10.3.10",
+    "openai": "^4.28.4",
+    "@llamaindex/env": "^0.0.5",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.11.27",
+    "@types/papaparse": "^5.3.14",
+    "@types/pg": "^8.11.2",
+    "@types/replace-ext": "^2.0.2",
+    "@types/ws": "^8.5.10",
+    "esbuild": "^0.20.2",
+    "file-type": "^19.0.0",
+    "genaiscript-core": "*",
+    "node-sarif-builder": "^3.0.0",
+    "ora": "^8.0.1",
+    "pretty-bytes": "^6.1.1",
+    "replace-ext": "^2.0.0",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
+    "zx": "^7.2.3"
+  },
+  "scripts": {
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:mammoth --external:llamaindex --external:llm-code-highlighter && echo '#!/usr/bin/env node' | cat - built/genaiscript.cjs > temp && mv temp built/genaiscript.cjs",
+    "postcompile": "cp built/genaiscript.cjs ../vscode/genaiscript.cjs && node built/genaiscript.cjs help-all > ../../docs/src/content/docs/reference/cli/commands.md",
+    "go": "yarn compile && node built/genaiscript.cjs",
+    "test": "node --import tsx --test src/**.test.ts",
+    "typecheck": "tsc -p src"
+  }
 }
