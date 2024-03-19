@@ -1,12 +1,10 @@
-# GenAIScript
-
 Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
 
 ```js
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
-const chema = defSchema("DATA", 
+const chema = defSchema("DATA",
   { type: "array", items: { type: "string" } })
 // define the task
 $`Analyze FILE and
@@ -14,10 +12,6 @@ $`Analyze FILE and
 ```
 
 -   **Read the online documentation at https://microsoft.github.io/genaiscript/**
-
-## Contributing
-
-We accept contributions! Checkout the [CONTRIBUTING](./CONTRIBUTING.md) page for details and developer setup.
 
 ## Trademarks
 
