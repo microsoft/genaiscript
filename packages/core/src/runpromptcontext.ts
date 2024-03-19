@@ -2,6 +2,7 @@ import { minimatch } from "minimatch"
 import {
     PromptNode,
     appendChild,
+    createStringTemplateNode,
     createTextNode,
     renderPromptNode,
 } from "./promptdom"
@@ -41,12 +42,13 @@ export function createRunPromptContext(
             }
         },
         $(strings, ...args) {
-            let r = ""
+            appendChild(node, createStringTemplateNode(strings, args))
+/*            let r = ""
             for (let i = 0; i < strings.length; ++i) {
                 r += strings[i]
                 if (i < args.length) r += args[i] ?? ""
             }
-            ctx.writeText(r)
+            ctx.writeText(r)*/
         },
         def(name, body, options) {
             name = name ?? ""
