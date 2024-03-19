@@ -205,6 +205,7 @@ export async function renderPromptNode(
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
+    
     await visitNode(node, {
         text: async (n) => {
             try {
@@ -219,15 +220,16 @@ export async function renderPromptNode(
         stringTemplate: async (n) => {
             const { strings, args } = n
             try {
-                let r = ""
+                let value = ""
                 for (let i = 0; i < strings.length; ++i) {
-                    r += strings[i]
+                    value += strings[i]
                     if (i < args.length) {
                         const arg = await args[i]
-                        r += arg ?? ""
+                        value += arg ?? ""
                     }
                 }
-                prompt += r + "\n"
+                n.tokens = estimateTokens(model, value)
+                prompt += value + "\n"
             } catch (e) {
                 node.error = e
                 errors.push(e)

@@ -29,6 +29,7 @@ export function createRunPromptContext(
     const ctx = <RunPromptContextNode>{
         node,
         writeText: (body) => {
+            body = body ?? ""
             appendChild(
                 node,
                 createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
@@ -43,12 +44,6 @@ export function createRunPromptContext(
         },
         $(strings, ...args) {
             appendChild(node, createStringTemplateNode(strings, args))
-/*            let r = ""
-            for (let i = 0; i < strings.length; ++i) {
-                r += strings[i]
-                if (i < args.length) r += args[i] ?? ""
-            }
-            ctx.writeText(r)*/
         },
         def(name, body, options) {
             name = name ?? ""
