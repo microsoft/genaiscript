@@ -187,13 +187,13 @@ export async function runTemplate(
     )
 
     // initial messages (before tools)
-    const messages: ChatCompletionRequestMessage[] = [
-        {
+    const messages: ChatCompletionRequestMessage[] = []
+    if (systemText)
+        messages.push({
             role: "system",
             content: systemText,
-        },
-        toChatCompletionUserMessage(expanded, images),
-    ]
+        })
+    messages.push(toChatCompletionUserMessage(expanded, images))
 
     // if the expansion failed, show the user the trace
     if (!success) {

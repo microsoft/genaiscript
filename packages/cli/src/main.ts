@@ -531,7 +531,7 @@ ${Array.from(files)
         retryDelay,
         maxDelay,
         vars: parseVars(vars),
-        aici
+        aici,
     })
 
     if (spinner) {

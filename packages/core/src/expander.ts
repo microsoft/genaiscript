@@ -93,25 +93,26 @@ async function callExpander(
             },
         })
         const node = ctx.node
-        const {
-            prompt,
-            images: imgs,
-            errors,
-            schemas: schs,
-            functions: fns,
-            fileMerges: fms,
-            outputProcessors: ops,
-        } = await renderPromptNode(model, node, { trace })
-
-        if (options?.aici) aici = await renderAICI(node, { trace })
-
-        text = prompt
-        images = imgs
-        schemas = schs
-        functions = fns
-        fileMerges = fms
-        outputProcessors = ops
-        if (errors) for (const error of errors) trace.error(``, error)
+        if (!options?.aici) {
+            const {
+                prompt,
+                images: imgs,
+                errors,
+                schemas: schs,
+                functions: fns,
+                fileMerges: fms,
+                outputProcessors: ops,
+            } = await renderPromptNode(model, node, { trace })
+            text = prompt
+            images = imgs
+            schemas = schs
+            functions = fns
+            fileMerges = fms
+            outputProcessors = ops
+            if (errors) for (const error of errors) trace.error(``, error)
+        } else {
+            aici = await renderAICI(node, { trace })
+        }
     } catch (e) {
         success = false
         if (isCancelError(e)) {
@@ -203,6 +204,27 @@ export async function expandTemplate(
     trace.endDetails()
 
     if (cancellationToken?.isCancellationRequested) return { success: null }
+
+    if (aici) {
+        // shortcut to aici execution
+        return {
+            expanded,
+            images,
+            schemas,
+            functions,
+            success,
+            model,
+            temperature,
+            topP,
+            max_tokens,
+            seed,
+            systemText: undefined,
+            responseType,
+            fileMerges,
+            outputProcessors,
+            aici,
+        }
+    }
 
     let systemText = ""
     const systems = (template.system ?? []).slice(0)
