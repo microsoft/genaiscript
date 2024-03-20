@@ -1,6 +1,7 @@
 import {
-    ChatCompletionRequestMessage,
+    ChatCompletionMessageParam,
     ChatCompletionResponse,
+    ChatCompletionTool,
     RequestError,
     toChatCompletionUserMessage,
 } from "./chat"
@@ -18,7 +19,6 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import type { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
@@ -187,13 +187,14 @@ export async function runTemplate(
     )
 
     // initial messages (before tools)
-    const messages: ChatCompletionRequestMessage[] = []
+    const messages: ChatCompletionMessageParam[] = []
     if (systemText)
         messages.push({
             role: "system",
             content: systemText,
         })
-    messages.push(toChatCompletionUserMessage(expanded, images))
+    if (expanded) messages.push(toChatCompletionUserMessage(expanded, images))
+    if (aici) messages.push(aici)
 
     // if the expansion failed, show the user the trace
     if (!success) {
@@ -256,9 +257,6 @@ export async function runTemplate(
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
-    const fragmentVirtual = await fileExists(fragment.file.filename, {
-        virtual: true,
-    })
     const tools: ChatCompletionTool[] = functions?.length
         ? functions.map((f) => ({
               type: "function",

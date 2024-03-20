@@ -1,7 +1,6 @@
 import { Fragment, PromptTemplate } from "./ast"
 import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
-import type { ChatCompletionMessageParam } from "openai/resources"
 import { isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE, SYSTEM_FENCE } from "./constants"
@@ -9,6 +8,7 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
+import { ChatCompletionMessageParam } from "./chat"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined

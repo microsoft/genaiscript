@@ -1,4 +1,3 @@
-import OpenAI from "openai"
 import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
 import { host } from "./host"
@@ -12,6 +11,7 @@ import wrapFetch from "fetch-retry"
 import { estimateTokens } from "./tokens"
 import { YAMLStringify } from "./yaml"
 import {
+    ChatCompletionChunk,
     ChatCompletionHandler,
     ChatCompletionResponse,
     ChatCompletionToolCall,
@@ -185,7 +185,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
                 return ""
             }
             try {
-                const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
+                const obj: ChatCompletionChunk = JSON.parse(json)
                 if (!obj.choices?.length) return ""
                 else if (obj.choices?.length != 1) throw new Error()
                 const choice = obj.choices[0]

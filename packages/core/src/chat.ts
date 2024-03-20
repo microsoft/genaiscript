@@ -1,14 +1,31 @@
 import OpenAI from "openai"
 import { Cache } from "./cache"
 import { MarkdownTrace } from "./trace"
-import { ChatCompletionUserMessageParam } from "openai/resources"
 import { PromptImage } from "./promptdom"
+import { AICIRequest } from "./aici"
 
-export type CreateChatCompletionRequest =
-    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
+export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
-export type ChatCompletionRequestMessage =
-    OpenAI.Chat.Completions.ChatCompletionMessageParam
+export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
+
+export type ChatCompletionMessageParam =
+    | OpenAI.Chat.Completions.ChatCompletionMessageParam
+    | AICIRequest
+
+export type CreateChatCompletionRequest = Omit<
+    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
+    "messages"
+> & {
+    /**
+     * A list of messages comprising the conversation so far.
+     * [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
+     */
+    //  messages: Array<ChatCompletionMessageParam>;
+    messages: Array<ChatCompletionMessageParam>
+}
+
+export type ChatCompletionAssistantMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam
 
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
@@ -73,7 +90,7 @@ export function toChatCompletionUserMessage(
     expanded: string,
     images?: PromptImage[]
 ) {
-    return <ChatCompletionUserMessageParam>{
+    return <OpenAI.Chat.Completions.ChatCompletionUserMessageParam>{
         role: "user",
         content: [
             {

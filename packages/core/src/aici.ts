@@ -24,7 +24,8 @@ function escapeJavascriptString(s: string) {
 }
 
 export interface AICIRequest {
-    source?: string
+    role: "aici"
+    content?: string
     controller?: "jsctrl"
     error?: unknown
 }
@@ -88,11 +89,11 @@ export async function renderAICI(
         push("}")
         push("start(main)")
 
-        const source = program.join("\n")
+        const content = program.join("\n")
 
-        trace?.fence(source, "javascript")
+        trace?.fence(content, "javascript")
 
-        return { source, controller: "jsctrl" }
+        return { role: "aici", content, controller: "jsctrl" }
     } catch (error) {
         trace?.error("AICI code generation error", error)
         throw error
