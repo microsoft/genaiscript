@@ -81,17 +81,6 @@ Options:
   -h, --help                         display help for command
 ```
 
-## `keys`
-
-```
-Usage: genaiscript keys [options]
-
-Parse and show current key information
-
-Options:
-  -h, --help  display help for command
-```
-
 ## `scripts`
 
 ```

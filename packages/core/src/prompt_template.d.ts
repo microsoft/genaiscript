@@ -170,7 +170,7 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     /**
      * Use AICI controller
      */
-    aici?: string
+    aici?: boolean
 }
 
 /**

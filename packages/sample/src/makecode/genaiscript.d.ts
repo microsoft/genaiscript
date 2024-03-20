@@ -166,6 +166,11 @@ interface PromptTemplate extends PromptLike, ModelOptions {
      * Secrets required by the prompt
      */
     secrets?: string[]
+
+    /**
+     * Use AICI controller
+     */
+    aici?: boolean
 }
 
 /**
@@ -346,11 +351,6 @@ interface ExpansionVariables {
      * List of linked files parsed in context
      */
     files: LinkedFile[]
-
-    /**
-     * If the contents of this variable occurs in output, an error message will be shown to the user.
-     */
-    error: string
 
     /**
      * current prompt template
@@ -668,6 +668,60 @@ interface Parsers {
     annotations(content: string | LinkedFile): Diagnostic[]
 }
 
+interface AICIGenOptions {
+    /**
+     * Make sure the generated text is one of the options.
+     */
+    options?: string[]
+    /**
+     * Make sure the generated text matches given regular expression.
+     */
+    regex?: string | RegExp
+    /**
+     * Make sure the generated text matches given yacc-like grammar.
+     */
+    yacc?: string
+    /**
+     * Make sure the generated text is a substring of the given string.
+     */
+    substring?: string
+    /**
+     * Used together with `substring` - treat the substring as ending the substring
+     * (typically '"' or similar).
+     */
+    substringEnd?: string
+    /**
+     * Store result of the generation (as bytes) into a shared variable.
+     */
+    storeVar?: string
+    /**
+     * Stop generation when the string is generated (the result includes the string and any following bytes (from the same token)).
+     */
+    stopAt?: string
+    /**
+     * Stop generation when the given number of tokens have been generated.
+     */
+    maxTokens?: number
+}
+
+interface AICINode {
+    type: "aici"
+    name: "gen"
+}
+
+interface AICIGenNode extends AICINode {
+    name: "gen"
+    options: AICIGenOptions
+}
+
+interface AICI {
+    /**
+     * Generate a string that matches given constraints.
+     * If the tokens do not map cleanly into strings, it will contain Unicode replacement characters.
+     */
+    gen(options: AICIGenOptions): AICIGenNode
+}
+
 interface YAML {
     /**
      * Converts an object to its YAML representation
@@ -848,6 +902,7 @@ interface PromptContext extends RunPromptContext {
     YAML: YAML
     CSV: CSV
     INI: INI
+    AICI: AICI
 }
 
 
@@ -944,6 +999,16 @@ declare var fs: FileSystem
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
+
+/**
+ * INI parsing and stringifying.
+ */
+declare var INI: INI
+
+/**
+ * AICI operations
+ */
+declare var AICI: AICI
 
 /**
  * Fetches a given URL and returns the response.

@@ -16,6 +16,7 @@ export function activatePromptCommands(state: ExtensionState) {
     const { subscriptions } = context
 
     async function showPrompt(fn: string) {
+        await state.fixPromptDefinitions()
         await state.parseWorkspace()
         await vscode.window.showTextDocument(vscode.Uri.file(fn))
     }

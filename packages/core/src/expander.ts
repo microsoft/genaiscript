@@ -198,11 +198,11 @@ export async function expandTemplate(
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     trace.itemValue(`model`, model)
-    trace.itemValue(`tokens`, estimateTokens(model, expanded))
+    if (expanded) trace.itemValue(`tokens`, estimateTokens(model, expanded))
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
-    trace.fence(expanded, "markdown")
+    if (expanded) trace.fence(expanded, "markdown")
     trace.endDetails()
 
     if (cancellationToken?.isCancellationRequested) return { success: null }
@@ -285,7 +285,7 @@ export async function expandTemplate(
     {
         trace.startDetails("⚙️ configuration")
         trace.itemValue(`model`, model)
-        trace.itemValue(`tokens`, estimateTokens(model, expanded))
+        if (expanded) trace.itemValue(`tokens`, estimateTokens(model, expanded))
         trace.itemValue(`temperature`, temperature)
         trace.itemValue(`top_p`, topP)
         trace.itemValue(`max tokens`, max_tokens)
