@@ -270,6 +270,7 @@ export async function runTemplate(
         options
     )
     let repairs = 0
+    let variables: Record<string, string> = {}
 
     while (!isCancelled()) {
         let resp: ChatCompletionResponse
@@ -350,6 +351,8 @@ export async function runTemplate(
                 frames: [],
             }
         }
+
+        if (resp.variables) variables = { ...variables, ...resp.variables }
 
         if (resp.text) {
             trace.startDetails("📩 llm response")
@@ -525,6 +528,15 @@ ${repair}
     const json = JSON5TryParse(text, undefined)
     const fences = json === undefined ? extractFenced(text) : []
     const frames: DataFrame[] = []
+
+    // TODO: do we really want variables to be included in fenced regions?
+    for (const [k, v] of Object.entries(variables)) {
+        fences.push({
+            label: k,
+            language: "text",
+            content: v,
+        })
+    }
 
     // validate schemas in fences
 

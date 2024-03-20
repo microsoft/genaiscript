@@ -19,7 +19,7 @@ const output = path.join(path.dirname(env.spec), "output.txt")
 // post processing
 defOutput(output => {
     return {
-        files: [
+        files: [≤read
             // emit entire content to a specific file
             [output]: output.text
         ]
@@ -27,7 +27,7 @@ defOutput(output => {
 })
 ```
 
-## Clearning generated files
+## Cleaning generated files
 
 This example clears the `fileEdits` object, which contains the parsed file updates.
 

@@ -1,5 +1,6 @@
 script({
     model: "mixtral",
+    title: "AICI regex demo",
     aici: true,
     system: [],
 })

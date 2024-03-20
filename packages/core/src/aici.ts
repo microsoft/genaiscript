@@ -6,7 +6,7 @@ import {
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import wrapFetch from "fetch-retry"
-import { logError, logVerbose } from "./util"
+import { fromHex, logError, logVerbose, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { host } from "./host"
 import { NotSupportedError } from "./error"
@@ -38,10 +38,7 @@ export interface AICIRequest {
     functionName: string
 }
 
-export async function renderAICI(
-    functionName: string,
-    root: PromptNode
-): Promise<AICIRequest> {
+export async function renderAICI(functionName: string, root: PromptNode) {
     const notSupported = (reason: string) => (n: any) => {
         throw new NotSupportedError(reason)
     }
@@ -53,6 +50,8 @@ export async function renderAICI(
         if (text !== undefined && text !== null && text !== "")
             push("await $`" + escapeJavascriptString(text) + "`")
     }
+
+    const outputProcessors: PromptOutputProcessorHandler[] = []
 
     push(`async function ${functionName}() {`)
     indent = "  "
@@ -84,8 +83,10 @@ export async function renderAICI(
         function: notSupported("function"),
         // TODO?
         schema: notSupported("schema"),
+        outputProcessor: (n) => {
+            outputProcessors.push(n.fn)
+        },
         // ignore
-        // outputProcessor,
         // fileMerge,
     })
 
@@ -93,7 +94,8 @@ export async function renderAICI(
     push("}")
 
     const content = program.join("\n")
-    return { role: "aici", content, functionName }
+    const aici: AICIRequest = { role: "aici", content, functionName }
+    return { aici, outputProcessors }
 }
 
 interface ModelInitialRun {
@@ -103,6 +105,24 @@ interface ModelInitialRun {
     model: string
 }
 
+type StorageCmd = {
+    WriteVar: {
+        name: string
+        value: string // hex-encoded
+        op: "Set" | "Append"
+        when_version_is?: number // not relevant for us
+    }
+}
+
+type FinishReason =
+    | "eos"
+    | "length"
+    | "abort"
+    | "fail"
+    | "aici-stop"
+    | "deadlock"
+    | "aici-out-of-fuel"
+
 interface ModelRun {
     object: "run"
     forks: {
@@ -110,8 +130,8 @@ interface ModelRun {
         text: string
         error?: string
         logs?: string
-        finish_reason?: "aici_stop"
-        //"storage"?:
+        finish_reason?: FinishReason
+        storage?: StorageCmd[]
     }[]
     usage: {
         sampled_tokens: number
@@ -139,6 +159,8 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
     let source: string[] = []
     let main: string[] = ["async function main() {"]
+    const variables: Record<string, string> = {}
+
     messages.forEach((message, msgi) => {
         const { role, content } = message
         switch (role) {
@@ -262,8 +284,13 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         trace.endFence()
     }
 
+    for (const k of Object.keys(variables)) {
+        variables[k] = utf8Decode(fromHex(variables[k]))
+        trace.itemValue(`var ${k}`, variables[k])
+    }
+
     if (seenDone) {
-        return { text: chatResp, finishReason }
+        return { text: chatResp, finishReason, variables }
     } else {
         trace.error(`invalid response`)
         trace.fence(pref)
@@ -296,7 +323,15 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                         const content = fork.text
                         numTokens = obj.usage.ff_tokens
                         chatResp += content
-                        if (fork.finish_reason === "aici_stop") {
+                        for (const op of fork.storage || []) {
+                            if (op.WriteVar.op === "Set") {
+                                variables[op.WriteVar.name] = op.WriteVar.value
+                            } else if (op.WriteVar.op === "Append") {
+                                variables[op.WriteVar.name] += op.WriteVar.value
+                            }
+                        }
+                        // TODO handle other finish reasons
+                        if (fork.finish_reason === "aici-stop") {
                             finishReason = "stop"
                             seenDone = true
                         } else if (fork.finish_reason === "fail") {

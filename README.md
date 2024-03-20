@@ -2,7 +2,7 @@
 
 # GenAIScript
 
-Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
+Scripting environment with convenient tooling for file ingestion, prompt development and structured data extraction.
 
 ```js wrap
 // metadata and model configuration

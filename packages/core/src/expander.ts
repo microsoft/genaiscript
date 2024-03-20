@@ -117,7 +117,9 @@ async function callExpander(
             outputProcessors = ops
             if (errors) for (const error of errors) trace.error(``, error)
         } else {
-            aici = await renderAICI(r.id.replace(/[^a-z0-9_]/gi, ""), node)
+            const tmp = await renderAICI(r.id.replace(/[^a-z0-9_]/gi, ""), node)
+            outputProcessors = tmp.outputProcessors
+            aici = tmp.aici
         }
     } catch (e) {
         success = false

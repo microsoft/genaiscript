@@ -42,6 +42,7 @@ export interface ChatCompletionToolCall {
 
 export interface ChatCompletionResponse {
     text?: string
+    variables?: Record<string, string>
     toolCalls?: ChatCompletionToolCall[]
     finishReason?:
         | "stop"
