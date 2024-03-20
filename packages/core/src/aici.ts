@@ -123,7 +123,6 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     options
 ) => {
     const { messages, temperature, top_p, seed, response_format, tools } = req
-    const { url, token } = connection
     const { requestOptions, partialCb, retry, retryDelay, maxDelay, trace } =
         options
     const { signal } = requestOptions || {}
@@ -193,13 +192,14 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         controller_arg,
     }
 
+    const url = `${connection.base}/${req.model}/${connection.version || "v1"}/`
     trace.itemValue(`url`, url)
     trace.itemValue(`controller`, postReq.controller)
     trace.detailsFenced(`controller args`, postReq.controller_arg, "js")
 
     const r = await fetchRetry(url, {
         headers: {
-            "api-key": token,
+            "api-key": connection.token,
             "user-agent": TOOL_ID,
             "content-type": "application/json",
             ...(headers || {}),

@@ -26,7 +26,7 @@ export enum LogLevel {
 export type APIType = "openai" | "azure" | "local" | "llama"
 
 export interface OAIToken {
-    url: string
+    base: string
     token: string
     type?: APIType
     source?: string

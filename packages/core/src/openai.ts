@@ -71,12 +71,12 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     if (cfg.type === "openai" || cfg.type === "local") {
         r2.stream = true
-        url = cfg.url + "/chat/completions"
+        url = cfg.base + "/chat/completions"
     } else if (cfg.type === "azure") {
         r2.stream = true
         delete r2.model
         url =
-            cfg.url +
+            cfg.base +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     } else throw new Error(`api type ${cfg.type} not supported`)

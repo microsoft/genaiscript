@@ -56,68 +56,18 @@ export async function initToken(template: PromptTemplate, force = false) {
     )
 }
 
-async function parseToken(f: string) {
-    if (f.startsWith("sk-")) {
-        // OpenAI token
-        cfg = {
-            url: "https://api.openai.com/v1/",
-            token: f,
-            type: "openai",
-        }
-        return cfg
-    }
-
-    let m = /(https:\/\/[\-\w\.]+)\S*#oaikey=(\w+)/.exec(f)
-    if (m) {
-        const url = m[1]
-        const token = m[2]
-        validateTokenCore(token)
-        cfg = { url, token }
-        return cfg
-    }
-
-    m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
-    if (m) {
-        const url = m[1] + "/openai/deployments/"
-        const token = m[2]
-        validateTokenCore(token)
-        cfg = { url, token }
-        return cfg
-    }
-
-    m = /https:\/\/[\-\w]+.openai\.azure\.com\/openai\//i.exec(f)
-    if (m) {
-        const url = m[0] + "deployments/"
-        m = /bearer (ey[\w\.\-]+)/.exec(f)
-        if (m) {
-            const token = m[1]
-            validateTokenCore(token)
-            cfg = { url, token }
-            return cfg
-        }
-    }
-
-    throw new RequestError(
-        400,
-        "Invalid OpenAI token",
-        undefined,
-        "Invalid OpenAI token or configuration",
-        0
-    )
-}
-
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     template: PromptTemplate
 ): Promise<OAIToken> {
     if (template.aici) {
         if (env.AICI_API_BASE) {
-            const url = env.AICI_API_BASE
-            const key = env.AICI_API_KEY
+            const base = env.AICI_API_BASE
+            const token = env.AICI_API_KEY
             const version = env.AICI_API_VERSION ?? "v1"
             return {
-                url,
-                token: key,
+                base,
+                token,
                 aici: true,
                 source: "env: AICI_...",
                 version,
@@ -125,7 +75,7 @@ export async function parseTokenFromEnv(
         }
     } else {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
-            const key = env.OPENAI_API_KEY
+            const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
             let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
             const version = env.OPENAI_API_VERSION
@@ -140,19 +90,19 @@ export async function parseTokenFromEnv(
                 )
             if (type === "local") {
                 return {
-                    url: base,
-                    token: key || "",
+                    base,
+                    token,
                     type,
                     source: "env: OPENAI_API_...",
                     version,
                 }
             }
-            if (!key) throw new Error("OPEN_API_KEY missing")
+            if (!token) throw new Error("OPEN_API_KEY missing")
             base ??= "https://api.openai.com/v1/"
             return {
-                url: base,
+                base,
                 type,
-                token: key,
+                token,
                 source: "env: OPENAI_...",
                 version,
             }
@@ -163,7 +113,7 @@ export async function parseTokenFromEnv(
             env.AZURE_API_KEY ||
             env.AZURE_OPENAI_ENDPOINT
         ) {
-            const key =
+            const token =
                 env.AZURE_OPENAI_API_KEY ||
                 env.AZURE_API_KEY ||
                 env.OPENAI_API_KEY
@@ -183,9 +133,10 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
+            if (!token) throw new Error("AZURE_OPENAI_API_KEY missing")
             return {
-                url: base,
-                token: key,
+                base,
+                token,
                 type: "azure",
                 source: "env: AZURE_...",
                 version,
