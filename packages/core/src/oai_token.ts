@@ -108,7 +108,8 @@ export async function parseTokenFromEnv(
                 }
             }
             if (!token) throw new Error("OPEN_API_KEY missing")
-            base ??= "https://api.openai.com/v1/"
+            if (type === "openai") base ??= "https://api.openai.com/v1/"
+            if (type === "azure") base += "/openai/deployments"
             return {
                 base,
                 type,
