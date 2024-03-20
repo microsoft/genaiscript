@@ -93,7 +93,6 @@ export async function renderAICI(
         push("}")
 
         const content = program.join("\n")
-
         return { role: "aici", content, functionName }
     } catch (error) {
         trace?.error("AICI code generation error", error)
@@ -153,7 +152,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         switch (role) {
             case "aici": {
                 const { functionName, content } = message
-                main.push(`await ${functionName}()`)
+                main.push(`  await ${functionName}()`)
                 source.push(content)
                 source.push("")
                 break
@@ -170,7 +169,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
     const controller_arg = source.join("\n")
 
-    trace.detailsFenced(`controller args`, controller_arg)
+    trace.detailsFenced(`controller args`, controller_arg, "js")
 
     const fetchRetry = await wrapFetch(fetch, {
         retryOn: [429, 500],

@@ -107,6 +107,8 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
 
     trace.dispatchChange()
+
+    trace.detailsFenced("messages", postReq, "json")
     const body = JSON.stringify(postReq)
     const r = await fetchRetry(url, {
         headers: {
