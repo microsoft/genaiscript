@@ -56,7 +56,7 @@ export async function initToken(force = false) {
     )
 }
 
-export async function parseToken(f: string) {
+async function parseToken(f: string) {
     if (f.startsWith("sk-")) {
         // OpenAI token
         cfg = {
@@ -175,16 +175,13 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (env.AICI_API_KEY && env.AICI_API_BASE) {
+    if (env.AICI_API_BASE) {
         const url = env.AICI_API_BASE
         const key = env.AICI_API_KEY
-        const type = (env.AICI_API_TYPE as "llama") ?? "llama"
         const version = env.AICI_API_VERSION ?? "v1"
-
         return {
             url,
             token: key,
-            type,
             aici: true,
             source: "env: AICI_...",
             version,

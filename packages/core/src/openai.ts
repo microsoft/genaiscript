@@ -104,6 +104,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     })
 
     trace.dispatchChange()
+    const body = JSON.stringify(postReq)
     const r = await fetchRetry(url, {
         headers: {
             authorization:
@@ -118,7 +119,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
             "content-type": "application/json",
             ...(headers || {}),
         },
-        body: JSON.stringify(postReq),
+        body,
         method: "POST",
         ...(rest || {}),
     })
