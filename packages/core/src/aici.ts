@@ -176,8 +176,6 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
     const controller_arg = source.join("\n")
 
-    trace.detailsFenced(`controller args`, controller_arg, "js")
-
     const fetchRetry = await wrapFetch(fetch, {
         retryOn: [429, 500],
         retries: retry,
@@ -194,6 +192,10 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         controller: AICI_CONTROLLER,
         controller_arg,
     }
+
+    trace.itemValue(`url`, url)
+    trace.itemValue(`controller`, postReq.controller)
+    trace.detailsFenced(`controller args`, postReq.controller_arg, "js")
 
     const r = await fetchRetry(url, {
         headers: {
