@@ -25,13 +25,12 @@ The execution of this script is converted into a AICI JavaScript program.
 
 ```js title="answer-to-everything.aici.js"
 async function aiciregex() {
-    await $`Ultimate answer is to the life, universe and everything is ${await gen(
-        { regex: /\d\d/ }
-    )}`
+  await $`Ultimate answer is to the life, universe and everything is `
+  await gen({regex: /\d\d/})
 }
 
 async function main() {
-    await aiciregex()
+  await aiciregex()
 }
 start(main)
 ```
@@ -39,14 +38,16 @@ start(main)
 And AICI comes back with the following log.
 
 ```txt
+FIXED "Ultimate answer is to the life, universe and everything is "
 GEN-OPT {regex: /\d\d/}
 regex constraint: "\\d\\d"
 dfa: 160 bytes
 
-GEN "20"
-FIXED "Ultimate answer is to the life, universe and everything is 20"
+GEN "42"
 JsCtrl: done
 ```
+
+And the text output is `42`.
 
 
 ## Metadata

@@ -21,7 +21,7 @@ function renderAICINode(node: AICINode) {
                 ([k, v]) => `${k}: ${JSON.stringify(v)}`
             )
             if (regex) args.push(`regex: ${regex.toString()}`)
-            return `await gen({${args.join(`,\n`)}\n})`
+            return `await gen({${args.join(`,\n`)}})`
         default:
             return "undefined"
     }
@@ -49,36 +49,36 @@ export async function renderAICI(
     let program: string[] = []
     let indent: string = ""
     const push = (text: string) => program.push(indent + text)
+    const pushString = (text: string) => {
+        if (text !== undefined && text !== null && text !== "")
+            push("await $`" + escapeJavascriptString(text) + "`")
+    }
 
     push(`async function ${functionName}() {`)
     indent = "  "
     await visitNode(root, {
         text: async (n) => {
             const value = await n.value
-            if (value !== undefined)
-                // TODO escape javascript string to `...`
-                push(`await fixed(\`${escapeJavascriptString(value)}\`)`)
+            pushString(value)
         },
         stringTemplate: async (n) => {
             const { strings, args } = n
-            let r = "await $`"
             for (let i = 0; i < strings.length; ++i) {
-                r += escapeJavascriptString(strings[i])
+                pushString(strings[i])
                 if (i < args.length) {
                     const arg = await args[i]
+                    if (arg === undefined || arg === null) continue
                     if (typeof arg === "string") {
-                        r += escapeJavascriptString(arg)
+                        pushString(arg)
                     } else if (arg.type === "aici") {
                         const rarg = renderAICINode(arg)
-                        r += "${" + rarg + "}"
+                        push(rarg)
                     } else {
                         const rarg = JSON.stringify(arg)
-                        r += "${" + rarg + "}"
+                        pushString(rarg)
                     }
                 }
             }
-            r += "`"
-            push(r)
         },
         image: notSupported("image"),
         function: notSupported("function"),
