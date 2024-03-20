@@ -166,6 +166,11 @@ interface PromptTemplate extends PromptLike, ModelOptions {
      * Secrets required by the prompt
      */
     secrets?: string[]
+
+    /**
+     * Use AICI controller
+     */
+    aici?: string
 }
 
 /**

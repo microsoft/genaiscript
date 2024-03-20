@@ -33,6 +33,7 @@ import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
+import { initToken } from "./oai_token"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -276,6 +277,7 @@ export async function runTemplate(
         }
         return fileEdit
     }
+    const connection = await initToken(template)
     const { completer } = resolveLanguageModel(
         aici ? "aici" : "openai",
         options
@@ -306,6 +308,7 @@ export async function runTemplate(
                         response_format,
                         tools,
                     },
+                    connection,
                     { ...options, trace }
                 )
             } finally {

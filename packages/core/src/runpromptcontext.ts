@@ -12,12 +12,14 @@ import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import { toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
 import { resolveLanguageModel } from "./models"
+import { OAIToken } from "./host"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
 }
 
 export function createRunPromptContext(
+    connection: () => Promise<OAIToken>,
     options: RunTemplateOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
@@ -79,7 +81,12 @@ export function createRunPromptContext(
                     trace.error("generator missing")
                     return <RunPromptResult>{ text: "" }
                 }
-                const ctx = createRunPromptContext(options, env, trace)
+                const ctx = createRunPromptContext(
+                    connection,
+                    options,
+                    env,
+                    trace
+                )
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
                 await generator(ctx)
@@ -102,6 +109,7 @@ export function createRunPromptContext(
 
                 // call LLM
                 const { completer } = resolveLanguageModel("openai", options)
+                const token = await connection()
                 const res = await completer(
                     {
                         model,
@@ -116,6 +124,7 @@ export function createRunPromptContext(
                         stream: true,
                         messages: [toChatCompletionUserMessage(prompt, images)],
                     },
+                    token,
                     { ...options, trace }
                 )
                 trace.details("output", res.text)

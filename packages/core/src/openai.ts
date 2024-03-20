@@ -20,7 +20,11 @@ import {
     getChatCompletionCache,
 } from "./chat"
 
-const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
+const OpenAIChatCompletion: ChatCompletionHandler = async (
+    req,
+    cfg,
+    options
+) => {
     const { temperature, top_p, seed, response_format, tools } = req
     const {
         requestOptions,
@@ -59,7 +63,6 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
         return { text: cached }
     }
 
-    const cfg = await initToken()
     const r2 = { ...req }
     let postReq: any = r2
 

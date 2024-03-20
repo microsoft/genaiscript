@@ -131,8 +131,13 @@ interface ModelRun {
 
 type ModelMessage = ModelInitialRun | ModelRun
 
-const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
+const AICIChatCompletion: ChatCompletionHandler = async (
+    req,
+    connection,
+    options
+) => {
     const { messages, temperature, top_p, seed, response_format, tools } = req
+    const { url, token } = connection
     const { requestOptions, partialCb, retry, retryDelay, maxDelay, trace } =
         options
     const { signal } = requestOptions || {}
@@ -180,10 +185,6 @@ const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
             return 0
         },
     })
-
-    const tok = await initToken()
-    const url = tok.url
-    const token = tok.token
 
     const postReq = {
         controller: AICI_CONTROLLER,

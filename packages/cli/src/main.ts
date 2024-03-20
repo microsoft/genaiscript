@@ -231,10 +231,6 @@ async function batch(
         `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
-    spinner.start(`validating token`)
-    const tok = await initToken() // ensure we have a token early
-    spinner.succeed(`LLM: ${tok.url}`)
-
     let errors = 0
     let totalTokens = 0
     if (removeOut) await emptyDir(out)
@@ -271,7 +267,6 @@ async function batch(
                     retryDelay,
                     maxDelay,
                     vars: parseVars(vars),
-                    aici: tok.aici,
                 }
             )
 
@@ -507,7 +502,6 @@ ${Array.from(files)
         process.exit(FILES_NOT_FOUND)
     }
 
-    const aici = (!options.prompt && (await initToken()))?.aici
     spinner?.start("Querying")
 
     let tokens = 0
@@ -531,7 +525,6 @@ ${Array.from(files)
         retryDelay,
         maxDelay,
         vars: parseVars(vars),
-        aici,
     })
 
     if (spinner) {
@@ -937,14 +930,6 @@ async function main() {
             "variables, as name=value, stored in env.vars"
         )
         .action(batch)
-
-    program
-        .command("keys")
-        .description("Parse and show current key information")
-        .action(async () => {
-            const key = await host.getSecretToken()
-            console.log(key ? `${key.url} (from ${key.source})` : "no key set")
-        })
 
     program
         .command("scripts")

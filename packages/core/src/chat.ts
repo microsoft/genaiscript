@@ -3,6 +3,7 @@ import { Cache } from "./cache"
 import { MarkdownTrace } from "./trace"
 import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
+import { OAIToken } from "./host"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -135,6 +136,7 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
 
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
+    connection: OAIToken,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ) => Promise<ChatCompletionResponse>
 

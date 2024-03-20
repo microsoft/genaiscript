@@ -2,7 +2,7 @@ import { ChatCompletionsOptions, LanguageModel } from "./chat"
 import { PromptTemplate } from "./ast"
 import { logVerbose, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
-import { host } from "./host"
+import { OAIToken, host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
@@ -36,7 +36,7 @@ function stringLikeToFileName(f: string | LinkedFile) {
 }
 
 export function createPromptContext(
-    r: PromptTemplate,
+    connection: () => Promise<OAIToken>,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: RunTemplateOptions,
@@ -193,7 +193,7 @@ export function createPromptContext(
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
-        ...createRunPromptContext(options, env, trace),
+        ...createRunPromptContext(connection, options, env, trace),
         script: () => {},
         system: () => {},
         env,
@@ -291,5 +291,4 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         }
         languageModel?: LanguageModel
         vars?: Record<string, string>
-        aici?: boolean
     }

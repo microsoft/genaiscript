@@ -9,6 +9,7 @@ import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import { ChatCompletionMessageParam } from "./chat"
+import { initToken } from "./oai_token"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -73,7 +74,8 @@ async function callExpander(
     options: RunTemplateOptions
 ) {
     const model = r.model || DEFAULT_MODEL
-    const ctx = createPromptContext(r, vars, trace, options, model)
+    const connection = async () => initToken(r)
+    const ctx = createPromptContext(connection, vars, trace, options, model)
 
     let success = true
     let logs = ""
@@ -93,7 +95,7 @@ async function callExpander(
             },
         })
         const node = ctx.node
-        if (!options?.aici) {
+        if (!r.aici) {
             const {
                 prompt,
                 images: imgs,
@@ -228,7 +230,7 @@ export async function expandTemplate(
 
     let systemText = ""
     const systems = (template.system ?? []).slice(0)
-    if (template.system === undefined && !options?.aici) {
+    if (template.system === undefined) {
         systems.push("system")
         systems.push("system.explanations")
         // select file expansion type

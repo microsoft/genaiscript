@@ -23,7 +23,7 @@ function validateTokenCore(token: string, quiet = false) {
     if (timeleft < 60) throw new Error("token expired")
 }
 
-export async function initToken(force = false) {
+export async function initToken(template: PromptTemplate, force = false) {
     if (cfg && !force) {
         // already set? revalidate
         try {
@@ -32,7 +32,7 @@ export async function initToken(force = false) {
         } catch {}
     }
 
-    cfg = await host.getSecretToken()
+    cfg = await host.getSecretToken(template)
     if (cfg && !force) {
         try {
             validateTokenCore(cfg.token)
@@ -107,86 +107,90 @@ async function parseToken(f: string) {
 }
 
 export async function parseTokenFromEnv(
-    env: Record<string, string>
+    env: Record<string, string>,
+    template: PromptTemplate
 ): Promise<OAIToken> {
-    if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
-        const key = env.OPENAI_API_KEY
-        let base = env.OPENAI_API_BASE
-        let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
-        const version = env.OPENAI_API_VERSION
-        if (type && type !== "azure" && type !== "local")
-            throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
-        if (type === "azure" && !base)
-            throw new Error("OPENAI_API_BASE not set")
-        if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
-        if (type === "local") {
+    if (template.aici) {
+        if (env.AICI_API_BASE) {
+            const url = env.AICI_API_BASE
+            const key = env.AICI_API_KEY
+            const version = env.AICI_API_VERSION ?? "v1"
             return {
-                url: base,
-                token: key || "",
-                type,
-                source: "env: OPENAI_API_...",
+                url,
+                token: key,
+                aici: true,
+                source: "env: AICI_...",
                 version,
             }
         }
-        if (!key) throw new Error("OPEN_API_KEY missing")
-        base ??= "https://api.openai.com/v1/"
-        return {
-            url: base,
-            type,
-            token: key,
-            source: "env: OPENAI_...",
-            version,
+    } else {
+        if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
+            const key = env.OPENAI_API_KEY
+            let base = env.OPENAI_API_BASE
+            let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
+            const version = env.OPENAI_API_VERSION
+            if (type && type !== "azure" && type !== "local")
+                throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
+            if (type === "azure" && !base)
+                throw new Error("OPENAI_API_BASE not set")
+            if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
+            if (version && version !== AZURE_OPENAI_API_VERSION)
+                throw new Error(
+                    `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+                )
+            if (type === "local") {
+                return {
+                    url: base,
+                    token: key || "",
+                    type,
+                    source: "env: OPENAI_API_...",
+                    version,
+                }
+            }
+            if (!key) throw new Error("OPEN_API_KEY missing")
+            base ??= "https://api.openai.com/v1/"
+            return {
+                url: base,
+                type,
+                token: key,
+                source: "env: OPENAI_...",
+                version,
+            }
+        }
+
+        if (
+            env.AZURE_OPENAI_API_KEY ||
+            env.AZURE_API_KEY ||
+            env.AZURE_OPENAI_ENDPOINT
+        ) {
+            const key =
+                env.AZURE_OPENAI_API_KEY ||
+                env.AZURE_API_KEY ||
+                env.OPENAI_API_KEY
+            const base =
+                env.AZURE_OPENAI_ENDPOINT ||
+                env.AZURE_OPENAI_API_BASE ||
+                env.AZURE_API_BASE
+            const version =
+                env.AZURE_OPENAI_API_VERSION ||
+                env.AZURE_API_VERSION ||
+                env.OPENAI_API_VERSION
+            if (!base)
+                throw new Error(
+                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
+                )
+            if (version && version !== AZURE_OPENAI_API_VERSION)
+                throw new Error(
+                    `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+                )
+            return {
+                url: base,
+                token: key,
+                type: "azure",
+                source: "env: AZURE_...",
+                version,
+            }
         }
     }
-
-    if (
-        env.AZURE_OPENAI_API_KEY ||
-        env.AZURE_API_KEY ||
-        env.AZURE_OPENAI_ENDPOINT
-    ) {
-        const key =
-            env.AZURE_OPENAI_API_KEY || env.AZURE_API_KEY || env.OPENAI_API_KEY
-        const base =
-            env.AZURE_OPENAI_ENDPOINT ||
-            env.AZURE_OPENAI_API_BASE ||
-            env.AZURE_API_BASE
-        const version =
-            env.AZURE_OPENAI_API_VERSION ||
-            env.AZURE_API_VERSION ||
-            env.OPENAI_API_VERSION
-        if (!base)
-            throw new Error(
-                "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
-            )
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
-        return {
-            url: base,
-            token: key,
-            type: "azure",
-            source: "env: AZURE_...",
-            version,
-        }
-    }
-
-    if (env.AICI_API_BASE) {
-        const url = env.AICI_API_BASE
-        const key = env.AICI_API_KEY
-        const version = env.AICI_API_VERSION ?? "v1"
-        return {
-            url,
-            token: key,
-            aici: true,
-            source: "env: AICI_...",
-            version,
-        }
-    }
-
     return undefined
 }
