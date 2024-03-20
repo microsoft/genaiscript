@@ -74,22 +74,16 @@
                 }
             ]
         },
-        "viewsWelcome": [
-            {
-                "view": "genaiscript.fragments",
-                "contents": "Create a gpspec file (.gpspec.md) to start generating tasks and code."
-            }
-        ],
         "menus": {
             "editor/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode",
+                    "when": "!inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
                     "group": "genaiscript@1"
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode",
+                    "when": "!inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
                     "group": "genaiscript@2"
                 }
             ],
@@ -156,12 +150,12 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
                     "group": "genaiscript@1"
                 },
                 {
                     "submenu": "genaiscript.explorer.retreival",
-                    "when": "explorerViewletVisible",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
                     "group": "genaiscript@2"
                 }
             ],
