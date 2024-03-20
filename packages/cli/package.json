@@ -3,7 +3,8 @@
   "version": "1.15.9",
   "main": "built/genaiscript.cjs",
   "bin": {
-    "genaiscript": "./built/genaiscript.cjs"
+    "genaiscript": "./built/genaiscript.cjs",
+    "genaiscript-cli": "./built/genaiscript.cjs"
   },
   "publisher": "Microsoft",
   "repository": {
