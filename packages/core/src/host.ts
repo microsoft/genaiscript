@@ -31,6 +31,7 @@ export interface OAIToken {
     type?: APIType
     source?: string
     aici?: boolean
+    version?: string
 }
 
 export interface ReadFileOptions {

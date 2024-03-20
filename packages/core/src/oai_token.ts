@@ -129,6 +129,7 @@ export async function parseTokenFromEnv(
                 token: key || "",
                 type,
                 source: "env: OPENAI_API_...",
+                version,
             }
         }
         if (!key) throw new Error("OPEN_API_KEY missing")
@@ -138,9 +139,10 @@ export async function parseTokenFromEnv(
             type,
             token: key,
             source: "env: OPENAI_...",
+            version,
         }
     }
-    
+
     if (
         env.AZURE_OPENAI_API_KEY ||
         env.AZURE_API_KEY ||
@@ -169,6 +171,7 @@ export async function parseTokenFromEnv(
             token: key,
             type: "azure",
             source: "env: AZURE_...",
+            version,
         }
     }
 
@@ -176,6 +179,7 @@ export async function parseTokenFromEnv(
         const url = env.AICI_API_BASE
         const key = env.AICI_API_KEY
         const type = (env.AICI_API_TYPE as "llama") ?? "llama"
+        const version = env.AICI_API_VERSION ?? "v1"
 
         return {
             url,
@@ -183,6 +187,7 @@ export async function parseTokenFromEnv(
             type,
             aici: true,
             source: "env: AICI_...",
+            version,
         }
     }
 
