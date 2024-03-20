@@ -1,3 +1,4 @@
+import { ChatCompletionHandler, LanguageModel } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 
@@ -100,3 +101,10 @@ export async function renderAICI(
         trace?.endDetails()
     }
 }
+
+const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {}
+
+export const AICIModel = Object.freeze<LanguageModel>({
+    completer: AICIChatCompletion,
+    id: "aici",
+})

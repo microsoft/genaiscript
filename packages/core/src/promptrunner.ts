@@ -276,7 +276,10 @@ export async function runTemplate(
         }
         return fileEdit
     }
-    const { completer } = resolveLanguageModel(model, options)
+    const { completer } = resolveLanguageModel(
+        aici ? "aici" : "openai",
+        options
+    )
     let repairs = 0
 
     while (!isCancelled()) {

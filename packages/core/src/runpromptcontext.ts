@@ -101,7 +101,7 @@ export function createRunPromptContext(
                     trace.fence({ images, errors }, "yaml")
 
                 // call LLM
-                const { completer } = resolveLanguageModel(model, options)
+                const { completer } = resolveLanguageModel("openai", options)
                 const res = await completer(
                     {
                         model,
