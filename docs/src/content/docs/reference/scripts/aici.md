@@ -1,7 +1,7 @@
 ---
 title: AICI
 sidebar:
-  order: 200
+    order: 200
 ---
 
 [Microsoft AICI](https://github.com/microsoft/aici/) allows to constrain the output of a LLM using WASM. In particular, it is possible to send JavaScript program to describe the prompt.
@@ -13,6 +13,41 @@ GenAIScript support executing scripts and converting the output into a AICI comp
 This feature is experimental and may change in the future.
 
 :::
+
+Let's take a look at an example.
+
+```js title="answer-to-everything.genai.js"
+$`Ultimate answer is to the life, universe 
+and everything is ${AICI.gen({ regex: /\d\d/ })}`
+```
+
+The execution of this script is converted into a AICI JavaScript program.
+
+```js title="answer-to-everything.aici.js"
+async function aiciregex() {
+    await $`Ultimate answer is to the life, universe and everything is ${await gen(
+        { regex: /\d\d/ }
+    )}`
+}
+
+async function main() {
+    await aiciregex()
+}
+start(main)
+```
+
+And AICI comes back with the following log.
+
+```txt
+GEN-OPT {regex: /\d\d/}
+regex constraint: "\\d\\d"
+dfa: 160 bytes
+
+GEN "20"
+FIXED "Ultimate answer is to the life, universe and everything is 20"
+JsCtrl: done
+```
+
 
 ## Metadata
 
@@ -27,11 +62,6 @@ script({ ...
 ## `gen`
 
 The `AICI.gen` function creates a constrain in the prompt flow.
-
-```js title="answer-to-everything.genai.js"
-$`Ultimate answer is to the life, universe 
-and everything is ${AICI.gen({ regex: /\d\d/ })}`
-```
 
 ## Token
 
