@@ -1,6 +1,5 @@
 import { PromptNode, visitNode } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import { assert } from "./util"
 
 export class NotSupportedError extends Error {
     constructor(message: string, options?: ErrorOptions) {
@@ -13,7 +12,7 @@ function renderAICINode(node: AICINode) {
     const { type, name } = node
     switch (name) {
         case "gen":
-            return `await gen(${JSON.stringify((node as AiciGenNode).options)})`
+            return `await gen(${JSON.stringify((node as AICIGenNode).options)})`
         default:
             return "undefined"
     }

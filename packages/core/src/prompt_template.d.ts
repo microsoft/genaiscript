@@ -704,7 +704,7 @@ interface AICINode {
     name: "gen"
 }
 
-interface AiciGenNode extends AICINode {
+interface AICIGenNode extends AICINode {
     name: "gen"
     options: AICIGenOptions
 }
@@ -714,7 +714,7 @@ interface AICI {
      * Generate a string that matches given constraints.
      * If the tokens do not map cleanly into strings, it will contain Unicode replacement characters.
      */
-    gen(options: AICIGenOptions): AiciGenNode
+    gen(options: AICIGenOptions): AICIGenNode
 }
 
 interface YAML {
