@@ -5,13 +5,12 @@ import {
     RequestError,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
-import { MarkdownTrace } from "./trace"
 import wrapFetch from "fetch-retry"
-import { assert, logError, logVerbose } from "./util"
+import { logError, logVerbose } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
-import { initToken } from "./oai_token"
 import { host } from "./host"
 import { NotSupportedError } from "./error"
+import { ChatCompletionContentPartText } from "openai/resources"
 
 function renderAICINode(node: AICINode) {
     const { type, name } = node
@@ -135,11 +134,28 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         throw new NotSupportedError("AICI: response_format not supported")
 
     let source: string[] = []
-
     let main: string[] = ["async function main() {"]
-    messages.forEach((message) => {
-        const { role } = message
+    messages.forEach((message, msgi) => {
+        const { role, content } = message
         switch (role) {
+            case "system":
+            case "user": {
+                const functionName = `${role}${msgi}`
+                const functionSource = `async function ${functionName}() {
+    $\`${escapeJavascriptString(
+        typeof content === "string"
+            ? content
+            : content
+                  .filter(({ type }) => type === "text")
+                  .map((p) => (p as ChatCompletionContentPartText).text)
+                  .join("\n")
+    )}\`
+}
+`
+                source.push(functionSource)
+                main.push(`  await ${functionName}()`)
+                break
+            }
             case "aici": {
                 const { functionName, content } = message
                 main.push(`  await ${functionName}()`)
@@ -148,8 +164,9 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                 break
             }
             default:
-                // TODO
-                throw new NotSupportedError("AICI: only aici messages")
+                throw new NotSupportedError(
+                    `AICI: message ${role} not supported`
+                )
         }
     })
     main.push("}")
