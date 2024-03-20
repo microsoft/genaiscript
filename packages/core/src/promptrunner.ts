@@ -649,7 +649,10 @@ ${repair}
                     trace.detailsFenced(`📝 text`, text)
                 }
 
-                for (const [fn, content] of Object.entries(files)) {
+                for (const [n, content] of Object.entries(files)) {
+                    const fn = /^[^\/]/.test(n)
+                        ? host.resolvePath(projFolder, n)
+                        : n
                     trace.detailsFenced(`📁 file ${fn}`, content)
                     const fileEdit = await getFileEdit(fn)
                     fileEdit.after = content
