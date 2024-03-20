@@ -16,7 +16,12 @@ function renderAICINode(node: AICINode) {
     const { type, name } = node
     switch (name) {
         case "gen":
-            return `await gen(${JSON.stringify((node as AICIGenNode).options)})`
+            const { regex, ...rest } = (node as AICIGenNode).options
+            const args = Object.entries(rest).map(
+                ([k, v]) => `${k}: ${JSON.stringify(v)}`
+            )
+            if (regex) args.push(`regex: ${regex.toString()}`)
+            return `await gen({${args.join(`,\n`)}\n})`
         default:
             return "undefined"
     }
@@ -287,8 +292,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                         break
                     case "run":
                         const fork = obj.forks[0]
-                        if (fork.logs)
-                            trace.log(fork.logs)
+                        if (fork.logs) trace.log(fork.logs)
                         const content = fork.text
                         numTokens = obj.usage.ff_tokens
                         chatResp += content
