@@ -94,8 +94,6 @@ export async function renderAICI(
 
         const content = program.join("\n")
 
-        trace?.fence(content, "javascript")
-
         return { role: "aici", content, functionName }
     } catch (error) {
         trace?.error("AICI code generation error", error)

@@ -158,12 +158,12 @@ export async function expandTemplate(
     trace.detailsFenced("📓 script source", template.jsSource, "js")
     const prompt = await callExpander(template, env, trace, options)
     const expanded = prompt.text
+    const aici = prompt.aici
     const images = prompt.images
     const schemas = prompt.schemas
     const functions = prompt.functions
     const fileMerges = prompt.fileMerges
     const outputProcessors = prompt.outputProcessors
-    const aici = prompt.aici
 
     let success = prompt.success
     if (success === null)
@@ -203,6 +203,7 @@ export async function expandTemplate(
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
     if (expanded) trace.fence(expanded, "markdown")
+    else if (aici) trace.fence(aici, "yaml")
     trace.endDetails()
 
     if (cancellationToken?.isCancellationRequested) return { success: null }
