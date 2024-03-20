@@ -119,6 +119,7 @@ interface ModelRun {
         text: string
         error?: string
         logs?: string
+        finish_reason?: "aici_stop"
         //"storage"?:
     }[]
     usage: {
@@ -274,8 +275,13 @@ const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
                         break
                     case "run":
                         const content = obj.forks[0].text
-                        numTokens += obj.usage.ff_tokens
+                        numTokens = obj.usage.ff_tokens
                         chatResp += content
+                        if (obj.forks[0].finish_reason === "aici_stop") {
+                            finishReason = "stop"
+                            seenDone = true
+                        }
+
                         break
                     default: // unknown
                         break
