@@ -79,15 +79,25 @@ export async function parseTokenFromEnv(
             let base = env.OPENAI_API_BASE
             let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
             const version = env.OPENAI_API_VERSION
-            if (type && type !== "azure" && type !== "local")
+            if (
+                type &&
+                type !== "azure" &&
+                type !== "local" &&
+                type !== "openai"
+            )
                 throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
             if (type === "azure" && !base)
                 throw new Error("OPENAI_API_BASE not set")
             if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
-            if (version && version !== AZURE_OPENAI_API_VERSION)
+            if (
+                type === "azure" &&
+                version &&
+                version !== AZURE_OPENAI_API_VERSION
+            )
                 throw new Error(
                     `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
+            if (!type) type = "openai" // default
             if (type === "local") {
                 return {
                     base,

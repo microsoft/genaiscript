@@ -109,18 +109,18 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     trace.dispatchChange()
 
-    trace.detailsFenced("messages", postReq, "json")
+    trace.detailsFenced("✉️ messages", postReq, "json")
     const body = JSON.stringify(postReq)
     const r = await fetchRetry(url, {
         headers: {
+            // openai
             authorization:
                 cfg.token && (cfg.type === "openai" || cfg.type === "local")
                     ? `Bearer ${cfg.token}`
                     : undefined,
+            // azure
             "api-key":
-                cfg.token && !(cfg.type === "openai" || cfg.type === "local")
-                    ? cfg.token
-                    : undefined,
+                cfg.token && cfg.type === "azure" ? cfg.token : undefined,
             "user-agent": TOOL_ID,
             "content-type": "application/json",
             ...(headers || {}),
