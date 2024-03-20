@@ -2,20 +2,16 @@ import {
     ChatCompletionHandler,
     ChatCompletionResponse,
     LanguageModel,
+    RequestError,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import wrapFetch from "fetch-retry"
-import { logVerbose } from "./util"
+import { logError, logVerbose } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { initToken } from "./oai_token"
-
-export class NotSupportedError extends Error {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message)
-        this.name = "NotSupportedError"
-    }
-}
+import { host } from "./host"
+import { NotSupportedError } from "./error"
 
 function renderAICINode(node: AICINode) {
     const { type, name } = node
@@ -109,6 +105,31 @@ export async function renderAICI(
     }
 }
 
+interface ModelInitialRun {
+    id: string
+    object: "initial-run"
+    created: number
+    model: string
+}
+
+interface ModelRun {
+    object: "run"
+    forks: {
+        index: number
+        text: string
+        error?: string
+        logs?: string
+        //"storage"?:
+    }[]
+    usage: {
+        sampled_tokens: number
+        ff_tokens: number
+        cost: number
+    }
+}
+
+type ModelMessage = ModelInitialRun | ModelRun
+
 const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
     const { messages, temperature, top_p, seed, response_format, tools } = req
     const { requestOptions, partialCb, retry, retryDelay, maxDelay, trace } =
@@ -180,8 +201,100 @@ const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
         ...(rest || {}),
     })
 
-    return <ChatCompletionResponse>{
-        text: "aici bla bla ",
+    trace.itemValue(`response`, `${r.status} ${r.statusText}`)
+    if (r.status !== 200) {
+        trace.error(`request error: ${r.status}`)
+        let body: string
+        try {
+            body = await r.text()
+        } catch (e) {}
+        let bodyJSON: { error: unknown }
+        try {
+            bodyJSON = body ? JSON.parse(body) : undefined
+        } catch (e) {}
+        throw new RequestError(
+            r.status,
+            r.statusText,
+            bodyJSON?.error,
+            body,
+            parseInt(r.headers.get("retry-after"))
+        )
+    }
+
+    let numTokens = 0
+    let finishReason: ChatCompletionResponse["finishReason"] = undefined
+    let seenDone = false
+    let chatResp = ""
+
+    let pref = ""
+
+    const decoder = host.createUTF8Decoder()
+
+    if (r.body.getReader) {
+        const reader = r.body.getReader()
+        while (!signal?.aborted) {
+            const { done, value } = await reader.read()
+            if (done) break
+            doChunk(value)
+        }
+    } else {
+        for await (const value of r.body as any) {
+            if (signal?.aborted) break
+            doChunk(value)
+        }
+    }
+
+    if (seenDone) {
+        return { text: chatResp, finishReason }
+    } else {
+        trace.error(`invalid response`)
+        trace.fence(pref)
+        throw new Error(`invalid response: ${pref}`)
+    }
+
+    function doChunk(value: Uint8Array) {
+        // Massage and parse the chunk of data
+        let chunk = decoder.decode(value, { stream: true })
+
+        chunk = pref + chunk
+        const ch0 = chatResp
+        chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
+            if (json == "[DONE]") {
+                seenDone = true
+                return ""
+            }
+            if (seenDone) {
+                logError(`tokens after done! '${json}'`)
+                return ""
+            }
+            try {
+                const obj: ModelMessage = JSON.parse(json)
+                switch (obj.object) {
+                    case "initial-run": // ignore
+                        break
+                    case "run":
+                        const content = obj.forks[0].text
+                        numTokens += obj.usage.ff_tokens
+                        chatResp += content
+                        break
+                    default: // unknown
+                        break
+                }
+            } catch {
+                logError(`invalid json in chat response: ${json}`)
+            }
+            return ""
+        })
+        const progress = chatResp.slice(ch0.length)
+        if (progress != "") {
+            // logVerbose(`... ${progress.length} chars`);
+            partialCb?.({
+                responseSoFar: chatResp,
+                tokensSoFar: numTokens,
+                responseChunk: progress,
+            })
+        }
+        pref = chunk
     }
 }
 

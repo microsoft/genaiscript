@@ -271,6 +271,7 @@ async function batch(
                     retryDelay,
                     maxDelay,
                     vars: parseVars(vars),
+                    aici: tok.aici,
                 }
             )
 
@@ -403,7 +404,6 @@ async function run(
         failOnErrors: boolean
         removeOut: boolean
         vars: string[]
-        aici: boolean
     }
 ) {
     const excludedFiles = options.excludedFiles
@@ -428,7 +428,6 @@ async function run(
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
     const vars = options.vars
-    const aici = options.aici
 
     const spinner: Ora =
         !stream && !isQuiet
@@ -508,6 +507,7 @@ ${Array.from(files)
         process.exit(FILES_NOT_FOUND)
     }
 
+    const aici = (!options.prompt && (await initToken()))?.aici
     spinner?.start("Querying")
 
     let tokens = 0
@@ -901,7 +901,6 @@ async function main() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
-        .option("--aici", "Trace converted AICI program")
         .action(run)
 
     program
