@@ -23,12 +23,12 @@ export enum LogLevel {
     Error = 4,
 }
 
-export type ChatAPIProfile = "openai"
+export type APIType = "openai" | "azure" | "local" | "llama"
 
 export interface OAIToken {
     url: string
     token: string
-    profile?: ChatAPIProfile
+    type?: APIType
     source?: string
     aici?: boolean
 }

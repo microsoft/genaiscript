@@ -62,7 +62,7 @@ export async function parseToken(f: string) {
         cfg = {
             url: "https://api.openai.com/v1/",
             token: f,
-            profile: "openai",
+            type: "openai",
         }
         return cfg
     }
@@ -112,7 +112,7 @@ export async function parseTokenFromEnv(
     if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
         const key = env.OPENAI_API_KEY
         let base = env.OPENAI_API_BASE
-        let type = env.OPENAI_API_TYPE
+        let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
         const version = env.OPENAI_API_VERSION
         if (type && type !== "azure" && type !== "local")
             throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
@@ -127,16 +127,20 @@ export async function parseTokenFromEnv(
             return {
                 url: base,
                 token: key || "",
-                profile: "openai",
+                type,
                 source: "env: OPENAI_API_...",
             }
         }
+        if (!key) throw new Error("OPEN_API_KEY missing")
         base ??= "https://api.openai.com/v1/"
-        const name = type === "azure" ? "key" : "oaikey"
-        const tok = await parseToken(`${base}#${name}=${key}`)
-        tok.source = "env: OPENAI_..."
-        return tok
+        return {
+            url: base,
+            type,
+            token: key,
+            source: "env: OPENAI_...",
+        }
     }
+    
     if (
         env.AZURE_OPENAI_API_KEY ||
         env.AZURE_API_KEY ||
@@ -163,7 +167,7 @@ export async function parseTokenFromEnv(
         return {
             url: base,
             token: key,
-            profile: "openai",
+            type: "azure",
             source: "env: AZURE_...",
         }
     }
@@ -171,12 +175,13 @@ export async function parseTokenFromEnv(
     if (env.AICI_API_KEY && env.AICI_API_BASE) {
         const url = env.AICI_API_BASE
         const key = env.AICI_API_KEY
-        const profile: any = env.AICI_API_PROFILE || "llama"
+        const type = (env.AICI_API_TYPE as "llama") ?? "llama"
 
         return {
             url,
             token: key,
-            profile,
+            type,
+            aici: true,
             source: "env: AICI_...",
         }
     }

@@ -66,17 +66,17 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.profile === "openai") {
+    if (cfg.type === "openai" || cfg.type === "local") {
         r2.stream = true
         url = cfg.url + "/chat/completions"
-    } else {
+    } else if (cfg.type === "azure") {
         r2.stream = true
         delete r2.model
         url =
             cfg.url +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
-    }
+    } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`model`, model)
     trace.itemValue(`url`, `[${url}](${url})`)
@@ -107,11 +107,13 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     const r = await fetchRetry(url, {
         headers: {
             authorization:
-                cfg.token && cfg.profile === "openai"
+                cfg.token && (cfg.type === "openai" || cfg.type === "local")
                     ? `Bearer ${cfg.token}`
                     : undefined,
             "api-key":
-                cfg.token && cfg.profile !== "openai" ? cfg.token : undefined,
+                cfg.token && !(cfg.type === "openai" || cfg.type === "local")
+                    ? cfg.token
+                    : undefined,
             "user-agent": TOOL_ID,
             "content-type": "application/json",
             ...(headers || {}),
