@@ -4,7 +4,6 @@ import { ExtensionState } from "./state"
 import { PromptTemplate, copyPrompt } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
-import { saveAllTextDocuments } from "./fs"
 
 const TEMPLATE = `# New specification
     
@@ -17,8 +16,8 @@ export function activatePromptCommands(state: ExtensionState) {
 
     async function showPrompt(fn: string) {
         await state.fixPromptDefinitions()
+        vscode.window.showTextDocument(vscode.Uri.file(fn))
         await state.parseWorkspace()
-        await vscode.window.showTextDocument(vscode.Uri.file(fn))
     }
 
     subscriptions.push(
@@ -56,7 +55,7 @@ export function activatePromptCommands(state: ExtensionState) {
                 const t = structuredClone(
                     template || {
                         id: "",
-                        title: "my tool",
+                        title: name,
                         text: "New script empty template",
                         jsSource: `// metadata (including model parameters)
 // learn more at https://aka.ms/genaiscript
