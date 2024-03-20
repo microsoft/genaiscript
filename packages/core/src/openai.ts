@@ -77,6 +77,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         delete r2.model
         url =
             cfg.base +
+            "/" +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     } else throw new Error(`api type ${cfg.type} not supported`)
