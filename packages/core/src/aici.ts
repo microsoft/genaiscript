@@ -1,6 +1,8 @@
 import { ChatCompletionHandler, LanguageModel } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { MarkdownTrace } from "./trace"
+import wrapFetch from "fetch-retry"
+import { logVerbose } from "./util"
 
 export class NotSupportedError extends Error {
     constructor(message: string, options?: ErrorOptions) {
@@ -28,13 +30,14 @@ export interface AICIRequest {
     content?: string
     controller?: "jsctrl"
     error?: unknown
+    functionName?: string
 }
 
 export async function renderAICI(
     root: PromptNode,
-    options?: { trace: MarkdownTrace }
+    options?: { trace: MarkdownTrace; functionName?: string }
 ): Promise<AICIRequest> {
-    const { trace } = options
+    const { trace, functionName = "main" } = options
     const notSupported = (reason: string) => (n: any) => {
         throw new NotSupportedError(reason)
     }
@@ -46,7 +49,7 @@ export async function renderAICI(
         let indent: string = ""
         const push = (text: string) => program.push(indent + text)
 
-        push("async function main() {")
+        push(`async function ${functionName}() {`)
         indent = "  "
         await visitNode(root, {
             text: async (n) => {
@@ -87,13 +90,12 @@ export async function renderAICI(
 
         indent = ""
         push("}")
-        push("start(main)")
 
         const content = program.join("\n")
 
         trace?.fence(content, "javascript")
 
-        return { role: "aici", content, controller: "jsctrl" }
+        return { role: "aici", content, controller: "jsctrl", functionName }
     } catch (error) {
         trace?.error("AICI code generation error", error)
         throw error
@@ -102,7 +104,29 @@ export async function renderAICI(
     }
 }
 
-const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {}
+const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
+    const { temperature, top_p, seed, response_format, tools } = req
+    const { requestOptions, partialCb, retry, retryDelay, maxDelay, trace } =
+        options
+
+    if (tools?.length) throw new NotSupportedError("AICI: tools not supported")
+    if (req.messages.find((msg) => msg.role !== "aici"))
+        throw new NotSupportedError("AICI: only aici messages supported")
+    if (response_format)
+        throw new NotSupportedError("AICI: response_format not supported")
+
+    const fetchRetry = await wrapFetch(fetch, {
+        retryOn: [429, 500],
+        retries: retry,
+        retryDelay: (attempt, error, response) => {
+            if (attempt > 0) {
+                trace.item(`retry #${attempt}`)
+                logVerbose(`LLM throttled, retry #${attempt}...`)
+            }
+            return 0
+        },
+    })
+}
 
 export const AICIModel = Object.freeze<LanguageModel>({
     completer: AICIChatCompletion,
