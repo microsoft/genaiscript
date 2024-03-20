@@ -8,7 +8,11 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
-import { ChatCompletionMessageParam } from "./chat"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+    toChatCompletionUserMessage,
+} from "./chat"
 import { initToken } from "./oai_token"
 
 const defaultTopP: number = undefined
@@ -157,8 +161,6 @@ export async function expandTemplate(
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
     const prompt = await callExpander(template, env, trace, options)
-    const expanded = prompt.text
-    const aici = prompt.aici
     const images = prompt.images
     const schemas = prompt.schemas
     const functions = prompt.functions
@@ -198,38 +200,26 @@ export async function expandTemplate(
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     trace.itemValue(`model`, model)
-    if (expanded) trace.itemValue(`tokens`, estimateTokens(model, expanded))
+    if (prompt.text)
+        trace.itemValue(`tokens`, estimateTokens(model, prompt.text))
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
-    if (expanded) trace.fence(expanded, "markdown")
-    else if (aici) trace.fence(aici, "yaml")
+    if (prompt.text) trace.fence(prompt.text, "markdown")
+    else if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
     if (cancellationToken?.isCancellationRequested) return { success: null }
 
-    if (aici) {
-        // shortcut to aici execution
-        return {
-            expanded,
-            images,
-            schemas,
-            functions,
-            success,
-            model,
-            temperature,
-            topP,
-            max_tokens,
-            seed,
-            systemText: undefined,
-            responseType,
-            fileMerges,
-            outputProcessors,
-            aici,
-        }
+    const systemMessage: ChatCompletionSystemMessageParam = {
+        role: "system",
+        content: "",
     }
+    const messages: Array<ChatCompletionMessageParam> = []
+    if (prompt.text)
+        messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
+    if (prompt.aici) messages.push(prompt.aici)
 
-    let systemText = ""
     const systems = (template.system ?? []).slice(0)
     if (template.system === undefined) {
         systems.push("system")
@@ -260,45 +250,39 @@ export async function expandTemplate(
 
         trace.startDetails(`👾 ${systemTemplate}`)
         const sysr = await callExpander(system, env, trace, options)
-        const sysex = sysr.text
         success = sysr.success
+        responseType = responseType ?? system.responseType
         if (success === null) return { success }
         else if (!success) break
+
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
         if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
         if (sysr.outputProcessors) outputProcessors.push(...outputProcessors)
-        systemText += SYSTEM_FENCE + "\n" + sysex + "\n"
-
-        responseType = responseType ?? system.responseType
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
-        trace.item(
-            `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysex)}`
-        )
+        if (sysr.text) {
+            systemMessage.content += SYSTEM_FENCE + "\n" + sysr.text + "\n"
+            trace.item(
+                `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysr.text)}`
+            )
+            trace.fence(sysr.text, "markdown")
+        }
+        if (sysr.aici) {
+            trace.fence(sysr.aici, "yaml")
+            messages.push(sysr.aici)
+        }
 
-        trace.fence(system.jsSource, "js")
-        trace.heading(3, "expanded")
-        trace.fence(sysex, "markdown")
+        trace.detailsFenced("js", system.jsSource, "js")
         trace.endDetails()
     }
 
-    {
-        trace.startDetails("⚙️ configuration")
-        trace.itemValue(`model`, model)
-        if (expanded) trace.itemValue(`tokens`, estimateTokens(model, expanded))
-        trace.itemValue(`temperature`, temperature)
-        trace.itemValue(`top_p`, topP)
-        trace.itemValue(`max tokens`, max_tokens)
-        trace.itemValue(`seed`, seed)
-        trace.itemValue(`response type`, responseType)
-        trace.endDetails() // expanded prompt
-    }
+    if (systemMessage.content) messages.unshift(systemMessage)
 
     trace.endDetails()
 
     return {
-        expanded,
+        messages,
         images,
         schemas,
         functions,
@@ -308,10 +292,8 @@ export async function expandTemplate(
         topP,
         max_tokens,
         seed,
-        systemText,
         responseType,
         fileMerges,
         outputProcessors,
-        aici,
     }
 }

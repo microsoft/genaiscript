@@ -164,8 +164,7 @@ export async function runTemplate(
         vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
 
     let {
-        expanded,
-        images,
+        messages,
         schemas,
         functions,
         fileMerges,
@@ -176,9 +175,7 @@ export async function runTemplate(
         model,
         max_tokens,
         seed,
-        systemText,
         responseType,
-        aici,
     } = await expandTemplate(
         template,
         fragment,
@@ -186,16 +183,6 @@ export async function runTemplate(
         vars as ExpansionVariables,
         trace
     )
-
-    // initial messages (before tools)
-    const messages: ChatCompletionMessageParam[] = []
-    if (systemText)
-        messages.push({
-            role: "system",
-            content: systemText,
-        })
-    if (expanded) messages.push(toChatCompletionUserMessage(expanded, images))
-    if (aici) messages.push(aici)
 
     // if the expansion failed, show the user the trace
     if (!success) {
@@ -279,7 +266,7 @@ export async function runTemplate(
     }
     const connection = await initToken(template)
     const { completer } = resolveLanguageModel(
-        aici ? "aici" : "openai",
+        template.aici ? "aici" : "openai",
         options
     )
     let repairs = 0
