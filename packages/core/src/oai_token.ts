@@ -168,6 +168,18 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (env.AICI_API_KEY && env.AICI_API_BASE) {
+        const url = env.AICI_API_BASE
+        const key = env.AICI_API_KEY
+        const profile: any = env.AICI_API_PROFILE || "llama"
+
+        return {
+            url,
+            token: key,
+            profile,
+            source: "env: AICI_...",
+        }
+    }
 
     return undefined
 }
