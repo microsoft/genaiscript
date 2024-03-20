@@ -7,7 +7,7 @@ import {
 import { PromptNode, visitNode } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import wrapFetch from "fetch-retry"
-import { logError, logVerbose } from "./util"
+import { assert, logError, logVerbose } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { initToken } from "./oai_token"
 import { host } from "./host"
@@ -31,14 +31,15 @@ export interface AICIRequest {
     role: "aici"
     content?: string
     error?: unknown
-    functionName?: string
+    functionName: string
 }
 
 export async function renderAICI(
+    functionName: string,
     root: PromptNode,
-    options?: { trace: MarkdownTrace; functionName?: string }
+    options?: { trace: MarkdownTrace }
 ): Promise<AICIRequest> {
-    const { trace, functionName = "prompt" } = options
+    const { trace } = options
     const notSupported = (reason: string) => (n: any) => {
         throw new NotSupportedError(reason)
     }
