@@ -23,11 +23,14 @@ export enum LogLevel {
     Error = 4,
 }
 
+export type ChatAPIProfile = "openai"
+
 export interface OAIToken {
     url: string
     token: string
-    isOpenAI?: boolean
+    profile?: ChatAPIProfile
     source?: string
+    aici?: boolean
 }
 
 export interface ReadFileOptions {

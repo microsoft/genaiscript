@@ -66,7 +66,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.isOpenAI) {
+    if (cfg.profile === "openai") {
         r2.stream = true
         url = cfg.url + "/chat/completions"
     } else {
@@ -107,8 +107,11 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     const r = await fetchRetry(url, {
         headers: {
             authorization:
-                cfg.token && cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
-            "api-key": cfg.token && !cfg.isOpenAI ? cfg.token : undefined,
+                cfg.token && cfg.profile === "openai"
+                    ? `Bearer ${cfg.token}`
+                    : undefined,
+            "api-key":
+                cfg.token && cfg.profile !== "openai" ? cfg.token : undefined,
             "user-agent": TOOL_ID,
             "content-type": "application/json",
             ...(headers || {}),

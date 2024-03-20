@@ -62,7 +62,7 @@ export async function parseToken(f: string) {
         cfg = {
             url: "https://api.openai.com/v1/",
             token: f,
-            isOpenAI: true,
+            profile: "openai",
         }
         return cfg
     }
@@ -127,7 +127,7 @@ export async function parseTokenFromEnv(
             return {
                 url: base,
                 token: key || "",
-                isOpenAI: true,
+                profile: "openai",
                 source: "env: OPENAI_API_...",
             }
         }
@@ -163,9 +163,11 @@ export async function parseTokenFromEnv(
         return {
             url: base,
             token: key,
-            isOpenAI: true,
+            profile: "openai",
             source: "env: AZURE_...",
         }
     }
+
+
     return undefined
 }

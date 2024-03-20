@@ -944,13 +944,7 @@ async function main() {
         .description("Parse and show current key information")
         .action(async () => {
             const key = await host.getSecretToken()
-            console.log(
-                key
-                    ? `${
-                          key.isOpenAI ? "OpenAI" : key.url
-                      } (from ${key.source})`
-                    : "no key set"
-            )
+            console.log(key ? `${key.url} (from ${key.source})` : "no key set")
         })
 
     program

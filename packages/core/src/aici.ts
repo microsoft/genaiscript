@@ -8,6 +8,7 @@ import { MarkdownTrace } from "./trace"
 import wrapFetch from "fetch-retry"
 import { logVerbose } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
+import { initToken } from "./oai_token"
 
 export class NotSupportedError extends Error {
     constructor(message: string, options?: ErrorOptions) {
@@ -158,8 +159,9 @@ const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
         },
     })
 
-    const url: string
-    const token: string
+    const tok = await initToken()
+    const url = tok.url
+    const token = tok.token
 
     const postReq = {
         controller: AICI_CONTROLLER,
@@ -178,9 +180,8 @@ const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
         ...(rest || {}),
     })
 
-    const text = await r.text()
     return <ChatCompletionResponse>{
-        text,
+        text: "aici bla bla ",
     }
 }
 
