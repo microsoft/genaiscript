@@ -1,8 +1,13 @@
-import { ChatCompletionHandler, LanguageModel } from "./chat"
+import {
+    ChatCompletionHandler,
+    ChatCompletionResponse,
+    LanguageModel,
+} from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import wrapFetch from "fetch-retry"
 import { logVerbose } from "./util"
+import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 
 export class NotSupportedError extends Error {
     constructor(message: string, options?: ErrorOptions) {
@@ -28,7 +33,6 @@ function escapeJavascriptString(s: string) {
 export interface AICIRequest {
     role: "aici"
     content?: string
-    controller?: "jsctrl"
     error?: unknown
     functionName?: string
 }
@@ -37,7 +41,7 @@ export async function renderAICI(
     root: PromptNode,
     options?: { trace: MarkdownTrace; functionName?: string }
 ): Promise<AICIRequest> {
-    const { trace, functionName = "main" } = options
+    const { trace, functionName = "prompt" } = options
     const notSupported = (reason: string) => (n: any) => {
         throw new NotSupportedError(reason)
     }
@@ -95,7 +99,7 @@ export async function renderAICI(
 
         trace?.fence(content, "javascript")
 
-        return { role: "aici", content, controller: "jsctrl", functionName }
+        return { role: "aici", content, functionName }
     } catch (error) {
         trace?.error("AICI code generation error", error)
         throw error
@@ -105,15 +109,42 @@ export async function renderAICI(
 }
 
 const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
-    const { temperature, top_p, seed, response_format, tools } = req
+    const { messages, temperature, top_p, seed, response_format, tools } = req
     const { requestOptions, partialCb, retry, retryDelay, maxDelay, trace } =
         options
+    const { signal } = requestOptions || {}
+    const { headers, ...rest } = requestOptions || {}
 
     if (tools?.length) throw new NotSupportedError("AICI: tools not supported")
-    if (req.messages.find((msg) => msg.role !== "aici"))
-        throw new NotSupportedError("AICI: only aici messages supported")
     if (response_format)
         throw new NotSupportedError("AICI: response_format not supported")
+
+    let source: string[] = []
+
+    let main: string[] = ["async function main() {"]
+    messages.forEach((message) => {
+        const { role } = message
+        switch (role) {
+            case "aici": {
+                const { functionName, content } = message
+                main.push(`await ${functionName}()`)
+                source.push(content)
+                source.push("")
+                break
+            }
+            default:
+                // TODO
+                throw new NotSupportedError("AICI: only aici messages")
+        }
+    })
+    main.push("}")
+
+    source.push(...main)
+    source.push(`start(main)`)
+
+    const controller_arg = source.join("\n")
+
+    trace.detailsFenced(`controller args`, controller_arg)
 
     const fetchRetry = await wrapFetch(fetch, {
         retryOn: [429, 500],
@@ -126,6 +157,31 @@ const AICIChatCompletion: ChatCompletionHandler = async (req, options) => {
             return 0
         },
     })
+
+    const url: string
+    const token: string
+
+    const postReq = {
+        controller: AICI_CONTROLLER,
+        controller_arg,
+    }
+
+    const r = await fetchRetry(url, {
+        headers: {
+            "api-key": token,
+            "user-agent": TOOL_ID,
+            "content-type": "application/json",
+            ...(headers || {}),
+        },
+        body: JSON.stringify(postReq),
+        method: "POST",
+        ...(rest || {}),
+    })
+
+    const text = await r.text()
+    return <ChatCompletionResponse>{
+        text,
+    }
 }
 
 export const AICIModel = Object.freeze<LanguageModel>({
