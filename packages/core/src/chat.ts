@@ -49,6 +49,7 @@ export interface ChatCompletionResponse {
         | "tool_calls"
         | "content_filter"
         | "cancel"
+        | "fail"
 }
 
 export const ModelError = OpenAI.APIError

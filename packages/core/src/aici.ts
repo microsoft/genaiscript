@@ -52,7 +52,7 @@ export async function renderAICI(
             const value = await n.value
             if (value !== undefined)
                 // TODO escape javascript string to `...`
-                push(`await fixed(\`${escapeJavascriptString(value)}\``)
+                push(`await fixed(\`${escapeJavascriptString(value)}\`)`)
         },
         stringTemplate: async (n) => {
             const { strings, args } = n
@@ -192,7 +192,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         controller_arg,
     }
 
-    const url = `${connection.base}/${req.model}/${connection.version || "v1"}/`
+    const url = `${connection.base}/${req.model}/${connection.version || "v1"}/run`
     trace.itemValue(`url`, url)
     trace.itemValue(`controller`, postReq.controller)
     trace.detailsFenced(`controller args`, postReq.controller_arg, "js")
@@ -238,18 +238,23 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
     const decoder = host.createUTF8Decoder()
 
-    if (r.body.getReader) {
-        const reader = r.body.getReader()
-        while (!signal?.aborted) {
-            const { done, value } = await reader.read()
-            if (done) break
-            doChunk(value)
+    try {
+        trace.startFence("txt")
+        if (r.body.getReader) {
+            const reader = r.body.getReader()
+            while (!signal?.aborted) {
+                const { done, value } = await reader.read()
+                if (done) break
+                doChunk(value)
+            }
+        } else {
+            for await (const value of r.body as any) {
+                if (signal?.aborted) break
+                doChunk(value)
+            }
         }
-    } else {
-        for await (const value of r.body as any) {
-            if (signal?.aborted) break
-            doChunk(value)
-        }
+    } finally {
+        trace.endFence()
     }
 
     if (seenDone) {
@@ -281,14 +286,19 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                     case "initial-run": // ignore
                         break
                     case "run":
-                        const content = obj.forks[0].text
+                        const fork = obj.forks[0]
+                        if (fork.logs)
+                            trace.log(fork.logs)
+                        const content = fork.text
                         numTokens = obj.usage.ff_tokens
                         chatResp += content
-                        if (obj.forks[0].finish_reason === "aici_stop") {
+                        if (fork.finish_reason === "aici_stop") {
                             finishReason = "stop"
                             seenDone = true
+                        } else if (fork.finish_reason === "fail") {
+                            finishReason = "fail"
+                            seenDone = true
                         }
-
                         break
                     default: // unknown
                         break
