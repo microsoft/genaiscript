@@ -19,7 +19,7 @@ const output = path.join(path.dirname(env.spec), "output.txt")
 // post processing
 defOutput(output => {
     return {
-        files: [≤read
+        files: [
             // emit entire content to a specific file
             [output]: output.text
         ]
