@@ -195,11 +195,15 @@ export class ExtensionState extends EventTarget {
 `
         )
         // add .gitignore
-        await writeFile(dir, ".gitignore", `# ignore local cli
+        await writeFile(
+            dir,
+            ".gitignore",
+            `# ignore local cli
 genaiscript.cjs
 cache/
 retrieval/
-`)
+`
+        )
     }
 
     aiRequestCache() {
@@ -336,7 +340,6 @@ ${e.message}`
         }
         this.aiRequest = r
         const { template, fragment } = options
-        let varsProgressReported = false
         const runOptions: RunTemplateOptions = {
             requestOptions: { signal },
             cancellationToken,
