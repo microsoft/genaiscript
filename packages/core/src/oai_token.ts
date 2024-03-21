@@ -47,7 +47,8 @@ export async function initToken(template: PromptTemplate, force = false) {
         "token not specified",
         {
             type: "no_token",
-            message: "token not configured, please run command 'key help'",
+            message:
+                "token not configured, see https://microsoft.github.io/genaiscript/reference/token/",
             param: undefined,
             code: "no_token",
         },

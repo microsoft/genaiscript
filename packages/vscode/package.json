@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.15.9",
+    "version": "1.15.10",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.86.0"
@@ -96,6 +96,10 @@
                 }
             ],
             "commandPalette": [
+                {
+                    "command": "genaiscript.fragment.debug",
+                    "when": "false"
+                },
                 {
                     "command": "genaiscript.newfile.script",
                     "when": "false"
@@ -309,7 +313,7 @@
     "scripts": {
         "vscode:update-dts": "npx @vscode/dts dev",
         "vscode:prepublish": "yarn run compile",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:mammoth --external:llamaindex",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:llamaindex",
         "compile": "yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
@@ -338,6 +342,10 @@
         "vscode-uri": "^3.0.8",
         "websocket-polyfill": "0.0.3",
         "zx": "^7.2.3"
+    },
+    "dependencies": {
+        "mammoth": "^1.7.0",
+        "pdfjs-dist": "4.0.379"
     },
     "optionalDependencies": {
         "genaiscript-cli": "*",

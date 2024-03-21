@@ -1,12 +1,18 @@
 {
     "name": "genaiscript",
-    "version": "1.15.9",
+    "version": "1.15.10",
     "license": "MIT",
     "private": true,
-    "workspaces": [
-        "packages/*",
-        "docs"
-    ],
+    "workspaces": {
+        "packages": [
+            "packages/*",
+            "docs"
+        ],
+        "nohoist": [
+            "pdfjs-dist",
+            "mammoth"
+        ]
+    },
     "scripts": {
         "setup": "git submodule update --init --recursive",
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",

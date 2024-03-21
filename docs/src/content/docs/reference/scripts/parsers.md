@@ -137,7 +137,7 @@ The `parsers.DOCX` function reads a .docx file as raw text.
 The `parsers.INI` parses [.ini](https://en.wikipedia.org/wiki/INI_file) files, typically
 using for configuration files. This format is similar to the `key=value` format.
 
-```env
+```txt
 KEY=VALUE
 ```
 
@@ -146,7 +146,7 @@ KEY=VALUE
 The `parsers.dotEnv` parses [.env](https://www.dotenv.org/) files, typically
 using for configuration files. This format is similar to the `key=value` format.
 
-```env
+```txt
 KEY=VALUE
 ```
 

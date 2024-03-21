@@ -1,9 +1,10 @@
 {
   "name": "genaiscript-cli",
-  "version": "1.15.9",
+  "version": "1.15.10",
   "main": "built/genaiscript.cjs",
   "bin": {
-    "genaiscript": "./built/genaiscript.cjs"
+    "genaiscript": "./built/genaiscript.cjs",
+    "genaiscript-cli": "./built/genaiscript.cjs"
   },
   "publisher": "Microsoft",
   "repository": {
@@ -24,13 +25,13 @@
   "optionalDependencies": {
     "llamaindex": "0.1.21",
     "llm-code-highlighter": "0.0.13",
-    "mammoth": "^1.7.0",
     "pdfjs-dist": "4.0.379"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
+    "mammoth": "^1.7.0",
     "commander": "^12.0.0",
     "dotenv": "^16.4.5",
     "execa": "^8.0.1",
@@ -57,7 +58,7 @@
     "zx": "^7.2.3"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:mammoth --external:llamaindex --external:llm-code-highlighter && echo '#!/usr/bin/env node' | cat - built/genaiscript.cjs > temp && mv temp built/genaiscript.cjs",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:llm-code-highlighter && echo '#!/usr/bin/env node' | cat - built/genaiscript.cjs > temp && mv temp built/genaiscript.cjs",
     "postcompile": "cp built/genaiscript.cjs ../vscode/genaiscript.cjs && node built/genaiscript.cjs help-all > ../../docs/src/content/docs/reference/cli/commands.md",
     "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",
