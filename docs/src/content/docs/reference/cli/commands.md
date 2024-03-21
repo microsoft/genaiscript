@@ -42,6 +42,7 @@ Options:
   -t, --temperature <number>         temperature for the run
   -tp, --top-p <number>              top-p for the run
   -m, --model <string>               model for the run
+  -mt, --max-tokens <number>         maximum tokens for the run
   -se, --seed <number>               seed for the run
   --no-cache                         disable LLM result cache
   --cs, --csv-separator <string>     csv separator (default: "\t")
@@ -73,6 +74,7 @@ Options:
   -t, --temperature <number>         temperature for the run
   -tp, --top-p <number>              top-p for the run
   -m, --model <string>               model for the run
+  -mt, --max-tokens <number>         maximum tokens for the run
   -se, --seed <number>               seed for the run
   --no-cache                         disable LLM result cache
   -ae, --apply-edits                 apply file edits

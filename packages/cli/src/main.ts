@@ -151,6 +151,7 @@ async function batch(
         temperature: string
         topP: string
         seed: string
+        maxTokens: string
         model: string
         cache: boolean
         applyEdits: boolean
@@ -183,6 +184,7 @@ async function batch(
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
+    const maxTokens = normalizeInt(options.maxTokens)
 
     const toolFiles: string[] = []
     if (scriptRx.test(tool)) toolFiles.push(tool)
@@ -262,6 +264,7 @@ async function batch(
                     temperature,
                     topP,
                     seed,
+                    maxTokens,
                     model,
                     retry,
                     retryDelay,
@@ -392,6 +395,7 @@ async function run(
         temperature: string
         topP: string
         seed: string
+        maxTokens: string
         model: string
         csvSeparator: string
         cache: boolean
@@ -417,6 +421,7 @@ async function run(
     const temperature = normalizeFloat(options.temperature)
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
+    const maxTokens = normalizeInt(options.maxTokens)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const model = options.model
@@ -439,7 +444,7 @@ async function run(
     if (scriptRx.test(tool)) toolFiles.push(tool)
 
     if (!specs?.length) {
-        specContent = (await getStdin() || "\n")
+        specContent = (await getStdin()) || "\n"
         spec = "stdin.gpspec.md"
     } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
         spec = specs[0]
@@ -520,6 +525,7 @@ ${Array.from(files)
         temperature,
         topP,
         seed,
+        maxTokens,
         model,
         retry,
         retryDelay,
@@ -886,6 +892,7 @@ async function main() {
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
+        .option("-mt, --max-tokens <number>", "maximum tokens for the run")
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
@@ -922,6 +929,7 @@ async function main() {
         .option("-t, --temperature <number>", "temperature for the run")
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
+        .option("-mt, --max-tokens <number>", "maximum tokens for the run")
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
         .option("-ae, --apply-edits", "apply file edits")
