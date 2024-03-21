@@ -1,14 +1,38 @@
 import OpenAI from "openai"
 import { Cache } from "./cache"
 import { MarkdownTrace } from "./trace"
-import { ChatCompletionUserMessageParam } from "openai/resources"
 import { PromptImage } from "./promptdom"
+import { AICIRequest } from "./aici"
+import { OAIToken } from "./host"
 
-export type CreateChatCompletionRequest =
-    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming
+export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
-export type ChatCompletionRequestMessage =
-    OpenAI.Chat.Completions.ChatCompletionMessageParam
+export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
+
+export type ChatCompletionSystemMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionSystemMessageParam
+
+export type ChatCompletionMessageParam =
+    | OpenAI.Chat.Completions.ChatCompletionMessageParam
+    | AICIRequest
+
+export type CreateChatCompletionRequest = Omit<
+    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
+    "messages"
+> & {
+    /**
+     * A list of messages comprising the conversation so far.
+     * [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
+     */
+    //  messages: Array<ChatCompletionMessageParam>;
+    messages: ChatCompletionMessageParam[]
+}
+
+export type ChatCompletionAssistantMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam
+
+export type ChatCompletionUserMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionUserMessageParam
 
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
@@ -21,6 +45,7 @@ export interface ChatCompletionToolCall {
 
 export interface ChatCompletionResponse {
     text?: string
+    variables?: Record<string, string>
     toolCalls?: ChatCompletionToolCall[]
     finishReason?:
         | "stop"
@@ -28,6 +53,7 @@ export interface ChatCompletionResponse {
         | "tool_calls"
         | "content_filter"
         | "cancel"
+        | "fail"
 }
 
 export const ModelError = OpenAI.APIError
@@ -72,7 +98,7 @@ export class RequestError extends Error {
 export function toChatCompletionUserMessage(
     expanded: string,
     images?: PromptImage[]
-) {
+): ChatCompletionUserMessageParam {
     return <ChatCompletionUserMessageParam>{
         role: "user",
         content: [
@@ -118,6 +144,7 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
 
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
+    connection: OAIToken,
     options: ChatCompletionsOptions & { trace: MarkdownTrace }
 ) => Promise<ChatCompletionResponse>
 

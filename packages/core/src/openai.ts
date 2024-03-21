@@ -1,4 +1,3 @@
-import OpenAI from "openai"
 import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
 import { host } from "./host"
@@ -12,6 +11,7 @@ import wrapFetch from "fetch-retry"
 import { estimateTokens } from "./tokens"
 import { YAMLStringify } from "./yaml"
 import {
+    ChatCompletionChunk,
     ChatCompletionHandler,
     ChatCompletionResponse,
     ChatCompletionToolCall,
@@ -20,7 +20,11 @@ import {
     getChatCompletionCache,
 } from "./chat"
 
-const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
+const OpenAIChatCompletion: ChatCompletionHandler = async (
+    req,
+    cfg,
+    options
+) => {
     const { temperature, top_p, seed, response_format, tools } = req
     const {
         requestOptions,
@@ -40,6 +44,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, top_p)
     trace.itemValue(`seed`, seed)
+    trace.itemValue(`api type`, cfg.type)
 
     const cache = getChatCompletionCache()
     const caching =
@@ -59,24 +64,24 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
         return { text: cached }
     }
 
-    const cfg = await initToken()
     const r2 = { ...req }
     let postReq: any = r2
 
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.isOpenAI) {
+    if (cfg.type === "openai" || cfg.type === "local") {
         r2.stream = true
-        url = cfg.url + "/chat/completions"
-    } else {
+        url = cfg.base + "/chat/completions"
+    } else if (cfg.type === "azure") {
         r2.stream = true
         delete r2.model
         url =
-            cfg.url +
+            cfg.base +
+            "/" +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
-    }
+    } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`model`, model)
     trace.itemValue(`url`, `[${url}](${url})`)
@@ -104,16 +109,24 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
     })
 
     trace.dispatchChange()
+
+    trace.detailsFenced("✉️ messages", postReq, "json")
+    const body = JSON.stringify(postReq)
     const r = await fetchRetry(url, {
         headers: {
+            // openai
             authorization:
-                cfg.token && cfg.isOpenAI ? `Bearer ${cfg.token}` : undefined,
-            "api-key": cfg.token && !cfg.isOpenAI ? cfg.token : undefined,
+                cfg.token && (cfg.type === "openai" || cfg.type === "local")
+                    ? `Bearer ${cfg.token}`
+                    : undefined,
+            // azure
+            "api-key":
+                cfg.token && cfg.type === "azure" ? cfg.token : undefined,
             "user-agent": TOOL_ID,
             "content-type": "application/json",
             ...(headers || {}),
         },
-        body: JSON.stringify(postReq),
+        body,
         method: "POST",
         ...(rest || {}),
     })
@@ -185,7 +198,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (req, options) => {
                 return ""
             }
             try {
-                const obj: OpenAI.ChatCompletionChunk = JSON.parse(json)
+                const obj: ChatCompletionChunk = JSON.parse(json)
                 if (!obj.choices?.length) return ""
                 else if (obj.choices?.length != 1) throw new Error()
                 const choice = obj.choices[0]

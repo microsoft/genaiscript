@@ -2,7 +2,7 @@ import { ChatCompletionsOptions, LanguageModel } from "./chat"
 import { PromptTemplate } from "./ast"
 import { logVerbose, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
-import { host } from "./host"
+import { OAIToken, host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
@@ -35,7 +35,6 @@ function stringLikeToFileName(f: string | LinkedFile) {
 }
 
 export function createPromptContext(
-    r: PromptTemplate,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: RunTemplateOptions,
@@ -63,6 +62,16 @@ export function createPromptContext(
     const INI = Object.freeze<INI>({
         parse: INIParse,
         stringify: INIStringify,
+    })
+    const AICI = Object.freeze<AICI>({
+        gen: (options: AICIGenOptions) => {
+            // validate options
+            return {
+                type: "aici",
+                name: "gen",
+                options,
+            }
+        },
     })
     const path = host.path
     const fs = host.fs
@@ -192,6 +201,7 @@ export function createPromptContext(
         YAML,
         CSV,
         INI,
+        AICI,
         retreival,
         defImages,
         defSchema,
@@ -210,18 +220,6 @@ export function createPromptContext(
         defData: (name, data, defOptions) => {
             appendPromptChild(createDefDataNode(name, data, env, defOptions))
             return name
-        },
-        writeText: (body) => {
-            appendPromptChild(
-                createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
-            )
-            const idx = body.indexOf(vars.error)
-            if (idx >= 0) {
-                const msg = body
-                    .slice(idx + vars.error.length)
-                    .replace(/\n[^]*/, "")
-                throw new Error(msg)
-            }
         },
         fetchText: async (urlOrFile, fetchOptions) => {
             if (typeof urlOrFile === "string") {

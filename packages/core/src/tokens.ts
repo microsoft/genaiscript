@@ -1,4 +1,4 @@
-import { ChatCompletionRequestMessage } from "./chat"
+import { ChatCompletionMessageParam } from "./chat"
 import {
     ChatCompletionContentPartText,
     type ChatCompletionTool,
@@ -18,7 +18,7 @@ export function estimateTokens(model: string, text: string) {
 
 export function estimateChatTokens(
     model: string,
-    messages: ChatCompletionRequestMessage[],
+    messages: ChatCompletionMessageParam[],
     tools?: ChatCompletionTool[]
 ): number {
     try {

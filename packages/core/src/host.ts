@@ -23,11 +23,15 @@ export enum LogLevel {
     Error = 4,
 }
 
+export type APIType = "openai" | "azure" | "local" | "llama"
+
 export interface OAIToken {
-    url: string
+    base: string
     token: string
-    isOpenAI?: boolean
+    type?: APIType
     source?: string
+    aici?: boolean
+    version?: string
 }
 
 export interface ReadFileOptions {
@@ -138,7 +142,7 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getSecretToken(): Promise<OAIToken | undefined>
+    getSecretToken(template: ModelOptions): Promise<OAIToken | undefined>
 
     log(level: LogLevel, msg: string): void
 

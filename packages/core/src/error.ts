@@ -30,3 +30,10 @@ export function isRequestError(e: Error, statusCode?: number, code?: string) {
         (code === undefined || code === e.body?.code)
     )
 }
+
+export class NotSupportedError extends Error {
+    constructor(message: string, options?: ErrorOptions) {
+        super(message)
+        this.name = "NotSupportedError"
+    }
+}

@@ -3,8 +3,6 @@ import { AZURE_OPENAI_API_VERSION } from "./constants"
 import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
-let cfg: OAIToken
-
 function validateTokenCore(token: string, quiet = false) {
     if (!token.startsWith("ey")) return
 
@@ -23,16 +21,8 @@ function validateTokenCore(token: string, quiet = false) {
     if (timeleft < 60) throw new Error("token expired")
 }
 
-export async function initToken(force = false) {
-    if (cfg && !force) {
-        // already set? revalidate
-        try {
-            validateTokenCore(cfg.token, true)
-            return cfg
-        } catch {}
-    }
-
-    cfg = await host.getSecretToken()
+export async function initToken(template: ModelOptions, force = false) {
+    const cfg = await host.getSecretToken(template)
     if (cfg && !force) {
         try {
             validateTokenCore(cfg.token)
@@ -57,115 +47,102 @@ export async function initToken(force = false) {
     )
 }
 
-export async function parseToken(f: string) {
-    if (f.startsWith("sk-")) {
-        // OpenAI token
-        cfg = {
-            url: "https://api.openai.com/v1/",
-            token: f,
-            isOpenAI: true,
-        }
-        return cfg
-    }
-
-    let m = /(https:\/\/[\-\w\.]+)\S*#oaikey=(\w+)/.exec(f)
-    if (m) {
-        const url = m[1]
-        const token = m[2]
-        validateTokenCore(token)
-        cfg = { url, token }
-        return cfg
-    }
-
-    m = /(https:\/\/[\-\w\.]+)\S*#key=(\w+)/.exec(f)
-    if (m) {
-        const url = m[1] + "/openai/deployments/"
-        const token = m[2]
-        validateTokenCore(token)
-        cfg = { url, token }
-        return cfg
-    }
-
-    m = /https:\/\/[\-\w]+.openai\.azure\.com\/openai\//i.exec(f)
-    if (m) {
-        const url = m[0] + "deployments/"
-        m = /bearer (ey[\w\.\-]+)/.exec(f)
-        if (m) {
-            const token = m[1]
-            validateTokenCore(token)
-            cfg = { url, token }
-            return cfg
-        }
-    }
-
-    throw new RequestError(
-        400,
-        "Invalid OpenAI token",
-        undefined,
-        "Invalid OpenAI token or configuration",
-        0
-    )
-}
-
 export async function parseTokenFromEnv(
-    env: Record<string, string>
+    env: Record<string, string>,
+    template: ModelOptions
 ): Promise<OAIToken> {
-    if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
-        const key = env.OPENAI_API_KEY
-        let base = env.OPENAI_API_BASE
-        let type = env.OPENAI_API_TYPE
-        const version = env.OPENAI_API_VERSION
-        if (type && type !== "azure" && type !== "local")
-            throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
-        if (type === "azure" && !base)
-            throw new Error("OPENAI_API_BASE not set")
-        if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-            )
-        if (type === "local") {
+    if (template.aici) {
+        if (env.AICI_API_BASE) {
+            const base = env.AICI_API_BASE
+            const token = env.AICI_API_KEY
+            const version = env.AICI_API_VERSION ?? "v1"
             return {
-                url: base,
-                token: key || "",
-                isOpenAI: true,
-                source: "env: OPENAI_API_...",
+                base,
+                token,
+                aici: true,
+                source: "env: AICI_...",
+                version,
             }
         }
-        base ??= "https://api.openai.com/v1/"
-        const name = type === "azure" ? "key" : "oaikey"
-        const tok = await parseToken(`${base}#${name}=${key}`)
-        tok.source = "env: OPENAI_..."
-        return tok
-    }
-    if (
-        env.AZURE_OPENAI_API_KEY ||
-        env.AZURE_API_KEY ||
-        env.AZURE_OPENAI_ENDPOINT
-    ) {
-        const key =
-            env.AZURE_OPENAI_API_KEY || env.AZURE_API_KEY || env.OPENAI_API_KEY
-        const base =
-            env.AZURE_OPENAI_ENDPOINT ||
-            env.AZURE_OPENAI_API_BASE ||
-            env.AZURE_API_BASE
-        const version =
-            env.AZURE_OPENAI_API_VERSION ||
-            env.AZURE_API_VERSION ||
-            env.OPENAI_API_VERSION
-        if (!base)
-            throw new Error(
-                "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
+    } else {
+        if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
+            const token = env.OPENAI_API_KEY ?? ""
+            let base = env.OPENAI_API_BASE
+            let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
+            const version = env.OPENAI_API_VERSION
+            if (
+                type &&
+                type !== "azure" &&
+                type !== "local" &&
+                type !== "openai"
             )
-        if (version && version !== AZURE_OPENAI_API_VERSION)
-            throw new Error(
-                `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+                throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
+            if (type === "azure" && !base)
+                throw new Error("OPENAI_API_BASE not set")
+            if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
+            if (
+                type === "azure" &&
+                version &&
+                version !== AZURE_OPENAI_API_VERSION
             )
-        return {
-            url: base,
-            token: key,
-            isOpenAI: true,
-            source: "env: AZURE_...",
+                throw new Error(
+                    `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+                )
+            if (!type) type = "openai" // default
+            if (type === "local") {
+                return {
+                    base,
+                    token,
+                    type,
+                    source: "env: OPENAI_API_...",
+                    version,
+                }
+            }
+            if (!token) throw new Error("OPEN_API_KEY missing")
+            if (type === "openai") base ??= "https://api.openai.com/v1/"
+            if (type === "azure") base += "/openai/deployments"
+            return {
+                base,
+                type,
+                token,
+                source: "env: OPENAI_...",
+                version,
+            }
+        }
+
+        if (
+            env.AZURE_OPENAI_API_KEY ||
+            env.AZURE_API_KEY ||
+            env.AZURE_OPENAI_ENDPOINT
+        ) {
+            const token =
+                env.AZURE_OPENAI_API_KEY ||
+                env.AZURE_API_KEY ||
+                env.OPENAI_API_KEY
+            const base =
+                env.AZURE_OPENAI_ENDPOINT ||
+                env.AZURE_OPENAI_API_BASE ||
+                env.AZURE_API_BASE
+            const version =
+                env.AZURE_OPENAI_API_VERSION ||
+                env.AZURE_API_VERSION ||
+                env.OPENAI_API_VERSION
+            if (!base)
+                throw new Error(
+                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
+                )
+            if (version && version !== AZURE_OPENAI_API_VERSION)
+                throw new Error(
+                    `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+                )
+            if (!token) throw new Error("AZURE_OPENAI_API_KEY missing")
+            return {
+                base,
+                token,
+                type: "azure",
+                source: "env: AZURE_...",
+                version,
+            }
         }
     }
     return undefined

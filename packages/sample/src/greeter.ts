@@ -8,6 +8,7 @@ class Greeter {
     greet() {
       return "Hello, " + this.greeting;
     }
+    
 }
    
-let greeter = new Greeter("world");
+let greeter = new Greeter("world")

@@ -231,10 +231,6 @@ async function batch(
         `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
-    spinner.start(`validating token`)
-    const tok = await initToken() // ensure we have a token early
-    spinner.succeed(`LLM: ${tok.url}`)
-
     let errors = 0
     let totalTokens = 0
     if (removeOut) await emptyDir(out)
@@ -936,20 +932,6 @@ async function main() {
         .action(batch)
 
     program
-        .command("keys")
-        .description("Parse and show current key information")
-        .action(async () => {
-            const key = await host.getSecretToken()
-            console.log(
-                key
-                    ? `${
-                          key.isOpenAI ? "OpenAI" : key.url
-                      } (from ${key.source})`
-                    : "no key set"
-            )
-        })
-
-    program
         .command("scripts")
         .description("List all available scripts in workspace")
         .action(listScripts)
@@ -961,7 +943,7 @@ async function main() {
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-n, --name <string>", "index name")
-//        .option("-s, --summary", "use LLM-generated summaries")
+        //        .option("-s, --summary", "use LLM-generated summaries")
         .option("-cs, --chunk-size <number>", "chunk size")
         .option("-co, --chunk-overlap <number>", "chunk overlap")
         .option("-m, --model <string>", "model for embeddings (default gpt-4)")
@@ -977,13 +959,13 @@ async function main() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .option("-n, --name <string>", "index name")
-//        .option("-s, --summary", "use LLM-generated summaries")
+        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalSearch)
     retreival
         .command("clear")
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
-//        .option("-s, --summary", "use LLM-generated summaries")
+        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalClear)
 
     retreival
