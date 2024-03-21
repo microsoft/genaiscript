@@ -207,8 +207,6 @@ export async function expandTemplate(
     if (seed !== undefined) seed = seed >> 0
 
     trace.itemValue(`model`, model)
-    if (prompt.text)
-        trace.itemValue(`tokens`, estimateTokens(model, prompt.text))
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
@@ -221,21 +219,22 @@ export async function expandTemplate(
     const fileMerges = prompt.fileMerges
     const outputProcessors = prompt.outputProcessors
 
+    if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
+    if (prompt.text) {
+        trace.itemValue(`tokens`, estimateTokens(model, expanded))
+        trace.fence(prompt.text, "markdown")
+    }
+    if (prompt.aici) trace.fence(prompt.aici, "yaml")
+    trace.endDetails()
+
     let success = prompt.success
     if (success === null)
         // cancelled
         return { success }
 
-    let responseType = template.responseType
-
-    if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    trace.itemValue(`tokens`, estimateTokens(model, expanded))
-    if (prompt.text) trace.fence(prompt.text, "markdown")
-    else if (prompt.aici) trace.fence(prompt.aici, "yaml")
-    trace.endDetails()
-
     if (cancellationToken?.isCancellationRequested) return { success: null }
 
+    let responseType = template.responseType
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
         content: "",
@@ -244,21 +243,6 @@ export async function expandTemplate(
     if (prompt.text)
         messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
-
-    const systems = (template.system ?? []).slice(0)
-    if (template.system === undefined) {
-        systems.push("system")
-        systems.push("system.explanations")
-        // select file expansion type
-        if (/diff/i.test(jsSource)) systems.push("system.diff")
-        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else systems.push("system.files")
-
-        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
-        if (/defschema/i.test(jsSource)) systems.push("system.schema")
-    }
-
-    // TODO: system prompt support?
 
     for (let i = 0; i < systems.length && success; ++i) {
         if (cancellationToken?.isCancellationRequested) return { success: null }

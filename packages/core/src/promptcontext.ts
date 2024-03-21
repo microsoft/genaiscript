@@ -221,7 +221,7 @@ export function createPromptContext(
             appendPromptChild(createDefDataNode(name, data, env, defOptions))
             return name
         },
-        fetchText: async (urlOrFile, options) => {
+        fetchText: async (urlOrFile, fetchOptions) => {
             if (typeof urlOrFile === "string") {
                 urlOrFile = {
                     label: urlOrFile,
