@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.15.9",
+    "version": "1.15.10",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.86.0"
@@ -96,6 +96,10 @@
                 }
             ],
             "commandPalette": [
+                {
+                    "command": "genaiscript.fragment.debug",
+                    "when": "false"
+                },
                 {
                     "command": "genaiscript.newfile.script",
                     "when": "false"
