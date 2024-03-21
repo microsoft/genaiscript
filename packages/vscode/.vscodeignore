@@ -13,3 +13,5 @@ webpack.config.js
 **/*.ts
 images/*
 .prettierignore
+prepackage.mjs
+postpackage.mjs

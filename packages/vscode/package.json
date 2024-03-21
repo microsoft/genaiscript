@@ -342,6 +342,11 @@
     "dependencies": {
         "pdfjs-dist": "4.0.379"
     },
+    "workspaces": {
+        "nohoist": [
+            "pdfjs-dist"
+        ]
+    },
     "optionalDependencies": {
         "genaiscript-cli": "*",
         "genaiscript-core": "*"

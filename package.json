@@ -3,10 +3,12 @@
     "version": "1.15.9",
     "license": "MIT",
     "private": true,
-    "workspaces": [
-        "packages/*",
-        "docs"
-    ],
+    "workspaces": {
+        "packages": [
+            "packages/*",
+            "docs"
+        ]
+    },
     "scripts": {
         "setup": "git submodule update --init --recursive",
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
