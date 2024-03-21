@@ -16,7 +16,7 @@
     "genai:technical": "node .genaiscript/genaiscript.cjs batch technical src/**/*.md --apply-edits",
     "genai:alt-text": "node scripts/image-alt-text.mjs"
   },
-  "dependencies": {
+  "devDependencies": {
     "@astrojs/check": "^0.5.9",
     "@astrojs/starlight": "^0.21.1",
     "astro": "^4.5.3",
