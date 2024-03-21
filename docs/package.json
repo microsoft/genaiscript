@@ -20,7 +20,7 @@
     "@astrojs/check": "^0.5.9",
     "@astrojs/starlight": "^0.21.1",
     "astro": "^4.5.3",
-    "typescript": "^5.4.2",
+    "typescript": "5.3.3",
     "zx": "^7.2.3"
   }
 }
