@@ -52,6 +52,8 @@ import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { startServer } from "./server"
+import { satisfies as semverSatisfies } from "semver"
+import { NODE_MIN_VERSION } from "./version"
 
 const UNHANDLED_ERROR_CODE = -1
 const ANNOTATION_ERROR_CODE = -2
@@ -439,7 +441,7 @@ async function run(
     if (scriptRx.test(tool)) toolFiles.push(tool)
 
     if (!specs?.length) {
-        specContent = (await getStdin() || "\n")
+        specContent = (await getStdin()) || "\n"
         spec = "stdin.gpspec.md"
     } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
         spec = specs[0]
@@ -828,6 +830,13 @@ async function main() {
             process.exit(exitCode)
         } else process.exit(UNHANDLED_ERROR_CODE)
     })
+
+    if (!semverSatisfies(process.version, NODE_MIN_VERSION)) {
+        console.error(
+            `node.js runtime incompatible, expected ${NODE_MIN_VERSION} got ${process.version}`
+        )
+        process.exit(RUNTIME_ERROR_CODE)
+    }
 
     program.hook("preAction", (cmd) => {
         NodeHost.install(cmd.opts().env)
