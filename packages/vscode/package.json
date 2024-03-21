@@ -97,6 +97,10 @@
             ],
             "commandPalette": [
                 {
+                    "command": "genaiscript.fragment.debug",
+                    "when": "false"
+                },
+                {
                     "command": "genaiscript.newfile.script",
                     "when": "false"
                 },
