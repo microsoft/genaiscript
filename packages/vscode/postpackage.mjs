@@ -1,5 +1,7 @@
 import 'zx/globals'
 
+await $`rm -Rf ./node_modules/pdfjs-dist`
+
 const pkg = await fs.readJSON('./package.json')
 pkg.enabledApiProposals = pkg._enabledApiProposals
 pkg.displayName = "GenAIScript Insiders"
