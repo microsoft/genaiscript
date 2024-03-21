@@ -7,6 +7,10 @@
         "packages": [
             "packages/*",
             "docs"
+        ],
+        "nohoist": [
+            "pdfjs-dist",
+            "mammoth"
         ]
     },
     "scripts": {
