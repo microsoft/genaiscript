@@ -1,25 +1,7 @@
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
-import { installImport } from "./import"
 import { logError } from "./util"
-import { MAMMOTH_VERSION } from "./version"
-
-async function tryImportMammoth(trace?: MarkdownTrace) {
-    try {
-        const mod = await import("mammoth")
-        return mod
-    } catch (e) {
-        trace?.error(`mammoth not found, installing ${MAMMOTH_VERSION}...`)
-        try {
-            await installImport("mammoth", MAMMOTH_VERSION, trace)
-            const mod = await import("mammoth")
-            return mod
-        } catch (e) {
-            trace?.error("mammoth failed to load")
-            return undefined
-        }
-    }
-}
+import { extractRawText } from "mammoth"
 
 /**
  * parses docx, require mammoth to be installed
@@ -33,11 +15,10 @@ export async function DOCXTryParse(
 ): Promise<string> {
     const { trace } = options || {}
     try {
-        const mammoth = await tryImportMammoth(trace)
         const path = !/^\//.test(file)
             ? host.path.join(host.projectFolder(), file)
             : file
-        const results = await mammoth.extractRawText({ path })
+        const results = await extractRawText({ path })
         return results.value
     } catch (error) {
         logError(error.message)
