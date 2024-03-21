@@ -124,6 +124,11 @@ interface ModelOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
+
+    /**
+     * Default value for emitting line numbers in fenced code blocks.
+     */
+    lineNumbers?: boolean
 }
 
 interface PromptTemplate extends PromptLike, ModelOptions {
