@@ -443,7 +443,7 @@ async function run(
     if (scriptRx.test(tool)) toolFiles.push(tool)
 
     if (!specs?.length) {
-        specContent = (await getStdin() || "No context")
+        specContent = (await getStdin() || "\n")
         spec = "stdin.gpspec.md"
     } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
         spec = specs[0]
