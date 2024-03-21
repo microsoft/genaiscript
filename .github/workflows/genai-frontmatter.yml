@@ -13,8 +13,6 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
-            - name: Install canvas dependencies
-              run: sudo apt-get install build-essential libcairo2-dev libjpeg-dev librsvg2-dev
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"

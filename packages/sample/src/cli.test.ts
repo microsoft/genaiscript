@@ -67,8 +67,8 @@ describe("retreival", () => {
     describe("outline", () => {
         const action = "outline"
         test("greeter.ts", async () => {
-            const res = await $`node ${cli} ${cmd} ${action} src/greeter.ts`
-            assert(res.stdout.includes("class Greeter"))
+            const res = await $`node ${cli} ${cmd} ${action} src/counting.py`
+            assert(res.stdout.includes("class Dummy"))
         })
     })
 })

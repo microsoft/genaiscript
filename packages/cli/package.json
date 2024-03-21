@@ -25,7 +25,7 @@
   "optionalDependencies": {
     "llamaindex": "0.1.21",
     "llm-code-highlighter": "0.0.13",
-    "mammoth": "^1.7.0",
+    "mammoth": "1.7.0",
     "pdfjs-dist": "4.0.379"
   },
   "engines": {
