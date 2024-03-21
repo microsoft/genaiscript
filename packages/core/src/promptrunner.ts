@@ -270,7 +270,7 @@ export async function runTemplate(
         options
     )
     let repairs = 0
-    let variables: Record<string, string> = {}
+    let genVars: Record<string, string> = {}
 
     while (!isCancelled()) {
         let resp: ChatCompletionResponse
@@ -352,7 +352,7 @@ export async function runTemplate(
             }
         }
 
-        if (resp.variables) variables = { ...variables, ...resp.variables }
+        if (resp.variables) genVars = { ...genVars, ...resp.variables }
 
         if (resp.text) {
             trace.startDetails("📩 llm response")
@@ -529,17 +529,7 @@ ${repair}
     const fences = json === undefined ? extractFenced(text) : []
     const frames: DataFrame[] = []
 
-    // TODO: do we really want variables to be included in fenced regions?
-    for (const [k, v] of Object.entries(variables)) {
-        fences.push({
-            label: k,
-            language: "text",
-            content: v,
-        })
-    }
-
     // validate schemas in fences
-
     if (fences?.length) {
         trace.details("📩 code regions", renderFencedVariables(fences))
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
@@ -646,6 +636,7 @@ ${repair}
                     fileEdits,
                     fences,
                     frames,
+                    genVars,
                 })) || {}
 
                 if (newText !== undefined) {
@@ -733,6 +724,7 @@ ${repair}
         version,
         fences,
         frames,
+        genVars,
     }
     options?.infoCb?.(res)
     return res

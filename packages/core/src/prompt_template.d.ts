@@ -860,6 +860,11 @@ interface PromptGenerationOutput {
      * A map of file updates
      */
     fileEdits: Record<string, { before: string; after: string }>
+
+    /**
+     * Generated variables, typically from AICI.gen
+     */
+    genVars: Record<string, string>
 }
 
 interface PromptContext extends RunPromptContext {
