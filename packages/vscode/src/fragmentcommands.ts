@@ -119,6 +119,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const fragmentDebug = async (file: vscode.Uri) => {
+        if (!file) return
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
