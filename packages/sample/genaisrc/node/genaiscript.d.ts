@@ -124,6 +124,10 @@ interface ModelOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
+    /**
+     * Use AICI controller
+     */
+    aici?: boolean
 }
 
 interface PromptTemplate extends PromptLike, ModelOptions {
@@ -166,11 +170,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
      * Secrets required by the prompt
      */
     secrets?: string[]
-
-    /**
-     * Use AICI controller
-     */
-    aici?: boolean
 }
 
 /**
@@ -860,6 +859,11 @@ interface PromptGenerationOutput {
      * A map of file updates
      */
     fileEdits: Record<string, { before: string; after: string }>
+
+    /**
+     * Generated variables, typically from AICI.gen
+     */
+    genVars: Record<string, string>
 }
 
 interface PromptContext extends RunPromptContext {

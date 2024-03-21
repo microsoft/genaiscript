@@ -58,7 +58,7 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
-    async getSecretToken(template: PromptTemplate): Promise<OAIToken> {
+    async getSecretToken(template: ModelOptions): Promise<OAIToken> {
         return await parseTokenFromEnv(process.env, template)
     }
 

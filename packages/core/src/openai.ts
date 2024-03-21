@@ -44,6 +44,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, top_p)
     trace.itemValue(`seed`, seed)
+    trace.itemValue(`api type`, cfg.type)
 
     const cache = getChatCompletionCache()
     const caching =

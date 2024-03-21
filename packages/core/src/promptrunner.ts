@@ -264,7 +264,9 @@ export async function runTemplate(
         }
         return fileEdit
     }
-    const connection = await initToken(template)
+
+    status(`prompting model ${model}`)
+    const connection = await initToken({ model, aici: template.aici })
     const { completer } = resolveLanguageModel(
         template.aici ? "aici" : "openai",
         options
@@ -276,7 +278,6 @@ export async function runTemplate(
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`prompting model ${model}`)
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )

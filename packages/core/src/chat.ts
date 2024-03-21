@@ -25,11 +25,14 @@ export type CreateChatCompletionRequest = Omit<
      * [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
      */
     //  messages: Array<ChatCompletionMessageParam>;
-    messages: Array<ChatCompletionMessageParam>
+    messages: ChatCompletionMessageParam[]
 }
 
 export type ChatCompletionAssistantMessageParam =
     OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam
+
+export type ChatCompletionUserMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionUserMessageParam
 
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
@@ -95,8 +98,8 @@ export class RequestError extends Error {
 export function toChatCompletionUserMessage(
     expanded: string,
     images?: PromptImage[]
-) {
-    return <OpenAI.Chat.Completions.ChatCompletionUserMessageParam>{
+): ChatCompletionUserMessageParam {
+    return <ChatCompletionUserMessageParam>{
         role: "user",
         content: [
             {

@@ -36,7 +36,6 @@ function stringLikeToFileName(f: string | LinkedFile) {
 }
 
 export function createPromptContext(
-    connection: () => Promise<OAIToken>,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: RunTemplateOptions,
@@ -193,7 +192,7 @@ export function createPromptContext(
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
-        ...createRunPromptContext(connection, options, env, trace),
+        ...createRunPromptContext(options, env, trace),
         script: () => {},
         system: () => {},
         env,

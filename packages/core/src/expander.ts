@@ -78,8 +78,7 @@ async function callExpander(
     options: RunTemplateOptions
 ) {
     const model = r.model || DEFAULT_MODEL
-    const connection = async () => initToken(r)
-    const ctx = createPromptContext(connection, vars, trace, options, model)
+    const ctx = createPromptContext(vars, trace, options, model)
 
     let success = true
     let logs = ""
@@ -217,7 +216,7 @@ export async function expandTemplate(
         role: "system",
         content: "",
     }
-    const messages: Array<ChatCompletionMessageParam> = []
+    const messages: ChatCompletionMessageParam[] = []
     if (prompt.text)
         messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
     if (prompt.aici) messages.push(prompt.aici)

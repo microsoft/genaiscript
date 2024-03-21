@@ -9,17 +9,17 @@ import {
 import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { toChatCompletionUserMessage } from "./chat"
+import { ChatCompletionMessageParam, toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
 import { resolveLanguageModel } from "./models"
-import { OAIToken } from "./host"
+import { renderAICI } from "./aici"
+import { initToken } from "./oai_token"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
 }
 
 export function createRunPromptContext(
-    connection: () => Promise<OAIToken>,
     options: RunTemplateOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
@@ -82,7 +82,6 @@ export function createRunPromptContext(
                     return <RunPromptResult>{ text: "" }
                 }
                 const ctx = createRunPromptContext(
-                    connection,
                     options,
                     env,
                     trace
@@ -95,21 +94,35 @@ export function createRunPromptContext(
                 if (cancellationToken?.isCancellationRequested)
                     return { text: "Prompt cancelled", finishReason: "cancel" }
 
+                const messages: ChatCompletionMessageParam[] = []
                 // expand template
-                const { prompt, images, errors } = await renderPromptNode(
-                    model,
-                    node,
-                    {
-                        trace,
-                    }
-                )
-                trace.fence(prompt, "markdown")
-                if (images?.length || errors?.length)
-                    trace.fence({ images, errors }, "yaml")
+                if (promptOptions?.aici) {
+                    const { aici } = await renderAICI("prompt", node)
+                    // todo: output processor?
+                    messages.push(aici)
+                } else {
+                    const { prompt, images, errors } = await renderPromptNode(
+                        model,
+                        node,
+                        {
+                            trace,
+                        }
+                    )
+                    trace.fence(prompt, "markdown")
+                    if (images?.length || errors?.length)
+                        trace.fence({ images, errors }, "yaml")
+                    messages.push(toChatCompletionUserMessage(prompt, images))
+                }
 
                 // call LLM
-                const { completer } = resolveLanguageModel("openai", options)
-                const token = await connection()
+                const { completer } = resolveLanguageModel(
+                    promptOptions?.aici ? "aici" : "openai",
+                    options
+                )
+                const token = await initToken({
+                    model,
+                    aici: promptOptions?.aici,
+                })
                 const res = await completer(
                     {
                         model,
@@ -122,7 +135,7 @@ export function createRunPromptContext(
                             promptOptions?.maxTokens ?? options.maxTokens,
                         seed: promptOptions?.seed ?? options.seed,
                         stream: true,
-                        messages: [toChatCompletionUserMessage(prompt, images)],
+                        messages,
                     },
                     token,
                     { ...options, trace }

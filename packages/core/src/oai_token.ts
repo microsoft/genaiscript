@@ -3,8 +3,6 @@ import { AZURE_OPENAI_API_VERSION } from "./constants"
 import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
-let cfg: OAIToken
-
 function validateTokenCore(token: string, quiet = false) {
     if (!token.startsWith("ey")) return
 
@@ -23,16 +21,8 @@ function validateTokenCore(token: string, quiet = false) {
     if (timeleft < 60) throw new Error("token expired")
 }
 
-export async function initToken(template: PromptTemplate, force = false) {
-    if (cfg && !force) {
-        // already set? revalidate
-        try {
-            validateTokenCore(cfg.token, true)
-            return cfg
-        } catch {}
-    }
-
-    cfg = await host.getSecretToken(template)
+export async function initToken(template: ModelOptions, force = false) {
+    const cfg = await host.getSecretToken(template)
     if (cfg && !force) {
         try {
             validateTokenCore(cfg.token)
@@ -59,7 +49,7 @@ export async function initToken(template: PromptTemplate, force = false) {
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    template: PromptTemplate
+    template: ModelOptions
 ): Promise<OAIToken> {
     if (template.aici) {
         if (env.AICI_API_BASE) {
