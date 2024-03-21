@@ -24,7 +24,6 @@ export function activateStatusBar(state: ExtensionState) {
             state.aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
-        const token = await host.getSecretToken()
         statusBarItem.text =
             "GenAIScript " +
             toStringList(
@@ -41,12 +40,7 @@ export function activateStatusBar(state: ExtensionState) {
                     : undefined,
                 template
                     ? `-  tool: ${template.title} (${template.id})`
-                    : undefined,
-                `-   OpenAI token: ${
-                    token
-                        ? `${token.url} from ${token.source}`
-                        : "not configured"
-                }`
+                    : undefined
             ),
             true
         )

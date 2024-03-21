@@ -1,6 +1,7 @@
 import {
-    ChatCompletionRequestMessage,
+    ChatCompletionMessageParam,
     ChatCompletionResponse,
+    ChatCompletionTool,
     RequestError,
     toChatCompletionUserMessage,
 } from "./chat"
@@ -18,7 +19,6 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import type { ChatCompletionTool } from "openai/resources"
 import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
@@ -33,6 +33,7 @@ import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
+import { initToken } from "./oai_token"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -163,8 +164,7 @@ export async function runTemplate(
         vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
 
     let {
-        expanded,
-        images,
+        messages,
         schemas,
         functions,
         fileMerges,
@@ -175,7 +175,6 @@ export async function runTemplate(
         model,
         max_tokens,
         seed,
-        systemText,
         responseType,
     } = await expandTemplate(
         template,
@@ -184,15 +183,6 @@ export async function runTemplate(
         vars as ExpansionVariables,
         trace
     )
-
-    // initial messages (before tools)
-    const messages: ChatCompletionRequestMessage[] = [
-        {
-            role: "system",
-            content: systemText,
-        },
-        toChatCompletionUserMessage(expanded, images),
-    ]
 
     // if the expansion failed, show the user the trace
     if (!success) {
@@ -255,9 +245,6 @@ export async function runTemplate(
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
-    const fragmentVirtual = await fileExists(fragment.file.filename, {
-        virtual: true,
-    })
     const tools: ChatCompletionTool[] = functions?.length
         ? functions.map((f) => ({
               type: "function",
@@ -277,14 +264,20 @@ export async function runTemplate(
         }
         return fileEdit
     }
-    const { completer } = resolveLanguageModel(model, options)
+
+    status(`prompting model ${model}`)
+    const connection = await initToken({ model, aici: template.aici })
+    const { completer } = resolveLanguageModel(
+        template.aici ? "aici" : "openai",
+        options
+    )
     let repairs = 0
+    let genVars: Record<string, string> = {}
 
     while (!isCancelled()) {
         let resp: ChatCompletionResponse
         try {
             try {
-                status(`prompting model ${model}`)
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
@@ -304,6 +297,7 @@ export async function runTemplate(
                         response_format,
                         tools,
                     },
+                    connection,
                     { ...options, trace }
                 )
             } finally {
@@ -358,6 +352,8 @@ export async function runTemplate(
                 frames: [],
             }
         }
+
+        if (resp.variables) genVars = { ...genVars, ...resp.variables }
 
         if (resp.text) {
             trace.startDetails("📩 llm response")
@@ -535,7 +531,6 @@ ${repair}
     const frames: DataFrame[] = []
 
     // validate schemas in fences
-
     if (fences?.length) {
         trace.details("📩 code regions", renderFencedVariables(fences))
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
@@ -642,6 +637,7 @@ ${repair}
                     fileEdits,
                     fences,
                     frames,
+                    genVars,
                 })) || {}
 
                 if (newText !== undefined) {
@@ -729,6 +725,7 @@ ${repair}
         version,
         fences,
         frames,
+        genVars,
     }
     options?.infoCb?.(res)
     return res

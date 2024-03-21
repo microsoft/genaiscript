@@ -95,7 +95,15 @@ ${title}
     }
 
     log(message: string) {
-        this.content += message + "\n"
+        this.content += (message ?? "") + "\n"
+    }
+
+    startFence(language: string) {
+        this.content += `\n\`\`\`\`${language}\n`
+    }
+
+    endFence() {
+        this.content += "\n````\n"
     }
 
     fence(message: string | unknown, contentType?: string) {

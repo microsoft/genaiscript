@@ -68,7 +68,6 @@ export function activateRetreivalCommands(state: ExtensionState) {
         })
         if (!keywords) return
 
-        await initToken()
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,

@@ -12,6 +12,7 @@ export interface PromptNode {
         | "function"
         | "fileMerge"
         | "outputProcessor"
+        | "stringTemplate"
         | undefined
     children?: PromptNode[]
     priority?: number
@@ -22,6 +23,12 @@ export interface PromptNode {
 export interface PromptTextNode extends PromptNode {
     type: "text"
     value: string | Promise<string>
+}
+
+export interface PromptStringTemplateNode extends PromptNode {
+    type: "stringTemplate"
+    strings: TemplateStringsArray
+    args: any[]
 }
 
 export interface PromptImage {
@@ -65,6 +72,14 @@ export function createTextNode(
 ): PromptTextNode {
     assert(value !== undefined)
     return { type: "text", value }
+}
+
+export function createStringTemplateNode(
+    strings: TemplateStringsArray,
+    args: any[]
+): PromptStringTemplateNode {
+    assert(strings !== undefined)
+    return { type: "stringTemplate", strings, args }
 }
 
 export function createImageNode(
@@ -126,6 +141,9 @@ export async function visitNode(
         schema?: (node: PromptSchemaNode) => void | Promise<void>
         function?: (node: PromptFunctionNode) => void | Promise<void>
         fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
+        stringTemplate?: (
+            node: PromptStringTemplateNode
+        ) => void | Promise<void>
         outputProcessor?: (
             node: PromptOutputProcessorNode
         ) => void | Promise<void>
@@ -150,6 +168,9 @@ export async function visitNode(
             break
         case "outputProcessor":
             await visitor.outputProcessor?.(node as PromptOutputProcessorNode)
+            break
+        case "stringTemplate":
+            await visitor.stringTemplate?.(node as PromptStringTemplateNode)
             break
     }
     if (node.children) {
@@ -184,12 +205,31 @@ export async function renderPromptNode(
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
+    
     await visitNode(node, {
         text: async (n) => {
             try {
                 const value = await n.value
                 n.tokens = estimateTokens(model, value)
                 if (value != undefined) prompt += value + "\n"
+            } catch (e) {
+                node.error = e
+                errors.push(e)
+            }
+        },
+        stringTemplate: async (n) => {
+            const { strings, args } = n
+            try {
+                let value = ""
+                for (let i = 0; i < strings.length; ++i) {
+                    value += strings[i]
+                    if (i < args.length) {
+                        const arg = await args[i]
+                        value += arg ?? ""
+                    }
+                }
+                n.tokens = estimateTokens(model, value)
+                prompt += value + "\n"
             } catch (e) {
                 node.error = e
                 errors.push(e)

@@ -2,15 +2,18 @@ import { minimatch } from "minimatch"
 import {
     PromptNode,
     appendChild,
+    createStringTemplateNode,
     createTextNode,
     renderPromptNode,
 } from "./promptdom"
 import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { toChatCompletionUserMessage } from "./chat"
+import { ChatCompletionMessageParam, toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
 import { resolveLanguageModel } from "./models"
+import { renderAICI } from "./aici"
+import { initToken } from "./oai_token"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -28,25 +31,14 @@ export function createRunPromptContext(
     const ctx = <RunPromptContextNode>{
         node,
         writeText: (body) => {
+            body = body ?? ""
             appendChild(
                 node,
                 createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
             )
-            const idx = body.indexOf(vars.error)
-            if (idx >= 0) {
-                const msg = body
-                    .slice(idx + vars.error.length)
-                    .replace(/\n[^]*/, "")
-                throw new Error(msg)
-            }
         },
         $(strings, ...args) {
-            let r = ""
-            for (let i = 0; i < strings.length; ++i) {
-                r += strings[i]
-                if (i < args.length) r += args[i] ?? ""
-            }
-            ctx.writeText(r)
+            appendChild(node, createStringTemplateNode(strings, args))
         },
         def(name, body, defOptions) {
             name = name ?? ""
@@ -91,7 +83,11 @@ export function createRunPromptContext(
                     trace.error("generator missing")
                     return <RunPromptResult>{ text: "" }
                 }
-                const ctx = createRunPromptContext(options, env, trace)
+                const ctx = createRunPromptContext(
+                    options,
+                    env,
+                    trace
+                )
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
                 await generator(ctx)
@@ -100,20 +96,35 @@ export function createRunPromptContext(
                 if (cancellationToken?.isCancellationRequested)
                     return { text: "Prompt cancelled", finishReason: "cancel" }
 
+                const messages: ChatCompletionMessageParam[] = []
                 // expand template
-                const { prompt, images, errors } = await renderPromptNode(
-                    model,
-                    node,
-                    {
-                        trace,
-                    }
-                )
-                trace.fence(prompt, "markdown")
-                if (images?.length || errors?.length)
-                    trace.fence({ images, errors }, "yaml")
+                if (promptOptions?.aici) {
+                    const { aici } = await renderAICI("prompt", node)
+                    // todo: output processor?
+                    messages.push(aici)
+                } else {
+                    const { prompt, images, errors } = await renderPromptNode(
+                        model,
+                        node,
+                        {
+                            trace,
+                        }
+                    )
+                    trace.fence(prompt, "markdown")
+                    if (images?.length || errors?.length)
+                        trace.fence({ images, errors }, "yaml")
+                    messages.push(toChatCompletionUserMessage(prompt, images))
+                }
 
                 // call LLM
-                const { completer } = resolveLanguageModel(model, options)
+                const { completer } = resolveLanguageModel(
+                    promptOptions?.aici ? "aici" : "openai",
+                    options
+                )
+                const token = await initToken({
+                    model,
+                    aici: promptOptions?.aici,
+                })
                 const res = await completer(
                     {
                         model,
@@ -126,8 +137,9 @@ export function createRunPromptContext(
                             promptOptions?.maxTokens ?? options.maxTokens,
                         seed: promptOptions?.seed ?? options.seed,
                         stream: true,
-                        messages: [toChatCompletionUserMessage(prompt, images)],
+                        messages,
                     },
+                    token,
                     { ...options, trace }
                 )
                 trace.details("output", res.text)
