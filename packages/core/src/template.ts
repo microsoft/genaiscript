@@ -435,6 +435,8 @@ export async function parsePromptTemplate(
 
             c.checkBool("isSystem")
             c.checkObjectArray("urlAdapters")
+
+            c.checkBool("lineNumbers")
         })
 
         const r = c.template

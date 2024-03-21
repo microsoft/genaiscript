@@ -10,7 +10,6 @@ import { throwError } from "./error"
 import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { readText } from "./fs"
-import { dotEnvParse, dotEnvStringify } from "./dotenv"
 import {
     PromptNode,
     appendChild,
@@ -99,17 +98,17 @@ export function createPromptContext(
                 trace.endDetails()
             }
         },
-        search: async (q, files, options) => {
-            options = options || {}
+        search: async (q, files, searchOptions) => {
+            searchOptions = searchOptions || {}
             try {
                 trace.startDetails(`🔍 retreival search \`${q}\``)
                 if (!files?.length) {
                     trace.error("no files provided")
                     return { files: [], fragments: [] }
                 } else {
-                    await upsert(files, { trace, ...options })
+                    await upsert(files, { trace, ...searchOptions })
                     const res = await search(q, {
-                        ...options,
+                        ...searchOptions,
                         files: files.map(stringLikeToFileName),
                     })
                     trace.fence(res, "yaml")
@@ -132,10 +131,10 @@ export function createPromptContext(
         },
     }
 
-    const defImages = (files: StringLike, options?: DefImagesOptions) => {
-        const { detail } = options || {}
+    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
+        const { detail } = defOptions || {}
         if (Array.isArray(files))
-            files.forEach((file) => defImages(file, options))
+            files.forEach((file) => defImages(file, defOptions))
         else if (typeof files === "string")
             appendPromptChild(createImageNode({ url: files, detail }))
         else {
@@ -175,14 +174,14 @@ export function createPromptContext(
     const defSchema = (
         name: string,
         schema: JSONSchema,
-        options?: DefSchemaOptions
+        defOptions?: DefSchemaOptions
     ) => {
         trace.detailsFenced(
             `🧬 schema ${name}`,
             JSON.stringify(schema, null, 2),
             "json"
         )
-        appendPromptChild(createSchemaNode(name, schema, options))
+        appendPromptChild(createSchemaNode(name, schema, defOptions))
 
         return name
     }
@@ -218,8 +217,8 @@ export function createPromptContext(
         cancel: (reason?: string) => {
             throwError(reason || "user cancelled", true)
         },
-        defData: (name, data, options) => {
-            appendPromptChild(createDefDataNode(name, data, env, options))
+        defData: (name, data, defOptions) => {
+            appendPromptChild(createDefDataNode(name, data, env, defOptions))
             return name
         },
         fetchText: async (urlOrFile, options) => {
@@ -235,7 +234,7 @@ export function createPromptContext(
             let status = 404
             let text: string
             if (/^https?:\/\//i.test(url)) {
-                const resp = await fetch(url, options)
+                const resp = await fetch(url, fetchOptions)
                 ok = resp.ok
                 status = resp.status
                 if (ok) text = await resp.text()
@@ -290,4 +289,5 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         }
         languageModel?: LanguageModel
         vars?: Record<string, string>
+        lineNumbers?: boolean
     }

@@ -153,6 +153,7 @@ export async function expandTemplate(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
+    options = { ...(options || {}) }
     const cancellationToken = options?.cancellationToken
     const { jsSource } = template
 
@@ -161,18 +162,26 @@ export async function expandTemplate(
 
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
-    const prompt = await callExpander(template, env, trace, options)
-    const images = prompt.images
-    const schemas = prompt.schemas
-    const functions = prompt.functions
-    const fileMerges = prompt.fileMerges
-    const outputProcessors = prompt.outputProcessors
 
-    let success = prompt.success
-    if (success === null)
-        // cancelled
-        return { success }
-
+    const systems = (template.system ?? []).slice(0)
+    if (template.system === undefined) {
+        systems.push("system")
+        systems.push("system.explanations")
+        // select file expansion type
+        if (/diff/i.test(jsSource)) systems.push("system.diff")
+        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
+        else systems.push("system.files")
+        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
+        if (/defschema/i.test(jsSource)) systems.push("system.schema")
+    }
+    const systemTemplates = systems.map((s) =>
+        fragment.file.project.getTemplate(s)
+    )
+    // update options
+    options.lineNumbers =
+        options.lineNumbers ??
+        template.lineNumbers ??
+        systemTemplates.some((s) => s?.lineNumbers)
     const model =
         options.model ?? env.vars["model"] ?? template.model ?? DEFAULT_MODEL
     const temperature =
@@ -197,15 +206,30 @@ export async function expandTemplate(
         defaultSeed
     if (seed !== undefined) seed = seed >> 0
 
-    let responseType = template.responseType
-
-    if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     trace.itemValue(`model`, model)
     if (prompt.text)
         trace.itemValue(`tokens`, estimateTokens(model, prompt.text))
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
+
+    const prompt = await callExpander(template, env, trace, options)
+    const expanded = prompt.text
+    const images = prompt.images
+    const schemas = prompt.schemas
+    const functions = prompt.functions
+    const fileMerges = prompt.fileMerges
+    const outputProcessors = prompt.outputProcessors
+
+    let success = prompt.success
+    if (success === null)
+        // cancelled
+        return { success }
+
+    let responseType = template.responseType
+
+    if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
+    trace.itemValue(`tokens`, estimateTokens(model, expanded))
     if (prompt.text) trace.fence(prompt.text, "markdown")
     else if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()

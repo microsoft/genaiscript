@@ -40,21 +40,23 @@ export function createRunPromptContext(
         $(strings, ...args) {
             appendChild(node, createStringTemplateNode(strings, args))
         },
-        def(name, body, options) {
+        def(name, body, defOptions) {
             name = name ?? ""
+            const doptions = { ...(defOptions || {}) }
+            doptions.lineNumbers = doptions.lineNumbers ?? options.lineNumbers
             // shortcuts
             if (body === undefined || body === null) return undefined
             else if (Array.isArray(body))
-                body.forEach((f) => ctx.def(name, f, options))
+                body.forEach((f) => ctx.def(name, f, defOptions))
             else if (typeof body === "object" && body.filename) {
-                const { glob, endsWith } = options || {}
+                const { glob, endsWith } = defOptions || {}
                 const filename = body.filename
                 if (glob && filename) {
                     const match = minimatch(filename, glob)
                     if (!match) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
-                appendChild(node, createDefNode(name, body, env, options))
+                appendChild(node, createDefNode(name, body, env, doptions))
             } else if (typeof body === "string") {
                 appendChild(
                     node,
@@ -62,7 +64,7 @@ export function createRunPromptContext(
                         name,
                         { filename: "", label: "", content: body },
                         env,
-                        options
+                        doptions
                     )
                 )
             }
