@@ -339,6 +339,10 @@
         "websocket-polyfill": "0.0.3",
         "zx": "^7.2.3"
     },
+    "dependencies": {
+        "mammoth": "^1.7.0",
+        "pdfjs-dist": "4.0.379"
+    },
     "optionalDependencies": {
         "genaiscript-cli": "*",
         "genaiscript-core": "*"

@@ -2,7 +2,7 @@
 .vscode-test-web/**
 src/**
 out/**
-node_modules/**
+node_modules/.bin/**
 .gitignore
 vsc-extension-quickstart.md
 webpack.config.js
@@ -13,3 +13,5 @@ webpack.config.js
 **/*.ts
 images/*
 .prettierignore
+prepackage.mjs
+postpackage.mjs
