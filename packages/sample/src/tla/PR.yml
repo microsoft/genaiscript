@@ -1,0 +1,49 @@
+name: tlAI-linter
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  linting:
+    name: tlAI-linter
+
+    runs-on: ubuntu-latest
+
+    env:
+      ## https://microsoft.github.io/genaiscript/reference/token/
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+      OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v4
+        with:
+            ## All history for git diff below to succeed.
+            fetch-depth: 0
+
+      - name: Setup NodeJS
+        ## https://github.com/actions/setup-node
+        uses: actions/setup-node@v4
+        with:
+            node-version: "20"
+
+      - name: Run GenAIscript on the TLA+ specs that are added in this pull request.
+        ## Identify git diff: $(git diff --name-only HEAD^ | grep '.tla')
+        ## Install genaiscript runtime: https://microsoft.github.io/genaiscript/reference/cli/
+        ## Output LLM response in SARIF format: https://microsoft.github.io/genaiscript/reference/scripts/annotations/
+        run: npx --yes genaiscript-cli run .github/scripts/tlAI-Linter.genai.js $(git diff --name-only HEAD^ | grep '.tla') -oa results.sarif 
+
+      - name: Upload SARIF file
+        ## https://sarifweb.azurewebsites.net
+        ## https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github
+        if: success() || failure()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+            sarif_file: results.sarif
