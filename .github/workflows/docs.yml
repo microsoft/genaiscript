@@ -16,6 +16,8 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+            - name: Install canvas dependencies
+              run: sudo apt-get install build-essential libcairo2-dev libjpeg-dev librsvg2-dev
             - uses: actions/setup-node@v3
               with:
                   node-version: "20"
@@ -25,8 +27,6 @@ jobs:
               run: yarn typecheck
             - name: Compile
               run: yarn compile
-            - name: Install sharp
-              run: cd docs && yarn add -D sharp
             - name: Build docs
               run: yarn build:docs
             - name: no jekyll
