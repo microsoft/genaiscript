@@ -27,7 +27,7 @@ jobs:
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: install sharp
-              run: cd docs && yarn add sharp
+              run: cd docs && yarn add -D sharp
             - name: docs
               run: yarn build:docs
             - name: Commit AI frontmatters

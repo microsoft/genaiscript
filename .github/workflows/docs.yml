@@ -26,7 +26,7 @@ jobs:
             - name: Compile
               run: yarn compile
             - name: Install sharp
-              run: cd docs && yarn add sharp
+              run: cd docs && yarn add -D sharp
             - name: Build docs
               run: yarn build:docs
             - name: no jekyll
