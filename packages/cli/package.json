@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-cli",
-  "version": "1.15.10",
+  "version": "1.15.11",
   "main": "built/genaiscript.cjs",
   "bin": {
     "genaiscript": "./built/genaiscript.cjs",

@@ -1,14 +1,12 @@
 Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
 
-![Debugging a script](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
+[![Authoring a script, analyzing the output and the trace](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
 
--   **Read the online documentation at https://microsoft.github.io/genaiscript/**
+-   👀 **Read the documentation at https://microsoft.github.io/genaiscript/**
 
 ## Features
 
-### Stylized Javascript
-
-Build prompts programmatically using [JavaScript](https://microsoft.github.io/genaiscript/genaiscript/reference/scripts/).
+-   💵 Prompt programmatically using stylized [JavaScript](https://microsoft.github.io/genaiscript/genaiscript/reference/scripts/).
 
 ```js
 // define the context
@@ -20,19 +18,13 @@ $`Analyze FILE and
   extract titles to JSON compliant with ${schema}.`
 ```
 
-### Fast Development Loop
-
-Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](https://microsoft.github.io/genaiscript/genaiscript/getting-started/installation).
+-   ⚡️ Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts
 
 ![Debugging a script](https://microsoft.github.io/genaiscript/images/vscode-debugger.png)
 
-### $euse and Share Scripts
+-   📁 Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
 
-Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
-
-### Data Schemas
-
-Define, validate, repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas).
+-   📊 Define, validate, repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas).
 
 ```js wrap
 const data = defSchema("MY_DATA",
@@ -40,37 +32,29 @@ const data = defSchema("MY_DATA",
 $`Extract data from files using ${data} schema.`
 ```
 
-### Ingest PDFs, DOCX, CSV, ...
-
-Seamlessly ingest and manipulate
-[PDFs](https://microsoft.github.io/genaiscript/reference/scripts/pdf),
-[DOCX](https://microsoft.github.io/genaiscript/reference/scripts/docx),
-[CSV](https://microsoft.github.io/genaiscript/reference/scripts/csv), ...
+-   📄 Ingest PDFs, DOCX, CSV, ...
+    [PDFs](https://microsoft.github.io/genaiscript/reference/scripts/pdf),
+    [DOCX](https://microsoft.github.io/genaiscript/reference/scripts/docx),
+    [CSV](https://microsoft.github.io/genaiscript/reference/scripts/csv), ...
 
 ```js
 const { pages } = await parsers.PDF(env.files[0])
 ```
 
-### RAG built-in
-
-[Vector search](https://microsoft.github.io/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
+-   🔍 [Vector search](https://microsoft.github.io/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
 
 ```js wrap
 // embedding vector index and search
 const { files } = await retreival.search("cats", env.files)
 ```
 
-### Automate
-
-Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli).
+-   🚀 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli).
 
 ```bash frame="none" wrap
-genaiscript run my-script "*.pdf"
+npx genaiscript-cli run my-script "*.pdf"
 ```
 
-### LLM Composition
-
-[Run LLMs](https://microsoft.github.io/genaiscript/reference/scripts/inline-prompts/) to build your LLM prompts.
+-   👯 [compose prompts](https://microsoft.github.io/genaiscript/reference/scripts/inline-prompts/) within prompts
 
 ```js wrap
 // summarize each files individually
