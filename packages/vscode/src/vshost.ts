@@ -12,6 +12,7 @@ import {
     logVerbose,
     parseTokenFromEnv,
     setHost,
+    ICON_LOGO_NAME,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState } from "./state"
@@ -224,6 +225,7 @@ export class VSCodeHost extends EventTarget implements Host {
             cwd,
             isTransient: true,
             name: TOOL_NAME,
+            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         let watcher: vscode.FileSystemWatcher
         this.state.context.subscriptions.push(terminal)

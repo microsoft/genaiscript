@@ -31,3 +31,4 @@ export const SYSTEM_FENCE = "---"
 export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript-cli"
 export const AICI_CONTROLLER = "gh:microsoft/aici/jsctrl"
+export const ICON_LOGO_NAME = "genaiscript-logo"

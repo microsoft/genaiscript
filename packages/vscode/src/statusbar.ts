@@ -1,9 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
-import { CHANGE } from "genaiscript-core"
+import { CHANGE, ICON_LOGO_NAME } from "genaiscript-core"
 import { Utils } from "vscode-uri"
-import { commandButtonsMarkdown } from "./promptcommands"
 
 function toStringList(...token: string[]) {
     const md = token.filter((l) => l !== undefined && l !== null).join(", ")
@@ -24,14 +23,12 @@ export function activateStatusBar(state: ExtensionState) {
             state.aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
-        statusBarItem.text =
-            "GenAIScript " +
-            toStringList(
-                parsing || (computing && !tokensSoFar)
-                    ? `$(loading~spin)`
-                    : undefined,
-                tokensSoFar ? `${tokensSoFar} tokens` : undefined
-            )
+        statusBarItem.text = toStringList(
+            parsing || (computing && !tokensSoFar)
+                ? `$(loading~spin)`
+                : `$(${ICON_LOGO_NAME})`,
+            tokensSoFar ? `${tokensSoFar} tokens` : undefined
+        )
 
         const md = new vscode.MarkdownString(
             toMarkdownString(
