@@ -289,5 +289,4 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         }
         languageModel?: LanguageModel
         vars?: Record<string, string>
-        lineNumbers?: boolean
     }
