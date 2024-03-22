@@ -1,6 +1,6 @@
 Scripting environment with convinient tooling for file ingestion, prompt development and structured data extraction.
 
-![Debugging a script](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
+[![Authoring a script, analyzing the output and the trace](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)](https://microsoft.github.io/genaiscript/images/visual-studio-code.png)
 
 -   👀 **Read the documentation at https://microsoft.github.io/genaiscript/**
 
@@ -18,7 +18,7 @@ $`Analyze FILE and
   extract titles to JSON compliant with ${schema}.`
 ```
 
--   ⚡️ Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](https://microsoft.github.io/genaiscript/genaiscript/getting-started/installation).
+-   ⚡️ Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts
 
 ![Debugging a script](https://microsoft.github.io/genaiscript/images/vscode-debugger.png)
 
