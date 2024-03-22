@@ -147,19 +147,87 @@ OPENAI_API_KEY=http://localhost:...
 Visual Studio Code Insiders provides an **experimental** 
 support to use the Copilot subscription to access a LLM.
 
-#### Limitations
+:::tip[Limitations]
 
--   This feature is still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the **Insiders** editor.
+-   **This feature is still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the Insiders editor.**
+-   The API changes daily and may not be stable.
 -   Functions and Images are not supported.
 -   The model configuration, temperature, max tokens, may not be available depending on the language model provider.
 -   Some scripts may fail or behave differently due to internal alignment prompts from Copilot.
 
-:::caution
-
-Requires running the Visual Studio Code Insiders edition and
-installing the **genaiscript.insiders.vsix** extension.
-
 :::
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install [Visual Studio Code **Insiders**](https://code.visualstudio.com/insiders/). 
+It can be installed side-by-side with the stable version of Visual Studio Code.
+
+</li>
+
+<li>
+
+Open your project in Visual Studio Code Insiders (green icon).
+
+![Visual Studio Code Insiders Icon is green](../../../assets/vscode-insiders.png)
+
+</li>
+
+<li>
+
+Download **genaiscript.insiders.vsix** from the [releases page](https://github.com/microsoft/genaiscript/releases/latest)
+to your project folder.
+
+<FileTree>
+
+- ...
+- **genaiscript.insiders.vsix**
+
+</FileTree>
+
+</li>
+
+<li>
+
+Right click on **genaiscript.insiders.vsix** and select **Install from VSIX**.
+
+</li>
+
+<li>
+
+Add a `.vscode-insiders/argv.json` file to enables loading the proposed APIs for the GenAIScript extension.
+
+```json title=".vscode-insiders/argv.json"
+{
+    "enable-proposed-api": ["genaiscript.genaiscript-vscode"]
+}
+```
+
+</li>
+
+<li>
+
+Restart Visual Studio Code Insiders to enable the extension.
+
+</li>
+
+<li>
+
+When you try to run a script, you will be prompted to authorize the Copilot subscription.
+After authorizing access, you will see a quick pick dialog to select one of the installed Language Model.
+
+![Visual Studio Code Insiders Icon is green](../../../assets/vscode-select-llm.png)
+
+Note that this dialog is not used once you have a populated `.env` file.
+
+</li>
+
+</ol>
+
+</Steps>
 
 ## Next steps
 
