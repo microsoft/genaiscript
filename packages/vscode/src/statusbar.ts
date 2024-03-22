@@ -23,14 +23,12 @@ export function activateStatusBar(state: ExtensionState) {
             state.aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
-        statusBarItem.text =
-            `$(${ICON_LOGO_NAME}) ` +
-            toStringList(
-                parsing || (computing && !tokensSoFar)
-                    ? `$(loading~spin)`
-                    : undefined,
-                tokensSoFar ? `${tokensSoFar} tokens` : undefined
-            )
+        statusBarItem.text = toStringList(
+            parsing || (computing && !tokensSoFar)
+                ? `$(loading~spin)`
+                : `$(${ICON_LOGO_NAME})`,
+            tokensSoFar ? `${tokensSoFar} tokens` : undefined
+        )
 
         const md = new vscode.MarkdownString(
             toMarkdownString(
