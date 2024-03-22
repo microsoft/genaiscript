@@ -12,7 +12,22 @@
     "engines": {
         "vscode": "^1.86.0"
     },
+    "keywords": [
+        "javascript",
+        "typescript",
+        "genai",
+        "openai",
+        "chatgpt",
+        "gpt4",
+        "ai",
+        "copilot",
+        "scripting",
+        "python"
+    ],
     "categories": [
+        "Programming Languages",
+        "Machine Learning",
+        "Education",
         "Other"
     ],
     "license": "MIT",
