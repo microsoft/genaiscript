@@ -6,26 +6,103 @@ description: Find answers to common questions about AI script generation, its us
 keywords: AI, script generation, performance, best practices, limitations
 ---
 
-#### What is GenAIScript?
+### Getting Started
 
-GenAIScript is a system designed to automate the generation of scripts using artificial intelligence. It accepts natural language input and produces structured scripts as output.
+- **What is GenAIScript and how does it work?**
+  GenAIScript is a framework that allows users to create AI-enhanced scripts to automate tasks. It uses JavaScript and integrates with AI models to execute tasks based on user-written prompts.
 
-#### What Capabilities Does GenAIScript Offer?
+- **Who can use GenAIScript and do I need to be a developer?**
+  Anyone can use GenAIScript, including non-developers. It's designed to be user-friendly, but some basic understanding of scripting or programming can be helpful.
 
-Expanding on the previous answer, GenAIScript provides semi-technical capabilities for a range of applications, including content creation, code generation, and data analysis.
+- **What are the prerequisites for using GenAIScript?**
+  You'll need to have VS Code installed to use the GenAIScript extension, and some familiarity with JavaScript or programming concepts is beneficial.
 
-#### What is/are GenAIScript’s intended use(s)?
+- **How do I install the GenAIScript framework and its VS Code extension?**
+  The specific installation steps are documented here: [Installation](./getting-started/installation.mdx)
 
-The intended uses of GenAIScript, as identified in our Impact Assessment, include aiding in the automation of repetitive writing tasks, enhancing creativity, and streamlining content development processes.
+- **Can I use GenAIScript in IDEs other than VS Code?**
+  Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts.
 
-#### How was GenAIScript evaluated? What metrics are used to measure performance?
+- **What is a GPSpec and how do I create one?**
+  A GPSpec is an optional markdown file that provides context for a GenAIScript. You can create one by writing a markdown document that lists arguments or includes more complex documentation.
 
-Evidence of GenAIScript's accuracy and performance is demonstrated through various metrics, including precision, recall, and user satisfaction. Additionally, we describe the extent to which these results can be generalized across diverse use cases beyond the initial evaluation scope.
+- **What are foundation models and LLMs in the context of GenAIScript?**
+  Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
 
-#### What are the limitations of [system or product name]? How can users minimize the impact of [system or product name]’s limitations when using the system?
+- **How do I write my first GenAIScript?**
+  Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More informatoin is available here: [Getting Started](./getting-started/index.md)
 
-The known limitations of GenAIScript include scenarios for which the system was not designed or evaluated. Users can minimize errors and the impact of these limitations by adhering to best practices, such as providing clear and concise input and using the system within its intended operational context.
+### Using GenAIScript
 
-#### What operational factors and settings allow for effective and responsible use of [system or product name]?
+- **How do I debug a GenAIScript in VS Code?**
+  Use the GenAIScript extension in VS Code, which provides tools for running, debugging, and tracing the execution of your script. Directions for debugging are here: [Debugging](./getting-started/debugging-scripts.mdx)
 
-Operational factors and settings that enable effective and responsible use of GenAIScript include the system's configuration, customization options, and user-defined settings. These choices allow end users to tailor the system's behavior to their specific needs, ensuring reliable and safe performance in real-world applications.
+- **What are the best practices for authoring effective prompts in GenAIScript?**
+  Consult the documentation for the specific LLM you are using to understand how to write prompts that effectively communicate the task you want the AI to perform.
+
+- **How can I integrate calls to multiple LLM models within a single GenAIScript?**
+  The framework allows you to parameterize calls to different models, so you can include multiple model invocations within your script and manage them accordingly using the runPrompt function documented here: [Inline Prompts](./reference/scripts/inline-prompts.mdx)
+
+- **Can GenAIScript generate outputs in formats other than JSON?**
+  Yes, GenAIScript supports multiple output formats, including file edits, JSON, and user-defined schema. More information here: [Schemas](./reference/scripts/schemas.mdx)
+
+- **How do I execute a GenAIScript from the command line?**
+  Once you have a GenAIScript packaged, you can run it from the command line like any other script. More information here: [Command Line](./getting-started/automating-scripts.mdx)
+
+- **Can GenAIScripts take input from files in multiple formats, such as .pdf or .docx?**
+   Yes, the GenAIScript framework has built-in support for reading .pdf and .docx formats.  See the documentation pages [PDF](./reference/scripts/pdf.md) and [DOCX](./reference/scripts/docx.md) for more information.
+
+### Advanced Features
+
+- **How can I use GenAIScript to automate document translation?**
+ One of our case studies illustrates the use of GenAIScript for translating document fragments between languages: [Translation Case Study](./case-studies/documentation-translations.mdx)
+
+- **Is it possible to generate executable code from natural language specifications using GenAIScript?**
+  Yes, you can use a GPSpec to define the task and a GenAIScript to translate the spec into code in a particular programming language.
+
+- **Can I use GenAIScript to summarize documents or create dialogues from monologues?**
+  Yes, LLMs are good at summarizing and can be used within GenAIScript to summarize documents or convert monologues into dialogues.
+
+### Troubleshooting
+
+- **What should I do if I encounter errors while running a GenAIScript?**
+  Check the error messages, consult the documentation, and use the debugging tools in the VS Code extension to identify and resolve issues.
+
+- **How can I troubleshoot issues with the LLM output parsing in GenAIScript?**
+  Review the prompt and output, ensure your script correctly handles the LLM's response, and adjust your parsing logic as needed.
+
+- **Where can I find examples of GenAIScript to understand its capabilities better?**
+  Visit the GenAIScript GitHub repository for examples and documentation. [GenAIScript Documentation](https://microsoft.github.io/genaiscript/)
+
+### Security and Responsible AI
+
+- **What are the unintended uses of GenAIScript and how can I avoid them?**
+  Unintended uses include any malicious applications. To avoid them, follow Responsible AI practices and use recommended models with safety features.
+
+- **How does GenAIScript align with Responsible AI practices?**
+  GenAIScript encourages the use of models with robust Responsible AI mitigations and provides guidance on secure and ethical usage. 
+  For more information, see the [Transaprency Note](./reference/transparency-note.md)
+
+- **What foundation models and LLMs are recommended for use with GenAIScript?**
+  Services like Azure Open AI with updated safety and Responsible AI features are recommended.  GenAIScript can also be used with existing open-source LLMs.
+
+### Community and Support
+
+- **Where can I find the GenAIScript community for discussions and support?**
+  The GenAIScript GitHub repository is a good place to start for community discussions and support. [GenAIScript GitHub](https://github.com/microsoft/genaiscript/)
+
+- **How can I contribute to the GenAIScript project?**
+  Check the repository for contribution guidelines and consider providing feedback, submitting issues, or contributing code. Visit the [Contributing](https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md) page for more information.
+
+- **Who can I contact for feedback or questions about GenAIScript?**
+  You can email the provided contacts in the [Transparency Note](./reference/transparency-note.md) document for feedback or questions.
+
+### Updates and Roadmap
+
+- **How often is GenAIScript updated and how can I stay informed about new features?**
+  You can follow the GitHub repository for updates and announcements.
+
+- **Is there a roadmap available for GenAIScript's development?**
+  The GitHub repository will provide information on future development plans.
+
+
