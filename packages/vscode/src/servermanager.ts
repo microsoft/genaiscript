@@ -2,6 +2,7 @@ import {
     CLI_JS,
     GENAISCRIPT_FOLDER,
     HighlightService,
+    ICON_LOGO_NAME,
     RetreivalService,
     SERVER_PORT,
     ServerManager,
@@ -41,6 +42,7 @@ export class TerminalServerManager implements ServerManager {
             name: `${TOOL_NAME} Server`,
             cwd: host.projectFolder(),
             isTransient: true,
+            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         this._terminal.sendText(
             `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`

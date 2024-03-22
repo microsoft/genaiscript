@@ -10,6 +10,7 @@ import {
     upsert,
     search as retreivalSearch,
     CLI_JS,
+    ICON_LOGO_NAME,
 } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { showMarkdownPreview } from "./markdown"
@@ -99,6 +100,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             name: `${TOOL_NAME} Indexer`,
             cwd: host.projectFolder(),
             isTransient: true,
+            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         terminal.sendText(
             `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index ${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")} --name ${indexName}`
