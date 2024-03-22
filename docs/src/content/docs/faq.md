@@ -9,13 +9,13 @@ keywords: AI, script generation, performance, best practices, limitations
 ### Getting Started
 
 - **What is GenAIScript and how does it work?**
-  GenAIScript is a framework that allows users to create AI-enhanced scripts to automate tasks. It uses JavaScript and integrates with AI models to execute tasks based on user-written prompts.
+  GenAIScript is a framework that allows users to create AI-enhanced scripts to automate tasks. It uses simple commands and integrates with AI models to execute tasks based on user-written prompts.
 
 - **Who can use GenAIScript and do I need to be a developer?**
   Anyone can use GenAIScript, including non-developers. It's designed to be user-friendly, but some basic understanding of scripting or programming can be helpful.
 
 - **What are the prerequisites for using GenAIScript?**
-  You'll need to have VS Code installed to use the GenAIScript extension, and some familiarity with JavaScript or programming concepts is beneficial.
+  You'll need to have VS Code installed to use the GenAIScript extension, and some familiarity with programming concepts is beneficial but not necessary.
 
 - **How do I install the GenAIScript framework and its VS Code extension?**
   The specific installation steps are documented here: [Installation](./getting-started/installation.mdx)
