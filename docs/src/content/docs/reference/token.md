@@ -49,9 +49,7 @@ You can override the default `.env` file name by adding the `--env myother.env` 
 ## Visual Studio Code Language Models (**Insiders only**)
 
 Visual Studio provides access to registered language models, including models
-provided through the GitHub Copilot subscription.
-
-When trying to run a script, the extension will automatically suggest to available models.
+provided through the GitHub Copilot subscription. See [configuration](/genaiscript/getting-started/configuration) for more information.
 
 ### Limitations
 
