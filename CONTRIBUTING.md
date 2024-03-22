@@ -47,6 +47,17 @@ yarn docs
 GitHub Pages are automatically updated on new release; or thourh manual trigger at
 https://github.com/microsoft/genaiscript/actions/workflows/docs.yml .
 
+## Packaging
+
+To compile and package the Visual Studio Code extension, run the `package` script.
+
+```sh
+yarn package
+```
+
+You will find the built package files, `genaiscript.vsix` and `genaiscript.insiders.vsix`,
+in the `packages/vscode` folder.
+
 ## Release
 
 Run the `release` script.

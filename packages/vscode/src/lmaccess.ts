@@ -100,7 +100,8 @@ export function configureLanguageModelAccess(
                             )
                         case "assistant":
                             return new vscode.LanguageModelChatAssistantMessage(
-                                m.content
+                                m.content,
+                                m.name
                             )
                         case "function":
                         case "tool":

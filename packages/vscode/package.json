@@ -37,13 +37,6 @@
         "./genaiscript.cjs"
     ],
     "contributes": {
-        "chatParticipants": [
-            {
-                "name": "genaiscript",
-                "description": "Convert history into genai script.",
-                "commands": []
-            }
-        ],
         "markdown.previewStyles": [
             "./markdown.css"
         ],
@@ -311,7 +304,7 @@
         ]
     },
     "scripts": {
-        "vscode:update-dts": "npx @vscode/dts dev",
+        "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
         "vscode:prepublish": "yarn run compile",
         "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:llamaindex",
         "compile": "yarn compile:extension",
@@ -352,8 +345,6 @@
         "genaiscript-core": "*"
     },
     "enabledApiProposals": [
-        "chatParticipant",
-        "chatParticipantAdditions",
         "languageModels"
     ]
 }
