@@ -6,9 +6,7 @@ Scripting environment with convinient tooling for file ingestion, prompt develop
 
 ## Features
 
--   💵 Stylized Javascript
-
-Build prompts programmatically using [JavaScript](https://microsoft.github.io/genaiscript/genaiscript/reference/scripts/).
+-   💵 Prompt programmatically using stylized [JavaScript](https://microsoft.github.io/genaiscript/genaiscript/reference/scripts/).
 
 ```js
 // define the context
@@ -20,15 +18,11 @@ $`Analyze FILE and
   extract titles to JSON compliant with ${schema}.`
 ```
 
--   ⚡️ Fast Development Loop
-
-Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](https://microsoft.github.io/genaiscript/genaiscript/getting-started/installation).
+-   ⚡️ Edit, [debug](https://microsoft.github.io/genaiscript/genaiscript/getting-started/debugging-scripts/), [run](https://microsoft.github.io/genaiscript/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](https://microsoft.github.io/genaiscript/genaiscript/getting-started/installation).
 
 ![Debugging a script](https://microsoft.github.io/genaiscript/images/vscode-debugger.png)
 
--   📁 Share Scripts
-
-Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
+-   📁 Scripts are [files](https://microsoft.github.io/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
 
 -   📊 Define, validate, repair data using [schemas](https://microsoft.github.io/genaiscript/reference/scripts/schemas).
 
@@ -57,7 +51,7 @@ const { files } = await retreival.search("cats", env.files)
 -   🚀 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli).
 
 ```bash frame="none" wrap
-npx genaiscript run my-script "*.pdf"
+npx genaiscript-cli run my-script "*.pdf"
 ```
 
 -   👯 [compose prompts](https://microsoft.github.io/genaiscript/reference/scripts/inline-prompts/) within prompts
