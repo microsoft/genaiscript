@@ -1,0 +1,166 @@
+---
+title: Configuration
+description: Set up your LLM connection and authorization with environment variables for seamless integration.
+keywords: LLM setup, API configuration, environment variables, secure authorization, LLM integration
+sidebar:
+    order: 2
+---
+import { FileTree } from '@astrojs/starlight/components';
+import { Steps } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+You will need to configure the LLM connection and authorizion secrets. 
+
+GenAIScript uses a `.env` file to store the secrets (this file should never be commited to your source control!).
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create or update a `.gitignore` file in the root of your project and make it sure it includes `.env`.
+This ensures that you do not accidentally commit your secrets to your source control.
+
+```txt title=".gitignore" ".env"
+...
+.env
+```
+
+</li>
+
+<li>
+
+Create a `.env` file in the root of your project.
+
+<FileTree>
+
+-  .gitignore
+-  **.env**
+</FileTree>
+
+:::tip
+
+If the `.gitignore` file is properly configured, the `.env` file will appear grayed out in your source control.
+
+:::
+
+</li>
+
+<li>
+
+Update the `.env` file with the configuration information (see below).
+
+</li>
+
+</ol>
+
+</Steps>
+
+To learn more about LLM configurations, 
+see [authorization information](/genaiscript/reference/token).
+
+### OpenAI
+
+<Steps>
+
+<ol>
+
+<li>
+Create a new secret key from the [OpenAI API Keys portal](https://platform.openai.com/api-keys).
+</li>
+
+<li>
+
+Update the `.env` file with the secret key.
+
+```txt title=".env"
+OPENAI_API_KEY=sk_...
+```
+</li>
+
+</ol>
+
+</Steps>
+
+### Azure OpenAI
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to the **Keys and Endpoint** tab.
+
+</li>
+
+<li>
+
+Update the `.env` file with the secret key and the endpoint.
+
+```txt title=".env"
+AZURE_API_KEY=...
+AZURE_OPENAI_API_ENDPOINT="https://....openai.azure.com/
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Jan, LMStudio, OLLama
+
+[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/), [OLLama](https://ollama.ai/) 
+are desktop application that let you run model locally. They expose local API servers 
+that compatible with GenAiScript.
+
+Running tools locally may require additional GPU resources depending on the model you are using.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Start Jan/LMStudio/OLLama, load your model and start the **Local API Server**.
+
+</li>
+
+<li>
+
+Update the `.env` file with the local server information.
+
+```txt title=".env"
+OPENAI_API_KEY=http://localhost:...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Visual Studio Code Copilot (**Insiders only**)
+
+Visual Studio Code Insiders provides an **experimental** 
+support to use the Copilot subscription to access a LLM.
+
+#### Limitations
+
+-   This feature is still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the **Insiders** editor.
+-   Functions and Images are not supported.
+-   The model configuration, temperature, max tokens, may not be available depending on the language model provider.
+-   Some scripts may fail or behave differently due to internal alignment prompts from Copilot.
+
+:::caution
+
+Requires running the Visual Studio Code Insiders edition and
+installing the **genaiscript.insiders.vsix** extension.
+
+:::
+
+## Next steps
+
+Write your [first script](/genaiscript/getting-started/your-first-genai-script).
