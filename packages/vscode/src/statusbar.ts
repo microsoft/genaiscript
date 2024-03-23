@@ -24,10 +24,11 @@ export function activateStatusBar(state: ExtensionState) {
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
-            parsing || (computing && !tokensSoFar)
-                ? `$(loading~spin)`
-                : `$(${ICON_LOGO_NAME})`,
-            tokensSoFar ? `${tokensSoFar} tokens` : undefined
+            `${
+                parsing || (computing && !tokensSoFar)
+                    ? `$(loading~spin)`
+                    : `$(${ICON_LOGO_NAME})`
+            }${tokensSoFar ? ` ${tokensSoFar} tokens` : ""}`
         )
 
         const md = new vscode.MarkdownString(
