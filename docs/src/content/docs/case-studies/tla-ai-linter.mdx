@@ -31,7 +31,7 @@ The following GenAI script will lint the TLA+ spec above.  More specifically, it
 
 - line numbers are added to the file content to help the LLM precisely locate the issues.
 
-```js "lineNumbers"
+```js "lineNumbers" wrap
 def("TLA+", env.files.filter(f => f.filename.endsWith(".tla")), {lineNumbers: true})
 ```
 
