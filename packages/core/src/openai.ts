@@ -234,7 +234,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
                 } else if (finish_reason === "stop") {
                     finishReason = finish_reason
                     seenDone = true
-                } else {
+                } else if (finish_reason) {
                     logVerbose(YAMLStringify(choice))
                 }
             } catch {
