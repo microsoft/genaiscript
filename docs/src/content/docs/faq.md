@@ -18,7 +18,7 @@ keywords: AI, script generation, performance, best practices, limitations
   You'll need to have VS Code installed to use the GenAIScript extension, and some familiarity with programming concepts is beneficial but not necessary.
 
 - **How do I install the GenAIScript framework and its VS Code extension?**
-  The specific installation steps are documented here: [Installation](./getting-started/installation.mdx)
+  The specific installation steps are documented here: [Installation](/genaiscript/getting-started/installation)
 
 - **Can I use GenAIScript in IDEs other than VS Code?**
   Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts.
@@ -30,32 +30,32 @@ keywords: AI, script generation, performance, best practices, limitations
   Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
 
 - **How do I write my first GenAIScript?**
-  Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More informatoin is available here: [Getting Started](./getting-started/index.md)
+  Start by learning the basics of JavaScript and the GenAIScript framework, then use the VS Code extension to create a script that defines the task, calls the LLM, and processes the output. More informatoin is available here: [Getting Started](/genaiscript/getting-started)
 
 ### Using GenAIScript
 
 - **How do I debug a GenAIScript in VS Code?**
-  Use the GenAIScript extension in VS Code, which provides tools for running, debugging, and tracing the execution of your script. Directions for debugging are here: [Debugging](./getting-started/debugging-scripts.mdx)
+  Use the GenAIScript extension in VS Code, which provides tools for running, debugging, and tracing the execution of your script. Directions for debugging are here: [Debugging](/genaiscript/getting-started/debugging-scripts)
 
 - **What are the best practices for authoring effective prompts in GenAIScript?**
   Consult the documentation for the specific LLM you are using to understand how to write prompts that effectively communicate the task you want the AI to perform.
 
 - **How can I integrate calls to multiple LLM models within a single GenAIScript?**
-  The framework allows you to parameterize calls to different models, so you can include multiple model invocations within your script and manage them accordingly using the runPrompt function documented here: [Inline Prompts](./reference/scripts/inline-prompts.mdx)
+  The framework allows you to parameterize calls to different models, so you can include multiple model invocations within your script and manage them accordingly using the runPrompt function documented here: [Inline Prompts](/genaiscript/reference/scripts/inline-prompts)
 
 - **Can GenAIScript generate outputs in formats other than JSON?**
-  Yes, GenAIScript supports multiple output formats, including file edits, JSON, and user-defined schema. More information here: [Schemas](./reference/scripts/schemas.mdx)
+  Yes, GenAIScript supports multiple output formats, including file edits, JSON, and user-defined schema. More information here: [Schemas](/genaiscript/reference/scripts/schemas)
 
 - **How do I execute a GenAIScript from the command line?**
-  Once you have a GenAIScript packaged, you can run it from the command line like any other script. More information here: [Command Line](./getting-started/automating-scripts.mdx)
+  Once you have a GenAIScript packaged, you can run it from the command line like any other script. More information here: [Command Line](/genaiscript/getting-started/automating-scripts)
 
 - **Can GenAIScripts take input from files in multiple formats, such as .pdf or .docx?**
-   Yes, the GenAIScript framework has built-in support for reading .pdf and .docx formats.  See the documentation pages [PDF](./reference/scripts/pdf.md) and [DOCX](./reference/scripts/docx.md) for more information.
+   Yes, the GenAIScript framework has built-in support for reading .pdf and .docx formats.  See the documentation pages [PDF](/genaiscript/reference/scripts/pdf) and [DOCX](/genaiscript/reference/scripts/docx) for more information.
 
 ### Advanced Features
 
 - **How can I use GenAIScript to automate document translation?**
- One of our case studies illustrates the use of GenAIScript for translating document fragments between languages: [Translation Case Study](./case-studies/documentation-translations.mdx)
+ One of our case studies illustrates the use of GenAIScript for translating document fragments between languages: [Translation Case Study](/genaiscript/case-studies/documentation-translations)
 
 - **Is it possible to generate executable code from natural language specifications using GenAIScript?**
   Yes, you can use a GPSpec to define the task and a GenAIScript to translate the spec into code in a particular programming language.
@@ -81,7 +81,7 @@ keywords: AI, script generation, performance, best practices, limitations
 
 - **How does GenAIScript align with Responsible AI practices?**
   GenAIScript encourages the use of models with robust Responsible AI mitigations and provides guidance on secure and ethical usage. 
-  For more information, see the [Transaprency Note](./reference/transparency-note.md)
+  For more information, see the [Transaprency Note](/genaiscript/reference/transparency-note)
 
 - **What foundation models and LLMs are recommended for use with GenAIScript?**
   Services like Azure Open AI with updated safety and Responsible AI features are recommended.  GenAIScript can also be used with existing open-source LLMs.
@@ -95,7 +95,7 @@ keywords: AI, script generation, performance, best practices, limitations
   Check the repository for contribution guidelines and consider providing feedback, submitting issues, or contributing code. Visit the [Contributing](https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md) page for more information.
 
 - **Who can I contact for feedback or questions about GenAIScript?**
-  You can email the provided contacts in the [Transparency Note](./reference/transparency-note.md) document for feedback or questions.
+  You can email the provided contacts in the [Transparency Note](/genaiscript/reference/transparency-note) document for feedback or questions.
 
 ### Updates and Roadmap
 
