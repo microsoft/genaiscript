@@ -1,0 +1,2 @@
+Icon representing the GenAIScript view in Visual Studio Code, 
+located in the activity bar on the left side of the screen.

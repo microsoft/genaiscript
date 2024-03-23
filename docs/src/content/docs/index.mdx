@@ -15,9 +15,13 @@ hero:
           link: https://github.com/microsoft/genaiscript/
           icon: github
 ---
-
+import { Image} from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
+
+import debuggerSrc from '../../assets/debugger.png';
+import debuggerAlt from "../../assets/debugger.png.txt?raw"
+
 
 ```js wrap title="extract-data.genai.js"
 // define the context
@@ -75,7 +79,7 @@ $`Summarize FILE. Today is ${new Date()}.`
 
 Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](/genaiscript/getting-started/installation).
 
-![Debugging a script](../../assets/debugger.png)
+<Image src={debuggerSrc} alt={debuggerAlt} />
 
 </Card>
 

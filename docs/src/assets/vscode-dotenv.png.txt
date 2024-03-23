@@ -1,0 +1,1 @@
+A screenshot of a Visual Studio Code interface highlighting the .env file within the scripts directory, with the file icon indicating it is a dotenv (environment variables) file.
