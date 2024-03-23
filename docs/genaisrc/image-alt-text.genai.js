@@ -8,6 +8,9 @@ script({
 })
 
 const file = env.files[0]
+const txt = await fs.readFile(file.filename + ".txt")
+if (txt.content)
+    cancel("Alt text file already exists")
 defImages(file)
 
 $`You are an expert in assistive technology. You will analyze each image 
