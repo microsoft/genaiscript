@@ -3,8 +3,18 @@ title: Installation
 sidebar:
     order: 1
 ---
+import { Image } from "astro:assets"
 import { FileTree } from '@astrojs/starlight/components';
 import { Steps } from '@astrojs/starlight/components';
+
+import extensionViewSrc from "../../../assets/vscode-extensions-view.png"
+import extensionViewAlt from "../../../assets/vscode-extensions-view.png.txt?raw"
+
+import marketplaceSrc from "../../../assets/vscode-marketplace.png"
+import marketplaceAlt from "../../../assets/vscode-marketplace.png.txt?raw"
+
+import vscodeViewSrc from "../../../assets/vscode-genaiscript-view.png"
+import vscodeViewAlt from "../../../assets/vscode-genaiscript-view.png.txt?raw"
 
 
 GenAiScript is available as a Visual Studio Code Extension. You can download it from the Marketplace
@@ -30,14 +40,14 @@ Open your project folder in Visual Studio Code.
 <li>
 Click on the **Extensions** view
 
-![Extensions View](../../../assets/vscode-extensions-view.png)
+<Image src={extensionViewSrc} alt={extensionViewAlt} />
 
 </li>
 <li>
 
 Search **genaiscript** and click **Install**.
 
-[![Extension in Marketplace User Interface](../../../assets/vscode-marketplace.png)](https://marketplace.visualstudio.com/items?itemName=genaiscript.genaiscript-vscode)
+<Image src={marketplaceSrc} alt={marketplaceAlt} />
 
 </li>
 
@@ -45,7 +55,7 @@ Search **genaiscript** and click **Install**.
 
 If successful, you will see the icon in the **Extensions** view.
 
-![Extensions View](../../../assets/vscode-genaiscript-view.png)
+<Image src={vscodeViewSrc} alt={vscodeViewAlt} />
 
 </li>
 
