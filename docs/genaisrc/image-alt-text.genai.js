@@ -8,11 +8,15 @@ script({
 })
 
 const file = env.files[0]
+
+// skip if alt-text file already exists
 const txt = await fs.readFile(file.filename + ".txt")
 if (txt.content)
     cancel("Alt text file already exists")
-defImages(file)
 
+// context
+defImages(file)
+// task
 $`You are an expert in assistive technology. You will analyze each image 
 and generate a description alt text for the image.
 
