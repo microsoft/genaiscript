@@ -1,0 +1,1 @@
+A screenshot of a debugging session in a code editor with a breakpoint set on a line of code. The editor is displaying several panels including the watch variables, call stack, and a terminal output. The code is partially visible with a function definition and JSON configuration data.

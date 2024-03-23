@@ -48,7 +48,27 @@ type FileMergeHandler = (
     label: string,
     before: string,
     generated: string
-) => string
+) => string | Promise<string>
+
+interface PromptOutputProcessorResult {
+    /**
+     * Updated text
+     */
+    text?: string
+    /**
+     * Generated files from the output
+     */
+    files?: Record<string, string>
+
+    /**
+     * User defined errors
+     */
+    annotations?: Diagnostic[]
+}
+
+type PromptOutputProcessorHandler = (
+    output: PromptGenerationOutput
+) => PromptOutputProcessorResult | Promise<PromptOutputProcessorResult>
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -104,6 +124,15 @@ interface ModelOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
+
+    /**
+     * Default value for emitting line numbers in fenced code blocks.
+     */
+    lineNumbers?: boolean
+    /**
+     * Use AICI controller
+     */
+    aici?: boolean
 }
 
 interface PromptTemplate extends PromptLike, ModelOptions {
@@ -328,11 +357,6 @@ interface ExpansionVariables {
     files: LinkedFile[]
 
     /**
-     * If the contents of this variable occurs in output, an error message will be shown to the user.
-     */
-    error: string
-
-    /**
      * current prompt template
      */
     template: PromptDefinition
@@ -461,7 +485,13 @@ type JSONSchema = JSONSchemaObject | JSONSchemaArray
 interface JSONSchemaValidation {
     schema?: JSONSchema
     valid: boolean
-    errors?: string
+    error?: string
+}
+
+interface DataFrame {
+    schema?: string
+    data: unknown
+    validation?: JSONSchemaValidation
 }
 
 interface RunPromptResult {
@@ -525,6 +555,16 @@ interface Fenced {
     args?: { schema?: string } & Record<string, string>
 
     validation?: JSONSchemaValidation
+}
+
+interface XMLParseOptions {
+    allowBooleanAttributes?: boolean
+    ignoreAttributes?: boolean
+    ignoreDeclaration?: boolean
+    ignorePiTags?: boolean
+    parseAttributeValue?: boolean
+    removeNSPrefix?: boolean
+    unpairedTags?: string[]
 }
 
 interface Parsers {
@@ -591,6 +631,30 @@ interface Parsers {
     ): object[] | undefined
 
     /**
+     * Parses a .env file
+     * @param content
+     */
+    dotEnv(content: string | LinkedFile): Record<string, string>
+
+    /**
+     * Parses a .ini file
+     * @param content
+     */
+    INI(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any }
+    ): any | undefined
+
+    /**
+     * Parses a .xml file
+     * @param content
+     */
+    XML(
+        content: string | LinkedFile,
+        options?: { defaultValue?: any } & XMLParseOptions
+    ): any | undefined
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
@@ -608,6 +672,60 @@ interface Parsers {
     annotations(content: string | LinkedFile): Diagnostic[]
 }
 
+interface AICIGenOptions {
+    /**
+     * Make sure the generated text is one of the options.
+     */
+    options?: string[]
+    /**
+     * Make sure the generated text matches given regular expression.
+     */
+    regex?: string | RegExp
+    /**
+     * Make sure the generated text matches given yacc-like grammar.
+     */
+    yacc?: string
+    /**
+     * Make sure the generated text is a substring of the given string.
+     */
+    substring?: string
+    /**
+     * Used together with `substring` - treat the substring as ending the substring
+     * (typically '"' or similar).
+     */
+    substringEnd?: string
+    /**
+     * Store result of the generation (as bytes) into a shared variable.
+     */
+    storeVar?: string
+    /**
+     * Stop generation when the string is generated (the result includes the string and any following bytes (from the same token)).
+     */
+    stopAt?: string
+    /**
+     * Stop generation when the given number of tokens have been generated.
+     */
+    maxTokens?: number
+}
+
+interface AICINode {
+    type: "aici"
+    name: "gen"
+}
+
+interface AICIGenNode extends AICINode {
+    name: "gen"
+    options: AICIGenOptions
+}
+
+interface AICI {
+    /**
+     * Generate a string that matches given constraints.
+     * If the tokens do not map cleanly into strings, it will contain Unicode replacement characters.
+     */
+    gen(options: AICIGenOptions): AICIGenNode
+}
+
 interface YAML {
     /**
      * Converts an object to its YAML representation
@@ -618,6 +736,20 @@ interface YAML {
      * Parses a YAML string to object
      */
     parse(text: string): any
+}
+
+interface INI {
+    /**
+     * Parses a .ini file
+     * @param text
+     */
+    parse(text: string): any
+
+    /**
+     * Converts an object to.ini string
+     * @param value
+     */
+    stringify(value: any): string
 }
 
 interface CSV {
@@ -667,11 +799,7 @@ interface Retreival {
             /**
              * Maximum number of embeddings to use
              */
-            topK?: number,
-            /**
-             * Retreive summaries
-             */
-            summary?: boolean
+            topK?: number
             /**
              * Minimum similarity score
              */
@@ -716,6 +844,33 @@ interface RunPromptContext {
     ): Promise<RunPromptResult>
 }
 
+interface PromptGenerationOutput {
+    /**
+     * LLM output.
+     */
+    text: string
+
+    /**
+     * Parsed fence sections
+     */
+    fences: Fenced[]
+
+    /**
+     * Parsed data sections
+     */
+    frames: DataFrame[]
+
+    /**
+     * A map of file updates
+     */
+    fileEdits: Record<string, { before: string; after: string }>
+
+    /**
+     * Generated variables, typically from AICI.gen
+     */
+    genVars: Record<string, string>
+}
+
 interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
@@ -727,6 +882,7 @@ interface PromptContext extends RunPromptContext {
         fn: ChatFunctionHandler
     ): void
     defFileMerge(fn: FileMergeHandler): void
+    defOutput(fn: PromptOutputProcessorHandler): void
     defSchema(
         name: string,
         schema: JSONSchema,
@@ -754,6 +910,8 @@ interface PromptContext extends RunPromptContext {
     fs: FileSystem
     YAML: YAML
     CSV: CSV
+    INI: INI
+    AICI: AICI
 }
 
 
@@ -852,6 +1010,16 @@ declare var fs: FileSystem
 declare var YAML: YAML
 
 /**
+ * INI parsing and stringifying.
+ */
+declare var INI: INI
+
+/**
+ * AICI operations
+ */
+declare var AICI: AICI
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */
@@ -906,3 +1074,10 @@ declare function runPrompt(
     generator: (ctx: RunPromptContext) => void | Promise<void>,
     options?: ModelOptions
 ): Promise<RunPromptResult>
+
+
+/**
+ * Registers a callback to process the LLM output
+ * @param fn 
+ */
+declare function defOutput(fn: PromptOutputProcessorHandler): void
