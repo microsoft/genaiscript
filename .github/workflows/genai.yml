@@ -26,8 +26,14 @@ jobs:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: front matter
+              run: yarn genai:alt
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: install sharp
-              run: cd docs && yarn add sharp
+              run: cd docs && yarn add sharp@0.32.6
             - name: docs
               run: yarn build:docs
             - name: Commit AI frontmatters
