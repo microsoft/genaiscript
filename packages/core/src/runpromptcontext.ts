@@ -2,6 +2,7 @@ import { minimatch } from "minimatch"
 import {
     PromptNode,
     appendChild,
+    createAssistantNode,
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
@@ -9,7 +10,7 @@ import {
 import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
-import { ChatCompletionMessageParam, toChatCompletionUserMessage } from "./chat"
+import { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam, toChatCompletionUserMessage } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
 import { resolveLanguageModel } from "./models"
 import { renderAICI } from "./aici"
@@ -30,12 +31,12 @@ export function createRunPromptContext(
 
     const ctx = <RunPromptContextNode>{
         node,
-        writeText: (body) => {
-            body = body ?? ""
-            appendChild(
-                node,
-                createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
-            )
+        writeText: (body, options) => {
+            if (body !== undefined && body !== null)
+                appendChild(
+                    node,
+                    options?.assistant ? createAssistantNode(body) : createTextNode(body)
+                )
         },
         $(strings, ...args) {
             appendChild(node, createStringTemplateNode(strings, args))
@@ -103,7 +104,7 @@ export function createRunPromptContext(
                     // todo: output processor?
                     messages.push(aici)
                 } else {
-                    const { prompt, images, errors } = await renderPromptNode(
+                    const { prompt, assistantPrompt, images, errors } = await renderPromptNode(
                         model,
                         node,
                         {
@@ -114,6 +115,8 @@ export function createRunPromptContext(
                     if (images?.length || errors?.length)
                         trace.fence({ images, errors }, "yaml")
                     messages.push(toChatCompletionUserMessage(prompt, images))
+                    if (assistantPrompt)
+                        messages.push(<ChatCompletionAssistantMessageParam>{ role: "assistant", content: assistantPrompt })
                 }
 
                 // call LLM

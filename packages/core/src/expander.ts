@@ -9,11 +9,11 @@ import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
     toChatCompletionUserMessage,
 } from "./chat"
-import { initToken } from "./oai_token"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -83,6 +83,7 @@ async function callExpander(
     let success = true
     let logs = ""
     let text = ""
+    let assistantText = ""
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
     let functions: ChatFunctionCallback[] = []
@@ -101,6 +102,7 @@ async function callExpander(
         if (!r.aici) {
             const {
                 prompt,
+                assistantPrompt,
                 images: imgs,
                 errors,
                 schemas: schs,
@@ -109,6 +111,7 @@ async function callExpander(
                 outputProcessors: ops,
             } = await renderPromptNode(model, node, { trace })
             text = prompt
+            assistantText = assistantPrompt
             images = imgs
             schemas = schs
             functions = fns
@@ -137,6 +140,7 @@ async function callExpander(
         logs,
         success,
         text,
+        assistantText,
         images,
         schemas,
         functions,
@@ -287,6 +291,15 @@ export async function expandTemplate(
     }
 
     if (systemMessage.content) messages.unshift(systemMessage)
+
+    if (prompt.assistantText) {
+        trace.detailsFenced("🤖 assistant", prompt.assistantText, "markdown")
+        const assistantMessage: ChatCompletionAssistantMessageParam = {
+            role: "assistant",
+            content: prompt.assistantText,
+        }
+        messages.push(assistantMessage)
+    }
 
     trace.endDetails()
 

@@ -19,7 +19,7 @@ You are a helpful assistant.
 
 ## Inline expressions
 
-You can weave expressions in the template using `${...}`.
+You can weave expressions in the template using `${...}`. Expression can be promises and will be awaited when rendering the final prompt.
 
 ```js title="example.genai.js"
 $`Today is ${new Date().toDateString()}.`
@@ -28,3 +28,4 @@ $`Today is ${new Date().toDateString()}.`
 ```txt title="Final prompt"
 Today is Fri Mar 01 2024.
 ```
+

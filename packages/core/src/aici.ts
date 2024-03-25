@@ -82,6 +82,7 @@ export async function renderAICI(functionName: string, root: PromptNode) {
         image: notSupported("image"),
         function: notSupported("function"),
         // TODO?
+        assistant: notSupported("assistant"),
         schema: notSupported("schema"),
         outputProcessor: (n) => {
             outputProcessors.push(n.fn)
@@ -169,13 +170,13 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                 const functionName = `${role}${msgi}`
                 const functionSource = `async function ${functionName}() {
     $\`${escapeJavascriptString(
-        typeof content === "string"
-            ? content
-            : content
-                  .filter(({ type }) => type === "text")
-                  .map((p) => (p as ChatCompletionContentPartText).text)
-                  .join("\n")
-    )}\`
+                    typeof content === "string"
+                        ? content
+                        : content
+                            .filter(({ type }) => type === "text")
+                            .map((p) => (p as ChatCompletionContentPartText).text)
+                            .join("\n")
+                )}\`
 }
 `
                 source.push(functionSource)
@@ -242,11 +243,11 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         let body: string
         try {
             body = await r.text()
-        } catch (e) {}
+        } catch (e) { }
         let bodyJSON: { error: unknown }
         try {
             bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) {}
+        } catch (e) { }
         throw new RequestError(
             r.status,
             r.statusText,

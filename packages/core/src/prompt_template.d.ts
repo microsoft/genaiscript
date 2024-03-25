@@ -832,9 +832,16 @@ type ChatFunctionHandler = (
     args: { context: ChatFunctionCallContext } & Record<string, any>
 ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 
+interface WriteTextOptions {
+    /**
+     * Append text to the assistant response
+     */
+    assistant?: boolean
+}
+
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
-    writeText(body: string): void
+    writeText(body: string | Promise<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
