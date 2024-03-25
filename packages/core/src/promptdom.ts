@@ -6,14 +6,15 @@ import { YAMLStringify } from "./yaml"
 
 export interface PromptNode {
     type?:
-        | "text"
-        | "image"
-        | "schema"
-        | "function"
-        | "fileMerge"
-        | "outputProcessor"
-        | "stringTemplate"
-        | undefined
+    | "text"
+    | "image"
+    | "schema"
+    | "function"
+    | "fileMerge"
+    | "outputProcessor"
+    | "stringTemplate"
+    | "assistant"
+    | undefined
     children?: PromptNode[]
     priority?: number
     error?: unknown
@@ -22,6 +23,11 @@ export interface PromptNode {
 
 export interface PromptTextNode extends PromptNode {
     type: "text"
+    value: string | Promise<string>
+}
+
+export interface PromptAssistantNode extends PromptNode {
+    type: "assistant"
     value: string | Promise<string>
 }
 
@@ -72,6 +78,13 @@ export function createTextNode(
 ): PromptTextNode {
     assert(value !== undefined)
     return { type: "text", value }
+}
+
+export function createAssistantNode(
+    value: string | Promise<string>
+): PromptAssistantNode {
+    assert(value !== undefined)
+    return { type: "assistant", value }
 }
 
 export function createStringTemplateNode(
@@ -147,6 +160,7 @@ export async function visitNode(
         outputProcessor?: (
             node: PromptOutputProcessorNode
         ) => void | Promise<void>
+        assistant?: (node: PromptAssistantNode) => void | Promise<void>
     }
 ) {
     await visitor.node?.(node)
@@ -172,6 +186,10 @@ export async function visitNode(
         case "stringTemplate":
             await visitor.stringTemplate?.(node as PromptStringTemplateNode)
             break
+        case "assistant":
+            await visitor.assistant?.(node as PromptAssistantNode)
+            break
+
     }
     if (node.children) {
         for (const child of node.children) {
@@ -183,6 +201,7 @@ export async function visitNode(
 
 export interface PromptNodeRender {
     prompt: string
+    assistantPrompt: string
     images: PromptImage[]
     errors: unknown[]
     schemas: Record<string, JSONSchema>
@@ -199,19 +218,30 @@ export async function renderPromptNode(
     const { trace } = options || {}
 
     let prompt = ""
+    let assistantPrompt = ""
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
-    
+
     await visitNode(node, {
         text: async (n) => {
             try {
                 const value = await n.value
                 n.tokens = estimateTokens(model, value)
                 if (value != undefined) prompt += value + "\n"
+            } catch (e) {
+                node.error = e
+                errors.push(e)
+            }
+        },
+        assistant: async (n) => {
+            try {
+                const value = await n.value
+                n.tokens = estimateTokens(model, value)
+                if (value != undefined) assistantPrompt += value + "\n"
             } catch (e) {
                 node.error = e
                 errors.push(e)
@@ -310,6 +340,7 @@ ${trimNewlines(schemaText)}
     })
     return {
         prompt,
+        assistantPrompt,
         images,
         errors,
         schemas,
