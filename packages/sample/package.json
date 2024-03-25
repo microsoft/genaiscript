@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.15.12",
+  "version": "1.16.0",
   "license": "MIT",
   "private": true,
   "devDependencies": {
