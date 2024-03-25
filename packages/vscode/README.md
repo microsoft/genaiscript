@@ -51,7 +51,7 @@ const { files } = await retreival.search("cats", env.files)
 -   🚀 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli).
 
 ```bash frame="none" wrap
-npx genaiscript-cli run my-script "*.pdf"
+npx genaiscript run my-script "*.pdf"
 ```
 
 -   👯 [compose prompts](https://microsoft.github.io/genaiscript/reference/scripts/inline-prompts/) within prompts

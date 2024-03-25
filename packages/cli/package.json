@@ -1,10 +1,9 @@
 {
-  "name": "genaiscript-cli",
+  "name": "genaiscript",
   "version": "1.15.12",
   "main": "built/genaiscript.cjs",
   "bin": {
-    "genaiscript": "./built/genaiscript.cjs",
-    "genaiscript-cli": "./built/genaiscript.cjs"
+    "genaiscript": "./built/genaiscript.cjs"
   },
   "publisher": "Microsoft",
   "repository": {
