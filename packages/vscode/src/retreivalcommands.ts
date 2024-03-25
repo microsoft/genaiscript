@@ -11,6 +11,7 @@ import {
     search as retreivalSearch,
     CLI_JS,
     ICON_LOGO_NAME,
+    RETRIEVAL_DEFAULT_INDEX,
 } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { showMarkdownPreview } from "./markdown"
@@ -22,7 +23,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
     const resolveIndexName = async () => {
         const indexName = await vscode.window.showInputBox({
             title: "Enter an index name",
-            value: "vector",
+            value: RETRIEVAL_DEFAULT_INDEX,
             validateInput: (value) => {
                 if (/[^a-z0-9_]/i.test(value))
                     return "Only letters, numbers and underscores are allowed"
@@ -61,8 +62,9 @@ export function activateRetreivalCommands(state: ExtensionState) {
             )
             return
         }
-        const indexName = await resolveIndexName()
+        let indexName = await resolveIndexName()
         if (indexName === undefined) return
+        if (indexName === "") indexName = RETRIEVAL_DEFAULT_INDEX
 
         const keywords = await vscode.window.showInputBox({
             title: "Enter search query",
@@ -103,7 +105,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         terminal.sendText(
-            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index ${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")} --name ${indexName}`
+            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index "${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}" --name ${indexName}`
         )
         terminal.show()
     }
