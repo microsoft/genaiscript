@@ -9,11 +9,11 @@ import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
     toChatCompletionUserMessage,
 } from "./chat"
-import { initToken } from "./oai_token"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -294,7 +294,7 @@ export async function expandTemplate(
 
     if (prompt.assistantText) {
         trace.detailsFenced("🤖 assistant", prompt.assistantText, "markdown")
-        const assistantMessage: ChatCompletionMessageParam = {
+        const assistantMessage: ChatCompletionAssistantMessageParam = {
             role: "assistant",
             content: prompt.assistantText,
         }
