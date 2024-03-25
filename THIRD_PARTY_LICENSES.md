@@ -3137,7 +3137,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.15.10
+ - genaiscript-vscode@1.15.12
 
 This package contains the following license and notice below:
 
@@ -14392,12 +14392,11 @@ limitations under the License.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
- - @img/sharp-darwin-x64@0.33.2
  - sharp@0.32.6
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 Apache License
 Version 2.0, January 2004
@@ -17877,16 +17876,6 @@ copy of the Program in return for a fee.
 
 The following npm package may be included in this product:
 
- - @img/sharp-libvips-darwin-x64@1.0.1
-
-This package contains the following license and notice below:
-
-LGPL-3.0-or-later
-
------------
-
-The following npm package may be included in this product:
-
  - pdf2json@3.0.5
 
 This package contains the following license and notice below:
@@ -17916,11 +17905,11 @@ The following npm packages may be included in this product:
  - @vscode/l10n@0.0.16
  - @vscode/l10n@0.0.18
  - dlv@1.1.3
- - docs@1.15.10
+ - docs@1.15.12
  - eastasianwidth@0.2.0
- - genaiscript-cli@1.15.10
- - genaiscript-core@1.15.10
- - genaiscript-sample@1.15.10
+ - genaiscript-core@1.15.12
+ - genaiscript-sample@1.15.12
+ - genaiscript@1.15.12
  - hast-util-to-string@3.0.0
  - inline-style-parser@0.1.1
  - inline-style-parser@0.2.2
