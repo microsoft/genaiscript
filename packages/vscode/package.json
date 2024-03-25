@@ -367,7 +367,7 @@
         "pdfjs-dist": "4.0.379"
     },
     "optionalDependencies": {
-        "genaiscript-cli": "*",
+        "genaiscript": "*",
         "genaiscript-core": "*"
     },
     "enabledApiProposals": [

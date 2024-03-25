@@ -74,7 +74,7 @@ Using the [batch](/genaiscript/reference/cli/batch) command, we can apply the sc
 in a single command.
 
 ```sh
-npx genaiscript-cli batch image-alt-text assets/**.png --apply-edits
+npx --yes genaiscript batch image-alt-text assets/**.png --apply-edits
 ```
 
 To avoid regenerating the alt text, we also detect if a file exists in the script and cancel accordingly.
