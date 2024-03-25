@@ -247,9 +247,9 @@ export async function runTemplate(
     const refs = fragment.references
     const tools: ChatCompletionTool[] = functions?.length
         ? functions.map((f) => ({
-              type: "function",
-              function: f.definition as any,
-          }))
+            type: "function",
+            function: f.definition as any,
+        }))
         : undefined
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]
@@ -537,7 +537,7 @@ ${repair}
     }
 
     if (json !== undefined) {
-        trace.detailsFenced("📩 json (parsed)", json)
+        trace.detailsFenced("📩 json (parsed)", json, "json")
         const fn = fragment.file.filename.replace(
             /\.gpspec\.md$/i,
             "." + template.id + ".json"

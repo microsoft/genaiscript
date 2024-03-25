@@ -17,7 +17,10 @@ const schema = defSchema("CITY_SCHEMA", {
     }
 })
 
-// the task
-$`Generate a YAML data file with the information of the cities in the CITIES data set,
-compliant with ${schema}.
-`
+// the task`
+$`Answer with a JSON array with the information of the cities in the CITIES data set,
+compliant with ${schema}.`
+$` Do not emit the enclosing markdown.`
+
+// help the LLM by starting the JSON array syntax
+writeText(`[`, { assistant: true })
