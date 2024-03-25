@@ -834,7 +834,7 @@ type ChatFunctionHandler = (
 
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
-    writeText(body: string): void
+    writeText(body: string | Promise<string>): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string

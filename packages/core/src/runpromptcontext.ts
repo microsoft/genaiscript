@@ -31,11 +31,11 @@ export function createRunPromptContext(
     const ctx = <RunPromptContextNode>{
         node,
         writeText: (body) => {
-            body = body ?? ""
-            appendChild(
-                node,
-                createTextNode(body.replace(/\n*$/, "").replace(/^\n*/, ""))
-            )
+            if (body !== undefined && body !== null)
+                appendChild(
+                    node,
+                    createTextNode(body)
+                )
         },
         $(strings, ...args) {
             appendChild(node, createStringTemplateNode(strings, args))
