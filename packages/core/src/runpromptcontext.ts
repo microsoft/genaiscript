@@ -2,6 +2,7 @@ import { minimatch } from "minimatch"
 import {
     PromptNode,
     appendChild,
+    createAssistantNode,
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
@@ -30,11 +31,11 @@ export function createRunPromptContext(
 
     const ctx = <RunPromptContextNode>{
         node,
-        writeText: (body) => {
+        writeText: (body, options) => {
             if (body !== undefined && body !== null)
                 appendChild(
                     node,
-                    createTextNode(body)
+                    options?.assistant ? createAssistantNode(body) : createTextNode(body)
                 )
         },
         $(strings, ...args) {
