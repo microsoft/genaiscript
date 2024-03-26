@@ -1,8 +1,7 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
-import { DOCXTryParse } from "./docx"
+import { resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
 import { fenceMD } from "./markdown"
-import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { createTextNode } from "./promptdom"
 import { YAMLStringify } from "./yaml"
 
@@ -27,12 +26,7 @@ export function createDefNode(
     }
 
     const render = async () => {
-        if (!file.content && /\.pdf$/i.test(file.filename)) {
-            const pages = await PDFTryParse(file.filename)
-            file.content = PDFPagesToString(pages)
-        } else if (!file.content && /\.docx$/i.test(file.filename)) {
-            file.content = await DOCXTryParse(file.filename)
-        }
+        await resolveFileContent(file)
 
         let dfence =
             /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)

@@ -14,15 +14,6 @@ type Parser = (
     md: string
 ) => TextFile
 
-function removeIds(str: string, cb: (id: string) => void) {
-    return str.replace(new RegExp(nodeIdRx.source, "g"), (_, id) => {
-        cb(id)
-        return ""
-    })
-}
-
-const nodeIdRx = /\{(#[A-Z]{2,6}[0-9]{2,6})\}/
-
 export function stringToPos(str: string): CharPosition {
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
