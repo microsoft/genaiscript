@@ -25,6 +25,11 @@ script({
 })
 ```
 
+## Line numbers
+
+The "system.annotations" prompt automatically enables line number injection for all `def` section. This helps 
+with the precision of the LLM answer and reduces hallucinations.
+
 ## GitHub Action Commands
 
 By default, the annotations use the [GitHub Action Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) syntax.
