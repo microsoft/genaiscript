@@ -1,4 +1,8 @@
-system({ title: "Diff generation", description: "Teaches the diff file format supported by GenAIScripts", lineNumbers: true })
+system({
+    title: "Diff generation",
+    description: "Teaches the diff file format supported by GenAIScripts",
+    lineNumbers: true,
+})
 
 $`The DIFF format should be used to generate diff changes on files: 
 - added lines MUST start with +
