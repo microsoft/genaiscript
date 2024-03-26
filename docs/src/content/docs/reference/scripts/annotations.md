@@ -14,17 +14,20 @@ $`Report issues with this code using annotations.`
 
 ## Configuration
 
+If you use `annotation` in your script text and you do not specify the `system` field, `system.annotations` will be added by default.
+
 Using the `system.annotations` system prompt, you can have the LLM generate errors, warnings and notes.
 
-:::tip
-
-If you use `annotation` in your script and you do not specify the `system` script, `system.annotations` will be added by default.
-
-:::
+```js "\"system.annotations\""
+script({
+    ...
+    system: [..., "system.annotations"]
+})
+```
 
 ## GitHub Action Commands
 
-By default, the annotation use the [GitHub Action Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) syntax.
+By default, the annotations use the [GitHub Action Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) syntax.
 This means that the annotations will automatically be extracted by GitHub if you run your script in a GitHub Action.
 
 ## Visual Studio Code Programs
@@ -41,7 +44,7 @@ extension can be used to visualize the reports.
 
 ```yaml title="GitHub Action"
     - name: Run GenAIScript
-      run: genaiscript ... -oa result.sarif
+      run: npx --yes genaiscript ... -oa result.sarif
     - name: Upload SARIF file
         if: success() || failure()
         uses: github/codeql-action/upload-sarif@v3
