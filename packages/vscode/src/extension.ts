@@ -12,7 +12,7 @@ import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 //import { activateChatParticipant } from "./chat/participant"
 import { activateRetreivalCommands } from "./retreivalcommands"
-import { activateTokensStatusBar } from "./tokenstatusbar"
+// import { activateTokensStatusBar } from "./tokenstatusbar"
 
 export async function activate(context: ExtensionContext) {
     if (typeof WebSocket === "undefined") {
@@ -33,8 +33,8 @@ export async function activate(context: ExtensionContext) {
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
     activateStatusBar(state)
-    activateTokensStatusBar(state)
-    //    activateChatParticipant(state)
+    // activateTokensStatusBar(state)
+    // activateChatParticipant(state)
 
     context.subscriptions.push(
         vscode.commands.registerCommand(
