@@ -3,6 +3,7 @@ import {
     Fragment,
     GENAI_JS_REGEX,
     PromptTemplate,
+    assert,
     dotGenaiscriptPath,
     groupBy,
     templateGroup,
@@ -99,8 +100,17 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        if (fragment instanceof vscode.Uri && GENAI_JS_REGEX.test(fragment.path))
+        if (fragment instanceof vscode.Uri && GENAI_JS_REGEX.test(fragment.path)) {
             template = state.project.templates.find(p => p.filename === (fragment as vscode.Uri).fsPath)
+            assert(template !== undefined)
+            const uris = await vscode.window.showOpenDialog({
+                canSelectMany: false,
+                openLabel: 'Select env.files',
+                canSelectFolders: true,
+                canSelectFiles: true
+            })
+            fragment = uris?.[0]
+        }
 
         fragment = await resolveSpec(fragment)
         if (!fragment) {

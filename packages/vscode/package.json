@@ -100,7 +100,7 @@
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode",
+                    "when": "!inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
                     "group": "genaiscript@2"
                 }
             ],
