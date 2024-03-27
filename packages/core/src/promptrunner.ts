@@ -630,14 +630,15 @@ ${repair}
             for (const outputProcessor of outputProcessors) {
                 const {
                     text: newText,
-                    files = {},
-                    annotations: oannotations = [],
+                    files,
+                    annotations: oannotations,
                 } = (await outputProcessor({
                     text,
                     fileEdits,
                     fences,
                     frames,
                     genVars,
+                    annotations
                 })) || {}
 
                 if (newText !== undefined) {
@@ -645,28 +646,17 @@ ${repair}
                     trace.detailsFenced(`📝 text`, text)
                 }
 
-                for (const [n, content] of Object.entries(files)) {
-                    const fn = /^[^\/]/.test(n)
-                        ? host.resolvePath(projFolder, n)
-                        : n
-                    trace.detailsFenced(`📁 file ${fn}`, content)
-                    const fileEdit = await getFileEdit(fn)
-                    fileEdit.after = content
-                }
-                if (oannotations.length) {
-                    trace.details(
-                        "⚠️ annotations",
-                        CSVToMarkdown(oannotations, {
-                            headers: [
-                                "severity",
-                                "filename",
-                                "line",
-                                "message",
-                            ],
-                        })
-                    )
-                    annotations.push(...oannotations)
-                }
+                if (files)
+                    for (const [n, content] of Object.entries(files)) {
+                        const fn = /^[^\/]/.test(n)
+                            ? host.resolvePath(projFolder, n)
+                            : n
+                        trace.detailsFenced(`📁 file ${fn}`, content)
+                        const fileEdit = await getFileEdit(fn)
+                        fileEdit.after = content
+                    }
+                if (oannotations)
+                    annotations = oannotations.slice(0)
             }
         } catch (e) {
             trace.error(`output processor failed`, e)
@@ -704,7 +694,7 @@ ${repair}
             "✏️ edits",
             CSVToMarkdown(edits, { headers: ["type", "filename", "message"] })
         )
-    if (annotations.length)
+    if (annotations?.length)
         trace.details(
             "⚠️ annotations",
             CSVToMarkdown(annotations, {

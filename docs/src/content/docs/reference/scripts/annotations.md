@@ -25,9 +25,9 @@ script({
 })
 ```
 
-## Line numbers
+### Line numbers
 
-The "system.annotations" prompt automatically enables line number injection for all `def` section. This helps
+The `system.annotations` prompt automatically enables line number injection for all `def` section. This helps
 with the precision of the LLM answer and reduces hallucinations.
 
 ## GitHub Action Commands
@@ -46,7 +46,6 @@ GenAIScript will convert those into SARIF files that can be [uploaded](https://d
 
 The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 extension can be used to visualize the reports.
-
 
 ```yaml title="GitHub Action"
 name: "Upload SARIF"
@@ -87,3 +86,16 @@ jobs:
     rules. See [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository#granting-access-to-security-alerts) for more help.
 -   Your organization may restrict the execution of GitHub Actions on Pull Requests.
     See [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#about-github-actions-permissions-for-your-repository) for more help.
+
+## Filtering
+
+You can use the [defOutput](/genaiscript/reference/scripts/custom-output/) function
+to filter the annotations.
+
+```js "defOutput"
+defOutput((annotations) => {
+    // only allow errors
+    const errors = annotations.filter(({ level }) => level === "error")
+    return { annotations: errors }
+})
+```
