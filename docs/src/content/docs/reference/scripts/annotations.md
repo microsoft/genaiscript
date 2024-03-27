@@ -42,18 +42,42 @@ through the **Problems** panel. The diagnostics will also appear as squiggly lin
 
 ## Static Analysis Results Interchange Format (SARIF)
 
-GenAIScript will convert those into SARIF files that can be uploaded as [security reports](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning), similarly to CodeQL reports.
+GenAIScript will convert those into SARIF files that can be [uploaded](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/uploading-a-sarif-file-to-github) as [security reports](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning), similarly to CodeQL reports.
 
 The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 extension can be used to visualize the reports.
 
+
 ```yaml title="GitHub Action"
-    - name: Run GenAIScript
-      run: npx --yes genaiscript ... -oa result.sarif
-    - name: Upload SARIF file
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
+name: "Upload SARIF"
+
+# Run workflow each time code is pushed to your repository and on a schedule.
+# The scheduled workflow runs every Thursday at 15:45 UTC.
+on:
+  push:
+  schedule:
+    - cron: '45 15 * * 4'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      # required for all workflows
+      security-events: write
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+    steps:
+      # This step checks out a copy of your repository.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Run GenAIScript tools
+      - name: Run GenAIScript
+        run: npx --yes genaiscript ... -oa result.sarif
+      # Upload the generate SARIF file to GitHub
+      - name: Upload SARIF file
+          if: success() || failure()
+          uses: github/codeql-action/upload-sarif@v3
+          with:
             sarif_file: result.sarif
 ```
 
