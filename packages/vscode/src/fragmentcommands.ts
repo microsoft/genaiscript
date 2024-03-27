@@ -103,6 +103,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         if (fragment instanceof vscode.Uri && GENAI_JS_REGEX.test(fragment.path)) {
             template = state.project.templates.find(p => p.filename === (fragment as vscode.Uri).fsPath)
             assert(template !== undefined)
+            /*
             const uris = await vscode.window.showOpenDialog({
                 canSelectMany: false,
                 openLabel: 'Select env.files',
@@ -110,6 +111,7 @@ export function activateFragmentCommands(state: ExtensionState) {
                 canSelectFiles: true
             })
             fragment = uris?.[0]
+            */
         }
 
         fragment = await resolveSpec(fragment)
