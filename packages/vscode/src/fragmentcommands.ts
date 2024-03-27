@@ -1,6 +1,7 @@
 import * as vscode from "vscode"
 import {
     Fragment,
+    GENAI_JS_REGEX,
     PromptTemplate,
     dotGenaiscriptPath,
     groupBy,
@@ -71,6 +72,10 @@ export function activateFragmentCommands(state: ExtensionState) {
                 const prj = await state.parseDirectory(fragUri)
                 fragment = prj?.rootFiles?.[0].fragments?.[0]
             }
+        } else if (typeof frag === "string" && GENAI_JS_REGEX.test(frag)) {
+            const fragUri = vscode.Uri.file(frag)
+            const prj = await state.parseDocument(fragUri)
+            fragment = prj?.rootFiles?.[0].fragments?.[0]
         } else {
             fragment = project.resolveFragment(frag)
         }
