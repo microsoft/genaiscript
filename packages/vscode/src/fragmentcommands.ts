@@ -99,6 +99,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
+        if (fragment instanceof vscode.Uri && GENAI_JS_REGEX.test(fragment.path))
+            template = state.project.templates.find(p => p.filename === (fragment as vscode.Uri).fsPath)
+
         fragment = await resolveSpec(fragment)
         if (!fragment) {
             vscode.window.showErrorMessage(
