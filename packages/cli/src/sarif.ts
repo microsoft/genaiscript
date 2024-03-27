@@ -1,4 +1,4 @@
-import { TOOL_ID, CORE_VERSION } from "genaiscript-core"
+import { SARIFF_RULEID_PREFIX, SARIFF_BUILDER_URL, SARIFF_BUILDER_TOOL_DRIVER_NAME, CORE_VERSION } from "genaiscript-core"
 import {
     SarifBuilder,
     SarifRunBuilder,
@@ -17,12 +17,12 @@ export function convertDiagnosticsToSARIF(
     issues: Diagnostic[]
 ) {
     const sarifRunBuilder = new SarifRunBuilder().initSimple({
-        toolDriverName: TOOL_ID,
+        toolDriverName: SARIFF_BUILDER_TOOL_DRIVER_NAME,
         toolDriverVersion: CORE_VERSION,
-        url: "https://github.com/microsoft/genaiscript/",
+        url: SARIFF_BUILDER_URL,
     })
     const sarifRuleBuiler = new SarifRuleBuilder().initSimple({
-        ruleId: template.id,
+        ruleId: SARIFF_RULEID_PREFIX + template.id,
         shortDescriptionText: template.title,
         fullDescriptionText: template.description,
     })

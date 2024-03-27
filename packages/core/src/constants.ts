@@ -31,3 +31,6 @@ export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript"
 export const AICI_CONTROLLER = "gh:microsoft/aici/jsctrl"
 export const ICON_LOGO_NAME = "genaiscript-logo"
+export const SARIFF_RULEID_PREFIX = "genascript/"
+export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
+export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID

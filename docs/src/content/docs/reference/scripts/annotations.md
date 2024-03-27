@@ -18,7 +18,7 @@ If you use `annotation` in your script text and you do not specify the `system` 
 
 Using the `system.annotations` system prompt, you can have the LLM generate errors, warnings and notes.
 
-```js "\"system.annotations\""
+```js ""system.annotations""
 script({
     ...
     system: [..., "system.annotations"]
@@ -27,7 +27,7 @@ script({
 
 ## Line numbers
 
-The "system.annotations" prompt automatically enables line number injection for all `def` section. This helps 
+The "system.annotations" prompt automatically enables line number injection for all `def` section. This helps
 with the precision of the LLM answer and reduces hallucinations.
 
 ## GitHub Action Commands
@@ -42,7 +42,7 @@ through the **Problems** panel. The diagnostics will also appear as squiggly lin
 
 ## Static Analysis Results Interchange Format (SARIF)
 
-GenAIScript will convert those into SARIF files that can be uploaded to GitHub Actions as security reports, similarly to CodeQL reports.
+GenAIScript will convert those into SARIF files that can be uploaded as [security reports](https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning), similarly to CodeQL reports.
 
 The [SARIF Viewer](https://marketplace.visualstudio.com/items?itemName=MS-SarifVSCode.sarif-viewer)
 extension can be used to visualize the reports.
@@ -56,3 +56,10 @@ extension can be used to visualize the reports.
         with:
             sarif_file: result.sarif
 ```
+
+### Limitations
+
+-   Access to security reports may vary based on your repository visibilty and organization
+    rules. See [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository#granting-access-to-security-alerts) for more help.
+-   Your organization may restrict the execution of GitHub Actions on Pull Requests.
+    See [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#about-github-actions-permissions-for-your-repository) for more help.
