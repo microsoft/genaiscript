@@ -1,7 +1,6 @@
 import * as vscode from "vscode"
 import {
     Fragment,
-    GENAISCRIPT_CLI_JS,
     PromptTemplate,
     dotGenaiscriptPath,
     groupBy,
@@ -11,7 +10,6 @@ import { ExtensionState } from "./state"
 import {
     checkDirectoryExists,
     checkFileExists,
-    saveAllTextDocuments,
 } from "./fs"
 
 type TemplateQuickPickItem = {
@@ -83,10 +81,10 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentPrompt = async (
         options:
             | {
-                  fragment?: Fragment | string | vscode.Uri
-                  template?: PromptTemplate
-                  debug?: boolean
-              }
+                fragment?: Fragment | string | vscode.Uri
+                template?: PromptTemplate
+                debug?: boolean
+            }
             | vscode.Uri
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
@@ -128,7 +126,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             vscode.workspace.workspaceFolders[0],
             {
                 name: "GenAIScript",
-                program: GENAISCRIPT_CLI_JS,
+                program: state.cliJsPath,
                 request: "launch",
                 skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
                 type: "node",
@@ -198,9 +196,8 @@ export function templatesToQuickPickItems(
                                     template.filename
                                 )) ??
                             template.id,
-                        description: `${template.id} ${
-                            template.description || ""
-                        }`,
+                        description: `${template.id} ${template.description || ""
+                            }`,
                         template,
                     }
             )

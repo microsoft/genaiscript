@@ -1,6 +1,6 @@
 import { CORE_VERSION, RunTemplateOptions } from "."
 import { Fragment } from "./ast"
-import { GENAISCRIPT_CLI_JS, NPM_CLI_PACKAGE } from "./constants"
+import { NPM_CLI_PACKAGE } from "./constants"
 import { MarkdownTrace } from "./trace"
 
 export function generateCliArguments(
@@ -52,9 +52,8 @@ ${generateCliArguments(template, fragment, options, "batch")}
 
 
 -   You will need to install [Node.js](https://nodejs.org/en/).
--   The \`${GENAISCRIPT_CLI_JS}\` is written by the Visual Studio Code extension automatically.
 -   The CLI uses the same secrets in the \`.env\` file.
--   Run \`node .genaiscript/genaiscript help run\` for the full list of options.
+-   Run \`npx genaiscript help run\` for the full list of options.
 `
     )
 }

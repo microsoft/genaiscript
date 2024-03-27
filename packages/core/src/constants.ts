@@ -6,7 +6,6 @@ export const AZURE_OPENAI_API_VERSION = "2023-09-01-preview"
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
-export const GENAISCRIPT_CLI_JS = GENAISCRIPT_FOLDER + "/" + CLI_JS
 export const GENAI_SRC = "genaisrc"
 export const GENAI_EXT = ".genai.js"
 export const TOOL_NAME = "GenAIScript"

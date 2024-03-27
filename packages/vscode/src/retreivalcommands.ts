@@ -5,11 +5,8 @@ import {
     GENAISCRIPT_FOLDER,
     TOOL_NAME,
     clearIndex,
-    initToken,
     isIndexable,
-    upsert,
     search as retreivalSearch,
-    CLI_JS,
     ICON_LOGO_NAME,
     RETRIEVAL_DEFAULT_INDEX,
 } from "genaiscript-core"
@@ -105,7 +102,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         terminal.sendText(
-            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} retreival index "${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}" --name ${indexName}`
+            `node "${state.cliJsPath}" retreival index "${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}" --name ${indexName}`
         )
         terminal.show()
     }

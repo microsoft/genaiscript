@@ -179,11 +179,6 @@ export class ExtensionState extends EventTarget {
         const dir = vscode.Uri.file(dotGenaiscriptPath("."))
         await vscode.workspace.fs.createDirectory(dir)
 
-        const p = Utils.joinPath(this.context.extensionUri, CLI_JS)
-        const cli = vscode.Uri.file(dotGenaiscriptPath(CLI_JS))
-
-        // genaiscript.cjs
-        await vscode.workspace.fs.copy(p, cli, { overwrite: true })
         // add .gitignore
         await writeFile(
             dir,
@@ -204,6 +199,11 @@ cache/
 retrieval/
 `
         )
+    }
+
+    get cliJsPath() {
+        const res = Utils.joinPath(this.context.extensionUri, CLI_JS).fsPath
+        return res
     }
 
     aiRequestCache() {
@@ -529,9 +529,9 @@ ${e.message}`
         const spec = `# Specification
 
 ${files
-    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
-    .map((fn) => `-   [${fn}](./${fn})`)
-    .join("\n")}
+                .map((uri) => this.host.path.relative(fspath, uri.fsPath))
+                .map((fn) => `-   [${fn}](./${fn})`)
+                .join("\n")}
 `
         this.host.clearVirtualFiles()
         this.host.setVirtualFile(specn, spec)
@@ -610,9 +610,9 @@ ${files
                 r.source = TOOL_NAME
                 r.code = target
                     ? {
-                          value,
-                          target,
-                      }
+                        value,
+                        target,
+                    }
                     : undefined
                 return r
             })

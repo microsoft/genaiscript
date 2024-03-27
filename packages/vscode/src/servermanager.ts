@@ -1,6 +1,4 @@
 import {
-    CLI_JS,
-    GENAISCRIPT_FOLDER,
     HighlightService,
     ICON_LOGO_NAME,
     RetreivalService,
@@ -45,7 +43,7 @@ export class TerminalServerManager implements ServerManager {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         this._terminal.sendText(
-            `node ${host.path.join(GENAISCRIPT_FOLDER, CLI_JS)} serve`
+            `node "${this.state.cliJsPath}" serve`
         )
         this._terminal.show()
     }
