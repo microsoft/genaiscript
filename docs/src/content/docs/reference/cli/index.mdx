@@ -12,7 +12,7 @@ The GenAIScript CLI **`genaiscript`** runs GenAIScript scripts
 outside of Visual Studio.
 
 ```sh
-genaiscript ...
+npx genaiscript ...
 ```
 
 ## Installation
@@ -39,7 +39,15 @@ yarn add -D genaiscript
 ## No Installation (`npx`)
 
 Using [npx](https://docs.npmjs.com/cli/v10/commands/npx), 
-you can run the cli without any prior installation steps. *npx* will install the tool on demand.
+you can run the cli without any prior installation steps. 
+*npx* will install the tool on demand. npx also takes care of tricky operating
+system issues where the tool is not found in the path.
+
+```sh
+npx genaiscript ...
+```
+
+Add `--yes` to skip the confirmation prompt, which is useful in a CI scenario.
 
 ```sh
 npx --yes genaiscript ...
@@ -56,7 +64,7 @@ npx --yes genaiscript@^1.16.0 ...
 Runs a genai script on file and streams the LLM output to stdout.
 
 ```sh
-genaiscript run <script> [files...]
+npx genaiscript run <script> [files...]
 ```
 
 where `<script>` is the id or file path of the tool to run, and `[files...]` is the name of the spec file to run it on.
