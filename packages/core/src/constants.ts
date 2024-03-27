@@ -34,3 +34,4 @@ export const ICON_LOGO_NAME = "genaiscript-logo"
 export const SARIFF_RULEID_PREFIX = "genascript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
+export const GENAI_JS_REGEX = /\.genai\.js$/i

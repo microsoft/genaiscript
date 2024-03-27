@@ -31,6 +31,7 @@ import {
     TOOL_NAME,
     RetreivalSearchResult,
     AbortSignalCancellationToken,
+    GENAI_JS_REGEX,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { debounceAsync } from "./debounce"
@@ -559,7 +560,7 @@ ${files
             specn,
             `# Specification
 
--   [${fn}](./${fn})
+${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ''}
 `
         )
         const gpspecFiles = [specn]

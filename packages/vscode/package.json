@@ -95,7 +95,7 @@
             "editor/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
+                    "when": "!inDebugMode",
                     "group": "genaiscript@1"
                 },
                 {
@@ -110,6 +110,13 @@
                 },
                 {
                     "command": "genaiscript.newfile.gpspec"
+                }
+            ],
+            "editor/title/run": [
+                {
+                    "command": "genaiscript.fragment.prompt",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
+                    "group": "navigation"
                 }
             ],
             "commandPalette": [
@@ -234,7 +241,7 @@
                 "command": "genaiscript.fragment.prompt",
                 "title": "Run GenAiScript...",
                 "category": "GenAIScript",
-                "icon": "$(lightbulb)"
+                "icon": "$(play)"
             },
             {
                 "command": "genaiscript.fragment.debug",

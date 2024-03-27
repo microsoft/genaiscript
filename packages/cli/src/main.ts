@@ -40,6 +40,7 @@ import {
     isCancelError,
     normalizeInt,
     normalizeFloat,
+    GENAI_JS_REGEX,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -62,7 +63,7 @@ const GENERATION_ERROR = -4
 const RUNTIME_ERROR_CODE = -5
 
 class ProgressSpinner implements Progress {
-    constructor(readonly spinner: Ora) {}
+    constructor(readonly spinner: Ora) { }
     report(value: {
         message?: string
         increment?: number
@@ -137,7 +138,6 @@ async function buildProject(options?: {
 }
 
 const gpspecRx = /\.gpspec\.md$/i
-const scriptRx = /\.genai\.js$/i
 async function batch(
     tool: string,
     specs: string[],
@@ -189,7 +189,7 @@ async function batch(
     const maxTokens = normalizeInt(options.maxTokens)
 
     const toolFiles: string[] = []
-    if (scriptRx.test(tool)) toolFiles.push(tool)
+    if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
     const specFiles = new Set<string>()
     for (const arg of specs) {
         const ffs = await host.findFiles(arg)
@@ -226,7 +226,7 @@ async function batch(
         (t) =>
             t.id === tool ||
             (t.filename &&
-                scriptRx.test(tool) &&
+                GENAI_JS_REGEX.test(tool) &&
                 resolve(t.filename) === resolve(tool))
     )
     if (!script) throw new Error(`tool ${tool} not found`)
@@ -255,7 +255,7 @@ async function batch(
                 script,
                 fragment,
                 {
-                    infoCb: () => {},
+                    infoCb: () => { },
                     partialCb: ({ tokensSoFar }) => {
                         tokens = tokensSoFar
                         spinner.suffixText = `${tokens} tokens`
@@ -443,7 +443,7 @@ async function run(
     let md: string
     const files = new Set<string>()
 
-    if (scriptRx.test(tool)) toolFiles.push(tool)
+    if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
 
     if (!specs?.length) {
         specContent = (await getStdin()) || "\n"
@@ -475,8 +475,8 @@ async function run(
         specContent = `${md || "# Specification"}
 
 ${Array.from(files)
-    .map((f) => `-   [${basename(f)}](./${f})`)
-    .join("\n")}
+                .map((f) => `-   [${basename(f)}](./${f})`)
+                .join("\n")}
 `
     }
 
@@ -495,7 +495,7 @@ ${Array.from(files)
         (t) =>
             t.id === tool ||
             (t.filename &&
-                scriptRx.test(tool) &&
+                GENAI_JS_REGEX.test(tool) &&
                 resolve(t.filename) === resolve(tool))
     )
     if (!script) throw new Error(`tool ${tool} not found`)
@@ -551,10 +551,10 @@ ${Array.from(files)
                 /\.(c|t)sv$/i.test(outAnnotations)
                     ? diagnosticsToCSV(res.annotations, csvSeparator)
                     : /\.ya?ml$/i.test(outAnnotations)
-                      ? YAMLStringify(res.annotations)
-                      : /\.sarif$/.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(script, res.annotations)
-                        : JSON.stringify(res.annotations, null, 2)
+                        ? YAMLStringify(res.annotations)
+                        : /\.sarif$/.test(outAnnotations)
+                            ? convertDiagnosticsToSARIF(script, res.annotations)
+                            : JSON.stringify(res.annotations, null, 2)
             )
     }
     if (outChangelogs && res.changelogs?.length)
@@ -602,12 +602,12 @@ ${Array.from(files)
             await write(
                 annotationf,
                 `severity, filename, start, end, message\n` +
-                    res.annotations
-                        .map(
-                            ({ severity, filename, range, message }) =>
-                                `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
-                        )
-                        .join("\n")
+                res.annotations
+                    .map(
+                        ({ severity, filename, range, message }) =>
+                            `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
+                    )
+                    .join("\n")
             )
         }
         if (sariff)
@@ -649,8 +649,7 @@ async function listScripts() {
     const prj = await buildProject()
     prj.templates.forEach((t) =>
         console.log(
-            `${t.id}, ${t.title}, ${t.filename || "builtin"}, ${
-                t.isSystem ? "system" : "user"
+            `${t.id}, ${t.title}, ${t.filename || "builtin"}, ${t.isSystem ? "system" : "user"
             }`
         )
     )
