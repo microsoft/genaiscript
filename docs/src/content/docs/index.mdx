@@ -19,8 +19,13 @@ import { Image} from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
+import vscodeSrc from "../../../public/images/visual-studio-code.png"
+
 import debuggerSrc from '../../assets/debugger.png';
 import debuggerAlt from "../../assets/debugger.png.txt?raw"
+
+import sarifSrc from "../../assets/tla-ai-linter.png"
+import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
 
 
 ```js wrap title="extract-data.genai.js"
@@ -56,7 +61,7 @@ extract data to JSON using the ${schema} schema.`
     </Card>
 </CardGrid>
 
-![A script, the output and the trace](/genaiscript/images/visual-studio-code.png)
+<Image src={vscodeSrc} alt="A screenshot of VSCode with a genaiscript opened" loading="lazy" />
 
 ## Features
 
@@ -79,7 +84,7 @@ $`Summarize FILE. Today is ${new Date()}.`
 
 Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](/genaiscript/getting-started/installation).
 
-<Image src={debuggerSrc} alt={debuggerAlt} />
+<Image src={debuggerSrc} alt={debuggerAlt} loading="lazy" />
 
 </Card>
 
@@ -135,11 +140,14 @@ const { files } = await retreival.search("cats", env.files)
 
 <Card title="Automate" icon="github">
 
-Automate using the [CLI](/genaiscript/reference/cli).
+Automate using the [CLI](/genaiscript/reference/cli),
+integrate reports in your CI/CD pipeline.
 
 ```bash frame="none" wrap
-genaiscript run my-script "*.pdf"
+npx genaiscript run tlaplus-linter "*.tla"
 ```
+
+<Image src={sarifSrc} alt={sarifAlt} loading="lazy" />
 
 </Card>
 
