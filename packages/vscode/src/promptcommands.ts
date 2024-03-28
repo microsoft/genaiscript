@@ -25,21 +25,6 @@ export function activatePromptCommands(state: ExtensionState) {
             vscode.commands.executeCommand("genaiscript.prompt.create")
         ),
         vscode.commands.registerCommand(
-            "genaiscript.newfile.gpspec",
-            async () => {
-                const newFile = Utils.joinPath(
-                    vscode.workspace.workspaceFolders[0]?.uri,
-                    "untitled.gpspec.md"
-                ).with({
-                    scheme: "untitled",
-                })
-                await vscode.workspace.openTextDocument(newFile)
-                const edit = new vscode.WorkspaceEdit()
-                edit.insert(newFile, new vscode.Position(0, 0), TEMPLATE)
-                vscode.workspace.applyEdit(edit)
-            }
-        ),
-        vscode.commands.registerCommand(
             "genaiscript.prompt.refresh",
             async () => {
                 await state.parseWorkspace()

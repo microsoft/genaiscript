@@ -107,9 +107,6 @@
             "file/newFile": [
                 {
                     "command": "genaiscript.newfile.script"
-                },
-                {
-                    "command": "genaiscript.newfile.gpspec"
                 }
             ],
             "editor/title/run": [
@@ -126,10 +123,6 @@
                 },
                 {
                     "command": "genaiscript.newfile.script",
-                    "when": "false"
-                },
-                {
-                    "command": "genaiscript.newfile.gpspec",
                     "when": "false"
                 },
                 {
@@ -269,11 +262,6 @@
             {
                 "command": "genaiscript.newfile.script",
                 "title": "GenAiScript File",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.newfile.gpspec",
-                "title": "GPSpec File",
                 "category": "GenAIScript"
             },
             {
