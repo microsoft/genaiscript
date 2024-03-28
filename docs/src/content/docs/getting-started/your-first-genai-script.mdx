@@ -79,10 +79,19 @@ and the model. The metadata is used to display the script in the UI and configur
 ```js title="proofreader.genai.js"
 // the metadata
 script({
+    // user interface
     title: "Technical proofreading",
     description: "Reviews the text as a tech writer.",
+    group: "documentation",
+    // model
+    temperature: 0
 })
 ```
+
+The `title`, `description`, and `group` properties are used to display the script in the UI
+and can be helpful when the user is searching for a script.
+
+![The quickpick entry for the snippet above](../../../assets/vscode-select-script.png)
 
 ## Next steps
 
