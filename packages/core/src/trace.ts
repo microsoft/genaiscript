@@ -147,10 +147,7 @@ ${title}
         this.guarded(() => {
             this.content += `\n> ❌ ${message}\n`
             const err = serializeError(error)
-            this.fence(err.message)
-            Object.entries(err).filter(([key]) => key !== "message").forEach(([key, value]) => {
-                this.itemValue(key, value)
-            })
+            this.fence(YAMLStringify(error), "yaml")
         })
     }
 }
