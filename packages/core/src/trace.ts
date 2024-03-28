@@ -2,11 +2,11 @@ import { CHANGE, TOOL_ID } from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
+import { serializeError } from "./error"
 
 export class MarkdownTrace
     extends EventTarget
-    implements ChatFunctionCallTrace
-{
+    implements ChatFunctionCallTrace {
     private _content: string = ""
 
     constructor() {
@@ -141,16 +141,11 @@ ${title}
         )
     }
 
-    error(message: string, exception?: unknown) {
+    error(message: string, error?: unknown) {
         this.guarded(() => {
             this.content += `\n> ❌ ${message}\n`
-            if (typeof exception === "string") this.fence(exception)
-            else if (exception)
-                this.fence(
-                    `${(exception as Error).message}\n${
-                        (exception as Error).stack || ""
-                    }`
-                )
+            const err = serializeError(error)
+            this.fence(YAMLStringify(err))
         })
     }
 }

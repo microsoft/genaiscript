@@ -11,7 +11,7 @@ export function estimateTokens(model: string, text: string) {
     try {
         return encode(text).length
     } catch (e) {
-        logError(e.message)
+        logError(e)
         return text.length >> 2
     }
 }
@@ -46,7 +46,7 @@ export function estimateChatTokens(
         const chatTokens = encodeChat(chat, model as any)
         return chatTokens.length | 0
     } catch (e) {
-        logError(e.message)
+        logError(e)
         return JSON.stringify(messages).length >> 2
     }
 }

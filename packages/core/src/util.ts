@@ -1,4 +1,5 @@
 import { GENAISCRIPT_FOLDER } from "./constants"
+import { ErrorObject, serializeError } from "./error"
 import { LogLevel, host } from "./host"
 
 export function trimNewlines(s: string) {
@@ -49,7 +50,7 @@ export function throttle(handler: () => void, delay: number): () => void {
 export function arrayShuffle<T>(a: T[]): T[] {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
-        ;[a[i], a[j]] = [a[j], a[i]]
+            ;[a[i], a[j]] = [a[j], a[i]]
     }
     return a
 }
@@ -196,8 +197,11 @@ export function logWarn(msg: string) {
     host.log(LogLevel.Warn, msg)
 }
 
-export function logError(msg: string) {
-    host.log(LogLevel.Error, msg)
+export function logError(msg: string | Error | ErrorObject) {
+    const e = serializeError(msg)
+    host.log(LogLevel.Error, e.message || "error")
+    if (e.stack)
+        host.log(LogLevel.Verbose, e.stack)
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {

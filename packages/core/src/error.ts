@@ -1,22 +1,48 @@
 import { RequestError } from "./chat"
+import { serializeError as rawSerializeError } from 'serialize-error';
 
-export function createCancelError(msg: string) {
-    const e = new Error(msg)
-    ;(e as any).__cancel = true
-    return e
+export interface ErrorObject {
+    name?: string;
+    message?: string;
+    stack?: string;
+    cause?: unknown;
+    code?: string;
+};
+
+export function serializeError(e: unknown | string | Error | ErrorObject): ErrorObject {
+    if (e instanceof Error)
+        return rawSerializeError(e, { maxDepth: 3 })
+    else if (e instanceof Object) {
+        const obj = e as ErrorObject
+        return {
+            name: obj.name,
+            message: obj.message,
+            stack: obj.stack,
+            cause: obj.cause,
+            code: obj.code
+        }
+    } else if (typeof e === "string")
+        return { message: e }
+    else if (e !== undefined && e !== null)
+        return { message: e.toString?.() }
+    else return {}
 }
 
-export function throwError(e: string | Error, cancel?: boolean) {
-    if (typeof e === "string") e = new Error(e)
-    if (cancel)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e as any).__cancel = true
-    throw e
+export class CancelError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = "CancelError"
+    }
+}
+
+export function createCancelError(msg: string): CancelError {
+    const e = new CancelError(msg)
+    return e
 }
 
 export function isCancelError(e: Error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return !!(e as any)?.__cancel || e.name === "AbortError"
+    return e.name === "CancelError" || e.name === "AbortError"
 }
 
 export function isTokenError(e: Error) {

@@ -6,7 +6,6 @@ import { OAIToken, host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { throwError } from "./error"
 import { upsert, search } from "./retreival"
 import { outline } from "./highlights"
 import { readText } from "./fs"
@@ -29,6 +28,7 @@ import {
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify, INITryParse } from "./ini"
+import { CancelError } from "./error"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -192,8 +192,8 @@ export function createPromptContext(
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
-        script: () => {},
-        system: () => {},
+        script: () => { },
+        system: () => { },
         env,
         path,
         fs,
@@ -215,7 +215,7 @@ export function createPromptContext(
             appendPromptChild(createFileMergeNode(fn))
         },
         cancel: (reason?: string) => {
-            throwError(reason || "user cancelled", true)
+            throw new CancelError(reason || "user cancelled")
         },
         defData: (name, data, defOptions) => {
             appendPromptChild(createDefDataNode(name, data, env, defOptions))

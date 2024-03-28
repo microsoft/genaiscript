@@ -72,7 +72,7 @@ export async function PDFTryParse(
         }
         return pages
     } catch (error) {
-        logError(error.message)
+        logError(error)
         return undefined
     }
 }
