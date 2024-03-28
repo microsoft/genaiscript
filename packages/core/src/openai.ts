@@ -1,4 +1,3 @@
-import { initToken } from "./oai_token"
 import { logError, logVerbose } from "./util"
 import { host } from "./host"
 import {
@@ -16,9 +15,9 @@ import {
     ChatCompletionResponse,
     ChatCompletionToolCall,
     LanguageModel,
-    RequestError,
     getChatCompletionCache,
 } from "./chat"
+import { RequestError } from "./error"
 
 const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
@@ -137,11 +136,11 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         let body: string
         try {
             body = await r.text()
-        } catch (e) {}
+        } catch (e) { }
         let bodyJSON: { error: unknown }
         try {
             bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) {}
+        } catch (e) { }
         throw new RequestError(
             r.status,
             r.statusText,

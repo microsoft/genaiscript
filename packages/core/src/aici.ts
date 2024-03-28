@@ -2,14 +2,13 @@ import {
     ChatCompletionHandler,
     ChatCompletionResponse,
     LanguageModel,
-    RequestError,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import wrapFetch from "fetch-retry"
 import { fromHex, logError, logVerbose, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { host } from "./host"
-import { NotSupportedError } from "./error"
+import { NotSupportedError, RequestError } from "./error"
 import { ChatCompletionContentPartText } from "openai/resources"
 
 function renderAICINode(node: AICINode) {

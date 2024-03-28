@@ -1,9 +1,6 @@
 import {
-    ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionTool,
-    RequestError,
-    toChatCompletionUserMessage,
 } from "./chat"
 import { Fragment, PromptTemplate } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
@@ -24,7 +21,6 @@ import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { validateFencesWithSchema } from "./schema"
 import { CORE_VERSION } from "./version"
-import { createCancelError } from "./error"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
@@ -34,6 +30,7 @@ import { FragmentTransformResponse, expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
 import { initToken } from "./oai_token"
+import { CancelError, RequestError } from "./error"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -188,7 +185,7 @@ export async function runTemplate(
     if (!success) {
         const text = success === null ? "Script cancelled" : "Script failed"
         return <FragmentTransformResponse>{
-            error: success === null ? createCancelError(text) : new Error(text),
+            error: success === null ? new CancelError(text) : new Error(text),
             prompt: messages,
             vars,
             trace: trace.content,
@@ -305,11 +302,8 @@ export async function runTemplate(
                 status()
             }
         } catch (error: unknown) {
+            trace.error(`llm error`, error)
             if (error instanceof TypeError) {
-                trace.heading(3, `Request error`)
-                trace.item(error.message)
-                if (error.cause) trace.fence(error.cause)
-                if (error.stack) trace.fence(error.stack)
                 resp = {
                     text: "Unexpected error",
                 }

@@ -107,6 +107,8 @@ ${title}
     }
 
     fence(message: string | unknown, contentType?: string) {
+        if (message === undefined || message === null) return
+
         let res: string
         if (typeof message !== "string") {
             if (contentType === "json") {
@@ -145,7 +147,10 @@ ${title}
         this.guarded(() => {
             this.content += `\n> ❌ ${message}\n`
             const err = serializeError(error)
-            this.fence(YAMLStringify(err))
+            this.fence(err.message)
+            Object.entries(err).filter(([key]) => key !== "message").forEach(([key, value]) => {
+                this.itemValue(key, value)
+            })
         })
     }
 }

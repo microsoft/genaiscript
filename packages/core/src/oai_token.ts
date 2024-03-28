@@ -1,5 +1,5 @@
-import { RequestError } from "./chat"
 import { AZURE_OPENAI_API_VERSION } from "./constants"
+import { RequestError } from "./error"
 import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
