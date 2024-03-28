@@ -44,9 +44,9 @@ export class RequestError extends Error {
     }
 }
 
-export function isCancelError(e: Error) {
+export function isCancelError(e: Error | ErrorObject) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return e.name === "CancelError" || e.name === "AbortError"
+    return e?.name === "CancelError" || e?.name === "AbortError"
 }
 
 export function isTokenError(e: Error) {
