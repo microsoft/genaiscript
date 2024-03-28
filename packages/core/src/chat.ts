@@ -79,22 +79,6 @@ export interface ChatCompletionsOptions {
     maxDelay?: number
 }
 
-export class RequestError extends Error {
-    constructor(
-        public readonly status: number,
-        public readonly statusText: string,
-        public readonly body: any,
-        public readonly bodyText: string,
-        readonly retryAfter: number
-    ) {
-        super(
-            `OpenAI error: ${
-                body?.message ? body?.message : `${statusText} (${status})`
-            }`
-        )
-    }
-}
-
 export function toChatCompletionUserMessage(
     expanded: string,
     images?: PromptImage[]

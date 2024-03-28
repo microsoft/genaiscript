@@ -1,4 +1,5 @@
 import { CancellationToken } from "./cancellation"
+import { ErrorObject } from "./error"
 import { Progress } from "./progress"
 import { MarkdownTrace } from "./trace"
 
@@ -65,7 +66,7 @@ export interface RetreivalClientOptions {
 
 export interface ResponseStatus {
     ok: boolean
-    error?: string
+    error?: ErrorObject
     status?: number
 }
 

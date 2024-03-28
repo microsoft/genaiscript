@@ -24,7 +24,7 @@ export class TerminalServerManager implements ServerManager {
                     try {
                         this.client?.kill()
                     } catch (error) {
-                        logError(error.message)
+                        logError(error)
                     }
                     this._terminal = undefined
                 }

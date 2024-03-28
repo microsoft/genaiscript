@@ -2,11 +2,12 @@ import { CHANGE, TOOL_ID } from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
+import { ErrorObject, serializeError } from "./error"
 
 export class MarkdownTrace
     extends EventTarget
-    implements ChatFunctionCallTrace
-{
+    implements ChatFunctionCallTrace {
+    readonly errors: ErrorObject[] = []
     private _content: string = ""
 
     constructor() {
@@ -107,6 +108,8 @@ ${title}
     }
 
     fence(message: string | unknown, contentType?: string) {
+        if (message === undefined || message === null) return
+
         let res: string
         if (typeof message !== "string") {
             if (contentType === "json") {
@@ -141,16 +144,14 @@ ${title}
         )
     }
 
-    error(message: string, exception?: unknown) {
+    error(message: string, error?: unknown) {
         this.guarded(() => {
-            this.content += `\n> ❌ ${message}\n`
-            if (typeof exception === "string") this.fence(exception)
-            else if (exception)
-                this.fence(
-                    `${(exception as Error).message}\n${
-                        (exception as Error).stack || ""
-                    }`
-                )
+            this.heading(3, `❌ ${message}`)
+            if (error) {
+                const err = serializeError(error)
+                this.errors.push(err)
+                this.fence(YAMLStringify(error), "yaml")
+            }
         })
     }
 }

@@ -244,8 +244,12 @@ retrieval/
             const req = await this.startAIRequest(options)
             if (!req) return
             const res = await req?.request
-            const { edits, text } = res || {}
-            if (text)
+            const { edits, text, error } = res || {}
+            if (error)
+                vscode.commands.executeCommand(
+                    "genaiscript.request.open.trace"
+                )
+            else if (text)
                 vscode.commands.executeCommand(
                     "genaiscript.request.open.output"
                 )

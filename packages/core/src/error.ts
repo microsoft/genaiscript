@@ -1,22 +1,52 @@
-import { RequestError } from "./chat"
+import { serializeError as rawSerializeError, ErrorObject as RawErrorObject } from 'serialize-error';
 
-export function createCancelError(msg: string) {
-    const e = new Error(msg)
-    ;(e as any).__cancel = true
-    return e
+export type ErrorObject = RawErrorObject;
+
+export function serializeError(e: unknown | string | Error | ErrorObject): ErrorObject {
+    if (e instanceof Error)
+        return rawSerializeError(e, { maxDepth: 3, useToJSON: false })
+    else if (e instanceof Object) {
+        const obj = e as ErrorObject
+        return obj
+    } else if (typeof e === "string")
+        return { message: e }
+    else if (e !== undefined && e !== null)
+        return { message: e.toString?.() }
+    else return {}
 }
 
-export function throwError(e: string | Error, cancel?: boolean) {
-    if (typeof e === "string") e = new Error(e)
-    if (cancel)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e as any).__cancel = true
-    throw e
+export class CancelError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = "CancelError"
+    }
 }
 
-export function isCancelError(e: Error) {
+export class NotSupportedError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = "NotSupportedError"
+    }
+}
+
+export class RequestError extends Error {
+    constructor(
+        public readonly status: number,
+        public readonly statusText: string,
+        public readonly body: any,
+        public readonly bodyText: string,
+        readonly retryAfter: number
+    ) {
+        super(
+            `LLM error: ${body?.message ? body?.message : `${statusText} (${status})`
+            }`
+        )
+    }
+}
+
+export function isCancelError(e: Error | ErrorObject) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return !!(e as any)?.__cancel || e.name === "AbortError"
+    return e?.name === "CancelError" || e?.name === "AbortError"
 }
 
 export function isTokenError(e: Error) {
@@ -29,11 +59,4 @@ export function isRequestError(e: Error, statusCode?: number, code?: string) {
         (statusCode === undefined || statusCode === e.status) &&
         (code === undefined || code === e.body?.code)
     )
-}
-
-export class NotSupportedError extends Error {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message)
-        this.name = "NotSupportedError"
-    }
 }

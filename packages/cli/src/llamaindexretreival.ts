@@ -16,6 +16,7 @@ import {
     fileExists,
     installImport,
     lookupMime,
+    serializeError,
 } from "genaiscript-core"
 import type { BaseReader, NodeWithScore, Metadata } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
@@ -26,7 +27,7 @@ class BlobFileSystem implements GenericFileSystem {
     constructor(
         readonly filename: string,
         readonly blob: Blob
-    ) {}
+    ) { }
     writeFile(path: string, content: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
@@ -66,7 +67,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
     private module: PromiseType<ReturnType<typeof tryImportLlamaIndex>>
     private READERS: Record<string, BaseReader>
 
-    constructor(readonly host: Host) {}
+    constructor(readonly host: Host) { }
 
     async init(trace?: MarkdownTrace) {
         if (this.module) return
@@ -198,7 +199,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         if (!reader)
             return {
                 ok: false,
-                error: `no reader for content type '${type}'`,
+                error: serializeError(new Error(`no reader for content type '${type}'`)),
             }
         const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(

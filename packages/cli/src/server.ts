@@ -9,6 +9,7 @@ import {
     outline,
     CORE_VERSION,
     ServerResponse,
+    serializeError,
 } from "genaiscript-core"
 
 export async function startServer(options: { port: string }) {
@@ -76,7 +77,7 @@ export async function startServer(options: { port: string }) {
                 }
                 response.ok = true
             } catch (e) {
-                response = { ok: false, error: e.message }
+                response = { ok: false, error: serializeError(e) }
             } finally {
                 if (response.error) logError(response.error)
                 ws.send(JSON.stringify({ id, response }))
