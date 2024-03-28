@@ -324,7 +324,6 @@ export async function runTemplate(
                 resp = { text: "Request cancelled" }
                 error = undefined
             } else {
-                trace.heading(3, `Fetch error`)
                 trace.error(`fetch error`, error)
                 resp = { text: "Unexpected error" }
             }
