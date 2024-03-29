@@ -55,7 +55,8 @@ def("FILES", env.files, {
 
 ## the Task
 
-The `$` function is used to build the prompt text. The `$` renders and writes the text to the prompt. 
+The `$` function is used to build the prompt text, it renders and writes the text to the prompt
+(`$` is a [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)).
 
 ```js title="proofreader.genai.js"
 // the task
@@ -64,11 +65,14 @@ $`You are an expert technical writer and proofreader.
 Review the documents in FILE and report the 5 most important issues.`
 ```
 
-You can reference the LLM variable defined with `def` freely in the text as well.
+`$` supports placeholders, `${...}`. You also can reference 
+the LLM variable defined with `def` freely in the text as well.
 
 ```js title="proofreader.genai.js"
 const files = def("FILE", env.files)
-$`Review the documents in ${files} and report the 5 most important issues.`
+const n = 5
+$`Review the documents in ${files} 
+  and report the ${n} most important issues.`
 ```
 
 ## the Metadata
