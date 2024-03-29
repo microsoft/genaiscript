@@ -17,7 +17,6 @@ import {
     installImport,
     lookupMime,
     serializeError,
-    fetch,
     createFetch,
 } from "genaiscript-core"
 import type { BaseReader, NodeWithScore, Metadata } from "llamaindex"
