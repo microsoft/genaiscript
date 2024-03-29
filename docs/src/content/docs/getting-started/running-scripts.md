@@ -8,7 +8,7 @@ sidebar:
 
 :::caution
 
-Script in the context of your environment.
+Script are executed in the context of your environment.
 **Only run trusted scripts.**
 
 :::
