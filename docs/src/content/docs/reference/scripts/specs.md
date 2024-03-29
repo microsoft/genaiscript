@@ -6,7 +6,7 @@ sidebar:
   order: 100
 ---
 
-To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run "Run GenAIScript" to see the results.
+To start using GenAIScript, create a new `.gpspec.md` file and start adding content as markdown. Right click and run **Run GenAIScript...** to see the results.
 
 ```markdown
 # email address recognizer

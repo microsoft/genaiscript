@@ -17,16 +17,21 @@ In Visual Studio Code, the location where you start running a script determines 
 
 ## Single file
 
--   Right click on a file in the Explorer and select `Run GenAIScript`.
--   Or right click in a file editor and select `Run GenAIScript`.
+-   Right click on a file in the Explorer and select **Run GenAIScript...**.
+-   Or right click in a file editor and select **Run GenAIScript...**.
 
-The `env.files` will contain a single element with the selected file.
+The `env.files` array will contain a single element with the selected file.
+
+![Context menu to run GenAIScript on a file](../../../assets/vscode-file-run.png)
+
 
 ## Folder
 
--   Right click on a folder in the Explorer and select `Run GenAIScript`.
+-   Right click on a folder in the Explorer and select **Run GenAIScript...**s.
 
-The `env.files` will contain all nested files under that folder.
+The `env.files` array will contain all nested files under that folder.
+
+![Context menu to run GenAIScript on a folder](../../../assets/vscode-folder-run.png)
 
 ## Analyze results
 
@@ -34,7 +39,9 @@ By default, GenAIScript opens the output preview which shows a rendered view of 
 
 You can also use the **Trace** to review the each transformation step of the script execution.
 
--   Click on the GenAIScript status bar and select `Trace`
+-   Click on the GenAIScript status bar icon and select **Trace**
+
+![Menu opened by clicking the vscode status bar](../../../assets/vscode-statusbar-trace.png)
 
 ## Next steps
 
