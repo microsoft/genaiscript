@@ -2,8 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
-import "isomorphic-fetch"
-import { EXTENSION_ID, TOOL_NAME, logError } from "genaiscript-core"
+import { EXTENSION_ID, TOOL_NAME } from "genaiscript-core"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
@@ -15,15 +14,6 @@ import { activateRetreivalCommands } from "./retreivalcommands"
 // import { activateTokensStatusBar } from "./tokenstatusbar"
 
 export async function activate(context: ExtensionContext) {
-    if (typeof WebSocket === "undefined") {
-        try {
-            require("websocket-polyfill")
-        } catch (err) {
-            console.error("websocket polyfill failed")
-            console.error(err)
-        }
-    }
-
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)

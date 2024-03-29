@@ -4,12 +4,12 @@ import {
     LanguageModel,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
-import wrapFetch from "fetch-retry"
-import { fromHex, logError, logVerbose, utf8Decode } from "./util"
+import { fromHex, logError, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
 import { ChatCompletionContentPartText } from "openai/resources"
+import { createFetch } from "./fetch"
 
 function renderAICINode(node: AICINode) {
     const { type, name } = node
@@ -202,18 +202,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
     const controller_arg = source.join("\n")
 
-    const fetchRetry = await wrapFetch(fetch, {
-        retryOn: [429, 500],
-        retries: retry,
-        retryDelay: (attempt, error, response) => {
-            if (attempt > 0) {
-                trace.item(`retry #${attempt}`)
-                logVerbose(`LLM throttled, retry #${attempt}...`)
-            }
-            return 0
-        },
-    })
-
+    const fetchRetry = await createFetch({ trace })
     const postReq = {
         controller: AICI_CONTROLLER,
         controller_arg,

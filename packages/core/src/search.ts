@@ -1,4 +1,5 @@
 import { BING_SEARCH_ENDPOINT } from "./constants"
+import { createFetch } from "./fetch"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 
@@ -61,6 +62,7 @@ export async function bingSearch(
         safeSearch,
     })
     const url = endPoint + "?" + query
+    const fetch = await createFetch()
     const res = await fetch(url, {
         method: "GET",
         headers: {

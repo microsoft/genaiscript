@@ -337,7 +337,6 @@
         "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
     },
     "devDependencies": {
-        "@types/isomorphic-fetch": "^0.0.39",
         "@types/mocha": "^10.0.6",
         "@types/vscode": "^1.86.0",
         "@typescript-eslint/eslint-plugin": "^7.1.1",
@@ -347,7 +346,6 @@
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
         "eslint": "^8.57.0",
-        "isomorphic-fetch": "^3.0.0",
         "mocha": "^10.3.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
