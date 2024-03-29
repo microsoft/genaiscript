@@ -18,7 +18,7 @@ const locale = env.vars.locale || "en-US"
 Use the `vars` field in the CLI to override variables. vars takes a sequence of `key=value` pairs.
 
 ```sh
-genaiscript run ... --vars myvar=myvalue myvar2=myvalue2 ...
+npx genaiscript run ... --vars myvar=myvalue myvar2=myvalue2 ...
 ```
 
 ## Spec Variables
