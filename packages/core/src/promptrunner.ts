@@ -31,6 +31,7 @@ import { resolveLanguageModel } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
 import { initToken } from "./oai_token"
 import { CancelError, RequestError } from "./error"
+import { createFetch } from "./fetch"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -40,6 +41,7 @@ async function fragmentVars(
     const { file } = frag
     const project = file.project
 
+    const fetch = await createFetch()
     const files: LinkedFile[] = []
     const fr = frag
     for (const ref of fr.references) {

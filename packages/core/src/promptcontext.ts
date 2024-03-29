@@ -29,6 +29,7 @@ import {
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify, INITryParse } from "./ini"
 import { CancelError } from "./error"
+import { createFetch } from "./fetch"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -144,6 +145,7 @@ export function createPromptContext(
                     (async () => {
                         let bytes: Uint8Array
                         if (/^https?:\/\//i.test(file.filename)) {
+                            const fetch = await createFetch()
                             const resp = await fetch(file.filename)
                             if (!resp.ok) return undefined
                             const buffer = await resp.arrayBuffer()
@@ -234,6 +236,7 @@ export function createPromptContext(
             let status = 404
             let text: string
             if (/^https?:\/\//i.test(url)) {
+                const fetch = await createFetch()
                 const resp = await fetch(url, fetchOptions)
                 ok = resp.ok
                 status = resp.status

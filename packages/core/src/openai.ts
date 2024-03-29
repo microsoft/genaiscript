@@ -6,7 +6,6 @@ import {
     MAX_CACHED_TOP_P,
     TOOL_ID,
 } from "./constants"
-import wrapFetch from "fetch-retry"
 import { estimateTokens } from "./tokens"
 import { YAMLStringify } from "./yaml"
 import {
@@ -18,6 +17,7 @@ import {
     getChatCompletionCache,
 } from "./chat"
 import { RequestError } from "./error"
+import { createFetch } from "./fetch"
 
 const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
@@ -94,19 +94,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     let numTokens = 0
-
-    const fetchRetry = await wrapFetch(fetch, {
-        retryOn: [429, 500],
-        retries: retry,
-        retryDelay: (attempt, error, response) => {
-            if (attempt > 0) {
-                trace.item(`retry #${attempt}`)
-                logVerbose(`LLM throttled, retry #${attempt}...`)
-            }
-            return 0
-        },
-    })
-
+    const fetchRetry = await createFetch({ trace })
     trace.dispatchChange()
 
     trace.detailsFenced("✉️ messages", postReq, "json")

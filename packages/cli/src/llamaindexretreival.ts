@@ -17,6 +17,8 @@ import {
     installImport,
     lookupMime,
     serializeError,
+    fetch,
+    createFetch,
 } from "genaiscript-core"
 import type { BaseReader, NodeWithScore, Metadata } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
@@ -176,6 +178,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
                 type: mimeType || "text/plain",
             })
         } else if (/^http?s:\/\//i.test(filenameOrUrl)) {
+            const fetch = await createFetch()
             const res = await fetch(filenameOrUrl)
             blob = await res.blob()
         } else {
