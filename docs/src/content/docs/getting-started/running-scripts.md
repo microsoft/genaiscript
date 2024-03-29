@@ -13,7 +13,7 @@ Script are executed in the context of your environment.
 
 :::
 
-In Visual Studio Code, the location where you start running a script determines the entries in the `env.files` variable.
+In Visual Studio Code, the location where you start running a script determines the entries in the [`env.files`](/genaiscript/reference/scripts/context) variable.
 
 ## Single file
 
