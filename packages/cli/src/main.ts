@@ -26,7 +26,6 @@ import {
     RUNTIME_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
 } from "genaiscript-core"
-import ora from "ora"
 import { NodeHost } from "./nodehost"
 import { Command, program } from "commander"
 import getStdin from "get-stdin"
@@ -37,7 +36,7 @@ import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION } from "./version"
 import { runScript } from "./run"
 import { buildProject } from "./build"
-import { ProgressSpinner } from "./spinner"
+import { createProgressSpinner } from "./spinner"
 import { batchScript } from "./batch"
 
 async function expandFiles(files: string[], excludedFiles?: string[]) {
@@ -121,19 +120,17 @@ async function parseDOCX(file: string) {
 }
 
 async function jsonl2json(files: string[]) {
-    const spinner = ora({ interval: 200 })
+    const spinner = createProgressSpinner(`converting...`)
     for (const file of await expandFiles(files)) {
-        spinner.suffixText = ""
-        spinner.start(file)
+        spinner.report({ message: file })
         if (!isJSONLFilename(file)) {
-            spinner.suffixText = "not a jsonl file"
-            spinner.fail()
+            spinner.report({ succeeded: false })
             continue
         }
         const objs = await readJSONL(file)
         const out = replaceExt(file, ".json")
         await writeText(out, JSON.stringify(objs, null, 2))
-        spinner.succeed()
+        spinner.report({ succeeded: true })
     }
 }
 
@@ -164,9 +161,9 @@ async function retreivalIndex(
         return
     }
 
-    const spinner = ora({ interval: 200 }).start(`indexing ${fs.length} files`)
+    const progress = createProgressSpinner(`indexing ${fs.length} files`)
     await upsert(fs, {
-        progress: new ProgressSpinner(spinner),
+        progress,
         indexName,
         model,
         chunkOverlap: normalizeInt(chunkOverlap),
@@ -174,7 +171,6 @@ async function retreivalIndex(
         splitLongSentences,
         summary,
     })
-    spinner.stop()
 }
 
 async function retreivalClear(options: { name: string; summary: boolean }) {
@@ -194,7 +190,7 @@ async function retreivalSearch(
 ) {
     const { excludedFiles, name: indexName, topK, summary } = options || {}
     const files = await expandFiles(filesGlobs, excludedFiles)
-    const spinner = ora({ interval: 200 }).start(
+    const spinner = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
     )
     const res = await search(q, {
@@ -203,7 +199,6 @@ async function retreivalSearch(
         indexName,
         summary,
     })
-    spinner.succeed()
     console.log(YAMLStringify(res))
 }
 

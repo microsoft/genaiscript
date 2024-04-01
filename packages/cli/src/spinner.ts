@@ -1,7 +1,7 @@
-import { Ora } from "ora"
+import ora, { Ora } from "ora"
 import { Progress } from "genaiscript-core"
 
-export class ProgressSpinner implements Progress {
+class ProgressSpinner implements Progress {
     constructor(readonly spinner: Ora) {}
     report(value: {
         message?: string
@@ -15,4 +15,11 @@ export class ProgressSpinner implements Progress {
             this.spinner.fail(message)
         } else if (message) this.spinner.start(message)
     }
+}
+
+export function createProgressSpinner(
+    message: string,
+    interval = 200
+): Progress {
+    return new ProgressSpinner(ora({ interval }).start(message))
 }
