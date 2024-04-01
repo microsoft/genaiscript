@@ -57,22 +57,7 @@ import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION } from "./version"
 import { runScript } from "./run"
 import { buildProject } from "./build"
-
-class ProgressSpinner implements Progress {
-    constructor(readonly spinner: Ora) {}
-    report(value: {
-        message?: string
-        increment?: number
-        succeeded?: boolean
-    }): void {
-        const { message, succeeded } = value
-        if (succeeded === true) {
-            this.spinner.succeed(message)
-        } else if (succeeded === false) {
-            this.spinner.fail(message)
-        } else if (message) this.spinner.start(message)
-    }
-}
+import { ProgressSpinner } from "./spinner"
 
 async function expandFiles(files: string[], excludedFiles?: string[]) {
     const res = new Set<string>()
