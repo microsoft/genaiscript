@@ -181,6 +181,7 @@ async function parseMeta(r: PromptTemplate) {
     if (m?.groups?.kind === "system") {
         meta.unlisted = true
         meta.isSystem = true
+        meta.group = meta.group || "system"
     }
     return meta
 }
