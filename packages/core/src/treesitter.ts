@@ -5,7 +5,6 @@ import { resolveFileContent } from "./file"
 
 const EXT_MAP: Record<string, string> = {
     js: "javascript",
-    jsx: "javascript",
     mjs: "javascript",
     cjs: "javascript",
     cs: "c_sharp",
@@ -14,7 +13,7 @@ const EXT_MAP: Record<string, string> = {
     rs: "rust",
     rb: "ruby",
     ts: "typescript",
-    tsx: "typescript",
+    tsx: "tsx",
 }
 
 async function resolveLanguage(filename: string) {
@@ -63,11 +62,11 @@ export async function treeSitterQuery(
 
     try {
         trace?.startDetails("code query")
+        trace?.itemValue(`file`, file.filename)
         trace?.fence(query, "txt")
-
         await init()
         const url = await resolveLanguage(filename)
-        trace?.item(`wasm: ${url}`)
+        trace?.itemValue(`wasm`, url)
         const parser = await createParser(url, options)
         const tree = parser.parse(file.content)
         const lang = parser.getLanguage()
