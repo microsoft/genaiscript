@@ -5,9 +5,7 @@ import {
     upsert,
     search,
     clearIndex,
-    isHighlightSupported,
     loadFiles,
-    outline,
     estimateTokens,
     normalizeInt,
     expandFiles,
@@ -84,19 +82,6 @@ export async function retreivalSearch(
         progress,
     })
     console.log(YAMLStringify(res))
-}
-
-export async function codeOutline(
-    fileGlobs: string[],
-    options: { excludedFiles: string[] }
-) {
-    const files = await loadFiles(
-        (await expandFiles(fileGlobs, options.excludedFiles)).filter(
-            isHighlightSupported
-        )
-    )
-    const res = await outline(files)
-    console.log(res?.response || "")
 }
 
 export async function retreivalTokens(

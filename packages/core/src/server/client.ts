@@ -1,6 +1,5 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
-    HighlightService,
     ResponseStatus,
     RetreivalOptions,
     RetreivalSearchOptions,
@@ -14,13 +13,12 @@ import {
     RequestMessage,
     RequestMessages,
     RetreivalClear,
-    RetreivalOutline,
     RetreivalSearch,
     RetreivalUpsert,
     ServerVersion,
 } from "./messages"
 
-export class WebSocketClient implements RetreivalService, HighlightService {
+export class WebSocketClient implements RetreivalService {
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -132,14 +130,6 @@ export class WebSocketClient implements RetreivalService, HighlightService {
             type: "retreival.upsert",
             filename,
             options,
-        })
-        return res.response
-    }
-
-    async outline(files: LinkedFile[]) {
-        const res = await this.queue<RetreivalOutline>({
-            type: "retreival.outline",
-            files,
         })
         return res.response
     }

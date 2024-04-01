@@ -19,7 +19,6 @@ import { runScript } from "./run"
 import { buildProject } from "./build"
 import { batchScript } from "./batch"
 import {
-    codeOutline,
     retreivalClear,
     retreivalIndex,
     retreivalSearch,
@@ -188,11 +187,6 @@ export async function cli() {
         .action(retreivalClear)
 
     const code = program.command("code").description("Source code processing")
-    code.command("outline")
-        .description("Generates a compact code repository outline")
-        .arguments("<files...>")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .action(codeOutline)
     code.command("query")
         .description("Executes a tree sitter query against a file")
         .arguments("<file> <query>")

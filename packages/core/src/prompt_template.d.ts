@@ -68,7 +68,11 @@ interface PromptOutputProcessorResult {
 
 type PromptOutputProcessorHandler = (
     output: PromptGenerationOutput
-) => PromptOutputProcessorResult | Promise<PromptOutputProcessorResult> | undefined | Promise<undefined>
+) =>
+    | PromptOutputProcessorResult
+    | Promise<PromptOutputProcessorResult>
+    | undefined
+    | Promise<undefined>
 
 interface UrlAdapter {
     contentType?: "text/plain" | "application/json"
@@ -383,15 +387,15 @@ interface FenceOptions {
      * Language of the fenced code block. Defaults to "markdown".
      */
     language?:
-    | "markdown"
-    | "json"
-    | "yaml"
-    | "javascript"
-    | "typescript"
-    | "python"
-    | "shell"
-    | "toml"
-    | string
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | "toml"
+        | string
 
     /**
      * Prepend each line with a line numbers. Helps with generating diffs.
@@ -492,11 +496,11 @@ interface DataFrame {
 interface RunPromptResult {
     text: string
     finishReason?:
-    | "stop"
-    | "length"
-    | "tool_calls"
-    | "content_filter"
-    | "cancel"
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
 }
 
 /**
@@ -804,12 +808,6 @@ interface Retreival {
         files: LinkedFile[]
         fragments: LinkedFile[]
     }>
-
-    /**
-     * Generate an outline of the files
-     * @param files
-     */
-    outline(files: LinkedFile[]): Promise<string>
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">

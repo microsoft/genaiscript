@@ -40,16 +40,9 @@ export interface RetreivalSearch extends RequestMessage {
     response?: RetreivalSearchResponse
 }
 
-export interface RetreivalOutline extends RequestMessage {
-    type: "retreival.outline"
-    files: LinkedFile[]
-    response?: HighlightResponse
-}
-
 export type RequestMessages =
     | ServerKill
     | RetreivalClear
     | RetreivalUpsert
     | RetreivalSearch
-    | RetreivalOutline
     | ServerVersion
