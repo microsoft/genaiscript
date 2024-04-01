@@ -31,7 +31,7 @@ describe("scripts", () => {
         const res = await $`node ${cli} ${cmd}`
         assert(
             res.stdout.includes(
-                "system.json, JSON system prompt, builtin, system"
+                "system.json, JSON system prompt, system, builtin, system"
             )
         )
     })
@@ -39,7 +39,7 @@ describe("scripts", () => {
 
 describe("cli", () => {
     test("help-all", async () => {
-        $`node ${cli} help-all`
+        await $`node ${cli} help-all`
     })
 })
 
