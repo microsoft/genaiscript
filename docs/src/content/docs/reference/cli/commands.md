@@ -165,24 +165,11 @@ Usage: genaiscript code [options] [command]
 Source code processing
 
 Options:
-  -h, --help                    display help for command
+  -h, --help            display help for command
 
 Commands:
-  outline [options] <files...>  Generates a compact code repository outline
-  query <file> <query>          Executes a tree sitter query against a file
-  help [command]                display help for command
-```
-
-### `code outline`
-
-```
-Usage: genaiscript code outline [options] <files...>
-
-Generates a compact code repository outline
-
-Options:
-  -ef, --excluded-files <string...>  excluded files
-  -h, --help                         display help for command
+  query <file> <query>  Executes a tree sitter query against a file
+  help [command]        display help for command
 ```
 
 ### `code query`

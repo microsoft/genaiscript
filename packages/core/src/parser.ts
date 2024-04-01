@@ -46,7 +46,7 @@ const parseTextPlain: Parser = (prj, filename, mime, content) => {
     return file
 }
 
-function isBinaryMimeType(mimeType: string) {
+export function isBinaryMimeType(mimeType: string) {
     return (
         /^(image|audio|video)\//.test(mimeType) ||
         BINARY_MIME_TYPES.includes(mimeType)
