@@ -61,7 +61,7 @@ export async function treeSitterQuery(
     file: LinkedFile,
     query: string,
     options?: { trace?: MarkdownTrace }
-) {
+): Promise<QueryCapture[]> {
     const { filename } = file
     const { trace } = options || {}
 
@@ -83,12 +83,12 @@ export async function treeSitterQuery(
         // try parse
         const tree = parser.parse(file.content)
         trace?.detailsFenced(`tree`, tree.rootNode.toString(), "lisp")
-        const res = q.captures(tree.rootNode)
+        const res: QueryCapture[] = q.captures(tree.rootNode)
         const captures = res
             .map(({ name, node }) => `;;; ${name}\n${node.toString()}`)
             .join("\n")
         trace?.detailsFenced(`captures`, captures, "lisp")
-        return captures
+        return res
     } finally {
         trace?.endDetails()
     }
