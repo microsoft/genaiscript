@@ -43,3 +43,5 @@ export const ANNOTATION_ERROR_CODE = -2
 export const FILES_NOT_FOUND_ERROR_CODE = -3
 export const GENERATION_ERROR_CODE = -4
 export const RUNTIME_ERROR_CODE = -5
+
+export const DOT_ENV_REGEX = /\.env$/i

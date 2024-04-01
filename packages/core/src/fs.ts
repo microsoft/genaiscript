@@ -1,3 +1,4 @@
+import { DOT_ENV_REGEX } from "./constants"
 import { ReadFileOptions, host } from "./host"
 import { utf8Decode, utf8Encode } from "./util"
 
@@ -55,18 +56,36 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
-const DOT_ENV_RX = /\.env$/i
 export function createFileSystem() {
     return Object.freeze(<FileSystem>{
         findFiles: async (glob) =>
-            (await host.findFiles(glob)).filter((f) => !DOT_ENV_RX.test(f)),
+            (await host.findFiles(glob)).filter((f) => !DOT_ENV_REGEX.test(f)),
         readFile: async (filename: string) => {
             let content: string
             try {
-                if (!DOT_ENV_RX.test(filename))
+                if (!DOT_ENV_REGEX.test(filename))
                     content = await readText("workspace://" + filename)
             } catch (e) {}
             return { label: filename, filename, content }
         },
     })
+}
+
+export async function expandFiles(files: string[], excludedFiles?: string[]) {
+    const res = new Set<string>()
+    for (const file of files) {
+        const fs = await host.findFiles(file)
+        for (const f of fs) res.add(f)
+    }
+
+    if (excludedFiles?.length) {
+        for (const arg of excludedFiles) {
+            const ffs = await host.findFiles(arg)
+            for (const f of ffs) {
+                res.delete(f)
+            }
+        }
+    }
+
+    return Array.from(res.values())
 }
