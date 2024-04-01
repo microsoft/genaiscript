@@ -157,11 +157,6 @@ interface PromptTemplate extends PromptLike, ModelOptions {
     system?: SystemPromptId[]
 
     /**
-     * Specifies a folder to create output files into
-     */
-    outputFolder?: string
-
-    /**
      * Specifies the type of output. Default is `markdown`.
      */
     responseType?: PromptTemplateResponseType

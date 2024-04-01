@@ -9,10 +9,7 @@ import {
     templateGroup,
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
-import {
-    checkDirectoryExists,
-    checkFileExists,
-} from "./fs"
+import { checkDirectoryExists, checkFileExists } from "./fs"
 
 type TemplateQuickPickItem = {
     template?: PromptTemplate
@@ -87,31 +84,26 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentPrompt = async (
         options:
             | {
-                fragment?: Fragment | string | vscode.Uri
-                template?: PromptTemplate
-                debug?: boolean
-            }
+                  fragment?: Fragment | string | vscode.Uri
+                  template?: PromptTemplate
+              }
             | vscode.Uri
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
             options = { fragment: options }
-        let { fragment, template, debug } = options || {}
+        let { fragment, template } = options || {}
 
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        if (fragment instanceof vscode.Uri && GENAI_JS_REGEX.test(fragment.path)) {
-            template = state.project.templates.find(p => p.filename === (fragment as vscode.Uri).fsPath)
+        if (
+            fragment instanceof vscode.Uri &&
+            GENAI_JS_REGEX.test(fragment.path)
+        ) {
+            template = state.project.templates.find(
+                (p) => p.filename === (fragment as vscode.Uri).fsPath
+            )
             assert(template !== undefined)
-            /*
-            const uris = await vscode.window.showOpenDialog({
-                canSelectMany: false,
-                openLabel: 'Select env.files',
-                canSelectFolders: true,
-                canSelectFiles: true
-            })
-            fragment = uris?.[0]
-            */
         }
 
         fragment = await resolveSpec(fragment)
@@ -141,7 +133,13 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        const template = await pickTemplate()
+        let template: PromptTemplate
+        if (GENAI_JS_REGEX.test(file.path)) {
+            template = state.project.templates.find(
+                (p) => p.filename === file.fsPath
+            )
+            assert(template !== undefined)
+        } else template = await pickTemplate()
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
             {
@@ -216,8 +214,9 @@ export function templatesToQuickPickItems(
                                     template.filename
                                 )) ??
                             template.id,
-                        description: `${template.id} ${template.description || ""
-                            }`,
+                        description: `${template.id} ${
+                            template.description || ""
+                        }`,
                         template,
                     }
             )
