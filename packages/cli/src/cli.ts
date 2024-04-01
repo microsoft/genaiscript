@@ -27,18 +27,7 @@ import {
 } from "./retreival"
 import { helpAll } from "./help"
 import { jsonl2json, parseDOCX, parseFence, parsePDF } from "./parse"
-
-async function listScripts() {
-    const prj = await buildProject()
-    console.log("id, title, group, filename, system")
-    prj.templates.forEach((t) =>
-        console.log(
-            `${t.id}, ${t.title}, ${t.group || ""}, ${t.filename || "builtin"}, ${
-                t.isSystem ? "system" : "user"
-            }`
-        )
-    )
-}
+import { listScripts } from "./scripts"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
