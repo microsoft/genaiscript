@@ -8808,6 +8808,11 @@ tree-sitter-wasms@^0.1.6:
   resolved "https://registry.npmjs.org/tree-sitter-wasms/-/tree-sitter-wasms-0.1.6.tgz"
   integrity sha512-Q7XG/tNYc/rJrUzCELB2t6Y9Ivk8tzCqQFpJNXWdLmycNE68yTMpS8atr2PGtskiIbg4ai13cZ6Y3hNMDmWJZA==
 
+tree-sitter-wasms@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/tree-sitter-wasms/-/tree-sitter-wasms-0.1.7.tgz#1b40a0d8c1ff666ec07a8873a358bfe4e2e657c3"
+  integrity sha512-/EnmSDDqEnSnIuCqVhSOc14T8r792LmiztqlZMFSRg+4ACrgUWNLvEr2AUP1K76XCJrvuH8liSWfkdQpK41hIA==
+
 trim-lines@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmjs.org/trim-lines/-/trim-lines-3.0.1.tgz"
@@ -9495,6 +9500,11 @@ web-tree-sitter@^0.20.8:
   version "0.20.8"
   resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz#1e371cb577584789cadd75cb49c7ddfbc99d04c8"
   integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==
+
+web-tree-sitter@^0.22.2:
+  version "0.22.2"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.22.2.tgz#44036b26ae95b83f5ef1950ddeffb581eb4370c5"
+  integrity sha512-gY/aw1wNQbTU0m7U5PojDOftsKMbBIpusJ9Ia/y7sfIN4jk9xXLHwQs+eQ3QP772IdjxVqje0hRTCh5CzrWeGg==
 
 webfont@^11.2.26:
   version "11.2.26"
