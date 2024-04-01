@@ -1,4 +1,4 @@
-import Parser from "web-tree-sitter"
+import TreeSitter from "web-tree-sitter"
 import { MarkdownTrace } from "./trace"
 import { host } from "./host"
 import { resolveFileContent } from "./file"
@@ -33,7 +33,7 @@ async function resolveLanguage(filename: string) {
 
 let _initPromise: Promise<void>
 async function init() {
-    if (!_initPromise) _initPromise = Parser.init()
+    if (!_initPromise) _initPromise = TreeSitter.init()
     await _initPromise
 }
 
@@ -42,8 +42,8 @@ async function createParser(
     options?: { trace?: MarkdownTrace }
 ) {
     const { trace } = options || {}
-    const languageWasm = await Parser.Language.load(wasmPath)
-    const parser = new Parser()
+    const languageWasm = await TreeSitter.Language.load(wasmPath)
+    const parser = new TreeSitter()
     parser.setLanguage(languageWasm)
     if (trace) parser.setLogger((message) => trace?.log(message))
     return parser

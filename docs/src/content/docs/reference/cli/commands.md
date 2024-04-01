@@ -108,8 +108,6 @@ Commands:
   index [options] <file...>            Index a set of documents
   search [options] <query> [files...]  Search index
   clear [options]                      Clear index to force re-indexing
-  outline [options] <files...>         Generates a compact code repository
-                                       outline
   help [command]                       display help for command
 ```
 
@@ -159,16 +157,43 @@ Options:
   -h, --help           display help for command
 ```
 
-### `retreival outline`
+## `code`
 
 ```
-Usage: genaiscript retreival outline [options] <files...>
+Usage: genaiscript code [options] [command]
+
+Source code processing
+
+Options:
+  -h, --help                    display help for command
+
+Commands:
+  outline [options] <files...>  Generates a compact code repository outline
+  query <file> <query>          Executes a tree sitter query against a file
+  help [command]                display help for command
+```
+
+### `code outline`
+
+```
+Usage: genaiscript code outline [options] <files...>
 
 Generates a compact code repository outline
 
 Options:
   -ef, --excluded-files <string...>  excluded files
   -h, --help                         display help for command
+```
+
+### `code query`
+
+```
+Usage: genaiscript code query [options] <file> <query>
+
+Executes a tree sitter query against a file
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `serve`

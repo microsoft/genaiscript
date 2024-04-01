@@ -28,6 +28,7 @@ import {
 import { helpAll } from "./help"
 import { jsonl2json, parseDOCX, parseFence, parsePDF } from "./parse"
 import { listScripts } from "./scripts"
+import { codeQuery } from "./codequery"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -186,12 +187,16 @@ export async function cli() {
         //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalClear)
 
-    retreival
-        .command("outline")
+    const code = program.command("code").description("Source code processing")
+    code.command("outline")
         .description("Generates a compact code repository outline")
         .arguments("<files...>")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .action(codeOutline)
+    code.command("query")
+        .description("Executes a tree sitter query against a file")
+        .arguments("<file> <query>")
+        .action(codeQuery)
 
     program
         .command("serve")

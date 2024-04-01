@@ -122,7 +122,7 @@ export function createPromptContext(
         outline: async (files) => {
             try {
                 trace.startDetails(
-                    `🫥 retreival outline (${files?.length || 0} files)`
+                    `🫥 code outline (${files?.length || 0} files)`
                 )
                 const res = await outline(files, { trace })
                 return res?.response
@@ -194,8 +194,8 @@ export function createPromptContext(
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
-        script: () => { },
-        system: () => { },
+        script: () => {},
+        system: () => {},
         env,
         path,
         fs,
