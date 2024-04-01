@@ -33,7 +33,14 @@ async function resolveLanguage(filename: string) {
 
 let _initPromise: Promise<void>
 async function init() {
-    if (!_initPromise) _initPromise = TreeSitter.init()
+    if (!_initPromise)
+        _initPromise = TreeSitter.init({
+            locateFile(scriptName: string, scriptDirectory: string) {
+                const p = require.resolve("web-tree-sitter")
+                const url = host.path.join(host.path.dirname(p), scriptName)
+                return url
+            },
+        })
     await _initPromise
 }
 

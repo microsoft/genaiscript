@@ -1,54 +1,54 @@
 {
-  "name": "genaiscript-core",
-  "version": "1.17.0",
-  "main": "src/index.ts",
-  "license": "MIT",
-  "private": true,
-  "npm": {
-    "publish": false
-  },
-  "repository": {
-    "directory": "packages/core",
-    "url": "https://github.com/microsoft/genaiscript"
-  },
-  "optionalDependencies": {
-    "mammoth": "^1.7.0",
-    "pdfjs-dist": "4.0.379"
-  },
-  "devDependencies": {
-    "@types/ini": "^4.1.0",
-    "@types/mime-types": "^2.1.4",
-    "@types/node": "^20.11.27",
-    "ajv": "^8.12.0",
-    "cross-fetch": "^4.0.0",
-    "csv-parse": "^5.5.5",
-    "dotenv": "^16.4.5",
-    "esbuild": "^0.20.1",
-    "fast-xml-parser": "^4.3.6",
-    "fetch-retry": "^5.0.6",
-    "file-type": "^19.0.0",
-    "gpt-tokenizer": "^2.1.2",
-    "ini": "^4.1.2",
-    "json5": "^2.2.3",
-    "jsonrepair": "^3.6.0",
-    "magic-string": "^0.30.8",
-    "markdown-table": "^3.0.3",
-    "mime-types": "^2.1.35",
-    "minimatch": "^9.0.3",
-    "openai": "^4.29.0",
-    "prettier": "^3.2.5",
-    "pretty-bytes": "^6.1.1",
-    "serialize-error": "^11.0.3",
-    "toml": "^3.0.0",
-    "tree-sitter-wasms": "^0.1.7",
-    "typescript": "^5.3.3",
-    "web-tree-sitter": "^0.22.2",
-    "yaml": "^2.4.1"
-  },
-  "scripts": {
-    "typecheck": "tsc -p src",
-    "prompts:bundle": "node bundleprompts.mjs",
-    "pretypecheck": "yarn prompts:bundle",
-    "test": "node --import tsx --test src/**.test.ts"
-  }
+    "name": "genaiscript-core",
+    "version": "1.17.0",
+    "main": "src/index.ts",
+    "license": "MIT",
+    "private": true,
+    "npm": {
+        "publish": false
+    },
+    "repository": {
+        "directory": "packages/core",
+        "url": "https://github.com/microsoft/genaiscript"
+    },
+    "optionalDependencies": {
+        "mammoth": "^1.7.0",
+        "pdfjs-dist": "4.0.379",
+        "web-tree-sitter": "^0.22.2"
+    },
+    "devDependencies": {
+        "@types/ini": "^4.1.0",
+        "@types/mime-types": "^2.1.4",
+        "@types/node": "^20.11.27",
+        "ajv": "^8.12.0",
+        "cross-fetch": "^4.0.0",
+        "csv-parse": "^5.5.5",
+        "dotenv": "^16.4.5",
+        "esbuild": "^0.20.1",
+        "fast-xml-parser": "^4.3.6",
+        "fetch-retry": "^5.0.6",
+        "file-type": "^19.0.0",
+        "gpt-tokenizer": "^2.1.2",
+        "ini": "^4.1.2",
+        "json5": "^2.2.3",
+        "jsonrepair": "^3.6.0",
+        "magic-string": "^0.30.8",
+        "markdown-table": "^3.0.3",
+        "mime-types": "^2.1.35",
+        "minimatch": "^9.0.3",
+        "openai": "^4.29.0",
+        "prettier": "^3.2.5",
+        "pretty-bytes": "^6.1.1",
+        "serialize-error": "^11.0.3",
+        "toml": "^3.0.0",
+        "tree-sitter-wasms": "^0.1.7",
+        "typescript": "^5.3.3",
+        "yaml": "^2.4.1"
+    },
+    "scripts": {
+        "typecheck": "tsc -p src",
+        "prompts:bundle": "node bundleprompts.mjs",
+        "pretypecheck": "yarn prompts:bundle",
+        "test": "node --import tsx --test src/**.test.ts"
+    }
 }
