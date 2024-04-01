@@ -113,7 +113,12 @@
                 {
                     "command": "genaiscript.fragment.prompt",
                     "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
-                    "group": "navigation"
+                    "group": "genaiscript@1"
+                },
+                {
+                    "command": "genaiscript.fragment.debug",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
+                    "group": "genaiscript@2"
                 }
             ],
             "commandPalette": [

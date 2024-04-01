@@ -4,7 +4,7 @@ system({
 })
 
 const folder =
-    env.vars["outputFolder"] || env.template.outputFolder || "."
+    env.vars["outputFolder"] || "."
 $`## Files
 
 When generating or updating files you will use the following syntax:`
@@ -32,16 +32,3 @@ if (folder !== ".") $`When generating new files, place files in folder "${folder
 $`If a file does not have changes, do not regenerate.`
 $`Do NOT emit line numbers in file.`
 $`CSV files are inlined as markdown tables.`
-
-$`
-### JSON Schema
-
-When you generate JSON or YAML according to a named schema, 
-you MUST add the schema identifier in the code fence header.
-`
-
-def(
-    `File ${folder}/data.json`,
-    `...`,
-    { language: "json", schema: "CITY_SCHEMA" }
-)

@@ -169,14 +169,18 @@ export async function expandTemplate(
 
     const systems = (template.system ?? []).slice(0)
     if (template.system === undefined) {
+        const useSchema = /defschema/i.test(jsSource)
         systems.push("system")
         systems.push("system.explanations")
         // select file expansion type
         if (/diff/i.test(jsSource)) systems.push("system.diff")
         else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else systems.push("system.files")
+        else {
+            systems.push("system.files")
+            if (useSchema) systems.push("system.files_schema")
+        }
+        if (useSchema) systems.push("system.schema")
         if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
-        if (/defschema/i.test(jsSource)) systems.push("system.schema")
     }
     const systemTemplates = systems.map((s) =>
         fragment.file.project.getTemplate(s)
