@@ -3,29 +3,22 @@ import {
     RequestError,
     YAMLStringify,
     CORE_VERSION,
-    diagnosticsToCSV,
     extractFenced,
     host,
-    initToken,
     isJSONLFilename,
     isRequestError,
-    logVerbose,
-    parseProject,
     readText,
     runTemplate,
-    appendJSONL as appendJSONLCore,
     writeText,
     MarkdownTrace,
     convertDiagnosticToGitHubActionCommand,
     readJSONL,
-    parseKeyValuePairs,
     convertDiagnosticToAzureDevOpsCommand,
     dotGenaiscriptPath,
     upsert,
     Progress,
     search,
     TOOL_ID,
-    GENAI_EXT,
     TOOL_NAME,
     GITHUB_REPO,
     clearIndex,
@@ -41,6 +34,14 @@ import {
     normalizeInt,
     normalizeFloat,
     GENAI_JS_REGEX,
+    GPSPEC_REGEX,
+    FILES_NOT_FOUND_ERROR_CODE,
+    RUNTIME_ERROR_CODE,
+    UNHANDLED_ERROR_CODE,
+    GENERATION_ERROR_CODE,
+    appendJSONL,
+    writeFileEdits,
+    parseVars,
 } from "genaiscript-core"
 import ora, { Ora } from "ora"
 import { NodeHost } from "./nodehost"
@@ -51,19 +52,14 @@ import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import replaceExt from "replace-ext"
-import { convertDiagnosticsToSARIF } from "./sarif"
 import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION } from "./version"
-
-const UNHANDLED_ERROR_CODE = -1
-const ANNOTATION_ERROR_CODE = -2
-const FILES_NOT_FOUND = -3
-const GENERATION_ERROR = -4
-const RUNTIME_ERROR_CODE = -5
+import { runScript } from "./run"
+import { buildProject } from "./build"
 
 class ProgressSpinner implements Progress {
-    constructor(readonly spinner: Ora) { }
+    constructor(readonly spinner: Ora) {}
     report(value: {
         message?: string
         increment?: number
@@ -97,47 +93,6 @@ async function expandFiles(files: string[], excludedFiles?: string[]) {
     return Array.from(res.values())
 }
 
-async function write(name: string, content: string) {
-    await writeText(name, content)
-}
-
-async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
-    if (meta)
-        await appendJSONLCore(
-            name,
-            objs.map((obj) => ({ ...obj, __meta: meta }))
-        )
-    else await appendJSONLCore(name, objs)
-}
-
-async function buildProject(options?: {
-    toolFiles?: string[]
-    specFiles?: string[]
-    toolsPath?: string
-    specsPath?: string
-}) {
-    const {
-        toolFiles,
-        specFiles,
-        toolsPath = "**/*" + GENAI_EXT,
-        specsPath = "**/*.gpspec.md",
-    } = options || {}
-
-    const gpspecFiles = specFiles?.length
-        ? specFiles
-        : await host.findFiles(specsPath)
-    const scriptFiles = toolFiles?.length
-        ? toolFiles
-        : await host.findFiles(toolsPath)
-
-    const newProject = await parseProject({
-        gpspecFiles,
-        scriptFiles,
-    })
-    return newProject
-}
-
-const gpspecRx = /\.gpspec\.md$/i
 async function batch(
     tool: string,
     specs: string[],
@@ -194,7 +149,7 @@ async function batch(
     for (const arg of specs) {
         const ffs = await host.findFiles(arg)
         for (const f of ffs) {
-            if (gpspecRx.test(f)) specFiles.add(f)
+            if (GPSPEC_REGEX.test(f)) specFiles.add(f)
             else {
                 const fp = `${f}.gpspec.md`
                 const md = `# Specification
@@ -215,7 +170,7 @@ async function batch(
 
     if (!specFiles.size) {
         spinner.fail("no file found")
-        process.exit(FILES_NOT_FOUND)
+        process.exit(FILES_NOT_FOUND_ERROR_CODE)
     }
 
     const prj = await buildProject({
@@ -241,7 +196,7 @@ async function batch(
     await ensureDir(out)
     for (let i = 0; i < prj.rootFiles.length; i++) {
         const specFile = prj.rootFiles[i].filename
-        const file = specFile.replace(gpspecRx, "")
+        const file = specFile.replace(GPSPEC_REGEX, "")
         const meta = { tool, file }
         try {
             spinner.suffixText = ""
@@ -255,7 +210,7 @@ async function batch(
                 script,
                 fragment,
                 {
-                    infoCb: () => { },
+                    infoCb: () => {},
                     partialCb: ({ tokensSoFar }) => {
                         tokens = tokensSoFar
                         spinner.suffixText = `${tokens} tokens`
@@ -302,22 +257,22 @@ async function batch(
             // save results
             const outText = join(
                 out,
-                `${relative(".", specFile).replace(gpspecRx, ".output.md")}`
+                `${relative(".", specFile).replace(GPSPEC_REGEX, ".output.md")}`
             )
             const outTrace = join(
                 out,
-                `${relative(".", specFile).replace(gpspecRx, ".trace.md")}`
+                `${relative(".", specFile).replace(GPSPEC_REGEX, ".trace.md")}`
             )
             const outJSON = join(
                 out,
-                `${relative(".", specFile).replace(gpspecRx, ".json")}`
+                `${relative(".", specFile).replace(GPSPEC_REGEX, ".json")}`
             )
             await ensureDir(dirname(outText))
             await writeFile(outText, result.text, { encoding: "utf8" })
             await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- ${result.error ? (isCancelError(result.error as any) ? "⚠" : "❌") : "✅"} [${relative(".", specFile).replace(gpspecRx, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
+                `- ${result.error ? (isCancelError(result.error as any) ? "⚠" : "❌") : "✅"} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
                 { encoding: "utf8" }
             )
             await writeFile(outJSON, JSON.stringify(result, null, 2), {
@@ -367,289 +322,15 @@ async function batch(
         }
     }
 
-    if (errors) process.exit(GENERATION_ERROR)
-}
-
-function parseVars(vars: string[]) {
-    if (!vars?.length) return undefined
-    const res: Record<string, string> = {}
-    if (vars) for (const v of vars) Object.assign(res, parseKeyValuePairs(v))
-    return res
-}
-
-async function run(
-    tool: string,
-    specs: string[],
-    options: {
-        excludedFiles: string[]
-        out: string
-        retry: string
-        retryDelay: string
-        maxDelay: string
-        json: boolean
-        yaml: boolean
-        prompt: boolean
-        outTrace: string
-        outAnnotations: string
-        outChangelogs: string
-        outData: string
-        label: string
-        temperature: string
-        topP: string
-        seed: string
-        maxTokens: string
-        model: string
-        csvSeparator: string
-        cache: boolean
-        applyEdits: boolean
-        failOnErrors: boolean
-        removeOut: boolean
-        vars: string[]
-    }
-) {
-    const excludedFiles = options.excludedFiles
-    const stream = !options.json && !options.yaml && !options.out
-    const out = options.out
-    const skipLLM = !!options.prompt
-    const retry = parseInt(options.retry) || 8
-    const retryDelay = parseInt(options.retryDelay) || 15000
-    const maxDelay = parseInt(options.maxDelay) || 180000
-    const outTrace = options.outTrace
-    const outAnnotations = options.outAnnotations
-    const failOnErrors = options.failOnErrors
-    const outChangelogs = options.outChangelogs
-    const outData = options.outData
-    const label = options.label
-    const temperature = normalizeFloat(options.temperature)
-    const topP = normalizeFloat(options.topP)
-    const seed = normalizeFloat(options.seed)
-    const maxTokens = normalizeInt(options.maxTokens)
-    const cache = !!options.cache
-    const applyEdits = !!options.applyEdits
-    const model = options.model
-    const csvSeparator = options.csvSeparator || "\t"
-    const removeOut = options.removeOut
-    const vars = options.vars
-
-    const spinner: Ora =
-        !stream && !isQuiet
-            ? ora({ interval: 200 }).start("preparing tool and files")
-            : undefined
-
-    let spec: string
-    let specContent: string
-    const toolFiles: string[] = []
-
-    let md: string
-    const files = new Set<string>()
-
-    if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
-
-    if (!specs?.length) {
-        specContent = (await getStdin()) || "\n"
-        spec = "stdin.gpspec.md"
-    } else if (specs.length === 1 && gpspecRx.test(specs[0])) {
-        spec = specs[0]
-    } else {
-        for (const arg of specs) {
-            const ffs = await host.findFiles(arg)
-            for (const file of ffs) {
-                if (gpspecRx.test(file)) {
-                    md = (md || "") + (await readText(file)) + "\n"
-                } else {
-                    files.add(file)
-                }
-            }
-        }
-    }
-
-    if (excludedFiles?.length) {
-        for (const arg of excludedFiles) {
-            const ffs = await host.findFiles(arg)
-            for (const f of ffs) files.delete(f)
-        }
-    }
-
-    if (md || files.size) {
-        spec = "cli.gpspec.md"
-        specContent = `${md || "# Specification"}
-
-${Array.from(files)
-                .map((f) => `-   [${basename(f)}](./${f})`)
-                .join("\n")}
-`
-    }
-
-    if (!spec) {
-        spinner?.fail(`genai spec not found`)
-        process.exit(FILES_NOT_FOUND)
-    }
-
-    if (specContent !== undefined) host.setVirtualFile(spec, specContent)
-
-    const prj = await buildProject({
-        toolFiles,
-        specFiles: [spec],
-    })
-    const script = prj.templates.find(
-        (t) =>
-            t.id === tool ||
-            (t.filename &&
-                GENAI_JS_REGEX.test(tool) &&
-                resolve(t.filename) === resolve(tool))
-    )
-    if (!script) throw new Error(`tool ${tool} not found`)
-    const gpspec = prj.rootFiles.find(
-        (f) => resolve(f.filename) === resolve(spec)
-    )
-    if (!gpspec) throw new Error(`spec ${spec} not found`)
-    const fragment = gpspec.fragments[0]
-    if (!fragment) {
-        spinner?.fail(`genai spec not found`)
-        process.exit(FILES_NOT_FOUND)
-    }
-
-    spinner?.start("Querying")
-
-    let tokens = 0
-    const res: FragmentTransformResponse = await runTemplate(script, fragment, {
-        infoCb: ({ text }) => {
-            spinner?.start(text)
-        },
-        partialCb: ({ responseChunk, tokensSoFar }) => {
-            tokens = tokensSoFar
-            if (stream) process.stdout.write(responseChunk)
-            else if (spinner) spinner.suffixText = `${tokens} tokens`
-        },
-        skipLLM,
-        label,
-        cache,
-        temperature,
-        topP,
-        seed,
-        maxTokens,
-        model,
-        retry,
-        retryDelay,
-        maxDelay,
-        vars: parseVars(vars),
-    })
-
-    if (spinner) {
-        if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
-        else spinner.succeed()
-        spinner.stopAndPersist()
-    }
-
-    if (outTrace && res.trace) await write(outTrace, res.trace)
-    if (outAnnotations && res.annotations?.length) {
-        if (isJSONLFilename(outAnnotations))
-            await appendJSONL(outAnnotations, res.annotations)
-        else
-            await write(
-                outAnnotations,
-                /\.(c|t)sv$/i.test(outAnnotations)
-                    ? diagnosticsToCSV(res.annotations, csvSeparator)
-                    : /\.ya?ml$/i.test(outAnnotations)
-                        ? YAMLStringify(res.annotations)
-                        : /\.sarif$/.test(outAnnotations)
-                            ? convertDiagnosticsToSARIF(script, res.annotations)
-                            : JSON.stringify(res.annotations, null, 2)
-            )
-    }
-    if (outChangelogs && res.changelogs?.length)
-        await write(outChangelogs, res.changelogs.join("\n"))
-    if (outData && res.frames?.length)
-        if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
-        else await write(outData, JSON.stringify(res.frames, null, 2))
-
-    if (applyEdits && !res.error && Object.keys(res.fileEdits || {}).length)
-        await writeFileEdits(res)
-
-    const promptjson = res.prompt?.length
-        ? JSON.stringify(res.prompt, null, 2)
-        : undefined
-    if (out) {
-        if (removeOut) await emptyDir(out)
-        await ensureDir(out)
-
-        const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
-        const yamlf = /\.ya?ml$/i.test(out) ? out : join(out, `res.yaml`)
-        const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
-        const promptf = mkfn(".prompt.json")
-        const outputf = mkfn(".output.md")
-        const tracef = mkfn(".trace.md")
-        const annotationf = res.annotations?.length
-            ? mkfn(".annotations.csv")
-            : undefined
-        const sariff = res.annotations?.length ? mkfn(".sarif") : undefined
-        const specf = specContent ? mkfn(".gpspec.md") : undefined
-        const changelogf = res.changelogs?.length
-            ? mkfn(".changelog.txt")
-            : undefined
-        await write(jsonf, JSON.stringify(res, null, 2))
-        await write(yamlf, YAMLStringify(res))
-        if (promptjson) {
-            await write(promptf, promptjson)
-        }
-        if (res.text) await write(outputf, res.text)
-        if (res.trace) await write(tracef, res.trace)
-        if (specf) {
-            const spect = await readText(spec)
-            await write(specf, spect)
-        }
-        if (annotationf) {
-            await write(
-                annotationf,
-                `severity, filename, start, end, message\n` +
-                res.annotations
-                    .map(
-                        ({ severity, filename, range, message }) =>
-                            `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
-                    )
-                    .join("\n")
-            )
-        }
-        if (sariff)
-            await write(
-                sariff,
-                convertDiagnosticsToSARIF(script, res.annotations)
-            )
-        if (changelogf && res.changelogs?.length)
-            await write(changelogf, res.changelogs.join("\n"))
-    } else {
-        if (options.json) console.log(JSON.stringify(res, null, 2))
-        if (options.yaml) console.log(YAMLStringify(res))
-        if (options.prompt && promptjson) {
-            console.log(promptjson)
-        }
-    }
-
-    // final fail
-    if (res.error) {
-        logVerbose(`error: ${(res.error as Error).message || res.error}`)
-        process.exit(RUNTIME_ERROR_CODE)
-    }
-
-    if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
-        console.log`error annotations found, exiting with error code`
-        process.exit(ANNOTATION_ERROR_CODE)
-    }
-    logVerbose(`genaiscript generated ${tokens} tokens`)
-}
-
-async function writeFileEdits(res: FragmentTransformResponse) {
-    for (const fileEdit of Object.entries(res.fileEdits)) {
-        const [fn, { before, after }] = fileEdit
-        if (after !== before) await write(fn, after ?? before)
-    }
+    if (errors) process.exit(GENERATION_ERROR_CODE)
 }
 
 async function listScripts() {
     const prj = await buildProject()
     prj.templates.forEach((t) =>
         console.log(
-            `${t.id}, ${t.title}, ${t.filename || "builtin"}, ${t.isSystem ? "system" : "user"
+            `${t.id}, ${t.title}, ${t.filename || "builtin"}, ${
+                t.isSystem ? "system" : "user"
             }`
         )
     )
@@ -717,7 +398,7 @@ async function jsonl2json(files: string[]) {
         }
         const objs = await readJSONL(file)
         const out = replaceExt(file, ".json")
-        await write(out, JSON.stringify(objs, null, 2))
+        await writeText(out, JSON.stringify(objs, null, 2))
         spinner.succeed()
     }
 }
@@ -909,7 +590,7 @@ async function main() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
-        .action(run)
+        .action(runScript)
 
     program
         .command("batch")

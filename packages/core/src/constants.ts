@@ -35,3 +35,11 @@ export const SARIFF_RULEID_PREFIX = "genascript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
 export const GENAI_JS_REGEX = /\.genai\.js$/i
+export const GPSPEC_REGEX = /\.gpspec\.md$/i
+
+
+export const UNHANDLED_ERROR_CODE = -1
+export const ANNOTATION_ERROR_CODE = -2
+export const FILES_NOT_FOUND_ERROR_CODE = -3
+export const GENERATION_ERROR_CODE = -4
+export const RUNTIME_ERROR_CODE = -5

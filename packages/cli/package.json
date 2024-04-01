@@ -16,7 +16,9 @@
     "cli",
     "prompt",
     "llm",
-    "generative ai"
+    "generative ai",
+    "gpt4",
+    "chatgpt"
   ],
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",

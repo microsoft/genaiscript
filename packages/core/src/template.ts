@@ -339,6 +339,13 @@ export function parseKeyValuePairs(text: string) {
     return res
 }
 
+export function parseVars(vars: string[]) {
+    if (!vars?.length) return undefined
+    const res: Record<string, string> = {}
+    if (vars) for (const v of vars) Object.assign(res, parseKeyValuePairs(v))
+    return res
+}
+
 export function renderFencedVariables(vars: Fenced[]) {
     return vars
         .map(
