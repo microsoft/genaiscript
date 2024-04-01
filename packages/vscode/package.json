@@ -22,7 +22,9 @@
         "ai",
         "copilot",
         "scripting",
-        "python"
+        "python",
+        "llm",
+        "gpt"
     ],
     "categories": [
         "Programming Languages",
