@@ -34,7 +34,7 @@ export async function initToken(template: ModelOptions, force = false) {
 
     throw new RequestError(
         403,
-        "token not specified",
+        "token not configured",
         {
             type: "no_token",
             message:

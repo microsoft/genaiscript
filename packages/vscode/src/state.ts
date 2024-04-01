@@ -13,7 +13,6 @@ import {
     RunTemplateOptions,
     isCancelError,
     isTokenError,
-    initToken,
     isRequestError,
     delay,
     CHANGE,
@@ -34,7 +33,6 @@ import {
     GENAI_JS_REGEX,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
-import { debounceAsync } from "./debounce"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
@@ -246,9 +244,7 @@ retrieval/
             const res = await req?.request
             const { edits, text, error } = res || {}
             if (error)
-                vscode.commands.executeCommand(
-                    "genaiscript.request.open.trace"
-                )
+                vscode.commands.executeCommand("genaiscript.request.open.trace")
             else if (text)
                 vscode.commands.executeCommand(
                     "genaiscript.request.open.output"
@@ -534,9 +530,9 @@ ${e.message}`
         const spec = `# Specification
 
 ${files
-                .map((uri) => this.host.path.relative(fspath, uri.fsPath))
-                .map((fn) => `-   [${fn}](./${fn})`)
-                .join("\n")}
+    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
+    .map((fn) => `-   [${fn}](./${fn})`)
+    .join("\n")}
 `
         this.host.clearVirtualFiles()
         this.host.setVirtualFile(specn, spec)
@@ -564,7 +560,7 @@ ${files
             specn,
             `# Specification
 
-${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ''}
+${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
 `
         )
         const gpspecFiles = [specn]
@@ -615,9 +611,9 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ''}
                 r.source = TOOL_NAME
                 r.code = target
                     ? {
-                        value,
-                        target,
-                    }
+                          value,
+                          target,
+                      }
                     : undefined
                 return r
             })

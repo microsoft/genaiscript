@@ -63,6 +63,12 @@ export async function writeJSONL(fn: string, objs: any[]) {
     await writeJSONLCore(fn, objs, false)
 }
 
-export async function appendJSONL(fn: string, objs: any[]) {
-    await writeJSONLCore(fn, objs, true)
+export async function appendJSONL<T>(name: string, objs: T[], meta?: any) {
+    if (meta)
+        await writeJSONLCore(
+            name,
+            objs.map((obj) => ({ ...obj, __meta: meta })),
+            true
+        )
+    else await writeJSONLCore(name, objs, true)
 }

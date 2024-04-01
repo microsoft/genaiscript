@@ -9,7 +9,7 @@ export interface Progress {
      */
     report(value: {
         message?: string
-        increment?: number
+        count?: number
         succeeded?: boolean | undefined
     }): void
 }

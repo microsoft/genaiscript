@@ -181,6 +181,7 @@ async function parseMeta(r: PromptTemplate) {
     if (m?.groups?.kind === "system") {
         meta.unlisted = true
         meta.isSystem = true
+        meta.group = meta.group || "system"
     }
     return meta
 }
@@ -336,6 +337,13 @@ export function parseKeyValuePairs(text: string) {
         .map((kv) => kv.split(/[=:]/))
         .filter((m) => m.length == 2)
         .forEach((m) => (res[m[0]] = undoublequote(m[1])))
+    return res
+}
+
+export function parseVars(vars: string[]) {
+    if (!vars?.length) return undefined
+    const res: Record<string, string> = {}
+    if (vars) for (const v of vars) Object.assign(res, parseKeyValuePairs(v))
     return res
 }
 
