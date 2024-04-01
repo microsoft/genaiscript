@@ -36,11 +36,11 @@ export async function upsert(
     const files: LinkedFile[] = fileOrUrls.map((f) =>
         typeof f === "string" ? <LinkedFile>{ filename: f } : f
     )
-    const increment = 100 / files.length
+    let count = 0
     for (const f of files) {
         if (token?.isCancellationRequested) break
         progress?.report({
-            increment,
+            count: ++count,
             message: f.filename,
         })
         const { ok } = await retreival.upsert(f.filename, {
@@ -48,7 +48,6 @@ export async function upsert(
             ...rest,
         })
         progress?.report({
-            increment,
             message: f.filename,
             succeeded: ok,
         })

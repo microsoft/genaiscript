@@ -18,11 +18,11 @@ import {
     writeFileEdits,
     parseVars,
 } from "genaiscript-core"
-import ora from "ora"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
 import { emptyDir, ensureDir } from "fs-extra"
 import { buildProject } from "./build"
+import { createProgressSpinner } from "./spinner"
 
 export async function batchScript(
     tool: string,
@@ -46,7 +46,7 @@ export async function batchScript(
         vars: string[]
     }
 ) {
-    const spinner = ora({ interval: 200 }).start("preparing tool and files")
+    const spinner = createProgressSpinner("preparing tool and files")
 
     const {
         out = dotGenaiscriptPath("results"),
@@ -130,7 +130,6 @@ export async function batchScript(
         const file = specFile.replace(GPSPEC_REGEX, "")
         const meta = { tool, file }
         try {
-            spinner.suffixText = ""
             spinner.start(`${file} (${i + 1}/${specFiles.size})`)
             const fragment = prj.rootFiles.find(
                 (f) => resolve(f.filename) === resolve(specFile)
@@ -144,7 +143,7 @@ export async function batchScript(
                     infoCb: () => {},
                     partialCb: ({ tokensSoFar }) => {
                         tokens = tokensSoFar
-                        spinner.suffixText = `${tokens} tokens`
+                        spinner.report({ count: tokens })
                     },
                     skipLLM: false,
                     label,

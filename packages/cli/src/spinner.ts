@@ -1,25 +1,54 @@
 import ora, { Ora } from "ora"
 import { Progress } from "genaiscript-core"
 
-class ProgressSpinner implements Progress {
+export class ProgressSpinner implements Progress {
     constructor(readonly spinner: Ora) {}
+
     report(value: {
         message?: string
-        increment?: number
+        count?: number
         succeeded?: boolean
     }): void {
-        const { message, succeeded } = value
+        const { message, count, succeeded } = value
         if (succeeded === true) {
             this.spinner.succeed(message)
+            this.spinner.stopAndPersist()
         } else if (succeeded === false) {
             this.spinner.fail(message)
-        } else if (message) this.spinner.start(message)
+            this.spinner.stopAndPersist()
+        } else if (message) {
+            this.spinner.suffixText = ""
+            this.spinner.start(message)
+        }
+        if (!isNaN(count)) {
+            this.spinner.suffixText = "" + count
+        }
+    }
+
+    warn(message: string) {
+        this.spinner.warn(message)
+    }
+
+    get text() {
+        return this.spinner.text
+    }
+
+    start(message: string) {
+        this.report({ message })
+    }
+
+    succeed(message?: string) {
+        this.report({ message, succeeded: true })
+    }
+
+    fail(message: string) {
+        this.report({ message, succeeded: false })
     }
 }
 
 export function createProgressSpinner(
     message: string,
     interval = 200
-): Progress {
+): ProgressSpinner {
     return new ProgressSpinner(ora({ interval }).start(message))
 }

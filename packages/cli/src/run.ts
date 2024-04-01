@@ -19,13 +19,13 @@ import {
     writeFileEdits,
     parseVars,
 } from "genaiscript-core"
-import ora, { Ora } from "ora"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
+import { createProgressSpinner } from "./spinner"
 
 export async function runScript(
     tool: string,
@@ -81,9 +81,9 @@ export async function runScript(
     const removeOut = options.removeOut
     const vars = options.vars
 
-    const spinner: Ora =
+    const spinner =
         !stream && !isQuiet
-            ? ora({ interval: 200 }).start("preparing tool and files")
+            ? createProgressSpinner("preparing tool and files")
             : undefined
 
     let spec: string
@@ -169,7 +169,7 @@ ${Array.from(files)
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
             if (stream) process.stdout.write(responseChunk)
-            else if (spinner) spinner.suffixText = `${tokens} tokens`
+            else if (spinner) spinner.report({ count: tokens })
         },
         skipLLM,
         label,
@@ -188,7 +188,6 @@ ${Array.from(files)
     if (spinner) {
         if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
         else spinner.succeed()
-        spinner.stopAndPersist()
     }
 
     if (outTrace && res.trace) await writeText(outTrace, res.trace)
@@ -202,7 +201,7 @@ ${Array.from(files)
                     ? diagnosticsToCSV(res.annotations, csvSeparator)
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(res.annotations)
-                      : /\.sarif$/.test(outAnnotations)
+                      : /\.sarif$/i.test(outAnnotations)
                         ? convertDiagnosticsToSARIF(script, res.annotations)
                         : JSON.stringify(res.annotations, null, 2)
             )
