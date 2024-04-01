@@ -84,7 +84,11 @@ export async function treeSitterQuery(
         const tree = parser.parse(file.content)
         trace?.detailsFenced(`tree`, tree.rootNode.toString(), "lisp")
         const res = q.captures(tree.rootNode)
-        return res[0].node.toString()
+        const captures = res
+            .map(({ name, node }) => `;;; ${name}\n${node.toString()}`)
+            .join("\n")
+        trace?.detailsFenced(`captures`, captures, "lisp")
+        return captures
     } finally {
         trace?.endDetails()
     }
