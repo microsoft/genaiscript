@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["run", "code-annotator", "packages/sample/src/counting.py"]
+            "args": ["code", "query", "packages/core/src/progress.ts", "(interface_declaration) @i"]
         },
         {
             "name": "Run - sample",

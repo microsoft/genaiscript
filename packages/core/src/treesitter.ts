@@ -1,4 +1,4 @@
-import TreeSitter from "web-tree-sitter"
+import TreeSitter, { Tree } from "web-tree-sitter"
 import { MarkdownTrace } from "./trace"
 import { host } from "./host"
 import { resolveFileContent } from "./file"
@@ -43,17 +43,18 @@ async function init() {
         })
     await _initPromise
 }
-
-async function createParser(
-    wasmPath: string,
-    options?: { trace?: MarkdownTrace }
-) {
-    const { trace } = options || {}
-    const languageWasm = await TreeSitter.Language.load(wasmPath)
-    const parser = new TreeSitter()
-    parser.setLanguage(languageWasm)
-    if (trace) parser.setLogger((message) => trace?.log(message))
-    return parser
+const _parsers: Record<string, Promise<TreeSitter>> = {}
+function createParser(wasmPath: string): Promise<TreeSitter> {
+    if (!_parsers[wasmPath]) {
+        _parsers[wasmPath] = TreeSitter.Language.load(wasmPath).then(
+            (languageWasm) => {
+                const parser = new TreeSitter()
+                parser.setLanguage(languageWasm)
+                return parser
+            }
+        )
+    }
+    return _parsers[wasmPath]
 }
 
 export async function treeSitterQuery(
@@ -72,14 +73,18 @@ export async function treeSitterQuery(
         trace?.itemValue(`file`, file.filename)
         trace?.fence(query, "txt")
         await init()
+
         const url = await resolveLanguage(filename)
         trace?.itemValue(`wasm`, url)
-        const parser = await createParser(url, options)
-        const tree = parser.parse(file.content)
+        const parser = await createParser(url)
+        // test query
         const lang = parser.getLanguage()
         const q = lang.query(query)
+        // try parse
+        const tree = parser.parse(file.content)
+        trace?.detailsFenced(`tree`, tree.rootNode.toString(), "lisp")
         const res = q.captures(tree.rootNode)
-        return res
+        return res[0].node.toString()
     } finally {
         trace?.endDetails()
     }

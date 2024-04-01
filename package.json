@@ -41,7 +41,7 @@
         "test:index:summary": "node packages/cli/built/genaiscript.cjs retreival index \"packages/sample/src/rag/*\" --summary",
         "test:search": "node packages/cli/built/genaiscript.cjs retreival search lorem \"packages/sample/src/rag/*\"",
         "test:search:summary": "node packages/cli/built/genaiscript.cjs retreival search lorem \"packages/sample/src/rag/*\" --summary",
-        "test:codequery": "node packages/cli/built/genaiscript.cjs code query packages/core/src/prompt_template.d.ts \"(interface_declaration) @i\"",
+        "test:codequery": "node packages/cli/built/genaiscript.cjs code query packages/core/src/progress.ts \"(interface_declaration) @i\"",
         "test:tokens": "node packages/cli/built/genaiscript.cjs retreival tokens packages/sample/src/rag/*",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
         "docs": "cd docs && ./node_modules/.bin/astro dev --host",
