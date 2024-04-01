@@ -62,13 +62,14 @@ describe("parse", () => {
     })
 })
 
-describe("retreival", () => {
-    const cmd = "retreival"
-    describe("outline", () => {
-        const action = "outline"
+describe("code", () => {
+    const cmd = "code"
+    describe("query", () => {
+        const action = "query"
         test("greeter.ts", async () => {
-            const res = await $`node ${cli} ${cmd} ${action} src/greeter.ts`
-            assert(res.stdout.includes("class Greeter"))
+            const res =
+                await $`node ${cli} ${cmd} ${action} src/greeter.ts "(function_definition)"`
+            assert(res.stdout.includes("hello"))
         })
     })
 })

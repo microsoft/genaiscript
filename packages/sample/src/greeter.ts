@@ -10,5 +10,9 @@ class Greeter {
     }
     
 }
+
+export function hello() {
+
+}
    
 let greeter = new Greeter("world")
