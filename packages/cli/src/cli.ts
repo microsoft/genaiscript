@@ -19,7 +19,6 @@ import { runScript } from "./run"
 import { buildProject } from "./build"
 import { batchScript } from "./batch"
 import {
-    codeOutline,
     retreivalClear,
     retreivalIndex,
     retreivalSearch,
@@ -28,6 +27,7 @@ import {
 import { helpAll } from "./help"
 import { jsonl2json, parseDOCX, parseFence, parsePDF } from "./parse"
 import { listScripts } from "./scripts"
+import { codeQuery } from "./codequery"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -186,13 +186,6 @@ export async function cli() {
         //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalClear)
 
-    retreival
-        .command("outline")
-        .description("Generates a compact code repository outline")
-        .arguments("<files...>")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .action(codeOutline)
-
     program
         .command("serve")
         .description("Start a GenAIScript local server")
@@ -217,6 +210,10 @@ export async function cli() {
         .command("docx <file>")
         .description("Parse a DOCX into texts")
         .action(parseDOCX)
+    parser.command("code")
+        .description("Parse code using tree sitter and executes a query")
+        .arguments("<file> [query]")
+        .action(codeQuery)
     parser
         .command("tokens")
         .description("Count tokens in a set of files")

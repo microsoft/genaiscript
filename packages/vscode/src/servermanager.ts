@@ -1,5 +1,4 @@
 import {
-    HighlightService,
     ICON_LOGO_NAME,
     RetreivalService,
     SERVER_PORT,
@@ -61,10 +60,6 @@ export class TerminalServerManager implements ServerManager {
     }
 
     get retreival(): RetreivalService {
-        return this.client
-    }
-
-    get highlight(): HighlightService {
         return this.client
     }
 

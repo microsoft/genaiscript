@@ -1,6 +1,5 @@
 import dotenv from "dotenv"
 import {
-    HighlightService,
     Host,
     LogLevel,
     OAIToken,
@@ -24,7 +23,6 @@ import { execa } from "execa"
 import { join } from "node:path"
 import { LlamaIndexRetreivalService } from "./llamaindexretreival"
 import { createNodePath } from "./nodepath"
-import { LLMCodeHighlighterService } from "./llmcodehighlighter"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -39,14 +37,12 @@ export class NodeHost implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
     retreival: RetreivalService
-    highlight: HighlightService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly fs = createFileSystem()
 
     constructor() {
         this.retreival = new LlamaIndexRetreivalService(this)
-        this.highlight = new LLMCodeHighlighterService(this)
     }
 
     static install(dotEnvPath: string) {

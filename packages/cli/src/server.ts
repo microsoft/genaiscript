@@ -6,7 +6,6 @@ import {
     host,
     YAMLStringify,
     logError,
-    outline,
     CORE_VERSION,
     ServerResponse,
     serializeError,
@@ -14,7 +13,6 @@ import {
 
 export async function startServer(options: { port: string }) {
     await host.retreival.init()
-    await host.highlight.init()
 
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
@@ -62,14 +60,6 @@ export async function startServer(options: { port: string }) {
                             data.text,
                             data.options
                         )
-                        console.debug(YAMLStringify(response))
-                        break
-                    case "retreival.outline":
-                        console.log(
-                            `retreival: outline ${data.files.length} files`
-                        )
-                        console.debug(YAMLStringify(data.files))
-                        response = await outline(data.files)
                         console.debug(YAMLStringify(response))
                         break
                     default:

@@ -141,6 +141,18 @@ using for configuration files. This format is similar to the `key=value` format.
 KEY=VALUE
 ```
 
+## Code (JavaScript, Python, C, C++, Java, ...)
+
+The `parsers.code` function parses source code using the [Tree Sitter](https://tree-sitter.github.io/tree-sitter/)
+library. It returns an AST (Abstract Syntax Tree) that can be used to analyze the code.
+
+```js
+// the whole tree
+const [tree] = await parsers.code(file)
+// with a query
+const captures = await parsers.code(file, "(interface_declaration) @i")
+```
+
 ## .env
 
 The `parsers.dotEnv` parses [.env](https://www.dotenv.org/) files, typically

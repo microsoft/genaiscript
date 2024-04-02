@@ -1945,11 +1945,6 @@
   resolved "https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.10.tgz"
   integrity sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==
 
-"@yomguithereal/helpers@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.npmjs.org/@yomguithereal/helpers/-/helpers-1.1.1.tgz"
-  integrity sha512-UYvAq/XCA7xoh1juWDYsq3W0WywOB+pz8cgVnE1b45ZfdMhBvHDrgmSFG3jXeZSr2tMTYLGHFHON+ekG05Jebg==
-
 a-sync-waterfall@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/a-sync-waterfall/-/a-sync-waterfall-1.0.1.tgz#75b6b6aa72598b497a125e7a2770f14f4c8a1fa7"
@@ -4263,46 +4258,6 @@ graphemer@^1.4.0:
   resolved "https://registry.npmjs.org/graphemer/-/graphemer-1.4.0.tgz"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
 
-graphology-indices@^0.17.0:
-  version "0.17.0"
-  resolved "https://registry.npmjs.org/graphology-indices/-/graphology-indices-0.17.0.tgz"
-  integrity sha512-A7RXuKQvdqSWOpn7ZVQo4S33O0vCfPBnUSf7FwE0zNCasqwZVUaCXePuWo5HBpWw68KJcwObZDHpFk6HKH6MYQ==
-  dependencies:
-    graphology-utils "^2.4.2"
-    mnemonist "^0.39.0"
-
-graphology-metrics@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.npmjs.org/graphology-metrics/-/graphology-metrics-2.2.0.tgz"
-  integrity sha512-eZZFRLGGyyI+iD+XwQvc+lLM3EKCoqUvVjvF/14Htgy4grB2m95OytToYq3saWuHfuf22VVnj9GBHv/pTzKuTw==
-  dependencies:
-    graphology-shortest-path "^2.0.0"
-    graphology-utils "^2.4.4"
-    mnemonist "^0.39.0"
-
-graphology-shortest-path@^2.0.0:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/graphology-shortest-path/-/graphology-shortest-path-2.0.2.tgz"
-  integrity sha512-hlGvh4Yb1Vmd2J7wT8Q8+t4RQ6Tx+9wRYm0/fZB9PZJ4uW3nml5kJ7yXZ2+JYWT+7wLLmY5mg3o9bLSAWmv/jQ==
-  dependencies:
-    "@yomguithereal/helpers" "^1.1.1"
-    graphology-indices "^0.17.0"
-    graphology-utils "^2.4.3"
-    mnemonist "^0.39.0"
-
-graphology-utils@^2.4.2, graphology-utils@^2.4.3, graphology-utils@^2.4.4:
-  version "2.5.2"
-  resolved "https://registry.npmjs.org/graphology-utils/-/graphology-utils-2.5.2.tgz"
-  integrity sha512-ckHg8MXrXJkOARk56ZaSCM1g1Wihe2d6iTmz1enGOz4W/l831MBCKSayeFQfowgF8wd+PQ4rlch/56Vs/VZLDQ==
-
-graphology@^0.25.4:
-  version "0.25.4"
-  resolved "https://registry.npmjs.org/graphology/-/graphology-0.25.4.tgz"
-  integrity sha512-33g0Ol9nkWdD6ulw687viS8YJQBxqG5LWII6FI6nul0pq6iM2t5EKquOTFDbyTblRB3O9I+7KX4xI8u5ffekAQ==
-  dependencies:
-    events "^3.3.0"
-    obliterator "^2.0.2"
-
 gray-matter@^4.0.3:
   version "4.0.3"
   resolved "https://registry.npmjs.org/gray-matter/-/gray-matter-4.0.3.tgz"
@@ -5438,17 +5393,6 @@ llamaindex@0.1.21:
     string-strip-html "^13.4.6"
     wink-nlp "^1.14.3"
 
-llm-code-highlighter@0.0.13:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/llm-code-highlighter/-/llm-code-highlighter-0.0.13.tgz#dcdbb2e3f674e1f423857dc245a23e3a7a22941e"
-  integrity sha512-dkJ8yKXiy3tMHJEA1p1ougAA5wE9K+vZKIkIjG7h+HHDoFy1yMLYIEBQIqofTI+/IwxibebC37Ijhm7qkanRJQ==
-  dependencies:
-    graphology "^0.25.4"
-    graphology-metrics "^2.2.0"
-    lodash "^4.17.21"
-    tree-sitter-wasms "^0.1.6"
-    web-tree-sitter "^0.20.8"
-
 load-yaml-file@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/load-yaml-file/-/load-yaml-file-0.2.0.tgz"
@@ -6469,13 +6413,6 @@ mlly@^1.2.0, mlly@^1.4.2:
     pkg-types "^1.0.3"
     ufo "^1.3.2"
 
-mnemonist@^0.39.0:
-  version "0.39.8"
-  resolved "https://registry.npmjs.org/mnemonist/-/mnemonist-0.39.8.tgz"
-  integrity sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==
-  dependencies:
-    obliterator "^2.0.1"
-
 mocha@^10.3.0:
   version "10.3.0"
   resolved "https://registry.npmjs.org/mocha/-/mocha-10.3.0.tgz"
@@ -6774,11 +6711,6 @@ object.assign@^4.1.4:
     define-properties "^1.2.1"
     has-symbols "^1.0.3"
     object-keys "^1.1.1"
-
-obliterator@^2.0.1, obliterator@^2.0.2:
-  version "2.0.4"
-  resolved "https://registry.npmjs.org/obliterator/-/obliterator-2.0.4.tgz"
-  integrity sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==
 
 obuf@~1.1.2:
   version "1.1.2"
@@ -8803,10 +8735,10 @@ tr46@~0.0.3:
   resolved "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
 
-tree-sitter-wasms@^0.1.6:
-  version "0.1.6"
-  resolved "https://registry.npmjs.org/tree-sitter-wasms/-/tree-sitter-wasms-0.1.6.tgz"
-  integrity sha512-Q7XG/tNYc/rJrUzCELB2t6Y9Ivk8tzCqQFpJNXWdLmycNE68yTMpS8atr2PGtskiIbg4ai13cZ6Y3hNMDmWJZA==
+tree-sitter-wasms@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/tree-sitter-wasms/-/tree-sitter-wasms-0.1.10.tgz#1db58b4d2cd37d7b2f9783aa614eb1b33080aed0"
+  integrity sha512-CVfpkXzJCyWKgTJ+r8cIB5C7ji6xU3xbW13TA4T+DrFL4C0GlnCKSunSrxBdPEks2vNMTxc8VyIszvn64shQKA==
 
 trim-lines@^3.0.0:
   version "3.0.1"
@@ -9491,10 +9423,10 @@ web-streams-polyfill@^3.0.3, web-streams-polyfill@^3.2.1:
   resolved "https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.2.tgz"
   integrity sha512-3pRGuxRF5gpuZc0W+EpwQRmCD7gRqcDOMt688KmdlDAgAyaB1XlN0zq2njfDNm44XVdIouE7pZ6GzbdyH47uIQ==
 
-web-tree-sitter@^0.20.8:
-  version "0.20.8"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz#1e371cb577584789cadd75cb49c7ddfbc99d04c8"
-  integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==
+web-tree-sitter@^0.22.2:
+  version "0.22.2"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.22.2.tgz#44036b26ae95b83f5ef1950ddeffb581eb4370c5"
+  integrity sha512-gY/aw1wNQbTU0m7U5PojDOftsKMbBIpusJ9Ia/y7sfIN4jk9xXLHwQs+eQ3QP772IdjxVqje0hRTCh5CzrWeGg==
 
 webfont@^11.2.26:
   version "11.2.26"

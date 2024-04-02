@@ -1,13 +1,11 @@
 import { ChatCompletionsOptions, LanguageModel } from "./chat"
-import { PromptTemplate } from "./ast"
 import { logVerbose, toBase64 } from "./util"
 import { fileTypeFromBuffer } from "file-type"
-import { OAIToken, host } from "./host"
+import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
 import { upsert, search } from "./retreival"
-import { outline } from "./highlights"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -17,7 +15,6 @@ import {
     createImageNode,
     createOutputProcessor,
     createSchemaNode,
-    createTextNode,
 } from "./promptdom"
 import { bingSearch } from "./search"
 import { createDefDataNode } from "./filedom"
@@ -27,7 +24,7 @@ import {
     createRunPromptContext,
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
-import { INIParse, INIStringify, INITryParse } from "./ini"
+import { INIParse, INIStringify } from "./ini"
 import { CancelError } from "./error"
 import { createFetch } from "./fetch"
 
@@ -119,17 +116,6 @@ export function createPromptContext(
                 trace.endDetails()
             }
         },
-        outline: async (files) => {
-            try {
-                trace.startDetails(
-                    `🫥 retreival outline (${files?.length || 0} files)`
-                )
-                const res = await outline(files, { trace })
-                return res?.response
-            } finally {
-                trace.endDetails()
-            }
-        },
     }
 
     const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
@@ -194,8 +180,8 @@ export function createPromptContext(
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
-        script: () => { },
-        system: () => { },
+        script: () => {},
+        system: () => {},
         env,
         path,
         fs,

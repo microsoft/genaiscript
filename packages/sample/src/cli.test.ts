@@ -60,15 +60,32 @@ describe("parse", () => {
     test("tokens", async () => {
         const res = await $`node ${cli} ${cmd} tokens "**/*.md"`
     })
-})
-
-describe("retreival", () => {
-    const cmd = "retreival"
-    describe("outline", () => {
-        const action = "outline"
-        test("greeter.ts", async () => {
-            const res = await $`node ${cli} ${cmd} ${action} src/greeter.ts`
-            assert(res.stdout.includes("class Greeter"))
+    describe("code", () => {
+        const action = "code"
+        test("greeter.ts query", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} src/greeter.ts "(interface_declaration) @i"`
+            assert(res.stdout.includes("interface_declaration"))
+        })
+        test("greeter.ts tree", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} src/greeter.ts`
+            assert(res.stdout.includes("interface_declaration"))
+        })
+        test("counting.py", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} src/counting.py "(class_definition) @i"`
+            assert(res.stdout.includes("class_definition"))
+        })
+    //    test("ewd.tla", async () => {
+    //        const res =
+    //           await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(local_definition) @i"`
+    //        assert(res.stdout.includes("local_definition"))
+    //    })
+        test("README.md not supported", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} README.md`.nothrow()
+            assert(res.exitCode)
         })
     })
 })

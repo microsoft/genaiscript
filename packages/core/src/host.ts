@@ -116,11 +116,6 @@ export type HighlightResponse = ResponseStatus & { response: string }
 
 export type ServerResponse = ResponseStatus & { version: string }
 
-export interface HighlightService {
-    init(trace?: MarkdownTrace): Promise<void>
-    outline(files: LinkedFile[]): Promise<HighlightResponse>
-}
-
 export interface ServerManager {
     start(): Promise<void>
     close(): Promise<void>
@@ -130,7 +125,6 @@ export interface Host {
     userState: any
 
     retreival: RetreivalService
-    highlight: HighlightService
     server: ServerManager
     path: Path
     fs: FileSystem
