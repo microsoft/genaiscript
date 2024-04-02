@@ -20,7 +20,7 @@ export function createParsers(options: {
     model: string
 }): Parsers {
     const { trace, model } = options
-    return {
+    return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
         YAML: (text, options) =>
@@ -70,5 +70,5 @@ export function createParsers(options: {
             }
         },
         code: async (file, query) => await treeSitterQuery(file, query, { trace }),
-    }
+    })
 }
