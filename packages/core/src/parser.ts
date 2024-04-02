@@ -102,7 +102,7 @@ export async function parseProject(options: {
 
     runFinalizers()
 
-    const deflPr = Object.assign({}, defaultPrompts)
+    const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
     for (const f of scriptFiles) {
         const tmpl = await parsePromptTemplate(f, await readText(f), prj)
         if (!tmpl) continue

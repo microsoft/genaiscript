@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["code", "query", "packages/core/src/progress.ts", "(interface_declaration) @i"]
+            "args": ["parse", "code", "packages/sample/src/tla/EWD998PCal.tla", "(interface_declaration) @i"]
         },
         {
             "name": "Run - sample",
