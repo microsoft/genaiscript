@@ -62,9 +62,14 @@ describe("parse", () => {
     })
     describe("code", () => {
         const action = "code"
-        test("greeter.ts", async () => {
+        test("greeter.ts query", async () => {
             const res =
                 await $`node ${cli} ${cmd} ${action} src/greeter.ts "(interface_declaration) @i"`
+            assert(res.stdout.includes("interface_declaration"))
+        })
+        test("greeter.ts tree", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} src/greeter.ts`
             assert(res.stdout.includes("interface_declaration"))
         })
         test("counting.py", async () => {
