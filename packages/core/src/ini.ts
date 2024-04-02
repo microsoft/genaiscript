@@ -2,7 +2,7 @@ import { parse, stringify } from "ini"
 import { logError } from "./util"
 
 export function INIParse(text: string) {
-    return text
+    return parse(text)
 }
 
 export function INITryParse(text: string, defaultValue?: any) {
