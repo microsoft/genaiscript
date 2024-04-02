@@ -228,11 +228,6 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.request.retry",
-                "title": "Retry last GenAiScript",
-                "category": "GenAIScript"
-            },
-            {
                 "command": "genaiscript.fragment.navigate",
                 "title": "Navigate to fragment",
                 "category": "GenAIScript"

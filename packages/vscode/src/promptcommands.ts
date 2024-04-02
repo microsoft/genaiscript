@@ -110,17 +110,10 @@ export function commandButtons(state: ExtensionState) {
     const request = state.aiRequest
     const { computing } = request || {}
     const abort = "Abort"
-    const retry = "Retry"
     const output = "Output"
     const trace = "Trace"
     const cmds: { label: string; description?: string; cmd: string }[] = []
     if (computing) cmds.push({ label: abort, cmd: "genaiscript.request.abort" })
-    else if (request)
-        cmds.push({
-            label: retry,
-            description: "Run last script and gpspec again.",
-            cmd: "genaiscript.request.retry",
-        })
     if (request) {
         cmds.push({
             label: output,

@@ -41,14 +41,6 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
-        // "next logic"
-        if (frag === undefined && state.aiRequest) {
-            const previous = state.aiRequest.options.fragment
-            if (previous && state.host.isVirtualFile(previous.file.filename))
-                frag = previous.file.filename.replace(/\.gpspec\.md$/i, "")
-            else frag = previous?.fullId
-        }
-
         // active text editor
         if (frag === undefined && vscode.window.activeTextEditor) {
             const document = vscode.window.activeTextEditor.document
@@ -104,6 +96,7 @@ export function activateFragmentCommands(state: ExtensionState) {
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
             )
             assert(template !== undefined)
+            fragment = undefined
         }
 
         fragment = await resolveSpec(fragment)
