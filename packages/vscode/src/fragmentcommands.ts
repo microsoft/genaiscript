@@ -84,9 +84,9 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentPrompt = async (
         options:
             | {
-                  fragment?: Fragment | string | vscode.Uri
-                  template?: PromptTemplate
-              }
+                fragment?: Fragment | string | vscode.Uri
+                template?: PromptTemplate
+            }
             | vscode.Uri
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
@@ -134,12 +134,19 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.parseWorkspace()
 
         let template: PromptTemplate
+        let files: vscode.Uri[]
         if (GENAI_JS_REGEX.test(file.path)) {
             template = state.project.templates.find(
                 (p) => p.filename === file.fsPath
             )
             assert(template !== undefined)
-        } else template = await pickTemplate()
+            files = vscode.window.visibleTextEditors
+                .filter(editor => editor.document.uri.fsPath !== file.fsPath)
+                .map(editor => editor.document.uri)
+        } else {
+            template = await pickTemplate()
+            files = [file]
+        }
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
             {
@@ -150,8 +157,8 @@ export function activateFragmentCommands(state: ExtensionState) {
                 type: "node",
                 args: [
                     "run",
-                    template.filename,
-                    vscode.workspace.asRelativePath(file.fsPath),
+                    vscode.workspace.asRelativePath(template.filename),
+                    ...files.map(file => vscode.workspace.asRelativePath(file.fsPath)),
                 ],
             }
         )
@@ -214,9 +221,8 @@ export function templatesToQuickPickItems(
                                     template.filename
                                 )) ??
                             template.id,
-                        description: `${template.id} ${
-                            template.description || ""
-                        }`,
+                        description: `${template.id} ${template.description || ""
+                            }`,
                         template,
                     }
             )
