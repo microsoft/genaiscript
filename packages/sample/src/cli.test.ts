@@ -77,11 +77,11 @@ describe("parse", () => {
                 await $`node ${cli} ${cmd} ${action} src/counting.py "(class_definition) @i"`
             assert(res.stdout.includes("class_definition"))
         })
-    //    test("ewd.tla", async () => {
-    //        const res =
-    //           await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(local_definition) @i"`
-    //        assert(res.stdout.includes("local_definition"))
-    //    })
+        test("ewd.tla", async () => {
+            const res =
+               await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(block_comment) @i"`
+            assert(res.stdout.includes("block_comment"))
+        })
         test("README.md not supported", async () => {
             const res =
                 await $`node ${cli} ${cmd} ${action} README.md`.nothrow()
