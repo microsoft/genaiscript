@@ -69,6 +69,6 @@ export function createParsers(options: {
                 pages,
             }
         },
-        code: treeSitterQuery,
+        code: async (file, query) => await treeSitterQuery(file, query, { trace }),
     }
 }
