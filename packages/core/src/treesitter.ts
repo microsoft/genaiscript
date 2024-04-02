@@ -18,34 +18,12 @@ const EXT_MAP: Record<string, string> = {
     yml: "yaml",
 }
 
-const WASM_MAP: Record<string, { package: string, version: string, file: string }> = {
-    tlaplus: {
-        package: '@tlaplus/tree-sitter-tlaplus',
-        version: '1.0.8',
-        file: 'tree-sitter-tlaplus.wasm'
-    }
-}
-
 async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
     const ext = host.path.extname(filename).slice(1).toLowerCase()
     const language = EXT_MAP[ext] || ext
 
     const moduleName = `tree-sitter-wasms/out/tree-sitter-${language}.wasm`
-    try {
-        return require.resolve(moduleName)
-    } catch (e) {
-        const map = WASM_MAP[language]
-        if (map) {
-            const p = host.path.dirname(require.resolve(`tree-sitter-wasms/out/tree-sitter-javascript.wasm`))
-            const f = host.path.join(p, map.file)
-            const url = `https://unpkg.com/${map.package}@${map.version}/${map.file}`
-            trace?.itemValue(`fetch`, url)
-            const res = await fetch(url)
-            const buff = await res.arrayBuffer()
-            await host.writeFile(f, new Uint8Array(buff))
-        }
-        return require.resolve(moduleName)
-    }
+    return require.resolve(moduleName)
 }
 
 let _initPromise: Promise<void>

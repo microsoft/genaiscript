@@ -8735,10 +8735,10 @@ tr46@~0.0.3:
   resolved "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
 
-tree-sitter-wasms@^0.1.7:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/tree-sitter-wasms/-/tree-sitter-wasms-0.1.7.tgz#1b40a0d8c1ff666ec07a8873a358bfe4e2e657c3"
-  integrity sha512-/EnmSDDqEnSnIuCqVhSOc14T8r792LmiztqlZMFSRg+4ACrgUWNLvEr2AUP1K76XCJrvuH8liSWfkdQpK41hIA==
+tree-sitter-wasms@^0.1.10:
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/tree-sitter-wasms/-/tree-sitter-wasms-0.1.10.tgz#1db58b4d2cd37d7b2f9783aa614eb1b33080aed0"
+  integrity sha512-CVfpkXzJCyWKgTJ+r8cIB5C7ji6xU3xbW13TA4T+DrFL4C0GlnCKSunSrxBdPEks2vNMTxc8VyIszvn64shQKA==
 
 trim-lines@^3.0.0:
   version "3.0.1"

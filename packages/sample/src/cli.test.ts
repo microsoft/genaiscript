@@ -67,10 +67,15 @@ describe("parse", () => {
                 await $`node ${cli} ${cmd} ${action} src/greeter.ts "(interface_declaration) @i"`
             assert(res.stdout.includes("interface_declaration"))
         })
+        test("counting.py", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} src/counting.py "(class_definition) @i"`
+            assert(res.stdout.includes("class_definition"))
+        })
         test("ewd.tla", async () => {
             const res =
-                await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(interface_declaration) @i"`
-            assert(res.stdout.includes("interface_declaration"))
+                await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(local_definition) @i"`
+            assert(res.stdout.includes("local_definition"))
         })
     })
 })
