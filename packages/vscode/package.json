@@ -102,7 +102,7 @@
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
+                    "when": "!inDebugMode",
                     "group": "genaiscript@2"
                 }
             ],
@@ -225,11 +225,6 @@
             {
                 "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",
-                "category": "GenAIScript"
-            },
-            {
-                "command": "genaiscript.request.retry",
-                "title": "Retry last GenAiScript",
                 "category": "GenAIScript"
             },
             {

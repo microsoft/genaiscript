@@ -209,15 +209,6 @@ retrieval/
         return this._aiRequestCache
     }
 
-    async retryAIRequest(): Promise<void> {
-        const options = this.aiRequest?.options
-        await this.cancelAiRequest()
-        if (options) {
-            await delay(100 + Math.random() * 1000)
-            await this.requestAI(options)
-        }
-    }
-
     async applyEdits() {
         const req = this.aiRequest
         if (!req) return

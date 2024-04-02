@@ -36,9 +36,6 @@ export async function activate(context: ExtensionContext) {
                 )
             }
         ),
-        vscode.commands.registerCommand("genaiscript.request.retry", () =>
-            state.retryAIRequest()
-        ),
         vscode.commands.registerCommand(
             "genaiscript.request.status",
             async () => {
