@@ -13,6 +13,7 @@ import { parseAnnotations } from "./annotations"
 import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
+import { treeSitterQuery } from "./treesitter"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -61,12 +62,13 @@ export function createParsers(options: {
             return {
                 file: pages
                     ? <LinkedFile>{
-                          filename,
-                          content: PDFPagesToString(pages),
-                      }
+                        filename,
+                        content: PDFPagesToString(pages),
+                    }
                     : undefined,
                 pages,
             }
         },
+        code: treeSitterQuery,
     }
 }

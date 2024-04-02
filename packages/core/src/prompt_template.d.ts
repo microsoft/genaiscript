@@ -387,15 +387,15 @@ interface FenceOptions {
      * Language of the fenced code block. Defaults to "markdown".
      */
     language?:
-        | "markdown"
-        | "json"
-        | "yaml"
-        | "javascript"
-        | "typescript"
-        | "python"
-        | "shell"
-        | "toml"
-        | string
+    | "markdown"
+    | "json"
+    | "yaml"
+    | "javascript"
+    | "typescript"
+    | "python"
+    | "shell"
+    | "toml"
+    | string
 
     /**
      * Prepend each line with a line numbers. Helps with generating diffs.
@@ -496,11 +496,11 @@ interface DataFrame {
 interface RunPromptResult {
     text: string
     finishReason?:
-        | "stop"
-        | "length"
-        | "tool_calls"
-        | "content_filter"
-        | "cancel"
+    | "stop"
+    | "length"
+    | "tool_calls"
+    | "content_filter"
+    | "cancel"
 }
 
 /**
@@ -669,6 +669,13 @@ interface Parsers {
      * @param content
      */
     annotations(content: string | LinkedFile): Diagnostic[]
+
+    /**
+     * Executes a tree-sitter query on a code file
+     * @param file 
+     * @param query tree sitter query; if missing, returns the entire tree
+     */
+    code(file: LinkedFile, query?: string): Promise<QueryCapture[]>
 }
 
 interface AICIGenOptions {

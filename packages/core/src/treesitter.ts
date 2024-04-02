@@ -59,7 +59,7 @@ function createParser(wasmPath: string): Promise<TreeSitter> {
 
 export async function treeSitterQuery(
     file: LinkedFile,
-    query: string,
+    query?: string,
     options?: { trace?: MarkdownTrace }
 ): Promise<QueryCapture[]> {
     const { filename } = file
@@ -71,7 +71,6 @@ export async function treeSitterQuery(
     try {
         trace?.startDetails("code query")
         trace?.itemValue(`file`, file.filename)
-        trace?.fence(query, "txt")
         await init()
 
         const url = await resolveLanguage(filename)
@@ -79,10 +78,14 @@ export async function treeSitterQuery(
         const parser = await createParser(url)
         // test query
         const lang = parser.getLanguage()
-        const q = lang.query(query)
         // try parse
         const tree = parser.parse(file.content)
         trace?.detailsFenced(`tree`, tree.rootNode.toString(), "lisp")
+        if (!query)
+            return [{ name: "tree", node: tree.rootNode }]
+
+        trace?.fence(query, "txt")
+        const q = lang.query(query)
         const res: QueryCapture[] = q.captures(tree.rootNode)
         const captures = res
             .map(({ name, node }) => `;;; ${name}\n${node.toString()}`)
