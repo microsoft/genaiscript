@@ -44,6 +44,7 @@ export function estimateChatTokens(
                             )
                             .join("\n"),
             }))
+            .filter(({ content }) => !!content?.length)
         const chatTokens = encodeChat(chat, model as any)
         return chatTokens.length | 0
     } catch (e) {
