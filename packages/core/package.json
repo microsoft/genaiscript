@@ -12,11 +12,11 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "optionalDependencies": {
-        "mammoth": "^1.7.0",
         "pdfjs-dist": "4.0.379",
         "web-tree-sitter": "^0.22.2"
     },
     "devDependencies": {
+        "mammoth": "^1.7.0",
         "@types/ini": "^4.1.0",
         "@types/mime-types": "^2.1.4",
         "@types/node": "^20.11.27",

@@ -1,4 +1,4 @@
-import TreeSitter, { Tree } from "web-tree-sitter"
+import TreeSitter from "web-tree-sitter"
 import { MarkdownTrace } from "./trace"
 import { host } from "./host"
 import { resolveFileContent } from "./file"
