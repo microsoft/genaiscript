@@ -60,16 +60,12 @@ describe("parse", () => {
     test("tokens", async () => {
         const res = await $`node ${cli} ${cmd} tokens "**/*.md"`
     })
-})
-
-describe("code", () => {
-    const cmd = "code"
     describe("query", () => {
-        const action = "query"
+        const action = "code"
         test("greeter.ts", async () => {
             const res =
-                await $`node ${cli} ${cmd} ${action} src/greeter.ts "(function_definition)"`
-            assert(res.stdout.includes("hello"))
+                await $`node ${cli} ${cmd} ${action} src/greeter.ts "(interface_declaration) @i"`
+            assert(res.stdout.includes("interface_declaration"))
         })
     })
 })

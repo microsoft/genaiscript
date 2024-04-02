@@ -157,32 +157,6 @@ Options:
   -h, --help           display help for command
 ```
 
-## `code`
-
-```
-Usage: genaiscript code [options] [command]
-
-Source code processing
-
-Options:
-  -h, --help            display help for command
-
-Commands:
-  query <file> <query>  Executes a tree sitter query against a file
-  help [command]        display help for command
-```
-
-### `code query`
-
-```
-Usage: genaiscript code query [options] <file> <query>
-
-Executes a tree sitter query against a file
-
-Options:
-  -h, --help  display help for command
-```
-
 ## `serve`
 
 ```
@@ -212,6 +186,8 @@ Commands:
   fence <language>             Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
+  code <file> [query]          Parse code using tree sitter and executes a
+                               query
   tokens [options] <files...>  Count tokens in a set of files
   jsonl2json                   Converts JSONL files to a JSON file
 ```
@@ -244,6 +220,17 @@ Options:
 Usage: genaiscript parse docx [options] <file>
 
 Parse a DOCX into texts
+
+Options:
+  -h, --help  display help for command
+```
+
+### `parse code`
+
+```
+Usage: genaiscript parse code [options] <file> [query]
+
+Parse code using tree sitter and executes a query
 
 Options:
   -h, --help  display help for command

@@ -11,6 +11,11 @@ class Greeter {
     
 }
 
+interface IGreeter {
+    greeting: string
+    greet(): string
+}
+
 export function hello() {
 
 }

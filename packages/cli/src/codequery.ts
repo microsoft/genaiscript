@@ -5,5 +5,9 @@ export async function codeQuery(file: string, query: string) {
         { filename: file, label: "", content: undefined },
         query
     )
-    console.log(YAMLStringify(res))
+    const captures = res
+        .map(({ name, node }) => `;;; ${name}\n${node.toString()}`)
+        .join("\n")
+
+    console.log(captures)
 }

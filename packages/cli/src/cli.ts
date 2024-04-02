@@ -186,12 +186,6 @@ export async function cli() {
         //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retreivalClear)
 
-    const code = program.command("code").description("Source code processing")
-    code.command("query")
-        .description("Executes a tree sitter query against a file")
-        .arguments("<file> <query>")
-        .action(codeQuery)
-
     program
         .command("serve")
         .description("Start a GenAIScript local server")
@@ -216,6 +210,10 @@ export async function cli() {
         .command("docx <file>")
         .description("Parse a DOCX into texts")
         .action(parseDOCX)
+    parser.command("code")
+        .description("Parse code using tree sitter and executes a query")
+        .arguments("<file> [query]")
+        .action(codeQuery)
     parser
         .command("tokens")
         .description("Count tokens in a set of files")
