@@ -77,5 +77,10 @@ describe("parse", () => {
                 await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(local_definition) @i"`
             assert(res.stdout.includes("local_definition"))
         })
+        test("README.md not supported", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} README.md`.nothrow()
+            assert(res.exitCode)
+        })
     })
 })

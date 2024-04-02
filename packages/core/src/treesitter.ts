@@ -2,6 +2,8 @@ import TreeSitter from "web-tree-sitter"
 import { MarkdownTrace } from "./trace"
 import { host } from "./host"
 import { resolveFileContent } from "./file"
+import { treeSitterWasms } from "./default_prompts"
+import { NotSupportedError } from "./error"
 
 const EXT_MAP: Record<string, string> = {
     js: "javascript",
@@ -21,6 +23,9 @@ const EXT_MAP: Record<string, string> = {
 async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
     const ext = host.path.extname(filename).slice(1).toLowerCase()
     const language = EXT_MAP[ext] || ext
+
+    if (!treeSitterWasms.includes(language))
+        throw new NotSupportedError(`language '${language}' not supported`)
 
     const moduleName = `tree-sitter-wasms/out/tree-sitter-${language}.wasm`
     return require.resolve(moduleName)
