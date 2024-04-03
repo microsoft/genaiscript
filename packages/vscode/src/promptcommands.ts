@@ -42,16 +42,20 @@ export function activatePromptCommands(state: ExtensionState) {
                         id: "",
                         title: name,
                         text: "New script empty template",
-                        jsSource: `// metadata (including model parameters)
-// learn more at https://aka.ms/genaiscript
+                        jsSource: `// GenAIScript - https://microsoft.github.io/genaiscript/getting-started/
+
+// metadata (including model parameters)
 script({ title: "${name}" })
 
 // use def to emit LLM variables
 def("FILE", env.files)
+
 // use $ to output formatted text to the prompt
 $\`You are a helpful assistant.
 TELL THE LLM WHAT TO DO...
 \`        
+
+// next, "Run GenAIScript" on a file or folder
 `,
                     }
                 )

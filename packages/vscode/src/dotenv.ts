@@ -17,7 +17,8 @@ export async function setupDotEnv(projectUri: vscode.Uri): Promise<string> {
         await writeFile(
             projectUri,
             ".env",
-            `OPENAI_API_KEY="<your token>"
+            `# GenAIScript configuration (https://microsoft.github.io/genaiscript/reference/token/)
+OPENAI_API_KEY="<your token>"
 `
         )
 
