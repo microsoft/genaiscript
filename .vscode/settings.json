@@ -1,11 +1,13 @@
 {
     "devicescript.devtools.autoStart": false,
     "cSpell.words": [
+        "genai",
         "gpspec",
         "gpspecs",
         "gptool",
         "gptools",
         "gptoolsjs",
+        "llmrequest",
         "openai",
         "typecheck",
         "vsix"
