@@ -27,7 +27,7 @@ export async function importPrompt(
             glb[field] = (ctx0 as any)[field]
         }
 
-        const modulePath = host.path.join(host.projectFolder(), filename)
+        const modulePath = filename.startsWith("/") ? filename : host.path.join(host.projectFolder(), filename)
         const module = await import(modulePath)
         const main = module.default
         if (!main) throw new Error("default import function missing")
@@ -36,6 +36,7 @@ export async function importPrompt(
         await main(ctx0)
     } catch (err) {
         logError(err)
+        throw err
     } finally {
         for (const field of Object.keys(ctx0)) delete glb[field]
     }
