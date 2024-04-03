@@ -12,5 +12,9 @@
         "typecheck",
         "vsix"
     ],
-    "sarif-viewer.connectToGithubCodeScanning": "on"
+    "sarif-viewer.connectToGithubCodeScanning": "on",
+    "cSpell.language": "en,en-US",
+    "cSpell.enableFiletypes": [
+        "!json"
+    ]
 }

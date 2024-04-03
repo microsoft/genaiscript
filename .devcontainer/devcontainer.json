@@ -11,7 +11,8 @@
 				"yoavbls.pretty-ts-errors",
 				"kejun.markdown-alert",
 				"astro-build.astro-vscode",
-				"unifiedjs.vscode-mdx"
+				"unifiedjs.vscode-mdx",
+				"streetsidesoftware.code-spell-checker"
 			]
 		}
 	}
