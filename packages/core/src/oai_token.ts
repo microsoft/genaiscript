@@ -47,6 +47,10 @@ export async function initToken(template: ModelOptions, force = false) {
     )
 }
 
+function trimTrailingSlash(s: string) {
+    return s?.replace(/\/+$/, "")
+}
+
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     template: ModelOptions
@@ -100,7 +104,8 @@ export async function parseTokenFromEnv(
             }
             if (!token) throw new Error("OPEN_API_KEY missing")
             if (type === "openai") base ??= "https://api.openai.com/v1/"
-            if (type === "azure") base += "/openai/deployments"
+            else if (type === "azure")
+                base = trimTrailingSlash(base) + "/openai/deployments"
             return {
                 base,
                 type,
@@ -119,10 +124,12 @@ export async function parseTokenFromEnv(
                 env.AZURE_OPENAI_API_KEY ||
                 env.AZURE_API_KEY ||
                 env.OPENAI_API_KEY
-            const base =
+            const base = trimTrailingSlash(
                 env.AZURE_OPENAI_ENDPOINT ||
-                env.AZURE_OPENAI_API_BASE ||
-                env.AZURE_API_BASE
+                    env.AZURE_OPENAI_API_BASE ||
+                    env.AZURE_API_BASE ||
+                    env.AZURE_OPENAI_API_ENDPOINT
+            )
             const version =
                 env.AZURE_OPENAI_API_VERSION ||
                 env.AZURE_API_VERSION ||

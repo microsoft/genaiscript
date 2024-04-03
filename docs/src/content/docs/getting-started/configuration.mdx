@@ -104,11 +104,24 @@ Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to the 
 
 <li>
 
-Update the `.env` file with the secret key and the endpoint.
+Update the `.env` file with the secret key (**Key 1** or **Key 2**) and the endpoint.
 
 ```txt title=".env"
 AZURE_API_KEY=...
-AZURE_OPENAI_API_ENDPOINT="https://....openai.azure.com/
+AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
+```
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js "model"
+script({
+    model: "deployment-id",
+    ...
+})
 ```
 
 </li>

@@ -21,8 +21,6 @@ The extension also supports the following set of variables:
 -   The `AZURE_API_BASE`, `AZURE_API_KEY`, `AZURE_API_VERSION` variables.
 
 ```txt title=".env"
-OPENAI_API_TYPE="azure"
-OPENAI_API_BASE="https://mywebsite.azurewebsites.net"
 OPENAI_API_KEY="oaip_SomethingSecret"
 ```
 
