@@ -30,8 +30,8 @@ const { file, pages } = await parsers.PDF(env.files[0])
 // inline the entire file
 def("FILE", file)
 
-// or analyze page per page
-pages.forEach((page, i) => {
+// or analyze page per page, filter pages
+pages.slice(0, 2).forEach((page, i) => {
     def(`PAGE_${i}`, page)
 })
 ```
