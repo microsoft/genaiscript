@@ -2,7 +2,7 @@ script({
     title: "summarize pdf"
 })
 
-const { file } = await parsers.PDF(env.files[0].filename)
+const { file } = await parsers.PDF(env.files[0])
 
 def("FILE", file)
 
