@@ -5,8 +5,6 @@ sidebar:
 ---
 import { FileTree } from '@astrojs/starlight/components';
 import { Image } from 'astro:assets';
-import src from '../../../assets/tla-ai-linter.png';
-import alt from "../../../assets/tla-ai-linter.png.txt?raw"
 
 Once you have a script that you are happy with, you can automate it using the [command line interface](/genaiscript/reference/cli).
 
@@ -15,10 +13,11 @@ Once you have a script that you are happy with, you can automate it using the [c
 The basic usage of the CLI is to [run](/genaiscript/reference/cli/run/) a script with a tool name and a list of files.
 
 ```sh wrap
-npx --yes genaiscript run <toolname> <...files>
+npx --yes genaiscript run <script> <...files>
 ```
 
-The CLI will use the secrets in the `.env` file, populate `env.files` with `<...files>` and emit the output to the standard output.
+The CLI will use the secrets in the `.env` file, populate `env.files` with `<...files>`, run the script
+and emit the output to the standard output.
 
 :::tip
 
@@ -28,23 +27,12 @@ The `--yes` flag skips the confirmation prompt.
 
 :::
 
-
-## Batch run scripts
-
-If you want to apply a GenAIScript script individually to a list of files, you can use the `batch` command.
-
-```sh wrap "batch"
-npx --yes genaiscript batch <toolname> <...files>
-```
-
-In this case, the script will be applied to each file in the list, and the output will be stored in an output folder.
-
 ### Apply Edits
 
 Add the `--apply-edits` flag to the CLI to automatically write the file edits.
 
 ```sh wrap "--apply-edits"
-npx --yes genaiscript batch/run <toolname> <...files> --apply-edits
+npx --yes genaiscript run <script> <...files> --apply-edits
 ```
 
 :::caution
@@ -57,16 +45,22 @@ Refer to [Security and Trust](/genaiscript/reference/security-and-trust) for mor
 
 :::
 
+
+## Batch run scripts
+
+If you want to apply a GenAIScript script individually to a list of files, you can use the `batch` command.
+
+```sh wrap "batch"
+npx --yes genaiscript batch <script> <...files>
+```
+
+In this case, the script will be applied to each file in the list, and the output will be stored in an output folder.
+
 ## CI/CD
 
 You can use the CLI to run your scripts in a CI/CD pipeline. 
 The CLI will return a non-zero exit code if the script fails, which can be used to fail the pipeline.
 
-Make sure that the LLM credentials are available in the environment variables 
-or that a `.env` file is present in the working directory.
-
-### Annotations
-
-Use [annotations](/genaiscript/reference/scripts/annotations) to generate SARIF files that can be uploaded to GitHub Actions as security reports.
-
-<Image src={src} alt={alt} />
+- use [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) in GitHub Actions to populate the environment variables with secrets.
+- use [annotations](/genaiscript/reference/scripts/annotations) to generate SARIF files 
+that can be uploaded to GitHub Actions as security reports.
