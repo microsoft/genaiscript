@@ -12,7 +12,7 @@ import {
 } from "genaiscript-core"
 
 export async function startServer(options: { port: string }) {
-    await host.retreival.init()
+    await host.retrieval.init()
 
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
@@ -42,21 +42,21 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
-                    case "retreival.clear":
-                        console.log(`retreival: clear`)
-                        response = await host.retreival.clear(data.options)
+                    case "retrieval.clear":
+                        console.log(`retrieval: clear`)
+                        response = await host.retrieval.clear(data.options)
                         break
-                    case "retreival.upsert":
-                        console.log(`retreival: upsert ${data.filename}`)
-                        response = await host.retreival.upsert(
+                    case "retrieval.upsert":
+                        console.log(`retrieval: upsert ${data.filename}`)
+                        response = await host.retrieval.upsert(
                             data.filename,
                             data.options
                         )
                         break
-                    case "retreival.search":
-                        console.log(`retreival: search ${data.text}`)
+                    case "retrieval.search":
+                        console.log(`retrieval: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))
-                        response = await host.retreival.search(
+                        response = await host.retrieval.search(
                             data.text,
                             data.options
                         )

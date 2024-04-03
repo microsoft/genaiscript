@@ -14,6 +14,7 @@ import {
     ChatCompletionSystemMessageParam,
     toChatCompletionUserMessage,
 } from "./chat"
+import { importPrompt } from "./importprompt"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -91,13 +92,21 @@ async function callExpander(
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let aici: AICIRequest
 
+    const logCb = (msg: any) => {
+        logs += msg + "\n"
+    }
+
     try {
-        await evalPrompt(ctx, r, {
-            sourceMaps: true,
-            logCb: (msg: any) => {
-                logs += msg + "\n"
-            },
-        })
+        if (/^export\s+default\s+/m.test(r.jsSource)) {
+            if (!/\.mjs$/i.test(r.filename))
+                throw new Error("export default requires .mjs file")
+            await importPrompt(ctx, r, { logCb })
+        } else {
+            await evalPrompt(ctx, r, {
+                sourceMaps: true,
+                logCb,
+            })
+        }
         const node = ctx.node
         if (!r.aici) {
             const {

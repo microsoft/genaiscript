@@ -19,7 +19,7 @@ defFunction(
     },
     async (args) => {
         const { q } = args
-        const { webPages } = await retreival.webSearch(q)
+        const { webPages } = await retrieval.webSearch(q)
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,

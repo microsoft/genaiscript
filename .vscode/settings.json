@@ -1,7 +1,9 @@
 {
     "devicescript.devtools.autoStart": false,
     "cSpell.words": [
+        "AICI",
         "genai",
+        "Genaiscript",
         "gpspec",
         "gpspecs",
         "gptool",

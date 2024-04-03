@@ -26,11 +26,11 @@ import {
     dotGenaiscriptPath,
     CLI_JS,
     TOOL_ID,
-    GENAI_EXT,
     TOOL_NAME,
-    RetreivalSearchResult,
+    RetrievalSearchResult,
     AbortSignalCancellationToken,
     GENAI_JS_REGEX,
+    GENAI_JS_GLOB,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -147,7 +147,7 @@ export class ExtensionState extends EventTarget {
         undefined
     readonly output: vscode.LogOutputChannel
 
-    lastSearch: RetreivalSearchResult
+    lastSearch: RetrievalSearchResult
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -451,7 +451,7 @@ ${e.message}`
     }
 
     async fixPromptDefinitions() {
-        const prompts = await vscode.workspace.findFiles("**/*" + GENAI_EXT)
+        const prompts = await vscode.workspace.findFiles(GENAI_JS_GLOB)
         const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
         for (const folder of folders) {
             const f = vscode.Uri.file(folder)
@@ -475,7 +475,7 @@ ${e.message}`
     }
 
     async findScripts() {
-        const scriptFiles = await findFiles("**/*" + GENAI_EXT)
+        const scriptFiles = await findFiles(GENAI_JS_GLOB)
         return scriptFiles
     }
 

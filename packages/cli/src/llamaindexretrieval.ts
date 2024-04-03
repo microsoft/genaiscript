@@ -7,11 +7,11 @@ import {
     RETRIEVAL_DEFAULT_INDEX,
     RETRIEVAL_DEFAULT_MODEL,
     ResponseStatus,
-    RetreivalOptions,
-    RetreivalSearchOptions,
-    RetreivalSearchResponse,
-    RetreivalService,
-    RetreivalUpsertOptions,
+    RetrievalOptions,
+    RetrievalSearchOptions,
+    RetrievalSearchResponse,
+    RetrievalService,
+    RetrievalUpsertOptions,
     dotGenaiscriptPath,
     fileExists,
     installImport,
@@ -64,7 +64,7 @@ async function tryImportLlamaIndex(trace: MarkdownTrace) {
     }
 }
 
-export class LlamaIndexRetreivalService implements RetreivalService {
+export class LlamaIndexRetrievalService implements RetrievalService {
     private module: PromiseType<ReturnType<typeof tryImportLlamaIndex>>
     private READERS: Record<string, BaseReader>
 
@@ -89,7 +89,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     private getPersisDir(indexName: string, summary: boolean) {
         const persistDir = this.host.path.join(
-            dotGenaiscriptPath("retreival"),
+            dotGenaiscriptPath("retrieval"),
             summary ? "summary" : "full",
             indexName
         )
@@ -158,7 +158,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
         return serviceContext
     }
 
-    async clear(options?: RetreivalOptions) {
+    async clear(options?: RetrievalOptions) {
         const { indexName = RETRIEVAL_DEFAULT_INDEX, summary } = options || {}
         const persistDir = this.getPersisDir(indexName, summary)
         await this.host.deleteDirectory(persistDir)
@@ -167,7 +167,7 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     async upsert(
         filenameOrUrl: string,
-        options?: RetreivalUpsertOptions
+        options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus> {
         const { Document, VectorStoreIndex, SummaryIndex } = this.module
         const { content, mimeType, summary } = options ?? {}
@@ -242,8 +242,8 @@ export class LlamaIndexRetreivalService implements RetreivalService {
 
     async search(
         text: string,
-        options?: RetreivalSearchOptions
-    ): Promise<RetreivalSearchResponse> {
+        options?: RetrievalSearchOptions
+    ): Promise<RetrievalSearchResponse> {
         const {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
@@ -301,8 +301,8 @@ export class LlamaIndexRetreivalService implements RetreivalService {
      * @returns
      */
     async embeddings(
-        options?: RetreivalOptions
-    ): Promise<RetreivalSearchResponse> {
+        options?: RetrievalOptions
+    ): Promise<RetrievalSearchResponse> {
         const { MetadataMode } = this.module
         const { storageContext } = await this.createStorageContext(options)
         const docs = await storageContext.docStore.docs()

@@ -10,14 +10,14 @@ import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 //import { activateChatParticipant } from "./chat/participant"
-import { activateRetreivalCommands } from "./retreivalcommands"
+import { activateRetrievalCommands } from "./retrievalcommands"
 // import { activateTokensStatusBar } from "./tokenstatusbar"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
-    activateRetreivalCommands(state)
+    activateRetrievalCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)

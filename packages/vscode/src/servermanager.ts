@@ -1,6 +1,6 @@
 import {
     ICON_LOGO_NAME,
-    RetreivalService,
+    RetrievalService,
     SERVER_PORT,
     ServerManager,
     TOOL_NAME,
@@ -59,7 +59,7 @@ export class TerminalServerManager implements ServerManager {
         this._terminal.show()
     }
 
-    get retreival(): RetreivalService {
+    get retrieval(): RetrievalService {
         return this.client
     }
 

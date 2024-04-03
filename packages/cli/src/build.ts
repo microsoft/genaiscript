@@ -1,4 +1,9 @@
-import { GENAI_EXT, host, parseProject } from "genaiscript-core"
+import {
+    GENAI_JS_GLOB,
+    GPSPEC_GLOB,
+    host,
+    parseProject,
+} from "genaiscript-core"
 
 export async function buildProject(options?: {
     toolFiles?: string[]
@@ -9,8 +14,8 @@ export async function buildProject(options?: {
     const {
         toolFiles,
         specFiles,
-        toolsPath = "**/*" + GENAI_EXT,
-        specsPath = "**/*.gpspec.md",
+        toolsPath = GENAI_JS_GLOB,
+        specsPath = GPSPEC_GLOB,
     } = options || {}
 
     const gpspecFiles = specFiles?.length

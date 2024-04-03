@@ -788,7 +788,7 @@ interface SearchResult {
     webPages: LinkedFile[]
 }
 
-interface Retreival {
+interface Retrieval {
     /**
      * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
      * @param query
@@ -1027,7 +1027,7 @@ interface PromptContext extends RunPromptContext {
     env: ExpansionVariables
     path: Path
     parsers: Parsers
-    retreival: Retreival
+    retrieval: Retrieval
     fs: FileSystem
     YAML: YAML
     CSV: CSV
@@ -1116,9 +1116,9 @@ declare var path: Path
 declare var parsers: Parsers
 
 /**
- * Retreival Augmented Generation services
+ * Retrieval Augmented Generation services
  */
-declare var retreival: Retreival
+declare var retrieval: Retrieval
 
 /**
  * Access to file system operation on the current workspace.

@@ -94,10 +94,10 @@ Options:
   -h, --help  display help for command
 ```
 
-## `retreival`
+## `retrieval`
 
 ```
-Usage: genaiscript retreival [options] [command]
+Usage: genaiscript retrieval [options] [command]
 
 RAG support
 
@@ -111,10 +111,10 @@ Commands:
   help [command]                       display help for command
 ```
 
-### `retreival index`
+### `retrieval index`
 
 ```
-Usage: genaiscript retreival index [options] <file...>
+Usage: genaiscript retrieval index [options] <file...>
 
 Index a set of documents
 
@@ -131,10 +131,10 @@ Options:
   -h, --help                         display help for command
 ```
 
-### `retreival search`
+### `retrieval search`
 
 ```
-Usage: genaiscript retreival search [options] <query> [files...]
+Usage: genaiscript retrieval search [options] <query> [files...]
 
 Search index
 
@@ -145,10 +145,10 @@ Options:
   -h, --help                         display help for command
 ```
 
-### `retreival clear`
+### `retrieval clear`
 
 ```
-Usage: genaiscript retreival clear [options]
+Usage: genaiscript retrieval clear [options]
 
 Clear index to force re-indexing
 

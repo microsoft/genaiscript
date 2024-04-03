@@ -58,7 +58,7 @@ export interface ShellCallOptions {
     exitcodefile: string
 }
 
-export interface RetreivalClientOptions {
+export interface RetrievalClientOptions {
     progress?: Progress
     token?: CancellationToken
     trace?: MarkdownTrace
@@ -70,18 +70,18 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetreivalOptions {
+export interface RetrievalOptions {
     indexName?: string
     summary?: boolean
 }
 
-export interface RetreivalSearchOptions extends RetreivalOptions {
+export interface RetrievalSearchOptions extends RetrievalOptions {
     files?: string[]
     topK?: number
     minScore?: number
 }
 
-export interface RetreivalUpsertOptions extends RetreivalOptions {
+export interface RetrievalUpsertOptions extends RetrievalOptions {
     content?: string
     mimeType?: string
     model?: string
@@ -90,7 +90,7 @@ export interface RetreivalUpsertOptions extends RetreivalOptions {
     splitLongSentences?: boolean
 }
 
-export type RetreivalSearchResponse = ResponseStatus & {
+export type RetrievalSearchResponse = ResponseStatus & {
     results: {
         filename: string
         id: string
@@ -99,17 +99,17 @@ export type RetreivalSearchResponse = ResponseStatus & {
     }[]
 }
 
-export interface RetreivalService {
+export interface RetrievalService {
     init(trace?: MarkdownTrace): Promise<void>
-    clear(options?: RetreivalOptions): Promise<ResponseStatus>
+    clear(options?: RetrievalOptions): Promise<ResponseStatus>
     upsert(
         filenameOrUrl: string,
-        options?: RetreivalUpsertOptions
+        options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus>
     search(
         text: string,
-        options?: RetreivalSearchOptions
-    ): Promise<RetreivalSearchResponse>
+        options?: RetrievalSearchOptions
+    ): Promise<RetrievalSearchResponse>
 }
 
 export type HighlightResponse = ResponseStatus & { response: string }
@@ -124,7 +124,7 @@ export interface ServerManager {
 export interface Host {
     userState: any
 
-    retreival: RetreivalService
+    retrieval: RetrievalService
     server: ServerManager
     path: Path
     fs: FileSystem

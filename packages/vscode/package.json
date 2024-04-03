@@ -182,26 +182,26 @@
                     "group": "genaiscript@1"
                 },
                 {
-                    "submenu": "genaiscript.explorer.retreival",
+                    "submenu": "genaiscript.explorer.retrieval",
                     "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
                     "group": "genaiscript@2"
                 }
             ],
-            "genaiscript.explorer.retreival": [
+            "genaiscript.explorer.retrieval": [
                 {
-                    "command": "genaiscript.retreival.index",
+                    "command": "genaiscript.retrieval.index",
                     "when": "explorerViewletVisible"
                 },
                 {
-                    "command": "genaiscript.retreival.search",
+                    "command": "genaiscript.retrieval.search",
                     "when": "explorerViewletVisible"
                 }
             ]
         },
         "submenus": [
             {
-                "id": "genaiscript.explorer.retreival",
-                "label": "Retreival"
+                "id": "genaiscript.explorer.retrieval",
+                "label": "Retrieval"
             }
         ],
         "configuration": [
@@ -308,18 +308,18 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.retreival.search",
+                "command": "genaiscript.retrieval.search",
                 "title": "Search",
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.retreival.index",
+                "command": "genaiscript.retrieval.index",
                 "title": "Index",
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.retreival.clear",
-                "title": "Clear retreival index",
+                "command": "genaiscript.retrieval.clear",
+                "title": "Clear retrieval index",
                 "category": "GenAIScript"
             }
         ]
