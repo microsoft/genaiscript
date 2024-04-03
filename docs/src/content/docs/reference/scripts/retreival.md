@@ -1,17 +1,17 @@
 ---
-title: Retreival
+title: Retrieval
 sidebar:
     order: 10
 ---
 
-GenAIScript provides various utilities to retreive content and augment the prompt. This technique is typically referred as **RAG** (Retreival-Augmentation-Generation) in the literature. GenAIScript uses [llamaindex-ts](https://ts.llamaindex.ai/api/classes/VectorIndexRetriever) which supports many vector database vendors.
+GenAIScript provides various utilities to retreive content and augment the prompt. This technique is typically referred as **RAG** (Retrieval-Augmentation-Generation) in the literature. GenAIScript uses [llamaindex-ts](https://ts.llamaindex.ai/api/classes/VectorIndexRetriever) which supports many vector database vendors.
 
 ## Search
 
 The `retreive.search` performs a embeddings search to find the most similar documents to the prompt. The search is performed using the [llamaindex-ts](https://ts.llamaindex.ai/api/classes/VectorIndexRetriever) library.
 
 ```js
-const { files, fragments } = await retreival.search("cat dog", env.files)
+const { files, fragments } = await retrieval.search("cat dog", env.files)
 def("RAG", files)
 ```
 
@@ -19,7 +19,7 @@ The `files` variable contains a list of files, with concatenated fragments, that
 
 ### Indexing
 
-By default, the retreival uses [OpenAI text-embedding-ada-002](https://ts.llamaindex.ai/modules/embeddings/) embeddings. The first search might be slow as the files get indexed for the first time.
+By default, the retrieval uses [OpenAI text-embedding-ada-002](https://ts.llamaindex.ai/modules/embeddings/) embeddings. The first search might be slow as the files get indexed for the first time.
 
 You can index your project using the [CLI](/genaiscript/reference/cli).
 
@@ -29,7 +29,7 @@ genaiscript retreive index "src/**"
 
 :::tip
 
-You can simulate an indexing command in Visual Studio Code by right-clicking on a folder and selecting **Retreival** > **Index**. Once indexed, you can test search using **Retreival** > **Search**.
+You can simulate an indexing command in Visual Studio Code by right-clicking on a folder and selecting **Retrieval** > **Index**. Once indexed, you can test search using **Retrieval** > **Search**.
 
 :::
 
@@ -39,10 +39,10 @@ You can control the chunk size, overlap and model used for index files. You can 
 
 ## Web Search
 
-The `retreival.webSearch` performs a web search using a search engine API. You will need to provide API keys for the search engine you want to use.
+The `retrieval.webSearch` performs a web search using a search engine API. You will need to provide API keys for the search engine you want to use.
 
 ```js
-const { webPages } = await retreival.webSearch("cat dog")
+const { webPages } = await retrieval.webSearch("cat dog")
 def("RAG", webPages)
 ```
 

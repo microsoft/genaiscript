@@ -9,7 +9,7 @@ keywords: embeddings search, similarity search, vector database, indexing, LLM A
 The `retrieval.search` indexes the input files using [embeddings](https://platform.openai.com/docs/guides/embeddings) into a vector database that can be used for similarity search. This is commonly referred to as Retrieval Augmented Generation (RAG).
 
 ```js
-const { files, fragments } = await retreival.search("keyword", env.files)
+const { files, fragments } = await retrieval.search("keyword", env.files)
 ```
 
 The returned `files` object contains the file with
@@ -18,7 +18,7 @@ concatenated embeddings, and the `fragments` object contains each individual fil
 You can use the result of `files` in the `def` function.
 
 ```js
-const { files } = await retreival.search("keyword", env.files)
+const { files } = await retrieval.search("keyword", env.files)
 def("FILE", files)
 ```
 

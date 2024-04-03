@@ -27,7 +27,7 @@ import {
     CLI_JS,
     TOOL_ID,
     TOOL_NAME,
-    RetreivalSearchResult,
+    RetrievalSearchResult,
     AbortSignalCancellationToken,
     GENAI_JS_REGEX,
     GENAI_JS_GLOB,
@@ -147,7 +147,7 @@ export class ExtensionState extends EventTarget {
         undefined
     readonly output: vscode.LogOutputChannel
 
-    lastSearch: RetreivalSearchResult
+    lastSearch: RetrievalSearchResult
 
     constructor(public readonly context: ExtensionContext) {
         super()

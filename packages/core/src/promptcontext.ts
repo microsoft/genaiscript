@@ -5,7 +5,7 @@ import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsert, search } from "./retreival"
+import { upsert, search } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -74,10 +74,10 @@ export function createPromptContext(
     const path = host.path
     const fs = host.fs
 
-    const retreival: Retreival = {
+    const retrieval: Retrieval = {
         webSearch: async (q) => {
             try {
-                trace.startDetails(`🌐 retreival web search \`${q}\``)
+                trace.startDetails(`🌐 retrieval web search \`${q}\``)
                 const { webPages } = (await bingSearch(q, { trace })) || {}
                 return <SearchResult>{
                     webPages: webPages?.value?.map(
@@ -99,7 +99,7 @@ export function createPromptContext(
         search: async (q, files, searchOptions) => {
             searchOptions = searchOptions || {}
             try {
-                trace.startDetails(`🔍 retreival search \`${q}\``)
+                trace.startDetails(`🔍 retrieval search \`${q}\``)
                 if (!files?.length) {
                     trace.error("no files provided")
                     return { files: [], fragments: [] }
@@ -190,7 +190,7 @@ export function createPromptContext(
         CSV,
         INI,
         AICI,
-        retreival,
+        retrieval,
         defImages,
         defSchema,
         defOutput,

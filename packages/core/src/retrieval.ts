@@ -1,8 +1,8 @@
 import {
-    RetreivalClientOptions,
-    RetreivalOptions,
-    RetreivalSearchOptions,
-    RetreivalUpsertOptions,
+    RetrievalClientOptions,
+    RetrievalOptions,
+    RetrievalSearchOptions,
+    RetrievalUpsertOptions,
     host,
 } from "./host"
 import { lookupMime } from "./mime"
@@ -18,21 +18,21 @@ export function isIndexable(filename: string) {
 }
 
 export async function clearIndex(
-    options?: RetreivalClientOptions & RetreivalOptions
+    options?: RetrievalClientOptions & RetrievalOptions
 ): Promise<void> {
     const { trace } = options || {}
-    await host.retreival.init(trace)
-    await host.retreival.clear(options)
+    await host.retrieval.init(trace)
+    await host.retrieval.clear(options)
 }
 
 export async function upsert(
     fileOrUrls: (string | LinkedFile)[],
-    options?: RetreivalClientOptions & RetreivalUpsertOptions
+    options?: RetrievalClientOptions & RetrievalUpsertOptions
 ) {
     if (!fileOrUrls?.length) return
     const { progress, trace, token, ...rest } = options || {}
-    const retreival = host.retreival
-    await retreival.init(trace)
+    const retrieval = host.retrieval
+    await retrieval.init(trace)
     const files: LinkedFile[] = fileOrUrls.map((f) =>
         typeof f === "string" ? <LinkedFile>{ filename: f } : f
     )
@@ -43,7 +43,7 @@ export async function upsert(
             count: ++count,
             message: f.filename,
         })
-        const { ok } = await retreival.upsert(f.filename, {
+        const { ok } = await retrieval.upsert(f.filename, {
             content: f.content,
             ...rest,
         })
@@ -55,22 +55,22 @@ export async function upsert(
     }
 }
 
-export interface RetreivalSearchResult {
+export interface RetrievalSearchResult {
     files: LinkedFile[]
     fragments: LinkedFile[]
 }
 
 export async function search(
     q: string,
-    options?: RetreivalClientOptions & RetreivalSearchOptions
-): Promise<RetreivalSearchResult> {
+    options?: RetrievalClientOptions & RetrievalSearchOptions
+): Promise<RetrievalSearchResult> {
     const { trace, token, ...rest } = options || {}
     const files: LinkedFile[] = []
-    const retreival = host.retreival
-    await host.retreival.init(trace)
+    const retrieval = host.retrieval
+    await host.retrieval.init(trace)
     if (token?.isCancellationRequested) return { files, fragments: [] }
 
-    const { results } = await retreival.search(q, rest)
+    const { results } = await retrieval.search(q, rest)
 
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r

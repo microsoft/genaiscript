@@ -2,5 +2,5 @@ script({
     title: "bing search",
 })
 
-const { webPages } = await retreival.webSearch("microsoft")
+const { webPages } = await retrieval.webSearch("microsoft")
 def("RES", webPages, { language: "json" })

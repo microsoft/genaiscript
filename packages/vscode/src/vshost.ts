@@ -36,8 +36,8 @@ export class VSCodeHost extends EventTarget implements Host {
         this.state.context.subscriptions.push(this)
     }
 
-    get retreival() {
-        return this.server.retreival
+    get retrieval() {
+        return this.server.retrieval
     }
 
     get context() {

@@ -19,11 +19,11 @@ import { runScript } from "./run"
 import { buildProject } from "./build"
 import { batchScript } from "./batch"
 import {
-    retreivalClear,
-    retreivalIndex,
-    retreivalSearch,
-    retreivalTokens,
-} from "./retreival"
+    retrievalClear,
+    retrievalIndex,
+    retrievalSearch,
+    retrievalTokens,
+} from "./retrieval"
 import { helpAll } from "./help"
 import { jsonl2json, parseDOCX, parseFence, parsePDF } from "./parse"
 import { listScripts } from "./scripts"
@@ -154,8 +154,8 @@ export async function cli() {
         .description("List all available scripts in workspace")
         .action(listScripts)
 
-    const retreival = program.command("retreival").description("RAG support")
-    retreival
+    const retrieval = program.command("retrieval").description("RAG support")
+    retrieval
         .command("index")
         .description("Index a set of documents")
         .argument("<file...>", "Files to index")
@@ -169,8 +169,8 @@ export async function cli() {
             "-sls, --split-long-sentences",
             "split long sentences (default true)"
         )
-        .action(retreivalIndex)
-    retreival
+        .action(retrievalIndex)
+    retrieval
         .command("search")
         .description("Search index")
         .arguments("<query> [files...]")
@@ -178,13 +178,13 @@ export async function cli() {
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .option("-n, --name <string>", "index name")
         //        .option("-s, --summary", "use LLM-generated summaries")
-        .action(retreivalSearch)
-    retreival
+        .action(retrievalSearch)
+    retrieval
         .command("clear")
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
         //        .option("-s, --summary", "use LLM-generated summaries")
-        .action(retreivalClear)
+        .action(retrievalClear)
 
     program
         .command("serve")
@@ -219,7 +219,7 @@ export async function cli() {
         .description("Count tokens in a set of files")
         .arguments("<files...>")
         .option("-ef, --excluded-files <string...>", "excluded files")
-        .action(retreivalTokens)
+        .action(retrievalTokens)
     parser
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")

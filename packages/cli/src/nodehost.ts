@@ -4,7 +4,7 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
-    RetreivalService,
+    RetrievalService,
     ServerManager,
     ShellCallOptions,
     UTF8Decoder,
@@ -21,7 +21,7 @@ import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
-import { LlamaIndexRetreivalService } from "./llamaindexretreival"
+import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 
 class NodeServerManager implements ServerManager {
@@ -36,13 +36,13 @@ class NodeServerManager implements ServerManager {
 export class NodeHost implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
-    retreival: RetreivalService
+    retrieval: RetrievalService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly fs = createFileSystem()
 
     constructor() {
-        this.retreival = new LlamaIndexRetreivalService(this)
+        this.retrieval = new LlamaIndexRetrievalService(this)
     }
 
     static install(dotEnvPath: string) {

@@ -12,7 +12,7 @@ import {
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 
-export async function retreivalIndex(
+export async function retrievalIndex(
     files: string[],
     options: {
         excludedFiles: string[]
@@ -51,7 +51,7 @@ export async function retreivalIndex(
     })
 }
 
-export async function retreivalClear(options: {
+export async function retrievalClear(options: {
     name: string
     summary: boolean
 }) {
@@ -59,7 +59,7 @@ export async function retreivalClear(options: {
     await clearIndex({ indexName, summary })
 }
 
-export async function retreivalSearch(
+export async function retrievalSearch(
     q: string,
     filesGlobs: string[],
     options: {
@@ -84,7 +84,7 @@ export async function retreivalSearch(
     console.log(YAMLStringify(res))
 }
 
-export async function retreivalTokens(
+export async function retrievalTokens(
     filesGlobs: string[],
     options: { excludedFiles: string[]; model: string }
 ) {

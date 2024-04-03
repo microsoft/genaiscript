@@ -93,7 +93,7 @@ defFunction("current_weather", ...)
 Let's illustrate how functions come together with a question answering script.
 
 In the script below, we add the ``system.web_search` which registers the `web_search` function. This function
-will call into `retreival.webSearch` as needed.
+will call into `retrieval.webSearch` as needed.
 
 ```js file="answers.genai.js"
 script({

@@ -79,9 +79,9 @@ declare var path: Path
 declare var parsers: Parsers
 
 /**
- * Retreival Augmented Generation services
+ * Retrieval Augmented Generation services
  */
-declare var retreival: Retreival
+declare var retrieval: Retrieval
 
 /**
  * Access to file system operation on the current workspace.

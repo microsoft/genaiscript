@@ -11,7 +11,7 @@ packages/sample/*.slides.md
 vscode-extension-samples/
 .DS_Store
 .genaiscript/temp
-.genaiscript/retreival
+.genaiscript/retrieval
 results/
 .genaiscript/
 applications/EdgePeeringAI

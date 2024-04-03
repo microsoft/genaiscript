@@ -6,14 +6,14 @@ import {
     TOOL_NAME,
     clearIndex,
     isIndexable,
-    search as retreivalSearch,
+    search as retrievalSearch,
     ICON_LOGO_NAME,
     RETRIEVAL_DEFAULT_INDEX,
 } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { showMarkdownPreview } from "./markdown"
 
-export function activateRetreivalCommands(state: ExtensionState) {
+export function activateRetrievalCommands(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
@@ -77,7 +77,7 @@ export function activateRetreivalCommands(state: ExtensionState) {
             async (progress, token) => {
                 try {
                     state.lastSearch = undefined
-                    const res = await retreivalSearch(keywords, {
+                    const res = await retrievalSearch(keywords, {
                         files,
                         token,
                     })
@@ -102,16 +102,16 @@ export function activateRetreivalCommands(state: ExtensionState) {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         terminal.sendText(
-            `node "${state.cliJsPath}" retreival index "${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}" --name ${indexName}`
+            `node "${state.cliJsPath}" retrieval index "${host.path.join(vscode.workspace.asRelativePath(uri.fsPath), "**")}" --name ${indexName}`
         )
         terminal.show()
     }
 
     subscriptions.push(
-        vscode.commands.registerCommand("genaiscript.retreival.index", index),
-        vscode.commands.registerCommand("genaiscript.retreival.search", search),
+        vscode.commands.registerCommand("genaiscript.retrieval.index", index),
+        vscode.commands.registerCommand("genaiscript.retrieval.search", search),
         vscode.commands.registerCommand(
-            "genaiscript.retreival.clear",
+            "genaiscript.retrieval.clear",
             clearIndex
         )
     )

@@ -1,24 +1,24 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
     ResponseStatus,
-    RetreivalOptions,
-    RetreivalSearchOptions,
-    RetreivalSearchResponse,
-    RetreivalService,
-    RetreivalUpsertOptions,
+    RetrievalOptions,
+    RetrievalSearchOptions,
+    RetrievalSearchResponse,
+    RetrievalService,
+    RetrievalUpsertOptions,
     host,
 } from "../host"
 import { assert } from "../util"
 import {
     RequestMessage,
     RequestMessages,
-    RetreivalClear,
-    RetreivalSearch,
-    RetreivalUpsert,
+    RetrievalClear,
+    RetrievalSearch,
+    RetrievalUpsert,
     ServerVersion,
 } from "./messages"
 
-export class WebSocketClient implements RetreivalService {
+export class WebSocketClient implements RetrievalService {
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -106,9 +106,9 @@ export class WebSocketClient implements RetreivalService {
         return res.version
     }
 
-    async clear(options: RetreivalOptions): Promise<ResponseStatus> {
-        const res = await this.queue<RetreivalClear>({
-            type: "retreival.clear",
+    async clear(options: RetrievalOptions): Promise<ResponseStatus> {
+        const res = await this.queue<RetrievalClear>({
+            type: "retrieval.clear",
             options,
         })
         return res.response
@@ -116,18 +116,18 @@ export class WebSocketClient implements RetreivalService {
 
     async search(
         text: string,
-        options?: RetreivalSearchOptions
-    ): Promise<RetreivalSearchResponse> {
-        const res = await this.queue<RetreivalSearch>({
-            type: "retreival.search",
+        options?: RetrievalSearchOptions
+    ): Promise<RetrievalSearchResponse> {
+        const res = await this.queue<RetrievalSearch>({
+            type: "retrieval.search",
             text,
             options,
         })
         return res.response
     }
-    async upsert(filename: string, options?: RetreivalUpsertOptions) {
-        const res = await this.queue<RetreivalUpsert>({
-            type: "retreival.upsert",
+    async upsert(filename: string, options?: RetrievalUpsertOptions) {
+        const res = await this.queue<RetrievalUpsert>({
+            type: "retrieval.upsert",
             filename,
             options,
         })

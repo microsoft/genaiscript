@@ -6,7 +6,7 @@ sidebar:
     order: 15
 ---
 
-The `retreival.webSearch` executes a web search using the Bing Web Search API.
+The `retrieval.webSearch` executes a web search using the Bing Web Search API.
 
 ## Web Pages
 
@@ -15,7 +15,7 @@ as an array of files, similarly to `env.files`. The content contains
 the summary snippet returned by the search engine.
 
 ```js
-const { webPages } = await retreival.webSearch("microsoft")
+const { webPages } = await retrieval.webSearch("microsoft")
 def("PAGES", webPages)
 ```
 
@@ -31,7 +31,7 @@ BING_SEARCH_API_KEY="your-api-key"
 
 ## Function
 
-Add the [system.web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.web_search.genai.js) system script to register a [function](/genaiscript/reference/scripts/functions) that uses `retreival.webSearch`.
+Add the [system.web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.web_search.genai.js) system script to register a [function](/genaiscript/reference/scripts/functions) that uses `retrieval.webSearch`.
 
 ```js
 script({

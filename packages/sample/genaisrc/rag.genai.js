@@ -7,7 +7,7 @@ $`You are a helpful assistant. Summarize the files.`
 def(
     "MARKDOWN",
     (
-        await retreival.search(
+        await retrieval.search(
             "markdown",
             env.files.filter((f) => f.filename.endsWith(".md"))
         )
@@ -16,7 +16,7 @@ def(
 def(
     "PDF",
     (
-        await retreival.search(
+        await retrieval.search(
             "lorem ipsum",
             env.files.filter((f) => f.filename.endsWith(".pdf"))
         )
@@ -25,10 +25,10 @@ def(
 def(
     "WORD",
     (
-        await retreival.search(
+        await retrieval.search(
             "lorem ipsum",
             env.files.filter((f) => f.filename.endsWith(".docx"))
         )
     ).files
 )
-def("ALL", (await retreival.search("lorem ipsum", env.files)).files)
+def("ALL", (await retrieval.search("lorem ipsum", env.files)).files)

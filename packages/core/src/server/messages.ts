@@ -1,10 +1,10 @@
 import {
     HighlightResponse,
     ResponseStatus,
-    RetreivalOptions,
-    RetreivalSearchOptions,
-    RetreivalSearchResponse,
-    RetreivalUpsertOptions,
+    RetrievalOptions,
+    RetrievalSearchOptions,
+    RetrievalSearchResponse,
+    RetrievalUpsertOptions,
 } from "../host"
 
 export interface RequestMessage {
@@ -17,9 +17,9 @@ export interface ServerKill extends RequestMessage {
     type: "server.kill"
 }
 
-export interface RetreivalClear extends RequestMessage {
-    type: "retreival.clear"
-    options?: RetreivalOptions
+export interface RetrievalClear extends RequestMessage {
+    type: "retrieval.clear"
+    options?: RetrievalOptions
 }
 
 export interface ServerVersion extends RequestMessage {
@@ -27,22 +27,22 @@ export interface ServerVersion extends RequestMessage {
     version?: string
 }
 
-export interface RetreivalUpsert extends RequestMessage {
-    type: "retreival.upsert"
+export interface RetrievalUpsert extends RequestMessage {
+    type: "retrieval.upsert"
     filename: string
-    options?: RetreivalUpsertOptions
+    options?: RetrievalUpsertOptions
 }
 
-export interface RetreivalSearch extends RequestMessage {
-    type: "retreival.search"
+export interface RetrievalSearch extends RequestMessage {
+    type: "retrieval.search"
     text: string
-    options?: RetreivalSearchOptions
-    response?: RetreivalSearchResponse
+    options?: RetrievalSearchOptions
+    response?: RetrievalSearchResponse
 }
 
 export type RequestMessages =
     | ServerKill
-    | RetreivalClear
-    | RetreivalUpsert
-    | RetreivalSearch
+    | RetrievalClear
+    | RetrievalUpsert
+    | RetrievalSearch
     | ServerVersion
