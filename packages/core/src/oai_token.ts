@@ -124,7 +124,7 @@ export async function parseTokenFromEnv(
                 env.AZURE_OPENAI_API_KEY ||
                 env.AZURE_API_KEY ||
                 env.OPENAI_API_KEY
-            const base = trimTrailingSlash(
+            let base = trimTrailingSlash(
                 env.AZURE_OPENAI_ENDPOINT ||
                     env.AZURE_OPENAI_API_BASE ||
                     env.AZURE_API_BASE ||
@@ -143,6 +143,8 @@ export async function parseTokenFromEnv(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
             if (!token) throw new Error("AZURE_OPENAI_API_KEY missing")
+            if (!base.endsWith("/openai/deployments"))
+                base += "/openai/deployments"
             return {
                 base,
                 token,
