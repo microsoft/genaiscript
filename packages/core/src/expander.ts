@@ -97,7 +97,9 @@ async function callExpander(
     }
 
     try {
-        if (/^export /m.test(r.jsSource)) {
+        if (/^export\s+default\s+/m.test(r.jsSource)) {
+            if (!/\.mjs$/i.test(r.filename))
+                throw new Error("export default requires .mjs file")
             await importPrompt(ctx, r, { logCb })
         } else {
             await evalPrompt(ctx, r, {

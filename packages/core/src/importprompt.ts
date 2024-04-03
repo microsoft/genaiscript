@@ -1,3 +1,7 @@
+import { assert } from "console"
+import { host } from "./host"
+import { logError } from "./util"
+
 function resolveGlobal(): any {
     if (typeof window !== "undefined")
         return window // Browser environment
@@ -18,14 +22,20 @@ export async function importPrompt(
 
     const glb: any = resolveGlobal()
     try {
-        for (const field of Object.keys(ctx0)) glb[field] = (ctx0 as any)[field]
+        for (const field of Object.keys(ctx0)) {
+            assert(!glb[field])
+            glb[field] = (ctx0 as any)[field]
+        }
 
-        const main = await import(filename)
+        const modulePath = host.path.join(host.projectFolder(), filename)
+        const module = await import(modulePath)
+        const main = module.default
         if (!main) throw new Error("default import function missing")
         if (typeof main !== "function")
             throw new Error("default export must be a function")
-
         await main(ctx0)
+    } catch (err) {
+        logError(err)
     } finally {
         for (const field of Object.keys(ctx0)) delete glb[field]
     }

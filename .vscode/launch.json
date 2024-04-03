@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["parse", "code", "packages/sample/src/tla/EWD998PCal.tla", "(interface_declaration) @i"]
+            "args": ["run", "packages/sample/genaisrc/summarize-import.genai.mjs", "packages/sample/src/questions.md"]
         },
         {
             "name": "Run - sample",

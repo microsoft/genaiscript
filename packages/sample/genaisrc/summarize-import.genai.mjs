@@ -2,7 +2,7 @@ script({
     title: "summarize all files using import"
 })
 
-export function main() {
+export default function () {
     def("FILE", env.files)
     $`Summarize each file. Be concise.`
 }

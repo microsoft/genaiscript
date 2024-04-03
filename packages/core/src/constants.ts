@@ -7,7 +7,12 @@ export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
 export const GENAI_SRC = "genaisrc"
-export const GENAI_EXT = ".genai.js"
+export const GENAI_JS_EXT = ".genai.js"
+export const GENAI_MJS_EXT = ".genai.mjs"
+export const GENAI_JS_GLOB = "**/*.genai.*js"
+export const GENAI_JS_REGEX = /\.genai\.m?js$/i
+export const GPSPEC_REGEX = /\.gpspec\.md$/i
+export const GPSPEC_GLOB = "**/*.gpspec.md"
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
 export const CLIENT_RECONNECT_DELAY = 2000
@@ -34,9 +39,6 @@ export const ICON_LOGO_NAME = "genaiscript-logo"
 export const SARIFF_RULEID_PREFIX = "genascript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
-export const GENAI_JS_REGEX = /\.genai\.js$/i
-export const GPSPEC_REGEX = /\.gpspec\.md$/i
-
 
 export const UNHANDLED_ERROR_CODE = -1
 export const ANNOTATION_ERROR_CODE = -2
