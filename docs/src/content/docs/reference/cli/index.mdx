@@ -6,6 +6,7 @@ description: Comprehensive guide to using the GenAIScript CLI for automating tas
 keywords: GenAIScript CLI, Node.js automation, AI scripting, command line interface, JavaScript automation
 ---
 
+import { Steps } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 The GenAIScript CLI **`genaiscript`** runs GenAIScript scripts
@@ -17,7 +18,20 @@ npx genaiscript ...
 
 ## Installation
 
-You would typically install the CLI as a `devDependency` in your project.
+<Steps>
+
+<ol>
+
+<li>
+
+Install [Node.JS](https://nodejs.org/en/download/). Consider using [nvm](https://github.com/nvm-sh/nvm) 
+or [nvw-windows](https://github.com/coreybutler/nvm-windows#installation--upgrades) on Windows.
+
+</li>
+
+<li>
+
+Install locally as a `devDependency` in your project.
 
 <Tabs>
   <TabItem label="npm" icon="seti:npm">
@@ -36,7 +50,21 @@ yarn add -D genaiscript
   </TabItem>
 </Tabs>
 
+or install it globally.
+
+```sh "-g"
+npm install -g genaiscript
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
 ## No Installation (`npx`)
+
+Make sure to install **Node.JS** as described in step 1 above.
 
 Using [npx](https://docs.npmjs.com/cli/v10/commands/npx), 
 you can run the cli without any prior installation steps. 
@@ -49,17 +77,17 @@ npx genaiscript ...
 
 Add `--yes` to skip the confirmation prompt, which is useful in a CI scenario.
 
-```sh
+```sh "--yes"
 npx --yes genaiscript ...
 ```
 
 You can also lock this call to a particular version.
 
-```sh
+```sh "@^1.16.0"
 npx --yes genaiscript@^1.16.0 ...
 ```
 
-## Run a script
+## [Run a script](/genaiscript/reference/cli/run)
 
 Runs a genai script on file and streams the LLM output to stdout.
 
