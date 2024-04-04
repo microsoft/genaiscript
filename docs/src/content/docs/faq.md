@@ -95,7 +95,7 @@ keywords: AI, script generation, performance, best practices, limitations
   Check the repository for contribution guidelines and consider providing feedback, submitting issues, or contributing code. Visit the [Contributing](https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md) page for more information.
 
 - **Who can I contact for feedback or questions about GenAIScript?**
-  You can email the provided contacts in the [Transparency Note](/genaiscript/reference/transparency-note) document for feedback or questions.
+  You can email the provided contacts in the [Transparency Note](https://microsoft.github.io/genaiscript/reference/transparency-note/) document for feedback or questions.
 
 ### Updates and Roadmap
 
