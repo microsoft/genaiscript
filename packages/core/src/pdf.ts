@@ -4,6 +4,7 @@ import { MarkdownTrace } from "./trace"
 import { installImport } from "./import"
 import { logError } from "./util"
 import { PDFJS_DIST_VERSION } from "./version"
+import os from "os"
 
 // please some typescript warnings
 declare global {
@@ -13,8 +14,10 @@ declare global {
 async function tryImportPdfjs(trace?: MarkdownTrace) {
     try {
         const pdfjs = await import("pdfjs-dist")
-        pdfjs.GlobalWorkerOptions.workerSrc =
-            "file://" + require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
+        let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
+        if (os.platform() === "win32")
+            workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
+        pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
         return pdfjs
     } catch (e) {
         trace?.error(
@@ -22,8 +25,10 @@ async function tryImportPdfjs(trace?: MarkdownTrace) {
         )
         await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
         const pdfjs = await import("pdfjs-dist")
-        pdfjs.GlobalWorkerOptions.workerSrc =
-            "file://" + require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
+        let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
+        if (os.platform() === "win32")
+            workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
+        pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
         return pdfjs
     }
 }
