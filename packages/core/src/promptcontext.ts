@@ -28,6 +28,7 @@ import { INIParse, INIStringify } from "./ini"
 import { CancelError } from "./error"
 import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
+import { XMLParse } from "./xml"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -61,6 +62,9 @@ export function createPromptContext(
     const INI = Object.freeze<INI>({
         parse: INIParse,
         stringify: INIStringify,
+    })
+    const XML = Object.freeze<XML>({
+        parse: XMLParse
     })
     const AICI = Object.freeze<AICI>({
         gen: (options: AICIGenOptions) => {
@@ -173,6 +177,7 @@ export function createPromptContext(
         CSV,
         INI,
         AICI,
+        XML,
         retrieval,
         defImages,
         defSchema,
