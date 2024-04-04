@@ -13,25 +13,18 @@ declare global {
 async function tryImportPdfjs(trace?: MarkdownTrace) {
     try {
         const pdfjs = await import("pdfjs-dist")
-        pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
-            "pdfjs-dist/build/pdf.worker.min.mjs"
-        )
+        pdfjs.GlobalWorkerOptions.workerSrc =
+            "file://" + require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
         return pdfjs
     } catch (e) {
         trace?.error(
             `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`
         )
-        try {
-            await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
-            const pdfjs = await import("pdfjs-dist")
-            pdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
-                "pdfjs-dist/build/pdf.worker.min.mjs"
-            )
-            return pdfjs
-        } catch (e) {
-            trace?.error("pdfjs-dist failed to load")
-            return undefined
-        }
+        await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
+        const pdfjs = await import("pdfjs-dist")
+        pdfjs.GlobalWorkerOptions.workerSrc =
+            "file://" + require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
+        return pdfjs
     }
 }
 
