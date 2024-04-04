@@ -27,6 +27,7 @@ import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { CancelError } from "./error"
 import { createFetch } from "./fetch"
+import { resolveFileDataUri } from "./file"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -129,27 +130,9 @@ export function createPromptContext(
             appendPromptChild(
                 createImageNode(
                     (async () => {
-                        let bytes: Uint8Array
-                        if (/^https?:\/\//i.test(file.filename)) {
-                            const fetch = await createFetch()
-                            const resp = await fetch(file.filename)
-                            if (!resp.ok) return undefined
-                            const buffer = await resp.arrayBuffer()
-                            bytes = new Uint8Array(buffer)
-                        } else {
-                            bytes = new Uint8Array(
-                                await host.readFile(file.filename)
-                            )
-                        }
-                        const mime = (await fileTypeFromBuffer(bytes))?.mime
-                        if (
-                            !mime ||
-                            !/^image\/(png|jpeg|webp|gif)$/i.test(mime)
-                        )
-                            return undefined
-                        const b64 = toBase64(bytes)
+                        const url = await resolveFileDataUri(file)
                         return {
-                            url: `data:${mime};base64,${b64}`,
+                            url,
                             filename: file.filename,
                             detail,
                         }
@@ -180,8 +163,8 @@ export function createPromptContext(
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
-        script: () => {},
-        system: () => {},
+        script: () => { },
+        system: () => { },
         env,
         path,
         fs,
