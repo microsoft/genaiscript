@@ -29,10 +29,10 @@ export async function exec(
         )
         await host.createDirectory(outputdir)
 
-        stdoutfile = outputdir + "/stdout.txt"
-        stderrfile = outputdir + "/stderr.txt"
-        exitcodefile = outputdir + "/exitcode.txt"
-        stdinfile = outputdir + "/stdin.txt"
+        stdoutfile = host.path.join(outputdir, "stdout.txt")
+        stderrfile = host.path.join(outputdir, "stderr.txt")
+        exitcodefile = host.path.join(outputdir, "exitcode.txt")
+        stdinfile = host.path.join(outputdir, "stdin.txt")
 
         await writeText(stdinfile, stdin || "")
 
@@ -44,7 +44,7 @@ export async function exec(
             }
         }
 
-        if (outputFile) outputFile = outputdir + "/" + outputFile
+        if (outputFile) outputFile = host.path.join(outputdir, outputFile)
 
         const subs = {
             outputdir,

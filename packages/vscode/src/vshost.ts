@@ -216,6 +216,7 @@ export class VSCodeHost extends EventTarget implements Host {
         options: ShellCallOptions
     ): Promise<Partial<ShellOutput>> {
         const { cwd, exitcodefile, stdoutfile, stdinfile, outputdir } = options
+        const { subscriptions } = this.state.context
 
         const terminal = vscode.window.createTerminal({
             cwd,
@@ -223,14 +224,19 @@ export class VSCodeHost extends EventTarget implements Host {
             name: TOOL_NAME,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
+        subscriptions.push(terminal)
+
+        let exitCode: number = undefined
         let watcher: vscode.FileSystemWatcher
-        this.state.context.subscriptions.push(terminal)
 
         const clean = async () => {
-            watcher?.dispose()
-            terminal?.dispose()
-            const i = this.state.context.subscriptions.indexOf(terminal)
-            if (i > -1) this.state.context.subscriptions.splice(i, 1)
+            [watcher, terminal]
+                .filter(d => !!d)
+                .forEach(d => {
+                    d.dispose()
+                    const i = subscriptions.indexOf(d)
+                    if (i > -1) subscriptions.splice(i, 1)
+                })
         }
 
         return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
@@ -240,10 +246,13 @@ export class VSCodeHost extends EventTarget implements Host {
                 false,
                 true
             )
+            subscriptions.push(watcher)
             watcher.onDidChange(async (e) => {
                 if (await checkFileExists(Uri.file(exitcodefile))) {
-                    resolve(<Partial<ShellOutput>>{})
-                    watcher.dispose()
+                    exitCode = parseInt(await readFileText(Uri.file(exitcodefile)))
+                    resolve(<Partial<ShellOutput>>{
+                        exitCode
+                    })
                 }
             })
             const text = `${command} ${args
