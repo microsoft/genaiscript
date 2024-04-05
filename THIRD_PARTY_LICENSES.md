@@ -23637,7 +23637,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - tree-sitter-wasms@0.1.7
+ - tree-sitter-wasms@0.1.11
 
 This package contains the following license and notice below:
 

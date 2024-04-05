@@ -23,7 +23,7 @@
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
   "dependencies": {
-    "tree-sitter-wasms": "^0.1.10",
+    "tree-sitter-wasms": "^0.1.11",
     "web-tree-sitter": "^0.22.2",
     "pdfjs-dist": "4.0.379"
   },
