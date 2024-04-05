@@ -50,7 +50,7 @@ and create GenAIScripts for each. I would feed the output of one script (like th
 of characters) into other scripts as part of the context.
 3. Don't assume that the LLM will do programming tasks.  If you want to 
 apply a GenAIScript to all the files in a directory, use the command line 
-invocation of the script [CLI](https://microsoft.github.io/genaiscript/reference/cli/)
+invocation of the script [CLI](/genaiscript/reference/cli/)
 and a non-AI script to iterate over all the files.  You can use an GenAIScript to 
 write code, but the code the LLM generates will not automatically run after you 
 generate it.  You need to run and debug the generated code yourself.
@@ -88,7 +88,7 @@ generate it.  You need to run and debug the generated code yourself.
   Review the prompt and output, ensure your script correctly handles the LLM's response, and adjust your parsing logic as needed.
 
 - **Where can I find examples of GenAIScript to understand its capabilities better?**
-  Visit the GenAIScript GitHub repository for examples and documentation. [GenAIScript Documentation](https://microsoft.github.io/genaiscript/)
+  Visit the GenAIScript GitHub repository for examples and documentation. [GenAIScript Documentation](/genaiscript/)
 
 ### Security and Responsible AI
 
@@ -97,7 +97,7 @@ generate it.  You need to run and debug the generated code yourself.
 
 - **How does GenAIScript align with Responsible AI practices?**
   GenAIScript encourages the use of models with robust Responsible AI mitigations and provides guidance on secure and ethical usage. 
-  For more information, see the [Transaprency Note](/genaiscript/reference/transparency-note)
+  For more information, see the [Transparency Note](/genaiscript/reference/transparency-note)
 
 - **What foundation models and LLMs are recommended for use with GenAIScript?**
   Services like Azure Open AI with updated safety and Responsible AI features are recommended.  GenAIScript can also be used with existing open-source LLMs.
@@ -111,7 +111,7 @@ generate it.  You need to run and debug the generated code yourself.
   Check the repository for contribution guidelines and consider providing feedback, submitting issues, or contributing code. Visit the [Contributing](https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md) page for more information.
 
 - **Who can I contact for feedback or questions about GenAIScript?**
-  You can email the provided contacts in the [Transparency Note](https://microsoft.github.io/genaiscript/reference/transparency-note/) document for feedback or questions.
+  You can email the provided contacts in the [Transparency Note](/genaiscript/reference/transparency-note/) document for feedback or questions.
 
 ### Updates and Roadmap
 
