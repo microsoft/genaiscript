@@ -22,7 +22,9 @@ will help us plan by using web search to learn about things to do and the expect
     })
     ```
 3. Use the [`webSearch`](/genaiscript/reference/scripts/web-search/) function to 
-search for information about the destination.
+search for information about the destination. Note that the use `webSearch` you will need a Bing Web Search API key. 
+    If you don't have one, then you can search for the web pages manually and use the URLs directly
+    in the call to the `fetchText` function.
     ```js
     const parkinfo = await retrieval.webSearch("mt rainier things to do")   
     ```
