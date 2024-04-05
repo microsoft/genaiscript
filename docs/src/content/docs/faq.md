@@ -37,8 +37,24 @@ keywords: AI, script generation, performance, best practices, limitations
 - **How do I debug a GenAIScript in VS Code?**
   Use the GenAIScript extension in VS Code, which provides tools for running, debugging, and tracing the execution of your script. Directions for debugging are here: [Debugging](/genaiscript/getting-started/debugging-scripts)
 
+
 - **What are the best practices for authoring effective prompts in GenAIScript?**
-  Consult the documentation for the specific LLM you are using to understand how to write prompts that effectively communicate the task you want the AI to perform.
+1. Given the model the context it needs.  Using `env.files` or writing a `.gpspec.md` file, 
+create enough background context that the LLM you choose can do a good job on the
+task you give it.
+2. Focus a GenAIScript on having the model do 1 thing well. Say I wanted to use a GenAIScript
+to write a novel. Instead of asking the model to 
+write a whole novel or white paper as one prompt, I would divide the task
+into different parts: generate the characters, establish a setting, develop a plot, etc.
+and create GenAIScripts for each. I would feed the output of one script (like the list
+of characters) into other scripts as part of the context.
+3. Don't assume that the LLM will do programming tasks.  If you want to 
+apply a GenAIScript to all the files in a directory, use the command line 
+invocation of the script [CLI](https://microsoft.github.io/genaiscript/reference/cli/)
+and a non-AI script to iterate over all the files.  You can use an GenAIScript to 
+write code, but the code the LLM generates will not automatically run after you 
+generate it.  You need to run and debug the generated code yourself.
+4. Consult the documentation for the specific LLM you are using to understand how to write prompts that effectively communicate the task you want the AI to perform.
 
 - **How can I integrate calls to multiple LLM models within a single GenAIScript?**
   The framework allows you to parameterize calls to different models, so you can include multiple model invocations within your script and manage them accordingly using the runPrompt function documented here: [Inline Prompts](/genaiscript/reference/scripts/inline-prompts)
