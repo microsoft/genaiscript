@@ -418,6 +418,11 @@ interface DefOptions extends FenceOptions {
      * Filename filter using glob syntax.
      */
     glob?: string
+
+    /**
+     * By default, throws an error if the value in def is empty.
+     */
+    ignoreEmpty?: boolean
 }
 
 interface DefImagesOptions {

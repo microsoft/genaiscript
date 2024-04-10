@@ -15,6 +15,7 @@ import { RunTemplateOptions } from "./promptcontext"
 import { resolveLanguageModel } from "./models"
 import { renderAICI } from "./aici"
 import { initToken } from "./oai_token"
+import { CancelError } from "./error"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -47,8 +48,10 @@ export function createRunPromptContext(
             doptions.lineNumbers = doptions.lineNumbers ?? options.lineNumbers
             // shortcuts
             if (body === undefined || body === null) return undefined
-            else if (Array.isArray(body))
+            else if (Array.isArray(body)) {
+                if (body.length === 0 && !doptions.ignoreEmpty) throw new CancelError("def files empty")
                 body.forEach((f) => ctx.def(name, f, defOptions))
+            }
             else if (typeof body === "object" && body.filename) {
                 const { glob, endsWith } = defOptions || {}
                 const filename = body.filename
