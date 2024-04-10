@@ -40,11 +40,3 @@ script({
 })
 ...
 ```
-
-## Trace
-
-You will find the internal details of the web search in the trace.
-
-```
-
-```
