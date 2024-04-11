@@ -134,7 +134,7 @@ export function createPromptContext(
             appendPromptChild(
                 createImageNode(
                     (async () => {
-                        const url = await resolveFileDataUri(file)
+                        const url = await resolveFileDataUri(file, { trace })
                         return {
                             url,
                             filename: file.filename,

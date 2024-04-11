@@ -27,10 +27,10 @@ export async function resolveFileContent(file: LinkedFile, options?: TraceOption
     return file
 }
 
-export async function resolveFileDataUri(file: LinkedFile) {
+export async function resolveFileDataUri(file: LinkedFile, options?: TraceOptions) {
     let bytes: Uint8Array
     if (/^https?:\/\//i.test(file.filename)) {
-        const fetch = await createFetch()
+        const fetch = await createFetch(options)
         const resp = await fetch(file.filename)
         const buffer = await resp.arrayBuffer()
         bytes = new Uint8Array(buffer)
