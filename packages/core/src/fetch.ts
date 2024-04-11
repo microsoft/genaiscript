@@ -1,12 +1,11 @@
 import crossFetch from "cross-fetch"
 import wrapFetch from "fetch-retry"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 
 export async function createFetch(options?: {
     retryOn?: number[],
     retries?: number,
-    trace?: MarkdownTrace
-}) {
+} & TraceOptions) {
     const { retries = 3, retryOn = [429, 500], trace } = options || {}
     const fetchRetry = await wrapFetch(crossFetch, {
         retryOn,

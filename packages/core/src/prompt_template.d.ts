@@ -751,6 +751,14 @@ interface YAML {
     parse(text: string): any
 }
 
+interface XML {
+    /**
+     * Parses an XML payload to an object
+     * @param text 
+     */
+    parse(text: string): any
+}
+
 interface INI {
     /**
      * Parses a .ini file
@@ -1037,6 +1045,7 @@ interface PromptContext extends RunPromptContext {
     retrieval: Retrieval
     fs: FileSystem
     YAML: YAML
+    XML: XML
     CSV: CSV
     INI: INI
     AICI: AICI

@@ -65,7 +65,7 @@ export async function treeSitterQuery(
     const { filename } = file
     const { trace } = options || {}
 
-    await resolveFileContent(file)
+    await resolveFileContent(file, options)
     if (!file.content) return undefined
 
     try {

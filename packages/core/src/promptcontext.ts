@@ -27,6 +27,8 @@ import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
 import { CancelError } from "./error"
 import { createFetch } from "./fetch"
+import { resolveFileDataUri } from "./file"
+import { XMLParse } from "./xml"
 
 function stringLikeToFileName(f: string | LinkedFile) {
     return typeof f === "string" ? f : f?.filename
@@ -60,6 +62,9 @@ export function createPromptContext(
     const INI = Object.freeze<INI>({
         parse: INIParse,
         stringify: INIStringify,
+    })
+    const XML = Object.freeze<XML>({
+        parse: XMLParse
     })
     const AICI = Object.freeze<AICI>({
         gen: (options: AICIGenOptions) => {
@@ -129,27 +134,9 @@ export function createPromptContext(
             appendPromptChild(
                 createImageNode(
                     (async () => {
-                        let bytes: Uint8Array
-                        if (/^https?:\/\//i.test(file.filename)) {
-                            const fetch = await createFetch()
-                            const resp = await fetch(file.filename)
-                            if (!resp.ok) return undefined
-                            const buffer = await resp.arrayBuffer()
-                            bytes = new Uint8Array(buffer)
-                        } else {
-                            bytes = new Uint8Array(
-                                await host.readFile(file.filename)
-                            )
-                        }
-                        const mime = (await fileTypeFromBuffer(bytes))?.mime
-                        if (
-                            !mime ||
-                            !/^image\/(png|jpeg|webp|gif)$/i.test(mime)
-                        )
-                            return undefined
-                        const b64 = toBase64(bytes)
+                        const url = await resolveFileDataUri(file, { trace })
                         return {
-                            url: `data:${mime};base64,${b64}`,
+                            url,
                             filename: file.filename,
                             detail,
                         }
@@ -180,8 +167,8 @@ export function createPromptContext(
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
-        script: () => {},
-        system: () => {},
+        script: () => { },
+        system: () => { },
         env,
         path,
         fs,
@@ -190,6 +177,7 @@ export function createPromptContext(
         CSV,
         INI,
         AICI,
+        XML,
         retrieval,
         defImages,
         defSchema,
