@@ -12,7 +12,10 @@ declare global {
     export type SVGGraphics = any
 }
 
+let _pdfjs: any
 async function tryImportPdfjs(options?: TraceOptions) {
+    if (_pdfjs) return _pdfjs
+    
     const { trace } = options || {}
     try {
         const pdfjs = await import("pdfjs-dist")
@@ -20,7 +23,7 @@ async function tryImportPdfjs(options?: TraceOptions) {
         if (os.platform() === "win32")
             workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
-        return pdfjs
+        return _pdfjs = pdfjs
     } catch (e) {
         trace?.error(
             `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`, e
@@ -31,7 +34,7 @@ async function tryImportPdfjs(options?: TraceOptions) {
         if (os.platform() === "win32")
             workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
-        return pdfjs
+        return _pdfjs = pdfjs
     }
 }
 
@@ -46,7 +49,7 @@ async function PDFTryParse(
     content?: Uint8Array,
     options?: { disableCleanup?: boolean } & TraceOptions
 ): Promise<string[]> {
-    const { trace, disableCleanup } = options || {}
+    const { disableCleanup } = options || {}
     try {
         const pdfjs = await tryImportPdfjs(options)
         const { getDocument } = pdfjs
@@ -93,7 +96,9 @@ export async function parsePdf(filename: string, options?: ParsePDFOptions & Tra
 
 export function createBundledParsers(): ParseService {
     return {
-        init: async () => { },
+        init: async (trace) => {
+            await tryImportPdfjs({ trace })
+        },
         async parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse> {
             const pages = await PDFTryParse(filename, undefined, options)
             if (!pages) return { ok: false }

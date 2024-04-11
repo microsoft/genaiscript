@@ -121,7 +121,7 @@ export interface ParseService {
     parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse>
 }
 
-export type ServerResponse = ResponseStatus & { version: string }
+export type ServerResponse = ResponseStatus & { version: string, nodeVersion: string, pid: number }
 
 export interface ServerManager {
     start(): Promise<void>
