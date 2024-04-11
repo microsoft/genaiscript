@@ -155,3 +155,7 @@ ${title}
         })
     }
 }
+
+export interface TraceOptions {
+    trace?: MarkdownTrace
+}
