@@ -1,5 +1,7 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
+    ParsePdfResponse,
+    ParseService,
     ResponseStatus,
     RetrievalOptions,
     RetrievalSearchOptions,
@@ -10,6 +12,7 @@ import {
 } from "../host"
 import { assert } from "../util"
 import {
+    ParsePdfMessage,
     RequestMessage,
     RequestMessages,
     RetrievalClear,
@@ -18,7 +21,7 @@ import {
     ServerVersion,
 } from "./messages"
 
-export class WebSocketClient implements RetrievalService {
+export class WebSocketClient implements RetrievalService, ParseService {
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -28,7 +31,7 @@ export class WebSocketClient implements RetrievalService {
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
 
-    constructor(readonly url: string) {}
+    constructor(readonly url: string) { }
 
     async init(): Promise<void> {
         if (this._ws) return Promise.resolve(undefined)
@@ -60,15 +63,15 @@ export class WebSocketClient implements RetrievalService {
         this._ws.addEventListener("close", () => this.reconnect())
         this._ws.addEventListener("message", <
             (event: MessageEvent<any>) => void
-        >(async (event) => {
-            const data: RequestMessages = JSON.parse(event.data)
-            const { id } = data
-            const awaiter = this.awaiters[id]
-            if (awaiter) {
-                delete this.awaiters[id]
-                await awaiter.resolve(data)
-            }
-        }))
+            >(async (event) => {
+                const data: RequestMessages = JSON.parse(event.data)
+                const { id } = data
+                const awaiter = this.awaiters[id]
+                if (awaiter) {
+                    delete this.awaiters[id]
+                    await awaiter.resolve(data)
+                }
+            }))
     }
 
     private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
@@ -133,6 +136,14 @@ export class WebSocketClient implements RetrievalService {
         })
         return res.response
     }
+
+    async parsePdf(filename: string): Promise<ParsePdfResponse> {
+        const res = await this.queue<ParsePdfMessage>({
+            type: "parse.pdf", filename
+        })
+        return res.response
+    }
+
 
     kill(): void {
         if (this._ws?.readyState === WebSocket.OPEN)

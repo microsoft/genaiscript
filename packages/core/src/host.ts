@@ -112,7 +112,13 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export type HighlightResponse = ResponseStatus & { response: string }
+export type ParsePdfResponse = ResponseStatus & {
+    pages: string[]
+}
+
+export interface ParseService {
+    parsePdf(filename: string): Promise<ParsePdfResponse>
+}
 
 export type ServerResponse = ResponseStatus & { version: string }
 
@@ -124,6 +130,7 @@ export interface ServerManager {
 export interface Host {
     userState: any
 
+    parser: ParseService
     retrieval: RetrievalService
     server: ServerManager
     path: Path

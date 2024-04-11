@@ -62,6 +62,10 @@ export async function startServer(options: { port: string }) {
                         )
                         console.debug(YAMLStringify(response))
                         break
+                    case "parse.pdf":
+                        console.log(`parse: pdf ${data.filename}`)
+                        response = await host.parser.parsePdf(data.filename)
+                        break
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }

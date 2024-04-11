@@ -14,6 +14,7 @@ import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
+import { ParsePdfResponse, ParseService, host } from "./host"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -56,9 +57,8 @@ export function createParsers(options: {
             if (!file) return { file: undefined, pages: [] }
             const { filter = () => true } = options || {}
             const filename = typeof file === "string" ? file : file.filename
-            const pages = (
-                await PDFTryParse(filename, undefined, { trace })
-            )?.filter((text, index) => filter(index, text))
+            const res = await host.parser.parsePdf(filename)
+            const pages = res?.pages?.filter((text, index) => filter(index, text))
             return {
                 file: pages
                     ? <LinkedFile>{
@@ -71,4 +71,16 @@ export function createParsers(options: {
         },
         code: async (file, query) => await treeSitterQuery(file, query, { trace }),
     })
+}
+
+export function createBundledParsers(): ParseService {
+    return {
+        async parsePdf(filename: string): Promise<ParsePdfResponse> {
+            const pages = await PDFTryParse(filename)
+            return {
+                ok: true,
+                pages
+            }
+        }
+    }
 }

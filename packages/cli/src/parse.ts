@@ -4,7 +4,6 @@ import {
     YAMLStringify,
     expandFiles,
     extractFenced,
-    host,
     isJSONLFilename,
     readJSONL,
     writeText,
