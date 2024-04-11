@@ -1,6 +1,5 @@
 import type { TextItem } from "pdfjs-dist/types/src/display/api"
 import { ParsePdfResponse, ParseService, host } from "./host"
-import { MarkdownTrace } from "./trace"
 import { TraceOptions } from "./trace"
 import { installImport } from "./import"
 import { logError } from "./util"
@@ -12,10 +11,7 @@ declare global {
     export type SVGGraphics = any
 }
 
-let _pdfjs: any
 async function tryImportPdfjs(options?: TraceOptions) {
-    if (_pdfjs) return _pdfjs
-    
     const { trace } = options || {}
     try {
         const pdfjs = await import("pdfjs-dist")
@@ -23,7 +19,7 @@ async function tryImportPdfjs(options?: TraceOptions) {
         if (os.platform() === "win32")
             workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
-        return _pdfjs = pdfjs
+        return pdfjs
     } catch (e) {
         trace?.error(
             `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`, e
@@ -34,7 +30,7 @@ async function tryImportPdfjs(options?: TraceOptions) {
         if (os.platform() === "win32")
             workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
-        return _pdfjs = pdfjs
+        return pdfjs
     }
 }
 
