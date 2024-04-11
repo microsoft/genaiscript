@@ -113,10 +113,11 @@ export interface RetrievalService {
 }
 
 export type ParsePdfResponse = ResponseStatus & {
-    pages: string[]
+    pages?: string[]
 }
 
 export interface ParseService {
+    init(trace?: MarkdownTrace): Promise<void>
     parsePdf(filename: string): Promise<ParsePdfResponse>
 }
 

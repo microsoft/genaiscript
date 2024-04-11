@@ -13,6 +13,7 @@ import {
 
 export async function startServer(options: { port: string }) {
     await host.retrieval.init()
+    await host.parser.init()
 
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })

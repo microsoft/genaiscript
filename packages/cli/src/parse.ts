@@ -1,12 +1,12 @@
 import {
     DOCXTryParse,
-    PDFTryParse,
     YAMLStringify,
     expandFiles,
     extractFenced,
     isJSONLFilename,
     readJSONL,
     writeText,
+    parsePdf,
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 import replaceExt from "replace-ext"
@@ -21,8 +21,8 @@ export async function parseFence(language: string) {
 }
 
 export async function parsePDF(file: string) {
-    const pages = await PDFTryParse(file)
-    const out = YAMLStringify(pages)
+    const res = await parsePdf(file)
+    const out = YAMLStringify(res)
     console.log(out)
 }
 

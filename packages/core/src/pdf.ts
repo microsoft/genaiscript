@@ -1,5 +1,5 @@
 import type { TextItem } from "pdfjs-dist/types/src/display/api"
-import { host } from "./host"
+import { ParsePdfResponse, ParseService, host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { installImport } from "./import"
 import { logError } from "./util"
@@ -39,7 +39,7 @@ async function tryImportPdfjs(trace?: MarkdownTrace) {
  * @param content
  * @returns
  */
-export async function PDFTryParse(
+async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
     options?: { trace: MarkdownTrace; disableCleanup?: boolean }
@@ -75,8 +75,32 @@ export async function PDFTryParse(
     }
 }
 
-export function PDFPagesToString(pages: string[]) {
+function PDFPagesToString(pages: string[]) {
     return pages?.join("\n\n-------- Page Break --------\n\n")
+}
+
+export async function parsePdf(filename: string, options?: ParsePDFOptions & { trace?: MarkdownTrace }): Promise<{ pages: string[], content: string }> {
+    const { trace, filter } = options || {}
+    await host.parser.init(trace)
+    let { pages } = await host.parser.parsePdf(filename)
+    if (filter) pages = pages.filter((page, index) => filter(index, page))
+    const content = PDFPagesToString(pages)
+    return { pages, content }
+}
+
+
+export function createBundledParsers(): ParseService {
+    return {
+        init: async () => { },
+        async parsePdf(filename: string): Promise<ParsePdfResponse> {
+            const pages = await PDFTryParse(filename)
+            if (!pages) return { ok: false }
+            return {
+                ok: true,
+                pages,
+            }
+        }
+    }
 }
 
 // to avoid cjs loading issues of pdfjs-dist, move this function in house

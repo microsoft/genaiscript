@@ -1,7 +1,6 @@
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
-import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { estimateTokens } from "./tokens"
 import { TOMLTryParse } from "./toml"
 import { MarkdownTrace } from "./trace"
@@ -14,7 +13,7 @@ import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
-import { ParsePdfResponse, ParseService, host } from "./host"
+import { parsePdf } from "./pdf"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -55,15 +54,13 @@ export function createParsers(options: {
         },
         PDF: async (file, options) => {
             if (!file) return { file: undefined, pages: [] }
-            const { filter = () => true } = options || {}
             const filename = typeof file === "string" ? file : file.filename
-            const res = await host.parser.parsePdf(filename)
-            const pages = res?.pages?.filter((text, index) => filter(index, text))
+            const { pages, content } = await parsePdf(filename, options) || {}
             return {
                 file: pages
                     ? <LinkedFile>{
                         filename,
-                        content: PDFPagesToString(pages),
+                        content
                     }
                     : undefined,
                 pages,
@@ -71,16 +68,4 @@ export function createParsers(options: {
         },
         code: async (file, query) => await treeSitterQuery(file, query, { trace }),
     })
-}
-
-export function createBundledParsers(): ParseService {
-    return {
-        async parsePdf(filename: string): Promise<ParsePdfResponse> {
-            const pages = await PDFTryParse(filename)
-            return {
-                ok: true,
-                pages
-            }
-        }
-    }
 }
