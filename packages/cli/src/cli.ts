@@ -16,7 +16,6 @@ import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION } from "./version"
 import { runScript } from "./run"
-import { buildProject } from "./build"
 import { batchScript } from "./batch"
 import {
     retrievalClear,

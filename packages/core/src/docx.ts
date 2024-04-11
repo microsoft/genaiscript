@@ -1,5 +1,5 @@
 import { host } from "./host"
-import { MarkdownTrace } from "./trace"
+import { TraceOptions } from "./trace"
 import { logError } from "./util"
 import { extractRawText } from "mammoth"
 
@@ -11,7 +11,7 @@ import { extractRawText } from "mammoth"
  */
 export async function DOCXTryParse(
     file: string,
-    options?: { trace: MarkdownTrace }
+    options?: TraceOptions
 ): Promise<string> {
     const { trace } = options || {}
     try {
