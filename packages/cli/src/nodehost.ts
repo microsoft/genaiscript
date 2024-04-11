@@ -15,7 +15,7 @@ import {
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "fs/promises"
-import { ensureDir, remove } from "fs-extra"
+import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
@@ -46,7 +46,11 @@ export class NodeHost implements Host {
     }
 
     static install(dotEnvPath: string) {
-        dotenv.config({ path: dotEnvPath })
+        dotEnvPath = dotEnvPath || resolve(".env")
+        if (existsSync(dotEnvPath)) {
+            const res = dotenv.config({ path: dotEnvPath })
+            if (res.error) throw res.error
+        }
         setHost(new NodeHost())
     }
 
