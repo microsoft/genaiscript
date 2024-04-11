@@ -13,6 +13,8 @@ import {
     parseTokenFromEnv,
     setHost,
     ICON_LOGO_NAME,
+    ParseService,
+    createBundledParsers,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState } from "./state"
@@ -28,11 +30,14 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly path = createVSPath()
     readonly server: TerminalServerManager
     readonly fs = createFileSystem()
+    readonly parser: ParseService
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
+        const isElectron = vscode.env.uiKind === vscode.UIKind.Desktop
         this.server = new TerminalServerManager(state)
+        this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
     }
 
@@ -69,7 +74,7 @@ export class VSCodeHost extends EventTarget implements Host {
         return workspace.rootPath ?? "."
     }
     installFolder(): string {
-        return Utils.joinPath(this.context.extensionUri, "built").fsPath
+        return this.context.extensionUri.fsPath
     }
     resolvePath(...segments: string[]): string {
         if (segments.length === 0) return "."
@@ -144,13 +149,13 @@ export class VSCodeHost extends EventTarget implements Host {
         const wksrx = /^workspace:\/\//i
         const uri = wksrx.test(name)
             ? Utils.joinPath(
-                workspace.workspaceFolders[0].uri,
-                name.replace(wksrx, "")
-            )
+                  workspace.workspaceFolders[0].uri,
+                  name.replace(wksrx, "")
+              )
             : /^(\/|\w:\\)/i.test(name) ||
                 name.startsWith(workspace.workspaceFolders[0].uri.fsPath)
-                ? Uri.file(name)
-                : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
+              ? Uri.file(name)
+              : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
 
         const v = this.virtualFiles[uri.fsPath]
         if (options?.virtual) {
@@ -224,19 +229,16 @@ export class VSCodeHost extends EventTarget implements Host {
             name: TOOL_NAME,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        subscriptions.push(terminal)
-
-        let exitCode: number = undefined
+        this.state.context.subscriptions.push(terminal)
         let watcher: vscode.FileSystemWatcher
 
         const clean = async () => {
-            [watcher, terminal]
-                .filter(d => !!d)
-                .forEach(d => {
-                    d.dispose()
-                    const i = subscriptions.indexOf(d)
-                    if (i > -1) subscriptions.splice(i, 1)
-                })
+            watcher?.dispose()
+            terminal?.dispose()
+            let i = this.state.context.subscriptions.indexOf(terminal)
+            if (i > -1) this.state.context.subscriptions.splice(i, 1)
+            i = this.state.context.subscriptions.indexOf(watcher)
+            if (i > -1) this.state.context.subscriptions.splice(i, 1)
         }
 
         return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
@@ -246,7 +248,7 @@ export class VSCodeHost extends EventTarget implements Host {
                 false,
                 true
             )
-            subscriptions.push(watcher)
+            this.state.context.subscriptions.push(watcher)
             watcher.onDidChange(async (e) => {
                 if (await checkFileExists(Uri.file(exitcodefile))) {
                     exitCode = parseInt(await readFileText(Uri.file(exitcodefile)))

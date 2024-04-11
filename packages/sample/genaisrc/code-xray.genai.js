@@ -7,7 +7,11 @@ script({
         "Given a source file in a programming language, extract the structure necessary to do LLM queries",
 })
 
-def("FILE", env.files.filter(f => !f.filename.endsWith(".xray")))
+def(
+    "FILE",
+    env.files.filter((f) => !f.filename.endsWith(".xray")),
+    { ignoreEmpty: true }
+)
 def("SPEC", env.spec)
 
 $`You are an expert at programming in all known languages.

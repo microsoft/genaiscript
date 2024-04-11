@@ -3,13 +3,14 @@ import { resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
 import { fenceMD } from "./markdown"
 import { createTextNode } from "./promptdom"
+import { TraceOptions } from "./trace"
 import { YAMLStringify } from "./yaml"
 
 export function createDefNode(
     name: string,
     file: LinkedFile,
     env: ExpansionVariables,
-    options: DefOptions
+    options: DefOptions & TraceOptions
 ) {
     name = name ?? ""
     const { language, lineNumbers, schema } = options || {}
@@ -26,7 +27,7 @@ export function createDefNode(
     }
 
     const render = async () => {
-        await resolveFileContent(file)
+        await resolveFileContent(file, options)
 
         let dfence =
             /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)

@@ -29,22 +29,23 @@ export async function exec(
         )
         await host.createDirectory(outputdir)
 
-        stdoutfile = host.path.join(outputdir, "stdout.txt")
-        stderrfile = host.path.join(outputdir, "stderr.txt")
-        exitcodefile = host.path.join(outputdir, "exitcode.txt")
-        stdinfile = host.path.join(outputdir, "stdin.txt")
+        const path = host.path
+        stdoutfile =  path.join(outputdir, "stdout.txt")
+        stderrfile = path.join(outputdir, "stderr.txt")
+        exitcodefile = path.join(outputdir, "exitcode.txt")
+        stdinfile =path.join(outputdir, "stdin.txt")
 
         await writeText(stdinfile, stdin || "")
 
         if (files) {
             for (const f in files) {
                 const content = files[f]
-                const fn = outputdir + "/" + f
+                const fn = path.join(outputdir, f)
                 await writeText(fn, content)
             }
         }
 
-        if (outputFile) outputFile = host.path.join(outputdir, outputFile)
+        if (outputFile) outputFile = path.join(outputdir, outputFile)
 
         const subs = {
             outputdir,

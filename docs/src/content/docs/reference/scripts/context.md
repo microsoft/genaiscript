@@ -65,7 +65,7 @@ const dir = path.dirname(env.spec.filename)
 The `def("FILE", file)` function is a shorthand for generating a fenced variable output.
 The "meta-variable" (`FILE` in this example) name should be all uppercase (but can include
 
-```js
+```js "def"
 def("FILE", file)
 ```
 
@@ -78,15 +78,44 @@ ${env.file.content}
 ```
 ````
 
+The `def` function can also be used with an array of files, such as `env.files`.
+
+```js "env.files"
+def("FILE", env.files)
+```
+
 ### Referencing
 
 The `def` function returns a variable name that can be used in the prompt.
 The name might be formatted diferently to accomodate the model's preference.
 
-```js
+```js "const f = "
 const f = def("FILE", file)
 
 $`Summarize ${f}.`
+```
+
+### File filters
+
+Since a script may be executed on a full folder, it is often useful to filter the files based on 
+
+- their extension
+```js "endsWith: '.md'"
+def("FILE", env.files, { endsWith: '.md' })
+```
+
+- or using a [glob](https://en.wikipedia.org/wiki/Glob_(programming)):
+```js "glob: '**/*.{md,mdx}'"
+def("FILE", files, { glob: '**/*.{md,mdx}' })
+```
+
+### Empty files
+
+By default, if `def` is used with an empty array of files, it will cancel the prompt. You can override this behavior
+by setting `ignoreEmpty` to `true`.
+
+```js "ignoreEmpty: true"
+def("FILE", env.files, { endsWith: ".md", ignoreEmpty: true })
 ```
 
 ## Data definition (`defData`)

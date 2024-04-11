@@ -2,22 +2,22 @@ import { DOCXTryParse } from "./docx"
 import { readText } from "./fs"
 import { lookupMime } from "./mime"
 import { isBinaryMimeType } from "./parser"
-import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { createFetch } from "./fetch"
 import { fileTypeFromBuffer } from "file-type"
 import { toBase64 } from "./util"
 import { host } from "./host"
-import { MarkdownTrace } from "./trace"
+import { TraceOptions } from "./trace"
+import { parsePdf } from "./pdf"
 
-export async function resolveFileContent(file: LinkedFile, options?: { binary?: boolean }) {
+export async function resolveFileContent(file: LinkedFile, options?: TraceOptions) {
     const { filename } = file
     if (file.content) return file
 
     if (/\.pdf$/i.test(filename)) {
-        const pages = await PDFTryParse(filename)
-        file.content = PDFPagesToString(pages)
+        const { content } = await parsePdf(filename, options)
+        file.content = content
     } else if (/\.docx$/i.test(filename)) {
-        file.content = await DOCXTryParse(filename)
+        file.content = await DOCXTryParse(filename, options)
     } else {
         const mime = lookupMime(filename)
         const isBinary = isBinaryMimeType(mime)

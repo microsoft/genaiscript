@@ -174,7 +174,7 @@ any infrastructure that makes programming easier, including languages
 such as PowerShell, JavaScript, and Python, as well as IDEs such as VS
 Code and Visual Studio. While we cannot prevent unintended uses, we will
 encourage users to consider Responsible AI practices when they build
-GenAIScripts.  We provide more details about issues related to security and trust in [security and trust](./security-and-trust.mdx).
+GenAIScripts.  We provide more details about issues related to security and trust in [security and trust](https://microsoft.github.io/genaiscript/reference/security-and-trust/).
 
 #### Foundation model best practices
 
@@ -182,12 +182,14 @@ We strongly encourage GenAIScript users to use foundation models and
 LLMs that support robust Responsible AI mitigations, such as the Azure
 Open AI (AOAI) services. Such services continually update the safety and
 RAI mitigations to track our up-to-date understanding on how to deploy
-and use foundation models most responsibly. This blog post highlights
-the RAI features in AOAI that were presented at Ignite 2023:
+and use foundation models most responsibly. Here are resources to help
+understand and use best practices when employing foundations models 
+for scripts and applications:
 
-[Announcing new AI Safety & Responsible AI features in Azure OpenAI
-Service at Ignite 2023
-(microsoft.com)](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
+- [Blog post on responsible AI features in AOAI that were presented at Ignite 2023](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/announcing-new-ai-safety-amp-responsible-ai-features-in-azure/ba-p/3983686)
+- [Transparency note for Azure OpenAI Service](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/transparency-note?tabs=text)
+- [Microsoft Office of Responsible AI (ORA) Best Practices on using AOAI models](https://learn.microsoft.com/en-us/legal/cognitive-services/openai/overview)
+
 
 ## Limitations
 

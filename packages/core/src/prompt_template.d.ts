@@ -418,6 +418,11 @@ interface DefOptions extends FenceOptions {
      * Filename filter using glob syntax.
      */
     glob?: string
+
+    /**
+     * By default, throws an error if the value in def is empty.
+     */
+    ignoreEmpty?: boolean
 }
 
 interface DefImagesOptions {
@@ -566,6 +571,10 @@ interface XMLParseOptions {
     unpairedTags?: string[]
 }
 
+interface ParsePDFOptions {
+    filter?: (pageIndex: number, text?: string) => boolean
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -607,9 +616,7 @@ interface Parsers {
      */
     PDF(
         content: string | LinkedFile,
-        options?: {
-            filter?: (pageIndex: number, text?: string) => boolean
-        }
+        options?: ParsePDFOptions
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 
     /**

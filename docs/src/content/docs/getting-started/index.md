@@ -11,8 +11,14 @@ keywords:
     - AI Code Automation
 ---
 
-GenAiScript is a Visual Studio Code Extension that uses
+GenAIScript is a Visual Studio Code Extension that uses
 stylized JavaScript with minimal syntax to define Generative AI scripts.
+Because LLMs and foundation models can do things that other kinds of software
+cannot do, the core of every GenAIScript is a call to the LLM to perform some
+function. GenAIScript is a scripting language where the generative AI model
+is a first class element of the runtime. For example, the following script
+takes a file with text content (.txt, .pdf, .docx) as input and 
+saves a summary of the file in another file.
 
 ```js wrap title="summarize.genai.js"
 // metadata and model configuration
@@ -24,7 +30,9 @@ $`Summarize ${file}. Save output to ${file}.summary`
 ```
 
 GenAIScript takes care of assembling prompts, sending them to the LLM and parsing
-out the results in a structured way. All the internal prompts and invocations can be easily investigated through a detailed trace.
+out the results in a structured way. While the implementation of this internal plumbing
+is complex, all the internal prompts and invocations can be easily investigated through a detailed trace,
+giving the user transparency to how the script is processed and what the model sees.
 
 ## Transformation overview
 
@@ -34,7 +42,7 @@ into structured output.
 
 ### User prompt
 
-When GenAIScript executes, it populates the `env.files` with the files selected in the context.
+When GenAIScript executes, it populates the `env.files` variable with the files selected in the context.
 As the script executes, the prompt that will be sent to the LLM is constructed.
 
 In this example, it would be like the text below for a `lorem.txt` file.
@@ -50,7 +58,7 @@ Shorten the following FILE. Limit changes to minimum.
 
 ### System prompts
 
-GenAIScript also automatically select system prompts to support file generation and other features. Since
+GenAIScript also automatically selects system prompts to support file generation and other features. Since
 we're using files in this script, it will run the `system.files` script which teaches the LLM how to format files.
 
 ```js title="system.files.genai.js"
@@ -88,7 +96,8 @@ All the generate prompts are formatted and sent to the LLM for processing. Typic
 
 ### Output parsing
 
-The LLM responds with a text which can be parsed for various micro-formats, like markdown code fences, files or annotations.
+The LLM responds with a text which can be parsed for various micro-formats, 
+like markdown code fences, files or annotations. 
 
 ````txt title="llmresponse.txt"
 File ./lorem.txt.summary

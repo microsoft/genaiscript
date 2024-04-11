@@ -1,7 +1,6 @@
 import { CSVTryParse } from "./csv"
 import { filenameOrFileToContent } from "./fs"
 import { JSON5TryParse } from "./json5"
-import { PDFPagesToString, PDFTryParse } from "./pdf"
 import { estimateTokens } from "./tokens"
 import { TOMLTryParse } from "./toml"
 import { MarkdownTrace } from "./trace"
@@ -14,6 +13,7 @@ import { dotEnvTryParse } from "./dotenv"
 import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
+import { parsePdf } from "./pdf"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -54,16 +54,13 @@ export function createParsers(options: {
         },
         PDF: async (file, options) => {
             if (!file) return { file: undefined, pages: [] }
-            const { filter = () => true } = options || {}
             const filename = typeof file === "string" ? file : file.filename
-            const pages = (
-                await PDFTryParse(filename, undefined, { trace })
-            )?.filter((text, index) => filter(index, text))
+            const { pages, content } = await parsePdf(filename, options) || {}
             return {
                 file: pages
                     ? <LinkedFile>{
                         filename,
-                        content: PDFPagesToString(pages),
+                        content
                     }
                     : undefined,
                 pages,

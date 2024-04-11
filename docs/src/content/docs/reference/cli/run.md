@@ -14,7 +14,7 @@ npx genaiscript run <script> "<files...>"
 
 where `<script>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
 
-If `spec` is not a `.gpspec.md` file, a wrapper spec is generated on the fly. In this case, spec can also be a `glob` patterns.
+If `spec` is not a `.gpspec.md` file, a wrapper spec is generated on the fly. In this case, spec can also be a [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns.
 
 ```sh
 npx genaiscript run code-annotator "src/*.ts"

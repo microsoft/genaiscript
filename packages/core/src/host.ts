@@ -1,7 +1,7 @@
 import { CancellationToken } from "./cancellation"
 import { ErrorObject } from "./error"
 import { Progress } from "./progress"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -112,9 +112,16 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export type HighlightResponse = ResponseStatus & { response: string }
+export type ParsePdfResponse = ResponseStatus & {
+    pages?: string[]
+}
 
-export type ServerResponse = ResponseStatus & { version: string }
+export interface ParseService {
+    init(trace?: MarkdownTrace): Promise<void>
+    parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse>
+}
+
+export type ServerResponse = ResponseStatus & { version: string, nodeVersion: string, pid: number }
 
 export interface ServerManager {
     start(): Promise<void>
@@ -124,6 +131,7 @@ export interface ServerManager {
 export interface Host {
     userState: any
 
+    parser: ParseService
     retrieval: RetrievalService
     server: ServerManager
     path: Path
