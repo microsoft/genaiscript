@@ -1,5 +1,5 @@
 ---
-title: Reponse Priming
+title: Response Priming
 sidebar:
     order: 100
 ---
