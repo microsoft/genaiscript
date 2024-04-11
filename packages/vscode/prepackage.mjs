@@ -1,9 +1,9 @@
 import "zx/globals"
 
 // workaround yarn workspaces
-await $`cp -R ../../node_modules/pdfjs-dist ./node_modules`
-await $`cp -R ../../node_modules/tree-sitter-wasms ./node_modules`
-await $`cp -R ../../node_modules/web-tree-sitter ./node_modules`
+await fs.copy('../../node_modules/pdfjs-dist', './node_modules/pdfjs-dist', { recursive: true })
+await fs.copy('../../node_modules/tree-sitter-wasms', './node_modules/tree-sitter-wasms', { recursive: true })
+await fs.copy('../../node_modules/web-tree-sitter', './node_modules/web-tree-sitter', { recursive: true })
 
 const pkg = await fs.readJSON("./package.json")
 pkg._enabledApiProposals = pkg.enabledApiProposals

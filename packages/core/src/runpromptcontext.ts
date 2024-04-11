@@ -44,7 +44,7 @@ export function createRunPromptContext(
         },
         def(name, body, defOptions) {
             name = name ?? ""
-            const doptions = { ...(defOptions || {}) }
+            const doptions = { ...(defOptions || {}), trace }
             doptions.lineNumbers = doptions.lineNumbers ?? options.lineNumbers
             // shortcuts
             if (body === undefined || body === null) return undefined
