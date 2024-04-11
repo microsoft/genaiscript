@@ -1,5 +1,5 @@
 import {
-    HighlightResponse,
+    ParsePdfResponse,
     ResponseStatus,
     RetrievalOptions,
     RetrievalSearchOptions,
@@ -40,9 +40,16 @@ export interface RetrievalSearch extends RequestMessage {
     response?: RetrievalSearchResponse
 }
 
+export interface ParsePdfMessage extends RequestMessage {
+    type: "parse.pdf"
+    filename: string
+    response?: ParsePdfResponse
+}
+
 export type RequestMessages =
     | ServerKill
     | RetrievalClear
     | RetrievalUpsert
     | RetrievalSearch
     | ServerVersion
+    | ParsePdfMessage

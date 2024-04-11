@@ -13,6 +13,8 @@ import {
     parseTokenFromEnv,
     setHost,
     ICON_LOGO_NAME,
+    ParseService,
+    createBundledParsers,
 } from "genaiscript-core"
 import { Uri, window, workspace } from "vscode"
 import { ExtensionState } from "./state"
@@ -28,11 +30,14 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly path = createVSPath()
     readonly server: TerminalServerManager
     readonly fs = createFileSystem()
+    readonly parser: ParseService
 
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
+        const isElectron = vscode.env.uiKind === vscode.UIKind.Desktop
         this.server = new TerminalServerManager(state)
+        this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
     }
 

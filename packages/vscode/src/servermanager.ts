@@ -1,5 +1,6 @@
 import {
     ICON_LOGO_NAME,
+    ParseService,
     RetrievalService,
     SERVER_PORT,
     ServerManager,
@@ -60,6 +61,10 @@ export class TerminalServerManager implements ServerManager {
     }
 
     get retrieval(): RetrievalService {
+        return this.client
+    }
+
+    get parser(): ParseService {
         return this.client
     }
 

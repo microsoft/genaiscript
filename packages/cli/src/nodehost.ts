@@ -9,6 +9,7 @@ import {
     ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
+    createBundledParsers,
     createFileSystem,
     parseTokenFromEnv,
     setHost,
@@ -40,6 +41,7 @@ export class NodeHost implements Host {
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly fs = createFileSystem()
+    readonly parser = createBundledParsers()
 
     constructor() {
         this.retrieval = new LlamaIndexRetrievalService(this)
