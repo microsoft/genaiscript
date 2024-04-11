@@ -1,5 +1,5 @@
 import TreeSitter from "web-tree-sitter"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import { host } from "./host"
 import { resolveFileContent } from "./file"
 import { treeSitterWasms } from "./default_prompts"
@@ -60,7 +60,7 @@ function createParser(wasmPath: string): Promise<TreeSitter> {
 export async function treeSitterQuery(
     file: LinkedFile,
     query?: string,
-    options?: { trace?: MarkdownTrace }
+    options?: TraceOptions
 ): Promise<QueryCapture[]> {
     const { filename } = file
     const { trace } = options || {}

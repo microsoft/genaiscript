@@ -81,7 +81,7 @@ function PDFPagesToString(pages: string[]) {
     return pages?.join("\n\n-------- Page Break --------\n\n")
 }
 
-export async function parsePdf(filename: string, options?: ParsePDFOptions & { trace?: MarkdownTrace }): Promise<{ pages: string[], content: string }> {
+export async function parsePdf(filename: string, options?: ParsePDFOptions & TraceOptions): Promise<{ pages: string[], content: string }> {
     const { trace, filter } = options || {}
     await host.parser.init(trace)
     let { pages } = await host.parser.parsePdf(filename)
