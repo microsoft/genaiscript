@@ -1,7 +1,7 @@
 import { CancellationToken } from "./cancellation"
 import { ErrorObject } from "./error"
 import { Progress } from "./progress"
-import { MarkdownTrace } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -118,7 +118,7 @@ export type ParsePdfResponse = ResponseStatus & {
 
 export interface ParseService {
     init(trace?: MarkdownTrace): Promise<void>
-    parsePdf(filename: string): Promise<ParsePdfResponse>
+    parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse>
 }
 
 export type ServerResponse = ResponseStatus & { version: string }

@@ -10,6 +10,7 @@ import {
     RetrievalUpsertOptions,
     host,
 } from "../host"
+import { TraceOptions } from "../trace"
 import { assert } from "../util"
 import {
     ParsePdfMessage,
@@ -137,7 +138,7 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.response
     }
 
-    async parsePdf(filename: string): Promise<ParsePdfResponse> {
+    async parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse> {
         const res = await this.queue<ParsePdfMessage>({
             type: "parse.pdf", filename
         })

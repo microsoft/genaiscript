@@ -84,7 +84,7 @@ function PDFPagesToString(pages: string[]) {
 export async function parsePdf(filename: string, options?: ParsePDFOptions & TraceOptions): Promise<{ pages: string[], content: string }> {
     const { trace, filter } = options || {}
     await host.parser.init(trace)
-    let { pages } = await host.parser.parsePdf(filename)
+    let { pages } = await host.parser.parsePdf(filename, options)
     if (filter) pages = pages.filter((page, index) => filter(index, page))
     const content = PDFPagesToString(pages)
     return { pages, content }
@@ -94,8 +94,8 @@ export async function parsePdf(filename: string, options?: ParsePDFOptions & Tra
 export function createBundledParsers(): ParseService {
     return {
         init: async () => { },
-        async parsePdf(filename: string): Promise<ParsePdfResponse> {
-            const pages = await PDFTryParse(filename)
+        async parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse> {
+            const pages = await PDFTryParse(filename, undefined, options)
             if (!pages) return { ok: false }
             return {
                 ok: true,
