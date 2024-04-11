@@ -14,6 +14,7 @@ import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
+import { HTMLToText } from "./html"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -45,6 +46,7 @@ export function createParsers(options: {
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
+        HTMLToText: (text, options) => HTMLToText(filenameOrFileToContent(text), options),
         DOCX: async (file) => {
             const filename = typeof file === "string" ? file : file.filename
             const res = await DOCXTryParse(filenameOrFileToContent(file))

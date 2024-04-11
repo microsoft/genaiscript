@@ -16,7 +16,7 @@
     "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
-    "mammoth": "^1.7.0",
+    "@types/html-to-text": "^9.0.4",
     "@types/ini": "^4.1.0",
     "@types/mime-types": "^2.1.4",
     "@types/node": "^20.11.27",
@@ -29,10 +29,12 @@
     "fetch-retry": "^5.0.6",
     "file-type": "^19.0.0",
     "gpt-tokenizer": "^2.1.2",
+    "html-to-text": "^9.0.5",
     "ini": "^4.1.2",
     "json5": "^2.2.3",
     "jsonrepair": "^3.6.0",
     "magic-string": "^0.30.8",
+    "mammoth": "^1.7.0",
     "markdown-table": "^3.0.3",
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.3",
