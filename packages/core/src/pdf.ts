@@ -22,7 +22,7 @@ async function tryImportPdfjs(options?: TraceOptions) {
         return pdfjs
     } catch (e) {
         trace?.error(
-            `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`
+            `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`, e
         )
         await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
         const pdfjs = await import("pdfjs-dist")
