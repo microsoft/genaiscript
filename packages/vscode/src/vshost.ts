@@ -149,13 +149,13 @@ export class VSCodeHost extends EventTarget implements Host {
         const wksrx = /^workspace:\/\//i
         const uri = wksrx.test(name)
             ? Utils.joinPath(
-                  workspace.workspaceFolders[0].uri,
-                  name.replace(wksrx, "")
-              )
+                workspace.workspaceFolders[0].uri,
+                name.replace(wksrx, "")
+            )
             : /^(\/|\w:\\)/i.test(name) ||
                 name.startsWith(workspace.workspaceFolders[0].uri.fsPath)
-              ? Uri.file(name)
-              : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
+                ? Uri.file(name)
+                : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
 
         const v = this.virtualFiles[uri.fsPath]
         if (options?.virtual) {
@@ -251,7 +251,7 @@ export class VSCodeHost extends EventTarget implements Host {
             this.state.context.subscriptions.push(watcher)
             watcher.onDidChange(async (e) => {
                 if (await checkFileExists(Uri.file(exitcodefile))) {
-                    exitCode = parseInt(await readFileText(Uri.file(exitcodefile)))
+                    const exitCode = parseInt(await readFileText(Uri.file(exitcodefile)))
                     resolve(<Partial<ShellOutput>>{
                         exitCode
                     })
@@ -264,8 +264,6 @@ export class VSCodeHost extends EventTarget implements Host {
             terminal.sendText(text)
             terminal.sendText(`echo $? > "${exitcodefile}"`)
             terminal.sendText("exit 0") // vscode gives an annoying error message
-        }).finally(async () => {
-            await clean()
-        })
+        }).finally(clean)
     }
 }
