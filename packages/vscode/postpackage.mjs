@@ -1,8 +1,8 @@
 import 'zx/globals'
 
-await $`rm -Rf ./node_modules/pdfjs-dist`
-await $`rm -Rf ./node_modules/tree-sitter-wasms`
-await $`rm -Rf ./node_modules/web-tree-sitter`
+await fs.rm('./node_modules/pdfjs-dist', { recursive: true })
+await fs.rm('./node_modules/tree-sitter-wasms', { recursive: true })
+await fs.rm('./node_modules/web-tree-sitter', { recursive: true })
 
 const pkg = await fs.readJSON('./package.json')
 pkg.enabledApiProposals = pkg._enabledApiProposals
