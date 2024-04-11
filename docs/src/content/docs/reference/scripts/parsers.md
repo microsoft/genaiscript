@@ -143,7 +143,7 @@ KEY=VALUE
 
 ## HTML to Text
 
-The `parsers.HTMLToText` converts HTML to plain text. This is a best effort and results may vary dependending on the complexity of the HTML.
+The `parsers.HTMLToText` converts HTML to plain text using [html-to-text](https://www.npmjs.com/package/html-to-text).
 
 ```js
 const text = parsers.HTMLToText(html)
