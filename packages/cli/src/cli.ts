@@ -24,7 +24,13 @@ import {
     retrievalTokens,
 } from "./retrieval"
 import { helpAll } from "./help"
-import { jsonl2json, parseDOCX, parseFence, parsePDF } from "./parse"
+import {
+    jsonl2json,
+    parseDOCX,
+    parseFence,
+    parseHTMLToText,
+    parsePDF,
+} from "./parse"
 import { listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 
@@ -209,7 +215,14 @@ export async function cli() {
         .command("docx <file>")
         .description("Parse a DOCX into texts")
         .action(parseDOCX)
-    parser.command("code")
+
+    parser
+        .command("html-to-text [file]")
+        .description("Parse an HTML file into text")
+        .action(parseHTMLToText)
+
+    parser
+        .command("code")
         .description("Parse code using tree sitter and executes a query")
         .arguments("<file> [query]")
         .action(codeQuery)

@@ -7,10 +7,12 @@ import {
     readJSONL,
     writeText,
     parsePdf,
+    HTMLToText,
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 import replaceExt from "replace-ext"
 import getStdin from "get-stdin"
+import { readFile } from "fs/promises"
 
 export async function parseFence(language: string) {
     const stdin = await getStdin()
@@ -28,6 +30,14 @@ export async function parsePDF(file: string) {
 
 export async function parseDOCX(file: string) {
     const text = await DOCXTryParse(file)
+    console.log(text)
+}
+
+export async function parseHTMLToText(file: string) {
+    const html = file
+        ? await readFile(file, { encoding: "utf-8" })
+        : await getStdin()
+    const text = HTMLToText(html)
     console.log(text)
 }
 

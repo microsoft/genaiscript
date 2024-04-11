@@ -186,6 +186,7 @@ Commands:
   fence <language>             Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
+  html-to-text [file]          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
                                query
   tokens [options] <files...>  Count tokens in a set of files
@@ -220,6 +221,17 @@ Options:
 Usage: genaiscript parse docx [options] <file>
 
 Parse a DOCX into texts
+
+Options:
+  -h, --help  display help for command
+```
+
+### `parse html-to-text`
+
+```
+Usage: genaiscript parse html-to-text [options] [file]
+
+Parse an HTML file into text
 
 Options:
   -h, --help  display help for command

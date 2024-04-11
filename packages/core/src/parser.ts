@@ -1,5 +1,5 @@
 import { lookupMime } from "./mime"
-import { assert, sha256string, strcmp } from "./util"
+import { sha256string, strcmp } from "./util"
 import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { parsePromptTemplate } from "./template"

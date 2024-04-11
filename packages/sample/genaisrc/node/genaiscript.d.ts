@@ -387,15 +387,15 @@ interface FenceOptions {
      * Language of the fenced code block. Defaults to "markdown".
      */
     language?:
-    | "markdown"
-    | "json"
-    | "yaml"
-    | "javascript"
-    | "typescript"
-    | "python"
-    | "shell"
-    | "toml"
-    | string
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | "toml"
+        | string
 
     /**
      * Prepend each line with a line numbers. Helps with generating diffs.
@@ -501,11 +501,11 @@ interface DataFrame {
 interface RunPromptResult {
     text: string
     finishReason?:
-    | "stop"
-    | "length"
-    | "tool_calls"
-    | "content_filter"
-    | "cancel"
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
 }
 
 /**
@@ -573,6 +573,15 @@ interface XMLParseOptions {
 
 interface ParsePDFOptions {
     filter?: (pageIndex: number, text?: string) => boolean
+}
+
+interface HTMLToTextOptions {
+    /**
+     * After how many chars a line break should follow in `p` elements.
+     *
+     * Set to `null` or `false` to disable word-wrapping.
+     */
+    wordwrap?: number | false | null | undefined
 }
 
 interface Parsers {
@@ -661,6 +670,13 @@ interface Parsers {
     ): any | undefined
 
     /**
+     * Convert HTML to text
+     * @param content html string or file
+     * @param options 
+     */
+    HTMLToText(content: string | LinkedFile, options?: HTMLToTextOptions): string
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
@@ -679,7 +695,7 @@ interface Parsers {
 
     /**
      * Executes a tree-sitter query on a code file
-     * @param file 
+     * @param file
      * @param query tree sitter query; if missing, returns the entire tree
      */
     code(file: LinkedFile, query?: string): Promise<QueryCapture[]>
@@ -747,6 +763,14 @@ interface YAML {
     stringify(obj: any): string
     /**
      * Parses a YAML string to object
+     */
+    parse(text: string): any
+}
+
+interface XML {
+    /**
+     * Parses an XML payload to an object
+     * @param text
      */
     parse(text: string): any
 }
@@ -1037,6 +1061,7 @@ interface PromptContext extends RunPromptContext {
     retrieval: Retrieval
     fs: FileSystem
     YAML: YAML
+    XML: XML
     CSV: CSV
     INI: INI
     AICI: AICI

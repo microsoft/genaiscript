@@ -141,6 +141,14 @@ using for configuration files. This format is similar to the `key=value` format.
 KEY=VALUE
 ```
 
+## HTML to Text
+
+The `parsers.HTMLToText` converts HTML to plain text using [html-to-text](https://www.npmjs.com/package/html-to-text).
+
+```js
+const text = parsers.HTMLToText(html)
+```
+
 ## Code (JavaScript, Python, C, C++, Java, ...)
 
 The `parsers.code` function parses source code using the [Tree Sitter](https://tree-sitter.github.io/tree-sitter/)

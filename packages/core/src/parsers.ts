@@ -14,6 +14,7 @@ import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
+import { HTMLToText } from "./html"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -45,6 +46,11 @@ export function createParsers(options: {
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
+        HTMLToText: (text, options) =>
+            HTMLToText(filenameOrFileToContent(text), {
+                ...(options || {}),
+                trace,
+            }),
         DOCX: async (file) => {
             const filename = typeof file === "string" ? file : file.filename
             const res = await DOCXTryParse(filenameOrFileToContent(file))
@@ -54,18 +60,23 @@ export function createParsers(options: {
         },
         PDF: async (file, options) => {
             if (!file) return { file: undefined, pages: [] }
+            const opts = {
+                ...(options || {}),
+                trace,
+            }
             const filename = typeof file === "string" ? file : file.filename
-            const { pages, content } = await parsePdf(filename, options) || {}
+            const { pages, content } = (await parsePdf(filename, opts)) || {}
             return {
                 file: pages
                     ? <LinkedFile>{
-                        filename,
-                        content
-                    }
+                          filename,
+                          content,
+                      }
                     : undefined,
                 pages,
             }
         },
-        code: async (file, query) => await treeSitterQuery(file, query, { trace }),
+        code: async (file, query) =>
+            await treeSitterQuery(file, query, { trace }),
     })
 }
