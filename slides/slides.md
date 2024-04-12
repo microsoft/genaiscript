@@ -18,7 +18,10 @@ drawings:
 transition: slide-left
 # enable MDC Syntax: https://sli.dev/guide/syntax#mdc-syntax
 mdc: true
+layout: center
 ---
+
+![](https://microsoft.github.io/genaiscript/images/favicon.svg){ style="width: 12rem; margin:auto;" }
 
 # GenAIScript
 
@@ -28,6 +31,7 @@ mdc: true
 <br/>
 
 https://microsoft.github.io/genaiscript/
+
 
 
 ---
