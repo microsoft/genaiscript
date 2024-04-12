@@ -7,7 +7,8 @@ colorSchema: dark
 favicon: 'https://microsoft.github.io/genaiscript/images/favicon.svg'
 info: |
   ## GenAIScript
-  Scripting for Generative AI.
+  Scripting for Generative AI.<br/>
+  [Docs](https://microsoft.github.io/genaiscript/) | [GitHub](https://github.com/microsoft/genaiscript/)
 class: text-center
 # https://sli.dev/custom/highlighters.html
 highlighter: shiki
