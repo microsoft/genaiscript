@@ -54,6 +54,10 @@ src: pages/js-runtime.md
 ---
 
 ---
+src: pages/vscode.md
+---
+
+---
 src: pages/image-alt-text.md
 ---
 
