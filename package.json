@@ -6,7 +6,8 @@
     "workspaces": {
         "packages": [
             "packages/*",
-            "docs"
+            "docs",
+            "slides"
         ],
         "nohoist": [
             "pdfjs-dist",
@@ -45,7 +46,8 @@
         "test:tokens": "node packages/cli/built/genaiscript.cjs retrieval tokens packages/sample/src/rag/*",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
         "docs": "cd docs && ./node_modules/.bin/astro dev --host",
-        "build:docs": "cd docs && yarn build && yarn build:asw",
+        "slides": "cd slides && yarn run dev",
+        "build:docs": "yarn --cwd slides build && yarn --cwd docs build && yarn --cwd docs build:asw",
         "gen:licenses": "npx generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
         "genai:technical": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/technical.genai.js \"docs/src/**/*.md\" --excluded-files \"docs/src/**/index.{md,mdx}\" --apply-edits",
         "genai:frontmatter": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/frontmatter.genai.js \"docs/src/**/*.{md,mdx}\" --apply-edits",

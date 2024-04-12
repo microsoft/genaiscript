@@ -8,6 +8,7 @@
         "yoavbls.pretty-ts-errors",
         "kejun.markdown-alert",
         "astro-build.astro-vscode",
-        "github.copilot-chat"
+        "github.copilot-chat",
+        "antfu.slidev"
     ]
 }
