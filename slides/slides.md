@@ -66,6 +66,10 @@ src: pages/makecode-translations.md
 ---
 
 ---
+src: pages/tla-plus.md
+---
+
+---
 src: pages/vscode-challenges.md
 ---
 
