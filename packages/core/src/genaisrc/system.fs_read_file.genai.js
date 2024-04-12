@@ -29,11 +29,11 @@ defFunction(
         let { context, filename, linestart, lineend } = args
         linestart = parseInt(linestart) - 1
         lineend = parseInt(lineend)
-        let res = await context.host.readText(filename)
+        let { content } = await fs.readFile(filename)
         if (!isNaN(linestart) && !isNaN(lineend)) {
-            const lines = res.split("\n")
-            res = lines.slice(linestart, lineend).join("\n")
+            const lines = content.split("\n")
+            content = lines.slice(linestart, lineend).join("\n")
         }
-        return res
+        return content
     }
 )

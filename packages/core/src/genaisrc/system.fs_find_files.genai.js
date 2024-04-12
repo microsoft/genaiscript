@@ -19,7 +19,7 @@ defFunction(
     },
     async (args) => {
         const { context, glob } = args
-        const res = await context.host.findFiles(glob)
+        const res = await fs.findFiles(glob)
         return res.join("\n")
     }
 )
