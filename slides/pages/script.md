@@ -19,9 +19,8 @@ $`Analyze ${file} and extract data to JSON using the ${schema} schema.`
 <v-click>
 
 - **It Is Just JavaScript(TM)** with `.d.ts` for dev experience
-- `$...` writes to the prompt
-- builtin parsers and utilities missing in vanilla JS
-- context in `env` (selected files in `env.files`, cli variables in `env.vars`)
+- `$...` writes to the prompt, `def` defines a "variable" + various builtin parsers and utilities
+- Fast development loop in Visual Studio Code
 
 </v-click>
 
