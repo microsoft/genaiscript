@@ -22,7 +22,12 @@ mdc: false
 
 # GenAIScript
 
-Scripting for Generative AI.
+## Scripting for Generative AI.
+
+<br/>
+<br/>
+
+https://microsoft.github.io/genaiscript/
 
 ---
 
@@ -47,10 +52,8 @@ stateDiagram
 
 # Context + Script = Prompt
 
-- Generate Prompts with JavaScript
-- `$` trick
-- Builtin parsers
-- `env.files` context
+- It Is Just JavaScript(TM),  `$` writes to the prompt, builtin parsers
+- context in `env` (like `env.files`)
 
 ```js
 // define the context
@@ -60,6 +63,42 @@ const schema = defSchema("DATA",
     { type: "array", items: { type: "string" } })
 // assign the task
 $`Analyze FILE and extract data to JSON using the ${schema} schema.`
+```
+
+<br/>
+
+````txt
+FILE lorem.pdf:
+Lorem Ipsum ...
+
+DATA:
+type Data = string[]
+
+Analyze FILE and extract data to JSON using the DATA schema.
+````
+
+---
+
+# System prompts
+
+Teach the LLM how to format response for files, special formats, register tools ...
+
+- `system.files.genai.js`
+```js
+system({ title: "File generation" })
+$`When generating or updating files you will use the following syntax:`
+...
+```
+
+- `system.diff.genai.js`
+```js
+system({ title: "Diff generation", lineNumbers: true,})
+$`The DIFF format should be used to generate diff changes on files: 
+- added lines MUST start with +
+- deleted lines MUST start with -
+- deleted lines MUST exist in the original file (do not invent deleted lines)
+- added lines MUST not exist in the original file
+...
 ```
 
 ---
@@ -95,7 +134,7 @@ stateDiagram
     data: data (JSON, YAML, CSV, ...)
     annotations: annotations (SARIF, ...)
     files: files
-    note right of data: Schema validation
+    note right of data: TypeChat approach\nSchema validation
     note right of files: Full, diff\nRefactoring preview
     note right of annotations: GitHub Actions,\nGitHub Security Alerts,\nVSCode diagnostics, ...
     LLM: ...
@@ -107,25 +146,38 @@ stateDiagram
 
 ---
 
+# JavaScript execution
 
-# Transformation Pipeline
+- In process eval
 
-```mermaid
-
-stateDiagram
-  direction LR
-    context: files (text, PDF, DOCX, ...)
-    script : genaiscript (.genai.js)
-    prompt : prompt (system+user messages)
-    response: response (text)
-    data: data (JSON, YAML, CSV, ...)
-    annotations: annotations (SARIF, ...)
-    context --> script
-    script --> prompt : eval or import
-    prompt --> LLM : OpenAI Chat API
-    LLM --> script : tool call (js)
-    LLM --> response
-    response --> files
-    response --> data
-    response --> annotations
+```js
+script(...)
+$`Write a poem.`
 ```
+
+- Debugging through `sourceMappingURL` + CLI
+
+- Support for `esm` through dynamic `import`
+
+```js
+script(...)
+export default async function() {
+    $`Write a poem.`
+}
+```
+
+---
+
+# VSCode Extensions
+
+Hard/unsolved limitations encountered.
+
+- dynamic imports not supported
+  - pdfjs-dist cannot be bundled
+  - _not every dependency can be bundled_
+  - works in dev mode, not in electron
+- process execution cross-platform hard
+  - run process, read exit code, stdout, stderr
+  - bash vs powershell vs zsh vs ...
+- language model proposal (yes!)
+- chat participants initially investigated but not a good fit
