@@ -109,6 +109,17 @@ def("FILE", env.files, { endsWith: '.md' })
 def("FILE", files, { glob: '**/*.{md,mdx}' })
 ```
 
+:::tip
+
+You can open the completion menu and discover all the options
+by pressing **Ctrl+Space** after the curly brace `{` character.
+
+```js
+def("FILE", env.files, { // press Ctrl+Space
+```
+
+:::
+
 ### Empty files
 
 By default, if `def` is used with an empty array of files, it will cancel the prompt. You can override this behavior
