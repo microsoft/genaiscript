@@ -2,11 +2,12 @@
 # try also 'default' to start simple
 theme: default
 title: GenAIScript
+titleTemplate: '%s'
+colorSchema: dark
+favicon: 'https://microsoft.github.io/genaiscript/images/favicon.svg'
 info: |
   ## GenAIScript
   Scripting for Generative AI.
-
-  Learn more at [genaiscript](https://microsoft.github.io/genaiscript/)
 class: text-center
 # https://sli.dev/custom/highlighters.html
 highlighter: shiki
