@@ -1,0 +1,10 @@
+# AI Requires Us to Rethink Software
+&nbsp;
+### **Plain Old Software (POSW)** = all pre-LLM SW 
+&nbsp;
+### **AI Software (AISW)** = SW that uses LLMs at runtime
+&nbsp;
+### Why do we care? **AISW can do things that POSW could never do!**
+- Examples: understand images, summarize and criticize content,write programs, etc.
+&nbsp;
+## **GenAIScript is the scripting language for AISW**

@@ -34,6 +34,18 @@ layout: center
 https://microsoft.github.io/genaiscript/
 
 ---
+src: pages/aisw-intro.md
+---
+
+---
+src: pages/vision.md
+---
+
+---
+src: pages/script-intro.md
+---
+
+---
 src: pages/script.md
 ---
 
