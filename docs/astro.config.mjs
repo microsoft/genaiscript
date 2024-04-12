@@ -44,6 +44,10 @@ export default defineConfig({
                     link: "faq",
                 },
                 {
+                    label: "Slides",
+                    link: "/genaiscript/slides/"
+                },
+                {
                     label: "Contributing",
                     link: "https://github.com/microsoft/genaiscript/blob/main/CONTRIBUTING.md",
                 },
