@@ -46,6 +46,10 @@ src: pages/script-intro.md
 ---
 
 ---
+src: pages/system-components.md
+---
+
+---
 src: pages/script.md
 ---
 
