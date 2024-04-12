@@ -58,6 +58,10 @@ src: pages/image-alt-text.md
 ---
 
 ---
+src: pages/makecode-translations.md
+---
+
+---
 src: pages/vscode-challenges.md
 ---
 
