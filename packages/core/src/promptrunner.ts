@@ -521,7 +521,7 @@ ${repair}
     }
 
     annotations = parseAnnotations(text)
-    const json = /^\s*[{[]/.test(text) && JSON5TryParse(text, undefined)
+    const json = /^\s*[{[]/.test(text) ? JSON5TryParse(text, undefined) : undefined
     const fences = json === undefined ? extractFenced(text) : []
     const frames: DataFrame[] = []
 
