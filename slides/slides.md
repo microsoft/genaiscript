@@ -25,21 +25,19 @@ layout: center
 
 # GenAIScript
 
-## Scripting for Generative AI.
+## Scripting for Generative AI
 
 <br/>
 <br/>
 
 https://microsoft.github.io/genaiscript/
 
-
+---
+src: pages/script.md
+---
 
 ---
 src: pages/script-prompt.md
----
-
----
-src: pages/script.md
 ---
 
 ---
@@ -55,11 +53,11 @@ src: pages/response-processing.md
 ---
 
 ---
-src: pages/js-runtime.md
+src: pages/vscode.md
 ---
 
 ---
-src: pages/vscode.md
+src: pages/js-runtime.md
 ---
 
 ---

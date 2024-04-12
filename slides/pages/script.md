@@ -1,9 +1,10 @@
 
 # Context x Script = Prompt
 
-- **It Is Just JavaScript(TM)**,  `$` writes to the prompt, `.d.ts` provided for dev experience
+- **It Is Just JavaScript(TM)** with `.d.ts` for dev experience
+- `$...` writes to the prompt
 - builtin parsers and utilities missing in vanilla JS
-- context in `env` (`env.files`, `env.vars`)
+- context in `env` (selected files in `env.files`, cli variables in `env.vars`)
 
 ```js
 // define the context

@@ -1,13 +1,18 @@
-# VSCode integration
+# Dev Experience
 
-Short dev cycles, fast feedback loop.
+## VSCode - Fast feedback loop.
 
-- Run: Context command from file/folder/editor and infer context
-
+- Run: command from file/folder/editor
 - Debugger: launch script through CLI
-
 - Trace: document provider + markdown preview
-
 - Authentication: from `.env` or `vscode.languageModel` (proposed API)
-
 - "Un-bundleable" code outsourced to server script.
+
+# CLI - Automate
+
+- npm package
+- GitHub Action friendly
+
+```
+npx genaiscript run [script] [...files]
+```
