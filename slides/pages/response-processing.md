@@ -1,21 +1,25 @@
 
 
-# Response + Parsers = Data + Files
+# Response x Parsers = Files + Data
 
-```mermaid
+- parse file edits, as workspace edits in VSCode
+- parse diagnostics (error, warning, note)
+- parse data + schema validation + error repair
+
+```mermaid {scale:0.8}
 
 stateDiagram
   direction LR
     response: response (text)
+    files: files (workspace edits)
     data: data (JSON, YAML, CSV, ...)
     annotations: annotations (SARIF, ...)
-    files: files
-    note right of data: TypeChat approach\nSchema validation
+    note right of data: Schema validation\nTypeChat approach
     note right of files: Full, diff\nRefactoring preview
     note right of annotations: GitHub Actions,\nGitHub Security Alerts,\nVSCode diagnostics, ...
     LLM: ...
     LLM --> response
     response --> files
-    response --> data
+    files --> data
     response --> annotations
 ```

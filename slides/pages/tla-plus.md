@@ -10,7 +10,6 @@ concurrent and distributed ones. **TLA+ does not come with a traditional linter 
       from the nic's in-buffer and writes to its out-buffer!
     *)
     passMsg(net, from, oldMsg, to, newMsg) == [ net EXCEPT ![from] = BagRemove(@, oldMsg), ![to] = BagAdd(@, newMsg) ]
-...
 ```
 
 ```js

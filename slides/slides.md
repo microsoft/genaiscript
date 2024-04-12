@@ -17,7 +17,7 @@ drawings:
 # slide transition: https://sli.dev/guide/animations#slide-transitions
 transition: slide-left
 # enable MDC Syntax: https://sli.dev/guide/syntax#mdc-syntax
-mdc: false
+mdc: true
 ---
 
 # GenAIScript
@@ -28,6 +28,7 @@ mdc: false
 <br/>
 
 https://microsoft.github.io/genaiscript/
+
 
 ---
 src: pages/script-prompt.md

@@ -1,5 +1,5 @@
 
-# Context + Script = Prompt
+# Context x Script = Prompt
 
 
 ```mermaid
@@ -12,8 +12,8 @@ stateDiagram
     system: system script (system.*.genai.js)
     context --> script
     note right of context : Users starts from file/dir context in VSCode/CLI.
-    images --> script
     note left of script : Lightweight syntax.
     script --> prompt : eval or import
     system --> prompt : eval or import
+    note left of system: Teach LLM about micro-formats.
 ```

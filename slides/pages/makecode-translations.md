@@ -28,7 +28,7 @@ input.onGesture(Gesture.Shake, function() {})
 
 ---
 
-# Develop the script in VSCode
+## Develop the script in VSCode
 
 Leverage the short dev loop to teach the format **iteratively** to the LLM.
 
@@ -58,7 +58,7 @@ $`Translate the documentation in ORIGINAL to ${langName}.
 
 ---
 
-# Automate with the CLI
+## Automate with the CLI
 
 Scale the script using the CLI and google/zx.
 

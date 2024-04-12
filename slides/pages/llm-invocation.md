@@ -1,8 +1,11 @@
 
 # Prompt + LLM = Response
 
-- authentication: `.env` or `vscode.languageModel`
-- tune prompts for LLM "preferences"
+- authentication: `.env` or `vscode.languageModel` (proposed API)
+- re-format prompts for LLM APIs, like OpenAI vs Azure OpenAI
+
+<br/>
+<br/>
 
 ```mermaid
 stateDiagram
@@ -14,5 +17,3 @@ stateDiagram
     prompt --> LLM : OpenAI Chat API
     LLM --> response
 ```
-
-> #1 ISSUE: WHERE CAN I GET A OPENAI KEY!?!
