@@ -42,7 +42,7 @@ src: pages/script-prompt.md
 ---
 
 ---
-src: pages/system-prompts.md
+src: pages/system-scripts.md
 ---
 
 ---

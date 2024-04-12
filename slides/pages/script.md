@@ -1,10 +1,8 @@
 
-# Context x Script = Prompt
+# Generative AI Scripting
+Generate a LLM prompt by executing a JS script.
 
-- **It Is Just JavaScript(TM)** with `.d.ts` for dev experience
-- `$...` writes to the prompt
-- builtin parsers and utilities missing in vanilla JS
-- context in `env` (selected files in `env.files`, cli variables in `env.vars`)
+<v-click>
 
 ```js
 // define the context
@@ -16,7 +14,19 @@ const schema = defSchema("DATA",
 $`Analyze ${file} and extract data to JSON using the ${schema} schema.`
 ```
 
-<br/>
+</v-click>
+
+<v-click>
+
+- **It Is Just JavaScript(TM)** with `.d.ts` for dev experience
+- `$...` writes to the prompt
+- builtin parsers and utilities missing in vanilla JS
+- context in `env` (selected files in `env.files`, cli variables in `env.vars`)
+
+</v-click>
+
+
+<v-click>
 
 ````txt
 FILE lorem.pdf:
@@ -27,3 +37,5 @@ type Data = string[]
 
 Analyze FILE and extract data to JSON using the DATA schema.
 ````
+
+</v-click>
