@@ -45,7 +45,7 @@ export default defineConfig({
                 },
                 {
                     label: "Slides",
-                    link: "/genaiscript/slides/"
+                    link: "slides"
                 },
                 {
                     label: "Contributing",
