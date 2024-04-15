@@ -47,6 +47,19 @@ yarn docs
 GitHub Pages are automatically updated on new release; or thourh manual trigger at
 https://github.com/microsoft/genaiscript/actions/workflows/docs.yml .
 
+## Slides
+
+All files `slides/*slides.md` will be compiled and deployed on build.
+
+- run `slides` to launch the slide show (add the file name or it will default to `slides.md`)
+
+```sh
+yarn slides [slides file name]
+```
+-   visit http://localhost:3030
+
+Learn more about Slidev on [documentations](https://sli.dev/).
+
 ## Packaging
 
 To compile and package the Visual Studio Code extension, run the `package` script.
