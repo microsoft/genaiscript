@@ -1,4 +1,9 @@
-# Slides
+---
+title: Slides
+sidebar:
+  order: 100
+description: Slides
+---
 
-- [GenAIScript](/genaiscript/slides/default/)
-- [GenAIScript](/genaiscript/slides/vs-aua/)
+- [default](/genaiscript/slides/default/), GenAIScript
+- [vs-aua](/genaiscript/slides/vs-aua/), GenAIScript
