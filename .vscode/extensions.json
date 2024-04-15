@@ -10,6 +10,7 @@
         "astro-build.astro-vscode",
         "github.copilot-chat",
         "antfu.slidev",
-        "tldraw-org.tldraw-vscode"
+        "tldraw-org.tldraw-vscode",
+        "hediet.vscode-drawio"
     ]
 }
