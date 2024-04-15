@@ -4,7 +4,7 @@ import "zx/globals"
 if (await fs.exists("../docs/public/slides/"))
     await fs.rm("../docs/public/slides/", { recursive: true })
 
-let summary = ['# Slides', '']
+let summary = ['---', 'title: Slides', 'sidebar:', '  order: 100', 'description: Slides', '---', '']
 
 const slides = await glob("./*slides.md")
 for (const slide of slides) {
