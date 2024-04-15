@@ -46,4 +46,11 @@ In bash it woud be:
     npx --yes genaiscript run gen-tweet $file > $newfile
     done
     ```
+    In PowerShell it would be:
+    ```powershell
+    Get-ChildItem -Filter \*.pdf | ForEach-Object {
+    $newName = $_.BaseName + ".tweet.md"
+    npx --yes genaiscript run gen-tweet $_.FullName | Set-Content "$newName"  
+    }
+    ```
 </Steps>
