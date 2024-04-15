@@ -9,6 +9,7 @@
         "kejun.markdown-alert",
         "astro-build.astro-vscode",
         "github.copilot-chat",
-        "antfu.slidev"
+        "antfu.slidev",
+        "tldraw-org.tldraw-vscode"
     ]
 }
