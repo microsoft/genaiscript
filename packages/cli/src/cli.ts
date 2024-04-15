@@ -239,7 +239,7 @@ export async function cli() {
         .action(jsonl2json)
 
     const info = program
-        .command("info", { hidden: true })
+        .command("info")
         .description("Utility tasks")
     info.command("help")
         .description("Show help for all commands")
