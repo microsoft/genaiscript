@@ -32,8 +32,10 @@ export async function startServer(options: { port: string }) {
                         response = <ServerResponse>{
                             ok: true,
                             version: CORE_VERSION,
-                            nodeVersion: process.version,
-                            pid: process.pid
+                            node: process.version,
+                            platform: process.platform,
+                            arch: process.arch,
+                            pid: process.pid,
                         }
                         break
                     }

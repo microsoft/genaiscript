@@ -270,3 +270,40 @@ Converts JSONL files to a JSON file
 Options:
   -h, --help  display help for command
 ```
+
+## `info`
+
+```
+Usage: genaiscript info [options] [command]
+
+Utility tasks
+
+Options:
+  -h, --help  display help for command
+
+Commands:
+  help        Show help for all commands
+  system      Show system information
+```
+
+### `info help`
+
+```
+Usage: genaiscript info help [options]
+
+Show help for all commands
+
+Options:
+  -h, --help  display help for command
+```
+
+### `info system`
+
+```
+Usage: genaiscript info system [options]
+
+Show system information
+
+Options:
+  -h, --help  display help for command
+```

@@ -51,6 +51,7 @@ export interface ShellCallOptions {
     cwd?: string
     timeout?: number
     stdin?: string
+    keepOnError?: boolean
     outputdir: string
     stdinfile: string
     stdoutfile: string
@@ -121,7 +122,7 @@ export interface ParseService {
     parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse>
 }
 
-export type ServerResponse = ResponseStatus & { version: string, nodeVersion: string, pid: number }
+export type ServerResponse = ResponseStatus & { version: string, node: string, platform: string, arch: string, pid: number }
 
 export interface ServerManager {
     start(): Promise<void>

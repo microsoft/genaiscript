@@ -23,6 +23,7 @@ import { checkFileExists, readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
+import { dispose } from "./components"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -149,13 +150,13 @@ export class VSCodeHost extends EventTarget implements Host {
         const wksrx = /^workspace:\/\//i
         const uri = wksrx.test(name)
             ? Utils.joinPath(
-                workspace.workspaceFolders[0].uri,
-                name.replace(wksrx, "")
-            )
+                  workspace.workspaceFolders[0].uri,
+                  name.replace(wksrx, "")
+              )
             : /^(\/|\w:\\)/i.test(name) ||
                 name.startsWith(workspace.workspaceFolders[0].uri.fsPath)
-                ? Uri.file(name)
-                : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
+              ? Uri.file(name)
+              : Utils.joinPath(workspace.workspaceFolders[0].uri, name)
 
         const v = this.virtualFiles[uri.fsPath]
         if (options?.virtual) {
@@ -220,7 +221,14 @@ export class VSCodeHost extends EventTarget implements Host {
         args: string[],
         options: ShellCallOptions
     ): Promise<Partial<ShellOutput>> {
-        const { cwd, exitcodefile, stdoutfile, stdinfile, outputdir } = options
+        const {
+            cwd,
+            exitcodefile,
+            stdoutfile,
+            stdinfile,
+            outputdir,
+            keepOnError,
+        } = options
         const { subscriptions } = this.state.context
 
         const terminal = vscode.window.createTerminal({
@@ -229,16 +237,13 @@ export class VSCodeHost extends EventTarget implements Host {
             name: TOOL_NAME,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        this.state.context.subscriptions.push(terminal)
+        subscriptions.push(terminal)
         let watcher: vscode.FileSystemWatcher
+        let exitCode: number
 
         const clean = async () => {
-            watcher?.dispose()
-            terminal?.dispose()
-            let i = this.state.context.subscriptions.indexOf(terminal)
-            if (i > -1) this.state.context.subscriptions.splice(i, 1)
-            i = this.state.context.subscriptions.indexOf(watcher)
-            if (i > -1) this.state.context.subscriptions.splice(i, 1)
+            dispose(this.context, watcher)
+            if (exitCode === 0 || !keepOnError) dispose(this.context, terminal)
         }
 
         return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
@@ -248,12 +253,14 @@ export class VSCodeHost extends EventTarget implements Host {
                 false,
                 true
             )
-            this.state.context.subscriptions.push(watcher)
+            subscriptions.push(watcher)
             watcher.onDidChange(async (e) => {
                 if (await checkFileExists(Uri.file(exitcodefile))) {
-                    const exitCode = parseInt(await readFileText(Uri.file(exitcodefile)))
+                    exitCode = parseInt(
+                        await readFileText(Uri.file(exitcodefile))
+                    )
                     resolve(<Partial<ShellOutput>>{
-                        exitCode
+                        exitCode,
                     })
                 }
             })

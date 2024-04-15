@@ -18,6 +18,7 @@ export async function installImport(
     const res = await exec(host, {
         trace,
         label: `install ${mod}`,
+        keepOnError: true,
         call: {
             type: "shell",
             command,
