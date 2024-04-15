@@ -345,15 +345,15 @@
     },
     "devDependencies": {
         "@types/mocha": "^10.0.6",
-        "@types/vscode": "^1.86.0",
-        "@typescript-eslint/eslint-plugin": "^7.1.1",
-        "@typescript-eslint/parser": "^7.1.1",
-        "@vscode/test-web": "^0.0.52",
-        "@vscode/vsce": "^2.24.0",
+        "@types/vscode": "^1.88.0",
+        "@typescript-eslint/eslint-plugin": "^7.7.0",
+        "@typescript-eslint/parser": "^7.7.0",
+        "@vscode/test-web": "^0.0.53",
+        "@vscode/vsce": "^2.25.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
-        "eslint": "^8.57.0",
-        "mocha": "^10.3.0",
+        "eslint": "^9.0.0",
+        "mocha": "^10.4.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
         "typescript": "^5.3.3",
@@ -363,7 +363,7 @@
         "zx": "^8.0.1"
     },
     "dependencies": {
-        "mammoth": "^1.7.0",
+        "mammoth": "^1.7.1",
         "pdfjs-dist": "4.0.379",
         "tree-sitter-wasms": "^0.1.11",
         "web-tree-sitter": "^0.22.2"
