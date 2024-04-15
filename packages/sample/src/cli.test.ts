@@ -40,8 +40,12 @@ describe("scripts", () => {
 })
 
 describe("cli", () => {
-    test("help-all", async () => {
-        await $`node ${cli} help-all`
+    const action = "info"
+    test("help", async () => {
+        await $`node ${cli} ${action} help`
+    })
+    test("system", async () => {
+        await $`node ${cli} ${action} system`
     })
 })
 

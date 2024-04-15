@@ -33,6 +33,7 @@ import {
 } from "./parse"
 import { listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
+import { systemInfo } from "./info"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -237,10 +238,16 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
 
-    program
-        .command("help-all", { hidden: true })
+    const info = program
+        .command("info", { hidden: true })
+        .description("Utility tasks")
+    info.command("help")
         .description("Show help for all commands")
         .action(helpAll)
+
+    info.command("system")
+        .description("Show system information")
+        .action(systemInfo)
 
     program.parse()
 }

@@ -16,7 +16,7 @@ export async function helpAll() {
         commands: readonly Command[]
     ) => {
         commands.forEach((c) => {
-            if (c.name() === "help-all") return
+            if (c.name() === "info") return
             console.log(
                 `\n${header} \`${[parent?.name(), c.name()].filter((c) => c).join(" ")}\`\n`
             )
