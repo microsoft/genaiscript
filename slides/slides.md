@@ -86,6 +86,6 @@ src: pages/tla-plus.md
 ---
 
 ---
-src: pages/vscode-challenges.md
+src: pages/system-components.md
 ---
 
