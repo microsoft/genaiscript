@@ -1,10 +1,12 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
 import { CLI_JS } from "genaiscript-core"
-import "zx/globals"
 
 const cli = `../cli/built/${CLI_JS}`
 
+describe("init", async () => {
+    await import("zx/globals")
+})
 describe("run", () => {
     const cmd = "run"
     describe("dry run", () => {
@@ -68,8 +70,7 @@ describe("parse", () => {
             assert(res.stdout.includes("interface_declaration"))
         })
         test("greeter.ts tree", async () => {
-            const res =
-                await $`node ${cli} ${cmd} ${action} src/greeter.ts`
+            const res = await $`node ${cli} ${cmd} ${action} src/greeter.ts`
             assert(res.stdout.includes("interface_declaration"))
         })
         test("counting.py", async () => {
@@ -79,7 +80,7 @@ describe("parse", () => {
         })
         test("ewd.tla", async () => {
             const res =
-               await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(block_comment) @i"`
+                await $`node ${cli} ${cmd} ${action} src/tla/EWD998PCal.tla "(block_comment) @i"`
             assert(res.stdout.includes("block_comment"))
         })
         test("README.md not supported", async () => {
