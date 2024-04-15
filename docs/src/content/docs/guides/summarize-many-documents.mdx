@@ -11,6 +11,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 Suppose I have a directory with multiple `.pdf` (or other) files and I want to run a GenAIScript over all of them.
 In this example, I'm generating a catchy tweet for each document and I want to save the tweet in another file.
 
+## Development
+
 <Steps>
 <ol>
 <li>
@@ -39,10 +41,18 @@ Assuming we give the GenAIScript a paper describing GenAIScript, the Output will
 Discover GenAIScript: a revolutionary scripting language integrating AI to automate complex tasks, making coding accessible to all! #AI #CodingFuture
 ```
 
-</li><li>
-5. Because we didn't tell the LLM to write the output to a file, it will by default go to standard out. 
-</li><li>
-6. We can confirm this by running the same script from the command line:
+Because we didn't tell the LLM to write the output to a file, it will by default go to standard out. 
+</li>
+</ol>
+
+</Steps>
+
+## Automation
+
+<Steps>
+<ol>
+<li>
+We can run the script from the [command line](/genaiscript/reference/cli/):
 
 ```cmd wrap
 npx --yes genaiscript run gen-tweet example1.pdf
