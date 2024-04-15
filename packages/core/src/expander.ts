@@ -140,7 +140,9 @@ async function callExpander(
             success = null
         } else {
             const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
-            const info = m ? ` at prompt line ${m[1]}, column ${m[2]}` : ""
+            const info = m
+                ? ` at prompt line ${m[1]}, column ${m[2]}`
+                : e.message || ""
             trace.error(info, e)
         }
     }

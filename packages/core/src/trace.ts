@@ -150,7 +150,7 @@ ${title}
             if (error) {
                 const err = serializeError(error)
                 this.errors.push(err)
-                this.fence(YAMLStringify(error), "yaml")
+                this.fence(YAMLStringify(err), "yaml")
             }
         })
     }

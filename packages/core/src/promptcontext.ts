@@ -94,9 +94,6 @@ export function createPromptContext(
                             }
                     ),
                 }
-            } catch (e) {
-                trace.error(`web search error`, e)
-                return undefined
             } finally {
                 trace.endDetails()
             }

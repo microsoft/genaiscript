@@ -51,7 +51,7 @@ export async function bingSearch(
     const apiKey = await host.readSecret("BING_SEARCH_API_KEY")
     if (!apiKey)
         throw new Error(
-            "BING_SEARCH_API_KEY secret is required to use bing search"
+            "BING_SEARCH_API_KEY secret is required to use bing search. See https://microsoft.github.io/genaiscript/reference/scripts/web-search/#bing-web-search-configuration."
         )
     const query = toURLSearchParams({
         q,
