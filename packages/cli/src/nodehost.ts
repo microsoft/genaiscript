@@ -50,7 +50,11 @@ export class NodeHost implements Host {
     static install(dotEnvPath: string) {
         dotEnvPath = dotEnvPath || resolve(".env")
         if (existsSync(dotEnvPath)) {
-            const res = dotenv.config({ path: dotEnvPath })
+            const res = dotenv.config({
+                path: dotEnvPath,
+                debug: !!process.env.DEBUG,
+                override: true
+            })
             if (res.error) throw res.error
         }
         setHost(new NodeHost())
