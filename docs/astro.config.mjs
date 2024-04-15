@@ -45,7 +45,7 @@ export default defineConfig({
                 },
                 {
                     label: "Slides",
-                    link: "slides"
+                    link: "slides/default"
                 },
                 {
                     label: "Contributing",

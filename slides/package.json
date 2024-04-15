@@ -7,7 +7,7 @@
         "publish": false
     },
     "scripts": {
-        "build": "slidev build --base /genaiscript/slides/ --out ../docs/public/slides",
+        "build": "node build.mjs",
         "dev": "slidev --open"
     },
     "dependencies": {
@@ -15,5 +15,8 @@
         "@slidev/theme-default": "latest",
         "@slidev/theme-seriph": "latest",
         "vue": "^3.4.21"
+    },
+    "devDependencies": {
+        "zx": "^8.0.1"
     }
 }

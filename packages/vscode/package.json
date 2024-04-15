@@ -355,7 +355,7 @@
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^7.2.3"
+        "zx": "^8.0.1"
     },
     "dependencies": {
         "mammoth": "^1.7.0",

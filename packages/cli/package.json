@@ -59,7 +59,7 @@
     "semver": "^7.6.0",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",
-    "zx": "^7.2.3"
+    "zx": "^8.0.1"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms && node ../../scripts/patch-cli.mjs",
