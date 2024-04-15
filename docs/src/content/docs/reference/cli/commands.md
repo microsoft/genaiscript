@@ -286,6 +286,17 @@ Commands:
   system      Show system information
 ```
 
+### `info help`
+
+```
+Usage: genaiscript info help [options]
+
+Show help for all commands
+
+Options:
+  -h, --help  display help for command
+```
+
 ### `info system`
 
 ```

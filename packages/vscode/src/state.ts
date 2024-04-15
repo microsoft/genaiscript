@@ -399,6 +399,13 @@ ${e.message}`
         return this._aiRequest
     }
 
+    get diagnostics() {
+        const diagnostics = !!vscode.workspace
+            .getConfiguration(TOOL_ID)
+            .get("diagnostics")
+        return diagnostics
+    }
+
     private set aiRequest(r: AIRequest) {
         if (this._aiRequest !== r) {
             this._aiRequest = r

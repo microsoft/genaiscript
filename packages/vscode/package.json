@@ -208,6 +208,11 @@
             {
                 "title": "GenAIScript",
                 "properties": {
+                    "genaiscript.diagnostics": {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Enable developer diagnostic mode. Including leaving terminals opened."
+                    },
                     "genaiscript.maxCachedTemperature": {
                         "type": "number",
                         "default": 0.01,

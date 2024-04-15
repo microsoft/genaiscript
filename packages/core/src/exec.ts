@@ -9,9 +9,10 @@ export async function exec(
         trace?: MarkdownTrace
         label: string
         call: ChatFunctionCallShell
+        keepOnError?: boolean
     }
 ): Promise<ShellOutput> {
-    const { label, call, trace } = options
+    const { label, call, trace, keepOnError } = options
     let { stdin, command, args, cwd, timeout, files, outputFile } = call
 
     let outputdir: string
@@ -30,10 +31,10 @@ export async function exec(
         await host.createDirectory(outputdir)
 
         const path = host.path
-        stdoutfile =  path.join(outputdir, "stdout.txt")
+        stdoutfile = path.join(outputdir, "stdout.txt")
         stderrfile = path.join(outputdir, "stderr.txt")
         exitcodefile = path.join(outputdir, "exitcode.txt")
-        stdinfile =path.join(outputdir, "stdin.txt")
+        stdinfile = path.join(outputdir, "stdin.txt")
 
         await writeText(stdinfile, stdin || "")
 
@@ -70,6 +71,7 @@ export async function exec(
         const res = await host.exec(command, patchedArgs, {
             cwd,
             timeout,
+            keepOnError,
             ...subs,
         })
 

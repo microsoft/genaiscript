@@ -51,6 +51,7 @@ export interface ShellCallOptions {
     cwd?: string
     timeout?: number
     stdin?: string
+    keepOnError?: boolean
     outputdir: string
     stdinfile: string
     stdoutfile: string
