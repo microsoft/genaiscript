@@ -328,38 +328,30 @@ export async function renderPromptNode(
     await visitNode(node, {
         text: async (n) => {
             if (n.error) errors.push(n.error)
-            else {
-                const value = n.resolved
-                if (value != undefined) prompt += value + "\n"
-            }
+            const value = n.resolved
+            if (value != undefined) prompt += value + "\n"
         },
         assistant: async (n) => {
             if (n.error) errors.push(n.error)
-            else {
-                const value = await n.resolve
-                if (value != undefined) assistantPrompt += value + "\n"
-            }
+            const value = await n.resolve
+            if (value != undefined) assistantPrompt += value + "\n"
         },
         stringTemplate: async (n) => {
             if (n.error) errors.push(n.error)
-            else {
-                const value = n.resolved
-                if (value != undefined) prompt += value + "\n"
-            }
+            const value = n.resolved
+            if (value != undefined) prompt += value + "\n"
         },
         image: async (n) => {
             if (n.error) errors.push(n.error)
-            else {
-                const value = n.resolved
-                if (value != undefined) {
-                    images.push(value)
-                    if (trace) {
-                        trace.startDetails(
-                            `🖼 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
-                        )
-                        trace.image(value.url, value.filename)
-                        trace.endDetails()
-                    }
+            const value = n.resolved
+            if (value != undefined) {
+                images.push(value)
+                if (trace) {
+                    trace.startDetails(
+                        `🖼 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
+                    )
+                    trace.image(value.url, value.filename)
+                    trace.endDetails()
                 }
             }
         },
