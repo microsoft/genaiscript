@@ -1,6 +1,6 @@
 import { stringifySchemaToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
-import { MarkdownTrace } from "./trace"
+import { TraceOptions } from "./trace"
 import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
@@ -23,17 +23,20 @@ export interface PromptNode extends ContextExpansionOptions {
 export interface PromptTextNode extends PromptNode {
     type: "text"
     value: string | Promise<string>
+    resolved?: string
 }
 
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
     value: string | Promise<string>
+    resolve?: string
 }
 
 export interface PromptStringTemplateNode extends PromptNode {
     type: "stringTemplate"
     strings: TemplateStringsArray
     args: any[]
+    resolved?: string
 }
 
 export interface PromptImage {
@@ -45,6 +48,7 @@ export interface PromptImage {
 export interface PromptImageNode extends PromptNode {
     type: "image"
     value: PromptImage | Promise<PromptImage>
+    resolved?: PromptImage
 }
 
 export interface PromptSchemaNode extends PromptNode {
@@ -74,7 +78,7 @@ export interface PromptOutputProcessorNode extends PromptNode {
 
 export function createTextNode(
     value: string | Promise<string>,
-    options?: PromptNodeOptions
+    options?: ContextExpansionOptions
 ): PromptTextNode {
     assert(value !== undefined)
     return { type: "text", value, ...(options || {}) }
@@ -82,7 +86,7 @@ export function createTextNode(
 
 export function createAssistantNode(
     value: string | Promise<string>,
-    options?: PromptNodeOptions
+    options?: ContextExpansionOptions
 ): PromptAssistantNode {
     assert(value !== undefined)
     return { type: "assistant", value, ...(options || {}) }
@@ -91,7 +95,7 @@ export function createAssistantNode(
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
     args: any[],
-    options?: PromptNodeOptions
+    options?: ContextExpansionOptions
 ): PromptStringTemplateNode {
     assert(strings !== undefined)
     return { type: "stringTemplate", strings, args, ...(options || {}) }
@@ -99,7 +103,7 @@ export function createStringTemplateNode(
 
 export function createImageNode(
     value: PromptImage | Promise<PromptImage>,
-    options?: PromptNodeOptions
+    options?: ContextExpansionOptions
 ): PromptImageNode {
     assert(value !== undefined)
     return { type: "image", value, ...(options || {}) }
@@ -212,41 +216,28 @@ export interface PromptNodeRender {
     outputProcessors: PromptOutputProcessorHandler[]
 }
 
-export async function renderPromptNode(
+export async function resolvePromptNode(
     model: string,
     node: PromptNode,
-    options?: { trace: MarkdownTrace }
-): Promise<PromptNodeRender> {
-    const { trace } = options || {}
-
-    let prompt = ""
-    let assistantPrompt = ""
-    const images: PromptImage[] = []
-    const errors: unknown[] = []
-    const schemas: Record<string, JSONSchema> = {}
-    const functions: ChatFunctionCallback[] = []
-    const fileMerges: FileMergeHandler[] = []
-    const outputProcessors: PromptOutputProcessorHandler[] = []
-
+    options?: TraceOptions
+): Promise<void> {
     await visitNode(node, {
         text: async (n) => {
             try {
                 const value = await n.value
+                n.resolved = value
                 n.tokens = estimateTokens(model, value)
-                if (value != undefined) prompt += value + "\n"
             } catch (e) {
                 node.error = e
-                errors.push(e)
             }
         },
         assistant: async (n) => {
             try {
                 const value = await n.value
+                n.resolve = value
                 n.tokens = estimateTokens(model, value)
-                if (value != undefined) assistantPrompt += value + "\n"
             } catch (e) {
                 node.error = e
-                errors.push(e)
             }
         },
         stringTemplate: async (n) => {
@@ -260,29 +251,77 @@ export async function renderPromptNode(
                         value += arg ?? ""
                     }
                 }
+                n.resolved = value
                 n.tokens = estimateTokens(model, value)
-                prompt += value + "\n"
             } catch (e) {
                 node.error = e
-                errors.push(e)
             }
         },
         image: async (n) => {
             try {
                 const v = await n.value
-                if (v !== undefined) {
-                    images.push(v)
+                n.resolved = v
+            } catch (e) {
+                node.error = e
+            }
+        },
+    })
+}
+
+export async function renderPromptNode(
+    model: string,
+    node: PromptNode,
+    options?: TraceOptions
+): Promise<PromptNodeRender> {
+    const { trace } = options || {}
+
+    await resolvePromptNode(model, node, { trace })
+
+    let prompt = ""
+    let assistantPrompt = ""
+    const images: PromptImage[] = []
+    const errors: unknown[] = []
+    const schemas: Record<string, JSONSchema> = {}
+    const functions: ChatFunctionCallback[] = []
+    const fileMerges: FileMergeHandler[] = []
+    const outputProcessors: PromptOutputProcessorHandler[] = []
+
+    await visitNode(node, {
+        text: async (n) => {
+            if (n.error) errors.push(n.error)
+            else {
+                const value = n.resolved
+                if (value != undefined) prompt += value + "\n"
+            }
+        },
+        assistant: async (n) => {
+            if (n.error) errors.push(n.error)
+            else {
+                const value = await n.resolve
+                if (value != undefined) assistantPrompt += value + "\n"
+            }
+        },
+        stringTemplate: async (n) => {
+            if (n.error) errors.push(n.error)
+            else {
+                const value = n.resolved
+                if (value != undefined) prompt += value + "\n"
+            }
+        },
+        image: async (n) => {
+            if (n.error) errors.push(n.error)
+            else {
+                const value = n.resolved
+                if (value != undefined) {
+                    images.push(value)
                     if (trace) {
                         trace.startDetails(
-                            `🖼 image: ${v.detail || ""} ${v.filename || v.url.slice(0, 64) + "..."}`
+                            `🖼 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
                         )
-                        trace.image(v.url, v.filename)
+                        trace.image(value.url, value.filename)
                         trace.endDetails()
                     }
                 }
-            } catch (e) {
-                node.error = e
-                errors.push(e)
             }
         },
         schema: (n) => {
