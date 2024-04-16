@@ -70,8 +70,11 @@ How you do this depends on the shell script you prefer.
   <TabItem label="bash">
 
 ```bash wrap frame="none"
-for file in *.pdf; do newfile="${file%.pdf}.tweet.md";
-npx --yes genaiscript run gen-tweet $file > $newfile
+for file in *.pdf; do 
+  newfile="${file%.pdf}.tweet.md"; # foo.pdf -> foo.tweet.md
+  if [ ! -f "$newfile" ]; then # skip if already exists
+    npx --yes genaiscript run gen-tweet $file > $newfile
+  fi
 done
 ```
 
@@ -80,8 +83,10 @@ done
 
 ```powershell wrap frame="none"
 Get-ChildItem -Filter *.pdf | ForEach-Object {
-$newName = $_.BaseName + ".tweet.md"
-npx --yes genaiscript run gen-tweet $_.FullName | Set-Content "$newName"  
+  $newName = $_.BaseName + ".tweet.md"
+  if (-not (Test-Path $newName)) {
+    npx --yes genaiscript run gen-tweet $_.FullName | Set-Content "$newName"  
+  }
 }
 ```
 </TabItem>
@@ -91,11 +96,31 @@ npx --yes genaiscript run gen-tweet $_.FullName | Set-Content "$newName"
 import subprocess, sys, os
 for input_file in sys.argv[1:]:
     output_file = os.path.splitext(input_file)[0] + '.tweet.md'
-    with open(output_file, 'w') as outfile:
-        subprocess.run(["npx.cmd", "--yes", "genaiscript", "run", "gen-tweet", 
-                        input_file], stdout=outfile)
+    if not os.path.exists(output_file):
+        with open(output_file, 'w') as outfile:
+            result = subprocess.check_output(["npx", "--yes", "genaiscript", "run", "gen-tweet", 
+                                              input_file], universal_newlines=True)
+            outfile.write(result)
 ```
 </TabItem>
+
+<TabItem label="JavaScript (node.js)">
+
+```js wrap frame="none"
+#!/usr/bin/env zx
+import "zx/globals"
+
+const files = await glob("*.pdf")
+for(const file of files) {
+  const out = file.replace(/\.pdf$/i, '.tweet.md') // foo.pdf -> foo.tweet.md
+  if (!await fs.exists(out)) // don't regenerate if it already exists
+    await $`npx --yes genaiscript run gen-tweet ${file} > ${out}`
+}
+```
+This script requires [zx](https://github.com/google/zx).
+
+</TabItem>
+
 </Tabs>
 </li>
 </ol>
