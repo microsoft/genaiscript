@@ -399,17 +399,10 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            let value = n.resolved
-            let tokens = n.tokens
-            while (tokens > n.maxTokens) {
-                value = value.slice(
-                    0,
-                    Math.floor((n.maxTokens * value.length) / tokens)
-                )
-                tokens = estimateTokens(model, value)
-            }
-            value += "..."
-            // trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
+            const value = n.resolved.slice(
+                0,
+                Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
+            )
             n.resolved = value
             n.tokens = estimateTokens(model, value)
             truncated = true
@@ -423,16 +416,11 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            const tokens = n.tokens
-            while (n.tokens > n.maxTokens) {
-                const value = n.resolved.content
-                n.resolved.content = value.slice(
-                    0,
-                    Math.floor((n.maxTokens * value.length) / n.tokens)
-                )
-                n.tokens = estimateTokens(model, n.resolved.content)
-            }
-            //trace.item(`🔪 truncated ${tokens}t -> ${n.tokens}t`)
+            n.resolved.content = n.resolved.content.slice(
+                0,
+                Math.floor((n.maxTokens * n.resolved.content.length) / n.tokens)
+            )
+            n.tokens = estimateTokens(model, n.resolved.content)
             truncated = true
         }
     }
