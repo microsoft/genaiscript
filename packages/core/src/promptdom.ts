@@ -6,15 +6,15 @@ import { YAMLStringify } from "./yaml"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
-        | "text"
-        | "image"
-        | "schema"
-        | "function"
-        | "fileMerge"
-        | "outputProcessor"
-        | "stringTemplate"
-        | "assistant"
-        | undefined
+    | "text"
+    | "image"
+    | "schema"
+    | "function"
+    | "fileMerge"
+    | "outputProcessor"
+    | "stringTemplate"
+    | "assistant"
+    | undefined
     children?: PromptNode[]
     error?: unknown
     tokens?: number
@@ -293,7 +293,7 @@ async function truncatePromptNode(
                 tokens = estimateTokens(model, value)
             }
             value += "..."
-            trace.item(`🔪 truncated ${n.tokens} -> ${tokens}`)
+            trace.item(`🔪 truncated ${n.resolved.slice(0, 10) + "..."}: ${n.tokens}t -> ${tokens}t`)
             n.resolved = value
             n.tokens = estimateTokens(model, value)
         }
