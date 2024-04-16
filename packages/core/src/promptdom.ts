@@ -113,7 +113,7 @@ export function createDefNode(
 function renderDefNode(def: PromptDefNode): string {
     const { name, resolved } = def
     const file = resolved
-    const { language, lineNumbers, schema, priority, maxTokens } = def || {}
+    const { language, lineNumbers, schema } = def || {}
     const fence =
         language === "markdown" || language === "mdx"
             ? MARKDOWN_PROMPT_FENCE
@@ -377,7 +377,7 @@ async function truncatePromptNode(
                 tokens = estimateTokens(model, value)
             }
             value += "..."
-            trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
+            // trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
             n.resolved = value
             n.tokens = estimateTokens(model, value)
             truncated = true
@@ -391,19 +391,16 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            let value = renderDefNode(n)
-            let tokens = n.tokens
-            while (tokens > n.maxTokens) {
-                value = value.slice(
+            const tokens = n.tokens
+            while (n.tokens > n.maxTokens) {
+                const value = n.resolved.content
+                n.resolved.content = value.slice(
                     0,
-                    Math.floor((n.maxTokens * value.length) / tokens)
+                    Math.floor((n.maxTokens * value.length) / n.tokens)
                 )
-                tokens = estimateTokens(model, value)
+                n.tokens = estimateTokens(model, n.resolved.content)
             }
-            value += "..."
-            trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
-            n.resolved.content = value
-            n.tokens = estimateTokens(model, value)
+            //trace.item(`🔪 truncated ${tokens}t -> ${n.tokens}t`)
             truncated = true
         }
     }
@@ -418,13 +415,17 @@ async function truncatePromptNode(
     return truncated
 }
 
-export async function tracePromptNode(trace: MarkdownTrace, node: PromptNode) {
+export async function tracePromptNode(
+    trace: MarkdownTrace,
+    node: PromptNode,
+    options?: { label: string }
+) {
     if (!trace) return
 
     await visitNode(node, {
         node: (n) => {
             const title = toStringList(
-                n.type,
+                n.type || `🌳 prompt tree ${options?.label || ""}`,
                 n.priority ? `#${n.priority}` : undefined,
                 n.tokens
                     ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
@@ -450,7 +451,7 @@ export async function renderPromptNode(
     await tracePromptNode(trace, node)
 
     const truncated = await truncatePromptNode(model, node, options)
-    if (truncated) await tracePromptNode(trace, node)
+    if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
     let prompt = ""
     let assistantPrompt = ""
