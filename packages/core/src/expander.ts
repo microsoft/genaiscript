@@ -15,6 +15,7 @@ import {
     toChatCompletionUserMessage,
 } from "./chat"
 import { importPrompt } from "./importprompt"
+import { lookupMime } from "./mime"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -161,6 +162,37 @@ async function callExpander(
     }
 }
 
+function traceEnv(model: string, trace: MarkdownTrace, env: ExpansionVariables) {
+    trace.startDetails("🏡 env")
+    const files = env.files || []
+    if (files.length) {
+        trace.startDetails("💾 files")
+        for (const file of env.files || []) {
+            const { filename = "", label = "" } = file
+            if (trace.content) {
+                const tokens = estimateTokens(model, trace.content)
+                trace.startDetails(`${filename} ${label}, ${tokens}t`)
+                trace.fence(file.content, lookupMime(filename))
+                trace.endDetails()
+            } else trace.item(`${filename} ${label}`)
+        }
+        trace.endDetails()
+    }
+    const vars = Object.entries(env.vars || {})
+    if (vars.length) {
+        trace.startDetails("🧮 vars")
+        for (const [k, v] of vars) {
+            trace.itemValue(k, v)
+        }
+        trace.endDetails()
+    }
+    const secrets = Object.keys(env.secrets || {})
+    if (secrets.length) {
+        trace.itemValue(`🔐 secrets`, secrets.join(", "))
+    }
+    trace.endDetails()
+}
+
 export async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
@@ -173,26 +205,10 @@ export async function expandTemplate(
     const { jsSource } = template
 
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-    trace.startDetails("💾 script")
-
-    trace.startDetails("🧬 prompt")
-    trace.detailsFenced("📓 script source", template.jsSource, "js")
 
     const systems = (template.system ?? []).slice(0)
-    if (template.system === undefined) {
-        const useSchema = /defschema/i.test(jsSource)
-        systems.push("system")
-        systems.push("system.explanations")
-        // select file expansion type
-        if (/diff/i.test(jsSource)) systems.push("system.diff")
-        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else {
-            systems.push("system.files")
-            if (useSchema) systems.push("system.files_schema")
-        }
-        if (useSchema) systems.push("system.schema")
-        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
-    }
+    const model =
+        options.model ?? env.vars["model"] ?? template.model ?? DEFAULT_MODEL
     const systemTemplates = systems.map((s) =>
         fragment.file.project.getTemplate(s)
     )
@@ -201,8 +217,6 @@ export async function expandTemplate(
         options.lineNumbers ??
         template.lineNumbers ??
         systemTemplates.some((s) => s?.lineNumbers)
-    const model =
-        options.model ?? env.vars["model"] ?? template.model ?? DEFAULT_MODEL
     const temperature =
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
@@ -225,10 +239,33 @@ export async function expandTemplate(
         defaultSeed
     if (seed !== undefined) seed = seed >> 0
 
+    trace.startDetails("💾 script")
+
     trace.itemValue(`model`, model)
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
+
+    traceEnv(model, trace, env)
+
+
+    trace.startDetails("🧬 prompt")
+    trace.detailsFenced("📓 script source", template.jsSource, "js")
+
+    if (template.system === undefined) {
+        const useSchema = /defschema/i.test(jsSource)
+        systems.push("system")
+        systems.push("system.explanations")
+        // select file expansion type
+        if (/diff/i.test(jsSource)) systems.push("system.diff")
+        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
+        else {
+            systems.push("system.files")
+            if (useSchema) systems.push("system.files_schema")
+        }
+        if (useSchema) systems.push("system.schema")
+        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
+    }
 
     const prompt = await callExpander(template, env, trace, options)
     const expanded = prompt.text
