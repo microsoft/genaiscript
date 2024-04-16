@@ -216,7 +216,7 @@ export interface PromptNodeRender {
     outputProcessors: PromptOutputProcessorHandler[]
 }
 
-export async function resolvePromptNode(
+async function resolvePromptNode(
     model: string,
     node: PromptNode,
     options?: TraceOptions
@@ -268,6 +268,39 @@ export async function resolvePromptNode(
     })
 }
 
+async function truncatePromptNode(
+    model: string,
+    node: PromptNode,
+    options?: TraceOptions
+): Promise<void> {
+    const { trace } = options || {}
+    const cap = (n: {
+        error?: unknown
+        resolved?: string
+        tokens?: number
+        maxTokens?: number
+    }) => {
+        if (!n.error && n.maxTokens !== undefined && n.tokens > n.maxTokens) {
+            let value = n.resolved
+            let tokens = n.tokens
+            while (tokens > n.maxTokens) {
+                value = value.slice(0, (n.maxTokens * value.length) / tokens)
+                tokens = estimateTokens(model, value)
+            }
+            value += "..."
+            trace.item(`🔪 truncated ${n.tokens} -> ${tokens}`)
+            n.resolved = value
+            n.tokens = estimateTokens(model, value)
+        }
+    }
+
+    await visitNode(node, {
+        text: cap,
+        assistant: cap,
+        stringTemplate: cap,
+    })
+}
+
 export async function renderPromptNode(
     model: string,
     node: PromptNode,
@@ -275,7 +308,8 @@ export async function renderPromptNode(
 ): Promise<PromptNodeRender> {
     const { trace } = options || {}
 
-    await resolvePromptNode(model, node, { trace })
+    await resolvePromptNode(model, node, options)
+    await truncatePromptNode(model, node, options)
 
     let prompt = ""
     let assistantPrompt = ""
