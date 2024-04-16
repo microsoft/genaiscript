@@ -23,6 +23,12 @@ export function toArray<T>(a: ArrayLike<T>): T[] {
     return r
 }
 
+export function toStringList(...token: string[]) {
+    const md = token.filter((l) => l !== undefined && l !== null).join(", ")
+    return md
+}
+
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",

@@ -3,8 +3,8 @@ import { resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
 import { stringifySchemaToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
-import { TraceOptions } from "./trace"
-import { assert, trimNewlines } from "./util"
+import { MarkdownTrace, TraceOptions } from "./trace"
+import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 
@@ -351,8 +351,9 @@ async function truncatePromptNode(
     model: string,
     node: PromptNode,
     options?: TraceOptions
-): Promise<void> {
+): Promise<boolean> {
     const { trace } = options || {}
+    let truncated = false
 
     const cap = (n: {
         error?: unknown
@@ -379,6 +380,7 @@ async function truncatePromptNode(
             trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
             n.resolved = value
             n.tokens = estimateTokens(model, value)
+            truncated = true
         }
     }
 
@@ -402,6 +404,7 @@ async function truncatePromptNode(
             trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
             n.resolved.content = value
             n.tokens = estimateTokens(model, value)
+            truncated = true
         }
     }
 
@@ -410,6 +413,29 @@ async function truncatePromptNode(
         assistant: cap,
         stringTemplate: cap,
         def: capDef,
+    })
+
+    return truncated
+}
+
+export async function tracePromptNode(trace: MarkdownTrace, node: PromptNode) {
+    if (!trace) return
+
+    await visitNode(node, {
+        node: (n) => {
+            const title = toStringList(
+                n.type,
+                n.priority ? `#${n.priority}` : undefined,
+                n.tokens
+                    ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
+                    : undefined
+            )
+            if (n.children?.length) trace.startDetails(title)
+            else trace.item(title)
+        },
+        afterNode: (n) => {
+            if (n.children?.length) trace.endDetails()
+        },
     })
 }
 
@@ -421,7 +447,10 @@ export async function renderPromptNode(
     const { trace } = options || {}
 
     await resolvePromptNode(model, node, options)
-    await truncatePromptNode(model, node, options)
+    await tracePromptNode(trace, node)
+
+    const truncated = await truncatePromptNode(model, node, options)
+    if (truncated) await tracePromptNode(trace, node)
 
     let prompt = ""
     let assistantPrompt = ""

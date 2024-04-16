@@ -1,13 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { toMarkdownString } from "./markdown"
-import { CHANGE, ICON_LOGO_NAME } from "genaiscript-core"
+import { CHANGE, ICON_LOGO_NAME, toStringList } from "genaiscript-core"
 import { Utils } from "vscode-uri"
-
-function toStringList(...token: string[]) {
-    const md = token.filter((l) => l !== undefined && l !== null).join(", ")
-    return md
-}
 
 export function activateStatusBar(state: ExtensionState) {
     const { context, host } = state
