@@ -11,7 +11,7 @@ import {
     PromptNode,
     appendChild,
     createFileMergeNode,
-    createFunctioNode,
+    createFunctionNode,
     createImageNode,
     createOutputProcessor,
     createSchemaNode,
@@ -181,7 +181,7 @@ export function createPromptContext(
         defOutput,
         defFunction: (name, description, parameters, fn) => {
             appendPromptChild(
-                createFunctioNode(name, description, parameters, fn)
+                createFunctionNode(name, description, parameters, fn)
             )
         },
         defFileMerge: (fn) => {

@@ -13,7 +13,7 @@ export function createDefNode(
     options: DefOptions & TraceOptions
 ) {
     name = name ?? ""
-    const { language, lineNumbers, schema } = options || {}
+    const { language, lineNumbers, schema, priority, maxTokens } = options || {}
     const fence =
         language === "markdown" || language === "mdx"
             ? env.markdownFence
@@ -57,7 +57,8 @@ export function createDefNode(
         return res
     }
 
-    return createTextNode(render())
+    const value = render()
+    return createTextNode(value, { priority, maxTokens })
 }
 
 export function createDefDataNode(
@@ -68,7 +69,7 @@ export function createDefDataNode(
 ) {
     if (data === undefined) return undefined
 
-    let { format, headers } = options || {}
+    let { format, headers, priority, maxTokens } = options || {}
     if (!format && headers && Array.isArray(data)) format = "csv"
     else if (!format) format = "yaml"
 
@@ -84,6 +85,7 @@ export function createDefDataNode(
         lang = "yaml"
     }
 
-    return createTextNode(`${name}:
-${lang ? fenceMD(text, lang) : text}`)
+    const value = `${name}:
+    ${lang ? fenceMD(text, lang) : text}`
+    return createTextNode(value, { priority, maxTokens })
 }

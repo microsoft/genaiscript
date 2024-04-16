@@ -4,19 +4,18 @@ import { MarkdownTrace } from "./trace"
 import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 
-export interface PromptNode {
+export interface PromptNode extends ContextExpansionOptions {
     type?:
-    | "text"
-    | "image"
-    | "schema"
-    | "function"
-    | "fileMerge"
-    | "outputProcessor"
-    | "stringTemplate"
-    | "assistant"
-    | undefined
+        | "text"
+        | "image"
+        | "schema"
+        | "function"
+        | "fileMerge"
+        | "outputProcessor"
+        | "stringTemplate"
+        | "assistant"
+        | undefined
     children?: PromptNode[]
-    priority?: number
     error?: unknown
     tokens?: number
 }
@@ -74,32 +73,36 @@ export interface PromptOutputProcessorNode extends PromptNode {
 }
 
 export function createTextNode(
-    value: string | Promise<string>
+    value: string | Promise<string>,
+    options?: PromptNodeOptions
 ): PromptTextNode {
     assert(value !== undefined)
-    return { type: "text", value }
+    return { type: "text", value, ...(options || {}) }
 }
 
 export function createAssistantNode(
-    value: string | Promise<string>
+    value: string | Promise<string>,
+    options?: PromptNodeOptions
 ): PromptAssistantNode {
     assert(value !== undefined)
-    return { type: "assistant", value }
+    return { type: "assistant", value, ...(options || {}) }
 }
 
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
-    args: any[]
+    args: any[],
+    options?: PromptNodeOptions
 ): PromptStringTemplateNode {
     assert(strings !== undefined)
-    return { type: "stringTemplate", strings, args }
+    return { type: "stringTemplate", strings, args, ...(options || {}) }
 }
 
 export function createImageNode(
-    value: PromptImage | Promise<PromptImage>
+    value: PromptImage | Promise<PromptImage>,
+    options?: PromptNodeOptions
 ): PromptImageNode {
     assert(value !== undefined)
-    return { type: "image", value }
+    return { type: "image", value, ...(options || {}) }
 }
 
 export function createSchemaNode(
@@ -112,7 +115,7 @@ export function createSchemaNode(
     return { type: "schema", name, value, options }
 }
 
-export function createFunctioNode(
+export function createFunctionNode(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
@@ -189,7 +192,6 @@ export async function visitNode(
         case "assistant":
             await visitor.assistant?.(node as PromptAssistantNode)
             break
-
     }
     if (node.children) {
         for (const child of node.children) {
