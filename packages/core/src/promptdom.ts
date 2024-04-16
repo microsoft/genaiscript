@@ -7,6 +7,7 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
+import { fenceMD } from "./markdown"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -212,6 +213,37 @@ export function createOutputProcessor(
 ): PromptOutputProcessorNode {
     assert(fn !== undefined)
     return { type: "outputProcessor", fn }
+}
+
+export function createDefDataNode(
+    name: string,
+    data: object | object[],
+    options?: DefDataOptions
+) {
+    if (data === undefined) return undefined
+    if (options?.maxTokens)
+        throw new Error("maxTokens not supported for defData")
+
+    let { format, headers, priority, maxTokens } = options || {}
+    if (!format && headers && Array.isArray(data)) format = "csv"
+    else if (!format) format = "yaml"
+
+    let text: string
+    let lang: string
+    if (Array.isArray(data) && format === "csv") {
+        text = CSVToMarkdown(data, { headers })
+    } else if (format === "json") {
+        text = JSON.stringify(data)
+        lang = "json"
+    } else {
+        text = YAMLStringify(data)
+        lang = "yaml"
+    }
+
+    const value = `${name}:
+    ${lang ? fenceMD(text, lang) : text}`
+    // TODO maxTokens does not work well with data
+    return createTextNode(value, { priority, maxTokens })
 }
 
 export function appendChild(parent: PromptNode, child: PromptNode): void {
