@@ -47,3 +47,5 @@ export const GENERATION_ERROR_CODE = -4
 export const RUNTIME_ERROR_CODE = -5
 
 export const DOT_ENV_REGEX = /\.env$/i
+export const PROMPT_FENCE = "```"
+export const MARKDOWN_PROMPT_FENCE = "`````"

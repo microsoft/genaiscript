@@ -1,8 +1,12 @@
+import { CSVToMarkdown, CSVTryParse } from "./csv"
+import { resolveFileContent } from "./file"
+import { addLineNumbers } from "./liner"
 import { stringifySchemaToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
 import { TraceOptions } from "./trace"
 import { assert, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
+import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -27,7 +31,7 @@ export interface PromptTextNode extends PromptNode {
     resolved?: string
 }
 
-export interface PromptDefNode extends PromptNode {
+export interface PromptDefNode extends PromptNode, DefOptions {
     type: "def"
     name: string
     value: LinkedFile | Promise<LinkedFile>
@@ -94,10 +98,60 @@ export function createTextNode(
 
 export function createDefNode(
     name: string,
-    value: LinkedFile | Promise<LinkedFile>,
-    options?: ContextExpansionOptions
+    file: LinkedFile,
+    options: DefOptions & TraceOptions
 ): PromptDefNode {
+    name = name ?? ""
+    const render = async () => {
+        await resolveFileContent(file, options)
+        return file
+    }
+    const value = render()
     return { type: "def", name, value, ...(options || {}) }
+}
+
+function renderDefNode(def: PromptDefNode): string {
+    const { name, resolved } = def
+    const file = resolved
+    const { language, lineNumbers, schema, priority, maxTokens } = def || {}
+    const fence =
+        language === "markdown" || language === "mdx"
+            ? MARKDOWN_PROMPT_FENCE
+            : PROMPT_FENCE
+    const norm = (s: string, f: string) => {
+        s = (s || "").replace(/\n*$/, "")
+        if (s && lineNumbers) s = addLineNumbers(s)
+        if (s) s += "\n"
+        if (f && s.includes(f)) throw new Error("source contains fence")
+        return s
+    }
+
+    let dfence =
+        /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
+            ? MARKDOWN_PROMPT_FENCE
+            : fence
+    const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
+    let body = file.content
+    if (/^(c|t)sv$/i.test(dtype)) {
+        const parsed = CSVTryParse(file.content)
+        if (parsed) {
+            body = CSVToMarkdown(parsed)
+            dfence = ""
+        }
+    }
+    body = norm(body, dfence)
+    const res =
+        (name ? name + ":\n" : "") +
+        dfence +
+        dtype +
+        (file.filename ? ` file="${file.filename}"` : "") +
+        "\n" +
+        body +
+        (schema ? ` schema=${schema}` : "") +
+        dfence +
+        "\n"
+
+    return res
 }
 
 export function createAssistantNode(
@@ -250,7 +304,8 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = value
-                n.tokens = estimateTokens(model, value?.content)
+                const rendered = renderDefNode(n)
+                n.tokens = estimateTokens(model, rendered)
             } catch (e) {
                 node.error = e
             }
@@ -298,6 +353,7 @@ async function truncatePromptNode(
     options?: TraceOptions
 ): Promise<void> {
     const { trace } = options || {}
+
     const cap = (n: {
         error?: unknown
         resolved?: string
@@ -326,10 +382,34 @@ async function truncatePromptNode(
         }
     }
 
+    const capDef = (n: PromptDefNode) => {
+        if (
+            !n.error &&
+            n.resolved !== undefined &&
+            n.maxTokens !== undefined &&
+            n.tokens > n.maxTokens
+        ) {
+            let value = renderDefNode(n)
+            let tokens = n.tokens
+            while (tokens > n.maxTokens) {
+                value = value.slice(
+                    0,
+                    Math.floor((n.maxTokens * value.length) / tokens)
+                )
+                tokens = estimateTokens(model, value)
+            }
+            value += "..."
+            trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
+            n.resolved.content = value
+            n.tokens = estimateTokens(model, value)
+        }
+    }
+
     await visitNode(node, {
         text: cap,
         assistant: cap,
         stringTemplate: cap,
+        def: capDef,
     })
 }
 
@@ -357,6 +437,11 @@ export async function renderPromptNode(
             if (n.error) errors.push(n.error)
             const value = n.resolved
             if (value != undefined) prompt += value + "\n"
+        },
+        def: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = n.resolved
+            if (value !== undefined) prompt += renderDefNode(n) + "\n"
         },
         assistant: async (n) => {
             if (n.error) errors.push(n.error)

@@ -334,18 +334,6 @@ interface ChatFunctionCallback {
  */
 interface ExpansionVariables {
     /**
-     * Used to delimit multi-line strings, expect for markdown.
-     * `fence(X)` is preferred (equivalent to `` $`${env.fence}\n${X}\n${env.fence}` ``)
-     */
-    fence: string
-
-    /**
-     * Used to delimit multi-line markdown strings.
-     * `fence(X, { language: "markdown" })` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
-     */
-    markdownFence: string
-
-    /**
      * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
     spec: LinkedFile

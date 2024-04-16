@@ -3,11 +3,11 @@ import {
     PromptNode,
     appendChild,
     createAssistantNode,
+    createDefNode,
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
 } from "./promptdom"
-import { createDefNode } from "./filedom"
 import { MarkdownTrace } from "./trace"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import {
@@ -68,14 +68,13 @@ export function createRunPromptContext(
                     if (!match) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
-                appendChild(node, createDefNode(name, body, env, doptions))
+                appendChild(node, createDefNode(name, body, doptions))
             } else if (typeof body === "string") {
                 appendChild(
                     node,
                     createDefNode(
                         name,
                         { filename: "", label: "", content: body },
-                        env,
                         doptions
                     )
                 )
