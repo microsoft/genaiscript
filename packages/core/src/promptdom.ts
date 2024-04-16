@@ -289,11 +289,11 @@ async function truncatePromptNode(
             let value = n.resolved
             let tokens = n.tokens
             while (tokens > n.maxTokens) {
-                value = value.slice(0, (n.maxTokens * value.length) / tokens)
+                value = value.slice(0, Math.floor((n.maxTokens * value.length) / tokens))
                 tokens = estimateTokens(model, value)
             }
             value += "..."
-            trace.item(`🔪 truncated ${n.resolved.slice(0, 10) + "..."}: ${n.tokens}t -> ${tokens}t`)
+            trace.item(`🔪 truncated ${n.tokens}t -> ${tokens}t`)
             n.resolved = value
             n.tokens = estimateTokens(model, value)
         }

@@ -408,7 +408,15 @@ interface FenceOptions {
     schema?: string
 }
 
-interface DefOptions extends FenceOptions {
+interface ContextExpansionOptions {
+    priority?: number
+    /**
+     * Specifies an maximum of estimated tokesn for this entry; after which it will be truncated.
+     */
+    maxTokens?: number
+}
+
+interface DefOptions extends FenceOptions, ContextExpansionOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -672,9 +680,12 @@ interface Parsers {
     /**
      * Convert HTML to text
      * @param content html string or file
-     * @param options 
+     * @param options
      */
-    HTMLToText(content: string | LinkedFile, options?: HTMLToTextOptions): string
+    HTMLToText(
+        content: string | LinkedFile,
+        options?: HTMLToTextOptions
+    ): string
 
     /**
      * Estimates the number of tokens in the content.
@@ -850,7 +861,7 @@ interface Retrieval {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
-interface DefDataOptions {
+interface DefDataOptions extends ContextExpansionOptions {
     format?: "json" | "yaml" | "csv"
     headers?: string[]
 }
@@ -863,7 +874,7 @@ type ChatFunctionHandler = (
     args: { context: ChatFunctionCallContext } & Record<string, any>
 ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 
-interface WriteTextOptions {
+interface WriteTextOptions extends ContextExpansionOptions {
     /**
      * Append text to the assistant response
      */
