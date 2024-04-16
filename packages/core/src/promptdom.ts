@@ -6,15 +6,16 @@ import { YAMLStringify } from "./yaml"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
-    | "text"
-    | "image"
-    | "schema"
-    | "function"
-    | "fileMerge"
-    | "outputProcessor"
-    | "stringTemplate"
-    | "assistant"
-    | undefined
+        | "text"
+        | "image"
+        | "schema"
+        | "function"
+        | "fileMerge"
+        | "outputProcessor"
+        | "stringTemplate"
+        | "assistant"
+        | "def"
+        | undefined
     children?: PromptNode[]
     error?: unknown
     tokens?: number
@@ -24,6 +25,13 @@ export interface PromptTextNode extends PromptNode {
     type: "text"
     value: string | Promise<string>
     resolved?: string
+}
+
+export interface PromptDefNode extends PromptNode {
+    type: "def"
+    name: string
+    value: LinkedFile | Promise<LinkedFile>
+    resolved?: LinkedFile
 }
 
 export interface PromptAssistantNode extends PromptNode {
@@ -82,6 +90,14 @@ export function createTextNode(
 ): PromptTextNode {
     assert(value !== undefined)
     return { type: "text", value, ...(options || {}) }
+}
+
+export function createDefNode(
+    name: string,
+    value: LinkedFile | Promise<LinkedFile>,
+    options?: ContextExpansionOptions
+): PromptDefNode {
+    return { type: "def", name, value, ...(options || {}) }
 }
 
 export function createAssistantNode(
@@ -151,29 +167,28 @@ export function appendChild(parent: PromptNode, child: PromptNode): void {
     parent.children.push(child)
 }
 
-export async function visitNode(
-    node: PromptNode,
-    visitor: {
-        node?: (node: PromptNode) => void | Promise<void>
-        afterNode?: (node: PromptNode) => void | Promise<void>
-        text?: (node: PromptTextNode) => void | Promise<void>
-        image?: (node: PromptImageNode) => void | Promise<void>
-        schema?: (node: PromptSchemaNode) => void | Promise<void>
-        function?: (node: PromptFunctionNode) => void | Promise<void>
-        fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
-        stringTemplate?: (
-            node: PromptStringTemplateNode
-        ) => void | Promise<void>
-        outputProcessor?: (
-            node: PromptOutputProcessorNode
-        ) => void | Promise<void>
-        assistant?: (node: PromptAssistantNode) => void | Promise<void>
-    }
-) {
+export interface PromptNodeVisitor {
+    node?: (node: PromptNode) => void | Promise<void>
+    afterNode?: (node: PromptNode) => void | Promise<void>
+    text?: (node: PromptTextNode) => void | Promise<void>
+    def?: (node: PromptDefNode) => void | Promise<void>
+    image?: (node: PromptImageNode) => void | Promise<void>
+    schema?: (node: PromptSchemaNode) => void | Promise<void>
+    function?: (node: PromptFunctionNode) => void | Promise<void>
+    fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
+    stringTemplate?: (node: PromptStringTemplateNode) => void | Promise<void>
+    outputProcessor?: (node: PromptOutputProcessorNode) => void | Promise<void>
+    assistant?: (node: PromptAssistantNode) => void | Promise<void>
+}
+
+export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
     await visitor.node?.(node)
     switch (node.type) {
         case "text":
             await visitor.text?.(node as PromptTextNode)
+            break
+        case "def":
+            await visitor.def?.(node as PromptDefNode)
             break
         case "image":
             await visitor.image?.(node as PromptImageNode)
@@ -227,6 +242,15 @@ async function resolvePromptNode(
                 const value = await n.value
                 n.resolved = value
                 n.tokens = estimateTokens(model, value)
+            } catch (e) {
+                node.error = e
+            }
+        },
+        def: async (n) => {
+            try {
+                const value = await n.value
+                n.resolved = value
+                n.tokens = estimateTokens(model, value?.content)
             } catch (e) {
                 node.error = e
             }
@@ -289,7 +313,10 @@ async function truncatePromptNode(
             let value = n.resolved
             let tokens = n.tokens
             while (tokens > n.maxTokens) {
-                value = value.slice(0, Math.floor((n.maxTokens * value.length) / tokens))
+                value = value.slice(
+                    0,
+                    Math.floor((n.maxTokens * value.length) / tokens)
+                )
                 tokens = estimateTokens(model, value)
             }
             value += "..."
