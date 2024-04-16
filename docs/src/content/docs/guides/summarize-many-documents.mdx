@@ -85,14 +85,14 @@ npx --yes genaiscript run gen-tweet $_.FullName | Set-Content "$newName"
 }
 ```
 </TabItem>
-<TabItem label="Python">
+<TabItem label="Python (on Windows)">
 
 ```python wrap frame="none"
 import subprocess, sys, os
 for input_file in sys.argv[1:]:
     output_file = os.path.splitext(input_file)[0] + '.tweet.md'
     with open(output_file, 'w') as outfile:
-        subprocess.run([r'npx.cmd', "--yes", "genaiscript", "run", "gen-tweet", 
+        subprocess.run(["npx.cmd", "--yes", "genaiscript", "run", "gen-tweet", 
                         input_file], stdout=outfile)
 ```
 </TabItem>
