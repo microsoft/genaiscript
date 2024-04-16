@@ -280,7 +280,12 @@ async function truncatePromptNode(
         tokens?: number
         maxTokens?: number
     }) => {
-        if (!n.error && n.maxTokens !== undefined && n.tokens > n.maxTokens) {
+        if (
+            !n.error &&
+            n.resolved !== undefined &&
+            n.maxTokens !== undefined &&
+            n.tokens > n.maxTokens
+        ) {
             let value = n.resolved
             let tokens = n.tokens
             while (tokens > n.maxTokens) {
