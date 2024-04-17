@@ -236,15 +236,23 @@ export function groupBy<T>(
     return r
 }
 
-export function normalizeFloat(s: string | number | boolean) {
+export function normalizeString(s: string | number | boolean): string {
+    if (typeof s === "string") return s
+    else if (typeof s === "number") return s.toLocaleString()
+    else if (typeof s === "boolean") return s ? "true" : "false"
+    else return undefined
+}
+
+export function normalizeFloat(s: string | number | boolean): number {
     if (typeof s === "string") {
         const f = parseFloat(s)
         return isNaN(f) ? undefined : f
     } else if (typeof s === "number") return s
-    else return s ? 1 : 0
+    else if (typeof s === "boolean") return s ? 1 : 0
+    else return undefined
 }
 
-export function normalizeInt(s: string | number | boolean) {
+export function normalizeInt(s: string | number | boolean): number {
     if (typeof s === "string") {
         const f = parseInt(s)
         return isNaN(f) ? undefined : f
