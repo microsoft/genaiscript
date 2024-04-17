@@ -79,6 +79,11 @@ export async function batchScript(
     const specFiles = new Set<string>()
     for (const arg of specs) {
         const ffs = await host.findFiles(arg)
+        if (!ffs.length){
+            spinner?.fail(`no files matching ${arg}`)
+            process.exit(FILES_NOT_FOUND_ERROR_CODE)        
+        }
+
         for (const f of ffs) {
             if (GPSPEC_REGEX.test(f)) specFiles.add(f)
             else {

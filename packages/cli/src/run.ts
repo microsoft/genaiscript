@@ -103,6 +103,11 @@ export async function runScript(
     } else {
         for (const arg of specs) {
             const ffs = await host.findFiles(arg)
+            if (!ffs.length) {
+                spinner?.fail(`no files matching ${arg}`)
+                process.exit(FILES_NOT_FOUND_ERROR_CODE)
+            }
+
             for (const file of ffs) {
                 if (GPSPEC_REGEX.test(file)) {
                     md = (md || "") + (await readText(file)) + "\n"
@@ -159,7 +164,10 @@ ${Array.from(files)
         process.exit(FILES_NOT_FOUND_ERROR_CODE)
     }
 
-    const vars = parsePromptParameters(script.parameters, parseVars(options.vars))
+    const vars = parsePromptParameters(
+        script.parameters,
+        parseVars(options.vars)
+    )
 
     spinner?.start("Querying")
 
