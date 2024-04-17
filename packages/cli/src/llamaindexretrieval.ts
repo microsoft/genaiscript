@@ -115,7 +115,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         })
         if (files?.length && !summary) {
             // get all documents
-            const docs = await storageContext.docStore.getAllRefDocInfo()
+            const docs = (await storageContext.docStore.getAllRefDocInfo()) || {}
             // reload vector store
             const vectorStore = await SimpleVectorStore.fromDict(
                 await (
