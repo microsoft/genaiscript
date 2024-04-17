@@ -18,6 +18,7 @@ import {
     writeFileEdits,
     parseVars,
     parsePromptParameters,
+    logVerbose,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -48,6 +49,11 @@ export async function batchScript(
     }
 ) {
     const spinner = createProgressSpinner("preparing tool and files")
+    const fail = (msg: string, exitCode: number) => {
+        if (spinner) spinner.fail(msg)
+        else logVerbose(msg)
+        process.exit(exitCode)
+    }
 
     const {
         out = dotGenaiscriptPath("results"),
@@ -79,10 +85,8 @@ export async function batchScript(
     const specFiles = new Set<string>()
     for (const arg of specs) {
         const ffs = await host.findFiles(arg)
-        if (!ffs.length){
-            spinner?.fail(`no files matching ${arg}`)
-            process.exit(FILES_NOT_FOUND_ERROR_CODE)        
-        }
+        if (!ffs.length)
+            fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
 
         for (const f of ffs) {
             if (GPSPEC_REGEX.test(f)) specFiles.add(f)
@@ -104,10 +108,7 @@ export async function batchScript(
         }
     }
 
-    if (!specFiles.size) {
-        spinner.fail("no file found")
-        process.exit(FILES_NOT_FOUND_ERROR_CODE)
-    }
+    if (!specFiles.size) fail("no file found", FILES_NOT_FOUND_ERROR_CODE)
 
     const prj = await buildProject({
         toolFiles,

@@ -85,6 +85,11 @@ export async function runScript(
         !stream && !isQuiet
             ? createProgressSpinner("preparing tool and files")
             : undefined
+    const fail = (msg: string, exitCode: number) => {
+        if (spinner) spinner.fail(msg)
+        else logVerbose(msg)
+        process.exit(exitCode)
+    }
 
     let spec: string
     let specContent: string
@@ -103,10 +108,8 @@ export async function runScript(
     } else {
         for (const arg of specs) {
             const ffs = await host.findFiles(arg)
-            if (!ffs.length) {
-                spinner?.fail(`no files matching ${arg}`)
-                process.exit(FILES_NOT_FOUND_ERROR_CODE)
-            }
+            if (!ffs.length)
+                fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
 
             for (const file of ffs) {
                 if (GPSPEC_REGEX.test(file)) {
@@ -135,10 +138,7 @@ ${Array.from(files)
 `
     }
 
-    if (!spec) {
-        spinner?.fail(`genai spec not found`)
-        process.exit(FILES_NOT_FOUND_ERROR_CODE)
-    }
+    if (!spec) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
     if (specContent !== undefined) host.setVirtualFile(spec, specContent)
 
@@ -159,10 +159,7 @@ ${Array.from(files)
     )
     if (!gpspec) throw new Error(`spec ${spec} not found`)
     const fragment = gpspec.fragments[0]
-    if (!fragment) {
-        spinner?.fail(`genai spec not found`)
-        process.exit(FILES_NOT_FOUND_ERROR_CODE)
-    }
+    if (!fragment) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
     const vars = parsePromptParameters(
         script.parameters,
@@ -174,7 +171,8 @@ ${Array.from(files)
     let tokens = 0
     const res: FragmentTransformResponse = await runTemplate(script, fragment, {
         infoCb: ({ text }) => {
-            spinner?.start(text)
+            if (spinner) spinner.start(text)
+            else logVerbose(text)
         },
         partialCb: ({ responseChunk, tokensSoFar }) => {
             tokens = tokensSoFar
@@ -198,7 +196,7 @@ ${Array.from(files)
     if (spinner) {
         if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
         else spinner.succeed()
-    }
+    } else if (res.error) logVerbose(`${res.error}`)
 
     if (outTrace && res.trace) await writeText(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length) {
@@ -286,12 +284,12 @@ ${Array.from(files)
 
     // final fail
     if (res.error) {
-        logVerbose(`error: ${(res.error as Error).message || res.error}`)
+        logVerbose(`${(res.error as Error).message || res.error}`)
         process.exit(RUNTIME_ERROR_CODE)
     }
 
     if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
-        console.log`error annotations found, exiting with error code`
+        logVerbose(`error annotations found, exiting with error code`)
         process.exit(ANNOTATION_ERROR_CODE)
     }
     logVerbose(`genaiscript generated ${tokens} tokens`)
