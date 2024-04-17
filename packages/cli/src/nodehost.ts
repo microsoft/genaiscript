@@ -53,7 +53,7 @@ export class NodeHost implements Host {
             const res = dotenv.config({
                 path: dotEnvPath,
                 debug: !!process.env.DEBUG,
-                override: true
+                override: true,
             })
             if (res.error) throw res.error
         }
@@ -81,6 +81,7 @@ export class NodeHost implements Host {
     }
 
     log(level: LogLevel, msg: string): void {
+        if (msg === undefined) return
         switch (level) {
             case LogLevel.Error:
                 error(msg)
@@ -131,7 +132,10 @@ export class NodeHost implements Host {
         return new Uint8Array(await readFile(name))
     }
     async findFiles(path: string): Promise<string[]> {
-        const files = await glob(path, { nodir: true })
+        const files = await glob(path, {
+            nodir: true,
+            windowsPathsNoEscape: true,
+        })
         return files
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
