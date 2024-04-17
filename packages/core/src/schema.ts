@@ -165,17 +165,3 @@ export function validateFencesWithSchema(
     }
     return frames
 }
-
-export function promptParameterToJSONSchema(
-    t: PromptParameterType
-): JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean {
-    if (typeof t === "string")
-        return <JSONSchemaString>{ type: "string", default: t }
-    else if (typeof t === "number")
-        return <JSONSchemaNumber>{ type: "number", default: t }
-    else if (typeof t === "boolean")
-        return <JSONSchemaBoolean>{ type: "boolean", default: t }
-    else if (typeof t === "object" && !!(t as any).type)
-        return t // TODO better filtering
-    else throw new NotSupportedError(`prompt type ${typeof t} not supported`)
-}

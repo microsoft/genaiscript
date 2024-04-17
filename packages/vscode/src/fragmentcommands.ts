@@ -7,7 +7,7 @@ import {
     assert,
     dotGenaiscriptPath,
     groupBy,
-    promptParameterToJSONSchema,
+    promptParameterTypeToJSONSchema,
     templateGroup,
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
@@ -23,7 +23,7 @@ async function showPromptParametersQuickPicks(
 ): Promise<PromptParameters> {
     const parameters: PromptParameters = {}
     for (const param in template.parameters || {}) {
-        const schema = promptParameterToJSONSchema(template.parameters[param])
+        const schema = promptParameterTypeToJSONSchema(template.parameters[param])
         switch (schema.type) {
             case "string": {
                 const value = await vscode.window.showInputBox({
