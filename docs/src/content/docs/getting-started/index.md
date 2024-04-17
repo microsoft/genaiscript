@@ -11,13 +11,14 @@ keywords:
     - AI Code Automation
 ---
 
-GenAIScript is a Visual Studio Code Extension that uses
-stylized JavaScript with minimal syntax to define Generative AI scripts.
+GenAIScript is a scripting language that makes LLMs a first-class 
+part of the scripting process, easily allowing users to author, debug, 
+and deploy LLM-based scripts.  GenAIScript uses stylized JavaScript with minimal 
+syntax to define Generative AI scripts and is supported by a VSCode extension.
 Because LLMs and foundation models can do things that other kinds of software
 cannot do, the core of every GenAIScript is a call to the LLM to perform some
-function. GenAIScript is a scripting language where the generative AI model
-is a first class element of the runtime. For example, the following script
-takes a file with text content (.txt, .pdf, .docx) as input and 
+function. For example, the following script
+takes a file with text content (.txt, .pdf, .docx) as input and
 saves a summary of the file in another file.
 
 ```js wrap title="summarize.genai.js"
@@ -96,8 +97,8 @@ All the generate prompts are formatted and sent to the LLM for processing. Typic
 
 ### Output parsing
 
-The LLM responds with a text which can be parsed for various micro-formats, 
-like markdown code fences, files or annotations. 
+The LLM responds with a text which can be parsed for various micro-formats,
+like markdown code fences, files or annotations.
 
 ````txt title="llmresponse.txt"
 File ./lorem.txt.summary
