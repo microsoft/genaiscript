@@ -74,10 +74,6 @@ src: pages/vscode.md
 ---
 
 ---
-src: pages/js-runtime.md
----
-
----
 src: pages/image-alt-text.md
 ---
 
@@ -87,9 +83,5 @@ src: pages/makecode-translations.md
 
 ---
 src: pages/tla-plus.md
----
-
----
-src: pages/vscode-challenges.md
 ---
 
