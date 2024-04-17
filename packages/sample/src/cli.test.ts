@@ -24,6 +24,10 @@ describe("run", () => {
                 )
             )
         })
+        test("parameters", async () => {
+            const res = await $`node ${cli} ${cmd} parameters ${flags}`
+            assert(res.exitCode === 0)
+        })
     })
 })
 

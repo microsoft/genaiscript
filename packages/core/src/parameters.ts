@@ -19,6 +19,14 @@ export function parsePromptParameters(
     vars: Record<string, string>
 ): PromptParameters {
     const res: PromptParameters = {}
+
+    // apply defaults
+    for (const key in parameters || {}) {
+        const t = promptParameterTypeToJSONSchema(parameters[key])
+        if (t.default !== undefined) res[key] = t.default
+    }
+
+    // override with user parameters
     for (const key in vars || {}) {
         const p = parameters[key]
         if (!p) res[key] = vars[key]
