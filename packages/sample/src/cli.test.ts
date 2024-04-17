@@ -7,33 +7,31 @@ const cli = `../cli/built/${CLI_JS}`
 describe("init", async () => {
     await import("zx/globals")
 })
-describe("run", () => {
+describe("run", async () => {
     const cmd = "run"
-    describe("dry run", () => {
-        const flags = `--prompt`
-        test("slides greeter", async () => {
-            const res =
-                await $`node ${cli} ${cmd} slides src/greeter.ts ${flags}`
-            const resj = JSON.parse(res.stdout)
-            assert(Array.isArray(resj))
-            assert(
-                resj.some(
-                    (msg) =>
-                        msg.role === "user" &&
-                        msg.content[0].text.includes("src/greeter.ts")
-                )
+    const flags = `--prompt`
+    await test("slides greeter", async () => {
+        const res = await $`node ${cli} ${cmd} slides src/greeter.ts ${flags}`
+        const resj = JSON.parse(res.stdout)
+        assert(Array.isArray(resj))
+        assert(
+            resj.some(
+                (msg) =>
+                    msg.role === "user" &&
+                    msg.content[0].text.includes("src/greeter.ts")
             )
-        })
-        test("parameters", async () => {
-            const res = await $`node ${cli} ${cmd} parameters ${flags}`
-            assert(res.exitCode === 0)
-        })
+        )
+    })
+    await test("parameters", async () => {
+        debugger
+        const res =
+            await $`node ${cli} ${cmd} parameters src/greeter.ts ${flags}`.nothrow()
+        assert.equal(res.exitCode, 0)
     })
 })
-
-describe("scripts", () => {
+describe("scripts", async () => {
     const cmd = "scripts"
-    test("list", async () => {
+    await test("list", async () => {
         const res = await $`node ${cli} ${cmd}`
         assert(
             res.stdout.includes(
@@ -42,8 +40,7 @@ describe("scripts", () => {
         )
     })
 })
-
-describe("cli", () => {
+describe("cli", async () => {
     const action = "info"
     test("help", async () => {
         await $`node ${cli} ${action} help`
@@ -52,8 +49,7 @@ describe("cli", () => {
         await $`node ${cli} ${action} system`
     })
 })
-
-describe("parse", () => {
+describe("parse", async () => {
     const cmd = "parse"
     test("pdf", async () => {
         const res = await $`node ${cli} ${cmd} pdf src/rag/loremipsum.pdf`
@@ -70,7 +66,7 @@ describe("parse", () => {
     test("tokens", async () => {
         const res = await $`node ${cli} ${cmd} tokens "**/*.md"`
     })
-    describe("code", () => {
+    describe("code", async () => {
         const action = "code"
         test("greeter.ts query", async () => {
             const res =
