@@ -22,7 +22,7 @@ You can open this repo in GitHub Codespace/Docker to get the build environment n
 
 ### Manual setup
 
--   Install [Node.JS 20+](https://nodejs.org/en) or using [nvm](https://nvm.sh)
+-   Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 -   Run yarn
 
 ```sh
