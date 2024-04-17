@@ -6,15 +6,14 @@ if (await fs.exists("../docs/public/slides/"))
 
 let summary = ['---', 'title: Slides', 'sidebar:', '  order: 100', 'description: Slides', '---', '']
 
-const slides = await glob("./*slides.md")
+const slides = await glob("./*slides*.md")
+slides.sort()
 for (const slide of slides) {
     console.log(slide)
-    const txt = await fs.readFile(slide, "utf-8")
-    const title = txt.match(/^title: (.*)$/m)[1]
-    const name = slide.replace(/(\.|-|_)?slides\.md$/, "") || "default"
+    const name = slide.replace(/(-|_)?slides(-|_)?/g, "").replace(/\.md$/, "") || "default"
 
-    summary.push(`- [${name}](/genaiscript/slides/${name}/), ${title}`)
-    await $`npx slidev build --base /genaiscript/slides/${name}/ --out ../docs/public/slides/${name}`
+    summary.push(`- [${name}](/genaiscript/slides/${name}/)`)
+    await $`slidev build ${slide} --base /genaiscript/slides/${name}/ --out ../docs/public/slides/${name}`
 }
 
 await fs.writeFile("../docs/src/content/docs/slides.md", summary.join("\n"))

@@ -5,5 +5,6 @@ sidebar:
 description: Slides
 ---
 
-- [default](/genaiscript/slides/default/), GenAIScript
-- [vs-aua](/genaiscript/slides/vs-aua/), GenAIScript
+- [networking-apr2024](/genaiscript/slides/networking-apr2024/)
+- [default](/genaiscript/slides/default/)
+- [vs-aua](/genaiscript/slides/vs-aua/)
