@@ -184,15 +184,10 @@ async function parseMeta(r: PromptTemplate) {
     return meta
 }
 
-const PROMPT_FENCE = "```"
-const MARKDOWN_PROMPT_FENCE = "`````"
-
 export function staticVars(): Omit<ExpansionVariables, "template"> {
     return {
         spec: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
         files: [] as LinkedFile[],
-        fence: PROMPT_FENCE,
-        markdownFence: MARKDOWN_PROMPT_FENCE,
         vars: {} as Record<string, string>,
     }
 }

@@ -1,22 +1,27 @@
+import { CSVToMarkdown, CSVTryParse } from "./csv"
+import { resolveFileContent } from "./file"
+import { addLineNumbers } from "./liner"
 import { stringifySchemaToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
-import { MarkdownTrace } from "./trace"
-import { assert, trimNewlines } from "./util"
+import { MarkdownTrace, TraceOptions } from "./trace"
+import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
+import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
+import { fenceMD } from "./markdown"
 
-export interface PromptNode {
+export interface PromptNode extends ContextExpansionOptions {
     type?:
-    | "text"
-    | "image"
-    | "schema"
-    | "function"
-    | "fileMerge"
-    | "outputProcessor"
-    | "stringTemplate"
-    | "assistant"
-    | undefined
+        | "text"
+        | "image"
+        | "schema"
+        | "function"
+        | "fileMerge"
+        | "outputProcessor"
+        | "stringTemplate"
+        | "assistant"
+        | "def"
+        | undefined
     children?: PromptNode[]
-    priority?: number
     error?: unknown
     tokens?: number
 }
@@ -24,17 +29,27 @@ export interface PromptNode {
 export interface PromptTextNode extends PromptNode {
     type: "text"
     value: string | Promise<string>
+    resolved?: string
+}
+
+export interface PromptDefNode extends PromptNode, DefOptions {
+    type: "def"
+    name: string
+    value: LinkedFile | Promise<LinkedFile>
+    resolved?: LinkedFile
 }
 
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
     value: string | Promise<string>
+    resolve?: string
 }
 
 export interface PromptStringTemplateNode extends PromptNode {
     type: "stringTemplate"
     strings: TemplateStringsArray
     args: any[]
+    resolved?: string
 }
 
 export interface PromptImage {
@@ -46,6 +61,7 @@ export interface PromptImage {
 export interface PromptImageNode extends PromptNode {
     type: "image"
     value: PromptImage | Promise<PromptImage>
+    resolved?: PromptImage
 }
 
 export interface PromptSchemaNode extends PromptNode {
@@ -74,32 +90,94 @@ export interface PromptOutputProcessorNode extends PromptNode {
 }
 
 export function createTextNode(
-    value: string | Promise<string>
+    value: string | Promise<string>,
+    options?: ContextExpansionOptions
 ): PromptTextNode {
     assert(value !== undefined)
-    return { type: "text", value }
+    return { type: "text", value, ...(options || {}) }
+}
+
+export function createDefNode(
+    name: string,
+    file: LinkedFile,
+    options: DefOptions & TraceOptions
+): PromptDefNode {
+    name = name ?? ""
+    const render = async () => {
+        await resolveFileContent(file, options)
+        return file
+    }
+    const value = render()
+    return { type: "def", name, value, ...(options || {}) }
+}
+
+function renderDefNode(def: PromptDefNode): string {
+    const { name, resolved } = def
+    const file = resolved
+    const { language, lineNumbers, schema } = def || {}
+    const fence =
+        language === "markdown" || language === "mdx"
+            ? MARKDOWN_PROMPT_FENCE
+            : PROMPT_FENCE
+    const norm = (s: string, f: string) => {
+        s = (s || "").replace(/\n*$/, "")
+        if (s && lineNumbers) s = addLineNumbers(s)
+        if (s) s += "\n"
+        if (f && s.includes(f)) throw new Error("source contains fence")
+        return s
+    }
+
+    let dfence =
+        /\.mdx?$/i.test(file.filename) || file.content?.includes(fence)
+            ? MARKDOWN_PROMPT_FENCE
+            : fence
+    const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
+    let body = file.content
+    if (/^(c|t)sv$/i.test(dtype)) {
+        const parsed = CSVTryParse(file.content)
+        if (parsed) {
+            body = CSVToMarkdown(parsed)
+            dfence = ""
+        }
+    }
+    body = norm(body, dfence)
+    const res =
+        (name ? name + ":\n" : "") +
+        dfence +
+        dtype +
+        (file.filename ? ` file="${file.filename}"` : "") +
+        "\n" +
+        body +
+        (schema ? ` schema=${schema}` : "") +
+        dfence +
+        "\n"
+
+    return res
 }
 
 export function createAssistantNode(
-    value: string | Promise<string>
+    value: string | Promise<string>,
+    options?: ContextExpansionOptions
 ): PromptAssistantNode {
     assert(value !== undefined)
-    return { type: "assistant", value }
+    return { type: "assistant", value, ...(options || {}) }
 }
 
 export function createStringTemplateNode(
     strings: TemplateStringsArray,
-    args: any[]
+    args: any[],
+    options?: ContextExpansionOptions
 ): PromptStringTemplateNode {
     assert(strings !== undefined)
-    return { type: "stringTemplate", strings, args }
+    return { type: "stringTemplate", strings, args, ...(options || {}) }
 }
 
 export function createImageNode(
-    value: PromptImage | Promise<PromptImage>
+    value: PromptImage | Promise<PromptImage>,
+    options?: ContextExpansionOptions
 ): PromptImageNode {
     assert(value !== undefined)
-    return { type: "image", value }
+    return { type: "image", value, ...(options || {}) }
 }
 
 export function createSchemaNode(
@@ -112,7 +190,7 @@ export function createSchemaNode(
     return { type: "schema", name, value, options }
 }
 
-export function createFunctioNode(
+export function createFunctionNode(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
@@ -137,6 +215,37 @@ export function createOutputProcessor(
     return { type: "outputProcessor", fn }
 }
 
+export function createDefDataNode(
+    name: string,
+    data: object | object[],
+    options?: DefDataOptions
+) {
+    if (data === undefined) return undefined
+    if (options?.maxTokens)
+        throw new Error("maxTokens not supported for defData")
+
+    let { format, headers, priority, maxTokens } = options || {}
+    if (!format && headers && Array.isArray(data)) format = "csv"
+    else if (!format) format = "yaml"
+
+    let text: string
+    let lang: string
+    if (Array.isArray(data) && format === "csv") {
+        text = CSVToMarkdown(data, { headers })
+    } else if (format === "json") {
+        text = JSON.stringify(data)
+        lang = "json"
+    } else {
+        text = YAMLStringify(data)
+        lang = "yaml"
+    }
+
+    const value = `${name}:
+    ${lang ? fenceMD(text, lang) : text}`
+    // TODO maxTokens does not work well with data
+    return createTextNode(value, { priority, maxTokens })
+}
+
 export function appendChild(parent: PromptNode, child: PromptNode): void {
     if (!parent.children) {
         parent.children = []
@@ -144,29 +253,28 @@ export function appendChild(parent: PromptNode, child: PromptNode): void {
     parent.children.push(child)
 }
 
-export async function visitNode(
-    node: PromptNode,
-    visitor: {
-        node?: (node: PromptNode) => void | Promise<void>
-        afterNode?: (node: PromptNode) => void | Promise<void>
-        text?: (node: PromptTextNode) => void | Promise<void>
-        image?: (node: PromptImageNode) => void | Promise<void>
-        schema?: (node: PromptSchemaNode) => void | Promise<void>
-        function?: (node: PromptFunctionNode) => void | Promise<void>
-        fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
-        stringTemplate?: (
-            node: PromptStringTemplateNode
-        ) => void | Promise<void>
-        outputProcessor?: (
-            node: PromptOutputProcessorNode
-        ) => void | Promise<void>
-        assistant?: (node: PromptAssistantNode) => void | Promise<void>
-    }
-) {
+export interface PromptNodeVisitor {
+    node?: (node: PromptNode) => void | Promise<void>
+    afterNode?: (node: PromptNode) => void | Promise<void>
+    text?: (node: PromptTextNode) => void | Promise<void>
+    def?: (node: PromptDefNode) => void | Promise<void>
+    image?: (node: PromptImageNode) => void | Promise<void>
+    schema?: (node: PromptSchemaNode) => void | Promise<void>
+    function?: (node: PromptFunctionNode) => void | Promise<void>
+    fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
+    stringTemplate?: (node: PromptStringTemplateNode) => void | Promise<void>
+    outputProcessor?: (node: PromptOutputProcessorNode) => void | Promise<void>
+    assistant?: (node: PromptAssistantNode) => void | Promise<void>
+}
+
+export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
     await visitor.node?.(node)
     switch (node.type) {
         case "text":
             await visitor.text?.(node as PromptTextNode)
+            break
+        case "def":
+            await visitor.def?.(node as PromptDefNode)
             break
         case "image":
             await visitor.image?.(node as PromptImageNode)
@@ -189,7 +297,6 @@ export async function visitNode(
         case "assistant":
             await visitor.assistant?.(node as PromptAssistantNode)
             break
-
     }
     if (node.children) {
         for (const child of node.children) {
@@ -210,41 +317,38 @@ export interface PromptNodeRender {
     outputProcessors: PromptOutputProcessorHandler[]
 }
 
-export async function renderPromptNode(
+async function resolvePromptNode(
     model: string,
     node: PromptNode,
-    options?: { trace: MarkdownTrace }
-): Promise<PromptNodeRender> {
-    const { trace } = options || {}
-
-    let prompt = ""
-    let assistantPrompt = ""
-    const images: PromptImage[] = []
-    const errors: unknown[] = []
-    const schemas: Record<string, JSONSchema> = {}
-    const functions: ChatFunctionCallback[] = []
-    const fileMerges: FileMergeHandler[] = []
-    const outputProcessors: PromptOutputProcessorHandler[] = []
-
+    options?: TraceOptions
+): Promise<void> {
     await visitNode(node, {
         text: async (n) => {
             try {
                 const value = await n.value
+                n.resolved = value
                 n.tokens = estimateTokens(model, value)
-                if (value != undefined) prompt += value + "\n"
             } catch (e) {
                 node.error = e
-                errors.push(e)
+            }
+        },
+        def: async (n) => {
+            try {
+                const value = await n.value
+                n.resolved = value
+                const rendered = renderDefNode(n)
+                n.tokens = estimateTokens(model, rendered)
+            } catch (e) {
+                node.error = e
             }
         },
         assistant: async (n) => {
             try {
                 const value = await n.value
+                n.resolve = value
                 n.tokens = estimateTokens(model, value)
-                if (value != undefined) assistantPrompt += value + "\n"
             } catch (e) {
                 node.error = e
-                errors.push(e)
             }
         },
         stringTemplate: async (n) => {
@@ -258,29 +362,159 @@ export async function renderPromptNode(
                         value += arg ?? ""
                     }
                 }
+                n.resolved = value
                 n.tokens = estimateTokens(model, value)
-                prompt += value + "\n"
             } catch (e) {
                 node.error = e
-                errors.push(e)
             }
         },
         image: async (n) => {
             try {
                 const v = await n.value
-                if (v !== undefined) {
-                    images.push(v)
-                    if (trace) {
-                        trace.startDetails(
-                            `🖼 image: ${v.detail || ""} ${v.filename || v.url.slice(0, 64) + "..."}`
-                        )
-                        trace.image(v.url, v.filename)
-                        trace.endDetails()
-                    }
-                }
+                n.resolved = v
             } catch (e) {
                 node.error = e
-                errors.push(e)
+            }
+        },
+    })
+}
+
+async function truncatePromptNode(
+    model: string,
+    node: PromptNode,
+    options?: TraceOptions
+): Promise<boolean> {
+    const { trace } = options || {}
+    let truncated = false
+
+    const cap = (n: {
+        error?: unknown
+        resolved?: string
+        tokens?: number
+        maxTokens?: number
+    }) => {
+        if (
+            !n.error &&
+            n.resolved !== undefined &&
+            n.maxTokens !== undefined &&
+            n.tokens > n.maxTokens
+        ) {
+            const value = n.resolved.slice(
+                0,
+                Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
+            )
+            n.resolved = value
+            n.tokens = estimateTokens(model, value)
+            truncated = true
+        }
+    }
+
+    const capDef = (n: PromptDefNode) => {
+        if (
+            !n.error &&
+            n.resolved !== undefined &&
+            n.maxTokens !== undefined &&
+            n.tokens > n.maxTokens
+        ) {
+            n.resolved.content = n.resolved.content.slice(
+                0,
+                Math.floor((n.maxTokens * n.resolved.content.length) / n.tokens)
+            )
+            n.tokens = estimateTokens(model, n.resolved.content)
+            truncated = true
+        }
+    }
+
+    await visitNode(node, {
+        text: cap,
+        assistant: cap,
+        stringTemplate: cap,
+        def: capDef,
+    })
+
+    return truncated
+}
+
+export async function tracePromptNode(
+    trace: MarkdownTrace,
+    node: PromptNode,
+    options?: { label: string }
+) {
+    if (!trace) return
+
+    await visitNode(node, {
+        node: (n) => {
+            const title = toStringList(
+                n.type || `🌳 prompt tree ${options?.label || ""}`,
+                n.priority ? `#${n.priority}` : undefined,
+                n.tokens
+                    ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
+                    : undefined
+            )
+            if (n.children?.length) trace.startDetails(title)
+            else trace.item(title)
+        },
+        afterNode: (n) => {
+            if (n.children?.length) trace.endDetails()
+        },
+    })
+}
+
+export async function renderPromptNode(
+    model: string,
+    node: PromptNode,
+    options?: TraceOptions
+): Promise<PromptNodeRender> {
+    const { trace } = options || {}
+
+    await resolvePromptNode(model, node, options)
+    await tracePromptNode(trace, node)
+
+    const truncated = await truncatePromptNode(model, node, options)
+    if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
+
+    let prompt = ""
+    let assistantPrompt = ""
+    const images: PromptImage[] = []
+    const errors: unknown[] = []
+    const schemas: Record<string, JSONSchema> = {}
+    const functions: ChatFunctionCallback[] = []
+    const fileMerges: FileMergeHandler[] = []
+    const outputProcessors: PromptOutputProcessorHandler[] = []
+
+    await visitNode(node, {
+        text: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = n.resolved
+            if (value != undefined) prompt += value + "\n"
+        },
+        def: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = n.resolved
+            if (value !== undefined) prompt += renderDefNode(n) + "\n"
+        },
+        assistant: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = await n.resolve
+            if (value != undefined) assistantPrompt += value + "\n"
+        },
+        stringTemplate: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = n.resolved
+            if (value != undefined) prompt += value + "\n"
+        },
+        image: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = n.resolved
+            if (value != undefined) {
+                images.push(value)
+                if (trace) {
+                    trace.startDetails(
+                        `🖼 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
+                    )
+                    trace.image(value.url, value.filename)
+                    trace.endDetails()
+                }
             }
         },
         schema: (n) => {

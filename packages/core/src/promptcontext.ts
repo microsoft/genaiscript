@@ -10,14 +10,14 @@ import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
+    createDefDataNode,
     createFileMergeNode,
-    createFunctioNode,
+    createFunctionNode,
     createImageNode,
     createOutputProcessor,
     createSchemaNode,
 } from "./promptdom"
 import { bingSearch } from "./search"
-import { createDefDataNode } from "./filedom"
 import { CancellationToken } from "./cancellation"
 import {
     RunPromptContextNode,
@@ -64,7 +64,7 @@ export function createPromptContext(
         stringify: INIStringify,
     })
     const XML = Object.freeze<XML>({
-        parse: XMLParse
+        parse: XMLParse,
     })
     const AICI = Object.freeze<AICI>({
         gen: (options: AICIGenOptions) => {
@@ -164,8 +164,8 @@ export function createPromptContext(
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
-        script: () => { },
-        system: () => { },
+        script: () => {},
+        system: () => {},
         env,
         path,
         fs,
@@ -181,7 +181,7 @@ export function createPromptContext(
         defOutput,
         defFunction: (name, description, parameters, fn) => {
             appendPromptChild(
-                createFunctioNode(name, description, parameters, fn)
+                createFunctionNode(name, description, parameters, fn)
             )
         },
         defFileMerge: (fn) => {
@@ -191,7 +191,7 @@ export function createPromptContext(
             throw new CancelError(reason || "user cancelled")
         },
         defData: (name, data, defOptions) => {
-            appendPromptChild(createDefDataNode(name, data, env, defOptions))
+            appendPromptChild(createDefDataNode(name, data, defOptions))
             return name
         },
         fetchText: async (urlOrFile, fetchOptions) => {
