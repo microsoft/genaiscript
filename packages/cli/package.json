@@ -28,13 +28,13 @@
     "pdfjs-dist": "4.0.379"
   },
   "optionalDependencies": {
-    "llamaindex": "0.1.21"
+    "llamaindex": "0.2.9"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@llamaindex/env": "^0.0.5",
+    "@llamaindex/env": "^0.0.7",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.12.7",
     "@types/papaparse": "^5.3.14",
