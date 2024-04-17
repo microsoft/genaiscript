@@ -5,7 +5,6 @@ import {
     upsert,
     search,
     clearIndex,
-    loadFiles,
     estimateTokens,
     normalizeInt,
     expandFiles,
@@ -81,6 +80,7 @@ export async function retrievalSearch(
         summary,
         progress,
     })
+    progress.succeed()
     console.log(YAMLStringify(res))
 }
 
