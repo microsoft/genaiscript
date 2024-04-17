@@ -63,6 +63,7 @@ export interface AIRequestOptions {
     label: string
     template: PromptTemplate
     fragment: Fragment
+    parameters: PromptParameters
 }
 
 export class FragmentsEvent extends Event {
@@ -344,6 +345,7 @@ ${e.message}`
             },
             maxCachedTemperature,
             maxCachedTopP,
+            vars: options.parameters,
             cache: true,
             retry: 3,
             cliInfo: {

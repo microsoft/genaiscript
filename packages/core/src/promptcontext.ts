@@ -262,5 +262,5 @@ export type RunTemplateOptions = ChatCompletionsOptions &
             spec: string
         }
         languageModel?: LanguageModel
-        vars?: Record<string, string>
+        vars?: PromptParameters
     }

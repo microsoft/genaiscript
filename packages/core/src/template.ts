@@ -125,6 +125,14 @@ class Checker<T extends PromptLike> {
         }
     }
 
+    checkRecord(k: any) {
+        if (this.skip(k)) return
+        if (typeof this.val != "object") {
+            this.verror("expecting object here")
+            return
+        }
+    }
+
     checkBool(k: KeysOfType<T, boolean>) {
         if (this.skip(k)) return
         if (typeof this.val != "boolean") {
@@ -435,6 +443,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("isSystem")
             c.checkObjectArray("urlAdapters")
+            c.checkRecord("parameters")
 
             c.checkBool("lineNumbers")
         })
@@ -442,13 +451,4 @@ export async function parsePromptTemplate(
         const r = c.template
         Object.assign(r, obj)
     })
-}
-
-export function templateAppliesTo(
-    template: PromptTemplate,
-    fragment: Fragment
-) {
-    if (template.unlisted) return false
-    if (/^system\./.test(template.id)) return false
-    return true
 }
