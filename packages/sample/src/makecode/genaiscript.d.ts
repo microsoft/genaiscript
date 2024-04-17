@@ -139,11 +139,26 @@ interface ModelOptions {
     aici?: boolean
 }
 
+type PromptParameterType =
+    | string
+    | number
+    | boolean
+    | JSONSchemaNumber
+    | JSONSchemaString
+    | JSONSchemaBoolean
+type PromptParametersSchema = Record<string, PromptParameterType>
+type PromptParameters = Record<string, string | number | boolean>
+
 interface PromptTemplate extends PromptLike, ModelOptions {
     /**
      * Groups template in UI
      */
     group?: string
+
+    /**
+     * Additional template parameters that will populate `env.vars`
+     */
+    parameters?: PromptParametersSchema
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -351,7 +366,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: Record<string, string>
+    vars: PromptParameters
 
     /**
      * List of secrets used by the prompt, must be registred in `genaiscript`.
@@ -452,16 +467,19 @@ type JSONSchemaType =
 interface JSONSchemaString {
     type: "string"
     description?: string
+    default?: string
 }
 
 interface JSONSchemaNumber {
     type: "number" | "integer"
     description?: string
+    default?: number
 }
 
 interface JSONSchemaBoolean {
     type: "boolean"
     description?: string
+    default?: boolean
 }
 
 interface JSONSchemaObject {

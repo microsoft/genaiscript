@@ -36,11 +36,15 @@ async function showPromptParametersQuickPicks(
                 break
             }
             case "boolean": {
-                const value = await vscode.window.showQuickPick(["yes", "no"], {
-                    title: `Choose ${param} ${schema.description || ""}`,
-                })
+                const value = await vscode.window.showQuickPick(
+                    [{ label: "yes" }, { label: "no" }],
+                    {
+                        title: `Choose ${param} ${schema.description || ""}`,
+                        canPickMany: false,
+                    }
+                )
                 if (value === undefined) return undefined
-                parameters[param] = value === "yes"
+                parameters[param] = value.label === "yes"
                 break
             }
             case "number": {
@@ -54,7 +58,7 @@ async function showPromptParametersQuickPicks(
                             : undefined,
                 })
                 if (value === undefined) return undefined
-                parameters[param] = value
+                parameters[param] = parseFloat(value)
                 break
             }
             default:

@@ -257,5 +257,6 @@ export function normalizeInt(s: string | number | boolean): number {
         const f = parseInt(s)
         return isNaN(f) ? undefined : f
     } else if (typeof s === "number") return s
-    else return s ? 1 : 0
+    else if (typeof s === "boolean") return s ? 1 : 0
+    else return undefined
 }
