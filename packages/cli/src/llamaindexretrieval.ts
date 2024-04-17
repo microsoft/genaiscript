@@ -28,7 +28,7 @@ class BlobFileSystem implements GenericFileSystem {
     constructor(
         readonly filename: string,
         readonly blob: Blob
-    ) { }
+    ) {}
     writeFile(path: string, content: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
@@ -68,7 +68,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
     private module: PromiseType<ReturnType<typeof tryImportLlamaIndex>>
     private READERS: Record<string, BaseReader>
 
-    constructor(readonly host: Host) { }
+    constructor(readonly host: Host) {}
 
     async init(trace?: MarkdownTrace) {
         if (this.module) return
@@ -201,7 +201,9 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         if (!reader)
             return {
                 ok: false,
-                error: serializeError(new Error(`no reader for content type '${type}'`)),
+                error: serializeError(
+                    new Error(`no reader for content type '${type}'`)
+                ),
             }
         const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
@@ -268,7 +270,9 @@ export class LlamaIndexRetrievalService implements RetrievalService {
             const retreiver = index.asRetriever({
                 mode: SummaryRetrieverMode.LLM,
             })
-            results = await retreiver.retrieve(text)
+            results = await retreiver.retrieve({
+                query: text,
+            })
         } else {
             const index = await VectorStoreIndex.init({
                 storageContext,
@@ -277,7 +281,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
             const retreiver = index.asRetriever({
                 similarityTopK: topK,
             })
-            results = await retreiver.retrieve(text)
+            results = await retreiver.retrieve({ query: text })
         }
 
         const processor = new SimilarityPostprocessor({

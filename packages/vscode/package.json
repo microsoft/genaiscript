@@ -356,7 +356,7 @@
         "mocha": "^10.4.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
-        "typescript": "^5.3.3",
+        "typescript": "^5.4.5",
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",

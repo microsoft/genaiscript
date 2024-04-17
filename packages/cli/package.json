@@ -23,9 +23,9 @@
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
   "dependencies": {
+    "pdfjs-dist": "4.0.379",
     "tree-sitter-wasms": "^0.1.11",
-    "web-tree-sitter": "^0.22.2",
-    "pdfjs-dist": "4.0.379"
+    "web-tree-sitter": "^0.22.2"
   },
   "optionalDependencies": {
     "llamaindex": "0.2.9"
@@ -39,6 +39,7 @@
     "@types/node": "^20.12.7",
     "@types/papaparse": "^5.3.14",
     "@types/pg": "^8.11.2",
+    "@types/readable-stream": "^4.0.11",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.10",
     "commander": "^12.0.0",
@@ -58,7 +59,7 @@
     "replace-ext": "^2.0.0",
     "semver": "^7.6.0",
     "tsx": "^4.7.2",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.5",
     "zx": "^8.0.1"
   },
   "scripts": {
