@@ -20,6 +20,9 @@ keywords: AI, script generation, performance, best practices, limitations
 -   **How do I install the GenAIScript framework and its VS Code extension?**
     The specific installation steps are documented here: [Installation](/genaiscript/getting-started/installation)
 
+-   **Do I need to install Node.JS?**
+    Some features like the Command Line or vector databases use Node.JS. To install it, follow the [installation instructions](/genaiscript/reference/cli/).
+
 -   **Can I use GenAIScript in IDEs other than VS Code?**
     Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts.
 

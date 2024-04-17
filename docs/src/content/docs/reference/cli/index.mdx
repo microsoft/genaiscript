@@ -6,17 +6,21 @@ description: Comprehensive guide to using the GenAIScript CLI for automating tas
 keywords: GenAIScript CLI, Node.js automation, AI scripting, command line interface, JavaScript automation
 ---
 
-import { Steps } from '@astrojs/starlight/components';
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
 
 The GenAIScript CLI **`genaiscript`** runs GenAIScript scripts
 outside of Visual Studio.
 
 ```sh
-npx genaiscript ...
+npx --yes genaiscript ...
 ```
 
+where `--yes` skips the confirmation prompt to install the package.
+
 ## Installation
+
+The CLI is a Node.JS package hosted on [npm](https://www.npmjs.com/package/genaiscript).
 
 <Steps>
 
@@ -61,13 +65,29 @@ npm install -g genaiscript
 
 </Steps>
 
+:::tip
+
+Check that your node version is at least 20._ and npm 10._ by running this command.
+
+```sh
+node -v
+npm -v
+```
+
+```text
+v20.11.1
+v10.5.0
+```
+
+:::
+
 ## No Installation (`npx`)
 
 Make sure to install **Node.JS** as described in step 1 above.
 
-Using [npx](https://docs.npmjs.com/cli/v10/commands/npx), 
-you can run the cli without any prior installation steps. 
-*npx* will install the tool on demand. npx also takes care of tricky operating
+Using [npx](https://docs.npmjs.com/cli/v10/commands/npx),
+you can run the cli without any prior installation steps.
+_npx_ will install the tool on demand. npx also takes care of tricky operating
 system issues where the tool is not found in the path.
 
 ```sh
@@ -98,5 +118,5 @@ where `<script>` is the id or file path of the tool to run, and `[files...]` is 
 
 ## [Secrets](/genaiscript/reference/token)
 
-The CLI will load the secrets from the environment variables or a `./.env` file. 
+The CLI will load the secrets from the environment variables or a `./.env` file.
 You can also specify a different `.env` file using the `--env` option.
