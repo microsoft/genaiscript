@@ -2,6 +2,7 @@ import { JSON5parse } from "./json5"
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
+import { NotSupportedError } from "./error"
 
 export function stringifySchemaToTypeScript(
     schema: JSONSchema,

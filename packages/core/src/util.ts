@@ -28,7 +28,6 @@ export function toStringList(...token: string[]) {
     return md
 }
 
-
 export function assert(
     cond: boolean,
     msg = "Assertion failed",
@@ -56,7 +55,7 @@ export function throttle(handler: () => void, delay: number): () => void {
 export function arrayShuffle<T>(a: T[]): T[] {
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
-            ;[a[i], a[j]] = [a[j], a[i]]
+        ;[a[i], a[j]] = [a[j], a[i]]
     }
     return a
 }
@@ -206,8 +205,7 @@ export function logWarn(msg: string) {
 export function logError(msg: string | Error | ErrorObject) {
     const e = serializeError(msg)
     host.log(LogLevel.Error, e.message || "error")
-    if (e.stack)
-        host.log(LogLevel.Verbose, e.stack)
+    if (e.stack) host.log(LogLevel.Verbose, e.stack)
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {
@@ -238,12 +236,27 @@ export function groupBy<T>(
     return r
 }
 
-export function normalizeFloat(s: string) {
-    const f = parseFloat(s)
-    return isNaN(f) ? undefined : f
+export function normalizeString(s: string | number | boolean): string {
+    if (typeof s === "string") return s
+    else if (typeof s === "number") return s.toLocaleString()
+    else if (typeof s === "boolean") return s ? "true" : "false"
+    else return undefined
 }
 
-export function normalizeInt(s: string) {
-    const f = parseInt(s)
-    return isNaN(f) ? undefined : f
+export function normalizeFloat(s: string | number | boolean): number {
+    if (typeof s === "string") {
+        const f = parseFloat(s)
+        return isNaN(f) ? undefined : f
+    } else if (typeof s === "number") return s
+    else if (typeof s === "boolean") return s ? 1 : 0
+    else return undefined
+}
+
+export function normalizeInt(s: string | number | boolean): number {
+    if (typeof s === "string") {
+        const f = parseInt(s)
+        return isNaN(f) ? undefined : f
+    } else if (typeof s === "number") return s
+    else if (typeof s === "boolean") return s ? 1 : 0
+    else return undefined
 }

@@ -36,24 +36,15 @@ export function traceCliArgs(
 ) {
     trace.details(
         "🤖 automation",
-        `This operation can be automated using the command line interface.
-
-- to run on all files at once, use the \`run\` command:
+        `This operation can be automated using the command line interface using the \`run\` command:
 
 \`\`\`bash
 ${generateCliArguments(template, fragment, options, "run")}
 \`\`\`
 
-- to run a LLM generation on each file, use the \`batch\` command:
 
-\`\`\`bash
-${generateCliArguments(template, fragment, options, "batch")}
-\`\`\`
-
-
--   You will need to install [Node.js](https://nodejs.org/en/).
+-   You will need to install [Node.js LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 -   The CLI uses the same secrets in the \`.env\` file.
--   Run \`npx genaiscript help run\` for the full list of options.
 `
     )
 }

@@ -1,5 +1,5 @@
 import { Fragment, PromptTemplate } from "./ast"
-import { assert, normalizeFloat, normalizeInt } from "./util"
+import { assert, normalizeFloat, normalizeInt, normalizeString } from "./util"
 import { MarkdownTrace } from "./trace"
 import { isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
@@ -208,7 +208,7 @@ export async function expandTemplate(
 
     const systems = (template.system ?? []).slice(0)
     const model =
-        options.model ?? env.vars["model"] ?? template.model ?? DEFAULT_MODEL
+        options.model ?? normalizeString(env.vars["model"]) ?? template.model ?? DEFAULT_MODEL
     const systemTemplates = systems.map((s) =>
         fragment.file.project.getTemplate(s)
     )

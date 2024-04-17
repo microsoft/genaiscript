@@ -2,10 +2,12 @@ import * as vscode from "vscode"
 import {
     Fragment,
     GENAI_JS_REGEX,
+    NotSupportedError,
     PromptTemplate,
     assert,
     dotGenaiscriptPath,
     groupBy,
+    promptParameterTypeToJSONSchema,
     templateGroup,
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
@@ -15,6 +17,58 @@ type TemplateQuickPickItem = {
     template?: PromptTemplate
     action?: "create"
 } & vscode.QuickPickItem
+
+async function showPromptParametersQuickPicks(
+    template: PromptTemplate
+): Promise<PromptParameters> {
+    const parameters: PromptParameters = {}
+    for (const param in template.parameters || {}) {
+        const schema = promptParameterTypeToJSONSchema(template.parameters[param])
+        switch (schema.type) {
+            case "string": {
+                const value = await vscode.window.showInputBox({
+                    title: `Enter value for ${param}`,
+                    value: schema.default,
+                    prompt: schema.description,
+                })
+                if (value === undefined) return undefined
+                parameters[param] = value
+                break
+            }
+            case "boolean": {
+                const value = await vscode.window.showQuickPick(
+                    [{ label: "yes" }, { label: "no" }],
+                    {
+                        title: `Choose ${param} ${schema.description || ""}`,
+                        canPickMany: false,
+                    }
+                )
+                if (value === undefined) return undefined
+                parameters[param] = value.label === "yes"
+                break
+            }
+            case "number": {
+                const value = await vscode.window.showInputBox({
+                    title: `Enter value for ${param}`,
+                    value: schema.default.toLocaleString(),
+                    prompt: schema.description,
+                    validateInput: (v) =>
+                        isNaN(parseFloat(v))
+                            ? "Enter a valid number"
+                            : undefined,
+                })
+                if (value === undefined) return undefined
+                parameters[param] = parseFloat(value)
+                break
+            }
+            default:
+                throw new NotSupportedError(
+                    "Unsupported parameter type " + schema.type
+                )
+        }
+    }
+    return parameters
+}
 
 export function activateFragmentCommands(state: ExtensionState) {
     const { context } = state
@@ -76,9 +130,9 @@ export function activateFragmentCommands(state: ExtensionState) {
     const fragmentPrompt = async (
         options:
             | {
-                fragment?: Fragment | string | vscode.Uri
-                template?: PromptTemplate
-            }
+                  fragment?: Fragment | string | vscode.Uri
+                  template?: PromptTemplate
+              }
             | vscode.Uri
     ) => {
         if (typeof options === "object" && options instanceof vscode.Uri)
@@ -114,10 +168,14 @@ export function activateFragmentCommands(state: ExtensionState) {
         if (!fragment) return
         fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
 
+        const parameters = await showPromptParametersQuickPicks(template)
+        if (parameters === undefined) return
+
         await state.requestAI({
             fragment,
             template,
             label: template.id,
+            parameters,
         })
     }
 
@@ -134,8 +192,8 @@ export function activateFragmentCommands(state: ExtensionState) {
             )
             assert(template !== undefined)
             files = vscode.window.visibleTextEditors
-                .filter(editor => editor.document.uri.fsPath !== file.fsPath)
-                .map(editor => editor.document.uri)
+                .filter((editor) => editor.document.uri.fsPath !== file.fsPath)
+                .map((editor) => editor.document.uri)
         } else {
             template = await pickTemplate()
             files = [file]
@@ -151,7 +209,9 @@ export function activateFragmentCommands(state: ExtensionState) {
                 args: [
                     "run",
                     vscode.workspace.asRelativePath(template.filename),
-                    ...files.map(file => vscode.workspace.asRelativePath(file.fsPath)),
+                    ...files.map((file) =>
+                        vscode.workspace.asRelativePath(file.fsPath)
+                    ),
                 ],
             }
         )
@@ -214,8 +274,9 @@ export function templatesToQuickPickItems(
                                     template.filename
                                 )) ??
                             template.id,
-                        description: `${template.id} ${template.description || ""
-                            }`,
+                        description: `${template.id} ${
+                            template.description || ""
+                        }`,
                         template,
                     }
             )

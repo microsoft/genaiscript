@@ -18,6 +18,7 @@ import {
     ANNOTATION_ERROR_CODE,
     writeFileEdits,
     parseVars,
+    parsePromptParameters,
 } from "genaiscript-core"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
@@ -79,7 +80,6 @@ export async function runScript(
     const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
-    const vars = options.vars
 
     const spinner =
         !stream && !isQuiet
@@ -159,6 +159,8 @@ ${Array.from(files)
         process.exit(FILES_NOT_FOUND_ERROR_CODE)
     }
 
+    const vars = parsePromptParameters(script.parameters, parseVars(options.vars))
+
     spinner?.start("Querying")
 
     let tokens = 0
@@ -182,7 +184,7 @@ ${Array.from(files)
         retry,
         retryDelay,
         maxDelay,
-        vars: parseVars(vars),
+        vars,
     })
 
     if (spinner) {

@@ -17,6 +17,7 @@ import {
     appendJSONL,
     writeFileEdits,
     parseVars,
+    parsePromptParameters,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -57,7 +58,6 @@ export async function batchScript(
         outSummary,
         applyEdits,
         excludedFiles,
-        vars,
     } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
@@ -121,6 +121,11 @@ export async function batchScript(
         `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
+    const vars = parsePromptParameters(
+        script.parameters,
+        parseVars(options.vars)
+    )
+
     let errors = 0
     let totalTokens = 0
     if (removeOut) await emptyDir(out)
@@ -156,7 +161,7 @@ export async function batchScript(
                     retry,
                     retryDelay,
                     maxDelay,
-                    vars: parseVars(vars),
+                    vars,
                 }
             )
 
