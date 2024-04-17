@@ -1,5 +1,5 @@
 script({
-    title: "parameters", parameters: {
+    parameters: {
         "string": "abc",
         "number": 123,
         "boolean": true,
