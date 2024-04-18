@@ -23,7 +23,7 @@ export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
-        logVerbose(`compiling ${folder}`)
+        logVerbose(`compiling ${folder}/*.genai.js`)
         await exec(host, {
             label: folder,
             call: {
