@@ -20527,12 +20527,11 @@ third-party archives.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
- - typescript@5.4.2
  - typescript@5.4.5
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 Apache License
 

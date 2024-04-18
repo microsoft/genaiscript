@@ -25,13 +25,13 @@ export async function compileScript() {
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
         logVerbose(`compiling ${folder}/*.genai.js`)
-        await exec(host, {
+        const res = await exec(host, {
             label: folder,
             call: {
                 type: "shell",
                 cwd: folder,
                 command: "npx",
-                args: ["--yes", "--package", `typescript@${TYPESCRIPT_VERSION}`, "tsc", "--project", "jsconfig.json"]
+                args: ["-c", "tsc --project jsconfig.json"]
             }
         })
     }

@@ -21,7 +21,7 @@
     "@astrojs/starlight": "^0.21.1",
     "astro": "^4.5.3",
     "sharp": "0.32.6",
-    "typescript": "^5.4.2"
+    "typescript": "5.4.5"
   },
   "devDependencies": {
     "zx": "^8.0.1"
