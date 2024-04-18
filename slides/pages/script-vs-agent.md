@@ -10,5 +10,6 @@
 the task, relies on the user more
 - GenAIScript applies LLMs in a **targeted** way, 
 embedding the results into existing automation
+- We bound the use of the LLM to a specific single request
 &nbsp;
 ### Agent frameworks are an important research area

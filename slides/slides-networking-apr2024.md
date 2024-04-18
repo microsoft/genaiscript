@@ -3,7 +3,7 @@
 theme: default
 title: GenAIScript
 titleTemplate: '%s'
-colorSchema: dark
+# colorSchema: dark
 favicon: 'https://microsoft.github.io/genaiscript/images/favicon.svg'
 info: |
   ## GenAIScript
@@ -16,7 +16,7 @@ highlighter: shiki
 drawings:
   persist: false
 # slide transition: https://sli.dev/guide/animations#slide-transitions
-transition: slide-left
+# transition: slide-left
 # enable MDC Syntax: https://sli.dev/guide/syntax#mdc-syntax
 mdc: true
 layout: center
@@ -39,10 +39,6 @@ src: pages/aisw-intro.md
 
 ---
 src: pages/vision.md
----
-
----
-src: pages/system-components.md
 ---
 
 ---
@@ -91,6 +87,14 @@ src: pages/makecode-timeline.md
 
 ---
 src: pages/script-vs-agent.md
+---
+
+---
+src: pages/research-topics.md
+---
+
+---
+src: pages/summary.md
 ---
 
 ---
