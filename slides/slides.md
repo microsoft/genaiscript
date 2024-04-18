@@ -3,7 +3,7 @@
 theme: default
 title: GenAIScript
 titleTemplate: '%s'
-colorSchema: dark
+#colorSchema: dark
 favicon: 'https://microsoft.github.io/genaiscript/images/favicon.svg'
 info: |
   ## GenAIScript
@@ -16,7 +16,7 @@ highlighter: shiki
 drawings:
   persist: false
 # slide transition: https://sli.dev/guide/animations#slide-transitions
-transition: slide-left
+#transition: slide-left
 # enable MDC Syntax: https://sli.dev/guide/syntax#mdc-syntax
 mdc: true
 layout: center
