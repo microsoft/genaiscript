@@ -86,6 +86,18 @@ src: pages/makecode-translations.md
 ---
 
 ---
+src: pages/makecode-timeline.md
+---
+
+---
+src: pages/script-vs-agent.md
+---
+
+---
+src: pages/backup.md
+---
+
+---
 src: pages/tla-plus.md
 ---
 
