@@ -1,5 +1,12 @@
 import { buildProject } from "./build"
-import { copyPrompt, createScript as coreCreateScript, exec, fixPromptDefinitions, host, logVerbose } from "genaiscript-core"
+import {
+    copyPrompt,
+    createScript as coreCreateScript,
+    exec,
+    fixPromptDefinitions,
+    host,
+    logVerbose,
+} from "genaiscript-core"
 import { TYPESCRIPT_VERSION } from "./version"
 
 export async function listScripts() {
@@ -31,8 +38,16 @@ export async function compileScript() {
                 type: "shell",
                 cwd: folder,
                 command: "npx",
-                args: ["-c", "tsc --project jsconfig.json"]
-            }
+                args: [
+                    "--yes",
+                    "--package",
+                    `typescript@${TYPESCRIPT_VERSION}`,
+                    "tsc",
+                    "--project",
+                    host.path.resolve(folder, "jsconfig.json"),
+                ],
+            },
         })
+        logVerbose(res.output)
     }
 }
