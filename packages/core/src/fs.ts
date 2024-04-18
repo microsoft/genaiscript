@@ -7,6 +7,14 @@ export async function readText(fn: string) {
     return utf8Decode(curr)
 }
 
+export async function tryReadText(fn: string) {
+    try {
+        return await readText(fn)
+    } catch {
+        return undefined
+    }
+}
+
 export async function writeText(fn: string, content: string) {
     await host.writeFile(fn, utf8Encode(content))
 }

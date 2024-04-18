@@ -1,8 +1,8 @@
 import { Project } from "./ast"
-import { GENAI_JS_GLOB } from "./constants"
 import { promptDefinitions } from "./default_prompts"
-import { readText, writeText } from "./fs"
+import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
+import { logVerbose } from "./util";
 
 export function createScript(
     name: string,
@@ -54,9 +54,12 @@ export async function fixPromptDefinitions(project: Project) {
                 )
             }
 
-            const current = await readText(host.path.join(folder, defName))
-            if (current !== defContent)
-                await writeText(host.path.join(folder, defName), defContent)
+            const current = await tryReadText(host.path.join(folder, defName))
+            if (current !== defContent) {
+                const fn = host.path.join(folder, defName)
+                logVerbose(`updating ${fn}`)
+                await writeText(fn, defContent)
+            }
         }
     }
 }
