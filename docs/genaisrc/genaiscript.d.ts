@@ -139,11 +139,26 @@ interface ModelOptions {
     aici?: boolean
 }
 
+type PromptParameterType =
+    | string
+    | number
+    | boolean
+    | JSONSchemaNumber
+    | JSONSchemaString
+    | JSONSchemaBoolean
+type PromptParametersSchema = Record<string, PromptParameterType>
+type PromptParameters = Record<string, string | number | boolean>
+
 interface PromptTemplate extends PromptLike, ModelOptions {
     /**
      * Groups template in UI
      */
     group?: string
+
+    /**
+     * Additional template parameters that will populate `env.vars`
+     */
+    parameters?: PromptParametersSchema
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -334,18 +349,6 @@ interface ChatFunctionCallback {
  */
 interface ExpansionVariables {
     /**
-     * Used to delimit multi-line strings, expect for markdown.
-     * `fence(X)` is preferred (equivalent to `` $`${env.fence}\n${X}\n${env.fence}` ``)
-     */
-    fence: string
-
-    /**
-     * Used to delimit multi-line markdown strings.
-     * `fence(X, { language: "markdown" })` is preferred (equivalent to `` $`${env.markdownFence}\n${X}\n${env.markdownFence}` ``)
-     */
-    markdownFence: string
-
-    /**
      * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
     spec: LinkedFile
@@ -363,7 +366,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: Record<string, string>
+    vars: PromptParameters
 
     /**
      * List of secrets used by the prompt, must be registred in `genaiscript`.
@@ -387,15 +390,15 @@ interface FenceOptions {
      * Language of the fenced code block. Defaults to "markdown".
      */
     language?:
-    | "markdown"
-    | "json"
-    | "yaml"
-    | "javascript"
-    | "typescript"
-    | "python"
-    | "shell"
-    | "toml"
-    | string
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | "toml"
+        | string
 
     /**
      * Prepend each line with a line numbers. Helps with generating diffs.
@@ -408,7 +411,15 @@ interface FenceOptions {
     schema?: string
 }
 
-interface DefOptions extends FenceOptions {
+interface ContextExpansionOptions {
+    priority?: number
+    /**
+     * Specifies an maximum of estimated tokesn for this entry; after which it will be truncated.
+     */
+    maxTokens?: number
+}
+
+interface DefOptions extends FenceOptions, ContextExpansionOptions {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -418,6 +429,11 @@ interface DefOptions extends FenceOptions {
      * Filename filter using glob syntax.
      */
     glob?: string
+
+    /**
+     * By default, throws an error if the value in def is empty.
+     */
+    ignoreEmpty?: boolean
 }
 
 interface DefImagesOptions {
@@ -451,16 +467,19 @@ type JSONSchemaType =
 interface JSONSchemaString {
     type: "string"
     description?: string
+    default?: string
 }
 
 interface JSONSchemaNumber {
     type: "number" | "integer"
     description?: string
+    default?: number
 }
 
 interface JSONSchemaBoolean {
     type: "boolean"
     description?: string
+    default?: boolean
 }
 
 interface JSONSchemaObject {
@@ -496,11 +515,11 @@ interface DataFrame {
 interface RunPromptResult {
     text: string
     finishReason?:
-    | "stop"
-    | "length"
-    | "tool_calls"
-    | "content_filter"
-    | "cancel"
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
 }
 
 /**
@@ -566,6 +585,19 @@ interface XMLParseOptions {
     unpairedTags?: string[]
 }
 
+interface ParsePDFOptions {
+    filter?: (pageIndex: number, text?: string) => boolean
+}
+
+interface HTMLToTextOptions {
+    /**
+     * After how many chars a line break should follow in `p` elements.
+     *
+     * Set to `null` or `false` to disable word-wrapping.
+     */
+    wordwrap?: number | false | null | undefined
+}
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -607,9 +639,7 @@ interface Parsers {
      */
     PDF(
         content: string | LinkedFile,
-        options?: {
-            filter?: (pageIndex: number, text?: string) => boolean
-        }
+        options?: ParsePDFOptions
     ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
 
     /**
@@ -654,6 +684,16 @@ interface Parsers {
     ): any | undefined
 
     /**
+     * Convert HTML to text
+     * @param content html string or file
+     * @param options
+     */
+    HTMLToText(
+        content: string | LinkedFile,
+        options?: HTMLToTextOptions
+    ): string
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
@@ -672,7 +712,7 @@ interface Parsers {
 
     /**
      * Executes a tree-sitter query on a code file
-     * @param file 
+     * @param file
      * @param query tree sitter query; if missing, returns the entire tree
      */
     code(file: LinkedFile, query?: string): Promise<QueryCapture[]>
@@ -740,6 +780,14 @@ interface YAML {
     stringify(obj: any): string
     /**
      * Parses a YAML string to object
+     */
+    parse(text: string): any
+}
+
+interface XML {
+    /**
+     * Parses an XML payload to an object
+     * @param text
      */
     parse(text: string): any
 }
@@ -819,7 +867,7 @@ interface Retrieval {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
-interface DefDataOptions {
+interface DefDataOptions extends ContextExpansionOptions {
     format?: "json" | "yaml" | "csv"
     headers?: string[]
 }
@@ -832,7 +880,7 @@ type ChatFunctionHandler = (
     args: { context: ChatFunctionCallContext } & Record<string, any>
 ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 
-interface WriteTextOptions {
+interface WriteTextOptions extends ContextExpansionOptions {
     /**
      * Append text to the assistant response
      */
@@ -1030,6 +1078,7 @@ interface PromptContext extends RunPromptContext {
     retrieval: Retrieval
     fs: FileSystem
     YAML: YAML
+    XML: XML
     CSV: CSV
     INI: INI
     AICI: AICI

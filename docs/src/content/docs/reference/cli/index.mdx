@@ -106,6 +106,22 @@ You can also lock this call to a particular version.
 npx --yes genaiscript@^1.16.0 ...
 ```
 
+## Create a new script
+
+Creates a new script file in the `genaisrc` folder.
+
+```sh
+npx genaiscript scripts create <name>
+```
+
+## Compile scripts
+
+Runs the TypeScript compiler to find errors in the scripts.
+
+```sh
+npx genaiscript scripts compile
+```
+
 ## [Run a script](/genaiscript/reference/cli/run)
 
 Runs a genai script on file and streams the LLM output to stdout.

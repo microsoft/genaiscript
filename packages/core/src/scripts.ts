@@ -1,4 +1,13 @@
-export function createScript(name: string, options?: { template: PromptTemplate, title?: string }) {
+import { Project } from "./ast"
+import { promptDefinitions } from "./default_prompts"
+import { tryReadText, writeText } from "./fs"
+import { host } from "./host"
+import { logVerbose } from "./util";
+
+export function createScript(
+    name: string,
+    options?: { template: PromptTemplate; title?: string }
+) {
     const { template, title } = options || {}
     const t = structuredClone(
         template || {
@@ -25,4 +34,28 @@ TELL THE LLM WHAT TO DO...\`
     )
     t.id = ""
     return t
+}
+
+export async function fixPromptDefinitions(project: Project) {
+    const folders = project.folders()
+    for (const folder of folders) {
+        for (let [defName, defContent] of Object.entries(promptDefinitions)) {
+            if (project && defName === "genaiscript.d.ts") {
+                const systems = project.templates
+                    .filter((t) => t.isSystem)
+                    .map((s) => `"${s.id}"`)
+                defContent = defContent.replace(
+                    "type SystemPromptId = string",
+                    `type SystemPromptId = ${systems.join(" | ")}`
+                )
+            }
+
+            const current = await tryReadText(host.path.join(folder, defName))
+            if (current !== defContent) {
+                const fn = host.path.join(folder, defName)
+                logVerbose(`updating ${fn}`)
+                await writeText(fn, defContent)
+            }
+        }
+    }
 }

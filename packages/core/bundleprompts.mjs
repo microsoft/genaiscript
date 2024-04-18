@@ -23,6 +23,7 @@ const promptDefs = {
                 moduleDetection: "force",
                 checkJs: true,
                 allowJs: true,
+                skipLibCheck: true,
             },
             include: ["*.js", "./genaiscript.d.ts"],
         },
