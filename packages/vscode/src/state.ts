@@ -31,6 +31,7 @@ import {
     AbortSignalCancellationToken,
     GENAI_JS_REGEX,
     GENAI_JS_GLOB,
+    fixPromptDefinitions,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -454,35 +455,17 @@ ${e.message}`
 
     async activate() {
         await this.saveScripts()
-        await this.fixPromptDefinitions()
         await this.parseWorkspace()
+        await this.fixPromptDefinitions()
 
         logInfo("genaiscript extension activated")
     }
 
     async fixPromptDefinitions() {
-        const prompts = await vscode.workspace.findFiles(GENAI_JS_GLOB)
-        const folders = new Set(prompts.map((f) => Utils.dirname(f).fsPath))
-        for (const folder of folders) {
-            const f = vscode.Uri.file(folder)
-            for (let [defName, defContent] of Object.entries(
-                promptDefinitions
-            )) {
-                if (this.project && defName === "genaiscript.d.ts") {
-                    const systems = this.project.templates
-                        .filter((t) => t.isSystem)
-                        .map((s) => `"${s.id}"`)
-                    defContent = defContent.replace(
-                        "type SystemPromptId = string",
-                        `type SystemPromptId = ${systems.join(" | ")}`
-                    )
-                }
-                const current = await readFileText(f, defName)
-                if (current !== defContent)
-                    await writeFile(f, defName, defContent)
-            }
-        }
+        const project = this.project
+        if (project) await fixPromptDefinitions(project)
     }
+
 
     async findScripts() {
         const scriptFiles = await findFiles(GENAI_JS_GLOB)
@@ -531,9 +514,9 @@ ${e.message}`
         const spec = `# Specification
 
 ${files
-    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
-    .map((fn) => `-   [${fn}](./${fn})`)
-    .join("\n")}
+                .map((uri) => this.host.path.relative(fspath, uri.fsPath))
+                .map((fn) => `-   [${fn}](./${fn})`)
+                .join("\n")}
 `
         this.host.clearVirtualFiles()
         this.host.setVirtualFile(specn, spec)
@@ -612,9 +595,9 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
                 r.source = TOOL_NAME
                 r.code = target
                     ? {
-                          value,
-                          target,
-                      }
+                        value,
+                        target,
+                    }
                     : undefined
                 return r
             })
