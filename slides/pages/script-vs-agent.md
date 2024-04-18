@@ -1,7 +1,8 @@
 # GenAIScript and Agents
 &nbsp;
-### GenAIScript is not an AI agent framework 
+### GenAIScript is **not** an AI agent framework 
 - Examples of agent frameworks: AutoGen, AutoGPT, etc
+
 &nbsp;
 ### Major differences
 - GenAIScript has a **static** orchestration graph
@@ -11,5 +12,6 @@ the task, relies on the user more
 - GenAIScript applies LLMs in a **targeted** way, 
 embedding the results into existing automation
 - We bound the use of the LLM to a specific single request
+
 &nbsp;
 ### Agent frameworks are an important research area
