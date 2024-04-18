@@ -17,8 +17,9 @@ import vscodeViewSrc from "../../../assets/vscode-genaiscript-view.png"
 import vscodeViewAlt from "../../../assets/vscode-genaiscript-view.png.txt?raw"
 
 
-GenAiScript is available as a Visual Studio Code Extension. You can download it from the Marketplace
-or access the latest development build from GitHub.
+GenAiScript is available as a [command line](#command-line) or a [Visual Studio Code Extension](#visual-studio-code-extension).
+
+## Visual Studio Code Extension
 
 The [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/) 
 contains the latest stable release of the [extension](https://marketplace.visualstudio.com/items?itemName=genaiscript.genaiscript-vscode).
@@ -71,11 +72,7 @@ If successful, you will see the icon in the **Extensions** view.
 
 </Steps>
 
-## Next steps
-
-Let's configure the [LLM connection information](/genaiscript/getting-started/configuration)
-
-## Manual Installation
+### Manual Installation
 
 The latest development build of the extension is also available on through the GitHub releases. This allows access
 to bug fixes earlier than the marketplace release.
@@ -117,10 +114,29 @@ Right click on the `.vsix` file and select **Install Extension VSIX...**
 
 </Steps>
 
-:::note[Cursor Suppoert]
+:::note[Cursor Support]
 
 GenAIScript can be installed in [Cursor](https://cursor.sh/how-to-install-extension) 
 using the manual installation steps
 
 :::
 
+## Command Line
+
+The [genaiscript](/genaiscript/reference/cli/) command line tool lets you run your GenAIScript
+from any terminal.
+
+```sh
+npx --yes genaiscript run my-script some/path/*.pdf
+```
+
+:::note
+
+While most examples in the documentation assume you are using the Visual Studio Code extension,
+the command line tool lets you use GenAiScript from any editor as well.
+
+:::
+
+## Next steps
+
+Let's configure the [LLM connection information](/genaiscript/getting-started/configuration)

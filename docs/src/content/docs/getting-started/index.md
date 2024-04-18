@@ -11,13 +11,15 @@ keywords:
     - AI Code Automation
 ---
 
-GenAIScript is a scripting language that makes LLMs a first-class 
-part of the scripting process, easily allowing users to author, debug, 
-and deploy LLM-based scripts.  GenAIScript uses stylized JavaScript with minimal 
-syntax to define Generative AI scripts and is supported by a VSCode extension.
-Because LLMs and foundation models can do things that other kinds of software
-cannot do, the core of every GenAIScript is a call to the LLM to perform some
-function. For example, the following script
+GenAIScript is a scripting language that integrates LLMs into the scripting process using a simplified JavaScript syntax.
+It allows users to create, debug, and automate LLM-based scripts.
+
+GenAIScript brings the flexibility of JavaScript with the convinience of built-in output parsing
+to streamline the creation of LLM-based software solutions.
+
+## the script
+
+The following script
 takes a file with text content (.txt, .pdf, .docx) as input and
 saves a summary of the file in another file.
 
@@ -30,23 +32,8 @@ const file = def("FILE", env.files)
 $`Summarize ${file}. Save output to ${file}.summary`
 ```
 
-GenAIScript takes care of assembling prompts, sending them to the LLM and parsing
-out the results in a structured way. While the implementation of this internal plumbing
-is complex, all the internal prompts and invocations can be easily investigated through a detailed trace,
-giving the user transparency to how the script is processed and what the model sees.
-
-## Transformation overview
-
-Here is a short overview how this GenAIScript script is used
-to create a prompt, send it to a LLM and parse the response
-into structured output.
-
-### User prompt
-
-When GenAIScript executes, it populates the `env.files` variable with the files selected in the context.
-As the script executes, the prompt that will be sent to the LLM is constructed.
-
-In this example, it would be like the text below for a `lorem.txt` file.
+GenAIScript will execute `summarize.genai.js` and generate the user message that will be sent to the LLM chat.
+It also populates the `env.files` variable with the files selected in the context (from a user UI interaction or CLI arguments).
 
 ````txt title="user prompt" wrap
 FILE ./lorem.txt:
@@ -57,10 +44,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Shorten the following FILE. Limit changes to minimum.
 ````
 
-### System prompts
+## System scripts
 
-GenAIScript also automatically selects system prompts to support file generation and other features. Since
-we're using files in this script, it will run the `system.files` script which teaches the LLM how to format files.
+GenAIScript also automatically selects system scripts to support file generation and other features. Since
+we're using files in this script, it will run the `system.files` script which teaches the LLM how to format files
+in a structured format.
 
 ```js title="system.files.genai.js"
 system({ title: "File generation" })
@@ -81,7 +69,7 @@ What goes in ./file1.ts
 ```
 ````
 
-### LLM invocation
+## LLM invocation
 
 All the generate prompts are formatted and sent to the LLM for processing. Typically, using the [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat/create) (or compatible), this would be a JSON object with an array of messages.
 
@@ -95,7 +83,7 @@ All the generate prompts are formatted and sent to the LLM for processing. Typic
 }
 ```
 
-### Output parsing
+## Output parsing
 
 The LLM responds with a text which can be parsed for various micro-formats,
 like markdown code fences, files or annotations.
