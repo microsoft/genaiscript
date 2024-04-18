@@ -106,6 +106,14 @@ src: pages/backup.md
 ---
 
 ---
+src: pages/stack-2.md
+---
+
+---
+src: pages/stack-2-elements.md
+---
+
+---
 src: pages/tla-plus.md
 ---
 
