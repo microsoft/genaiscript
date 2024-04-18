@@ -1,14 +1,15 @@
 ---
-layout: image-left
-
-# the image source
-image: /plug-in.png
-backgroundSize: contain
+layout: two-cols-header
 ---
+# Example: Translate a Diagram to Text
+
+::left::
+
+![](/plug-in.png)
+
+::right::
 
 <v-click>
-
-# Example: Translate a Diagram to Text
 
 ```js
 script({
