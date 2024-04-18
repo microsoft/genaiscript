@@ -3,48 +3,25 @@ import { RequestError } from "./error"
 import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
-function validateTokenCore(token: string, quiet = false) {
-    if (!token.startsWith("ey")) return
 
-    let timeleft = 0
-    const p = token.split(".")[1]
-    try {
-        const data = JSON.parse(utf8Decode(fromBase64(p)))
-        timeleft = Math.round((data.exp * 1000 - Date.now()) / 1000)
-        if (!quiet)
-            logInfo(
-                `token for: ${data.name} <${data.unique_name}>, valid for ${timeleft} seconds`
-            )
-    } catch (e) {
-        throw new Error("invalid token structure")
-    }
-    if (timeleft < 60) throw new Error("token expired")
-}
-
-export async function initToken(template: ModelOptions, force = false) {
+export async function initToken(template: ModelOptions) {
     const cfg = await host.getSecretToken(template)
-    if (cfg && !force) {
-        try {
-            validateTokenCore(cfg.token)
-            return cfg
-        } catch (e) {
-            logWarn(e.message)
-        }
-    }
+    if (!cfg)
+        throw new RequestError(
+            403,
+            "token not configured",
+            {
+                type: "no_token",
+                message:
+                    "token not configured, see https://microsoft.github.io/genaiscript/reference/token/",
+                param: undefined,
+                code: "no_token",
+            },
+            '{ code: "no_token" }',
+            -1
+        )
 
-    throw new RequestError(
-        403,
-        "token not configured",
-        {
-            type: "no_token",
-            message:
-                "token not configured, see https://microsoft.github.io/genaiscript/reference/token/",
-            param: undefined,
-            code: "no_token",
-        },
-        '{ code: "no_token" }',
-        -1
-    )
+    return cfg
 }
 
 function trimTrailingSlash(s: string) {
@@ -126,9 +103,9 @@ export async function parseTokenFromEnv(
                 env.OPENAI_API_KEY
             let base = trimTrailingSlash(
                 env.AZURE_OPENAI_ENDPOINT ||
-                    env.AZURE_OPENAI_API_BASE ||
-                    env.AZURE_API_BASE ||
-                    env.AZURE_OPENAI_API_ENDPOINT
+                env.AZURE_OPENAI_API_BASE ||
+                env.AZURE_API_BASE ||
+                env.AZURE_OPENAI_API_ENDPOINT
             )
             const version =
                 env.AZURE_OPENAI_API_VERSION ||
