@@ -1,5 +1,6 @@
 import { buildProject } from "./build"
 import { copyPrompt, createScript as coreCreateScript, exec, fixPromptDefinitions, host, logVerbose } from "genaiscript-core"
+import { TYPESCRIPT_VERSION } from "./version"
 
 export async function listScripts() {
     const prj = await buildProject()
@@ -29,8 +30,8 @@ export async function compileScript() {
             call: {
                 type: "shell",
                 cwd: folder,
-                command: "tsc",
-                args: ["--project", "jsconfig.json"]
+                command: "npx",
+                args: ["--yes", "--package", `typescript@${TYPESCRIPT_VERSION}`, "tsc", "--project", "jsconfig.json"]
             }
         })
     }
