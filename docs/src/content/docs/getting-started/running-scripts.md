@@ -13,9 +13,11 @@ Script are executed in the context of your environment.
 
 :::
 
+## Visual Studio Code
+
 In Visual Studio Code, the location where you start running a script determines the entries in the [`env.files`](/genaiscript/reference/scripts/context) variable.
 
-## Single file
+### Single file
 
 -   Right click on a file in the Explorer and select **Run GenAIScript...**.
 -   Or right click in a file editor and select **Run GenAIScript...**.
@@ -24,14 +26,21 @@ The `env.files` array will contain a single element with the selected file.
 
 ![Context menu to run GenAIScript on a file](../../../assets/vscode-file-run.png)
 
-
-## Folder
+### Folder
 
 -   Right click on a folder in the Explorer and select **Run GenAIScript...**s.
 
 The `env.files` array will contain all nested files under that folder.
 
 ![Context menu to run GenAIScript on a folder](../../../assets/vscode-folder-run.png)
+
+## Command Line
+
+Use the [run](/genaiscript/reference/cli/run) command to execute a script from the command line.
+
+```sh
+npx genaiscript run proofreader path/to/files*.md
+```
 
 ## Analyze results
 

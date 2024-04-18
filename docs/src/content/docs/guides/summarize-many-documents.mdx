@@ -54,8 +54,8 @@ Because we didn't tell the LLM to write the output to a file, it will by default
 <li>
 We can run the script from the [command line](/genaiscript/reference/cli/):
 
-```cmd wrap
-npx --yes genaiscript run gen-tweet example1.pdf
+```sh wrap
+npx genaiscript run gen-tweet example1.pdf
 ```
 
 </li><li>
@@ -73,7 +73,7 @@ How you do this depends on the shell script you prefer.
 for file in *.pdf; do 
   newfile="${file%.pdf}.tweet.md"; # foo.pdf -> foo.tweet.md
   if [ ! -f "$newfile" ]; then # skip if already exists
-    npx --yes genaiscript run gen-tweet $file > $newfile
+    npx genaiscript run gen-tweet $file > $newfile
   fi
 done
 ```
@@ -85,7 +85,7 @@ done
 Get-ChildItem -Filter *.pdf | ForEach-Object {
   $newName = $_.BaseName + ".tweet.md"
   if (-not (Test-Path $newName)) {
-    npx --yes genaiscript run gen-tweet $_.FullName | Set-Content "$newName"  
+    npx genaiscript run gen-tweet $_.FullName | Set-Content "$newName"  
   }
 }
 ```
@@ -99,7 +99,7 @@ for input_file in sys.argv[1:]:
     if not os.path.exists(output_file):
         with open(output_file, 'w') as outfile:
             result = subprocess.check_output(
-              ["npx", "--yes", "genaiscript", "run", "gen-tweet", 
+              ["npx", "genaiscript", "run", "gen-tweet", 
               input_file], universal_newlines=True)
             outfile.write(result)
 ```
