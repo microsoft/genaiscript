@@ -14,6 +14,6 @@
 - But you also have all the underlying power of JavaScript
 &nbsp;
 
-## Exposing users to the power of LLMs will unlock innovation
+## Scripting languages now **way more powerful** than ever before
 
 </v-click>
