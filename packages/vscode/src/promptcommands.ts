@@ -1,14 +1,8 @@
 import * as vscode from "vscode"
-import { Utils } from "vscode-uri"
 import { ExtensionState } from "./state"
-import { PromptTemplate, copyPrompt } from "genaiscript-core"
+import { PromptTemplate, copyPrompt, createScript } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
-
-const TEMPLATE = `# New specification
-    
-Description of the spec.
-`
 
 export function activatePromptCommands(state: ExtensionState) {
     const { context } = state
@@ -37,30 +31,7 @@ export function activatePromptCommands(state: ExtensionState) {
                     title: "Pick a file name for the new GenAiScript.",
                 })
                 if (name === undefined) return
-                const t = structuredClone(
-                    template || {
-                        id: "",
-                        title: name,
-                        text: "New script empty template",
-                        jsSource: `// GenAIScript - https://microsoft.github.io/genaiscript/getting-started/
-
-// metadata (including model parameters)
-script({ title: "${name}" })
-
-// use def to emit LLM variables
-def("FILE", env.files)
-
-// use $ to output formatted text to the prompt
-$\`You are a helpful assistant.
-TELL THE LLM WHAT TO DO...
-\`        
-
-// next, "Run GenAIScript" on a file or folder
-`,
-                    }
-                )
-                t.id = ""
-
+                const t = createScript(name, { template })
                 const pr = await copyPrompt(t, { fork: false, name })
                 await showPrompt(pr)
             }

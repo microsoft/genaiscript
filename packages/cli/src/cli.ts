@@ -31,7 +31,7 @@ import {
     parseHTMLToText,
     parsePDF,
 } from "./parse"
-import { listScripts } from "./scripts"
+import { createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { systemInfo } from "./info"
 
@@ -155,10 +155,16 @@ export async function cli() {
         )
         .action(batchScript)
 
-    program
+    const scripts = program
         .command("scripts")
+        .description("Utility tasks for scripts")
+    scripts.command("list", { isDefault: true })
         .description("List all available scripts in workspace")
         .action(listScripts)
+    scripts.command("create")
+        .description("Create a new script")
+        .argument("<name>", "Name of the script")
+        .action(createScript)
 
     const retrieval = program.command("retrieval").description("RAG support")
     retrieval

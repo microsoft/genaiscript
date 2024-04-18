@@ -86,9 +86,39 @@ Options:
 ## `scripts`
 
 ```
-Usage: genaiscript scripts [options]
+Usage: genaiscript scripts [options] [command]
+
+Utility tasks for scripts
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  list            List all available scripts in workspace
+  create <name>   Create a new script
+  help [command]  display help for command
+```
+
+### `scripts list`
+
+```
+Usage: genaiscript scripts list [options]
 
 List all available scripts in workspace
+
+Options:
+  -h, --help  display help for command
+```
+
+### `scripts create`
+
+```
+Usage: genaiscript scripts create [options] <name>
+
+Create a new script
+
+Arguments:
+  name        Name of the script
 
 Options:
   -h, --help  display help for command
