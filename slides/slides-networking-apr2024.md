@@ -42,11 +42,15 @@ src: pages/vision.md
 ---
 
 ---
-src: pages/script-intro.md
+src: pages/system-components.md
 ---
 
 ---
-src: pages/system-components.md
+src: pages/example-gpt-v.md
+---
+
+---
+src: pages/example-gpt-v-result.md
 ---
 
 ---
