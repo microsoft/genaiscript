@@ -1,8 +1,7 @@
 # Summary
 ##
 - Our goal is to unlock innovation and creativity in using AI
-- GenAIScript:
-    - Makes scripts easy to write, debug, and deploy
+- GenAIScript makes scripts easy to write, debug, and deploy
 
 - Defines and supports key abstractions
     - Static orchestration graph
