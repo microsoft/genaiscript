@@ -6,3 +6,4 @@ dist
 .remote-assets
 components.d.ts
 index.html
+.env
