@@ -96,6 +96,7 @@ Options:
 Commands:
   list            List all available scripts in workspace
   create <name>   Create a new script
+  compile         Compile all script in workspace
   help [command]  display help for command
 ```
 
@@ -119,6 +120,17 @@ Create a new script
 
 Arguments:
   name        Name of the script
+
+Options:
+  -h, --help  display help for command
+```
+
+### `scripts compile`
+
+```
+Usage: genaiscript scripts compile [options]
+
+Compile all script in workspace
 
 Options:
   -h, --help  display help for command

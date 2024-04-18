@@ -1,4 +1,13 @@
-export function createScript(name: string, options?: { template: PromptTemplate, title?: string }) {
+import { Project } from "./ast"
+import { GENAI_JS_GLOB } from "./constants"
+import { promptDefinitions } from "./default_prompts"
+import { readText, writeText } from "./fs"
+import { host } from "./host"
+
+export function createScript(
+    name: string,
+    options?: { template: PromptTemplate; title?: string }
+) {
     const { template, title } = options || {}
     const t = structuredClone(
         template || {
@@ -25,4 +34,29 @@ TELL THE LLM WHAT TO DO...\`
     )
     t.id = ""
     return t
+}
+
+export async function fixPromptDefinitions(project: Project) {
+    const folders = new Set(
+        Object.values(project.templates)
+            .filter((t) => t.filename)
+            .map((t) => host.path.dirname(t.filename))
+    )
+    for (const folder of folders) {
+        for (let [defName, defContent] of Object.entries(promptDefinitions)) {
+            if (project && defName === "genaiscript.d.ts") {
+                const systems = project.templates
+                    .filter((t) => t.isSystem)
+                    .map((s) => `"${s.id}"`)
+                defContent = defContent.replace(
+                    "type SystemPromptId = string",
+                    `type SystemPromptId = ${systems.join(" | ")}`
+                )
+            }
+
+            const current = await readText(host.path.join(folder, defName))
+            if (current !== defContent)
+                await writeText(host.path.join(folder, defName), defContent)
+        }
+    }
 }

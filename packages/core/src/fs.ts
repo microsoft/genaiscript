@@ -65,7 +65,7 @@ export function createFileSystem() {
             try {
                 if (!DOT_ENV_REGEX.test(filename))
                     content = await readText("workspace://" + filename)
-            } catch (e) {}
+            } catch (e) { }
             return { label: filename, filename, content }
         },
     })

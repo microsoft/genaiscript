@@ -31,7 +31,7 @@ import {
     parseHTMLToText,
     parsePDF,
 } from "./parse"
-import { createScript, listScripts } from "./scripts"
+import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { systemInfo } from "./info"
 
@@ -165,6 +165,9 @@ export async function cli() {
         .description("Create a new script")
         .argument("<name>", "Name of the script")
         .action(createScript)
+    scripts.command("compile")
+        .description("Compile all script in workspace")
+        .action(compileScript)
 
     const retrieval = program.command("retrieval").description("RAG support")
     retrieval
