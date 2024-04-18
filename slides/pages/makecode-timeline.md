@@ -5,7 +5,7 @@ layout: image-right
 image: /makecode-translate-view.png
 backgroundSize: contain
 ---
-### Timeline and Feedback 
+## Timeline and Feedback 
 ##
 &nbsp;
 #### First day: Peli wrote and debugged script

@@ -1,10 +1,12 @@
 ---
-layout: image-right
+layout: image-left
 
 # the image source
 image: /plug-in.png
 backgroundSize: contain
 ---
+
+<v-click>
 
 # Example: Translate a Diagram to Text
 
@@ -25,3 +27,5 @@ should infer the context of the diagram,
 and write a thorough description of what 
 the diagram is illustrating.`
 ```
+
+</v-click>

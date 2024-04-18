@@ -1,26 +1,28 @@
 # Dev Experience
 
-## VSCode - Fast feedback loop.
+## VSCode 
 
 <v-click>
 
 - Run: command from file/folder/editor
 - Debugger: launch script through CLI
 - Trace: document provider + markdown preview
-- Authentication: from `.env` or `vscode.languageModel` (proposed API)
-- "Un-bundleable" code outsourced to server script.
+- Authentication: from `.env` file or environment
 
 </v-click>
 
-## CLI - Automate
+## Command Line
 
 <v-click>
 
+- Use your favorite code editor (Emacs, vi, etc.)
+- Uses Node.js
+
 ```
+npx genaiscript scripts create [script]
 npx genaiscript run [script] [...files]
 ```
 
-- npm package
-- GitHub Action friendly
+- CI/CD  friendly
 
 </v-click>
