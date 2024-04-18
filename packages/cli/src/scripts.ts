@@ -1,5 +1,5 @@
 import { buildProject } from "./build"
-import { copyPrompt, createScript as coreCreateScript, fixPromptDefinitions } from "genaiscript-core"
+import { copyPrompt, createScript as coreCreateScript, exec, fixPromptDefinitions, host, logVerbose } from "genaiscript-core"
 
 export async function listScripts() {
     const prj = await buildProject()
@@ -15,10 +15,23 @@ export async function listScripts() {
 export async function createScript(name: string) {
     const t = coreCreateScript(name)
     const pr = await copyPrompt(t, { fork: false, name })
-    console.log(`create script at ${pr}`)
+    console.log(`created script at ${pr}`)
+    await compileScript()
 }
 
 export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)
+    for (const folder of project.folders()) {
+        logVerbose(`compiling ${folder}`)
+        await exec(host, {
+            label: folder,
+            call: {
+                type: "shell",
+                cwd: folder,
+                command: "tsc",
+                args: ["--project", "jsconfig.json"]
+            }
+        })
+    }
 }

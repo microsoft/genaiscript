@@ -1,6 +1,5 @@
 script({
     title: "Generate Node.js Code (multifile)",
-    system: ["system.code"],
     temperature: 0.01,
     group: "code.js.node",
 })

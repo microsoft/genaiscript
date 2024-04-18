@@ -6,7 +6,7 @@ script({
 })
 
 // language parameterization
-const langCode = env.vars.lang || "de"
+const langCode = (env.vars.lang || "de") + ""
 
 // given a language code, refer to the full name to help the LLM
 const langName = {

@@ -99,6 +99,15 @@ export class Project {
 
     _finalizers: (() => void)[] = []
 
+    folders() {
+        const res: string[] = Array.from(new Set(
+            Object.values(this.templates)
+                .filter((t) => t.filename)
+                .map((t) => host.path.dirname(t.filename))
+        ))
+        return res
+    }
+
     forEachFragment(cb: (t: Fragment) => void) {
         this.allFiles.forEach((f) => f.forEachFragment(cb))
     }
@@ -140,7 +149,7 @@ export class TextFile {
         public readonly filename: string,
         public readonly mime: string,
         public readonly content: string
-    ) {}
+    ) { }
 
     relativeName() {
         const prj = host.projectFolder()
