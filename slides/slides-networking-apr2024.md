@@ -29,6 +29,10 @@ layout: center
 ## Scripting for Generative AI
 
 <br/>
+
+### Peli de Halleux and Ben Zorn
+#### April 2024
+
 <br/>
 
 https://microsoft.github.io/genaiscript/
