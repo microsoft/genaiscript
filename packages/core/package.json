@@ -44,7 +44,7 @@
     "serialize-error": "^11.0.3",
     "toml": "^3.0.0",
     "tree-sitter-wasms": "^0.1.11",
-    "typescript": "5.3.3",
+    "typescript": "5.4.2",
     "yaml": "^2.4.1"
   },
   "scripts": {

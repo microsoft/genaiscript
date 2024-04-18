@@ -3,9 +3,6 @@
   "version": "1.20.2",
   "license": "MIT",
   "private": true,
-  "devDependencies": {
-    "typescript": "^5.3.3"
-  },
   "scripts": {
     "go": "node ../cli/built/main.js src/sample.ts",
     "token": "mkdir -p .genaiscript/tmp; (if test -e /dev/clipboard; then cat /dev/clipboard ; else pbpaste ; fi) > .genaiscript/tmp/request.txt",
