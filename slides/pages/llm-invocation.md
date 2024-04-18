@@ -1,7 +1,7 @@
 
 # Prompt + LLM = Response
 
-- authentication: `.env` or `vscode.languageModel` (proposed API)
+- authentication: `.env` or environment variables
 - re-format prompts for LLM APIs, like OpenAI vs Azure OpenAI
 
 <br/>
