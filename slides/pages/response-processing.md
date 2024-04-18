@@ -2,7 +2,7 @@
 
 # Response x Parsers = Files + Data
 
-- parse file edits, as workspace edits in VSCode
+- parse file edits (as refactoring preview in VSCode)
 - parse diagnostics (error, warning, note)
 - parse data + schema validation + error repair
 
