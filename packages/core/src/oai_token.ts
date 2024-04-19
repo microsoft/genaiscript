@@ -2,10 +2,10 @@ import { AZURE_OPENAI_API_VERSION } from "./constants"
 import { RequestError } from "./error"
 import { OAIToken, host } from "./host"
 
-
+/*
 export async function initToken(options: ModelConnectionOptions) {
     const cfg = await host.getSecretToken(options)
-    if (!cfg)
+    if (!cfg) {
         throw new RequestError(
             403,
             "token not configured",
@@ -19,9 +19,11 @@ export async function initToken(options: ModelConnectionOptions) {
             '{ code: "no_token" }',
             -1
         )
+    }
 
     return cfg
 }
+*/
 
 function trimTrailingSlash(s: string) {
     return s?.replace(/\/+$/, "")
@@ -56,9 +58,13 @@ export async function parseTokenFromEnv(
                 type !== "local" &&
                 type !== "openai"
             )
-                throw new Error("OPENAI_API_TYPE must be 'azure', 'openai', or 'local'")
+                throw new Error(
+                    "OPENAI_API_TYPE must be 'azure', 'openai', or 'local'"
+                )
             if (type === "azure" && !base)
-                throw new Error("OPENAI_API_BASE must be set when type is 'azure'")
+                throw new Error(
+                    "OPENAI_API_BASE must be set when type is 'azure'"
+                )
             if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
             if (
                 type === "azure" &&
@@ -102,9 +108,9 @@ export async function parseTokenFromEnv(
                 env.OPENAI_API_KEY
             let base = trimTrailingSlash(
                 env.AZURE_OPENAI_ENDPOINT ||
-                env.AZURE_OPENAI_API_BASE ||
-                env.AZURE_API_BASE ||
-                env.AZURE_OPENAI_API_ENDPOINT
+                    env.AZURE_OPENAI_API_BASE ||
+                    env.AZURE_API_BASE ||
+                    env.AZURE_OPENAI_API_ENDPOINT
             )
             const version =
                 env.AZURE_OPENAI_API_VERSION ||
@@ -132,4 +138,3 @@ export async function parseTokenFromEnv(
     }
     return undefined
 }
-

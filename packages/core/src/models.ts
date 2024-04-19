@@ -1,7 +1,8 @@
+import { resolve } from "path/posix"
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
 import { DEFAULT_MODEL } from "./constants"
-import { host } from "./host"
+import { OAIToken, host } from "./host"
 import { OpenAIModel } from "./openai"
 
 export function resolveLanguageModel(
@@ -15,43 +16,34 @@ export function resolveLanguageModel(
     return OpenAIModel
 }
 
-export async function resolveModelTokens(
-    templates: PromptTemplate[],
+export type ModelConnectionInfo = ModelConnectionOptions &
+    Partial<OAIToken> & { error?: string }
+
+export async function resolveModelConnectionInfo(
+    conn: ModelConnectionOptions,
     options?: { token?: boolean }
-) {
-    const models: Record<
-        string,
-        ModelConnectionOptions & { scripts: string[] }
-    > = {}
-    for (const template of templates) {
-        const conn: ModelConnectionOptions = {
-            model: template.model ?? DEFAULT_MODEL,
-            aici: template.aici,
-        }
-        const key = JSON.stringify(conn)
-        const c = models[key] ?? (models[key] = { ...conn, scripts: [] })
-        c.scripts.push(template.filename || template.id)
-    }
-    const res = []
-    for (const conn of Object.values(models)) {
-        try {
-            const tok = await host.getSecretToken(conn)
-            if (!tok) {
-                res.push({ ...conn, error: "token not configured" })
-            } else {
-                const { token, ...rest } = tok
-                res.push({
+): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
+    try {
+        const token = await host.getSecretToken(conn)
+        if (!token) {
+            return { info: { ...conn, error: "token not configured" } }
+        } else {
+            const { token: theToken, ...rest } = token
+            return {
+                info: {
                     ...conn,
                     ...rest,
-                    token: token ? (options?.token ? token : "***") : "",
-                })
+                    token: theToken ? (options?.token ? theToken : "***") : "",
+                },
+                token,
             }
-        } catch (e) {
-            res.push({
+        }
+    } catch (e) {
+        return {
+            info: {
                 ...conn,
                 error: (e as Error).message || e + "",
-            })
+            },
         }
     }
-    return res
 }

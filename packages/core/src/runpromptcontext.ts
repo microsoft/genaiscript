@@ -16,9 +16,8 @@ import {
     toChatCompletionUserMessage,
 } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
-import { resolveLanguageModel } from "./models"
+import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
-import { initToken } from "./oai_token"
 import { CancelError } from "./error"
 
 export interface RunPromptContextNode extends RunPromptContext {
@@ -92,7 +91,7 @@ export function createRunPromptContext(
                 trace.startDetails(`🎁 run prompt`)
                 if (!generator) {
                     trace.error("generator missing")
-                    return <RunPromptResult>{ text: "" }
+                    return <RunPromptResult>{ text: "", finishReason: "error" }
                 }
                 const ctx = createRunPromptContext(options, env, trace)
                 const model =
@@ -125,15 +124,18 @@ export function createRunPromptContext(
                         })
                 }
 
-                // call LLM
+                const connection = await resolveModelConnectionInfo({
+                    model,
+                    aici: promptOptions?.aici,
+                })
+                if (!connection.token) {
+                    trace.error("model connection error", connection.info)
+                    return <RunPromptResult>{ text: "", finishReason: "error" }
+                }
                 const { completer } = resolveLanguageModel(
                     promptOptions?.aici ? "aici" : "openai",
                     options
                 )
-                const token = await initToken({
-                    model,
-                    aici: promptOptions?.aici,
-                })
                 const res = await completer(
                     {
                         model,
@@ -148,7 +150,7 @@ export function createRunPromptContext(
                         stream: true,
                         messages,
                     },
-                    token,
+                    connection.token,
                     { ...options, trace }
                 )
                 trace.details("output", res.text)

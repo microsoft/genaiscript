@@ -523,6 +523,7 @@ interface RunPromptResult {
     | "tool_calls"
     | "content_filter"
     | "cancel"
+    | "error"
 }
 
 /**
