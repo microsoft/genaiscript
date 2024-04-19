@@ -244,7 +244,8 @@ export function createPromptContext(
 }
 
 export type RunTemplateOptions = ChatCompletionsOptions &
-    ModelOptions & {
+    ModelOptions &
+    ScriptRuntimeOptions & {
         cancellationToken?: CancellationToken
         infoCb?: (partialResponse: {
             text: string
@@ -257,7 +258,6 @@ export type RunTemplateOptions = ChatCompletionsOptions &
         maxCachedTopP?: number
         skipLLM?: boolean
         label?: string
-        cache?: boolean
         cliInfo?: {
             spec: string
         }

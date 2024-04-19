@@ -1,6 +1,11 @@
 import crossFetch from "cross-fetch"
 import wrapFetch from "fetch-retry"
 import { TraceOptions } from "./trace"
+import {
+    FETCH_RETRY_DEFAULT,
+    FETCH_RETRY_DEFAULT_DEFAULT,
+    FETCH_RETRY_MAX_DELAY_DEFAULT,
+} from "./constants"
 
 export async function createFetch(
     options?: {
@@ -11,11 +16,11 @@ export async function createFetch(
     } & TraceOptions
 ) {
     const {
-        retries = 3,
+        retries = FETCH_RETRY_DEFAULT,
         retryOn = [429, 500],
         trace,
-        retryDelay = 10000,
-        maxDelay = 60000,
+        retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
+        maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
     } = options || {}
     const fetchRetry = await wrapFetch(crossFetch, {
         retryOn,

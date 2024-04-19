@@ -215,8 +215,8 @@
                     },
                     "genaiscript.maxCachedTemperature": {
                         "type": "number",
-                        "default": 0.01,
-                        "description": "Maximum prompt temperature to be cached (default 0.01)."
+                        "default": 0.5,
+                        "description": "Maximum prompt temperature to be cached (default 0.5)."
                     },
                     "genaiscript.maxCachedTopP": {
                         "type": "number",
