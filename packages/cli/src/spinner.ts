@@ -41,7 +41,7 @@ export class ProgressSpinner implements Progress {
         this.report({ message, succeeded: true })
     }
 
-    fail(message: string) {
+    fail(message?: string) {
         this.report({ message, succeeded: false })
     }
 }

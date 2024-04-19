@@ -267,21 +267,7 @@ export async function runTemplate(
     })
     if (!connection.token) {
         trace.error(`model connection error`, connection.info)
-        return <FragmentTransformResponse>{
-            prompt: messages,
-            vars,
-            trace: trace.content,
-            error: connection.info.error,
-            text: connection.info.error,
-            edits,
-            annotations,
-            changelogs,
-            fileEdits,
-            label,
-            version,
-            fences: [],
-            frames: [],
-        }
+        throw new RequestError(403, "token not configured", connection.info)
     }
 
     const { completer } = resolveLanguageModel(

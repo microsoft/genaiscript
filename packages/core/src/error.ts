@@ -1,17 +1,20 @@
-import { serializeError as rawSerializeError, ErrorObject as RawErrorObject } from 'serialize-error';
+import {
+    serializeError as rawSerializeError,
+    ErrorObject as RawErrorObject,
+} from "serialize-error"
 
-export type ErrorObject = RawErrorObject;
+export type ErrorObject = RawErrorObject
 
-export function serializeError(e: unknown | string | Error | ErrorObject): ErrorObject {
+export function serializeError(
+    e: unknown | string | Error | ErrorObject
+): ErrorObject {
     if (e instanceof Error)
         return rawSerializeError(e, { maxDepth: 3, useToJSON: false })
     else if (e instanceof Object) {
         const obj = e as ErrorObject
         return obj
-    } else if (typeof e === "string")
-        return { message: e }
-    else if (e !== undefined && e !== null)
-        return { message: e.toString?.() }
+    } else if (typeof e === "string") return { message: e }
+    else if (e !== undefined && e !== null) return { message: e.toString?.() }
     else return {}
 }
 
@@ -34,11 +37,12 @@ export class RequestError extends Error {
         public readonly status: number,
         public readonly statusText: string,
         public readonly body: any,
-        public readonly bodyText: string,
-        readonly retryAfter: number
+        public readonly bodyText?: string,
+        readonly retryAfter?: number
     ) {
         super(
-            `LLM error: ${body?.message ? body?.message : `${statusText} (${status})`
+            `LLM error: ${
+                body?.message ? body?.message : `${statusText} (${status})`
             }`
         )
     }

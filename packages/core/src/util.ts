@@ -1,6 +1,7 @@
 import { GENAISCRIPT_FOLDER } from "./constants"
 import { ErrorObject, serializeError } from "./error"
 import { LogLevel, host } from "./host"
+import { YAMLStringify } from "./yaml"
 
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
@@ -203,9 +204,9 @@ export function logWarn(msg: string) {
 }
 
 export function logError(msg: string | Error | ErrorObject) {
-    const e = serializeError(msg)
-    host.log(LogLevel.Error, e.message || "error")
-    if (e.stack) host.log(LogLevel.Verbose, e.stack)
+    const { message, ...e } = serializeError(msg)
+    host.log(LogLevel.Error, message || "error")
+    host.log(LogLevel.Verbose, YAMLStringify(e))
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {
@@ -262,5 +263,5 @@ export function normalizeInt(s: string | number | boolean): number {
 }
 
 export function trimTrailingSlash(s: string) {
-    return s?.replace(/\/+$/, "")
+    return s?.replace(/\/{1,10}$/, "")
 }
