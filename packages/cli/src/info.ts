@@ -1,4 +1,5 @@
-import { CONNECTION_CONFIGURATION_ERROR_CODE, CORE_VERSION, host, logError } from "genaiscript-core"
+import { CORE_VERSION, YAMLStringify, resolveModelTokens } from "genaiscript-core"
+import { buildProject } from "./build"
 
 export async function systemInfo() {
     console.log(`node: ${process.version}`)
@@ -8,27 +9,9 @@ export async function systemInfo() {
     console.log(`pid: ${process.pid}`)
 }
 
-
-export async function modelInfo(model: string, options: {
-    aici: boolean,
-    token: boolean
-}) {
-    const { aici } = options || {}
-    console.log(`model: ${model}${aici ? " (aici)" : ""}`)
-
-    const tok = await host.getSecretToken({ model, aici })
-    if (!tok) {
-        logError(`token not configured`)
-        process.exit(CONNECTION_CONFIGURATION_ERROR_CODE)
-    }
-
-    let token = tok.token
-    if (!options.token && token)
-        token = "***"
-
-    console.log(`source: "${tok.source || ""}"`)
-    console.log(`type: ${tok.type || ""}`)
-    console.log(`base: ${tok.base || ""}`)
-    console.log(`version: ${tok.version || ""}`)
-    console.log(`token: ${token}`)
+export async function modelInfo(options?: { token?: boolean }) {
+    const prj = await buildProject()
+    const info = await resolveModelTokens(prj.templates, options)
+    console.log(YAMLStringify(info))
 }
+

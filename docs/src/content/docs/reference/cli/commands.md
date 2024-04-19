@@ -86,18 +86,19 @@ Options:
 ## `scripts`
 
 ```
-Usage: genaiscript scripts [options] [command]
+Usage: genaiscript scripts|script [options] [command]
 
 Utility tasks for scripts
 
 Options:
-  -h, --help      display help for command
+  -h, --help       display help for command
 
 Commands:
-  list            List all available scripts in workspace
-  create <name>   Create a new script
-  compile         Compile all script in workspace
-  help [command]  display help for command
+  list             List all available scripts in workspace
+  create <name>    Create a new script
+  compile          Compile all script in workspace
+  model [options]  Show model connection information for scripts
+  help [command]   display help for command
 ```
 
 ### `scripts list`
@@ -136,10 +137,22 @@ Options:
   -h, --help  display help for command
 ```
 
+### `scripts model`
+
+```
+Usage: genaiscript scripts model [options]
+
+Show model connection information for scripts
+
+Options:
+  -t, --token  show token
+  -h, --help   display help for command
+```
+
 ## `retrieval`
 
 ```
-Usage: genaiscript retrieval [options] [command]
+Usage: genaiscript retrieval|retreival [options] [command]
 
 RAG support
 
@@ -214,7 +227,7 @@ Options:
 ## `parse`
 
 ```
-Usage: genaiscript parse [options] [command] <file...>
+Usage: genaiscript parse|parsers [options] [command] <file...>
 
 Parse various outputs
 
@@ -321,12 +334,11 @@ Usage: genaiscript info [options] [command]
 Utility tasks
 
 Options:
-  -h, --help               display help for command
+  -h, --help  display help for command
 
 Commands:
-  help                     Show help for all commands
-  system                   Show system information
-  model [options] [model]  Show model connection information
+  help        Show help for all commands
+  system      Show system information
 ```
 
 ### `info help`
@@ -349,20 +361,4 @@ Show system information
 
 Options:
   -h, --help  display help for command
-```
-
-### `info model`
-
-```
-Usage: genaiscript info model [options] [model]
-
-Show model connection information
-
-Arguments:
-  model        Model name (default: "gpt-4")
-
-Options:
-  -a, --aici   use AICI
-  -t, --token  show token
-  -h, --help   display help for command
 ```

@@ -1,7 +1,6 @@
 import { AZURE_OPENAI_API_VERSION } from "./constants"
 import { RequestError } from "./error"
 import { OAIToken, host } from "./host"
-import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
 
 export async function initToken(options: ModelConnectionOptions) {
@@ -57,9 +56,9 @@ export async function parseTokenFromEnv(
                 type !== "local" &&
                 type !== "openai"
             )
-                throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
+                throw new Error("OPENAI_API_TYPE must be 'azure', 'openai', or 'local'")
             if (type === "azure" && !base)
-                throw new Error("OPENAI_API_BASE not set")
+                throw new Error("OPENAI_API_BASE must be set when type is 'azure'")
             if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
             if (
                 type === "azure" &&
@@ -87,7 +86,7 @@ export async function parseTokenFromEnv(
                 base,
                 type,
                 token,
-                source: "env: OPENAI_...",
+                source: "env: OPENAI_API_...",
                 version,
             }
         }
@@ -113,7 +112,7 @@ export async function parseTokenFromEnv(
                 env.OPENAI_API_VERSION
             if (!base)
                 throw new Error(
-                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
+                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
                 )
             if (version && version !== AZURE_OPENAI_API_VERSION)
                 throw new Error(
@@ -133,3 +132,4 @@ export async function parseTokenFromEnv(
     }
     return undefined
 }
+
