@@ -45,6 +45,7 @@ export interface ChatCompletionToolCall {
 
 export interface ChatCompletionResponse {
     text?: string
+    cached?: boolean
     variables?: Record<string, string>
     toolCalls?: ChatCompletionToolCall[]
     finishReason?:

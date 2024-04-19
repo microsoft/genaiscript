@@ -49,9 +49,10 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     const caching =
         useCache === true || // always cache
         (useCache !== false &&
-            (isNaN(maxCachedTemperature) ||
+            (isNaN(temperature) ||
+                isNaN(maxCachedTemperature) ||
                 temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
-            (isNaN(maxCachedTopP) || top_p < maxCachedTopP) && // high top_p is not cacheable (it's too random)
+            (isNaN(top_p) || isNaN(maxCachedTopP) || top_p < maxCachedTopP) && // high top_p is not cacheable (it's too random)
             seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
             !tools?.length)
     trace.itemValue(`caching`, caching)
@@ -63,7 +64,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
             responseChunk: cached,
         })
         trace.itemValue(`cached sha`, await cache.getKeySHA(req))
-        return { text: cached }
+        return { text: cached, cached: true }
     }
 
     const r2 = { ...req }
@@ -170,7 +171,6 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     if (seenDone) {
         if (caching) {
-            
             await cache.set(req, chatResp)
         }
         return { text: chatResp, toolCalls, finishReason }

@@ -358,6 +358,7 @@ export async function runTemplate(
             trace.startDetails("📩 llm response")
             if (resp.finishReason && resp.finishReason !== "stop")
                 trace.itemValue(`finish reason`, resp.finishReason)
+            trace.itemValue(`cached`, resp.cached)
             trace.detailsFenced(`output`, resp.text, "markdown")
             trace.endDetails()
         }
