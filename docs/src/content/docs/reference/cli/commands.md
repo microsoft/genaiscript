@@ -321,11 +321,12 @@ Usage: genaiscript info [options] [command]
 Utility tasks
 
 Options:
-  -h, --help  display help for command
+  -h, --help               display help for command
 
 Commands:
-  help        Show help for all commands
-  system      Show system information
+  help                     Show help for all commands
+  system                   Show system information
+  model [options] [model]  Show model connection information
 ```
 
 ### `info help`
@@ -348,4 +349,20 @@ Show system information
 
 Options:
   -h, --help  display help for command
+```
+
+### `info model`
+
+```
+Usage: genaiscript info model [options] [model]
+
+Show model connection information
+
+Arguments:
+  model        Model name (default: "gpt-4")
+
+Options:
+  -a, --aici   use AICI
+  -t, --token  show token
+  -h, --help   display help for command
 ```

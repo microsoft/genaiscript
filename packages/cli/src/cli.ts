@@ -33,7 +33,7 @@ import {
 } from "./parse"
 import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
-import { systemInfo } from "./info"
+import { modelInfo, systemInfo } from "./info"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -253,10 +253,15 @@ export async function cli() {
     info.command("help")
         .description("Show help for all commands")
         .action(helpAll)
-
     info.command("system")
         .description("Show system information")
         .action(systemInfo)
+    info.command("model")
+        .description("Show model connection information")
+        .argument("[model]", "Model name", "gpt-4")
+        .option("-a, --aici", "use AICI")
+        .option("-t, --token", "show token")
+        .action(modelInfo)
 
     program.parse()
 }
