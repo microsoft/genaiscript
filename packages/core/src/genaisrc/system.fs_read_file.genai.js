@@ -27,9 +27,9 @@ defFunction(
         required: ["filename"],
     },
     async (args) => {
-        let { context, filename, linestart, lineend } = args
+        let { filename, linestart, lineend } = args
 
-        if (/^\.env$/i.test(filename))
+        if (/^\.env$/i.test(path.basename(filename)))
             return "File contains sensitive information and cannot be displayed."
 
         linestart = parseInt(linestart) - 1
