@@ -162,7 +162,11 @@ async function callExpander(
     }
 }
 
-function traceEnv(model: string, trace: MarkdownTrace, env: ExpansionVariables) {
+function traceEnv(
+    model: string,
+    trace: MarkdownTrace,
+    env: ExpansionVariables
+) {
     trace.startDetails("🏡 env")
     const files = env.files || []
     if (files.length) {
@@ -193,6 +197,26 @@ function traceEnv(model: string, trace: MarkdownTrace, env: ExpansionVariables) 
     trace.endDetails()
 }
 
+function resolveSystems(template: PromptTemplate) {
+    const { jsSource } = template
+    const systems = (template.system ?? []).slice(0)
+    if (template.system === undefined) {
+        const useSchema = /defschema/i.test(jsSource)
+        systems.push("system")
+        systems.push("system.explanations")
+        // select file expansion type
+        if (/diff/i.test(jsSource)) systems.push("system.diff")
+        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
+        else {
+            systems.push("system.files")
+            if (useSchema) systems.push("system.files_schema")
+        }
+        if (useSchema) systems.push("system.schema")
+        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
+    }
+    return systems
+}
+
 export async function expandTemplate(
     template: PromptTemplate,
     fragment: Fragment,
@@ -206,9 +230,12 @@ export async function expandTemplate(
 
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
 
-    const systems = (template.system ?? []).slice(0)
+    const systems = resolveSystems(template)
     const model =
-        options.model ?? normalizeString(env.vars["model"]) ?? template.model ?? DEFAULT_MODEL
+        options.model ??
+        normalizeString(env.vars["model"]) ??
+        template.model ??
+        DEFAULT_MODEL
     const systemTemplates = systems.map((s) =>
         fragment.file.project.getTemplate(s)
     )
@@ -248,24 +275,8 @@ export async function expandTemplate(
 
     traceEnv(model, trace, env)
 
-
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
-
-    if (template.system === undefined) {
-        const useSchema = /defschema/i.test(jsSource)
-        systems.push("system")
-        systems.push("system.explanations")
-        // select file expansion type
-        if (/diff/i.test(jsSource)) systems.push("system.diff")
-        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else {
-            systems.push("system.files")
-            if (useSchema) systems.push("system.files_schema")
-        }
-        if (useSchema) systems.push("system.schema")
-        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
-    }
 
     const prompt = await callExpander(template, env, trace, options)
     const expanded = prompt.text

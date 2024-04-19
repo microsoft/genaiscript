@@ -3,7 +3,7 @@ script({
     temperature: 0,
 })
 
-def("FILE", env.files, { endsWith: ".bicep", lineNumbers: true })
+def("FILE", env.files, { endsWith: ".bicep" })
 
 $`You are an expert at Azure Bicep.
 
