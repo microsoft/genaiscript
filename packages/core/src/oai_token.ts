@@ -4,8 +4,8 @@ import { OAIToken, host } from "./host"
 import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
 
 
-export async function initToken(template: ModelOptions) {
-    const cfg = await host.getSecretToken(template)
+export async function initToken(options: ModelConnectionOptions) {
+    const cfg = await host.getSecretToken(options)
     if (!cfg)
         throw new RequestError(
             403,
@@ -30,9 +30,9 @@ function trimTrailingSlash(s: string) {
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    template: ModelOptions
+    options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    if (template.aici) {
+    if (options.aici) {
         if (env.AICI_API_BASE) {
             const base = env.AICI_API_BASE
             const token = env.AICI_API_KEY

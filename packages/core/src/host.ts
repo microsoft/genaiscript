@@ -146,7 +146,7 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getSecretToken(template: ModelOptions): Promise<OAIToken | undefined>
+    getSecretToken(options: ModelConnectionOptions): Promise<OAIToken | undefined>
 
     log(level: LogLevel, msg: string): void
 

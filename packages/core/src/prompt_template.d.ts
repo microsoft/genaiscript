@@ -94,14 +94,21 @@ interface UrlAdapter {
 
 type PromptTemplateResponseType = "json_object" | undefined
 
-interface ModelOptions {
+interface ModelConnectionOptions {
     /**
      * Which LLM model to use.
      *
      * @default gpt-4
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | "mixtral" | string
+    /**
+     * Use AICI controller
+     */
+    aici?: boolean
+}
+
+interface ModelOptions extends ModelConnectionOptions {
 
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
@@ -133,10 +140,6 @@ interface ModelOptions {
      * Default value for emitting line numbers in fenced code blocks.
      */
     lineNumbers?: boolean
-    /**
-     * Use AICI controller
-     */
-    aici?: boolean
 }
 
 type PromptParameterType =
@@ -390,15 +393,15 @@ interface FenceOptions {
      * Language of the fenced code block. Defaults to "markdown".
      */
     language?:
-        | "markdown"
-        | "json"
-        | "yaml"
-        | "javascript"
-        | "typescript"
-        | "python"
-        | "shell"
-        | "toml"
-        | string
+    | "markdown"
+    | "json"
+    | "yaml"
+    | "javascript"
+    | "typescript"
+    | "python"
+    | "shell"
+    | "toml"
+    | string
 
     /**
      * Prepend each line with a line numbers. Helps with generating diffs.
@@ -515,11 +518,11 @@ interface DataFrame {
 interface RunPromptResult {
     text: string
     finishReason?:
-        | "stop"
-        | "length"
-        | "tool_calls"
-        | "content_filter"
-        | "cancel"
+    | "stop"
+    | "length"
+    | "tool_calls"
+    | "content_filter"
+    | "cancel"
 }
 
 /**
