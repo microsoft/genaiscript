@@ -1,38 +1,12 @@
 import { AZURE_OPENAI_API_VERSION } from "./constants"
-import { RequestError } from "./error"
-import { OAIToken, host } from "./host"
-import { fromBase64, logInfo, logWarn, utf8Decode } from "./util"
-
-
-export async function initToken(template: ModelOptions) {
-    const cfg = await host.getSecretToken(template)
-    if (!cfg)
-        throw new RequestError(
-            403,
-            "token not configured",
-            {
-                type: "no_token",
-                message:
-                    "token not configured, see https://microsoft.github.io/genaiscript/reference/token/",
-                param: undefined,
-                code: "no_token",
-            },
-            '{ code: "no_token" }',
-            -1
-        )
-
-    return cfg
-}
-
-function trimTrailingSlash(s: string) {
-    return s?.replace(/\/+$/, "")
-}
+import { OAIToken } from "./host"
+import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    template: ModelOptions
+    options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    if (template.aici) {
+    if (options.aici) {
         if (env.AICI_API_BASE) {
             const base = env.AICI_API_BASE
             const token = env.AICI_API_KEY
@@ -57,9 +31,13 @@ export async function parseTokenFromEnv(
                 type !== "local" &&
                 type !== "openai"
             )
-                throw new Error("OPENAI_API_TYPE must be 'azure' or 'local'")
+                throw new Error(
+                    "OPENAI_API_TYPE must be 'azure', 'openai', or 'local'"
+                )
             if (type === "azure" && !base)
-                throw new Error("OPENAI_API_BASE not set")
+                throw new Error(
+                    "OPENAI_API_BASE must be set when type is 'azure'"
+                )
             if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
             if (
                 type === "azure" &&
@@ -87,7 +65,7 @@ export async function parseTokenFromEnv(
                 base,
                 type,
                 token,
-                source: "env: OPENAI_...",
+                source: "env: OPENAI_API_...",
                 version,
             }
         }
@@ -103,9 +81,9 @@ export async function parseTokenFromEnv(
                 env.OPENAI_API_KEY
             let base = trimTrailingSlash(
                 env.AZURE_OPENAI_ENDPOINT ||
-                env.AZURE_OPENAI_API_BASE ||
-                env.AZURE_API_BASE ||
-                env.AZURE_OPENAI_API_ENDPOINT
+                    env.AZURE_OPENAI_API_BASE ||
+                    env.AZURE_API_BASE ||
+                    env.AZURE_OPENAI_API_ENDPOINT
             )
             const version =
                 env.AZURE_OPENAI_API_VERSION ||
@@ -113,7 +91,7 @@ export async function parseTokenFromEnv(
                 env.OPENAI_API_VERSION
             if (!base)
                 throw new Error(
-                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE not set"
+                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
                 )
             if (version && version !== AZURE_OPENAI_API_VERSION)
                 throw new Error(

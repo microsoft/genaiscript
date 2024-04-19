@@ -1,7 +1,4 @@
-import {
-    ChatCompletionResponse,
-    ChatCompletionTool,
-} from "./chat"
+import { ChatCompletionResponse, ChatCompletionTool } from "./chat"
 import { Fragment, PromptTemplate } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
@@ -27,9 +24,8 @@ import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
-import { resolveLanguageModel } from "./models"
+import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
-import { initToken } from "./oai_token"
 import { CancelError, RequestError } from "./error"
 import { createFetch } from "./fetch"
 
@@ -246,9 +242,9 @@ export async function runTemplate(
     const refs = fragment.references
     const tools: ChatCompletionTool[] = functions?.length
         ? functions.map((f) => ({
-            type: "function",
-            function: f.definition as any,
-        }))
+              type: "function",
+              function: f.definition as any,
+          }))
         : undefined
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]
@@ -265,7 +261,15 @@ export async function runTemplate(
     }
 
     status(`prompting model ${model}`)
-    const connection = await initToken({ model, aici: template.aici })
+    const connection = await resolveModelConnectionInfo({
+        model,
+        aici: template.aici,
+    })
+    if (!connection.token) {
+        trace.error(`model connection error`, connection.info)
+        throw new RequestError(403, "token not configured", connection.info)
+    }
+
     const { completer } = resolveLanguageModel(
         template.aici ? "aici" : "openai",
         options
@@ -296,7 +300,7 @@ export async function runTemplate(
                         response_format,
                         tools,
                     },
-                    connection,
+                    connection.token,
                     { ...options, trace }
                 )
             } finally {
@@ -521,7 +525,9 @@ ${repair}
     }
 
     annotations = parseAnnotations(text)
-    const json = /^\s*[{[]/.test(text) ? JSON5TryParse(text, undefined) : undefined
+    const json = /^\s*[{[]/.test(text)
+        ? JSON5TryParse(text, undefined)
+        : undefined
     const fences = json === undefined ? extractFenced(text) : []
     const frames: DataFrame[] = []
 
@@ -633,7 +639,7 @@ ${repair}
                     fences,
                     frames,
                     genVars,
-                    annotations
+                    annotations,
                 })) || {}
 
                 if (newText !== undefined) {
@@ -650,8 +656,7 @@ ${repair}
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = content
                     }
-                if (oannotations)
-                    annotations = oannotations.slice(0)
+                if (oannotations) annotations = oannotations.slice(0)
             }
         } catch (e) {
             trace.error(`output processor failed`, e)

@@ -33,7 +33,7 @@ import {
 } from "./parse"
 import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
-import { systemInfo } from "./info"
+import { modelInfo, systemInfo } from "./info"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -156,7 +156,7 @@ export async function cli() {
         .action(batchScript)
 
     const scripts = program
-        .command("scripts")
+        .command("scripts").alias("script")
         .description("Utility tasks for scripts")
     scripts.command("list", { isDefault: true })
         .description("List all available scripts in workspace")
@@ -168,8 +168,16 @@ export async function cli() {
     scripts.command("compile")
         .description("Compile all script in workspace")
         .action(compileScript)
+    scripts.command("model")
+        .description("Show model connection information for scripts")
+        .argument("[script]", "Script id or file")
+        .option("-t, --token", "show token")
+        .action(modelInfo)
 
-    const retrieval = program.command("retrieval").description("RAG support")
+
+    const retrieval = program
+        .command("retrieval").alias("retreival")
+        .description("RAG support")
     retrieval
         .command("index")
         .description("Index a set of documents")
@@ -210,7 +218,9 @@ export async function cli() {
         )
         .action(startServer)
 
-    const parser = program.command("parse").description("Parse various outputs")
+    const parser = program
+        .command("parse").alias("parsers")
+        .description("Parse various outputs")
     parser
         .command("fence <language>")
         .description("Extracts a code fenced regions of the given type")
@@ -253,7 +263,6 @@ export async function cli() {
     info.command("help")
         .description("Show help for all commands")
         .action(helpAll)
-
     info.command("system")
         .description("Show system information")
         .action(systemInfo)

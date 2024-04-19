@@ -44,6 +44,16 @@ If you are using Git to manage your project, ensure that the `.env` file is adde
 
 You can override the default `.env` file name by adding the `--env myother.env` file.
 
+### Listing model configuration
+
+Run the `script model` command to list the available scripts and their model configuration. This can be useful to diagnose configuration issues in CI/CD environments.
+
+```sh
+npx genaiscript scripts model [script]
+```
+
+where [script] can be a script id or a file path.
+
 ## Visual Studio Code Language Models (**Insiders only**)
 
 Visual Studio provides access to registered language models, including models

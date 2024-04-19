@@ -19,6 +19,9 @@ import {
     writeFileEdits,
     parseVars,
     parsePromptParameters,
+    logError,
+    isCancelError,
+    USER_CANCELLED_ERROR_CODE,
 } from "genaiscript-core"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
@@ -169,34 +172,43 @@ ${Array.from(files)
     spinner?.start("Querying")
 
     let tokens = 0
-    const res: FragmentTransformResponse = await runTemplate(script, fragment, {
-        infoCb: ({ text }) => {
-            if (spinner) spinner.start(text)
-            else logVerbose(text)
-        },
-        partialCb: ({ responseChunk, tokensSoFar }) => {
-            tokens = tokensSoFar
-            if (stream) process.stdout.write(responseChunk)
-            else if (spinner) spinner.report({ count: tokens })
-        },
-        skipLLM,
-        label,
-        cache,
-        temperature,
-        topP,
-        seed,
-        maxTokens,
-        model,
-        retry,
-        retryDelay,
-        maxDelay,
-        vars,
-    })
+    let res: FragmentTransformResponse
+    try {
+        res = await runTemplate(script, fragment, {
+            infoCb: ({ text }) => {
+                if (spinner) spinner.start(text)
+                else logVerbose(text)
+            },
+            partialCb: ({ responseChunk, tokensSoFar }) => {
+                tokens = tokensSoFar
+                if (stream) process.stdout.write(responseChunk)
+                else if (spinner) spinner.report({ count: tokens })
+            },
+            skipLLM,
+            label,
+            cache,
+            temperature,
+            topP,
+            seed,
+            maxTokens,
+            model,
+            retry,
+            retryDelay,
+            maxDelay,
+            vars,
+        })
+    } catch (err) {
+        if (spinner) spinner.fail()
+        if (isCancelError(err)) process.exit(USER_CANCELLED_ERROR_CODE)
+        logError(err)
+        process.exit(RUNTIME_ERROR_CODE)
+    }
 
     if (spinner) {
         if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
         else spinner.succeed()
-    } else if (res.error) logVerbose(`${res.error}`)
+    }
+    if (res.error) logError(res.error as Error)
 
     if (outTrace && res.trace) await writeText(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length) {
