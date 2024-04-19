@@ -260,3 +260,7 @@ export function normalizeInt(s: string | number | boolean): number {
     else if (typeof s === "boolean") return s ? 1 : 0
     else return undefined
 }
+
+export function trimTrailingSlash(s: string) {
+    return s?.replace(/\/+$/, "")
+}

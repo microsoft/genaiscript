@@ -1,33 +1,6 @@
 import { AZURE_OPENAI_API_VERSION } from "./constants"
-import { RequestError } from "./error"
-import { OAIToken, host } from "./host"
-
-/*
-export async function initToken(options: ModelConnectionOptions) {
-    const cfg = await host.getSecretToken(options)
-    if (!cfg) {
-        throw new RequestError(
-            403,
-            "token not configured",
-            {
-                type: "no_token",
-                message:
-                    "token not configured, see https://microsoft.github.io/genaiscript/reference/token/",
-                param: undefined,
-                code: "no_token",
-            },
-            '{ code: "no_token" }',
-            -1
-        )
-    }
-
-    return cfg
-}
-*/
-
-function trimTrailingSlash(s: string) {
-    return s?.replace(/\/+$/, "")
-}
+import { OAIToken } from "./host"
+import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
