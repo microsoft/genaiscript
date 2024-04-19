@@ -14,7 +14,8 @@ export async function listScripts() {
     console.log("id, title, group, filename, system")
     prj.templates.forEach((t) =>
         console.log(
-            `${t.id}, ${t.title}, ${t.group || ""}, ${t.filename || "builtin"}, ${t.isSystem ? "system" : "user"
+            `${t.id}, ${t.title}, ${t.group || ""}, ${t.filename || "builtin"}, ${
+                t.isSystem ? "system" : "user"
             }`
         )
     )
@@ -31,7 +32,7 @@ export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
-        logVerbose(`compiling ${folder}/*.genai.js`)
+        logVerbose(`compiling ${host.path.join(folder, "*.genai.js")}`)
         const res = await exec(host, {
             label: folder,
             call: {
