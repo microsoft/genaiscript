@@ -170,6 +170,7 @@ export async function cli() {
         .action(compileScript)
     scripts.command("model")
         .description("Show model connection information for scripts")
+        .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
         .action(modelInfo)
 

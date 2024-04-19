@@ -15,34 +15,41 @@ export function resolveLanguageModel(
     return OpenAIModel
 }
 
-
-
-export async function resolveModelTokens(templates: PromptTemplate[], options?: { token?: boolean }) {
-    const models: Record<string, ModelConnectionOptions> = {}
+export async function resolveModelTokens(
+    templates: PromptTemplate[],
+    options?: { token?: boolean }
+) {
+    const models: Record<
+        string,
+        ModelConnectionOptions & { scripts: string[] }
+    > = {}
     for (const template of templates) {
-        const conn: ModelConnectionOptions = { model: template.model ?? DEFAULT_MODEL, aici: template.aici }
+        const conn: ModelConnectionOptions = {
+            model: template.model ?? DEFAULT_MODEL,
+            aici: template.aici,
+        }
         const key = JSON.stringify(conn)
-        models[key] = conn
+        const c = models[key] ?? (models[key] = { ...conn, scripts: [] })
+        c.scripts.push(template.filename || template.id)
     }
     const res = []
     for (const conn of Object.values(models)) {
         try {
             const tok = await host.getSecretToken(conn)
             if (!tok) {
-                res.push(conn)
-            }
-            else {
+                res.push({ ...conn, error: "token not configured" })
+            } else {
                 const { token, ...rest } = tok
                 res.push({
                     ...conn,
                     ...rest,
-                    token: token ? (options?.token ? token : "***") : ""
+                    token: token ? (options?.token ? token : "***") : "",
                 })
             }
         } catch (e) {
             res.push({
                 ...conn,
-                error: (e as Error).message || (e + "")
+                error: (e as Error).message || e + "",
             })
         }
     }

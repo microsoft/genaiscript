@@ -1,4 +1,9 @@
-import { CORE_VERSION, YAMLStringify, resolveModelTokens } from "genaiscript-core"
+import {
+    CORE_VERSION,
+    YAMLStringify,
+    host,
+    resolveModelTokens,
+} from "genaiscript-core"
 import { buildProject } from "./build"
 
 export async function systemInfo() {
@@ -9,9 +14,14 @@ export async function systemInfo() {
     console.log(`pid: ${process.pid}`)
 }
 
-export async function modelInfo(options?: { token?: boolean }) {
+export async function modelInfo(script: string, options?: { token?: boolean }) {
     const prj = await buildProject()
-    const info = await resolveModelTokens(prj.templates, options)
+    const templates = prj.templates.filter(
+        (t) =>
+            !script ||
+            t.id === script ||
+            host.path.resolve(t.filename) === host.path.resolve(script)
+    )
+    const info = await resolveModelTokens(templates, options)
     console.log(YAMLStringify(info))
 }
-

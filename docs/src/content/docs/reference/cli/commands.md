@@ -91,14 +91,14 @@ Usage: genaiscript scripts|script [options] [command]
 Utility tasks for scripts
 
 Options:
-  -h, --help       display help for command
+  -h, --help                display help for command
 
 Commands:
-  list             List all available scripts in workspace
-  create <name>    Create a new script
-  compile          Compile all script in workspace
-  model [options]  Show model connection information for scripts
-  help [command]   display help for command
+  list                      List all available scripts in workspace
+  create <name>             Create a new script
+  compile                   Compile all script in workspace
+  model [options] [script]  Show model connection information for scripts
+  help [command]            display help for command
 ```
 
 ### `scripts list`
@@ -140,9 +140,12 @@ Options:
 ### `scripts model`
 
 ```
-Usage: genaiscript scripts model [options]
+Usage: genaiscript scripts model [options] [script]
 
 Show model connection information for scripts
+
+Arguments:
+  script       Script id or file
 
 Options:
   -t, --token  show token
