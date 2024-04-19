@@ -94,7 +94,12 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     let numTokens = 0
-    const fetchRetry = await createFetch({ trace })
+    const fetchRetry = await createFetch({
+        trace,
+        retries: retry,
+        retryDelay,
+        maxDelay,
+    })
     trace.dispatchChange()
 
     trace.detailsFenced("✉️ messages", postReq, "json")
@@ -124,11 +129,11 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         let body: string
         try {
             body = await r.text()
-        } catch (e) { }
+        } catch (e) {}
         let bodyJSON: { error: unknown }
         try {
             bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) { }
+        } catch (e) {}
         throw new RequestError(
             r.status,
             r.statusText,

@@ -4299,7 +4299,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.20.2
+ - genaiscript-vscode@1.21.1
 
 This package contains the following license and notice below:
 
@@ -25634,11 +25634,11 @@ The following npm packages may be included in this product:
  - dagre-d3-es@7.0.10
  - de-indent@1.0.2
  - dlv@1.1.3
- - docs@1.20.2
+ - docs@1.21.1
  - eastasianwidth@0.2.0
- - genaiscript-core@1.20.2
- - genaiscript-sample@1.20.2
- - genaiscript@1.20.2
+ - genaiscript-core@1.21.1
+ - genaiscript-sample@1.21.1
+ - genaiscript@1.21.1
  - hast-util-to-string@3.0.0
  - inline-style-parser@0.1.1
  - inline-style-parser@0.2.2
