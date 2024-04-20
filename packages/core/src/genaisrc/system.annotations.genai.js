@@ -1,7 +1,7 @@
 system({
     title: "Emits annotations compatible with GitHub Actions",
     description:
-        "GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message).",
+        "GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)).",
     lineNumbers: true,
 })
 

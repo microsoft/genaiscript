@@ -1,7 +1,6 @@
 system({
     title: "Web Search",
     description: "Function to do a web search.",
-    group: "Functions",
 })
 
 defFunction(

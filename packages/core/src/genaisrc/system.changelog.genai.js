@@ -1,6 +1,5 @@
 system({
     title: "Generate changelog formatter edits",
-    description: "Generate partial edits for files",
     lineNumbers: true
 })
 
