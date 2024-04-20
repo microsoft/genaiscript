@@ -38,7 +38,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
-    const { token, ...cfgNoToken } = cfg
+    const { token, source, ...cfgNoToken } = cfg
     let model = req.model.replace("-35-", "-3.5-")
 
     trace.itemValue(`temperature`, temperature)

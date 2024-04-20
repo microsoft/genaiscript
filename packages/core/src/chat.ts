@@ -60,7 +60,7 @@ export interface ChatCompletionResponse {
 export const ModelError = OpenAI.APIError
 
 export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest
-    & Omit<OAIToken, "token">
+    & Omit<OAIToken, "token" | "source">
 
 export function getChatCompletionCache() {
     return Cache.byName<ChatCompletionRequestCacheKey, string>("chat")
@@ -107,7 +107,7 @@ export function toChatCompletionUserMessage(
         ],
     }
 }
-
+/*
 function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
     return (
         req.messages
@@ -129,7 +129,7 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
             .replace(/\[\/INST\]\n\[INST\]/g, "\n") + "\n"
     )
 }
-
+*/
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: OAIToken,
