@@ -1,0 +1,42 @@
+---
+title: Cache
+sidebar:
+    order: 15
+---
+import { FileTree } from "@astrojs/starlight/components"
+
+
+LLM requests are cached by default. This means that if a script generates the same prompt for the same model, the cache may be used.
+
+-   the `temperature` is less than 0.5
+-   the `top_p` is less than 0.5
+-   no [functions](./functions.md) are used as they introduce randomness
+-   `seed` is not used
+
+The cache is stored in the `.genaiscript/cache/chat.jsonl` file. You can delete this file to clear the cache.
+This file is excluded from git by default.
+
+<FileTree>
+
+-  .genaiscript
+    -   cache
+        -   chat.jsonl 
+
+</FileTree>
+
+## Configuration
+
+You can always disable the cache using the `cache` option in `script`.
+
+```js
+script({
+    ...,
+    cache: false // always off
+})
+```
+
+Or using the `--no-cache` flag in the CLI.
+
+```sh
+npx genaiscript run .... --no-cache
+```
