@@ -1,5 +1,5 @@
 export const CHANGE = "change"
-export const MAX_CACHED_TEMPERATURE = 0.01
+export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
 //https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 export const AZURE_OPENAI_API_VERSION = "2023-09-01-preview"
@@ -39,6 +39,9 @@ export const ICON_LOGO_NAME = "genaiscript-logo"
 export const SARIFF_RULEID_PREFIX = "genascript/"
 export const SARIFF_BUILDER_URL = "https://github.com/microsoft/genaiscript/"
 export const SARIFF_BUILDER_TOOL_DRIVER_NAME = TOOL_ID
+export const FETCH_RETRY_DEFAULT = 5
+export const FETCH_RETRY_DEFAULT_DEFAULT = 2000
+export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 
 export const UNHANDLED_ERROR_CODE = -1
 export const ANNOTATION_ERROR_CODE = -2

@@ -38,6 +38,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
+    const { token, source, ...cfgNoToken } = cfg
     let model = req.model.replace("-35-", "-3.5-")
 
     trace.itemValue(`temperature`, temperature)
@@ -47,20 +48,25 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     const cache = getChatCompletionCache()
     const caching =
-        useCache &&
-        (isNaN(maxCachedTemperature) || temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
-        (isNaN(maxCachedTopP) || top_p < maxCachedTopP) && // high top_p is not cacheable (it's too random)
-        seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
-        !tools?.length
-    const cached = caching ? await cache.get(req) : undefined
+        useCache === true || // always cache
+        (useCache !== false &&
+            (isNaN(temperature) ||
+                isNaN(maxCachedTemperature) ||
+                temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
+            (isNaN(top_p) || isNaN(maxCachedTopP) || top_p < maxCachedTopP) && // high top_p is not cacheable (it's too random)
+            seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
+            !tools?.length)
+    trace.itemValue(`caching`, caching)
+    const cachedKey = caching ? { ...req, ...cfgNoToken } : undefined
+    const cached = cachedKey ? await cache.get(cachedKey) : undefined
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: estimateTokens(model, cached),
             responseSoFar: cached,
             responseChunk: cached,
         })
-        trace.itemValue(`cached sha`, await cache.getKeySHA(req))
-        return { text: cached }
+        trace.itemValue(`cached sha`, await cache.getKeySHA(cachedKey))
+        return { text: cached, cached: true }
     }
 
     const r2 = { ...req }
@@ -94,7 +100,12 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     let numTokens = 0
-    const fetchRetry = await createFetch({ trace })
+    const fetchRetry = await createFetch({
+        trace,
+        retries: retry,
+        retryDelay,
+        maxDelay,
+    })
     trace.dispatchChange()
 
     trace.detailsFenced("✉️ messages", postReq, "json")
@@ -124,11 +135,11 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         let body: string
         try {
             body = await r.text()
-        } catch (e) { }
+        } catch (e) {}
         let bodyJSON: { error: unknown }
         try {
             bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) { }
+        } catch (e) {}
         throw new RequestError(
             r.status,
             r.statusText,
@@ -161,7 +172,9 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (seenDone) {
-        if (caching) await cache.set(req, chatResp)
+        if (cachedKey) {
+            await cache.set(cachedKey, chatResp)
+        }
         return { text: chatResp, toolCalls, finishReason }
     } else {
         trace.error(`invalid response`)

@@ -45,6 +45,7 @@ export interface ChatCompletionToolCall {
 
 export interface ChatCompletionResponse {
     text?: string
+    cached?: boolean
     variables?: Record<string, string>
     toolCalls?: ChatCompletionToolCall[]
     finishReason?:
@@ -58,8 +59,11 @@ export interface ChatCompletionResponse {
 
 export const ModelError = OpenAI.APIError
 
+export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest
+    & Omit<OAIToken, "token" | "source">
+
 export function getChatCompletionCache() {
-    return Cache.byName<CreateChatCompletionRequest, string>("openai")
+    return Cache.byName<ChatCompletionRequestCacheKey, string>("chat")
 }
 
 export interface ChatCompletionsProgressReport {
@@ -103,7 +107,7 @@ export function toChatCompletionUserMessage(
         ],
     }
 }
-
+/*
 function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
     return (
         req.messages
@@ -125,7 +129,7 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
             .replace(/\[\/INST\]\n\[INST\]/g, "\n") + "\n"
     )
 }
-
+*/
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: OAIToken,

@@ -41,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.technical" | "system.web_search" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -109,7 +109,6 @@ interface ModelConnectionOptions {
 }
 
 interface ModelOptions extends ModelConnectionOptions {
-
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
@@ -135,44 +134,9 @@ interface ModelOptions extends ModelConnectionOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
-
-    /**
-     * Default value for emitting line numbers in fenced code blocks.
-     */
-    lineNumbers?: boolean
 }
 
-type PromptParameterType =
-    | string
-    | number
-    | boolean
-    | JSONSchemaNumber
-    | JSONSchemaString
-    | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean>
-
-interface PromptTemplate extends PromptLike, ModelOptions {
-    /**
-     * Groups template in UI
-     */
-    group?: string
-
-    /**
-     * Additional template parameters that will populate `env.vars`
-     */
-    parameters?: PromptParametersSchema
-
-    /**
-     * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
-     */
-    unlisted?: boolean
-
-    /**
-     * Set if this is a system prompt.
-     */
-    isSystem?: boolean
-
+interface ScriptRuntimeOptions {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
@@ -192,6 +156,52 @@ interface PromptTemplate extends PromptLike, ModelOptions {
      * Secrets required by the prompt
      */
     secrets?: string[]
+
+    /**
+     * Default value for emitting line numbers in fenced code blocks.
+     */
+    lineNumbers?: boolean
+
+    /**
+     * If true, the prompt will be cached. If false, the LLM chat is never cached.
+     * Leave empty to use the default behavior.
+     */
+    cache?: boolean
+}
+
+type PromptParameterType =
+    | string
+    | number
+    | boolean
+    | JSONSchemaNumber
+    | JSONSchemaString
+    | JSONSchemaBoolean
+type PromptParametersSchema = Record<string, PromptParameterType>
+type PromptParameters = Record<string, string | number | boolean>
+
+interface PromptTemplate
+    extends PromptLike,
+        ModelOptions,
+        ScriptRuntimeOptions {
+    /**
+     * Groups template in UI
+     */
+    group?: string
+
+    /**
+     * Additional template parameters that will populate `env.vars`
+     */
+    parameters?: PromptParametersSchema
+
+    /**
+     * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
+     */
+    unlisted?: boolean
+
+    /**
+     * Set if this is a system prompt.
+     */
+    isSystem?: boolean
 }
 
 /**
@@ -393,15 +403,15 @@ interface FenceOptions {
      * Language of the fenced code block. Defaults to "markdown".
      */
     language?:
-    | "markdown"
-    | "json"
-    | "yaml"
-    | "javascript"
-    | "typescript"
-    | "python"
-    | "shell"
-    | "toml"
-    | string
+        | "markdown"
+        | "json"
+        | "yaml"
+        | "javascript"
+        | "typescript"
+        | "python"
+        | "shell"
+        | "toml"
+        | string
 
     /**
      * Prepend each line with a line numbers. Helps with generating diffs.
@@ -518,12 +528,12 @@ interface DataFrame {
 interface RunPromptResult {
     text: string
     finishReason?:
-    | "stop"
-    | "length"
-    | "tool_calls"
-    | "content_filter"
-    | "cancel"
-    | "error"
+        | "stop"
+        | "length"
+        | "tool_calls"
+        | "content_filter"
+        | "cancel"
+        | "error"
 }
 
 /**

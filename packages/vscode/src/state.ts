@@ -301,6 +301,7 @@ ${e.message}`
     ): Promise<AIRequest> {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const cache = config.get("cache")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
@@ -347,8 +348,7 @@ ${e.message}`
             maxCachedTemperature,
             maxCachedTopP,
             vars: options.parameters,
-            cache: true,
-            retry: 3,
+            cache: cache && template.cache,
             cliInfo: {
                 spec: vscode.workspace.asRelativePath(
                     this.host.isVirtualFile(fragment.file.filename)
@@ -466,7 +466,6 @@ ${e.message}`
         if (project) await fixPromptDefinitions(project)
     }
 
-
     async findScripts() {
         const scriptFiles = await findFiles(GENAI_JS_GLOB)
         return scriptFiles
@@ -514,9 +513,9 @@ ${e.message}`
         const spec = `# Specification
 
 ${files
-                .map((uri) => this.host.path.relative(fspath, uri.fsPath))
-                .map((fn) => `-   [${fn}](./${fn})`)
-                .join("\n")}
+    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
+    .map((fn) => `-   [${fn}](./${fn})`)
+    .join("\n")}
 `
         this.host.clearVirtualFiles()
         this.host.setVirtualFile(specn, spec)
@@ -595,9 +594,9 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
                 r.source = TOOL_NAME
                 r.code = target
                     ? {
-                        value,
-                        target,
-                    }
+                          value,
+                          target,
+                      }
                     : undefined
                 return r
             })
