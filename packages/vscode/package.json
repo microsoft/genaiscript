@@ -213,6 +213,11 @@
                         "default": false,
                         "description": "Enable developer diagnostic mode. Including leaving terminals opened."
                     },
+                    "genaiscript.cache": {
+                        "type": "boolean",
+                        "default": true,
+                        "description": "Enable or disables LLM request cache support."
+                    },
                     "genaiscript.maxCachedTemperature": {
                         "type": "number",
                         "default": 0.5,

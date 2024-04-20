@@ -301,6 +301,7 @@ ${e.message}`
     ): Promise<AIRequest> {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const cache = config.get("cache")
         const maxCachedTemperature: number = config.get("maxCachedTemperature")
         const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
@@ -347,7 +348,7 @@ ${e.message}`
             maxCachedTemperature,
             maxCachedTopP,
             vars: options.parameters,
-            cache: template.cache,
+            cache: cache && template.cache,
             cliInfo: {
                 spec: vscode.workspace.asRelativePath(
                     this.host.isVirtualFile(fragment.file.filename)
