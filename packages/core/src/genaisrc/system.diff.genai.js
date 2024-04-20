@@ -1,6 +1,5 @@
 system({
-    title: "Diff generation",
-    description: "Teaches the diff file format supported by GenAIScripts",
+    title: "Generates concise file diffs.",
     lineNumbers: true,
 })
 

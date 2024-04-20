@@ -1,5 +1,5 @@
 system({
-    title: "System for JSON Schema support",
+    title: "JSON Schema support",
 })
 
 $`## TypeScript Schema
