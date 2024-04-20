@@ -38,6 +38,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
+    const { token, ...cfgNoToken } = cfg
     let model = req.model.replace("-35-", "-3.5-")
 
     trace.itemValue(`temperature`, temperature)
@@ -56,14 +57,15 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
             seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
             !tools?.length)
     trace.itemValue(`caching`, caching)
-    const cached = caching ? await cache.get(req) : undefined
+    const cachedKey = caching ? { ...req, ...cfgNoToken } : undefined
+    const cached = cachedKey ? await cache.get(cachedKey) : undefined
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: estimateTokens(model, cached),
             responseSoFar: cached,
             responseChunk: cached,
         })
-        trace.itemValue(`cached sha`, await cache.getKeySHA(req))
+        trace.itemValue(`cached sha`, await cache.getKeySHA(cachedKey))
         return { text: cached, cached: true }
     }
 
@@ -170,8 +172,8 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     }
 
     if (seenDone) {
-        if (caching) {
-            await cache.set(req, chatResp)
+        if (cachedKey) {
+            await cache.set(cachedKey, chatResp)
         }
         return { text: chatResp, toolCalls, finishReason }
     } else {
