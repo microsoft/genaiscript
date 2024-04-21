@@ -69,9 +69,8 @@ export function configureLanguageModelAccess(
     runOptions.cache = false
     runOptions.languageModel = Object.freeze<LanguageModel>({
         id: "vscode",
-        completer: async (req, connection, chatOptions) => {
+        completer: async (req, connection, chatOptions, trace) => {
             const token = new vscode.CancellationTokenSource().token
-            const { trace } = chatOptions
             const { model, temperature, top_p, seed, ...rest } = req
 
             trace.itemValue(`script model`, model)

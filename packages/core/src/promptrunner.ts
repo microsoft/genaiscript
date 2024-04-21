@@ -301,7 +301,8 @@ export async function runTemplate(
                         tools,
                     },
                     connection.token,
-                    { ...options, trace }
+                    options,
+                    trace
                 )
             } finally {
                 trace.endDetails()

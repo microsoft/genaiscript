@@ -12,7 +12,7 @@ import { ChatCompletionContentPartText } from "openai/resources"
 import { createFetch } from "./fetch"
 
 function renderAICINode(node: AICINode) {
-    const { type, name } = node
+    const { name } = node
     switch (name) {
         case "gen":
             const { regex, ...rest } = (node as AICIGenNode).options
@@ -38,7 +38,7 @@ export interface AICIRequest {
 }
 
 export async function renderAICI(functionName: string, root: PromptNode) {
-    const notSupported = (reason: string) => (n: any) => {
+    const notSupported = (reason: string) => () => {
         throw new NotSupportedError(reason)
     }
 
@@ -145,11 +145,11 @@ type ModelMessage = ModelInitialRun | ModelRun
 const AICIChatCompletion: ChatCompletionHandler = async (
     req,
     connection,
-    options
+    options,
+    trace
 ) => {
-    const { messages, temperature, top_p, seed, response_format, tools } = req
-    const { requestOptions, partialCb, retry, retryDelay, maxDelay, trace } =
-        options
+    const { messages, response_format, tools } = req
+    const { requestOptions, partialCb } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
 
@@ -169,13 +169,13 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                 const functionName = `${role}${msgi}`
                 const functionSource = `async function ${functionName}() {
     $\`${escapeJavascriptString(
-                    typeof content === "string"
-                        ? content
-                        : content
-                            .filter(({ type }) => type === "text")
-                            .map((p) => (p as ChatCompletionContentPartText).text)
-                            .join("\n")
-                )}\`
+        typeof content === "string"
+            ? content
+            : content
+                  .filter(({ type }) => type === "text")
+                  .map((p) => (p as ChatCompletionContentPartText).text)
+                  .join("\n")
+    )}\`
 }
 `
                 source.push(functionSource)
@@ -231,11 +231,11 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         let body: string
         try {
             body = await r.text()
-        } catch (e) { }
+        } catch (e) {}
         let bodyJSON: { error: unknown }
         try {
             bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) { }
+        } catch (e) {}
         throw new RequestError(
             r.status,
             r.statusText,

@@ -59,8 +59,8 @@ export interface ChatCompletionResponse {
 
 export const ModelError = OpenAI.APIError
 
-export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest
-    & Omit<OAIToken, "token" | "source">
+export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
+    Omit<OAIToken, "token" | "source">
 
 export function getChatCompletionCache(name?: string) {
     return Cache.byName<ChatCompletionRequestCacheKey, string>(name || "chat")
@@ -134,7 +134,8 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: OAIToken,
-    options: ChatCompletionsOptions & { trace: MarkdownTrace }
+    options: ChatCompletionsOptions,
+    trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
 
 export interface LanguageModel {

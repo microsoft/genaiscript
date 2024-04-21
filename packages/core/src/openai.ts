@@ -22,7 +22,8 @@ import { createFetch } from "./fetch"
 const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
     cfg,
-    options
+    options,
+    trace
 ) => {
     const { temperature, top_p, seed, response_format, tools } = req
     const {
@@ -35,7 +36,6 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         retry,
         retryDelay,
         maxDelay,
-        trace,
     } = options
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
