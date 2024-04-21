@@ -31,6 +31,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         maxCachedTemperature = MAX_CACHED_TEMPERATURE,
         maxCachedTopP = MAX_CACHED_TOP_P,
         cache: useCache,
+        cacheName,
         retry,
         retryDelay,
         maxDelay,
@@ -45,8 +46,9 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.itemValue(`top_p`, top_p)
     trace.itemValue(`seed`, seed)
     trace.itemValue(`api type`, cfg.type)
+    trace.itemValue(`cache name`, cacheName)
 
-    const cache = getChatCompletionCache()
+    const cache = getChatCompletionCache(cacheName)
     const caching =
         useCache === true || // always cache
         (useCache !== false &&

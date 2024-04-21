@@ -30,7 +30,6 @@ export function createRunPromptContext(
     trace: MarkdownTrace
 ): RunPromptContextNode {
     const { cancellationToken } = options || {}
-    const { vars } = env
     const node: PromptNode = { children: [] }
 
     const ctx = <RunPromptContextNode>{
