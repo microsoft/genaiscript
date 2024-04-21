@@ -12,7 +12,7 @@ export class Cache<K, V> extends EventTarget {
     }
 
     static byName<K, V>(name: string): Cache<K, V> {
-        name = name.replace(/[^a-zA-Z0-9]/g, "_")
+        name = name.replace(/[^a-z0-9_]/ig, "_")
         const key = "cacheKV." + name
         if (host.userState[key]) return host.userState[key]
         const r = new Cache<K, V>(name)

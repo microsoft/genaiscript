@@ -9,7 +9,7 @@ for (const file of env.files) {
             _.def("FILE", file)
             _.$`Summarize the FILE. Be consice.`
         },
-        { model: "gpt-3.5-turbo" }
+        { model: "gpt-3.5-turbo", cacheName: "summary_gpt35" }
     )
     def("FILE", { ...file, content: text })
 }
