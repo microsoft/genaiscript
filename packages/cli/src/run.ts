@@ -55,6 +55,7 @@ export async function runScript(
         model: string
         csvSeparator: string
         cache: boolean
+        cacheName: string
         applyEdits: boolean
         failOnErrors: boolean
         removeOut: boolean
@@ -83,6 +84,7 @@ export async function runScript(
     const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
+    const cacheName = options.cacheName
 
     const spinner =
         !stream && !isQuiet
@@ -187,6 +189,7 @@ ${Array.from(files)
             skipLLM,
             label,
             cache,
+            cacheName,
             temperature,
             topP,
             seed,

@@ -44,6 +44,7 @@ export async function batchScript(
         maxTokens: string
         model: string
         cache: boolean
+        cacheName: string
         applyEdits: boolean
         vars: string[]
     }
@@ -60,6 +61,7 @@ export async function batchScript(
         removeOut,
         model,
         cache,
+        cacheName,
         label,
         outSummary,
         applyEdits,
@@ -159,6 +161,7 @@ export async function batchScript(
                     skipLLM: false,
                     label,
                     cache,
+                    cacheName,
                     temperature,
                     topP,
                     seed,

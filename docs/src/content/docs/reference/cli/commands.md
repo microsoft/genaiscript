@@ -45,6 +45,7 @@ Options:
   -mt, --max-tokens <number>         maximum tokens for the run
   -se, --seed <number>               seed for the run
   --no-cache                         disable LLM result cache
+  -cn, --cache-name <name>           custom cache file name
   --cs, --csv-separator <string>     csv separator (default: "\t")
   -ae, --apply-edits                 apply file edits
   --vars <namevalue...>              variables, as name=value, stored in
@@ -77,6 +78,7 @@ Options:
   -mt, --max-tokens <number>         maximum tokens for the run
   -se, --seed <number>               seed for the run
   --no-cache                         disable LLM result cache
+  -cn, --cache-name <name>           custom cache file name
   -ae, --apply-edits                 apply file edits
   --vars <string...>                 variables, as name=value, stored in
                                      env.vars

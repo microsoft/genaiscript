@@ -111,6 +111,7 @@ export async function cli() {
         .option("-mt, --max-tokens <number>", "maximum tokens for the run")
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
+        .option("-cn, --cache-name <name>", "custom cache file name")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
         .option("-ae, --apply-edits", "apply file edits")
         .option(
@@ -148,6 +149,7 @@ export async function cli() {
         .option("-mt, --max-tokens <number>", "maximum tokens for the run")
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
+        .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-ae, --apply-edits", "apply file edits")
         .option(
             "--vars <string...>",
