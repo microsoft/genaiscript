@@ -243,24 +243,25 @@ export function createPromptContext(
     return ctx
 }
 
-export type RunTemplateOptions = ChatCompletionsOptions &
-    ModelOptions &
-    ScriptRuntimeOptions & {
-        cancellationToken?: CancellationToken
-        infoCb?: (partialResponse: {
-            text: string
-            label?: string
-            summary?: string
-            vars?: Partial<ExpansionVariables>
-        }) => void
-        trace?: MarkdownTrace
-        maxCachedTemperature?: number
-        maxCachedTopP?: number
-        skipLLM?: boolean
+export interface RunTemplateOptions
+    extends ChatCompletionsOptions,
+        ModelOptions,
+        ScriptRuntimeOptions {
+    cancellationToken?: CancellationToken
+    infoCb?: (partialResponse: {
+        text: string
         label?: string
-        cliInfo?: {
-            spec: string
-        }
-        languageModel?: LanguageModel
-        vars?: PromptParameters
+        summary?: string
+        vars?: Partial<ExpansionVariables>
+    }) => void
+    trace?: MarkdownTrace
+    maxCachedTemperature?: number
+    maxCachedTopP?: number
+    skipLLM?: boolean
+    label?: string
+    cliInfo?: {
+        spec: string
     }
+    languageModel?: LanguageModel
+    vars?: PromptParameters
+}

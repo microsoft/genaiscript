@@ -30,7 +30,6 @@ export function createRunPromptContext(
     trace: MarkdownTrace
 ): RunPromptContextNode {
     const { cancellationToken } = options || {}
-    const { vars } = env
     const node: PromptNode = { children: [] }
 
     const ctx = <RunPromptContextNode>{
@@ -93,9 +92,14 @@ export function createRunPromptContext(
                     trace.error("generator missing")
                     return <RunPromptResult>{ text: "", finishReason: "error" }
                 }
-                const ctx = createRunPromptContext(options, env, trace)
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
+                const runOptions = {
+                    ...options,
+                    ...(promptOptions || {}), // overrides options
+                    model,
+                }
+                const ctx = createRunPromptContext(runOptions, env, trace)
                 await generator(ctx)
                 const node = ctx.node
 
@@ -104,7 +108,7 @@ export function createRunPromptContext(
 
                 const messages: ChatCompletionMessageParam[] = []
                 // expand template
-                if (promptOptions?.aici) {
+                if (runOptions.aici) {
                     const { aici } = await renderAICI("prompt", node)
                     // todo: output processor?
                     messages.push(aici)
@@ -126,7 +130,7 @@ export function createRunPromptContext(
 
                 const connection = await resolveModelConnectionInfo({
                     model,
-                    aici: promptOptions?.aici,
+                    aici: runOptions.aici,
                 })
                 if (!connection.token) {
                     trace.error("model connection error", connection.info)
@@ -134,7 +138,7 @@ export function createRunPromptContext(
                 }
                 const { completer } = resolveLanguageModel(
                     promptOptions?.aici ? "aici" : "openai",
-                    options
+                    runOptions
                 )
                 const res = await completer(
                     {
@@ -151,7 +155,8 @@ export function createRunPromptContext(
                         messages,
                     },
                     connection.token,
-                    { ...options, trace }
+                    runOptions,
+                    trace
                 )
                 trace.details("output", res.text)
                 return { text: res.text, finishReason: res.finishReason }

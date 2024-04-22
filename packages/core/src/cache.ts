@@ -7,11 +7,12 @@ export type CacheEntry<K, V> = { sha: string; key: K; val: V }
 
 export class Cache<K, V> extends EventTarget {
     private _entries: Record<string, CacheEntry<K, V>>
-    private constructor(public name: string) {
+    private constructor(public readonly name: string) {
         super()
     }
 
     static byName<K, V>(name: string): Cache<K, V> {
+        name = name.replace(/[^a-z0-9_]/ig, "_")
         const key = "cacheKV." + name
         if (host.userState[key]) return host.userState[key]
         const r = new Cache<K, V>(name)
@@ -75,7 +76,7 @@ export class Cache<K, V> extends EventTarget {
     async getKeySHA(key: K) {
         await this.initialize()
         const sha = await keySHA(key)
-        return sha;
+        return sha
     }
 }
 async function keySHA(key: any) {

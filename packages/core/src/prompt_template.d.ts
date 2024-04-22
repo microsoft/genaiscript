@@ -134,6 +134,17 @@ interface ModelOptions extends ModelConnectionOptions {
      * A deterministic integer seed to use for the model.
      */
     seed?: number
+
+    /**
+     * If true, the prompt will be cached. If false, the LLM chat is never cached.
+     * Leave empty to use the default behavior.
+     */
+    cache?: boolean
+
+    /**
+     * Custom cache name. If not set, the default cache is used.
+     */
+    cacheName?:  string
 }
 
 interface ScriptRuntimeOptions {
@@ -161,12 +172,6 @@ interface ScriptRuntimeOptions {
      * Default value for emitting line numbers in fenced code blocks.
      */
     lineNumbers?: boolean
-
-    /**
-     * If true, the prompt will be cached. If false, the LLM chat is never cached.
-     * Leave empty to use the default behavior.
-     */
-    cache?: boolean
 }
 
 type PromptParameterType =
