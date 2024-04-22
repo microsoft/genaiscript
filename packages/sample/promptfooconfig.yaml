@@ -16,6 +16,9 @@ defaultTest:
       id: azureopenai:chat:gpt-4
       config:
         apiHost: 'tnrllmproxy.azurewebsites.net'
+  assert:
+    - type: llm-rubric
+      value: does not apologize
 tests:
   - vars:
       script: summarize
