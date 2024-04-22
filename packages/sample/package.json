@@ -9,5 +9,8 @@
     "typecheck": "tsc -p src",
     "test": "node --import tsx --test src/**.test.ts",
     "test:watch": "node --import tsx --watch --test-name-pattern=run --test src/**.test.ts"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.54.1"
   }
 }
