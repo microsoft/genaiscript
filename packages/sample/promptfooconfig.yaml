@@ -7,9 +7,16 @@ prompts:
   - "Write a very concise, funny tweet about {{topic}}"
 
 providers:
-  - openai:gpt-3.5-turbo-0613
-  - openai:gpt-4
+  - id: azureopenai:chat:gpt-4
+    config:
+      apiHost: 'tnrllmproxy.azurewebsites.net'
 
+defaultTest:
+  options:
+    provider:
+      id: azureopenai:chat:gpt-4
+      config:
+        apiHost: 'tnrllmproxy.azurewebsites.net'
 tests:
   - vars:
       topic: bananas
