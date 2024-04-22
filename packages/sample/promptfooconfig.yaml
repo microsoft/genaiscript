@@ -19,4 +19,7 @@ defaultTest:
 tests:
   - vars:
       script: summarize
-      spec: src/questions.md
+      spec: src/rag/markdown.md
+  - vars:
+      script: summarize
+      spec: src/rag/Document.docx
