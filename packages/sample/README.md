@@ -1,9 +1,12 @@
-A collection of test scripts.
+## PromptFoo
 
-- a list
-- of items
+To get started, set your OPENAI_API_KEY environment variable.
 
-## A sub title
+Next, edit promptfooconfig.yaml.
 
-> quote
+Then run:
+```
+promptfoo eval
+```
 
+Afterwards, you can view the results by running `promptfoo view`

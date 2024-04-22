@@ -307,5 +307,6 @@ ${Array.from(files)
         logVerbose(`error annotations found, exiting with error code`)
         process.exit(ANNOTATION_ERROR_CODE)
     }
-    logVerbose(`genaiscript generated ${tokens} tokens`)
+
+    if (!skipLLM) logVerbose(`genaiscript generated ${tokens} tokens`)
 }
