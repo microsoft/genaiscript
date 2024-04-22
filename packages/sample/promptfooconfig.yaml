@@ -3,7 +3,7 @@
 description: 'My first eval'
 
 prompts:
-  - file://./src/run.mjs
+  - file://./src/promptfoo.mjs
 
 providers:
   - id: azureopenai:chat:gpt-4
