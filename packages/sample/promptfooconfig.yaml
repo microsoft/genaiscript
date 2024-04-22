@@ -3,8 +3,7 @@
 description: 'My first eval'
 
 prompts:
-  - "Write a tweet about {{topic}}"
-  - "Write a very concise, funny tweet about {{topic}}"
+  - file://./src/run.mjs
 
 providers:
   - id: azureopenai:chat:gpt-4
@@ -19,20 +18,5 @@ defaultTest:
         apiHost: 'tnrllmproxy.azurewebsites.net'
 tests:
   - vars:
-      topic: bananas
-
-  - vars:
-      topic: avocado toast
-    assert:
-      # For more information on assertions, see https://promptfoo.dev/docs/configuration/expected-outputs
-      - type: icontains
-        value: avocado
-      - type: javascript
-        value: 1 / (output.length + 1)  # prefer shorter outputs
-
-  - vars:
-      topic: new york city
-    assert:
-      # For more information on model-graded evals, see https://promptfoo.dev/docs/configuration/expected-outputs/model-graded
-      - type: llm-rubric
-        value: ensure that the output is funny
+      script: summarize
+      spec: src/questions.md

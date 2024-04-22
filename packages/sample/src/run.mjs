@@ -1,18 +1,19 @@
-const { execa } = require("execa")
-module.exports = async function ({ vars }) {
+import { execa } from "execa"
+export default async function ({ vars }) {
     const { script, spec } = vars
     const command = 'node'
     const args = ['../cli/built/genaiscript.cjs', 'run', script, spec, '--prompt']
     const timeout = 120000
+    const cwd = '.'
     const { stdout, stderr, exitCode, failed } = await execa(command, args, {
         cleanup: true,
-        input,
         timeout,
         cwd,
         preferLocal: true,
         stripFinalNewline: true,
     })
     if (failed) {
+        console.error(stdout)
         console.error(stderr)
         throw new Error(`run failed ${exitCode}`)
     }
