@@ -59,7 +59,7 @@
     "replace-ext": "^2.0.0",
     "semver": "^7.6.0",
     "tsx": "^4.7.2",
-    "zx": "^8.0.1"
+    "zx": "^8.0.2"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms && node ../../scripts/patch-cli.mjs",

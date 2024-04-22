@@ -24,6 +24,6 @@
     "typescript": "5.4.5"
   },
   "devDependencies": {
-    "zx": "^8.0.1"
+    "zx": "^8.0.2"
   }
 }
