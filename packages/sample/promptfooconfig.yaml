@@ -18,9 +18,8 @@ defaultTest:
         apiHost: 'tnrllmproxy.azurewebsites.net'
   assert:
     - type: llm-rubric
-      value: does not apologize
+      value: mentions Markdown
     - type: factuality
-      # Make sure the LLM output is consistent with this statement:
       value: Markdown is a text-based syntax to describe documents.
 tests:
   - vars:
