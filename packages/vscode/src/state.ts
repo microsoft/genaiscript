@@ -237,12 +237,22 @@ temp/
             if (!req) return
             const res = await req?.request
             const { edits, text, error } = res || {}
-            if (error)
-                vscode.commands.executeCommand("genaiscript.request.open.trace")
-            else if (text)
-                vscode.commands.executeCommand(
-                    "genaiscript.request.open.output"
+            const hasPreviewOpened =
+                vscode.window.tabGroups.activeTabGroup?.tabs?.some((t) =>
+                    [REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME].some(
+                        (f) => t.label.includes(f)
+                    )
                 )
+            if (!hasPreviewOpened) {
+                if (error)
+                    vscode.commands.executeCommand(
+                        "genaiscript.request.open.trace"
+                    )
+                else if (text)
+                    vscode.commands.executeCommand(
+                        "genaiscript.request.open.output"
+                    )
+            }
 
             const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)

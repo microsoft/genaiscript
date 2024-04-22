@@ -146,9 +146,9 @@ function renderDefNode(def: PromptDefNode): string {
         dfence +
         dtype +
         (file.filename ? ` file="${file.filename}"` : "") +
+        (schema ? ` schema=${schema}` : "") +
         "\n" +
         body +
-        (schema ? ` schema=${schema}` : "") +
         dfence +
         "\n"
 

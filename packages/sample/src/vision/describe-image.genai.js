@@ -1,5 +1,4 @@
 script({
-    title: "describe-image",
     description: "Given an image of a receipt, extract a csv of the receipt data",
     group: "image tools",
     model: "gpt-4-turbo-v",

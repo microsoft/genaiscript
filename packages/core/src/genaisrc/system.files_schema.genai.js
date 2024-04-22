@@ -5,9 +5,9 @@ system({
 const folder = env.vars["outputFolder"] || "."
 
 $`
-## Files with JSON Schema
+## Files with Schema
 
-When you generate JSON or YAML according to a named schema, 
+When you generate JSON or YAML or CSV according to a named schema, 
 you MUST add the schema identifier in the code fence header.
 `
 
