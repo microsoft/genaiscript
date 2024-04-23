@@ -15,7 +15,7 @@ The `fs` object gives access to file system operations
 Reads the content of a file, relative to the workspace root.
 
 ```ts
-const file = await fs.readFile("README.md")
+const file = await fs.readText("README.md")
 defFile("README", file)
 ```
 

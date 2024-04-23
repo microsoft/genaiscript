@@ -27,13 +27,10 @@ defFunction(
     },
     async (args) => {
         let { filename, linestart, lineend } = args
-
-        if (/^\.env$/i.test(path.basename(filename)))
-            return "File contains sensitive information and cannot be displayed."
-
+        if (!filename) return ""
         linestart = parseInt(linestart) - 1
         lineend = parseInt(lineend)
-        let { content } = await fs.readFile(filename)
+        let { content } = await fs.readText(filename)
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
             content = lines.slice(linestart, lineend).join("\n")

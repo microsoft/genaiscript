@@ -342,13 +342,13 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface FileSystem {
+interface PromptFileSystem {
     findFiles(glob: string): Promise<string[]>
     /**
-     * Reads the content of a file
+     * Reads the content of a file as text
      * @param path
      */
-    readFile(path: string): Promise<LinkedFile>
+    readText(path: string): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {

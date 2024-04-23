@@ -10,7 +10,7 @@ script({
 const file = env.files[0]
 
 // skip if alt-text file already exists
-const txt = await fs.readFile(file.filename + ".txt")
+const txt = await fs.readText(file.filename + ".txt")
 if (txt.content)
     cancel("Alt text file already exists")
 
