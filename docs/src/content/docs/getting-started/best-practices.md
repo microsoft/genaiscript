@@ -30,9 +30,7 @@ to give the model information about things to do or what the weather will be at 
 destination. Input from documents is especially valuable to help the model perform
 well and as a result we define simple ways to extract text from [pdf](/genaiscript/reference/scripts/pdf)
 and [docx](/genaiscript/reference/scripts/docx) files. You can parameterize the
-input context further using [`env.files`](/genaiscript/reference/scripts/context) or writing a
-[`.gpspec.md`](/genaiscript/reference/scripts/specs) file to make your script
-more general and reusable.
+input context further using [`env.files`](/genaiscript/reference/scripts/context).
 
 ## Focus a GenAIScript on having the LLM do 1 thing well
 

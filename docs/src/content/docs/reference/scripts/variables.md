@@ -42,13 +42,3 @@ Use the `vars` field in the CLI to override variables. vars takes a sequence of 
 ```sh
 npx genaiscript run ... --vars myvar=myvalue myvar2=myvalue2 ...
 ```
-
-## Spec Variables
-
-If you manually author a [spec](/genaiscript/reference/scripts/specs/), you can configure variables as well.
-
-```markdown
-Lorem ipsum...
-
-<!-- @locale latin -->
-```
