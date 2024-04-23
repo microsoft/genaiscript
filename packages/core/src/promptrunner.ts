@@ -284,8 +284,9 @@ export async function runTemplate(
                 trace.startDetails(
                     `🧠 llm request (${messages.length} messages)`
                 )
-                trace.item(
-                    `tokens: ${estimateChatTokens(model, messages, tools)}`
+                trace.itemValue(
+                    `tokens`,
+                    estimateChatTokens(model, messages, tools)
                 )
                 status()
                 resp = await completer(

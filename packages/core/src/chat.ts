@@ -95,16 +95,18 @@ export function toChatCompletionUserMessage(
                 type: "text",
                 text: expanded,
             },
-            ...(images || []).map(
-                ({ url, detail }) =>
-                    <ChatCompletionContentPartImage>{
-                        type: "image_url",
-                        image_url: {
-                            url,
-                            detail,
-                        },
-                    }
-            ),
+            ...(images || [])
+                .filter(({ url }) => url)
+                .map(
+                    ({ url, detail }) =>
+                        <ChatCompletionContentPartImage>{
+                            type: "image_url",
+                            image_url: {
+                                url,
+                                detail,
+                            },
+                        }
+                ),
         ],
     }
 }

@@ -506,11 +506,11 @@ export async function renderPromptNode(
         image: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) {
+            if (value?.url) {
                 images.push(value)
                 if (trace) {
                     trace.startDetails(
-                        `🖼 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
+                        `📷 image: ${value.detail || ""} ${value.filename || value.url.slice(0, 64) + "..."}`
                     )
                     trace.image(value.url, value.filename)
                     trace.endDetails()

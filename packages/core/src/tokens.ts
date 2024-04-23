@@ -1,17 +1,18 @@
 import { ChatCompletionMessageParam } from "./chat"
 import {
+    ChatCompletionContentPart,
     ChatCompletionContentPartText,
     type ChatCompletionTool,
 } from "openai/resources"
 import { encodeChat, encode } from "gpt-tokenizer"
-import { logError } from "./util"
+import { logError, logVerbose } from "./util"
 
 export function estimateTokens(model: string, text: string) {
     if (!text?.length) return 0
     try {
         return encode(text).length
     } catch (e) {
-        logError(e)
+        logVerbose(e)
         return text.length >> 2
     }
 }
@@ -23,6 +24,19 @@ export function estimateChatTokens(
 ): number {
     if (!messages?.length) return 0
     try {
+        // does not support images
+        if (
+            messages.find(
+                (msg) =>
+                    msg.content !== "string" &&
+                    Array.isArray(msg.content) &&
+                    (msg.content as ChatCompletionContentPart[])?.find(
+                        (part) => part.type === "image_url"
+                    )
+            )
+        )
+            return undefined
+
         const chat: {
             role: "user" | "system" | "assistant"
             content: string
@@ -37,18 +51,18 @@ export function estimateChatTokens(
                     typeof content === "string"
                         ? content
                         : content
-                            ?.filter(({ type }) => type === "text")
-                            .map(
-                                (c) =>
-                                    (c as ChatCompletionContentPartText).text
-                            )
-                            .join("\n"),
+                              ?.filter(({ type }) => type === "text")
+                              .map(
+                                  (c) =>
+                                      (c as ChatCompletionContentPartText).text
+                              )
+                              .join("\n"),
             }))
             .filter(({ content }) => !!content?.length)
         const chatTokens = encodeChat(chat, model as any)
         return chatTokens.length | 0
     } catch (e) {
-        logError(e)
-        return JSON.stringify(messages).length >> 2
+        logVerbose(e)
+        return (JSON.stringify(messages).length / 3) | 0
     }
 }
