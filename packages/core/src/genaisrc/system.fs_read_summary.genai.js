@@ -19,9 +19,8 @@ defFunction(
     },
     async (args) => {
         const { filename } = args
-        if (/^\.env$/i.test(path.basename(filename)))
-            return "File contains sensitive information and cannot be displayed."
-        const { content } = await fs.readFile(filename)
+        if (!filename) return ""
+        const { content } = await fs.readText(filename)
         const summary = await runPrompt(_ => {
             const f = _.def("FILE", { filename, content, label: filename }, { maxTokens: 12000 })
             _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`

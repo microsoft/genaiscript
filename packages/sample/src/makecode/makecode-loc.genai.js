@@ -31,7 +31,7 @@ const strings = JSON.parse(content)
 
 // find the existing translation and remove existing translations
 const trfn = path.join(dir, langCode, path.basename(filename))
-const translated = parsers.JSON5(await fs.readFile(trfn))
+const translated = parsers.JSON5(await fs.readText(trfn))
 if (translated)
     for (const k of Object.keys(strings)) if (translated[k]) delete strings[k]
 

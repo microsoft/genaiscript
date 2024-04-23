@@ -26,6 +26,6 @@ $`Save the alt text in a file called "${file.filename + ".txt"}".`
 - cancel if the alt text file already exists
 
 ```js
-const { content } = await fs.readFile(file.filename + ".txt")
+const { content } = await fs.readText(file.filename + ".txt")
 if (content) cancel("Alt text file already exists")
 ```

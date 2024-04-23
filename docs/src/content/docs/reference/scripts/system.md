@@ -356,13 +356,10 @@ defFunction(
     },
     async (args) => {
         let { filename, linestart, lineend } = args
-
-        if (/^\.env$/i.test(path.basename(filename)))
-            return "File contains sensitive information and cannot be displayed."
-
+        if (!filename) return ""
         linestart = parseInt(linestart) - 1
         lineend = parseInt(lineend)
-        let { content } = await fs.readFile(filename)
+        let { content } = await fs.readText(filename)
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
             content = lines.slice(linestart, lineend).join("\n")
@@ -402,9 +399,8 @@ defFunction(
     },
     async (args) => {
         const { filename } = args
-        if (/^\.env$/i.test(path.basename(filename)))
-            return "File contains sensitive information and cannot be displayed."
-        const { content } = await fs.readFile(filename)
+        if (!filename) return ""
+        const { content } = await fs.readText(filename)
         const summary = await runPrompt(_ => {
             const f = _.def("FILE", { filename, content, label: filename }, { maxTokens: 12000 })
             _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`

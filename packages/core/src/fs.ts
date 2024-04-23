@@ -1,6 +1,8 @@
 import { DOT_ENV_REGEX } from "./constants"
+import { NotSupportedError } from "./error"
+import { resolveFileContent } from "./file"
 import { ReadFileOptions, host } from "./host"
-import { utf8Decode, utf8Encode } from "./util"
+import { logVerbose, utf8Decode, utf8Encode } from "./util"
 
 export async function readText(fn: string) {
     const curr = await host.readFile(fn)
@@ -64,19 +66,33 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
-export function createFileSystem() {
-    return Object.freeze(<FileSystem>{
+export function createFileSystem(): PromptFileSystem {
+    const fs: PromptFileSystem = {
         findFiles: async (glob) =>
             (await host.findFiles(glob)).filter((f) => !DOT_ENV_REGEX.test(f)),
-        readFile: async (filename: string) => {
-            let content: string
+        readText: async (f: string | LinkedFile) => {
+            if (f === undefined)
+                throw new NotSupportedError("missing file name")
+
+            const file: LinkedFile =
+                typeof f === "string"
+                    ? {
+                          filename: f,
+                          label: f,
+                          content: undefined,
+                      }
+                    : f
+            if (DOT_ENV_REGEX.test(file.filename)) return file
             try {
-                if (!DOT_ENV_REGEX.test(filename))
-                    content = await readText("workspace://" + filename)
-            } catch (e) { }
-            return { label: filename, filename, content }
+                await resolveFileContent(file)
+            } catch (e) {
+                logVerbose(`error reading file ${file.filename}`)
+            }
+            return file
         },
-    })
+    }
+    ;(fs as any).readFile = readText
+    return Object.freeze(fs)
 }
 
 export async function expandFiles(files: string[], excludedFiles?: string[]) {

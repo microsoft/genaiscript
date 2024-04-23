@@ -18,7 +18,7 @@ def(
 )
 
 // workspace
-const file = await fs.readFile("README.md")
+const file = await fs.readText("README.md")
 def("README", file)
 
 // prompt generation

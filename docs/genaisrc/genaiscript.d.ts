@@ -41,7 +41,25 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId =
+    | "system.diff"
+    | "system.annotations"
+    | "system.explanations"
+    | "system.fs_find_files"
+    | "system.fs_read_file"
+    | "system.files"
+    | "system.changelog"
+    | "system.json"
+    | "system"
+    | "system.python"
+    | "system.summary"
+    | "system.tasks"
+    | "system.schema"
+    | "system.technical"
+    | "system.typescript"
+    | "system.web_search"
+    | "system.zero_shot_cot"
+    | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -327,10 +345,10 @@ type ChatFunctionCallOutput =
 interface FileSystem {
     findFiles(glob: string): Promise<string[]>
     /**
-     * Reads the content of a file
+     * Reads the content of a file as text
      * @param path
      */
-    readFile(path: string): Promise<LinkedFile>
+    readText(path: string): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
@@ -1084,8 +1102,6 @@ interface PromptContext extends RunPromptContext {
     AICI: AICI
 }
 
-
-
 // keep in sync with PromptContext!
 
 /**
@@ -1103,7 +1119,10 @@ declare function system(options: PromptSystemArgs): void
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function writeText(body: string | Promise<string>, options?: WriteTextOptions): void
+declare function writeText(
+    body: string | Promise<string>,
+    options?: WriteTextOptions
+): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -1127,7 +1146,11 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  * @param body string to be fenced/defined
  * @returns variable name
  */
-declare function def(name: string, body: StringLike, options?: DefOptions): string
+declare function def(
+    name: string,
+    body: StringLike,
+    options?: DefOptions
+): string
 
 /**
  * Declares a function that can be called from the prompt.
@@ -1245,9 +1268,8 @@ declare function runPrompt(
     options?: ModelOptions
 ): Promise<RunPromptResult>
 
-
 /**
  * Registers a callback to process the LLM output
- * @param fn 
+ * @param fn
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void

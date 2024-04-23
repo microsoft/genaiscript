@@ -86,7 +86,7 @@ declare var retrieval: Retrieval
 /**
  * Access to file system operation on the current workspace.
  */
-declare var fs: FileSystem
+declare var fs: PromptFileSystem
 
 /**
  * YAML parsing and stringifying functions.
