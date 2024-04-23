@@ -11,13 +11,13 @@ defFunction(
         properties: {
             glob: {
                 type: "string",
-                description: "Search path.",
-            },
+                description: "Search path in glob format, including the relative path from the project root folder.",
+            }
         },
         required: ["glob"],
     },
     async (args) => {
-        const { context, glob } = args
+        const { glob } = args
         const res = await fs.findFiles(glob)
         return res.join("\n")
     }

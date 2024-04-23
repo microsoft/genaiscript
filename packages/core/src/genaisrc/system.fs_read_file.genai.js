@@ -1,6 +1,6 @@
 system({
     title: "File Read File",
-    description: "Function to read file content.",
+    description: "Function to read file content as text.",
 })
 
 defFunction(

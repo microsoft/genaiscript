@@ -305,13 +305,13 @@ defFunction(
         properties: {
             glob: {
                 type: "string",
-                description: "Search path.",
-            },
+                description: "Search path in glob format, including the relative path from the project root folder.",
+            }
         },
         required: ["glob"],
     },
     async (args) => {
-        const { context, glob } = args
+        const { glob } = args
         const res = await fs.findFiles(glob)
         return res.join("\n")
     }
@@ -324,12 +324,12 @@ defFunction(
 
 File Read File
 
-Function to read file content.
+Function to read file content as text.
 
 `````js wrap
 system({
     title: "File Read File",
-    description: "Function to read file content.",
+    description: "Function to read file content as text.",
 })
 
 defFunction(
@@ -368,6 +368,52 @@ defFunction(
             content = lines.slice(linestart, lineend).join("\n")
         }
         return content
+    }
+)
+
+`````
+
+
+### `system.fs_read_summary`
+
+File Read Summary
+
+Function to summarize the content of a file.
+
+`````js wrap
+system({
+    title: "File Read Summary",
+    description: "Function to summarize the content of a file.",
+})
+
+defFunction(
+    "fs_read_summary",
+    "Reads a summary of a file from the file system.",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description:
+                    "Path of the file to load, relative to the workspace.",
+            },
+        },
+        required: ["filename"],
+    },
+    async (args) => {
+        const { filename } = args
+        if (/^\.env$/i.test(path.basename(filename)))
+            return "File contains sensitive information and cannot be displayed."
+        const { content } = await fs.readFile(filename)
+        const summary = await runPrompt(_ => {
+            const f = _.def("FILE", { filename, content, label: filename }, { maxTokens: 12000 })
+            _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
+        }, {
+            model: "gpt-3.5-turbo",
+            cache: true,
+            cacheName: "fs_read_summary"
+        })
+        return summary.text
     }
 )
 

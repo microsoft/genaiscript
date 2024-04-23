@@ -41,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
