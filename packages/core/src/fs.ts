@@ -1,4 +1,5 @@
 import { DOT_ENV_REGEX } from "./constants"
+import { NotSupportedError } from "./error"
 import { resolveFileContent } from "./file"
 import { ReadFileOptions, host } from "./host"
 import { logVerbose, utf8Decode, utf8Encode } from "./util"
@@ -69,19 +70,25 @@ export function createFileSystem(): PromptFileSystem {
     const fs: PromptFileSystem = {
         findFiles: async (glob) =>
             (await host.findFiles(glob)).filter((f) => !DOT_ENV_REGEX.test(f)),
-        readText: async (filename: string) => {
-            const f: LinkedFile = {
-                filename,
-                label: filename,
-                content: undefined,
-            }
-            if (DOT_ENV_REGEX.test(filename)) return f
+        readText: async (f: string | LinkedFile) => {
+            if (f === undefined)
+                throw new NotSupportedError("missing file name")
+
+            const file: LinkedFile =
+                typeof f === "string"
+                    ? {
+                          filename: f,
+                          label: f,
+                          content: undefined,
+                      }
+                    : f
+            if (DOT_ENV_REGEX.test(file.filename)) return f
             try {
-                await resolveFileContent(f)
+                await resolveFileContent(file)
             } catch (e) {
-                logVerbose(`error reading file ${filename}`)
+                logVerbose(`error reading file ${file.filename}`)
             }
-            return f
+            return file
         },
     }
     ;(fs as any).readFile = readText

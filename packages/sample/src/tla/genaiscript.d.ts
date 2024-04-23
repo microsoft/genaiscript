@@ -348,7 +348,7 @@ interface PromptFileSystem {
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string): Promise<LinkedFile>
+    readText(path: string | LinkedFile): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
@@ -1097,7 +1097,7 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    fs: FileSystem
+    fs: PromptFileSystem
     YAML: YAML
     XML: XML
     CSV: CSV
@@ -1193,7 +1193,7 @@ declare var retrieval: Retrieval
 /**
  * Access to file system operation on the current workspace.
  */
-declare var fs: FileSystem
+declare var fs: PromptFileSystem
 
 /**
  * YAML parsing and stringifying functions.

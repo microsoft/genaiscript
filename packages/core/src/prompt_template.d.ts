@@ -348,7 +348,7 @@ interface PromptFileSystem {
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string): Promise<LinkedFile>
+    readText(path: string | LinkedFile): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
