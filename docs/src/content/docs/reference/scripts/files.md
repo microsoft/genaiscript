@@ -1,7 +1,7 @@
 ---
 title: Files
 description: Learn how to perform file system operations using the fs object in your scripts.
-keywords: file system, fs object, readFile, findFiles, paths
+keywords: file system, fs object, readText, findFiles, paths
 sidebar:
     order: 13
 ---
@@ -10,14 +10,16 @@ sidebar:
 
 The `fs` object gives access to file system operations
 
-### `readFile`
+### `readText`
 
-Reads the content of a file, relative to the workspace root.
+Reads the content of a file as text, relative to the workspace root.
 
 ```ts
 const file = await fs.readText("README.md")
-defFile("README", file)
+const content = file.content
 ```
+
+It will automatically convert PDFs and DOCX files to text.
 
 ### `findFiles`
 
