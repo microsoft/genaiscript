@@ -100,7 +100,9 @@ export function createRunPromptContext(
                     model,
                 }
                 const ctx = createRunPromptContext(runOptions, env, trace)
-                await generator(ctx)
+                if (typeof generator === "string")
+                    ctx.node.children.push(createTextNode(generator))
+                else await generator(ctx)
                 const node = ctx.node
 
                 if (cancellationToken?.isCancellationRequested)

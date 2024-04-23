@@ -906,6 +906,8 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
+type RunPromptGenerator = (ctx: RunPromptContext) => void | Promise<void>
+
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
     writeText(body: string | Promise<string>, options?: WriteTextOptions): void
@@ -913,7 +915,7 @@ interface RunPromptContext {
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
     runPrompt(
-        generator: (ctx: RunPromptContext) => void | Promise<void>,
+        generator: string | RunPromptGenerator,
         options?: ModelOptions
     ): Promise<RunPromptResult>
 }

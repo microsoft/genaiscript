@@ -17,6 +17,12 @@ const { text } = await runPrompt(_ => {
 })
 ```
 
+You can also shortcut the function and pass the prompt text directly
+
+```js
+const { text } = await runPrompt(`Select all the image files in ${env.files.map(f => f.filename)}`)
+```
+
 :::caution
 
 Make sure to `await` all calls to `runPrompt` or you will find yourself in some weird race conditions.

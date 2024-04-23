@@ -155,7 +155,7 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: (ctx: RunPromptContext) => void | Promise<void>,
+    generator: string | RunPromptGenerator,
     options?: ModelOptions
 ): Promise<RunPromptResult>
 
