@@ -46,18 +46,6 @@ export async function writeJSON(fn: string, obj: any) {
     await writeText(fn, JSON.stringify(obj))
 }
 
-export async function loadFiles(files: string[], options?: ReadFileOptions) {
-    const res: LinkedFile[] = []
-    if (files?.length)
-        for (const filename of files) {
-            if (await fileExists(filename, options)) {
-                const content = await readText(filename)
-                res.push({ filename, content, label: filename })
-            }
-        }
-    return res
-}
-
 export function filenameOrFileToContent(
     fileOrContent: string | LinkedFile
 ): string {

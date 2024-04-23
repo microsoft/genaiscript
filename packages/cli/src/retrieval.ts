@@ -1,11 +1,9 @@
 import {
     YAMLStringify,
-    host,
     readText,
     upsert,
     search,
     clearIndex,
-    loadFiles,
     estimateTokens,
     normalizeInt,
     expandFiles,
