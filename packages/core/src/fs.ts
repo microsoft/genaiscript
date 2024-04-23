@@ -82,7 +82,7 @@ export function createFileSystem(): PromptFileSystem {
                           content: undefined,
                       }
                     : f
-            if (DOT_ENV_REGEX.test(file.filename)) return f
+            if (DOT_ENV_REGEX.test(file.filename)) return file
             try {
                 await resolveFileContent(file)
             } catch (e) {
