@@ -3,9 +3,10 @@ title: Installation
 sidebar:
     order: 1
 ---
+
 import { Image } from "astro:assets"
-import { FileTree } from '@astrojs/starlight/components';
-import { Steps } from '@astrojs/starlight/components';
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
 
 import extensionViewSrc from "../../../assets/vscode-extensions-view.png"
 import extensionViewAlt from "../../../assets/vscode-extensions-view.png.txt?raw"
@@ -16,12 +17,11 @@ import marketplaceAlt from "../../../assets/vscode-marketplace.png.txt?raw"
 import vscodeViewSrc from "../../../assets/vscode-genaiscript-view.png"
 import vscodeViewAlt from "../../../assets/vscode-genaiscript-view.png.txt?raw"
 
-
 GenAiScript is available as a [command line](#command-line) or a [Visual Studio Code Extension](#visual-studio-code-extension).
 
 ## Visual Studio Code Extension
 
-The [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/) 
+The [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/)
 contains the latest stable release of the [extension](https://marketplace.visualstudio.com/items?itemName=genaiscript.genaiscript-vscode).
 
 <Steps>
@@ -30,9 +30,9 @@ contains the latest stable release of the [extension](https://marketplace.visual
 
 <li>
 
-Install [Visual Studio Code](https://code.visualstudio.com/Download). 
+Install [Visual Studio Code](https://code.visualstudio.com/Download).
 
-Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux. 
+Visual Studio Code is a lightweight but powerful source code editor which runs on your desktop and is available for Windows, macOS and Linux.
 
 </li>
 
@@ -91,11 +91,11 @@ Download the `genaiscript.vsix` into your project root folder
 
 <FileTree>
 
--  ...
--  .genaiscript/ folder created by the extension to store supporting files
-    -  cache/ various cache files
-    -  retrieval/ retrieval database caches
-    -  ... supporting files
+-   ...
+-   .genaiscript/ folder created by the extension to store supporting files
+    -   cache/ various cache files
+    -   retrieval/ retrieval database caches
+    -   ... supporting files
 -   **genaiscript.vsix**
 
 </FileTree>
@@ -116,7 +116,7 @@ Right click on the `.vsix` file and select **Install Extension VSIX...**
 
 :::note[Cursor Support]
 
-GenAIScript can be installed in [Cursor](https://cursor.sh/how-to-install-extension) 
+GenAIScript can be installed in [Cursor](https://cursor.sh/how-to-install-extension)
 using the manual installation steps
 
 :::
@@ -128,6 +128,12 @@ from any terminal.
 
 ```sh
 npx genaiscript run my-script some/path/*.pdf
+```
+
+`npx` will automatically install and cache the CLI. You can also add it as a `devDependency` to your projec.
+
+```sh
+npm install -D genaiscript
 ```
 
 :::note
