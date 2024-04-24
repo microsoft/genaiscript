@@ -1,0 +1,1 @@
+Visual Studio Code interface showing a pop-up with options 'Retry', 'Output', and 'Trace' highlighted, and a JSON file with city data open in the editor.

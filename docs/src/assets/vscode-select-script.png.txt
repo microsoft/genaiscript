@@ -1,0 +1,1 @@
+A screenshot of Visual Studio Code showing a dropdown menu with options for different tasks. The highlighted option reads "Technical proofreading technical Reviews the text as a tech writer." with a subtext "documentation" in a smaller font and a blue border at the bottom.
