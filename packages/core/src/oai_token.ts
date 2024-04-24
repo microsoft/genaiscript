@@ -6,7 +6,8 @@ export async function parseTokenFromEnv(
     env: Record<string, string>,
     options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    if (options.aici) {
+    const { model = "gpt-4", aici } = options
+    if (aici) {
         if (env.AICI_API_BASE) {
             const base = env.AICI_API_BASE
             const token = env.AICI_API_KEY
@@ -20,6 +21,18 @@ export async function parseTokenFromEnv(
             }
         }
     } else {
+        // try to get the named env vars
+        const prefix = model.toUpperCase().replace(/-/g, "_")
+        const modelKey = prefix + "_API_KEY"
+        const modelBase = prefix + "_API_BASE"
+        if (env[modelKey] || env[modelBase]) {
+            const token = env[modelKey] ?? ""
+            const base = env[modelBase] ?? ""
+            const version = env[prefix + "_API_VERSION"]
+            const source = `env: ${prefix}_API_...`
+            return { token, base, version, source }
+        }
+
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
