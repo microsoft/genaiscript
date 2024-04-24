@@ -1,7 +1,5 @@
-import { resolve } from "path/posix"
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
-import { DEFAULT_MODEL } from "./constants"
 import { OAIToken, host } from "./host"
 import { OpenAIModel } from "./openai"
 

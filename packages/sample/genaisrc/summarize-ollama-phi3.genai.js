@@ -1,8 +1,9 @@
 script({
     model: "ollama:phi3",
-    title:"summarize with ollama phi3"
+    title:"summarize with ollama phi3",
+    system: ["system"]
 })
 
-def("FILE", env.files)
+const file = def("FILE", env.files)
 
-$`Summarize each file. Be concise.`
+$`Summarize ${file} in a single paragraph.`

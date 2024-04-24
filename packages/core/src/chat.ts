@@ -88,16 +88,16 @@ export function toChatCompletionUserMessage(
     expanded: string,
     images?: PromptImage[]
 ): ChatCompletionUserMessageParam {
-    return <ChatCompletionUserMessageParam>{
-        role: "user",
-        content: [
-            {
-                type: "text",
-                text: expanded,
-            },
-            ...(images || [])
-                .filter(({ url }) => url)
-                .map(
+    const imgs = images?.filter(({ url }) => url) || []
+    if (imgs.length)
+        return <ChatCompletionUserMessageParam>{
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: expanded,
+                },
+                ...imgs.map(
                     ({ url, detail }) =>
                         <ChatCompletionContentPartImage>{
                             type: "image_url",
@@ -107,8 +107,13 @@ export function toChatCompletionUserMessage(
                             },
                         }
                 ),
-        ],
-    }
+            ],
+        }
+    else
+        return <ChatCompletionUserMessageParam>{
+            role: "user",
+            content: expanded,
+        }
 }
 /*
 function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
