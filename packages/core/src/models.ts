@@ -22,19 +22,20 @@ export function resolveLanguageModel(
  * model
  * provider:model
  * provider:model:size where modelId model:size
- * @param id 
- * @returns 
  */
 export function parseModelIdentifier(id: string) {
-    const parts = (id || DEFAULT_MODEL).split(":")
+    id = (id ?? DEFAULT_MODEL).replace("-35-", "-3.5-")
+    const parts = id.split(":")
     if (parts.length >= 3)
         return {
             provider: parts[0],
             model: parts[1],
-            modelId: parts.slice(2).join(":"),
+            tag: parts.slice(2).join(":"),
+            modelId: parts.slice(1).join(":"),
         }
-    else if (parts.length === 2) return { provider: parts[0], model: parts[1] }
-    else return { provider: "openai", model: id.replace("-35-", "-3.5-") }
+    else if (parts.length === 2)
+        return { provider: parts[0], model: parts[1], modelId: parts[1] }
+    else return { provider: "openai", model: id, modelId: id }
 }
 
 export type ModelConnectionInfo = ModelConnectionOptions &
