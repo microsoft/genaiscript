@@ -10,6 +10,7 @@ import { host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
 import { ChatCompletionContentPartText } from "openai/resources"
 import { createFetch } from "./fetch"
+import { parseModelIdentifier } from "./models"
 
 function renderAICINode(node: AICINode) {
     const { name } = node
@@ -208,7 +209,10 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         controller_arg,
     }
 
-    const url = `${connection.base}/${req.model}/${connection.version || "v1"}/run`
+    const { provider, model } = parseModelIdentifier(req.model)
+    trace.itemValue(`provider`, provider)
+    trace.itemValue(`model`, model)
+    const url = `${connection.base}/${model}/${connection.version || "v1"}/run`
     trace.itemValue(`url`, url)
     trace.itemValue(`controller`, postReq.controller)
     trace.detailsFenced(`controller args`, postReq.controller_arg, "js")
