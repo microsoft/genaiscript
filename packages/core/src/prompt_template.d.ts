@@ -108,11 +108,8 @@ interface ModelConnectionOptions {
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
+        | "aici:mixtral"
         | string
-    /**
-     * Use AICI controller
-     */
-    aici?: boolean
 }
 
 interface ModelOptions extends ModelConnectionOptions {

@@ -16,6 +16,7 @@ import {
 } from "./chat"
 import { importPrompt } from "./importprompt"
 import { lookupMime } from "./mime"
+import { parseModelIdentifier } from "./models"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -79,7 +80,7 @@ async function callExpander(
     trace: MarkdownTrace,
     options: RunTemplateOptions
 ) {
-    const model = r.model || DEFAULT_MODEL
+    const { provider, model } = parseModelIdentifier(r.model)
     const ctx = createPromptContext(vars, trace, options, model)
 
     let success = true
@@ -109,7 +110,7 @@ async function callExpander(
             })
         }
         const node = ctx.node
-        if (!r.aici) {
+        if (provider !== "aici") {
             const {
                 prompt,
                 assistantPrompt,

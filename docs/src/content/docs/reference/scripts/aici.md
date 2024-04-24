@@ -25,12 +25,12 @@ The execution of this script is converted into a AICI JavaScript program.
 
 ```js title="answer-to-everything.aici.js"
 async function aiciregex() {
-  await $`Ultimate answer is to the life, universe and everything is `
-  await gen({regex: /\d\d/})
+    await $`Ultimate answer is to the life, universe and everything is `
+    await gen({ regex: /\d\d/ })
 }
 
 async function main() {
-  await aiciregex()
+    await aiciregex()
 }
 start(main)
 ```
@@ -49,14 +49,13 @@ JsCtrl: done
 
 And the text output is `42`.
 
-
 ## Metadata
 
-An AICI template should set the `aici: true` field in the `script` function.
+An AICI template should set the `aici` provider in the model identifier.
 
 ```js title="answer-to-everything.genai.js"
 script({ ...
-    aici: true,
+    model: "aici:mixtral",
 })
 ```
 

@@ -263,7 +263,6 @@ export async function runTemplate(
     status(`prompting model ${model}`)
     const connection = await resolveModelConnectionInfo({
         model,
-        aici: template.aici,
     })
     if (!connection.token) {
         trace.error(`model connection error`, connection.info)

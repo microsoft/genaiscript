@@ -7,23 +7,9 @@ export async function parseTokenFromEnv(
     env: Record<string, string>,
     options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    const { aici } = options
     const { provider, model } = parseModelIdentifier(options.model)
 
-    if (aici) {
-        if (env.AICI_API_BASE) {
-            const base = trimTrailingSlash(env.AICI_API_BASE)
-            const token = env.AICI_API_KEY
-            const version = env.AICI_API_VERSION ?? "v1"
-            return {
-                base,
-                token,
-                aici: true,
-                source: "env: AICI_...",
-                version,
-            }
-        }
-    } else if (provider === "openai") {
+    if (provider === "openai") {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE

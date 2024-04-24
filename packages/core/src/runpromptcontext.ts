@@ -16,7 +16,11 @@ import {
     toChatCompletionUserMessage,
 } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
-import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
+import {
+    parseModelIdentifier,
+    resolveLanguageModel,
+    resolveModelConnectionInfo,
+} from "./models"
 import { renderAICI } from "./aici"
 import { CancelError } from "./error"
 
@@ -92,8 +96,9 @@ export function createRunPromptContext(
                     trace.error("generator missing")
                     return <RunPromptResult>{ text: "", finishReason: "error" }
                 }
-                const model =
+                const { provider, model } = parseModelIdentifier(
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
+                )
                 const runOptions = {
                     ...options,
                     ...(promptOptions || {}), // overrides options
@@ -110,7 +115,7 @@ export function createRunPromptContext(
 
                 const messages: ChatCompletionMessageParam[] = []
                 // expand template
-                if (runOptions.aici) {
+                if (provider === "aici") {
                     const { aici } = await renderAICI("prompt", node)
                     // todo: output processor?
                     messages.push(aici)
@@ -132,7 +137,6 @@ export function createRunPromptContext(
 
                 const connection = await resolveModelConnectionInfo({
                     model,
-                    aici: runOptions.aici,
                 })
                 if (!connection.token) {
                     trace.error("model connection error", connection.info)
