@@ -122,7 +122,7 @@ Update the `model` field in the `script` function to match the model deployment 
 
 ```js "model"
 script({
-    model: "deployment-id",
+    model: "azure:deployment-id",
     ...
 })
 ```
@@ -133,13 +133,57 @@ script({
 
 </Steps>
 
-### Jan, LMStudio, Ollama
+### Ollama
 
-[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/), [Ollama](https://ollama.ai/) 
-are desktop application that let you run model locally. They expose local API servers 
-that compatible with GenAiScript.
+[Ollama](https://ollama.ai/) are desktop application that let you download and run model locally.
 
 Running tools locally may require additional GPU resources depending on the model you are using.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Start the Ollama application or
+
+```sh
+ollama serve
+```
+
+</li>
+
+<li>
+
+Pull your model from the Ollama server (see [list of models](https://ollama.com/library))
+
+```sh
+ollama pull phi3
+```
+
+</li>
+
+<li>
+
+Update your script to use the `ollama:phi3` model.
+
+```js "ollama:phi3"
+script({
+    ...,
+    model: "ollama:phi3",
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+### Jan, LMStudio
+
+[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/)
+also allow running models locally. es depending on the model you are using.
 
 <Steps>
 
@@ -168,17 +212,16 @@ OPENAI_API_BASE=http://localhost:...
 ### Model specific environment variables
 
 You can provide different environment variables
-for each named model by using `MODEL_NAME` prefix.
+for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
 The model name is capitalized and 
 all non-alphanumeric characters are converted to `_`.
 
 This allows to have various sources of LLM computations
 for different models. For example, to enable the `ollama:phi3`
-model running locally, 
-while keeping the default `openai` model connection information.
+model running locally, while keeping the default `openai` model connection information.
 
 ```txt title=".env"
-OLLAMA_PHI3_API_BASE=http://localhost:11434
+OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
 ```
 
 ### VSCode Copilot
