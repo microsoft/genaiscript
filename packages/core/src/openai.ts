@@ -45,6 +45,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     trace.itemValue(`provider`, provider)
     trace.itemValue(`model`, model)
+    trace.itemValue(`api type`, cfgNoToken.type || "")
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, top_p)
     trace.itemValue(`seed`, seed)
@@ -80,7 +81,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.type === "openai" || cfg.type === "local") {
+    if (cfg.type === "openai") {
         r2.stream = true
         url = cfg.base + "/chat/completions"
     } else if (cfg.type === "azure") {
@@ -118,7 +119,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         headers: {
             // openai
             authorization:
-                cfg.token && (cfg.type === "openai" || cfg.type === "local")
+                cfg.token && cfg.type === "openai"
                     ? `Bearer ${cfg.token}`
                     : undefined,
             // azure
