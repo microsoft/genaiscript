@@ -34,6 +34,14 @@ The `env.files` array will contain all nested files under that folder.
 
 ![Context menu to run GenAIScript on a folder](../../../assets/vscode-folder-run.png)
 
+:::tip[Root folder]
+
+To run the script on the root folder, right click under the files.
+
+![Context menu to run GenAIScript on the root folder](../../../assets/vscode-folder-run-root.png)
+
+:::
+
 ## Command Line
 
 Use the [run](/genaiscript/reference/cli/run) command to execute a script from the command line.
