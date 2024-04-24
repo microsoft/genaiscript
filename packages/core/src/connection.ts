@@ -1,25 +1,15 @@
-import { AZURE_OPENAI_API_VERSION } from "./constants"
+import { AZURE_OPENAI_API_VERSION, OLLAMA_API_BASE } from "./constants"
 import { OAIToken } from "./host"
+import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    if (options.aici) {
-        if (env.AICI_API_BASE) {
-            const base = env.AICI_API_BASE
-            const token = env.AICI_API_KEY
-            const version = env.AICI_API_VERSION ?? "v1"
-            return {
-                base,
-                token,
-                aici: true,
-                source: "env: AICI_...",
-                version,
-            }
-        }
-    } else {
+    const { provider, model } = parseModelIdentifier(options.model)
+
+    if (provider === "openai") {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
@@ -106,6 +96,32 @@ export async function parseTokenFromEnv(
                 type: "azure",
                 source: "env: AZURE_...",
                 version,
+            }
+        }
+    } else {
+        const prefixes = [`${provider}_${model}`, provider].map((p) =>
+            p.toUpperCase().replace(/[^a-z0-9]+/gi, "_")
+        )
+        for (const prefix of prefixes) {
+            const modelKey = prefix + "_API_KEY"
+            const modelBase = prefix + "_API_BASE"
+            if (env[modelKey] || env[modelBase]) {
+                const token = env[modelKey] ?? ""
+                const base = trimTrailingSlash(env[modelBase])
+                const version = env[prefix + "_API_VERSION"]
+                const source = `env: ${prefix}_API_...`
+                const type = "local"
+                return { token, base, version, type, source }
+            }
+        }
+
+        // default connection location
+        if (provider === "ollama") {
+            return {
+                base: OLLAMA_API_BASE,
+                token: "ollama",
+                type: "local",
+                source: "default",
             }
         }
     }

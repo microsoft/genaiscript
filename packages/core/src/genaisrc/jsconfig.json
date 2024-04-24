@@ -1,11 +1,17 @@
 {
     "compilerOptions": {
-        "lib": ["ES2022"],
-        "checkJs": true,
+        "lib": [
+            "ES2022"
+        ],
         "target": "ES2022",
         "module": "ES2022",
         "moduleDetection": "force",
-        "allowJs": true
+        "checkJs": true,
+        "allowJs": true,
+        "skipLibCheck": true
     },
-    "include": ["*.js", "../../prompt_type.d.ts"]
+    "include": [
+        "*.js",
+        "./genaiscript.d.ts"
+    ]
 }

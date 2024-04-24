@@ -1,19 +1,34 @@
-import { resolve } from "path/posix"
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
-import { DEFAULT_MODEL } from "./constants"
 import { OAIToken, host } from "./host"
+import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
 
 export function resolveLanguageModel(
-    family: "openai" | "aici",
+    template: ModelOptions,
     options?: {
         languageModel?: LanguageModel
     }
 ): LanguageModel {
     if (options?.languageModel) return options?.languageModel
-    if (family === "aici") return AICIModel
+    const { provider } = parseModelIdentifier(template.model)
+    if (provider === "ollama") return OllamaModel
+    if (provider === "aici") return AICIModel
     return OpenAIModel
+}
+
+export function parseModelIdentifier(id: string) {
+    let provider = "openai"
+    let model = id || "gpt-4"
+    const i = id?.indexOf(":")
+    if (i > -1) {
+        provider = id.substring(0, i).toLowerCase()
+        model = id.substring(i + 1)
+    }
+
+    model = model.replace("-35-", "-3.5-")
+
+    return { provider, model }
 }
 
 export type ModelConnectionInfo = ModelConnectionOptions &

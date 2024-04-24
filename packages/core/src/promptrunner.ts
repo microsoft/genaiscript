@@ -263,17 +263,13 @@ export async function runTemplate(
     status(`prompting model ${model}`)
     const connection = await resolveModelConnectionInfo({
         model,
-        aici: template.aici,
     })
     if (!connection.token) {
         trace.error(`model connection error`, connection.info)
         throw new RequestError(403, "token not configured", connection.info)
     }
 
-    const { completer } = resolveLanguageModel(
-        template.aici ? "aici" : "openai",
-        options
-    )
+    const { completer } = resolveLanguageModel(template, options)
     let repairs = 0
     let genVars: Record<string, string> = {}
 

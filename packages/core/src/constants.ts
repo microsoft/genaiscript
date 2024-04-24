@@ -54,3 +54,5 @@ export const USER_CANCELLED_ERROR_CODE = -7
 export const DOT_ENV_REGEX = /\.env$/i
 export const PROMPT_FENCE = "```"
 export const MARKDOWN_PROMPT_FENCE = "`````"
+
+export const OLLAMA_API_BASE = "http://localhost:11434/v1"

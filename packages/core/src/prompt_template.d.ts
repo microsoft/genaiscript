@@ -101,11 +101,15 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | "mixtral" | string
-    /**
-     * Use AICI controller
-     */
-    aici?: boolean
+    model?:
+        | "gpt-4"
+        | "gpt-4-32k"
+        | "gpt-3.5-turbo"
+        | "ollama:phi3"
+        | "ollama:llama3"
+        | "ollama:mixtral"
+        | "aici:mixtral"
+        | string
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -144,7 +148,7 @@ interface ModelOptions extends ModelConnectionOptions {
     /**
      * Custom cache name. If not set, the default cache is used.
      */
-    cacheName?:  string
+    cacheName?: string
 }
 
 interface ScriptRuntimeOptions {

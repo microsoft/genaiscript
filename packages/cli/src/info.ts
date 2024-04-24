@@ -24,7 +24,6 @@ async function resolveScriptsConnectionInfo(
     for (const template of templates) {
         const conn: ModelConnectionOptions = {
             model: template.model ?? DEFAULT_MODEL,
-            aici: template.aici,
         }
         const key = JSON.stringify(conn)
         if (!models[key]) models[key] = conn

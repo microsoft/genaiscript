@@ -18,7 +18,7 @@ describe("run", async () => {
             resj.some(
                 (msg) =>
                     msg.role === "user" &&
-                    msg.content[0].text.includes("src/greeter.ts")
+                    msg.content.includes("src/greeter.ts")
             )
         )
     })

@@ -18,8 +18,9 @@ import {
 } from "./chat"
 import { RequestError } from "./error"
 import { createFetch } from "./fetch"
+import { parseModelIdentifier } from "./models"
 
-const OpenAIChatCompletion: ChatCompletionHandler = async (
+export const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
     cfg,
     options,
@@ -40,7 +41,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
-    let model = req.model.replace("-35-", "-3.5-")
+    const { model } = parseModelIdentifier(req.model)
 
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, top_p)
@@ -71,7 +72,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         return { text: cached, cached: true }
     }
 
-    const r2 = { ...req }
+    const r2 = { ...req, model }
     let postReq: any = r2
 
     let url = ""

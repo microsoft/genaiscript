@@ -7,7 +7,7 @@ const { text: answer } = await runPrompt(
         _.$`Ultimate answer is to the life, universe and 
     everything is ${AICI.gen({ regex: /\d\d/ })}`
     },
-    { model: "mixtral", aici: true }
+    { model: "aici:mixtral" }
 )
 
 $`What is the meaning of ${answer}?`
