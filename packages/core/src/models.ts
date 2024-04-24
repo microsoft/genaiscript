@@ -6,14 +6,28 @@ import { OAIToken, host } from "./host"
 import { OpenAIModel } from "./openai"
 
 export function resolveLanguageModel(
-    family: "openai" | "aici",
+    template: ModelOptions,
     options?: {
         languageModel?: LanguageModel
     }
 ): LanguageModel {
     if (options?.languageModel) return options?.languageModel
-    if (family === "aici") return AICIModel
+    if (template.aici) return AICIModel
     return OpenAIModel
+}
+
+export function parseModelIdentifier(id: string) {
+    let provider = "openai"
+    let model = id || "gpt-4"
+    const i = id?.indexOf(":")
+    if (i > -1) {
+        provider = id.substring(0, i)
+        model = id.substring(i + 1)
+    }
+
+    model = model.replace("-35-", "-3.5-")
+
+    return { provider, model }
 }
 
 export type ModelConnectionInfo = ModelConnectionOptions &

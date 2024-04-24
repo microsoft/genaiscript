@@ -1,15 +1,18 @@
 import { AZURE_OPENAI_API_VERSION } from "./constants"
 import { OAIToken } from "./host"
+import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    const { model = "gpt-4", aici } = options
+    const { aici } = options
+    const { provider, model } = parseModelIdentifier(options.model)
+
     if (aici) {
         if (env.AICI_API_BASE) {
-            const base = env.AICI_API_BASE
+            const base = trimTrailingSlash(env.AICI_API_BASE)
             const token = env.AICI_API_KEY
             const version = env.AICI_API_VERSION ?? "v1"
             return {
@@ -20,19 +23,7 @@ export async function parseTokenFromEnv(
                 version,
             }
         }
-    } else {
-        // try to get the named env vars
-        const prefix = model.toUpperCase().replace(/-/g, "_")
-        const modelKey = prefix + "_API_KEY"
-        const modelBase = prefix + "_API_BASE"
-        if (env[modelKey] || env[modelBase]) {
-            const token = env[modelKey] ?? ""
-            const base = env[modelBase] ?? ""
-            const version = env[prefix + "_API_VERSION"]
-            const source = `env: ${prefix}_API_...`
-            return { token, base, version, source }
-        }
-
+    } else if (provider === "openai") {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
@@ -119,6 +110,21 @@ export async function parseTokenFromEnv(
                 type: "azure",
                 source: "env: AZURE_...",
                 version,
+            }
+        }
+    } else {
+        const prefixes = [`${provider}_${model}`, provider].map((p) =>
+            p.toUpperCase().replace(/[^a-z0-9]+/gi, "_")
+        )
+        for (const prefix of prefixes) {
+            const modelKey = prefix + "_API_KEY"
+            const modelBase = prefix + "_API_BASE"
+            if (env[modelKey] || env[modelBase]) {
+                const token = env[modelKey] ?? ""
+                const base = trimTrailingSlash(env[modelBase])
+                const version = env[prefix + "_API_VERSION"]
+                const source = `env: ${prefix}_API_...`
+                return { token, base, version, source }
             }
         }
     }

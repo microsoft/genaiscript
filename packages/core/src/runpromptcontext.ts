@@ -139,7 +139,7 @@ export function createRunPromptContext(
                     return <RunPromptResult>{ text: "", finishReason: "error" }
                 }
                 const { completer } = resolveLanguageModel(
-                    promptOptions?.aici ? "aici" : "openai",
+                    promptOptions,
                     runOptions
                 )
                 const res = await completer(

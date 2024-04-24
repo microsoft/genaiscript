@@ -270,10 +270,7 @@ export async function runTemplate(
         throw new RequestError(403, "token not configured", connection.info)
     }
 
-    const { completer } = resolveLanguageModel(
-        template.aici ? "aici" : "openai",
-        options
-    )
+    const { completer } = resolveLanguageModel(template, options)
     let repairs = 0
     let genVars: Record<string, string> = {}
 
