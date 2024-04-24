@@ -1,5 +1,6 @@
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
+import { DEFAULT_MODEL } from "./constants"
 import { OAIToken, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
@@ -17,18 +18,23 @@ export function resolveLanguageModel(
     return OpenAIModel
 }
 
+/**
+ * model
+ * provider:model
+ * provider:model:size where modelId model:size
+ * @param id 
+ * @returns 
+ */
 export function parseModelIdentifier(id: string) {
-    let provider = "openai"
-    let model = id || "gpt-4"
-    const i = id?.indexOf(":")
-    if (i > -1) {
-        provider = id.substring(0, i).toLowerCase()
-        model = id.substring(i + 1)
-    }
-
-    model = model.replace("-35-", "-3.5-")
-
-    return { provider, model }
+    const parts = (id || DEFAULT_MODEL).split(":")
+    if (parts.length >= 3)
+        return {
+            provider: parts[0],
+            model: parts[1],
+            modelId: parts.slice(2).join(":"),
+        }
+    else if (parts.length === 2) return { provider: parts[0], model: parts[1] }
+    else return { provider: "openai", model: id.replace("-35-", "-3.5-") }
 }
 
 export type ModelConnectionInfo = ModelConnectionOptions &
