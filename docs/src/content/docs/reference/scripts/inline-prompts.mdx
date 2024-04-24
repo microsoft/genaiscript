@@ -5,7 +5,8 @@ sidebar:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import summaryOfSummary from "../../../../../../packages/sample/genaisrc/summary-of-summary.genai.js?raw"
+import summaryOfSummaryGpt35 from "../../../../../../packages/sample/genaisrc/summary-of-summary-gpt35.genai.js?raw"
+import summaryOfSummaryPhi3 from "../../../../../../packages/sample/genaisrc/summary-of-summary-phi3.genai.js?raw"
 
 The `runPrompt` function allows to build an inner LLM invocation. It returns the output of the prompt.
 
@@ -34,9 +35,16 @@ Make sure to `await` all calls to `runPrompt` or you will find yourself in some 
 
 -   Nested [functions](/genaiscript/reference/scripts/functions) are not supported in the inner prompt.
 
-## Example: Summary of file summaries
+## Example: Summary of file summaries using gpt-3.5
 
 The snippet below uses `gpt-3.5` to summarize files individually before
 adding them to the main prompt.
 
-<Code code={summaryOfSummary} wrap={true} lang="js" />
+<Code code={summaryOfSummaryGpt35} wrap={true} lang="js" />
+
+## Example: Summary of file summaries using Phi-3
+
+The snippet below uses [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/) 
+through [Ollama](https://ollama.com/) to summarize files individually before adding them to the main prompt.
+
+<Code code={summaryOfSummaryPhi3} wrap={true} lang="js" />
