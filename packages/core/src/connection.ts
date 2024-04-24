@@ -1,4 +1,4 @@
-import { AZURE_OPENAI_API_VERSION } from "./constants"
+import { AZURE_OPENAI_API_VERSION, OLLAMA_API_BASE } from "./constants"
 import { OAIToken } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
@@ -124,7 +124,18 @@ export async function parseTokenFromEnv(
                 const base = trimTrailingSlash(env[modelBase])
                 const version = env[prefix + "_API_VERSION"]
                 const source = `env: ${prefix}_API_...`
-                return { token, base, version, source }
+                const type = "local"
+                return { token, base, version, type, source }
+            }
+        }
+
+        // default connection location
+        if (provider === "ollama") {
+            return {
+                base: OLLAMA_API_BASE,
+                token: "ollama",
+                type: "local",
+                source: "default",
             }
         }
     }

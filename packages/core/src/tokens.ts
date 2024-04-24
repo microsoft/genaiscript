@@ -6,6 +6,7 @@ import {
 } from "openai/resources"
 import { encodeChat, encode } from "gpt-tokenizer"
 import { logError, logVerbose } from "./util"
+import { parseModelIdentifier } from "./models"
 
 export function estimateTokens(model: string, text: string) {
     if (!text?.length) return 0
@@ -18,7 +19,7 @@ export function estimateTokens(model: string, text: string) {
 }
 
 export function estimateChatTokens(
-    model: string,
+    modelId: string,
     messages: ChatCompletionMessageParam[],
     tools?: ChatCompletionTool[]
 ): number {
@@ -59,7 +60,7 @@ export function estimateChatTokens(
                               .join("\n"),
             }))
             .filter(({ content }) => !!content?.length)
-        const chatTokens = encodeChat(chat, model as any)
+        const chatTokens = encodeChat(chat, "gpt-4")
         return chatTokens.length | 0
     } catch (e) {
         logVerbose(e)

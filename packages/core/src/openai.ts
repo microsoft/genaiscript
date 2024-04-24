@@ -72,7 +72,7 @@ const OpenAIChatCompletion: ChatCompletionHandler = async (
         return { text: cached, cached: true }
     }
 
-    const r2 = { ...req }
+    const r2 = { ...req, model }
     let postReq: any = r2
 
     let url = ""

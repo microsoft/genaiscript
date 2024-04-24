@@ -21,7 +21,7 @@ export function parseModelIdentifier(id: string) {
     let model = id || "gpt-4"
     const i = id?.indexOf(":")
     if (i > -1) {
-        provider = id.substring(0, i)
+        provider = id.substring(0, i).toLowerCase()
         model = id.substring(i + 1)
     }
 
