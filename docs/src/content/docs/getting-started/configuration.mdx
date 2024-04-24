@@ -165,23 +165,26 @@ OPENAI_API_BASE=http://localhost:...
 
 </Steps>
 
-### Named environment variables
+### Model specific environment variables
 
 You can provide different environment variables
 for each named model by using `MODEL_NAME` prefix.
+The model name is capitalized and 
+all non-alphanumeric characters are converted to `_`.
 
 This allows to have various sources of LLM computations
-for different models. For example, to enable the `phi3`
-model running locally, while keeping the default `openai` model connection information.
+for different models. For example, to enable the `ollama:phi3`
+model running locally, 
+while keeping the default `openai` model connection information.
 
 ```txt title=".env"
-PHI3_API_BASE=http://localhost:...
+OLLAMA_PHI3_API_BASE=http://localhost:11434
 ```
 
 ### VSCode Copilot
 
-Visual Studio Code **Insiders** provides an **experimental 
-support** to use your Copilot subscription to access a LLM inside of Visual Studio Code.
+Visual Studio Code **Insiders** provides an 
+**experimental support** to use your Copilot subscription to access a LLM inside of Visual Studio Code.
 
 :::caution[Limitations]
 

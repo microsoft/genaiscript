@@ -41,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.diff" | "system.annotations" | "system.explanations" | "system.fs_find_files" | "system.fs_read_file" | "system.files" | "system.changelog" | "system.json" | "system" | "system.python" | "system.summary" | "system.tasks" | "system.schema" | "system.technical" | "system.typescript" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.typescript" | "system.typescript" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.fs_read_summary" | "system.fs_read_summary" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.diff" | "system.diff" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.json" | "system.json" | "system" | "system" | "system.technical" | "system.technical" | "system.web_search" | "system.web_search" | "system.files_schema" | "system.files_schema" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.zero_shot_cot" | "system.zero_shot_cot" | "system.functions" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -94,15 +94,21 @@ interface UrlAdapter {
 
 type PromptTemplateResponseType = "json_object" | undefined
 
-interface ModelOptions {
+interface ModelConnectionOptions {
     /**
      * Which LLM model to use.
      *
      * @default gpt-4
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | string
+    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | "mixtral" | string
+    /**
+     * Use AICI controller
+     */
+    aici?: boolean
+}
 
+interface ModelOptions extends ModelConnectionOptions {
     /**
      * Temperature to use. Higher temperature means more hallucination/creativity.
      * Range 0.0-2.0.
@@ -130,46 +136,18 @@ interface ModelOptions {
     seed?: number
 
     /**
-     * Default value for emitting line numbers in fenced code blocks.
+     * If true, the prompt will be cached. If false, the LLM chat is never cached.
+     * Leave empty to use the default behavior.
      */
-    lineNumbers?: boolean
+    cache?: boolean
+
     /**
-     * Use AICI controller
+     * Custom cache name. If not set, the default cache is used.
      */
-    aici?: boolean
+    cacheName?:  string
 }
 
-type PromptParameterType =
-    | string
-    | number
-    | boolean
-    | JSONSchemaNumber
-    | JSONSchemaString
-    | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean>
-
-interface PromptTemplate extends PromptLike, ModelOptions {
-    /**
-     * Groups template in UI
-     */
-    group?: string
-
-    /**
-     * Additional template parameters that will populate `env.vars`
-     */
-    parameters?: PromptParametersSchema
-
-    /**
-     * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
-     */
-    unlisted?: boolean
-
-    /**
-     * Set if this is a system prompt.
-     */
-    isSystem?: boolean
-
+interface ScriptRuntimeOptions {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
@@ -189,6 +167,46 @@ interface PromptTemplate extends PromptLike, ModelOptions {
      * Secrets required by the prompt
      */
     secrets?: string[]
+
+    /**
+     * Default value for emitting line numbers in fenced code blocks.
+     */
+    lineNumbers?: boolean
+}
+
+type PromptParameterType =
+    | string
+    | number
+    | boolean
+    | JSONSchemaNumber
+    | JSONSchemaString
+    | JSONSchemaBoolean
+type PromptParametersSchema = Record<string, PromptParameterType>
+type PromptParameters = Record<string, string | number | boolean>
+
+interface PromptTemplate
+    extends PromptLike,
+        ModelOptions,
+        ScriptRuntimeOptions {
+    /**
+     * Groups template in UI
+     */
+    group?: string
+
+    /**
+     * Additional template parameters that will populate `env.vars`
+     */
+    parameters?: PromptParametersSchema
+
+    /**
+     * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
+     */
+    unlisted?: boolean
+
+    /**
+     * Set if this is a system prompt.
+     */
+    isSystem?: boolean
 }
 
 /**
@@ -520,6 +538,7 @@ interface RunPromptResult {
         | "tool_calls"
         | "content_filter"
         | "cancel"
+        | "error"
 }
 
 /**

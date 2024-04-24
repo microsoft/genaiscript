@@ -41,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.typescript" | "system.typescript" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.fs_read_summary" | "system.fs_read_summary" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.diff" | "system.diff" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.json" | "system.json" | "system" | "system" | "system.technical" | "system.technical" | "system.web_search" | "system.web_search" | "system.files_schema" | "system.files_schema" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.zero_shot_cot" | "system.zero_shot_cot" | "system.functions" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -342,13 +342,13 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface PromptFileSystem {
+interface FileSystem {
     findFiles(glob: string): Promise<string[]>
     /**
-     * Reads the content of a file as text
+     * Reads the content of a file
      * @param path
      */
-    readText(path: string | LinkedFile): Promise<LinkedFile>
+    readFile(path: string): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
@@ -906,8 +906,6 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type RunPromptGenerator = (ctx: RunPromptContext) => void | Promise<void>
-
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
     writeText(body: string | Promise<string>, options?: WriteTextOptions): void
@@ -915,7 +913,7 @@ interface RunPromptContext {
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
     runPrompt(
-        generator: string | RunPromptGenerator,
+        generator: (ctx: RunPromptContext) => void | Promise<void>,
         options?: ModelOptions
     ): Promise<RunPromptResult>
 }
@@ -1097,7 +1095,7 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    fs: PromptFileSystem
+    fs: FileSystem
     YAML: YAML
     XML: XML
     CSV: CSV
@@ -1193,7 +1191,7 @@ declare var retrieval: Retrieval
 /**
  * Access to file system operation on the current workspace.
  */
-declare var fs: PromptFileSystem
+declare var fs: FileSystem
 
 /**
  * YAML parsing and stringifying functions.
@@ -1262,7 +1260,7 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: string | RunPromptGenerator,
+    generator: (ctx: RunPromptContext) => void | Promise<void>,
     options?: ModelOptions
 ): Promise<RunPromptResult>
 
