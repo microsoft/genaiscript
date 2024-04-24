@@ -1,6 +1,6 @@
 script({
-    model: "ollama:phi3",
-    title:"summarize with ollama phi3",
+    model: "ollama:llama3",
+    title:"summarize with ollama gemma",
     system: ["system"]
 })
 

@@ -294,7 +294,7 @@ ${e.message}`
                     )
             } else if (isRequestError(e)) {
                 const msg = isRequestError(e, 404)
-                    ? `OpenAI model not found (404). Does your token support the selected model?`
+                    ? `LLM model not found (404).`
                     : e.message
                 await vscode.window.showWarningMessage(msg)
             } else throw e

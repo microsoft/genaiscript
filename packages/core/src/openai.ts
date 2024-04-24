@@ -20,7 +20,7 @@ import { RequestError } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 
-const OpenAIChatCompletion: ChatCompletionHandler = async (
+export const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
     cfg,
     options,

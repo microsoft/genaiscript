@@ -1,6 +1,7 @@
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
 import { OAIToken, host } from "./host"
+import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
 
 export function resolveLanguageModel(
@@ -10,7 +11,9 @@ export function resolveLanguageModel(
     }
 ): LanguageModel {
     if (options?.languageModel) return options?.languageModel
-    if (template.aici) return AICIModel
+    else if (template.aici) return AICIModel
+    const { provider, model } = parseModelIdentifier(template.model)
+    if (provider === "ollama") return OllamaModel
     return OpenAIModel
 }
 
