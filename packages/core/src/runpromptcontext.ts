@@ -96,9 +96,8 @@ export function createRunPromptContext(
                     trace.error("generator missing")
                     return <RunPromptResult>{ text: "", finishReason: "error" }
                 }
-                const { provider, model } = parseModelIdentifier(
+                const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
-                )
                 const runOptions = {
                     ...options,
                     ...(promptOptions || {}), // overrides options
@@ -115,6 +114,7 @@ export function createRunPromptContext(
 
                 const messages: ChatCompletionMessageParam[] = []
                 // expand template
+                const { provider } = parseModelIdentifier(model)
                 if (provider === "aici") {
                     const { aici } = await renderAICI("prompt", node)
                     // todo: output processor?

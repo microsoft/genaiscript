@@ -41,8 +41,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
-    const { model } = parseModelIdentifier(req.model)
+    const { provider, model } = parseModelIdentifier(req.model)
 
+    trace.itemValue(`provider`, provider)
+    trace.itemValue(`model`, model)
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, top_p)
     trace.itemValue(`seed`, seed)
@@ -91,7 +93,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
     } else throw new Error(`api type ${cfg.type} not supported`)
 
-    trace.itemValue(`model`, model)
     trace.itemValue(`url`, `[${url}](${url})`)
     trace.itemValue(`response_format`, response_format)
     if (tools?.length) {

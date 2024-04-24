@@ -8,6 +8,7 @@ import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { fenceMD } from "./markdown"
+import { parseModelIdentifier } from "./models"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -461,11 +462,12 @@ export async function tracePromptNode(
 }
 
 export async function renderPromptNode(
-    model: string,
+    modelId: string,
     node: PromptNode,
     options?: TraceOptions
 ): Promise<PromptNodeRender> {
     const { trace } = options || {}
+    const { model } = parseModelIdentifier(modelId)
 
     await resolvePromptNode(model, node, options)
     await tracePromptNode(trace, node)
