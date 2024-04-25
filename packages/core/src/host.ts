@@ -24,7 +24,7 @@ export enum LogLevel {
     Error = 4,
 }
 
-export type APIType = "openai" | "azure" | "local" | "llama"
+export type APIType = "openai" | "azure"
 
 export interface OAIToken {
     base: string
@@ -119,10 +119,19 @@ export type ParsePdfResponse = ResponseStatus & {
 
 export interface ParseService {
     init(trace?: MarkdownTrace): Promise<void>
-    parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse>
+    parsePdf(
+        filename: string,
+        options?: TraceOptions
+    ): Promise<ParsePdfResponse>
 }
 
-export type ServerResponse = ResponseStatus & { version: string, node: string, platform: string, arch: string, pid: number }
+export type ServerResponse = ResponseStatus & {
+    version: string
+    node: string
+    platform: string
+    arch: string
+    pid: number
+}
 
 export interface ServerManager {
     start(): Promise<void>
@@ -146,7 +155,9 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getSecretToken(options: ModelConnectionOptions): Promise<OAIToken | undefined>
+    getSecretToken(
+        options: ModelConnectionOptions
+    ): Promise<OAIToken | undefined>
 
     log(level: LogLevel, msg: string): void
 

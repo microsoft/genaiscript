@@ -1,5 +1,5 @@
 import { AZURE_OPENAI_API_VERSION, OLLAMA_API_BASE } from "./constants"
-import { OAIToken } from "./host"
+import { APIType, OAIToken } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
 
@@ -7,28 +7,20 @@ export async function parseTokenFromEnv(
     env: Record<string, string>,
     options: ModelConnectionOptions
 ): Promise<OAIToken> {
-    const { provider, model } = parseModelIdentifier(options.model)
+    const { provider, model, tag } = parseModelIdentifier(options.model)
 
     if (provider === "openai") {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
-            let type = env.OPENAI_API_TYPE as "azure" | "local" | "openai"
+            let type = env.OPENAI_API_TYPE as "azure" | "openai"
             const version = env.OPENAI_API_VERSION
-            if (
-                type &&
-                type !== "azure" &&
-                type !== "local" &&
-                type !== "openai"
-            )
-                throw new Error(
-                    "OPENAI_API_TYPE must be 'azure', 'openai', or 'local'"
-                )
+            if (type && type !== "azure" && type !== "openai")
+                throw new Error("OPENAI_API_TYPE must be 'azure' or 'openai'")
             if (type === "azure" && !base)
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
                 )
-            if (!type && /http:\/\/localhost:\d+/.test(base)) type = "local"
             if (
                 type === "azure" &&
                 version &&
@@ -38,19 +30,11 @@ export async function parseTokenFromEnv(
                     `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
             if (!type) type = "openai" // default
-            if (type === "local") {
-                return {
-                    base,
-                    token,
-                    type,
-                    source: "env: OPENAI_API_...",
-                    version,
-                }
-            }
-            if (!token) throw new Error("OPEN_API_KEY missing")
-            if (type === "openai") base ??= "https://api.openai.com/v1/"
-            else if (type === "azure")
+            if (type === "openai" && !base) base = "https://api.openai.com/v1/"
+            if (type === "azure")
                 base = trimTrailingSlash(base) + "/openai/deployments"
+            if (!token && !/^http:\/\//i.test(base))
+                throw new Error("OPEN_API_KEY missing")
             return {
                 base,
                 type,
@@ -99,9 +83,14 @@ export async function parseTokenFromEnv(
             }
         }
     } else {
-        const prefixes = [`${provider}_${model}`, provider].map((p) =>
-            p.toUpperCase().replace(/[^a-z0-9]+/gi, "_")
-        )
+        const prefixes = [
+            tag ? `${provider}_${model}_${tag}` : undefined,
+            provider ? `${provider}_${model}` : undefined,
+            provider ? provider : undefined,
+            model,
+        ]
+            .filter((p) => p)
+            .map((p) => p.toUpperCase().replace(/[^a-z0-9]+/gi, "_"))
         for (const prefix of prefixes) {
             const modelKey = prefix + "_API_KEY"
             const modelBase = prefix + "_API_BASE"
@@ -110,8 +99,8 @@ export async function parseTokenFromEnv(
                 const base = trimTrailingSlash(env[modelBase])
                 const version = env[prefix + "_API_VERSION"]
                 const source = `env: ${prefix}_API_...`
-                const type = "local"
-                return { token, base, version, type, source }
+                const type: APIType = "openai"
+                return { token, base, type, version, source }
             }
         }
 
@@ -120,7 +109,7 @@ export async function parseTokenFromEnv(
             return {
                 base: OLLAMA_API_BASE,
                 token: "ollama",
-                type: "local",
+                type: "openai",
                 source: "default",
             }
         }
