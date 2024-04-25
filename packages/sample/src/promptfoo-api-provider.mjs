@@ -16,7 +16,7 @@ class GenAIScriptApiProvider {
         const { files } = vars
 
         const command = "node"
-        const args = ["../cli/built/genaiscript.cjs", "run", prompt, files]
+        const args = ["../cli/built/genaiscript.cjs", "run", prompt, files, "--no-cache"]
         if (model) args.push("--model", model)
         if (temperature !== undefined) args.push("--temperature", temperature)
         if (topK !== undefined) args.push("--top_k", topK)

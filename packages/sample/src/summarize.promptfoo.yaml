@@ -9,9 +9,19 @@ providers:
       config:
           model: gpt-4
     - id: ./promptfoo-api-provider.mjs
+      label: gpt4-hot
+      config:
+          model: gpt-4
+          temperature: 0.5
+    - id: ./promptfoo-api-provider.mjs
       label: gpt3.5
       config:
           model: gpt-3.5-turbo
+    - id: ./promptfoo-api-provider.mjs
+      label: gpt3.5-hot
+      config:
+          model: gpt-3.5-turbo
+          temperature: 0.5
 
 defaultTest:
     options:
@@ -25,5 +35,7 @@ defaultTest:
         - type: factuality
           value: Markdown is a text-based syntax to describe documents.
 tests:
+    - vars:
+          files: src/rag/markdown.md
     - vars:
           files: src/rag/markdown.md
