@@ -1,0 +1,27 @@
+prompts:
+    - code-optimizer
+
+providers:
+    - id: ./promptfoo-api-provider.mjs
+      label: gpt4
+      config:
+          model: gpt-4
+
+defaultTest:
+    options:
+        provider:
+            id: azureopenai:chat:gpt-4
+            config:
+                apiHost: "tnrllmproxy.azurewebsites.net"
+    assert:
+        - type: icontains
+          value: '{{keyword}}'    
+        - type: llm-rubric
+          value: contains a file diff
+        - type: factuality
+          value: '{{fact}}'
+tests:
+    - vars:
+          files: src/counting.py
+          keyword: DIFF
+          fact: The response provides suggestions to make the code faster.

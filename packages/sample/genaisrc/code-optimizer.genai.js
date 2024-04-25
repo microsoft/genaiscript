@@ -4,11 +4,11 @@ script({
         "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",
     maxTokens: 2000,
     group: "samples",
-    system: ["system", "system.diff", "system.summary"],
+    system: ["system", "system.diff"],
 })
 
 // Modified from https://twitter.com/mattshumer_/status/1719403205950349588?s=46
-def("FILE", env.files, { lineNumbers: true })
+def("FILE", env.files)
 
 $`
 You are a world expert in making code run faster. You use any resource you can to do so.
