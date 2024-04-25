@@ -3,19 +3,12 @@
 description: 'My first eval'
 
 prompts:
-  - file://./src/promptfoo.mjs
+  - file://./src/promptfoo-api-provider.mjs
 
 providers:
-  - id: azureopenai:chat:gpt-4
-    config:
-      apiHost: 'tnrllmproxy.azurewebsites.net'
+  - './src/promptfoo-api-provider.mjs'
 
 defaultTest:
-  options:
-    provider:
-      id: azureopenai:chat:gpt-4
-      config:
-        apiHost: 'tnrllmproxy.azurewebsites.net'
   assert:
     - type: llm-rubric
       value: mentions Markdown
