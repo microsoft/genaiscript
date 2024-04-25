@@ -4,7 +4,7 @@ import { NPM_CLI_PACKAGE } from "./constants"
 import { MarkdownTrace } from "./trace"
 
 export function generateCliArguments(
-    template: PromptTemplate,
+    template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions,
     command: "run" | "batch"
@@ -30,7 +30,7 @@ export function generateCliArguments(
 
 export function traceCliArgs(
     trace: MarkdownTrace,
-    template: PromptTemplate,
+    template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions
 ) {

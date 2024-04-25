@@ -188,7 +188,7 @@ type PromptParameterType =
 type PromptParametersSchema = Record<string, PromptParameterType>
 type PromptParameters = Record<string, string | number | boolean>
 
-interface PromptTemplate
+interface PromptScript
     extends PromptLike,
         ModelOptions,
         ScriptRuntimeOptions {
@@ -398,7 +398,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
 
 type PromptSystemArgs = Omit<
     PromptArgs,

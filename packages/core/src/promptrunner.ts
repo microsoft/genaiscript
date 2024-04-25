@@ -1,5 +1,5 @@
 import { ChatCompletionResponse, ChatCompletionTool } from "./chat"
-import { Fragment, PromptTemplate } from "./ast"
+import { Fragment, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
 import {
@@ -31,7 +31,7 @@ import { createFetch } from "./fetch"
 
 async function fragmentVars(
     trace: MarkdownTrace,
-    template: PromptTemplate,
+    template: PromptScript,
     frag: Fragment
 ) {
     const { file } = frag
@@ -133,7 +133,7 @@ async function fragmentVars(
 }
 
 export async function runTemplate(
-    template: PromptTemplate,
+    template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions
 ): Promise<FragmentTransformResponse> {

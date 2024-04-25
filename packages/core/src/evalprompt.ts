@@ -4,7 +4,7 @@ import { consoleLogFormat } from "./logging"
 
 export async function evalPrompt(
     ctx0: PromptContext,
-    r: PromptTemplate,
+    r: PromptScript,
     options?: {
         sourceMaps?: boolean
         logCb?: (msg: string) => void

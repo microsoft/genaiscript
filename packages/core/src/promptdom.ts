@@ -29,20 +29,20 @@ export interface PromptNode extends ContextExpansionOptions {
 
 export interface PromptTextNode extends PromptNode {
     type: "text"
-    value: string | Promise<string>
+    value: Awaitable<string>
     resolved?: string
 }
 
 export interface PromptDefNode extends PromptNode, DefOptions {
     type: "def"
     name: string
-    value: LinkedFile | Promise<LinkedFile>
+    value: Awaitable<LinkedFile>
     resolved?: LinkedFile
 }
 
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
-    value: string | Promise<string>
+    value: Awaitable<string>
     resolve?: string
 }
 
@@ -61,7 +61,7 @@ export interface PromptImage {
 
 export interface PromptImageNode extends PromptNode {
     type: "image"
-    value: PromptImage | Promise<PromptImage>
+    value: Awaitable<PromptImage>
     resolved?: PromptImage
 }
 
@@ -91,7 +91,7 @@ export interface PromptOutputProcessorNode extends PromptNode {
 }
 
 export function createTextNode(
-    value: string | Promise<string>,
+    value: Awaitable<string>,
     options?: ContextExpansionOptions
 ): PromptTextNode {
     assert(value !== undefined)
@@ -157,7 +157,7 @@ function renderDefNode(def: PromptDefNode): string {
 }
 
 export function createAssistantNode(
-    value: string | Promise<string>,
+    value: Awaitable<string>,
     options?: ContextExpansionOptions
 ): PromptAssistantNode {
     assert(value !== undefined)
@@ -174,7 +174,7 @@ export function createStringTemplateNode(
 }
 
 export function createImageNode(
-    value: PromptImage | Promise<PromptImage>,
+    value: Awaitable<PromptImage>,
     options?: ContextExpansionOptions
 ): PromptImageNode {
     assert(value !== undefined)
@@ -255,17 +255,17 @@ export function appendChild(parent: PromptNode, child: PromptNode): void {
 }
 
 export interface PromptNodeVisitor {
-    node?: (node: PromptNode) => void | Promise<void>
-    afterNode?: (node: PromptNode) => void | Promise<void>
-    text?: (node: PromptTextNode) => void | Promise<void>
-    def?: (node: PromptDefNode) => void | Promise<void>
-    image?: (node: PromptImageNode) => void | Promise<void>
-    schema?: (node: PromptSchemaNode) => void | Promise<void>
-    function?: (node: PromptFunctionNode) => void | Promise<void>
-    fileMerge?: (node: PromptFileMergeNode) => void | Promise<void>
-    stringTemplate?: (node: PromptStringTemplateNode) => void | Promise<void>
-    outputProcessor?: (node: PromptOutputProcessorNode) => void | Promise<void>
-    assistant?: (node: PromptAssistantNode) => void | Promise<void>
+    node?: (node: PromptNode) => Awaitable<void>
+    afterNode?: (node: PromptNode) => Awaitable<void>
+    text?: (node: PromptTextNode) => Awaitable<void>
+    def?: (node: PromptDefNode) => Awaitable<void>
+    image?: (node: PromptImageNode) => Awaitable<void>
+    schema?: (node: PromptSchemaNode) => Awaitable<void>
+    function?: (node: PromptFunctionNode) => Awaitable<void>
+    fileMerge?: (node: PromptFileMergeNode) => Awaitable<void>
+    stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void>
+    outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void>
+    assistant?: (node: PromptAssistantNode) => Awaitable<void>
 }
 
 export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {

@@ -1,4 +1,4 @@
-/// <reference path="./src/prompt_template.d.ts"/>
+/// <reference path="./prompt_template.d.ts"/>
 
 // keep in sync with PromptContext!
 
@@ -17,7 +17,10 @@ declare function system(options: PromptSystemArgs): void
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function writeText(body: string | Promise<string>, options?: WriteTextOptions): void
+declare function writeText(
+    body: Awaitable<string>,
+    options?: WriteTextOptions
+): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -41,7 +44,11 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  * @param body string to be fenced/defined
  * @returns variable name
  */
-declare function def(name: string, body: StringLike, options?: DefOptions): string
+declare function def(
+    name: string,
+    body: StringLike,
+    options?: DefOptions
+): string
 
 /**
  * Declares a function that can be called from the prompt.
@@ -159,9 +166,8 @@ declare function runPrompt(
     options?: ModelOptions
 ): Promise<RunPromptResult>
 
-
 /**
  * Registers a callback to process the LLM output
- * @param fn 
+ * @param fn
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void
