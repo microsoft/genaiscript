@@ -9,7 +9,7 @@
     "typecheck": "tsc -p src",
     "test": "node --import tsx --test src/**.test.ts",
     "test:watch": "node --import tsx --watch --test-name-pattern=run --test src/**.test.ts",
-    "promptfoo:eval": "npx --yes promptfoo@latest eval --no-cache",
-    "promptfoo:view": "npx --yes promptfoo@latest view"
+    "promptfoo:eval": "npx --yes promptfoo@latest eval -c src/*.promptfoo.yaml --no-cache -j 1",
+    "promptfoo:view": "npx --yes promptfoo@latest view -y"
   }
 }

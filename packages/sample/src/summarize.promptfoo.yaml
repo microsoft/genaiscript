@@ -4,11 +4,11 @@ prompts:
   - 'summarize'
 
 providers:
-  - id: ./src/promptfoo-api-provider.mjs
+  - id: ./promptfoo-api-provider.mjs
     label: gpt4
     config:
       model: gpt-4
-  - id: ./src/promptfoo-api-provider.mjs
+  - id: ./promptfoo-api-provider.mjs
     label: gpt3.5
     config:
       model: gpt-3.5-turbo
