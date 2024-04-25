@@ -30,11 +30,22 @@ defaultTest:
             config:
                 apiHost: "tnrllmproxy.azurewebsites.net"
     assert:
+        - type: contains
+          value: '{{keyword}}'    
         - type: llm-rubric
-          value: mentions Markdown
+          value: is a summary
         - type: factuality
-          value: Markdown is a text-based syntax to describe documents.
+          value: '{{fact}}'
 tests:
     - vars:
           files: src/rag/markdown.md
-
+          keyword: markdown
+          fact: Markdown is a text-based syntax to describe documents.
+    - vars:
+          files: src/rag/loremipsum.pdf
+          keyword: lorem
+          fact: '"Lorem ipsum" is a type of placeholder text used in the publishing and design industry.'
+    - vars:
+          files: src/rag/Document.docx
+          keyword: Microsoft
+          fact: 'Microsoft Word is a word processing software developed by Microsoft.'
