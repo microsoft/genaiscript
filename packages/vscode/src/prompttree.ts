@@ -2,12 +2,12 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
     CHANGE,
-    PromptTemplate,
+    PromptScript,
     groupBy,
     templateGroup,
 } from "genaiscript-core"
 
-type PromptTreeNode = string | PromptTemplate
+type PromptTreeNode = string | PromptScript
 
 class PromptTreeDataProvider
     implements vscode.TreeDataProvider<PromptTreeNode>

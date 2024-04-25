@@ -13,7 +13,7 @@ export function isSARIFFilename(f: string) {
 
 // use with MS-SarifVSCode.sarif-viewer
 export function convertDiagnosticsToSARIF(
-    template: PromptTemplate,
+    template: PromptScript,
     issues: Diagnostic[]
 ) {
     const sarifRunBuilder = new SarifRunBuilder().initSimple({

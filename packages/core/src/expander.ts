@@ -1,4 +1,4 @@
-import { Fragment, PromptTemplate } from "./ast"
+import { Fragment, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, normalizeString } from "./util"
 import { MarkdownTrace } from "./trace"
 import { isCancelError } from "./error"
@@ -75,7 +75,7 @@ export interface FragmentTransformResponse extends PromptGenerationOutput {
 }
 
 async function callExpander(
-    r: PromptTemplate,
+    r: PromptScript,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: RunTemplateOptions
@@ -198,7 +198,7 @@ function traceEnv(
     trace.endDetails()
 }
 
-function resolveSystems(template: PromptTemplate) {
+function resolveSystems(template: PromptScript) {
     const { jsSource } = template
     const systems = (template.system ?? []).slice(0)
     if (template.system === undefined) {
@@ -219,7 +219,7 @@ function resolveSystems(template: PromptTemplate) {
 }
 
 export async function expandTemplate(
-    template: PromptTemplate,
+    template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions,
     env: ExpansionVariables,

@@ -1,6 +1,6 @@
 import { lookupMime } from "./mime"
 import { sha256string, strcmp } from "./util"
-import { Project, TextFile, PromptTemplate, Fragment } from "./ast"
+import { Project, TextFile, PromptScript, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { parsePromptTemplate } from "./template"
 import { fileExists, readText } from "./fs"
@@ -116,7 +116,7 @@ export async function parseProject(options: {
     }
     runFinalizers()
 
-    function templKey(t: PromptTemplate) {
+    function templKey(t: PromptScript) {
         const pref = t.unlisted ? "Z" : t.filename ? "A" : "B"
         return pref + t.title + t.id
     }

@@ -1,4 +1,4 @@
-import { PromptTemplate } from "./ast"
+import { PromptScript } from "./ast"
 import { GENAI_JS_EXT, GENAI_SRC } from "./constants"
 import { host } from "./host"
 import { fileExists, writeText } from "./fs"
@@ -9,7 +9,7 @@ function promptPath(id: string) {
     return host.resolvePath(prompts, id + GENAI_JS_EXT)
 }
 export async function copyPrompt(
-    t: PromptTemplate,
+    t: PromptScript,
     options: { fork: boolean; name?: string }
 ) {
     await host.createDirectory(promptPath(null))

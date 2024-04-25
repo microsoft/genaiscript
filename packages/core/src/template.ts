@@ -1,4 +1,4 @@
-import { Project, Fragment, PromptTemplate } from "./ast"
+import { Project, Fragment, PromptScript } from "./ast"
 import { BUILTIN_PREFIX } from "./constants"
 import { JSON5TryParse } from "./json5"
 function templateIdFromFileName(filename: string) {
@@ -178,7 +178,7 @@ class Checker<T extends PromptLike> {
     }
 }
 
-async function parseMeta(r: PromptTemplate) {
+async function parseMeta(r: PromptScript) {
     // shortcut
     const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
         r.jsSource
@@ -384,18 +384,18 @@ async function parsePromptTemplateCore(
     filename: string,
     content: string,
     prj: Project,
-    finalizer: (checker: Checker<PromptTemplate>) => void
+    finalizer: (checker: Checker<PromptScript>) => void
 ) {
     const r = {
         id: templateIdFromFileName(filename),
         text: "<nothing yet>",
         jsSource: content,
-    } as PromptTemplate
+    } as PromptScript
     if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
 
     try {
         const meta = await parseMeta(r)
-        const checker = new Checker<PromptTemplate>(
+        const checker = new Checker<PromptScript>(
             r,
             filename,
             prj.diagnostics,

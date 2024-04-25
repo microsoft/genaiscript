@@ -3,7 +3,7 @@ import {
     ChatCompletionsProgressReport,
     Project,
     Fragment,
-    PromptTemplate,
+    PromptScript,
     concatArrays,
     parseProject,
     FragmentTransformResponse,
@@ -62,7 +62,7 @@ export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface AIRequestOptions {
     label: string
-    template: PromptTemplate
+    template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
 }

@@ -6,6 +6,8 @@ interface Diagnostic {
     message: string
 }
 
+type Awaitable<T> = T | PromiseLike<T>
+
 interface PromptDefinition {
     /**
      * Based on file name.
@@ -48,7 +50,7 @@ type FileMergeHandler = (
     label: string,
     before: string,
     generated: string
-) => string | Promise<string>
+) => Awaitable<string>
 
 interface PromptOutputProcessorResult {
     /**
@@ -188,7 +190,7 @@ type PromptParameterType =
 type PromptParametersSchema = Record<string, PromptParameterType>
 type PromptParameters = Record<string, string | number | boolean>
 
-interface PromptTemplate
+interface PromptScript
     extends PromptLike,
         ModelOptions,
         ScriptRuntimeOptions {
@@ -398,7 +400,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
@@ -910,11 +912,11 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type RunPromptGenerator = (ctx: RunPromptContext) => void | Promise<void>
+type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
 
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
-    writeText(body: string | Promise<string>, options?: WriteTextOptions): void
+    writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
@@ -1128,7 +1130,10 @@ declare function system(options: PromptSystemArgs): void
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function writeText(body: string | Promise<string>, options?: WriteTextOptions): void
+declare function writeText(
+    body: Awaitable<string>,
+    options?: WriteTextOptions
+): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -1152,7 +1157,11 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  * @param body string to be fenced/defined
  * @returns variable name
  */
-declare function def(name: string, body: StringLike, options?: DefOptions): string
+declare function def(
+    name: string,
+    body: StringLike,
+    options?: DefOptions
+): string
 
 /**
  * Declares a function that can be called from the prompt.
@@ -1270,9 +1279,8 @@ declare function runPrompt(
     options?: ModelOptions
 ): Promise<RunPromptResult>
 
-
 /**
  * Registers a callback to process the LLM output
- * @param fn 
+ * @param fn
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void

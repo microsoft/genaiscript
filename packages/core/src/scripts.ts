@@ -6,7 +6,7 @@ import { logVerbose } from "./util";
 
 export function createScript(
     name: string,
-    options?: { template: PromptTemplate; title?: string }
+    options?: { template: PromptScript; title?: string }
 ) {
     const { template, title } = options || {}
     const t = structuredClone(

@@ -33,7 +33,10 @@ const promptDefs = {
         null,
         4
     ),
-    "genaiscript.d.ts": ["./src/prompt_template.d.ts", "./prompt_type.d.ts"]
+    "genaiscript.d.ts": [
+        "./src/types/prompt_template.d.ts",
+        "./src/types/prompt_type.d.ts",
+    ]
         .map((fn) => readFileSync(fn, { encoding: "utf-8" }))
         .map((src) =>
             src.replace(/^\/\/\/\s+<reference\s+path="[^"]+"\s*\/>\s*$/gm, "")

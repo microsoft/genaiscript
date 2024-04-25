@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { PromptTemplate, copyPrompt, createScript } from "genaiscript-core"
+import { PromptScript, copyPrompt, createScript } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 
@@ -26,7 +26,7 @@ export function activatePromptCommands(state: ExtensionState) {
         ),
         vscode.commands.registerCommand(
             "genaiscript.prompt.create",
-            async (template?: PromptTemplate) => {
+            async (template?: PromptScript) => {
                 const name = await vscode.window.showInputBox({
                     title: "Pick a file name for the new GenAiScript.",
                 })
@@ -38,7 +38,7 @@ export function activatePromptCommands(state: ExtensionState) {
         ),
         vscode.commands.registerCommand(
             "genaiscript.prompt.fork",
-            async (template: PromptTemplate) => {
+            async (template: PromptScript) => {
                 if (!template) {
                     if (!state.project) await state.parseWorkspace()
                     const templates = state.project?.templates
@@ -64,14 +64,14 @@ export function activatePromptCommands(state: ExtensionState) {
         ),
         vscode.commands.registerCommand(
             "genaiscript.prompt.unbuiltin",
-            async (template: PromptTemplate) => {
+            async (template: PromptScript) => {
                 if (!template) return
                 await showPrompt(await copyPrompt(template, { fork: false }))
             }
         ),
         vscode.commands.registerCommand(
             "genaiscript.prompt.navigate",
-            async (prompt: PromptTemplate) => {
+            async (prompt: PromptScript) => {
                 const uri = prompt.filename
                     ? vscode.Uri.file(prompt.filename)
                     : builtinPromptUri(prompt.id)

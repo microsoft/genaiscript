@@ -1,9 +1,9 @@
-/// <reference path="./prompt_template.d.ts" />
+/// <reference path="./types/prompt_template.d.ts" />
 
 import { host } from "./host"
 
-type PromptTemplate = globalThis.PromptTemplate
-export type { PromptTemplate }
+type PromptScript = globalThis.PromptScript
+export type { PromptScript }
 
 export interface FileReference {
     name: string
@@ -77,7 +77,7 @@ export class Fragment {
     }
 }
 
-export function templateGroup(template: PromptTemplate) {
+export function templateGroup(template: PromptScript) {
     return (
         template.group ||
         (/^system/i.test(template.id) ? "system" : "") ||
@@ -94,7 +94,7 @@ export class Project {
     readonly fragmentById: Record<string, Fragment[]> = {}
     readonly fragmentByFullId: Record<string, Fragment> = {}
     readonly allFragments: Fragment[] = []
-    readonly templates: PromptTemplate[] = []
+    readonly templates: PromptScript[] = []
     readonly diagnostics: Diagnostic[] = []
 
     _finalizers: (() => void)[] = []

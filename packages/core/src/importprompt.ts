@@ -12,7 +12,7 @@ function resolveGlobal(): any {
 
 export async function importPrompt(
     ctx0: PromptContext,
-    r: PromptTemplate,
+    r: PromptScript,
     options?: {
         logCb?: (msg: string) => void
     }

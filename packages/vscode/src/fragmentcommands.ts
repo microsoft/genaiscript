@@ -3,7 +3,7 @@ import {
     Fragment,
     GENAI_JS_REGEX,
     NotSupportedError,
-    PromptTemplate,
+    PromptScript,
     assert,
     dotGenaiscriptPath,
     groupBy,
@@ -14,12 +14,12 @@ import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 
 type TemplateQuickPickItem = {
-    template?: PromptTemplate
+    template?: PromptScript
     action?: "create"
 } & vscode.QuickPickItem
 
 async function showPromptParametersQuickPicks(
-    template: PromptTemplate
+    template: PromptScript
 ): Promise<PromptParameters> {
     const parameters: PromptParameters = {}
     for (const param in template.parameters || {}) {
@@ -75,7 +75,7 @@ export function activateFragmentCommands(state: ExtensionState) {
     const { subscriptions } = context
 
     const pickTemplate = async (options?: {
-        filter?: (p: PromptTemplate) => boolean
+        filter?: (p: PromptScript) => boolean
     }) => {
         const { filter = () => true } = options || {}
         const templates = state.project.templates
@@ -131,7 +131,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         options:
             | {
                   fragment?: Fragment | string | vscode.Uri
-                  template?: PromptTemplate
+                  template?: PromptScript
               }
             | vscode.Uri
     ) => {
@@ -184,7 +184,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
-        let template: PromptTemplate
+        let template: PromptScript
         let files: vscode.Uri[]
         if (GENAI_JS_REGEX.test(file.path)) {
             template = state.project.templates.find(
@@ -252,7 +252,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 }
 
 export function templatesToQuickPickItems(
-    templates: globalThis.PromptTemplate[],
+    templates: globalThis.PromptScript[],
     options?: { create?: boolean }
 ): TemplateQuickPickItem[] {
     const { create } = options || {}
