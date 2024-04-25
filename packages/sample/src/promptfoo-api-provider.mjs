@@ -11,19 +11,18 @@ class GenAIScriptApiProvider {
     }
 
     async callApi(prompt, context) {
-        const { model } = this.config
+        const { model, temperature } = this.config
         const { vars } = context
-        const { script, spec } = vars
-        console.log({ prompt, context, config: this.config })
+        const { spec } = vars
+
+//        console.log({ prompt, context, config: this.config })
+
         const command = "node"
-        const args = [
-            "../cli/built/genaiscript.cjs",
-            "run",
-            script,
-            spec,
-            "--model",
-            model,
-        ]
+        const args = ["../cli/built/genaiscript.cjs", "run", prompt, spec]
+        if (model) args.push("--model", model)
+        if (temperature !== undefined) args.push("--temperature", temperature)
+
+        // console.log(args.join(" "))
         const { stdout, exitCode, failed } = await execa(command, args, {
             cleanup: true,
             preferLocal: true,

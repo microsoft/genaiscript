@@ -1,9 +1,7 @@
-# This configuration compares LLM output of 2 prompts x 2 GPT models across 3 test cases.
-# Learn more: https://promptfoo.dev/docs/configuration/guide
-description: 'My first eval'
+description: 'Summarize eval'
 
 prompts:
-  - './src/questions.md'
+  - 'summarize'
 
 providers:
   - id: ./src/promptfoo-api-provider.mjs
@@ -28,8 +26,6 @@ defaultTest:
       value: Markdown is a text-based syntax to describe documents.
 tests:
   - vars:
-      script: summarize
       spec: src/rag/markdown.md
   - vars:
-      script: summarize
       spec: src/rag/Document.docx
