@@ -32,6 +32,8 @@ class GenAIScriptApiProvider {
             preferLocal: true,
             stripFinalNewline: true,
         })
+
+        // warning issued with pdfjs
         const output = stdout?.replace(
             "Warning: TT: undefined function: 32",
             ""
