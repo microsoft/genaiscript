@@ -1,2 +1,0 @@
-- ✅ [src/bztest/gc1.pdf](src/bztest/gc1.pdf.output.md) ([trace](src/bztest/gc1.pdf.trace.md))
-- ❌ [src/bztest/gc2.pdf](src/bztest/gc2.pdf.output.md) ([trace](src/bztest/gc2.pdf.trace.md))

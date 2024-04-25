@@ -1,1 +1,0 @@
-{"error":{"status":429,"statusText":"Too Many Requests","bodyText":"{\"message\":\"timeout waiting for slot; deployment=gcraoai4sw1:gpt-4; credit=300/2286/30000;\"}","retryAfter":1},"__meta":{"tool":"pdf-to-tweet","file":"src/bztest/gc2.pdf"}}
