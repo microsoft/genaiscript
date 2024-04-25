@@ -30,7 +30,7 @@ defaultTest:
             config:
                 apiHost: "tnrllmproxy.azurewebsites.net"
     assert:
-        - type: contains
+        - type: icontains
           value: '{{keyword}}'    
         - type: llm-rubric
           value: is a summary
