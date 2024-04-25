@@ -41,7 +41,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.typescript" | "system.typescript" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.fs_read_summary" | "system.fs_read_summary" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.diff" | "system.diff" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.json" | "system.json" | "system" | "system" | "system.technical" | "system.technical" | "system.web_search" | "system.web_search" | "system.files_schema" | "system.files_schema" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.zero_shot_cot" | "system.zero_shot_cot" | "system.functions" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -101,11 +101,15 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | "mixtral" | string
-    /**
-     * Use AICI controller
-     */
-    aici?: boolean
+    model?:
+        | "gpt-4"
+        | "gpt-4-32k"
+        | "gpt-3.5-turbo"
+        | "ollama:phi3"
+        | "ollama:llama3"
+        | "ollama:mixtral"
+        | "aici:mixtral"
+        | string
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -144,7 +148,7 @@ interface ModelOptions extends ModelConnectionOptions {
     /**
      * Custom cache name. If not set, the default cache is used.
      */
-    cacheName?:  string
+    cacheName?: string
 }
 
 interface ScriptRuntimeOptions {
@@ -342,13 +346,13 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface FileSystem {
+interface PromptFileSystem {
     findFiles(glob: string): Promise<string[]>
     /**
-     * Reads the content of a file
+     * Reads the content of a file as text
      * @param path
      */
-    readFile(path: string): Promise<LinkedFile>
+    readText(path: string | LinkedFile): Promise<LinkedFile>
 }
 
 interface ChatFunctionCallContext {
@@ -906,6 +910,8 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
+type RunPromptGenerator = (ctx: RunPromptContext) => void | Promise<void>
+
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
     writeText(body: string | Promise<string>, options?: WriteTextOptions): void
@@ -913,7 +919,7 @@ interface RunPromptContext {
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
     runPrompt(
-        generator: (ctx: RunPromptContext) => void | Promise<void>,
+        generator: string | RunPromptGenerator,
         options?: ModelOptions
     ): Promise<RunPromptResult>
 }
@@ -1095,7 +1101,7 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    fs: FileSystem
+    fs: PromptFileSystem
     YAML: YAML
     XML: XML
     CSV: CSV
@@ -1191,7 +1197,7 @@ declare var retrieval: Retrieval
 /**
  * Access to file system operation on the current workspace.
  */
-declare var fs: FileSystem
+declare var fs: PromptFileSystem
 
 /**
  * YAML parsing and stringifying functions.
@@ -1260,7 +1266,7 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: (ctx: RunPromptContext) => void | Promise<void>,
+    generator: string | RunPromptGenerator,
     options?: ModelOptions
 ): Promise<RunPromptResult>
 

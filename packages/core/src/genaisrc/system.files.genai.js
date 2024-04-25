@@ -25,8 +25,8 @@ def(
     { language: "markdown" }
 )
 
-$`Make sure to use precisely ${env.fence} to guard file code sections.`
-$`Make sure to use precisely ${env.markdownFence} to guard file markdown sections.`
+$`Make sure to use precisely \`\`\` to guard file code sections.`
+$`Make sure to use precisely \`\`\`\`\` to guard file markdown sections.`
 $`Use full path of filename in code section header.`
 if (folder !== ".") $`When generating new files, place files in folder "${folder}".`
 $`If a file does not have changes, do not regenerate.`

@@ -107,7 +107,7 @@ index N in the above snippets, and then be prefixed with exactly the same whites
 the original snippets above. See also the following examples of the expected response format.
 
 CHANGELOG:
-${env.fence}
+\`\`\`
 ChangeLog:1@<file>
 Description: <summary>.
 OriginalCode@4-6:
@@ -137,7 +137,7 @@ OriginalCode@23-23:
 [23] <white space> <original code line>
 ChangedCode@23-23:
 [23] <white space> <changed code line>
-${env.fence}
+\`\`\`
 `
 `````
 
@@ -174,24 +174,24 @@ $`The DIFF format should be used to generate diff changes on files:
 - do NOT emit line numbers for added lines
 
 DIFF ./file.ts:
-${env.fence}diff
+\`\`\`diff
 [original line number]  <2 lines before changes (not the whole file)>
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
 [original line number]   <2 lines after changes (not the whole file)>
-${env.fence}
+\`\`\`
 
 DIFF ./file2.ts:
-${env.fence}diff
+\`\`\`diff
 [original line number]   <2 lines before changes (not the whole file)>
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
 [original line number]   <2 lines after changes (not the whole file)>
-${env.fence}
+\`\`\`
 `
 
 $`Do not generate anything else than DIFF sections. Use one DIFF section per change.`
@@ -246,8 +246,8 @@ def(
     { language: "markdown" }
 )
 
-$`Make sure to use precisely ${env.fence} to guard file code sections.`
-$`Make sure to use precisely ${env.markdownFence} to guard file markdown sections.`
+$`Make sure to use precisely \`\`\` to guard file code sections.`
+$`Make sure to use precisely \`\`\`\`\` to guard file markdown sections.`
 $`Use full path of filename in code section header.`
 if (folder !== ".") $`When generating new files, place files in folder "${folder}".`
 $`If a file does not have changes, do not regenerate.`

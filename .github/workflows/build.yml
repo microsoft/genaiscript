@@ -24,6 +24,8 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: compile system scripts
+              run: yarn test:system
             - name: compile tests
               run: yarn test:compile
             - name: core tests
@@ -42,4 +44,3 @@ jobs:
               run: node packages/cli/built/genaiscript.cjs run code-xray packages/sample/src/counting.py packages/sample/src/*.ts --prompt -o .genaiscript/tmp/cli -ot $GITHUB_STEP_SUMMARY -l glob
             - name: package vscode
               run: yarn package
-

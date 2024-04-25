@@ -23,24 +23,24 @@ $`The DIFF format should be used to generate diff changes on files:
 - do NOT emit line numbers for added lines
 
 DIFF ./file.ts:
-${env.fence}diff
+\`\`\`diff
 [original line number]  <2 lines before changes (not the whole file)>
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
 [original line number]   <2 lines after changes (not the whole file)>
-${env.fence}
+\`\`\`
 
 DIFF ./file2.ts:
-${env.fence}diff
+\`\`\`diff
 [original line number]   <2 lines before changes (not the whole file)>
 - [original line number] <deleted line>
 - [original line number] <delete line 2>
 + <added line>
 + <added line 2>
 [original line number]   <2 lines after changes (not the whole file)>
-${env.fence}
+\`\`\`
 `
 
 $`Do not generate anything else than DIFF sections. Use one DIFF section per change.`
