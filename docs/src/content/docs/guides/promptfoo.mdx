@@ -48,6 +48,17 @@ The configuration contains various parameters that are converted to command line
 | `version` | The genaiscript version to use if you need to pin it. |
 
 
+## Test vars
+
+The `var.files` can be used to pass the markdown file or files to
+the genaiscript provider. It will populate the `env.files` variable in the script.
+
+```js
+tests:
+    - vars:
+          files: ./mydocument.md
+```
+
 ### GenAIScript provider
 
 <Code code={providerSrc} wrap={true} lang="js" title="genaiscript-api-provider.mjs" />
