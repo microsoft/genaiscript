@@ -37,5 +37,4 @@ defaultTest:
 tests:
     - vars:
           files: src/rag/markdown.md
-    - vars:
-          files: src/rag/markdown.md
+
