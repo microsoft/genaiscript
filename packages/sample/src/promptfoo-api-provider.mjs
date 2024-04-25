@@ -13,13 +13,13 @@ class GenAIScriptApiProvider {
     async callApi(prompt, context) {
         const { vars } = context
         const { script, spec } = vars
+        console.log(context)
         const command = "node"
         const args = [
             "../cli/built/genaiscript.cjs",
             "run",
             script,
             spec,
-            "--prompt",
         ]
         const { stdout, stderr, exitCode, failed } = await execa(
             command,

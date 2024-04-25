@@ -3,7 +3,7 @@
 description: 'My first eval'
 
 prompts:
-  - file://./src/promptfoo-api-provider.mjs
+  - './src/questions.md'
 
 providers:
   - './src/promptfoo-api-provider.mjs'
