@@ -15,12 +15,13 @@ GenAIScript uses a [custom javascript](https://promptfoo.dev/docs/providers/cust
 provider to integrate with promptfoo. It allows to import the GenAIScript script files (`.genai.js` files)
 as prompts in the promptfoo configuration.
 
+- Install [promptfoo](https://www.promptfoo.dev/docs/installation)
 - Save `genaiscript-api-provider.mjs` below in your project.
 - Add the provider to your `genaiscript.config.yaml` file.
 
 ```yaml
 providers:
-  - id: genaiscript-api-provider.mjs
+  - id: ./genaiscript-api-provider.mjs
     label: genaiscript:gpt35
     config:
       model: gpt-3.5-turbo
