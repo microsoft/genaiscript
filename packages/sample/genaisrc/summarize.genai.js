@@ -1,7 +1,8 @@
 script({
-    title:"summarize all files"
+    title:"summarize all files",
+    system: []
 })
 
 def("FILE", env.files)
 
-$`Summarize each file. Be concise.`
+$`Summarize each file with one paragraph. Be concise. Answer in plain text.`
