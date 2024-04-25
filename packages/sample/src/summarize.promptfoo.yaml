@@ -39,7 +39,7 @@ defaultTest:
 tests:
     - vars:
           files: src/rag/markdown.md
-          keyword: markdown
+          keyword: Markdown
           fact: Markdown is a text-based syntax to describe documents.
     - vars:
           files: src/rag/loremipsum.pdf
