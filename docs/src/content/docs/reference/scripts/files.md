@@ -6,9 +6,21 @@ sidebar:
     order: 13
 ---
 
+## `env.files`
+
+The variable `env.files` contains an array of files that have been
+selected by the user through the user interface or the command line.
+
+You can pass `env.files` directly in the [def](/genaiscript/reference/script/context)
+function and add additional filters to the files.
+
+```js
+def("PDFS", env.files, { endsWith: ".pdf" })
+```
+
 ## `fs`
 
-The `fs` object gives access to file system operations
+The `fs` object gives access to file system operations programmatically.
 
 ### `readText`
 
