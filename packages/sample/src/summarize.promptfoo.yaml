@@ -43,7 +43,7 @@ tests:
           fact: Markdown is a text-based syntax to describe documents.
     - vars:
           files: src/rag/loremipsum.pdf
-          keyword: lorem
+          keyword: Lorem
           fact: '"Lorem ipsum" is a type of placeholder text used in the publishing and design industry.'
     - vars:
           files: src/rag/Document.docx

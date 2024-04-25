@@ -27,7 +27,7 @@ class GenAIScriptApiProvider {
             preferLocal: true,
             stripFinalNewline: true,
         })
-        const output = stdout
+        const output = stdout?.replace("Warning: TT: undefined function: 32", "")
         const error = failed ? `exit code ${exitCode}` : undefined
         return {
             output,
