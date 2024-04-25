@@ -1,0 +1,51 @@
+description: "Summarize eval"
+
+prompts:
+    - "summarize"
+
+providers:
+    - id: ./promptfoo-api-provider.mjs
+      label: gpt4
+      config:
+          model: gpt-4
+    - id: ./promptfoo-api-provider.mjs
+      label: gpt4-hot
+      config:
+          model: gpt-4
+          temperature: 0.5
+    - id: ./promptfoo-api-provider.mjs
+      label: gpt3.5
+      config:
+          model: gpt-3.5-turbo
+    - id: ./promptfoo-api-provider.mjs
+      label: gpt3.5-hot
+      config:
+          model: gpt-3.5-turbo
+          temperature: 0.5
+
+defaultTest:
+    options:
+        provider:
+            id: azureopenai:chat:gpt-4
+            config:
+                apiHost: "tnrllmproxy.azurewebsites.net"
+    assert:
+        - type: icontains
+          value: '{{keyword}}'    
+        - type: llm-rubric
+          value: is a summary
+        - type: factuality
+          value: '{{fact}}'
+tests:
+    - vars:
+          files: src/rag/markdown.md
+          keyword: Markdown
+          fact: Markdown is a text-based syntax to describe documents.
+    - vars:
+          files: src/rag/loremipsum.pdf
+          keyword: Lorem
+          fact: '"Lorem ipsum" is a type of placeholder text used in the publishing and design industry.'
+    - vars:
+          files: src/rag/Document.docx
+          keyword: Microsoft
+          fact: 'Microsoft Word is a word processing software developed by Microsoft.'
