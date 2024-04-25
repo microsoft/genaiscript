@@ -13,17 +13,17 @@ class GenAIScriptApiProvider {
     }
 
     async callApi(prompt, context) {
-        const { model, temperature, topK, cache, version } = this.config
+        const { model, temperature, top_p, cache, version } = this.config
         const { vars } = context
         const { files } = vars
 
-        const package = version ? `genaiscript@${version}` : "genaiscript"
         const command = "npx"
+        const package = version ? `genaiscript@${version}` : "genaiscript"
         const args = ["--yes", package, "run", prompt]
         if (files) args.push(files)
         if (model) args.push("--model", model)
         if (temperature !== undefined) args.push("--temperature", temperature)
-        if (topK !== undefined) args.push("--top_k", topK)
+        if (top_p !== undefined) args.push("--top_p", top_p)
         if (vars.vars) args.push("--vars", vars.vars)
         if (cache === false) args.push("--no-cache")
 
