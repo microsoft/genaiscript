@@ -15,10 +15,17 @@ import { emptyDir, ensureDir } from "fs-extra"
 
 export async function scriptsTest(
     id: string,
-    options: { out?: string; cli?: string; removeOut?: boolean, testProvider?: string }
+    options: {
+        out?: string
+        cli?: string
+        removeOut?: boolean
+        testProvider?: string
+    }
 ) {
     const prj = await buildProject()
-    const scripts = prj.templates.filter((t) => t.tests?.length && t.id === id)
+    const scripts = prj.templates
+        .filter((t) => t.tests?.length)
+        .filter((t) => !id || t.id === id)
     if (!scripts.length) throw new Error(`no script with tests found`)
 
     const cli = options.cli || __filename
@@ -36,7 +43,7 @@ export async function scriptsTest(
             out,
             cli,
             provider: "provider.mjs",
-            testProvider
+            testProvider,
         })
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
@@ -54,13 +61,13 @@ export async function scriptsTest(
         `${out}/*.promptfoo.yaml`,
         "--verbose",
     ]
-    const res = await execa(cmd, args, {
+    const exec = execa(cmd, args, {
         preferLocal: true,
         cleanup: true,
         stripFinalNewline: true,
     })
-        .pipeStdout(process.stdout)
-        .pipeStderr(process.stdout)
-
+    exec.pipeStdout(process.stdout)
+    exec.pipeStderr(process.stdout)
+    const res = await exec
     process.exit(res.exitCode)
 }
