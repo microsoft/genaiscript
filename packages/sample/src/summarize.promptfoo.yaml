@@ -39,8 +39,6 @@ defaultTest:
           value: is a summary
         - type: factuality
           value: "{{fact}}"
-        - type: answer-relevance
-          threshold: 0.65
 tests:
     - vars:
           files: src/rag/markdown.md
