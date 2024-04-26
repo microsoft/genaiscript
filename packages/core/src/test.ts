@@ -1,7 +1,7 @@
 import { DEFAULT_MODEL } from "./constants"
 import { RunTemplateOptions } from "./promptcontext"
 import { arrayify } from "./util"
-import { YAMLStringify } from "./yaml"
+
 
 export function generatePromptFooConfiguration(
     script: PromptScript,
@@ -41,5 +41,5 @@ export function generatePromptFooConfiguration(
         })),
     }
 
-    return YAMLStringify(res)
+    return res
 }

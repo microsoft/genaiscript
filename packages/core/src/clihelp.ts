@@ -1,4 +1,4 @@
-import { CORE_VERSION, RunTemplateOptions } from "."
+import { CORE_VERSION, RunTemplateOptions, YAMLStringify } from "."
 import { Fragment } from "./ast"
 import { NPM_CLI_PACKAGE } from "./constants"
 import { generatePromptFooConfiguration } from "./test"
@@ -58,7 +58,7 @@ This [promptfoo](https://www.promptfoo.dev/) configuration can be used to test t
 - save the configuration to \`${template.id}.promptfoo.yaml\`
 
 \`\`\`yaml
-${generatePromptFooConfiguration(template, options)}
+${YAMLStringify(generatePromptFooConfiguration(template, options))}
 \`\`\`
 
 - run

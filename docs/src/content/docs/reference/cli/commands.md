@@ -100,6 +100,7 @@ Commands:
   create <name>             Create a new script
   compile                   Compile all script in workspace
   model [options] [script]  Show model connection information for scripts
+  test [script]             Runs the tests for a script
   help [command]            display help for command
 ```
 
@@ -152,6 +153,20 @@ Arguments:
 Options:
   -t, --token  show token
   -h, --help   display help for command
+```
+
+### `scripts test`
+
+```
+Usage: genaiscript scripts test [options] [script]
+
+Runs the tests for a script
+
+Arguments:
+  script      Script id
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `retrieval`

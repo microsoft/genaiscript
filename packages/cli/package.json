@@ -23,10 +23,10 @@
     "description": "A CLI for GenAIScript, a generative AI scripting framework.",
     "license": "MIT",
     "dependencies": {
-        "tree-sitter-wasms": "^0.1.11",
-        "web-tree-sitter": "^0.22.2",
         "pdfjs-dist": "4.0.379",
-        "typescript": "5.4.5"
+        "tree-sitter-wasms": "^0.1.11",
+        "typescript": "5.4.5",
+        "web-tree-sitter": "^0.22.2"
     },
     "optionalDependencies": {
         "llamaindex": "0.1.21"
@@ -35,6 +35,7 @@
         "node": ">=20.0.0"
     },
     "devDependencies": {
+        "promptfoo": "^0.55.0",
         "@llamaindex/env": "^0.0.5",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.12.7",
@@ -62,7 +63,7 @@
         "zx": "^8.0.2"
     },
     "scripts": {
-        "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms && node ../../scripts/patch-cli.mjs",
+        "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
         "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
         "go": "yarn compile && node built/genaiscript.cjs",
         "test": "node --import tsx --test src/**.test.ts",

@@ -34,6 +34,7 @@ import {
 import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { modelInfo, systemInfo } from "./info"
+import { scriptsTest } from "./test"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -175,6 +176,10 @@ export async function cli() {
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
         .action(modelInfo)
+    scripts.command("test")
+        .description("Runs the tests for a script")
+        .argument("[script]", "Script id")
+        .action(scriptsTest)
 
 
     const retrieval = program
