@@ -1,6 +1,5 @@
 import { DEFAULT_MODEL } from "./constants"
-import { host } from "./host"
-import { arrayify, dotGenaiscriptPath } from "./util"
+import { arrayify } from "./util"
 
 export function generatePromptFooConfiguration(
     script: PromptScript,
@@ -8,12 +7,9 @@ export function generatePromptFooConfiguration(
         provider?: string
         out?: string
         cli?: string
-        resolveFiles?: boolean
     }
 ) {
-    const path = host.path
-
-    const { provider = "provider.mjs", resolveFiles } = options || {}
+    const { provider = "provider.mjs" } = options || {}
     const { description, title, tests = [], id } = script
     const model = options?.model || script?.model || DEFAULT_MODEL
     const temperature = options?.temperature || script?.temperature
@@ -32,9 +28,7 @@ export function generatePromptFooConfiguration(
         ],
         tests: tests.map(({ files = [], rubrics, facts, asserts = [] }) => ({
             vars: {
-                files: arrayify(files).map((f) =>
-                    resolveFiles ? host.path.resolve(f) : f
-                ),
+                files,
             },
             asserts: [
                 ...arrayify(rubrics).map((value) => ({

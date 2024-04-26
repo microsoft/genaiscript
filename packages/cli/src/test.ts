@@ -15,7 +15,7 @@ import { emptyDir, ensureDir } from "fs-extra"
 
 export async function scriptsTest(
     id: string,
-    options: { out?: string; cli?: string, removeOut?: boolean }
+    options: { out?: string; cli?: string; removeOut?: boolean }
 ) {
     const prj = await buildProject()
     const scripts = prj.templates.filter((t) => t.tests?.length && t.id === id)
@@ -34,7 +34,6 @@ export async function scriptsTest(
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
-            resolveFiles: true,
             provider: "provider.mjs",
         })
         const fn = out
