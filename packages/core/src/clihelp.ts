@@ -53,10 +53,18 @@ ${generateCliArguments(template, fragment, options, "run")}
         trace.details(
             "🧪 testing",
             `
-This [promptfoo](https://www.promptfoo.dev/) configuration can be used to test the model:
-            
-\`\`\`yaml title="${template.id}.promptfoo.yaml"
+This [promptfoo](https://www.promptfoo.dev/) configuration can be used to test the script.
+
+- save the configuration to \`${template.id}.promptfoo.yaml\`
+
+\`\`\`yaml
 ${generatePromptFooConfiguration(template, options)}
+\`\`\`
+
+- run
+
+\`\`\`sh
+npx --yes promptfoo eval --verbose -c ${template.id}.promptfoo.yaml
 \`\`\`
 `
         )
