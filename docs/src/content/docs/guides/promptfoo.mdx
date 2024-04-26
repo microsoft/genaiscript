@@ -32,11 +32,33 @@ providers:
 ```yaml
 prompts:
     - summarize # we have a script with id "summarize.genai.js"
+    - ./genaisrc/summarize.genai.js # files work too
+```
+
+- Add tests by configuring the files.
+
+```yaml
+tests:
+    - vars:
+          files: src/rag/markdown.md
+          transform: output.text
+          assert:
+            - type: llm-rubric
+              value: is a summary
+            - type: factuality
+              value: Markdown is a text-based syntax to describe documents.
+
+```
+
+- Run `promptfoo` with the configuration file.
+
+```bash
+npx promptfoo --config genaiscript.config.yaml
 ```
 
 ### Limitations
 
-Currently, promptfoo treats the genaiscript javascript source as the prompt. Therefore, one cannot use assertions
+Currently, promptfoo treats the script source as the prompt text. Therefore, one cannot use assertions
 that also rely on the input text, such as `answer_relevance`.
 
 ## Configuration parameters
@@ -52,13 +74,17 @@ The configuration contains various parameters that are converted to command line
 | `cache` | set to `false` to disable cache |
 | `version` | The genaiscript version to use if you need to pin it. |
 
+## Output
+
+The output is a JSON object that contains the LLM response 
+and all the structured output extracted from it.
 
 ## Test vars
 
 The `var.files` can be used to pass the markdown file or files to
 the genaiscript provider. It will populate the `env.files` variable in the script.
 
-```js
+```yaml
 tests:
     - vars:
           files: ./mydocument.md

@@ -10,7 +10,7 @@
             "type": "node",
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "npm: compile-cli",
-            "args": ["run", "packages/sample/genaisrc/summarize-import.genai.mjs", "packages/sample/src/questions.md"]
+            "args": ["run", "summarize", "packages/sample/src/rag/markdown.md", "--json"]
         },
         {
             "name": "Run - sample",

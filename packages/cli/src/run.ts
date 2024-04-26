@@ -63,8 +63,8 @@ export async function runScript(
     }
 ) {
     const excludedFiles = options.excludedFiles
-    const stream = !options.json && !options.yaml && !options.out
     const out = options.out
+    const stream = !options.json && !options.yaml && !out
     const skipLLM = !!options.prompt
     const retry = parseInt(options.retry) || 8
     const retryDelay = parseInt(options.retryDelay) || 15000
@@ -178,13 +178,15 @@ ${Array.from(files)
     try {
         res = await runTemplate(script, fragment, {
             infoCb: ({ text }) => {
-                if (spinner) spinner.start(text)
-                else logVerbose(text)
+                if (text) {
+                    if (spinner) spinner.start(text)
+                    else if (!isQuiet) logVerbose(text)
+                }
             },
             partialCb: ({ responseChunk, tokensSoFar }) => {
                 tokens = tokensSoFar
-                if (stream) process.stdout.write(responseChunk)
-                else if (spinner) spinner.report({ count: tokens })
+                if (stream && responseChunk) process.stdout.write(responseChunk)
+                if (spinner) spinner.report({ count: tokens })
             },
             skipLLM,
             label,
@@ -307,6 +309,4 @@ ${Array.from(files)
         logVerbose(`error annotations found, exiting with error code`)
         process.exit(ANNOTATION_ERROR_CODE)
     }
-
-    if (!skipLLM) logVerbose(`genaiscript generated ${tokens} tokens`)
 }

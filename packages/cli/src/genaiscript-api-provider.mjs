@@ -37,6 +37,7 @@ class GenAIScriptApiProvider {
         const package = version ? `genaiscript@${version}` : "genaiscript"
         const args = ["--yes", package, "run", prompt]
         if (files) args.push(...files)
+        args.push("--json", "--quiet")
         if (model) args.push("--model", model)
         if (temperature !== undefined) args.push("--temperature", temperature)
         if (top_p !== undefined) args.push("--top_p", top_p)
@@ -49,12 +50,10 @@ class GenAIScriptApiProvider {
             stripFinalNewline: true,
         })
 
-        // warning issued with pdfjs
-        const output = stdout?.replace(
-            "Warning: TT: undefined function: 32",
-            ""
-        )
         const error = failed ? `exit code ${exitCode}` : undefined
+        // drop accidental console.log
+        const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
+        const output = JSON.parse(outputText)
 
         return {
             output,

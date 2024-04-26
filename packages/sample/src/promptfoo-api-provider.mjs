@@ -17,7 +17,7 @@ class GenAIScriptApiProvider {
         const { files } = vars
 
         const command = "node"
-        const args = ["../cli/built/genaiscript.cjs", "run", prompt, files]
+        const args = ["../cli/built/genaiscript.cjs", "run", prompt, files, "--json", "--quiet"]
         if (model) args.push("--model", model)
         if (temperature !== undefined) args.push("--temperature", temperature)
         if (topK !== undefined) args.push("--top_k", topK)
@@ -28,8 +28,9 @@ class GenAIScriptApiProvider {
             preferLocal: true,
             stripFinalNewline: true,
         })
-        const output = stdout?.replace("Warning: TT: undefined function: 32", "")
         const error = failed ? `exit code ${exitCode}` : undefined
+        const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
+        const output = JSON.parse(outputText)
         return {
             output,
             error,

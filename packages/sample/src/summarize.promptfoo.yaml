@@ -19,6 +19,7 @@ providers:
 
 defaultTest:
     options:
+        transform: output.text
         provider:
             text:
                 id: azureopenai:chat:gpt-4
