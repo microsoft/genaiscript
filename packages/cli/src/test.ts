@@ -11,24 +11,32 @@ import {
 import { writeFile } from "fs/promises"
 import { execa } from "execa"
 import { join } from "node:path"
-import { ensureDir } from "fs-extra"
+import { emptyDir, ensureDir } from "fs-extra"
 
 export async function scriptsTest(
     id: string,
-    options: { out?: string; cli?: string }
+    options: { out?: string; cli?: string, removeOut?: boolean }
 ) {
     const prj = await buildProject()
     const scripts = prj.templates.filter((t) => t.tests?.length && t.id === id)
     if (!scripts.length) throw new Error(`no script with tests found`)
 
+    const cli = options.cli || __filename
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
+    const provider = join(out, "provider.mjs")
     logVerbose(`writing tests to ${out}`)
 
+    if (options?.removeOut) await emptyDir(out)
     await ensureDir(out)
-    await writeFile(join(out, "provider.mjs"), promptFooDriver)
+    await writeFile(provider, promptFooDriver)
     for (const script of scripts) {
         logVerbose(`generating tests for ${script.id}`)
-        const config = generatePromptFooConfiguration(script, options)
+        const config = generatePromptFooConfiguration(script, {
+            out,
+            cli,
+            resolveFiles: true,
+            provider: "provider.mjs",
+        })
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
@@ -36,14 +44,20 @@ export async function scriptsTest(
     }
 
     logVerbose(`running tests with promptfoo`)
-    const res = await execa("npx", [
+    const cmd = "npx"
+    const args = [
         "--yes",
         `promptfoo@latest`,
         "eval",
         "--config",
         `${out}/*.promptfoo.yaml`,
         "--verbose",
-    ])
+    ]
+    const res = await execa(cmd, args, {
+        preferLocal: true,
+        cleanup: true,
+        stripFinalNewline: true,
+    })
         .pipeStdout(process.stdout)
         .pipeStderr(process.stderr)
 

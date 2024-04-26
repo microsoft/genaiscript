@@ -97,6 +97,7 @@ Arguments:
 
 Options:
   -o, --out <folder>  output folder
+  -rmo, --remove-out  remove output folder if it exists
   --cli <string>      override path to the cli
   -h, --help          display help for command
 ```

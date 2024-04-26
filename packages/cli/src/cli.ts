@@ -164,6 +164,7 @@ export async function cli() {
         .argument("[script]", "Script id")
         .action(scriptsTest)
         .option("-o, --out <folder>", "output folder")
+        .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
 
     const scripts = program

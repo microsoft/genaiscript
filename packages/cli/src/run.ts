@@ -88,7 +88,9 @@ export async function runScript(
 
     const spinner =
         !stream && !isQuiet
-            ? createProgressSpinner("preparing tool and files")
+            ? createProgressSpinner(
+                  `preparing tools in ${process.cwd()}`
+              )
             : undefined
     const fail = (msg: string, exitCode: number) => {
         if (spinner) spinner.fail(msg)
