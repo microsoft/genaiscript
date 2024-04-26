@@ -1,4 +1,7 @@
-import { execa } from "execa"
+import { promisify } from "node:util"
+import { exec } from "node:child_process"
+
+const execAsync = promisify(exec)
 
 // https://promptfoo.dev/docs/providers/custom-api
 class GenAIScriptApiProvider {
@@ -12,30 +15,23 @@ class GenAIScriptApiProvider {
         return this.providerId
     }
 
-    /**
-     @returns interface ProviderResponse {
-        error?: string;
-        output?: string | object;
-        tokenUsage?: Partial<{
-            total: number;
-            prompt: number;
-            completion: number;
-            cached?: number;
-        }>;
-        cached?: boolean;
-        cost?: number; // required for cost assertion
-        logProbs?: number[]; // required for perplexity assertion
-    }
-    */
     async callApi(prompt, context) {
-        const { model, temperature, top_p, cache, version } = this.config
+        const { model, temperature, top_p, cache, version, provider } =
+            this.config
         const { vars } = context
         let files = vars.files // string or string[]
         if (files && !Array.isArray(files)) files = [files] // ensure array
 
-        const command = "npx"
-        const package = version ? `genaiscript@${version}` : "genaiscript"
-        const args = ["--yes", package, "run", prompt]
+        const args = []
+        if (provider) args.push(`node`, provider)
+        else
+            args.push(
+                `npx`,
+                `--yes`,
+                version ? `genaiscript@${version}` : "genaiscript"
+            )
+
+        args.push("run", prompt)
         if (files) args.push(...files)
         args.push("--json", "--quiet")
         if (model) args.push("--model", model)
@@ -44,16 +40,21 @@ class GenAIScriptApiProvider {
         if (vars.vars) args.push("--vars", vars.vars)
         if (cache === false) args.push("--no-cache")
 
-        const { stdout, exitCode, failed } = await execa(command, args, {
-            cleanup: true,
-            preferLocal: true,
-            stripFinalNewline: true,
-        })
+        const cmd = args
+            .map((a) => (a.includes(" ") ? JSON.stringify(a) : a))
+            .join(" ")
+        const { stdout, error } = await execAsync(cmd)
 
-        const error = failed ? `exit code ${exitCode}` : undefined
-        // drop accidental console.log
         const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
-        const output = JSON.parse(outputText)
+        let output
+        try {
+            output = JSON.parse(outputText)
+        } catch (e) {
+            output = {
+                text: outputText,
+                error: e,
+            }
+        }
 
         return {
             output,

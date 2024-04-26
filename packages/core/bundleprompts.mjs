@@ -15,6 +15,10 @@ for (const prompt of prompts) {
     if (prompt.endsWith(".genai.js"))
         promptMap[prompt.replace(/\.genai\.js$/i, "")] = text
 }
+const promptFooDriver = readFileSync(
+    "./src/genaiscript-api-provider.mjs",
+    "utf-8"
+)
 const promptDefs = {
     ".gitattributes": "genaiscript.d.ts -diff merge=ours linguist-generated",
     "jsconfig.json": JSON.stringify(
@@ -63,7 +67,9 @@ export const promptDefinitions = Object.freeze<Record<string, string>>(${JSON.st
     4
 )});
 
-export const treeSitterWasms: string[] = ${JSON.stringify(wasms)};
+export const treeSitterWasms: string[] = Object.freeze(${JSON.stringify(wasms)});
+
+export const promptFooDriver = ${JSON.stringify(promptFooDriver)}
 \n`
 
 writeFileSync(fp, text, "utf-8")

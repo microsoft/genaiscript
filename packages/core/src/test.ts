@@ -1,18 +1,23 @@
 import { DEFAULT_MODEL } from "./constants"
-import { RunTemplateOptions } from "./promptcontext"
-import { arrayify } from "./util"
-
+import { host } from "./host"
+import { arrayify, dotGenaiscriptPath } from "./util"
 
 export function generatePromptFooConfiguration(
     script: PromptScript,
-    options?: RunTemplateOptions & { provider?: string }
+    options?: ModelOptions & {
+        provider?: string
+        out?: string
+    }
 ) {
-    const { provider = "./.genaiscript/genaiscript-api-provider.mjs" } =
-        options || {}
+    const path = host.path
+
+    const { out = dotGenaiscriptPath("tests") } = options || {}
+    const { provider = path.join(out, "provider.mjs") } = options || {}
     const { description, title, tests = [], id } = script
     const model = options?.model || script?.model || DEFAULT_MODEL
     const temperature = options?.temperature || script?.temperature
     const top_p = options?.topP || script?.topP
+
     const res = {
         description: [title, description].filter((s) => s).join("\n"),
         prompts: [id],

@@ -3,7 +3,7 @@ title: Testing with promptfoo
 sidebar:
   order: 20
 ---
-import providerSrc from "../../../../../packages/cli/src/genaiscript-api-provider.mjs?raw"
+import providerSrc from "../../../../../packages/core/src/genaiscript-api-provider.mjs?raw"
 import { Code } from '@astrojs/starlight/components';
 
 [promptfoo](https://promptfoo.dev/) is a CLI and library for evaluating LLM output quality.
@@ -21,7 +21,7 @@ as prompts in the promptfoo configuration.
 
 ```yaml
 providers:
-  - id: ./genaiscript-api-provider.mjs
+  - id: ./genaiscript/promptfoo-api-provider.mjs
     label: genaiscript:gpt35
     config:
       model: gpt-3.5-turbo
