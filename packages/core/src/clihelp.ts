@@ -53,18 +53,16 @@ ${generateCliArguments(template, fragment, options, "run")}
         trace.details(
             "🧪 testing",
             `
-This [promptfoo](https://www.promptfoo.dev/) configuration can be used to test the script.
-
-- save the configuration to \`${template.id}.promptfoo.yaml\`
+- [promptfoo](https://www.promptfoo.dev/) configuration
 
 \`\`\`yaml
 ${YAMLStringify(generatePromptFooConfiguration(template, options))}
 \`\`\`
 
-- run
+- run the test command
 
 \`\`\`sh
-npx --yes promptfoo eval --verbose -c ${template.id}.promptfoo.yaml
+npx --yes genaiscript test ${template.id}
 \`\`\`
 `
         )
