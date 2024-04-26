@@ -164,6 +164,7 @@ export async function cli() {
         .argument("[script]", "Script id")
         .action(scriptsTest)
         .option("-o, --out <folder>", "output folder")
+        .option("--cli <string>", "override path to the cli")
 
     const scripts = program
         .command("scripts")

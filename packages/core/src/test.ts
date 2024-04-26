@@ -11,7 +11,7 @@ export function generatePromptFooConfiguration(
 ) {
     const path = host.path
 
-    const { out = dotGenaiscriptPath("tests") } = options || {}
+    const { out = "." } = options || {}
     const { provider = path.join(out, "provider.mjs") } = options || {}
     const { description, title, tests = [], id } = script
     const model = options?.model || script?.model || DEFAULT_MODEL

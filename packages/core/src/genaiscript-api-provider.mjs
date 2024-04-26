@@ -16,14 +16,13 @@ class GenAIScriptApiProvider {
     }
 
     async callApi(prompt, context) {
-        const { model, temperature, top_p, cache, version, provider } =
-            this.config
+        const { model, temperature, top_p, cache, version, cli } = this.config
         const { vars } = context
         let files = vars.files // string or string[]
         if (files && !Array.isArray(files)) files = [files] // ensure array
 
         const args = []
-        if (provider) args.push(`node`, provider)
+        if (cli) args.push(`node`, cli)
         else
             args.push(
                 `npx`,
