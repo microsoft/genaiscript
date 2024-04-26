@@ -63,8 +63,8 @@ export async function runScript(
     }
 ) {
     const excludedFiles = options.excludedFiles
-    const stream = !options.json && !options.yaml && !options.out
     const out = options.out
+    const stream = !options.json && !options.yaml && !out
     const skipLLM = !!options.prompt
     const retry = parseInt(options.retry) || 8
     const retryDelay = parseInt(options.retryDelay) || 15000
@@ -88,7 +88,9 @@ export async function runScript(
 
     const spinner =
         !stream && !isQuiet
-            ? createProgressSpinner("preparing tool and files")
+            ? createProgressSpinner(
+                  `preparing tools in ${process.cwd()}`
+              )
             : undefined
     const fail = (msg: string, exitCode: number) => {
         if (spinner) spinner.fail(msg)
@@ -171,20 +173,20 @@ ${Array.from(files)
         parseVars(options.vars)
     )
 
-    spinner?.start("Querying")
-
     let tokens = 0
     let res: FragmentTransformResponse
     try {
         res = await runTemplate(script, fragment, {
             infoCb: ({ text }) => {
-                if (spinner) spinner.start(text)
-                else logVerbose(text)
+                if (text) {
+                    if (spinner) spinner.start(text)
+                    else if (!isQuiet) logVerbose(text)
+                }
             },
             partialCb: ({ responseChunk, tokensSoFar }) => {
                 tokens = tokensSoFar
-                if (stream) process.stdout.write(responseChunk)
-                else if (spinner) spinner.report({ count: tokens })
+                if (stream && responseChunk) process.stdout.write(responseChunk)
+                if (spinner) spinner.report({ count: tokens })
             },
             skipLLM,
             label,
@@ -307,6 +309,4 @@ ${Array.from(files)
         logVerbose(`error annotations found, exiting with error code`)
         process.exit(ANNOTATION_ERROR_CODE)
     }
-
-    if (!skipLLM) logVerbose(`genaiscript generated ${tokens} tokens`)
 }

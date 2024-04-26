@@ -85,6 +85,29 @@ Options:
   -h, --help                         display help for command
 ```
 
+## `test`
+
+```
+Usage: genaiscript test [options] [script]
+
+Runs the tests for scripts
+
+Arguments:
+  script                         Script id. If not provided, all scripts are
+                                 tested
+
+Options:
+  --models [models...]           models to test where mode is the key value
+                                 pair list of m (model), t (temperature), p
+                                 (top-p)
+  -o, --out <folder>             output folder
+  -rmo, --remove-out             remove output folder if it exists
+  --cli <string>                 override path to the cli
+  -tp, --test-provider <string>  test provider
+  --view                         open test viewer once tests are executed
+  -h, --help                     display help for command
+```
+
 ## `scripts`
 
 ```

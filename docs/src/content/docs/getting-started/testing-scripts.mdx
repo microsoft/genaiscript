@@ -1,0 +1,51 @@
+---
+title: Testing scripts
+sidebar:
+  order: 4.6
+---
+import providerSrc from "../../../../../packages/core/src/genaiscript-api-provider.mjs?raw"
+import { Code } from '@astrojs/starlight/components';
+
+It is possible to declare tests and assertions in the `script` function
+to validate the output of the script.
+
+The tests are executed by [promptfoo](https://promptfoo.dev/).
+[promptfoo](https://promptfoo.dev/) is tool for evaluating LLM output quality.
+
+## Declaring tests
+
+The tests are added as an array of objects in the `tests` key of the `script` function.
+
+```js title="proofreader.genai.js"
+scripts({
+  ...,
+  tests: [{
+    files: "src/rag/testcode.ts",
+    rubrics: "is a report with a list of issues",
+    facts: ["The report says that the input string should be validated before use."]
+  }]
+})
+```
+
+## Running tests
+
+You can use the cli to run the tests for one or more scripts.
+
+```sh
+npx genaiscript test proofreader
+```
+
+If `script` is not provided, all scripts with tests will be tested.
+
+## Viewing results
+
+The results of the tests can be explored through the [promptfoo web ui](https://promptfoo.dev/docs/usage/web-ui).
+
+```sh
+npx promptfoo view
+```
+
+## Known limitations
+
+Currently, promptfoo treats the script source as the prompt text. Therefore, one cannot use assertions
+that also rely on the input text, such as `answer_relevance`.

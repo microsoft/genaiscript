@@ -34,6 +34,7 @@ import {
 import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { modelInfo, systemInfo } from "./info"
+import { scriptsTest } from "./test"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -157,28 +158,51 @@ export async function cli() {
         )
         .action(batchScript)
 
+    program
+        .command("test")
+        .description("Runs the tests for scripts")
+        .argument(
+            "[script]",
+            "Script id. If not provided, all scripts are tested"
+        )
+        .action(scriptsTest)
+        .option(
+            "--models [models...]",
+            "models to test where mode is the key value pair list of m (model), t (temperature), p (top-p)"
+        )
+        .option("-o, --out <folder>", "output folder")
+        .option("-rmo, --remove-out", "remove output folder if it exists")
+        .option("--cli <string>", "override path to the cli")
+        .option("-tp, --test-provider <string>", "test provider")
+        .option("--view", "open test viewer once tests are executed")
+
     const scripts = program
-        .command("scripts").alias("script")
+        .command("scripts")
+        .alias("script")
         .description("Utility tasks for scripts")
-    scripts.command("list", { isDefault: true })
+    scripts
+        .command("list", { isDefault: true })
         .description("List all available scripts in workspace")
         .action(listScripts)
-    scripts.command("create")
+    scripts
+        .command("create")
         .description("Create a new script")
         .argument("<name>", "Name of the script")
         .action(createScript)
-    scripts.command("compile")
+    scripts
+        .command("compile")
         .description("Compile all script in workspace")
         .action(compileScript)
-    scripts.command("model")
+    scripts
+        .command("model")
         .description("Show model connection information for scripts")
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
         .action(modelInfo)
 
-
     const retrieval = program
-        .command("retrieval").alias("retreival")
+        .command("retrieval")
+        .alias("retreival")
         .description("RAG support")
     retrieval
         .command("index")
@@ -221,7 +245,8 @@ export async function cli() {
         .action(startServer)
 
     const parser = program
-        .command("parse").alias("parsers")
+        .command("parse")
+        .alias("parsers")
         .description("Parse various outputs")
     parser
         .command("fence <language>")
@@ -259,9 +284,7 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
 
-    const info = program
-        .command("info")
-        .description("Utility tasks")
+    const info = program.command("info").description("Utility tasks")
     info.command("help")
         .description("Show help for all commands")
         .action(helpAll)

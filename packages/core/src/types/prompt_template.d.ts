@@ -190,10 +190,46 @@ type PromptParameterType =
 type PromptParametersSchema = Record<string, PromptParameterType>
 type PromptParameters = Record<string, string | number | boolean>
 
-interface PromptScript
-    extends PromptLike,
-        ModelOptions,
-        ScriptRuntimeOptions {
+type PromptAssertion =
+    | {
+          /**
+           * output contains substring, case insensitive
+           **/
+          type: "icontains"
+          value: string
+      }
+    | {
+          /**
+           * Perplexity is below a threshold
+           */
+          type: "perplexity"
+          threshold: number
+      }
+
+interface PromptTest {
+    /**
+     * Description of the test.
+     */
+    description?: string
+    /**
+     * List of files to apply the test to.
+     */
+    files: string | string[]
+    /**
+     * LLM output matches a given rubric, using a Language Model to grade output.
+     */
+    rubrics?: string | string[]
+    /**
+     * LLM output adheres to the given facts, using Factuality method from OpenAI evaluation.
+     */
+    facts?: string | string[]
+    /**
+     * Additional deterministic assertions.
+     */
+    asserts?: PromptAssertion | PromptAssertion[]
+}
+
+interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     /**
      * Groups template in UI
      */
@@ -203,6 +239,11 @@ interface PromptScript
      * Additional template parameters that will populate `env.vars`
      */
     parameters?: PromptParametersSchema
+
+    /**
+     * Tests to validate this script.
+     */
+    tests?: PromptTest[]
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -404,7 +445,7 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed"
+    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests"
 >
 
 type StringLike = string | LinkedFile | LinkedFile[]

@@ -17,6 +17,12 @@ export function strcmp(a: string, b: string) {
     else return 1
 }
 
+export function arrayify<T>(a: T | T[]): T[] {
+    if (a === undefined) return []
+    if (Array.isArray(a)) return a
+    return [a]
+}
+
 export function toArray<T>(a: ArrayLike<T>): T[] {
     if (!a) return undefined
     const r: T[] = new Array(a.length)

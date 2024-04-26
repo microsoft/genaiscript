@@ -716,6 +716,11 @@ ${repair}
         frames,
         genVars,
     }
-    options?.infoCb?.(res)
+    options?.infoCb?.({
+        label: res.label,
+        vars: res.vars,
+        summary: res.summary,
+        text: template.id,
+    })
     return res
 }
