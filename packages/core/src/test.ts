@@ -28,18 +28,24 @@ export function generatePromptFooConfiguration(
             },
         ],
         defaultTest: {
-            provider: testProvider
-                ? {
-                      text: {
-                          id: "azureopenai:chat:gpt-4",
-                          config: { apiHost: "tnrllmproxy.azurewebsites.net" },
-                      },
-                      embedding: {
-                          id: "azureopenai:embeddings:text-embedding-ada-002",
-                          config: { apiHost: "tnrllmproxy.azurewebsites.net" },
-                      },
-                  }
-                : undefined,
+            options: {
+                provider: testProvider
+                    ? {
+                          text: {
+                              id: "azureopenai:chat:gpt-4",
+                              config: {
+                                  apiHost: "tnrllmproxy.azurewebsites.net",
+                              },
+                          },
+                          embedding: {
+                              id: "azureopenai:embeddings:text-embedding-ada-002",
+                              config: {
+                                  apiHost: "tnrllmproxy.azurewebsites.net",
+                              },
+                          },
+                      }
+                    : undefined,
+            },
         },
         tests: tests.map(
             ({ description, files = [], rubrics, facts, asserts = [] }) => ({
