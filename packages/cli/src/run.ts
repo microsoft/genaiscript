@@ -173,8 +173,6 @@ ${Array.from(files)
         parseVars(options.vars)
     )
 
-    spinner?.start("Querying")
-
     let tokens = 0
     let res: FragmentTransformResponse
     try {
