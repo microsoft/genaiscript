@@ -16,7 +16,7 @@ export function generatePromptFooConfiguration(
     const models = options?.models || []
     if (!models.length) models.push(script)
     const cli = options?.cli
-
+    const transform = "output.transform"
     const res = {
         description: [title, description].filter((s) => s).join("\n"),
         prompts: [id],
@@ -63,16 +63,19 @@ export function generatePromptFooConfiguration(
                     files,
                 },
                 assert: [
+                    ...arrayify(asserts).map((assert) => ({
+                        ...assert,
+                        transform,
+                    })),
                     ...arrayify(rubrics).map((value) => ({
                         type: "llm-rubric",
                         value,
+                        transform,
                     })),
                     ...arrayify(facts).map((value) => ({
                         type: "factuality",
                         value,
-                    })),
-                    ...arrayify(asserts).map((assert) => ({
-                        ...assert,
+                        transform,
                     })),
                 ],
             })

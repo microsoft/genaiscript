@@ -4,7 +4,7 @@ script({
     tests: [{
         files: "src/rag/markdown.md",
         rubrics: "is a summary",
-        facts: "Markdown is a text-based syntax to generate documents",
+        facts: ["Markdown is a text-based syntax to generate documents"],
         asserts: {
             type: "icontains",
             value: "Markdown"
