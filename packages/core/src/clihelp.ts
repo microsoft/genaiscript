@@ -56,7 +56,7 @@ ${generateCliArguments(template, fragment, options, "run")}
 This [promptfoo](https://www.promptfoo.dev/) configuration can be used to test the model:
             
 \`\`\`yaml title="${template.id}.promptfoo.yaml"
-${generatePromptFooConfiguration(template)}
+${generatePromptFooConfiguration(template, options)}
 \`\`\`
 `
         )
