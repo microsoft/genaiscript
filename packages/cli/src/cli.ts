@@ -160,9 +160,16 @@ export async function cli() {
 
     program
         .command("test")
-        .description("Runs the tests for a script")
-        .argument("[script]", "Script id")
+        .description("Runs the tests for scripts")
+        .argument(
+            "[script]",
+            "Script id. If not provided, all scripts are tested"
+        )
         .action(scriptsTest)
+        .option(
+            "--models [models...]",
+            "models to test where mode is the key value pair list of m (model), t (temperature), p (top-p)"
+        )
         .option("-o, --out <folder>", "output folder")
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")

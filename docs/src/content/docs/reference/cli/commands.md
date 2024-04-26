@@ -90,12 +90,16 @@ Options:
 ```
 Usage: genaiscript test [options] [script]
 
-Runs the tests for a script
+Runs the tests for scripts
 
 Arguments:
-  script                         Script id
+  script                         Script id. If not provided, all scripts are
+                                 tested
 
 Options:
+  --models [models...]           models to test where mode is the key value
+                                 pair list of m (model), t (temperature), p
+                                 (top-p)
   -o, --out <folder>             output folder
   -rmo, --remove-out             remove output folder if it exists
   --cli <string>                 override path to the cli

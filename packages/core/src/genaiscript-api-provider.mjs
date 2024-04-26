@@ -42,7 +42,9 @@ class GenAIScriptApiProvider {
         if (cache === false) args.push("--no-cache")
 
         const cmd = args
-            .map((a) => (a.includes(" ") ? JSON.stringify(a) : a))
+            .map((a) =>
+                typeof a === "string" && a.includes(" ") ? JSON.stringify(a) : a
+            )
             .join(" ")
         const { stdout, error } = await execAsync(cmd)
 

@@ -1,17 +1,28 @@
 import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
-import { PROMPTFOO_VERSION } from "./version"
 import {
     GENAISCRIPT_FOLDER,
     YAMLStringify,
-    dotGenaiscriptPath,
     logVerbose,
+    normalizeFloat,
+    parseKeyValuePairs,
     promptFooDriver,
 } from "genaiscript-core"
 import { writeFile } from "fs/promises"
 import { execa } from "execa"
 import { join } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
+
+function parseModelSpec(m: string): ModelOptions {
+    const vals = parseKeyValuePairs(m)
+    if (Object.keys(vals))
+        return {
+            model: vals["m"],
+            temperature: normalizeFloat(vals["t"]),
+            topP: normalizeFloat(vals["p"]),
+        }
+    else return { model: m }
+}
 
 export async function scriptsTest(
     id: string,
@@ -20,6 +31,7 @@ export async function scriptsTest(
         cli?: string
         removeOut?: boolean
         testProvider?: string
+        models?: string[]
     }
 ) {
     const prj = await buildProject()
@@ -32,6 +44,7 @@ export async function scriptsTest(
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const provider = join(out, "provider.mjs")
     const testProvider = options?.testProvider
+    const models = options?.models
     logVerbose(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
@@ -42,6 +55,7 @@ export async function scriptsTest(
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
+            models: models?.map(parseModelSpec),
             provider: "provider.mjs",
             testProvider,
         })
