@@ -26,11 +26,12 @@ export function generatePromptFooConfiguration(
                 config: { model, temperature, top_p, cli },
             },
         ],
-        tests: tests.map(({ files = [], rubrics, facts, asserts = [] }) => ({
+        tests: tests.map(({ description, files = [], rubrics, facts, asserts = [] }) => ({
+            description,
             vars: {
                 files,
             },
-            asserts: [
+            assert: [
                 ...arrayify(rubrics).map((value) => ({
                     type: "llm-rubric",
                     value,
