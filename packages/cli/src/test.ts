@@ -51,7 +51,10 @@ export async function scriptsTest(
     await ensureDir(out)
     await writeFile(provider, promptFooDriver)
     for (const script of scripts) {
-        logVerbose(`generating tests for ${script.id}`)
+        const fn = out
+            ? join(out, `${script.id}.promptfoo.yaml`)
+            : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
+        logVerbose(`generating tests for ${script.id} at ${fn}`)
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
@@ -59,9 +62,6 @@ export async function scriptsTest(
             provider: "provider.mjs",
             testProvider,
         })
-        const fn = out
-            ? join(out, `${script.id}.promptfoo.yaml`)
-            : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
         await writeFile(fn, YAMLStringify(config))
     }
 
