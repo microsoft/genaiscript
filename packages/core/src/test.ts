@@ -1,5 +1,4 @@
 import { DEFAULT_MODEL } from "./constants"
-import { parseKeyValuePairs } from "./template"
 import { arrayify } from "./util"
 
 export function generatePromptFooConfiguration(

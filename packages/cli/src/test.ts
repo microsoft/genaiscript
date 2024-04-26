@@ -15,7 +15,7 @@ import { emptyDir, ensureDir } from "fs-extra"
 
 function parseModelSpec(m: string): ModelOptions {
     const vals = parseKeyValuePairs(m)
-    if (Object.keys(vals))
+    if (Object.keys(vals).length)
         return {
             model: vals["m"],
             temperature: normalizeFloat(vals["t"]),
