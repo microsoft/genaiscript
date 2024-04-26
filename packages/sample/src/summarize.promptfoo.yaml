@@ -29,6 +29,10 @@ defaultTest:
                 config:
                     apiHost: "tnrllmproxy.azurewebsites.net"
     assert:
+        - type: not-starts-with
+          value: Sure
+        - type: not-contains
+          value: AI language model
         - type: icontains
           value: "{{keyword}}"
         - type: llm-rubric
