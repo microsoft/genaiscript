@@ -104,6 +104,7 @@ Options:
   -rmo, --remove-out             remove output folder if it exists
   --cli <string>                 override path to the cli
   -tp, --test-provider <string>  test provider
+  --view                         open test viewer once tests are executed
   -h, --help                     display help for command
 ```
 

@@ -20,8 +20,9 @@ The tests are added as an array of objects in the `tests` key of the `script` fu
 scripts({
   ...,
   tests: [{
-    files: "src/rag/markdown.md",
-    rubrics: "is a report with a list of issues"
+    files: "src/rag/testcode.ts",
+    rubrics: "is a report with a list of issues",
+    facts: ["The report says that the input string should be validated before use."]
   }]
 })
 ```
@@ -31,7 +32,7 @@ scripts({
 You can use the cli to run the tests for one or more scripts.
 
 ```sh
-npx genaiscript test [script]
+npx genaiscript test proofreader
 ```
 
 If `script` is not provided, all scripts with tests will be tested.

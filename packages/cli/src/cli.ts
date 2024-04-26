@@ -174,6 +174,7 @@ export async function cli() {
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
+        .option("--view", "open test viewer once tests are executed")
 
     const scripts = program
         .command("scripts")

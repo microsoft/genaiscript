@@ -32,6 +32,7 @@ export async function scriptsTest(
         removeOut?: boolean
         testProvider?: string
         models?: string[]
+        view?: boolean
     }
 ) {
     const prj = await buildProject()
@@ -83,5 +84,7 @@ export async function scriptsTest(
     exec.pipeStdout(process.stdout)
     exec.pipeStderr(process.stdout)
     const res = await exec
-    process.exit(res.exitCode)
+
+    if (options.view) await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"])
+    else process.exit(res.exitCode)
 }
