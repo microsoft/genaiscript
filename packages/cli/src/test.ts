@@ -54,7 +54,7 @@ export async function scriptsTest(
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
-        logVerbose(`generating tests for ${script.id} at ${fn}`)
+        logVerbose(`  ${fn}`)
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
