@@ -34,6 +34,11 @@ prompts:
     - summarize # we have a script with id "summarize.genai.js"
 ```
 
+### Limitations
+
+Currently, promptfoo treats the genaiscript javascript source as the prompt. Therefore, one cannot use assertions
+that also rely on the input text, such as `answer_relevance`.
+
 ## Configuration parameters
 
 The provider calls the [cli](/genaiscript/reference/cli) to run the prompt.
