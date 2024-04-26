@@ -93,13 +93,14 @@ Usage: genaiscript test [options] [script]
 Runs the tests for a script
 
 Arguments:
-  script              Script id
+  script                         Script id
 
 Options:
-  -o, --out <folder>  output folder
-  -rmo, --remove-out  remove output folder if it exists
-  --cli <string>      override path to the cli
-  -h, --help          display help for command
+  -o, --out <folder>             output folder
+  -rmo, --remove-out             remove output folder if it exists
+  --cli <string>                 override path to the cli
+  -tp, --test-provider <string>  test provider
+  -h, --help                     display help for command
 ```
 
 ## `scripts`

@@ -15,7 +15,7 @@ import { emptyDir, ensureDir } from "fs-extra"
 
 export async function scriptsTest(
     id: string,
-    options: { out?: string; cli?: string; removeOut?: boolean }
+    options: { out?: string; cli?: string; removeOut?: boolean, testProvider?: string }
 ) {
     const prj = await buildProject()
     const scripts = prj.templates.filter((t) => t.tests?.length && t.id === id)
@@ -24,6 +24,7 @@ export async function scriptsTest(
     const cli = options.cli || __filename
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const provider = join(out, "provider.mjs")
+    const testProvider = options?.testProvider
     logVerbose(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
@@ -35,6 +36,7 @@ export async function scriptsTest(
             out,
             cli,
             provider: "provider.mjs",
+            testProvider
         })
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
@@ -58,7 +60,7 @@ export async function scriptsTest(
         stripFinalNewline: true,
     })
         .pipeStdout(process.stdout)
-        .pipeStderr(process.stderr)
+        .pipeStderr(process.stdout)
 
     process.exit(res.exitCode)
 }

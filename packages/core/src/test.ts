@@ -5,11 +5,12 @@ export function generatePromptFooConfiguration(
     script: PromptScript,
     options?: ModelOptions & {
         provider?: string
+        testProvider?: string
         out?: string
         cli?: string
     }
 ) {
-    const { provider = "provider.mjs" } = options || {}
+    const { provider = "provider.mjs", testProvider } = options || {}
     const { description, title, tests = [], id } = script
     const model = options?.model || script?.model || DEFAULT_MODEL
     const temperature = options?.temperature || script?.temperature
@@ -26,25 +27,41 @@ export function generatePromptFooConfiguration(
                 config: { model, temperature, top_p, cli },
             },
         ],
-        tests: tests.map(({ description, files = [], rubrics, facts, asserts = [] }) => ({
-            description,
-            vars: {
-                files,
-            },
-            assert: [
-                ...arrayify(rubrics).map((value) => ({
-                    type: "llm-rubric",
-                    value,
-                })),
-                ...arrayify(facts).map((value) => ({
-                    type: "factuality",
-                    value,
-                })),
-                ...arrayify(asserts).map((assert) => ({
-                    ...assert,
-                })),
-            ],
-        })),
+        defaultTest: {
+            provider: testProvider
+                ? {
+                      text: {
+                          id: "azureopenai:chat:gpt-4",
+                          config: { apiHost: "tnrllmproxy.azurewebsites.net" },
+                      },
+                      embedding: {
+                          id: "azureopenai:embeddings:text-embedding-ada-002",
+                          config: { apiHost: "tnrllmproxy.azurewebsites.net" },
+                      },
+                  }
+                : undefined,
+        },
+        tests: tests.map(
+            ({ description, files = [], rubrics, facts, asserts = [] }) => ({
+                description,
+                vars: {
+                    files,
+                },
+                assert: [
+                    ...arrayify(rubrics).map((value) => ({
+                        type: "llm-rubric",
+                        value,
+                    })),
+                    ...arrayify(facts).map((value) => ({
+                        type: "factuality",
+                        value,
+                    })),
+                    ...arrayify(asserts).map((assert) => ({
+                        ...assert,
+                    })),
+                ],
+            })
+        ),
     }
 
     return res
