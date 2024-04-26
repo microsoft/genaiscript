@@ -23,6 +23,13 @@ export function generatePromptFooConfiguration(
         prompts: [id],
         providers: models.map(({ model, temperature, topP }) => ({
             id: provider,
+            label: [
+                model || DEFAULT_MODEL,
+                temperature !== undefined ? `t=${temperature}` : undefined,
+                topP !== undefined ? `p=${topP}` : undefined,
+            ]
+                .filter((v) => v !== undefined)
+                .join(":"),
             config: {
                 model: model || DEFAULT_MODEL,
                 temperature,

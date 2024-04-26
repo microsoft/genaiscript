@@ -67,7 +67,7 @@ export const promptDefinitions = Object.freeze<Record<string, string>>(${JSON.st
     4
 )});
 
-export const treeSitterWasms: string[] = Object.freeze(${JSON.stringify(wasms)});
+export const treeSitterWasms: string[] = ${JSON.stringify(wasms)};
 
 export const promptFooDriver = ${JSON.stringify(promptFooDriver)}
 \n`

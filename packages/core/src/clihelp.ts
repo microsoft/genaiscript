@@ -56,7 +56,7 @@ ${generateCliArguments(template, fragment, options, "run")}
 - [promptfoo](https://www.promptfoo.dev/) configuration
 
 \`\`\`yaml
-${YAMLStringify(generatePromptFooConfiguration(template, options))}
+${YAMLStringify(generatePromptFooConfiguration(template, { models: [options] }))}
 \`\`\`
 
 - run the test command
