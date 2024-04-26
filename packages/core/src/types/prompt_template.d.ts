@@ -222,7 +222,7 @@ interface PromptTest {
     /**
      * Additional deterministic assertions.
      */
-    asserts?: PromptAssertion[]
+    asserts?: PromptAssertion | PromptAssertion[]
 }
 
 interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {

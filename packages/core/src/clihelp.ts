@@ -1,6 +1,7 @@
 import { CORE_VERSION, RunTemplateOptions } from "."
 import { Fragment } from "./ast"
 import { NPM_CLI_PACKAGE } from "./constants"
+import { generatePromptFooConfiguration } from "./test"
 import { MarkdownTrace } from "./trace"
 
 export function generateCliArguments(
@@ -47,4 +48,17 @@ ${generateCliArguments(template, fragment, options, "run")}
 -   The CLI uses the same secrets in the \`.env\` file.
 `
     )
+
+    if (template.tests?.length) {
+        trace.details(
+            "🧪 testing",
+            `
+This [promptfoo](https://www.promptfoo.dev/) configuration can be used to test the model:
+            
+\`\`\`yaml title="${template.id}.promptfoo.yaml"
+${generatePromptFooConfiguration(template)}
+\`\`\`
+`
+        )
+    }
 }
