@@ -445,6 +445,7 @@ export async function parsePromptTemplate(
             c.checkRecord("parameters")
 
             c.checkBool("lineNumbers")
+            c.checkObjectArray("tests")
         })
 
         const r = c.template
