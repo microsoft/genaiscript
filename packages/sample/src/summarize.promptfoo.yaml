@@ -26,16 +26,23 @@ providers:
 defaultTest:
     options:
         provider:
-            id: azureopenai:chat:gpt-4
-            config:
-                apiHost: "tnrllmproxy.azurewebsites.net"
+            text:
+                id: azureopenai:chat:gpt-4
+                config:
+                    apiHost: "tnrllmproxy.azurewebsites.net"
+            embedding:
+                id: azureopenai:embeddings:text-embedding-ada-002
+                config:
+                    apiHost: "tnrllmproxy.azurewebsites.net"
     assert:
         - type: icontains
-          value: '{{keyword}}'    
+          value: "{{keyword}}"
         - type: llm-rubric
           value: is a summary
         - type: factuality
-          value: '{{fact}}'
+          value: "{{fact}}"
+        - type: answer-relevance
+          threshold: 0.9
 tests:
     - vars:
           files: src/rag/markdown.md
@@ -48,4 +55,4 @@ tests:
     - vars:
           files: src/rag/Document.docx
           keyword: Microsoft
-          fact: 'Microsoft Word is a word processing software developed by Microsoft.'
+          fact: "Microsoft Word is a word processing software developed by Microsoft."

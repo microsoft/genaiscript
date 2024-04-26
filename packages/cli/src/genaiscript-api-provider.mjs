@@ -12,6 +12,21 @@ class GenAIScriptApiProvider {
         return this.providerId
     }
 
+    /**
+     @returns interface ProviderResponse {
+        error?: string;
+        output?: string | object;
+        tokenUsage?: Partial<{
+            total: number;
+            prompt: number;
+            completion: number;
+            cached?: number;
+        }>;
+        cached?: boolean;
+        cost?: number; // required for cost assertion
+        logProbs?: number[]; // required for perplexity assertion
+    }
+    */
     async callApi(prompt, context) {
         const { model, temperature, top_p, cache, version } = this.config
         const { vars } = context
