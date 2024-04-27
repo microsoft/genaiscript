@@ -181,7 +181,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (!success) {
-        const text = success === null ? "Script cancelled" : "Script failed"
+        const text = success === null ? "script cancelled" : "script failed"
         return <FragmentTransformResponse>{
             error: success === null ? new CancelError(text) : new Error(text),
             prompt: messages,

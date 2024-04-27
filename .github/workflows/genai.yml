@@ -1,6 +1,8 @@
-name: genai-frontmatter
+name: genai
 on:
     workflow_dispatch:
+    schedule:
+        - cron: "0 5 * * *"
 jobs:
     build:
         runs-on: ubuntu-latest
