@@ -2,6 +2,9 @@ name: nightly test
 
 on:
     workflow_dispatch:
+    schedule:
+        # Runs at 7:00 UTC (11pm PST) every day
+        - cron: "0 7 * * *"
 jobs:
     build:
         runs-on: ubuntu-latest
