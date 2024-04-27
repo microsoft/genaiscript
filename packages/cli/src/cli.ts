@@ -176,6 +176,7 @@ export async function cli() {
         .option("-tp, --test-provider <string>", "test provider")
         .option("--view", "open test viewer once tests are executed")
         .option("--no-run", "do not run the tests")
+        .option("-v, --verbose", "verbose output")
 
     const scripts = program
         .command("scripts")

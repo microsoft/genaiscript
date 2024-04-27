@@ -16,7 +16,7 @@ export function generatePromptFooConfiguration(
     const models = options?.models || []
     if (!models.length) models.push(script)
     const cli = options?.cli
-    const transform = "output.transform"
+    const transform = "output.text"
     const res = {
         description: [title, description].filter((s) => s).join("\n"),
         prompts: [id],

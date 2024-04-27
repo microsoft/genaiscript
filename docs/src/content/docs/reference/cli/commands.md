@@ -106,6 +106,7 @@ Options:
   -tp, --test-provider <string>  test provider
   --view                         open test viewer once tests are executed
   --no-run                       do not run the tests
+  -v, --verbose                  verbose output
   -h, --help                     display help for command
 ```
 

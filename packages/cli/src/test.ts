@@ -34,6 +34,7 @@ export async function scriptsTest(
         models?: string[]
         view?: boolean
         run?: boolean
+        verbose?: boolean
     }
 ) {
     const prj = await buildProject()
@@ -69,7 +70,6 @@ export async function scriptsTest(
 
     if (!options.run) return
 
-    logVerbose(`running tests with promptfoo`)
     const cmd = "npx"
     const args = [
         "--yes",
@@ -77,8 +77,18 @@ export async function scriptsTest(
         "eval",
         "--config",
         `${out}/*.promptfoo.yaml`,
-        "--verbose",
+        "--max-concurrency",
+        "1",
     ]
+    if (options.verbose) args.push("--verbose")
+    if (!options.run) {
+        logVerbose(`to run tests with promptfoo, use:`)
+        logVerbose(`  ${cmd} ${args.join(" ")}`)
+        return
+    }
+
+    logVerbose(`running tests with promptfoo`)
+    logVerbose(`  ${cmd} ${args.join(" ")}`)
     const exec = execa(cmd, args, {
         preferLocal: true,
         cleanup: true,
