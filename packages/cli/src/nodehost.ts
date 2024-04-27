@@ -15,7 +15,7 @@ import {
     setHost,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
-import { readFile, unlink, writeFile } from "fs/promises"
+import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"

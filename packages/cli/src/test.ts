@@ -8,7 +8,7 @@ import {
     parseKeyValuePairs,
     promptFooDriver,
 } from "genaiscript-core"
-import { writeFile } from "fs/promises"
+import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
 import { join } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
@@ -72,6 +72,8 @@ export async function scriptsTest(
 
     if (!options.run) return
 
+    const outJson = join(out, "res.json")
+
     const cmd = "npx"
     const args = [
         "--yes",
@@ -85,6 +87,7 @@ export async function scriptsTest(
     if (!options.cache) args.push("--no-cache")
     if (!options.write) args.push("--no-write")
     if (options.verbose) args.push("--verbose")
+    args.push("--output", outJson)
     if (!options.run) {
         logVerbose(`to run tests with promptfoo, use:`)
         logVerbose(`  ${cmd} ${args.join(" ")}`)

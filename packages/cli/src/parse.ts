@@ -12,7 +12,7 @@ import {
 import { createProgressSpinner } from "./spinner"
 import replaceExt from "replace-ext"
 import getStdin from "get-stdin"
-import { readFile } from "fs/promises"
+import { readFile } from "node:fs/promises"
 
 export async function parseFence(language: string) {
     const stdin = await getStdin()
