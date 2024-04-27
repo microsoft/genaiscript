@@ -1,4 +1,4 @@
-name: cli test
+name: nightly test
 
 on:
     workflow_dispatch:
@@ -9,6 +9,8 @@ jobs:
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
             OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
             OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         steps:
             - uses: actions/checkout@v3
               with:
@@ -23,7 +25,5 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: unit tests
-              run: yarn test:samples
-            - name: run code-annotator
-              run: node packages/cli/built/genaiscript.cjs run code-annotator packages/sample/src/counting.py -l Test -ot $GITHUB_STEP_SUMMARY
+            - name: tests
+              run: yarn test:scripts

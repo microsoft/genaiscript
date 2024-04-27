@@ -48,6 +48,7 @@
         "test:compile": "cd packages/sample && node ../cli/built/genaiscript.cjs scripts compile",
         "test:infomodel": "node packages/cli/built/genaiscript.cjs scripts model",
         "test:phi3": "node packages/cli/built/genaiscript.cjs run summarize-ollama-phi3 packages/sample/src/rag/markdown.md",
+        "test:scripts": "cd packages/sample/ && yarn test:scripts",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
         "docs": "cd docs && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
