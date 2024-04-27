@@ -32,7 +32,10 @@ jobs:
               run: cd docs && yarn add sharp@0.32.6
             - name: docs
               run: yarn build:docs
+            - name: gif diff
+              run: git diff --name-only
             - uses: stefanzweifel/git-auto-commit-action@v5
               with:
-                  file_pattern: "docs/src/**/*.md*"
-                  commit_message: "genai: front matter update"
+                  file_pattern: "docs/src/**/*.md docs/src/**/*.mdx"
+                  commit_message: "[genai] front matter update"
+                  commit_user_name: "genaiscript"
