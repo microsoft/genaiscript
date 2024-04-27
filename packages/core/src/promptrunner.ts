@@ -164,7 +164,8 @@ export async function runTemplate(
         functions,
         fileMerges,
         outputProcessors,
-        success,
+        status,
+        statusText,
         temperature,
         topP,
         model,
@@ -180,14 +181,14 @@ export async function runTemplate(
     )
 
     // if the expansion failed, show the user the trace
-    if (!success) {
-        const text = success === null ? "script cancelled" : "script failed"
+    if (status !== "success") {
         return <FragmentTransformResponse>{
-            error: success === null ? new CancelError(text) : new Error(text),
+            status,
+            statusText,
             prompt: messages,
             vars,
             trace: trace.content,
-            text,
+            text: "",
             edits: [],
             annotations: [],
             changelogs: [],
@@ -218,7 +219,7 @@ export async function runTemplate(
     }
     const response_format = responseType ? { type: responseType } : undefined
 
-    const status = (text?: string) => {
+    const updateStatus = (text?: string) => {
         options.infoCb?.({
             vars,
             text,
@@ -260,7 +261,7 @@ export async function runTemplate(
         return fileEdit
     }
 
-    status(`prompting model ${model}`)
+    updateStatus(`prompting model ${model}`)
     const connection = await resolveModelConnectionInfo({
         model,
     })
@@ -284,7 +285,7 @@ export async function runTemplate(
                     `tokens`,
                     estimateChatTokens(model, messages, tools)
                 )
-                status()
+                updateStatus()
                 resp = await completer(
                     {
                         model,
@@ -303,7 +304,7 @@ export async function runTemplate(
                 )
             } finally {
                 trace.endDetails()
-                status()
+                updateStatus()
             }
         } catch (error: unknown) {
             trace.error(`llm error`, error)
@@ -332,7 +333,7 @@ export async function runTemplate(
                 resp = { text: "Unexpected error" }
             }
 
-            status(`error`)
+            updateStatus(`error`)
             return <FragmentTransformResponse>{
                 prompt: messages,
                 vars,
@@ -361,7 +362,7 @@ export async function runTemplate(
             trace.endDetails()
         }
 
-        status()
+        updateStatus()
         if (resp.toolCalls?.length) {
             if (resp.text)
                 messages.push({
@@ -385,7 +386,7 @@ export async function runTemplate(
             for (const call of resp.toolCalls) {
                 if (isCancelled()) break
                 try {
-                    status(`running tool ${call.name}`)
+                    updateStatus(`running tool ${call.name}`)
                     trace.startDetails(`📠 tool call ${call.name}`)
                     trace.itemValue(`id`, call.id)
                     trace.itemValue(`args`, call.arguments)
@@ -418,7 +419,7 @@ export async function runTemplate(
                         trace.item(
                             `shell command: \`${command}\` ${args.join(" ")}`
                         )
-                        status()
+                        updateStatus()
                         const { stdout, stderr, exitCode } = await exec(host, {
                             trace,
                             label: call.name,
@@ -441,7 +442,7 @@ export async function runTemplate(
                             throw new Error(
                                 `tool ${call.name} failed with exit code ${exitCode}}`
                             )
-                        status()
+                        updateStatus()
                     }
 
                     const { content, edits: functionEdits } = output
@@ -468,11 +469,11 @@ export async function runTemplate(
                     })
                 } catch (e) {
                     trace.error(`function failed`, e)
-                    status(`error`)
+                    updateStatus(`error`)
                     throw e
                 } finally {
                     trace.endDetails()
-                    status()
+                    updateStatus()
                 }
             }
         } else {
@@ -702,6 +703,8 @@ ${repair}
         )
 
     const res: FragmentTransformResponse = {
+        status: status,
+        statusText,
         prompt: messages,
         vars,
         edits,

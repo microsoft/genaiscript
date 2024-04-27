@@ -12,7 +12,7 @@ const file = env.files[0]
 // skip if alt-text file already exists
 const txt = await fs.readText(file.filename + ".txt")
 if (txt.content)
-    cancel("Alt text file already exists")
+    cancel("alt text file already exists")
 
 // context
 defImages(file)
