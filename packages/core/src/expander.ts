@@ -64,6 +64,16 @@ export interface FragmentTransformResponse extends PromptGenerationOutput {
     error?: unknown
 
     /**
+     * Run status
+     */
+    status: PromptRunStatus
+
+    /**
+     * Status message if any
+     */
+    statusText?: string
+
+    /**
      * Run label if provided
      */
     label?: string
@@ -74,6 +84,8 @@ export interface FragmentTransformResponse extends PromptGenerationOutput {
     version: string
 }
 
+export type PromptRunStatus = "success" | "error" | "cancelled" | undefined
+
 async function callExpander(
     r: PromptScript,
     vars: ExpansionVariables,
@@ -83,7 +95,8 @@ async function callExpander(
     const { provider, model } = parseModelIdentifier(r.model)
     const ctx = createPromptContext(vars, trace, options, model)
 
-    let success = true
+    let status: PromptRunStatus = undefined
+    let statusText: string = undefined
     let logs = ""
     let text = ""
     let assistantText = ""
@@ -128,30 +141,40 @@ async function callExpander(
             functions = fns
             fileMerges = fms
             outputProcessors = ops
-            if (errors) for (const error of errors) trace.error(``, error)
+            if (errors?.length) {
+                for (const error of errors) trace.error(``, error)
+                status = "error"
+                statusText = errors.map((e) => (e as Error).message).join("\n")
+            } else {
+                status = "success"
+            }
         } else {
             const tmp = await renderAICI(r.id.replace(/[^a-z0-9_]/gi, ""), node)
             outputProcessors = tmp.outputProcessors
             aici = tmp.aici
+            status = "success"
         }
     } catch (e) {
-        success = false
+        status = "error"
         if (isCancelError(e)) {
             trace.log(`cancelled: ${(e as Error).message}`)
-            // null is cancelled
-            success = null
+            status = "cancelled"
+            statusText = (e as Error).message
         } else {
             const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
             const info = m
                 ? ` at prompt line ${m[1]}, column ${m[2]}`
                 : e.message || ""
             trace.error(info, e)
+            status = "error"
+            statusText = (e as Error).message
         }
     }
 
     return {
         logs,
-        success,
+        status,
+        statusText,
         text,
         assistantText,
         images,
@@ -227,7 +250,6 @@ export async function expandTemplate(
 ) {
     options = { ...(options || {}) }
     const cancellationToken = options?.cancellationToken
-    const { jsSource } = template
 
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
 
@@ -273,6 +295,7 @@ export async function expandTemplate(
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)
+    trace.itemValue(`seed`, seed)
 
     traceEnv(model, trace, env)
 
@@ -280,6 +303,10 @@ export async function expandTemplate(
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
     const prompt = await callExpander(template, env, trace, options)
+
+    trace.itemValue(`status`, prompt.status)
+    trace.itemValue(`status text`, prompt.statusText)
+
     const expanded = prompt.text
     const images = prompt.images
     const schemas = prompt.schemas
@@ -295,12 +322,12 @@ export async function expandTemplate(
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    let success = prompt.success
-    if (success === null)
+    if (prompt.status !== "success")
         // cancelled
-        return { success }
+        return { status: prompt.status, statusText: prompt.statusText }
 
-    if (cancellationToken?.isCancellationRequested) return { success: null }
+    if (cancellationToken?.isCancellationRequested)
+        return { status: "cancelled", statusText: "user cancelled" }
 
     let responseType = template.responseType
     const systemMessage: ChatCompletionSystemMessageParam = {
@@ -312,8 +339,9 @@ export async function expandTemplate(
         messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
 
-    for (let i = 0; i < systems.length && success; ++i) {
-        if (cancellationToken?.isCancellationRequested) return { success: null }
+    for (let i = 0; i < systems.length; ++i) {
+        if (cancellationToken?.isCancellationRequested)
+            return { status: "cancelled", statusText: "user cancelled" }
 
         let systemTemplate = systems[i]
         let system = fragment.file.project.getTemplate(systemTemplate)
@@ -326,11 +354,12 @@ export async function expandTemplate(
         }
 
         trace.startDetails(`👾 ${systemTemplate}`)
+
         const sysr = await callExpander(system, env, trace, options)
-        success = sysr.success
         responseType = responseType ?? system.responseType
-        if (success === null) return { success }
-        else if (!success) break
+
+        trace.itemValue(`status`, sysr.status)
+        trace.itemValue(`status text`, sysr.statusText)
 
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
@@ -352,6 +381,9 @@ export async function expandTemplate(
 
         trace.detailsFenced("js", system.jsSource, "js")
         trace.endDetails()
+
+        if (sysr.status !== "success")
+            return { status: sysr.status, statusText: sysr.statusText }
     }
 
     if (systemMessage.content) messages.unshift(systemMessage)
@@ -372,7 +404,8 @@ export async function expandTemplate(
         images,
         schemas,
         functions,
-        success,
+        status: <PromptRunStatus>prompt.status,
+        statusText: prompt.statusText,
         model,
         temperature,
         topP,

@@ -208,6 +208,10 @@ type PromptAssertion =
 
 interface PromptTest {
     /**
+     * Description of the test.
+     */
+    description?: string
+    /**
      * List of files to apply the test to.
      */
     files: string | string[]

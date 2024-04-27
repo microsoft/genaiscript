@@ -1,5 +1,7 @@
 ---
 title: CSV
+description: Learn how to parse and stringify CSV data using the CSV class in scripting.
+keywords: CSV parsing, CSV stringifying, CSV data, CSV manipulation, CSV utility
 sidebar:
     order: 17
 ---

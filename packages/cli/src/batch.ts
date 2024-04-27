@@ -176,7 +176,8 @@ export async function batchScript(
 
             const fileEdits = result.fileEdits || {}
             if (Object.keys(fileEdits).length) {
-                if (applyEdits && !result.error) await writeFileEdits(result)
+                if (applyEdits && result.status === "success")
+                    await writeFileEdits(result)
                 // save results in various files
                 await appendJSONL(
                     outFileEdits,
@@ -216,23 +217,19 @@ export async function batchScript(
             await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- ${result.error ? (isCancelError(result.error as any) ? "⚠" : "❌") : "✅"} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
+                `- ${result.status === "cancelled" ? "⚠" : result.status === "error" ? "❌" : "✅"} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
                 { encoding: "utf8" }
             )
             await writeFile(outJSON, JSON.stringify(result, null, 2), {
                 encoding: "utf8",
             })
 
-            if (result.error) {
-                if (isCancelError(result.error as Error))
-                    spinner.warn(
-                        `${spinner.text}, cancelled, ${(result.error as Error).message || result.error}`
-                    )
+            if (result.status !== "success") {
+                if (result.status === "cancelled")
+                    spinner.warn(`${spinner.text}, ${result.statusText}`)
                 else {
                     errors++
-                    spinner.fail(
-                        `${spinner.text}, ${(result.error as Error).message || result.error}`
-                    )
+                    spinner.fail(`${spinner.text}, ${result.statusText}`)
                 }
             } else spinner.succeed()
 

@@ -1,7 +1,9 @@
 ---
 title: INI
+description: Learn how to parse and stringify INI files in GenAIScript with the INI class, including methods and usage examples.
 sidebar:
     order: 17.1
+keywords: INI parsing, INI stringifying, INI file format, .ini manipulation, configuration files
 ---
 
 Parsing and stringifying of `.ini` data.

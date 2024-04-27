@@ -88,9 +88,7 @@ export async function runScript(
 
     const spinner =
         !stream && !isQuiet
-            ? createProgressSpinner(
-                  `preparing tools in ${process.cwd()}`
-              )
+            ? createProgressSpinner(`preparing tools in ${process.cwd()}`)
             : undefined
     const fail = (msg: string, exitCode: number) => {
         if (spinner) spinner.fail(msg)
@@ -210,7 +208,8 @@ ${Array.from(files)
     }
 
     if (spinner) {
-        if (res.error) spinner.fail(`${spinner.text}, ${res.error}`)
+        if (res.status !== "success")
+            spinner.fail(`${spinner.text}, ${res.statusText}`)
         else spinner.succeed()
     }
     if (res.error) logError(res.error as Error)
@@ -237,7 +236,7 @@ ${Array.from(files)
         if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
         else await writeText(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits && !res.error && Object.keys(res.fileEdits || {}).length)
+    if (applyEdits && res.status === "success" && Object.keys(res.fileEdits || {}).length)
         await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
