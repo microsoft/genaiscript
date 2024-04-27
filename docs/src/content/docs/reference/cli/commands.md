@@ -105,6 +105,7 @@ Options:
   --cli <string>                 override path to the cli
   -tp, --test-provider <string>  test provider
   --view                         open test viewer once tests are executed
+  --no-run                       do not run the tests
   -h, --help                     display help for command
 ```
 

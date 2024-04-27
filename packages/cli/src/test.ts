@@ -33,6 +33,7 @@ export async function scriptsTest(
         testProvider?: string
         models?: string[]
         view?: boolean
+        run?: boolean
     }
 ) {
     const prj = await buildProject()
@@ -66,6 +67,8 @@ export async function scriptsTest(
         await writeFile(fn, YAMLStringify(config))
     }
 
+    if (!options.run) return
+
     logVerbose(`running tests with promptfoo`)
     const cmd = "npx"
     const args = [
@@ -85,6 +88,7 @@ export async function scriptsTest(
     exec.pipeStderr(process.stdout)
     const res = await exec
 
-    if (options.view) await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"])
+    if (options.view)
+        await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"])
     else process.exit(res.exitCode)
 }

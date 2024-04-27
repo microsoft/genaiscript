@@ -36,5 +36,5 @@ jobs:
                 key: ${{ runner.os }}-promptfoo-v1
                 restore-keys: |
                   ${{ runner.os }}-promptfoo-              
-            - name: tests
+            - name: run test within scripts
               run: yarn test:scripts
