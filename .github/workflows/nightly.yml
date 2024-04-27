@@ -11,6 +11,7 @@ jobs:
             OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+            PROMPTFOO_CACHE_PATH: ~/.cache/promptfoo
         steps:
             - uses: actions/checkout@v3
               with:
@@ -25,5 +26,13 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            # This cache is optional, but you'll save money and time by setting it up!
+            - name: Set up promptfoo cache
+              uses: actions/cache@v2
+              with:
+                path: ~/.cache/promptfoo
+                key: ${{ runner.os }}-promptfoo-v1
+                restore-keys: |
+                  ${{ runner.os }}-promptfoo-              
             - name: tests
               run: yarn test:scripts
