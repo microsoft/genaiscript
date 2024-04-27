@@ -1,0 +1,38 @@
+name: genai front matter
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "0 5 * * *"
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: write
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile
+              run: yarn compile
+            - name: front matter
+              run: yarn genai:frontmatter
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: install sharp
+              run: cd docs && yarn add sharp@0.32.6
+            - name: docs
+              run: yarn build:docs
+            - uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  file_pattern: "docs/src/**/*.md*"
+                  commit_message: "genai: front matter update"

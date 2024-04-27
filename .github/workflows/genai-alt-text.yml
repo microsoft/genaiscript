@@ -1,8 +1,8 @@
-name: genai
+name: genai alt text generator
 on:
     workflow_dispatch:
     schedule:
-        - cron: "0 5 * * *"
+        - cron: "0 4 * * *"
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -22,13 +22,7 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
-            - name: front matter
-              run: yarn genai:frontmatter
-              env:
-                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            - name: front matter
+            - name: alt text
               run: yarn genai:alt
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -38,12 +32,7 @@ jobs:
               run: cd docs && yarn add sharp@0.32.6
             - name: docs
               run: yarn build:docs
-            - name: Commit AI frontmatters
-              if: success() || failure()
-              run: |
-                  git config pull.ff only
-                  git pull
-                  git add docs/src/**/*.md
-                  git add docs/src/**/*.mdx
-                  git commit -m "[genai] frontmatter updates" || echo "No changes to commit"
-                  git push
+            - uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  file_pattern: "docs/src/**/*.txt"
+                  commit_message: "genai: alt text update"
