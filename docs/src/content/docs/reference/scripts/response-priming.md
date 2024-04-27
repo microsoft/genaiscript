@@ -2,6 +2,8 @@
 title: Response Priming
 sidebar:
     order: 100
+description: Learn how to prime LLM responses with specific syntax or format using the writeText function in scripts.
+keywords: response priming, LLM syntax, script formatting, writeText function, assistant message
 ---
 
 It is possible to provide the start of the LLM response (`assistant` message) in the script.

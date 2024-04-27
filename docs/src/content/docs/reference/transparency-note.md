@@ -2,6 +2,14 @@
 title: Transparency Note
 sidebar:
   order: 99
+description: Explore the capabilities, use cases, and integration practices of the GenAIScript framework for AI-enhanced scripting.
+keywords: AI scripting framework, LLM integration, VS Code AI extension, AI automation tools, responsible AI integration
+lastUpdated: 2024-04-13
+---
+---
+title: Transparency Note
+sidebar:
+  order: 99
 description: Learn about the GenAIScript framework, its capabilities, use cases, and best practices for responsible AI integration.
 keywords: AI scripting, LLM integration, VS Code extension, AI automation, responsible AI
 lastUpdated: 2024-04-13

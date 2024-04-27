@@ -1,5 +1,7 @@
 ---
 title: Custom Output
+description: Learn how to use the defOutput function for custom file processing in script generation.
+keywords: custom output, defOutput, file processing, script generation, post processing
 sidebar:
     order: 12
 ---

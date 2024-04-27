@@ -1,5 +1,7 @@
 ---
 title: File Merge
+description: Customize file merging in scripts with defFileMerge function to handle different file formats and merging strategies.
+keywords: file merging, custom merge, defFileMerge, script customization, content appending
 sidebar:
     order: 11
 ---

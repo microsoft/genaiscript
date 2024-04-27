@@ -2,6 +2,8 @@
 title: Retrieval
 sidebar:
     order: 10
+description: Learn how to use GenAIScript's retrieval utilities for content search and prompt augmentation with RAG techniques.
+keywords: RAG, content retrieval, search augmentation, indexing, web search
 ---
 
 GenAIScript provides various utilities to retreive content and augment the prompt. This technique is typically referred as **RAG** (Retrieval-Augmentation-Generation) in the literature. GenAIScript uses [llamaindex-ts](https://ts.llamaindex.ai/api/classes/VectorIndexRetriever) which supports many vector database vendors.

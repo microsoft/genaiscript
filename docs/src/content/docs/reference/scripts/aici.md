@@ -2,6 +2,8 @@
 title: AICI
 sidebar:
     order: 200
+description: Learn how to use Microsoft AICI with GenAIScript to constrain LLM outputs using WASM and JavaScript programs.
+keywords: AICI, LLM constraints, WASM, JavaScript, GenAIScript
 ---
 
 [Microsoft AICI](https://github.com/microsoft/aici/) allows to constrain the output of a LLM using WASM. In particular, it is possible to send JavaScript program to describe the prompt.
