@@ -36,6 +36,7 @@ export async function scriptsTest(
         run?: boolean
         cache?: boolean
         verbose?: boolean
+        write?: boolean
     }
 ) {
     const prj = await buildProject()
@@ -82,6 +83,7 @@ export async function scriptsTest(
         "1",
     ]
     if (!options.cache) args.push("--no-cache")
+    if (!options.write) args.push("--no-write")
     if (options.verbose) args.push("--verbose")
     if (!options.run) {
         logVerbose(`to run tests with promptfoo, use:`)

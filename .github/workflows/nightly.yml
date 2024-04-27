@@ -15,13 +15,6 @@ jobs:
             PROMPTFOO_DISABLE_TELEMETRY: 1
             PROMPTFOO_DISABLE_UPDATE: 1
         steps:
-            - name: Set up promptfoo cache
-              uses: actions/cache@v2
-              with:
-                  path: .genaiscript/cache/promptfoo
-                  key: ${{ runner.os }}-promptfoo-v1
-                  restore-keys: |
-                      ${{ runner.os }}-promptfoo-
             - uses: actions/checkout@v3
               with:
                   submodules: "recursive"
@@ -36,4 +29,4 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run test within scripts
-              run: yarn test:scripts
+              run: yarn test:scripts --no-cache --no-write

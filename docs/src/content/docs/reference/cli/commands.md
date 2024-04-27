@@ -97,7 +97,7 @@ Arguments:
                                  tested
 
 Options:
-  --models [models...]           models to test where mode is the key value
+  --models <models...>           models to test where mode is the key value
                                  pair list of m (model), t (temperature), p
                                  (top-p)
   -o, --out <folder>             output folder
@@ -105,7 +105,9 @@ Options:
   --cli <string>                 override path to the cli
   -tp, --test-provider <string>  test provider
   --view                         open test viewer once tests are executed
+  --no-cache                     disable LLM result cache
   --no-run                       do not run the tests
+  --no-write                     Do not write results to promptfoo directory
   -v, --verbose                  verbose output
   -h, --help                     display help for command
 ```

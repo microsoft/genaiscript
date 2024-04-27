@@ -165,9 +165,8 @@ export async function cli() {
             "[script]",
             "Script id. If not provided, all scripts are tested"
         )
-        .action(scriptsTest)
         .option(
-            "--models [models...]",
+            "--models <models...>",
             "models to test where mode is the key value pair list of m (model), t (temperature), p (top-p)"
         )
         .option("-o, --out <folder>", "output folder")
@@ -177,7 +176,9 @@ export async function cli() {
         .option("--view", "open test viewer once tests are executed")
         .option("--no-cache", "disable LLM result cache")
         .option("--no-run", "do not run the tests")
+        .option("--no-write", "Do not write results to promptfoo directory")
         .option("-v, --verbose", "verbose output")
+        .action(scriptsTest)
 
     const scripts = program
         .command("scripts")
