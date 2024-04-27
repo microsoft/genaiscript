@@ -19,5 +19,6 @@
     "cSpell.language": "en,en-US",
     "cSpell.enableFiletypes": [
         "!json"
-    ]
+    ],
+    "files.eol": "\n"
 }
