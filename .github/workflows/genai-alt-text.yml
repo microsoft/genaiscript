@@ -3,6 +3,10 @@ on:
     workflow_dispatch:
     schedule:
         - cron: "0 4 * * *"
+    pull_request:
+        paths:
+            - "docs/src/**/*.png"
+
 jobs:
     build:
         runs-on: ubuntu-latest
