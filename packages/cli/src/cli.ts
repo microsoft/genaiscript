@@ -175,6 +175,7 @@ export async function cli() {
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
         .option("--view", "open test viewer once tests are executed")
+        .option("--no-cache", "disable LLM result cache")
         .option("--no-run", "do not run the tests")
         .option("-v, --verbose", "verbose output")
 

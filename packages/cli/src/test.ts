@@ -34,6 +34,7 @@ export async function scriptsTest(
         models?: string[]
         view?: boolean
         run?: boolean
+        cache?: boolean
         verbose?: boolean
     }
 ) {
@@ -80,6 +81,7 @@ export async function scriptsTest(
         "--max-concurrency",
         "1",
     ]
+    if (!options.cache) args.push("--no-cache")
     if (options.verbose) args.push("--verbose")
     if (!options.run) {
         logVerbose(`to run tests with promptfoo, use:`)

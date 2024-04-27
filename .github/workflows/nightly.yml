@@ -36,4 +36,4 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run test within scripts
-              run: yarn test:scripts
+              run: yarn test:scripts --no-cache
