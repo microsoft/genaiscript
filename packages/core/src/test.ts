@@ -56,15 +56,23 @@ export function generatePromptFooConfiguration(
                     : undefined,
             },
         },
-        tests: tests.map(
-            ({ description, files = [], rubrics, facts, asserts = [] }) => ({
+        tests: arrayify(tests).map(
+            ({
+                description,
+                files = [],
+                rubrics,
+                facts,
+                keywords = [],
+                asserts = [],
+            }) => ({
                 description,
                 vars: {
                     files,
                 },
                 assert: [
-                    ...arrayify(asserts).map((assert) => ({
-                        ...assert,
+                    ...arrayify(keywords).map((kv) => ({
+                        type: "icontains",
+                        value: kv,
                         transform,
                     })),
                     ...arrayify(rubrics).map((value) => ({
@@ -77,7 +85,11 @@ export function generatePromptFooConfiguration(
                         value,
                         transform,
                     })),
-                ],
+                    ...arrayify(asserts).map((assert) => ({
+                        ...assert,
+                        transform: assert.transform || transform,
+                    })),
+                ].filter((a) => !!a),
             })
         ),
     }
