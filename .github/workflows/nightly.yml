@@ -14,6 +14,7 @@ jobs:
             AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
             PROMPTFOO_CACHE_PATH: .genaiscript/cache/promptfoo
+            PROMPTFOO_CONFIG_DIR: .genaiscript/cache
             PROMPTFOO_DISABLE_TELEMETRY: 1
             PROMPTFOO_DISABLE_UPDATE: 1
         steps:
@@ -31,4 +32,4 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run test within scripts
-              run: yarn test:scripts --no-cache --no-write
+              run: yarn test:scripts
