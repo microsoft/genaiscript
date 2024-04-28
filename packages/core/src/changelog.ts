@@ -51,6 +51,12 @@ export function parseChangeLogs(source: string): ChangeLog[] {
 
         // changes
         while (lines.length) {
+            // eat empty lines
+            if (/^\s*$/.test(lines[0])) {
+                lines.shift()
+                continue
+            }
+            // try parse changes
             const change = parseChange()
             if (change) changelog.changes.push(change)
             else break

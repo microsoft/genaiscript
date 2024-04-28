@@ -37,7 +37,7 @@ export function parseLLMDiffs(text: string): Chunk[] {
                 const l = line.substring(diffM[0].length)
                 if (lines[diffln] === l) {
                     // trying to duplicate line
-                    continue;
+                    continue
                 }
                 if (chunk.state === "added") {
                     chunk.lines.push(l)
@@ -95,6 +95,22 @@ export function parseLLMDiffs(text: string): Chunk[] {
             chunk.lineNumbers.pop()
         }
         if (chunk.lines.length === 0) chunks.pop()
+    }
+
+    // clean added duplicate lines
+    for (let i = 0; i < chunks.length - 1; ++i) {
+        const current = chunks[i]
+        const next = chunks[i + 1]
+        if (
+            current.lines.length === 1 &&
+            next.lines.length === 1 &&
+            current.state === "existing" &&
+            next.state === "added" &&
+            current.lines[0] === next.lines[0]
+        ) {
+            // remove current, added line since it does not change the file
+            chunks.splice(i, 2)
+        }
     }
 
     return chunks

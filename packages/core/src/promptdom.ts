@@ -120,11 +120,10 @@ function renderDefNode(def: PromptDefNode): string {
         language === "markdown" || language === "mdx"
             ? MARKDOWN_PROMPT_FENCE
             : PROMPT_FENCE
-    const norm = (s: string, f: string) => {
+    const norm = (s: string) => {
         s = (s || "").replace(/\n*$/, "")
         if (s && lineNumbers) s = addLineNumbers(s)
         if (s) s += "\n"
-        if (f && s.includes(f)) throw new Error("source contains fence")
         return s
     }
 
@@ -141,7 +140,10 @@ function renderDefNode(def: PromptDefNode): string {
             dfence = ""
         }
     }
-    body = norm(body, dfence)
+    body = norm(body)
+    while (dfence && body.includes(dfence)) {
+        dfence += "`"
+    }
     const res =
         (name ? name + ":\n" : "") +
         dfence +

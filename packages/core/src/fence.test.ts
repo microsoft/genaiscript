@@ -71,7 +71,6 @@ bla
 `
 
         const fenced = extractFenced(source)
-        console.log(fenced)
         assert.equal(fenced.length, 1)
         assert.equal(fenced[0].label, "FILE ./somefile.md")
     })
@@ -89,7 +88,6 @@ bla
 `
 
         const fenced = extractFenced(source)
-        console.log(fenced)
         assert.equal(fenced.length, 1)
         assert.equal(fenced[0].label, "FILE ./somefile.md")
     })
