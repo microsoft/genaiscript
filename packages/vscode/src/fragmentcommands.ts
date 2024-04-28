@@ -23,7 +23,9 @@ async function showPromptParametersQuickPicks(
 ): Promise<PromptParameters> {
     const parameters: PromptParameters = {}
     for (const param in template.parameters || {}) {
-        const schema = promptParameterTypeToJSONSchema(template.parameters[param])
+        const schema = promptParameterTypeToJSONSchema(
+            template.parameters[param]
+        )
         switch (schema.type) {
             case "string": {
                 const value = await vscode.window.showInputBox({
@@ -184,6 +186,12 @@ export function activateFragmentCommands(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
 
+        const script = state.project.templates.find(
+            (p) => p.filename === file.fsPath
+        )
+        if (!script) return
+
+        await state.host.server.client.runTest(script, {})
     }
 
     const fragmentDebug = async (file: vscode.Uri) => {
