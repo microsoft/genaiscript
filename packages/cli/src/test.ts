@@ -1,6 +1,7 @@
 import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
 import {
+    EXEC_MAX_BUFFER,
     GENAISCRIPT_FOLDER,
     YAMLStringify,
     logVerbose,
@@ -100,12 +101,16 @@ export async function scriptsTest(
         preferLocal: true,
         cleanup: true,
         stripFinalNewline: true,
+        buffer: false,
     })
     exec.pipeStdout(process.stdout)
     exec.pipeStderr(process.stdout)
     const res = await exec
 
     if (options.view)
-        await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"])
+        await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
+            cleanup: true,
+            maxBuffer: EXEC_MAX_BUFFER,
+        })
     else process.exit(res.exitCode)
 }
