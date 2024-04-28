@@ -3,7 +3,9 @@ import { buildProject } from "./build"
 import {
     EXEC_MAX_BUFFER,
     GENAISCRIPT_FOLDER,
+    TestRunOptions,
     YAMLStringify,
+    arrayify,
     logVerbose,
     normalizeFloat,
     parseKeyValuePairs,
@@ -27,12 +29,10 @@ function parseModelSpec(m: string): ModelOptions {
 
 export async function scriptsTest(
     id: string,
-    options: {
+    options: TestRunOptions & {
         out?: string
         cli?: string
         removeOut?: boolean
-        testProvider?: string
-        models?: string[]
         view?: boolean
         run?: boolean
         cache?: boolean
@@ -42,7 +42,7 @@ export async function scriptsTest(
 ) {
     const prj = await buildProject()
     const scripts = prj.templates
-        .filter((t) => t.tests?.length)
+        .filter((t) => arrayify(t.tests)?.length)
         .filter((t) => !id || t.id === id)
     if (!scripts.length) throw new Error(`no script with tests found`)
 

@@ -20,6 +20,8 @@ import {
     RetrievalSearch,
     RetrievalUpsert,
     ServerVersion,
+    TestRunMessage,
+    TestRunOptions,
 } from "./messages"
 
 export class WebSocketClient implements RetrievalService, ParseService {
@@ -32,7 +34,7 @@ export class WebSocketClient implements RetrievalService, ParseService {
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
 
-    constructor(readonly url: string) { }
+    constructor(readonly url: string) {}
 
     async init(): Promise<void> {
         if (this._ws) return Promise.resolve(undefined)
@@ -64,15 +66,15 @@ export class WebSocketClient implements RetrievalService, ParseService {
         this._ws.addEventListener("close", () => this.reconnect())
         this._ws.addEventListener("message", <
             (event: MessageEvent<any>) => void
-            >(async (event) => {
-                const data: RequestMessages = JSON.parse(event.data)
-                const { id } = data
-                const awaiter = this.awaiters[id]
-                if (awaiter) {
-                    delete this.awaiters[id]
-                    await awaiter.resolve(data)
-                }
-            }))
+        >(async (event) => {
+            const data: RequestMessages = JSON.parse(event.data)
+            const { id } = data
+            const awaiter = this.awaiters[id]
+            if (awaiter) {
+                delete this.awaiters[id]
+                await awaiter.resolve(data)
+            }
+        }))
     }
 
     private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
@@ -138,13 +140,25 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.response
     }
 
-    async parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse> {
+    async parsePdf(
+        filename: string,
+        options?: TraceOptions
+    ): Promise<ParsePdfResponse> {
         const res = await this.queue<ParsePdfMessage>({
-            type: "parse.pdf", filename
+            type: "parse.pdf",
+            filename,
         })
         return res.response
     }
 
+    async runTest(script: PromptScript, options: TestRunOptions) {
+        const res = await this.queue<TestRunMessage>({
+            type: "tests.run",
+            script: script?.id,
+            options,
+        })
+        return res.response
+    }
 
     kill(): void {
         if (this._ws?.readyState === WebSocket.OPEN)

@@ -1,8 +1,11 @@
-import { CORE_VERSION, RunTemplateOptions, YAMLStringify } from "."
 import { Fragment } from "./ast"
 import { NPM_CLI_PACKAGE } from "./constants"
+import { RunTemplateOptions } from "./promptcontext"
 import { generatePromptFooConfiguration } from "./test"
 import { MarkdownTrace } from "./trace"
+import { arrayify } from "./util"
+import { CORE_VERSION } from "./version"
+import { YAMLStringify } from "./yaml"
 
 export function generateCliArguments(
     template: PromptScript,
@@ -49,11 +52,11 @@ ${generateCliArguments(template, fragment, options, "run")}
 `
     )
 
-    if (template.tests?.length) {
+    if (arrayify(template.tests)?.length) {
         trace.details(
             "🧪 testing",
             `
-- [promptfoo](https://www.promptfoo.dev/) configuration
+- test configuration ([promptfoo](https://www.promptfoo.dev/))
 
 \`\`\`yaml
 ${YAMLStringify(generatePromptFooConfiguration(template, { models: [options] }))}
