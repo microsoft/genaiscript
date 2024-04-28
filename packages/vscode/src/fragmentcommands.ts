@@ -179,6 +179,13 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
+    const fragmentTest = async (file: vscode.Uri) => {
+        if (!file) return
+        await state.cancelAiRequest()
+        await state.parseWorkspace()
+
+    }
+
     const fragmentDebug = async (file: vscode.Uri) => {
         if (!file) return
         await state.cancelAiRequest()
@@ -239,6 +246,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.fragment.debug",
             fragmentDebug
+        ),
+        vscode.commands.registerCommand(
+            "genaiscript.fragment.test",
+            fragmentTest
         ),
         vscode.commands.registerCommand(
             "genaiscript.fragment.navigate",
