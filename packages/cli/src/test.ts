@@ -8,6 +8,7 @@ import {
     YAMLStringify,
     arrayify,
     host,
+    logInfo,
     logVerbose,
     normalizeFloat,
     parseKeyValuePairs,
@@ -17,6 +18,7 @@ import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
 import { join } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
+import { log } from "node:console"
 
 function parseModelSpec(m: string): ModelOptions {
     const vals = parseKeyValuePairs(m)
@@ -62,7 +64,7 @@ export async function runTests(
     const testProvider =
         options?.testProvider || (await resolveTestProvider(scripts[0]))
     const models = options?.models
-    logVerbose(`writing tests to ${out}`)
+    logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
     await ensureDir(out)
@@ -71,7 +73,7 @@ export async function runTests(
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
-        logVerbose(`  ${fn}`)
+        logInfo(`  ${fn}`)
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
@@ -79,7 +81,9 @@ export async function runTests(
             provider: "provider.mjs",
             testProvider,
         })
-        await writeFile(fn, YAMLStringify(config))
+        const yaml = YAMLStringify(config)
+        await writeFile(fn, yaml)
+        logVerbose(yaml)
     }
 
     const outJson = join(out, "res.json")
