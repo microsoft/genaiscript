@@ -34,7 +34,6 @@ export async function scriptsTest(
         cli?: string
         removeOut?: boolean
         view?: boolean
-        run?: boolean
         cache?: boolean
         verbose?: boolean
         write?: boolean
@@ -71,8 +70,6 @@ export async function scriptsTest(
         await writeFile(fn, YAMLStringify(config))
     }
 
-    if (!options.run) return
-
     const outJson = join(out, "res.json")
 
     const cmd = "npx"
@@ -86,15 +83,8 @@ export async function scriptsTest(
         "1",
     ]
     if (!options.cache) args.push("--no-cache")
-    if (!options.write) args.push("--no-write")
     if (options.verbose) args.push("--verbose")
     args.push("--output", outJson)
-    if (!options.run) {
-        logVerbose(`to run tests with promptfoo, use:`)
-        logVerbose(`  ${cmd} ${args.join(" ")}`)
-        return
-    }
-
     logVerbose(`running tests with promptfoo`)
     logVerbose(`  ${cmd} ${args.join(" ")}`)
     const exec = execa(cmd, args, {

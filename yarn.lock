@@ -10441,10 +10441,10 @@ process@^0.11.10:
   resolved "https://registry.npmjs.org/process/-/process-0.11.10.tgz"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
-promptfoo@^0.55.0:
-  version "0.55.0"
-  resolved "https://registry.yarnpkg.com/promptfoo/-/promptfoo-0.55.0.tgz#f2f80cc54310914969ada621c7419b45043368e7"
-  integrity sha512-wb1drxoHa9jpAz7UJW4QDK0X72zHxX/RAyyhw7I2N5Lvs1smnJ7yF0F6EZKiKSUgYfydeWvqzGr9oTqeZLzBNg==
+promptfoo@^0.56.0:
+  version "0.56.0"
+  resolved "https://registry.yarnpkg.com/promptfoo/-/promptfoo-0.56.0.tgz#51c2f2c437bb3f941e9cdb3fa46a4a7ed502ac33"
+  integrity sha512-j0pVyJjefdIM7+9Yr+qVSDiqA6XsuVXmY4Ot1J0JaTxrPawCacTuFSv/K2Ii3rFxZ6NZJH74TXrUozkW+GzNCw==
   dependencies:
     "@anthropic-ai/sdk" "^0.20.1"
     "@apidevtools/json-schema-ref-parser" "^10.1.0"

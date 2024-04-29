@@ -78,7 +78,10 @@ export async function startServer(options: { port: string }) {
                     }
                     case "tests.run": {
                         console.log(`tests: run ${data.script || "*"}`)
-                        await scriptsTest(data.script, data.options || {})
+                        await scriptsTest(data.script, {
+                            ...(data.options || {}),
+                            cache: true
+                        })
                         response = {
                             ok: true,
                         }

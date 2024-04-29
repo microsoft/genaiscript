@@ -270,7 +270,7 @@
             },
             {
                 "command": "genaiscript.fragment.test",
-                "title": "Test GenAiScript...",
+                "title": "Test GenAiScript",
                 "category": "GenAIScript",
                 "icon": "$(beaker)"
             },

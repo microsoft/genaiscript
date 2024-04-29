@@ -106,7 +106,6 @@ Options:
   -tp, --test-provider <string>  test provider
   --view                         open test viewer once tests are executed
   --no-cache                     disable LLM result cache
-  --no-run                       do not run the tests
   --no-write                     Do not write results to promptfoo directory
   -v, --verbose                  verbose output
   -h, --help                     display help for command

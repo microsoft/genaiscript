@@ -191,6 +191,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
         if (!script) return
 
+        await state.host.server.client.init()
         await state.host.server.client.runTest(script, {})
     }
 

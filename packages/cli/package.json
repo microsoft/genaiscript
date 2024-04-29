@@ -35,7 +35,7 @@
         "node": ">=20.0.0"
     },
     "devDependencies": {
-        "promptfoo": "^0.55.0",
+        "promptfoo": "^0.56.0",
         "@llamaindex/env": "^0.0.5",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.12.7",
