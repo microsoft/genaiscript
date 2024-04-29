@@ -1,11 +1,38 @@
 ---
 title: Tests
 sidebar:
-  order: 11
+    order: 11
 description: Learn how to execute and evaluate LLM output quality with promptfoo, a tool designed for testing language model outputs.
 keywords: promptfoo, LLM testing, output quality, language model evaluation, script tests
 ---
 
-The tests are executed by [promptfoo](https://promptfoo.dev/).
-[promptfoo](https://promptfoo.dev/) is tool 
+It is possible to define tests for the LLM scripts, to evaluate the output quality of the LLM
+over time and ModuleResolutionKind.
+
+The tests are executed by [promptfoo](https://promptfoo.dev/), a tool
 for evaluating LLM output quality.
+
+## Defining tests
+
+The tests are declared in the `script` function in your test. You may define one or many tests (array).
+
+```js title="proofreader.genai.js" wrap
+scripts({
+  ...,
+  tests: [{
+    files: "src/rag/testcode.ts",
+    rubrics: "is a report with a list of issues",
+    facts: `The report says that the input string
+      should be validated before use.`,
+  }]
+})
+```
+
+### rubrics
+
+### facts
+
+### Assertions and metrics
+
+The assertions of tests are based on
+[promptfoo assertions and metrics](https://promptfoo.dev/docs/configuration/expected-outputs/).
