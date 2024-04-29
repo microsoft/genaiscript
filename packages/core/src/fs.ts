@@ -56,8 +56,25 @@ export function filenameOrFileToContent(
 
 export function createFileSystem(): WorkspaceFileSystem {
     const fs: WorkspaceFileSystem = {
-        findFiles: async (glob) =>
-            (await host.findFiles(glob)).filter((f) => !DOT_ENV_REGEX.test(f)),
+        findFiles: async (glob, options) => {
+            const { readText } = options || {}
+            const names = (await host.findFiles(glob)).filter(
+                (f) => !DOT_ENV_REGEX.test(f)
+            )
+            const files: LinkedFile[] = []
+            for (const name of names) {
+                const file =
+                    readText === false
+                        ? <LinkedFile>{
+                              filename: name,
+                              label: name,
+                              content: undefined,
+                          }
+                        : await fs.readText(name)
+                files.push(file)
+            }
+            return files
+        },
         readText: async (f: string | LinkedFile) => {
             if (f === undefined)
                 throw new NotSupportedError("missing file name")

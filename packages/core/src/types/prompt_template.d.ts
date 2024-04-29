@@ -426,7 +426,20 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallShell
 
 interface WorkspaceFileSystem {
-    findFiles(glob: string): Promise<string[]>
+    /**
+     * Searches for files using the glob pattern and returns a list of files.
+     * If the file is text, also return the content.
+     * @param glob
+     */
+    findFiles(
+        glob: string,
+        options?: {
+            /**
+             * Set to false to read text content by default
+             */
+            readText?: boolean
+        }
+    ): Promise<LinkedFile[]>
     /**
      * Reads the content of a file as text
      * @param path
