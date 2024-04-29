@@ -73,17 +73,23 @@ async function showPromptParametersQuickPicks(
 }
 
 async function startTestViewer() {
-    // show results
-    const url = "http://localhost:15500"
-    const terminal = vscode.window.createTerminal({
-        name: "Promptfoo viewer",
-        isTransient: true,
-        env: {
-            PROMPTFOO_DISABLE_TELEMETRY: "1",
-            PROMPTFOO_DISABLE_UPDATE: "1",
-        },
-    })
-    terminal.sendText(`npx --yes promptfoo@latest view -y`)
+    const name = "Promptfoo View"
+    if (vscode.window.terminals.find((t) => t.name === name)) {
+        await vscode.env.openExternal(
+            vscode.Uri.parse("http://localhost:15500")
+        )
+    } else {
+        // show results
+        const terminal = vscode.window.createTerminal({
+            name,
+            isTransient: true,
+            env: {
+                PROMPTFOO_DISABLE_TELEMETRY: "1",
+                PROMPTFOO_DISABLE_UPDATE: "1",
+            },
+        })
+        terminal.sendText(`npx --yes promptfoo@latest view -y`)
+    }
 }
 
 export function activateFragmentCommands(state: ExtensionState) {

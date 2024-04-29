@@ -44,13 +44,23 @@ export function generatePromptFooConfiguration(
                                 text: {
                                     id: "azureopenai:chat:gpt-4",
                                     config: {
-                                        apiHost: testProvider,
+                                        apiHost: testProvider
+                                            .replace(/^https:\/\//i, "")
+                                            .replace(
+                                                /\/openai\/deployments$/i,
+                                                ""
+                                            ),
                                     },
                                 },
                                 embedding: {
                                     id: "azureopenai:embeddings:text-embedding-ada-002",
                                     config: {
-                                        apiHost: testProvider,
+                                        apiHost: testProvider
+                                            .replace(/^https:\/\//i, "")
+                                            .replace(
+                                                /\/openai\/deployments$/i,
+                                                ""
+                                            ),
                                     },
                                 },
                             }
