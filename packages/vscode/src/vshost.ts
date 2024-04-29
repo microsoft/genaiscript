@@ -179,7 +179,7 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async findFiles(path: string): Promise<string[]> {
         const uris = await workspace.findFiles(path)
-        return uris.map((u) => u.fsPath)
+        return uris.map((u) => vscode.workspace.asRelativePath(u, false))
     }
     async createDirectory(name: string): Promise<void> {
         await workspace.fs.createDirectory(Uri.file(name))

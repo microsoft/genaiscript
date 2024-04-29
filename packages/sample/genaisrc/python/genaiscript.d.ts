@@ -228,6 +228,14 @@ type PromptAssertion = {
           // The threshold value, applicable only to certain types
           threshold?: number
       }
+    | {
+          type: "javascript"
+          /**
+           * JavaScript expression to evaluate.
+           */
+          value: string
+          threshold?: number
+      }
 )
 
 interface PromptTest {
