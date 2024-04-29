@@ -53,7 +53,7 @@ export interface TestRunOptions {
 
 export interface TestRunMessage extends RequestMessage {
     type: "tests.run"
-    script?: string
+    scripts?: string[]
     options?: TestRunOptions
 }
 

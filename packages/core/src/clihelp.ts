@@ -56,7 +56,7 @@ ${generateCliArguments(template, fragment, options, "run")}
         trace.details(
             "🧪 testing",
             `
-- test configuration ([promptfoo](https://www.promptfoo.dev/))
+- [promptfoo](https://www.promptfoo.dev/) configuration
 
 \`\`\`yaml
 ${YAMLStringify(generatePromptFooConfiguration(template, { models: [options] }))}

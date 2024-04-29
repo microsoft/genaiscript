@@ -10,7 +10,7 @@ import {
     ServerResponse,
     serializeError,
 } from "genaiscript-core"
-import { scriptsTest } from "./test"
+import { runTests } from "./test"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -77,14 +77,13 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "tests.run": {
-                        console.log(`tests: run ${data.script || "*"}`)
-                        await scriptsTest(data.script, {
+                        console.log(
+                            `tests: run ${data.scripts?.join(", ") || "*"}`
+                        )
+                        response = await runTests(data.scripts, {
                             ...(data.options || {}),
-                            cache: true
+                            cache: true,
                         })
-                        response = {
-                            ok: true,
-                        }
                         break
                     }
                     default:

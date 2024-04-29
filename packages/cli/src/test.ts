@@ -3,9 +3,11 @@ import { buildProject } from "./build"
 import {
     EXEC_MAX_BUFFER,
     GENAISCRIPT_FOLDER,
+    ResponseStatus,
     TestRunOptions,
     YAMLStringify,
     arrayify,
+    host,
     logVerbose,
     normalizeFloat,
     parseKeyValuePairs,
@@ -27,28 +29,38 @@ function parseModelSpec(m: string): ModelOptions {
     else return { model: m }
 }
 
-export async function scriptsTest(
-    id: string,
+async function resolveTestProvider(script: PromptScript) {
+    const token = await host.getSecretToken(script)
+    if (token && token.type === "azure") return token.base
+    return undefined
+}
+
+export async function runTests(
+    ids: string[],
     options: TestRunOptions & {
         out?: string
         cli?: string
         removeOut?: boolean
-        view?: boolean
         cache?: boolean
         verbose?: boolean
         write?: boolean
     }
-) {
+): Promise<ResponseStatus> {
     const prj = await buildProject()
     const scripts = prj.templates
         .filter((t) => arrayify(t.tests)?.length)
-        .filter((t) => !id || t.id === id)
-    if (!scripts.length) throw new Error(`no script with tests found`)
+        .filter((t) => !ids?.length || ids.includes(t.id))
+    if (!scripts.length)
+        return {
+            ok: false,
+            status: 404,
+        }
 
     const cli = options.cli || __filename
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const provider = join(out, "provider.mjs")
-    const testProvider = options?.testProvider
+    const testProvider =
+        options?.testProvider || (await resolveTestProvider(scripts[0]))
     const models = options?.models
     logVerbose(`writing tests to ${out}`)
 
@@ -96,11 +108,26 @@ export async function scriptsTest(
     exec.pipeStdout(process.stdout)
     exec.pipeStderr(process.stdout)
     const res = await exec
+    return { ok: res.exitCode === 0, status: res.exitCode }
+}
 
+export async function scriptsTest(
+    id: string,
+    options: TestRunOptions & {
+        out?: string
+        cli?: string
+        removeOut?: boolean
+        view?: boolean
+        cache?: boolean
+        verbose?: boolean
+        write?: boolean
+    }
+) {
+    const { status } = await runTests(id, options)
     if (options.view)
         await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
             cleanup: true,
             maxBuffer: EXEC_MAX_BUFFER,
         })
-    else process.exit(res.exitCode)
+    else process.exit(status)
 }
