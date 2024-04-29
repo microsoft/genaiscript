@@ -93,7 +93,13 @@ declare var retrieval: Retrieval
 /**
  * Access to the workspace file system.
  */
-declare var worksace: WorkspaceFileSystem
+declare var workspace: WorkspaceFileSystem
+
+/**
+ * Access to the workspace file system.
+ * @deprecated Use `workspace` instead.
+ */
+declare var fs: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.

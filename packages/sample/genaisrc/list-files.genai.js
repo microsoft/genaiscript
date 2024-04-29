@@ -2,7 +2,7 @@ script({
 
 })
 
-const files = await fs.findFiles('**/*.genai.js')
+const files = await workspace.findFiles('**/*.genai.js')
 
 $`Select the most interresting files from the list below:
 

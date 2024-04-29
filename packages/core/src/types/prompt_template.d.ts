@@ -1180,6 +1180,7 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML

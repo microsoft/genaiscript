@@ -1283,7 +1283,7 @@ declare var retrieval: Retrieval
 /**
  * Access to the workspace file system.
  */
-declare var worksace: WorkspaceFileSystem
+declare var workspace: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.

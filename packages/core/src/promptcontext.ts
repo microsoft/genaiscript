@@ -168,6 +168,7 @@ export function createPromptContext(
         system: () => {},
         env,
         path,
+        fs: workspace,
         workspace,
         parsers,
         YAML,

@@ -166,7 +166,6 @@ export class NodeHost implements Host {
             cwd,
             preferLocal: true,
             stripFinalNewline: true,
-            maxBuffer: EXEC_MAX_BUFFER,
         })
         return { stdout, stderr, exitCode, failed }
     }
