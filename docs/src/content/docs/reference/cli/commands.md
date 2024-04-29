@@ -88,12 +88,12 @@ Options:
 ## `test`
 
 ```
-Usage: genaiscript test [options] [script]
+Usage: genaiscript test [options] [script...]
 
 Runs the tests for scripts
 
 Arguments:
-  script                         Script id. If not provided, all scripts are
+  script                         Script ids. If not provided, all scripts are
                                  tested
 
 Options:
