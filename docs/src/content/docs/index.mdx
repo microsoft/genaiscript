@@ -15,25 +15,24 @@ hero:
           link: https://github.com/microsoft/genaiscript/
           icon: github
 ---
-import { Image} from "astro:assets"
+
+import { Image } from "astro:assets"
 import { Card, CardGrid } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
 import vscodeSrc from "../../../public/images/visual-studio-code.png"
 
-import debuggerSrc from '../../assets/debugger.png';
+import debuggerSrc from "../../assets/debugger.png"
 import debuggerAlt from "../../assets/debugger.png.txt?raw"
 
 import sarifSrc from "../../assets/tla-ai-linter.png"
 import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
 
-
 ```js wrap title="extract-data.genai.js"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // structure the data
-const schema = defSchema("DATA", 
-    { type: "array", items: { type: "string" } })
+const schema = defSchema("DATA", { type: "array", items: { type: "string" } })
 // assign the task
 $`Analyze FILE and extract data to JSON
 using the ${schema} schema.`
@@ -61,7 +60,11 @@ using the ${schema} schema.`
     </Card>
 </CardGrid>
 
-<Image src={vscodeSrc} alt="A screenshot of VSCode with a genaiscript opened" loading="lazy" />
+<Image
+    src={vscodeSrc}
+    alt="A screenshot of VSCode with a genaiscript opened"
+    loading="lazy"
+/>
 
 ## Features
 
@@ -82,9 +85,26 @@ $`Summarize FILE. Today is ${new Date()}.`
 
 <Card title="Fast Development Loop" icon="rocket">
 
-Edit, [debug](/genaiscript/getting-started/debugging-scripts/), [run](/genaiscript/getting-started/running-scripts/) your scripts in [Visual Studio Code](/genaiscript/getting-started/installation).
+Edit, [Debug](/genaiscript/getting-started/debugging-scripts/), [Run](/genaiscript/getting-started/running-scripts/),
+[Test](/genaiscript/getting-started/testing-scripts/) your scripts in [Visual Studio Code](/genaiscript/getting-started/installation)
+or with a [command line](/genaiscript/getting-started/installation).
 
 <Image src={debuggerSrc} alt={debuggerAlt} loading="lazy" />
+
+</Card>
+
+<Card title="Builtin LLM Tests" icon="star">
+
+Build reliable prompts using [LLM tests](/genaiscript/reference/scripts/tests)
+powered by [promptfoo](https://promptfoo.dev/).
+
+```js wrap
+script({ ..., tests: {
+  files: "penguins.csv",
+  rubric: "is a data analysis report",
+  facts: "The data refers about penguin population in Antartica.",
+}})
+```
 
 </Card>
 
