@@ -58,6 +58,13 @@ scripts({
 })
 ```
 
+:::note[GPT-4 required]
+
+The `rubrics` tests require to have
+a OpenAI or Azure OpenAI configuration with a `gpt-4` model in the `.env` file.
+
+:::
+
 ### `facts`
 
 `facts` checks a factual consistency (see [factuality](https://promptfoo.dev/docs/guides/factuality-eval/)).
@@ -77,14 +84,21 @@ scripts({
 })
 ```
 
+:::note[GPT-4 required]
+
+The `facts` tests require to have
+a OpenAI or Azure OpenAI configuration with a `gpt-4` model in the `.env` file.
+
+:::
+
 ### `asserts`
 
 Other assertions on
 [promptfoo assertions and metrics](https://promptfoo.dev/docs/configuration/expected-outputs/).
 
--   `icontains` (`not-icontains"`)
--   `equals` (`not-equals`)
--   `starts-with` (`not-starts-with`)
+-   `icontains` (`not-icontains"`) output contains substring case insensitive
+-   `equals` (`not-equals`) output equals string
+-   `starts-with` (`not-starts-with`) output starts with string
 
 ```js title="proofreader.genai.js" wrap "asserts"
 scripts({
@@ -100,9 +114,9 @@ scripts({
 })
 ```
 
--   `contains-all` (`not-contains-all`)
--   `contains-any` (`not-contains-any`)
--   `icontains-all` (`not-icontains-all`)
+-   `contains-all` (`not-contains-all`) output contains all substrings
+-   `contains-any` (`not-contains-any`) output contains any substring
+-   `icontains-all` (`not-icontains-all`) output contains all substring case insensitive
 
 ```js title="proofreader.genai.js" wrap "asserts"
 scripts({
