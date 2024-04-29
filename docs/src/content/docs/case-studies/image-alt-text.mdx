@@ -84,7 +84,7 @@ To avoid regenerating the alt text, we also detect if a file exists in the scrip
 ```js title="image-alt-text.genai.js" wrap
 ...
 // skip if alt-text file already exists
-const txt = await fs.readText(file.filename + ".txt")
+const txt = await workspace.readText(file.filename + ".txt")
 if (txt.content)
     cancel("Alt text file already exists")
 ```
