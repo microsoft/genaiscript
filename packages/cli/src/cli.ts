@@ -162,8 +162,8 @@ export async function cli() {
         .command("test")
         .description("Runs the tests for scripts")
         .argument(
-            "[script]",
-            "Script id. If not provided, all scripts are tested"
+            "[script...]",
+            "Script ids. If not provided, all scripts are tested"
         )
         .option(
             "--models <models...>",
@@ -175,8 +175,6 @@ export async function cli() {
         .option("-tp, --test-provider <string>", "test provider")
         .option("--view", "open test viewer once tests are executed")
         .option("--no-cache", "disable LLM result cache")
-        .option("--no-run", "do not run the tests")
-        .option("--no-write", "Do not write results to promptfoo directory")
         .option("-v, --verbose", "verbose output")
         .action(scriptsTest)
 

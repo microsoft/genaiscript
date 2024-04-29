@@ -1,8 +1,14 @@
 import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
 import {
+    EXEC_MAX_BUFFER,
     GENAISCRIPT_FOLDER,
+    ResponseStatus,
+    TestRunOptions,
     YAMLStringify,
+    arrayify,
+    host,
+    logInfo,
     logVerbose,
     normalizeFloat,
     parseKeyValuePairs,
@@ -12,6 +18,7 @@ import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
 import { join } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
+import { log } from "node:console"
 
 function parseModelSpec(m: string): ModelOptions {
     const vals = parseKeyValuePairs(m)
@@ -24,33 +31,40 @@ function parseModelSpec(m: string): ModelOptions {
     else return { model: m }
 }
 
-export async function scriptsTest(
-    id: string,
-    options: {
+async function resolveTestProvider(script: PromptScript) {
+    const token = await host.getSecretToken(script)
+    if (token && token.type === "azure") return token.base
+    return undefined
+}
+
+export async function runTests(
+    ids: string[],
+    options: TestRunOptions & {
         out?: string
         cli?: string
         removeOut?: boolean
-        testProvider?: string
-        models?: string[]
-        view?: boolean
-        run?: boolean
         cache?: boolean
         verbose?: boolean
         write?: boolean
     }
-) {
+): Promise<ResponseStatus> {
     const prj = await buildProject()
     const scripts = prj.templates
-        .filter((t) => t.tests?.length)
-        .filter((t) => !id || t.id === id)
-    if (!scripts.length) throw new Error(`no script with tests found`)
+        .filter((t) => arrayify(t.tests)?.length)
+        .filter((t) => !ids?.length || ids.includes(t.id))
+    if (!scripts.length)
+        return {
+            ok: false,
+            status: 404,
+        }
 
     const cli = options.cli || __filename
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const provider = join(out, "provider.mjs")
-    const testProvider = options?.testProvider
+    const testProvider =
+        options?.testProvider || (await resolveTestProvider(scripts[0]))
     const models = options?.models
-    logVerbose(`writing tests to ${out}`)
+    logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
     await ensureDir(out)
@@ -59,7 +73,7 @@ export async function scriptsTest(
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
-        logVerbose(`  ${fn}`)
+        logInfo(`  ${fn}`)
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
@@ -67,10 +81,10 @@ export async function scriptsTest(
             provider: "provider.mjs",
             testProvider,
         })
-        await writeFile(fn, YAMLStringify(config))
+        const yaml = YAMLStringify(config)
+        await writeFile(fn, yaml)
+        logVerbose(yaml)
     }
-
-    if (!options.run) return
 
     const outJson = join(out, "res.json")
 
@@ -85,27 +99,40 @@ export async function scriptsTest(
         "1",
     ]
     if (!options.cache) args.push("--no-cache")
-    if (!options.write) args.push("--no-write")
     if (options.verbose) args.push("--verbose")
     args.push("--output", outJson)
-    if (!options.run) {
-        logVerbose(`to run tests with promptfoo, use:`)
-        logVerbose(`  ${cmd} ${args.join(" ")}`)
-        return
-    }
-
     logVerbose(`running tests with promptfoo`)
     logVerbose(`  ${cmd} ${args.join(" ")}`)
     const exec = execa(cmd, args, {
         preferLocal: true,
         cleanup: true,
         stripFinalNewline: true,
+        buffer: false,
+        maxBuffer: 16,
     })
     exec.pipeStdout(process.stdout)
     exec.pipeStderr(process.stdout)
     const res = await exec
+    return { ok: res.exitCode === 0, status: res.exitCode }
+}
 
+export async function scriptsTest(
+    ids: string[],
+    options: TestRunOptions & {
+        out?: string
+        cli?: string
+        removeOut?: boolean
+        view?: boolean
+        cache?: boolean
+        verbose?: boolean
+        write?: boolean
+    }
+) {
+    const { status } = await runTests(ids, options)
     if (options.view)
-        await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"])
-    else process.exit(res.exitCode)
+        await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
+            cleanup: true,
+            maxBuffer: EXEC_MAX_BUFFER,
+        })
+    else process.exit(status)
 }

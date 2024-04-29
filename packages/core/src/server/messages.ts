@@ -46,6 +46,17 @@ export interface ParsePdfMessage extends RequestMessage {
     response?: ParsePdfResponse
 }
 
+export interface TestRunOptions {
+    testProvider?: string
+    models?: string[]
+}
+
+export interface TestRunMessage extends RequestMessage {
+    type: "tests.run"
+    scripts?: string[]
+    options?: TestRunOptions
+}
+
 export type RequestMessages =
     | ServerKill
     | RetrievalClear
@@ -53,3 +64,4 @@ export type RequestMessages =
     | RetrievalSearch
     | ServerVersion
     | ParsePdfMessage
+    | TestRunMessage

@@ -1,4 +1,4 @@
-import { logError, logVerbose } from "./util"
+import { logError, logVerbose, normalizeInt } from "./util"
 import { host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
@@ -150,7 +150,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             r.statusText,
             bodyJSON?.error,
             body,
-            parseInt(r.headers.get("retry-after"))
+            normalizeInt(r.headers.get("retry-after"))
         )
     }
 

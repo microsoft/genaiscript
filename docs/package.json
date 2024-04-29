@@ -1,29 +1,30 @@
 {
-  "name": "docs",
-  "type": "module",
-  "private": true,
-  "version": "1.22.1",
-  "license": "MIT",
-  "scripts": {
-    "dev": "astro dev --host",
-    "start": "astro dev --host",
-    "check": "astro check",
-    "build": "astro build",
-    "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
-    "preview": "astro preview",
-    "astro": "astro",
-    "genai:frontmatter": "node .genaiscript/genaiscript.cjs batch frontmatter src/**/*.md --apply-edits",
-    "genai:technical": "node .genaiscript/genaiscript.cjs batch technical src/**/*.md --apply-edits",
-    "genai:alt-text": "node scripts/image-alt-text.mjs"
-  },
-  "dependencies": {
-    "@astrojs/check": "^0.5.9",
-    "@astrojs/starlight": "^0.21.1",
-    "astro": "^4.5.3",
-    "sharp": "0.32.6",
-    "typescript": "5.4.5"
-  },
-  "devDependencies": {
-    "zx": "^8.0.2"
-  }
+    "name": "docs",
+    "type": "module",
+    "private": true,
+    "version": "1.22.1",
+    "license": "MIT",
+    "scripts": {
+        "dev": "astro dev --host",
+        "start": "astro dev --host",
+        "check": "astro check",
+        "build": "astro build",
+        "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
+        "preview": "astro preview",
+        "astro": "astro",
+        "genai:test": "node ../packages/cli/built/genaiscript.cjs test src/**/*.md",
+        "genai:frontmatter": "node ../packages/cli/built/genaiscript.cjs batch frontmatter src/**/*.md --apply-edits",
+        "genai:technical": "node ../packages/cli/built/genaiscript.cjs batch technical src/**/*.md --apply-edits",
+        "genai:alt-text": "node scripts/image-alt-text.mjs"
+    },
+    "dependencies": {
+        "@astrojs/check": "^0.5.9",
+        "@astrojs/starlight": "^0.21.1",
+        "astro": "^4.5.3",
+        "sharp": "0.32.6",
+        "typescript": "5.4.5"
+    },
+    "devDependencies": {
+        "zx": "^8.0.2"
+    }
 }

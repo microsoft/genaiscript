@@ -88,12 +88,12 @@ Options:
 ## `test`
 
 ```
-Usage: genaiscript test [options] [script]
+Usage: genaiscript test [options] [script...]
 
 Runs the tests for scripts
 
 Arguments:
-  script                         Script id. If not provided, all scripts are
+  script                         Script ids. If not provided, all scripts are
                                  tested
 
 Options:
@@ -106,8 +106,6 @@ Options:
   -tp, --test-provider <string>  test provider
   --view                         open test viewer once tests are executed
   --no-cache                     disable LLM result cache
-  --no-run                       do not run the tests
-  --no-write                     Do not write results to promptfoo directory
   -v, --verbose                  verbose output
   -h, --help                     display help for command
 ```

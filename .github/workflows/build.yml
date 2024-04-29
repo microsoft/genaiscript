@@ -10,6 +10,9 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        strategy:
+          matrix:
+              node-version: [20, 22]        
         steps:
             - uses: actions/checkout@v3
               with:
@@ -17,7 +20,7 @@ jobs:
                   fetch-depth: 10
             - uses: actions/setup-node@v3
               with:
-                  node-version: "20"
+                  node-version: "${{ matrix.node-version }}"
                   cache: yarn
             - run: yarn install --frozen-lockfile
             - name: typecheck

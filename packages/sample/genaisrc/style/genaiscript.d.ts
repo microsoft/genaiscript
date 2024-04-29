@@ -190,21 +190,45 @@ type PromptParameterType =
 type PromptParametersSchema = Record<string, PromptParameterType>
 type PromptParameters = Record<string, string | number | boolean>
 
-type PromptAssertion =
+type PromptAssertion = {
+    // How heavily to weigh the assertion. Defaults to 1.0
+    weight?: number
+    /**
+     * The transformation to apply to the output before checking the assertion.
+     */
+    transform?: string
+} & (
     | {
-          /**
-           * output contains substring, case insensitive
-           **/
-          type: "icontains"
+          // type of assertion
+          type:
+              | "icontains"
+              | "not-icontains"
+              | "equals"
+              | "not-equals"
+              | "starts-with"
+              | "not-starts-with"
+          // The expected value
           value: string
       }
     | {
-          /**
-           * Perplexity is below a threshold
-           */
-          type: "perplexity"
-          threshold: number
+          // type of assertion
+          type:
+              | "contains-all"
+              | "not-contains-all"
+              | "contains-any"
+              | "not-contains-any"
+              | "icontains-all"
+              | "not-icontains-all"
+          // The expected values
+          value: string[]
       }
+    | {
+          // type of assertion
+          type: "levenshtein" | "not-levenshtein"
+          // The threshold value, applicable only to certain types
+          threshold?: number
+      }
+)
 
 interface PromptTest {
     /**
@@ -223,6 +247,10 @@ interface PromptTest {
      * LLM output adheres to the given facts, using Factuality method from OpenAI evaluation.
      */
     facts?: string | string[]
+    /**
+     * List of keywords that should be contained in the LLM output.
+     */
+    keywords?: string | string[]
     /**
      * Additional deterministic assertions.
      */
@@ -243,7 +271,7 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     /**
      * Tests to validate this script.
      */
-    tests?: PromptTest[]
+    tests?: PromptTest | PromptTest[]
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.

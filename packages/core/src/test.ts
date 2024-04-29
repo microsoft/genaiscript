@@ -36,35 +36,55 @@ export function generatePromptFooConfiguration(
                 cli,
             },
         })),
-        defaultTest: {
-            options: {
-                provider: testProvider
-                    ? {
-                          text: {
-                              id: "azureopenai:chat:gpt-4",
-                              config: {
-                                  apiHost: "tnrllmproxy.azurewebsites.net",
-                              },
-                          },
-                          embedding: {
-                              id: "azureopenai:embeddings:text-embedding-ada-002",
-                              config: {
-                                  apiHost: "tnrllmproxy.azurewebsites.net",
-                              },
-                          },
-                      }
-                    : undefined,
-            },
-        },
-        tests: tests.map(
-            ({ description, files = [], rubrics, facts, asserts = [] }) => ({
+        defaultTest: testProvider
+            ? {
+                  options: {
+                      provider: testProvider
+                          ? {
+                                text: {
+                                    id: "azureopenai:chat:gpt-4",
+                                    config: {
+                                        apiHost: testProvider
+                                            .replace(/^https:\/\//i, "")
+                                            .replace(
+                                                /\/openai\/deployments$/i,
+                                                ""
+                                            ),
+                                    },
+                                },
+                                embedding: {
+                                    id: "azureopenai:embeddings:text-embedding-ada-002",
+                                    config: {
+                                        apiHost: testProvider
+                                            .replace(/^https:\/\//i, "")
+                                            .replace(
+                                                /\/openai\/deployments$/i,
+                                                ""
+                                            ),
+                                    },
+                                },
+                            }
+                          : undefined,
+                  },
+              }
+            : undefined,
+        tests: arrayify(tests).map(
+            ({
+                description,
+                files = [],
+                rubrics,
+                facts,
+                keywords = [],
+                asserts = [],
+            }) => ({
                 description,
                 vars: {
                     files,
                 },
                 assert: [
-                    ...arrayify(asserts).map((assert) => ({
-                        ...assert,
+                    ...arrayify(keywords).map((kv) => ({
+                        type: "icontains",
+                        value: kv,
                         transform,
                     })),
                     ...arrayify(rubrics).map((value) => ({
@@ -77,7 +97,11 @@ export function generatePromptFooConfiguration(
                         value,
                         transform,
                     })),
-                ],
+                    ...arrayify(asserts).map((assert) => ({
+                        ...assert,
+                        transform: assert.transform || transform,
+                    })),
+                ].filter((a) => !!a),
             })
         ),
     }

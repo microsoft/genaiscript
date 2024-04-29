@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import {
     Fragment,
     GENAI_JS_REGEX,
+    ICON_LOGO_NAME,
     NotSupportedError,
     PromptScript,
     assert,
@@ -23,7 +24,9 @@ async function showPromptParametersQuickPicks(
 ): Promise<PromptParameters> {
     const parameters: PromptParameters = {}
     for (const param in template.parameters || {}) {
-        const schema = promptParameterTypeToJSONSchema(template.parameters[param])
+        const schema = promptParameterTypeToJSONSchema(
+            template.parameters[param]
+        )
         switch (schema.type) {
             case "string": {
                 const value = await vscode.window.showInputBox({
@@ -68,6 +71,27 @@ async function showPromptParametersQuickPicks(
         }
     }
     return parameters
+}
+
+async function startTestViewer() {
+    const name = "Promptfoo View"
+    if (vscode.window.terminals.find((t) => t.name === name)) {
+        await vscode.env.openExternal(
+            vscode.Uri.parse("http://localhost:15500")
+        )
+    } else {
+        // show results
+        const terminal = vscode.window.createTerminal({
+            name,
+            isTransient: true,
+            env: {
+                PROMPTFOO_DISABLE_TELEMETRY: "1",
+                PROMPTFOO_DISABLE_UPDATE: "1",
+            },
+            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
+        })
+        terminal.sendText(`npx --yes promptfoo@latest view -y`)
+    }
 }
 
 export function activateFragmentCommands(state: ExtensionState) {
@@ -179,6 +203,22 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
+    const fragmentTest = async (file: vscode.Uri) => {
+        if (!file) return
+        await state.cancelAiRequest()
+        await state.parseWorkspace()
+
+        const script = state.project.templates.find(
+            (p) => p.filename === file.fsPath
+        )
+        if (!script) return
+
+        // show results
+        startTestViewer()
+        await state.host.server.client.init()
+        await state.host.server.client.runTest(script, {})
+    }
+
     const fragmentDebug = async (file: vscode.Uri) => {
         if (!file) return
         await state.cancelAiRequest()
@@ -239,6 +279,10 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.fragment.debug",
             fragmentDebug
+        ),
+        vscode.commands.registerCommand(
+            "genaiscript.fragment.test",
+            fragmentTest
         ),
         vscode.commands.registerCommand(
             "genaiscript.fragment.navigate",

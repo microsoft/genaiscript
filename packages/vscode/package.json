@@ -104,6 +104,11 @@
                     "command": "genaiscript.fragment.debug",
                     "when": "!inDebugMode",
                     "group": "genaiscript@2"
+                },
+                {
+                    "command": "genaiscript.fragment.test",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
+                    "group": "genaiscript@3"
                 }
             ],
             "file/newFile": [
@@ -121,11 +126,20 @@
                     "command": "genaiscript.fragment.debug",
                     "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
                     "group": "genaiscript@2"
+                },
+                {
+                    "command": "genaiscript.fragment.test",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
+                    "group": "genaiscript@3"
                 }
             ],
             "commandPalette": [
                 {
                     "command": "genaiscript.fragment.debug",
+                    "when": "false"
+                },
+                {
+                    "command": "genaiscript.fragment.test",
                     "when": "false"
                 },
                 {
@@ -253,6 +267,12 @@
                 "title": "Debug GenAiScript...",
                 "category": "GenAIScript",
                 "icon": "$(debug)"
+            },
+            {
+                "command": "genaiscript.fragment.test",
+                "title": "Run GenAiScript Tests",
+                "category": "GenAIScript",
+                "icon": "$(run-all)"
             },
             {
                 "command": "genaiscript.prompt.navigate",

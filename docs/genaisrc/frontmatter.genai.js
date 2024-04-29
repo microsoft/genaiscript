@@ -7,6 +7,16 @@ script({
     maxTokens: 2000,
     temperature: 0,
     model: "gpt-4",
+    tests: [
+        {
+            files: "src/content/docs/refeference/scripts/aici.md",
+            rubrics: [
+                "is a generated front matter",
+                "The generated frontmatter is SEO optimized.",
+            ],
+            keywords: "aici",
+        },
+    ],
 })
 
 defFileMerge((fn, label, before, generated) => {

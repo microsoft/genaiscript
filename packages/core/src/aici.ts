@@ -4,7 +4,7 @@ import {
     LanguageModel,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
-import { fromHex, logError, utf8Decode } from "./util"
+import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
@@ -217,7 +217,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     trace.itemValue(`controller`, postReq.controller)
     trace.detailsFenced(`controller args`, postReq.controller_arg, "js")
 
-    const body = JSON.stringify(postReq)
+    const body = JSON.stringify(postReq, null, 2)
     trace.detailsFenced(`body`, body, "json")
 
     const r = await fetchRetry(url, {
@@ -248,7 +248,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
             r.statusText,
             bodyJSON?.error,
             body,
-            parseInt(r.headers.get("retry-after"))
+            normalizeInt(r.headers.get("retry-after"))
         )
     }
 

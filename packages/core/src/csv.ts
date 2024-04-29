@@ -29,7 +29,7 @@ export function CSVTryParse(
     }
 ): object[] {
     try {
-        return CSVTryParse(text, options)
+        return CSVParse(text, options)
     } catch (e) {
         logInfo(e)
         return undefined

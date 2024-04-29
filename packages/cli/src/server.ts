@@ -10,6 +10,7 @@ import {
     ServerResponse,
     serializeError,
 } from "genaiscript-core"
+import { runTests } from "./test"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -49,7 +50,7 @@ export async function startServer(options: { port: string }) {
                         await host.retrieval.init()
                         response = await host.retrieval.clear(data.options)
                         break
-                    case "retrieval.upsert":
+                    case "retrieval.upsert": {
                         console.log(`retrieval: upsert ${data.filename}`)
                         await host.retrieval.init()
                         response = await host.retrieval.upsert(
@@ -57,7 +58,8 @@ export async function startServer(options: { port: string }) {
                             data.options
                         )
                         break
-                    case "retrieval.search":
+                    }
+                    case "retrieval.search": {
                         console.log(`retrieval: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))
                         await host.retrieval.init()
@@ -67,11 +69,24 @@ export async function startServer(options: { port: string }) {
                         )
                         console.debug(YAMLStringify(response))
                         break
-                    case "parse.pdf":
+                    }
+                    case "parse.pdf": {
                         console.log(`parse: pdf ${data.filename}`)
                         await host.parser.init()
                         response = await host.parser.parsePdf(data.filename)
                         break
+                    }
+                    case "tests.run": {
+                        console.log(
+                            `tests: run ${data.scripts?.join(", ") || "*"}`
+                        )
+                        response = await runTests(data.scripts, {
+                            ...(data.options || {}),
+                            cache: true,
+                            verbose: true,
+                        })
+                        break
+                    }
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }

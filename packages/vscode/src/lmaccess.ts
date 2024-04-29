@@ -6,11 +6,16 @@ import {
     RunTemplateOptions,
     estimateTokens,
     logVerbose,
+    parseModelIdentifier,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
 import { setupDotEnv } from "./dotenv"
 
-export async function pickLanguageModel(state: ExtensionState) {
+export async function pickLanguageModel(
+    state: ExtensionState,
+    modelId: string
+) {
+    const { provider } = parseModelIdentifier(modelId)
     const models = isLanguageModelsAvailable(state.context)
         ? vscode.lm.languageModels
         : []
@@ -30,14 +35,14 @@ export async function pickLanguageModel(state: ExtensionState) {
                   })),
               ],
               {
-                  title: "Pick a Language Model",
+                  title: `Pick a Language Model for ${provider}`,
               }
           )
         : { model: dotenv }
 
     const { model } = cmodel || {}
     if (model === dotenv) {
-        await setupDotEnv(state.host.projectUri)
+        await setupDotEnv(state.host.projectUri, modelId)
         return undefined
     } else {
         return model
