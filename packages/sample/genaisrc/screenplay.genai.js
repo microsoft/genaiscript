@@ -7,7 +7,7 @@ script({
 const output = env.spec.filename.replace(".gpspec.md", ".dialog.md")
 def(
     "INFO",
-    env.files.filter((f) => f.label.endsWith("info"))
+    env.files.filter((f) => f.filename.includes("info"))
 )
 def("TASK", env.spec)
 def(
