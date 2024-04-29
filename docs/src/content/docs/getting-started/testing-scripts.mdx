@@ -1,12 +1,13 @@
 ---
 title: Testing scripts
 sidebar:
-  order: 4.6
+    order: 4.6
 description: Learn how to declare and run tests for your scripts to ensure their correctness and reliability.
 keywords: testing, scripts, validation, GenAIScript CLI, automation
 ---
+
 import providerSrc from "../../../../../packages/core/src/genaiscript-api-provider.mjs?raw"
-import { Code } from '@astrojs/starlight/components';
+import { Code } from "@astrojs/starlight/components"
 
 It is possible to declare [tests](/genaiscript/reference/scripts/tests) in the `script` function
 to validate the output of the script.
@@ -21,7 +22,7 @@ scripts({
   tests: {
     files: "src/rag/testcode.ts",
     rubrics: "is a report with a list of issues",
-    facts: `The report says that the input string 
+    facts: `The report says that the input string
       should be validated before use.`,
   }
 })
@@ -29,7 +30,14 @@ scripts({
 
 ## Running tests
 
-You can use the cli to run the tests of your script and open the results.
+### Visual Studio Code
+
+-   Open the script to test, in this example `proofreader.genai.js`.
+-   Right-click on the script and select **Run GenAIScript Tests**.
+
+### Command Line
+
+Run this command from the workspace root.
 
 ```sh
 npx genaiscript test proofreader --view
@@ -40,4 +48,4 @@ npx genaiscript test proofreader --view
 Currently, promptfoo treats the script source as the prompt text. Therefore, one cannot use assertions
 that also rely on the input text, such as `answer_relevance`.
 
-- Read more about [tests](/genaiscript/reference/scripts/tests) in the reference.
+-   Read more about [tests](/genaiscript/reference/scripts/tests) in the reference.
