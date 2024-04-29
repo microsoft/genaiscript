@@ -162,8 +162,8 @@ export async function cli() {
         .command("test")
         .description("Runs the tests for scripts")
         .argument(
-            "[script]",
-            "Script id. If not provided, all scripts are tested"
+            "[script...]",
+            "Script ids. If not provided, all scripts are tested"
         )
         .option(
             "--models <models...>",

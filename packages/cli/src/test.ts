@@ -113,7 +113,7 @@ export async function runTests(
 }
 
 export async function scriptsTest(
-    id: string,
+    ids: string[],
     options: TestRunOptions & {
         out?: string
         cli?: string
@@ -124,7 +124,7 @@ export async function scriptsTest(
         write?: boolean
     }
 ) {
-    const { status } = await runTests(id, options)
+    const { status } = await runTests(ids, options)
     if (options.view)
         await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
             cleanup: true,
