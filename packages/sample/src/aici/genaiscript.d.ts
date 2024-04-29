@@ -207,8 +207,6 @@ type PromptAssertion = {
               | "not-equals"
               | "starts-with"
               | "not-starts-with"
-              | "llm-rubric"
-              | "factuality"
           // The expected value
           value: string
       }

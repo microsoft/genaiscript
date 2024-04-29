@@ -2,6 +2,7 @@ import * as vscode from "vscode"
 import {
     Fragment,
     GENAI_JS_REGEX,
+    ICON_LOGO_NAME,
     NotSupportedError,
     PromptScript,
     assert,
@@ -87,6 +88,7 @@ async function startTestViewer() {
                 PROMPTFOO_DISABLE_TELEMETRY: "1",
                 PROMPTFOO_DISABLE_UPDATE: "1",
             },
+            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         terminal.sendText(`npx --yes promptfoo@latest view -y`)
     }

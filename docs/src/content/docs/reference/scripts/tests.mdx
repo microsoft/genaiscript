@@ -121,13 +121,31 @@ scripts({
 ```js title="proofreader.genai.js" wrap "asserts"
 scripts({
     tests: {
-        facts: `The report says that the input string should be validated before use.`,
+        ...,
         asserts: [
             {
                 type: "icontains-all",
                 value: ["issue", "fix"],
             },
         ],
+    },
+})
+```
+
+#### transform
+
+By default, the `asserts` are executed on the raw LLM output.
+However, you can use a javascript expression to select a part of the output to test.
+
+```js title="proofreader.genai.js" wrap "transform"
+scripts({
+    tests: {
+        files: "src/will-trigger.cancel.txt",
+        asserts: {
+            type: "equals",
+            value: "cancelled",
+            transform: "output.status",
+        },
     },
 })
 ```
