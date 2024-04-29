@@ -270,9 +270,9 @@
             },
             {
                 "command": "genaiscript.fragment.test",
-                "title": "Test GenAiScript",
+                "title": "Run GenAiScript Tests",
                 "category": "GenAIScript",
-                "icon": "$(beaker)"
+                "icon": "$(run-all)"
             },
             {
                 "command": "genaiscript.prompt.navigate",

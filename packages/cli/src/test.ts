@@ -104,6 +104,7 @@ export async function runTests(
         cleanup: true,
         stripFinalNewline: true,
         buffer: false,
+        maxBuffer: 16,
     })
     exec.pipeStdout(process.stdout)
     exec.pipeStderr(process.stdout)

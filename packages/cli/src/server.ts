@@ -83,6 +83,7 @@ export async function startServer(options: { port: string }) {
                         response = await runTests(data.scripts, {
                             ...(data.options || {}),
                             cache: true,
+                            verbose: true,
                         })
                         break
                     }
