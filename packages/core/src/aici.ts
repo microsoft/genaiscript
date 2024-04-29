@@ -217,7 +217,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     trace.itemValue(`controller`, postReq.controller)
     trace.detailsFenced(`controller args`, postReq.controller_arg, "js")
 
-    const body = JSON.stringify(postReq)
+    const body = JSON.stringify(postReq, null, 2)
     trace.detailsFenced(`body`, body, "json")
 
     const r = await fetchRetry(url, {
