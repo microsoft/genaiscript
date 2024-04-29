@@ -295,12 +295,7 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
 /**
  * Represent a file linked from a `.gpsec.md` document.
  */
-interface LinkedFile {
-    /**
-     * If file is linked through `[foo](./path/to/file)` then this is "foo"
-     */
-    label: string
-
+interface WorkspaceFile {
     /**
      * Name of the file, relative to project root.
      */
@@ -426,12 +421,25 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallShell
 
 interface WorkspaceFileSystem {
-    findFiles(glob: string): Promise<string[]>
+    /**
+     * Searches for files using the glob pattern and returns a list of files.
+     * If the file is text, also return the content.
+     * @param glob
+     */
+    findFiles(
+        glob: string,
+        options?: {
+            /**
+             * Set to false to read text content by default
+             */
+            readText?: boolean
+        }
+    ): Promise<WorkspaceFile[]>
     /**
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | LinkedFile): Promise<LinkedFile>
+    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
 }
 
 interface ChatFunctionCallContext {
@@ -452,12 +460,12 @@ interface ExpansionVariables {
     /**
      * Description of the context as markdown; typically the content of a .gpspec.md file.
      */
-    spec: LinkedFile
+    spec: WorkspaceFile
 
     /**
      * List of linked files parsed in context
      */
-    files: LinkedFile[]
+    files: WorkspaceFile[]
 
     /**
      * current prompt template
@@ -484,7 +492,7 @@ type PromptSystemArgs = Omit<
     "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests"
 >
 
-type StringLike = string | LinkedFile | LinkedFile[]
+type StringLike = string | WorkspaceFile | WorkspaceFile[]
 
 interface FenceOptions {
     /**
@@ -705,14 +713,14 @@ interface Parsers {
      * Parses text as a JSON5 payload
      */
     JSON5(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
     /**
      * Parses text as a YAML paylaod
      */
     YAML(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
 
@@ -721,7 +729,7 @@ interface Parsers {
      * @param text text as TOML payload
      */
     TOML(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
 
@@ -731,7 +739,7 @@ interface Parsers {
      * @param defaultValue
      */
     frontmatter(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { defaultValue?: any; format: "yaml" | "json" | "toml" }
     ): any | undefined
 
@@ -740,24 +748,24 @@ interface Parsers {
      * @param content
      */
     PDF(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: ParsePDFOptions
-    ): Promise<{ file: LinkedFile; pages: string[] } | undefined>
+    ): Promise<{ file: WorkspaceFile; pages: string[] } | undefined>
 
     /**
      * Parses a .docx file
      * @param content
      */
     DOCX(
-        content: string | LinkedFile
-    ): Promise<{ file: LinkedFile } | undefined>
+        content: string | WorkspaceFile
+    ): Promise<{ file: WorkspaceFile } | undefined>
 
     /**
      * Parses a CSV file or text
      * @param content
      */
     CSV(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { delimiter?: string; headers?: string[] }
     ): object[] | undefined
 
@@ -765,14 +773,14 @@ interface Parsers {
      * Parses a .env file
      * @param content
      */
-    dotEnv(content: string | LinkedFile): Record<string, string>
+    dotEnv(content: string | WorkspaceFile): Record<string, string>
 
     /**
      * Parses a .ini file
      * @param content
      */
     INI(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
 
@@ -781,7 +789,7 @@ interface Parsers {
      * @param content
      */
     XML(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: { defaultValue?: any } & XMLParseOptions
     ): any | undefined
 
@@ -791,7 +799,7 @@ interface Parsers {
      * @param options
      */
     HTMLToText(
-        content: string | LinkedFile,
+        content: string | WorkspaceFile,
         options?: HTMLToTextOptions
     ): string
 
@@ -799,25 +807,25 @@ interface Parsers {
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
-    tokens(content: string | LinkedFile): number
+    tokens(content: string | WorkspaceFile): number
 
     /**
      * Parses fenced code sections in a markdown text
      */
-    fences(content: string | LinkedFile): Fenced[]
+    fences(content: string | WorkspaceFile): Fenced[]
 
     /**
      * Parses various format of annotations (error, warning, ...)
      * @param content
      */
-    annotations(content: string | LinkedFile): Diagnostic[]
+    annotations(content: string | WorkspaceFile): Diagnostic[]
 
     /**
      * Executes a tree-sitter query on a code file
      * @param file
      * @param query tree sitter query; if missing, returns the entire tree
      */
-    code(file: LinkedFile, query?: string): Promise<QueryCapture[]>
+    code(file: WorkspaceFile, query?: string): Promise<QueryCapture[]>
 }
 
 interface AICIGenOptions {
@@ -935,7 +943,7 @@ interface HighlightOptions {
 }
 
 interface SearchResult {
-    webPages: LinkedFile[]
+    webPages: WorkspaceFile[]
 }
 
 interface Retrieval {
@@ -950,7 +958,7 @@ interface Retrieval {
      */
     search(
         query: string,
-        files: (string | LinkedFile)[],
+        files: (string | WorkspaceFile)[],
         options?: {
             /**
              * Maximum number of embeddings to use
@@ -962,8 +970,8 @@ interface Retrieval {
             minScore?: number
         }
     ): Promise<{
-        files: LinkedFile[]
-        fragments: LinkedFile[]
+        files: WorkspaceFile[]
+        fragments: WorkspaceFile[]
     }>
 }
 
@@ -1167,19 +1175,20 @@ interface PromptContext extends RunPromptContext {
         options?: DefDataOptions
     ): string
     fetchText(
-        urlOrFile: string | LinkedFile,
+        urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
     ): Promise<{
         ok: boolean
         status: number
         text?: string
-        file?: LinkedFile
+        file?: WorkspaceFile
     }>
     cancel(reason?: string): void
     env: ExpansionVariables
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML
@@ -1286,6 +1295,12 @@ declare var retrieval: Retrieval
 declare var workspace: WorkspaceFileSystem
 
 /**
+ * Access to the workspace file system.
+ * @deprecated Use `workspace` instead.
+ */
+declare var fs: WorkspaceFileSystem
+
+/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -1305,9 +1320,9 @@ declare var AICI: AICI
  * @param url
  */
 declare function fetchText(
-    url: string | LinkedFile,
+    url: string | WorkspaceFile,
     options?: FetchTextOptions
-): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+): Promise<{ ok: boolean; status: number; text?: string; file?: WorkspaceFile }>
 
 /**
  * Declares a JSON schema variable.

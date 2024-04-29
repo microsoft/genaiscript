@@ -30,7 +30,7 @@ import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 
-function stringLikeToFileName(f: string | LinkedFile) {
+function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
 }
 
@@ -87,9 +87,8 @@ export function createPromptContext(
                 return <SearchResult>{
                     webPages: webPages?.value?.map(
                         ({ url, name, snippet }) =>
-                            <LinkedFile>{
+                            <WorkspaceFile>{
                                 filename: url,
-                                label: name,
                                 content: snippet,
                             }
                     ),
@@ -127,7 +126,7 @@ export function createPromptContext(
         else if (typeof files === "string")
             appendPromptChild(createImageNode({ url: files, detail }))
         else {
-            const file: LinkedFile = files
+            const file: WorkspaceFile = files
             appendPromptChild(
                 createImageNode(
                     (async () => {
@@ -198,7 +197,6 @@ export function createPromptContext(
         fetchText: async (urlOrFile, fetchOptions) => {
             if (typeof urlOrFile === "string") {
                 urlOrFile = {
-                    label: urlOrFile,
                     filename: urlOrFile,
                     content: "",
                 }
@@ -223,9 +221,8 @@ export function createPromptContext(
                     status = 404
                 }
             }
-            const file: LinkedFile = {
-                label: urlOrFile.label,
-                filename: urlOrFile.label,
+            const file: WorkspaceFile = {
+                filename: urlOrFile.filename,
                 content: text,
             }
             return {

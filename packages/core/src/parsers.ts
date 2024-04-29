@@ -55,7 +55,7 @@ export function createParsers(options: {
             const filename = typeof file === "string" ? file : file.filename
             const res = await DOCXTryParse(filenameOrFileToContent(file))
             return {
-                file: res ? <LinkedFile>{ filename, content: res } : undefined,
+                file: res ? <WorkspaceFile>{ filename, content: res } : undefined,
             }
         },
         PDF: async (file, options) => {
@@ -68,7 +68,7 @@ export function createParsers(options: {
             const { pages, content } = (await parsePdf(filename, opts)) || {}
             return {
                 file: pages
-                    ? <LinkedFile>{
+                    ? <WorkspaceFile>{
                           filename,
                           content,
                       }

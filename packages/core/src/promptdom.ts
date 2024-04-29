@@ -36,8 +36,8 @@ export interface PromptTextNode extends PromptNode {
 export interface PromptDefNode extends PromptNode, DefOptions {
     type: "def"
     name: string
-    value: Awaitable<LinkedFile>
-    resolved?: LinkedFile
+    value: Awaitable<WorkspaceFile>
+    resolved?: WorkspaceFile
 }
 
 export interface PromptAssistantNode extends PromptNode {
@@ -100,7 +100,7 @@ export function createTextNode(
 
 export function createDefNode(
     name: string,
-    file: LinkedFile,
+    file: WorkspaceFile,
     options: DefOptions & TraceOptions
 ): PromptDefNode {
     name = name ?? ""

@@ -76,7 +76,7 @@ export function createRunPromptContext(
                     node,
                     createDefNode(
                         name,
-                        { filename: "", label: "", content: body },
+                        { filename: "", content: body },
                         doptions
                     )
                 )

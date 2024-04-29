@@ -121,9 +121,9 @@ declare var AICI: AICI
  * @param url
  */
 declare function fetchText(
-    url: string | LinkedFile,
+    url: string | WorkspaceFile,
     options?: FetchTextOptions
-): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+): Promise<{ ok: boolean; status: number; text?: string; file?: WorkspaceFile }>
 
 /**
  * Declares a JSON schema variable.

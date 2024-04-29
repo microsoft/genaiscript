@@ -9,7 +9,7 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
 
-export async function resolveFileContent(file: LinkedFile, options?: TraceOptions) {
+export async function resolveFileContent(file: WorkspaceFile, options?: TraceOptions) {
     const { filename } = file
     if (file.content) return file
 
@@ -27,7 +27,7 @@ export async function resolveFileContent(file: LinkedFile, options?: TraceOption
     return file
 }
 
-export async function resolveFileDataUri(file: LinkedFile, options?: TraceOptions) {
+export async function resolveFileDataUri(file: WorkspaceFile, options?: TraceOptions) {
     let bytes: Uint8Array
     if (/^https?:\/\//i.test(file.filename)) {
         const fetch = await createFetch(options)
