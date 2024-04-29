@@ -91,9 +91,9 @@ declare var parsers: Parsers
 declare var retrieval: Retrieval
 
 /**
- * Access to file system operation on the current workspace.
+ * Access to the workspace file system.
  */
-declare var fs: PromptFileSystem
+declare var worksace: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.

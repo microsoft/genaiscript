@@ -41,7 +41,7 @@ export class NodeHost implements Host {
     retrieval: RetrievalService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
-    readonly fs = createFileSystem()
+    readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
 
     constructor() {

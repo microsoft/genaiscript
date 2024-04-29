@@ -425,7 +425,7 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface PromptFileSystem {
+interface WorkspaceFileSystem {
     findFiles(glob: string): Promise<string[]>
     /**
      * Reads the content of a file as text
@@ -1180,7 +1180,7 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    fs: PromptFileSystem
+    workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML
     CSV: CSV
@@ -1281,9 +1281,9 @@ declare var parsers: Parsers
 declare var retrieval: Retrieval
 
 /**
- * Access to file system operation on the current workspace.
+ * Access to the workspace file system.
  */
-declare var fs: PromptFileSystem
+declare var worksace: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.

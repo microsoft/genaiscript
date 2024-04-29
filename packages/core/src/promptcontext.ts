@@ -77,7 +77,7 @@ export function createPromptContext(
         },
     })
     const path = host.path
-    const fs = host.fs
+    const workspace = host.workspace
 
     const retrieval: Retrieval = {
         webSearch: async (q) => {
@@ -168,7 +168,7 @@ export function createPromptContext(
         system: () => {},
         env,
         path,
-        fs,
+        workspace,
         parsers,
         YAML,
         CSV,

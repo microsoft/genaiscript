@@ -18,7 +18,7 @@ defFunction(
     },
     async (args) => {
         const { glob } = args
-        const res = await fs.findFiles(glob)
+        const res = await workspace.findFiles(glob)
         return res.join("\n")
     }
 )

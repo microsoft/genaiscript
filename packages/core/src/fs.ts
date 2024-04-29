@@ -54,8 +54,8 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
-export function createFileSystem(): PromptFileSystem {
-    const fs: PromptFileSystem = {
+export function createFileSystem(): WorkspaceFileSystem {
+    const fs: WorkspaceFileSystem = {
         findFiles: async (glob) =>
             (await host.findFiles(glob)).filter((f) => !DOT_ENV_REGEX.test(f)),
         readText: async (f: string | LinkedFile) => {
