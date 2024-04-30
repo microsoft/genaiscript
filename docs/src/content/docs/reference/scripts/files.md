@@ -1,7 +1,7 @@
 ---
 title: Files
 description: Learn how to perform file system operations using the workspace object in your scripts.
-keywords: file system, workjspace object, readText, findFiles, paths
+keywords: file system, workspace object, readText, findFiles, paths
 sidebar:
     order: 13
 ---
