@@ -86,7 +86,7 @@ export function createPromptContext(
                 const { webPages } = (await bingSearch(q, { trace })) || {}
                 return <SearchResult>{
                     webPages: webPages?.value?.map(
-                        ({ url, name, snippet }) =>
+                        ({ url, snippet }) =>
                             <WorkspaceFile>{
                                 filename: url,
                                 content: snippet,
