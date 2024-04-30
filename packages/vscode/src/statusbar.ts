@@ -5,7 +5,7 @@ import { CHANGE, ICON_LOGO_NAME, toStringList } from "genaiscript-core"
 import { Utils } from "vscode-uri"
 
 export function activateStatusBar(state: ExtensionState) {
-    const { context, host } = state
+    const { context } = state
 
     const statusBarItem = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Right,

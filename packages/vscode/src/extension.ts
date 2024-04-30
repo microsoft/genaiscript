@@ -11,6 +11,7 @@ import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 //import { activateChatParticipant } from "./chat/participant"
 import { activateRetrievalCommands } from "./retrievalcommands"
+import { activateTestController } from "./testcontroller"
 // import { activateTokensStatusBar } from "./tokenstatusbar"
 
 export async function activate(context: ExtensionContext) {
@@ -92,4 +93,5 @@ export async function activate(context: ExtensionContext) {
     )
 
     await state.activate()
+    await activateTestController(state)
 }
