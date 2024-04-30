@@ -6,13 +6,6 @@ export async function activateTestController(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const testData = new WeakMap<
-        vscode.TestItem,
-        {
-            script: PromptScript
-            index: number
-        }
-    >()
     const ctrl = vscode.tests.createTestController(TOOL_ID, "GenAIScript")
     subscriptions.push(ctrl)
 
