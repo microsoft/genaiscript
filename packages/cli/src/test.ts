@@ -61,19 +61,21 @@ export async function runTests(
     const cli = options.cli || __filename
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const provider = join(out, "provider.mjs")
-    const testProvider =
-        options?.testProvider || (await resolveTestProvider(scripts[0]))
     const models = options?.models
     logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
     await ensureDir(out)
     await writeFile(provider, promptFooDriver)
+
+    const configurations: string[] = []
     for (const script of scripts) {
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
             : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
+        const testProvider =
+            options?.testProvider || (await resolveTestProvider(scripts[0]))
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
@@ -84,36 +86,41 @@ export async function runTests(
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
         logVerbose(yaml)
+        configurations.push(fn)
     }
 
-    const outJson = join(out, "res.json")
-
-    const cmd = "npx"
-    const args = [
-        "--yes",
-        `promptfoo@latest`,
-        "eval",
-        "--config",
-        `${out}/*.promptfoo.yaml`,
-        "--max-concurrency",
-        "1",
-    ]
-    if (!options.cache) args.push("--no-cache")
-    if (options.verbose) args.push("--verbose")
-    args.push("--output", outJson)
     logVerbose(`running tests with promptfoo`)
-    logVerbose(`  ${cmd} ${args.join(" ")}`)
-    const exec = execa(cmd, args, {
-        preferLocal: true,
-        cleanup: true,
-        stripFinalNewline: true,
-        buffer: false,
-        maxBuffer: 16,
-    })
-    exec.pipeStdout(process.stdout)
-    exec.pipeStderr(process.stdout)
-    const res = await exec
-    return { ok: res.exitCode === 0, status: res.exitCode }
+    let status = { ok: true, status: 0 }
+    for (const configuration of configurations) {
+        const outJson = configuration.replace(/\.yaml$/, ".res.json")
+        const cmd = "npx"
+        const args = [
+            "--yes",
+            `promptfoo@latest`,
+            "eval",
+            "--config",
+            configuration,
+            "--max-concurrency",
+            "1",
+        ]
+        if (!options.cache) args.push("--no-cache")
+        if (options.verbose) args.push("--verbose")
+        args.push("--output", outJson)
+        logVerbose(`  ${cmd} ${args.join(" ")}`)
+        const exec = execa(cmd, args, {
+            preferLocal: true,
+            cleanup: true,
+            stripFinalNewline: true,
+            buffer: false,
+            maxBuffer: 16,
+        })
+        exec.pipeStdout(process.stdout)
+        exec.pipeStderr(process.stdout)
+        const res = await exec
+        if (res.exitCode !== 0) status = { ok: false, status: res.exitCode }
+    }
+
+    return status
 }
 
 export async function scriptsTest(

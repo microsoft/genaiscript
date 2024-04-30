@@ -3,6 +3,10 @@ script({
     model: "gpt-4-turbo-v",
     maxTokens: 4000,
     system: [],
+    tests: {
+        files: "src/robots.jpg",
+        facts: "there are 3 robots on the picture",
+    },
 })
 
 $`Return the list of objects in the images.`

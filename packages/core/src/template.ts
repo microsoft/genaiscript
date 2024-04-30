@@ -95,21 +95,15 @@ class Checker<T extends PromptLike> {
         }
     }
 
-    checkFunction(k: any) {
-        if (this.skip(k)) return
-        if (typeof this.val != "function") {
-            this.verror("expecting function here")
-            return
-        }
-    }
 
-    checkFunctionArray(k: any) {
+    checkObjectOrObjectArray(k: any) {
         if (this.skip(k)) return
         if (
-            !Array.isArray(this.val) ||
-            !this.val.every((f) => typeof f == "function")
+            typeof this.val !== "object" &&
+            (!Array.isArray(this.val) ||
+                !this.val.every((f) => typeof f === "object"))
         ) {
-            this.verror("expecting array of functions here")
+            this.verror("expecting an object or an array of object here")
             return
         }
     }
@@ -445,7 +439,7 @@ export async function parsePromptTemplate(
             c.checkRecord("parameters")
 
             c.checkBool("lineNumbers")
-            c.checkObjectArray("tests")
+            c.checkObjectOrObjectArray("tests")
         })
 
         const r = c.template
