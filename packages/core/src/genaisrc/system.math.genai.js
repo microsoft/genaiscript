@@ -14,5 +14,5 @@ defFunction("math_eval", "Evaluates a math expression", {
     required: ["expression"],
 }, async (args) => {
     const { expression } = args
-    return parsers.math(expression) ?? "?"
+    return "" + (parsers.math(expression) ?? "?")
 })
