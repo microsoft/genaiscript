@@ -5,6 +5,7 @@ keywords: functions, custom logic, CLI integration, scripting, automation
 sidebar:
     order: 7
 ---
+import { Content as BuiltinFunctions } from "../../../../components/BuiltinFunctions.mdx"
 
 You can register **functions** (also known as **tools**) that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
@@ -82,11 +83,7 @@ script({
 defFunction("current_weather", ...)
 ```
 
-## Builtin functions
-
--   [system.web_search](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.web_search.genai.js): Search the web for a user query.
--   [system.fs_find_files](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.fs_find_files.genai.js): List files for a filename query.
--   [system.fs_read_file](https://github.com/microsoft/genaiscript/blob/main/packages/core/src/genaisrc/system.fs_read_file.genai.js): Read the content of a file.
+<BuiltinFunctions />
 
 ## Example
 
