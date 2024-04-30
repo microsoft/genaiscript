@@ -246,7 +246,7 @@ interface PromptTest {
     /**
      * List of files to apply the test to.
      */
-    files: string | string[]
+    files?: string | string[]
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */

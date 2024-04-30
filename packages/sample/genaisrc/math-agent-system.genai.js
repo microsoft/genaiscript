@@ -5,8 +5,12 @@ script({
     parameters: {
         "question": {
             type: "string",
-            default: "How much is 5 + 5? then divide by 2?"
+            default: "How much is 11 + 4? then divide by 3?"
         }
+    },
+    tests: {
+        description: "Testing the default prompt",
+        keywords: "5"
     }
 })
 
