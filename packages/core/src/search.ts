@@ -20,7 +20,6 @@ export interface SearchResponse {
 }
 
 export interface WebpageResponse {
-    name: string
     snippet: string
     url: string
 }
