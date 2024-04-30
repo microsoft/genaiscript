@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
 import json5 from "json5"
+import { markdownTable } from "markdown-table"
 const { parse } = json5
 
 const dir = "./src/genaisrc"
@@ -113,22 +114,26 @@ GenAIScript comes with a number of system prompt that support features like crea
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
 ${Object.keys(promptMap)
-    .sort()
-    .map((k) => {
-        const v = promptMap[k]
-        const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
-        const meta = parse(m.groups.meta)
-        return `### \`${k}\`
+        .sort()
+        .map((k) => {
+            const v = promptMap[k]
+            const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
+            const meta = parse(m.groups.meta)
+            const tools = []
+            v.replace(/defFunction\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm, (m, name, description) => { tools.push({ name, description }); return '' })
+            return `### \`${k}\`
 
 ${meta.title || ""}
 
 ${meta.description || ""}
 
-\`\`\`\`\`js wrap
+${tools.map(({ name, description }) => `-  function \`${name}\`: ${description}`).join('\n')}
+
+\`\`\`\`\`js wrap title="${k}"
 ${v}
 \`\`\`\`\`
 `
-    })
-    .join("\n\n")}
+        })
+        .join("\n\n")}
 `
 writeFileSync(fmp, markdown, "utf-8")

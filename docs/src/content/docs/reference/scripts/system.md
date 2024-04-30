@@ -42,7 +42,9 @@ Markdown system prompt
 
 
 
-`````js wrap
+
+
+`````js wrap title="system"
 system({ title: "Markdown system prompt" })
 $`You are concise. Answer in markdown.`
 `````
@@ -54,7 +56,9 @@ Emits annotations compatible with GitHub Actions
 
 GitHub Actions workflows support annotations ([Read more...](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message)).
 
-`````js wrap
+
+
+`````js wrap title="system.annotations"
 system({
     title: "Emits annotations compatible with GitHub Actions",
     description:
@@ -87,7 +91,9 @@ Generate changelog formatter edits
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.changelog"
 system({
     title: "Generate changelog formatter edits",
     lineNumbers: true
@@ -148,7 +154,9 @@ Generates concise file diffs.
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.diff"
 system({
     title: "Generates concise file diffs.",
     lineNumbers: true,
@@ -205,7 +213,9 @@ Explain your answers
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.explanations"
 system({ title: "Explain your answers" })
 $`When explaining answers, take a deep breath.`
 
@@ -218,7 +228,9 @@ File generation
 
 Teaches the file format supported by GenAIScripts
 
-`````js wrap
+
+
+`````js wrap title="system.files"
 system({
     title: "File generation",
     description: "Teaches the file format supported by GenAIScripts",
@@ -263,7 +275,9 @@ $`CSV files are inlined as markdown tables.`
 
 Apply JSON schemas to generated data.
 
-`````js wrap
+
+
+`````js wrap title="system.files_schema"
 system({
     description: "Apply JSON schemas to generated data.",
 })
@@ -291,7 +305,9 @@ File Find Files
 
 Functions to list files.
 
-`````js wrap
+-  function `fs_find_files`: Finds file matching a glob pattern.
+
+`````js wrap title="system.fs_find_files"
 system({
     title: "File Find Files",
     description: "Functions to list files.",
@@ -327,7 +343,9 @@ File Read File
 
 Function to read file content as text.
 
-`````js wrap
+-  function `fs_read_file`: Reads a file as text from the file system.
+
+`````js wrap title="system.fs_read_file"
 system({
     title: "File Read File",
     description: "Function to read file content as text.",
@@ -378,7 +396,9 @@ File Read Summary
 
 Function to summarize the content of a file.
 
-`````js wrap
+-  function `fs_read_summary`: Reads a summary of a file from the file system.
+
+`````js wrap title="system.fs_read_summary"
 system({
     title: "File Read Summary",
     description: "Function to summarize the content of a file.",
@@ -423,7 +443,9 @@ use functions
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.functions"
 system({
     title: "use functions"
 })
@@ -438,7 +460,9 @@ JSON system prompt
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.json"
 system({ title: "JSON system prompt", responseType: "json_object" })
 $`Answer in JSON format.`
 `````
@@ -450,7 +474,9 @@ Math expression evaluator
 
 Register a function that evaluates math expressions
 
-`````js wrap
+-  function `math_eval`: Evaluates a math expression
+
+`````js wrap title="system.math"
 system({
     title: "Math expression evaluator",
     description: "Register a function that evaluates math expressions",
@@ -478,7 +504,9 @@ defFunction("math_eval", "Evaluates a math expression", {
 
 Expert at generating and understanding Python code.
 
-`````js wrap
+
+
+`````js wrap title="system.python"
 system({
     description: "Expert at generating and understanding Python code.",
 })
@@ -496,7 +524,9 @@ JSON Schema support
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.schema"
 system({
     title: "JSON Schema support",
 })
@@ -536,7 +566,9 @@ JSON schemas can also be applied to YAML or TOML files.
 
 Adds a summary of the changes
 
-`````js wrap
+
+
+`````js wrap title="system.summary"
 system({
     description: "Adds a summary of the changes",
 })
@@ -554,7 +586,9 @@ Generates tasks
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.tasks"
 system({ title: "Generates tasks" })
 
 $`
@@ -571,7 +605,9 @@ Technical Writer
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.technical"
 system({ title: "Technical Writer" });
 
 $`Also, you are an expert technical document writer.`;
@@ -585,7 +621,9 @@ Export TypeScript Developer
 
 
 
-`````js wrap
+
+
+`````js wrap title="system.typescript"
 system({
     title: "Export TypeScript Developer",
 })
@@ -601,7 +639,9 @@ Web Search
 
 Function to do a web search.
 
-`````js wrap
+-  function `web_search`: Search the web for a user query using Bing Search.
+
+`````js wrap title="system.web_search"
 system({
     title: "Web Search",
     description: "Function to do a web search.",
@@ -641,7 +681,9 @@ defFunction(
 
 Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
 
-`````js wrap
+
+
+`````js wrap title="system.zero_shot_cot"
 system({
     description:
         "Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
