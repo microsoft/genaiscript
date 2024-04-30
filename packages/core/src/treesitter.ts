@@ -58,7 +58,7 @@ function createParser(wasmPath: string): Promise<TreeSitter> {
 }
 
 export async function treeSitterQuery(
-    file: LinkedFile,
+    file: WorkspaceFile,
     query?: string,
     options?: TraceOptions
 ): Promise<QueryCapture[]> {

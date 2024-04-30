@@ -47,26 +47,41 @@ export async function writeJSON(fn: string, obj: any) {
 }
 
 export function filenameOrFileToContent(
-    fileOrContent: string | LinkedFile
+    fileOrContent: string | WorkspaceFile
 ): string {
     return typeof fileOrContent === "string"
         ? fileOrContent
         : fileOrContent?.content
 }
 
-export function createFileSystem(): PromptFileSystem {
-    const fs: PromptFileSystem = {
-        findFiles: async (glob) =>
-            (await host.findFiles(glob)).filter((f) => !DOT_ENV_REGEX.test(f)),
-        readText: async (f: string | LinkedFile) => {
+export function createFileSystem(): WorkspaceFileSystem {
+    const fs: WorkspaceFileSystem = {
+        findFiles: async (glob, options) => {
+            const { readText } = options || {}
+            const names = (await host.findFiles(glob)).filter(
+                (f) => !DOT_ENV_REGEX.test(f)
+            )
+            const files: WorkspaceFile[] = []
+            for (const name of names) {
+                const file =
+                    readText === false
+                        ? <WorkspaceFile>{
+                              filename: name,
+                              content: undefined,
+                          }
+                        : await fs.readText(name)
+                files.push(file)
+            }
+            return files
+        },
+        readText: async (f: string | WorkspaceFile) => {
             if (f === undefined)
                 throw new NotSupportedError("missing file name")
 
-            const file: LinkedFile =
+            const file: WorkspaceFile =
                 typeof f === "string"
                     ? {
                           filename: f,
-                          label: f,
                           content: undefined,
                       }
                     : f

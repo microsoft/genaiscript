@@ -20,9 +20,9 @@ defFunction(
     async (args) => {
         const { filename } = args
         if (!filename) return ""
-        const { content } = await fs.readText(filename)
+        const { content } = await workspace.readText(filename)
         const summary = await runPrompt(_ => {
-            const f = _.def("FILE", { filename, content, label: filename }, { maxTokens: 12000 })
+            const f = _.def("FILE", { filename, content }, { maxTokens: 12000 })
             _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
         }, {
             model: "gpt-3.5-turbo",

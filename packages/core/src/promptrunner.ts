@@ -38,7 +38,7 @@ async function fragmentVars(
     const project = file.project
 
     const fetch = await createFetch()
-    const files: LinkedFile[] = []
+    const files: WorkspaceFile[] = []
     const fr = frag
     for (const ref of fr.references) {
         // what about URLs?
@@ -79,7 +79,6 @@ async function fragmentVars(
                     trace.error(`fetch def error`, e)
                 }
                 files.push({
-                    label: ref.name,
                     filename: ref.filename,
                     content,
                 })
@@ -99,7 +98,6 @@ async function fragmentVars(
         const fn = relativePath(host.projectFolder(), projectFile.filename)
         if (!files.find((lk) => lk.filename === fn))
             files.push({
-                label: ref.name,
                 filename: fn,
                 content: projectFile.content,
             })
@@ -117,7 +115,6 @@ async function fragmentVars(
         ...staticVars(),
         spec: {
             filename: relativePath(host.projectFolder(), file.filename),
-            label: "context",
             content: file.content,
         },
         files,

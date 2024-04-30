@@ -1,7 +1,7 @@
 ---
 title: Files
-description: Learn how to perform file system operations using the fs object in your scripts.
-keywords: file system, fs object, readText, findFiles, paths
+description: Learn how to perform file system operations using the workspace object in your scripts.
+keywords: file system, workspace object, readText, findFiles, paths
 sidebar:
     order: 13
 ---
@@ -18,16 +18,16 @@ function and add additional filters to the files.
 def("PDFS", env.files, { endsWith: ".pdf" })
 ```
 
-## `fs`
+## `workspace`
 
-The `fs` object gives access to file system operations programmatically.
+The `workspace` object gives access to file system of the workspace.
 
 ### `readText`
 
 Reads the content of a file as text, relative to the workspace root.
 
 ```ts
-const file = await fs.readText("README.md")
+const file = await workspace.readText("README.md")
 const content = file.content
 ```
 
@@ -38,7 +38,7 @@ It will automatically convert PDFs and DOCX files to text.
 Performs a blog search for files under the workspace.
 
 ```ts
-const mds = await fs.findFiles("**/*.md")
+const mds = await workspace.findFiles("**/*.md")
 defFile("DOCS", mds)
 ```
 

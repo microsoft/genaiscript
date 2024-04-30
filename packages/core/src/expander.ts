@@ -196,13 +196,13 @@ function traceEnv(
     if (files.length) {
         trace.startDetails("💾 files")
         for (const file of env.files || []) {
-            const { filename = "", label = "" } = file
+            const { filename = "" } = file
             if (trace.content) {
                 const tokens = estimateTokens(model, trace.content)
-                trace.startDetails(`${filename} ${label}, ${tokens}t`)
+                trace.startDetails(`${filename}, ${tokens}t`)
                 trace.fence(file.content, lookupMime(filename))
                 trace.endDetails()
-            } else trace.item(`${filename} ${label}`)
+            } else trace.item(`${filename}`)
         }
         trace.endDetails()
     }

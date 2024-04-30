@@ -2,7 +2,7 @@ import { Project } from "./ast"
 import { promptDefinitions } from "./default_prompts"
 import { tryReadText, writeText } from "./fs"
 import { host } from "./host"
-import { logVerbose } from "./util";
+import { logVerbose } from "./util"
 
 export function createScript(
     name: string,
