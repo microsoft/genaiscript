@@ -1,5 +1,5 @@
 system({
-    description: "Apply JSON schemas to generated data.",
+    title: "Apply JSON schemas to generated data.",
 })
 
 const folder = env.vars["outputFolder"] || "."

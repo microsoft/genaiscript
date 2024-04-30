@@ -41,13 +41,21 @@ export async function fixPromptDefinitions(project: Project) {
     for (const folder of folders) {
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
             if (project && defName === "genaiscript.d.ts") {
-                const systems = project.templates
-                    .filter((t) => t.isSystem)
-                    .map((s) => `"${s.id}"`)
-                defContent = defContent.replace(
-                    "type SystemPromptId = string",
-                    `type SystemPromptId = ${systems.join(" | ")}`
-                )
+                const systems = project.templates.filter((t) => t.isSystem)
+
+                defContent = defContent
+                    .replace(
+                        "type SystemPromptId = string",
+                        `type SystemPromptId = ${systems.map((s) => `"${s.id}"`).join(" | ")}`
+                    )
+                    .replace(
+                        "    system?: SystemPromptId[]",
+                        `/**
+* System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+${systems.map((s) => `* - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
+**/
+    system?: SystemPromptId[]`
+                    )
             }
 
             const current = await tryReadText(host.path.join(folder, defName))

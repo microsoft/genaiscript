@@ -43,7 +43,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.zero_shot_cot" | "system.files_schema" | "system.python" | "system.summary" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -157,6 +157,30 @@ interface ScriptRuntimeOptions {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
+/**
+* System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+* - `system.annotations`: Emits annotations compatible with GitHub Actions
+* - `system.explanations`: Explain your answers
+* - `system.typescript`: Export TypeScript Developer
+* - `system.fs_find_files`: File Find Files
+* - `system.fs_read_file`: File Read File
+* - `system.fs_read_summary`: File Read Summary
+* - `system.files`: File generation
+* - `system.changelog`: Generate changelog formatter edits
+* - `system.diff`: Generates concise file diffs.
+* - `system.tasks`: Generates tasks
+* - `system.schema`: JSON Schema support
+* - `system.json`: JSON system prompt
+* - `system`: Markdown system prompt
+* - `system.math`: Math expression evaluator
+* - `system.technical`: Technical Writer
+* - `system.web_search`: Web Search
+* - `system.zero_shot_cot`: Zero-shot Chain Of Though
+* - `system.files_schema`: Apply JSON schemas to generated data.
+* - `system.python`: Expert at generating and understanding Python code.
+* - `system.summary`: Adds a summary of the changes
+* - `system.functions`: use functions
+**/
     system?: SystemPromptId[]
 
     /**

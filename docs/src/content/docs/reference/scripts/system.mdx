@@ -18,6 +18,16 @@ $`Let's think step by step.`
 ```
 
 
+To use system prompts in script, populate the `system` field with script identifiers.
+
+```js title="myscript.genai.js" 'system: ["system.zscot"]'
+script({
+    ...,
+    system: ["system.zscot"]
+})
+$`Let's think step by step.`
+```
+
 ## Custom system prompts list
 
 The `system` field can be populated with an array of system prompt identifiers.
@@ -269,15 +279,15 @@ $`CSV files are inlined as markdown tables.`
 
 ### `system.files_schema`
 
-
-
 Apply JSON schemas to generated data.
+
+
 
 
 
 `````js wrap title="system.files_schema"
 system({
-    description: "Apply JSON schemas to generated data.",
+    title: "Apply JSON schemas to generated data.",
 })
 
 const folder = env.vars["outputFolder"] || "."
@@ -498,15 +508,15 @@ defFunction("math_eval", "Evaluates a math expression", {
 
 ### `system.python`
 
-
-
 Expert at generating and understanding Python code.
+
+
 
 
 
 `````js wrap title="system.python"
 system({
-    description: "Expert at generating and understanding Python code.",
+    title: "Expert at generating and understanding Python code.",
 })
 
 $`Also, you are an expert coder in Python. 
@@ -560,15 +570,15 @@ JSON schemas can also be applied to YAML or TOML files.
 
 ### `system.summary`
 
-
-
 Adds a summary of the changes
+
+
 
 
 
 `````js wrap title="system.summary"
 system({
-    description: "Adds a summary of the changes",
+    title: "Adds a summary of the changes",
 })
 
 $`Additionally, generate a concise SUMMARY of the changes in all files using the following syntax:`
@@ -675,7 +685,7 @@ defFunction(
 
 ### `system.zero_shot_cot`
 
-
+Zero-shot Chain Of Though
 
 Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.
 
@@ -683,6 +693,7 @@ Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/int
 
 `````js wrap title="system.zero_shot_cot"
 system({
+    title: "Zero-shot Chain Of Though",
     description:
         "Zero-shot Chain Of Though technique. More at https://learnprompting.org/docs/intermediate/zero_shot_cot.",
 })

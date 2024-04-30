@@ -105,6 +105,16 @@ $\`Let's think step by step.\`
 \`\`\`
 
 
+To use system prompts in script, populate the \`system\` field with script identifiers.
+
+\`\`\`js title="myscript.genai.js" 'system: ["system.zscot"]'
+script({
+    ...,
+    system: ["system.zscot"]
+})
+$\`Let's think step by step.\`
+\`\`\`
+
 ## Custom system prompts list
 
 The \`system\` field can be populated with an array of system prompt identifiers.

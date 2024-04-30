@@ -1,5 +1,5 @@
 system({
-    description: "Expert at generating and understanding Python code.",
+    title: "Expert at generating and understanding Python code.",
 })
 
 $`Also, you are an expert coder in Python. 
