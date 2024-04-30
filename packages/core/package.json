@@ -36,6 +36,7 @@
     "magic-string": "^0.30.9",
     "mammoth": "^1.7.1",
     "markdown-table": "^3.0.3",
+    "mathjs": "^12.4.2",
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.4",
     "openai": "^4.33.1",

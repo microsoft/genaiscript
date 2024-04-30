@@ -43,7 +43,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -246,7 +246,7 @@ interface PromptTest {
     /**
      * List of files to apply the test to.
      */
-    files: string | string[]
+    files?: string | string[]
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -831,6 +831,12 @@ interface Parsers {
      * @param query tree sitter query; if missing, returns the entire tree
      */
     code(file: WorkspaceFile, query?: string): Promise<QueryCapture[]>
+
+    /**
+     * Parses and evaluates a math expression
+     * @param expression math expression compatible with mathjs
+     */
+    math(expression: string): string | number | undefined
 }
 
 interface AICIGenOptions {

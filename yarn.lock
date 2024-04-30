@@ -8119,7 +8119,7 @@ markdown-table@^3.0.0, markdown-table@^3.0.3:
   resolved "https://registry.npmjs.org/markdown-table/-/markdown-table-3.0.3.tgz"
   integrity sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==
 
-mathjs@^12.4.1:
+mathjs@^12.4.1, mathjs@^12.4.2:
   version "12.4.2"
   resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-12.4.2.tgz#27fe9ac2a534b40c25c272585dfc358a90597bb1"
   integrity sha512-lW14EzwAFgbNN7AZikxplmhs7wiXDhMphBOGCA3KS6T29ECEkHJsBtbEW5cnCz7sXtl4nDyvTdR+DqVsZyiiEw==
