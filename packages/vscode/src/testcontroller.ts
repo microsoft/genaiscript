@@ -49,7 +49,9 @@ export async function activateTestController(state: ExtensionState) {
             const run = ctrl.createTestRun(request)
 
             // collect tests
-            const tests = new Set<vscode.TestItem>(include)
+            const tests = new Set<vscode.TestItem>()
+            if (include?.length) include.forEach((t) => tests.add(t))
+            else ctrl.items.forEach((t) => tests.add(t))
             for (const test of exclude) tests.delete(test)
 
             // collect scripts
