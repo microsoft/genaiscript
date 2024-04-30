@@ -302,6 +302,11 @@ interface WorkspaceFile {
     filename: string
 
     /**
+     * @deprecated Unused
+     */
+    label?: string
+
+    /**
      * Content of the file.
      */
     content: string

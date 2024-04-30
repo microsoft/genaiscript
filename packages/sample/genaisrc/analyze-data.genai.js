@@ -4,10 +4,8 @@ script({
         {
             description: "penguins",
             files: "src/penguins.csv",
-            rubrics: "is a data analysis",
-            facts: [
-                "The penguin dataset is a collection of images of penguin colonies in Antarctica",
-            ],
+            rubrics: "describes data",
+            facts: ["There are 3 species of penguins"],
             keywords: "penguin",
         },
     ],
