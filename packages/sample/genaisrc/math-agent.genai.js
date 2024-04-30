@@ -1,6 +1,12 @@
 script({
     title: "math-agent",
-    description: "A port of https://ts.llamaindex.ai/examples/agent"
+    description: "A port of https://ts.llamaindex.ai/examples/agent",
+    parameters: {
+        "question": {
+            type: "string",
+            default: "How much is 5 + 5? then divide by 2?"
+        }
+    }
 })
 
 defFunction("sum", "Use this function to sum two numbers", {
@@ -33,4 +39,7 @@ defFunction("divide", "Use this function to divide two numbers", {
     required: ["a", "b"],
 }, ({ a, b }) => `${a / b}`)
 
-$`How much is 5 + 5? then divide by 2?`
+$`Answer the following arithmetic question: 
+
+    ${env.vars.question}
+`

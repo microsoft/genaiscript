@@ -1,0 +1,91 @@
+---
+title: Tool Agent
+sidebar:
+    order: 7
+---
+
+import { Code } from "@astrojs/starlight/components"
+import mathAgentSrc from "../../../../../packages/sample/genaisrc/math-agent.genai.js?raw"
+import mathAgentSystemSrc from "../../../../../packages/sample/genaisrc/math-agent-system.genai.js?raw"
+
+Using [functions (tools)](/genaiscript/reference/functions),
+you can define a built-in agent that can take decisions
+and reasoning based on the tools provided to it.
+
+Let's illustrate this concept using the [llamaindex sum div sample](https://ts.llamaindex.ai/examples/agent):
+an agent that can sum or divide two numbers and needs to answer basic arithmetic questions.
+
+## Using functions
+
+By declaring functions (and providing a descriptive description), you provide the opportunity
+for the LLM to requests a function call during the output generation. In the snippet below,
+we declare a function that can sum two numbers. It will be called by the LLM when a sum operation
+is required.
+
+```js "defFunction"
+defFunction(
+    "sum",
+    "Use this function to sum two numbers",
+    {
+        type: "object",
+        properties: {
+            a: {
+                type: "number",
+                description: "The first number",
+            },
+            b: {
+                type: "number",
+                description: "The second number",
+            },
+        },
+        required: ["a", "b"],
+    },
+    ({ a, b }) => `${a + b}`
+)
+```
+
+## Parameters
+
+The arithmetic question can be declared as a [script
+parameter](/genaiscript/reference/scripts/variables) to be used in the agent script.
+
+```js "parameters"
+script({
+    ...,
+    parameters: {
+        "question": {
+            type: "string",
+            default: "How much is 5 + 5? then divide by 2?"
+        }
+    }
+})
+```
+
+The parameter value are populated in the `env.vars` object.
+
+```js "env.vars.question"
+...
+$`Answer the following arithmetic question:
+
+    ${env.vars.question}
+`
+```
+
+Putting it all together, we define another function to divide two numbers
+and inline an arithmetic question.
+
+<Code title="math-agent.genai.js" code={mathAgentSrc} wrap={true} lang="js" />
+
+## Using `system.math`
+
+The system prompt [system.math](/genaiscript/reference/scripts/system#systemmath)
+wraps the `parsers.math` expression parser and evaluator and exposes it as a function.
+
+This simplifies the agent script as we do not have to define functions anymore.
+
+<Code
+    title="math-agent.genai.js"
+    code={mathAgentSystemSrc}
+    wrap={true}
+    lang="js"
+/>
