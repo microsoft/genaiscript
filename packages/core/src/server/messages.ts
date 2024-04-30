@@ -51,10 +51,11 @@ export interface PromptScriptTestRunOptions {
     models?: string[]
 }
 
-export interface TestRunMessage extends RequestMessage {
+export interface PromptScriptTestRunMessage extends RequestMessage {
     type: "tests.run"
     scripts?: string[]
     options?: PromptScriptTestRunOptions
+    response?: any
 }
 
 export type RequestMessages =
@@ -64,4 +65,4 @@ export type RequestMessages =
     | RetrievalSearch
     | ServerVersion
     | ParsePdfMessage
-    | TestRunMessage
+    | PromptScriptTestRunMessage

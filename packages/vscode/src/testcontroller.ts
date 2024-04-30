@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { ICON_LOGO_NAME, TOOL_ID, arrayify } from "genaiscript-core"
+import { CHANGE, ICON_LOGO_NAME, TOOL_ID, arrayify } from "genaiscript-core"
 
 export async function activateTestController(state: ExtensionState) {
     const { context } = state
@@ -22,22 +22,31 @@ export async function activateTestController(state: ExtensionState) {
     ctrl.resolveHandler = async (testToResolve) => {
         if (!vscode.workspace.workspaceFolders) return // handle the case of no open folders
 
-        if (!state.project) await state.parseWorkspace()
         if (testToResolve) {
             const script = state.project.templates.find(
                 (script) =>
                     vscode.workspace.asRelativePath(script.filename) ===
                     vscode.workspace.asRelativePath(testToResolve.uri)
             )
-            const file = await getOrCreateFile(script)
-            // TODO
+            await getOrCreateFile(script)
         } else {
-            const scripts = state.project.templates.filter(
-                (t) => arrayify(t.tests)?.length
-            )
-            for (const script of scripts) {
-                const file = getOrCreateFile(script)
-            }
+            await refreshTests()
+            state.addEventListener(CHANGE, refreshTests)
+        }
+    }
+
+    const refreshTests = async () => {
+        if (!state.project) await state.parseWorkspace()
+        const scripts =
+            state.project.templates.filter((t) => arrayify(t.tests)?.length) ||
+            []
+        // refresh existing
+        for (const script of scripts) {
+            getOrCreateFile(script)
+        }
+        // remove deleted tests
+        for (const [id] of Array.from(ctrl.items)) {
+            if (!scripts.find((s) => s.id === id)) ctrl.items.delete(id)
         }
     }
 
