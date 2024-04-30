@@ -46,7 +46,7 @@ export interface ParsePdfMessage extends RequestMessage {
     response?: ParsePdfResponse
 }
 
-export interface TestRunOptions {
+export interface PromptScriptTestRunOptions {
     testProvider?: string
     models?: string[]
 }
@@ -54,7 +54,7 @@ export interface TestRunOptions {
 export interface TestRunMessage extends RequestMessage {
     type: "tests.run"
     scripts?: string[]
-    options?: TestRunOptions
+    options?: PromptScriptTestRunOptions
 }
 
 export type RequestMessages =

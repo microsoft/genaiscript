@@ -3,8 +3,9 @@ import { buildProject } from "./build"
 import {
     EXEC_MAX_BUFFER,
     GENAISCRIPT_FOLDER,
+    JSON5TryParse,
     ResponseStatus,
-    TestRunOptions,
+    PromptScriptTestRunOptions,
     YAMLStringify,
     arrayify,
     host,
@@ -13,20 +14,21 @@ import {
     normalizeFloat,
     parseKeyValuePairs,
     promptFooDriver,
+    MarkdownTrace,
 } from "genaiscript-core"
 import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
 import { join } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
-import { log } from "node:console"
+import type { EvaluateSummary, OutputFile } from "promptfoo"
 
 function parseModelSpec(m: string): ModelOptions {
-    const vals = parseKeyValuePairs(m)
-    if (Object.keys(vals).length)
+    const values = parseKeyValuePairs(m)
+    if (Object.keys(values).length)
         return {
-            model: vals["m"],
-            temperature: normalizeFloat(vals["t"]),
-            topP: normalizeFloat(vals["p"]),
+            model: values["m"],
+            temperature: normalizeFloat(values["t"]),
+            topP: normalizeFloat(values["p"]),
         }
     else return { model: m }
 }
@@ -37,9 +39,19 @@ async function resolveTestProvider(script: PromptScript) {
     return undefined
 }
 
-export async function runTests(
+export interface PromptScriptTestResult extends ResponseStatus {
+    script: string
+    config: any
+    value?: EvaluateSummary
+}
+
+export interface PromptScriptTestRun extends ResponseStatus {
+    value?: PromptScriptTestResult[]
+}
+
+export async function runPromptScriptTests(
     ids: string[],
-    options: TestRunOptions & {
+    options: PromptScriptTestRunOptions & {
         out?: string
         cli?: string
         removeOut?: boolean
@@ -47,7 +59,7 @@ export async function runTests(
         verbose?: boolean
         write?: boolean
     }
-): Promise<ResponseStatus> {
+): Promise<PromptScriptTestRun> {
     const prj = await buildProject()
     const scripts = prj.templates
         .filter((t) => arrayify(t.tests)?.length)
@@ -68,7 +80,7 @@ export async function runTests(
     await ensureDir(out)
     await writeFile(provider, promptFooDriver)
 
-    const configurations: string[] = []
+    const configurations: { script: PromptScript; configuration: string }[] = []
     for (const script of scripts) {
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
@@ -86,12 +98,13 @@ export async function runTests(
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
         logVerbose(yaml)
-        configurations.push(fn)
+        configurations.push({ script, configuration: fn })
     }
 
     logVerbose(`running tests with promptfoo`)
-    let status = { ok: true, status: 0 }
-    for (const configuration of configurations) {
+    const results: PromptScriptTestResult[] = []
+    for (const config of configurations) {
+        const { script, configuration } = config
         const outJson = configuration.replace(/\.yaml$/, ".res.json")
         const cmd = "npx"
         const args = [
@@ -117,15 +130,25 @@ export async function runTests(
         exec.pipeStdout(process.stdout)
         exec.pipeStderr(process.stdout)
         const res = await exec
-        if (res.exitCode !== 0) status = { ok: false, status: res.exitCode }
+        const promptfooResults = JSON5TryParse(outJson) as OutputFile
+        results.push({
+            status: res.exitCode,
+            ok: res.exitCode === 0,
+            script: script.id,
+            config: promptfooResults?.config,
+            value: promptfooResults?.results,
+        })
     }
 
-    return status
+    return {
+        ok: results.every(({ ok }) => ok),
+        value: results,
+    }
 }
 
 export async function scriptsTest(
     ids: string[],
-    options: TestRunOptions & {
+    options: PromptScriptTestRunOptions & {
         out?: string
         cli?: string
         removeOut?: boolean
@@ -135,11 +158,13 @@ export async function scriptsTest(
         write?: boolean
     }
 ) {
-    const { status } = await runTests(ids, options)
+    const { status } = await runPromptScriptTests(ids, options)
     if (options.view)
         await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
             cleanup: true,
             maxBuffer: EXEC_MAX_BUFFER,
         })
-    else process.exit(status)
+    else {
+        process.exit(status)
+    }
 }

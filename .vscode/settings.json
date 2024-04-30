@@ -2,6 +2,9 @@
     "devicescript.devtools.autoStart": false,
     "cSpell.words": [
         "AICI",
+        "arrayify",
+        "bitindex",
+        "execa",
         "genai",
         "Genaiscript",
         "gpspec",
@@ -10,8 +13,10 @@
         "gptools",
         "gptoolsjs",
         "llmrequest",
+        "millis",
         "ollama",
         "openai",
+        "promptfoo",
         "typecheck",
         "vsix"
     ],
