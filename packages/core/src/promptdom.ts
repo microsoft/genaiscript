@@ -9,6 +9,7 @@ import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { fenceMD } from "./markdown"
 import { parseModelIdentifier } from "./models"
+import dedent from "ts-dedent"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -357,14 +358,10 @@ async function resolvePromptNode(
         stringTemplate: async (n) => {
             const { strings, args } = n
             try {
-                let value = ""
-                for (let i = 0; i < strings.length; ++i) {
-                    value += strings[i]
-                    if (i < args.length) {
-                        const arg = await args[i]
-                        value += arg ?? ""
-                    }
-                }
+                const resolvedArgs = (await Promise.all(args)).map(
+                    (v) => v ?? ""
+                )
+                const value = dedent(strings, ...resolvedArgs)
                 n.resolved = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
