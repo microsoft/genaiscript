@@ -151,7 +151,7 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.response
     }
 
-    async runTest(script: PromptScript, options: PromptScriptTestRunOptions) {
+    async runTest(script: PromptScript, options?: PromptScriptTestRunOptions) {
         const res = await this.queue<TestRunMessage>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,

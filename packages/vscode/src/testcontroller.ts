@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { TOOL_ID, arrayify } from "genaiscript-core"
+import { ICON_LOGO_NAME, TOOL_ID, arrayify } from "genaiscript-core"
 
 export async function activateTestController(state: ExtensionState) {
     const { context } = state
@@ -37,20 +37,6 @@ export async function activateTestController(state: ExtensionState) {
             )
             for (const script of scripts) {
                 const file = getOrCreateFile(script)
-                const tests = arrayify(script.tests).map((t, index) => {
-                    const id = `${script.id}:${index}`
-                    const test =
-                        ctrl.items.get(id) ??
-                        ctrl.createTestItem(
-                            id,
-                            t.description ?? `test ${index}`,
-                            vscode.Uri.file(script.filename)
-                        )
-                    test.description = arrayify(t.files).join(", ")
-                    testData.set(test, { script, index })
-                    return test
-                })
-                file.children.replace(tests)
             }
         }
     }
@@ -58,8 +44,48 @@ export async function activateTestController(state: ExtensionState) {
     const runProfile = ctrl.createRunProfile(
         "Run",
         vscode.TestRunProfileKind.Run,
-        (request, token) => {
-            console.log("run")
+        async (request, token) => {
+            const { include = [], exclude = [] } = request
+            const run = ctrl.createTestRun(request)
+
+            // collect tests
+            const tests = new Set<vscode.TestItem>(include)
+            for (const test of exclude) tests.delete(test)
+
+            // collect scripts
+            const project = state.project
+            if (!state.project) await state.parseWorkspace()
+
+            const scripts = Array.from(tests)
+                .map((test) => ({
+                    test,
+                    script: project.templates.find((s) => s.id === test.id),
+                }))
+                .filter(({ script }) => script)
+
+            if (!scripts.length) {
+                run.end()
+                return
+            }
+
+            startTestViewer()
+            await state.host.server.client.init()
+            for (const { script, test } of scripts) {
+                // check for cancellation
+                if (token.isCancellationRequested) {
+                    run.end()
+                    return
+                }
+                run.started(test)
+                const res = await state.host.server.client.runTest(script)
+                if (res.ok) run.passed(test)
+                else
+                    run.failed(
+                        test,
+                        new vscode.TestMessage(res.error?.message ?? "error")
+                    )
+            }
+            run.end()
         }
     )
     subscriptions.push(runProfile)
@@ -74,8 +100,28 @@ export async function activateTestController(state: ExtensionState) {
             vscode.Uri.file(script.filename)
         )
         file.description = script.title ?? script.description
-        file.canResolveChildren = true
         ctrl.items.add(file)
         return file
+    }
+}
+
+export async function startTestViewer() {
+    const name = "Promptfoo View"
+    if (vscode.window.terminals.find((t) => t.name === name)) {
+        await vscode.env.openExternal(
+            vscode.Uri.parse("http://localhost:15500")
+        )
+    } else {
+        // show results
+        const terminal = vscode.window.createTerminal({
+            name,
+            isTransient: true,
+            env: {
+                PROMPTFOO_DISABLE_TELEMETRY: "1",
+                PROMPTFOO_DISABLE_UPDATE: "1",
+            },
+            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
+        })
+        terminal.sendText(`npx --yes promptfoo@latest view -y`)
     }
 }
