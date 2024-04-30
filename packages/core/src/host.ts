@@ -145,7 +145,7 @@ export interface Host {
     retrieval: RetrievalService
     server: ServerManager
     path: Path
-    fs: PromptFileSystem
+    workspace: WorkspaceFileSystem
 
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder

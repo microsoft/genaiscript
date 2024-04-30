@@ -26,15 +26,15 @@ export async function clearIndex(
 }
 
 export async function upsert(
-    fileOrUrls: (string | LinkedFile)[],
+    fileOrUrls: (string | WorkspaceFile)[],
     options?: RetrievalClientOptions & RetrievalUpsertOptions
 ) {
     if (!fileOrUrls?.length) return
     const { progress, trace, token, ...rest } = options || {}
     const retrieval = host.retrieval
     await retrieval.init(trace)
-    const files: LinkedFile[] = fileOrUrls.map((f) =>
-        typeof f === "string" ? <LinkedFile>{ filename: f } : f
+    const files: WorkspaceFile[] = fileOrUrls.map((f) =>
+        typeof f === "string" ? <WorkspaceFile>{ filename: f } : f
     )
     let count = 0
     for (const f of files) {
@@ -56,8 +56,8 @@ export async function upsert(
 }
 
 export interface RetrievalSearchResult {
-    files: LinkedFile[]
-    fragments: LinkedFile[]
+    files: WorkspaceFile[]
+    fragments: WorkspaceFile[]
 }
 
 export async function search(
@@ -65,7 +65,7 @@ export async function search(
     options?: RetrievalClientOptions & RetrievalSearchOptions
 ): Promise<RetrievalSearchResult> {
     const { trace, token, ...rest } = options || {}
-    const files: LinkedFile[] = []
+    const files: WorkspaceFile[] = []
     const retrieval = host.retrieval
     await host.retrieval.init(trace)
     if (token?.isCancellationRequested) return { files, fragments: [] }
@@ -74,18 +74,16 @@ export async function search(
 
     const fragments = (results || []).map((r) => {
         const { id, filename, text } = r
-        return <LinkedFile>{
+        return <WorkspaceFile>{
             filename,
             content: text,
-            label: id,
         }
     })
     for (const fr of fragments) {
         let file = files.find((f) => f.filename === fr.filename)
         if (!file) {
-            file = <LinkedFile>{
+            file = <WorkspaceFile>{
                 filename: fr.filename,
-                label: `fragments`,
                 content: "...\n",
             }
             files.push(file)

@@ -91,9 +91,15 @@ declare var parsers: Parsers
 declare var retrieval: Retrieval
 
 /**
- * Access to file system operation on the current workspace.
+ * Access to the workspace file system.
  */
-declare var fs: PromptFileSystem
+declare var workspace: WorkspaceFileSystem
+
+/**
+ * Access to the workspace file system.
+ * @deprecated Use `workspace` instead.
+ */
+declare var fs: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.
@@ -115,9 +121,9 @@ declare var AICI: AICI
  * @param url
  */
 declare function fetchText(
-    url: string | LinkedFile,
+    url: string | WorkspaceFile,
     options?: FetchTextOptions
-): Promise<{ ok: boolean; status: number; text?: string; file?: LinkedFile }>
+): Promise<{ ok: boolean; status: number; text?: string; file?: WorkspaceFile }>
 
 /**
  * Declares a JSON schema variable.

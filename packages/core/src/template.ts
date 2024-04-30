@@ -194,8 +194,8 @@ async function parseMeta(r: PromptScript) {
 
 export function staticVars(): Omit<ExpansionVariables, "template"> {
     return {
-        spec: { filename: "spec.gpspec.md", content: "" } as LinkedFile,
-        files: [] as LinkedFile[],
+        spec: { filename: "spec.gpspec.md", content: "" } as WorkspaceFile,
+        files: [] as WorkspaceFile[],
         vars: {} as Record<string, string>,
     }
 }

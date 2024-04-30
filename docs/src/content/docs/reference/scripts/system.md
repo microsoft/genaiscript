@@ -305,15 +305,16 @@ defFunction(
         properties: {
             glob: {
                 type: "string",
-                description: "Search path in glob format, including the relative path from the project root folder.",
-            }
+                description:
+                    "Search path in glob format, including the relative path from the project root folder.",
+            },
         },
         required: ["glob"],
     },
     async (args) => {
         const { glob } = args
-        const res = await fs.findFiles(glob)
-        return res.join("\n")
+        const res = await workspace.findFiles(glob, { readText: false })
+        return res.map((f) => f.filename).join("\n")
     }
 )
 
@@ -359,7 +360,7 @@ defFunction(
         if (!filename) return ""
         linestart = parseInt(linestart) - 1
         lineend = parseInt(lineend)
-        let { content } = await fs.readText(filename)
+        let { content } = await workspace.readText(filename)
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
             content = lines.slice(linestart, lineend).join("\n")
@@ -400,9 +401,9 @@ defFunction(
     async (args) => {
         const { filename } = args
         if (!filename) return ""
-        const { content } = await fs.readText(filename)
+        const { content } = await workspace.readText(filename)
         const summary = await runPrompt(_ => {
-            const f = _.def("FILE", { filename, content, label: filename }, { maxTokens: 12000 })
+            const f = _.def("FILE", { filename, content }, { maxTokens: 12000 })
             _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
         }, {
             model: "gpt-3.5-turbo",
@@ -597,7 +598,6 @@ defFunction(
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,
-                name: f.label,
                 snippet: f.content,
             }))
         )

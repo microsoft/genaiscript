@@ -22,7 +22,6 @@ defFunction(
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,
-                name: f.label,
                 snippet: f.content,
             }))
         )

@@ -23,7 +23,7 @@ if (!langName) cancel("unknown language")
 const file = env.files[0]
 if (!file) cancel("no strings file found")
 
-const { filename, label, content } = file
+const { filename, content } = file
 const dir = path.dirname(filename)
 
 // read the stings, which are stored as a JSON record
@@ -31,7 +31,7 @@ const strings = JSON.parse(content)
 
 // find the existing translation and remove existing translations
 const trfn = path.join(dir, langCode, path.basename(filename))
-const translated = parsers.JSON5(await fs.readText(trfn))
+const translated = parsers.JSON5(await workspace.readText(trfn))
 if (translated)
     for (const k of Object.keys(strings)) if (translated[k]) delete strings[k]
 
@@ -98,7 +98,6 @@ def(
     "ORIGINAL",
     {
         filename,
-        label,
         content: contentToTranslate,
     },
     { language: "txt" }

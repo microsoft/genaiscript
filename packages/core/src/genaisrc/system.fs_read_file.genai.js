@@ -30,7 +30,7 @@ defFunction(
         if (!filename) return ""
         linestart = parseInt(linestart) - 1
         lineend = parseInt(lineend)
-        let { content } = await fs.readText(filename)
+        let { content } = await workspace.readText(filename)
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
             content = lines.slice(linestart, lineend).join("\n")
