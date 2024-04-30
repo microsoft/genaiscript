@@ -24,7 +24,7 @@ if (!langName) cancel("unknown language")
 const file = env.files[0]
 if (!file) cancel("no strings file found")
 
-const { filename, label, content } = file
+const { filename, content } = file
 const dir = path.dirname(filename)
 
 // read the stings, which are stored as a JSON record
