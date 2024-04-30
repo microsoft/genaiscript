@@ -20,7 +20,7 @@ import {
     RetrievalSearch,
     RetrievalUpsert,
     ServerVersion,
-    TestRunMessage,
+    PromptScriptTestRunMessage,
     PromptScriptTestRunOptions,
 } from "./messages"
 
@@ -152,7 +152,7 @@ export class WebSocketClient implements RetrievalService, ParseService {
     }
 
     async runTest(script: PromptScript, options?: PromptScriptTestRunOptions) {
-        const res = await this.queue<TestRunMessage>({
+        const res = await this.queue<PromptScriptTestRunMessage>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,
             options,
