@@ -1675,6 +1675,7 @@ The following npm packages may be included in this product:
  - bare-events@2.2.0
  - bare-fs@2.1.5
  - bare-os@2.1.3
+ - bare-path@2.1.0
  - bson@6.3.0
  - chromadb@1.7.3
 
@@ -4243,7 +4244,6 @@ The following npm packages may be included in this product:
  - @types/linkify-it@3.0.5
  - @types/lodash-es@4.17.12
  - @types/lodash@4.14.202
- - @types/lodash@4.17.0
  - @types/long@4.0.2
  - @types/markdown-it@13.0.7
  - @types/markdown-it@14.0.0
@@ -4261,7 +4261,7 @@ The following npm packages may be included in this product:
  - @types/node@20.11.20
  - @types/papaparse@5.3.14
  - @types/parse5@6.0.3
- - @types/pg@8.11.5
+ - @types/pg@8.11.2
  - @types/qs@6.9.12
  - @types/sax@1.2.7
  - @types/triple-beam@1.3.5
@@ -23974,43 +23974,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - bare-path@2.1.0
-
-This package contains the following license and notice below:
-
-Copyright 2023 Holepunch Inc
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
----
-
-Copyright Joyent, Inc. and other Node contributors.
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to permit
-persons to whom the Software is furnished to do so, subject to the
-following conditions:
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
------------
-
-The following npm package may be included in this product:
-
  - @fastify/busboy@2.1.0
 
 This package contains the following license and notice below:
@@ -25763,17 +25726,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.19.12
- - @esbuild/linux-x64@0.20.1
+ - @esbuild/win32-x64@0.19.12
+ - @esbuild/win32-x64@0.20.1
  - @iconify-json/ph@1.1.12
  - @iconify-json/svg-spinners@1.1.2
  - @pagefind/default-ui@1.0.4
- - @pagefind/linux-x64@1.0.4
+ - @pagefind/windows-x64@1.0.4
  - @polka/url@1.0.0-next.25
- - @rollup/rollup-linux-x64-gnu@4.10.0
- - @rollup/rollup-linux-x64-gnu@4.14.1
- - @rollup/rollup-linux-x64-musl@4.10.0
- - @rollup/rollup-linux-x64-musl@4.14.1
+ - @rollup/rollup-win32-x64-msvc@4.10.0
+ - @rollup/rollup-win32-x64-msvc@4.14.1
  - @tokenizer/token@0.3.0
  - @typescript/ata@0.9.4
  - @vscode/l10n@0.0.16

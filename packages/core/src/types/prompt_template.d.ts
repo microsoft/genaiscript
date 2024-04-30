@@ -831,6 +831,12 @@ interface Parsers {
      * @param query tree sitter query; if missing, returns the entire tree
      */
     code(file: WorkspaceFile, query?: string): Promise<QueryCapture[]>
+
+    /**
+     * Parses and evaluates a math expression
+     * @param expression math expression compatible with mathjs
+     */
+    math(expression: string): string | number | undefined
 }
 
 interface AICIGenOptions {

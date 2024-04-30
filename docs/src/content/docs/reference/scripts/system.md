@@ -444,6 +444,34 @@ $`Answer in JSON format.`
 `````
 
 
+### `system.math`
+
+Math expression evaluator
+
+Register a function that evaluates math expressions
+
+`````js wrap
+system({
+    title: "Math expression evaluator",
+    description: "Register a function that evaluates math expressions",
+})
+
+defFunction("math_eval", "Evaluates a math expression", {
+    type: "object",
+    properties: {
+        expression: {
+            type: "string",
+            description: "Math expression to evaluate using mathjs format.",
+        }
+    },
+    required: ["expression"],
+}, async (args) => {
+    const { expression } = args
+    return parsers.math(expression) ?? "?"
+})
+`````
+
+
 ### `system.python`
 
 

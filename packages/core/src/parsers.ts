@@ -15,6 +15,7 @@ import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
 import { HTMLToText } from "./html"
+import { MathTryEvaluate } from "./math"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -55,7 +56,9 @@ export function createParsers(options: {
             const filename = typeof file === "string" ? file : file.filename
             const res = await DOCXTryParse(filenameOrFileToContent(file))
             return {
-                file: res ? <WorkspaceFile>{ filename, content: res } : undefined,
+                file: res
+                    ? <WorkspaceFile>{ filename, content: res }
+                    : undefined,
             }
         },
         PDF: async (file, options) => {
@@ -78,5 +81,6 @@ export function createParsers(options: {
         },
         code: async (file, query) =>
             await treeSitterQuery(file, query, { trace }),
+        math: (expression) => MathTryEvaluate(expression, { trace }),
     })
 }
