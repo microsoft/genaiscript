@@ -161,6 +161,14 @@ const [tree] = await parsers.code(file)
 const captures = await parsers.code(file, "(interface_declaration) @i")
 ```
 
+## Math expression
+
+The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math expression.
+
+```js
+const res = parsers.math("1 + 1")
+```
+
 ## .env
 
 The `parsers.dotEnv` parses [.env](https://www.dotenv.org/) files, typically
