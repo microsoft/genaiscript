@@ -244,7 +244,7 @@ export function createDefDataNode(
     const value = `${name}:
     ${lang ? fenceMD(text, lang) : text}`
     // TODO maxTokens does not work well with data
-    return createTextNode(value, { priority, maxTokens })
+    return createTextNode(value, { priority })
 }
 
 export function appendChild(parent: PromptNode, child: PromptNode): void {
