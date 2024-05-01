@@ -4,8 +4,6 @@ script({
         {
             description: "penguins",
             files: "src/penguins.csv",
-            rubrics: "describes data",
-            facts: ["There are 3 species of penguins"],
             keywords: "penguin",
         },
     ],

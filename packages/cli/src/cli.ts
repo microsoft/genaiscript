@@ -35,7 +35,7 @@ import {
 import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { modelInfo, systemInfo } from "./info"
-import { scriptsTest } from "./test"
+import { scriptTestsView, scriptsTest } from "./test"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -163,8 +163,9 @@ export async function cli() {
         )
         .action(batchScript)
 
-    program
-        .command("test")
+    const test = program.command("test")
+
+    test.command("run", { isDefault: true })
         .description("Runs the tests for scripts")
         .argument(
             "[script...]",
@@ -178,10 +179,13 @@ export async function cli() {
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
-        .option("--view", "open test viewer once tests are executed")
         .option("--no-cache", "disable LLM result cache")
         .option("-v, --verbose", "verbose output")
         .action(scriptsTest)
+
+    test.command("view")
+        .description("Launch test viewer")
+        .action(scriptTestsView)
 
     const scripts = program
         .command("scripts")

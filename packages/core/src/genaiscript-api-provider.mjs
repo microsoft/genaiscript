@@ -9,6 +9,7 @@ class GenAIScriptApiProvider {
         this.config = options.config
         this.providerId =
             options.id || `genaiscript:${this.config.model || "default"}`
+        this.label = `genaiscript ${this.config.model || "default"}`
     }
 
     id() {

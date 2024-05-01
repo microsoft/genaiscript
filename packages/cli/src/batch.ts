@@ -265,4 +265,7 @@ export async function batchScript(
     }
 
     if (errors) process.exit(GENERATION_ERROR_CODE)
+
+    // success
+    process.exit(0)
 }
