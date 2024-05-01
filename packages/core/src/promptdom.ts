@@ -225,10 +225,7 @@ export function createDefDataNode(
     options?: DefDataOptions
 ) {
     if (data === undefined) return undefined
-    if (options?.maxTokens)
-        throw new Error("maxTokens not supported for defData")
-
-    let { format, headers, priority, maxTokens } = options || {}
+    let { format, headers, priority } = options || {}
     if (!format && headers && Array.isArray(data)) format = "csv"
     else if (!format) format = "yaml"
 
