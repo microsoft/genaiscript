@@ -29,13 +29,13 @@
     "web-tree-sitter": "^0.22.2"
   },
   "optionalDependencies": {
-    "llamaindex": "0.1.21"
+    "llamaindex": "0.1.21",
+    "promptfoo": "0.56.0"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "promptfoo": "^0.56.0",
     "@llamaindex/env": "^0.0.5",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.12.7",

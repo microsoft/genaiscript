@@ -21,9 +21,10 @@ import {
 } from "genaiscript-core"
 import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
-import { join } from "node:path"
+import { join, resolve } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
 import type { EvaluateSummary, OutputFile } from "promptfoo"
+import { PROMPTFOO_VERSION } from "./version"
 
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)
@@ -84,7 +85,7 @@ export async function runPromptScriptTests(
             error: serializeError(new Error("no tests found")),
         }
 
-    const cli = options.cli || __filename
+    const cli = options.cli || resolve(__filename)
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const provider = join(out, "provider.mjs")
     const models = options?.models
@@ -123,7 +124,7 @@ export async function runPromptScriptTests(
         const cmd = "npx"
         const args = [
             "--yes",
-            `promptfoo@latest`,
+            `promptfoo@${PROMPTFOO_VERSION}`,
             "eval",
             "--config",
             configuration,
