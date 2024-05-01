@@ -8,7 +8,7 @@ script({
 
 const files = await workspace.findFiles("**/*.genai.js", { readText: false })
 
-$`Select the most interresting files from the list below:
+$`Select the 3 most interresting files from the list below:
 
 ${files.map((f) => f.filename).join("\n")}
 `
