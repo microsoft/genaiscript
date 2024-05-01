@@ -1,6 +1,7 @@
 export const CHANGE = "change"
 export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
+export const MAX_TOOL_CALLS = 100
 //https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 export const AZURE_OPENAI_API_VERSION = "2023-09-01-preview"
 export const TOOL_ID = "genaiscript"

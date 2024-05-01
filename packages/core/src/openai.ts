@@ -213,9 +213,9 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     chatResp += delta.content
                 } else if (delta?.tool_calls?.length) {
                     const { tool_calls } = delta
-                    logVerbose(
-                        `delta tool calls: ${JSON.stringify(tool_calls)}`
-                    )
+                    //logVerbose(
+                    //    `delta tool calls: ${JSON.stringify(tool_calls)}`
+                    //)
                     for (const call of tool_calls) {
                         const tc =
                             toolCalls[call.index] ||
@@ -231,7 +231,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     // apply tools and restart
                     finishReason = finish_reason
                     seenDone = true
-                    logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
+                    //logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                 } else if (finish_reason === "length") {
                     finishReason = finish_reason
                     logVerbose(`response too long`)

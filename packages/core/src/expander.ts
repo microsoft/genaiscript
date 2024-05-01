@@ -3,7 +3,12 @@ import { assert, normalizeFloat, normalizeInt, normalizeString } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE, SYSTEM_FENCE } from "./constants"
+import {
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    MAX_TOOL_CALLS,
+    SYSTEM_FENCE,
+} from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { RunTemplateOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
@@ -282,6 +287,11 @@ export async function expandTemplate(
         normalizeInt(env.vars["maxTokens"]) ??
         template.maxTokens ??
         defaultMaxTokens
+    const maxToolCalls =
+        options.maxToolCalls ??
+        normalizeInt(env.vars["maxToolCalls"]) ??
+        template.maxToolCalls ??
+        MAX_TOOL_CALLS
     let seed =
         options.seed ??
         normalizeInt(env.vars["seed"]) ??
@@ -410,6 +420,7 @@ export async function expandTemplate(
         temperature,
         topP,
         max_tokens,
+        maxToolCalls,
         seed,
         responseType,
         fileMerges,

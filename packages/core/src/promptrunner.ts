@@ -26,7 +26,7 @@ import { traceCliArgs } from "./clihelp"
 import { FragmentTransformResponse, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
-import { CancelError, RequestError } from "./error"
+import { RequestError } from "./error"
 import { createFetch } from "./fetch"
 
 async function fragmentVars(
@@ -167,6 +167,7 @@ export async function runTemplate(
         topP,
         model,
         max_tokens,
+        maxToolCalls,
         seed,
         responseType,
     } = await expandTemplate(
@@ -268,6 +269,7 @@ export async function runTemplate(
     }
 
     const { completer } = resolveLanguageModel(template, options)
+    let toolCalls = 0
     let repairs = 0
     let genVars: Record<string, string> = {}
 
@@ -382,8 +384,14 @@ export async function runTemplate(
             // call tool and run again
             for (const call of resp.toolCalls) {
                 if (isCancelled()) break
+                if (toolCalls++ > maxToolCalls) {
+                    trace.error(`max tool calls ${maxToolCalls} reached`)
+                    break
+                }
                 try {
-                    updateStatus(`running tool ${call.name}`)
+                    updateStatus(
+                        `call tool ${call.name} with ${call.arguments}`
+                    )
                     trace.startDetails(`📠 tool call ${call.name}`)
                     trace.itemValue(`id`, call.id)
                     trace.itemValue(`args`, call.arguments)
@@ -720,7 +728,7 @@ ${repair}
         label: res.label,
         vars: res.vars,
         summary: res.summary,
-        text: template.id,
+        text: undefined,
     })
     return res
 }

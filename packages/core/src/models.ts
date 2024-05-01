@@ -39,8 +39,11 @@ export function parseModelIdentifier(id: string) {
     else return { provider: "openai", model: id, modelId: id }
 }
 
-export type ModelConnectionInfo = ModelConnectionOptions &
-    Partial<OAIToken> & { error?: string }
+export interface ModelConnectionInfo
+    extends ModelConnectionOptions,
+        Partial<OAIToken> {
+    error?: string
+}
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,

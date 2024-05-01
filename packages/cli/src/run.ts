@@ -53,6 +53,7 @@ export async function runScript(
         topP: string
         seed: string
         maxTokens: string
+        maxToolCalls: string
         model: string
         csvSeparator: string
         cache: boolean
@@ -80,6 +81,7 @@ export async function runScript(
     const topP = normalizeFloat(options.topP)
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
+    const maxToolCalls = normalizeInt(options.maxToolCalls)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const model = options.model
@@ -195,6 +197,7 @@ ${Array.from(files)
             topP,
             seed,
             maxTokens,
+            maxToolCalls,
             model,
             retry,
             retryDelay,

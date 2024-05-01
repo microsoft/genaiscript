@@ -95,6 +95,17 @@ script({
 })
 ```
 
+### maxToolCalls
+
+Limits the amount of allowed function/tool call during a generation. This is useful to prevent infinite loops.
+
+```js
+script({
+    ...,
+    maxToolCalls: 100,
+})
+```
+
 ### temperature
 
 You can specify the LLM `temperature` in the script, between `0` and `2`. The default is `0.01`.

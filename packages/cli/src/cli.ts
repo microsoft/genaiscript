@@ -111,6 +111,10 @@ export async function cli() {
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
         .option("-mt, --max-tokens <number>", "maximum tokens for the run")
+        .option(
+            "-mtc, --max-tool-calls <number>",
+            "maximum tool calls for the run"
+        )
         .option("-se, --seed <number>", "seed for the run")
         .option("--no-cache", "disable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
