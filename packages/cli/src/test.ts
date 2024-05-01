@@ -15,6 +15,9 @@ import {
     parseKeyValuePairs,
     promptFooDriver,
     serializeError,
+    PROMPTFOO_CONFIG_DIR,
+    PROMPTFOO_CACHE_PATH,
+    FILES_NOT_FOUND_ERROR_CODE,
 } from "genaiscript-core"
 import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
@@ -49,6 +52,16 @@ export interface PromptScriptTestRun extends ResponseStatus {
     value?: PromptScriptTestResult[]
 }
 
+function createEnv() {
+    return {
+        ...process.env,
+        PROMPTFOO_CACHE_PATH: PROMPTFOO_CACHE_PATH,
+        PROMPTFOO_CONFIG_DIR: PROMPTFOO_CONFIG_DIR,
+        PROMPTFOO_DISABLE_TELEMETRY: "1",
+        PROMPTFOO_DISABLE_UPDATE: "1",
+    }
+}
+
 export async function runPromptScriptTests(
     ids: string[],
     options: PromptScriptTestRunOptions & {
@@ -67,6 +80,7 @@ export async function runPromptScriptTests(
     if (!scripts.length)
         return {
             ok: false,
+            status: FILES_NOT_FOUND_ERROR_CODE,
             error: serializeError(new Error("no tests found")),
         }
 
@@ -125,7 +139,7 @@ export async function runPromptScriptTests(
             cleanup: true,
             stripFinalNewline: true,
             buffer: false,
-            maxBuffer: 16,
+            env: createEnv(),
         })
         exec.pipeStdout(process.stdout)
         exec.pipeStderr(process.stdout)
@@ -142,6 +156,7 @@ export async function runPromptScriptTests(
 
     return {
         ok: results.every(({ ok }) => ok),
+        status: results.find((r) => r.status !== 0)?.status,
         value: results,
     }
 }
@@ -162,7 +177,7 @@ export async function scriptsTest(
     if (options.view)
         await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
             cleanup: true,
-            maxBuffer: EXEC_MAX_BUFFER,
+            env: createEnv(),
         })
     else {
         process.exit(status)

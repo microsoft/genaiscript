@@ -11,10 +11,10 @@ export class ProgressSpinner implements Progress {
     }): void {
         const { message, count, succeeded } = value
         if (succeeded === true) {
-            this.spinner.succeed(message)
+            this.spinner.succeed(message || "")
             this.spinner.stopAndPersist()
         } else if (succeeded === false) {
-            this.spinner.fail(message)
+            this.spinner.fail(message || "")
             this.spinner.stopAndPersist()
         } else if (message) {
             this.spinner.suffixText = ""
@@ -38,11 +38,11 @@ export class ProgressSpinner implements Progress {
     }
 
     succeed(message?: string) {
-        this.report({ message, succeeded: true })
+        this.report({ message: message || "", succeeded: true })
     }
 
     fail(message?: string) {
-        this.report({ message, succeeded: false })
+        this.report({ message: message || "", succeeded: false })
     }
 }
 
