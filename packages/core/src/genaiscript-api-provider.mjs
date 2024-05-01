@@ -50,6 +50,7 @@ class GenAIScriptApiProvider {
         console.debug(cmd)
         const { stdout, stderr, error } = await execAsync(cmd)
         console.debug(stderr)
+
         const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
         let output
         try {

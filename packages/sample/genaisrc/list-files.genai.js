@@ -1,10 +1,8 @@
 script({
     model: "gpt-35-turbo",
-    tests: [
-        {
-            keywords: ".genai.js"
-        }
-    ]
+    tests: {
+        keywords: ".genai.js",
+    },
 })
 
 const files = await workspace.findFiles("**/*.genai.js", { readText: false })

@@ -225,7 +225,6 @@ export function createDefDataNode(
     options?: DefDataOptions
 ) {
     if (data === undefined) return undefined
-
     let { format, headers, priority } = options || {}
     if (!format && headers && Array.isArray(data)) format = "csv"
     else if (!format) format = "yaml"
@@ -245,7 +244,7 @@ export function createDefDataNode(
     const value = `${name}:
     ${lang ? fenceMD(text, lang) : text}`
     // TODO maxTokens does not work well with data
-    return createTextNode(value, { priority, maxTokens })
+    return createTextNode(value, { priority })
 }
 
 export function appendChild(parent: PromptNode, child: PromptNode): void {
