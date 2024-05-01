@@ -137,6 +137,11 @@ interface ModelOptions extends ModelConnectionOptions {
     maxTokens?: number
 
     /**
+     * Maximum number of tool calls to make.
+     */
+    maxToolCalls?: number
+
+    /**
      * A deterministic integer seed to use for the model.
      */
     seed?: number
@@ -1012,7 +1017,7 @@ interface Retrieval {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
-interface DefDataOptions extends ContextExpansionOptions {
+interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens"> {
     format?: "json" | "yaml" | "csv"
     headers?: string[]
 }

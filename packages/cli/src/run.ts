@@ -24,7 +24,6 @@ import {
     USER_CANCELLED_ERROR_CODE,
     errorMessage,
 } from "genaiscript-core"
-import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
@@ -109,7 +108,7 @@ export async function runScript(
     if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
 
     if (!specs?.length) {
-        specContent = (await getStdin()) || "\n"
+        specContent = "\n"
         spec = "stdin.gpspec.md"
     } else if (specs.length === 1 && GPSPEC_REGEX.test(specs[0])) {
         spec = specs[0]

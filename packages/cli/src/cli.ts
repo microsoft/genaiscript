@@ -70,7 +70,7 @@ export async function cli() {
 
     program
         .command("run")
-        .description("Runs a GenAIScript against files or stdin.")
+        .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(

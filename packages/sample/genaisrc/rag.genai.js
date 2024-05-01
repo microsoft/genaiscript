@@ -1,5 +1,9 @@
 script({
     title: "rag",
+    tests: {
+        files: "src/rag/*",
+        keywords: ["lorem ipsum", "markdown", "microsoft"]
+    }
 })
 
 // use $ to output formatted text to the prompt
