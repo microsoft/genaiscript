@@ -49,7 +49,7 @@ class GenAIScriptApiProvider {
                     typeof a === "string" && a.includes(" ") ? JSON.stringify(a) : a
                 )
                 .join(" ")
-            logger.debug(cmd)
+            logger.info(cmd)
             const { stdout, stderr, error } = await execAsync(cmd)
             logger.debug(stderr)
 
