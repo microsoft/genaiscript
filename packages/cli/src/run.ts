@@ -253,9 +253,9 @@ ${Array.from(files)
     if (out) {
         if (removeOut) await emptyDir(out)
         await ensureDir(out)
+        const jsonf = join(out, `res.json`)
+        const yamlf = join(out, `res.yaml`)
 
-        const jsonf = /\.json$/i.test(out) ? out : join(out, `res.json`)
-        const yamlf = /\.ya?ml$/i.test(out) ? out : join(out, `res.yaml`)
         const mkfn = (ext: string) => jsonf.replace(/\.json$/i, ext)
         const promptf = mkfn(".prompt.json")
         const outputf = mkfn(".output.md")
@@ -316,4 +316,7 @@ ${Array.from(files)
         logVerbose(`error annotations found, exiting with error code`)
         process.exit(ANNOTATION_ERROR_CODE)
     }
+
+    // success
+    process.exit(0)
 }

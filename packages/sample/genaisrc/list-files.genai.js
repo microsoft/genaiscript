@@ -1,4 +1,5 @@
 script({
+    model: "gpt-35-turbo",
     tests: [
         {
             keywords: ".genai.js"
