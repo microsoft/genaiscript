@@ -43,7 +43,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.zero_shot_cot" | "system.files_schema" | "system.python" | "system.summary" | "system.functions"
+type SystemPromptId = "system.summary" | "system.files_schema" | "system.annotations" | "system.python" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -159,7 +159,10 @@ interface ScriptRuntimeOptions {
      */
 /**
 * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+* - `system.summary`: Adds a summary of the changes
+* - `system.files_schema`: Apply JSON schemas to generated data.
 * - `system.annotations`: Emits annotations compatible with GitHub Actions
+* - `system.python`: Expert at generating and understanding Python code.
 * - `system.explanations`: Explain your answers
 * - `system.typescript`: Export TypeScript Developer
 * - `system.fs_find_files`: File Find Files
@@ -176,9 +179,6 @@ interface ScriptRuntimeOptions {
 * - `system.technical`: Technical Writer
 * - `system.web_search`: Web Search
 * - `system.zero_shot_cot`: Zero-shot Chain Of Though
-* - `system.files_schema`: Apply JSON schemas to generated data.
-* - `system.python`: Expert at generating and understanding Python code.
-* - `system.summary`: Adds a summary of the changes
 * - `system.functions`: use functions
 **/
     system?: SystemPromptId[]

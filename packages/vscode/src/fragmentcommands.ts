@@ -13,6 +13,7 @@ import {
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
+import { startTestViewer } from "./testcontroller"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -71,27 +72,6 @@ async function showPromptParametersQuickPicks(
         }
     }
     return parameters
-}
-
-async function startTestViewer() {
-    const name = "Promptfoo View"
-    if (vscode.window.terminals.find((t) => t.name === name)) {
-        await vscode.env.openExternal(
-            vscode.Uri.parse("http://localhost:15500")
-        )
-    } else {
-        // show results
-        const terminal = vscode.window.createTerminal({
-            name,
-            isTransient: true,
-            env: {
-                PROMPTFOO_DISABLE_TELEMETRY: "1",
-                PROMPTFOO_DISABLE_UPDATE: "1",
-            },
-            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
-        })
-        terminal.sendText(`npx --yes promptfoo@latest view -y`)
-    }
 }
 
 export function activateFragmentCommands(state: ExtensionState) {
@@ -216,7 +196,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         // show results
         startTestViewer()
         await state.host.server.client.init()
-        await state.host.server.client.runTest(script, {})
+        await state.host.server.client.runTest(script)
     }
 
     const fragmentDebug = async (file: vscode.Uri) => {

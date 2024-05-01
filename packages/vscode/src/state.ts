@@ -514,7 +514,7 @@ ${e.message}`
 
     async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
         const fspath = uri.fsPath
-        const specn = fspath + "/dir.gpspec.md"
+        const specn = this.host.path.join(fspath, "dir.gpspec.md")
         const files = (await listFiles(uri)).filter(
             (uri) => !uri.fsPath.endsWith(".gpspec.md")
         )
