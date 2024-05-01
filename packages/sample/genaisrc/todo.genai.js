@@ -4,6 +4,14 @@ script({
     group: "samples",
     system: ["system", "system.diff"],
     temperature: 0,
+    tests: {
+        files: "src/fib.ts",
+        asserts: [{
+            type: "javascript",
+            transform: "output",
+            value: "Object.keys(output.fileEdits).length > 0"
+        }]
+    }
 })
 
 def("SPEC", env.spec)
