@@ -59,5 +59,5 @@ export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OLLAMA_API_BASE = "http://localhost:11434/v1"
 
-export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/promptfoo"
-export const PROMPTFOO_CONFIG_DIR = ".genaiscript/cache/promptfoo"
+export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
+export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"

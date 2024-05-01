@@ -9,6 +9,7 @@
     "typecheck": "tsc -p src",
     "test": "node --import tsx --test src/**.test.ts",
     "test:watch": "node --import tsx --watch --test-name-pattern=run --test src/**.test.ts",
+    "cache:clear": "node ../cli/built/genaiscript.cjs cache clear",
     "run:script": "node ../cli/built/genaiscript.cjs run",
     "test:scripts": "node ../cli/built/genaiscript.cjs test -rmo -tp tnrllmproxy.azurewebsites.net",
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"

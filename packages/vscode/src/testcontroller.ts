@@ -136,8 +136,8 @@ export async function startTestViewer() {
             name,
             isTransient: true,
             env: {
-                PROMPTFOO_CACHE_PATH: PROMPTFOO_CACHE_PATH,
-                PROMPTFOO_CONFIG_DIR: PROMPTFOO_CONFIG_DIR,
+                PROMPTFOO_CACHE_PATH,
+                PROMPTFOO_CONFIG_DIR,
                 PROMPTFOO_DISABLE_TELEMETRY: "1",
                 PROMPTFOO_DISABLE_UPDATE: "1",
             },

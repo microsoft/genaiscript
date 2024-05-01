@@ -58,8 +58,8 @@ export interface PromptScriptTestRun extends ResponseStatus {
 function createEnv() {
     return {
         ...process.env,
-        PROMPTFOO_CACHE_PATH: PROMPTFOO_CACHE_PATH,
-        PROMPTFOO_CONFIG_DIR: PROMPTFOO_CONFIG_DIR,
+        PROMPTFOO_CACHE_PATH,
+        PROMPTFOO_CONFIG_DIR,
         PROMPTFOO_DISABLE_TELEMETRY: "1",
         PROMPTFOO_DISABLE_UPDATE: "1",
     }
@@ -119,6 +119,9 @@ export async function runPromptScriptTests(
     }
 
     logVerbose(`running tests with promptfoo`)
+    await ensureDir(PROMPTFOO_CACHE_PATH)
+    await ensureDir(PROMPTFOO_CONFIG_DIR)
+
     const results: PromptScriptTestResult[] = []
     for (const config of configurations) {
         const { script, configuration } = config
@@ -194,6 +197,8 @@ export async function scriptsTest(
 }
 
 export async function scriptTestsView() {
+    await ensureDir(PROMPTFOO_CACHE_PATH)
+    await ensureDir(PROMPTFOO_CONFIG_DIR)
     const cmd = `npx`
     const args = ["--yes", "promptfoo@latest", "view", "-y"]
     console.debug(`launching promptfoo result server`)
