@@ -14,7 +14,7 @@ import {
     normalizeFloat,
     parseKeyValuePairs,
     promptFooDriver,
-    MarkdownTrace,
+    serializeError,
 } from "genaiscript-core"
 import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
@@ -67,7 +67,7 @@ export async function runPromptScriptTests(
     if (!scripts.length)
         return {
             ok: false,
-            status: 404,
+            error: serializeError(new Error("no tests found")),
         }
 
     const cli = options.cli || __filename

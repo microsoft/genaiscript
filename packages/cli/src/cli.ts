@@ -8,6 +8,7 @@ import {
     SERVER_PORT,
     RUNTIME_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
+    errorMessage,
 } from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
@@ -38,7 +39,7 @@ import { scriptsTest } from "./test"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
-        error(isQuiet ? err : err.message)
+        error(isQuiet ? err : errorMessage(err))
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status
             process.exit(exitCode)

@@ -22,6 +22,7 @@ import {
     logError,
     isCancelError,
     USER_CANCELLED_ERROR_CODE,
+    errorMessage,
 } from "genaiscript-core"
 import getStdin from "get-stdin"
 import { basename, resolve, join } from "node:path"
@@ -236,7 +237,11 @@ ${Array.from(files)
         if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
         else await writeText(outData, JSON.stringify(res.frames, null, 2))
 
-    if (applyEdits && res.status === "success" && Object.keys(res.fileEdits || {}).length)
+    if (
+        applyEdits &&
+        res.status === "success" &&
+        Object.keys(res.fileEdits || {}).length
+    )
         await writeFileEdits(res)
 
     const promptjson = res.prompt?.length
@@ -300,7 +305,7 @@ ${Array.from(files)
 
     // final fail
     if (res.error) {
-        logVerbose(`${(res.error as Error).message || res.error}`)
+        logVerbose(errorMessage(res.error))
         process.exit(RUNTIME_ERROR_CODE)
     }
 

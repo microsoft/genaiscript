@@ -1,6 +1,7 @@
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
 import { DEFAULT_MODEL } from "./constants"
+import { errorMessage } from "./error"
 import { OAIToken, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
@@ -64,7 +65,7 @@ export async function resolveModelConnectionInfo(
         return {
             info: {
                 ...conn,
-                error: (e as Error).message || e + "",
+                error: errorMessage(e),
             },
         }
     }

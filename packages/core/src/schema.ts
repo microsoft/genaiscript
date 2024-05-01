@@ -2,7 +2,7 @@ import { JSON5parse } from "./json5"
 import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
-import { NotSupportedError } from "./error"
+import { errorMessage } from "./error"
 
 export function stringifySchemaToTypeScript(
     schema: JSONSchema,
@@ -111,7 +111,7 @@ export function validateJSONWithSchema(
         return { schema, valid: true }
     } catch (e) {
         trace?.error("schema validation failed", e)
-        return { schema, valid: false, error: e.message }
+        return { schema, valid: false, error: errorMessage(e) }
     }
 }
 
@@ -137,7 +137,7 @@ export function validateFencesWithSchema(
         } catch (e) {
             fence.validation = {
                 valid: false,
-                error: e.message,
+                error: errorMessage(e),
             }
         }
         if (!fence.validation) {

@@ -19,6 +19,7 @@ import {
     parseVars,
     parsePromptParameters,
     logVerbose,
+    errorMessage,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -256,7 +257,7 @@ export async function batchScript(
             errors++
             await appendJSONL(
                 outErrors,
-                [{ error: e.message + "\n" + e.stack }],
+                [{ error: errorMessage(e) + "\n" + e.stack }],
                 meta
             )
             spinner.fail(`${spinner.text}, ${e.error}`)

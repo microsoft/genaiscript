@@ -8,7 +8,8 @@ export type ErrorObject = RawErrorObject
 export function serializeError(
     e: unknown | string | Error | ErrorObject
 ): ErrorObject {
-    if (e instanceof Error)
+    if (e === undefined || e === null) return {}
+    else if (e instanceof Error)
         return rawSerializeError(e, { maxDepth: 3, useToJSON: false })
     else if (e instanceof Object) {
         const obj = e as ErrorObject
@@ -16,6 +17,13 @@ export function serializeError(
     } else if (typeof e === "string") return { message: e }
     else if (e !== undefined && e !== null) return { message: e.toString?.() }
     else return {}
+}
+
+export function errorMessage(e: any, defaultValue: string = "error"): string {
+    if (e === undefined || e === null) return undefined
+
+    const ser = serializeError(e)
+    return ser?.message ?? ser?.name ?? defaultValue
 }
 
 export class CancelError extends Error {

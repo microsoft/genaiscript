@@ -1,7 +1,7 @@
 import { Fragment, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, normalizeString } from "./util"
 import { MarkdownTrace } from "./trace"
-import { isCancelError } from "./error"
+import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE, SYSTEM_FENCE } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
@@ -144,7 +144,7 @@ async function callExpander(
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
                 status = "error"
-                statusText = errors.map((e) => (e as Error).message).join("\n")
+                statusText = errors.map((e) => errorMessage(e)).join("\n")
             } else {
                 status = "success"
             }
@@ -157,17 +157,17 @@ async function callExpander(
     } catch (e) {
         status = "error"
         if (isCancelError(e)) {
-            trace.log(`cancelled: ${(e as Error).message}`)
+            trace.log(`cancelled: ${errorMessage(e)}`)
             status = "cancelled"
-            statusText = (e as Error).message
+            statusText = errorMessage(e)
         } else {
             const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
             const info = m
                 ? ` at prompt line ${m[1]}, column ${m[2]}`
-                : e.message || ""
+                : errorMessage(e)
             trace.error(info, e)
             status = "error"
-            statusText = (e as Error).message
+            statusText = errorMessage(e)
         }
     }
 

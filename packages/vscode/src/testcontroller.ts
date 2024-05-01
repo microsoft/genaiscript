@@ -1,6 +1,12 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { CHANGE, ICON_LOGO_NAME, TOOL_ID, arrayify } from "genaiscript-core"
+import {
+    CHANGE,
+    ICON_LOGO_NAME,
+    TOOL_ID,
+    arrayify,
+    errorMessage,
+} from "genaiscript-core"
 
 export async function activateTestController(state: ExtensionState) {
     const { context } = state
@@ -86,7 +92,7 @@ export async function activateTestController(state: ExtensionState) {
                 else
                     run.failed(
                         test,
-                        new vscode.TestMessage(res.error?.message ?? "error")
+                        new vscode.TestMessage(errorMessage(res.error))
                     )
             }
             run.end()

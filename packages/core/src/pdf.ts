@@ -5,6 +5,7 @@ import { installImport } from "./import"
 import { logError } from "./util"
 import { PDFJS_DIST_VERSION } from "./version"
 import os from "os"
+import { serializeError } from "./error"
 
 // please some typescript warnings
 declare global {
@@ -22,7 +23,8 @@ async function tryImportPdfjs(options?: TraceOptions) {
         return pdfjs
     } catch (e) {
         trace?.error(
-            `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`, e
+            `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`,
+            e
         )
         await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
         const pdfjs = await import("pdfjs-dist")
@@ -44,7 +46,7 @@ async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
     options?: { disableCleanup?: boolean } & TraceOptions
-): Promise<string[]> {
+): Promise<ParsePdfResponse> {
     const { disableCleanup } = options || {}
     try {
         const pdfjs = await tryImportPdfjs(options)
@@ -69,10 +71,10 @@ async function PDFTryParse(
             // collapse trailing spaces
             pages.push(lines.join("\n"))
         }
-        return pages
+        return { ok: true, pages }
     } catch (error) {
         logError(error)
-        return undefined
+        return { ok: false, error: serializeError(error) }
     }
 }
 
@@ -80,7 +82,10 @@ function PDFPagesToString(pages: string[]) {
     return pages?.join("\n\n-------- Page Break --------\n\n")
 }
 
-export async function parsePdf(filename: string, options?: ParsePDFOptions & TraceOptions): Promise<{ pages: string[], content: string }> {
+export async function parsePdf(
+    filename: string,
+    options?: ParsePDFOptions & TraceOptions
+): Promise<{ pages: string[]; content: string }> {
     const { trace, filter } = options || {}
     await host.parser.init(trace)
     let { pages } = await host.parser.parsePdf(filename, options)
@@ -89,20 +94,17 @@ export async function parsePdf(filename: string, options?: ParsePDFOptions & Tra
     return { pages, content }
 }
 
-
 export function createBundledParsers(): ParseService {
     return {
         init: async (trace) => {
             await tryImportPdfjs({ trace })
         },
-        async parsePdf(filename: string, options?: TraceOptions): Promise<ParsePdfResponse> {
-            const pages = await PDFTryParse(filename, undefined, options)
-            if (!pages) return { ok: false }
-            return {
-                ok: true,
-                pages,
-            }
-        }
+        async parsePdf(
+            filename: string,
+            options?: TraceOptions
+        ): Promise<ParsePdfResponse> {
+            return await PDFTryParse(filename, undefined, options)
+        },
     }
 }
 

@@ -32,6 +32,7 @@ import {
     GENAI_JS_REGEX,
     GENAI_JS_GLOB,
     fixPromptDefinitions,
+    errorMessage,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -277,7 +278,7 @@ temp/
                 const help = "Documentation"
                 const title = `Context length exceeded.`
                 const msg = `${title}.
-    ${e.message}`
+    ${errorMessage(e)}`
                 const res = await vscode.window.showWarningMessage(msg, help)
                 if (res === help)
                     vscode.env.openExternal(
@@ -286,7 +287,7 @@ temp/
             } else if (isRequestError(e, 400)) {
                 const help = "Documentation"
                 const msg = `OpenAI model error (400).
-${e.message}`
+${errorMessage(e)}`
                 const res = await vscode.window.showWarningMessage(msg, help)
                 if (res === help)
                     vscode.env.openExternal(
@@ -295,7 +296,7 @@ ${e.message}`
             } else if (isRequestError(e)) {
                 const msg = isRequestError(e, 404)
                     ? `LLM model not found (404).`
-                    : e.message
+                    : errorMessage(e)
                 await vscode.window.showWarningMessage(msg)
             } else throw e
         }

@@ -1,5 +1,6 @@
 import { Project, Fragment, PromptScript } from "./ast"
 import { BUILTIN_PREFIX } from "./constants"
+import { errorMessage } from "./error"
 import { JSON5TryParse } from "./json5"
 function templateIdFromFileName(filename: string) {
     return filename
@@ -94,7 +95,6 @@ class Checker<T extends PromptLike> {
             return
         }
     }
-
 
     checkObjectOrObjectArray(k: any) {
         if (this.skip(k)) return
@@ -406,7 +406,7 @@ async function parsePromptTemplateCore(
                 [0, 5],
             ],
             severity: "error",
-            message: e.name + ": " + e.message,
+            message: errorMessage(e),
         })
         return undefined
     }

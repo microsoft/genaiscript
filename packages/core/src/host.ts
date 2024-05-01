@@ -113,7 +113,7 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export type ParsePdfResponse = ResponseStatus & {
+export interface ParsePdfResponse extends ResponseStatus {
     pages?: string[]
 }
 
@@ -125,7 +125,7 @@ export interface ParseService {
     ): Promise<ParsePdfResponse>
 }
 
-export type ServerResponse = ResponseStatus & {
+export interface ServerResponse extends ResponseStatus {
     version: string
     node: string
     platform: string
