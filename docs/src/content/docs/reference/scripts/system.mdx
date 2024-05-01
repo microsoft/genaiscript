@@ -7,7 +7,7 @@ System prompts are scripts that are executed and injected before the main prompt
 
 -   `system.*.genai.js` are considered system prompt templates
 -   system prompts are unlisted by default
--   system prompts must use the `system` function instead of `script`
+-   system prompts must use the `system` instead of `script`
 -   system prompts are executed with the same environment as the main prompt
 
 ```js title="system.zscot.genai.js" "system"
@@ -313,7 +313,7 @@ File Find Files
 
 Functions to list files.
 
--  function `fs_find_files`: Finds file matching a glob pattern.
+-  tool `fs_find_files`: Finds file matching a glob pattern.
 
 `````js wrap title="system.fs_find_files"
 system({
@@ -321,7 +321,7 @@ system({
     description: "Functions to list files.",
 })
 
-defFunction(
+defTool(
     "fs_find_files",
     "Finds file matching a glob pattern.",
     {
@@ -351,7 +351,7 @@ File Read File
 
 Function to read file content as text.
 
--  function `fs_read_file`: Reads a file as text from the file system.
+-  tool `fs_read_file`: Reads a file as text from the file system.
 
 `````js wrap title="system.fs_read_file"
 system({
@@ -359,7 +359,7 @@ system({
     description: "Function to read file content as text.",
 })
 
-defFunction(
+defTool(
     "fs_read_file",
     "Reads a file as text from the file system.",
     {
@@ -404,7 +404,7 @@ File Read Summary
 
 Function to summarize the content of a file.
 
--  function `fs_read_summary`: Reads a summary of a file from the file system.
+-  tool `fs_read_summary`: Reads a summary of a file from the file system.
 
 `````js wrap title="system.fs_read_summary"
 system({
@@ -412,7 +412,7 @@ system({
     description: "Function to summarize the content of a file.",
 })
 
-defFunction(
+defTool(
     "fs_read_summary",
     "Reads a summary of a file from the file system.",
     {
@@ -482,7 +482,7 @@ Math expression evaluator
 
 Register a function that evaluates math expressions
 
--  function `math_eval`: Evaluates a math expression
+-  tool `math_eval`: Evaluates a math expression
 
 `````js wrap title="system.math"
 system({
@@ -490,7 +490,7 @@ system({
     description: "Register a function that evaluates math expressions",
 })
 
-defFunction("math_eval", "Evaluates a math expression", {
+defTool("math_eval", "Evaluates a math expression", {
     type: "object",
     properties: {
         expression: {
@@ -647,7 +647,7 @@ Web Search
 
 Function to do a web search.
 
--  function `web_search`: Search the web for a user query using Bing Search.
+-  tool `web_search`: Search the web for a user query using Bing Search.
 
 `````js wrap title="system.web_search"
 system({
@@ -655,7 +655,7 @@ system({
     description: "Function to do a web search.",
 })
 
-defFunction(
+defTool(
     "web_search",
     "Search the web for a user query using Bing Search.",
     {

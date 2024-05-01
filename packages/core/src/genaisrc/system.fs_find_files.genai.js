@@ -3,7 +3,7 @@ system({
     description: "Functions to list files.",
 })
 
-defFunction(
+defTool(
     "fs_find_files",
     "Finds file matching a glob pattern.",
     {

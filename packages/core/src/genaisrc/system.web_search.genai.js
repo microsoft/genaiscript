@@ -3,7 +3,7 @@ system({
     description: "Function to do a web search.",
 })
 
-defFunction(
+defTool(
     "web_search",
     "Search the web for a user query using Bing Search.",
     {

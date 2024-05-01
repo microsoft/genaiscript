@@ -7,7 +7,7 @@ script({
     system: ["system.functions"],
 })
 
-defFunction("check_syntax", "Checks code for syntax errors", {
+defTool("check_syntax", "Checks code for syntax errors", {
     "type": "object",
     "properties": {
         "code": {
@@ -26,7 +26,7 @@ defFunction("check_syntax", "Checks code for syntax errors", {
     }
 })
 
-defFunction("update_file", "Describes an update (patch) of a file.", {
+defTool("update_file", "Describes an update (patch) of a file.", {
     "type": "object",
     "properties": {
         "filename": {

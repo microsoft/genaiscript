@@ -9,6 +9,7 @@ import {
     RUNTIME_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
     errorMessage,
+    dotGenaiscriptPath,
 } from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
@@ -36,6 +37,15 @@ import { compileScript, createScript, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { modelInfo, systemInfo } from "./info"
 import { scriptTestsView, scriptsTest } from "./test"
+import { emptyDir } from "fs-extra"
+import { join } from "path"
+
+async function cacheClear(name: string) {
+    let dir = dotGenaiscriptPath("cache")
+    if (["tests"].includes(name)) dir = join(dir, name)
+    console.log(`removing ${dir}`)
+    await emptyDir(dir)
+}
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -206,10 +216,17 @@ export async function cli() {
         .action(compileScript)
     scripts
         .command("model")
-        .description("Show model connection information for scripts")
+        .description("List model connection information for scripts")
         .argument("[script]", "Script id or file")
         .option("-t, --token", "show token")
         .action(modelInfo)
+
+    const cache = program.command("cache").description("Cache management")
+    const clear = cache
+        .command("clear")
+        .description("Clear cache")
+        .argument("[name]", "Name of the cache, tests")
+        .action(cacheClear)
 
     const retrieval = program
         .command("retrieval")

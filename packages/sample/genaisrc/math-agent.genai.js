@@ -14,7 +14,7 @@ script({
     }
 })
 
-defFunction("sum", "Use this function to sum two numbers", {
+defTool("sum", "Use this function to sum two numbers", {
     type: "object",
     properties: {
         a: {
@@ -29,7 +29,7 @@ defFunction("sum", "Use this function to sum two numbers", {
     required: ["a", "b"],
 }, ({ a, b }) => `${a + b}`)
 
-defFunction("divide", "Use this function to divide two numbers", {
+defTool("divide", "Use this function to divide two numbers", {
     type: "object",
     properties: {
         a: {

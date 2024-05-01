@@ -161,6 +161,15 @@ export function createPromptContext(
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
+    const defTool: (
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ) => void = (name, description, parameters, fn) => {
+        appendPromptChild(createFunctionNode(name, description, parameters, fn))
+    }
+
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
         script: () => {},
@@ -179,11 +188,8 @@ export function createPromptContext(
         defImages,
         defSchema,
         defOutput,
-        defFunction: (name, description, parameters, fn) => {
-            appendPromptChild(
-                createFunctionNode(name, description, parameters, fn)
-            )
-        },
+        defTool,
+        defFunction: defTool,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
         },

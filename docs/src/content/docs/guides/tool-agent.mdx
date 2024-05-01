@@ -17,15 +17,15 @@ and reasoning based on the tools provided to it.
 Let's illustrate this concept using the [llamaindex sum div sample](https://ts.llamaindex.ai/examples/agent):
 an agent that can sum or divide two numbers and needs to answer basic arithmetic questions.
 
-## Using functions
+## Using tools
 
-By declaring functions (and providing a descriptive description), you provide the opportunity
-for the LLM to requests a function call during the output generation. In the snippet below,
-we declare a function that can sum two numbers. It will be called by the LLM when a sum operation
+By declaring tools (and providing a descriptive description), you provide the opportunity
+for the LLM to requests a tool call during the output generation. In the snippet below,
+we declare a tool that can sum two numbers. It will be called by the LLM when a sum operation
 is required.
 
-```js "defFunction"
-defFunction(
+```js "defTool"
+defTool(
     "sum",
     "Use this function to sum two numbers",
     {
@@ -48,8 +48,7 @@ defFunction(
 
 ## Parameters
 
-The arithmetic question can be declared as a [script
-parameter](/genaiscript/reference/scripts/variables) to be used in the agent script.
+The arithmetic question can be declared as a [script parameter](/genaiscript/reference/scripts/variables) to be used in the agent script.
 
 ```js "parameters"
 script({

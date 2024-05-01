@@ -149,7 +149,7 @@ Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
   compile                   Compile all script in workspace
-  model [options] [script]  Show model connection information for scripts
+  model [options] [script]  List model connection information for scripts
   help [command]            display help for command
 ```
 
@@ -194,7 +194,7 @@ Options:
 ```
 Usage: genaiscript scripts model [options] [script]
 
-Show model connection information for scripts
+List model connection information for scripts
 
 Arguments:
   script       Script id or file
@@ -202,6 +202,35 @@ Arguments:
 Options:
   -t, --token  show token
   -h, --help   display help for command
+```
+
+## `cache`
+
+```
+Usage: genaiscript cache [options] [command]
+
+Cache management
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  clear [name]    Clear cache
+  help [command]  display help for command
+```
+
+### `cache clear`
+
+```
+Usage: genaiscript cache clear [options] [name]
+
+Clear cache
+
+Arguments:
+  name        Name of the cache, tests
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `retrieval`

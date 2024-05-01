@@ -12,7 +12,7 @@ export class Cache<K, V> extends EventTarget {
     }
 
     static byName<K, V>(name: string): Cache<K, V> {
-        name = name.replace(/[^a-z0-9_]/ig, "_")
+        name = name.replace(/[^a-z0-9_]/gi, "_")
         const key = "cacheKV." + name
         if (host.userState[key]) return host.userState[key]
         const r = new Cache<K, V>(name)
@@ -21,10 +21,10 @@ export class Cache<K, V> extends EventTarget {
     }
 
     private folder() {
-        return dotGenaiscriptPath("cache")
+        return dotGenaiscriptPath("cache", this.name)
     }
     private path() {
-        return host.resolvePath(this.folder(), this.name + ".jsonl")
+        return host.resolvePath(this.folder(), "db.jsonl")
     }
     private async initialize() {
         if (this._entries) return

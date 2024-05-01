@@ -3,7 +3,7 @@ system({
     description: "Register a function that evaluates math expressions",
 })
 
-defFunction("math_eval", "Evaluates a math expression", {
+defTool("math_eval", "Evaluates a math expression", {
     type: "object",
     properties: {
         expression: {

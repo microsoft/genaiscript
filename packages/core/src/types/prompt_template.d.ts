@@ -1172,7 +1172,16 @@ interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     defImages(files: StringLike, options?: DefImagesOptions): void
+    /**
+     * @deprecated use `defTool` instead
+     */
     defFunction(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ): void
+    defTool(
         name: string,
         description: string,
         parameters: ChatFunctionParameters,

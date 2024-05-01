@@ -13,7 +13,7 @@ $`Query the weather for each listed city and return the results as a table.`
 
 def("CITIES", env.files)
 
-defFunction('get_current_weather', 'get the current weather', {
+defTool('get_current_weather', 'get the current weather', {
     "type": "object",
     "properties": {
         "location": {
