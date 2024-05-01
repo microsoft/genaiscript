@@ -65,16 +65,16 @@ class GenAIScriptApiProvider {
                 let stdout = ""
                 const child = spawn(cmd, {
                     args,
-                    stdio: ["pipe", "pipe", "pipe"],
+                    shell: true,
+                    stdio: ["pipe", "pipe", "inherit"],
                 })
-                child.stderr.pipe(process.stderr)
                 child.stdout.on("data", (data) => {
                     stdout += data
                 })
                 child.on("error", (e) => reject(e))
                 let output
                 try {
-                    console.debug(stdout)
+                    console.debug({stdout})
                     const outputText = stdout.slice(
                         Math.max(0, stdout.indexOf("{"))
                     )
