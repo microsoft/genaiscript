@@ -140,9 +140,8 @@ export async function runPromptScriptTests(
             stripFinalNewline: true,
             buffer: false,
             env: createEnv(),
+            stdio: "inherit",
         })
-        exec.pipeStdout(process.stdout)
-        exec.pipeStderr(process.stdout)
         const res = await exec
         const promptfooResults = JSON5TryParse(outJson) as OutputFile
         results.push({
@@ -182,7 +181,6 @@ export async function scriptTestsView() {
     console.debug(`launching promptfoo result server`)
     await execa(cmd, args, {
         cleanup: true,
-        shell: true,
         env: createEnv(),
         stdio: "inherit",
     })

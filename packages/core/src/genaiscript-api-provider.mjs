@@ -65,29 +65,29 @@ class GenAIScriptApiProvider {
                 let stdout = ""
                 const child = spawn(cmd, {
                     args,
-                    shell: true,
                     stdio: ["pipe", "pipe", "inherit"],
                 })
                 child.stdout.on("data", (data) => {
                     stdout += data
                 })
                 child.on("error", (e) => reject(e))
-                let output
-                try {
-                    console.debug({stdout})
-                    const outputText = stdout.slice(
-                        Math.max(0, stdout.indexOf("{"))
-                    )
-                    output = JSON.parse(outputText)
-                } catch (e) {
-                    output = {
-                        text: stdout,
-                        error: e,
+                child.on("close", (exitCode) => {
+                    let output
+                    try {
+                        console.debug(`exit code: ${exitCode}`)
+                        const outputText = stdout.slice(
+                            Math.max(0, stdout.indexOf("{"))
+                        )
+                        output = JSON.parse(outputText)
+                    } catch (e) {
+                        output = {
+                            text: stdout,
+                            error: e,
+                        }
                     }
-                }
-
-                resolve({
-                    output,
+                    resolve({
+                        output,
+                    })
                 })
             } catch (e) {
                 reject(e)
