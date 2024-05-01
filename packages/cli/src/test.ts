@@ -114,7 +114,6 @@ export async function runPromptScriptTests(
         })
         const yaml = YAMLStringify(config)
         await writeFile(fn, yaml)
-        logVerbose(yaml)
         configurations.push({ script, configuration: fn })
     }
 
