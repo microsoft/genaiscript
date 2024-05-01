@@ -17,6 +17,9 @@ export async function activateTestController(state: ExtensionState) {
     const ctrl = vscode.tests.createTestController(TOOL_ID, "GenAIScript")
     subscriptions.push(ctrl)
 
+    // UI button
+    ctrl.refreshHandler = async (token) => refreshTests(token)
+
     // First, create the `resolveHandler`. This may initially be called with
     // "undefined" to ask for all tests in the workspace to be discovered, usually
     // when the user opens the Test Explorer for the first time.
@@ -32,12 +35,13 @@ export async function activateTestController(state: ExtensionState) {
             await getOrCreateFile(script)
         } else {
             await refreshTests()
-            state.addEventListener(CHANGE, refreshTests)
+            state.addEventListener(CHANGE, () => refreshTests())
         }
     }
 
-    const refreshTests = async () => {
+    const refreshTests = async (token?: vscode.CancellationToken) => {
         if (!state.project) await state.parseWorkspace()
+        if (token?.isCancellationRequested) return
         const scripts =
             state.project.templates.filter((t) => arrayify(t.tests)?.length) ||
             []
@@ -63,6 +67,9 @@ export async function activateTestController(state: ExtensionState) {
             if (include?.length) include.forEach((t) => tests.add(t))
             else ctrl.items.forEach((t) => tests.add(t))
             for (const test of exclude) tests.delete(test)
+
+            // notify ui that the tests are enqueued
+            tests.forEach((t) => run.enqueued(t))
 
             // collect scripts
             const project = state.project
