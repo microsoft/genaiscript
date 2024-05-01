@@ -1,5 +1,9 @@
 script({
-    title: "generate a tweet from a pdf file"
+    title: "generate a tweet from a pdf file",    
+    tests: {
+        files: "src/rag/loremipsum.pdf",
+        keywords: "lorem"
+    }
 })
 
 def("DOCS", env.files) // contains some pdfs

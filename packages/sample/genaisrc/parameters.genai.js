@@ -1,4 +1,5 @@
 script({
+    model: "gpt-35-turbo",
     parameters: {
         "string": "abc",
         "number": 123,
@@ -18,6 +19,9 @@ script({
             default: true,
             description: "A boolean parameter with a description"
         },
+    },
+    tests: {
+
     }
 })
 
