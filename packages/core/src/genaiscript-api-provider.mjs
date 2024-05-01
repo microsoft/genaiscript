@@ -46,7 +46,9 @@ class GenAIScriptApiProvider {
                 typeof a === "string" && a.includes(" ") ? JSON.stringify(a) : a
             )
             .join(" ")
-        const { stdout, error } = await execAsync(cmd)
+        console.debug(cmd)
+        const { stdout, stderr, error } = await execAsync(cmd)
+        console.debug(stderr)
 
         const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
         let output
