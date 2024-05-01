@@ -26,11 +26,11 @@
     "pdfjs-dist": "4.0.379",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
-    "web-tree-sitter": "^0.22.2"
+    "web-tree-sitter": "^0.22.2",
+    "promptfoo": "^0.57.0"
   },
   "optionalDependencies": {
-    "llamaindex": "0.1.21",
-    "promptfoo": "0.56.0"
+    "llamaindex": "0.1.21"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -54,7 +54,7 @@
     "glob": "^10.3.12",
     "mammoth": "^1.7.1",
     "node-sarif-builder": "^3.1.0",
-    "openai": "^4.33.1",
+    "openai": "^4.40.0",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",

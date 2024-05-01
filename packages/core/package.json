@@ -39,7 +39,7 @@
     "mathjs": "^12.4.2",
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.4",
-    "openai": "^4.33.1",
+    "openai": "^4.40.0",
     "prettier": "^3.2.5",
     "pretty-bytes": "^6.1.1",
     "serialize-error": "^11.0.3",
