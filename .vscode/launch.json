@@ -3,16 +3,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run - cli",
-            "program": "${workspaceFolder}/packages/cli/built/genaiscript.cjs",
-            "request": "launch",
-            "skipFiles": ["<node_internals>/**"],
-            "type": "node",
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "npm: compile-cli",
-            "args": ["run", "summarize", "packages/sample/src/rag/markdown.md", "--json"]
-        },
-        {
             "name": "Run - sample",
             "type": "extensionHost",
             "debugWebWorkerHost": true,

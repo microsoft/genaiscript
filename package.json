@@ -48,6 +48,7 @@
         "test:compile": "cd packages/sample && node ../cli/built/genaiscript.cjs scripts compile",
         "test:infomodel": "node packages/cli/built/genaiscript.cjs scripts model",
         "test:phi3": "node packages/cli/built/genaiscript.cjs run summarize-ollama-phi3 packages/sample/src/rag/markdown.md",
+        "run:script": "cd packages/sample/ && yarn run:script",
         "test:scripts": "cd packages/sample/ && yarn test:scripts",
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
