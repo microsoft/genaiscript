@@ -3,7 +3,7 @@ system({
     description: "Function to read file content as text.",
 })
 
-defFunction(
+defTool(
     "fs_read_file",
     "Reads a file as text from the file system.",
     {

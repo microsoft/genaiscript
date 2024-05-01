@@ -6,7 +6,7 @@ const { parse } = json5
 const dir = "./src/genaisrc"
 const fp = "./src/default_prompts.ts"
 const fmp = "../../docs/src/content/docs/reference/scripts/system.mdx"
-const fnp = "../../docs/src/components/BuiltinFunctions.mdx"
+const fnp = "../../docs/src/components/BuiltinTools.mdx"
 console.debug(`bundling ${dir}/*.genai.js into default_prompts.ts`)
 const promptMap = {}
 const prompts = readdirSync(dir)
@@ -81,9 +81,16 @@ const functions = Object.keys(promptMap)
     .map((k) => {
         const v = promptMap[k]
         const tools = []
-        v.replace(/defFunction\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm, (m, name, description) => { tools.push({ id: k, name, description }); return '' })
+        v.replace(
+            /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
+            (m, name, description) => {
+                tools.push({ id: k, name, description })
+                return ""
+            }
+        )
         return tools
-    }).flat()
+    })
+    .flat()
 
 const markdown = `---
 title: System Prompts
@@ -94,7 +101,7 @@ System prompts are scripts that are executed and injected before the main prompt
 
 -   \`system.*.genai.js\` are considered system prompt templates
 -   system prompts are unlisted by default
--   system prompts must use the \`system\` function instead of \`script\`
+-   system prompts must use the \`system\` instead of \`script\`
 -   system prompts are executed with the same environment as the main prompt
 
 \`\`\`js title="system.zscot.genai.js" "system"
@@ -132,38 +139,48 @@ GenAIScript comes with a number of system prompt that support features like crea
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
 ${Object.keys(promptMap)
-        .sort()
-        .map((k) => {
-            const v = promptMap[k]
-            const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
-            const meta = parse(m.groups.meta)
-            const tools = []
-            v.replace(/defFunction\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm, (m, name, description) => { tools.push({ name, description }); return '' })
-            return `### \`${k}\`
+    .sort()
+    .map((k) => {
+        const v = promptMap[k]
+        const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
+        const meta = parse(m.groups.meta)
+        const tools = []
+        v.replace(
+            /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
+            (m, name, description) => {
+                tools.push({ name, description })
+                return ""
+            }
+        )
+        return `### \`${k}\`
 
 ${meta.title || ""}
 
 ${meta.description || ""}
 
-${tools.map(({ name, description }) => `-  function \`${name}\`: ${description}`).join('\n')}
+${tools.map(({ name, description }) => `-  tool \`${name}\`: ${description}`).join("\n")}
 
 \`\`\`\`\`js wrap title="${k}"
 ${v}
 \`\`\`\`\`
 `
-        })
-        .join("\n\n")}
+    })
+    .join("\n\n")}
 `
 writeFileSync(fmp, markdown, "utf-8")
 
-writeFileSync(fnp, `---
-title: Builtin Functions
-description: List of function/tools in system prompts
+writeFileSync(
+    fnp,
+    `---
+title: Builtin Tools
+description: List of tools in system prompts
 ---
 import { LinkCard } from '@astrojs/starlight/components';
 
-### Builtin functions
+### Builtin tools
 
-${functions.map(({ id, name, description }) => `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, '')}" />`).join("\n")}
+${functions.map(({ id, name, description }) => `<LinkCard title="${name}" description="${description}" href="/genaiscript/reference/scripts/system#${id.replace(/[^a-z0-9_]/gi, "")}" />`).join("\n")}
 
-`, "utf-8")
+`,
+    "utf-8"
+)

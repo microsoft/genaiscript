@@ -3,7 +3,7 @@ system({
     description: "Function to summarize the content of a file.",
 })
 
-defFunction(
+defTool(
     "fs_read_summary",
     "Reads a summary of a file from the file system.",
     {

@@ -43,7 +43,7 @@ const lineup = defSchema("LINEUP", {
     }
 })
 
-defFunction("player_in_mutiple_lines_validator", "Validates that the positions for players in multiple lines", {
+defTool("player_in_mutiple_lines_validator", "Validates that the positions for players in multiple lines", {
     type: "object",
     description: "A player's position in two lines",
     properties: {

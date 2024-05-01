@@ -1,23 +1,23 @@
 ---
-title: Functions (Tools)
-description: Learn how to define and use functions/tools within GenAIScript to enhance answer assembly with custom logic and CLI tools.
-keywords: functions, custom logic, CLI integration, scripting, automation
+title: Tools (Functions)
+description: Learn how to define and use tools within GenAIScript to enhance answer assembly with custom logic and CLI tools.
+keywords: functions,tools, custom logic, CLI integration, scripting, automation
 sidebar:
     order: 7
 ---
-import { Content as BuiltinFunctions } from "../../../../components/BuiltinFunctions.mdx"
+import { Content as BuiltinFunctions } from "../../../../components/BuiltinTools.mdx"
 
 You can register **functions** (also known as **tools**) that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
 
 ## Definition
 
-The `defFunction` function is used to define a function that can be called by the LLM.
+The `defTool` function is used to define a tool that can be called by the LLM.
 It takes a JSON schema to define the input and expects a string output. **The LLM decides to call
-this function on its own!**
+this tool on its own!**
 
 ```javascript
-defFunction(
+defTool(
     "current_weather",
     "get the current weather",
     {
@@ -44,7 +44,7 @@ A function may also return a request to run a native tool in a terminal. The `st
 will be used as the function result.
 
 ```js
-defFunction(
+defTool(
     "check_syntax",
     "Checks code for syntax errors",
     {
@@ -80,7 +80,7 @@ script({
     title: "Function to get the current weather",
     group: "Functions",
 })
-defFunction("current_weather", ...)
+defTool("current_weather", ...)
 ```
 
 <BuiltinFunctions />
