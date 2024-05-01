@@ -18,10 +18,10 @@ class GenAIScriptApiProvider {
     }
 
     async callApi(prompt, context) {
+        const { model, temperature, top_p, cache, version, cli, quiet } =
+            this.config
+        const { vars, logger } = context
         try {
-            const { model, temperature, top_p, cache, version, cli, quiet } =
-                this.config
-            const { vars, logger } = context
             let files = vars.files // string or string[]
             if (files && !Array.isArray(files)) files = [files] // ensure array
 
