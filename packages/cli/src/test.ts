@@ -18,6 +18,7 @@ import {
     PROMPTFOO_CONFIG_DIR,
     PROMPTFOO_CACHE_PATH,
     FILES_NOT_FOUND_ERROR_CODE,
+    ErrorObject,
 } from "genaiscript-core"
 import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
@@ -143,11 +144,20 @@ export async function runPromptScriptTests(
             env: createEnv(),
             stdio: "inherit",
         })
-        const res = await exec
+        let status: number
+        let error: ErrorObject
+        try {
+            const res = await exec
+            status = res.exitCode
+        } catch (e) {
+            status = e.errno
+            error = serializeError(e)
+        }
         const promptfooResults = JSON5TryParse(outJson) as OutputFile
         results.push({
-            status: res.exitCode,
-            ok: res.exitCode === 0,
+            status,
+            ok: status === 0,
+            error,
             script: script.id,
             config: promptfooResults?.config,
             value: promptfooResults?.results,
