@@ -11,7 +11,12 @@
         ],
         "nohoist": [
             "pdfjs-dist",
-            "mammoth"
+            "mammoth",
+            "promptfoo",
+            "string-ansi",
+            "canvas",
+            "sharp",
+            "astro"
         ]
     },
     "scripts": {

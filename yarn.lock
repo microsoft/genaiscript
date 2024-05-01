@@ -9440,7 +9440,7 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.26.1, openai@^4.33.1, openai@^4.38.5:
+openai@^4.26.1, openai@^4.38.5, openai@^4.40.0:
   version "4.40.0"
   resolved "https://registry.yarnpkg.com/openai/-/openai-4.40.0.tgz#6cf11702ca009ead10b61061d9e0a1635c6ac307"
   integrity sha512-ofh9qMxRPDSZTWYvifScusMfnyIwEQL3w+fv3ucQGn3cIn0W6Zw4vXSUod8DwYfcX/hkAx9/ZvWrdkFYnVXlmQ==

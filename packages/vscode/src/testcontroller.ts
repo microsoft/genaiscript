@@ -9,6 +9,7 @@ import {
     arrayify,
     errorMessage,
 } from "genaiscript-core"
+import { PROMPTFOO_VERSION } from "../../cli/src/version"
 
 export async function activateTestController(state: ExtensionState) {
     const { context } = state
@@ -126,11 +127,8 @@ export async function activateTestController(state: ExtensionState) {
 
 export async function startTestViewer() {
     const name = "Promptfoo View"
-    if (vscode.window.terminals.find((t) => t.name === name)) {
-        await vscode.env.openExternal(
-            vscode.Uri.parse("http://localhost:15500")
-        )
-    } else {
+    const port = 15500
+    if (!vscode.window.terminals.find((t) => t.name === name)) {
         // show results
         const terminal = vscode.window.createTerminal({
             name,
@@ -143,6 +141,12 @@ export async function startTestViewer() {
             },
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        terminal.sendText(`npx --yes promptfoo@latest view -y`)
+        terminal.sendText(
+            `npx --yes promptfoo@${PROMPTFOO_VERSION} view --port ${port}`
+        )
     }
+    await vscode.commands.executeCommand(
+        "simpleBrowser.show",
+        vscode.Uri.parse(`http://127.0.0.1:${port}`)
+    )
 }
