@@ -19,6 +19,7 @@ import {
     PROMPTFOO_CACHE_PATH,
     FILES_NOT_FOUND_ERROR_CODE,
     ErrorObject,
+    MarkdownTrace,
 } from "genaiscript-core"
 import { writeFile } from "node:fs/promises"
 import { execa } from "execa"
@@ -182,7 +183,13 @@ export async function scriptsTest(
         write?: boolean
     }
 ) {
-    const { status } = await runPromptScriptTests(ids, options)
+    const { status, value = [] } = await runPromptScriptTests(ids, options)
+    const trace = new MarkdownTrace()
+    trace.log(
+        `tests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
+    )
+    for (const result of value) trace.resultItem(result.ok, result.script)
+    console.log(trace.content)
     process.exit(status)
 }
 
