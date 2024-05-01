@@ -65,6 +65,7 @@ class GenAIScriptApiProvider {
                 let stdout = ""
                 const child = spawn(cmd, {
                     args,
+                    stdio: ["pipe", "pipe", "pipe"],
                 })
                 child.stderr.pipe(process.stderr)
                 child.stdout.on("data", (data) => {

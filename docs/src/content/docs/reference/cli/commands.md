@@ -89,7 +89,21 @@ Options:
 ## `test`
 
 ```
-Usage: genaiscript test [options] [script...]
+Usage: genaiscript test [options] [command]
+
+Options:
+  -h, --help                 display help for command
+
+Commands:
+  run [options] [script...]  Runs the tests for scripts
+  view                       Launch test viewer
+  help [command]             display help for command
+```
+
+### `test run`
+
+```
+Usage: genaiscript test run [options] [script...]
 
 Runs the tests for scripts
 
@@ -105,10 +119,20 @@ Options:
   -rmo, --remove-out             remove output folder if it exists
   --cli <string>                 override path to the cli
   -tp, --test-provider <string>  test provider
-  --view                         open test viewer once tests are executed
   --no-cache                     disable LLM result cache
   -v, --verbose                  verbose output
   -h, --help                     display help for command
+```
+
+### `test view`
+
+```
+Usage: genaiscript test view [options]
+
+Launch test viewer
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `scripts`

@@ -167,19 +167,23 @@ export async function scriptsTest(
         out?: string
         cli?: string
         removeOut?: boolean
-        view?: boolean
         cache?: boolean
         verbose?: boolean
         write?: boolean
     }
 ) {
     const { status } = await runPromptScriptTests(ids, options)
-    if (options.view)
-        await execa("npx", ["--yes", "promptfoo@latest", "view", "-y"], {
-            cleanup: true,
-            env: createEnv(),
-        })
-    else {
-        process.exit(status)
-    }
+    process.exit(status)
+}
+
+export async function scriptTestsView() {
+    const cmd = `npx`
+    const args = ["--yes", "promptfoo@latest", "view", "-y"]
+    console.debug(`launching promptfoo result server`)
+    await execa(cmd, args, {
+        cleanup: true,
+        shell: true,
+        env: createEnv(),
+        stdio: "inherit",
+    })
 }
