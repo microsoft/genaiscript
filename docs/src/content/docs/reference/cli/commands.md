@@ -12,7 +12,7 @@ A full list of the CLI command and its respective help text.
 ```
 Usage: genaiscript run [options] <script> [files...]
 
-Runs a GenAIScript against files or stdin.
+Runs a GenAIScript against files.
 
 Options:
   -ef, --excluded-files <string...>  excluded files
