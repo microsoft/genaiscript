@@ -1,5 +1,5 @@
 import dotenv from "dotenv"
-import inquirer from "inquirer"
+import prompts from "prompts"
 import {
     AskUserOptions,
     Host,
@@ -116,8 +116,12 @@ export class NodeHost implements Host {
         return resolve(...segments)
     }
     async askUser(options: AskUserOptions) {
-        const res = await inquirer.prompt([{ type: "input",  }])
-        return res
+        const res = await prompts({
+            type: "text",
+            name: "value",
+            message: options.prompt,
+        })
+        return res?.value
     }
     async readFile(
         name: string,
