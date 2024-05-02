@@ -28,6 +28,10 @@ import debuggerAlt from "../../assets/debugger.png.txt?raw"
 import sarifSrc from "../../assets/tla-ai-linter.png"
 import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
 
+import testExplorerSrc from "../../assets/vscode-test-explorer.png"
+import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
+
+
 ```js wrap title="extract-data.genai.js"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
@@ -93,9 +97,9 @@ or with a [command line](/genaiscript/getting-started/installation).
 
 </Card>
 
-<Card title="LLM Tests" icon="star">
+<Card title="Tests and Evals" icon="star">
 
-Build reliable prompts using [LLM tests](/genaiscript/reference/scripts/tests)
+Build reliable prompts using [tests and evals](/genaiscript/reference/scripts/tests)
 powered by [promptfoo](https://promptfoo.dev/).
 
 ```js wrap
@@ -105,6 +109,8 @@ script({ ..., tests: {
   facts: "The data refers about penguin population in Antartica.",
 }})
 ```
+
+<Image src={testExplorerSrc} alt={testExplorerAlt} loading="lazy" />
 
 </Card>
 

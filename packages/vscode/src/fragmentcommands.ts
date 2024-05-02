@@ -183,22 +183,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         })
     }
 
-    const fragmentTest = async (file: vscode.Uri) => {
-        if (!file) return
-        await state.cancelAiRequest()
-        await state.parseWorkspace()
-
-        const script = state.project.templates.find(
-            (p) => p.filename === file.fsPath
-        )
-        if (!script) return
-
-        // show results
-        startTestViewer()
-        await state.host.server.client.init()
-        await state.host.server.client.runTest(script)
-    }
-
     const fragmentDebug = async (file: vscode.Uri) => {
         if (!file) return
         await state.cancelAiRequest()
@@ -259,10 +243,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.fragment.debug",
             fragmentDebug
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.test",
-            fragmentTest
         ),
         vscode.commands.registerCommand(
             "genaiscript.fragment.navigate",
