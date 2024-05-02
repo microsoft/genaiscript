@@ -2,7 +2,10 @@ script({
     title: "rag",
     tests: {
         files: "src/rag/*",
-        keywords: ["lorem ipsum", "markdown", "microsoft"]
+        // contains
+        keywords: ["lorem ipsum", "markdown", "microsoft"],
+        rubrics: ["is a summary"],
+        facts: ["talks about lorem ipsum"],
     }
 })
 

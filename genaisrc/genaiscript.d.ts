@@ -1045,6 +1045,11 @@ interface RunPromptContext {
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
+    defData(
+        name: string,
+        data: object[] | object,
+        options?: DefDataOptions
+    ): string
     runPrompt(
         generator: string | RunPromptGenerator,
         options?: ModelOptions
@@ -1217,11 +1222,6 @@ interface PromptContext extends RunPromptContext {
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
-    ): string
-    defData(
-        name: string,
-        data: object[] | object,
-        options?: DefDataOptions
     ): string
     fetchText(
         urlOrFile: string | WorkspaceFile,
