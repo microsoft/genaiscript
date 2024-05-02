@@ -3,6 +3,7 @@ import {
     PromptNode,
     appendChild,
     createAssistantNode,
+    createDefDataNode,
     createDefNode,
     createStringTemplateNode,
     createTextNode,
@@ -83,6 +84,10 @@ export function createRunPromptContext(
             }
 
             // TODO: support clause
+            return name
+        },
+        defData: (name, data, defOptions) => {
+            appendChild(node, createDefDataNode(name, data, defOptions))
             return name
         },
         fence(body, options?: DefOptions) {
