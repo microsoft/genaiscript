@@ -1,5 +1,5 @@
 import { DOT_ENV_REGEX } from "./constants"
-import { NotSupportedError } from "./error"
+import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { ReadFileOptions, host } from "./host"
 import { logVerbose, utf8Decode, utf8Encode } from "./util"
@@ -89,7 +89,7 @@ export function createFileSystem(): WorkspaceFileSystem {
             try {
                 await resolveFileContent(file)
             } catch (e) {
-                logVerbose(`error reading file ${file.filename}`)
+                logVerbose(`error reading file ${file.filename}: ${errorMessage(e)}`)
             }
             return file
         },

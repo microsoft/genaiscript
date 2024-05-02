@@ -6,8 +6,11 @@ description: Learn how to declare and run tests for your scripts to ensure their
 keywords: testing, scripts, validation, GenAIScript CLI, automation
 ---
 
+import { Image } from "astro:assets"
 import providerSrc from "../../../../../packages/core/src/genaiscript-api-provider.mjs?raw"
 import { Code } from "@astrojs/starlight/components"
+import testExplorerSrc from "../../../assets/vscode-test-explorer.png"
+import testExplorerAlt from "../../../assets/vscode-test-explorer.png.txt?raw"
 
 It is possible to declare [tests](/genaiscript/reference/scripts/tests) in the `script` function
 to validate the output of the script.
@@ -32,8 +35,10 @@ scripts({
 
 ### Visual Studio Code
 
--   Open the script to test, in this example `proofreader.genai.js`.
--   Right-click on the script and select **Run GenAIScript Tests**.
+-   Open the [Test Explorer view](https://code.visualstudio.com/docs/python/testing).
+-   Select your script in the tree and click the `play` icon button.
+
+<Image src={testExplorerSrc} alt={testExplorerAlt} loading="lazy" />
 
 ### Command Line
 
