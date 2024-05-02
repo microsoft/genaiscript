@@ -17,6 +17,7 @@ import {
     serializeError,
     PROMPTFOO_CONFIG_DIR,
     PROMPTFOO_CACHE_PATH,
+    PROMPTFOO_REMOTE_API_BASE_URL,
     FILES_NOT_FOUND_ERROR_CODE,
     ErrorObject,
     MarkdownTrace,
@@ -60,6 +61,7 @@ function createEnv() {
         ...process.env,
         PROMPTFOO_CACHE_PATH,
         PROMPTFOO_CONFIG_DIR,
+        PROMPTFOO_REMOTE_API_BASE_URL,
         PROMPTFOO_DISABLE_TELEMETRY: "1",
         PROMPTFOO_DISABLE_UPDATE: "1",
     }
@@ -74,6 +76,7 @@ export async function runPromptScriptTests(
         cache?: boolean
         verbose?: boolean
         write?: boolean
+        promptfooVersion?: string
     }
 ): Promise<PromptScriptTestRun> {
     const prj = await buildProject()
@@ -128,7 +131,7 @@ export async function runPromptScriptTests(
         const cmd = "npx"
         const args = [
             "--yes",
-            `promptfoo@${PROMPTFOO_VERSION}`,
+            `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
             "eval",
             "--config",
             configuration,
@@ -183,6 +186,7 @@ export async function scriptsTest(
         cache?: boolean
         verbose?: boolean
         write?: boolean
+        promptfooVersion?: string
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)
@@ -195,11 +199,16 @@ export async function scriptsTest(
     process.exit(status)
 }
 
-export async function scriptTestsView() {
+export async function scriptTestsView(options: { promptfooVersion?: string }) {
     await ensureDir(PROMPTFOO_CACHE_PATH)
     await ensureDir(PROMPTFOO_CONFIG_DIR)
     const cmd = `npx`
-    const args = ["--yes", "promptfoo@latest", "view", "-y"]
+    const args = [
+        "--yes",
+        `promptfoo@${options.promptfooVersion || PROMPTFOO_VERSION}`,
+        "view",
+        "-y",
+    ]
     console.debug(`launching promptfoo result server`)
     await execa(cmd, args, {
         cleanup: true,

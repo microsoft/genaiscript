@@ -5,6 +5,8 @@ import {
     ICON_LOGO_NAME,
     PROMPTFOO_CACHE_PATH,
     PROMPTFOO_CONFIG_DIR,
+    PROMPTFOO_REMOTE_API_PORT,
+    PROMPTFOO_REMOTE_API_BASE_URL,
     TOOL_ID,
     arrayify,
     errorMessage,
@@ -127,7 +129,7 @@ export async function activateTestController(state: ExtensionState) {
 
 export async function startTestViewer() {
     const name = "Promptfoo View"
-    const port = 15500
+    const port = PROMPTFOO_REMOTE_API_PORT
     if (!vscode.window.terminals.find((t) => t.name === name)) {
         // show results
         const terminal = vscode.window.createTerminal({
@@ -136,6 +138,7 @@ export async function startTestViewer() {
             env: {
                 PROMPTFOO_CACHE_PATH,
                 PROMPTFOO_CONFIG_DIR,
+                PROMPTFOO_REMOTE_API_BASE_URL,
                 PROMPTFOO_DISABLE_TELEMETRY: "1",
                 PROMPTFOO_DISABLE_UPDATE: "1",
             },

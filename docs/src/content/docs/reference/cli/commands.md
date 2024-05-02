@@ -108,20 +108,21 @@ Usage: genaiscript test run [options] [script...]
 Runs the tests for scripts
 
 Arguments:
-  script                         Script ids. If not provided, all scripts are
-                                 tested
+  script                              Script ids. If not provided, all scripts
+                                      are tested
 
 Options:
-  --models <models...>           models to test where mode is the key value
-                                 pair list of m (model), t (temperature), p
-                                 (top-p)
-  -o, --out <folder>             output folder
-  -rmo, --remove-out             remove output folder if it exists
-  --cli <string>                 override path to the cli
-  -tp, --test-provider <string>  test provider
-  --no-cache                     disable LLM result cache
-  -v, --verbose                  verbose output
-  -h, --help                     display help for command
+  --models <models...>                models to test where mode is the key
+                                      value pair list of m (model), t
+                                      (temperature), p (top-p)
+  -o, --out <folder>                  output folder
+  -rmo, --remove-out                  remove output folder if it exists
+  --cli <string>                      override path to the cli
+  -tp, --test-provider <string>       test provider
+  --no-cache                          disable LLM result cache
+  -v, --verbose                       verbose output
+  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.57.0
+  -h, --help                          display help for command
 ```
 
 ### `test view`

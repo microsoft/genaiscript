@@ -16,7 +16,7 @@ import { program } from "commander"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
-import { NODE_MIN_VERSION } from "./version"
+import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
 import { runScript } from "./run"
 import { batchScript } from "./batch"
 import {
@@ -191,6 +191,10 @@ export async function cli() {
         .option("-tp, --test-provider <string>", "test provider")
         .option("--no-cache", "disable LLM result cache")
         .option("-v, --verbose", "verbose output")
+        .option(
+            "-pv, --promptfoo-version [version]",
+            `propmtfoo version, default is ${PROMPTFOO_VERSION}`
+        )
         .action(scriptsTest)
 
     test.command("view")
