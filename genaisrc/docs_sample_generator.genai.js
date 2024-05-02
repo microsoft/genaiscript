@@ -1,6 +1,6 @@
 script({
     title: "generating tests from samples",
-    system: [],
+    system: ["system"],
     parameters: {
         api: {
             type: "string",
@@ -31,7 +31,7 @@ const dc = def("DOCS", docsSamples, { maxTokens: 10000 })
 $`
 You are an expert at writing GenAIScript programs.
 
-Write an example genaiscript program that uses \`${api}\`.
+Generate 3 example genaiscript program that uses \`${api}\`.
 using the information found in ${sn} and ${dc}.
 
 - Answer with the javascript code
