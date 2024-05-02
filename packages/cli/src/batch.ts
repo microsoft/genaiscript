@@ -151,6 +151,7 @@ export async function batchScript(
             assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
             const result: FragmentTransformResponse = await runTemplate(
+                prj,
                 script,
                 fragment,
                 {

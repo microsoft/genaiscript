@@ -1,5 +1,5 @@
 import { ChatCompletionResponse, ChatCompletionTool } from "./chat"
-import { Fragment, PromptScript } from "./ast"
+import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
 import {
@@ -130,6 +130,7 @@ async function fragmentVars(
 }
 
 export async function runTemplate(
+    prj: Project,
     template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions
@@ -171,6 +172,7 @@ export async function runTemplate(
         seed,
         responseType,
     } = await expandTemplate(
+        prj,
         template,
         fragment,
         options,

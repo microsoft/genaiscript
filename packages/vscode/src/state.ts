@@ -390,7 +390,7 @@ ${errorMessage(e)}`
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
-        r.request = runTemplate(template, fragment, runOptions)
+        r.request = runTemplate(this.project, template, fragment, runOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {

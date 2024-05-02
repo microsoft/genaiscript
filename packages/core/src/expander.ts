@@ -1,4 +1,4 @@
-import { Fragment, PromptScript } from "./ast"
+import { Fragment, Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, normalizeString } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
@@ -226,9 +226,22 @@ function traceEnv(
     trace.endDetails()
 }
 
-function resolveSystems(template: PromptScript) {
+function resolveTool(prj: Project, tool: string) {
+    const system = prj.templates.find(
+        (t) => t.isSystem && t.jsSource.includes(`defTool("${tool}"`)
+    )
+    return system.id
+}
+
+function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
-    const systems = (template.system ?? []).slice(0)
+    const systems = Array.from(
+        new Set([
+            ...(template.system ?? []),
+            ...(template.tools ?? []).map((tool) => resolveTool(prj, tool)),
+        ])
+    ).filter((s) => s)
+
     if (template.system === undefined) {
         const useSchema = /defschema/i.test(jsSource)
         systems.push("system")
@@ -247,6 +260,7 @@ function resolveSystems(template: PromptScript) {
 }
 
 export async function expandTemplate(
+    prj: Project,
     template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions,
@@ -258,7 +272,7 @@ export async function expandTemplate(
 
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")
 
-    const systems = resolveSystems(template)
+    const systems = resolveSystems(prj, template)
     const model =
         options.model ??
         normalizeString(env.vars["model"]) ??
