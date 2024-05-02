@@ -9,7 +9,6 @@ import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
-    createDefDataNode,
     createFileMergeNode,
     createFunctionNode,
     createImageNode,
@@ -195,10 +194,6 @@ export function createPromptContext(
         },
         cancel: (reason?: string) => {
             throw new CancelError(reason || "user cancelled")
-        },
-        defData: (name, data, defOptions) => {
-            appendPromptChild(createDefDataNode(name, data, defOptions))
-            return name
         },
         fetchText: async (urlOrFile, fetchOptions) => {
             if (typeof urlOrFile === "string") {
