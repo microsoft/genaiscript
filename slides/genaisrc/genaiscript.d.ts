@@ -6,6 +6,8 @@ interface Diagnostic {
     message: string
 }
 
+type Awaitable<T> = T | PromiseLike<T>
+
 interface PromptDefinition {
     /**
      * Based on file name.
@@ -41,14 +43,14 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.annotations" | "system.explanations" | "system.explanations" | "system.typescript" | "system.typescript" | "system.fs_find_files" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_file" | "system.fs_read_summary" | "system.fs_read_summary" | "system.files" | "system.files" | "system.changelog" | "system.changelog" | "system.diff" | "system.diff" | "system.tasks" | "system.tasks" | "system.schema" | "system.schema" | "system.json" | "system.json" | "system" | "system" | "system.technical" | "system.technical" | "system.web_search" | "system.web_search" | "system.files_schema" | "system.files_schema" | "system.python" | "system.python" | "system.summary" | "system.summary" | "system.zero_shot_cot" | "system.zero_shot_cot" | "system.functions" | "system.functions"
+type SystemPromptId = "system.summary" | "system.files_schema" | "system.annotations" | "system.python" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
     label: string,
     before: string,
     generated: string
-) => string | Promise<string>
+) => Awaitable<string>
 
 interface PromptOutputProcessorResult {
     /**
@@ -101,11 +103,15 @@ interface ModelConnectionOptions {
      * @default gpt-4
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
-    model?: "gpt-4" | "gpt-4-32k" | "gpt-3.5-turbo" | "mixtral" | string
-    /**
-     * Use AICI controller
-     */
-    aici?: boolean
+    model?:
+        | "gpt-4"
+        | "gpt-4-32k"
+        | "gpt-3.5-turbo"
+        | "ollama:phi3"
+        | "ollama:llama3"
+        | "ollama:mixtral"
+        | "aici:mixtral"
+        | string
 }
 
 interface ModelOptions extends ModelConnectionOptions {
@@ -131,6 +137,11 @@ interface ModelOptions extends ModelConnectionOptions {
     maxTokens?: number
 
     /**
+     * Maximum number of tool calls to make.
+     */
+    maxToolCalls?: number
+
+    /**
      * A deterministic integer seed to use for the model.
      */
     seed?: number
@@ -144,13 +155,37 @@ interface ModelOptions extends ModelConnectionOptions {
     /**
      * Custom cache name. If not set, the default cache is used.
      */
-    cacheName?:  string
+    cacheName?: string
 }
 
 interface ScriptRuntimeOptions {
     /**
      * Template identifiers for the system prompts (concatenated).
      */
+/**
+* System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+* - `system.summary`: Adds a summary of the changes
+* - `system.files_schema`: Apply JSON schemas to generated data.
+* - `system.annotations`: Emits annotations compatible with GitHub Actions
+* - `system.python`: Expert at generating and understanding Python code.
+* - `system.explanations`: Explain your answers
+* - `system.typescript`: Export TypeScript Developer
+* - `system.fs_find_files`: File Find Files
+* - `system.fs_read_file`: File Read File
+* - `system.fs_read_summary`: File Read Summary
+* - `system.files`: File generation
+* - `system.changelog`: Generate changelog formatter edits
+* - `system.diff`: Generates concise file diffs.
+* - `system.tasks`: Generates tasks
+* - `system.schema`: JSON Schema support
+* - `system.json`: JSON system prompt
+* - `system`: Markdown system prompt
+* - `system.math`: Math expression evaluator
+* - `system.technical`: Technical Writer
+* - `system.web_search`: Web Search
+* - `system.zero_shot_cot`: Zero-shot Chain Of Though
+* - `system.functions`: use functions
+**/
     system?: SystemPromptId[]
 
     /**
@@ -184,10 +219,82 @@ type PromptParameterType =
 type PromptParametersSchema = Record<string, PromptParameterType>
 type PromptParameters = Record<string, string | number | boolean>
 
-interface PromptTemplate
-    extends PromptLike,
-        ModelOptions,
-        ScriptRuntimeOptions {
+type PromptAssertion = {
+    // How heavily to weigh the assertion. Defaults to 1.0
+    weight?: number
+    /**
+     * The transformation to apply to the output before checking the assertion.
+     */
+    transform?: string
+} & (
+    | {
+          // type of assertion
+          type:
+              | "icontains"
+              | "not-icontains"
+              | "equals"
+              | "not-equals"
+              | "starts-with"
+              | "not-starts-with"
+          // The expected value
+          value: string
+      }
+    | {
+          // type of assertion
+          type:
+              | "contains-all"
+              | "not-contains-all"
+              | "contains-any"
+              | "not-contains-any"
+              | "icontains-all"
+              | "not-icontains-all"
+          // The expected values
+          value: string[]
+      }
+    | {
+          // type of assertion
+          type: "levenshtein" | "not-levenshtein"
+          // The threshold value, applicable only to certain types
+          threshold?: number
+      }
+    | {
+          type: "javascript"
+          /**
+           * JavaScript expression to evaluate.
+           */
+          value: string
+          threshold?: number
+      }
+)
+
+interface PromptTest {
+    /**
+     * Description of the test.
+     */
+    description?: string
+    /**
+     * List of files to apply the test to.
+     */
+    files?: string | string[]
+    /**
+     * LLM output matches a given rubric, using a Language Model to grade output.
+     */
+    rubrics?: string | string[]
+    /**
+     * LLM output adheres to the given facts, using Factuality method from OpenAI evaluation.
+     */
+    facts?: string | string[]
+    /**
+     * List of keywords that should be contained in the LLM output.
+     */
+    keywords?: string | string[]
+    /**
+     * Additional deterministic assertions.
+     */
+    asserts?: PromptAssertion | PromptAssertion[]
+}
+
+interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     /**
      * Groups template in UI
      */
@@ -197,6 +304,11 @@ interface PromptTemplate
      * Additional template parameters that will populate `env.vars`
      */
     parameters?: PromptParametersSchema
+
+    /**
+     * Tests to validate this script.
+     */
+    tests?: PromptTest | PromptTest[]
 
     /**
      * Don't show it to the user in lists. Template `system.*` are automatically unlisted.
@@ -217,6 +329,11 @@ interface WorkspaceFile {
      * Name of the file, relative to project root.
      */
     filename: string
+
+    /**
+     * @deprecated Unused
+     */
+    label?: string
 
     /**
      * Content of the file.
@@ -337,13 +454,26 @@ type ChatFunctionCallOutput =
     | ChatFunctionCallContent
     | ChatFunctionCallShell
 
-interface FileSystem {
-    findFiles(glob: string): Promise<string[]>
+interface WorkspaceFileSystem {
     /**
-     * Reads the content of a file
+     * Searches for files using the glob pattern and returns a list of files.
+     * If the file is text, also return the content.
+     * @param glob
+     */
+    findFiles(
+        glob: string,
+        options?: {
+            /**
+             * Set to false to read text content by default
+             */
+            readText?: boolean
+        }
+    ): Promise<WorkspaceFile[]>
+    /**
+     * Reads the content of a file as text
      * @param path
      */
-    readFile(path: string): Promise<WorkspaceFile>
+    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
 }
 
 interface ChatFunctionCallContext {
@@ -389,11 +519,11 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptTemplate, "text" | "id" | "jsSource">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed"
+    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -730,6 +860,12 @@ interface Parsers {
      * @param query tree sitter query; if missing, returns the entire tree
      */
     code(file: WorkspaceFile, query?: string): Promise<QueryCapture[]>
+
+    /**
+     * Parses and evaluates a math expression
+     * @param expression math expression compatible with mathjs
+     */
+    math(expression: string): string | number | undefined
 }
 
 interface AICIGenOptions {
@@ -862,7 +998,7 @@ interface Retrieval {
      */
     search(
         query: string,
-        files: (string | WorkspaceFile)[],
+        files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: {
             /**
              * Maximum number of embeddings to use
@@ -881,7 +1017,7 @@ interface Retrieval {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
-interface DefDataOptions extends ContextExpansionOptions {
+interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens"> {
     format?: "json" | "yaml" | "csv"
     headers?: string[]
 }
@@ -901,14 +1037,16 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
+type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
+
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
-    writeText(body: string | Promise<string>, options?: WriteTextOptions): void
+    writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
     runPrompt(
-        generator: (ctx: RunPromptContext) => void | Promise<void>,
+        generator: string | RunPromptGenerator,
         options?: ModelOptions
     ): Promise<RunPromptResult>
 }
@@ -1058,7 +1196,16 @@ interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     defImages(files: StringLike, options?: DefImagesOptions): void
+    /**
+     * @deprecated use `defTool` instead
+     */
     defFunction(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ): void
+    defTool(
         name: string,
         description: string,
         parameters: ChatFunctionParameters,
@@ -1090,7 +1237,8 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
-    fs: FileSystem
+    fs: WorkspaceFileSystem
+    workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML
     CSV: CSV
@@ -1117,7 +1265,10 @@ declare function system(options: PromptSystemArgs): void
  * Append given string to the prompt. It automatically appends "\n".
  * Typically best to use `` $`...` ``-templates instead.
  */
-declare function writeText(body: string | Promise<string>, options?: WriteTextOptions): void
+declare function writeText(
+    body: Awaitable<string>,
+    options?: WriteTextOptions
+): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -1141,16 +1292,30 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  * @param body string to be fenced/defined
  * @returns variable name
  */
-declare function def(name: string, body: StringLike, options?: DefOptions): string
+declare function def(
+    name: string,
+    body: StringLike,
+    options?: DefOptions
+): string
 
 /**
- * Declares a function that can be called from the prompt.
- * @param name The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
- * @param description A description of what the function does, used by the model to choose when and how to call the function.
- * @param parameters The parameters the functions accepts, described as a JSON Schema object.
- * @param fn callback invoked when the LLM requests to run this function
+ * @deprecated Use `defTool` instead.
  */
 declare function defFunction(
+    name: string,
+    description: string,
+    parameters: ChatFunctionParameters,
+    fn: ChatFunctionHandler
+): void
+
+/**
+ * Declares a tool that can be called from the prompt.
+ * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+ * @param description A description of what the function does, used by the model to choose when and how to call the function.
+ * @param parameters The parameters the tool accepts, described as a JSON Schema object.
+ * @param fn callback invoked when the LLM requests to run this function
+ */
+declare function defTool(
     name: string,
     description: string,
     parameters: ChatFunctionParameters,
@@ -1184,9 +1349,15 @@ declare var parsers: Parsers
 declare var retrieval: Retrieval
 
 /**
- * Access to file system operation on the current workspace.
+ * Access to the workspace file system.
  */
-declare var fs: FileSystem
+declare var workspace: WorkspaceFileSystem
+
+/**
+ * Access to the workspace file system.
+ * @deprecated Use `workspace` instead.
+ */
+declare var fs: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.
@@ -1255,13 +1426,12 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: (ctx: RunPromptContext) => void | Promise<void>,
+    generator: string | RunPromptGenerator,
     options?: ModelOptions
 ): Promise<RunPromptResult>
 
-
 /**
  * Registers a callback to process the LLM output
- * @param fn 
+ * @param fn
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void
