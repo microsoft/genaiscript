@@ -1,10 +1,13 @@
-import { defineConfig } from "astro/config"
+import { defineConfig, passthroughImageService } from "astro/config"
 import starlight from "@astrojs/starlight"
 
 // https://astro.build/config
 export default defineConfig({
     site: "https://microsoft.github.io",
     base: "/genaiscript",
+    image: {
+        service: passthroughImageService(),
+    },
     integrations: [
         starlight({
             title: "GenAIScript",
@@ -45,7 +48,7 @@ export default defineConfig({
                 },
                 {
                     label: "Slides",
-                    link: "slides"
+                    link: "slides",
                 },
                 {
                     label: "Contributing",
