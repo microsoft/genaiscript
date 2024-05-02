@@ -28,14 +28,13 @@ script({
 $`Let's think step by step.`
 ```
 
-## Custom system prompts list
+It is also possible to populate system script by include tool names
+which will result in importing the tool into the script.
 
-The `system` field can be populated with an array of system prompt identifiers.
-
-```js "system"
+```js
 script({
     ...,
-    system: ["system.annotations"]
+    tools: ["math_eval"]
 })
 ```
 
