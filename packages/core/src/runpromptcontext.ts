@@ -5,6 +5,7 @@ import {
     createAssistantNode,
     createDefDataNode,
     createDefNode,
+    createFunctionNode,
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
@@ -36,6 +37,15 @@ export function createRunPromptContext(
 ): RunPromptContextNode {
     const { cancellationToken } = options || {}
     const node: PromptNode = { children: [] }
+
+    const defTool: (
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ) => void = (name, description, parameters, fn) => {
+        appendChild(node, createFunctionNode(name, description, parameters, fn))
+    }
 
     const ctx = <RunPromptContextNode>{
         node,
@@ -90,6 +100,8 @@ export function createRunPromptContext(
             appendChild(node, createDefDataNode(name, data, defOptions))
             return name
         },
+        defTool,
+        defFunction: defTool,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined

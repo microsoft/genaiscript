@@ -90,7 +90,7 @@ $`ORIGINAL:
 ${contentToTranslate}
 `
 
-defOutput(async (o) => {
+defOutputProcessor(async (o) => {
     const news = INI.parse(o.text)
     Object.assign(translated, news)
     return {

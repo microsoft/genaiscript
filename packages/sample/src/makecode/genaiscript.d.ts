@@ -161,7 +161,6 @@ interface ModelOptions extends ModelConnectionOptions {
 }
 
 interface ScriptRuntimeOptions {
-
 /**
 * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
 * - `system.summary`: Adds a summary of the changes
@@ -1064,6 +1063,21 @@ interface RunPromptContext {
         generator: string | RunPromptGenerator,
         options?: ModelOptions
     ): Promise<RunPromptResult>
+    /**
+     * @deprecated use `defTool` instead
+     */
+    defFunction(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ): void
+    defTool(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ): void
 }
 
 interface PromptGenerationOutput {
@@ -1211,23 +1225,8 @@ interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     defImages(files: StringLike, options?: DefImagesOptions): void
-    /**
-     * @deprecated use `defTool` instead
-     */
-    defFunction(
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ): void
-    defTool(
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ): void
     defFileMerge(fn: FileMergeHandler): void
-    defOutput(fn: PromptOutputProcessorHandler): void
+    defOutputProcessor(fn: PromptOutputProcessorHandler): void
     defSchema(
         name: string,
         schema: JSONSchema,
@@ -1443,5 +1442,10 @@ declare function runPrompt(
 /**
  * Registers a callback to process the LLM output
  * @param fn
+ */
+declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
+
+/**
+ * @deprecated Use `defOutputProcessor` instead.
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void

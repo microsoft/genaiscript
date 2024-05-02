@@ -6,7 +6,7 @@ const output = env.spec.filename + ".txt"
 def("FILE", env.files)
 $`Summarize all the files. Respond as raw text.`
 
-defOutput((o) => {
+defOutputProcessor((o) => {
     console.log(`writing to ${output}`)
     return {
         files: {

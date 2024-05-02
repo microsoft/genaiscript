@@ -10,7 +10,6 @@ import {
     PromptNode,
     appendChild,
     createFileMergeNode,
-    createFunctionNode,
     createImageNode,
     createOutputProcessor,
     createSchemaNode,
@@ -156,17 +155,8 @@ export function createPromptContext(
         return name
     }
 
-    const defOutput = (fn: PromptOutputProcessorHandler) => {
+    const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
         if (fn) appendPromptChild(createOutputProcessor(fn))
-    }
-
-    const defTool: (
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ) => void = (name, description, parameters, fn) => {
-        appendPromptChild(createFunctionNode(name, description, parameters, fn))
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
@@ -186,9 +176,7 @@ export function createPromptContext(
         retrieval,
         defImages,
         defSchema,
-        defOutput,
-        defTool,
-        defFunction: defTool,
+        defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
         },

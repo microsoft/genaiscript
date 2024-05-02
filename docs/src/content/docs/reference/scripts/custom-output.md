@@ -1,12 +1,12 @@
 ---
 title: Custom Output
-description: Learn how to use the defOutput function for custom file processing in script generation.
-keywords: custom output, defOutput, file processing, script generation, post processing
+description: Learn how to use the defOutputProcessor function for custom file processing in script generation.
+keywords: custom output, defOutputProcessor, file processing, script generation, post processing
 sidebar:
     order: 12
 ---
 
-The `defOutput` function registers a callback to do custom processing of the LLM output at the end of the generation process. This function allows to create new files or modify the existing ones.
+The `defOutputProcessor` function registers a callback to do custom processing of the LLM output at the end of the generation process. This function allows to create new files or modify the existing ones.
 
 :::caution
 
@@ -14,12 +14,11 @@ This feature is experimental and may change in the future.
 
 :::
 
-
 ```js
 // compute a filepath
 const output = path.join(path.dirname(env.spec), "output.txt")
 // post processing
-defOutput(output => {
+defOutputProcessor(output => {
     return {
         files: [
             // emit entire content to a specific file
@@ -34,7 +33,7 @@ defOutput(output => {
 This example clears the `fileEdits` object, which contains the parsed file updates.
 
 ```js
-defOutput((output) => {
+defOutputProcessor((output) => {
     // clear out any parsed content
     for (const k of Object.keys(output.fileEdits)) {
         delete output.fileEdits[k]
