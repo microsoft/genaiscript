@@ -18,6 +18,7 @@ import {
     lookupMime,
     serializeError,
     createFetch,
+    RETRIEVAL_PERSIST_DIR,
 } from "genaiscript-core"
 import type { BaseReader, NodeWithScore, Metadata } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
@@ -89,7 +90,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
 
     private getPersisDir(indexName: string, summary: boolean) {
         const persistDir = this.host.path.join(
-            dotGenaiscriptPath("retrieval"),
+            dotGenaiscriptPath(RETRIEVAL_PERSIST_DIR),
             summary ? "summary" : "full",
             indexName
         )
