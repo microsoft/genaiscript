@@ -189,7 +189,7 @@ interface ScriptRuntimeOptions {
     system?: SystemPromptId[]
 
 /**
-* System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+* System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
 * - `fs_find_files`: Finds file matching a glob pattern.
 * - `fs_read_file`: Reads a file as text from the file system.
 * - `fs_read_summary`: Reads a summary of a file from the file system.
