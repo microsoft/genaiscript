@@ -17,7 +17,6 @@ import {
     serializeError,
     PROMPTFOO_CONFIG_DIR,
     PROMPTFOO_CACHE_PATH,
-    PROMPTFOO_REMOTE_API_BASE_URL,
     FILES_NOT_FOUND_ERROR_CODE,
     ErrorObject,
     MarkdownTrace,
@@ -57,13 +56,13 @@ export interface PromptScriptTestRun extends ResponseStatus {
 }
 
 function createEnv() {
+    const env = process.env
     return {
         ...process.env,
-        PROMPTFOO_CACHE_PATH,
-        PROMPTFOO_CONFIG_DIR,
-        PROMPTFOO_REMOTE_API_BASE_URL,
-        PROMPTFOO_DISABLE_TELEMETRY: "1",
-        PROMPTFOO_DISABLE_UPDATE: "1",
+        PROMPTFOO_CACHE_PATH: env.PROMPTFOO_CACHE_PATH ?? PROMPTFOO_CACHE_PATH,
+        PROMPTFOO_CONFIG_DIR: env.PROMPTFOO_CONFIG_DIR ?? PROMPTFOO_CONFIG_DIR,
+        PROMPTFOO_DISABLE_TELEMETRY: env.PROMPTFOO_DISABLE_TELEMETRY ?? "1",
+        PROMPTFOO_DISABLE_UPDATE: env.PROMPTFOO_DISABLE_UPDATE ?? "1",
     }
 }
 

@@ -6,7 +6,6 @@ import {
     PROMPTFOO_CACHE_PATH,
     PROMPTFOO_CONFIG_DIR,
     PROMPTFOO_REMOTE_API_PORT,
-    PROMPTFOO_REMOTE_API_BASE_URL,
     TOOL_ID,
     arrayify,
     errorMessage,
@@ -138,7 +137,6 @@ export async function startTestViewer() {
             env: {
                 PROMPTFOO_CACHE_PATH,
                 PROMPTFOO_CONFIG_DIR,
-                PROMPTFOO_REMOTE_API_BASE_URL,
                 PROMPTFOO_DISABLE_TELEMETRY: "1",
                 PROMPTFOO_DISABLE_UPDATE: "1",
             },

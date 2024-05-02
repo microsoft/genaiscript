@@ -62,4 +62,3 @@ export const OLLAMA_API_BASE = "http://localhost:11434/v1"
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
 export const PROMPTFOO_REMOTE_API_PORT = 15500
-export const PROMPTFOO_REMOTE_API_BASE_URL = `http://localhost:${PROMPTFOO_REMOTE_API_PORT}/v1`
