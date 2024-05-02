@@ -1,6 +1,5 @@
 import { ChatCompletionsOptions, LanguageModel } from "./chat"
-import { logVerbose, toBase64 } from "./util"
-import { fileTypeFromBuffer } from "file-type"
+import { arrayify, logVerbose } from "./util"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
@@ -97,7 +96,8 @@ export function createPromptContext(
                 trace.endDetails()
             }
         },
-        search: async (q, files, searchOptions) => {
+        search: async (q, files_, searchOptions) => {
+            const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
                 trace.startDetails(`🔍 retrieval search \`${q}\``)

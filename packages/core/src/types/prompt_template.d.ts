@@ -974,7 +974,7 @@ interface Retrieval {
      */
     search(
         query: string,
-        files: (string | WorkspaceFile)[],
+        files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: {
             /**
              * Maximum number of embeddings to use

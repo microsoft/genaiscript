@@ -60,7 +60,7 @@ export function createRunPromptContext(
             if (body === undefined || body === null) return undefined
             else if (Array.isArray(body)) {
                 if (body.length === 0 && !doptions.ignoreEmpty)
-                    throw new CancelError("def files empty")
+                    throw new CancelError(`def ${name} files empty`)
                 body.forEach((f) => ctx.def(name, f, defOptions))
             } else if (typeof body === "object" && body.filename) {
                 const { glob, endsWith } = defOptions || {}
