@@ -1,4 +1,4 @@
-import { host } from "./host"
+import { LogLevel, host } from "./host"
 import MagicString from "magic-string"
 import { consoleLogFormat } from "./logging"
 
@@ -14,6 +14,7 @@ export async function evalPrompt(
     const log = (...args: any[]) => {
         const line = consoleLogFormat(...args)
         logCb?.(line)
+        host.log(LogLevel.Verbose, line)
     }
     const ctx = Object.freeze<
         PromptContext & { console: Partial<typeof console> }
