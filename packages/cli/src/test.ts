@@ -1,9 +1,7 @@
 import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
 import {
-    EXEC_MAX_BUFFER,
     GENAISCRIPT_FOLDER,
-    JSON5TryParse,
     ResponseStatus,
     PromptScriptTestRunOptions,
     YAMLStringify,
@@ -21,11 +19,11 @@ import {
     ErrorObject,
     MarkdownTrace,
 } from "genaiscript-core"
-import { writeFile } from "node:fs/promises"
+import { readFile, writeFile } from "node:fs/promises"
 import { execa } from "execa"
 import { join, resolve } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
-import type { EvaluateSummary, OutputFile } from "promptfoo"
+import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
 
 function parseModelSpec(m: string): ModelOptions {
@@ -47,8 +45,7 @@ async function resolveTestProvider(script: PromptScript) {
 
 export interface PromptScriptTestResult extends ResponseStatus {
     script: string
-    config: any
-    value?: EvaluateSummary
+    value?: OutputFile
 }
 
 export interface PromptScriptTestRun extends ResponseStatus {
@@ -151,21 +148,21 @@ export async function runPromptScriptTests(
         })
         let status: number
         let error: ErrorObject
+        let value: any = undefined
         try {
             const res = await exec
             status = res.exitCode
+            value = JSON.parse(await readFile(outJson, "utf8")) as OutputFile
         } catch (e) {
             status = e.errno
             error = serializeError(e)
         }
-        const promptfooResults = JSON5TryParse(outJson) as OutputFile
         results.push({
             status,
             ok: status === 0,
             error,
             script: script.id,
-            config: promptfooResults?.config,
-            value: promptfooResults?.results,
+            value,
         })
     }
 

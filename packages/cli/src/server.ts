@@ -84,6 +84,7 @@ export async function startServer(options: { port: string }) {
                             ...(data.options || {}),
                             cache: true,
                             verbose: true,
+                            promptfooVersion: "latest"
                         })
                         break
                     }

@@ -91,22 +91,26 @@ export async function activateTestController(state: ExtensionState) {
 
             startTestViewer()
             await state.host.server.client.init()
-            for (const { script, test } of scripts) {
-                // check for cancellation
-                if (token.isCancellationRequested) {
-                    run.end()
-                    return
+            try {
+                for (const { script, test } of scripts) {
+                    // check for cancellation
+                    if (token.isCancellationRequested) {
+                        run.end()
+                        return
+                    }
+                    run.started(test)
+                    const res = await state.host.server.client.runTest(script)
+                    run.appendOutput(JSON.stringify(res), undefined, test)
+                    if (res.ok) run.passed(test)
+                    else
+                        run.failed(
+                            test,
+                            new vscode.TestMessage(errorMessage(res.error))
+                        )
                 }
-                run.started(test)
-                const res = await state.host.server.client.runTest(script)
-                if (res.ok) run.passed(test)
-                else
-                    run.failed(
-                        test,
-                        new vscode.TestMessage(errorMessage(res.error))
-                    )
+            } finally {
+                run.end()
             }
-            run.end()
         }
     )
     subscriptions.push(runProfile)
@@ -142,8 +146,9 @@ export async function startTestViewer() {
             },
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
+        const promptfooVersion = "latest"
         terminal.sendText(
-            `npx --yes promptfoo@${PROMPTFOO_VERSION} view --port ${port}`
+            `npx --yes promptfoo@${promptfooVersion} view --port ${port}`
         )
     }
     await vscode.commands.executeCommand(
