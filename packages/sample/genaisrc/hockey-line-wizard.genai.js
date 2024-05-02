@@ -1,7 +1,10 @@
 // metadata and model configuration
 // https://microsoft.github.io/genaiscript/reference/scripts/metadata/
 script({
-    model: "gpt-4", title: "hockey-line-wizard", temperature: 0.01, system: ["system", "system.functions", "system.zero_shot_cot"],
+    model: "gpt-4", 
+    title: "hockey-line-wizard", 
+    temperature: 0.01, 
+    system: ["system", "system.functions", "system.zero_shot_cot"],
     tests: {
         keywords: "CW3",
     }
@@ -43,7 +46,7 @@ const lineup = defSchema("LINEUP", {
     }
 })
 
-defTool("player_in_mutiple_lines_validator", "Validates that the positions for players in multiple lines", {
+defTool("player_in_multiple_lines_validator", "Validates that the positions for players in multiple lines", {
     type: "object",
     description: "A player's position in two lines",
     properties: {
@@ -92,7 +95,7 @@ You will be tipped 20$ to achieve this work. Do not be lazy.
 - Try your best to create lines that are comparable skill level.
 - ensure all lines have a person at each position
 - ensure that the difference in total skill between any two lines is not more than 4
-- validate player in mutiple lines
+- validate player in multiple lines
 
 ## Step 2: Rule validation
 

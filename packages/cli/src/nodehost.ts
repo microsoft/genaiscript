@@ -1,5 +1,7 @@
 import dotenv from "dotenv"
+import inquirer from "inquirer"
 import {
+    AskUserOptions,
     Host,
     LogLevel,
     OAIToken,
@@ -112,6 +114,10 @@ export class NodeHost implements Host {
     }
     resolvePath(...segments: string[]) {
         return resolve(...segments)
+    }
+    async askUser(options: AskUserOptions) {
+        const res = await inquirer.prompt([{ type: "input",  }])
+        return res
     }
     async readFile(
         name: string,
