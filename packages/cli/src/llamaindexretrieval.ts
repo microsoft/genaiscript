@@ -116,19 +116,21 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         if (files?.length && !summary) {
             // get all documents
             const docs = await storageContext.docStore.getAllRefDocInfo()
-            // reload vector store
-            const vectorStore = await SimpleVectorStore.fromDict(
-                await (
-                    await SimpleVectorStore.fromPersistDir(persistDir)
-                ).toDict()
-            )
-            // remove uneeded documents
-            const toRemove = Object.keys(docs).filter(
-                (id) => !files.includes(id)
-            )
-            for (const doc of toRemove) vectorStore.delete(doc)
-            // swap in storateContext
-            storageContext.vectorStore = vectorStore
+            if (docs) {
+                // reload vector store
+                const vectorStore = await SimpleVectorStore.fromDict(
+                    await (
+                        await SimpleVectorStore.fromPersistDir(persistDir)
+                    ).toDict()
+                )
+                // remove uneeded documents
+                const toRemove = Object.keys(docs).filter(
+                    (id) => !files.includes(id)
+                )
+                for (const doc of toRemove) vectorStore.delete(doc)
+                // swap in storateContext
+                storageContext.vectorStore = vectorStore
+            }
         }
         return { storageContext, persistDir }
     }

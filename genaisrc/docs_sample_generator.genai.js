@@ -16,13 +16,13 @@ const scripts = (
     await workspace.findFiles("packages/sample/src/**/*genai.js")
 ).filter((f) => f.content?.includes(api))
 const { files: samples } = await retrieval.search(api, scripts)
-//console.debug(samples)
+console.debug(samples)
 
 const docs = (
     await workspace.findFiles("docs/src/content/docs/**/*.md*")
 ).filter((f) => f.content?.includes(api))
 const { files: docsSamples } = await retrieval.search(api, docs)
-//console.debug(docsSamples)
+console.debug(docsSamples)
 
 const sn = def("SAMPLES", samples, { maxTokens: 10000 })
 const dc = def("DOCS", docsSamples, { maxTokens: 10000 })
