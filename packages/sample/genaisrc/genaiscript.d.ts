@@ -45,6 +45,8 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = "system.summary" | "system.files_schema" | "system.annotations" | "system.python" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
 
+type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "web_search"
+
 type FileMergeHandler = (
     filename: string,
     label: string,
@@ -159,9 +161,7 @@ interface ModelOptions extends ModelConnectionOptions {
 }
 
 interface ScriptRuntimeOptions {
-    /**
-     * Template identifiers for the system prompts (concatenated).
-     */
+
 /**
 * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
 * - `system.summary`: Adds a summary of the changes
@@ -187,6 +187,16 @@ interface ScriptRuntimeOptions {
 * - `system.functions`: use functions
 **/
     system?: SystemPromptId[]
+
+/**
+* System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
+* - `fs_find_files`: Finds file matching a glob pattern.
+* - `fs_read_file`: Reads a file as text from the file system.
+* - `fs_read_summary`: Reads a summary of a file from the file system.
+* - `math_eval`: Evaluates a math expression
+* - `web_search`: Search the web for a user query using Bing Search.
+**/
+    tools?: SystemToolId[]
 
     /**
      * Specifies the type of output. Default is `markdown`.
@@ -1045,6 +1055,11 @@ interface RunPromptContext {
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
     def(name: string, body: StringLike, options?: DefOptions): string
+    defData(
+        name: string,
+        data: object[] | object,
+        options?: DefDataOptions
+    ): string
     runPrompt(
         generator: string | RunPromptGenerator,
         options?: ModelOptions
@@ -1217,11 +1232,6 @@ interface PromptContext extends RunPromptContext {
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
-    ): string
-    defData(
-        name: string,
-        data: object[] | object,
-        options?: DefDataOptions
     ): string
     fetchText(
         urlOrFile: string | WorkspaceFile,

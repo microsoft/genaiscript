@@ -45,6 +45,8 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = string
 
+type SystemToolId = string
+
 type FileMergeHandler = (
     filename: string,
     label: string,
@@ -159,10 +161,10 @@ interface ModelOptions extends ModelConnectionOptions {
 }
 
 interface ScriptRuntimeOptions {
-    /**
-     * Template identifiers for the system prompts (concatenated).
-     */
+
     system?: SystemPromptId[]
+
+    tools?: SystemToolId[]
 
     /**
      * Specifies the type of output. Default is `markdown`.

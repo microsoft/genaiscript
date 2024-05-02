@@ -176,7 +176,7 @@ ${Array.from(files)
     let tokens = 0
     let res: FragmentTransformResponse
     try {
-        res = await runTemplate(script, fragment, {
+        res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
                 if (text) {
                     if (spinner) spinner.start(text)
