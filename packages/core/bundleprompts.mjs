@@ -95,6 +95,8 @@ const markdown = `---
 title: System Prompts
 sidebar:
     order: 10
+description: Learn how to utilize system prompts to enhance script execution in GenAIScript.
+keywords: system prompts, script execution, genai templates, environment consistency    
 ---
 System prompts are scripts that are executed and injected before the main prompt output.
 
