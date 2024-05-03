@@ -83,8 +83,7 @@ export async function startServer(options: { port: string }) {
                         response = await runPromptScriptTests(data.scripts, {
                             ...(data.options || {}),
                             cache: true,
-                            verbose: true,
-                            promptfooVersion: "latest"
+                            verbose: true
                         })
                         break
                     }

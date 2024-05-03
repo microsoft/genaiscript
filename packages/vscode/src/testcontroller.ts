@@ -146,9 +146,8 @@ export async function startTestViewer() {
             },
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        const promptfooVersion = "latest"
         terminal.sendText(
-            `npx --yes promptfoo@${promptfooVersion} view --port ${port}`
+            `npx --yes promptfoo@${PROMPTFOO_VERSION} view --port ${port}`
         )
     }
     await vscode.commands.executeCommand(
