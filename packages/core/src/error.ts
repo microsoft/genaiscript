@@ -1,6 +1,4 @@
-import {
-    serializeError as rawSerializeError,
-} from "serialize-error"
+import { serializeError as rawSerializeError } from "serialize-error"
 
 export function serializeError(
     e: unknown | string | Error | SerializedError
@@ -24,20 +22,23 @@ export function errorMessage(e: any, defaultValue: string = "error"): string {
 }
 
 export class CancelError extends Error {
+    static readonly NAME = "CancelError"
     constructor(message: string) {
         super(message)
-        this.name = "CancelError"
+        this.name = CancelError.NAME
     }
 }
 
 export class NotSupportedError extends Error {
+    static readonly NAME = "NotSupportedError"
     constructor(message: string) {
         super(message)
-        this.name = "NotSupportedError"
+        this.name = NotSupportedError.NAME
     }
 }
 
 export class RequestError extends Error {
+    static readonly NAME = "RequestError"
     constructor(
         public readonly status: number,
         public readonly statusText: string,
@@ -50,16 +51,13 @@ export class RequestError extends Error {
                 body?.message ? body?.message : `${statusText} (${status})`
             }`
         )
+        this.name = "RequestError"
     }
 }
 
 export function isCancelError(e: Error | SerializedError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return e?.name === "CancelError" || e?.name === "AbortError"
-}
-
-export function isTokenError(e: Error) {
-    return isRequestError(e, 403)
+    return e?.name === CancelError.NAME || e?.name === "AbortError"
 }
 
 export function isRequestError(e: Error, statusCode?: number, code?: string) {

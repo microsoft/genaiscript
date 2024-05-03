@@ -11,7 +11,6 @@ import {
     groupBy,
     GenerationOptions,
     isCancelError,
-    isTokenError,
     isRequestError,
     delay,
     CHANGE,
@@ -257,7 +256,7 @@ temp/
             if (edits?.length) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
-            else if (isTokenError(e)) {
+            else if (isRequestError(e, 403)) {
                 const trace = "Open Trace"
                 const res = await vscode.window.showErrorMessage(
                     "OpenAI token refused (403).",

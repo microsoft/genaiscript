@@ -338,7 +338,7 @@ async function applyRepairs(
     return false
 }
 
-export function structurifyChatSession(
+function structurifyChatSession(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
@@ -385,7 +385,7 @@ export function structurifyChatSession(
     }
 }
 
-export async function processChatMessage(
+async function processChatMessage(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],
@@ -452,15 +452,9 @@ export async function executeChatSession(
 
     let genVars: Record<string, string>
     while (true) {
-        if (cancellationToken?.isCancellationRequested)
-            return structurifyChatSession(
-                messages,
-                schemas,
-                genVars,
-                genOptions
-            )
         let resp: ChatCompletionResponse
         try {
+            checkCancelled(cancellationToken)
             resp = await completer(
                 {
                     model,
@@ -487,7 +481,6 @@ export async function executeChatSession(
             )
             if (output) return output
         } catch (err) {
-            trace.error(err)
             return structurifyChatSession(
                 messages,
                 schemas,
