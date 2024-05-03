@@ -1058,6 +1058,11 @@ interface RunPromptContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
+    defSchema(
+        name: string,
+        schema: JSONSchema,
+        options?: DefSchemaOptions
+    ): string
     runPrompt(
         generator: string | RunPromptGenerator,
         options?: ModelOptions
@@ -1226,11 +1231,6 @@ interface PromptContext extends RunPromptContext {
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    defSchema(
-        name: string,
-        schema: JSONSchema,
-        options?: DefSchemaOptions
-    ): string
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions

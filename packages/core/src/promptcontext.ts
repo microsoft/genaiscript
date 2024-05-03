@@ -160,7 +160,6 @@ export function createPromptContext(
         XML,
         retrieval,
         defImages,
-        defSchema,
         defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
