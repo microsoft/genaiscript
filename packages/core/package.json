@@ -12,15 +12,15 @@
     "url": "https://github.com/microsoft/genaiscript"
   },
   "optionalDependencies": {
-    "pdfjs-dist": "4.0.379",
+    "pdfjs-dist": "4.2.67",
     "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
     "@types/html-to-text": "^9.0.4",
     "@types/ini": "^4.1.0",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^20.12.7",
-    "ajv": "^8.12.0",
+    "@types/node": "^20.12.8",
+    "ajv": "^8.13.0",
     "cross-fetch": "^4.0.0",
     "csv-parse": "^5.5.5",
     "dotenv": "^16.4.5",
@@ -32,14 +32,14 @@
     "html-to-text": "^9.0.5",
     "ini": "^4.1.2",
     "json5": "^2.2.3",
-    "jsonrepair": "^3.6.1",
-    "magic-string": "^0.30.9",
-    "mammoth": "^1.7.1",
+    "jsonrepair": "^3.7.0",
+    "magic-string": "^0.30.10",
+    "mammoth": "^1.7.2",
     "markdown-table": "^3.0.3",
     "mathjs": "^12.4.2",
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.4",
-    "openai": "^4.40.0",
+    "openai": "^4.40.1",
     "prettier": "^3.2.5",
     "pretty-bytes": "^6.1.1",
     "serialize-error": "^11.0.3",
@@ -47,7 +47,7 @@
     "tree-sitter-wasms": "^0.1.11",
     "ts-dedent": "^2.2.0",
     "typescript": "5.4.5",
-    "yaml": "^2.4.1"
+    "yaml": "^2.4.2"
   },
   "scripts": {
     "typecheck": "tsc -p src",

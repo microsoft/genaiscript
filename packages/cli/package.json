@@ -23,11 +23,11 @@
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
   "dependencies": {
-    "pdfjs-dist": "4.0.379",
+    "pdfjs-dist": "4.2.67",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
-    "web-tree-sitter": "^0.22.2",
-    "promptfoo": "^0.57.0"
+    "web-tree-sitter": "^0.22.5",
+    "promptfoo": "^0.57.1"
   },
   "optionalDependencies": {
     "llamaindex": "0.1.21"
@@ -38,9 +38,9 @@
   "devDependencies": {
     "@llamaindex/env": "^0.0.5",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.12.8",
     "@types/papaparse": "^5.3.14",
-    "@types/pg": "^8.11.2",
+    "@types/pg": "^8.11.5",
     "@types/replace-ext": "^2.0.2",
     "@types/ws": "^8.5.10",
     "commander": "^12.0.0",
@@ -52,14 +52,14 @@
     "genaiscript-core": "*",
     "get-stdin": "^9.0.0",
     "glob": "^10.3.12",
-    "mammoth": "^1.7.1",
+    "mammoth": "^1.7.2",
     "node-sarif-builder": "^3.1.0",
-    "openai": "^4.40.0",
+    "openai": "^4.40.1",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "semver": "^7.6.0",
-    "tsx": "^4.7.2",
+    "tsx": "^4.9.0",
     "zx": "^8.0.2"
   },
   "scripts": {
