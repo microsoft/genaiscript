@@ -20,6 +20,8 @@ import {
     parsePromptParameters,
     logVerbose,
     errorMessage,
+    EMOJI_SUCCESS,
+    EMOJI_FAIL,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -222,7 +224,7 @@ export async function batchScript(
             await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- ${result.status === "cancelled" ? "⚠" : result.status === "error" ? "❌" : "✅"} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
+                `- ${result.status === "cancelled" ? "⚠" : result.status === "error" ? EMOJI_FAIL : EMOJI_SUCCESS} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
                 { encoding: "utf8" }
             )
             await writeFile(outJSON, JSON.stringify(result, null, 2), {

@@ -1,4 +1,10 @@
-import { CHANGE, TOOL_ID } from "./constants"
+import {
+    CHANGE,
+    EMOJI_FAIL,
+    EMOJI_SUCCESS,
+    EMOJI_UNDEFINED,
+    TOOL_ID,
+} from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
@@ -140,16 +146,20 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     private toResultIcon(value: boolean, missing: string) {
-        return value === true ? `✅` : value === false ? `❌` : missing
+        return value === true
+            ? EMOJI_SUCCESS
+            : value === false
+              ? EMOJI_FAIL
+              : missing
     }
 
     resultItem(value: boolean, message: string) {
-        this.item(`${this.toResultIcon(value, "?")} ${message}`)
+        this.item(`${this.toResultIcon(value, EMOJI_UNDEFINED)} ${message}`)
     }
 
     error(message: string, error?: unknown) {
         this.disableChange(() => {
-            this.heading(3, `❌ ${message || errorMessage(error)}`)
+            this.heading(3, `${EMOJI_FAIL} ${message || errorMessage(error)}`)
             if (error) {
                 const err = serializeError(error)
                 this.errors.push(err)
