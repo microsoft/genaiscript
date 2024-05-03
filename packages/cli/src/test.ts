@@ -16,7 +16,6 @@ import {
     PROMPTFOO_CONFIG_DIR,
     PROMPTFOO_CACHE_PATH,
     FILES_NOT_FOUND_ERROR_CODE,
-    ErrorObject,
     MarkdownTrace,
 } from "genaiscript-core"
 import { readFile, writeFile } from "node:fs/promises"
@@ -147,7 +146,7 @@ export async function runPromptScriptTests(
             stdio: "inherit",
         })
         let status: number
-        let error: ErrorObject
+        let error: SerializedError
         let value: any = undefined
         try {
             const res = await exec

@@ -1,4 +1,5 @@
 type DiagnosticSeverity = "error" | "warning" | "info"
+
 interface Diagnostic {
     filename: string
     range: CharRange
@@ -7,6 +8,14 @@ interface Diagnostic {
 }
 
 type Awaitable<T> = T | PromiseLike<T>
+
+interface SerializedError {
+	name?: string;
+	message?: string;
+	stack?: string;
+	cause?: unknown;
+	code?: string;
+}
 
 interface PromptDefinition {
     /**
@@ -634,6 +643,11 @@ interface DataFrame {
 
 interface RunPromptResult {
     text: string
+    annotations?: Diagnostic[]
+    fences?: Fenced[]
+    frames?: DataFrame[]
+    json?: any
+    error?: SerializedError
     finishReason?:
         | "stop"
         | "length"
@@ -641,6 +655,7 @@ interface RunPromptResult {
         | "content_filter"
         | "cancel"
         | "error"
+        | "fail"
 }
 
 /**

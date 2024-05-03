@@ -234,10 +234,8 @@ export async function runTemplate(
         })
     }
 
-    let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
     const changelogs: string[] = []
-    let annotations: Diagnostic[] = []
     const edits: Edits[] = []
     const projFolder = host.projectFolder()
     const links: string[] = []
@@ -277,9 +275,10 @@ export async function runTemplate(
     }
 
     const { completer } = resolveLanguageModel(template, options)
+    let output: RunPromptResult
     let genVars: Record<string, string> = {}
 
-    while (text === undefined && !isCancelled()) {
+    while (!isCancelled()) {
         let resp: ChatCompletionResponse
         try {
             try {
@@ -346,7 +345,6 @@ export async function runTemplate(
                 error,
                 text: resp?.text,
                 edits,
-                annotations,
                 changelogs,
                 fileEdits,
                 label,
@@ -356,7 +354,7 @@ export async function runTemplate(
             }
         }
         if (resp.variables) genVars = { ...genVars, ...resp.variables }
-        text = await processChatMessage(
+        output = await processChatMessage(
             resp,
             messages,
             functions,
@@ -366,19 +364,8 @@ export async function runTemplate(
         updateStatus()
     }
 
-    annotations = parseAnnotations(text)
-    const json = /^\s*[{[]/.test(text)
-        ? JSON5TryParse(text, undefined)
-        : undefined
-    const fences = json === undefined ? extractFenced(text) : []
-    const frames: DataFrame[] = []
-
-    // validate schemas in fences
-    if (fences?.length) {
-        trace.details("📩 code regions", renderFencedVariables(fences))
-        frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
-    }
-
+    const { json, fences, frames } = output
+    let { text, annotations } = output
     if (json !== undefined) {
         trace.detailsFenced("📩 json (parsed)", json, "json")
         const fn = fragment.file.filename.replace(

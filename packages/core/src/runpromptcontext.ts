@@ -17,6 +17,7 @@ import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     processChatMessage,
+    structurifyChatSession,
     toChatCompletionUserMessage,
 } from "./chat"
 import { GenerationOptions } from "./promptcontext"
@@ -193,13 +194,15 @@ export function createRunPromptContext(
                     genOptions
                 )
 
-                let text: string = undefined
-                let finishReason
                 let genVars: Record<string, string> = {}
-                while (
-                    text === undefined &&
-                    !cancellationToken?.isCancellationRequested
-                ) {
+                while (true) {
+                    if (cancellationToken?.isCancellationRequested)
+                        return structurifyChatSession(
+                            undefined,
+                            messages,
+                            schemas,
+                            options
+                        )
                     const resp = await completer(
                         {
                             model,
@@ -220,17 +223,15 @@ export function createRunPromptContext(
                     )
                     if (resp.variables)
                         genVars = { ...genVars, ...resp.variables }
-
-                    text = await processChatMessage(
+                    const output = await processChatMessage(
                         resp,
                         messages,
                         functions,
                         schemas,
                         options
                     )
-                    finishReason = resp.finishReason
+                    if (output) return output
                 }
-                return { text, finishReason }
             } finally {
                 trace.endDetails()
             }

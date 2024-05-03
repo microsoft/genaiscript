@@ -2,12 +2,12 @@ import { CHANGE, TOOL_ID } from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
-import { ErrorObject, serializeError } from "./error"
+import { serializeError } from "./error"
 
 export class MarkdownTrace
     extends EventTarget
     implements ChatFunctionCallTrace {
-    readonly errors: ErrorObject[] = []
+    readonly errors: SerializedError[] = []
     private _content: string = ""
 
     constructor() {

@@ -1,5 +1,5 @@
 import { GENAISCRIPT_FOLDER } from "./constants"
-import { ErrorObject, serializeError } from "./error"
+import { serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
 
@@ -209,7 +209,7 @@ export function logWarn(msg: string) {
     host.log(LogLevel.Warn, msg)
 }
 
-export function logError(msg: string | Error | ErrorObject) {
+export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
     host.log(LogLevel.Error, message || "error")
     host.log(LogLevel.Verbose, YAMLStringify(e))

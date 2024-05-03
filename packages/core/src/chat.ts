@@ -9,10 +9,12 @@ import { JSON5TryParse } from "./json5"
 import { exec } from "./exec"
 import { checkCancelled } from "./cancellation"
 import { assert } from "./util"
-import { extractFenced } from "./template"
+import { extractFenced, renderFencedVariables } from "./template"
 import { validateFencesWithSchema } from "./schema"
 import dedent from "ts-dedent"
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import { parseAnnotations } from "./annotations"
+import { isCancelError, serializeError } from "./error"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -331,16 +333,38 @@ async function applyRepairs(
     return false
 }
 
-export function renderText(
+export function structurifyChatSession(
     resp: ChatCompletionResponse,
-    messages: ChatCompletionMessageParam[]
-) {
-    return (
+    messages: ChatCompletionMessageParam[],
+    schemas: Record<string, JSONSchema>,
+    options: GenerationOptions,
+    err?: any
+): RunPromptResult {
+    const { trace } = options
+    const text =
         messages
             .filter((msg) => msg.role === "assistant" && msg.content)
             .map((m) => m.content)
-            .join("\n") + resp.text
-    )
+            .join("\n") + (resp?.text || "")
+    const annotations = parseAnnotations(text)
+    const finishReason = isCancelError(err)
+        ? "cancel"
+        : resp?.finishReason ?? "fail"
+    const error = serializeError(err)
+
+    const json = /^\s*[{[]/.test(text)
+        ? JSON5TryParse(text, undefined)
+        : undefined
+    const fences = json === undefined ? extractFenced(text) : []
+    const frames: DataFrame[] = []
+
+    // validate schemas in fences
+    if (fences?.length) {
+        trace.details("📩 code regions", renderFencedVariables(fences))
+        frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
+    }
+
+    return { text, annotations, finishReason, fences, frames, json, error }
 }
 
 export async function processChatMessage(
@@ -349,7 +373,7 @@ export async function processChatMessage(
     functions: ChatFunctionCallback[],
     schemas: Record<string, JSONSchema>,
     options: GenerationOptions
-): Promise<string> {
+): Promise<RunPromptResult> {
     const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
     const maxRepairs = MAX_DATA_REPAIRS
 
@@ -371,8 +395,5 @@ export async function processChatMessage(
         if (stats.repairs >= maxRepairs)
             throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
         return undefined // keep working
-    }
-
-    const text = renderText(resp, messages)
-    return text
+    } else return structurifyChatSession(resp, messages, schemas, options)
 }

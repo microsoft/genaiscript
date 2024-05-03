@@ -1,5 +1,4 @@
 import { CancellationToken } from "./cancellation"
-import { ErrorObject } from "./error"
 import { Progress } from "./progress"
 import { MarkdownTrace, TraceOptions } from "./trace"
 
@@ -67,7 +66,7 @@ export interface RetrievalClientOptions {
 
 export interface ResponseStatus {
     ok: boolean
-    error?: ErrorObject
+    error?: SerializedError
     status?: number
 }
 
