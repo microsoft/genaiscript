@@ -10,11 +10,11 @@ interface Diagnostic {
 type Awaitable<T> = T | PromiseLike<T>
 
 interface SerializedError {
-	name?: string;
-	message?: string;
-	stack?: string;
-	cause?: unknown;
-	code?: string;
+    name?: string
+    message?: string
+    stack?: string
+    cause?: unknown
+    code?: string
 }
 
 interface PromptDefinition {
@@ -648,13 +648,12 @@ interface RunPromptResult {
     frames?: DataFrame[]
     json?: any
     error?: SerializedError
-    finishReason?:
+    finishReason:
         | "stop"
         | "length"
         | "tool_calls"
         | "content_filter"
         | "cancel"
-        | "error"
         | "fail"
 }
 

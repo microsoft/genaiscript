@@ -27,7 +27,8 @@ import {
     resolveModelConnectionInfo,
 } from "./models"
 import { renderAICI } from "./aici"
-import { CancelError } from "./error"
+import { CancelError, isCancelError, serializeError } from "./error"
+import { checkCancelled } from "./cancellation"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -128,10 +129,6 @@ export function createRunPromptContext(
         runPrompt: async (generator, promptOptions) => {
             try {
                 trace.startDetails(`🎁 run prompt`)
-                if (!generator) {
-                    trace.error("generator missing")
-                    return <RunPromptResult>{ text: "", finishReason: "error" }
-                }
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
                 const genOptions = {
@@ -143,10 +140,8 @@ export function createRunPromptContext(
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)
+                checkCancelled(cancellationToken)
                 const node = ctx.node
-
-                if (cancellationToken?.isCancellationRequested)
-                    return { text: "user cancelled", finishReason: "cancel" }
 
                 const messages: ChatCompletionMessageParam[] = []
                 let functions: ChatFunctionCallback[] = undefined
@@ -185,15 +180,12 @@ export function createRunPromptContext(
                 const connection = await resolveModelConnectionInfo({
                     model,
                 })
-                if (!connection.token) {
-                    trace.error("model connection error", connection.info)
-                    return <RunPromptResult>{ text: "", finishReason: "error" }
-                }
+                if (!connection.token)
+                    throw new Error("model connection error " + connection.info)
                 const { completer } = resolveLanguageModel(
                     promptOptions,
                     genOptions
                 )
-
                 let genVars: Record<string, string> = {}
                 while (true) {
                     if (cancellationToken?.isCancellationRequested)
@@ -201,36 +193,53 @@ export function createRunPromptContext(
                             undefined,
                             messages,
                             schemas,
-                            options
+                            genOptions
                         )
-                    const resp = await completer(
-                        {
-                            model,
-                            temperature:
-                                promptOptions?.temperature ??
-                                options.temperature ??
-                                DEFAULT_TEMPERATURE,
-                            top_p: promptOptions?.topP ?? options.topP,
-                            max_tokens:
-                                promptOptions?.maxTokens ?? options.maxTokens,
-                            seed: promptOptions?.seed ?? options.seed,
-                            stream: true,
+                    try {
+                        const resp = await completer(
+                            {
+                                model,
+                                temperature:
+                                    promptOptions?.temperature ??
+                                    options.temperature ??
+                                    DEFAULT_TEMPERATURE,
+                                top_p: promptOptions?.topP ?? options.topP,
+                                max_tokens:
+                                    promptOptions?.maxTokens ??
+                                    options.maxTokens,
+                                seed: promptOptions?.seed ?? options.seed,
+                                stream: true,
+                                messages,
+                            },
+                            connection.token,
+                            genOptions,
+                            trace
+                        )
+                        if (resp.variables)
+                            genVars = { ...genVars, ...resp.variables }
+                        const output = await processChatMessage(
+                            resp,
                             messages,
-                        },
-                        connection.token,
-                        genOptions,
-                        trace
-                    )
-                    if (resp.variables)
-                        genVars = { ...genVars, ...resp.variables }
-                    const output = await processChatMessage(
-                        resp,
-                        messages,
-                        functions,
-                        schemas,
-                        options
-                    )
-                    if (output) return output
+                            functions,
+                            schemas,
+                            genOptions
+                        )
+                        if (output) return output
+                    } catch (e) {
+                        return structurifyChatSession(
+                            undefined,
+                            messages,
+                            schemas,
+                            genOptions,
+                            e
+                        )
+                    }
+                }
+            } catch (e) {
+                trace.error(e)
+                return {
+                    finishReason: isCancelError(e) ? "cancel" : "fail",
+                    error: serializeError(e),
                 }
             } finally {
                 trace.endDetails()
