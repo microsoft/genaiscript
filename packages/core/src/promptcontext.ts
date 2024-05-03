@@ -169,6 +169,13 @@ export function createPromptContext(
         appendPromptChild(createFunctionNode(name, description, parameters, fn))
     }
 
+    const chat: ChatSession = {
+        askUser: (question) =>
+            host.askUser({
+                prompt: question,
+            }),
+    }
+
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
         script: () => {},
@@ -184,6 +191,7 @@ export function createPromptContext(
         AICI,
         XML,
         retrieval,
+        chat,
         defImages,
         defSchema,
         defOutput,

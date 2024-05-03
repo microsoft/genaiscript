@@ -127,6 +127,11 @@ declare var INI: INI
 declare var AICI: AICI
 
 /**
+ * Access to current LLM chat session information
+ */
+declare var chat: ChatSession
+
+/**
  * Fetches a given URL and returns the response.
  * @param url
  */

@@ -217,7 +217,11 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async askUser(options: AskUserOptions) {
-        const res = vscode.window.showInputBox(options)
+        const res = vscode.window.showInputBox({
+            ...options,
+            title: `GenAIScript ask user`,
+            ignoreFocusOut: true,
+        })
         return res
     }
 
