@@ -1,5 +1,7 @@
 ---
 title: Ask User
+description: Learn how to prompt users for input using chat.askUser function in scripts.
+keywords: chat.askUser, user input, script interaction, prompt response, scripting API
 sidebar:
     order: 10
 ---
