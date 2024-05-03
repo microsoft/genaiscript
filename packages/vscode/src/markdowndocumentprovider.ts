@@ -32,7 +32,8 @@ Waiting for GenAiScript response...
 `
 
 class MarkdownTextDocumentContentProvider
-    implements vscode.TextDocumentContentProvider {
+    implements vscode.TextDocumentContentProvider
+{
     constructor(readonly state: ExtensionState) {
         this.state.addEventListener(AI_REQUEST_CHANGE, () => {
             ;[REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME]
@@ -127,24 +128,25 @@ async function previewOpenAICacheEntry(sha: string) {
 ## Request
 
 ${Object.entries(key)
-            .filter(([, value]) => typeof value !== "object")
-            .map(([k, v]) => `-  ${k}: \`${JSON.stringify(v, null, 2)}\``)
-            .join("\n")}
+    .filter(([, value]) => typeof value !== "object")
+    .map(([k, v]) => `-  ${k}: \`${JSON.stringify(v, null, 2)}\``)
+    .join("\n")}
 
 ### Messages
 
 ${key.messages
-            .map(
-                (msg) => `-   **${msg.role}:**
+    .map(
+        (msg) => `-   **${msg.role}:**
 \`\`\`\`\`
-${typeof msg.content === "string"
-                        ? msg.content.trim()
-                        : JSON.stringify(msg.content)
-                    }
+${
+    typeof msg.content === "string"
+        ? msg.content.trim()
+        : JSON.stringify(msg.content)
+}
 \`\`\`\`\`
 `
-            )
-            .join("\n")}
+    )
+    .join("\n")}
 
 ## Extracted variables    
 

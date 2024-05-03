@@ -9,7 +9,7 @@ import { JSON5TryParse } from "./json5"
 import { exec } from "./exec"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
-import { extractFenced, renderFencedVariables } from "./template"
+import { extractFenced, renderFencedVariables } from "./fence"
 import { validateFencesWithSchema } from "./schema"
 import dedent from "ts-dedent"
 import {

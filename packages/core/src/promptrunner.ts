@@ -2,7 +2,7 @@ import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
-import { staticVars, undoublequote } from "./template"
+import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
@@ -17,6 +17,7 @@ import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { RequestError } from "./error"
 import { createFetch } from "./fetch"
+import { undoublequote } from "./fence"
 
 async function fragmentVars(
     trace: MarkdownTrace,

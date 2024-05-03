@@ -1,3 +1,32 @@
+import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_UNDEFINED } from "./constants"
+
+const promptFenceStartRx =
+    /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
+function startFence(text: string) {
+    const m = promptFenceStartRx.exec(text)
+    const groups: Record<string, string> = m?.groups || {}
+    return {
+        fence: groups.fence,
+        language: undoublequote(groups.language),
+        args: parseKeyValuePairs(groups.args),
+    }
+}
+
+export function undoublequote(s: string) {
+    if (s && s[0] === `"` && s[s.length - 1] === `"`) return s.slice(1, -1)
+    return s
+}
+
+export function parseKeyValuePairs(text: string) {
+    const res: Record<string, string> = {}
+    text
+        ?.split(/\s+/g)
+        .map((kv) => kv.split(/[=:]/))
+        .filter((m) => m.length == 2)
+        .forEach((m) => (res[m[0]] = undoublequote(m[1])))
+    return Object.freeze(res)
+}
+
 /**
  * Parse output of LLM similar to output of genaiscript def() function.
  *
@@ -110,4 +139,43 @@ import re
 
         return text
     }
+}
+
+export function parseVars(vars: string[]) {
+    if (!vars?.length) return undefined
+    const res: Record<string, string> = {}
+    if (vars) for (const v of vars) Object.assign(res, parseKeyValuePairs(v))
+    return Object.freeze(res)
+}
+
+export function renderFencedVariables(vars: Fenced[]) {
+    return vars
+        .map(
+            ({
+                label: k,
+                content: v,
+                validation,
+                args,
+                language,
+            }) => `-   \`${k}\` ${
+                validation !== undefined
+                    ? `schema ${args.schema}: ${validation.valid === undefined ? EMOJI_UNDEFINED : validation.valid ? EMOJI_SUCCESS : EMOJI_FAIL}`
+                    : ""
+            }\n
+\`\`\`\`\`${
+                language ?? /^Note/.test(k)
+                    ? "markdown"
+                    : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""
+            }
+${v}
+\`\`\`\`\`
+${
+    validation?.error
+        ? `> [!CAUTION] Schema ${args.schema} validation errors
+${validation.error.split("\n").join("\n> ")}`
+        : ""
+}
+`
+        )
+        .join("\n")
 }
