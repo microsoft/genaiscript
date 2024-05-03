@@ -156,7 +156,6 @@ export async function runTemplate(
         model,
         max_tokens,
         seed,
-        responseType,
     } = await expandTemplate(
         prj,
         template,
@@ -168,6 +167,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
+        trace.renderErrors()
         return <GenerationResult>{
             status,
             statusText,
@@ -188,6 +188,7 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
+        trace.renderErrors()
         return <GenerationResult>{
             prompt: messages,
             vars,
@@ -428,6 +429,7 @@ export async function runTemplate(
             })
         )
 
+    trace.renderErrors()
     const res: GenerationResult = {
         status: status,
         statusText,

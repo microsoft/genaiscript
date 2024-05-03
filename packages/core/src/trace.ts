@@ -8,13 +8,15 @@ import {
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
-import { errorMessage, serializeError } from "./error"
+import { serializeError } from "./error"
+import { assert } from "./util"
 
 export class MarkdownTrace
     extends EventTarget
     implements ChatFunctionCallTrace
 {
-    readonly errors: SerializedError[] = []
+    readonly errors: { message: string; error: SerializedError }[] = []
+    private detailsDepth = 0
     private _content: string = ""
 
     constructor() {
@@ -38,6 +40,7 @@ export class MarkdownTrace
     }
 
     startDetails(title: string, success?: boolean) {
+        this.detailsDepth++
         title = title?.trim() || ""
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
@@ -51,7 +54,10 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     endDetails() {
-        this.content += `\n</details>\n\n`
+        if (this.detailsDepth > 0) {
+            this.detailsDepth--
+            this.content += `\n</details>\n\n`
+        }
     }
 
     private disableChange(f: () => void) {
@@ -159,13 +165,26 @@ ${this.toResultIcon(success, "")}${title}
 
     error(message: string, error?: unknown) {
         this.disableChange(() => {
-            this.heading(3, `${EMOJI_FAIL} ${message || errorMessage(error)}`)
-            if (error) {
-                const err = serializeError(error)
-                this.errors.push(err)
-                this.fence(YAMLStringify(err), "yaml")
-            }
+            const err = { message, error: serializeError(error) }
+            this.errors.push(err)
+            this.renderError(err)
         })
+    }
+
+    renderErrors() {
+        while (this.detailsDepth > 0) this.endDetails()
+        if (this.errors?.length) {
+            this.disableChange(() => {
+                this.heading(3, `${EMOJI_FAIL} errors`)
+                this.errors.forEach((e) => this.renderError(e))
+            })
+        }
+    }
+
+    private renderError(e: { message: string; error?: SerializedError }) {
+        const { message, error } = e
+        this.item(message || e?.message)
+        this.fence(error?.stack, "txt")
     }
 }
 
