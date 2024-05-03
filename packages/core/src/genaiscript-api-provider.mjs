@@ -1,10 +1,14 @@
+/**
+ * GenAiScript PromptFoo Custom Provider
+ *
+ * Do not edit, auto-generated.
+ *
+ */
 import { promisify } from "node:util"
 import { exec } from "node:child_process"
 
 const execAsync = promisify(exec)
 
-// https://promptfoo.dev/docs/providers/custom-api
-// https://github.com/promptfoo/promptfoo/blob/335bdab1049659f08349c14814f0bc0fac35daeb/src/providers/azureopenai.ts#L72
 class GenAIScriptApiProvider {
     constructor(options) {
         this.config = options.config
@@ -39,14 +43,17 @@ class GenAIScriptApiProvider {
             args.push("--json")
             if (quiet) args.push("--quiet")
             if (model) args.push("--model", model)
-            if (temperature !== undefined) args.push("--temperature", temperature)
+            if (temperature !== undefined)
+                args.push("--temperature", temperature)
             if (top_p !== undefined) args.push("--top_p", top_p)
             if (vars.vars) args.push("--vars", vars.vars)
             if (cache === false) args.push("--no-cache")
 
             const cmd = args
                 .map((a) =>
-                    typeof a === "string" && a.includes(" ") ? JSON.stringify(a) : a
+                    typeof a === "string" && a.includes(" ")
+                        ? JSON.stringify(a)
+                        : a
                 )
                 .join(" ")
             logger.info(cmd)
@@ -58,6 +65,9 @@ class GenAIScriptApiProvider {
             try {
                 output = JSON.parse(outputText)
             } catch (e) {
+                logger.error(
+                    e?.message || "error parsing genaiscript json output"
+                )
                 output = {
                     text: outputText,
                     error: e,
@@ -72,7 +82,7 @@ class GenAIScriptApiProvider {
             logger.error(e)
             return {
                 output: { text: "" },
-                error: e
+                error: e,
             }
         }
     }
