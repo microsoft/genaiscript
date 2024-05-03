@@ -1225,6 +1225,10 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
+interface ChatSession {
+    askUser(question: string): Promise<string>
+}
+
 interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
@@ -1252,6 +1256,7 @@ interface PromptContext extends RunPromptContext {
     CSV: CSV
     INI: INI
     AICI: AICI
+    chat: ChatSession
 }
 
 
@@ -1381,6 +1386,11 @@ declare var INI: INI
  * AICI operations
  */
 declare var AICI: AICI
+
+/**
+ * Access to current LLM chat session information
+ */
+declare var chat: ChatSession
 
 /**
  * Fetches a given URL and returns the response.

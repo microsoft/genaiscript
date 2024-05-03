@@ -10,6 +10,7 @@ import {
     PromptNode,
     appendChild,
     createFileMergeNode,
+    createFunctionNode,
     createImageNode,
     createOutputProcessor,
     createSchemaNode,
@@ -144,6 +145,13 @@ export function createPromptContext(
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
+    const chat: ChatSession = {
+        askUser: (question) =>
+            host.askUser({
+                prompt: question,
+            }),
+    }
+
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
         ...createRunPromptContext(options, env, trace),
         script: () => {},
@@ -159,6 +167,7 @@ export function createPromptContext(
         AICI,
         XML,
         retrieval,
+        chat,
         defImages,
         defOutputProcessor,
         defFileMerge: (fn) => {

@@ -15,6 +15,7 @@ import {
     ICON_LOGO_NAME,
     ParseService,
     createBundledParsers,
+    AskUserOptions,
 } from "genaiscript-core"
 import { Uri, window } from "vscode"
 import { ExtensionState } from "./state"
@@ -213,6 +214,15 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async setSecretToken(tok: OAIToken): Promise<void> {
         this.dispatchEvent(new Event(CHANGE))
+    }
+
+    async askUser(options: AskUserOptions) {
+        const res = vscode.window.showInputBox({
+            ...options,
+            title: `GenAIScript ask user`,
+            ignoreFocusOut: true,
+        })
+        return res
     }
 
     // executes a process

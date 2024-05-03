@@ -1,5 +1,7 @@
 import dotenv from "dotenv"
+import prompts from "prompts"
 import {
+    AskUserOptions,
     Host,
     LogLevel,
     OAIToken,
@@ -112,6 +114,14 @@ export class NodeHost implements Host {
     }
     resolvePath(...segments: string[]) {
         return resolve(...segments)
+    }
+    async askUser(options: AskUserOptions) {
+        const res = await prompts({
+            type: "text",
+            name: "value",
+            message: options.prompt,
+        })
+        return res?.value
     }
     async readFile(
         name: string,

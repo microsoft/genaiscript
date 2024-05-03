@@ -1194,6 +1194,10 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
+interface ChatSession {
+    askUser(question: string): Promise<string>
+}
+
 interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
@@ -1221,4 +1225,5 @@ interface PromptContext extends RunPromptContext {
     CSV: CSV
     INI: INI
     AICI: AICI
+    chat: ChatSession
 }

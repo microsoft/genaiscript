@@ -138,6 +138,17 @@ export interface ServerManager {
     close(): Promise<void>
 }
 
+export interface AskUserOptions {
+    /**
+     * The text to display underneath the input box.
+     */
+    prompt: string
+    /**
+     * An optional string to show as placeholder in the input box to guide the user what to type.
+     */
+    placeHolder?: string
+}
+
 export interface Host {
     userState: any
 
@@ -174,6 +185,12 @@ export interface Host {
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
     deleteDirectory(name: string): Promise<void>
+
+    /**
+     * Asks the user a questions and returns the answer
+     * @param question
+     */
+    askUser(options: AskUserOptions): Promise<string>
 
     // executes a process
     exec(

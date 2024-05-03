@@ -68,7 +68,7 @@ const lineup = defSchema("LINEUP", {
 })
 
 defTool(
-    "player_in_multiple_lines_validator",
+    "player_in_mutiple_lines_validator",
     "Validates that the positions for players in multiple lines",
     {
         type: "object",
@@ -81,10 +81,6 @@ defTool(
             position1: {
                 type: "string",
                 description: "Positions in the first line",
-            },
-            position2: {
-                type: "string",
-                description: "Positions in the second line",
             },
         },
         required: ["name", "position1", "position2"],
