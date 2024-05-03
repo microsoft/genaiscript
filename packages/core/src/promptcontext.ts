@@ -238,7 +238,6 @@ export interface RunTemplateOptions
     infoCb?: (partialResponse: {
         text: string
         label?: string
-        summary?: string
         vars?: Partial<ExpansionVariables>
     }) => void
     trace?: MarkdownTrace

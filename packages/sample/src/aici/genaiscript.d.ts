@@ -43,7 +43,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.summary" | "system.files_schema" | "system.annotations" | "system.python" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.json" | "system.math" | "system.python" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.web_search" | "system.zero_shot_cot"
 
 type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "web_search"
 
@@ -163,27 +163,26 @@ interface ModelOptions extends ModelConnectionOptions {
 interface ScriptRuntimeOptions {
 /**
 * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
-* - `system.summary`: Adds a summary of the changes
-* - `system.files_schema`: Apply JSON schemas to generated data.
+* - `system`: Markdown system prompt
 * - `system.annotations`: Emits annotations compatible with GitHub Actions
-* - `system.python`: Expert at generating and understanding Python code.
+* - `system.changelog`: Generate changelog formatter edits
+* - `system.diff`: Generates concise file diffs.
 * - `system.explanations`: Explain your answers
-* - `system.typescript`: Export TypeScript Developer
+* - `system.files`: File generation
+* - `system.files_schema`: Apply JSON schemas to generated data.
 * - `system.fs_find_files`: File Find Files
 * - `system.fs_read_file`: File Read File
 * - `system.fs_read_summary`: File Read Summary
-* - `system.files`: File generation
-* - `system.changelog`: Generate changelog formatter edits
-* - `system.diff`: Generates concise file diffs.
-* - `system.tasks`: Generates tasks
-* - `system.schema`: JSON Schema support
+* - `system.functions`: use functions
 * - `system.json`: JSON system prompt
-* - `system`: Markdown system prompt
 * - `system.math`: Math expression evaluator
+* - `system.python`: Expert at generating and understanding Python code.
+* - `system.schema`: JSON Schema support
+* - `system.tasks`: Generates tasks
 * - `system.technical`: Technical Writer
+* - `system.typescript`: Export TypeScript Developer
 * - `system.web_search`: Web Search
 * - `system.zero_shot_cot`: Zero-shot Chain Of Though
-* - `system.functions`: use functions
 **/
     system?: SystemPromptId[]
 

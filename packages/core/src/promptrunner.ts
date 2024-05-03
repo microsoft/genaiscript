@@ -232,7 +232,6 @@ export async function runTemplate(
     const changelogs: string[] = []
     let annotations: Diagnostic[] = []
     const edits: Edits[] = []
-    let summary: string = undefined
     const projFolder = host.projectFolder()
     const links: string[] = []
     const fp = fragment.file.filename
@@ -625,8 +624,6 @@ ${repair}
                     if (!curr && fragn !== fn)
                         links.push(`-   [${ffn}](${ffn})`)
                 }
-            } else if (/^summary$/i.test(name)) {
-                summary = val
             }
         }
     }
@@ -720,7 +717,6 @@ ${repair}
         fileEdits,
         trace: trace.content,
         text,
-        summary,
         version,
         fences,
         frames,
@@ -729,7 +725,6 @@ ${repair}
     options?.infoCb?.({
         label: res.label,
         vars: res.vars,
-        summary: res.summary,
         text: undefined,
     })
     return res

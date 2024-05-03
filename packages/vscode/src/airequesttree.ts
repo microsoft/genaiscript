@@ -56,11 +56,7 @@ class AIRequestTreeDataProvider
         if (entry && !token.isCancellationRequested) {
             const { key, val } = entry
             item.tooltip = new vscode.MarkdownString(
-                toMarkdownString(
-                    val.response?.summary ||
-                        val.response?.text.slice(0, 100) ||
-                        ""
-                )
+                toMarkdownString(val.response?.text?.slice(0, 100) || "")
             )
         }
 

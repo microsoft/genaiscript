@@ -1,6 +1,5 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
 import json5 from "json5"
-import { markdownTable } from "markdown-table"
 const { parse } = json5
 
 const dir = "./src/genaisrc"

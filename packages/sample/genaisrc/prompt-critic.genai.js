@@ -4,7 +4,7 @@ script({
     maxTokens: 4000,
     model: "gpt-4",
     group: "tutorial",
-    system: ["system.summary"]
+    system: []
 })
 
 def("SPEC", env.spec)
