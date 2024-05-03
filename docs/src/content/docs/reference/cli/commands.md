@@ -121,7 +121,7 @@ Options:
   -tp, --test-provider <string>       test provider
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.57.0
+  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.57.1
   -h, --help                          display help for command
 ```
 

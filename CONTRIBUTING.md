@@ -63,6 +63,12 @@ Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, lev
 
 ## Packaging
 
+To refresh the vscode features, update the minimum vscode version in package.json/engines then run
+
+```sh
+yarn vscode:update-dts
+```
+
 To compile and package the Visual Studio Code extension, run the `package` script.
 
 ```sh
