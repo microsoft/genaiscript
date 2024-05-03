@@ -213,10 +213,8 @@ async function runToolCalls(
     // call tool and run again
     for (const call of resp.toolCalls) {
         checkCancelled(cancellationToken)
+        trace.startDetails(`📠 tool call ${call.name}`)
         try {
-            trace.startDetails(`📠 tool call ${call.name}`)
-            trace.itemValue(`id`, call.id)
-
             const callArgs: any = call.arguments
                 ? JSON5TryParse(call.arguments)
                 : undefined
@@ -449,46 +447,64 @@ export async function executeChatSession(
         topP,
         maxTokens,
         seed,
+        cacheName,
+        stats,
     } = genOptions
 
-    let genVars: Record<string, string>
-    while (true) {
-        let resp: ChatCompletionResponse
-        try {
-            checkCancelled(cancellationToken)
-            resp = await completer(
-                {
-                    model,
-                    temperature: temperature,
-                    top_p: topP,
-                    max_tokens: maxTokens,
-                    seed,
-                    stream: true,
+    trace.startDetails("llm chat")
+    try {
+        trace.itemValue(`model`, model)
+        trace.itemValue(`api type`, connectionToken.type || "")
+        trace.itemValue(`configuration source`, connectionToken.source)
+        trace.itemValue(`temperature`, temperature)
+        trace.itemValue(`top_p`, topP)
+        trace.itemValue(`seed`, seed)
+        trace.itemValue(`cache name`, cacheName)
+
+        let genVars: Record<string, string>
+        while (true) {
+            trace.startDetails(`llm request (${messages.length} messages)`)
+            let resp: ChatCompletionResponse
+            try {
+                checkCancelled(cancellationToken)
+                resp = await completer(
+                    {
+                        model,
+                        temperature: temperature,
+                        top_p: topP,
+                        max_tokens: maxTokens,
+                        seed,
+                        stream: true,
+                        messages,
+                    },
+                    connectionToken,
+                    genOptions,
+                    trace
+                )
+                if (resp.variables)
+                    genVars = { ...(genVars || {}), ...resp.variables }
+                const output = await processChatMessage(
+                    resp,
                     messages,
-                },
-                connectionToken,
-                genOptions,
-                trace
-            )
-            if (resp.variables)
-                genVars = { ...(genVars || {}), ...resp.variables }
-            const output = await processChatMessage(
-                resp,
-                messages,
-                functions,
-                schemas,
-                genVars,
-                genOptions
-            )
-            if (output) return output
-        } catch (err) {
-            return structurifyChatSession(
-                messages,
-                schemas,
-                genVars,
-                genOptions,
-                { resp, err }
-            )
+                    functions,
+                    schemas,
+                    genVars,
+                    genOptions
+                )
+                if (output) return output
+            } catch (err) {
+                return structurifyChatSession(
+                    messages,
+                    schemas,
+                    genVars,
+                    genOptions,
+                    { resp, err }
+                )
+            } finally {
+                trace.endDetails()
+            }
         }
+    } finally {
+        trace.endDetails()
     }
 }

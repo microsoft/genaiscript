@@ -41,16 +41,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
-    const { provider, model } = parseModelIdentifier(req.model)
-
-    trace.itemValue(`provider`, provider)
-    trace.itemValue(`model`, model)
-    trace.itemValue(`api type`, cfgNoToken.type || "")
-    trace.itemValue(`temperature`, temperature)
-    trace.itemValue(`top_p`, top_p)
-    trace.itemValue(`seed`, seed)
-    trace.itemValue(`api type`, cfg.type)
-    trace.itemValue(`cache name`, cacheName)
+    const { model } = parseModelIdentifier(req.model)
 
     const cache = getChatCompletionCache(cacheName)
     const caching =
@@ -71,7 +62,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             responseSoFar: cached,
             responseChunk: cached,
         })
-        trace.itemValue(`cached sha`, await cache.getKeySHA(cachedKey))
+        trace.itemValue(`cache hit`, await cache.getKeySHA(cachedKey))
         return { text: cached, cached: true }
     }
 
