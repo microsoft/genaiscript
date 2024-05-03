@@ -395,15 +395,15 @@ export async function runTemplate(
                     )
                     trace.startDetails(`📠 tool call ${call.name}`)
                     trace.itemValue(`id`, call.id)
-                    trace.itemValue(`args`, call.arguments)
 
                     const callArgs: any = call.arguments
                         ? JSON5TryParse(call.arguments)
                         : undefined
+                    trace.itemValue(`args`, callArgs ?? call.arguments)
                     const fd = functions.find(
                         (f) => f.definition.name === call.name
                     )
-                    if (!fd) throw new Error(`function ${call.name} not found`)
+                    if (!fd) throw new Error(`tool ${call.name} not found`)
 
                     const context: ChatFunctionCallContext = {
                         trace,
@@ -474,7 +474,7 @@ export async function runTemplate(
                         tool_call_id: call.id,
                     })
                 } catch (e) {
-                    trace.error(`function failed`, e)
+                    trace.error(`tool call ${call.id} error`, e)
                     updateStatus(`error`)
                     throw e
                 } finally {

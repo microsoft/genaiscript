@@ -13,7 +13,7 @@ export function resolveLanguageModel(
     }
 ): LanguageModel {
     if (options?.languageModel) return options?.languageModel
-    const { provider } = parseModelIdentifier(template.model)
+    const { provider } = parseModelIdentifier(template?.model)
     if (provider === "ollama") return OllamaModel
     if (provider === "aici") return AICIModel
     return OpenAIModel
