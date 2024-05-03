@@ -1,0 +1,12 @@
+{
+    // Default config - can be passed in via config and/or CLI
+    "inputs": ["./package.json"],
+    "output": "./THIRD_PARTY_LICENSES.md",
+    "lineEnding": "lf",
+
+    // Exclude any packages from the output.
+    "exclude": ["genaiscript-docs", "genaiscript-slides"],
+
+    // Omit the version number in the output file
+    "omitVersion": false,
+}

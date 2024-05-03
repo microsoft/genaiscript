@@ -28,6 +28,7 @@
     "fast-xml-parser": "^4.3.6",
     "fetch-retry": "^6.0.0",
     "file-type": "^19.0.0",
+    "fuse.js": "^7.0.0",
     "gpt-tokenizer": "^2.1.2",
     "html-to-text": "^9.0.5",
     "ini": "^4.1.2",
