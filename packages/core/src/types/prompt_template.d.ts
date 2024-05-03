@@ -71,7 +71,7 @@ interface PromptOutputProcessorResult {
 }
 
 type PromptOutputProcessorHandler = (
-    output: PromptGenerationOutput
+    output: GenerationOutput
 ) =>
     | PromptOutputProcessorResult
     | Promise<PromptOutputProcessorResult>
@@ -1053,7 +1053,7 @@ interface RunPromptContext {
     ): void
 }
 
-interface PromptGenerationOutput {
+interface GenerationOutput {
     /**
      * LLM output.
      */

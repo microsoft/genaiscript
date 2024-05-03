@@ -1,5 +1,5 @@
 import {
-    PromptGenerationResult,
+    GenerationResult,
     YAMLStringify,
     diagnosticsToCSV,
     host,
@@ -175,7 +175,7 @@ ${Array.from(files)
     )
 
     let tokens = 0
-    let res: PromptGenerationResult
+    let res: GenerationResult
     try {
         const trace = new MarkdownTrace()
         res = await runTemplate(prj, script, fragment, {
@@ -205,6 +205,10 @@ ${Array.from(files)
             maxDelay,
             vars,
             trace,
+            stats: {
+                toolCalls: 0,
+                repairs: 0,
+            },
         })
     } catch (err) {
         if (spinner) spinner.fail()

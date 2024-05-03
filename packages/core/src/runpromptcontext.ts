@@ -12,20 +12,12 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import {
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
-    MAX_DATA_REPAIRS,
-} from "./constants"
+import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
-    ChatCompletionTool,
-    applyRepairs,
-    renderText,
-    runToolCalls,
+    processChatMessage,
     toChatCompletionUserMessage,
-    traceCompletionResonse,
 } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
 import {
@@ -201,17 +193,13 @@ export function createRunPromptContext(
                     runOptions
                 )
 
-                let repairs = 0
-                let toolCalls = 0
+                let text: string = undefined
+                let finishReason
                 let genVars: Record<string, string> = {}
-                const { maxToolCalls } = runOptions
-                while (true) {
-                    if (cancellationToken?.isCancellationRequested)
-                        return {
-                            text: "user cancelled",
-                            finishReason: "cancel",
-                        }
-
+                while (
+                    text === undefined &&
+                    !cancellationToken?.isCancellationRequested
+                ) {
                     const resp = await completer(
                         {
                             model,
@@ -232,28 +220,17 @@ export function createRunPromptContext(
                     )
                     if (resp.variables)
                         genVars = { ...genVars, ...resp.variables }
-                    traceCompletionResonse(trace, resp)
-                    // execute tools as needed
-                    if (resp.toolCalls?.length) {
-                        if (toolCalls > maxToolCalls)
-                            throw new Error(
-                                "maximum number of tool calls reached"
-                            )
-                        await runToolCalls(resp, messages, functions, options)
-                    }
-                    // apply repairs if necessary
-                    else if (
-                        repairs < MAX_DATA_REPAIRS &&
-                        applyRepairs(messages, schemas, options)
-                    ) {
-                        repairs++
-                    }
-                    // generate text and finish generation
-                    else {
-                        const text = renderText(resp, messages)
-                        return { text, finishReason: resp.finishReason }
-                    }
+
+                    text = await processChatMessage(
+                        resp,
+                        messages,
+                        functions,
+                        schemas,
+                        options
+                    )
+                    finishReason = resp.finishReason
                 }
+                return { text, finishReason }
             } finally {
                 trace.endDetails()
             }

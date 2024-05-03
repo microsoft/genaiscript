@@ -6,7 +6,7 @@ import {
     PromptScript,
     concatArrays,
     parseProject,
-    PromptGenerationResult,
+    GenerationResult,
     runTemplate,
     groupBy,
     RunTemplateOptions,
@@ -79,7 +79,7 @@ export interface AIRequestSnapshotKey {
     version: string
 }
 export interface AIRequestSnapshot {
-    response?: Partial<PromptGenerationResult>
+    response?: Partial<GenerationResult>
     error?: any
     trace?: string
 }
@@ -89,8 +89,8 @@ export interface AIRequest {
     options: AIRequestOptions
     controller: AbortController
     trace: MarkdownTrace
-    request?: Promise<PromptGenerationResult>
-    response?: Partial<PromptGenerationResult>
+    request?: Promise<GenerationResult>
+    response?: Partial<GenerationResult>
     computing?: boolean
     error?: any
     progress?: ChatCompletionsProgressReport
@@ -353,6 +353,7 @@ ${errorMessage(e)}`
             maxCachedTopP,
             vars: options.parameters,
             cache: cache && template.cache,
+            stats: { toolCalls: 0, repairs: 0 },
             cliInfo: {
                 spec: vscode.workspace.asRelativePath(
                     this.host.isVirtualFile(fragment.file.filename)

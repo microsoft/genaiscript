@@ -25,6 +25,7 @@ import { CancelError } from "./error"
 import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
+import { GenerationStats } from "./expander"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -241,4 +242,5 @@ export interface RunTemplateOptions
     }
     languageModel?: LanguageModel
     vars?: PromptParameters
+    stats: GenerationStats
 }

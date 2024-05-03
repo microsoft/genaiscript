@@ -1,10 +1,7 @@
 import {
     ChatCompletionResponse,
     ChatCompletionTool,
-    applyRepairs,
-    renderText,
-    runToolCalls,
-    traceCompletionResonse,
+    processChatMessage,
 } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
@@ -20,7 +17,6 @@ import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { JSON5TryParse } from "./json5"
-import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { parseAnnotations } from "./annotations"
 import { validateFencesWithSchema } from "./schema"
@@ -30,9 +26,9 @@ import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
-import { PromptGenerationResult, expandTemplate } from "./expander"
+import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
-import { MAX_DATA_REPAIRS } from "./constants"
+import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { RequestError } from "./error"
 import { createFetch } from "./fetch"
 
@@ -141,7 +137,7 @@ export async function runTemplate(
     template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions
-): Promise<PromptGenerationResult> {
+): Promise<GenerationResult> {
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
@@ -149,8 +145,11 @@ export async function runTemplate(
         skipLLM,
         label,
         cliInfo,
-        trace = new MarkdownTrace(),
-    } = options || {}
+        stats,
+        trace,
+        maxToolCalls = MAX_TOOL_CALLS,
+    } = options
+    const maxRepairs = MAX_DATA_REPAIRS
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
 
@@ -190,7 +189,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
-        return <PromptGenerationResult>{
+        return <GenerationResult>{
             status,
             statusText,
             prompt: messages,
@@ -210,7 +209,7 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
-        return <PromptGenerationResult>{
+        return <GenerationResult>{
             prompt: messages,
             vars,
             trace: trace.content,
@@ -278,10 +277,9 @@ export async function runTemplate(
     }
 
     const { completer } = resolveLanguageModel(template, options)
-    let repairs = 0
     let genVars: Record<string, string> = {}
 
-    while (!isCancelled()) {
+    while (text === undefined && !isCancelled()) {
         let resp: ChatCompletionResponse
         try {
             try {
@@ -341,7 +339,7 @@ export async function runTemplate(
             }
 
             updateStatus(`error`)
-            return <PromptGenerationResult>{
+            return <GenerationResult>{
                 prompt: messages,
                 vars,
                 trace: trace.content,
@@ -358,25 +356,14 @@ export async function runTemplate(
             }
         }
         if (resp.variables) genVars = { ...genVars, ...resp.variables }
-        traceCompletionResonse(trace, resp)
+        text = await processChatMessage(
+            resp,
+            messages,
+            functions,
+            schemas,
+            options
+        )
         updateStatus()
-
-        // execute tools as needed
-        if (resp.toolCalls?.length) {
-            await runToolCalls(resp, messages, functions, options)
-        }
-        // apply repairs if necessary
-        else if (
-            repairs < MAX_DATA_REPAIRS &&
-            applyRepairs(messages, schemas, options)
-        ) {
-            repairs++
-        }
-        // generate text and finish generation
-        else {
-            text = renderText(resp, messages)
-            break
-        }
     }
 
     annotations = parseAnnotations(text)
@@ -555,7 +542,7 @@ export async function runTemplate(
             })
         )
 
-    const res: PromptGenerationResult = {
+    const res: GenerationResult = {
         status: status,
         statusText,
         prompt: messages,

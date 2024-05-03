@@ -12,6 +12,7 @@ import { assert } from "./util"
 import { extractFenced } from "./template"
 import { validateFencesWithSchema } from "./schema"
 import dedent from "ts-dedent"
+import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -158,7 +159,7 @@ export interface LanguageModel {
     completer: ChatCompletionHandler
 }
 
-export function traceCompletionResonse(
+function traceCompletionResonse(
     trace: MarkdownTrace,
     resp: ChatCompletionResponse
 ) {
@@ -172,7 +173,7 @@ export function traceCompletionResonse(
     }
 }
 
-export async function runToolCalls(
+async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],
@@ -290,7 +291,7 @@ export async function runToolCalls(
     return { edits }
 }
 
-export async function applyRepairs(
+async function applyRepairs(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
     options: RunTemplateOptions
@@ -340,4 +341,38 @@ export function renderText(
             .map((m) => m.content)
             .join("\n") + resp.text
     )
+}
+
+export async function processChatMessage(
+    resp: ChatCompletionResponse,
+    messages: ChatCompletionMessageParam[],
+    functions: ChatFunctionCallback[],
+    schemas: Record<string, JSONSchema>,
+    options: RunTemplateOptions
+): Promise<string> {
+    const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
+    const maxRepairs = MAX_DATA_REPAIRS
+
+    traceCompletionResonse(trace, resp)
+
+    // execute tools as needed
+    if (resp.toolCalls?.length) {
+        await runToolCalls(resp, messages, functions, options)
+        stats.toolCalls += resp.toolCalls.length
+        if (stats.toolCalls > maxToolCalls)
+            throw new Error(
+                `maximum number of tool calls ${maxToolCalls} reached`
+            )
+        return undefined // keep working
+    }
+    // apply repairs if necessary
+    else if (applyRepairs(messages, schemas, options)) {
+        stats.repairs++
+        if (stats.repairs >= maxRepairs)
+            throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
+        return undefined // keep working
+    }
+
+    const text = renderText(resp, messages)
+    return text
 }

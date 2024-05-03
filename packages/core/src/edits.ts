@@ -1,7 +1,7 @@
-import { PromptGenerationResult } from "./expander"
+import { GenerationResult } from "./expander"
 import { writeText } from "./fs"
 
-export async function writeFileEdits(res: PromptGenerationResult) {
+export async function writeFileEdits(res: GenerationResult) {
     if (res?.fileEdits)
         for (const fileEdit of Object.entries(res.fileEdits)) {
             const [fn, { before, after }] = fileEdit

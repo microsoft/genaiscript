@@ -23,5 +23,5 @@ export class AbortSignalCancellationToken implements CancellationToken {
 }
 
 export function checkCancelled(token: CancellationToken) {
-    if (token?.isCancellationRequested) throw new CancelError()
+    if (token?.isCancellationRequested) throw new CancelError("user cancelled")
 }

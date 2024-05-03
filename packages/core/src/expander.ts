@@ -6,6 +6,7 @@ import { estimateTokens } from "./tokens"
 import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
+    MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     SYSTEM_FENCE,
 } from "./constants"
@@ -27,7 +28,7 @@ const defaultTopP: number = undefined
 const defaultSeed: number = undefined
 const defaultMaxTokens: number = undefined
 
-export interface PromptGenerationResult extends PromptGenerationOutput {
+export interface GenerationResult extends GenerationOutput {
     /**
      * The env variables sent to the prompt
      */
@@ -66,7 +67,7 @@ export interface PromptGenerationResult extends PromptGenerationOutput {
     /**
      * Run status
      */
-    status: PromptRunStatus
+    status: GenerationStatus
 
     /**
      * Status message if any
@@ -84,7 +85,12 @@ export interface PromptGenerationResult extends PromptGenerationOutput {
     version: string
 }
 
-export type PromptRunStatus = "success" | "error" | "cancelled" | undefined
+export interface GenerationStats {
+    toolCalls: number
+    repairs: number
+}
+
+export type GenerationStatus = "success" | "error" | "cancelled" | undefined
 
 async function callExpander(
     r: PromptScript,
@@ -95,7 +101,7 @@ async function callExpander(
     const { provider, model } = parseModelIdentifier(r.model)
     const ctx = createPromptContext(vars, trace, options, model)
 
-    let status: PromptRunStatus = undefined
+    let status: GenerationStatus = undefined
     let statusText: string = undefined
     let logs = ""
     let text = ""
@@ -422,7 +428,7 @@ export async function expandTemplate(
         images,
         schemas,
         functions,
-        status: <PromptRunStatus>prompt.status,
+        status: <GenerationStatus>prompt.status,
         statusText: prompt.statusText,
         model,
         temperature,

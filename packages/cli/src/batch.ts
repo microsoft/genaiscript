@@ -1,5 +1,5 @@
 import {
-    PromptGenerationResult,
+    GenerationResult,
     host,
     runTemplate,
     MarkdownTrace,
@@ -151,7 +151,7 @@ export async function batchScript(
             assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
             const trace = new MarkdownTrace()
-            const result: PromptGenerationResult = await runTemplate(
+            const result: GenerationResult = await runTemplate(
                 prj,
                 script,
                 fragment,
@@ -174,7 +174,8 @@ export async function batchScript(
                     retryDelay,
                     maxDelay,
                     vars,
-                    trace
+                    stats: { toolCalls: 0, repairs: 0 },
+                    trace,
                 }
             )
 
