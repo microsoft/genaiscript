@@ -334,13 +334,17 @@ async function applyRepairs(
 }
 
 export function structurifyChatSession(
-    resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
+    genVars: Record<string, string>,
     options: GenerationOptions,
-    err?: any
+    others?: {
+        resp?: ChatCompletionResponse
+        err?: any
+    }
 ): RunPromptResult {
     const { trace } = options
+    const { resp, err } = others || {}
     const text =
         messages
             .filter((msg) => msg.role === "assistant" && msg.content)
@@ -364,7 +368,16 @@ export function structurifyChatSession(
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
     }
 
-    return { text, annotations, finishReason, fences, frames, json, error }
+    return {
+        text,
+        annotations,
+        finishReason,
+        fences,
+        frames,
+        json,
+        error,
+        genVars,
+    }
 }
 
 export async function processChatMessage(
@@ -372,6 +385,7 @@ export async function processChatMessage(
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],
     schemas: Record<string, JSONSchema>,
+    genVars: Record<string, string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
     const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
@@ -395,5 +409,8 @@ export async function processChatMessage(
         if (stats.repairs >= maxRepairs)
             throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
         return undefined // keep working
-    } else return structurifyChatSession(resp, messages, schemas, options)
+    } else
+        return structurifyChatSession(messages, schemas, genVars, options, {
+            resp,
+        })
 }

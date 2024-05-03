@@ -648,6 +648,7 @@ interface RunPromptResult {
     frames?: DataFrame[]
     json?: any
     error?: SerializedError
+    genVars?: Record<string, string>
     finishReason:
         | "stop"
         | "length"

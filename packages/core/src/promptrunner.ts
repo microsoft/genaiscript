@@ -29,7 +29,7 @@ import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
-import { RequestError } from "./error"
+import { RequestError, serializeError } from "./error"
 import { createFetch } from "./fetch"
 
 async function fragmentVars(
@@ -278,7 +278,7 @@ export async function runTemplate(
     let output: RunPromptResult
     let genVars: Record<string, string> = {}
 
-    while (!isCancelled()) {
+    while (output === undefined && !isCancelled()) {
         let resp: ChatCompletionResponse
         try {
             try {
@@ -315,6 +315,7 @@ export async function runTemplate(
             if (error instanceof TypeError) {
                 resp = {
                     text: "Unexpected error",
+                    finishReason: "fail",
                 }
             } else if (error instanceof RequestError) {
                 trace.heading(3, `Request error`)
@@ -326,15 +327,16 @@ export async function runTemplate(
                 trace.item(`status: \`${error.status}\`, ${error.statusText}`)
                 resp = {
                     text: `Request error: \`${error.status}\`, ${error.statusText}\n`,
+                    finishReason: "fail",
                 }
             } else if (isCancelled()) {
                 trace.heading(3, `Request cancelled`)
                 trace.log(`The user requested to cancel the request.`)
-                resp = { text: "Request cancelled" }
+                resp = { text: "Request cancelled", finishReason: "cancel" }
                 error = undefined
             } else {
                 trace.error(`fetch error`, error)
-                resp = { text: "Unexpected error" }
+                resp = { text: "Unexpected error", finishReason: "fail" }
             }
 
             updateStatus(`error`)
@@ -359,6 +361,7 @@ export async function runTemplate(
             messages,
             functions,
             schemas,
+            genVars,
             options
         )
         updateStatus()

@@ -16,6 +16,7 @@ import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
+    ChatCompletionResponse,
     processChatMessage,
     structurifyChatSession,
     toChatCompletionUserMessage,
@@ -186,17 +187,18 @@ export function createRunPromptContext(
                     promptOptions,
                     genOptions
                 )
-                let genVars: Record<string, string> = {}
+                let genVars: Record<string, string>
                 while (true) {
                     if (cancellationToken?.isCancellationRequested)
                         return structurifyChatSession(
-                            undefined,
                             messages,
                             schemas,
+                            genVars,
                             genOptions
                         )
+                    let resp: ChatCompletionResponse
                     try {
-                        const resp = await completer(
+                        resp = await completer(
                             {
                                 model,
                                 temperature:
@@ -216,22 +218,24 @@ export function createRunPromptContext(
                             trace
                         )
                         if (resp.variables)
-                            genVars = { ...genVars, ...resp.variables }
+                            genVars = { ...(genVars || {}), ...resp.variables }
                         const output = await processChatMessage(
                             resp,
                             messages,
                             functions,
                             schemas,
+                            genVars,
                             genOptions
                         )
                         if (output) return output
-                    } catch (e) {
+                    } catch (err) {
+                        trace.error(err)
                         return structurifyChatSession(
-                            undefined,
                             messages,
                             schemas,
+                            genVars,
                             genOptions,
-                            e
+                            { resp, err }
                         )
                     }
                 }
