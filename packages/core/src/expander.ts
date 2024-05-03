@@ -262,7 +262,6 @@ export async function expandTemplate(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
-    options = { ...(options || {}) }
     const cancellationToken = options?.cancellationToken
 
     trace.detailsFenced("📄 spec", env.spec.content, "markdown")

@@ -10,10 +10,8 @@ import {
     PromptNode,
     appendChild,
     createFileMergeNode,
-    createFunctionNode,
     createImageNode,
     createOutputProcessor,
-    createSchemaNode,
 } from "./promptdom"
 import { bingSearch } from "./search"
 import { CancellationToken } from "./cancellation"
@@ -233,7 +231,7 @@ export interface RunTemplateOptions
         label?: string
         vars?: Partial<ExpansionVariables>
     }) => void
-    trace?: MarkdownTrace
+    trace: MarkdownTrace
     maxCachedTemperature?: number
     maxCachedTopP?: number
     skipLLM?: boolean

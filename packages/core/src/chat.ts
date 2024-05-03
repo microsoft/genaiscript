@@ -3,7 +3,15 @@ import { Cache } from "./cache"
 import { MarkdownTrace } from "./trace"
 import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
-import { OAIToken } from "./host"
+import { OAIToken, host } from "./host"
+import { RunTemplateOptions } from "./promptcontext"
+import { JSON5TryParse } from "./json5"
+import { exec } from "./exec"
+import { checkCancelled } from "./cancellation"
+import { assert } from "./util"
+import { extractFenced } from "./template"
+import { validateFencesWithSchema } from "./schema"
+import dedent from "ts-dedent"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -148,4 +156,188 @@ export type ChatCompletionHandler = (
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
+}
+
+export function traceCompletionResonse(
+    trace: MarkdownTrace,
+    resp: ChatCompletionResponse
+) {
+    if (resp.text) {
+        trace.startDetails("📩 llm response")
+        if (resp.finishReason && resp.finishReason !== "stop")
+            trace.itemValue(`finish reason`, resp.finishReason)
+        trace.itemValue(`cached`, resp.cached)
+        trace.detailsFenced(`output`, resp.text, "markdown")
+        trace.endDetails()
+    }
+}
+
+export async function runToolCalls(
+    resp: ChatCompletionResponse,
+    messages: ChatCompletionMessageParam[],
+    functions: ChatFunctionCallback[],
+    options: RunTemplateOptions
+) {
+    const projFolder = host.projectFolder()
+    const { cancellationToken, trace } = options || {}
+    assert(!!trace)
+    let edits: Edits[] = []
+
+    if (resp.text)
+        messages.push({
+            role: "assistant",
+            content: resp.text,
+        })
+    messages.push({
+        role: "assistant",
+        content: null,
+        tool_calls: resp.toolCalls.map((c) => ({
+            id: c.id,
+            function: {
+                name: c.name,
+                arguments: c.arguments,
+            },
+            type: "function",
+        })),
+    })
+
+    // call tool and run again
+    for (const call of resp.toolCalls) {
+        checkCancelled(cancellationToken)
+        try {
+            trace.startDetails(`📠 tool call ${call.name}`)
+            trace.itemValue(`id`, call.id)
+
+            const callArgs: any = call.arguments
+                ? JSON5TryParse(call.arguments)
+                : undefined
+            trace.itemValue(`args`, callArgs ?? call.arguments)
+            const fd = functions.find((f) => f.definition.name === call.name)
+            if (!fd) throw new Error(`tool ${call.name} not found`)
+
+            const context: ChatFunctionCallContext = {
+                trace,
+            }
+
+            let output = await fd.fn({ context, ...callArgs })
+            if (typeof output === "string") output = { content: output }
+            if (output?.type === "shell") {
+                let {
+                    command,
+                    args = [],
+                    stdin,
+                    cwd,
+                    timeout,
+                    ignoreExitCode,
+                    files,
+                    outputFile,
+                } = output
+                trace.item(`shell command: \`${command}\` ${args.join(" ")}`)
+                const { stdout, stderr, exitCode } = await exec(host, {
+                    trace,
+                    label: call.name,
+                    call: {
+                        type: "shell",
+                        command,
+                        args,
+                        stdin,
+                        files,
+                        outputFile,
+                        cwd: cwd ?? projFolder,
+                        timeout: timeout ?? 60000,
+                    },
+                })
+                output = { content: stdout }
+                trace.itemValue(`exit code`, exitCode)
+                if (stdout) trace.details("📩 shell output", stdout)
+                if (stderr) trace.details("📩 shell error", stderr)
+                if (exitCode !== 0 && !ignoreExitCode)
+                    throw new Error(
+                        `tool ${call.name} failed with exit code ${exitCode}}`
+                    )
+            }
+
+            const { content, edits: functionEdits } = output
+
+            if (content) trace.fence(content, "markdown")
+            if (functionEdits?.length) {
+                trace.fence(functionEdits)
+                edits.push(
+                    ...functionEdits.map((e) => {
+                        const { filename, ...rest } = e
+                        const n = e.filename
+                        const fn = /^[^\/]/.test(n)
+                            ? host.resolvePath(projFolder, n)
+                            : n
+                        return { filename: fn, ...rest }
+                    })
+                )
+            }
+
+            messages.push({
+                role: "tool",
+                content,
+                tool_call_id: call.id,
+            })
+        } catch (e) {
+            trace.error(`tool call ${call.id} error`, e)
+            throw e
+        } finally {
+            trace.endDetails()
+        }
+    }
+
+    return { edits }
+}
+
+export async function applyRepairs(
+    messages: ChatCompletionMessageParam[],
+    schemas: Record<string, JSONSchema>,
+    options: RunTemplateOptions
+) {
+    const { trace } = options
+    // perform repair
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage.role !== "assistant") return false
+
+    const fences = extractFenced(lastMessage.content)
+    validateFencesWithSchema(fences, schemas, { trace })
+    const invalids = fences.filter((f) => f.validation?.valid === false)
+    if (invalids.length) {
+        trace.startDetails("🔧 repair")
+        const repair = invalids
+            .map((f) => `${f.label}: ${f.validation.error}`)
+            .join("\n")
+        trace.fence(repair, "txt")
+        messages.push({
+            role: "user",
+            content: [
+                {
+                    type: "text",
+                    text: dedent`FORMATING_ISSUES:
+                        \`\`\`
+                        ${repair}
+                        \`\`\`
+                                            
+                        Repair the FORMATING_ISSUES. THIS IS IMPORTANT.`,
+                },
+            ],
+        })
+        trace.endDetails()
+        return true
+    }
+
+    return false
+}
+
+export function renderText(
+    resp: ChatCompletionResponse,
+    messages: ChatCompletionMessageParam[]
+) {
+    return (
+        messages
+            .filter((msg) => msg.role === "assistant" && msg.content)
+            .map((m) => m.content)
+            .join("\n") + resp.text
+    )
 }

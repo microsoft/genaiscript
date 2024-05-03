@@ -1,10 +1,11 @@
 import { AICIModel } from "./aici"
-import { LanguageModel } from "./chat"
+import { ChatCompletionResponse, LanguageModel } from "./chat"
 import { DEFAULT_MODEL } from "./constants"
 import { errorMessage } from "./error"
 import { OAIToken, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
+import { MarkdownTrace } from "./trace"
 
 export function resolveLanguageModel(
     template: ModelOptions,

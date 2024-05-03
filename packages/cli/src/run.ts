@@ -23,6 +23,7 @@ import {
     isCancelError,
     USER_CANCELLED_ERROR_CODE,
     errorMessage,
+    MarkdownTrace,
 } from "genaiscript-core"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
@@ -176,6 +177,7 @@ ${Array.from(files)
     let tokens = 0
     let res: PromptGenerationResult
     try {
+        const trace = new MarkdownTrace()
         res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
                 if (text) {
@@ -202,6 +204,7 @@ ${Array.from(files)
             retryDelay,
             maxDelay,
             vars,
+            trace,
         })
     } catch (err) {
         if (spinner) spinner.fail()

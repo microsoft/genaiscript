@@ -1,4 +1,11 @@
-import { ChatCompletionResponse, ChatCompletionTool } from "./chat"
+import {
+    ChatCompletionResponse,
+    ChatCompletionTool,
+    applyRepairs,
+    renderText,
+    runToolCalls,
+    traceCompletionResonse,
+} from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
@@ -136,6 +143,8 @@ export async function runTemplate(
     options: RunTemplateOptions
 ): Promise<PromptGenerationResult> {
     assert(fragment !== undefined)
+    assert(options !== undefined)
+    assert(options.trace !== undefined)
     const {
         skipLLM,
         label,
@@ -168,7 +177,6 @@ export async function runTemplate(
         topP,
         model,
         max_tokens,
-        maxToolCalls,
         seed,
         responseType,
     } = await expandTemplate(
@@ -270,7 +278,6 @@ export async function runTemplate(
     }
 
     const { completer } = resolveLanguageModel(template, options)
-    let toolCalls = 0
     let repairs = 0
     let genVars: Record<string, string> = {}
 
@@ -350,182 +357,24 @@ export async function runTemplate(
                 frames: [],
             }
         }
-
         if (resp.variables) genVars = { ...genVars, ...resp.variables }
-
-        if (resp.text) {
-            trace.startDetails("📩 llm response")
-            if (resp.finishReason && resp.finishReason !== "stop")
-                trace.itemValue(`finish reason`, resp.finishReason)
-            trace.itemValue(`cached`, resp.cached)
-            trace.detailsFenced(`output`, resp.text, "markdown")
-            trace.endDetails()
-        }
-
+        traceCompletionResonse(trace, resp)
         updateStatus()
+
+        // execute tools as needed
         if (resp.toolCalls?.length) {
-            if (resp.text)
-                messages.push({
-                    role: "assistant",
-                    content: resp.text,
-                })
-            messages.push({
-                role: "assistant",
-                content: null,
-                tool_calls: resp.toolCalls.map((c) => ({
-                    id: c.id,
-                    function: {
-                        name: c.name,
-                        arguments: c.arguments,
-                    },
-                    type: "function",
-                })),
-            })
-
-            // call tool and run again
-            for (const call of resp.toolCalls) {
-                if (isCancelled()) break
-                if (toolCalls++ > maxToolCalls) {
-                    trace.error(`max tool calls ${maxToolCalls} reached`)
-                    break
-                }
-                try {
-                    updateStatus(
-                        `call tool ${call.name} with ${call.arguments}`
-                    )
-                    trace.startDetails(`📠 tool call ${call.name}`)
-                    trace.itemValue(`id`, call.id)
-
-                    const callArgs: any = call.arguments
-                        ? JSON5TryParse(call.arguments)
-                        : undefined
-                    trace.itemValue(`args`, callArgs ?? call.arguments)
-                    const fd = functions.find(
-                        (f) => f.definition.name === call.name
-                    )
-                    if (!fd) throw new Error(`tool ${call.name} not found`)
-
-                    const context: ChatFunctionCallContext = {
-                        trace,
-                    }
-
-                    let output = await fd.fn({ context, ...callArgs })
-                    if (typeof output === "string") output = { content: output }
-                    if (output?.type === "shell") {
-                        let {
-                            command,
-                            args = [],
-                            stdin,
-                            cwd,
-                            timeout,
-                            ignoreExitCode,
-                            files,
-                            outputFile,
-                        } = output
-                        trace.item(
-                            `shell command: \`${command}\` ${args.join(" ")}`
-                        )
-                        updateStatus()
-                        const { stdout, stderr, exitCode } = await exec(host, {
-                            trace,
-                            label: call.name,
-                            call: {
-                                type: "shell",
-                                command,
-                                args,
-                                stdin,
-                                files,
-                                outputFile,
-                                cwd: cwd ?? projFolder,
-                                timeout: timeout ?? 60000,
-                            },
-                        })
-                        output = { content: stdout }
-                        trace.itemValue(`exit code`, exitCode)
-                        if (stdout) trace.details("📩 shell output", stdout)
-                        if (stderr) trace.details("📩 shell error", stderr)
-                        if (exitCode !== 0 && !ignoreExitCode)
-                            throw new Error(
-                                `tool ${call.name} failed with exit code ${exitCode}}`
-                            )
-                        updateStatus()
-                    }
-
-                    const { content, edits: functionEdits } = output
-
-                    if (content) trace.fence(content, "markdown")
-                    if (functionEdits?.length) {
-                        trace.fence(functionEdits)
-                        edits.push(
-                            ...functionEdits.map((e) => {
-                                const { filename, ...rest } = e
-                                const n = e.filename
-                                const fn = /^[^\/]/.test(n)
-                                    ? host.resolvePath(projFolder, n)
-                                    : n
-                                return { filename: fn, ...rest }
-                            })
-                        )
-                    }
-
-                    messages.push({
-                        role: "tool",
-                        content,
-                        tool_call_id: call.id,
-                    })
-                } catch (e) {
-                    trace.error(`tool call ${call.id} error`, e)
-                    updateStatus(`error`)
-                    throw e
-                } finally {
-                    trace.endDetails()
-                    updateStatus()
-                }
-            }
-        } else {
-            // perform repair
-            const lastMessage = messages[messages.length - 1]
-            if (
-                lastMessage.role === "assistant" &&
-                repairs < MAX_DATA_REPAIRS
-            ) {
-                const fences = extractFenced(lastMessage.content)
-                validateFencesWithSchema(fences, schemas, { trace })
-                const invalids = fences.filter(
-                    (f) => f.validation?.valid === false
-                )
-                if (invalids.length) {
-                    repairs++
-                    trace.startDetails("🔧 repair")
-                    const repair = invalids
-                        .map((f) => `${f.label}: ${f.validation.error}`)
-                        .join("\n")
-                    trace.fence(repair, "txt")
-                    messages.push({
-                        role: "user",
-                        content: [
-                            {
-                                type: "text",
-                                text: `Repair these FORMATTING_ISSUES and run the prompt again:
-
-FORMATTING_ISSUES:
-${repair}
-
-`,
-                            },
-                        ],
-                    })
-                    trace.endDetails()
-                    continue
-                }
-            }
-
-            // generate text and finish generation
-            text =
-                messages
-                    .filter((msg) => msg.role === "assistant" && msg.content)
-                    .map((m) => m.content)
-                    .join("\n") + resp.text
+            await runToolCalls(resp, messages, functions, options)
+        }
+        // apply repairs if necessary
+        else if (
+            repairs < MAX_DATA_REPAIRS &&
+            applyRepairs(messages, schemas, options)
+        ) {
+            repairs++
+        }
+        // generate text and finish generation
+        else {
+            text = renderText(resp, messages)
             break
         }
     }

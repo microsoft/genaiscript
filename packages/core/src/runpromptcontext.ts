@@ -12,11 +12,20 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
+import {
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    MAX_DATA_REPAIRS,
+} from "./constants"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
+    ChatCompletionTool,
+    applyRepairs,
+    renderText,
+    runToolCalls,
     toChatCompletionUserMessage,
+    traceCompletionResonse,
 } from "./chat"
 import { RunTemplateOptions } from "./promptcontext"
 import {
@@ -144,9 +153,11 @@ export function createRunPromptContext(
                 const node = ctx.node
 
                 if (cancellationToken?.isCancellationRequested)
-                    return { text: "Prompt cancelled", finishReason: "cancel" }
+                    return { text: "user cancelled", finishReason: "cancel" }
 
                 const messages: ChatCompletionMessageParam[] = []
+                let functions: ChatFunctionCallback[] = undefined
+                let schemas: Record<string, JSONSchema> = undefined
                 // expand template
                 const { provider } = parseModelIdentifier(model)
                 if (provider === "aici") {
@@ -154,10 +165,19 @@ export function createRunPromptContext(
                     // todo: output processor?
                     messages.push(aici)
                 } else {
-                    const { prompt, assistantPrompt, images, errors, schemas } =
-                        await renderPromptNode(model, node, {
-                            trace,
-                        })
+                    const {
+                        prompt,
+                        assistantPrompt,
+                        images,
+                        errors,
+                        schemas: scs,
+                        functions: fns,
+                    } = await renderPromptNode(model, node, {
+                        trace,
+                    })
+                    schemas = scs
+                    functions = fns
+
                     trace.fence(prompt, "markdown")
                     if (images?.length || errors?.length || schemas?.length)
                         trace.fence({ images, errors, schemas }, "yaml")
@@ -180,26 +200,60 @@ export function createRunPromptContext(
                     promptOptions,
                     runOptions
                 )
-                const res = await completer(
-                    {
-                        model,
-                        temperature:
-                            promptOptions?.temperature ??
-                            options.temperature ??
-                            DEFAULT_TEMPERATURE,
-                        top_p: promptOptions?.topP ?? options.topP,
-                        max_tokens:
-                            promptOptions?.maxTokens ?? options.maxTokens,
-                        seed: promptOptions?.seed ?? options.seed,
-                        stream: true,
-                        messages,
-                    },
-                    connection.token,
-                    runOptions,
-                    trace
-                )
-                trace.details("output", res.text)
-                return { text: res.text, finishReason: res.finishReason }
+
+                let repairs = 0
+                let toolCalls = 0
+                let genVars: Record<string, string> = {}
+                const { maxToolCalls } = runOptions
+                while (true) {
+                    if (cancellationToken?.isCancellationRequested)
+                        return {
+                            text: "user cancelled",
+                            finishReason: "cancel",
+                        }
+
+                    const resp = await completer(
+                        {
+                            model,
+                            temperature:
+                                promptOptions?.temperature ??
+                                options.temperature ??
+                                DEFAULT_TEMPERATURE,
+                            top_p: promptOptions?.topP ?? options.topP,
+                            max_tokens:
+                                promptOptions?.maxTokens ?? options.maxTokens,
+                            seed: promptOptions?.seed ?? options.seed,
+                            stream: true,
+                            messages,
+                        },
+                        connection.token,
+                        runOptions,
+                        trace
+                    )
+                    if (resp.variables)
+                        genVars = { ...genVars, ...resp.variables }
+                    traceCompletionResonse(trace, resp)
+                    // execute tools as needed
+                    if (resp.toolCalls?.length) {
+                        if (toolCalls > maxToolCalls)
+                            throw new Error(
+                                "maximum number of tool calls reached"
+                            )
+                        await runToolCalls(resp, messages, functions, options)
+                    }
+                    // apply repairs if necessary
+                    else if (
+                        repairs < MAX_DATA_REPAIRS &&
+                        applyRepairs(messages, schemas, options)
+                    ) {
+                        repairs++
+                    }
+                    // generate text and finish generation
+                    else {
+                        const text = renderText(resp, messages)
+                        return { text, finishReason: resp.finishReason }
+                    }
+                }
             } finally {
                 trace.endDetails()
             }
