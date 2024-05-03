@@ -1,35 +1,21 @@
-import {
-    ChatCompletionResponse,
-    ChatCompletionTool,
-    processChatMessage,
-} from "./chat"
+import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
-import {
-    extractFenced,
-    renderFencedVariables,
-    staticVars,
-    undoublequote,
-} from "./template"
+import { staticVars, undoublequote } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
-import { JSON5TryParse } from "./json5"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
-import { parseAnnotations } from "./annotations"
-import { validateFencesWithSchema } from "./schema"
 import { CORE_VERSION } from "./version"
 import { fileExists, readText } from "./fs"
-import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
-import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
-import { RequestError, serializeError } from "./error"
+import { RequestError } from "./error"
 import { createFetch } from "./fetch"
 
 async function fragmentVars(
@@ -141,15 +127,7 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const {
-        skipLLM,
-        label,
-        cliInfo,
-        stats,
-        trace,
-        maxToolCalls = MAX_TOOL_CALLS,
-    } = options
-    const maxRepairs = MAX_DATA_REPAIRS
+    const { skipLLM, label, cliInfo, trace } = options
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
 
@@ -224,8 +202,14 @@ export async function runTemplate(
             frames: [],
         }
     }
-    const response_format = responseType ? { type: responseType } : undefined
-
+    const genOptions: GenerationOptions = {
+        ...options,
+        model,
+        temperature: temperature,
+        maxTokens: max_tokens,
+        topP: topP,
+        seed: seed,
+    }
     const updateStatus = (text?: string) => {
         options.infoCb?.({
             vars,
@@ -245,12 +229,6 @@ export async function runTemplate(
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
-    const tools: ChatCompletionTool[] = functions?.length
-        ? functions.map((f) => ({
-              type: "function",
-              function: f.definition as any,
-          }))
-        : undefined
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]
         if (!fileEdit) {
@@ -274,100 +252,17 @@ export async function runTemplate(
         throw new RequestError(403, "token not configured", connection.info)
     }
 
-    const { completer } = resolveLanguageModel(template, options)
-    let output: RunPromptResult
-    let genVars: Record<string, string> = {}
-
-    while (output === undefined && !isCancelled()) {
-        let resp: ChatCompletionResponse
-        try {
-            try {
-                trace.startDetails(
-                    `🧠 llm request (${messages.length} messages)`
-                )
-                trace.itemValue(
-                    `tokens`,
-                    estimateChatTokens(model, messages, tools)
-                )
-                updateStatus()
-                resp = await completer(
-                    {
-                        model,
-                        temperature,
-                        top_p: topP,
-                        max_tokens,
-                        seed,
-                        messages,
-                        stream: true,
-                        response_format,
-                        tools,
-                    },
-                    connection.token,
-                    options,
-                    trace
-                )
-            } finally {
-                trace.endDetails()
-                updateStatus()
-            }
-        } catch (error: unknown) {
-            trace.error(`llm error`, error)
-            if (error instanceof TypeError) {
-                resp = {
-                    text: "Unexpected error",
-                    finishReason: "fail",
-                }
-            } else if (error instanceof RequestError) {
-                trace.heading(3, `Request error`)
-                if (error.body) {
-                    trace.log(`> ${error.body.message}\n\n`)
-                    trace.item(`type: \`${error.body.type}\``)
-                    trace.item(`code: \`${error.body.code}\``)
-                }
-                trace.item(`status: \`${error.status}\`, ${error.statusText}`)
-                resp = {
-                    text: `Request error: \`${error.status}\`, ${error.statusText}\n`,
-                    finishReason: "fail",
-                }
-            } else if (isCancelled()) {
-                trace.heading(3, `Request cancelled`)
-                trace.log(`The user requested to cancel the request.`)
-                resp = { text: "Request cancelled", finishReason: "cancel" }
-                error = undefined
-            } else {
-                trace.error(`fetch error`, error)
-                resp = { text: "Unexpected error", finishReason: "fail" }
-            }
-
-            updateStatus(`error`)
-            return <GenerationResult>{
-                prompt: messages,
-                vars,
-                trace: trace.content,
-                error,
-                text: resp?.text,
-                edits,
-                changelogs,
-                fileEdits,
-                label,
-                version,
-                fences: [],
-                frames: [],
-            }
-        }
-        if (resp.variables) genVars = { ...genVars, ...resp.variables }
-        output = await processChatMessage(
-            resp,
-            messages,
-            functions,
-            schemas,
-            genVars,
-            options
-        )
-        updateStatus()
-    }
-
-    const { json, fences, frames } = output
+    const { completer } = resolveLanguageModel(genOptions)
+    const output = await executeChatSession(
+        connection.token,
+        cancellationToken,
+        messages,
+        functions,
+        schemas,
+        completer,
+        genOptions
+    )
+    const { json, fences, frames, genVars = {} } = output
     let { text, annotations } = output
     if (json !== undefined) {
         trace.detailsFenced("📩 json (parsed)", json, "json")

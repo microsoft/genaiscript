@@ -7,12 +7,17 @@ import { OAIToken, host } from "./host"
 import { GenerationOptions } from "./promptcontext"
 import { JSON5TryParse } from "./json5"
 import { exec } from "./exec"
-import { checkCancelled } from "./cancellation"
+import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, renderFencedVariables } from "./template"
 import { validateFencesWithSchema } from "./schema"
 import dedent from "ts-dedent"
-import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import {
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    MAX_DATA_REPAIRS,
+    MAX_TOOL_CALLS,
+} from "./constants"
 import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
 
@@ -413,4 +418,83 @@ export async function processChatMessage(
         return structurifyChatSession(messages, schemas, genVars, options, {
             resp,
         })
+}
+
+export function mergeGenerationOptions(
+    options: GenerationOptions,
+    runOptions: ModelOptions
+): GenerationOptions {
+    return {
+        ...options,
+        ...runOptions,
+        model: runOptions.model ?? DEFAULT_MODEL,
+        temperature: runOptions.temperature ?? DEFAULT_TEMPERATURE,
+    }
+}
+
+export async function executeChatSession(
+    connectionToken: OAIToken,
+    cancellationToken: CancellationToken,
+    messages: ChatCompletionMessageParam[],
+    functions: ChatFunctionCallback[],
+    schemas: Record<string, JSONSchema>,
+    completer: ChatCompletionHandler,
+    genOptions: GenerationOptions
+) {
+    const {
+        trace,
+        model = DEFAULT_MODEL,
+        temperature = DEFAULT_TEMPERATURE,
+        topP,
+        maxTokens,
+        seed,
+    } = genOptions
+
+    let genVars: Record<string, string>
+    while (true) {
+        if (cancellationToken?.isCancellationRequested)
+            return structurifyChatSession(
+                messages,
+                schemas,
+                genVars,
+                genOptions
+            )
+        let resp: ChatCompletionResponse
+        try {
+            resp = await completer(
+                {
+                    model,
+                    temperature: temperature,
+                    top_p: topP,
+                    max_tokens: maxTokens,
+                    seed,
+                    stream: true,
+                    messages,
+                },
+                connectionToken,
+                genOptions,
+                trace
+            )
+            if (resp.variables)
+                genVars = { ...(genVars || {}), ...resp.variables }
+            const output = await processChatMessage(
+                resp,
+                messages,
+                functions,
+                schemas,
+                genVars,
+                genOptions
+            )
+            if (output) return output
+        } catch (err) {
+            trace.error(err)
+            return structurifyChatSession(
+                messages,
+                schemas,
+                genVars,
+                genOptions,
+                { resp, err }
+            )
+        }
+    }
 }

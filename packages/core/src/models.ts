@@ -1,20 +1,17 @@
 import { AICIModel } from "./aici"
-import { ChatCompletionResponse, LanguageModel } from "./chat"
+import { LanguageModel } from "./chat"
 import { DEFAULT_MODEL } from "./constants"
 import { errorMessage } from "./error"
 import { OAIToken, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
-import { MarkdownTrace } from "./trace"
+import { GenerationOptions } from "./promptcontext"
 
 export function resolveLanguageModel(
-    template: ModelOptions,
-    options?: {
-        languageModel?: LanguageModel
-    }
+    options: GenerationOptions
 ): LanguageModel {
-    if (options?.languageModel) return options?.languageModel
-    const { provider } = parseModelIdentifier(template?.model)
+    if (options.languageModel) return options.languageModel
+    const { provider } = parseModelIdentifier(options.model)
     if (provider === "ollama") return OllamaModel
     if (provider === "aici") return AICIModel
     return OpenAIModel
@@ -51,18 +48,18 @@ export async function resolveModelConnectionInfo(
     options?: { token?: boolean }
 ): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
     try {
-        const token = await host.getSecretToken(conn)
-        if (!token) {
-            return { info: { ...conn, error: "token not configured" } }
+        const secret = await host.getSecretToken(conn)
+        if (!secret) {
+            return { info: { ...conn, error: "model configuration not found" } }
         } else {
-            const { token: theToken, ...rest } = token
+            const { token: theToken, ...rest } = secret
             return {
                 info: {
                     ...conn,
                     ...rest,
                     token: theToken ? (options?.token ? theToken : "***") : "",
                 },
-                token,
+                token: secret,
             }
         }
     } catch (e) {

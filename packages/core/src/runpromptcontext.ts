@@ -12,13 +12,11 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
-    ChatCompletionResponse,
-    processChatMessage,
-    structurifyChatSession,
+    executeChatSession,
+    mergeGenerationOptions,
     toChatCompletionUserMessage,
 } from "./chat"
 import { GenerationOptions } from "./promptcontext"
@@ -127,16 +125,10 @@ export function createRunPromptContext(
             ctx.def("", body, options)
             return undefined
         },
-        runPrompt: async (generator, promptOptions) => {
+        runPrompt: async (generator, runOptions) => {
             try {
                 trace.startDetails(`🎁 run prompt`)
-                const model =
-                    promptOptions?.model ?? options.model ?? DEFAULT_MODEL
-                const genOptions = {
-                    ...options,
-                    ...(promptOptions || {}), // overrides options
-                    model,
-                }
+                const genOptions = mergeGenerationOptions(options, runOptions)
                 const ctx = createRunPromptContext(genOptions, env, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
@@ -148,7 +140,7 @@ export function createRunPromptContext(
                 let functions: ChatFunctionCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
                 // expand template
-                const { provider } = parseModelIdentifier(model)
+                const { provider } = parseModelIdentifier(genOptions.model)
                 if (provider === "aici") {
                     const { aici } = await renderAICI("prompt", node)
                     // todo: output processor?
@@ -161,7 +153,7 @@ export function createRunPromptContext(
                         errors,
                         schemas: scs,
                         functions: fns,
-                    } = await renderPromptNode(model, node, {
+                    } = await renderPromptNode(genOptions.model, node, {
                         trace,
                     })
                     schemas = scs
@@ -178,67 +170,24 @@ export function createRunPromptContext(
                         })
                 }
 
-                const connection = await resolveModelConnectionInfo({
-                    model,
-                })
+                const connection = await resolveModelConnectionInfo(genOptions)
                 if (!connection.token)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = resolveLanguageModel(
-                    promptOptions,
+                const { completer } = resolveLanguageModel(genOptions)
+                if (!completer)
+                    throw new Error(
+                        "model driver not found for " + connection.info
+                    )
+                const resp = await executeChatSession(
+                    connection.token,
+                    cancellationToken,
+                    messages,
+                    functions,
+                    schemas,
+                    completer,
                     genOptions
                 )
-                let genVars: Record<string, string>
-                while (true) {
-                    if (cancellationToken?.isCancellationRequested)
-                        return structurifyChatSession(
-                            messages,
-                            schemas,
-                            genVars,
-                            genOptions
-                        )
-                    let resp: ChatCompletionResponse
-                    try {
-                        resp = await completer(
-                            {
-                                model,
-                                temperature:
-                                    promptOptions?.temperature ??
-                                    options.temperature ??
-                                    DEFAULT_TEMPERATURE,
-                                top_p: promptOptions?.topP ?? options.topP,
-                                max_tokens:
-                                    promptOptions?.maxTokens ??
-                                    options.maxTokens,
-                                seed: promptOptions?.seed ?? options.seed,
-                                stream: true,
-                                messages,
-                            },
-                            connection.token,
-                            genOptions,
-                            trace
-                        )
-                        if (resp.variables)
-                            genVars = { ...(genVars || {}), ...resp.variables }
-                        const output = await processChatMessage(
-                            resp,
-                            messages,
-                            functions,
-                            schemas,
-                            genVars,
-                            genOptions
-                        )
-                        if (output) return output
-                    } catch (err) {
-                        trace.error(err)
-                        return structurifyChatSession(
-                            messages,
-                            schemas,
-                            genVars,
-                            genOptions,
-                            { resp, err }
-                        )
-                    }
-                }
+                return resp
             } catch (e) {
                 trace.error(e)
                 return {
