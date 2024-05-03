@@ -128,15 +128,17 @@ export function createRunPromptContext(
         runPrompt: async (generator, runOptions) => {
             try {
                 trace.startDetails(`🎁 run prompt`)
+
                 const genOptions = mergeGenerationOptions(options, runOptions)
                 const ctx = createRunPromptContext(genOptions, env, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)
-                checkCancelled(cancellationToken)
                 const node = ctx.node
 
-                const messages: ChatCompletionMessageParam[] = []
+                checkCancelled(cancellationToken)
+
+                let messages: ChatCompletionMessageParam[] = []
                 let functions: ChatFunctionCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
                 // expand template
@@ -147,27 +149,20 @@ export function createRunPromptContext(
                     messages.push(aici)
                 } else {
                     const {
-                        prompt,
-                        assistantPrompt,
-                        images,
                         errors,
                         schemas: scs,
                         functions: fns,
+                        messages: msgs,
                     } = await renderPromptNode(genOptions.model, node, {
                         trace,
                     })
+
                     schemas = scs
                     functions = fns
+                    messages.push(...msgs)
 
-                    trace.fence(prompt, "markdown")
-                    if (images?.length || errors?.length || schemas?.length)
-                        trace.fence({ images, errors, schemas }, "yaml")
-                    messages.push(toChatCompletionUserMessage(prompt, images))
-                    if (assistantPrompt)
-                        messages.push(<ChatCompletionAssistantMessageParam>{
-                            role: "assistant",
-                            content: assistantPrompt,
-                        })
+                    if (errors?.length)
+                        throw new Error("errors while running prompt")
                 }
 
                 const connection = await resolveModelConnectionInfo(genOptions)

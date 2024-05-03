@@ -10,6 +10,12 @@ import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { fenceMD } from "./markdown"
 import { parseModelIdentifier } from "./models"
 import dedent from "ts-dedent"
+import {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    toChatCompletionUserMessage,
+} from "./chat"
+import { errorMessage } from "./error"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -256,6 +262,7 @@ export function appendChild(parent: PromptNode, child: PromptNode): void {
 
 export interface PromptNodeVisitor {
     node?: (node: PromptNode) => Awaitable<void>
+    error?: (node: PromptNode) => Awaitable<void>
     afterNode?: (node: PromptNode) => Awaitable<void>
     text?: (node: PromptTextNode) => Awaitable<void>
     def?: (node: PromptDefNode) => Awaitable<void>
@@ -299,7 +306,8 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             await visitor.assistant?.(node as PromptAssistantNode)
             break
     }
-    if (node.children) {
+    if (node.error) visitor.error?.(node)
+    if (!node.error && node.children) {
         for (const child of node.children) {
             await visitNode(child, visitor)
         }
@@ -316,14 +324,19 @@ export interface PromptNodeRender {
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: PromptOutputProcessorHandler[]
+    messages: ChatCompletionMessageParam[]
 }
 
 async function resolvePromptNode(
     model: string,
     node: PromptNode,
     options?: TraceOptions
-): Promise<void> {
+): Promise<{ errors: number }> {
+    let err = 0
     await visitNode(node, {
+        error: () => {
+            err++
+        },
         text: async (n) => {
             try {
                 const value = await n.value
@@ -374,6 +387,7 @@ async function resolvePromptNode(
             }
         },
     })
+    return { errors: err }
 }
 
 async function truncatePromptNode(
@@ -432,7 +446,7 @@ async function truncatePromptNode(
     return truncated
 }
 
-export async function tracePromptNode(
+async function tracePromptNode(
     trace: MarkdownTrace,
     node: PromptNode,
     options?: { label: string }
@@ -440,6 +454,7 @@ export async function tracePromptNode(
     if (!trace) return
 
     await visitNode(node, {
+        error: (n) => trace.item(`error: ${errorMessage(n.error)}`),
         node: (n) => {
             const title = toStringList(
                 n.type || `🌳 prompt tree ${options?.label || ""}`,
@@ -448,8 +463,9 @@ export async function tracePromptNode(
                     ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
                     : undefined
             )
-            if (n.children?.length) trace.startDetails(title)
-            else trace.item(title)
+            if (n.children?.length)
+                trace.startDetails(title, n.error ? false : undefined)
+            else trace.resultItem(!n.error, title)
         },
         afterNode: (n) => {
             if (n.children?.length) trace.endDetails()
@@ -570,14 +586,32 @@ ${trimNewlines(schemaText)}
             trace.itemValue(`output processor`, n.fn)
         },
     })
-    return {
+
+    const messages: ChatCompletionMessageParam[] = [
+        toChatCompletionUserMessage(prompt, images),
+    ]
+    if (assistantPrompt)
+        messages.push(<ChatCompletionAssistantMessageParam>{
+            role: "assistant",
+            content: assistantPrompt,
+        })
+    const res = {
         prompt,
         assistantPrompt,
         images,
-        errors,
         schemas,
         functions,
         fileMerges,
         outputProcessors,
+        errors,
+        messages,
     }
+    if (trace) {
+        trace.fence(prompt, "markdown")
+        trace.fence(assistantPrompt, "markdown")
+        if (images.length || errors?.length || schemas?.length)
+            trace.fence({ images, schemas, errors }, "yaml")
+        trace.fence(messages, "json")
+    }
+    return res
 }

@@ -2,11 +2,12 @@ import { CHANGE, TOOL_ID } from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
-import { serializeError } from "./error"
+import { errorMessage, serializeError } from "./error"
 
 export class MarkdownTrace
     extends EventTarget
-    implements ChatFunctionCallTrace {
+    implements ChatFunctionCallTrace
+{
     readonly errors: SerializedError[] = []
     private _content: string = ""
 
@@ -30,14 +31,14 @@ export class MarkdownTrace
         }
     }
 
-    startDetails(title: string) {
+    startDetails(title: string, success?: boolean) {
         title = title?.trim() || ""
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
         )}" class="${TOOL_ID}">
 <summary>
-${title}
+${this.toResultIcon(success, "")}${title}
 </summary>
 
 `
@@ -47,7 +48,7 @@ ${title}
         this.content += `\n</details>\n\n`
     }
 
-    private guarded(f: () => void) {
+    private disableChange(f: () => void) {
         try {
             this.disableChangeDispatch++
             f()
@@ -58,7 +59,7 @@ ${title}
     }
 
     details(title: string, body: string | object) {
-        this.guarded(() => {
+        this.disableChange(() => {
             this.startDetails(title)
             if (body) {
                 if (typeof body === "string") this.content += body
@@ -69,7 +70,7 @@ ${title}
     }
 
     detailsFenced(title: string, body: string | object, contentType?: string) {
-        this.guarded(() => {
+        this.disableChange(() => {
             this.startDetails(title)
             this.fence(body, contentType)
             this.endDetails()
@@ -138,15 +139,17 @@ ${title}
         this.content += `\n![${caption || url}](${url})\n`
     }
 
+    private toResultIcon(value: boolean, missing: string) {
+        return value === true ? `✅` : value === false ? `❌` : missing
+    }
+
     resultItem(value: boolean, message: string) {
-        this.item(
-            `${value === true ? `✅` : value === false ? `❌` : "?"} ${message}`
-        )
+        this.item(`${this.toResultIcon(value, "?")} ${message}`)
     }
 
     error(message: string, error?: unknown) {
-        this.guarded(() => {
-            this.heading(3, `❌ ${message}`)
+        this.disableChange(() => {
+            this.heading(3, `❌ ${message || errorMessage(error)}`)
             if (error) {
                 const err = serializeError(error)
                 this.errors.push(err)
