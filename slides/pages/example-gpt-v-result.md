@@ -1,5 +1,6 @@
 ---
 layout: two-cols-header
+backgroundSize: 20em 70%
 ---
 
 # Example: Script Result
@@ -9,6 +10,7 @@ layout: two-cols-header
 ![](/plug-in.png)
 
 ::right::
+
 
 `The diagram illustrates the process flow of an AI system in charge of invoking software (SW), highlighting the key difference that AI is responsible for initiating the software. The process is broken down into several stages: Initialization, Run plugin, Process result, Repeat, and Generate final answer.`
 

@@ -1,17 +1,16 @@
-# Summary
-##
-- Our goal is to unlock innovation and creativity in using AI
-- GenAIScript makes scripts easy to write, debug, and deploy
+# GenAISCript Goals
 
-- Defines and supports key abstractions
-    - Static orchestration graph
-    - Parameterize context 
-    - Constrained output
+## Make writing scripts that use AI easier for programmers and non-programmers
+<br/>
 
-- Every major technology shift has an associated **new** language
-    - The Web promoted Java and JavaScript
-    - AI / LLMs will have their new language!
+## Make scripts easy to write, debug, test, and deploy
+<br/>
 
+## Continually integrate evolving AI software ecosystem
+<br/>
+
+## Support innovative, possibly non-developer scenarios
+<br/>
 
 
 
