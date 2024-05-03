@@ -4,7 +4,7 @@ import { MarkdownTrace } from "./trace"
 import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
 import { OAIToken, host } from "./host"
-import { RunTemplateOptions } from "./promptcontext"
+import { GenerationOptions } from "./promptcontext"
 import { JSON5TryParse } from "./json5"
 import { exec } from "./exec"
 import { checkCancelled } from "./cancellation"
@@ -177,7 +177,7 @@ async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],
-    options: RunTemplateOptions
+    options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
     const { cancellationToken, trace } = options || {}
@@ -294,7 +294,7 @@ async function runToolCalls(
 async function applyRepairs(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
-    options: RunTemplateOptions
+    options: GenerationOptions
 ) {
     const { trace } = options
     // perform repair
@@ -348,7 +348,7 @@ export async function processChatMessage(
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],
     schemas: Record<string, JSONSchema>,
-    options: RunTemplateOptions
+    options: GenerationOptions
 ): Promise<string> {
     const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
     const maxRepairs = MAX_DATA_REPAIRS

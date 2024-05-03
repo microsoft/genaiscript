@@ -34,7 +34,7 @@ function stringLikeToFileName(f: string | WorkspaceFile) {
 export function createPromptContext(
     vars: ExpansionVariables,
     trace: MarkdownTrace,
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     model: string
 ) {
     const env = new Proxy(vars, {
@@ -222,7 +222,7 @@ export function createPromptContext(
     return ctx
 }
 
-export interface RunTemplateOptions
+export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
         ScriptRuntimeOptions {

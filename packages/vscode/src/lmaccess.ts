@@ -3,7 +3,7 @@ import * as vscode from "vscode"
 import { AIRequestOptions, ExtensionState } from "./state"
 import {
     LanguageModel,
-    RunTemplateOptions,
+    GenerationOptions,
     estimateTokens,
     logVerbose,
     parseModelIdentifier,
@@ -60,19 +60,19 @@ export function isLanguageModelsAvailable(context: vscode.ExtensionContext) {
 export function configureLanguageModelAccess(
     context: vscode.ExtensionContext,
     options: AIRequestOptions,
-    runOptions: RunTemplateOptions,
+    genOptions: GenerationOptions,
     chatModel: string
 ): void {
     logVerbose("using copilot llm")
     const { template } = options
-    const { partialCb, infoCb } = runOptions
+    const { partialCb, infoCb } = genOptions
 
     // sanity check
     if (!vscode.lm.languageModels.includes(chatModel))
         throw new Error("Language model not found")
 
-    runOptions.cache = false
-    runOptions.languageModel = Object.freeze<LanguageModel>({
+    genOptions.cache = false
+    genOptions.languageModel = Object.freeze<LanguageModel>({
         id: "vscode",
         completer: async (req, connection, chatOptions, trace) => {
             const token = new vscode.CancellationTokenSource().token

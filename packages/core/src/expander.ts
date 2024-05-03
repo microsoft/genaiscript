@@ -11,7 +11,7 @@ import {
     SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
-import { RunTemplateOptions, createPromptContext } from "./promptcontext"
+import { GenerationOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import {
@@ -96,7 +96,7 @@ async function callExpander(
     r: PromptScript,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
-    options: RunTemplateOptions
+    options: GenerationOptions
 ) {
     const { provider, model } = parseModelIdentifier(r.model)
     const ctx = createPromptContext(vars, trace, options, model)
@@ -264,7 +264,7 @@ export async function expandTemplate(
     prj: Project,
     template: PromptScript,
     fragment: Fragment,
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {

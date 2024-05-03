@@ -19,7 +19,7 @@ import {
     processChatMessage,
     toChatCompletionUserMessage,
 } from "./chat"
-import { RunTemplateOptions } from "./promptcontext"
+import { GenerationOptions } from "./promptcontext"
 import {
     parseModelIdentifier,
     resolveLanguageModel,
@@ -33,7 +33,7 @@ export interface RunPromptContextNode extends RunPromptContext {
 }
 
 export function createRunPromptContext(
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
 ): RunPromptContextNode {
@@ -133,12 +133,12 @@ export function createRunPromptContext(
                 }
                 const model =
                     promptOptions?.model ?? options.model ?? DEFAULT_MODEL
-                const runOptions = {
+                const genOptions = {
                     ...options,
                     ...(promptOptions || {}), // overrides options
                     model,
                 }
-                const ctx = createRunPromptContext(runOptions, env, trace)
+                const ctx = createRunPromptContext(genOptions, env, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)
@@ -190,7 +190,7 @@ export function createRunPromptContext(
                 }
                 const { completer } = resolveLanguageModel(
                     promptOptions,
-                    runOptions
+                    genOptions
                 )
 
                 let text: string = undefined
@@ -215,7 +215,7 @@ export function createRunPromptContext(
                             messages,
                         },
                         connection.token,
-                        runOptions,
+                        genOptions,
                         trace
                     )
                     if (resp.variables)

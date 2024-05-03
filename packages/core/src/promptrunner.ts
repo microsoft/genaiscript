@@ -24,7 +24,7 @@ import { CORE_VERSION } from "./version"
 import { fileExists, readText } from "./fs"
 import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
-import { RunTemplateOptions } from "./promptcontext"
+import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
@@ -136,7 +136,7 @@ export async function runTemplate(
     prj: Project,
     template: PromptScript,
     fragment: Fragment,
-    options: RunTemplateOptions
+    options: GenerationOptions
 ): Promise<GenerationResult> {
     assert(fragment !== undefined)
     assert(options !== undefined)

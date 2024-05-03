@@ -9,7 +9,7 @@ import {
     GenerationResult,
     runTemplate,
     groupBy,
-    RunTemplateOptions,
+    GenerationOptions,
     isCancelError,
     isTokenError,
     isRequestError,
@@ -340,7 +340,7 @@ ${errorMessage(e)}`
         }
         this.aiRequest = r
         const { template, fragment } = options
-        const runOptions: RunTemplateOptions = {
+        const genOptions: GenerationOptions = {
             requestOptions: { signal },
             cancellationToken,
             partialCb,
@@ -371,7 +371,7 @@ ${errorMessage(e)}`
                 configureLanguageModelAccess(
                     this.context,
                     options,
-                    runOptions,
+                    genOptions,
                     lmmodel
                 )
             } else return undefined
@@ -384,7 +384,7 @@ ${errorMessage(e)}`
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
-        r.request = runTemplate(this.project, template, fragment, runOptions)
+        r.request = runTemplate(this.project, template, fragment, genOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
