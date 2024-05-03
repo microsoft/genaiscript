@@ -39,10 +39,7 @@ export async function upsert(
     let count = 0
     for (const f of files) {
         if (token?.isCancellationRequested) break
-        progress?.report({
-            count: ++count,
-            message: f.filename,
-        })
+        progress?.start(f.filename, ++count)
         const { ok } = await retrieval.upsert(f.filename, {
             content: f.content,
             ...rest,

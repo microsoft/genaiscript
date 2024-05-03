@@ -1,10 +1,12 @@
 import ora, { Ora } from "ora"
 import { Progress } from "genaiscript-core"
 
-export class ProgressSpinner implements Progress {
-    constructor(readonly spinner: Ora) {}
+export class ProgressSpinner extends Progress {
+    constructor(readonly spinner: Ora) {
+        super()
+    }
 
-    report(value: {
+    override report(value: {
         message?: string
         count?: number
         succeeded?: boolean
@@ -20,9 +22,7 @@ export class ProgressSpinner implements Progress {
             this.spinner.suffixText = ""
             this.spinner.start(message)
         }
-        if (!isNaN(count)) {
-            this.spinner.suffixText = "" + count
-        }
+        if (!isNaN(count)) this.spinner.suffixText = "" + count
     }
 
     warn(message: string) {
@@ -31,18 +31,6 @@ export class ProgressSpinner implements Progress {
 
     get text() {
         return this.spinner.text
-    }
-
-    start(message: string) {
-        this.report({ message })
-    }
-
-    succeed(message?: string) {
-        this.report({ message: message || "", succeeded: true })
-    }
-
-    fail(message?: string) {
-        this.report({ message: message || "", succeeded: false })
     }
 }
 

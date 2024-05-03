@@ -1,15 +1,22 @@
 /**
  * Defines a generalized way of reporting progress updates.
  */
-export interface Progress {
-    /**
-     * Report a progress update.
-     * @param value A progress item, like a message and/or an
-     * report on how much work finished
-     */
-    report(value: {
+export abstract class Progress {
+    abstract report(value: {
         message?: string
         count?: number
         succeeded?: boolean | undefined
     }): void
+
+    start(message: string, count?: number) {
+        this.report({ message, count })
+    }
+
+    succeed(message?: string) {
+        this.report({ message: message || "", succeeded: true })
+    }
+
+    fail(message?: string) {
+        this.report({ message: message || "", succeeded: false })
+    }
 }
