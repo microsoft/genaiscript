@@ -23,7 +23,7 @@ import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
-import { FragmentTransformResponse, expandTemplate } from "./expander"
+import { PromptGenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
 import { RequestError } from "./error"
@@ -134,7 +134,7 @@ export async function runTemplate(
     template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions
-): Promise<FragmentTransformResponse> {
+): Promise<PromptGenerationResult> {
     assert(fragment !== undefined)
     const {
         skipLLM,
@@ -182,7 +182,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
-        return <FragmentTransformResponse>{
+        return <PromptGenerationResult>{
             status,
             statusText,
             prompt: messages,
@@ -202,7 +202,7 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
-        return <FragmentTransformResponse>{
+        return <PromptGenerationResult>{
             prompt: messages,
             vars,
             trace: trace.content,
@@ -335,7 +335,7 @@ export async function runTemplate(
             }
 
             updateStatus(`error`)
-            return <FragmentTransformResponse>{
+            return <PromptGenerationResult>{
                 prompt: messages,
                 vars,
                 trace: trace.content,
@@ -709,7 +709,7 @@ ${repair}
             })
         )
 
-    const res: FragmentTransformResponse = {
+    const res: PromptGenerationResult = {
         status: status,
         statusText,
         prompt: messages,

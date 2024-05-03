@@ -1,5 +1,5 @@
 import {
-    FragmentTransformResponse,
+    PromptGenerationResult,
     YAMLStringify,
     diagnosticsToCSV,
     host,
@@ -174,7 +174,7 @@ ${Array.from(files)
     )
 
     let tokens = 0
-    let res: FragmentTransformResponse
+    let res: PromptGenerationResult
     try {
         res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
