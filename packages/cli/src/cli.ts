@@ -33,7 +33,7 @@ import {
     parseHTMLToText,
     parsePDF,
 } from "./parse"
-import { compileScript, createScript, listScripts } from "./scripts"
+import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { modelInfo, systemInfo } from "./info"
 import { scriptTestsView, scriptsTest } from "./test"
@@ -214,6 +214,10 @@ export async function cli() {
         .description("Create a new script")
         .argument("<name>", "Name of the script")
         .action(createScript)
+    scripts
+        .command("fix")
+        .description("fix all definition files")
+        .action(fixScripts)
     scripts
         .command("compile")
         .description("Compile all script in workspace")

@@ -149,6 +149,7 @@ Options:
 Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
+  fix                       fix all definition files
   compile                   Compile all script in workspace
   model [options] [script]  List model connection information for scripts
   help [command]            display help for command
@@ -174,6 +175,17 @@ Create a new script
 
 Arguments:
   name        Name of the script
+
+Options:
+  -h, --help  display help for command
+```
+
+### `scripts fix`
+
+```
+Usage: genaiscript scripts fix [options]
+
+fix all definition files
 
 Options:
   -h, --help  display help for command
