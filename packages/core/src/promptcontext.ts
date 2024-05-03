@@ -140,21 +140,6 @@ export function createPromptContext(
         }
     }
 
-    const defSchema = (
-        name: string,
-        schema: JSONSchema,
-        defOptions?: DefSchemaOptions
-    ) => {
-        trace.detailsFenced(
-            `🧬 schema ${name}`,
-            JSON.stringify(schema, null, 2),
-            "json"
-        )
-        appendPromptChild(createSchemaNode(name, schema, defOptions))
-
-        return name
-    }
-
     const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
