@@ -9,7 +9,7 @@ $`Name: ${AICI.gen({ regex: /[A-Z][A-Za-z \n]*/, stopAt: "\n", storeVar: "name" 
 $`Age: ${AICI.gen({ regex: /\d{2}/, storeVar: "age" })}\n`
 $`Strength: ${AICI.gen({ regex: /\d{3}/, storeVar: "strength" })}\n`
 
-defOutput(out => {
+defOutputProcessor(out => {
     const vars = {}
     for (const f of out.fences) {
         vars[f.label] = f.content

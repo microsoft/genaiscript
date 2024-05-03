@@ -141,32 +141,8 @@ export function createPromptContext(
         }
     }
 
-    const defSchema = (
-        name: string,
-        schema: JSONSchema,
-        defOptions?: DefSchemaOptions
-    ) => {
-        trace.detailsFenced(
-            `🧬 schema ${name}`,
-            JSON.stringify(schema, null, 2),
-            "json"
-        )
-        appendPromptChild(createSchemaNode(name, schema, defOptions))
-
-        return name
-    }
-
-    const defOutput = (fn: PromptOutputProcessorHandler) => {
+    const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
         if (fn) appendPromptChild(createOutputProcessor(fn))
-    }
-
-    const defTool: (
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ) => void = (name, description, parameters, fn) => {
-        appendPromptChild(createFunctionNode(name, description, parameters, fn))
     }
 
     const chat: ChatSession = {
@@ -193,10 +169,7 @@ export function createPromptContext(
         retrieval,
         chat,
         defImages,
-        defSchema,
-        defOutput,
-        defTool,
-        defFunction: defTool,
+        defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
         },
@@ -258,7 +231,6 @@ export interface RunTemplateOptions
     infoCb?: (partialResponse: {
         text: string
         label?: string
-        summary?: string
         vars?: Partial<ExpansionVariables>
     }) => void
     trace?: MarkdownTrace

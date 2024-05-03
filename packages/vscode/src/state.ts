@@ -6,10 +6,9 @@ import {
     PromptScript,
     concatArrays,
     parseProject,
-    FragmentTransformResponse,
+    PromptGenerationResult,
     runTemplate,
     groupBy,
-    promptDefinitions,
     RunTemplateOptions,
     isCancelError,
     isTokenError,
@@ -38,13 +37,7 @@ import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import {
-    findFiles,
-    listFiles,
-    readFileText,
-    saveAllTextDocuments,
-    writeFile,
-} from "./fs"
+import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 
 const MAX_HISTORY_LENGTH = 500
@@ -86,7 +79,7 @@ export interface AIRequestSnapshotKey {
     version: string
 }
 export interface AIRequestSnapshot {
-    response?: Partial<FragmentTransformResponse>
+    response?: Partial<PromptGenerationResult>
     error?: any
     trace?: string
 }
@@ -96,8 +89,8 @@ export interface AIRequest {
     options: AIRequestOptions
     controller: AbortController
     trace: MarkdownTrace
-    request?: Promise<FragmentTransformResponse>
-    response?: Partial<FragmentTransformResponse>
+    request?: Promise<PromptGenerationResult>
+    response?: Partial<PromptGenerationResult>
     computing?: boolean
     error?: any
     progress?: ChatCompletionsProgressReport
@@ -390,7 +383,7 @@ ${errorMessage(e)}`
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
-        r.request = runTemplate(template, fragment, runOptions)
+        r.request = runTemplate(this.project, template, fragment, runOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {

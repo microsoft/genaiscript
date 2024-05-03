@@ -191,4 +191,9 @@ declare function runPrompt(
  * Registers a callback to process the LLM output
  * @param fn
  */
+declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
+
+/**
+ * @deprecated Use `defOutputProcessor` instead.
+ */
 declare function defOutput(fn: PromptOutputProcessorHandler): void

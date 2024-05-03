@@ -1,30 +1,48 @@
-// metadata and model configuration
-// https://microsoft.github.io/genaiscript/reference/scripts/metadata/
 script({
-    model: "gpt-4", 
-    title: "hockey-line-wizard", 
-    temperature: 0.01, 
+    model: "gpt-4",
+    title: "hockey-line-wizard",
+    temperature: 0.01,
     system: ["system", "system.functions", "system.zero_shot_cot"],
     tests: {
         keywords: "CW3",
-    }
+    },
 })
 
 const players = [
-    { "name": "CW3", "PreferredPosition": ["Center", "Left Wing", "Right Wing"], "skill": "3" },
-    { "name": "C3", "PreferredPosition": ["Center"], "skill": "3" },
-    { "name": "CW1", "PreferredPosition": ["Center", "Left Wing", "Right Wing"], "skill": "1" },
-    { "name": "CLW3", "PreferredPosition": ["Center", "Left Wing"], "skill": "3" },
-    { "name": "LW3", "PreferredPosition": ["Left Wing"], "skill": "3" },
-    { "name": "RW1", "PreferredPosition": ["Right Wing"], "skill": "1" },
-    { "name": "W3", "PreferredPosition": ["Left Wing", "Right Wing"], "skill": "3" },
-    { "name": "RWRD3", "PreferredPosition": ["Right Wing", "Right Defender"], "skill": "3" },
-    { "name": "RWD2", "PreferredPosition": ["Right Wing", "Left Defender", "Right Defender"], "skill": "2" },
-    { "name": "RW1", "PreferredPosition": ["Right Wing"], "skill": "1" },
-    { "name": "LDRD2", "PreferredPosition": ["Left Defender", "Right Defender"], "skill": "2" },
-    { "name": "N1", "PreferredPosition": ["No Preference"], "skill": "1" },
-    { "name": "N3", "PreferredPosition": ["No Preference"], "skill": "3" },
-    { "name": "N3_2", "PreferredPosition": ["No Preference"], "skill": "2" },
+    {
+        name: "CW3",
+        PreferredPosition: ["Center", "Left Wing", "Right Wing"],
+        skill: "3",
+    },
+    { name: "C3", PreferredPosition: ["Center"], skill: "3" },
+    {
+        name: "CW1",
+        PreferredPosition: ["Center", "Left Wing", "Right Wing"],
+        skill: "1",
+    },
+    { name: "CLW3", PreferredPosition: ["Center", "Left Wing"], skill: "3" },
+    { name: "LW3", PreferredPosition: ["Left Wing"], skill: "3" },
+    { name: "RW1", PreferredPosition: ["Right Wing"], skill: "1" },
+    { name: "W3", PreferredPosition: ["Left Wing", "Right Wing"], skill: "3" },
+    {
+        name: "RWRD3",
+        PreferredPosition: ["Right Wing", "Right Defender"],
+        skill: "3",
+    },
+    {
+        name: "RWD2",
+        PreferredPosition: ["Right Wing", "Left Defender", "Right Defender"],
+        skill: "2",
+    },
+    { name: "RW1", PreferredPosition: ["Right Wing"], skill: "1" },
+    {
+        name: "LDRD2",
+        PreferredPosition: ["Left Defender", "Right Defender"],
+        skill: "2",
+    },
+    { name: "N1", PreferredPosition: ["No Preference"], skill: "1" },
+    { name: "N3", PreferredPosition: ["No Preference"], skill: "3" },
+    { name: "N3_2", PreferredPosition: ["No Preference"], skill: "2" },
 ]
 
 const ps = defData("PLAYERS", players)
@@ -35,18 +53,21 @@ const lineup = defSchema("LINEUP", {
     items: {
         type: "object",
         properties: {
-            "score": { type: "number", description: "Total skill level of the line" },
-            "LD": { type: "string", description: "Left Defender" },
-            "RD": { type: "string", description: "Right Defender" },
-            "C": { type: "string", description: "Center" },
-            "LW": { type: "string", description: "Left Wing" },
-            "RW": { type: "string", description: "Right Wing" },
+            score: {
+                type: "number",
+                description: "Total skill level of the line",
+            },
+            LD: { type: "string", description: "Left Defender" },
+            RD: { type: "string", description: "Right Defender" },
+            C: { type: "string", description: "Center" },
+            LW: { type: "string", description: "Left Wing" },
+            RW: { type: "string", description: "Right Wing" },
         },
         required: ["LD", "RD", "C", "LW", "RW"],
-    }
+    },
 })
 
-defTool("player_in_multiple_lines_validator", "Validates that the positions for players in multiple lines", {
+defTool("player_in_mutiple_lines_validator", "Validates that the positions for players in multiple lines", {
     type: "object",
     description: "A player's position in two lines",
     properties: {
@@ -58,17 +79,14 @@ defTool("player_in_multiple_lines_validator", "Validates that the positions for 
             type: "string",
             description: "Positions in the first line"
         },
-        "position2": {
-            type: "string",
-            description: "Positions in the second line"
-        }
+        required: ["name", "position1", "position2"],
+    },
+    ({ name, position1, position2 }) => {
+        if (position1 !== position2) {
+            return `${name} is in different positions in different lines.`
+        } else return `rule is ok.`
     }
-    , required: ["name", "position1", "position2"]
-}, ({ name, position1, position2 }) => {
-    if (position1 !== position2) {
-        return `${name} is in different positions in different lines.`
-    } else return `rule is ok.`
-})
+)
 
 $`You are a team manager for a hockey team and responsible for setting the line up.
 

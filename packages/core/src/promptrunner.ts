@@ -1,5 +1,5 @@
 import { ChatCompletionResponse, ChatCompletionTool } from "./chat"
-import { Fragment, PromptScript } from "./ast"
+import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
 import {
@@ -23,7 +23,7 @@ import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
 import { RunTemplateOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
-import { FragmentTransformResponse, expandTemplate } from "./expander"
+import { PromptGenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { MAX_DATA_REPAIRS } from "./constants"
 import { RequestError } from "./error"
@@ -130,10 +130,11 @@ async function fragmentVars(
 }
 
 export async function runTemplate(
+    prj: Project,
     template: PromptScript,
     fragment: Fragment,
     options: RunTemplateOptions
-): Promise<FragmentTransformResponse> {
+): Promise<PromptGenerationResult> {
     assert(fragment !== undefined)
     const {
         skipLLM,
@@ -171,6 +172,7 @@ export async function runTemplate(
         seed,
         responseType,
     } = await expandTemplate(
+        prj,
         template,
         fragment,
         options,
@@ -180,7 +182,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
-        return <FragmentTransformResponse>{
+        return <PromptGenerationResult>{
             status,
             statusText,
             prompt: messages,
@@ -200,7 +202,7 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
-        return <FragmentTransformResponse>{
+        return <PromptGenerationResult>{
             prompt: messages,
             vars,
             trace: trace.content,
@@ -230,7 +232,6 @@ export async function runTemplate(
     const changelogs: string[] = []
     let annotations: Diagnostic[] = []
     const edits: Edits[] = []
-    let summary: string = undefined
     const projFolder = host.projectFolder()
     const links: string[] = []
     const fp = fragment.file.filename
@@ -333,7 +334,7 @@ export async function runTemplate(
             }
 
             updateStatus(`error`)
-            return <FragmentTransformResponse>{
+            return <PromptGenerationResult>{
                 prompt: messages,
                 vars,
                 trace: trace.content,
@@ -623,8 +624,6 @@ ${repair}
                     if (!curr && fragn !== fn)
                         links.push(`-   [${ffn}](${ffn})`)
                 }
-            } else if (/^summary$/i.test(name)) {
-                summary = val
             }
         }
     }
@@ -707,7 +706,7 @@ ${repair}
             })
         )
 
-    const res: FragmentTransformResponse = {
+    const res: PromptGenerationResult = {
         status: status,
         statusText,
         prompt: messages,
@@ -718,7 +717,6 @@ ${repair}
         fileEdits,
         trace: trace.content,
         text,
-        summary,
         version,
         fences,
         frames,
@@ -727,7 +725,6 @@ ${repair}
     options?.infoCb?.({
         label: res.label,
         vars: res.vars,
-        summary: res.summary,
         text: undefined,
     })
     return res

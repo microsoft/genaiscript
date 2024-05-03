@@ -5,6 +5,8 @@ import {
     createAssistantNode,
     createDefDataNode,
     createDefNode,
+    createFunctionNode,
+    createSchemaNode,
     createStringTemplateNode,
     createTextNode,
     renderPromptNode,
@@ -36,6 +38,30 @@ export function createRunPromptContext(
 ): RunPromptContextNode {
     const { cancellationToken } = options || {}
     const node: PromptNode = { children: [] }
+
+    const defTool: (
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ) => void = (name, description, parameters, fn) => {
+        appendChild(node, createFunctionNode(name, description, parameters, fn))
+    }
+
+    const defSchema = (
+        name: string,
+        schema: JSONSchema,
+        defOptions?: DefSchemaOptions
+    ) => {
+        trace.detailsFenced(
+            `🧬 schema ${name}`,
+            JSON.stringify(schema, null, 2),
+            "json"
+        )
+        appendChild(node, createSchemaNode(name, schema, defOptions))
+
+        return name
+    }
 
     const ctx = <RunPromptContextNode>{
         node,
@@ -90,6 +116,9 @@ export function createRunPromptContext(
             appendChild(node, createDefDataNode(name, data, defOptions))
             return name
         },
+        defTool,
+        defFunction: defTool,
+        defSchema,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined
@@ -125,13 +154,13 @@ export function createRunPromptContext(
                     // todo: output processor?
                     messages.push(aici)
                 } else {
-                    const { prompt, assistantPrompt, images, errors } =
+                    const { prompt, assistantPrompt, images, errors, schemas } =
                         await renderPromptNode(model, node, {
                             trace,
                         })
                     trace.fence(prompt, "markdown")
-                    if (images?.length || errors?.length)
-                        trace.fence({ images, errors }, "yaml")
+                    if (images?.length || errors?.length || schemas?.length)
+                        trace.fence({ images, errors, schemas }, "yaml")
                     messages.push(toChatCompletionUserMessage(prompt, images))
                     if (assistantPrompt)
                         messages.push(<ChatCompletionAssistantMessageParam>{

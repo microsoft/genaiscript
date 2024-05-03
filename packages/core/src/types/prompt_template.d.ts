@@ -45,6 +45,8 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = string
 
+type SystemToolId = string
+
 type FileMergeHandler = (
     filename: string,
     label: string,
@@ -159,10 +161,9 @@ interface ModelOptions extends ModelConnectionOptions {
 }
 
 interface ScriptRuntimeOptions {
-    /**
-     * Template identifiers for the system prompts (concatenated).
-     */
     system?: SystemPromptId[]
+
+    tools?: SystemToolId[]
 
     /**
      * Specifies the type of output. Default is `markdown`.
@@ -1026,10 +1027,30 @@ interface RunPromptContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
+    defSchema(
+        name: string,
+        schema: JSONSchema,
+        options?: DefSchemaOptions
+    ): string
     runPrompt(
         generator: string | RunPromptGenerator,
         options?: ModelOptions
     ): Promise<RunPromptResult>
+    /**
+     * @deprecated use `defTool` instead
+     */
+    defFunction(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ): void
+    defTool(
+        name: string,
+        description: string,
+        parameters: ChatFunctionParameters,
+        fn: ChatFunctionHandler
+    ): void
 }
 
 interface PromptGenerationOutput {
@@ -1181,28 +1202,8 @@ interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     defImages(files: StringLike, options?: DefImagesOptions): void
-    /**
-     * @deprecated use `defTool` instead
-     */
-    defFunction(
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ): void
-    defTool(
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ): void
     defFileMerge(fn: FileMergeHandler): void
-    defOutput(fn: PromptOutputProcessorHandler): void
-    defSchema(
-        name: string,
-        schema: JSONSchema,
-        options?: DefSchemaOptions
-    ): string
+    defOutputProcessor(fn: PromptOutputProcessorHandler): void
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
