@@ -263,8 +263,6 @@ export async function expandTemplate(
 ) {
     const cancellationToken = options?.cancellationToken
 
-    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
-
     const systems = resolveSystems(prj, template)
     const model =
         options.model ??
