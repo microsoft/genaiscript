@@ -14,7 +14,6 @@ export async function retrievalIndex(
     files: string[],
     options: {
         excludedFiles: string[]
-        summary: boolean
         name: string
         model: string
         chunkSize: string
@@ -29,7 +28,6 @@ export async function retrievalIndex(
         chunkOverlap,
         chunkSize,
         splitLongSentences,
-        summary,
     } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
@@ -45,7 +43,6 @@ export async function retrievalIndex(
         chunkOverlap: normalizeInt(chunkOverlap),
         chunkSize: normalizeInt(chunkSize),
         splitLongSentences,
-        summary,
     })
 }
 
@@ -54,7 +51,7 @@ export async function retrievalClear(options: {
     summary: boolean
 }) {
     const { name: indexName, summary } = options || {}
-    await clearIndex({ indexName, summary })
+    await clearIndex({ indexName })
 }
 
 export async function retrievalSearch(
@@ -64,10 +61,9 @@ export async function retrievalSearch(
         excludedFiles: string[]
         topK: string
         name: string
-        summary: boolean
     }
 ) {
-    const { excludedFiles, name: indexName, topK, summary } = options || {}
+    const { excludedFiles, name: indexName, topK } = options || {}
     const files = await expandFiles(filesGlobs, excludedFiles)
     const progress = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
@@ -76,7 +72,6 @@ export async function retrievalSearch(
         files,
         topK: normalizeInt(topK),
         indexName,
-        summary,
         progress,
     })
     console.log(YAMLStringify(res))

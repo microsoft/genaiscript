@@ -72,22 +72,24 @@ export interface ResponseStatus {
 
 export interface RetrievalOptions {
     indexName?: string
-    summary?: boolean
 }
 
-export interface RetrievalSearchOptions extends RetrievalOptions {
+export interface RetrievalEmbeddingsOptions extends RetrievalOptions {
+    model?: string
+    chunkSize?: number
+    chunkOverlap?: number
+    splitLongSentences?: boolean
+}
+
+export interface RetrievalSearchOptions extends RetrievalOptions, RetrievalEmbeddingsOptions {
     files?: string[]
     topK?: number
     minScore?: number
 }
 
-export interface RetrievalUpsertOptions extends RetrievalOptions {
+export interface RetrievalUpsertOptions extends RetrievalEmbeddingsOptions {
     content?: string
     mimeType?: string
-    model?: string
-    chunkSize?: number
-    chunkOverlap?: number
-    splitLongSentences?: boolean
 }
 
 export type RetrievalSearchResponse = ResponseStatus & {

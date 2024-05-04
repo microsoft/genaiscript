@@ -246,7 +246,6 @@ export async function cli() {
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-n, --name <string>", "index name")
-        //        .option("-s, --summary", "use LLM-generated summaries")
         .option("-cs, --chunk-size <number>", "chunk size")
         .option("-co, --chunk-overlap <number>", "chunk overlap")
         .option("-m, --model <string>", "model for embeddings (default gpt-4)")
@@ -262,13 +261,11 @@ export async function cli() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .option("-n, --name <string>", "index name")
-        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retrievalSearch)
     retrieval
         .command("clear")
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
-        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retrievalClear)
 
     program

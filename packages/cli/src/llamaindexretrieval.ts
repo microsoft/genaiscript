@@ -88,10 +88,10 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         }
     }
 
-    private getPersisDir(indexName: string, summary: boolean) {
+    private getPersisDir(indexName: string) {
         const persistDir = this.host.path.join(
             dotGenaiscriptPath(RETRIEVAL_PERSIST_DIR),
-            summary ? "summary" : "full",
+            "vectors",
             indexName
         )
         return persistDir
@@ -100,21 +100,15 @@ export class LlamaIndexRetrievalService implements RetrievalService {
     private async createStorageContext(options?: {
         files?: string[]
         indexName?: string
-        summary?: boolean
     }) {
-        const {
-            files,
-            indexName = RETRIEVAL_DEFAULT_INDEX,
-            summary,
-        } = options ?? {}
+        const { files, indexName = RETRIEVAL_DEFAULT_INDEX } = options ?? {}
         const { storageContextFromDefaults, SimpleVectorStore } = this.module
-        const persistDir = this.getPersisDir(indexName, summary)
+        const persistDir = this.getPersisDir(indexName)
         await this.host.createDirectory(persistDir)
         const storageContext = await storageContextFromDefaults({
             persistDir,
-            vectorStore: summary ? new SimpleVectorStore() : undefined,
         })
-        if (files?.length && !summary) {
+        if (files?.length) {
             // get all documents
             const docs = await storageContext.docStore.getAllRefDocInfo()
             if (docs) {
@@ -162,8 +156,8 @@ export class LlamaIndexRetrievalService implements RetrievalService {
     }
 
     async clear(options?: RetrievalOptions) {
-        const { indexName = RETRIEVAL_DEFAULT_INDEX, summary } = options || {}
-        const persistDir = this.getPersisDir(indexName, summary)
+        const { indexName = RETRIEVAL_DEFAULT_INDEX } = options || {}
+        const persistDir = this.getPersisDir(indexName)
         await this.host.deleteDirectory(persistDir)
         return { ok: true }
     }
@@ -173,7 +167,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus> {
         const { Document, VectorStoreIndex, SummaryIndex } = this.module
-        const { content, mimeType, summary } = options ?? {}
+        const { content, mimeType } = options ?? {}
         let blob: Blob = undefined
         if (content) {
             blob = new Blob([content], {
@@ -221,27 +215,10 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         const { storageContext, persistDir } =
             await this.createStorageContext(options)
         await storageContext.docStore.addDocuments(documents, true)
-        if (summary) {
-            if (
-                !(await fileExists(
-                    this.host.path.join(persistDir, "doc_store.json")
-                ))
-            )
-                await SummaryIndex.fromDocuments(documents, {
-                    storageContext,
-                    serviceContext,
-                })
-            else {
-                await SummaryIndex.init({
-                    storageContext,
-                    serviceContext,
-                })
-            }
-        } else
-            await VectorStoreIndex.fromDocuments(documents, {
-                storageContext,
-                serviceContext,
-            })
+        await VectorStoreIndex.fromDocuments(documents, {
+            storageContext,
+            serviceContext,
+        })
         return { ok: true }
     }
 
@@ -252,7 +229,6 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         const {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
-            summary,
         } = options ?? {}
         const {
             VectorStoreIndex,
@@ -264,27 +240,14 @@ export class LlamaIndexRetrievalService implements RetrievalService {
 
         const serviceContext = await this.createServiceContext()
         const { storageContext } = await this.createStorageContext(options)
-        let results: NodeWithScore<Metadata>[]
-        if (summary) {
-            const index = await SummaryIndex.init({
-                storageContext,
-                serviceContext,
-            })
-            const retreiver = index.asRetriever({
-                mode: SummaryRetrieverMode.LLM,
-            })
-            results = await retreiver.retrieve(text)
-        } else {
-            const index = await VectorStoreIndex.init({
-                storageContext,
-                serviceContext,
-            })
-            const retreiver = index.asRetriever({
-                similarityTopK: topK,
-            })
-            results = await retreiver.retrieve(text)
-        }
-
+        const index = await VectorStoreIndex.init({
+            storageContext,
+            serviceContext,
+        })
+        const retreiver = index.asRetriever({
+            similarityTopK: topK,
+        })
+        const results = await retreiver.retrieve(text)
         const processor = new SimilarityPostprocessor({
             similarityCutoff: minScore,
         })
