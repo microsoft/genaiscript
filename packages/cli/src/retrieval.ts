@@ -7,6 +7,7 @@ import {
     estimateTokens,
     normalizeInt,
     expandFiles,
+    normalizeFloat,
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 
@@ -16,18 +17,18 @@ export async function retrievalIndex(
         excludedFiles: string[]
         name: string
         model: string
+        temperature: string
         chunkSize: string
         chunkOverlap: string
-        splitLongSentences: boolean
     }
 ) {
     const {
         excludedFiles,
         name: indexName,
         model,
+        temperature,
         chunkOverlap,
         chunkSize,
-        splitLongSentences,
     } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
@@ -39,10 +40,10 @@ export async function retrievalIndex(
     await upsertVector(fs, {
         progress,
         indexName,
-        model,
+        embedModel: model,
+        temperature: normalizeFloat(temperature),
         chunkOverlap: normalizeInt(chunkOverlap),
         chunkSize: normalizeInt(chunkSize),
-        splitLongSentences,
     })
 }
 

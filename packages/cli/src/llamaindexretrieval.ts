@@ -5,21 +5,28 @@ import {
     MarkdownTrace,
     PromiseType,
     RETRIEVAL_DEFAULT_INDEX,
-    RETRIEVAL_DEFAULT_MODEL,
     ResponseStatus,
     RetrievalSearchOptions,
     RetrievalSearchResponse,
     RetrievalService,
     RetrievalUpsertOptions,
     dotGenaiscriptPath,
-    fileExists,
     installImport,
     lookupMime,
     serializeError,
     createFetch,
     RETRIEVAL_PERSIST_DIR,
+    parseModelIdentifier,
+    RETRIEVAL_DEFAULT_LLM_MODEL,
+    RETRIEVAL_DEFAULT_EMBED_MODEL,
+    RETRIEVAL_DEFAULT_TEMPERATURE,
 } from "genaiscript-core"
-import type { BaseReader, NodeWithScore, Metadata } from "llamaindex"
+import {
+    type BaseReader,
+    type NodeWithScore,
+    type Metadata,
+    OllamaEmbedding,
+} from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
@@ -129,23 +136,52 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         return { storageContext, persistDir }
     }
 
-    private async createServiceContext(options?: {
-        model?: string
-        temperature?: number
-        chunkSize?: number
-        chunkOverlap?: number
-        splitLongSentences?: boolean
-    }) {
+    private async createServiceContext(
+        options?: VectorSearchEmbeddingsOptions
+    ) {
         const {
-            model = RETRIEVAL_DEFAULT_MODEL,
-            temperature,
-            splitLongSentences = true,
+            llmModel: llmModel_ = RETRIEVAL_DEFAULT_LLM_MODEL,
+            embedModel: embedModel_ = RETRIEVAL_DEFAULT_EMBED_MODEL,
+            temperature = RETRIEVAL_DEFAULT_TEMPERATURE,
             ...rest
         } = options ?? {}
-        const { SimpleNodeParser, serviceContextFromDefaults, OpenAI } =
-            this.module
+        const splitLongSentences = true
+        const {
+            SimpleNodeParser,
+            serviceContextFromDefaults,
+            OpenAIEmbedding,
+            Ollama,
+            OpenAI,
+        } = this.module
+        const { provider: llmProvider, model: llmModel } =
+            parseModelIdentifier(llmModel_)
+        const llmToken = await this.host.getSecretToken({ model: llmModel_ })
+        const { provider: embedProvider, model: embedModel } =
+            parseModelIdentifier(embedModel_)
+        const embedToken = await this.host.getSecretToken({
+            model: embedModel_,
+        })
+        const llmClass = llmProvider === "ollama" ? Ollama : OpenAI
+        const embedClass =
+            embedProvider === "ollama" ? OllamaEmbedding : OpenAIEmbedding
+
         const serviceContext = serviceContextFromDefaults({
-            llm: new OpenAI({ model, temperature }),
+            llm: llmToken
+                ? new llmClass({
+                      model: llmModel,
+                      temperature,
+                      baseURL: llmToken.base,
+                      apiKey: llmToken.token,
+                  })
+                : undefined,
+            embedModel: embedToken
+                ? new embedClass({
+                      model: embedModel,
+                      baseURL: embedToken.base,
+                      apiKey: embedToken.token,
+                      ...rest,
+                  })
+                : undefined,
             nodeParser: new SimpleNodeParser({
                 ...rest,
                 splitLongSentences,

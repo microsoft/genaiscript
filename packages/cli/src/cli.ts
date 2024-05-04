@@ -248,11 +248,8 @@ export async function cli() {
         .option("-n, --name <string>", "index name")
         .option("-cs, --chunk-size <number>", "chunk size")
         .option("-co, --chunk-overlap <number>", "chunk overlap")
-        .option("-m, --model <string>", "model for embeddings (default gpt-4)")
-        .option(
-            "-sls, --split-long-sentences",
-            "split long sentences (default true)"
-        )
+        .option("-m, --model <string>", "model for embeddings")
+        .option("-t, --temperature <number>", "LLM temperature")
         .action(retrievalIndex)
     retrieval
         .command("search")

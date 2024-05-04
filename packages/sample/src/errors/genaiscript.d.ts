@@ -1016,7 +1016,9 @@ interface VectorSearchOptions {
 }
 
 interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
-    model?: string
+    llmModel?: string
+    embedModel?: string
+    temperature?: number
     chunkSize?: number
     chunkOverlap?: number
     splitLongSentences?: boolean
