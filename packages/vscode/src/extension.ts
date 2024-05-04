@@ -9,10 +9,8 @@ import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
-//import { activateChatParticipant } from "./chat/participant"
 import { activateRetrievalCommands } from "./retrievalcommands"
 import { activateTestController } from "./testcontroller"
-// import { activateTokensStatusBar } from "./tokenstatusbar"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -24,7 +22,6 @@ export async function activate(context: ExtensionContext) {
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
     activateStatusBar(state)
-    // activateTokensStatusBar(state)
     // activateChatParticipant(state)
 
     context.subscriptions.push(
