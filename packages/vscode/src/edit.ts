@@ -6,6 +6,7 @@ export function toPos(p: CharPosition | number) {
     return new vscode.Position(...p)
 }
 export function toRange(p: CharRange | LineRange) {
+    if (!p) return undefined
     if (Array.isArray(p) && typeof p[0] === "number" && typeof p[1] === "number")
         return new vscode.Range(
             new vscode.Position(p[0], 0),

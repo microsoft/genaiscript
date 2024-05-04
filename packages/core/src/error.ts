@@ -4,9 +4,15 @@ export function serializeError(
     e: unknown | string | Error | SerializedError
 ): SerializedError {
     if (e === undefined || e === null) return {}
-    else if (e instanceof Error)
-        return rawSerializeError(e, { maxDepth: 3, useToJSON: false })
-    else if (e instanceof Object) {
+    else if (e instanceof Error) {
+        const err = rawSerializeError(e, { maxDepth: 3, useToJSON: false })
+        const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(err.stack)
+        if (m) {
+            err.line = parseInt(m[1])
+            err.column = parseInt(m[2])
+        }
+        return err
+    } else if (e instanceof Object) {
         const obj = e as SerializedError
         return obj
     } else if (typeof e === "string") return { message: e }

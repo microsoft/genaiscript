@@ -165,7 +165,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
-        const annotations = trace.renderErrors()
+        trace.renderErrors()
         return <GenerationResult>{
             status,
             statusText,
@@ -174,7 +174,7 @@ export async function runTemplate(
             trace: trace.content,
             text: "",
             edits: [],
-            annotations,
+            annotations: [],
             changelogs: [],
             fileEdits: {},
             label,
@@ -186,14 +186,14 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
-        const annotations = trace.renderErrors()
+        trace.renderErrors()
         return <GenerationResult>{
             prompt: messages,
             vars,
             trace: trace.content,
             text: undefined,
             edits: [],
-            annotations,
+            annotations: [],
             changelogs: [],
             fileEdits: {},
             label,
@@ -427,7 +427,7 @@ export async function runTemplate(
             })
         )
 
-    annotations.push(...trace.renderErrors())
+    trace.renderErrors()
     const res: GenerationResult = {
         status: status,
         statusText,

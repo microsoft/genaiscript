@@ -6,7 +6,6 @@ import { estimateTokens } from "./tokens"
 import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
-    MAX_DATA_REPAIRS,
     MAX_TOOL_CALLS,
     SYSTEM_FENCE,
 } from "./constants"
@@ -162,18 +161,12 @@ async function callExpander(
         }
     } catch (e) {
         status = "error"
+        statusText = errorMessage(e)
         if (isCancelError(e)) {
-            trace.log(`cancelled: ${errorMessage(e)}`)
             status = "cancelled"
-            statusText = errorMessage(e)
+            trace.note(statusText)
         } else {
-            const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
-            const info = m
-                ? ` at prompt line ${m[1]}, column ${m[2]}`
-                : errorMessage(e)
-            trace.error(info, e)
-            status = "error"
-            statusText = errorMessage(e)
+            trace.error(undefined, e)
         }
     }
 
@@ -328,9 +321,6 @@ export async function expandTemplate(
 
     const prompt = await callExpander(template, env, trace, options)
 
-    trace.itemValue(`status`, prompt.status)
-    trace.itemValue(`status text`, prompt.statusText)
-
     const expanded = prompt.text
     const images = prompt.images
     const schemas = prompt.schemas
@@ -381,9 +371,6 @@ export async function expandTemplate(
 
         const sysr = await callExpander(system, env, trace, options)
         responseType = responseType ?? system.responseType
-
-        trace.itemValue(`status`, sysr.status)
-        trace.itemValue(`status text`, sysr.statusText)
 
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)

@@ -55,11 +55,6 @@ export function createRunPromptContext(
         schema: JSONSchema,
         defOptions?: DefSchemaOptions
     ) => {
-        trace.detailsFenced(
-            `🧬 schema ${name}`,
-            JSON.stringify(schema, null, 2),
-            "json"
-        )
         appendChild(node, createSchemaNode(name, schema, defOptions))
 
         return name

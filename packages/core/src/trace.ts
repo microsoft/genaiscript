@@ -14,8 +14,7 @@ export class MarkdownTrace
     extends EventTarget
     implements ChatFunctionCallTrace
 {
-    readonly errors: { id: string; message: string; error: SerializedError }[] =
-        []
+    readonly errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: string = ""
 
@@ -121,7 +120,7 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     fence(message: string | unknown, contentType?: string) {
-        if (message === undefined || message === null) return
+        if (message === undefined || message === null || message === "") return
 
         let res: string
         if (typeof message !== "string") {
@@ -166,46 +165,45 @@ ${this.toResultIcon(success, "")}${title}
     error(message: string, error?: unknown) {
         this.disableChange(() => {
             const err = {
-                id: Math.random().toString(36).substring(2, 15),
                 message,
                 error: serializeError(error),
             }
             this.errors.push(err)
-            this.renderError(err)
+            this.renderError(err, { details: false })
         })
     }
 
-    renderErrors(): Diagnostic[] {
+    renderErrors(): void {
         while (this.detailsDepth > 0) this.endDetails()
         const errors = this.errors || []
         if (errors.length) {
             this.disableChange(() => {
-                errors.forEach((e) => this.renderError(e))
+                this.heading(3, "Errors")
+                errors.forEach((e) => this.renderError(e, { details: true }))
             })
         }
-
-        return errors.map(
-            ({ message, error }) =>
-                <Diagnostic>{
-                    message: message || errorMessage(error),
-                    severity: "error",
-                }
-        )
     }
 
-    private renderError(e: {
-        id: string
-        message: string
-        error?: SerializedError
-    }) {
-        const { id, message, error } = e
+    private renderError(
+        e: {
+            message: string
+            error?: SerializedError
+        },
+        options: { details: boolean }
+    ) {
+        const { message, error } = e
         const emsg = errorMessage(error)
         const msg = message || emsg
-        this.content += `> [!CAUTION] ${msg}
-\`\`\`
-${error.stack || ""}
-\`\`\`
-`
+        this.warn(msg)
+        if (options.details) this.fence(error.stack)
+    }
+
+    warn(msg: string) {
+        this.content += `\n> [!CAUTION] ${msg}\n`
+    }
+
+    note(msg: string) {
+        this.content += `\n> [!INFO] ${msg}\n`
     }
 }
 

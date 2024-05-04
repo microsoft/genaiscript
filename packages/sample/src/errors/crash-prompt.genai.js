@@ -1,5 +1,6 @@
 script({
-    title: "crash-prompt"
+    model: "ollama:phi3",
+    title: "crash prompt"
 })
 
 $`This prompt will crash now...`

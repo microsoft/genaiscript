@@ -15,6 +15,8 @@ interface SerializedError {
     stack?: string
     cause?: unknown
     code?: string
+    line?: number
+    column?: number
 }
 
 interface PromptDefinition {

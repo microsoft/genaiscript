@@ -329,11 +329,10 @@ export interface PromptNodeRender {
 
 async function resolvePromptNode(
     model: string,
-    node: PromptNode,
-    options?: TraceOptions
+    root: PromptNode
 ): Promise<{ errors: number }> {
     let err = 0
-    await visitNode(node, {
+    await visitNode(root, {
         error: () => {
             err++
         },
@@ -343,7 +342,7 @@ async function resolvePromptNode(
                 n.resolved = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         def: async (n) => {
@@ -353,7 +352,7 @@ async function resolvePromptNode(
                 const rendered = renderDefNode(n)
                 n.tokens = estimateTokens(model, rendered)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         assistant: async (n) => {
@@ -362,20 +361,22 @@ async function resolvePromptNode(
                 n.resolve = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         stringTemplate: async (n) => {
             const { strings, args } = n
             try {
-                const resolvedArgs = (await Promise.all(args)).map(
-                    (v) => v ?? ""
-                )
+                const resolvedArgs: any[] = []
+                for (const arg of args) {
+                    const resolvedArg = await arg
+                    resolvedArgs.push(resolvedArg ?? "")
+                }
                 const value = dedent(strings, ...resolvedArgs)
                 n.resolved = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         image: async (n) => {
@@ -383,7 +384,7 @@ async function resolvePromptNode(
                 const v = await n.value
                 n.resolved = v
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
     })
@@ -448,20 +449,21 @@ async function truncatePromptNode(
 
 async function tracePromptNode(
     trace: MarkdownTrace,
-    node: PromptNode,
+    root: PromptNode,
     options?: { label: string }
 ) {
     if (!trace) return
 
-    await visitNode(node, {
-        error: (n) => trace.item(`error: ${errorMessage(n.error)}`),
+    await visitNode(root, {
         node: (n) => {
+            const error = errorMessage(n.error)
             const title = toStringList(
                 n.type || `🌳 prompt tree ${options?.label || ""}`,
                 n.priority ? `#${n.priority}` : undefined,
                 n.tokens
                     ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
-                    : undefined
+                    : undefined,
+                error
             )
             if (n.children?.length)
                 trace.startDetails(title, n.error ? false : undefined)
@@ -481,7 +483,7 @@ export async function renderPromptNode(
     const { trace } = options || {}
     const { model } = parseModelIdentifier(modelId)
 
-    await resolvePromptNode(model, node, options)
+    await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
 
     const truncated = await truncatePromptNode(model, node, options)
@@ -605,13 +607,6 @@ ${trimNewlines(schemaText)}
         outputProcessors,
         errors,
         messages,
-    }
-    if (trace) {
-        trace.fence(prompt, "markdown")
-        trace.fence(assistantPrompt, "markdown")
-        if (images.length || errors?.length || schemas?.length)
-            trace.fence({ images, schemas, errors }, "yaml")
-        trace.fence(messages, "json")
     }
     return res
 }
