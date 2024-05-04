@@ -134,7 +134,7 @@ export async function runTemplate(
 
     trace.heading(2, label || template.id)
 
-    if (cliInfo) traceCliArgs(trace, template, fragment, options)
+    if (cliInfo) traceCliArgs(trace, template, options)
 
     const vars = await fragmentVars(trace, template, fragment)
     // override with options vars

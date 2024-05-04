@@ -34,7 +34,6 @@ export function generateCliArguments(
 export function traceCliArgs(
     trace: MarkdownTrace,
     template: PromptScript,
-    fragment: Fragment,
     options: GenerationOptions
 ) {
     trace.details(
