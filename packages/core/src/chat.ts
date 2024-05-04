@@ -176,7 +176,7 @@ function traceCompletionResonse(
         if (resp.finishReason && resp.finishReason !== "stop")
             trace.itemValue(`finish reason`, resp.finishReason)
         if (resp.cached) trace.itemValue(`cached`, resp.cached)
-        trace.detailsFenced(`output`, resp.text, "markdown")
+        trace.fence(resp.text, "markdown")
     } finally {
         trace.endDetails()
     }
