@@ -278,8 +278,8 @@ Options:
   -n, --name <string>                index name
   -cs, --chunk-size <number>         chunk size
   -co, --chunk-overlap <number>      chunk overlap
-  -m, --model <string>               model for embeddings (default gpt-4)
-  -sls, --split-long-sentences       split long sentences (default true)
+  -m, --model <string>               model for embeddings
+  -t, --temperature <number>         LLM temperature
   -h, --help                         display help for command
 ```
 
