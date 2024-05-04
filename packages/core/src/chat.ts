@@ -76,6 +76,7 @@ export interface ChatCompletionResponse {
 export const ModelError = OpenAI.APIError
 
 export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
+    ModelOptions &
     Omit<OAIToken, "token" | "source">
 
 export function getChatCompletionCache(name?: string) {

@@ -11,6 +11,7 @@ import { YAMLStringify } from "./yaml"
 import {
     ChatCompletionChunk,
     ChatCompletionHandler,
+    ChatCompletionRequestCacheKey,
     ChatCompletionResponse,
     ChatCompletionToolCall,
     LanguageModel,
@@ -54,7 +55,16 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
             (isNaN(top_p) || isNaN(maxCachedTopP) || top_p < maxCachedTopP))
     trace.itemValue(`caching`, caching)
-    const cachedKey = caching ? { ...req, ...cfgNoToken } : undefined
+    const cachedKey = caching
+        ? <ChatCompletionRequestCacheKey>{
+              ...req,
+              ...cfgNoToken,
+              model: req.model,
+              temperature: req.temperature,
+              top_p: req.top_p,
+              max_tokens: req.max_tokens,
+          }
+        : undefined
     const cached = cachedKey ? await cache.get(cachedKey) : undefined
     if (cached !== undefined) {
         partialCb?.({

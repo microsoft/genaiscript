@@ -8,14 +8,14 @@ import {
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
-import { serializeError } from "./error"
-import { assert } from "./util"
+import { errorMessage, serializeError } from "./error"
 
 export class MarkdownTrace
     extends EventTarget
     implements ChatFunctionCallTrace
 {
-    readonly errors: { message: string; error: SerializedError }[] = []
+    readonly errors: { id: string; message: string; error: SerializedError }[] =
+        []
     private detailsDepth = 0
     private _content: string = ""
 
@@ -165,7 +165,11 @@ ${this.toResultIcon(success, "")}${title}
 
     error(message: string, error?: unknown) {
         this.disableChange(() => {
-            const err = { message, error: serializeError(error) }
+            const err = {
+                id: Math.random().toString(36).substring(2, 15),
+                message,
+                error: serializeError(error),
+            }
             this.errors.push(err)
             this.renderError(err)
         })
@@ -181,9 +185,16 @@ ${this.toResultIcon(success, "")}${title}
         }
     }
 
-    private renderError(e: { message: string; error?: SerializedError }) {
-        const { message, error } = e
-        this.item(message || e?.message)
+    private renderError(e: {
+        id: string
+        message: string
+        error?: SerializedError
+    }) {
+        const { id, message, error } = e
+        const emsg = errorMessage(error)
+        const msg = message || emsg
+        this.heading(4, msg)
+        if (emsg && msg !== emsg) this.log(emsg)
         this.fence(error?.stack, "txt")
     }
 }
