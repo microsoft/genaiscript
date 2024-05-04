@@ -175,14 +175,22 @@ ${this.toResultIcon(success, "")}${title}
         })
     }
 
-    renderErrors() {
+    renderErrors(): Diagnostic[] {
         while (this.detailsDepth > 0) this.endDetails()
-        if (this.errors?.length) {
+        const errors = this.errors || []
+        if (errors.length) {
             this.disableChange(() => {
-                this.heading(3, `${EMOJI_FAIL} errors`)
-                this.errors.forEach((e) => this.renderError(e))
+                errors.forEach((e) => this.renderError(e))
             })
         }
+
+        return errors.map(
+            ({ message, error }) =>
+                <Diagnostic>{
+                    message: message || errorMessage(error),
+                    severity: "error",
+                }
+        )
     }
 
     private renderError(e: {
@@ -193,9 +201,11 @@ ${this.toResultIcon(success, "")}${title}
         const { id, message, error } = e
         const emsg = errorMessage(error)
         const msg = message || emsg
-        this.heading(4, msg)
-        if (emsg && msg !== emsg) this.log(emsg)
-        this.fence(error?.stack, "txt")
+        this.content += `> [!CAUTION] ${msg}
+\`\`\`
+${error.stack || ""}
+\`\`\`
+`
     }
 }
 

@@ -132,8 +132,6 @@ export async function runTemplate(
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
 
-    const isCancelled = () => cancellationToken?.isCancellationRequested
-
     trace.heading(2, label || template.id)
 
     if (cliInfo) traceCliArgs(trace, template, fragment, options)
@@ -167,7 +165,7 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
-        trace.renderErrors()
+        const annotations = trace.renderErrors()
         return <GenerationResult>{
             status,
             statusText,
@@ -176,7 +174,7 @@ export async function runTemplate(
             trace: trace.content,
             text: "",
             edits: [],
-            annotations: [],
+            annotations,
             changelogs: [],
             fileEdits: {},
             label,
@@ -188,14 +186,14 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
-        trace.renderErrors()
+        const annotations = trace.renderErrors()
         return <GenerationResult>{
             prompt: messages,
             vars,
             trace: trace.content,
             text: undefined,
             edits: [],
-            annotations: [],
+            annotations,
             changelogs: [],
             fileEdits: {},
             label,
@@ -429,7 +427,7 @@ export async function runTemplate(
             })
         )
 
-    trace.renderErrors()
+    annotations.push(...trace.renderErrors())
     const res: GenerationResult = {
         status: status,
         statusText,
