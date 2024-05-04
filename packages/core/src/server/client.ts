@@ -3,7 +3,6 @@ import {
     ParsePdfResponse,
     ParseService,
     ResponseStatus,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalSearchResponse,
     RetrievalService,
@@ -16,9 +15,9 @@ import {
     ParsePdfMessage,
     RequestMessage,
     RequestMessages,
-    RetrievalClear,
+    RetrievaVectorClear,
     RetrievalSearch,
-    RetrievalUpsert,
+    RetrievalVectorUpsert,
     ServerVersion,
     PromptScriptTestRunMessage,
     PromptScriptTestRunOptions,
@@ -112,9 +111,9 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.version
     }
 
-    async clear(options: RetrievalOptions): Promise<ResponseStatus> {
-        const res = await this.queue<RetrievalClear>({
-            type: "retrieval.clear",
+    async vectorClear(options: VectorSearchOptions): Promise<ResponseStatus> {
+        const res = await this.queue<RetrievaVectorClear>({
+            type: "retrieval.vectorClear",
             options,
         })
         return res.response
@@ -131,9 +130,9 @@ export class WebSocketClient implements RetrievalService, ParseService {
         })
         return res.response
     }
-    async upsert(filename: string, options?: RetrievalUpsertOptions) {
-        const res = await this.queue<RetrievalUpsert>({
-            type: "retrieval.upsert",
+    async vectorUpsert(filename: string, options?: RetrievalUpsertOptions) {
+        const res = await this.queue<RetrievalVectorUpsert>({
+            type: "retrieval.vectorUpsert",
             filename,
             options,
         })

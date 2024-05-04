@@ -1,9 +1,9 @@
 import {
     YAMLStringify,
     readText,
-    upsert,
+    upsertVector,
     vectorSearch,
-    clearIndex,
+    clearVectorIndex,
     estimateTokens,
     normalizeInt,
     expandFiles,
@@ -36,7 +36,7 @@ export async function retrievalIndex(
     }
 
     const progress = createProgressSpinner(`indexing ${fs.length} files`)
-    await upsert(fs, {
+    await upsertVector(fs, {
         progress,
         indexName,
         model,
@@ -51,7 +51,7 @@ export async function retrievalClear(options: {
     summary: boolean
 }) {
     const { name: indexName, summary } = options || {}
-    await clearIndex({ indexName })
+    await clearVectorIndex({ indexName })
 }
 
 export async function retrievalSearch(

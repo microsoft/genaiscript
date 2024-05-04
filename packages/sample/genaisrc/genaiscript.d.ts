@@ -1011,6 +1011,18 @@ interface SearchResult {
     webPages: WorkspaceFile[]
 }
 
+interface VectorSearchOptions {
+    indexName?: string
+}
+
+interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
+    model?: string
+    chunkSize?: number
+    chunkOverlap?: number
+    splitLongSentences?: boolean
+}
+
+
 interface Retrieval {
     /**
      * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
@@ -1033,7 +1045,7 @@ interface Retrieval {
              * Minimum similarity score
              */
             minScore?: number
-        }
+        } & VectorSearchEmbeddingsOptions
     ): Promise<{
         files: WorkspaceFile[]
         chunks: WorkspaceFile[]

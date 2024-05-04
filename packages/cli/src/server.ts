@@ -45,15 +45,15 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
-                    case "retrieval.clear":
+                    case "retrieval.vectorClear":
                         console.log(`retrieval: clear`)
                         await host.retrieval.init()
-                        response = await host.retrieval.clear(data.options)
+                        response = await host.retrieval.vectorClear(data.options)
                         break
-                    case "retrieval.upsert": {
+                    case "retrieval.vectorUpsert": {
                         console.log(`retrieval: upsert ${data.filename}`)
                         await host.retrieval.init()
-                        response = await host.retrieval.upsert(
+                        response = await host.retrieval.vectorUpsert(
                             data.filename,
                             data.options
                         )

@@ -1,10 +1,9 @@
 import {
     ParsePdfResponse,
     ResponseStatus,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalSearchResponse,
-    RetrievalUpsertOptions,
+    RetrievalUpsertOptions as RetrievalVectorUpsertOptions,
 } from "../host"
 
 export interface RequestMessage {
@@ -17,9 +16,9 @@ export interface ServerKill extends RequestMessage {
     type: "server.kill"
 }
 
-export interface RetrievalClear extends RequestMessage {
-    type: "retrieval.clear"
-    options?: RetrievalOptions
+export interface RetrievaVectorClear extends RequestMessage {
+    type: "retrieval.vectorClear"
+    options?: VectorSearchOptions
 }
 
 export interface ServerVersion extends RequestMessage {
@@ -27,10 +26,10 @@ export interface ServerVersion extends RequestMessage {
     version?: string
 }
 
-export interface RetrievalUpsert extends RequestMessage {
-    type: "retrieval.upsert"
+export interface RetrievalVectorUpsert extends RequestMessage {
+    type: "retrieval.vectorUpsert"
     filename: string
-    options?: RetrievalUpsertOptions
+    options?: RetrievalVectorUpsertOptions
 }
 
 export interface RetrievalSearch extends RequestMessage {
@@ -60,8 +59,8 @@ export interface PromptScriptTestRunMessage extends RequestMessage {
 
 export type RequestMessages =
     | ServerKill
-    | RetrievalClear
-    | RetrievalUpsert
+    | RetrievaVectorClear
+    | RetrievalVectorUpsert
     | RetrievalSearch
     | ServerVersion
     | ParsePdfMessage

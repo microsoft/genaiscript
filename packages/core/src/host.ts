@@ -70,24 +70,13 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetrievalOptions {
-    indexName?: string
-}
-
-export interface RetrievalEmbeddingsOptions extends RetrievalOptions {
-    model?: string
-    chunkSize?: number
-    chunkOverlap?: number
-    splitLongSentences?: boolean
-}
-
-export interface RetrievalSearchOptions extends RetrievalOptions, RetrievalEmbeddingsOptions {
+export interface RetrievalSearchOptions extends VectorSearchOptions {
     files?: string[]
     topK?: number
     minScore?: number
 }
 
-export interface RetrievalUpsertOptions extends RetrievalEmbeddingsOptions {
+export interface RetrievalUpsertOptions extends VectorSearchEmbeddingsOptions {
     content?: string
     mimeType?: string
 }
@@ -103,8 +92,8 @@ export type RetrievalSearchResponse = ResponseStatus & {
 
 export interface RetrievalService {
     init(trace?: MarkdownTrace): Promise<void>
-    clear(options?: RetrievalOptions): Promise<ResponseStatus>
-    upsert(
+    vectorClear(options?: VectorSearchOptions): Promise<ResponseStatus>
+    vectorUpsert(
         filenameOrUrl: string,
         options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus>

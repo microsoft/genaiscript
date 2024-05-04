@@ -1,6 +1,5 @@
 import {
     RetrievalClientOptions,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalUpsertOptions,
     host,
@@ -17,15 +16,15 @@ export function isIndexable(filename: string) {
     return /^text\//i.test(type) || UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function clearIndex(
-    options?: RetrievalClientOptions & RetrievalOptions
+export async function clearVectorIndex(
+    options?: RetrievalClientOptions & VectorSearchOptions
 ): Promise<void> {
     const { trace } = options || {}
     await host.retrieval.init(trace)
-    await host.retrieval.clear(options)
+    await host.retrieval.vectorClear(options)
 }
 
-export async function upsert(
+export async function upsertVector(
     fileOrUrls: (string | WorkspaceFile)[],
     options?: RetrievalClientOptions & RetrievalUpsertOptions
 ) {
@@ -40,7 +39,7 @@ export async function upsert(
     for (const f of files) {
         if (token?.isCancellationRequested) break
         progress?.start(f.filename, ++count)
-        const { ok } = await retrieval.upsert(f.filename, {
+        const { ok } = await retrieval.vectorUpsert(f.filename, {
             content: f.content,
             ...rest,
         })

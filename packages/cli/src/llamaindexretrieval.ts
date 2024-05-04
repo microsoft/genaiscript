@@ -7,7 +7,6 @@ import {
     RETRIEVAL_DEFAULT_INDEX,
     RETRIEVAL_DEFAULT_MODEL,
     ResponseStatus,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalSearchResponse,
     RetrievalService,
@@ -155,18 +154,18 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         return serviceContext
     }
 
-    async clear(options?: RetrievalOptions) {
+    async vectorClear(options?: VectorSearchOptions) {
         const { indexName = RETRIEVAL_DEFAULT_INDEX } = options || {}
         const persistDir = this.getPersisDir(indexName)
         await this.host.deleteDirectory(persistDir)
         return { ok: true }
     }
 
-    async upsert(
+    async vectorUpsert(
         filenameOrUrl: string,
         options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus> {
-        const { Document, VectorStoreIndex, SummaryIndex } = this.module
+        const { Document, VectorStoreIndex } = this.module
         const { content, mimeType } = options ?? {}
         let blob: Blob = undefined
         if (content) {
@@ -230,13 +229,8 @@ export class LlamaIndexRetrievalService implements RetrievalService {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
         } = options ?? {}
-        const {
-            VectorStoreIndex,
-            MetadataMode,
-            SummaryIndex,
-            SimilarityPostprocessor,
-            SummaryRetrieverMode,
-        } = this.module
+        const { VectorStoreIndex, MetadataMode, SimilarityPostprocessor } =
+            this.module
 
         const serviceContext = await this.createServiceContext()
         const { storageContext } = await this.createStorageContext(options)
@@ -269,7 +263,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
      * @returns
      */
     async embeddings(
-        options?: RetrievalOptions
+        options?: VectorSearchOptions
     ): Promise<RetrievalSearchResponse> {
         const { MetadataMode } = this.module
         const { storageContext } = await this.createStorageContext(options)

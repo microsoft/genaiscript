@@ -4,7 +4,7 @@ import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsert, vectorSearch } from "./retrieval"
+import { upsertVector, vectorSearch } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -103,7 +103,7 @@ export function createPromptContext(
                     trace.error("no files provided")
                     return { files: [], chunks: [] }
                 } else {
-                    await upsert(files, { trace, ...searchOptions })
+                    await upsertVector(files, { trace, ...searchOptions })
                     const res = await vectorSearch(q, {
                         ...searchOptions,
                         files: files.map(stringLikeToFileName),
