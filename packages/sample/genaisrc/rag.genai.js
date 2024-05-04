@@ -14,7 +14,7 @@ $`You are a helpful assistant. Summarize the files.`
 def(
     "MARKDOWN",
     (
-        await retrieval.search(
+        await retrieval.vectorSearch(
             "markdown",
             env.files.filter((f) => f.filename.endsWith(".md"))
         )
@@ -23,7 +23,7 @@ def(
 def(
     "PDF",
     (
-        await retrieval.search(
+        await retrieval.vectorSearch(
             "lorem ipsum",
             env.files.filter((f) => f.filename.endsWith(".pdf"))
         )
@@ -32,10 +32,10 @@ def(
 def(
     "WORD",
     (
-        await retrieval.search(
+        await retrieval.vectorSearch(
             "lorem ipsum",
             env.files.filter((f) => f.filename.endsWith(".docx"))
         )
     ).files
 )
-def("ALL", (await retrieval.search("lorem ipsum", env.files)).files)
+def("ALL", (await retrieval.vectorSearch("lorem ipsum", env.files)).files)

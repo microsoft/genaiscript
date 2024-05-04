@@ -106,7 +106,7 @@ export interface RetrievalService {
         filenameOrUrl: string,
         options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus>
-    search(
+    vectorSearch(
         text: string,
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse>

@@ -34,7 +34,7 @@ export interface RetrievalUpsert extends RequestMessage {
 }
 
 export interface RetrievalSearch extends RequestMessage {
-    type: "retrieval.search"
+    type: "retrieval.vectorSearch"
     text: string
     options?: RetrievalSearchOptions
     response?: RetrievalSearchResponse

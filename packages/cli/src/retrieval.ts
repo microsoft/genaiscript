@@ -2,7 +2,7 @@ import {
     YAMLStringify,
     readText,
     upsert,
-    search,
+    vectorSearch,
     clearIndex,
     estimateTokens,
     normalizeInt,
@@ -72,7 +72,7 @@ export async function retrievalSearch(
     const progress = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
     )
-    const res = await search(q, {
+    const res = await vectorSearch(q, {
         files,
         topK: normalizeInt(topK),
         indexName,

@@ -41,11 +41,11 @@ $`Extract data from files using ${data} schema.`
 const { pages } = await parsers.PDF(env.files[0])
 ```
 
--   🔍 [Vector search](https://microsoft.github.io/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
+-   🔍 [Vector search](https://microsoft.github.io/genaiscript/reference/scripts/vector-search/)
 
 ```js wrap
 // embedding vector index and search
-const { files } = await retrieval.search("cats", env.files)
+const { files } = await retrieval.vectorSearch("cats", env.files)
 ```
 
 -   🚀 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli).

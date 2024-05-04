@@ -1019,9 +1019,9 @@ interface Retrieval {
     webSearch(query: string): Promise<SearchResult>
 
     /**
-     * Search for embeddings
+     * Search using similiraty distance on embeddings
      */
-    search(
+    vectorSearch(
         query: string,
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: {
@@ -1036,8 +1036,13 @@ interface Retrieval {
         }
     ): Promise<{
         files: WorkspaceFile[]
-        fragments: WorkspaceFile[]
+        chunks: WorkspaceFile[]
     }>
+
+    /**
+     * @deprecated Use `vectorSearch` instead
+     */
+    search?: undefined
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">

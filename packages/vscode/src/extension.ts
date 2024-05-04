@@ -9,14 +9,12 @@ import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
-import { activateRetrievalCommands } from "./retrievalcommands"
 import { activateTestController } from "./testcontroller"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
     activateFragmentCommands(state)
-    activateRetrievalCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)

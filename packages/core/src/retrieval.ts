@@ -54,10 +54,10 @@ export async function upsert(
 
 export interface RetrievalSearchResult {
     files: WorkspaceFile[]
-    fragments: WorkspaceFile[]
+    chunks: WorkspaceFile[]
 }
 
-export async function search(
+export async function vectorSearch(
     q: string,
     options?: RetrievalClientOptions & RetrievalSearchOptions
 ): Promise<RetrievalSearchResult> {
@@ -65,18 +65,18 @@ export async function search(
     const files: WorkspaceFile[] = []
     const retrieval = host.retrieval
     await host.retrieval.init(trace)
-    if (token?.isCancellationRequested) return { files, fragments: [] }
+    if (token?.isCancellationRequested) return { files, chunks: [] }
 
-    const { results } = await retrieval.search(q, rest)
+    const { results } = await retrieval.vectorSearch(q, rest)
 
-    const fragments = (results || []).map((r) => {
-        const { id, filename, text } = r
+    const chunks = (results || []).map((r) => {
+        const { filename, text } = r
         return <WorkspaceFile>{
             filename,
             content: text,
         }
     })
-    for (const fr of fragments) {
+    for (const fr of chunks) {
         let file = files.find((f) => f.filename === fr.filename)
         if (!file) {
             file = <WorkspaceFile>{
@@ -89,6 +89,6 @@ export async function search(
     }
     return {
         files,
-        fragments,
+        chunks: chunks,
     }
 }

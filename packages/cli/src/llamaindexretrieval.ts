@@ -245,7 +245,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         return { ok: true }
     }
 
-    async search(
+    async vectorSearch(
         text: string,
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse> {

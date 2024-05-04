@@ -90,7 +90,9 @@ export function createRunPromptContext(
                 const { glob, endsWith } = defOptions || {}
                 const filename = body.filename
                 if (glob && filename) {
-                    const match = minimatch(filename, glob)
+                    const match = minimatch(filename, glob, {
+                        windowsPathsNoEscape: true,
+                    })
                     if (!match) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined

@@ -59,11 +59,11 @@ export async function startServer(options: { port: string }) {
                         )
                         break
                     }
-                    case "retrieval.search": {
+                    case "retrieval.vectorSearch": {
                         console.log(`retrieval: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))
                         await host.retrieval.init()
-                        response = await host.retrieval.search(
+                        response = await host.retrieval.vectorSearch(
                             data.text,
                             data.options
                         )

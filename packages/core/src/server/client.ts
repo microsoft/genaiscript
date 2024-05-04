@@ -120,12 +120,12 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.response
     }
 
-    async search(
+    async vectorSearch(
         text: string,
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse> {
         const res = await this.queue<RetrievalSearch>({
-            type: "retrieval.search",
+            type: "retrieval.vectorSearch",
             text,
             options,
         })

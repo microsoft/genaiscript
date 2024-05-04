@@ -4,7 +4,7 @@ import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsert, search } from "./retrieval"
+import { upsert, vectorSearch } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -94,17 +94,17 @@ export function createPromptContext(
                 trace.endDetails()
             }
         },
-        search: async (q, files_, searchOptions) => {
+        vectorSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
                 trace.startDetails(`🔍 retrieval search \`${q}\``)
                 if (!files?.length) {
                     trace.error("no files provided")
-                    return { files: [], fragments: [] }
+                    return { files: [], chunks: [] }
                 } else {
                     await upsert(files, { trace, ...searchOptions })
-                    const res = await search(q, {
+                    const res = await vectorSearch(q, {
                         ...searchOptions,
                         files: files.map(stringLikeToFileName),
                     })
@@ -114,7 +114,7 @@ export function createPromptContext(
             } finally {
                 trace.endDetails()
             }
-        },
+        }
     }
 
     const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
