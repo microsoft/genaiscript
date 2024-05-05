@@ -986,12 +986,20 @@ interface VectorSearchOptions {
 
 interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
     llmModel?: string
-    embedModel?: string
+    /**
+     * Model used to generated models.
+     * ollama:nomic-embed-text ollama:all-minilm
+     */
+    embedModel?:
+        | "text-embedding-ada-002"
+        | "ollama:mxbai-embed-large"
+        | "ollama:nomic-embed-text"
+        | "ollama:all-minilm"
+        | string
     temperature?: number
     chunkSize?: number
     chunkOverlap?: number
 }
-
 
 interface Retrieval {
     /**
@@ -1015,7 +1023,7 @@ interface Retrieval {
              * Minimum similarity score
              */
             minScore?: number
-        } & VectorSearchEmbeddingsOptions
+        } & Omit<VectorSearchEmbeddingsOptions, "llmToken">
     ): Promise<{
         files: WorkspaceFile[]
         chunks: WorkspaceFile[]
