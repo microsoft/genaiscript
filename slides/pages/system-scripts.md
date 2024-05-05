@@ -1,4 +1,4 @@
-# System scripts
+# System Scripts and Microformats
 
 Teach the LLM how to format response for files, special formats, register tools ...
 
