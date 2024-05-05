@@ -239,10 +239,7 @@ export class LlamaIndexRetrievalService
             temperature,
             indexName = RETRIEVAL_DEFAULT_INDEX,
         } = options || {}
-        const fn = this.host.path.join(
-            this.getPersisDir(indexName),
-            "options.json"
-        )
+        const fn = this.optionsFileName(indexName)
         const current = { llmModel, embedModel, temperature }
         const existing = await tryReadJSON(fn)
         if (existing) {
@@ -251,6 +248,26 @@ export class LlamaIndexRetrievalService
         } else {
             await writeJSON(fn, { llmModel, embedModel, temperature })
         }
+    }
+
+    private async loadOptions(
+        options: Partial<VectorSearchEmbeddingsOptions>
+    ): Promise<Partial<VectorSearchEmbeddingsOptions>> {
+        const {
+            llmModel,
+            embedModel,
+            temperature,
+            indexName = RETRIEVAL_DEFAULT_INDEX,
+        } = options || {}
+        const fn = this.optionsFileName(indexName)
+        const current = { llmModel, embedModel, temperature }
+        const existing = await tryReadJSON(fn)
+        if (!existing) throw new Error("model configuration not found")
+        return existing
+    }
+
+    private optionsFileName(indexName: string) {
+        return this.host.path.join(this.getPersisDir(indexName), "options.json")
     }
 
     async vectorUpsert(
@@ -297,7 +314,7 @@ export class LlamaIndexRetrievalService
                 })
         )
 
-        await this.saveOptions(options, true)
+        await this.saveOptions(options)
 
         const serviceContext = await this.createServiceContext(options)
         const { storageContext } = await this.createStorageContext(options)
@@ -320,9 +337,8 @@ export class LlamaIndexRetrievalService
         const { VectorStoreIndex, MetadataMode, SimilarityPostprocessor } =
             this.module
 
-        await this.saveOptions(options, false)
-
-        const serviceContext = await this.createServiceContext()
+        const indexOptions = await this.loadOptions(options)
+        const serviceContext = await this.createServiceContext(indexOptions)
         const { storageContext } = await this.createStorageContext(options)
         const index = await VectorStoreIndex.init({
             storageContext,
