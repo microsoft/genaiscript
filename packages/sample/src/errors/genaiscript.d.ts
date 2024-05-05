@@ -1021,7 +1021,6 @@ interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
     temperature?: number
     chunkSize?: number
     chunkOverlap?: number
-    splitLongSentences?: boolean
 }
 
 
