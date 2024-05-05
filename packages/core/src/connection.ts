@@ -1,4 +1,4 @@
-import { AZURE_OPENAI_API_VERSION, OLLAMA_API_BASE } from "./constants"
+import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_OLLAMA, MODEL_PROVIDER_OPENAI, OLLAMA_API_BASE } from "./constants"
 import { APIType, OAIToken } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
@@ -9,7 +9,7 @@ export async function parseTokenFromEnv(
 ): Promise<OAIToken> {
     const { provider, model, tag } = parseModelIdentifier(options.model)
 
-    if (provider === "openai") {
+    if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
@@ -105,7 +105,7 @@ export async function parseTokenFromEnv(
         }
 
         // default connection location
-        if (provider === "ollama") {
+        if (provider === MODEL_PROVIDER_OLLAMA) {
             return {
                 base: OLLAMA_API_BASE,
                 token: "ollama",

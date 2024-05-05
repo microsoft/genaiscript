@@ -4,6 +4,7 @@ import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
+    MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
 import { estimateTokens } from "./tokens"
@@ -263,5 +264,5 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
 export const OpenAIModel = Object.freeze<LanguageModel>({
     completer: OpenAIChatCompletion,
-    id: "openai",
+    id: MODEL_PROVIDER_OPENAI,
 })

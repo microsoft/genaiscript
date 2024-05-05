@@ -90,6 +90,10 @@ export type RetrievalSearchResponse = ResponseStatus & {
     }[]
 }
 
+export interface ModelService {
+    pullModel(model: string): Promise<ResponseStatus>
+}
+
 export interface RetrievalService {
     init(trace?: MarkdownTrace): Promise<void>
     vectorClear(options?: VectorSearchOptions): Promise<ResponseStatus>
@@ -144,6 +148,7 @@ export interface Host {
 
     parser: ParseService
     retrieval: RetrievalService
+    models: ModelService
     server: ServerManager
     path: Path
     workspace: WorkspaceFileSystem

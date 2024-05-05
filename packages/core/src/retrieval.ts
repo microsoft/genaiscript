@@ -30,8 +30,15 @@ export async function upsertVector(
 ) {
     if (!fileOrUrls?.length) return
     const { progress, trace, token, ...rest } = options || {}
-    const retrieval = host.retrieval
+    const { llmModel, embedModel } = options || {}
+    const { retrieval, models } = host
     await retrieval.init(trace)
+    if (llmModel || embedModel) {
+        progress?.start("pulling LLM models")
+        if (llmModel) await models.pullModel(llmModel)
+        if (embedModel) await models.pullModel(embedModel)
+        progress?.succeed()
+    }
     const files: WorkspaceFile[] = fileOrUrls.map((f) =>
         typeof f === "string" ? <WorkspaceFile>{ filename: f } : f
     )

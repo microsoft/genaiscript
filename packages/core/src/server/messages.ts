@@ -16,6 +16,11 @@ export interface ServerKill extends RequestMessage {
     type: "server.kill"
 }
 
+export interface ModelsPull extends RequestMessage {
+    type: "models.pull"
+    model: string
+}
+
 export interface RetrievaVectorClear extends RequestMessage {
     type: "retrieval.vectorClear"
     options?: VectorSearchOptions
@@ -65,3 +70,4 @@ export type RequestMessages =
     | ServerVersion
     | ParsePdfMessage
     | PromptScriptTestRunMessage
+    | ModelsPull

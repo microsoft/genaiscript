@@ -1,5 +1,6 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
+    ModelService,
     ParsePdfResponse,
     ParseService,
     ResponseStatus,
@@ -21,9 +22,12 @@ import {
     ServerVersion,
     PromptScriptTestRunMessage,
     PromptScriptTestRunOptions,
+    ModelsPull,
 } from "./messages"
 
-export class WebSocketClient implements RetrievalService, ParseService {
+export class WebSocketClient
+    implements RetrievalService, ParseService, ModelService
+{
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -109,6 +113,14 @@ export class WebSocketClient implements RetrievalService, ParseService {
     async version(): Promise<string> {
         const res = await this.queue<ServerVersion>({ type: "server.version" })
         return res.version
+    }
+
+    async pullModel(model: string): Promise<ResponseStatus> {
+        const res = await this.queue<ModelsPull>({
+            type: "models.pull",
+            model,
+        })
+        return res.response
     }
 
     async vectorClear(options: VectorSearchOptions): Promise<ResponseStatus> {

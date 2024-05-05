@@ -45,6 +45,11 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
+                    case "models.pull": {
+                        console.log(`models: pull ${data.model}`)
+                        response = await host.models.pullModel(data.model)
+                        break
+                    }
                     case "retrieval.vectorClear":
                         console.log(`retrieval: clear`)
                         await host.retrieval.init()

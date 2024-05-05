@@ -68,3 +68,6 @@ export const PROMPTFOO_REMOTE_API_PORT = 15500
 export const EMOJI_SUCCESS = "✅"
 export const EMOJI_FAIL = "❌"
 export const EMOJI_UNDEFINED = "?"
+
+export const MODEL_PROVIDER_OPENAI = "openai"
+export const MODEL_PROVIDER_OLLAMA = "ollama"

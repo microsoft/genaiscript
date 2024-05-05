@@ -20,6 +20,9 @@ import {
     RETRIEVAL_DEFAULT_LLM_MODEL,
     RETRIEVAL_DEFAULT_EMBED_MODEL,
     RETRIEVAL_DEFAULT_TEMPERATURE,
+    ModelService,
+    MODEL_PROVIDER_OLLAMA,
+    TOOL_ID,
 } from "genaiscript-core"
 import {
     type BaseReader,
@@ -71,7 +74,9 @@ async function tryImportLlamaIndex(trace: MarkdownTrace) {
     }
 }
 
-export class LlamaIndexRetrievalService implements RetrievalService {
+export class LlamaIndexRetrievalService
+    implements RetrievalService, ModelService
+{
     private module: PromiseType<ReturnType<typeof tryImportLlamaIndex>>
     private READERS: Record<string, BaseReader>
 
@@ -136,6 +141,35 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         return { storageContext, persistDir }
     }
 
+    private async getModelToken(modelid: string) {
+        const { provider } = parseModelIdentifier(modelid)
+        const conn = await this.host.getSecretToken({ model: modelid })
+        if (provider === MODEL_PROVIDER_OLLAMA)
+            conn.base = conn.base.replace(/\/v1$/i, "")
+        return conn
+    }
+
+    async pullModel(modelid: string): Promise<ResponseStatus> {
+        const { provider, model } = parseModelIdentifier(modelid)
+        const conn = await this.getModelToken(modelid)
+        if (provider === MODEL_PROVIDER_OLLAMA) {
+            const res = await fetch(`${conn.base}/api/pull`, {
+                method: "POST",
+                headers: {
+                    "user-agent": TOOL_ID,
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({ name: model, stream: false }, null, 2),
+            })
+            if (res.ok) {
+                const resp = await res.json()
+            }
+            return { ok: res.ok, status: res.status }
+        }
+
+        return { ok: true }
+    }
+
     private async createServiceContext(
         options?: VectorSearchEmbeddingsOptions
     ) {
@@ -155,16 +189,15 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         } = this.module
         const { provider: llmProvider, model: llmModel } =
             parseModelIdentifier(llmModel_)
-        const llmToken = await this.host.getSecretToken({ model: llmModel_ })
+        const llmToken = await this.getModelToken(llmModel_)
         const { provider: embedProvider, model: embedModel } =
             parseModelIdentifier(embedModel_)
-        const embedToken = await this.host.getSecretToken({
-            model: embedModel_,
-        })
-        const llmClass = llmProvider === "ollama" ? Ollama : OpenAI
+        const embedToken = await this.getModelToken(embedModel_)
+        const llmClass = llmProvider === MODEL_PROVIDER_OLLAMA ? Ollama : OpenAI
         const embedClass =
-            embedProvider === "ollama" ? OllamaEmbedding : OpenAIEmbedding
-
+            embedProvider === MODEL_PROVIDER_OLLAMA
+                ? OllamaEmbedding
+                : OpenAIEmbedding
         const serviceContext = serviceContextFromDefaults({
             llm: llmToken
                 ? new llmClass({

@@ -47,6 +47,10 @@ export class VSCodeHost extends EventTarget implements Host {
         return this.server.retrieval
     }
 
+    get models() {
+        return this.server.models
+    }
+
     get context() {
         return this.state.context
     }

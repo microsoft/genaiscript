@@ -1,4 +1,5 @@
 import { ChatCompletionHandler, LanguageModel } from "./chat"
+import { MODEL_PROVIDER_OLLAMA } from "./constants"
 import { isRequestError } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
@@ -44,5 +45,5 @@ export const OllamaCompletion: ChatCompletionHandler = async (
 
 export const OllamaModel = Object.freeze<LanguageModel>({
     completer: OllamaCompletion,
-    id: "ollama",
+    id: MODEL_PROVIDER_OLLAMA,
 })
