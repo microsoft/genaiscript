@@ -29,6 +29,11 @@ export class ProgressSpinner extends Progress {
         this.spinner.warn(message)
     }
 
+    stop() {
+        this.spinner.stop()    
+        super.stop()
+    }
+
     get text() {
         return this.spinner.text
     }

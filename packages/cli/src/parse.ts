@@ -54,4 +54,5 @@ export async function jsonl2json(files: string[]) {
         await writeText(out, JSON.stringify(objs, null, 2))
         spinner.report({ succeeded: true })
     }
+    spinner.stop()
 }

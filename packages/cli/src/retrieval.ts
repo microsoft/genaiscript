@@ -75,6 +75,7 @@ export async function retrievalSearch(
         indexName,
         progress,
     })
+    progress.stop()
     console.log(YAMLStringify(res))
 }
 

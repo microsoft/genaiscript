@@ -19,4 +19,8 @@ export abstract class Progress {
     fail(message?: string) {
         this.report({ message: message || "", succeeded: false })
     }
+
+    stop() {
+        
+    }
 }

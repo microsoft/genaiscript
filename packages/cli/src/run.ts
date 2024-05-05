@@ -324,6 +324,5 @@ ${Array.from(files)
         process.exit(ANNOTATION_ERROR_CODE)
     }
 
-    // success
-    process.exit(0)
+    spinner?.stop()
 }
