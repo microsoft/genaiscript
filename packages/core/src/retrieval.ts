@@ -34,7 +34,7 @@ export async function upsertVector(
     const { retrieval, models } = host
     await retrieval.init(trace)
     if (llmModel || embedModel) {
-        progress?.start("pulling LLM models")
+        progress?.start("pulling models")
         if (llmModel) await models.pullModel(llmModel)
         if (embedModel) await models.pullModel(embedModel)
         progress?.succeed()

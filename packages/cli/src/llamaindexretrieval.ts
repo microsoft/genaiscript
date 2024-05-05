@@ -23,6 +23,8 @@ import {
     ModelService,
     MODEL_PROVIDER_OLLAMA,
     TOOL_ID,
+    tryReadJSON,
+    writeJSON,
 } from "genaiscript-core"
 import {
     type BaseReader,
@@ -230,6 +232,27 @@ export class LlamaIndexRetrievalService
         return { ok: true }
     }
 
+    private async saveOptions(options: Partial<VectorSearchEmbeddingsOptions>) {
+        const {
+            llmModel,
+            embedModel,
+            temperature,
+            indexName = RETRIEVAL_DEFAULT_INDEX,
+        } = options || {}
+        const fn = this.host.path.join(
+            this.getPersisDir(indexName),
+            "options.json"
+        )
+        const current = { llmModel, embedModel, temperature }
+        const existing = await tryReadJSON(fn)
+        if (existing) {
+            if (JSON.stringify(existing) !== JSON.stringify(current))
+                throw new Error("model configuration mismatch")
+        } else {
+            await writeJSON(fn, { llmModel, embedModel, temperature })
+        }
+    }
+
     async vectorUpsert(
         filenameOrUrl: string,
         options?: RetrievalUpsertOptions
@@ -263,13 +286,7 @@ export class LlamaIndexRetrievalService
             this.READERS[type] ||
             (/^text\//.test(type) && this.READERS["text/plain"]) ||
             (!type && this.READERS["text/plain"]) // assume unknown type is text
-        if (!reader)
-            return {
-                ok: false,
-                error: serializeError(
-                    new Error(`no reader for content type '${type}'`)
-                ),
-            }
+        if (!reader) throw new Error(`no reader for content type '${type}'`)
         const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
             (doc) =>
@@ -279,9 +296,11 @@ export class LlamaIndexRetrievalService
                     metadata: { filename: filenameOrUrl },
                 })
         )
+
+        await this.saveOptions(options, true)
+
         const serviceContext = await this.createServiceContext(options)
-        const { storageContext, persistDir } =
-            await this.createStorageContext(options)
+        const { storageContext } = await this.createStorageContext(options)
         await storageContext.docStore.addDocuments(documents, true)
         await VectorStoreIndex.fromDocuments(documents, {
             storageContext,
@@ -300,6 +319,8 @@ export class LlamaIndexRetrievalService
         } = options ?? {}
         const { VectorStoreIndex, MetadataMode, SimilarityPostprocessor } =
             this.module
+
+        await this.saveOptions(options, false)
 
         const serviceContext = await this.createServiceContext()
         const { storageContext } = await this.createStorageContext(options)
