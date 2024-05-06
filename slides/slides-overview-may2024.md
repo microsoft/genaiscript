@@ -78,10 +78,6 @@ src: pages/system-scripts.md
 ---
 
 ---
-src: pages/llm-invocation.md
----
-
----
 src: pages/response-processing.md
 ---
 

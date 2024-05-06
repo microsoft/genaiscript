@@ -2,7 +2,7 @@
 # Prompt + LLM = Response
 
 - authentication: `.env` or environment variables
-- re-format prompts for LLM APIs, like OpenAI vs Azure OpenAI
+- OpenAI API, Azure OpenAI, OLlama, AICI, ...
 
 <br/>
 <br/>
@@ -14,6 +14,5 @@ stateDiagram
     response: response (raw text)
     pre: ...
     pre --> prompt
-    prompt --> LLM : OpenAI Chat API
-    LLM --> response
+    prompt --> response : LLM (OpenAI Chat API)
 ```
