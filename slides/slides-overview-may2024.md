@@ -31,6 +31,9 @@ layout: center
 <br/>
 
 ### Peli de Halleux and Ben Zorn
+#### with contributions from Markus Kuppe, Michał Moskal, and Madan Musuvathi
+<br/>
+
 #### May 2024
 
 <br/>
@@ -49,13 +52,6 @@ src: pages/aisw-intro2-p10.md
 src: pages/vision.md
 ---
 
----
-src: pages/langchain-compare.md
----
-
----
-src: pages/langchain-summarize.md
----
 
 ---
 src: pages/example-gpt-v.md
@@ -99,6 +95,10 @@ src: pages/makecode-timeline.md
 
 ---
 src: pages/script-vs-agent.md
+---
+
+---
+src: pages/langchain-summarize.md
 ---
 
 ---
