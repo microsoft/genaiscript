@@ -17,6 +17,8 @@ import {
     PROMPTFOO_CACHE_PATH,
     FILES_NOT_FOUND_ERROR_CODE,
     MarkdownTrace,
+    PromptScriptTestRunResponse,
+    PromptScriptTestResult,
 } from "genaiscript-core"
 import { readFile, writeFile } from "node:fs/promises"
 import { execa } from "execa"
@@ -42,15 +44,6 @@ async function resolveTestProvider(script: PromptScript) {
     return undefined
 }
 
-export interface PromptScriptTestResult extends ResponseStatus {
-    script: string
-    value?: OutputFile
-}
-
-export interface PromptScriptTestRun extends ResponseStatus {
-    value?: PromptScriptTestResult[]
-}
-
 function createEnv() {
     const env = process.env
     return {
@@ -73,7 +66,7 @@ export async function runPromptScriptTests(
         write?: boolean
         promptfooVersion?: string
     }
-): Promise<PromptScriptTestRun> {
+): Promise<PromptScriptTestRunResponse> {
     const prj = await buildProject()
     const scripts = prj.templates
         .filter((t) => arrayify(t.tests)?.length)
@@ -165,9 +158,10 @@ export async function runPromptScriptTests(
         })
     }
 
+    const ok = results.every((r) => !!r.ok)
     return {
-        ok: results.every((r) => !!r.ok),
-        status: results.find((r) => r.status !== 0)?.status,
+        ok,
+        status: ok ? 0 : -1,
         value: results,
         error: results.find((r) => r.error)?.error,
     }

@@ -97,7 +97,6 @@ export async function startServer(options: { port: string }) {
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }
-                response.ok = true
             } catch (e) {
                 response = { ok: false, error: serializeError(e) }
             } finally {

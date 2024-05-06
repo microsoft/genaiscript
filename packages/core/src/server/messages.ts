@@ -55,11 +55,19 @@ export interface PromptScriptTestRunOptions {
     models?: string[]
 }
 
-export interface PromptScriptTestRunMessage extends RequestMessage {
+export interface PromptScriptTestRun extends RequestMessage {
     type: "tests.run"
     scripts?: string[]
     options?: PromptScriptTestRunOptions
-    response?: any
+}
+
+export interface PromptScriptTestResult extends ResponseStatus {
+    script: string
+    value?: any /** OutputFile */
+}
+
+export interface PromptScriptTestRunResponse extends ResponseStatus {
+    value?: PromptScriptTestResult[]
 }
 
 export type RequestMessages =
@@ -69,5 +77,5 @@ export type RequestMessages =
     | RetrievalSearch
     | ServerVersion
     | ParsePdfMessage
-    | PromptScriptTestRunMessage
+    | PromptScriptTestRun
     | ModelsPull

@@ -105,12 +105,12 @@ export async function activateTestController(state: ExtensionState) {
                     run.started(test)
                     const res = await state.host.server.client.runTest(script)
                     run.appendOutput(JSON.stringify(res), undefined, test)
-                    if (res.ok) run.passed(test)
-                    else
+                    if (res.error)
                         run.failed(
                             test,
                             new vscode.TestMessage(errorMessage(res.error))
                         )
+                    else run.passed(test)
                 }
             } finally {
                 run.end()

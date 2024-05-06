@@ -20,9 +20,10 @@ import {
     RetrievalSearch,
     RetrievalVectorUpsert,
     ServerVersion,
-    PromptScriptTestRunMessage,
+    PromptScriptTestRun,
     PromptScriptTestRunOptions,
     ModelsPull,
+    PromptScriptTestRunResponse,
 } from "./messages"
 
 export class WebSocketClient
@@ -162,8 +163,11 @@ export class WebSocketClient
         return res.response
     }
 
-    async runTest(script: PromptScript, options?: PromptScriptTestRunOptions) {
-        const res = await this.queue<PromptScriptTestRunMessage>({
+    async runTest(
+        script: PromptScript,
+        options?: PromptScriptTestRunOptions
+    ): Promise<PromptScriptTestRunResponse> {
+        const res = await this.queue<PromptScriptTestRun>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,
             options,
