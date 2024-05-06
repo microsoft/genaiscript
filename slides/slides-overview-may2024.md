@@ -105,6 +105,14 @@ src: pages/research-topics.md
 ---
 
 ---
+src: pages/stack-2.md
+---
+
+---
+src: pages/stack-2-elements.md
+---
+
+---
 src: pages/summary.md
 ---
 
@@ -116,13 +124,7 @@ src: pages/questions.md
 src: pages/backup.md
 ---
 
----
-src: pages/stack-2.md
----
 
----
-src: pages/stack-2-elements.md
----
 
 ---
 src: pages/tla-plus.md
