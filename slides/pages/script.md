@@ -18,9 +18,9 @@ $`Analyze ${file} and extract data to JSON using the ${schema} schema.`
 
 <v-click>
 
-- **It Is Just JavaScript(TM)** with `.d.ts` for dev experience
-- `$...` writes to the prompt, `def` defines a "variable" + various builtin parsers and utilities
-- Fast development loop in Visual Studio Code, other editors through command line
+- **It Is Just JavaScript(TM)**
+- **`$...`** writes to the prompt, **`def`** defines a "variable" + various builtin parsers and utilities
+- Fast development loop in Visual Studio Code + command line
 
 </v-click>
 

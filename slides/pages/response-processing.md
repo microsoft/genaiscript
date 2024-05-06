@@ -13,12 +13,11 @@ stateDiagram
     response: response (text)
     files: files (workspace edits)
     data: data (JSON, YAML, CSV, ...)
-    annotations: annotations (SARIF, ...)
-    note right of data: Schema validation\nTypeChat approach
+    annotations: annotations (error, warning, ...)
+    note right of data: Schema validation\nData repair
     note right of files: Full, diff\nRefactoring preview
     note right of annotations: GitHub Actions,\nGitHub Security Alerts,\nVSCode diagnostics, ...
-    LLM: ...
-    LLM --> response
+    [*] --> response
     response --> files
     files --> data
     response --> annotations

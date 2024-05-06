@@ -31,6 +31,9 @@ layout: center
 <br/>
 
 ### Peli de Halleux and Ben Zorn
+#### with contributions from Markus Kuppe, Michał Moskal, and Madan Musuvathi
+<br/>
+
 #### May 2024
 
 <br/>
@@ -50,10 +53,6 @@ src: pages/vision.md
 ---
 
 ---
-src: pages/langchain-compare.md
----
-
----
 src: pages/example-gpt-v.md
 ---
 
@@ -62,7 +61,7 @@ src: pages/example-gpt-v-result.md
 ---
 
 ---
-src: pages/abstractions.md
+src: pages/langchain-summarize.md
 ---
 
 ---
@@ -75,10 +74,6 @@ src: pages/script-prompt.md
 
 ---
 src: pages/system-scripts.md
----
-
----
-src: pages/llm-invocation.md
 ---
 
 ---
@@ -110,6 +105,14 @@ src: pages/research-topics.md
 ---
 
 ---
+src: pages/stack-2.md
+---
+
+---
+src: pages/stack-2-elements.md
+---
+
+---
 src: pages/summary.md
 ---
 
@@ -121,15 +124,12 @@ src: pages/questions.md
 src: pages/backup.md
 ---
 
----
-src: pages/stack-2.md
----
 
----
-src: pages/stack-2-elements.md
----
 
 ---
 src: pages/tla-plus.md
 ---
 
+---
+src: pages/hockey-trace.md
+---

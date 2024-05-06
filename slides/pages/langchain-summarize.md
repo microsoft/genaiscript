@@ -3,11 +3,13 @@ layout: two-cols-header
 ---
 
 # Summarize: Langchain vs GenAIScript
+Map-reduce summarization
 
 
 ::left::
 
 ## Python w/ langchain
+
 - Summarize already predefined
 ```python
 from langchain.chains.summarize import load_summarize_chain
@@ -31,14 +33,23 @@ summary = chain.run(docs)
 <v-click>
 
 ## GenAIScript
-- `def` reads **multiple** file types
-- Output is written to file `summarize.md`
-- Prompt is the main part of the script
+- Use JS language constructs
 
 ```js
-def("FILE", env.files)
-
-$`Write a summary of FILE in summary.md`
+script({ temperature: 0 }) // model settings
+// map each file to its summary
+for (const file of env.files.slice(0, 3)) {
+    // run 3.5 generate summary of a single file
+    const { text } = await runPrompt((_) => { 
+            _.def("FILE", file)
+            _.$`Summarize FILE. Be concise.` 
+        }, { model: "gpt-3.5-turbo" })
+    // save the summary in the main prompt
+    // as a AI variable
+    def("FILE", { filename: file.filename, content: text })
+}
+// reduce all summaries to a single summary
+$`Summarize all the FILE.`
 ```
 
 </v-click>

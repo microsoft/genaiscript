@@ -6,16 +6,17 @@ script({
     },
 })
 
-// summarize each files individually
+// map each file to its summary
 for (const file of env.files) {
     const { text } = await runPrompt(
         (_) => {
             _.def("FILE", file)
-            _.$`Summarize the FILE. Be consice.`
+            _.$`Summarize FILE. Be concise.`
         },
         { model: "gpt-3.5-turbo", cacheName: "summary_gpt35" }
     )
-    def("FILE", { ...file, content: text })
+    // save the summary in the main prompt
+    def("FILE", { filename: file.filename, content: text })
 }
-// use summary
+// reduce all summaries to a single summary
 $`Summarize all the FILE.`
