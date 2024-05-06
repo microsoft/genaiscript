@@ -3,8 +3,8 @@ script({
     description:
         "Using Generated Knowledge technique. More at https://learnprompting.org/docs/intermediate/generated_knowledge",
     tests: {
-        files: "src/rag/microsoft*",
-        keywords: ["microsoft"],
+        files: "src/rag/*.docx",
+        keywords: ["Word"],
     },
 })
 
