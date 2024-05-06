@@ -1,3 +1,4 @@
+name: pr phi3 summary test
 on:
     workflow_dispatch:
     pull_request_review:
