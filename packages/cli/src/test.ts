@@ -21,6 +21,7 @@ import {
     EMOJI_FAIL,
     EMOJI_SUCCESS,
     errorMessage,
+    GENAI_JS_REGEX,
 } from "genaiscript-core"
 
 import { readFile, writeFile, appendFile } from "node:fs/promises"
@@ -97,7 +98,7 @@ export async function runPromptScriptTests(
     for (const script of scripts) {
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
-            : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
+            : script.filename.replace(GENAI_JS_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const testProvider =
             options?.testProvider || (await resolveTestProvider(scripts[0]))
