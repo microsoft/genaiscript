@@ -133,3 +133,6 @@ src: pages/stack-2-elements.md
 src: pages/tla-plus.md
 ---
 
+---
+src: pages/hockey-trace.md
+---
