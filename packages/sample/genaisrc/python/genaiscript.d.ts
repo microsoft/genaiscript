@@ -273,7 +273,9 @@ type PromptAssertion = {
     | {
           // type of assertion
           type: "levenshtein" | "not-levenshtein"
-          // The threshold value, applicable only to certain types
+          // The expected value
+          value: string
+          // The threshold value
           threshold?: number
       }
     | {
@@ -282,6 +284,9 @@ type PromptAssertion = {
            * JavaScript expression to evaluate.
            */
           value: string
+          /**
+           * Optional threshold if the javascript expression returns a number
+           */
           threshold?: number
       }
 )
@@ -295,6 +300,10 @@ interface PromptTest {
      * List of files to apply the test to.
      */
     files?: string | string[]
+    /**
+     * Extra set of variables for this scenario
+     */
+    vars?: PromptParameters
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */

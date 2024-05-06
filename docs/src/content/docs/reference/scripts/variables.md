@@ -42,3 +42,19 @@ Use the `vars` field in the CLI to override variables. vars takes a sequence of 
 ```sh
 npx genaiscript run ... --vars myvar=myvalue myvar2=myvalue2 ...
 ```
+
+### Variables in tests
+
+You can specify variables in the `tests` object of the `script` function. These variables will be available in the test scope.
+
+```js "vars"
+script({
+    ...,
+    tests: {
+        ...,
+        vars: {
+            number: 42
+        }
+    }
+})
+```

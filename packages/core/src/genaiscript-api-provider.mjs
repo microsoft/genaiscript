@@ -27,6 +27,7 @@ class GenAIScriptApiProvider {
         const { vars, logger } = context
         try {
             let files = vars.files // string or string[]
+            const testVars = vars.vars // {}
             if (files && !Array.isArray(files)) files = [files] // ensure array
 
             const args = []
@@ -40,6 +41,12 @@ class GenAIScriptApiProvider {
 
             args.push("run", prompt)
             if (files) args.push(...files)
+            if (testVars && typeof testVars === "object") {
+                args.push("--vars")
+                for (const [key, value] of Object.entries(testVars)) {
+                    args.push(`${key}=${value}`)
+                }
+            }
             args.push("--json")
             if (quiet) args.push("--quiet")
             if (model) args.push("--model", model)
@@ -57,23 +64,25 @@ class GenAIScriptApiProvider {
                 )
                 .join(" ")
             logger.info(cmd)
-            const { stdout, stderr, error } = await execAsync(cmd)
+            let { stdout, stderr, error } = await execAsync(cmd)
             logger.debug(stderr)
 
             const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
             let output
             try {
                 output = JSON.parse(outputText)
+                if (output.status === "error") 
+                    error = output.statusText || error || "error"
             } catch (e) {
-                logger.error(
-                    e?.message || "error parsing genaiscript json output"
-                )
+                error = e?.message || "error parsing genaiscript json output"
                 output = {
                     text: outputText,
-                    error: e,
+                    error,
                 }
             }
 
+            if (error)
+                logger.error(error)
             return {
                 output,
                 error,

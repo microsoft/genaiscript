@@ -178,17 +178,6 @@ export function dotGenaiscriptPath(...segments: string[]) {
     )
 }
 
-export function splitPath(path: string) {
-    let dirname = "."
-    let filename = path
-    path.replace(/(.*)[\/\\](.*)/, (_, a, b) => {
-        dirname = a
-        filename = b
-        return ""
-    })
-    return [dirname, filename]
-}
-
 export function relativePath(root: string, path: string) {
     if (path.startsWith(root)) {
         path = path.slice(root.length)

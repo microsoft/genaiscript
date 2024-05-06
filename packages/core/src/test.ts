@@ -1,6 +1,20 @@
 import { DEFAULT_MODEL } from "./constants"
 import { arrayify } from "./util"
 
+function cleanUndefined(obj: Record<string, any>) {
+    return obj
+        ? Object.entries(obj)
+              .filter(([_, value]) => value !== undefined)
+              .reduce(
+                  (newObj, [key, value]) => {
+                      newObj[key] = value
+                      return newObj
+                  },
+                  {} as Record<string, any>
+              )
+        : undefined
+}
+
 export function generatePromptFooConfiguration(
     script: PromptScript,
     options?: {
@@ -71,16 +85,18 @@ export function generatePromptFooConfiguration(
         tests: arrayify(tests).map(
             ({
                 description,
-                files = [],
+                files,
+                vars,
                 rubrics,
                 facts,
                 keywords = [],
                 asserts = [],
             }) => ({
                 description,
-                vars: {
+                vars: cleanUndefined({
                     files,
-                },
+                    vars,
+                }),
                 assert: [
                     ...arrayify(keywords).map((kv) => ({
                         type: "icontains",

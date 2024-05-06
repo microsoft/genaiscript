@@ -7,7 +7,6 @@ import {
     convertDiagnosticToAzureDevOpsCommand,
     dotGenaiscriptPath,
     assert,
-    isCancelError,
     normalizeInt,
     normalizeFloat,
     GENAI_JS_REGEX,
