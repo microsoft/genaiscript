@@ -176,7 +176,7 @@ function traceCompletionResonse(
         if (resp.finishReason && resp.finishReason !== "stop")
             trace.itemValue(`finish reason`, resp.finishReason)
         if (resp.cached) trace.itemValue(`cached`, resp.cached)
-        trace.fence(resp.text, "markdown")
+        if (resp.finishReason === "stop") trace.fence(resp.text, "markdown")
     } finally {
         trace.endDetails()
     }
@@ -452,7 +452,13 @@ export async function executeChatSession(
         stats,
     } = genOptions
 
-    trace.startDetails("llm chat")
+    const tools: ChatCompletionTool[] = functions?.length
+        ? functions.map((f) => ({
+              type: "function",
+              function: f.definition as any,
+          }))
+        : undefined
+    trace.startDetails(`🧠 llm chat`)
     try {
         trace.itemValue(`model`, model)
         trace.itemValue(`api type`, connectionToken.type || "")
@@ -464,7 +470,7 @@ export async function executeChatSession(
 
         let genVars: Record<string, string>
         while (true) {
-            trace.startDetails(`🧠 llm request (${messages.length} messages)`)
+            trace.startDetails(`📤 llm request (${messages.length} messages)`)
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
@@ -477,6 +483,7 @@ export async function executeChatSession(
                         seed,
                         stream: true,
                         messages,
+                        tools,
                     },
                     connectionToken,
                     genOptions,

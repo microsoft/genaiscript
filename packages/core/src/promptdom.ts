@@ -574,7 +574,7 @@ ${trimNewlines(schemaText)}
                 fn,
             })
             trace.detailsFenced(
-                `🛠️ function ${name}`,
+                `🛠️ tool ${name}`,
                 { description, parameters },
                 "yaml"
             )

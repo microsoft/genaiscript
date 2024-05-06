@@ -273,7 +273,7 @@ export async function runTemplate(
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
     } else {
-        if (text) trace.detailsFenced(`output`, text, `markdown`)
+        if (text) trace.detailsFenced(`🔠 output`, text, `markdown`)
         for (const fence of fences.filter(
             ({ validation }) => validation?.valid !== false
         )) {
