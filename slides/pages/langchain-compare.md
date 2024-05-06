@@ -33,6 +33,7 @@ summary = chain.run(docs)
 ## GenAIScript
 - `def` reads **multiple** file types
 - Output is written to file `summarize.md`
+- Prompt is the main part of the script
 
 ```js
 script({

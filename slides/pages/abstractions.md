@@ -15,7 +15,7 @@ backgroundSize:  85%
 ### Output specifications
 - Define and use "microformats"
 
-### Static orchestration
-- Typically, single call to LLM
+### Support for orchestration and agents 
+- Typically, 1 script = single call to LLM
 - Support for nested inner calls
 - Leverage LLM if tools/functions needed

@@ -9,7 +9,7 @@ image: /langchain-summarize.png
 <v-click>
 
 - **ANY** file type
-- Write the result to file "summarize.md"
+- Write the result to file "summary.md"
 
 ```js
 script({
