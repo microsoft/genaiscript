@@ -18,4 +18,4 @@ backgroundSize:  85%
 ### Support for orchestration and agents 
 - Typically, 1 script = single call to LLM
 - Support for nested inner calls
-- Leverage LLM if tools/functions needed
+- Leverage LLM support for tools if available/needed

@@ -36,10 +36,6 @@ summary = chain.run(docs)
 - Prompt is the main part of the script
 
 ```js
-script({
-    title: "summarize any file"
-})
-
 def("FILE", env.files)
 
 $`Write a summary of FILE in summary.md`
