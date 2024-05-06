@@ -1,35 +1,40 @@
 script({
-    title: 'Weather as function',
-    description: 'Query the weather for each city using a dummy weather function',
+    title: "Weather as function",
+    description:
+        "Query the weather for each city using a dummy weather function",
     temperature: 0.5,
     tests: {
         files: "src/cities.md",
-        facts: "the weather in Brussels is sunny",
-        keywords: "Brussels"
-    }
+        keywords: "Brussels",
+    },
 })
 
 $`Query the weather for each listed city and return the results as a table.`
 
 def("CITIES", env.files)
 
-defTool('get_current_weather', 'get the current weather', {
-    "type": "object",
-    "properties": {
-        "location": {
-            "type": "string",
-            "description": "The city and state, e.g. San Francisco, CA",
+defTool(
+    "get_current_weather",
+    "get the current weather",
+    {
+        type: "object",
+        properties: {
+            location: {
+                type: "string",
+                description: "The city and state, e.g. San Francisco, CA",
+            },
         },
+        required: ["location"],
     },
-    "required": ["location"],
-}, (args) => {
-    const { context, location } = args
-    const { trace } = context
+    (args) => {
+        const { context, location } = args
+        const { trace } = context
 
-    trace.log(`Getting weather for ${location}...`)
+        trace.log(`Getting weather for ${location}...`)
 
-    let content = "variable"
-    if (location === "Brussels") content = "sunny"
+        let content = "variable"
+        if (location === "Brussels") content = "sunny"
 
-    return content
-})
+        return content
+    }
+)

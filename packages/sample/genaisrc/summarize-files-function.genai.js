@@ -3,7 +3,7 @@ script({
     system: ["system", "system.fs_read_summary"],
     tests: {
         files: ["src/rag/*"],
-        keywords: ["markdown", "lorem", "microsoft"],
+        keywords: ["markdown", "lorem", "word"],
     },
 })
 

@@ -3,7 +3,7 @@ script({
     model: "gpt-4-32k",
     description: "Given a URL, summarize the contents of the page",
     group: "hello world",
-    system: ["system", "system.explanations", "system.files"],
+    system: ["system", "system.files"],
     temperature: 0,
     tests: {
         files: [
