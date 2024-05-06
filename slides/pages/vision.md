@@ -1,6 +1,7 @@
 ---
 layout: image-right
 image: /script-pl.png
+backgroundSize: 75%
 
 ---
 # Empower Users with AI-Enhanced Scripts

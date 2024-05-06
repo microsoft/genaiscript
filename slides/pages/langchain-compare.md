@@ -7,8 +7,11 @@ layout: two-cols-header
 
 ::left::
 
-## Python 
+## Python w/ langchain
+- Summarize already predefined
 ```python
+from langchain.chains.summarize import load_summarize_chain
+
 # Split the source text
 text_splitter = CharacterTextSplitter()
 texts = text_splitter.split_text(source_text)
@@ -27,9 +30,10 @@ summary = chain.run(docs)
 
 <v-click>
 
-## GenAIScript Version 
-- Reads **multiple** file types
-- Write the result to file "summarize.md"
+## GenAIScript
+- `def` reads **multiple** file types
+- Output is written to file `summarize.md`
+- Prompt is the main part of the script
 
 ```js
 script({
