@@ -11,6 +11,7 @@ import {
     serializeError,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
+import { PROMPTFOO_VERSION } from "./version"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -89,7 +90,7 @@ export async function startServer(options: { port: string }) {
                             ...(data.options || {}),
                             cache: true,
                             verbose: true,
-                            promptfooVersion: "latest"
+                            promptfooVersion: PROMPTFOO_VERSION
                         })
                         break
                     }

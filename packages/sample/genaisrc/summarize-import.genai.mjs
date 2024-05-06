@@ -1,7 +1,11 @@
 import { parse } from "ini"
 
 script({
-    title: "summarize all files using import"
+    title: "summarize all files using import",
+    tests: {
+        files: ["src/rag/markdown.md"],
+        keywords: "markdown",
+    },
 })
 
 export default async function () {

@@ -4,10 +4,18 @@ script({
     description: "Given a URL, summarize the contents of the page",
     group: "hello world",
     system: ["system", "system.explanations", "system.files"],
-    temperature: 0
+    temperature: 0,
+    tests: {
+        files: [
+            "https://raw.githubusercontent.com/microsoft/genaiscript/main/packages/sample/src/rag/markdown.md",
+        ],
+        keywords: "markdown",
+    },
 })
 
-for (const link of env.files.filter(file => file.filename.startsWith("https://"))) {
+for (const link of env.files.filter((file) =>
+    file.filename.startsWith("https://")
+)) {
     const { file } = await fetchText(link)
     def("FILE", file)
 }

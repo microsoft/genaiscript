@@ -1,9 +1,15 @@
 script({
     title: "run prompt summarize",
-    tests: {
-        files: ["src/rag/markdown.md"],
-        keywords: "markdown",
-    },
+    tests: [
+        {
+            files: ["src/rag/markdown.md"],
+            keywords: "markdown",
+        },
+        {
+            files: "src/rag/*",
+            keywords: ["markdown", "lorem", "microsoft"],
+        },
+    ],
 })
 
 for (const file of env.files) {

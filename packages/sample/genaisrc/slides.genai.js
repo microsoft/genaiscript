@@ -4,6 +4,11 @@ script({
         "Generate a slidedeck in markdown. Install extension 'vscode-reveal'.",
     group: "samples",
     temperature: 0.1,
+    tests: {
+        files: ["src/greeter.ts"],
+        keywords: "greeter",
+        facts: "A markdown document that mentions a greeter class.",
+    },
 })
 
 const output = env.spec.filename + ".slides.md"

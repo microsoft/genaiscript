@@ -5,6 +5,9 @@ script({
             default: "ecology",
         },
     },
+    tests: {
+        files: ["src/rag/*.docx"],
+    },
 })
 defTool(
     "reviewer",

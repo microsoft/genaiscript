@@ -20,7 +20,11 @@ export async function activateTestController(state: ExtensionState) {
     subscriptions.push(ctrl)
 
     // UI button
-    ctrl.refreshHandler = async (token) => refreshTests(token)
+    ctrl.refreshHandler = async (token) => {
+        await state.parseWorkspace()
+        if (token?.isCancellationRequested) return
+        refreshTests(token)
+    }
 
     // First, create the `resolveHandler`. This may initially be called with
     // "undefined" to ask for all tests in the workspace to be discovered, usually
@@ -146,7 +150,7 @@ export async function startTestViewer() {
             },
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        const promptfooVersion = "latest"
+        const promptfooVersion = PROMPTFOO_VERSION
         terminal.sendText(
             `npx --yes promptfoo@${promptfooVersion} view --port ${port}`
         )

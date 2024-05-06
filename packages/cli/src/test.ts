@@ -166,9 +166,10 @@ export async function runPromptScriptTests(
     }
 
     return {
-        ok: results.every(({ ok }) => ok),
+        ok: results.every((r) => !!r.ok),
         status: results.find((r) => r.status !== 0)?.status,
         value: results,
+        error: results.find((r) => r.error)?.error,
     }
 }
 

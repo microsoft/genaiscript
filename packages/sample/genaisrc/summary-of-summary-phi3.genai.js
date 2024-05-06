@@ -1,5 +1,9 @@
 script({
     title: "summary of summary - phi3",
+    tests: {
+        files: ["src/rag/*"],
+        keywords: ["markdown", "lorem", "microsoft"],
+    },
 })
 
 // summarize each files individually
