@@ -195,6 +195,7 @@ export async function cli() {
             "-pv, --promptfoo-version [version]",
             `propmtfoo version, default is ${PROMPTFOO_VERSION}`
         )
+        .option("-os, --out-summary <file>", "append output summary in file")
         .action(scriptsTest)
 
     test.command("view")

@@ -2,7 +2,6 @@ import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
 import {
     GENAISCRIPT_FOLDER,
-    ResponseStatus,
     PromptScriptTestRunOptions,
     YAMLStringify,
     arrayify,
@@ -19,10 +18,14 @@ import {
     MarkdownTrace,
     PromptScriptTestRunResponse,
     PromptScriptTestResult,
+    EMOJI_FAIL,
+    EMOJI_SUCCESS,
+    errorMessage,
 } from "genaiscript-core"
-import { readFile, writeFile } from "node:fs/promises"
+
+import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
-import { join, resolve } from "node:path"
+import { basename, join, resolve } from "node:path"
 import { emptyDir, ensureDir } from "fs-extra"
 import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
@@ -65,6 +68,7 @@ export async function runPromptScriptTests(
         verbose?: boolean
         write?: boolean
         promptfooVersion?: string
+        outSummary?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
     const prj = await buildProject()
@@ -80,6 +84,7 @@ export async function runPromptScriptTests(
 
     const cli = options.cli || resolve(__filename)
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
+    const outSummary = options.outSummary
     const provider = join(out, "provider.mjs")
     const models = options?.models
     logInfo(`writing tests to ${out}`)
@@ -111,6 +116,7 @@ export async function runPromptScriptTests(
     logVerbose(`running tests with promptfoo`)
     await ensureDir(PROMPTFOO_CACHE_PATH)
     await ensureDir(PROMPTFOO_CONFIG_DIR)
+    if (outSummary) await ensureDir(basename(resolve(outSummary)))
 
     const results: PromptScriptTestResult[] = []
     for (const config of configurations) {
@@ -146,12 +152,19 @@ export async function runPromptScriptTests(
             status = res.exitCode
             value = JSON.parse(await readFile(outJson, "utf8")) as OutputFile
         } catch (e) {
-            status = e.errno
+            status = e.errno ?? -1
             error = serializeError(e)
         }
+
+        const ok = status === 0
+        if (outSummary)
+            await appendFile(
+                outSummary,
+                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${error ? errorMessage(error) : ""}\n`
+            )
         results.push({
             status,
-            ok: status === 0,
+            ok,
             error,
             script: script.id,
             value,
@@ -177,6 +190,7 @@ export async function scriptsTest(
         verbose?: boolean
         write?: boolean
         promptfooVersion?: string
+        outSummary?: string
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)
