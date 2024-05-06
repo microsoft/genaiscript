@@ -54,15 +54,15 @@ src: pages/langchain-compare.md
 ---
 
 ---
+src: pages/langchain-summarize.md
+---
+
+---
 src: pages/example-gpt-v.md
 ---
 
 ---
 src: pages/example-gpt-v-result.md
----
-
----
-src: pages/abstractions.md
 ---
 
 ---
