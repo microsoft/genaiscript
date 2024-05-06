@@ -36,7 +36,7 @@ export interface GenerationResult extends GenerationOutput {
     /**
      * Expanded prompt text
      */
-    prompt: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[]
 
     /**
      * Zero or more edits to apply.

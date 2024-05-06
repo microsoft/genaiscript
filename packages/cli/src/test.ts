@@ -20,14 +20,14 @@ import {
     PromptScriptTestResult,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
-    errorMessage,
     GENAI_JS_REGEX,
+    JSON5TryParse,
 } from "genaiscript-core"
 
 import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
 import { basename, join, resolve } from "node:path"
-import { emptyDir, ensureDir } from "fs-extra"
+import { emptyDir, ensureDir, exists } from "fs-extra"
 import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
 
@@ -151,17 +151,18 @@ export async function runPromptScriptTests(
         try {
             const res = await exec
             status = res.exitCode
-            value = JSON.parse(await readFile(outJson, "utf8")) as OutputFile
         } catch (e) {
             status = e.errno ?? -1
             error = serializeError(e)
         }
+        if (await exists(outJson))
+            value = JSON5TryParse(await readFile(outJson, "utf8")) as OutputFile
 
         const ok = status === 0
         if (outSummary)
             await appendFile(
                 outSummary,
-                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id} ${error ? errorMessage(error) : ""}\n`
+                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id}\n`
             )
         results.push({
             status,

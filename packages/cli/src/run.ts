@@ -24,6 +24,7 @@ import {
     USER_CANCELLED_ERROR_CODE,
     errorMessage,
     MarkdownTrace,
+    HTTPS_REGEX,
 } from "genaiscript-core"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
@@ -115,15 +116,18 @@ export async function runScript(
         spec = specs[0]
     } else {
         for (const arg of specs) {
-            const ffs = await host.findFiles(arg)
-            if (!ffs.length)
-                fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
+            if (HTTPS_REGEX.test(arg)) files.add(arg)
+            else {
+                const ffs = await host.findFiles(arg)
+                if (!ffs.length)
+                    fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
 
-            for (const file of ffs) {
-                if (GPSPEC_REGEX.test(file)) {
-                    md = (md || "") + (await readText(file)) + "\n"
-                } else {
-                    files.add(file)
+                for (const file of ffs) {
+                    if (GPSPEC_REGEX.test(file)) {
+                        md = (md || "") + (await readText(file)) + "\n"
+                    } else {
+                        files.add(file)
+                    }
                 }
             }
         }
@@ -254,8 +258,8 @@ ${Array.from(files)
     )
         await writeFileEdits(res)
 
-    const promptjson = res.prompt?.length
-        ? JSON.stringify(res.prompt, null, 2)
+    const promptjson = res.messages?.length
+        ? JSON.stringify(res.messages, null, 2)
         : undefined
     if (out) {
         if (removeOut) await emptyDir(out)

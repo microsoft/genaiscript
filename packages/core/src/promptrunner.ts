@@ -18,6 +18,7 @@ import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { RequestError } from "./error"
 import { createFetch } from "./fetch"
 import { undoublequote } from "./fence"
+import { HTTPS_REGEX } from "./constants"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -32,7 +33,7 @@ async function fragmentVars(
     const fr = frag
     for (const ref of fr.references) {
         // what about URLs?
-        if (/^https:\/\//.test(ref.filename)) {
+        if (HTTPS_REGEX.test(ref.filename)) {
             if (!files.find((lk) => lk.filename === ref.filename)) {
                 let content: string = ""
                 try {
@@ -169,7 +170,7 @@ export async function runTemplate(
         return <GenerationResult>{
             status,
             statusText,
-            prompt: messages,
+            messages,
             vars,
             trace: trace.content,
             text: "",
@@ -188,7 +189,7 @@ export async function runTemplate(
     if (skipLLM) {
         trace.renderErrors()
         return <GenerationResult>{
-            prompt: messages,
+            messages,
             vars,
             trace: trace.content,
             text: undefined,
@@ -432,7 +433,7 @@ export async function runTemplate(
     const res: GenerationResult = {
         status: status,
         statusText,
-        prompt: messages,
+        messages,
         vars,
         edits,
         annotations,

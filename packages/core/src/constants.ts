@@ -13,6 +13,7 @@ export const GENAI_MJS_EXT = ".genai.mjs"
 export const GENAI_JS_GLOB = "**/*.genai.*js"
 export const GENAI_JS_REGEX = /\.genai\.m?js$/i
 export const GPSPEC_REGEX = /\.gpspec\.md$/i
+export const HTTPS_REGEX = /^https:\/\//i
 export const GPSPEC_GLOB = "**/*.gpspec.md"
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003

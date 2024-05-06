@@ -1,4 +1,4 @@
-import { DEFAULT_MODEL } from "./constants"
+import { DEFAULT_MODEL, HTTPS_REGEX } from "./constants"
 import { arrayify } from "./util"
 
 function cleanUndefined(obj: Record<string, any>) {
@@ -59,7 +59,7 @@ export function generatePromptFooConfiguration(
                                     id: "azureopenai:chat:gpt-4",
                                     config: {
                                         apiHost: testProvider
-                                            .replace(/^https:\/\//i, "")
+                                            .replace(HTTPS_REGEX, "")
                                             .replace(
                                                 /\/openai\/deployments$/i,
                                                 ""
@@ -70,7 +70,7 @@ export function generatePromptFooConfiguration(
                                     id: "azureopenai:embeddings:text-embedding-ada-002",
                                     config: {
                                         apiHost: testProvider
-                                            .replace(/^https:\/\//i, "")
+                                            .replace(HTTPS_REGEX, "")
                                             .replace(
                                                 /\/openai\/deployments$/i,
                                                 ""
