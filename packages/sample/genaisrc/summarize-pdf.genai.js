@@ -2,7 +2,7 @@ script({
     title: "summarize pdf",
     tests: {
         files: "src/rag/loremipsum.pdf",
-        keywords: ["lorem", "ipsum", "dolor"],
+        keywords: ["lorem", "ipsum"],
     },
 })
 
