@@ -117,20 +117,22 @@ You will be tipped 20$ to achieve this work. Do not be lazy.
 - Try your best to create lines that are comparable skill level.
 - ensure all lines have a person at each position
 - ensure that the difference in total skill between any two lines is not more than 4
+- Avoid putting all the skilled players together in one line
 - validate player in multiple lines
 
 ## Step 2: Rule validation
 
 You are an expert at validating hockey line rules.
 
-- Validate rules.
+- Validate each rules systematically. Justify that they are valid. THIS IS IMPORTAINT.
 
 If a rule is violated, report the rule and the line and go back to the Step 1 to fix the issue.
+If you get stuck trying to find a solution, try randomizing the lines.
 If all rules are ok, go to step 3.
 
 ## Step 3: Output
 
 - Format the lines into valid YAML using the ${lineup} schema.
-- List each players and their position in YAML.
+- List each players and their position in each lines in YAML.
 YOU MUST DO THIS.
 `
