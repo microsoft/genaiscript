@@ -61,6 +61,9 @@ src: pages/example-gpt-v.md
 src: pages/example-gpt-v-result.md
 ---
 
+---
+src: pages/abstractions.md
+---
 
 ---
 src: pages/script.md
