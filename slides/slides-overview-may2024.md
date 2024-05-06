@@ -52,13 +52,16 @@ src: pages/aisw-intro2-p10.md
 src: pages/vision.md
 ---
 
-
 ---
 src: pages/example-gpt-v.md
 ---
 
 ---
 src: pages/example-gpt-v-result.md
+---
+
+---
+src: pages/langchain-summarize.md
 ---
 
 ---
@@ -95,10 +98,6 @@ src: pages/makecode-timeline.md
 
 ---
 src: pages/script-vs-agent.md
----
-
----
-src: pages/langchain-summarize.md
 ---
 
 ---
