@@ -122,6 +122,7 @@ Options:
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.57.0
+  -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
 
