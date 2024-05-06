@@ -132,6 +132,7 @@ export async function runPromptScriptTests(
             configuration,
             "--max-concurrency",
             "1",
+            "--no-progress-bar",
         ]
         if (!options.cache) args.push("--no-cache")
         if (options.verbose) args.push("--verbose")

@@ -1,16 +1,13 @@
-import { Project, Fragment, PromptScript } from "./ast"
+import { Project, PromptScript } from "./ast"
 import {
     BUILTIN_PREFIX,
-    EMOJI_FAIL,
-    EMOJI_SUCCESS,
-    EMOJI_UNDEFINED,
 } from "./constants"
 import { errorMessage } from "./error"
 import { JSON5TryParse } from "./json5"
 function templateIdFromFileName(filename: string) {
     return filename
-        .replace(/\.[jt]s$/, "")
-        .replace(/\.genai$/, "")
+        .replace(/\.(mjs|ts|js)$/i, "")
+        .replace(/\.genai$/i, "")
         .replace(/.*[\/\\]/, "")
 }
 
