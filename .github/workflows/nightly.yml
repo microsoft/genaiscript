@@ -27,5 +27,9 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
+            - name: launch ollama
+              run: |
+                  | docker run  -v ollama:/root/.ollama -p 11435:11434 --name ollama22 ollama/ollama
+                  | docker exec -it ollama
             - name: run test within scripts
               run: yarn test:scripts
