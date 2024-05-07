@@ -3,7 +3,7 @@ script({
     tests: {},
 })
 
-const kw = /** @type {string} */ (env.vars.keyword || "defdata")
+const kw = env.vars.keyword || "defdata"
 const allFiles = await workspace.findFiles("**/*.genai.js")
 const files = await retrieval.fuzzSearch(kw, allFiles)
 def("FILE", files, { maxTokens: 10000 })

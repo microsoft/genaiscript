@@ -236,7 +236,7 @@ type PromptParameterType =
     | JSONSchemaString
     | JSONSchemaBoolean
 type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean>
+type PromptParameters = Record<string, string | number | boolean | any>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
