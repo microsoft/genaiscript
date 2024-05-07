@@ -16,3 +16,4 @@ results/
 .genaiscript/
 applications/EdgePeeringAI
 docs/public/slides/
+yarn-error.log
