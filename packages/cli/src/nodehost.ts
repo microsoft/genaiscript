@@ -4,6 +4,7 @@ import {
     AskUserOptions,
     Host,
     LogLevel,
+    ModelService,
     OAIToken,
     ReadFileOptions,
     RetrievalService,
@@ -40,13 +41,16 @@ export class NodeHost implements Host {
     userState: any = {}
     virtualFiles: Record<string, Uint8Array> = {}
     retrieval: RetrievalService
+    models: ModelService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
 
     constructor() {
-        this.retrieval = new LlamaIndexRetrievalService(this)
+        const srv = new LlamaIndexRetrievalService(this)
+        this.retrieval = srv
+        this.models = srv
     }
 
     static install(dotEnvPath: string) {

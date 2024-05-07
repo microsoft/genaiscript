@@ -1,5 +1,5 @@
 import {
-    PromptGenerationResult,
+    GenerationResult,
     host,
     runTemplate,
     MarkdownTrace,
@@ -7,7 +7,6 @@ import {
     convertDiagnosticToAzureDevOpsCommand,
     dotGenaiscriptPath,
     assert,
-    isCancelError,
     normalizeInt,
     normalizeFloat,
     GENAI_JS_REGEX,
@@ -20,6 +19,8 @@ import {
     parsePromptParameters,
     logVerbose,
     errorMessage,
+    EMOJI_SUCCESS,
+    EMOJI_FAIL,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -150,7 +151,8 @@ export async function batchScript(
             ).fragments[0]
             assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
-            const result: PromptGenerationResult = await runTemplate(
+            const trace = new MarkdownTrace()
+            const result: GenerationResult = await runTemplate(
                 prj,
                 script,
                 fragment,
@@ -173,6 +175,8 @@ export async function batchScript(
                     retryDelay,
                     maxDelay,
                     vars,
+                    stats: { toolCalls: 0, repairs: 0 },
+                    trace,
                 }
             )
 
@@ -219,7 +223,7 @@ export async function batchScript(
             await writeFile(outTrace, result.trace, { encoding: "utf8" })
             await appendFile(
                 outOutput,
-                `- ${result.status === "cancelled" ? "⚠" : result.status === "error" ? "❌" : "✅"} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
+                `- ${result.status === "cancelled" ? "⚠" : result.status === "error" ? EMOJI_FAIL : EMOJI_SUCCESS} [${relative(".", specFile).replace(GPSPEC_REGEX, "")}](${relative(out, outText)}) ([trace](${relative(out, outTrace)}))\n`,
                 { encoding: "utf8" }
             )
             await writeFile(outJSON, JSON.stringify(result, null, 2), {
@@ -265,8 +269,6 @@ export async function batchScript(
         }
     }
 
+    spinner.stop()
     if (errors) process.exit(GENERATION_ERROR_CODE)
-
-    // success
-    process.exit(0)
 }

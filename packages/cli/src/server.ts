@@ -11,6 +11,7 @@ import {
     serializeError,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
+import { PROMPTFOO_VERSION } from "./version"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -45,25 +46,30 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
-                    case "retrieval.clear":
+                    case "models.pull": {
+                        console.log(`models: pull ${data.model}`)
+                        response = await host.models.pullModel(data.model)
+                        break
+                    }
+                    case "retrieval.vectorClear":
                         console.log(`retrieval: clear`)
                         await host.retrieval.init()
-                        response = await host.retrieval.clear(data.options)
+                        response = await host.retrieval.vectorClear(data.options)
                         break
-                    case "retrieval.upsert": {
+                    case "retrieval.vectorUpsert": {
                         console.log(`retrieval: upsert ${data.filename}`)
                         await host.retrieval.init()
-                        response = await host.retrieval.upsert(
+                        response = await host.retrieval.vectorUpsert(
                             data.filename,
                             data.options
                         )
                         break
                     }
-                    case "retrieval.search": {
+                    case "retrieval.vectorSearch": {
                         console.log(`retrieval: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))
                         await host.retrieval.init()
-                        response = await host.retrieval.search(
+                        response = await host.retrieval.vectorSearch(
                             data.text,
                             data.options
                         )
@@ -84,14 +90,13 @@ export async function startServer(options: { port: string }) {
                             ...(data.options || {}),
                             cache: true,
                             verbose: true,
-                            promptfooVersion: "latest"
+                            promptfooVersion: PROMPTFOO_VERSION
                         })
                         break
                     }
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }
-                response.ok = true
             } catch (e) {
                 response = { ok: false, error: serializeError(e) }
             } finally {

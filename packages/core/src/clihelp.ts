@@ -1,6 +1,6 @@
 import { Fragment } from "./ast"
 import { NPM_CLI_PACKAGE } from "./constants"
-import { RunTemplateOptions } from "./promptcontext"
+import { GenerationOptions } from "./promptcontext"
 import { generatePromptFooConfiguration } from "./test"
 import { MarkdownTrace } from "./trace"
 import { arrayify } from "./util"
@@ -9,8 +9,7 @@ import { YAMLStringify } from "./yaml"
 
 export function generateCliArguments(
     template: PromptScript,
-    fragment: Fragment,
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     command: "run" | "batch"
 ) {
     const { model, temperature, topP, seed, cliInfo } = options
@@ -35,15 +34,14 @@ export function generateCliArguments(
 export function traceCliArgs(
     trace: MarkdownTrace,
     template: PromptScript,
-    fragment: Fragment,
-    options: RunTemplateOptions
+    options: GenerationOptions
 ) {
     trace.details(
         "🤖 automation",
         `This operation can be automated using the command line interface using the \`run\` command:
 
 \`\`\`bash
-${generateCliArguments(template, fragment, options, "run")}
+${generateCliArguments(template, options, "run")}
 \`\`\`
 
 

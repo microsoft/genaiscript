@@ -122,6 +122,7 @@ Options:
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.57.0
+  -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
 
@@ -149,6 +150,7 @@ Options:
 Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
+  fix                       fix all definition files
   compile                   Compile all script in workspace
   model [options] [script]  List model connection information for scripts
   help [command]            display help for command
@@ -174,6 +176,17 @@ Create a new script
 
 Arguments:
   name        Name of the script
+
+Options:
+  -h, --help  display help for command
+```
+
+### `scripts fix`
+
+```
+Usage: genaiscript scripts fix [options]
+
+fix all definition files
 
 Options:
   -h, --help  display help for command
@@ -266,8 +279,8 @@ Options:
   -n, --name <string>                index name
   -cs, --chunk-size <number>         chunk size
   -co, --chunk-overlap <number>      chunk overlap
-  -m, --model <string>               model for embeddings (default gpt-4)
-  -sls, --split-long-sentences       split long sentences (default true)
+  -m, --model <string>               model for embeddings
+  -t, --temperature <number>         LLM temperature
   -h, --help                         display help for command
 ```
 

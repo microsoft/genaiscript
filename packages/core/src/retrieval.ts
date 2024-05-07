@@ -1,6 +1,5 @@
 import {
     RetrievalClientOptions,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalUpsertOptions,
     host,
@@ -17,33 +16,37 @@ export function isIndexable(filename: string) {
     return /^text\//i.test(type) || UPSERTFILE_MIME_TYPES.includes(type)
 }
 
-export async function clearIndex(
-    options?: RetrievalClientOptions & RetrievalOptions
+export async function clearVectorIndex(
+    options?: RetrievalClientOptions & VectorSearchOptions
 ): Promise<void> {
     const { trace } = options || {}
     await host.retrieval.init(trace)
-    await host.retrieval.clear(options)
+    await host.retrieval.vectorClear(options)
 }
 
-export async function upsert(
+export async function upsertVector(
     fileOrUrls: (string | WorkspaceFile)[],
     options?: RetrievalClientOptions & RetrievalUpsertOptions
 ) {
     if (!fileOrUrls?.length) return
     const { progress, trace, token, ...rest } = options || {}
-    const retrieval = host.retrieval
+    const { llmModel, embedModel } = options || {}
+    const { retrieval, models } = host
     await retrieval.init(trace)
+    if (llmModel || embedModel) {
+        progress?.start("pulling models")
+        if (llmModel) await models.pullModel(llmModel)
+        if (embedModel) await models.pullModel(embedModel)
+        progress?.succeed()
+    }
     const files: WorkspaceFile[] = fileOrUrls.map((f) =>
         typeof f === "string" ? <WorkspaceFile>{ filename: f } : f
     )
     let count = 0
     for (const f of files) {
         if (token?.isCancellationRequested) break
-        progress?.report({
-            count: ++count,
-            message: f.filename,
-        })
-        const { ok } = await retrieval.upsert(f.filename, {
+        progress?.start(f.filename, ++count)
+        const { ok } = await retrieval.vectorUpsert(f.filename, {
             content: f.content,
             ...rest,
         })
@@ -57,10 +60,10 @@ export async function upsert(
 
 export interface RetrievalSearchResult {
     files: WorkspaceFile[]
-    fragments: WorkspaceFile[]
+    chunks: WorkspaceFile[]
 }
 
-export async function search(
+export async function vectorSearch(
     q: string,
     options?: RetrievalClientOptions & RetrievalSearchOptions
 ): Promise<RetrievalSearchResult> {
@@ -68,18 +71,18 @@ export async function search(
     const files: WorkspaceFile[] = []
     const retrieval = host.retrieval
     await host.retrieval.init(trace)
-    if (token?.isCancellationRequested) return { files, fragments: [] }
+    if (token?.isCancellationRequested) return { files, chunks: [] }
 
-    const { results } = await retrieval.search(q, rest)
+    const { results } = await retrieval.vectorSearch(q, rest)
 
-    const fragments = (results || []).map((r) => {
-        const { id, filename, text } = r
+    const chunks = (results || []).map((r) => {
+        const { filename, text } = r
         return <WorkspaceFile>{
             filename,
             content: text,
         }
     })
-    for (const fr of fragments) {
+    for (const fr of chunks) {
         let file = files.find((f) => f.filename === fr.filename)
         if (!file) {
             file = <WorkspaceFile>{
@@ -92,6 +95,6 @@ export async function search(
     }
     return {
         files,
-        fragments,
+        chunks: chunks,
     }
 }

@@ -1,12 +1,13 @@
 import {
     YAMLStringify,
     readText,
-    upsert,
-    search,
-    clearIndex,
+    upsertVector,
+    vectorSearch,
+    clearVectorIndex,
     estimateTokens,
     normalizeInt,
     expandFiles,
+    normalizeFloat,
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 
@@ -14,22 +15,20 @@ export async function retrievalIndex(
     files: string[],
     options: {
         excludedFiles: string[]
-        summary: boolean
         name: string
         model: string
+        temperature: string
         chunkSize: string
         chunkOverlap: string
-        splitLongSentences: boolean
     }
 ) {
     const {
         excludedFiles,
         name: indexName,
         model,
+        temperature,
         chunkOverlap,
         chunkSize,
-        splitLongSentences,
-        summary,
     } = options || {}
     const fs = await expandFiles(files, excludedFiles)
     if (!fs.length) {
@@ -38,14 +37,13 @@ export async function retrievalIndex(
     }
 
     const progress = createProgressSpinner(`indexing ${fs.length} files`)
-    await upsert(fs, {
+    await upsertVector(fs, {
         progress,
         indexName,
-        model,
+        embedModel: model,
+        temperature: normalizeFloat(temperature),
         chunkOverlap: normalizeInt(chunkOverlap),
         chunkSize: normalizeInt(chunkSize),
-        splitLongSentences,
-        summary,
     })
 }
 
@@ -54,7 +52,7 @@ export async function retrievalClear(options: {
     summary: boolean
 }) {
     const { name: indexName, summary } = options || {}
-    await clearIndex({ indexName, summary })
+    await clearVectorIndex({ indexName })
 }
 
 export async function retrievalSearch(
@@ -64,21 +62,20 @@ export async function retrievalSearch(
         excludedFiles: string[]
         topK: string
         name: string
-        summary: boolean
     }
 ) {
-    const { excludedFiles, name: indexName, topK, summary } = options || {}
+    const { excludedFiles, name: indexName, topK } = options || {}
     const files = await expandFiles(filesGlobs, excludedFiles)
     const progress = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
     )
-    const res = await search(q, {
+    const res = await vectorSearch(q, {
         files,
         topK: normalizeInt(topK),
         indexName,
-        summary,
         progress,
     })
+    progress.stop()
     console.log(YAMLStringify(res))
 }
 

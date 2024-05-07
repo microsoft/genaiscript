@@ -1,0 +1,380 @@
+Arguments: 
+  /Users/peli/.nvm/versions/node/v20.10.0/bin/node /Users/peli/.yarn/bin/yarn.js --cwd packages/vscode run typecheck
+
+PATH: 
+  /var/folders/rb/6_v2w8g524gck6k241hrl8n80000gn/T/yarn--1714794222150-0.7792042338408858:/Users/peli/gh/genaiscript/node_modules/.bin:/Users/peli/.config/yarn/link/node_modules/.bin:/Users/peli/gh/genaiscript/node_modules/.bin:/Users/peli/.nvm/versions/node/v20.10.0/libexec/lib/node_modules/npm/bin/node-gyp-bin:/Users/peli/.nvm/versions/node/v20.10.0/lib/node_modules/npm/bin/node-gyp-bin:/Users/peli/.nvm/versions/node/v20.10.0/bin/node_modules/npm/bin/node-gyp-bin:/Users/peli/.yarn/bin:/Users/peli/.config/yarn/global/node_modules/.bin:/Users/peli/.nvm/versions/node/v20.10.0/bin:/Users/peli/opt/anaconda3/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Users/peli/.yarn/bin:/Users/peli/.config/yarn/global/node_modules/.bin:/Users/peli/.nvm/versions/node/v20.10.0/bin:/Users/peli/opt/anaconda3/bin:/Users/peli/.dotnet/tools:/Users/peli/.dotnet/tools
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  20.10.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  SyntaxError: /Users/peli/gh/genaiscript/packages/vscode/package.json: Unexpected token ']', ...",
+          ]
+      },
+   "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at /Users/peli/.yarn/lib/cli.js:1629:59
+      at Generator.next (<anonymous>)
+      at step (/Users/peli/.yarn/lib/cli.js:310:30)
+      at /Users/peli/.yarn/lib/cli.js:321:13
+
+npm manifest: 
+  {
+      "name": "genaiscript-vscode",
+      "publisher": "genaiscript",
+      "homepage": "https://microsoft.github.io/genaiscript/",
+      "author": {
+          "name": "Microsoft Corporation"
+      },
+      "displayName": "GenAIScript Insiders",
+      "description": "Generative AI Scripting.",
+      "version": "1.24.1",
+      "icon": "icon.png",
+      "engines": {
+          "vscode": "^1.86.0"
+      },
+      "keywords": [
+          "javascript",
+          "typescript",
+          "genai",
+          "openai",
+          "chatgpt",
+          "gpt4",
+          "ai",
+          "copilot",
+          "scripting",
+          "python",
+          "llm",
+          "gpt"
+      ],
+      "categories": [
+          "Programming Languages",
+          "Machine Learning",
+          "Education",
+          "Other"
+      ],
+      "license": "MIT",
+      "extensionKind": [
+          "workspace"
+      ],
+      "npm": {
+          "publish": false
+      },
+      "activationEvents": [
+          "workspaceContains:**/*.gpspec.md",
+          "workspaceContains:**/*.genai.js"
+      ],
+      "main": "./built/extension.js",
+      "bugs": {
+          "url": "https://github.com/microsoft/genaiscript/issues"
+      },
+      "repository": {
+          "url": "https://github.com/microsoft/genaiscript"
+      },
+      "files": [
+          "./genaiscript.cjs"
+      ],
+      "contributes": {
+          "markdown.previewStyles": [
+              "./markdown.css"
+          ],
+          "icons": {
+              "genaiscript-logo": {
+                  "description": "GenAIScript logo",
+                  "default": {
+                      "fontPath": "./built/genaiscript.woff",
+                      "fontCharacter": "\\E000"
+                  }
+              }
+          },
+          "viewsContainers": {
+              "activitybar": [
+                  {
+                      "id": "genaiscript",
+                      "title": "GenAIScript",
+                      "icon": "./icon.svg"
+                  }
+              ]
+          },
+          "views": {
+              "genaiscript": [
+                  {
+                      "id": "genaiscript.prompts",
+                      "name": "GenAIScript"
+                  },
+                  {
+                      "id": "genaiscript.prompts.requests",
+                      "name": "Runs",
+                      "visibility": "collapsed"
+                  },
+                  {
+                      "id": "genaiscript.openai.requests",
+                      "name": "OpenAI Requests",
+                      "visibility": "collapsed"
+                  }
+              ]
+          },
+          "menus": {
+              "editor/context": [
+                  {
+                      "command": "genaiscript.fragment.prompt",
+                      "when": "!inDebugMode",
+                      "group": "genaiscript@1"
+                  },
+                  {
+                      "command": "genaiscript.fragment.debug",
+                      "when": "!inDebugMode",
+                      "group": "genaiscript@2"
+                  }
+              ],
+              "file/newFile": [
+                  {
+                      "command": "genaiscript.newfile.script"
+                  }
+              ],
+              "editor/title/run": [
+                  {
+                      "command": "genaiscript.fragment.prompt",
+                      "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
+                      "group": "genaiscript@1"
+                  },
+                  {
+                      "command": "genaiscript.fragment.debug",
+                      "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.js$/",
+                      "group": "genaiscript@2"
+                  }
+              ],
+              "commandPalette": [
+                  {
+                      "command": "genaiscript.fragment.debug",
+                      "when": "false"
+                  },
+                  {
+                      "command": "genaiscript.newfile.script",
+                      "when": "false"
+                  },
+                  {
+                      "command": "genaiscript.prompt.unbuiltin",
+                      "when": "false"
+                  },
+                  {
+                      "command": "genaiscript.prompt.navigate",
+                      "when": "false"
+                  },
+                  {
+                      "command": "genaiscript.fragment.navigate",
+                      "when": "false"
+                  },
+                  {
+                      "command": "genaiscript.request.open",
+                      "when": "false"
+                  },
+                  {
+                      "command": "genaiscript.request.status",
+                      "when": "false"
+                  }
+              ],
+              "view/title": [
+                  {
+                      "command": "genaiscript.prompt.create",
+                      "when": "view == genaiscript.prompts",
+                      "group": "navigation"
+                  },
+                  {
+                      "command": "genaiscript.prompt.refresh",
+                      "when": "view == genaiscript.prompts",
+                      "group": "navigation"
+                  }
+              ],
+              "view/item/context": [
+                  {
+                      "command": "genaiscript.prompt.fork",
+                      "when": "view == genaiscript.prompts && viewItem  =~ /^prompt/"
+                  },
+                  {
+                      "command": "genaiscript.prompt.unbuiltin",
+                      "when": "view == genaiscript.prompts && viewItem  =~ /^prompt.builtin/"
+                  }
+              ],
+              "explorer/context": [
+                  {
+                      "command": "genaiscript.fragment.prompt",
+                      "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.js$/)",
+                      "group": "genaiscript@1"
+                  }
+              ]
+          },
+          "configuration": [
+              {
+                  "title": "GenAIScript",
+                  "properties": {
+                      "genaiscript.diagnostics": {
+                          "type": "boolean",
+                          "default": false,
+                          "description": "Enable developer diagnostic mode. Including leaving terminals opened."
+                      },
+                      "genaiscript.cache": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Enable or disables LLM request cache support."
+                      },
+                      "genaiscript.maxCachedTemperature": {
+                          "type": "number",
+                          "default": 0.5,
+                          "description": "Maximum prompt temperature to be cached (default 0.5)."
+                      },
+                      "genaiscript.maxCachedTopP": {
+                          "type": "number",
+                          "default": 0.5,
+                          "description": "Maximum prompt top_p to be cached (default 0.5)."
+                      }
+                  }
+              }
+          ],
+          "commands": [
+              {
+                  "command": "genaiscript.request.abort",
+                  "title": "Abort OpenAI request",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.fragment.navigate",
+                  "title": "Navigate to fragment",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.fragment.prompt",
+                  "title": "Run GenAiScript...",
+                  "category": "GenAIScript",
+                  "icon": "$(play)"
+              },
+              {
+                  "command": "genaiscript.fragment.debug",
+                  "title": "Debug GenAiScript...",
+                  "category": "GenAIScript",
+                  "icon": "$(debug)"
+              },
+              {
+                  "command": "genaiscript.prompt.navigate",
+                  "title": "Navigate to script",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.prompt.create",
+                  "title": "Create new script...",
+                  "icon": "$(add)",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.prompt.refresh",
+                  "title": "Refresh script list",
+                  "icon": "$(refresh)",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.newfile.script",
+                  "title": "GenAiScript File",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.prompt.fork",
+                  "title": "Fork GenAiScript...",
+                  "category": "GenAIScript",
+                  "icon": "$(repo-forked)"
+              },
+              {
+                  "command": "genaiscript.prompt.unbuiltin",
+                  "title": "Move builtin to project",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.request.open",
+                  "title": "Open request or response",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.request.open.trace",
+                  "title": "Open Trace",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.request.open.output",
+                  "title": "Open Output",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.request.applyEdits",
+                  "title": "Apply Edits",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.request.status",
+                  "title": "Show information message about OpenAI request status",
+                  "category": "GenAIScript"
+              },
+              {
+                  "command": "genaiscript.openIssueReporter",
+                  "title": "Report Issue...",
+                  "category": "GenAIScript"
+              },
+          ]
+      },
+      "scripts": {
+          "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
+          "vscode:prepublish": "yarn run compile",
+          "compile:icons": "node updatefonts.mjs",
+          "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms",
+          "compile": "yarn compile:icons && yarn compile:extension",
+          "lint": "eslint src --ext ts",
+          "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
+          "typecheck": "tsc -p .",
+          "prepackage": "zx prepackage.mjs",
+          "postpackage": "zx postpackage.mjs",
+          "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
+          "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
+      },
+      "devDependencies": {
+          "@types/mocha": "^10.0.6",
+          "@types/vscode": "^1.86.0",
+          "@typescript-eslint/eslint-plugin": "^7.7.0",
+          "@typescript-eslint/parser": "^7.7.0",
+          "@vscode/test-web": "^0.0.53",
+          "@vscode/vsce": "^2.25.0",
+          "assert": "^2.1.0",
+          "dotenv": "^16.4.5",
+          "eslint": "^9.0.0",
+          "mocha": "^10.4.0",
+          "process": "^0.11.10",
+          "ts-loader": "^9.5.1",
+          "typescript": "5.4.5",
+          "vscode-uri": "^3.0.8",
+          "webfont": "^11.2.26",
+          "websocket-polyfill": "0.0.3",
+          "zx": "^8.0.2"
+      },
+      "dependencies": {
+          "mammoth": "^1.7.1",
+          "pdfjs-dist": "4.0.379",
+          "tree-sitter-wasms": "^0.1.11",
+          "web-tree-sitter": "^0.22.2"
+      },
+      "optionalDependencies": {
+          "genaiscript": "*",
+          "genaiscript-core": "*"
+      },
+      "enabledApiProposals": [
+          "languageModels"
+      ]
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

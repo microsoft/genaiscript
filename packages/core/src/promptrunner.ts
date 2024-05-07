@@ -1,33 +1,24 @@
-import { ChatCompletionResponse, ChatCompletionTool } from "./chat"
+import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { commentAttributes, stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
-import {
-    extractFenced,
-    renderFencedVariables,
-    staticVars,
-    undoublequote,
-} from "./template"
+import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
-import { JSON5TryParse } from "./json5"
-import { exec } from "./exec"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
-import { parseAnnotations } from "./annotations"
-import { validateFencesWithSchema } from "./schema"
 import { CORE_VERSION } from "./version"
 import { fileExists, readText } from "./fs"
-import { estimateChatTokens } from "./tokens"
 import { CSVToMarkdown } from "./csv"
-import { RunTemplateOptions } from "./promptcontext"
+import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
-import { PromptGenerationResult, expandTemplate } from "./expander"
+import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
-import { MAX_DATA_REPAIRS } from "./constants"
 import { RequestError } from "./error"
 import { createFetch } from "./fetch"
+import { undoublequote } from "./fence"
+import { HTTPS_REGEX } from "./constants"
 
 async function fragmentVars(
     trace: MarkdownTrace,
@@ -42,7 +33,7 @@ async function fragmentVars(
     const fr = frag
     for (const ref of fr.references) {
         // what about URLs?
-        if (/^https:\/\//.test(ref.filename)) {
+        if (HTTPS_REGEX.test(ref.filename)) {
             if (!files.find((lk) => lk.filename === ref.filename)) {
                 let content: string = ""
                 try {
@@ -133,23 +124,18 @@ export async function runTemplate(
     prj: Project,
     template: PromptScript,
     fragment: Fragment,
-    options: RunTemplateOptions
-): Promise<PromptGenerationResult> {
+    options: GenerationOptions
+): Promise<GenerationResult> {
     assert(fragment !== undefined)
-    const {
-        skipLLM,
-        label,
-        cliInfo,
-        trace = new MarkdownTrace(),
-    } = options || {}
+    assert(options !== undefined)
+    assert(options.trace !== undefined)
+    const { skipLLM, label, cliInfo, trace } = options
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
 
-    const isCancelled = () => cancellationToken?.isCancellationRequested
-
     trace.heading(2, label || template.id)
 
-    if (cliInfo) traceCliArgs(trace, template, fragment, options)
+    if (cliInfo) traceCliArgs(trace, template, options)
 
     const vars = await fragmentVars(trace, template, fragment)
     // override with options vars
@@ -168,9 +154,7 @@ export async function runTemplate(
         topP,
         model,
         max_tokens,
-        maxToolCalls,
         seed,
-        responseType,
     } = await expandTemplate(
         prj,
         template,
@@ -182,10 +166,11 @@ export async function runTemplate(
 
     // if the expansion failed, show the user the trace
     if (status !== "success") {
-        return <PromptGenerationResult>{
+        trace.renderErrors()
+        return <GenerationResult>{
             status,
             statusText,
-            prompt: messages,
+            messages,
             vars,
             trace: trace.content,
             text: "",
@@ -202,8 +187,9 @@ export async function runTemplate(
 
     // don't run LLM
     if (skipLLM) {
-        return <PromptGenerationResult>{
-            prompt: messages,
+        trace.renderErrors()
+        return <GenerationResult>{
+            messages,
             vars,
             trace: trace.content,
             text: undefined,
@@ -217,8 +203,14 @@ export async function runTemplate(
             frames: [],
         }
     }
-    const response_format = responseType ? { type: responseType } : undefined
-
+    const genOptions: GenerationOptions = {
+        ...options,
+        model,
+        temperature: temperature,
+        maxTokens: max_tokens,
+        topP: topP,
+        seed: seed,
+    }
     const updateStatus = (text?: string) => {
         options.infoCb?.({
             vars,
@@ -227,10 +219,8 @@ export async function runTemplate(
         })
     }
 
-    let text: string
     const fileEdits: Record<string, { before: string; after: string }> = {}
     const changelogs: string[] = []
-    let annotations: Diagnostic[] = []
     const edits: Edits[] = []
     const projFolder = host.projectFolder()
     const links: string[] = []
@@ -240,12 +230,6 @@ export async function runTemplate(
         : fp
     const ff = host.resolvePath(fp, "..")
     const refs = fragment.references
-    const tools: ChatCompletionTool[] = functions?.length
-        ? functions.map((f) => ({
-              type: "function",
-              function: f.definition as any,
-          }))
-        : undefined
     const getFileEdit = async (fn: string) => {
         let fileEdit = fileEdits[fn]
         if (!fileEdit) {
@@ -269,280 +253,18 @@ export async function runTemplate(
         throw new RequestError(403, "token not configured", connection.info)
     }
 
-    const { completer } = resolveLanguageModel(template, options)
-    let toolCalls = 0
-    let repairs = 0
-    let genVars: Record<string, string> = {}
-
-    while (!isCancelled()) {
-        let resp: ChatCompletionResponse
-        try {
-            try {
-                trace.startDetails(
-                    `🧠 llm request (${messages.length} messages)`
-                )
-                trace.itemValue(
-                    `tokens`,
-                    estimateChatTokens(model, messages, tools)
-                )
-                updateStatus()
-                resp = await completer(
-                    {
-                        model,
-                        temperature,
-                        top_p: topP,
-                        max_tokens,
-                        seed,
-                        messages,
-                        stream: true,
-                        response_format,
-                        tools,
-                    },
-                    connection.token,
-                    options,
-                    trace
-                )
-            } finally {
-                trace.endDetails()
-                updateStatus()
-            }
-        } catch (error: unknown) {
-            trace.error(`llm error`, error)
-            if (error instanceof TypeError) {
-                resp = {
-                    text: "Unexpected error",
-                }
-            } else if (error instanceof RequestError) {
-                trace.heading(3, `Request error`)
-                if (error.body) {
-                    trace.log(`> ${error.body.message}\n\n`)
-                    trace.item(`type: \`${error.body.type}\``)
-                    trace.item(`code: \`${error.body.code}\``)
-                }
-                trace.item(`status: \`${error.status}\`, ${error.statusText}`)
-                resp = {
-                    text: `Request error: \`${error.status}\`, ${error.statusText}\n`,
-                }
-            } else if (isCancelled()) {
-                trace.heading(3, `Request cancelled`)
-                trace.log(`The user requested to cancel the request.`)
-                resp = { text: "Request cancelled" }
-                error = undefined
-            } else {
-                trace.error(`fetch error`, error)
-                resp = { text: "Unexpected error" }
-            }
-
-            updateStatus(`error`)
-            return <PromptGenerationResult>{
-                prompt: messages,
-                vars,
-                trace: trace.content,
-                error,
-                text: resp?.text,
-                edits,
-                annotations,
-                changelogs,
-                fileEdits,
-                label,
-                version,
-                fences: [],
-                frames: [],
-            }
-        }
-
-        if (resp.variables) genVars = { ...genVars, ...resp.variables }
-
-        if (resp.text) {
-            trace.startDetails("📩 llm response")
-            if (resp.finishReason && resp.finishReason !== "stop")
-                trace.itemValue(`finish reason`, resp.finishReason)
-            trace.itemValue(`cached`, resp.cached)
-            trace.detailsFenced(`output`, resp.text, "markdown")
-            trace.endDetails()
-        }
-
-        updateStatus()
-        if (resp.toolCalls?.length) {
-            if (resp.text)
-                messages.push({
-                    role: "assistant",
-                    content: resp.text,
-                })
-            messages.push({
-                role: "assistant",
-                content: null,
-                tool_calls: resp.toolCalls.map((c) => ({
-                    id: c.id,
-                    function: {
-                        name: c.name,
-                        arguments: c.arguments,
-                    },
-                    type: "function",
-                })),
-            })
-
-            // call tool and run again
-            for (const call of resp.toolCalls) {
-                if (isCancelled()) break
-                if (toolCalls++ > maxToolCalls) {
-                    trace.error(`max tool calls ${maxToolCalls} reached`)
-                    break
-                }
-                try {
-                    updateStatus(
-                        `call tool ${call.name} with ${call.arguments}`
-                    )
-                    trace.startDetails(`📠 tool call ${call.name}`)
-                    trace.itemValue(`id`, call.id)
-
-                    const callArgs: any = call.arguments
-                        ? JSON5TryParse(call.arguments)
-                        : undefined
-                    trace.itemValue(`args`, callArgs ?? call.arguments)
-                    const fd = functions.find(
-                        (f) => f.definition.name === call.name
-                    )
-                    if (!fd) throw new Error(`tool ${call.name} not found`)
-
-                    const context: ChatFunctionCallContext = {
-                        trace,
-                    }
-
-                    let output = await fd.fn({ context, ...callArgs })
-                    if (typeof output === "string") output = { content: output }
-                    if (output?.type === "shell") {
-                        let {
-                            command,
-                            args = [],
-                            stdin,
-                            cwd,
-                            timeout,
-                            ignoreExitCode,
-                            files,
-                            outputFile,
-                        } = output
-                        trace.item(
-                            `shell command: \`${command}\` ${args.join(" ")}`
-                        )
-                        updateStatus()
-                        const { stdout, stderr, exitCode } = await exec(host, {
-                            trace,
-                            label: call.name,
-                            call: {
-                                type: "shell",
-                                command,
-                                args,
-                                stdin,
-                                files,
-                                outputFile,
-                                cwd: cwd ?? projFolder,
-                                timeout: timeout ?? 60000,
-                            },
-                        })
-                        output = { content: stdout }
-                        trace.itemValue(`exit code`, exitCode)
-                        if (stdout) trace.details("📩 shell output", stdout)
-                        if (stderr) trace.details("📩 shell error", stderr)
-                        if (exitCode !== 0 && !ignoreExitCode)
-                            throw new Error(
-                                `tool ${call.name} failed with exit code ${exitCode}}`
-                            )
-                        updateStatus()
-                    }
-
-                    const { content, edits: functionEdits } = output
-
-                    if (content) trace.fence(content, "markdown")
-                    if (functionEdits?.length) {
-                        trace.fence(functionEdits)
-                        edits.push(
-                            ...functionEdits.map((e) => {
-                                const { filename, ...rest } = e
-                                const n = e.filename
-                                const fn = /^[^\/]/.test(n)
-                                    ? host.resolvePath(projFolder, n)
-                                    : n
-                                return { filename: fn, ...rest }
-                            })
-                        )
-                    }
-
-                    messages.push({
-                        role: "tool",
-                        content,
-                        tool_call_id: call.id,
-                    })
-                } catch (e) {
-                    trace.error(`tool call ${call.id} error`, e)
-                    updateStatus(`error`)
-                    throw e
-                } finally {
-                    trace.endDetails()
-                    updateStatus()
-                }
-            }
-        } else {
-            // perform repair
-            const lastMessage = messages[messages.length - 1]
-            if (
-                lastMessage.role === "assistant" &&
-                repairs < MAX_DATA_REPAIRS
-            ) {
-                const fences = extractFenced(lastMessage.content)
-                validateFencesWithSchema(fences, schemas, { trace })
-                const invalids = fences.filter(
-                    (f) => f.validation?.valid === false
-                )
-                if (invalids.length) {
-                    repairs++
-                    trace.startDetails("🔧 repair")
-                    const repair = invalids
-                        .map((f) => `${f.label}: ${f.validation.error}`)
-                        .join("\n")
-                    trace.fence(repair, "txt")
-                    messages.push({
-                        role: "user",
-                        content: [
-                            {
-                                type: "text",
-                                text: `Repair these FORMATTING_ISSUES and run the prompt again:
-
-FORMATTING_ISSUES:
-${repair}
-
-`,
-                            },
-                        ],
-                    })
-                    trace.endDetails()
-                    continue
-                }
-            }
-
-            // generate text and finish generation
-            text =
-                messages
-                    .filter((msg) => msg.role === "assistant" && msg.content)
-                    .map((m) => m.content)
-                    .join("\n") + resp.text
-            break
-        }
-    }
-
-    annotations = parseAnnotations(text)
-    const json = /^\s*[{[]/.test(text)
-        ? JSON5TryParse(text, undefined)
-        : undefined
-    const fences = json === undefined ? extractFenced(text) : []
-    const frames: DataFrame[] = []
-
-    // validate schemas in fences
-    if (fences?.length) {
-        trace.details("📩 code regions", renderFencedVariables(fences))
-        frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
-    }
-
+    const { completer } = resolveLanguageModel(genOptions)
+    const output = await executeChatSession(
+        connection.token,
+        cancellationToken,
+        messages,
+        functions,
+        schemas,
+        completer,
+        genOptions
+    )
+    const { json, fences, frames, genVars = {} } = output
+    let { text, annotations } = output
     if (json !== undefined) {
         trace.detailsFenced("📩 json (parsed)", json, "json")
         const fn = fragment.file.filename.replace(
@@ -552,6 +274,7 @@ ${repair}
         const fileEdit = await getFileEdit(fn)
         fileEdit.after = text
     } else {
+        if (text) trace.detailsFenced(`🔠 output`, text, `markdown`)
         for (const fence of fences.filter(
             ({ validation }) => validation?.valid !== false
         )) {
@@ -706,10 +429,11 @@ ${repair}
             })
         )
 
-    const res: PromptGenerationResult = {
+    trace.renderErrors()
+    const res: GenerationResult = {
         status: status,
         statusText,
-        prompt: messages,
+        messages,
         vars,
         edits,
         annotations,

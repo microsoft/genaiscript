@@ -1,5 +1,6 @@
 import {
     ICON_LOGO_NAME,
+    ModelService,
     ParseService,
     RetrievalService,
     SERVER_PORT,
@@ -54,9 +55,7 @@ export class TerminalServerManager implements ServerManager {
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        this._terminal.sendText(
-            `node "${this.state.cliJsPath}" serve`
-        )
+        this._terminal.sendText(`node "${this.state.cliJsPath}" serve`)
         this._terminal.show()
     }
 
@@ -65,6 +64,10 @@ export class TerminalServerManager implements ServerManager {
     }
 
     get parser(): ParseService {
+        return this.client
+    }
+
+    get models(): ModelService {
         return this.client
     }
 

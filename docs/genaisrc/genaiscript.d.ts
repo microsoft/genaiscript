@@ -1,4 +1,5 @@
 type DiagnosticSeverity = "error" | "warning" | "info"
+
 interface Diagnostic {
     filename: string
     range: CharRange
@@ -7,6 +8,16 @@ interface Diagnostic {
 }
 
 type Awaitable<T> = T | PromiseLike<T>
+
+interface SerializedError {
+    name?: string
+    message?: string
+    stack?: string
+    cause?: unknown
+    code?: string
+    line?: number
+    column?: number
+}
 
 interface PromptDefinition {
     /**
@@ -71,7 +82,7 @@ interface PromptOutputProcessorResult {
 }
 
 type PromptOutputProcessorHandler = (
-    output: PromptGenerationOutput
+    output: GenerationOutput
 ) =>
     | PromptOutputProcessorResult
     | Promise<PromptOutputProcessorResult>
@@ -103,7 +114,7 @@ interface ModelConnectionOptions {
      * Which LLM model to use.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo
+     * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
      */
     model?:
         | "gpt-4"
@@ -262,7 +273,9 @@ type PromptAssertion = {
     | {
           // type of assertion
           type: "levenshtein" | "not-levenshtein"
-          // The threshold value, applicable only to certain types
+          // The expected value
+          value: string
+          // The threshold value
           threshold?: number
       }
     | {
@@ -271,6 +284,9 @@ type PromptAssertion = {
            * JavaScript expression to evaluate.
            */
           value: string
+          /**
+           * Optional threshold if the javascript expression returns a number
+           */
           threshold?: number
       }
 )
@@ -284,6 +300,10 @@ interface PromptTest {
      * List of files to apply the test to.
      */
     files?: string | string[]
+    /**
+     * Extra set of variables for this scenario
+     */
+    vars?: PromptParameters
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -665,13 +685,19 @@ interface DataFrame {
 
 interface RunPromptResult {
     text: string
-    finishReason?:
+    annotations?: Diagnostic[]
+    fences?: Fenced[]
+    frames?: DataFrame[]
+    json?: any
+    error?: SerializedError
+    genVars?: Record<string, string>
+    finishReason:
         | "stop"
         | "length"
         | "tool_calls"
         | "content_filter"
         | "cancel"
-        | "error"
+        | "fail"
 }
 
 /**
@@ -994,6 +1020,27 @@ interface SearchResult {
     webPages: WorkspaceFile[]
 }
 
+interface VectorSearchOptions {
+    indexName?: string
+}
+
+interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
+    llmModel?: string
+    /**
+     * Model used to generated models.
+     * ollama:nomic-embed-text ollama:all-minilm
+     */
+    embedModel?:
+        | "text-embedding-ada-002"
+        | "ollama:mxbai-embed-large"
+        | "ollama:nomic-embed-text"
+        | "ollama:all-minilm"
+        | string
+    temperature?: number
+    chunkSize?: number
+    chunkOverlap?: number
+}
+
 interface Retrieval {
     /**
      * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
@@ -1002,9 +1049,9 @@ interface Retrieval {
     webSearch(query: string): Promise<SearchResult>
 
     /**
-     * Search for embeddings
+     * Search using similiraty distance on embeddings
      */
-    search(
+    vectorSearch(
         query: string,
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: {
@@ -1016,11 +1063,16 @@ interface Retrieval {
              * Minimum similarity score
              */
             minScore?: number
-        }
+        } & Omit<VectorSearchEmbeddingsOptions, "llmToken">
     ): Promise<{
         files: WorkspaceFile[]
-        fragments: WorkspaceFile[]
+        chunks: WorkspaceFile[]
     }>
+
+    /**
+     * @deprecated Use `vectorSearch` instead
+     */
+    search?: undefined
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
@@ -1084,7 +1136,7 @@ interface RunPromptContext {
     ): void
 }
 
-interface PromptGenerationOutput {
+interface GenerationOutput {
     /**
      * LLM output.
      */

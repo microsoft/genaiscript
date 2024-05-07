@@ -2,6 +2,10 @@ script({
     title: "blog using generated knowledge",
     description:
         "Using Generated Knowledge technique. More at https://learnprompting.org/docs/intermediate/generated_knowledge",
+    tests: {
+        files: "src/rag/markdown.md",
+        keywords: ["markdown"],
+    },
 })
 
 // first prompt LLM to generate facts

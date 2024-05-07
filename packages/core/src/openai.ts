@@ -4,6 +4,7 @@ import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
+    MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
 import { estimateTokens } from "./tokens"
@@ -11,6 +12,7 @@ import { YAMLStringify } from "./yaml"
 import {
     ChatCompletionChunk,
     ChatCompletionHandler,
+    ChatCompletionRequestCacheKey,
     ChatCompletionResponse,
     ChatCompletionToolCall,
     LanguageModel,
@@ -41,16 +43,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
-    const { provider, model } = parseModelIdentifier(req.model)
-
-    trace.itemValue(`provider`, provider)
-    trace.itemValue(`model`, model)
-    trace.itemValue(`api type`, cfgNoToken.type || "")
-    trace.itemValue(`temperature`, temperature)
-    trace.itemValue(`top_p`, top_p)
-    trace.itemValue(`seed`, seed)
-    trace.itemValue(`api type`, cfg.type)
-    trace.itemValue(`cache name`, cacheName)
+    const { model } = parseModelIdentifier(req.model)
 
     const cache = getChatCompletionCache(cacheName)
     const caching =
@@ -63,7 +56,16 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
             (isNaN(top_p) || isNaN(maxCachedTopP) || top_p < maxCachedTopP))
     trace.itemValue(`caching`, caching)
-    const cachedKey = caching ? { ...req, ...cfgNoToken } : undefined
+    const cachedKey = caching
+        ? <ChatCompletionRequestCacheKey>{
+              ...req,
+              ...cfgNoToken,
+              model: req.model,
+              temperature: req.temperature,
+              top_p: req.top_p,
+              max_tokens: req.max_tokens,
+          }
+        : undefined
     const cached = cachedKey ? await cache.get(cachedKey) : undefined
     if (cached !== undefined) {
         partialCb?.({
@@ -71,7 +73,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             responseSoFar: cached,
             responseChunk: cached,
         })
-        trace.itemValue(`cached sha`, await cache.getKeySHA(cachedKey))
+        trace.itemValue(`cache hit`, await cache.getKeySHA(cachedKey))
         return { text: cached, cached: true }
     }
 
@@ -262,5 +264,5 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
 export const OpenAIModel = Object.freeze<LanguageModel>({
     completer: OpenAIChatCompletion,
-    id: "openai",
+    id: MODEL_PROVIDER_OPENAI,
 })

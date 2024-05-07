@@ -5,22 +5,33 @@ import {
     MarkdownTrace,
     PromiseType,
     RETRIEVAL_DEFAULT_INDEX,
-    RETRIEVAL_DEFAULT_MODEL,
     ResponseStatus,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalSearchResponse,
     RetrievalService,
     RetrievalUpsertOptions,
     dotGenaiscriptPath,
-    fileExists,
     installImport,
     lookupMime,
     serializeError,
     createFetch,
     RETRIEVAL_PERSIST_DIR,
+    parseModelIdentifier,
+    RETRIEVAL_DEFAULT_LLM_MODEL,
+    RETRIEVAL_DEFAULT_EMBED_MODEL,
+    RETRIEVAL_DEFAULT_TEMPERATURE,
+    ModelService,
+    MODEL_PROVIDER_OLLAMA,
+    TOOL_ID,
+    tryReadJSON,
+    writeJSON,
 } from "genaiscript-core"
-import type { BaseReader, NodeWithScore, Metadata } from "llamaindex"
+import {
+    type BaseReader,
+    type NodeWithScore,
+    type Metadata,
+    OllamaEmbedding,
+} from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
@@ -65,7 +76,9 @@ async function tryImportLlamaIndex(trace: MarkdownTrace) {
     }
 }
 
-export class LlamaIndexRetrievalService implements RetrievalService {
+export class LlamaIndexRetrievalService
+    implements RetrievalService, ModelService
+{
     private module: PromiseType<ReturnType<typeof tryImportLlamaIndex>>
     private READERS: Record<string, BaseReader>
 
@@ -88,10 +101,10 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         }
     }
 
-    private getPersisDir(indexName: string, summary: boolean) {
+    private getPersisDir(indexName: string) {
         const persistDir = this.host.path.join(
             dotGenaiscriptPath(RETRIEVAL_PERSIST_DIR),
-            summary ? "summary" : "full",
+            "vectors",
             indexName
         )
         return persistDir
@@ -100,21 +113,15 @@ export class LlamaIndexRetrievalService implements RetrievalService {
     private async createStorageContext(options?: {
         files?: string[]
         indexName?: string
-        summary?: boolean
     }) {
-        const {
-            files,
-            indexName = RETRIEVAL_DEFAULT_INDEX,
-            summary,
-        } = options ?? {}
+        const { files, indexName = RETRIEVAL_DEFAULT_INDEX } = options ?? {}
         const { storageContextFromDefaults, SimpleVectorStore } = this.module
-        const persistDir = this.getPersisDir(indexName, summary)
+        const persistDir = this.getPersisDir(indexName)
         await this.host.createDirectory(persistDir)
         const storageContext = await storageContextFromDefaults({
             persistDir,
-            vectorStore: summary ? new SimpleVectorStore() : undefined,
         })
-        if (files?.length && !summary) {
+        if (files?.length) {
             // get all documents
             const docs = await storageContext.docStore.getAllRefDocInfo()
             if (docs) {
@@ -136,23 +143,80 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         return { storageContext, persistDir }
     }
 
-    private async createServiceContext(options?: {
-        model?: string
-        temperature?: number
-        chunkSize?: number
-        chunkOverlap?: number
-        splitLongSentences?: boolean
-    }) {
+    private async getModelToken(modelid: string) {
+        const { provider } = parseModelIdentifier(modelid)
+        const conn = await this.host.getSecretToken({ model: modelid })
+        if (provider === MODEL_PROVIDER_OLLAMA)
+            conn.base = conn.base.replace(/\/v1$/i, "")
+        return conn
+    }
+
+    async pullModel(modelid: string): Promise<ResponseStatus> {
+        const { provider, model } = parseModelIdentifier(modelid)
+        const conn = await this.getModelToken(modelid)
+        if (provider === MODEL_PROVIDER_OLLAMA) {
+            const res = await fetch(`${conn.base}/api/pull`, {
+                method: "POST",
+                headers: {
+                    "user-agent": TOOL_ID,
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({ name: model, stream: false }, null, 2),
+            })
+            if (res.ok) {
+                const resp = await res.json()
+            }
+            return { ok: res.ok, status: res.status }
+        }
+
+        return { ok: true }
+    }
+
+    private async createServiceContext(
+        options?: VectorSearchEmbeddingsOptions
+    ) {
         const {
-            model = RETRIEVAL_DEFAULT_MODEL,
-            temperature,
-            splitLongSentences = true,
+            llmModel: llmModel_ = RETRIEVAL_DEFAULT_LLM_MODEL,
+            embedModel: embedModel_ = RETRIEVAL_DEFAULT_EMBED_MODEL,
+            temperature = RETRIEVAL_DEFAULT_TEMPERATURE,
             ...rest
         } = options ?? {}
-        const { SimpleNodeParser, serviceContextFromDefaults, OpenAI } =
-            this.module
+        const splitLongSentences = true
+        const {
+            SimpleNodeParser,
+            serviceContextFromDefaults,
+            OpenAIEmbedding,
+            Ollama,
+            OpenAI,
+        } = this.module
+        const { provider: llmProvider, model: llmModel } =
+            parseModelIdentifier(llmModel_)
+        const llmToken = await this.getModelToken(llmModel_)
+        const { provider: embedProvider, model: embedModel } =
+            parseModelIdentifier(embedModel_)
+        const embedToken = await this.getModelToken(embedModel_)
+        const llmClass = llmProvider === MODEL_PROVIDER_OLLAMA ? Ollama : OpenAI
+        const embedClass =
+            embedProvider === MODEL_PROVIDER_OLLAMA
+                ? OllamaEmbedding
+                : OpenAIEmbedding
         const serviceContext = serviceContextFromDefaults({
-            llm: new OpenAI({ model, temperature }),
+            llm: llmToken
+                ? new llmClass({
+                      model: llmModel,
+                      temperature,
+                      baseURL: llmToken.base,
+                      apiKey: llmToken.token,
+                  })
+                : undefined,
+            embedModel: embedToken
+                ? new embedClass({
+                      model: embedModel,
+                      baseURL: embedToken.base,
+                      apiKey: embedToken.token,
+                      ...rest,
+                  })
+                : undefined,
             nodeParser: new SimpleNodeParser({
                 ...rest,
                 splitLongSentences,
@@ -161,19 +225,57 @@ export class LlamaIndexRetrievalService implements RetrievalService {
         return serviceContext
     }
 
-    async clear(options?: RetrievalOptions) {
-        const { indexName = RETRIEVAL_DEFAULT_INDEX, summary } = options || {}
-        const persistDir = this.getPersisDir(indexName, summary)
+    async vectorClear(options?: VectorSearchOptions) {
+        const { indexName = RETRIEVAL_DEFAULT_INDEX } = options || {}
+        const persistDir = this.getPersisDir(indexName)
         await this.host.deleteDirectory(persistDir)
         return { ok: true }
     }
 
-    async upsert(
+    private async saveOptions(options: Partial<VectorSearchEmbeddingsOptions>) {
+        const {
+            llmModel,
+            embedModel,
+            temperature,
+            indexName = RETRIEVAL_DEFAULT_INDEX,
+        } = options || {}
+        const fn = this.optionsFileName(indexName)
+        const current = { llmModel, embedModel, temperature }
+        const existing = await tryReadJSON(fn)
+        if (existing) {
+            if (JSON.stringify(existing) !== JSON.stringify(current))
+                throw new Error("model configuration mismatch")
+        } else {
+            await writeJSON(fn, { llmModel, embedModel, temperature })
+        }
+    }
+
+    private async loadOptions(
+        options: Partial<VectorSearchEmbeddingsOptions>
+    ): Promise<Partial<VectorSearchEmbeddingsOptions>> {
+        const {
+            llmModel,
+            embedModel,
+            temperature,
+            indexName = RETRIEVAL_DEFAULT_INDEX,
+        } = options || {}
+        const fn = this.optionsFileName(indexName)
+        const current = { llmModel, embedModel, temperature }
+        const existing = await tryReadJSON(fn)
+        if (!existing) throw new Error("model configuration not found")
+        return existing
+    }
+
+    private optionsFileName(indexName: string) {
+        return this.host.path.join(this.getPersisDir(indexName), "options.json")
+    }
+
+    async vectorUpsert(
         filenameOrUrl: string,
         options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus> {
-        const { Document, VectorStoreIndex, SummaryIndex } = this.module
-        const { content, mimeType, summary } = options ?? {}
+        const { Document, VectorStoreIndex } = this.module
+        const { content, mimeType } = options ?? {}
         let blob: Blob = undefined
         if (content) {
             blob = new Blob([content], {
@@ -201,13 +303,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
             this.READERS[type] ||
             (/^text\//.test(type) && this.READERS["text/plain"]) ||
             (!type && this.READERS["text/plain"]) // assume unknown type is text
-        if (!reader)
-            return {
-                ok: false,
-                error: serializeError(
-                    new Error(`no reader for content type '${type}'`)
-                ),
-            }
+        if (!reader) throw new Error(`no reader for content type '${type}'`)
         const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
             (doc) =>
@@ -217,74 +313,41 @@ export class LlamaIndexRetrievalService implements RetrievalService {
                     metadata: { filename: filenameOrUrl },
                 })
         )
+
+        await this.saveOptions(options)
+
         const serviceContext = await this.createServiceContext(options)
-        const { storageContext, persistDir } =
-            await this.createStorageContext(options)
+        const { storageContext } = await this.createStorageContext(options)
         await storageContext.docStore.addDocuments(documents, true)
-        if (summary) {
-            if (
-                !(await fileExists(
-                    this.host.path.join(persistDir, "doc_store.json")
-                ))
-            )
-                await SummaryIndex.fromDocuments(documents, {
-                    storageContext,
-                    serviceContext,
-                })
-            else {
-                await SummaryIndex.init({
-                    storageContext,
-                    serviceContext,
-                })
-            }
-        } else
-            await VectorStoreIndex.fromDocuments(documents, {
-                storageContext,
-                serviceContext,
-            })
+        await VectorStoreIndex.fromDocuments(documents, {
+            storageContext,
+            serviceContext,
+        })
         return { ok: true }
     }
 
-    async search(
+    async vectorSearch(
         text: string,
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse> {
         const {
             topK = LLAMAINDEX_SIMILARITY_TOPK,
             minScore = LLAMAINDEX_MIN_SCORE,
-            summary,
         } = options ?? {}
-        const {
-            VectorStoreIndex,
-            MetadataMode,
-            SummaryIndex,
-            SimilarityPostprocessor,
-            SummaryRetrieverMode,
-        } = this.module
+        const { VectorStoreIndex, MetadataMode, SimilarityPostprocessor } =
+            this.module
 
-        const serviceContext = await this.createServiceContext()
+        const indexOptions = await this.loadOptions(options)
+        const serviceContext = await this.createServiceContext(indexOptions)
         const { storageContext } = await this.createStorageContext(options)
-        let results: NodeWithScore<Metadata>[]
-        if (summary) {
-            const index = await SummaryIndex.init({
-                storageContext,
-                serviceContext,
-            })
-            const retreiver = index.asRetriever({
-                mode: SummaryRetrieverMode.LLM,
-            })
-            results = await retreiver.retrieve(text)
-        } else {
-            const index = await VectorStoreIndex.init({
-                storageContext,
-                serviceContext,
-            })
-            const retreiver = index.asRetriever({
-                similarityTopK: topK,
-            })
-            results = await retreiver.retrieve(text)
-        }
-
+        const index = await VectorStoreIndex.init({
+            storageContext,
+            serviceContext,
+        })
+        const retreiver = index.asRetriever({
+            similarityTopK: topK,
+        })
+        const results = await retreiver.retrieve(text)
         const processor = new SimilarityPostprocessor({
             similarityCutoff: minScore,
         })
@@ -306,7 +369,7 @@ export class LlamaIndexRetrievalService implements RetrievalService {
      * @returns
      */
     async embeddings(
-        options?: RetrievalOptions
+        options?: VectorSearchOptions
     ): Promise<RetrievalSearchResponse> {
         const { MetadataMode } = this.module
         const { storageContext } = await this.createStorageContext(options)

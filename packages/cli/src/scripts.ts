@@ -28,6 +28,11 @@ export async function createScript(name: string) {
     await compileScript()
 }
 
+export async function fixScripts() {
+    const project = await buildProject()
+    await fixPromptDefinitions(project)
+}
+
 export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)

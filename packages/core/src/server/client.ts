@@ -1,9 +1,9 @@
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import {
+    ModelService,
     ParsePdfResponse,
     ParseService,
     ResponseStatus,
-    RetrievalOptions,
     RetrievalSearchOptions,
     RetrievalSearchResponse,
     RetrievalService,
@@ -16,15 +16,19 @@ import {
     ParsePdfMessage,
     RequestMessage,
     RequestMessages,
-    RetrievalClear,
+    RetrievaVectorClear,
     RetrievalSearch,
-    RetrievalUpsert,
+    RetrievalVectorUpsert,
     ServerVersion,
-    PromptScriptTestRunMessage,
+    PromptScriptTestRun,
     PromptScriptTestRunOptions,
+    ModelsPull,
+    PromptScriptTestRunResponse,
 } from "./messages"
 
-export class WebSocketClient implements RetrievalService, ParseService {
+export class WebSocketClient
+    implements RetrievalService, ParseService, ModelService
+{
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -112,28 +116,36 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.version
     }
 
-    async clear(options: RetrievalOptions): Promise<ResponseStatus> {
-        const res = await this.queue<RetrievalClear>({
-            type: "retrieval.clear",
+    async pullModel(model: string): Promise<ResponseStatus> {
+        const res = await this.queue<ModelsPull>({
+            type: "models.pull",
+            model,
+        })
+        return res.response
+    }
+
+    async vectorClear(options: VectorSearchOptions): Promise<ResponseStatus> {
+        const res = await this.queue<RetrievaVectorClear>({
+            type: "retrieval.vectorClear",
             options,
         })
         return res.response
     }
 
-    async search(
+    async vectorSearch(
         text: string,
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse> {
         const res = await this.queue<RetrievalSearch>({
-            type: "retrieval.search",
+            type: "retrieval.vectorSearch",
             text,
             options,
         })
         return res.response
     }
-    async upsert(filename: string, options?: RetrievalUpsertOptions) {
-        const res = await this.queue<RetrievalUpsert>({
-            type: "retrieval.upsert",
+    async vectorUpsert(filename: string, options?: RetrievalUpsertOptions) {
+        const res = await this.queue<RetrievalVectorUpsert>({
+            type: "retrieval.vectorUpsert",
             filename,
             options,
         })
@@ -151,8 +163,11 @@ export class WebSocketClient implements RetrievalService, ParseService {
         return res.response
     }
 
-    async runTest(script: PromptScript, options?: PromptScriptTestRunOptions) {
-        const res = await this.queue<PromptScriptTestRunMessage>({
+    async runTest(
+        script: PromptScript,
+        options?: PromptScriptTestRunOptions
+    ): Promise<PromptScriptTestRunResponse> {
+        const res = await this.queue<PromptScriptTestRun>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,
             options,

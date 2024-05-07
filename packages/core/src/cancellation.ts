@@ -1,3 +1,5 @@
+import { CancelError } from "./error"
+
 /**
  * A cancellation token is passed to an asynchronous or long running
  * operation to request cancellation, like cancelling a request
@@ -18,4 +20,8 @@ export class AbortSignalCancellationToken implements CancellationToken {
     get isCancellationRequested() {
         return this.signal.aborted
     }
+}
+
+export function checkCancelled(token: CancellationToken) {
+    if (token?.isCancellationRequested) throw new CancelError("user cancelled")
 }

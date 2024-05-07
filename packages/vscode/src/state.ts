@@ -6,12 +6,11 @@ import {
     PromptScript,
     concatArrays,
     parseProject,
-    PromptGenerationResult,
+    GenerationResult,
     runTemplate,
     groupBy,
-    RunTemplateOptions,
+    GenerationOptions,
     isCancelError,
-    isTokenError,
     isRequestError,
     delay,
     CHANGE,
@@ -79,7 +78,7 @@ export interface AIRequestSnapshotKey {
     version: string
 }
 export interface AIRequestSnapshot {
-    response?: Partial<PromptGenerationResult>
+    response?: Partial<GenerationResult>
     error?: any
     trace?: string
 }
@@ -89,8 +88,8 @@ export interface AIRequest {
     options: AIRequestOptions
     controller: AbortController
     trace: MarkdownTrace
-    request?: Promise<PromptGenerationResult>
-    response?: Partial<PromptGenerationResult>
+    request?: Promise<GenerationResult>
+    response?: Partial<GenerationResult>
     computing?: boolean
     error?: any
     progress?: ChatCompletionsProgressReport
@@ -230,23 +229,20 @@ temp/
             const req = await this.startAIRequest(options)
             if (!req) return
             const res = await req?.request
-            const { edits, text, error } = res || {}
+            const { edits, text, status } = res || {}
+
             const hasPreviewOpened =
                 vscode.window.tabGroups.activeTabGroup?.tabs?.some((t) =>
                     [REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME].some(
                         (f) => t.label.includes(f)
                     )
                 )
-            if (!hasPreviewOpened) {
-                if (error)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.trace"
-                    )
-                else if (text)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.output"
-                    )
-            }
+            if (status === "error")
+                vscode.commands.executeCommand("genaiscript.request.open.trace")
+            else if (!hasPreviewOpened && text)
+                vscode.commands.executeCommand(
+                    "genaiscript.request.open.output"
+                )
 
             const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
@@ -257,7 +253,7 @@ temp/
             if (edits?.length) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
-            else if (isTokenError(e)) {
+            else if (isRequestError(e, 403)) {
                 const trace = "Open Trace"
                 const res = await vscode.window.showErrorMessage(
                     "OpenAI token refused (403).",
@@ -340,7 +336,7 @@ ${errorMessage(e)}`
         }
         this.aiRequest = r
         const { template, fragment } = options
-        const runOptions: RunTemplateOptions = {
+        const genOptions: GenerationOptions = {
             requestOptions: { signal },
             cancellationToken,
             partialCb,
@@ -353,6 +349,7 @@ ${errorMessage(e)}`
             maxCachedTopP,
             vars: options.parameters,
             cache: cache && template.cache,
+            stats: { toolCalls: 0, repairs: 0 },
             cliInfo: {
                 spec: vscode.workspace.asRelativePath(
                     this.host.isVirtualFile(fragment.file.filename)
@@ -370,7 +367,7 @@ ${errorMessage(e)}`
                 configureLanguageModelAccess(
                     this.context,
                     options,
-                    runOptions,
+                    genOptions,
                     lmmodel
                 )
             } else return undefined
@@ -383,7 +380,7 @@ ${errorMessage(e)}`
         if (this.requestHistory.length > MAX_HISTORY_LENGTH)
             this.requestHistory.shift()
 
-        r.request = runTemplate(this.project, template, fragment, runOptions)
+        r.request = runTemplate(this.project, template, fragment, genOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {

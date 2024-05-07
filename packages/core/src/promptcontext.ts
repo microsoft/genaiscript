@@ -4,16 +4,14 @@ import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsert, search } from "./retrieval"
+import { upsertVector, vectorSearch } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
     createFileMergeNode,
-    createFunctionNode,
     createImageNode,
     createOutputProcessor,
-    createSchemaNode,
 } from "./promptdom"
 import { bingSearch } from "./search"
 import { CancellationToken } from "./cancellation"
@@ -27,6 +25,7 @@ import { CancelError } from "./error"
 import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
+import { GenerationStats } from "./expander"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -35,7 +34,7 @@ function stringLikeToFileName(f: string | WorkspaceFile) {
 export function createPromptContext(
     vars: ExpansionVariables,
     trace: MarkdownTrace,
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     model: string
 ) {
     const env = new Proxy(vars, {
@@ -95,17 +94,17 @@ export function createPromptContext(
                 trace.endDetails()
             }
         },
-        search: async (q, files_, searchOptions) => {
+        vectorSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
                 trace.startDetails(`🔍 retrieval search \`${q}\``)
                 if (!files?.length) {
                     trace.error("no files provided")
-                    return { files: [], fragments: [] }
+                    return { files: [], chunks: [] }
                 } else {
-                    await upsert(files, { trace, ...searchOptions })
-                    const res = await search(q, {
+                    await upsertVector(files, { trace, ...searchOptions })
+                    const res = await vectorSearch(q, {
                         ...searchOptions,
                         files: files.map(stringLikeToFileName),
                     })
@@ -115,7 +114,7 @@ export function createPromptContext(
             } finally {
                 trace.endDetails()
             }
-        },
+        }
     }
 
     const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
@@ -223,7 +222,7 @@ export function createPromptContext(
     return ctx
 }
 
-export interface RunTemplateOptions
+export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
         ScriptRuntimeOptions {
@@ -233,7 +232,7 @@ export interface RunTemplateOptions
         label?: string
         vars?: Partial<ExpansionVariables>
     }) => void
-    trace?: MarkdownTrace
+    trace: MarkdownTrace
     maxCachedTemperature?: number
     maxCachedTopP?: number
     skipLLM?: boolean
@@ -243,4 +242,5 @@ export interface RunTemplateOptions
     }
     languageModel?: LanguageModel
     vars?: PromptParameters
+    stats: GenerationStats
 }

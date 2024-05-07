@@ -2,7 +2,6 @@ import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
 import {
     GENAISCRIPT_FOLDER,
-    ResponseStatus,
     PromptScriptTestRunOptions,
     YAMLStringify,
     arrayify,
@@ -16,13 +15,19 @@ import {
     PROMPTFOO_CONFIG_DIR,
     PROMPTFOO_CACHE_PATH,
     FILES_NOT_FOUND_ERROR_CODE,
-    ErrorObject,
     MarkdownTrace,
+    PromptScriptTestRunResponse,
+    PromptScriptTestResult,
+    EMOJI_FAIL,
+    EMOJI_SUCCESS,
+    GENAI_JS_REGEX,
+    JSON5TryParse,
 } from "genaiscript-core"
-import { readFile, writeFile } from "node:fs/promises"
+
+import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
-import { join, resolve } from "node:path"
-import { emptyDir, ensureDir } from "fs-extra"
+import { basename, join, resolve } from "node:path"
+import { emptyDir, ensureDir, exists } from "fs-extra"
 import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
 
@@ -41,15 +46,6 @@ async function resolveTestProvider(script: PromptScript) {
     const token = await host.getSecretToken(script)
     if (token && token.type === "azure") return token.base
     return undefined
-}
-
-export interface PromptScriptTestResult extends ResponseStatus {
-    script: string
-    value?: OutputFile
-}
-
-export interface PromptScriptTestRun extends ResponseStatus {
-    value?: PromptScriptTestResult[]
 }
 
 function createEnv() {
@@ -73,8 +69,9 @@ export async function runPromptScriptTests(
         verbose?: boolean
         write?: boolean
         promptfooVersion?: string
+        outSummary?: string
     }
-): Promise<PromptScriptTestRun> {
+): Promise<PromptScriptTestRunResponse> {
     const prj = await buildProject()
     const scripts = prj.templates
         .filter((t) => arrayify(t.tests)?.length)
@@ -88,6 +85,7 @@ export async function runPromptScriptTests(
 
     const cli = options.cli || resolve(__filename)
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
+    const outSummary = options.outSummary
     const provider = join(out, "provider.mjs")
     const models = options?.models
     logInfo(`writing tests to ${out}`)
@@ -100,7 +98,7 @@ export async function runPromptScriptTests(
     for (const script of scripts) {
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
-            : script.filename.replace(/\.genai\.js$/, ".promptfoo.yaml")
+            : script.filename.replace(GENAI_JS_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const testProvider =
             options?.testProvider || (await resolveTestProvider(scripts[0]))
@@ -119,6 +117,7 @@ export async function runPromptScriptTests(
     logVerbose(`running tests with promptfoo`)
     await ensureDir(PROMPTFOO_CACHE_PATH)
     await ensureDir(PROMPTFOO_CONFIG_DIR)
+    if (outSummary) await ensureDir(basename(resolve(outSummary)))
 
     const results: PromptScriptTestResult[] = []
     for (const config of configurations) {
@@ -133,6 +132,7 @@ export async function runPromptScriptTests(
             configuration,
             "--max-concurrency",
             "1",
+            "--no-progress-bar",
         ]
         if (!options.cache) args.push("--no-cache")
         if (options.verbose) args.push("--verbose")
@@ -147,29 +147,39 @@ export async function runPromptScriptTests(
             stdio: "inherit",
         })
         let status: number
-        let error: ErrorObject
+        let error: SerializedError
         let value: any = undefined
         try {
             const res = await exec
             status = res.exitCode
-            value = JSON.parse(await readFile(outJson, "utf8")) as OutputFile
         } catch (e) {
-            status = e.errno
+            status = e.errno ?? -1
             error = serializeError(e)
         }
+        if (await exists(outJson))
+            value = JSON5TryParse(await readFile(outJson, "utf8")) as OutputFile
+
+        const ok = status === 0
+        if (outSummary)
+            await appendFile(
+                outSummary,
+                `- ${ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${script.id}\n`
+            )
         results.push({
             status,
-            ok: status === 0,
+            ok,
             error,
             script: script.id,
             value,
         })
     }
 
+    const ok = results.every((r) => !!r.ok)
     return {
-        ok: results.every(({ ok }) => ok),
-        status: results.find((r) => r.status !== 0)?.status,
+        ok,
+        status: ok ? 0 : -1,
         value: results,
+        error: results.find((r) => r.error)?.error,
     }
 }
 
@@ -183,6 +193,7 @@ export async function scriptsTest(
         verbose?: boolean
         write?: boolean
         promptfooVersion?: string
+        outSummary?: string
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)

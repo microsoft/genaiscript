@@ -1,13 +1,21 @@
-import { CHANGE, TOOL_ID } from "./constants"
+import {
+    CHANGE,
+    EMOJI_FAIL,
+    EMOJI_SUCCESS,
+    EMOJI_UNDEFINED,
+    TOOL_ID,
+} from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
-import { ErrorObject, serializeError } from "./error"
+import { errorMessage, serializeError } from "./error"
 
 export class MarkdownTrace
     extends EventTarget
-    implements ChatFunctionCallTrace {
-    readonly errors: ErrorObject[] = []
+    implements ChatFunctionCallTrace
+{
+    readonly errors: { message: string; error: SerializedError }[] = []
+    private detailsDepth = 0
     private _content: string = ""
 
     constructor() {
@@ -30,24 +38,28 @@ export class MarkdownTrace
         }
     }
 
-    startDetails(title: string) {
+    startDetails(title: string, success?: boolean) {
+        this.detailsDepth++
         title = title?.trim() || ""
         this.content += `\n\n<details id="${title.replace(
             /\s+/g,
             "-"
         )}" class="${TOOL_ID}">
 <summary>
-${title}
+${this.toResultIcon(success, "")}${title}
 </summary>
 
 `
     }
 
     endDetails() {
-        this.content += `\n</details>\n\n`
+        if (this.detailsDepth > 0) {
+            this.detailsDepth--
+            this.content += `\n</details>\n\n`
+        }
     }
 
-    private guarded(f: () => void) {
+    private disableChange(f: () => void) {
         try {
             this.disableChangeDispatch++
             f()
@@ -58,7 +70,7 @@ ${title}
     }
 
     details(title: string, body: string | object) {
-        this.guarded(() => {
+        this.disableChange(() => {
             this.startDetails(title)
             if (body) {
                 if (typeof body === "string") this.content += body
@@ -69,7 +81,7 @@ ${title}
     }
 
     detailsFenced(title: string, body: string | object, contentType?: string) {
-        this.guarded(() => {
+        this.disableChange(() => {
             this.startDetails(title)
             this.fence(body, contentType)
             this.endDetails()
@@ -108,7 +120,7 @@ ${title}
     }
 
     fence(message: string | unknown, contentType?: string) {
-        if (message === undefined || message === null) return
+        if (message === undefined || message === null || message === "") return
 
         let res: string
         if (typeof message !== "string") {
@@ -138,21 +150,60 @@ ${title}
         this.content += `\n![${caption || url}](${url})\n`
     }
 
+    private toResultIcon(value: boolean, missing: string) {
+        return value === true
+            ? EMOJI_SUCCESS
+            : value === false
+              ? EMOJI_FAIL
+              : missing
+    }
+
     resultItem(value: boolean, message: string) {
-        this.item(
-            `${value === true ? `✅` : value === false ? `❌` : "?"} ${message}`
-        )
+        this.item(`${this.toResultIcon(value, EMOJI_UNDEFINED)} ${message}`)
     }
 
     error(message: string, error?: unknown) {
-        this.guarded(() => {
-            this.heading(3, `❌ ${message}`)
-            if (error) {
-                const err = serializeError(error)
-                this.errors.push(err)
-                this.fence(YAMLStringify(err), "yaml")
+        this.disableChange(() => {
+            const err = {
+                message,
+                error: serializeError(error),
             }
+            this.errors.push(err)
+            this.renderError(err, { details: false })
         })
+    }
+
+    renderErrors(): void {
+        while (this.detailsDepth > 0) this.endDetails()
+        const errors = this.errors || []
+        if (errors.length) {
+            this.disableChange(() => {
+                this.heading(3, "Errors")
+                errors.forEach((e) => this.renderError(e, { details: true }))
+            })
+        }
+    }
+
+    private renderError(
+        e: {
+            message: string
+            error?: SerializedError
+        },
+        options: { details: boolean }
+    ) {
+        const { message, error } = e
+        const emsg = errorMessage(error)
+        const msg = message || emsg
+        this.warn(msg)
+        if (options.details) this.fence(error.stack)
+    }
+
+    warn(msg: string) {
+        this.content += `\n> [!CAUTION] ${msg}\n`
+    }
+
+    note(msg: string) {
+        this.content += `\n> [!INFO] ${msg}\n`
     }
 }
 

@@ -1,5 +1,4 @@
 import { CancellationToken } from "./cancellation"
-import { ErrorObject } from "./error"
 import { Progress } from "./progress"
 import { MarkdownTrace, TraceOptions } from "./trace"
 
@@ -67,28 +66,19 @@ export interface RetrievalClientOptions {
 
 export interface ResponseStatus {
     ok: boolean
-    error?: ErrorObject
+    error?: SerializedError
     status?: number
 }
 
-export interface RetrievalOptions {
-    indexName?: string
-    summary?: boolean
-}
-
-export interface RetrievalSearchOptions extends RetrievalOptions {
+export interface RetrievalSearchOptions extends VectorSearchOptions {
     files?: string[]
     topK?: number
     minScore?: number
 }
 
-export interface RetrievalUpsertOptions extends RetrievalOptions {
+export interface RetrievalUpsertOptions extends VectorSearchEmbeddingsOptions {
     content?: string
     mimeType?: string
-    model?: string
-    chunkSize?: number
-    chunkOverlap?: number
-    splitLongSentences?: boolean
 }
 
 export type RetrievalSearchResponse = ResponseStatus & {
@@ -100,14 +90,18 @@ export type RetrievalSearchResponse = ResponseStatus & {
     }[]
 }
 
+export interface ModelService {
+    pullModel(model: string): Promise<ResponseStatus>
+}
+
 export interface RetrievalService {
     init(trace?: MarkdownTrace): Promise<void>
-    clear(options?: RetrievalOptions): Promise<ResponseStatus>
-    upsert(
+    vectorClear(options?: VectorSearchOptions): Promise<ResponseStatus>
+    vectorUpsert(
         filenameOrUrl: string,
         options?: RetrievalUpsertOptions
     ): Promise<ResponseStatus>
-    search(
+    vectorSearch(
         text: string,
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse>
@@ -154,6 +148,7 @@ export interface Host {
 
     parser: ParseService
     retrieval: RetrievalService
+    models: ModelService
     server: ServerManager
     path: Path
     workspace: WorkspaceFileSystem

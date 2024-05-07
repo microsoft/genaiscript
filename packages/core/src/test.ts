@@ -1,5 +1,19 @@
-import { DEFAULT_MODEL } from "./constants"
+import { DEFAULT_MODEL, HTTPS_REGEX } from "./constants"
 import { arrayify } from "./util"
+
+function cleanUndefined(obj: Record<string, any>) {
+    return obj
+        ? Object.entries(obj)
+              .filter(([_, value]) => value !== undefined)
+              .reduce(
+                  (newObj, [key, value]) => {
+                      newObj[key] = value
+                      return newObj
+                  },
+                  {} as Record<string, any>
+              )
+        : undefined
+}
 
 export function generatePromptFooConfiguration(
     script: PromptScript,
@@ -45,7 +59,7 @@ export function generatePromptFooConfiguration(
                                     id: "azureopenai:chat:gpt-4",
                                     config: {
                                         apiHost: testProvider
-                                            .replace(/^https:\/\//i, "")
+                                            .replace(HTTPS_REGEX, "")
                                             .replace(
                                                 /\/openai\/deployments$/i,
                                                 ""
@@ -56,7 +70,7 @@ export function generatePromptFooConfiguration(
                                     id: "azureopenai:embeddings:text-embedding-ada-002",
                                     config: {
                                         apiHost: testProvider
-                                            .replace(/^https:\/\//i, "")
+                                            .replace(HTTPS_REGEX, "")
                                             .replace(
                                                 /\/openai\/deployments$/i,
                                                 ""
@@ -71,16 +85,18 @@ export function generatePromptFooConfiguration(
         tests: arrayify(tests).map(
             ({
                 description,
-                files = [],
+                files,
+                vars,
                 rubrics,
                 facts,
                 keywords = [],
                 asserts = [],
             }) => ({
                 description,
-                vars: {
+                vars: cleanUndefined({
                     files,
-                },
+                    vars,
+                }),
                 assert: [
                     ...arrayify(keywords).map((kv) => ({
                         type: "icontains",

@@ -1,18 +1,12 @@
-name: nightly test
-
+name: pr phi3 summary test
 on:
     workflow_dispatch:
-    schedule:
-        - cron: "0 7 * * *"
+    pull_request_review:
+        types: [submitted]
 jobs:
-    build:
+    approved:
+        if: github.event.review.state == 'APPROVED'
         runs-on: ubuntu-latest
-        env:
-            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-            OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
-            OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
-            AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         steps:
             - uses: actions/checkout@v3
               with:
@@ -29,5 +23,5 @@ jobs:
               run: yarn compile
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-            - name: run test within scripts
-              run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY
+            - name: run summarize-ollama-phi3
+              run: yarn test:scripts summarize-ollama-phi3

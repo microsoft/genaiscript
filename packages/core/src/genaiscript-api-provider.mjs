@@ -1,10 +1,14 @@
+/**
+ * GenAiScript PromptFoo Custom Provider
+ *
+ * Do not edit, auto-generated.
+ *
+ */
 import { promisify } from "node:util"
 import { exec } from "node:child_process"
 
 const execAsync = promisify(exec)
 
-// https://promptfoo.dev/docs/providers/custom-api
-// https://github.com/promptfoo/promptfoo/blob/335bdab1049659f08349c14814f0bc0fac35daeb/src/providers/azureopenai.ts#L72
 class GenAIScriptApiProvider {
     constructor(options) {
         this.config = options.config
@@ -23,6 +27,7 @@ class GenAIScriptApiProvider {
         const { vars, logger } = context
         try {
             let files = vars.files // string or string[]
+            const testVars = vars.vars // {}
             if (files && !Array.isArray(files)) files = [files] // ensure array
 
             const args = []
@@ -36,34 +41,48 @@ class GenAIScriptApiProvider {
 
             args.push("run", prompt)
             if (files) args.push(...files)
+            if (testVars && typeof testVars === "object") {
+                args.push("--vars")
+                for (const [key, value] of Object.entries(testVars)) {
+                    args.push(`${key}=${value}`)
+                }
+            }
             args.push("--json")
             if (quiet) args.push("--quiet")
             if (model) args.push("--model", model)
-            if (temperature !== undefined) args.push("--temperature", temperature)
+            if (temperature !== undefined)
+                args.push("--temperature", temperature)
             if (top_p !== undefined) args.push("--top_p", top_p)
             if (vars.vars) args.push("--vars", vars.vars)
             if (cache === false) args.push("--no-cache")
 
             const cmd = args
                 .map((a) =>
-                    typeof a === "string" && a.includes(" ") ? JSON.stringify(a) : a
+                    typeof a === "string" && a.includes(" ")
+                        ? JSON.stringify(a)
+                        : a
                 )
                 .join(" ")
             logger.info(cmd)
-            const { stdout, stderr, error } = await execAsync(cmd)
+            let { stdout, stderr, error } = await execAsync(cmd)
             logger.debug(stderr)
 
             const outputText = stdout.slice(Math.max(0, stdout.indexOf("{")))
             let output
             try {
                 output = JSON.parse(outputText)
+                if (output.status === "error") 
+                    error = output.statusText || error || "error"
             } catch (e) {
+                error = e?.message || "error parsing genaiscript json output"
                 output = {
                     text: outputText,
-                    error: e,
+                    error,
                 }
             }
 
+            if (error)
+                logger.error(error)
             return {
                 output,
                 error,
@@ -72,7 +91,7 @@ class GenAIScriptApiProvider {
             logger.error(e)
             return {
                 output: { text: "" },
-                error: e
+                error: e,
             }
         }
     }

@@ -12,27 +12,29 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
+    executeChatSession,
+    mergeGenerationOptions,
     toChatCompletionUserMessage,
 } from "./chat"
-import { RunTemplateOptions } from "./promptcontext"
+import { GenerationOptions } from "./promptcontext"
 import {
     parseModelIdentifier,
     resolveLanguageModel,
     resolveModelConnectionInfo,
 } from "./models"
 import { renderAICI } from "./aici"
-import { CancelError } from "./error"
+import { CancelError, isCancelError, serializeError } from "./error"
+import { checkCancelled } from "./cancellation"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
 }
 
 export function createRunPromptContext(
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
 ): RunPromptContextNode {
@@ -53,11 +55,6 @@ export function createRunPromptContext(
         schema: JSONSchema,
         defOptions?: DefSchemaOptions
     ) => {
-        trace.detailsFenced(
-            `🧬 schema ${name}`,
-            JSON.stringify(schema, null, 2),
-            "json"
-        )
         appendChild(node, createSchemaNode(name, schema, defOptions))
 
         return name
@@ -93,7 +90,9 @@ export function createRunPromptContext(
                 const { glob, endsWith } = defOptions || {}
                 const filename = body.filename
                 if (glob && filename) {
-                    const match = minimatch(filename, glob)
+                    const match = minimatch(filename, glob, {
+                        windowsPathsNoEscape: true,
+                    })
                     if (!match) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
@@ -123,83 +122,70 @@ export function createRunPromptContext(
             ctx.def("", body, options)
             return undefined
         },
-        runPrompt: async (generator, promptOptions) => {
+        runPrompt: async (generator, runOptions) => {
             try {
                 trace.startDetails(`🎁 run prompt`)
-                if (!generator) {
-                    trace.error("generator missing")
-                    return <RunPromptResult>{ text: "", finishReason: "error" }
-                }
-                const model =
-                    promptOptions?.model ?? options.model ?? DEFAULT_MODEL
-                const runOptions = {
-                    ...options,
-                    ...(promptOptions || {}), // overrides options
-                    model,
-                }
-                const ctx = createRunPromptContext(runOptions, env, trace)
+
+                const genOptions = mergeGenerationOptions(options, runOptions)
+                const ctx = createRunPromptContext(genOptions, env, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)
                 const node = ctx.node
 
-                if (cancellationToken?.isCancellationRequested)
-                    return { text: "Prompt cancelled", finishReason: "cancel" }
+                checkCancelled(cancellationToken)
 
-                const messages: ChatCompletionMessageParam[] = []
+                let messages: ChatCompletionMessageParam[] = []
+                let functions: ChatFunctionCallback[] = undefined
+                let schemas: Record<string, JSONSchema> = undefined
                 // expand template
-                const { provider } = parseModelIdentifier(model)
+                const { provider } = parseModelIdentifier(genOptions.model)
                 if (provider === "aici") {
                     const { aici } = await renderAICI("prompt", node)
                     // todo: output processor?
                     messages.push(aici)
                 } else {
-                    const { prompt, assistantPrompt, images, errors, schemas } =
-                        await renderPromptNode(model, node, {
-                            trace,
-                        })
-                    trace.fence(prompt, "markdown")
-                    if (images?.length || errors?.length || schemas?.length)
-                        trace.fence({ images, errors, schemas }, "yaml")
-                    messages.push(toChatCompletionUserMessage(prompt, images))
-                    if (assistantPrompt)
-                        messages.push(<ChatCompletionAssistantMessageParam>{
-                            role: "assistant",
-                            content: assistantPrompt,
-                        })
+                    const {
+                        errors,
+                        schemas: scs,
+                        functions: fns,
+                        messages: msgs,
+                    } = await renderPromptNode(genOptions.model, node, {
+                        trace,
+                    })
+
+                    schemas = scs
+                    functions = fns
+                    messages.push(...msgs)
+
+                    if (errors?.length)
+                        throw new Error("errors while running prompt")
                 }
 
-                const connection = await resolveModelConnectionInfo({
-                    model,
-                })
-                if (!connection.token) {
-                    trace.error("model connection error", connection.info)
-                    return <RunPromptResult>{ text: "", finishReason: "error" }
-                }
-                const { completer } = resolveLanguageModel(
-                    promptOptions,
-                    runOptions
-                )
-                const res = await completer(
-                    {
-                        model,
-                        temperature:
-                            promptOptions?.temperature ??
-                            options.temperature ??
-                            DEFAULT_TEMPERATURE,
-                        top_p: promptOptions?.topP ?? options.topP,
-                        max_tokens:
-                            promptOptions?.maxTokens ?? options.maxTokens,
-                        seed: promptOptions?.seed ?? options.seed,
-                        stream: true,
-                        messages,
-                    },
+                const connection = await resolveModelConnectionInfo(genOptions)
+                if (!connection.token)
+                    throw new Error("model connection error " + connection.info)
+                const { completer } = resolveLanguageModel(genOptions)
+                if (!completer)
+                    throw new Error(
+                        "model driver not found for " + connection.info
+                    )
+                const resp = await executeChatSession(
                     connection.token,
-                    runOptions,
-                    trace
+                    cancellationToken,
+                    messages,
+                    functions,
+                    schemas,
+                    completer,
+                    genOptions
                 )
-                trace.details("output", res.text)
-                return { text: res.text, finishReason: res.finishReason }
+                return resp
+            } catch (e) {
+                trace.error(e)
+                return {
+                    finishReason: isCancelError(e) ? "cancel" : "fail",
+                    error: serializeError(e),
+                }
             } finally {
                 trace.endDetails()
             }

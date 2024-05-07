@@ -10,6 +10,12 @@ import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { fenceMD } from "./markdown"
 import { parseModelIdentifier } from "./models"
 import dedent from "ts-dedent"
+import {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    toChatCompletionUserMessage,
+} from "./chat"
+import { errorMessage } from "./error"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -256,6 +262,7 @@ export function appendChild(parent: PromptNode, child: PromptNode): void {
 
 export interface PromptNodeVisitor {
     node?: (node: PromptNode) => Awaitable<void>
+    error?: (node: PromptNode) => Awaitable<void>
     afterNode?: (node: PromptNode) => Awaitable<void>
     text?: (node: PromptTextNode) => Awaitable<void>
     def?: (node: PromptDefNode) => Awaitable<void>
@@ -299,7 +306,8 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             await visitor.assistant?.(node as PromptAssistantNode)
             break
     }
-    if (node.children) {
+    if (node.error) visitor.error?.(node)
+    if (!node.error && node.children) {
         for (const child of node.children) {
             await visitNode(child, visitor)
         }
@@ -316,21 +324,25 @@ export interface PromptNodeRender {
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: PromptOutputProcessorHandler[]
+    messages: ChatCompletionMessageParam[]
 }
 
 async function resolvePromptNode(
     model: string,
-    node: PromptNode,
-    options?: TraceOptions
-): Promise<void> {
-    await visitNode(node, {
+    root: PromptNode
+): Promise<{ errors: number }> {
+    let err = 0
+    await visitNode(root, {
+        error: () => {
+            err++
+        },
         text: async (n) => {
             try {
                 const value = await n.value
                 n.resolved = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         def: async (n) => {
@@ -340,7 +352,7 @@ async function resolvePromptNode(
                 const rendered = renderDefNode(n)
                 n.tokens = estimateTokens(model, rendered)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         assistant: async (n) => {
@@ -349,20 +361,22 @@ async function resolvePromptNode(
                 n.resolve = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         stringTemplate: async (n) => {
             const { strings, args } = n
             try {
-                const resolvedArgs = (await Promise.all(args)).map(
-                    (v) => v ?? ""
-                )
+                const resolvedArgs: any[] = []
+                for (const arg of args) {
+                    const resolvedArg = await arg
+                    resolvedArgs.push(resolvedArg ?? "")
+                }
                 const value = dedent(strings, ...resolvedArgs)
                 n.resolved = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
         image: async (n) => {
@@ -370,10 +384,11 @@ async function resolvePromptNode(
                 const v = await n.value
                 n.resolved = v
             } catch (e) {
-                node.error = e
+                n.error = e
             }
         },
     })
+    return { errors: err }
 }
 
 async function truncatePromptNode(
@@ -432,24 +447,27 @@ async function truncatePromptNode(
     return truncated
 }
 
-export async function tracePromptNode(
+async function tracePromptNode(
     trace: MarkdownTrace,
-    node: PromptNode,
+    root: PromptNode,
     options?: { label: string }
 ) {
     if (!trace) return
 
-    await visitNode(node, {
+    await visitNode(root, {
         node: (n) => {
+            const error = errorMessage(n.error)
             const title = toStringList(
                 n.type || `🌳 prompt tree ${options?.label || ""}`,
                 n.priority ? `#${n.priority}` : undefined,
                 n.tokens
                     ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
-                    : undefined
+                    : undefined,
+                error
             )
-            if (n.children?.length) trace.startDetails(title)
-            else trace.item(title)
+            if (n.children?.length)
+                trace.startDetails(title, n.error ? false : undefined)
+            else trace.resultItem(!n.error, title)
         },
         afterNode: (n) => {
             if (n.children?.length) trace.endDetails()
@@ -465,7 +483,7 @@ export async function renderPromptNode(
     const { trace } = options || {}
     const { model } = parseModelIdentifier(modelId)
 
-    await resolvePromptNode(model, node, options)
+    await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
 
     const truncated = await truncatePromptNode(model, node, options)
@@ -556,7 +574,7 @@ ${trimNewlines(schemaText)}
                 fn,
             })
             trace.detailsFenced(
-                `🛠️ function ${name}`,
+                `🛠️ tool ${name}`,
                 { description, parameters },
                 "yaml"
             )
@@ -570,14 +588,25 @@ ${trimNewlines(schemaText)}
             trace.itemValue(`output processor`, n.fn)
         },
     })
-    return {
+
+    const messages: ChatCompletionMessageParam[] = [
+        toChatCompletionUserMessage(prompt, images),
+    ]
+    if (assistantPrompt)
+        messages.push(<ChatCompletionAssistantMessageParam>{
+            role: "assistant",
+            content: assistantPrompt,
+        })
+    const res = {
         prompt,
         assistantPrompt,
         images,
-        errors,
         schemas,
         functions,
         fileMerges,
         outputProcessors,
+        errors,
+        messages,
     }
+    return res
 }

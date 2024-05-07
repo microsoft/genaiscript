@@ -155,11 +155,10 @@ const { pages } = await parsers.PDF(env.files[0])
 
 <Card title="RAG built-in" icon="magnifier">
 
-[Vector search](/genaiscript/reference/scripts/embeddings-search/) powered by [LLamaIndex](https://ts.llamaindex.ai/).
+[Vector search](/genaiscript/reference/scripts/vector-search/).
 
 ```js wrap
-// embedding vector index and search
-const { files } = await retrieval.search("cats", env.files)
+const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 ```
 
 </Card>

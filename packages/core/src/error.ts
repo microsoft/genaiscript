@@ -1,18 +1,19 @@
-import {
-    serializeError as rawSerializeError,
-    ErrorObject as RawErrorObject,
-} from "serialize-error"
-
-export type ErrorObject = RawErrorObject
+import { serializeError as rawSerializeError } from "serialize-error"
 
 export function serializeError(
-    e: unknown | string | Error | ErrorObject
-): ErrorObject {
+    e: unknown | string | Error | SerializedError
+): SerializedError {
     if (e === undefined || e === null) return {}
-    else if (e instanceof Error)
-        return rawSerializeError(e, { maxDepth: 3, useToJSON: false })
-    else if (e instanceof Object) {
-        const obj = e as ErrorObject
+    else if (e instanceof Error) {
+        const err = rawSerializeError(e, { maxDepth: 3, useToJSON: false })
+        const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(err.stack)
+        if (m) {
+            err.line = parseInt(m[1])
+            err.column = parseInt(m[2])
+        }
+        return err
+    } else if (e instanceof Object) {
+        const obj = e as SerializedError
         return obj
     } else if (typeof e === "string") return { message: e }
     else if (e !== undefined && e !== null) return { message: e.toString?.() }
@@ -27,20 +28,23 @@ export function errorMessage(e: any, defaultValue: string = "error"): string {
 }
 
 export class CancelError extends Error {
+    static readonly NAME = "CancelError"
     constructor(message: string) {
         super(message)
-        this.name = "CancelError"
+        this.name = CancelError.NAME
     }
 }
 
 export class NotSupportedError extends Error {
+    static readonly NAME = "NotSupportedError"
     constructor(message: string) {
         super(message)
-        this.name = "NotSupportedError"
+        this.name = NotSupportedError.NAME
     }
 }
 
 export class RequestError extends Error {
+    static readonly NAME = "RequestError"
     constructor(
         public readonly status: number,
         public readonly statusText: string,
@@ -53,16 +57,13 @@ export class RequestError extends Error {
                 body?.message ? body?.message : `${statusText} (${status})`
             }`
         )
+        this.name = "RequestError"
     }
 }
 
-export function isCancelError(e: Error | ErrorObject) {
+export function isCancelError(e: Error | SerializedError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return e?.name === "CancelError" || e?.name === "AbortError"
-}
-
-export function isTokenError(e: Error) {
-    return isRequestError(e, 403)
+    return e?.name === CancelError.NAME || e?.name === "AbortError"
 }
 
 export function isRequestError(e: Error, statusCode?: number, code?: string) {

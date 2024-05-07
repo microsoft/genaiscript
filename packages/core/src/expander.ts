@@ -10,7 +10,7 @@ import {
     SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
-import { RunTemplateOptions, createPromptContext } from "./promptcontext"
+import { GenerationOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import {
@@ -27,7 +27,7 @@ const defaultTopP: number = undefined
 const defaultSeed: number = undefined
 const defaultMaxTokens: number = undefined
 
-export interface PromptGenerationResult extends PromptGenerationOutput {
+export interface GenerationResult extends GenerationOutput {
     /**
      * The env variables sent to the prompt
      */
@@ -36,7 +36,7 @@ export interface PromptGenerationResult extends PromptGenerationOutput {
     /**
      * Expanded prompt text
      */
-    prompt: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[]
 
     /**
      * Zero or more edits to apply.
@@ -66,7 +66,7 @@ export interface PromptGenerationResult extends PromptGenerationOutput {
     /**
      * Run status
      */
-    status: PromptRunStatus
+    status: GenerationStatus
 
     /**
      * Status message if any
@@ -84,18 +84,23 @@ export interface PromptGenerationResult extends PromptGenerationOutput {
     version: string
 }
 
-export type PromptRunStatus = "success" | "error" | "cancelled" | undefined
+export interface GenerationStats {
+    toolCalls: number
+    repairs: number
+}
+
+export type GenerationStatus = "success" | "error" | "cancelled" | undefined
 
 async function callExpander(
     r: PromptScript,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
-    options: RunTemplateOptions
+    options: GenerationOptions
 ) {
     const { provider, model } = parseModelIdentifier(r.model)
     const ctx = createPromptContext(vars, trace, options, model)
 
-    let status: PromptRunStatus = undefined
+    let status: GenerationStatus = undefined
     let statusText: string = undefined
     let logs = ""
     let text = ""
@@ -156,18 +161,12 @@ async function callExpander(
         }
     } catch (e) {
         status = "error"
+        statusText = errorMessage(e)
         if (isCancelError(e)) {
-            trace.log(`cancelled: ${errorMessage(e)}`)
             status = "cancelled"
-            statusText = errorMessage(e)
+            trace.note(statusText)
         } else {
-            const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(e.stack)
-            const info = m
-                ? ` at prompt line ${m[1]}, column ${m[2]}`
-                : errorMessage(e)
-            trace.error(info, e)
-            status = "error"
-            statusText = errorMessage(e)
+            trace.error(undefined, e)
         }
     }
 
@@ -258,14 +257,11 @@ export async function expandTemplate(
     prj: Project,
     template: PromptScript,
     fragment: Fragment,
-    options: RunTemplateOptions,
+    options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
-    options = { ...(options || {}) }
     const cancellationToken = options?.cancellationToken
-
-    trace.detailsFenced("📄 spec", env.spec.content, "markdown")
 
     const systems = resolveSystems(prj, template)
     const model =
@@ -323,9 +319,6 @@ export async function expandTemplate(
 
     const prompt = await callExpander(template, env, trace, options)
 
-    trace.itemValue(`status`, prompt.status)
-    trace.itemValue(`status text`, prompt.statusText)
-
     const expanded = prompt.text
     const images = prompt.images
     const schemas = prompt.schemas
@@ -377,9 +370,6 @@ export async function expandTemplate(
         const sysr = await callExpander(system, env, trace, options)
         responseType = responseType ?? system.responseType
 
-        trace.itemValue(`status`, sysr.status)
-        trace.itemValue(`status text`, sysr.statusText)
-
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
@@ -423,7 +413,7 @@ export async function expandTemplate(
         images,
         schemas,
         functions,
-        status: <PromptRunStatus>prompt.status,
+        status: <GenerationStatus>prompt.status,
         statusText: prompt.statusText,
         model,
         temperature,

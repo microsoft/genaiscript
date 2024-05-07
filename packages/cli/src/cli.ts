@@ -33,7 +33,7 @@ import {
     parseHTMLToText,
     parsePDF,
 } from "./parse"
-import { compileScript, createScript, listScripts } from "./scripts"
+import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { modelInfo, systemInfo } from "./info"
 import { scriptTestsView, scriptsTest } from "./test"
@@ -195,6 +195,7 @@ export async function cli() {
             "-pv, --promptfoo-version [version]",
             `propmtfoo version, default is ${PROMPTFOO_VERSION}`
         )
+        .option("-os, --out-summary <file>", "append output summary in file")
         .action(scriptsTest)
 
     test.command("view")
@@ -214,6 +215,10 @@ export async function cli() {
         .description("Create a new script")
         .argument("<name>", "Name of the script")
         .action(createScript)
+    scripts
+        .command("fix")
+        .description("fix all definition files")
+        .action(fixScripts)
     scripts
         .command("compile")
         .description("Compile all script in workspace")
@@ -242,14 +247,10 @@ export async function cli() {
         .argument("<file...>", "Files to index")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-n, --name <string>", "index name")
-        //        .option("-s, --summary", "use LLM-generated summaries")
         .option("-cs, --chunk-size <number>", "chunk size")
         .option("-co, --chunk-overlap <number>", "chunk overlap")
-        .option("-m, --model <string>", "model for embeddings (default gpt-4)")
-        .option(
-            "-sls, --split-long-sentences",
-            "split long sentences (default true)"
-        )
+        .option("-m, --model <string>", "model for embeddings")
+        .option("-t, --temperature <number>", "LLM temperature")
         .action(retrievalIndex)
     retrieval
         .command("search")
@@ -258,13 +259,11 @@ export async function cli() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of embeddings")
         .option("-n, --name <string>", "index name")
-        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retrievalSearch)
     retrieval
         .command("clear")
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
-        //        .option("-s, --summary", "use LLM-generated summaries")
         .action(retrievalClear)
 
     program
