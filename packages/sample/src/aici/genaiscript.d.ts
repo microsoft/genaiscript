@@ -1043,6 +1043,17 @@ interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
 
 interface FuzzSearchOptions {
     /**
+     * Controls whether to perform prefix search. It can be a simple boolean, or a
+     * function.
+     *
+     * If a boolean is passed, prefix search is performed if true.
+     *
+     * If a function is passed, it is called upon search with a search term, the
+     * positional index of that search term in the tokenized search query, and the
+     * tokenized search query.
+     */
+    prefix?: boolean
+    /**
      * Controls whether to perform fuzzy search. It can be a simple boolean, or a
      * number, or a function.
      *
@@ -1058,11 +1069,6 @@ interface FuzzSearchOptions {
      * distance of 20% of the term length, so 1 character in a 5-characters term.
      * The calculated fuzziness value is limited by the `maxFuzzy` option, to
      * prevent slowdown for very long queries.
-     *
-     * If a function is passed, the function is called upon search with a search
-     * term, a positional index of that term in the tokenized search query, and
-     * the tokenized search query. It should return a boolean or a number, with
-     * the meaning documented above.
      */
     fuzzy?: boolean | number
     /**
