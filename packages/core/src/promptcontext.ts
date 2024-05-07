@@ -13,7 +13,7 @@ import {
     createImageNode,
     createOutputProcessor,
 } from "./promptdom"
-import { bingSearch } from "./search"
+import { bingSearch } from "./websearch"
 import { CancellationToken } from "./cancellation"
 import {
     RunPromptContextNode,
@@ -81,7 +81,7 @@ export function createPromptContext(
             try {
                 trace.startDetails(`🌐 retrieval web search \`${q}\``)
                 const { webPages } = (await bingSearch(q, { trace })) || {}
-                return <SearchResult>{
+                return <WebSearchResult>{
                     webPages: webPages?.value?.map(
                         ({ url, snippet }) =>
                             <WorkspaceFile>{
