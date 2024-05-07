@@ -8,6 +8,14 @@ keywords: RAG, content retrieval, search augmentation, indexing, web search
 
 GenAIScript provides various utilities to retreive content and augment the prompt. This technique is typically referred as **RAG** (Retrieval-Augmentation-Generation) in the literature. GenAIScript uses [llamaindex-ts](https://ts.llamaindex.ai/api/classes/VectorIndexRetriever) which supports many vector database vendors.
 
+## Fuzz Search
+
+The `retrieve.fuzzSearch` performs a "traditional" fuzzy search to find the most similar documents to the prompt.
+
+```js
+const hits = await retrieval.fuzzSearch("cat dog", env.files)
+```
+
 ## Vector Search
 
 The `retrieve.vectorSearch` performs a embeddings search to find the most similar documents to the prompt.

@@ -11,21 +11,21 @@ export async function fuzzSearch(
     // load all files
     for (const file of files) await resolveFileContent(file)
 
+    // create database
     const miniSearch = new MiniSearch({
         idField: "filename",
         fields: ["content"],
         storeFields: ["content"],
         searchOptions: otherOptions,
     })
-
     // Add documents to the index
-    miniSearch.addAll(files.filter((f) => !!f.content))
+    await miniSearch.addAllAsync(files.filter((f) => !!f.content))
 
     // Search for documents:
     const results = miniSearch.search(query)
     return results.map((r) => ({
-            filename: r.id,
-            content: r.content,
-            score: r.score,
-        }))
+        filename: r.id,
+        content: r.content,
+        score: r.score,
+    }))
 }
