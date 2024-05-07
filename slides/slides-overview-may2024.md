@@ -61,6 +61,10 @@ src: pages/example-gpt-v-result.md
 ---
 
 ---
+src: pages/alt-text-automate.md
+---
+
+---
 src: pages/langchain-summarize.md
 ---
 

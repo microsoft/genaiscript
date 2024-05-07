@@ -34,6 +34,7 @@ layout: center
 #### with contributions from Markus Kuppe, Michał Moskal, and Madan Musuvathi
 <br/>
 
+#### PNW PLSE Workshop
 #### May 2024
 
 <br/>
@@ -69,25 +70,33 @@ src: pages/abstractions.md
 ---
 
 ---
-src: pages/script.md
+src: pages/other-features.md
 ---
 
 ---
-src: pages/script-prompt.md
+src: pages/stack-2.md
 ---
 
 ---
-src: pages/system-scripts.md
+src: pages/research-topics.md
 ---
 
 ---
-src: pages/response-processing.md
+src: pages/summary.md
+---
+
+
+---
+src: pages/plse-match.md
 ---
 
 ---
-src: pages/vscode.md
+src: pages/questions.md
 ---
 
+---
+src: pages/backup.md
+---
 
 ---
 src: pages/makecode-translations.md
@@ -100,32 +109,6 @@ src: pages/makecode-timeline.md
 ---
 src: pages/script-vs-agent.md
 ---
-
----
-src: pages/research-topics.md
----
-
----
-src: pages/stack-2.md
----
-
----
-src: pages/stack-2-elements.md
----
-
----
-src: pages/summary.md
----
-
----
-src: pages/questions.md
----
-
----
-src: pages/backup.md
----
-
-
 
 ---
 src: pages/tla-plus.md

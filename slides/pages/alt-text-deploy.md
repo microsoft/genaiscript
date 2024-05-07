@@ -2,13 +2,13 @@
 layout: two-cols-header
 ---
 
-# Script Automation for Alt Text
+# Script Automation for Alt-Text
 
 
 ::left::
 
 ## Image Alt-Text Script
-- Summarize already predefined
+
 ```js
 script({
     title: "Image Alt Text generator",

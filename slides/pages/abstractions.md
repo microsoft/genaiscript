@@ -1,21 +1,26 @@
 ---
 layout: image-left
 image: /genaiscript-flow.png
-backgroundSize:  85%
+backgroundSize:  100%
 ---
 
-# Abstractions
+# Key Script Elements
 
-### Variables
-- `def`defines variables in prompt
+## Variables
+- `def`defines context, variables in prompt
+    -
 
-### Input specifications
-- Support for numerous file types
 
-### Output specifications
-- Define and use "microformats"
+## Easy to integrate context
+- Support for numerous file types(.md, .docx, .pdf, ...)
+    -
 
-### Support for orchestration and agents 
-- Typically, 1 script = single call to LLM
-- Support for nested inner calls
-- Leverage LLM support for tools if available/needed
+## Output specifications
+
+-  Train LLM about "microformats"
+    -
+-  Runtime parses output
+    -
+
+
+

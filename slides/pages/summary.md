@@ -5,7 +5,7 @@
 
 <br/>
 
-- Make scripts easy to write, debug, test, and deploy
+- Support scripts that are easy to write, debug, test, and deploy
     -
 <br/>
 
@@ -13,7 +13,7 @@
     - 
 <br/>
 
-- Support innovative, possibly non-developer scenarios
+- Enable research in evolving AI Software programming language features and abstractions
     -
 <br/>
 

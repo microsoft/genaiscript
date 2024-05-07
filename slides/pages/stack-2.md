@@ -1,5 +1,4 @@
-# Broader Context: System Stack 2.0
-
 <p></p>
 
-![GenAIScript Components](/ai-system-stack.jpg)
+![](/system-stack-2.png)
+#### See https://blog.sigplan.org/2024/04/23/ai-software-should-be-more-like-plain-old-software/
