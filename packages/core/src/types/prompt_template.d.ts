@@ -1083,7 +1083,7 @@ interface Retrieval {
      */
     fuzzSearch(
         query: string,
-        files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
+        files: WorkspaceFile | WorkspaceFile[],
         options?: FuzzSearchOptions
     ): Promise<WorkspaceFile[]>
 }

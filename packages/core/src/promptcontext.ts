@@ -26,6 +26,7 @@ import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 import { GenerationStats } from "./expander"
+import { fuzzSearch } from "./search"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -94,11 +95,28 @@ export function createPromptContext(
                 trace.endDetails()
             }
         },
+        fuzzSearch: async (q, files_, searchOptions) => {
+            const files = arrayify(files_)
+            searchOptions = searchOptions || {}
+            try {
+                trace.startDetails(`🔍 retrieval fuzz search \`${q}\``)
+                if (!files?.length) {
+                    trace.error("no files provided")
+                    return []
+                } else {
+                    const res = await fuzzSearch(q, files, searchOptions)
+                    trace.fence(res, "yaml")
+                    return res
+                }
+            } finally {
+                trace.endDetails()
+            }
+        },
         vectorSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
-                trace.startDetails(`🔍 retrieval search \`${q}\``)
+                trace.startDetails(`🔍 retrieval vector search \`${q}\``)
                 if (!files?.length) {
                     trace.error("no files provided")
                     return { files: [], chunks: [] }
@@ -114,7 +132,7 @@ export function createPromptContext(
             } finally {
                 trace.endDetails()
             }
-        }
+        },
     }
 
     const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
