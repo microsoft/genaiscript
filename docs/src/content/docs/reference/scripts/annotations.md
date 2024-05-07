@@ -93,7 +93,7 @@ You can use the [defOutput](/genaiscript/reference/scripts/custom-output/) funct
 to filter the annotations.
 
 ```js "defOutput"
-defOutput((annotations) => {
+defOutputProcessor((annotations) => {
     // only allow errors
     const errors = annotations.filter(({ level }) => level === "error")
     return { annotations: errors }
