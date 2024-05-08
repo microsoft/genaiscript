@@ -264,7 +264,7 @@ ${this.toResultIcon(success, "")}${title}
                         )
                     } else
                         this.itemValue(
-                            file.filename,
+                            `\`${file.filename}\``,
                             toStringList(tokens, size, score)
                         )
                 }
