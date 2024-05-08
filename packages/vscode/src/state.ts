@@ -38,6 +38,7 @@ import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
+import { startLocalAI } from "./localai"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -359,8 +360,8 @@ ${errorMessage(e)}`
             },
         }
 
-        const hasToken = !!(await this.host.getSecretToken(template))
-        if (!hasToken) {
+        let connectionToken = await this.host.getSecretToken(template)
+        if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this, template.model)
             if (lmmodel) {
@@ -371,7 +372,9 @@ ${errorMessage(e)}`
                     lmmodel
                 )
             } else return undefined
+            connectionToken = await this.host.getSecretToken(template)
         }
+        if (connectionToken.type === "localai") await startLocalAI()
 
         this.requestHistory.push({
             template: template.id,
