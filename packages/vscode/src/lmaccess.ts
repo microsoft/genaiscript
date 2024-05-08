@@ -28,18 +28,19 @@ export async function pickLanguageModel(
               [
                   {
                       label: "Configure .env file",
-                      details: `A .env file contains secrets and configuration variables. It is not committed to the git.`,
+                      detail: `A .env file contains secrets and configuration variables. It is not committed to the git.`,
                       model: dotenv,
                   },
                   ...models.map((model) => ({
-                      label: `Copilot: ${model}`,
-                      details: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
+                      label: model,
+                      description: `Visual Studio Code Language Model`,
+                      detail: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
                       model,
                   })),
                   {
                       label: "LocalAI",
-                      details:
-                          "Run a development server with local LLMs as drop-in replacement for OpenAI. Requires Docker.",
+                      description: "https://localai.io/",
+                      detail: "Run a development server with local LLMs. Requires Docker.",
                       model: localai,
                   },
               ],
