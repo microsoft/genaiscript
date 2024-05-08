@@ -1,7 +1,7 @@
 ---
 layout: two-cols-header
 ---
-# Example: Translate a Diagram to Text
+# GenAIScript Example: Translate Any Diagram to Text
 
 ::left::
 

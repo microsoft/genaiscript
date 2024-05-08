@@ -1,11 +1,11 @@
 # Research Challenges for GenAIScript
 &nbsp;
-- Getting data into the LLM
+- Giving the LLM appropriate context
     -
     - How to deal with limited context window?
     - What inputs are most important?
 
-- Parameterizing the program
+- Rethinking types and parameterization
     -
     - What is the "type" of an GenAIScript function?
     - How to define acceptable composition?

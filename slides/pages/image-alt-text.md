@@ -1,4 +1,4 @@
-# Example: Image Alt Generator
+# Example: Image Alt Text Generator
 
 Poor alt text descriptions...
 
