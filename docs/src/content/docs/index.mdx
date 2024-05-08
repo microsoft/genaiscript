@@ -163,6 +163,18 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 </Card>
 
+<Card title="Local Models" icon="laptop">
+
+Run your scripts with [Open Source models](/genaiscript/getting-started/configuration/#local-models),
+like [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/),
+using [Ollama](https://ollama.com/), [LocalAI](https://localai.io/)...
+
+```js
+script({ ..., model: "ollama:phi3" })
+```
+
+</Card>
+
 <Card title="Automate" icon="github">
 
 Automate using the [CLI](/genaiscript/reference/cli),

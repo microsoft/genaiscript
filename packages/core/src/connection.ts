@@ -1,4 +1,9 @@
-import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_OLLAMA, MODEL_PROVIDER_OPENAI, OLLAMA_API_BASE } from "./constants"
+import {
+    AZURE_OPENAI_API_VERSION,
+    MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_OPENAI,
+    OLLAMA_API_BASE,
+} from "./constants"
 import { APIType, OAIToken } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
@@ -10,17 +15,25 @@ export async function parseTokenFromEnv(
     const { provider, model, tag } = parseModelIdentifier(options.model)
 
     if (provider === MODEL_PROVIDER_OPENAI) {
-        if (env.OPENAI_API_KEY || env.OPENAI_API_BASE) {
+        if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {
             const token = env.OPENAI_API_KEY ?? ""
             let base = env.OPENAI_API_BASE
-            let type = env.OPENAI_API_TYPE as "azure" | "openai"
+            let type =
+                (env.OPENAI_API_TYPE as "azure" | "openai" | "localai") ||
+                "openai"
             const version = env.OPENAI_API_VERSION
-            if (type && type !== "azure" && type !== "openai")
-                throw new Error("OPENAI_API_TYPE must be 'azure' or 'openai'")
+            if (type !== "azure" && type !== "openai" && type !== "localai")
+                throw new Error(
+                    "OPENAI_API_TYPE must be 'azure' or 'openai' or 'localai'"
+                )
+            if (type === "openai" && !base) base = "https://api.openai.com/v1"
+            if (type === "localai" && !base) base = "http://localhost:8080/v1"
             if (type === "azure" && !base)
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
                 )
+            if (type === "azure")
+                base = trimTrailingSlash(base) + "/openai/deployments"
             if (
                 type === "azure" &&
                 version &&
@@ -29,11 +42,8 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     `OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
-            if (!type) type = "openai" // default
-            if (type === "openai" && !base) base = "https://api.openai.com/v1/"
-            if (type === "azure")
-                base = trimTrailingSlash(base) + "/openai/deployments"
             if (!token && !/^http:\/\//i.test(base))
+                // localhost typically requires no key
                 throw new Error("OPEN_API_KEY missing")
             return {
                 base,

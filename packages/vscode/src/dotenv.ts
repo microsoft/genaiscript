@@ -1,10 +1,11 @@
 import * as vscode from "vscode"
 import { checkFileExists, readFileText, writeFile } from "./fs"
-import { parseModelIdentifier } from "genaiscript-core"
+import { APIType, parseModelIdentifier } from "genaiscript-core"
 
 export async function setupDotEnv(
     projectUri: vscode.Uri,
-    modelId?: string
+    modelId?: string,
+    apiType?: APIType
 ): Promise<string> {
     // update .gitignore file
     if (!(await checkFileExists(projectUri, ".gitignore")))
@@ -17,11 +18,11 @@ export async function setupDotEnv(
 
     const { provider } = parseModelIdentifier(modelId)
     const key = `${provider.toUpperCase()}_API_KEY`
-    const keys = `
+    let keys = `
 # GenAIScript configuration (https://microsoft.github.io/genaiscript/reference/token/)
-${key}=<your token for ${provider}>
-#${provider.toUpperCase()}_API_BASE=${provider} api url
-`
+${apiType !== "localai" ? "" : "#"}${key}="<your token for ${provider}>"
+# ${provider.toUpperCase()}_API_BASE="<${provider} api url>"`
+    if (apiType) keys += `\n${provider.toUpperCase()}_API_TYPE=${apiType}`
 
     // update .env
     const uri = vscode.Uri.joinPath(projectUri, ".env")

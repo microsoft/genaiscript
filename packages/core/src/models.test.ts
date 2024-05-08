@@ -1,14 +1,14 @@
 import test, { describe } from "node:test"
 import { parseModelIdentifier } from "./models"
 import assert from "node:assert"
-import { MODEL_PROVIDER_OLLAMA, MODEL_PROVIDER_OPENAI } from "./constants"
+import { MODEL_PROVIDER_AICI, MODEL_PROVIDER_OLLAMA, MODEL_PROVIDER_OPENAI } from "./constants"
 
 // generate unit tests for parseModelIdentifier
 describe("parseModelIdentifier", () => {
     test("aici:gpt-3.5:en", () => {
         const { provider, model, tag, modelId } =
             parseModelIdentifier("aici:gpt-3.5:en")
-        assert(provider === "aici")
+        assert(provider === MODEL_PROVIDER_AICI)
         assert(model === "gpt-3.5")
         assert(tag === "en")
         assert(modelId === "gpt-3.5:en")

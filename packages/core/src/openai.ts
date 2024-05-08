@@ -1,4 +1,4 @@
-import { logError, logVerbose, normalizeInt } from "./util"
+import { logError, logVerbose, normalizeInt, trimTrailingSlash } from "./util"
 import { host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
@@ -83,14 +83,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     let url = ""
     const toolCalls: ChatCompletionToolCall[] = []
 
-    if (cfg.type === "openai") {
+    if (cfg.type === "openai" || cfg.type === "localai") {
         r2.stream = true
-        url = cfg.base + "/chat/completions"
+        url = trimTrailingSlash(cfg.base) + "/chat/completions"
     } else if (cfg.type === "azure") {
         r2.stream = true
         delete r2.model
         url =
-            cfg.base +
+            trimTrailingSlash(cfg.base) +
             "/" +
             model.replace(/\./g, "") +
             `/chat/completions?api-version=${AZURE_OPENAI_API_VERSION}`
