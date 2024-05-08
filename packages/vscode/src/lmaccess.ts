@@ -20,6 +20,7 @@ export async function pickLanguageModel(
         ? vscode.lm.languageModels
         : []
     const dotenv = ".env"
+    const localai = "localai"
     const cmodel = models?.length
         ? await vscode.window.showQuickPick<
               vscode.QuickPickItem & { model: string }
@@ -27,12 +28,20 @@ export async function pickLanguageModel(
               [
                   {
                       label: "Configure .env file",
+                      details: `A .env file contains secrets and configuration variables. It is not committed to the git.`,
                       model: dotenv,
                   },
                   ...models.map((model) => ({
                       label: `Copilot: ${model}`,
+                      details: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
                       model,
                   })),
+                  {
+                      label: "LocalAI",
+                      details:
+                          "Run a development server with local LLMs as drop-in replacement for OpenAI. Requires Docker.",
+                      model: localai,
+                  },
               ],
               {
                   title: `Pick a Language Model for ${provider}`,
@@ -43,6 +52,9 @@ export async function pickLanguageModel(
     const { model } = cmodel || {}
     if (model === dotenv) {
         await setupDotEnv(state.host.projectUri, modelId)
+        return undefined
+    } else if (model === localai) {
+        await setupDotEnv(state.host.projectUri, modelId, "localai")
         return undefined
     } else {
         return model

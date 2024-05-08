@@ -23,7 +23,7 @@ export enum LogLevel {
     Error = 4,
 }
 
-export type APIType = "openai" | "azure"
+export type APIType = "openai" | "azure" | "localai"
 
 export interface OAIToken {
     base: string
