@@ -1,5 +1,5 @@
 import { ChatCompletionsOptions, LanguageModel } from "./chat"
-import { arrayify, logVerbose } from "./util"
+import { HTMLEscape, arrayify, logVerbose } from "./util"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
@@ -80,17 +80,19 @@ export function createPromptContext(
     const retrieval: Retrieval = {
         webSearch: async (q) => {
             try {
-                trace.startDetails(`🌐 retrieval web search \`${q}\``)
+                trace.startDetails(
+                    `🌐 web search <code>${HTMLEscape(q)}</code>`
+                )
                 const { webPages } = (await bingSearch(q, { trace })) || {}
-                return <WebSearchResult>{
-                    webPages: webPages?.value?.map(
-                        ({ url, snippet }) =>
-                            <WorkspaceFile>{
-                                filename: url,
-                                content: snippet,
-                            }
-                    ),
-                }
+                const files = webPages?.value?.map(
+                    ({ url, snippet }) =>
+                        <WorkspaceFile>{
+                            filename: url,
+                            content: snippet,
+                        }
+                )
+                trace.files(files, { model, secrets: env.secrets })
+                return files
             } finally {
                 trace.endDetails()
             }
@@ -99,13 +101,15 @@ export function createPromptContext(
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
-                trace.startDetails(`🔍 retrieval fuzz search \`${q}\``)
+                trace.startDetails(
+                    `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
+                )
                 if (!files?.length) {
                     trace.error("no files provided")
                     return []
                 } else {
                     const res = await fuzzSearch(q, files, searchOptions)
-                    trace.fence(res, "yaml")
+                    await trace.files(res, { model, secrets: env.secrets })
                     return res
                 }
             } finally {
@@ -116,7 +120,9 @@ export function createPromptContext(
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
-                trace.startDetails(`🔍 retrieval vector search \`${q}\``)
+                trace.startDetails(
+                    `🔍 vector search <code>${HTMLEscape(q)}</code>`
+                )
                 if (!files?.length) {
                     trace.error("no files provided")
                     return { files: [], chunks: [] }
@@ -126,7 +132,16 @@ export function createPromptContext(
                         ...searchOptions,
                         files: files.map(stringLikeToFileName),
                     })
-                    trace.fence(res, "yaml")
+                    trace.files(res.files, {
+                        model,
+                        title: "files",
+                        secrets: env.secrets,
+                    })
+                    trace.files(res.chunks, {
+                        model,
+                        title: "chunks",
+                        secrets: env.secrets,
+                    })
                     return res
                 }
             } finally {

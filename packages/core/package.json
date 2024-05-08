@@ -16,6 +16,7 @@
     "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
+    "@types/html-escaper": "^3.0.2",
     "@types/html-to-text": "^9.0.4",
     "@types/ini": "^4.1.0",
     "@types/mime-types": "^2.1.4",
@@ -29,6 +30,7 @@
     "fetch-retry": "^6.0.0",
     "file-type": "^19.0.0",
     "gpt-tokenizer": "^2.1.2",
+    "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",
     "ini": "^4.1.2",
     "json5": "^2.2.3",

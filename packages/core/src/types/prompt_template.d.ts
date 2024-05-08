@@ -328,14 +328,16 @@ interface WorkspaceFile {
     filename: string
 
     /**
-     * @deprecated Unused
-     */
-    label?: string
-
-    /**
      * Content of the file.
      */
     content: string
+}
+
+interface WorkspaceFileWithScore extends WorkspaceFile {
+    /**
+     * Score allocated by search algorithm
+     */
+    score?: number
 }
 
 interface ChatFunctionDefinition {
@@ -1053,10 +1055,10 @@ interface Retrieval {
      * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
      * @param query
      */
-    webSearch(query: string): Promise<WebSearchResult>
+    webSearch(query: string): Promise<WorkspaceFile[]>
 
     /**
-     * Search using similiraty distance on embeddings
+     * Search using similarity distance on embeddings
      */
     vectorSearch(
         query: string,
@@ -1077,11 +1079,6 @@ interface Retrieval {
     }>
 
     /**
-     * @deprecated Use `vectorSearch` instead
-     */
-    search?: undefined
-
-    /**
      * Performs a fuzzy search over the files
      * @param query keywords to search
      * @param files list of files
@@ -1091,7 +1088,7 @@ interface Retrieval {
         query: string,
         files: WorkspaceFile | WorkspaceFile[],
         options?: FuzzSearchOptions
-    ): Promise<WorkspaceFile[]>
+    ): Promise<WorkspaceFileWithScore[]>
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">

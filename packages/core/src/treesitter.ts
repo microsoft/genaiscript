@@ -69,7 +69,7 @@ export async function treeSitterQuery(
     if (!file.content) return undefined
 
     try {
-        trace?.startDetails("code query")
+        trace?.startDetails("💻 code query")
         trace?.itemValue(`file`, file.filename)
         await init()
 
@@ -81,8 +81,7 @@ export async function treeSitterQuery(
         // try parse
         const tree = parser.parse(file.content)
         trace?.detailsFenced(`tree`, tree.rootNode.toString(), "lisp")
-        if (!query)
-            return [{ name: "tree", node: tree.rootNode }]
+        if (!query) return [{ name: "tree", node: tree.rootNode }]
 
         trace?.fence(query, "txt")
         const q = lang.query(query)

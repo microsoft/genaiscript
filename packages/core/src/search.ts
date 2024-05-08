@@ -6,7 +6,7 @@ export async function fuzzSearch(
     query: string,
     files: WorkspaceFile[],
     options?: FuzzSearchOptions & TraceOptions
-): Promise<WorkspaceFile[]> {
+): Promise<WorkspaceFileWithScore[]> {
     const { trace, ...otherOptions } = options || {}
     // load all files
     for (const file of files) await resolveFileContent(file)
@@ -23,7 +23,7 @@ export async function fuzzSearch(
 
     // Search for documents:
     const results = miniSearch.search(query)
-    return results.map((r) => ({
+    return results.map((r) => (<WorkspaceFileWithScore>{
         filename: r.id,
         content: r.content,
         score: r.score,

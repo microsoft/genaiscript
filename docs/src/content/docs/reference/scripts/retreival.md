@@ -21,7 +21,7 @@ const hits = await retrieval.fuzzSearch("cat dog", env.files)
 The `retrieve.vectorSearch` performs a embeddings search to find the most similar documents to the prompt.
 
 ```js
-const { files, fragments } = await retrieval.vectorSearch("cat dog", env.files)
+const { files, chunks } = await retrieval.vectorSearch("cat dog", env.files)
 def("RAG", files)
 ```
 

@@ -2,6 +2,7 @@ import { GENAISCRIPT_FOLDER } from "./constants"
 import { serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
+import { escape as HTMLEscape_ } from "html-escaper"
 
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
@@ -260,3 +261,45 @@ export function normalizeInt(s: string | number | boolean): number {
 export function trimTrailingSlash(s: string) {
     return s?.replace(/\/{1,10}$/, "")
 }
+
+export function ellipse(text: string, length: number) {
+    if (text?.length > length) return text.slice(0, length) + "..."
+    else return text
+}
+
+export function roundWithPrecision(
+    x: number,
+    digits: number,
+    round = Math.round
+): number {
+    digits = digits | 0
+    // invalid digits input
+    if (digits <= 0) return round(x)
+    if (x == 0) return 0
+    let r = 0
+    while (r == 0 && digits < 21) {
+        const d = Math.pow(10, digits++)
+        r = round(x * d + Number.EPSILON) / d
+    }
+    return r
+}
+
+export function renderWithPrecision(
+    x: number,
+    digits: number,
+    round = Math.round
+): string {
+    const r = roundWithPrecision(x, digits, round)
+    let rs = r.toLocaleString()
+    if (digits > 0) {
+        let doti = rs.indexOf(".")
+        if (doti < 0) {
+            rs += "."
+            doti = rs.length - 1
+        }
+        while (rs.length - 1 - doti < digits) rs += "0"
+    }
+    return rs
+}
+
+export const HTMLEscape = HTMLEscape_
