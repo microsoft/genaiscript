@@ -28,6 +28,7 @@ import {
 import { renderAICI } from "./aici"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { checkCancelled } from "./cancellation"
+import { MODEL_PROVIDER_AICI } from "./constants"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -140,7 +141,7 @@ export function createRunPromptContext(
                 let schemas: Record<string, JSONSchema> = undefined
                 // expand template
                 const { provider } = parseModelIdentifier(genOptions.model)
-                if (provider === "aici") {
+                if (provider === MODEL_PROVIDER_AICI) {
                     const { aici } = await renderAICI("prompt", node)
                     // todo: output processor?
                     messages.push(aici)

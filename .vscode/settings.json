@@ -13,6 +13,7 @@
         "gptools",
         "gptoolsjs",
         "llmrequest",
+        "localai",
         "millis",
         "ollama",
         "openai",

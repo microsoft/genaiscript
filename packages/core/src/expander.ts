@@ -7,6 +7,7 @@ import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     MAX_TOOL_CALLS,
+    MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
@@ -128,7 +129,7 @@ async function callExpander(
             })
         }
         const node = ctx.node
-        if (provider !== "aici") {
+        if (provider !== MODEL_PROVIDER_AICI) {
             const {
                 prompt,
                 assistantPrompt,

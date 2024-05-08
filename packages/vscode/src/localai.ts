@@ -12,11 +12,11 @@ export async function startLocalAI() {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
             strictEnv: true,
             env: {},
-            message: `docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
+        })
+        terminal.sendText(`docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu
 docker start local-ai
 docker stats
-`,
-        })
+`)
         await vscode.commands.executeCommand(
             "simpleBrowser.show",
             vscode.Uri.parse(`http://127.0.0.1:${port}`)
