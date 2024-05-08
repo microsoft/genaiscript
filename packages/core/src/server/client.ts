@@ -16,7 +16,7 @@ import {
     ParsePdfMessage,
     RequestMessage,
     RequestMessages,
-    RetrievaVectorClear,
+    RetrievalVectorClear,
     RetrievalSearch,
     RetrievalVectorUpsert,
     ServerVersion,
@@ -125,7 +125,7 @@ export class WebSocketClient
     }
 
     async vectorClear(options: VectorSearchOptions): Promise<ResponseStatus> {
-        const res = await this.queue<RetrievaVectorClear>({
+        const res = await this.queue<RetrievalVectorClear>({
             type: "retrieval.vectorClear",
             options,
         })

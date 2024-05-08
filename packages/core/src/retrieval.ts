@@ -68,33 +68,25 @@ export async function vectorSearch(
     options?: RetrievalClientOptions & RetrievalSearchOptions
 ): Promise<RetrievalSearchResult> {
     const { trace, token, ...rest } = options || {}
-    const files: WorkspaceFile[] = []
+    const files: WorkspaceFileWithScore[] = []
     const retrieval = host.retrieval
     await host.retrieval.init(trace)
     if (token?.isCancellationRequested) return { files, chunks: [] }
 
-    const { results } = await retrieval.vectorSearch(q, rest)
+    const { results: chunks = [] } = await retrieval.vectorSearch(q, rest)
 
-    const chunks = (results || []).map((r) => {
-        const { filename, text } = r
-        return <WorkspaceFile>{
-            filename,
-            content: text,
-        }
-    })
-    for (const fr of chunks) {
-        let file = files.find((f) => f.filename === fr.filename)
+    for (const chunk of chunks) {
+        let file = files.find((f) => f.filename === chunk.filename)
         if (!file) {
-            file = <WorkspaceFile>{
-                filename: fr.filename,
-                content: "...\n",
-            }
+            file = <WorkspaceFile>{ ...chunk }
             files.push(file)
+        } else {
+            file.content += chunk.content + `\n...`
+            file.score = (file.score + chunk.score) / 2
         }
-        file.content += fr.content + `\n...`
     }
     return {
         files,
-        chunks: chunks,
+        chunks,
     }
 }

@@ -81,13 +81,8 @@ export interface RetrievalUpsertOptions extends VectorSearchEmbeddingsOptions {
     mimeType?: string
 }
 
-export type RetrievalSearchResponse = ResponseStatus & {
-    results: {
-        filename: string
-        id: string
-        text: string
-        score?: number
-    }[]
+export interface RetrievalSearchResponse extends ResponseStatus {
+    results: WorkspaceFileWithScore[]
 }
 
 export interface ModelService {

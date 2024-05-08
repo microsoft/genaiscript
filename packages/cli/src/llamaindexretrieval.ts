@@ -357,8 +357,7 @@ export class LlamaIndexRetrievalService
             ok: true,
             results: postResults.map((r) => ({
                 filename: r.node.metadata.filename,
-                id: r.node.id_,
-                text: r.node.getContent(MetadataMode.NONE),
+                content: r.node.getContent(MetadataMode.NONE),
                 score: r.score,
             })),
         }
@@ -378,8 +377,7 @@ export class LlamaIndexRetrievalService
             ok: true,
             results: Object.values(docs).map((r) => ({
                 filename: r.metadata.filename,
-                id: r.id_,
-                text: r.getContent(MetadataMode.NONE),
+                content: r.getContent(MetadataMode.NONE),
             })),
         }
     }

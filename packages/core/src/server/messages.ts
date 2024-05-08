@@ -21,7 +21,7 @@ export interface ModelsPull extends RequestMessage {
     model: string
 }
 
-export interface RetrievaVectorClear extends RequestMessage {
+export interface RetrievalVectorClear extends RequestMessage {
     type: "retrieval.vectorClear"
     options?: VectorSearchOptions
 }
@@ -72,7 +72,7 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 
 export type RequestMessages =
     | ServerKill
-    | RetrievaVectorClear
+    | RetrievalVectorClear
     | RetrievalVectorUpsert
     | RetrievalSearch
     | ServerVersion
