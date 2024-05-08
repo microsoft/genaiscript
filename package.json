@@ -20,6 +20,7 @@
         ]
     },
     "scripts": {
+        "localai": "docker run -p 8080:8080 --name local-ai -ti localai/localai:latest-aio-cpu",
         "setup": "git submodule update --init --recursive",
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
         "setup:bicep": "az bicep upgrade",
