@@ -9,16 +9,13 @@ keywords: embeddings search, similarity search, vector database, indexing, LLM A
 The `retrieval.vectorSearch` indexes the input files using [embeddings](https://platform.openai.com/docs/guides/embeddings) into a vector database that can be used for similarity search. This is commonly referred to as Retrieval Augmented Generation (RAG).
 
 ```js wrap
-const { files } = await retrieval.vectorSearch("keyword", env.files)
+const files = await retrieval.vectorSearch("keyword", env.files)
 ```
 
-The returned `files` object contains the file with
-concatenated embeddings.
-
-You can use the result of `files` in the `def` function.
+The returned value is an array of files with the resconstructed content from the matching chunks.
 
 ```js wrap
-const { files } = await retrieval.vectorSearch("keyword", env.files)
+const files = await retrieval.vectorSearch("keyword", env.files)
 def("FILE", files)
 ```
 
@@ -30,7 +27,7 @@ LLM APIs using the same authorization token as the LLM API.
 The default model is `openai:text-embedding-ada-002` but you can override the model using `embedModel`.
 
 ```js wrap 'embedModel: "ollama:all-minilm"'
-const { files } = await retrieval.vectorSearch(
+const files = await retrieval.vectorSearch(
     "keyword", 
     env.files, {
         embedModel: "ollama:all-minilm"
@@ -44,7 +41,7 @@ You can further customize the embedding generation by using `chunkSize` and `chu
 If you modify the model or chunking configurations, you will want to create separate index databases.
 
 ```js wrap 'indexName: "all-minilm"'
-const { files } = await retrieval.vectorSearch(
+const files = await retrieval.vectorSearch(
     "keyword", 
     env.files, {
         indexName: "all-minilm",

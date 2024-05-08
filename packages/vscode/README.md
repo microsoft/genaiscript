@@ -45,7 +45,7 @@ const { pages } = await parsers.PDF(env.files[0])
 
 ```js wrap
 // embedding vector index and search
-const { files } = await retrieval.vectorSearch("cats", env.files)
+const files = await retrieval.vectorSearch("cats", env.files)
 ```
 
 -   🚀 Automate using the [CLI](https://microsoft.github.io/genaiscript/reference/cli).

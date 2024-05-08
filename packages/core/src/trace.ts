@@ -212,7 +212,7 @@ ${this.toResultIcon(success, "")}${title}
         this.content += `\n> [!INFO] ${msg}\n`
     }
 
-    async files(
+    files(
         files: WorkspaceFileWithScore[],
         options?: {
             model?: string

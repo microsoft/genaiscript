@@ -26,7 +26,7 @@ import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 import { GenerationStats } from "./expander"
-import { fuzzSearch } from "./search"
+import { fuzzSearch } from "./fuzzsearch"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -120,7 +120,11 @@ export function createPromptContext(
                     return []
                 } else {
                     const res = await fuzzSearch(q, files, searchOptions)
-                    await trace.files(res, { model, secrets: env.secrets })
+                    trace.files(res, {
+                        model,
+                        secrets: env.secrets,
+                        skipIfEmpty: true,
+                    })
                     return res
                 }
             } finally {
@@ -136,22 +140,21 @@ export function createPromptContext(
                 )
                 if (!files?.length) {
                     trace.error("no files provided")
-                    return { files: [], chunks: [] }
+                    return []
                 } else {
                     await upsertVector(files, { trace, ...searchOptions })
-                    const res = await vectorSearch(q, {
+                    const vres = await vectorSearch(q, {
                         ...searchOptions,
                         files: files.map(stringLikeToFileName),
                     })
-                    trace.files(res.files, {
+                    const res: WorkspaceFileWithScore[] =
+                        searchOptions?.outputType === "chunk"
+                            ? vres.chunks
+                            : vres.files
+                    trace.files(res, {
                         model,
-                        title: "files",
                         secrets: env.secrets,
-                    })
-                    trace.files(res.chunks, {
-                        model,
-                        title: "chunks",
-                        secrets: env.secrets,
+                        skipIfEmpty: true,
                     })
                     return res
                 }

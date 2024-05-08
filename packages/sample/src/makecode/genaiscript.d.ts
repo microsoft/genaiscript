@@ -1103,11 +1103,12 @@ interface Retrieval {
              * Minimum similarity score
              */
             minScore?: number
+            /**
+             * Specifies the type of output. `chunk` returns individual chunks of the file, fill returns a reconstructed file from chunks.
+             */
+            outputType?: "file" | "chunk"
         } & Omit<VectorSearchEmbeddingsOptions, "llmToken">
-    ): Promise<{
-        files: WorkspaceFile[]
-        chunks: WorkspaceFile[]
-    }>
+    ): Promise<WorkspaceFile[]>
 
     /**
      * Performs a fuzzy search over the files
@@ -1119,7 +1120,7 @@ interface Retrieval {
         query: string,
         files: WorkspaceFile | WorkspaceFile[],
         options?: FuzzSearchOptions
-    ): Promise<WorkspaceFileWithScore[]>
+    ): Promise<WorkspaceFile[]>
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">

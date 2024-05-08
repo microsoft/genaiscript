@@ -13,7 +13,7 @@ GenAIScript provides various utilities to retreive content and augment the promp
 The `retrieve.fuzzSearch` performs a "traditional" fuzzy search to find the most similar documents to the prompt.
 
 ```js
-const hits = await retrieval.fuzzSearch("cat dog", env.files)
+const { files } = await retrieval.fuzzSearch("cat dog", env.files)
 ```
 
 ## Vector Search
@@ -21,7 +21,7 @@ const hits = await retrieval.fuzzSearch("cat dog", env.files)
 The `retrieve.vectorSearch` performs a embeddings search to find the most similar documents to the prompt.
 
 ```js
-const { files, chunks } = await retrieval.vectorSearch("cat dog", env.files)
+const files = await retrieval.vectorSearch("cat dog", env.files)
 def("RAG", files)
 ```
 
