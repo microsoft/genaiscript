@@ -236,7 +236,7 @@ type PromptParameterType =
     | JSONSchemaString
     | JSONSchemaBoolean
 type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean>
+type PromptParameters = Record<string, string | number | boolean | any>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
@@ -359,14 +359,16 @@ interface WorkspaceFile {
     filename: string
 
     /**
-     * @deprecated Unused
-     */
-    label?: string
-
-    /**
      * Content of the file.
      */
     content: string
+}
+
+interface WorkspaceFileWithScore extends WorkspaceFile {
+    /**
+     * Score allocated by search algorithm
+     */
+    score?: number
 }
 
 interface ChatFunctionDefinition {
@@ -1016,7 +1018,7 @@ interface HighlightOptions {
     maxLength?: number
 }
 
-interface SearchResult {
+interface WebSearchResult {
     webPages: WorkspaceFile[]
 }
 
@@ -1041,15 +1043,53 @@ interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
     chunkOverlap?: number
 }
 
+interface FuzzSearchOptions {
+    /**
+     * Controls whether to perform prefix search. It can be a simple boolean, or a
+     * function.
+     *
+     * If a boolean is passed, prefix search is performed if true.
+     *
+     * If a function is passed, it is called upon search with a search term, the
+     * positional index of that search term in the tokenized search query, and the
+     * tokenized search query.
+     */
+    prefix?: boolean
+    /**
+     * Controls whether to perform fuzzy search. It can be a simple boolean, or a
+     * number, or a function.
+     *
+     * If a boolean is given, fuzzy search with a default fuzziness parameter is
+     * performed if true.
+     *
+     * If a number higher or equal to 1 is given, fuzzy search is performed, with
+     * a maximum edit distance (Levenshtein) equal to the number.
+     *
+     * If a number between 0 and 1 is given, fuzzy search is performed within a
+     * maximum edit distance corresponding to that fraction of the term length,
+     * approximated to the nearest integer. For example, 0.2 would mean an edit
+     * distance of 20% of the term length, so 1 character in a 5-characters term.
+     * The calculated fuzziness value is limited by the `maxFuzzy` option, to
+     * prevent slowdown for very long queries.
+     */
+    fuzzy?: boolean | number
+    /**
+     * Controls the maximum fuzziness when using a fractional fuzzy value. This is
+     * set to 6 by default. Very high edit distances usually don't produce
+     * meaningful results, but can excessively impact search performance.
+     */
+    maxFuzzy?: number
+}
+
 interface Retrieval {
     /**
      * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
      * @param query
      */
-    webSearch(query: string): Promise<SearchResult>
+    webSearch(query: string): Promise<WorkspaceFile[]>
 
     /**
-     * Search using similiraty distance on embeddings
+     * Search using similarity distance on embeddings
      */
     vectorSearch(
         query: string,
@@ -1063,16 +1103,24 @@ interface Retrieval {
              * Minimum similarity score
              */
             minScore?: number
+            /**
+             * Specifies the type of output. `chunk` returns individual chunks of the file, fill returns a reconstructed file from chunks.
+             */
+            outputType?: "file" | "chunk"
         } & Omit<VectorSearchEmbeddingsOptions, "llmToken">
-    ): Promise<{
-        files: WorkspaceFile[]
-        chunks: WorkspaceFile[]
-    }>
+    ): Promise<WorkspaceFile[]>
 
     /**
-     * @deprecated Use `vectorSearch` instead
+     * Performs a fuzzy search over the files
+     * @param query keywords to search
+     * @param files list of files
+     * @param options fuzzing configuration
      */
-    search?: undefined
+    fuzzSearch(
+        query: string,
+        files: WorkspaceFile | WorkspaceFile[],
+        options?: FuzzSearchOptions
+    ): Promise<WorkspaceFile[]>
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">

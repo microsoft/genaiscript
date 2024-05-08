@@ -191,20 +191,7 @@ function traceEnv(
     env: ExpansionVariables
 ) {
     trace.startDetails("🏡 env")
-    const files = env.files || []
-    if (files.length) {
-        trace.startDetails("💾 files")
-        for (const file of env.files || []) {
-            const { filename = "" } = file
-            if (trace.content) {
-                const tokens = estimateTokens(model, trace.content)
-                trace.startDetails(`${filename}, ${tokens}t`)
-                trace.fence(file.content, lookupMime(filename))
-                trace.endDetails()
-            } else trace.item(`${filename}`)
-        }
-        trace.endDetails()
-    }
+    trace.files(env.files, { title: "💾 files", model, skipIfEmpty: true, secrets: env.secrets })
     const vars = Object.entries(env.vars || {})
     if (vars.length) {
         trace.startDetails("🧮 vars")

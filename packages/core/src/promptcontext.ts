@@ -1,5 +1,5 @@
 import { ChatCompletionsOptions, LanguageModel } from "./chat"
-import { arrayify, logVerbose } from "./util"
+import { HTMLEscape, arrayify, logVerbose } from "./util"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
@@ -13,7 +13,7 @@ import {
     createImageNode,
     createOutputProcessor,
 } from "./promptdom"
-import { bingSearch } from "./search"
+import { bingSearch } from "./websearch"
 import { CancellationToken } from "./cancellation"
 import {
     RunPromptContextNode,
@@ -26,6 +26,7 @@ import { createFetch } from "./fetch"
 import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 import { GenerationStats } from "./expander"
+import { fuzzSearch } from "./fuzzsearch"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -74,21 +75,57 @@ export function createPromptContext(
         },
     })
     const path = host.path
-    const workspace = host.workspace
+    const workspace: WorkspaceFileSystem = {
+        readText: (f) => host.workspace.readText(f),
+        findFiles: async (pattern, options) => {
+            const res = await host.workspace.findFiles(pattern, options)
+            trace.files(res, {
+                title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
+                maxLength: -1,
+                secrets: env.secrets,
+            })
+            return res
+        },
+    }
 
     const retrieval: Retrieval = {
         webSearch: async (q) => {
             try {
-                trace.startDetails(`🌐 retrieval web search \`${q}\``)
+                trace.startDetails(
+                    `🌐 web search <code>${HTMLEscape(q)}</code>`
+                )
                 const { webPages } = (await bingSearch(q, { trace })) || {}
-                return <SearchResult>{
-                    webPages: webPages?.value?.map(
-                        ({ url, snippet }) =>
-                            <WorkspaceFile>{
-                                filename: url,
-                                content: snippet,
-                            }
-                    ),
+                const files = webPages?.value?.map(
+                    ({ url, snippet }) =>
+                        <WorkspaceFile>{
+                            filename: url,
+                            content: snippet,
+                        }
+                )
+                trace.files(files, { model, secrets: env.secrets })
+                return files
+            } finally {
+                trace.endDetails()
+            }
+        },
+        fuzzSearch: async (q, files_, searchOptions) => {
+            const files = arrayify(files_)
+            searchOptions = searchOptions || {}
+            try {
+                trace.startDetails(
+                    `🧐 fuzz search <code>${HTMLEscape(q)}</code>`
+                )
+                if (!files?.length) {
+                    trace.error("no files provided")
+                    return []
+                } else {
+                    const res = await fuzzSearch(q, files, searchOptions)
+                    trace.files(res, {
+                        model,
+                        secrets: env.secrets,
+                        skipIfEmpty: true,
+                    })
+                    return res
                 }
             } finally {
                 trace.endDetails()
@@ -98,23 +135,33 @@ export function createPromptContext(
             const files = arrayify(files_)
             searchOptions = searchOptions || {}
             try {
-                trace.startDetails(`🔍 retrieval search \`${q}\``)
+                trace.startDetails(
+                    `🔍 vector search <code>${HTMLEscape(q)}</code>`
+                )
                 if (!files?.length) {
                     trace.error("no files provided")
-                    return { files: [], chunks: [] }
+                    return []
                 } else {
                     await upsertVector(files, { trace, ...searchOptions })
-                    const res = await vectorSearch(q, {
+                    const vres = await vectorSearch(q, {
                         ...searchOptions,
                         files: files.map(stringLikeToFileName),
                     })
-                    trace.fence(res, "yaml")
+                    const res: WorkspaceFileWithScore[] =
+                        searchOptions?.outputType === "chunk"
+                            ? vres.chunks
+                            : vres.files
+                    trace.files(res, {
+                        model,
+                        secrets: env.secrets,
+                        skipIfEmpty: true,
+                    })
                     return res
                 }
             } finally {
                 trace.endDetails()
             }
-        }
+        },
     }
 
     const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {

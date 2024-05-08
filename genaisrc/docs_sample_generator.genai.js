@@ -16,13 +16,13 @@ console.log(`generating sample for ${api}`)
 const scripts = (
     await workspace.findFiles("packages/*/src/**/*genai.js")
 ).filter((f) => f.content?.includes(api))
-const { files: samples } = await retrieval.vectorSearch(api, scripts)
+const samples = await retrieval.vectorSearch(api, scripts)
 console.debug(samples)
 
 const docs = (
     await workspace.findFiles("docs/src/content/docs/**/*.md*")
 ).filter((f) => f.content?.includes(api))
-const { files: docsSamples } = await retrieval.vectorSearch(api, docs, { topK: 3 })
+const docsSamples = await retrieval.vectorSearch(api, docs, { topK: 3 })
 console.debug(docsSamples)
 
 const sn = def("SAMPLES", samples, { maxTokens: 10000 })

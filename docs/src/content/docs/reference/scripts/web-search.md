@@ -15,7 +15,7 @@ as an array of files, similarly to `env.files`. The content contains
 the summary snippet returned by the search engine.
 
 ```js
-const { webPages } = await retrieval.webSearch("microsoft")
+const webPages = await retrieval.webSearch("microsoft")
 def("PAGES", webPages)
 ```
 

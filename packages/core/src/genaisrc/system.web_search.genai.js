@@ -18,7 +18,7 @@ defTool(
     },
     async (args) => {
         const { q } = args
-        const { webPages } = await retrieval.webSearch(q)
+        const webPages = await retrieval.webSearch(q)
         return YAML.stringify(
             webPages.map((f) => ({
                 url: f.filename,

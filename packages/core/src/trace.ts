@@ -1,14 +1,20 @@
 import {
     CHANGE,
+    DEFAULT_MODEL,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
     TOOL_ID,
+    TRACE_FILE_PREVIEW_MAX_LENGTH,
 } from "./constants"
 import { fenceMD } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
+import prettyBytes from "pretty-bytes"
+import { host } from "./host"
+import { ellipse, renderWithPrecision, toStringList } from "./util"
+import { estimateTokens } from "./tokens"
 
 export class MarkdownTrace
     extends EventTarget
@@ -92,7 +98,7 @@ ${this.toResultIcon(success, "")}${title}
         this.content += `-   ${message}\n`
     }
 
-    itemValue(name: string, value: any) {
+    itemValue(name: string, value: any, unit?: string) {
         if (value === undefined || (typeof value === "number" && isNaN(value)))
             return
 
@@ -104,7 +110,7 @@ ${this.toResultIcon(success, "")}${title}
                 this.item(`${name}:`)
                 this.fence(YAMLStringify(value))
             } else this.item(`${name}: ${txt}`)
-        } else this.item(`${name}: ${value}`)
+        } else this.item(`${name}: ${value}${unit ?? ""}`)
     }
 
     log(message: string) {
@@ -204,6 +210,68 @@ ${this.toResultIcon(success, "")}${title}
 
     note(msg: string) {
         this.content += `\n> [!INFO] ${msg}\n`
+    }
+
+    files(
+        files: WorkspaceFileWithScore[],
+        options?: {
+            model?: string
+            maxLength?: number
+            title?: string
+            skipIfEmpty?: boolean
+            secrets?: Record<string, string>
+        }
+    ) {
+        const {
+            model = DEFAULT_MODEL,
+            maxLength = TRACE_FILE_PREVIEW_MAX_LENGTH,
+            title,
+            skipIfEmpty,
+            secrets = {},
+        } = options || {}
+        if (skipIfEmpty && !files.length) return
+        this.disableChange(() => {
+            try {
+                if (title) this.startDetails(title)
+                const encoder = host.createUTF8Encoder()
+                for (const file of files) {
+                    const content = file.content ?? ""
+                    const buf = encoder.encode(content)
+                    const size = prettyBytes(buf.length)
+                    const score = !isNaN(file.score)
+                        ? `score: ${renderWithPrecision(file.score || 0, 2)}`
+                        : undefined
+                    const tokens = model
+                        ? `${estimateTokens(model, content)} t`
+                        : undefined
+                    const suffix = toStringList(tokens, size, score)
+                    if (maxLength > 0) {
+                        let preview = ellipse(content, maxLength).replace(
+                            /\b[A-Za-z0-9\-_]{20,40}\b/g,
+                            (m) => m.slice(0, 10) + "***"
+                        )
+                        for (const secret of Object.values(secrets))
+                            preview = preview.replaceAll(
+                                secret,
+                                secret.slice(0, 3) +
+                                    "*".repeat(secret.length - 3)
+                            )
+                        const ext = host.path.extname(file.filename).slice(1)
+                        this.detailsFenced(
+                            `<code>${file.filename}</code>: ${suffix}`,
+                            preview,
+                            ext
+                        )
+                    } else
+                        this.itemValue(
+                            `\`${file.filename}\``,
+                            toStringList(tokens, size, score)
+                        )
+                }
+            } finally {
+                if (title) this.endDetails()
+            }
+        })
     }
 }
 
