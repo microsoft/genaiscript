@@ -55,6 +55,8 @@ export async function parseTokenFromEnv(
             if (!token && !/^http:\/\//i.test(base))
                 // localhost typically requires no key
                 throw new Error("OPEN_API_KEY missing")
+            if (base && !URL.canParse(base))
+                throw new Error("OPENAI_API_BASE must be a valid URL")
             return {
                 base,
                 type,
@@ -92,6 +94,9 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
                 )
+            if (!URL.canParse(base))
+                throw new Error("OPENAI_API_BASE must be a valid URL")
+
             if (version && version !== AZURE_OPENAI_API_VERSION)
                 throw new Error(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
@@ -126,6 +131,8 @@ export async function parseTokenFromEnv(
             const version = env[prefix + "_API_VERSION"]
             const source = `env: ${prefix}_API_...`
             const type: APIType = "openai"
+            if (base && !URL.canParse(base))
+                throw new Error(`${modelBase} must be a valid URL`)
             return { token, base, type, version, source }
         }
     }

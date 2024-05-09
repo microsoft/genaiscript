@@ -28,7 +28,7 @@ export async function createFetch(
         retries,
         retryDelay: (attempt, error, response) => {
             const code: string = (error as any)?.code as string
-            if (code === "ECONNRESET")
+            if (code === "ECONNRESET" || code === "ENOTFOUND")
                 // fatal
                 return undefined
             const message = errorMessage(error)
