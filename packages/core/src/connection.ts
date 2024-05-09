@@ -7,6 +7,7 @@ import {
     DOCS_CONFIGURATION_OPENAI_URL,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
@@ -62,7 +63,12 @@ export async function parseTokenFromEnv(
                 version,
             }
         }
+    }
 
+    if (
+        provider === MODEL_PROVIDER_OPENAI ||
+        provider === MODEL_PROVIDER_AZURE
+    ) {
         if (
             env.AZURE_OPENAI_API_KEY ||
             env.AZURE_API_KEY ||
@@ -101,38 +107,39 @@ export async function parseTokenFromEnv(
                 version,
             }
         }
-    } else {
-        const prefixes = [
-            tag ? `${provider}_${model}_${tag}` : undefined,
-            provider ? `${provider}_${model}` : undefined,
-            provider ? provider : undefined,
-            model,
-        ]
-            .filter((p) => p)
-            .map((p) => p.toUpperCase().replace(/[^a-z0-9]+/gi, "_"))
-        for (const prefix of prefixes) {
-            const modelKey = prefix + "_API_KEY"
-            const modelBase = prefix + "_API_BASE"
-            if (env[modelKey] || env[modelBase]) {
-                const token = env[modelKey] ?? ""
-                const base = trimTrailingSlash(env[modelBase])
-                const version = env[prefix + "_API_VERSION"]
-                const source = `env: ${prefix}_API_...`
-                const type: APIType = "openai"
-                return { token, base, type, version, source }
-            }
-        }
+    }
 
-        // default connection location
-        if (provider === MODEL_PROVIDER_OLLAMA) {
-            return {
-                base: OLLAMA_API_BASE,
-                token: "ollama",
-                type: "openai",
-                source: "default",
-            }
+    const prefixes = [
+        tag ? `${provider}_${model}_${tag}` : undefined,
+        provider ? `${provider}_${model}` : undefined,
+        provider ? provider : undefined,
+        model,
+    ]
+        .filter((p) => p)
+        .map((p) => p.toUpperCase().replace(/[^a-z0-9]+/gi, "_"))
+    for (const prefix of prefixes) {
+        const modelKey = prefix + "_API_KEY"
+        const modelBase = prefix + "_API_BASE"
+        if (env[modelKey] || env[modelBase]) {
+            const token = env[modelKey] ?? ""
+            const base = trimTrailingSlash(env[modelBase])
+            const version = env[prefix + "_API_VERSION"]
+            const source = `env: ${prefix}_API_...`
+            const type: APIType = "openai"
+            return { token, base, type, version, source }
         }
     }
+
+    // default connection location
+    if (provider === MODEL_PROVIDER_OLLAMA) {
+        return {
+            base: OLLAMA_API_BASE,
+            token: "ollama",
+            type: "openai",
+            source: "default",
+        }
+    }
+
     return undefined
 }
 
@@ -147,7 +154,7 @@ export function dotEnvTemplate(provider: string, apiType: APIType) {
 AICI_API_BASE="<custom api base>"
 `
 
-    if (apiType === "azure")
+    if (apiType === "azure" || provider === MODEL_PROVIDER_AZURE)
         return `## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
 AZURE_OPENAI_API_KEY="<your token>"

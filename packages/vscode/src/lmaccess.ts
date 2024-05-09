@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_AICI,
     updateConnectionConfiguration,
+    MODEL_PROVIDER_AZURE,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
 
@@ -42,7 +43,7 @@ export async function pickLanguageModel(
         {
             label: "Azure OpenAI",
             detail: `Use a Azure-hosted OpenAI subscription.`,
-            provider: MODEL_PROVIDER_OPENAI,
+            provider: MODEL_PROVIDER_AZURE,
             apiType: "azure",
         },
         {

@@ -73,6 +73,7 @@ export const EMOJI_FAIL = "❌"
 export const EMOJI_UNDEFINED = "?"
 
 export const MODEL_PROVIDER_OPENAI = "openai"
+export const MODEL_PROVIDER_AZURE = "azure"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_AICI = "aici"
 

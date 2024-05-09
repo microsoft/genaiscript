@@ -3,6 +3,7 @@ import { LanguageModel } from "./chat"
 import {
     DEFAULT_MODEL,
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OLLAMA,
 } from "./constants"
 import { errorMessage } from "./error"
@@ -18,6 +19,7 @@ export function resolveLanguageModel(
     const { provider } = parseModelIdentifier(options.model)
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
+    if (provider === MODEL_PROVIDER_AZURE) return OpenAIModel
     return OpenAIModel
 }
 
