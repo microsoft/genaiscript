@@ -255,6 +255,7 @@ temp/
             if (edits?.length) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
+            /*
             else if (isRequestError(e, 403)) {
                 const trace = "Open Trace"
                 const res = await vscode.window.showErrorMessage(
@@ -289,7 +290,9 @@ ${errorMessage(e)}`
                     ? `LLM model not found (404).`
                     : errorMessage(e)
                 await vscode.window.showWarningMessage(msg)
-            } else throw e
+            } else 
+            */
+            throw e
         }
     }
 

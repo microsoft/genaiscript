@@ -189,6 +189,7 @@ export async function runTemplate(
     if (skipLLM) {
         trace.renderErrors()
         return <GenerationResult>{
+            status: "cancelled",
             messages,
             vars,
             trace: trace.content,
@@ -263,7 +264,7 @@ export async function runTemplate(
         completer,
         genOptions
     )
-    const { json, fences, frames, genVars = {} } = output
+    const { json, fences, frames, genVars = {}, error, finishReason } = output
     let { text, annotations } = output
     if (json !== undefined) {
         trace.detailsFenced("📩 json (parsed)", json, "json")
@@ -431,8 +432,13 @@ export async function runTemplate(
 
     trace.renderErrors()
     const res: GenerationResult = {
-        status: status,
-        statusText,
+        status:
+            finishReason === "cancel"
+                ? "cancelled"
+                : finishReason === "stop"
+                  ? "success"
+                  : "error",
+        error,
         messages,
         vars,
         edits,

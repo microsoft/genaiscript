@@ -18,9 +18,10 @@ import {
     LanguageModel,
     getChatCompletionCache,
 } from "./chat"
-import { RequestError } from "./error"
+import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
+import { JSON5TryParse } from "./json5"
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
@@ -97,14 +98,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`url`, `[${url}](${url})`)
-    trace.itemValue(`response_format`, response_format)
-    if (tools?.length) {
-        trace.itemValue(
-            `tools`,
-            tools.map((t) => "`" + t.function.name + "`").join(", ")
-        )
-        trace.detailsFenced("🧱 schema", tools)
-    }
 
     let numTokens = 0
     const fetchRetry = await createFetch({
@@ -115,38 +108,42 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
     trace.dispatchChange()
 
-    trace.detailsFenced("✉️ messages", postReq, "json")
+    trace.detailsFenced(`✉️ POST ${url}`, postReq, "json")
     const body = JSON.stringify(postReq)
-    const r = await fetchRetry(url, {
-        headers: {
-            // openai
-            authorization:
-                cfg.token && cfg.type === "openai"
-                    ? `Bearer ${cfg.token}`
-                    : undefined,
-            // azure
-            "api-key":
-                cfg.token && cfg.type === "azure" ? cfg.token : undefined,
-            "user-agent": TOOL_ID,
-            "content-type": "application/json",
-            ...(headers || {}),
-        },
-        body,
-        method: "POST",
-        ...(rest || {}),
-    })
+    let r: Response
+    try {
+        r = await fetchRetry(url, {
+            headers: {
+                // openai
+                authorization:
+                    cfg.token &&
+                    (cfg.type === "openai" || cfg.type === "localai")
+                        ? `Bearer ${cfg.token}`
+                        : undefined,
+                // azure
+                "api-key":
+                    cfg.token && cfg.type === "azure" ? cfg.token : undefined,
+                "user-agent": TOOL_ID,
+                "content-type": "application/json",
+                ...(headers || {}),
+            },
+            body,
+            method: "POST",
+            ...(rest || {}),
+        })
+    } catch (e) {
+        trace.error(errorMessage(e), e)
+        throw e
+    }
 
     trace.itemValue(`response`, `${r.status} ${r.statusText}`)
     if (r.status !== 200) {
-        trace.error(`request error: ${r.status}`)
         let body: string
         try {
             body = await r.text()
         } catch (e) {}
-        let bodyJSON: { error: unknown }
-        try {
-            bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) {}
+        trace.fence(body, "json")
+        const bodyJSON: { error: unknown } = JSON5TryParse(body)
         throw new RequestError(
             r.status,
             r.statusText,
