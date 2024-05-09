@@ -24,7 +24,51 @@ export async function pickLanguageModel(
     const models = isLanguageModelsAvailable(state.context)
         ? vscode.lm.languageModels
         : []
-    const dotenv = ".env"
+    const items: (vscode.QuickPickItem & {
+        model?: string
+        provider?: string
+        apiType?: APIType
+    })[] = models.map((model) => ({
+        label: model,
+        description: `Visual Studio Code Language Model`,
+        detail: `Use the language model ${model} through your GitHub Copilot subscription.`,
+        model,
+    }))
+    if (items.length)
+        items.push({ kind: vscode.QuickPickItemKind.Separator, label: ".env" })
+    items.push(
+        {
+            label: "OpenAI",
+            detail: `Use a personal OpenAI subscription.`,
+            provider: MODEL_PROVIDER_OPENAI,
+        },
+        {
+            label: "Azure OpenAI",
+            detail: `Use a Azure-hosted OpenAI subscription.`,
+            provider: MODEL_PROVIDER_OPENAI,
+            apiType: "azure",
+        },
+        {
+            label: "LocalAI",
+            description: "https://localai.io/",
+            detail: "Use local LLMs instead OpenAI. Requires LocalAI and Docker.",
+            provider: MODEL_PROVIDER_OPENAI,
+            apiType: "localai",
+        },
+        {
+            label: "Ollama",
+            description: "https://ollama.com/",
+            detail: "Run a open source LLMs locally. Requires Ollama",
+            provider: MODEL_PROVIDER_OLLAMA,
+        },
+        {
+            label: "AICI",
+            description: "http://github.com/microsoft/aici",
+            detail: "Generate AICI javascript prompts.",
+            provider: MODEL_PROVIDER_AICI,
+        }
+    )
+
     const cmodel: { model?: string; provider?: string; apiType?: APIType } =
         await vscode.window.showQuickPick<
             vscode.QuickPickItem & {
@@ -32,49 +76,9 @@ export async function pickLanguageModel(
                 provider?: string
                 apiType?: APIType
             }
-        >(
-            [
-                ...models.map((model) => ({
-                    label: model,
-                    description: `Visual Studio Code Language Model`,
-                    detail: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
-                    model,
-                })),
-                {
-                    label: "OpenAI",
-                    detail: `Use a personal OpenAI subscription.`,
-                    provider: MODEL_PROVIDER_OPENAI,
-                },
-                {
-                    label: "Azure OpenAI",
-                    detail: `Use a Azure-hosted OpenAI subscription.`,
-                    provider: MODEL_PROVIDER_OPENAI,
-                    apiType: "azure",
-                },
-                {
-                    label: "LocalAI",
-                    description: "https://localai.io/",
-                    detail: "Use local LLM as OpenAI subscription. Requires LocalAI and Docker.",
-                    provider: MODEL_PROVIDER_OPENAI,
-                    apiType: "localai",
-                },
-                {
-                    label: "Ollama",
-                    description: "https://ollama.com/",
-                    detail: "Run a open source LLMs locally. Requires Ollama.",
-                    provider: MODEL_PROVIDER_OLLAMA,
-                },
-                {
-                    label: "AICI",
-                    description: "http://github.com/microsoft/aici",
-                    detail: "Generate AICI javascript prompts.",
-                    provider: MODEL_PROVIDER_AICI,
-                },
-            ],
-            {
-                title: `Pick a Language Model for ${modelId}`,
-            }
-        )
+        >(items, {
+            title: `Pick a Language Model for ${modelId}`,
+        })
     if (cmodel === undefined) return undefined
 
     const { model, provider, apiType } = cmodel || {}
