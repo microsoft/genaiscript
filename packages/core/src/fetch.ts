@@ -6,6 +6,7 @@ import {
     FETCH_RETRY_DEFAULT_DEFAULT,
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
+import { errorMessage } from "./error"
 
 export async function createFetch(
     options?: {
@@ -26,8 +27,17 @@ export async function createFetch(
         retryOn,
         retries,
         retryDelay: (attempt, error, response) => {
-            if (attempt > 0) trace?.item(`retry #${attempt}`)
-            return Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
+            const code: string = (error as any)?.code as string
+            if (code === "ECONNRESET")
+                // fatal
+                return undefined
+            const message = errorMessage(error)
+            const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
+            trace?.resultItem(
+                false,
+                `${message}, retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
+            )
+            return delay
         },
     })
     return fetchRetry

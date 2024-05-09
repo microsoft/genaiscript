@@ -31,6 +31,7 @@ import {
     GENAI_JS_GLOB,
     fixPromptDefinitions,
     errorMessage,
+    DEFAULT_MODEL,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -254,6 +255,7 @@ temp/
             if (edits?.length) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
+            /*
             else if (isRequestError(e, 403)) {
                 const trace = "Open Trace"
                 const res = await vscode.window.showErrorMessage(
@@ -288,14 +290,11 @@ ${errorMessage(e)}`
                     ? `LLM model not found (404).`
                     : errorMessage(e)
                 await vscode.window.showWarningMessage(msg)
-            } else throw e
+            } else 
+            */
+            throw e
         }
     }
-
-    readonly requestHistory: {
-        filename: string
-        template: string
-    }[] = []
 
     private async startAIRequest(
         options: AIRequestOptions
@@ -363,9 +362,12 @@ ${errorMessage(e)}`
         let connectionToken = await this.host.getSecretToken(template)
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel(this, template.model)
+            const lmmodel = await pickLanguageModel(
+                this,
+                template.model ?? DEFAULT_MODEL
+            )
             if (lmmodel) {
-                configureLanguageModelAccess(
+                await configureLanguageModelAccess(
                     this.context,
                     options,
                     genOptions,
@@ -375,13 +377,6 @@ ${errorMessage(e)}`
             connectionToken = await this.host.getSecretToken(template)
         }
         if (connectionToken.type === "localai") await startLocalAI()
-
-        this.requestHistory.push({
-            template: template.id,
-            filename: fragment.file.filename,
-        })
-        if (this.requestHistory.length > MAX_HISTORY_LENGTH)
-            this.requestHistory.shift()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")

@@ -1,9 +1,18 @@
 import {
     AZURE_OPENAI_API_VERSION,
+    DOCS_CONFIGURATION_AICI_URL,
+    DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    DOCS_CONFIGURATION_LOCALAI_URL,
+    DOCS_CONFIGURATION_OLLAMA_URL,
+    DOCS_CONFIGURATION_OPENAI_URL,
+    LOCALAI_API_BASE,
+    MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
+    OPENAI_API_BASE,
 } from "./constants"
+import { fileExists, readText, writeText } from "./fs"
 import { APIType, OAIToken } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
@@ -26,8 +35,8 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     "OPENAI_API_TYPE must be 'azure' or 'openai' or 'localai'"
                 )
-            if (type === "openai" && !base) base = "https://api.openai.com/v1"
-            if (type === "localai" && !base) base = "http://localhost:8080/v1"
+            if (type === "openai" && !base) base = OPENAI_API_BASE
+            if (type === "localai" && !base) base = LOCALAI_API_BASE
             if (type === "azure" && !base)
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
@@ -125,4 +134,53 @@ export async function parseTokenFromEnv(
         }
     }
     return undefined
+}
+
+export function dotEnvTemplate(provider: string, apiType: APIType) {
+    if (provider === MODEL_PROVIDER_OLLAMA)
+        return `## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
+# OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
+`
+
+    if (provider === MODEL_PROVIDER_AICI)
+        return `## AICI ${DOCS_CONFIGURATION_AICI_URL}
+AICI_API_BASE="<custom api base>"
+`
+
+    if (apiType === "azure")
+        return `## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
+AZURE_OPENAI_ENDPOINT="<your api endpoint>"
+AZURE_OPENAI_API_KEY="<your token>"
+`
+
+    if (apiType === "localai")
+        return `## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
+OPENAI_API_TYPE="localai"
+# OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
+# OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
+`
+
+    return `## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
+OPENAI_API_KEY="<your token>"
+# OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
+`
+}
+
+export async function updateConnectionConfiguration(
+    provider?: string,
+    apiType?: APIType
+): Promise<void> {
+    // update .gitignore file
+    if (!(await fileExists(".gitignore")))
+        await writeText(".gitignore", ".env\n")
+    else {
+        const content = await readText(".gitignore")
+        if (!content.includes(".env"))
+            await writeText(".gitignore", content + "\n.env\n")
+    }
+
+    // update .env
+    let src = dotEnvTemplate(provider, apiType)
+    if (await fileExists(".env")) src = (await readText(".env")) + "\n" + src
+    await writeText(".env", src)
 }

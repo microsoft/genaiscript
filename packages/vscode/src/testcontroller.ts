@@ -11,6 +11,7 @@ import {
     errorMessage,
 } from "genaiscript-core"
 import { PROMPTFOO_VERSION } from "../../cli/src/version"
+import { openUrlInTab } from "./browser"
 
 export async function activateTestController(state: ExtensionState) {
     const { context } = state
@@ -154,9 +155,6 @@ export async function startTestViewer() {
         terminal.sendText(
             `npx --yes promptfoo@${promptfooVersion} view --port ${port}`
         )
-        await vscode.commands.executeCommand(
-            "simpleBrowser.show",
-            vscode.Uri.parse(`http://127.0.0.1:${port}`)
-        )
+        await openUrlInTab(`http://127.0.0.1:${port}`)
     }
 }

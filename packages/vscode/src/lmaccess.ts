@@ -6,83 +6,113 @@ import {
     GenerationOptions,
     estimateTokens,
     logVerbose,
-    parseModelIdentifier,
+    APIType,
+    MODEL_PROVIDER_OPENAI,
+    MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_AICI,
+    updateConnectionConfiguration,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
-import { setupDotEnv } from "./dotenv"
 
 export async function pickLanguageModel(
     state: ExtensionState,
     modelId: string
 ) {
-    const { provider } = parseModelIdentifier(modelId)
-    const models = isLanguageModelsAvailable(state.context)
-        ? vscode.lm.languageModels
-        : []
-    const dotenv = ".env"
-    const localai = "localai"
-    const cmodel = models?.length
-        ? await vscode.window.showQuickPick<
-              vscode.QuickPickItem & { model: string }
-          >(
-              [
-                  {
-                      label: "Configure .env file",
-                      detail: `A .env file contains secrets and configuration variables. It is not committed to the git.`,
-                      model: dotenv,
-                  },
-                  ...models.map((model) => ({
-                      label: model,
-                      description: `Visual Studio Code Language Model`,
-                      detail: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
-                      model,
-                  })),
-                  {
-                      label: "LocalAI",
-                      description: "https://localai.io/",
-                      detail: "Run a development server with local LLMs. Requires Docker.",
-                      model: localai,
-                  },
-              ],
-              {
-                  title: `Pick a Language Model for ${provider}`,
-              }
-          )
-        : { model: dotenv }
+    let models: vscode.LanguageModelChat[] = []
+    if (isLanguageModelsAvailable(state.context))
+        models = await vscode.lm.selectChatModels({})
+    const items: (vscode.QuickPickItem & {
+        model?: string
+        provider?: string
+        apiType?: APIType
+    })[] = models.map((model) => ({
+        label: model.name,
+        description: model.vendor,
+        detail: `Use the language model ${model} through your GitHub Copilot subscription.`,
+        model: model.id,
+    }))
+    if (items.length)
+        items.push({ kind: vscode.QuickPickItemKind.Separator, label: ".env" })
+    items.push(
+        {
+            label: "OpenAI",
+            detail: `Use a personal OpenAI subscription.`,
+            provider: MODEL_PROVIDER_OPENAI,
+        },
+        {
+            label: "Azure OpenAI",
+            detail: `Use a Azure-hosted OpenAI subscription.`,
+            provider: MODEL_PROVIDER_OPENAI,
+            apiType: "azure",
+        },
+        {
+            label: "LocalAI",
+            description: "https://localai.io/",
+            detail: "Use local LLMs instead OpenAI. Requires LocalAI and Docker.",
+            provider: MODEL_PROVIDER_OPENAI,
+            apiType: "localai",
+        },
+        {
+            label: "Ollama",
+            description: "https://ollama.com/",
+            detail: "Run a open source LLMs locally. Requires Ollama",
+            provider: MODEL_PROVIDER_OLLAMA,
+        },
+        {
+            label: "AICI",
+            description: "http://github.com/microsoft/aici",
+            detail: "Generate AICI javascript prompts.",
+            provider: MODEL_PROVIDER_AICI,
+        }
+    )
 
-    const { model } = cmodel || {}
-    if (model === dotenv) {
-        await setupDotEnv(state.host.projectUri, modelId)
+    const cmodel: { model?: string; provider?: string; apiType?: APIType } =
+        await vscode.window.showQuickPick<
+            vscode.QuickPickItem & {
+                model?: string
+                provider?: string
+                apiType?: APIType
+            }
+        >(items, {
+            title: `Pick a Language Model for ${modelId}`,
+        })
+    if (cmodel === undefined) return undefined
+
+    const { model, provider, apiType } = cmodel || {}
+    if (model) return model
+    else {
+        await updateConnectionConfiguration(provider, apiType)
+        const doc = await vscode.workspace.openTextDocument(
+            vscode.Uri.joinPath(state.host.projectUri, ".env")
+        )
+        await vscode.window.showTextDocument(doc)
         return undefined
-    } else if (model === localai) {
-        await setupDotEnv(state.host.projectUri, modelId, "localai")
-        return undefined
-    } else {
-        return model
     }
 }
 
 export function isLanguageModelsAvailable(context: vscode.ExtensionContext) {
-    return isApiProposalEnabled(
-        context,
-        "languageModels",
-        "github.copilot-chat"
+    return (
+        isApiProposalEnabled(
+            context,
+            "languageModels",
+            "github.copilot-chat"
+        ) &&
+        typeof vscode.lm !== "undefined" &&
+        typeof vscode.lm.selectChatModels !== "undefined"
     )
 }
 
-export function configureLanguageModelAccess(
+export async function configureLanguageModelAccess(
     context: vscode.ExtensionContext,
     options: AIRequestOptions,
     genOptions: GenerationOptions,
-    chatModel: string
-): void {
+    chatModelId: string
+): Promise<void> {
     logVerbose("using copilot llm")
     const { template } = options
-    const { partialCb, infoCb } = genOptions
+    const { partialCb } = genOptions
 
-    // sanity check
-    if (!vscode.lm.languageModels.includes(chatModel))
-        throw new Error("Language model not found")
+    const chatModel = (await vscode.lm.selectChatModels({ id: chatModelId }))[0]
 
     genOptions.cache = false
     genOptions.languageModel = Object.freeze<LanguageModel>({
@@ -97,40 +127,39 @@ export function configureLanguageModelAccess(
                 req.messages.map((m) => {
                     switch (m.role) {
                         case "system":
-                            return new vscode.LanguageModelChatSystemMessage(
-                                m.content
-                            )
+                            return <vscode.LanguageModelChatMessage>{
+                                role: vscode.LanguageModelChatMessageRole.User,
+                                content: m.content,
+                            }
                         case "user":
-                            return new vscode.LanguageModelChatUserMessage(
-                                typeof m.content === "string"
-                                    ? m.content
-                                    : m.content
-                                          .map((mc) => {
-                                              if (mc.type === "image_url")
-                                                  throw new Error(
-                                                      "images not supported with copilot models"
-                                                  )
-                                              else return mc.text
-                                          })
-                                          .join("\n"),
-                                "genaiscript"
+                            if (
+                                Array.isArray(m.content) &&
+                                m.content.some((c) => c.type === "image_url")
                             )
+                                throw new Error("Vision model not supported")
+                            return <vscode.LanguageModelChatMessage>{
+                                role: vscode.LanguageModelChatMessageRole.User,
+                                content:
+                                    typeof m.content === "string"
+                                        ? m.content
+                                        : m.content.map((c) => c).join("\n"),
+                            }
                         case "assistant":
-                            return new vscode.LanguageModelChatAssistantMessage(
-                                m.content,
-                                m.name
-                            )
+                            return <vscode.LanguageModelChatMessage>{
+                                role: vscode.LanguageModelChatMessageRole
+                                    .Assistant,
+                                content: m.content,
+                            }
                         case "function":
                         case "tool":
                             throw new Error(
-                                "functions not supported with copilot models"
+                                "tools not supported with copilot models"
                             )
                         default:
                             throw new Error("uknown role")
                     }
                 })
-            const request = await vscode.lm.sendChatRequest(
-                chatModel,
+            const request = await chatModel.sendRequest(
                 messages,
                 {
                     justification: `Run GenAIScript ${template.title || template.id}`,

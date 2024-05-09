@@ -200,8 +200,16 @@ ${this.toResultIcon(success, "")}${title}
         const { message, error } = e
         const emsg = errorMessage(error)
         const msg = message || emsg
-        this.warn(msg)
-        if (options.details) this.fence(error.stack)
+        this.disableChange(() => {
+            this.warn(msg)
+            if (options.details && error?.stack) {
+                this.content += `> \`\`\`\`\`\`\`markdown`
+                this.content += error.stack
+                    .split(/\n/g)
+                    .map((line) => `\n> ${line}`)
+                this.content += `\n> \`\`\`\`\`\`\`\n`
+            }
+        })
     }
 
     warn(msg: string) {

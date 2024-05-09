@@ -18,9 +18,10 @@ import {
     LanguageModel,
     getChatCompletionCache,
 } from "./chat"
-import { RequestError } from "./error"
+import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
+import { JSON5TryParse } from "./json5"
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
@@ -28,7 +29,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     options,
     trace
 ) => {
-    const { temperature, top_p, seed, response_format, tools } = req
+    const { temperature, top_p, seed, tools } = req
     const {
         requestOptions,
         partialCb,
@@ -97,14 +98,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     } else throw new Error(`api type ${cfg.type} not supported`)
 
     trace.itemValue(`url`, `[${url}](${url})`)
-    trace.itemValue(`response_format`, response_format)
-    if (tools?.length) {
-        trace.itemValue(
-            `tools`,
-            tools.map((t) => "`" + t.function.name + "`").join(", ")
-        )
-        trace.detailsFenced("🧱 schema", tools)
-    }
 
     let numTokens = 0
     const fetchRetry = await createFetch({
@@ -115,55 +108,59 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
     trace.dispatchChange()
 
-    trace.detailsFenced("✉️ messages", postReq, "json")
+    trace.detailsFenced(`✉️ POST ${url}`, postReq, "json")
     const body = JSON.stringify(postReq)
-    const r = await fetchRetry(url, {
-        headers: {
-            // openai
-            authorization:
-                cfg.token && cfg.type === "openai"
-                    ? `Bearer ${cfg.token}`
-                    : undefined,
-            // azure
-            "api-key":
-                cfg.token && cfg.type === "azure" ? cfg.token : undefined,
-            "user-agent": TOOL_ID,
-            "content-type": "application/json",
-            ...(headers || {}),
-        },
-        body,
-        method: "POST",
-        ...(rest || {}),
-    })
+    let r: Response
+    try {
+        r = await fetchRetry(url, {
+            headers: {
+                // openai
+                authorization:
+                    cfg.token &&
+                    (cfg.type === "openai" || cfg.type === "localai")
+                        ? `Bearer ${cfg.token}`
+                        : undefined,
+                // azure
+                "api-key":
+                    cfg.token && cfg.type === "azure" ? cfg.token : undefined,
+                "user-agent": TOOL_ID,
+                "content-type": "application/json",
+                ...(headers || {}),
+            },
+            body,
+            method: "POST",
+            ...(rest || {}),
+        })
+    } catch (e) {
+        trace.error(errorMessage(e), e)
+        throw e
+    }
 
     trace.itemValue(`response`, `${r.status} ${r.statusText}`)
     if (r.status !== 200) {
-        trace.error(`request error: ${r.status}`)
         let body: string
         try {
             body = await r.text()
         } catch (e) {}
-        let bodyJSON: { error: unknown }
-        try {
-            bodyJSON = body ? JSON.parse(body) : undefined
-        } catch (e) {}
+        const { error } = JSON5TryParse(body, {}) as { error: unknown }
+        if (error) trace.error(undefined, error)
         throw new RequestError(
             r.status,
             r.statusText,
-            bodyJSON?.error,
+            error,
             body,
             normalizeInt(r.headers.get("retry-after"))
         )
     }
 
-    let finishReason: ChatCompletionResponse["finishReason"] = undefined
-    let seenDone = false
-    let chatResp = ""
+    trace.content += "\n\n"
 
+    let done = false
+    let finishReason: ChatCompletionResponse["finishReason"] = undefined
+    let chatResp = ""
     let pref = ""
 
     const decoder = host.createUTF8Decoder()
-
     if (r.body.getReader) {
         const reader = r.body.getReader()
         while (!signal?.aborted) {
@@ -177,17 +174,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             doChunk(value)
         }
     }
+    if (signal?.aborted) finishReason = "cancel"
 
-    if (seenDone) {
-        if (finishReason === "stop" && seenDone) {
-            await cache.set(cachedKey, chatResp)
-        }
-        return { text: chatResp, toolCalls, finishReason }
-    } else {
-        trace.error(`invalid response`)
-        trace.fence(pref)
-        throw new Error(`invalid response: ${pref}`)
-    }
+    trace.content += "\n\n"
+    trace.itemValue(`finish reason`, finishReason)
+    if (done && finishReason === "stop")
+        await cache.set(cachedKey, chatResp, { trace })
+
+    return { text: chatResp, toolCalls, finishReason }
 
     function doChunk(value: Uint8Array) {
         // Massage and parse the chunk of data
@@ -196,24 +190,30 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         chunk = pref + chunk
         const ch0 = chatResp
         chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
-            if (json == "[DONE]") {
-                seenDone = true
-                return ""
-            }
-            if (seenDone) {
-                logError(`tokens after done! '${json}'`)
+            if (json === "[DONE]") {
+                done = true
                 return ""
             }
             try {
                 const obj: ChatCompletionChunk = JSON.parse(json)
                 if (!obj.choices?.length) return ""
-                else if (obj.choices?.length != 1) throw new Error()
+                else if (obj.choices?.length != 1)
+                    throw new Error("too many choices in response")
                 const choice = obj.choices[0]
                 const { finish_reason, delta } = choice
                 if (typeof delta?.content == "string") {
                     numTokens += estimateTokens(model, delta.content)
                     chatResp += delta.content
-                } else if (delta?.tool_calls?.length) {
+                    if (finish_reason) finishReason = finish_reason as any
+                    if (delta.content)
+                        trace.content += delta.content.includes("`")
+                            ? `\`\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\`\`\` `
+                            : `\`${delta.content.replace(/\n/g, " ")}\` `
+                } else if (
+                    finish_reason === "function_call" ||
+                    finish_reason === "tool_calls"
+                ) {
+                    finishReason = "tool_calls"
                     const { tool_calls } = delta
                     //logVerbose(
                     //    `delta tool calls: ${JSON.stringify(tool_calls)}`
@@ -229,23 +229,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                         if (call.function.arguments)
                             tc.arguments += call.function.arguments
                     }
-                } else if (finish_reason == "tool_calls") {
-                    // apply tools and restart
-                    finishReason = finish_reason
-                    seenDone = true
-                    //logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                 } else if (finish_reason === "length") {
                     finishReason = finish_reason
-                    logVerbose(`response too long`)
-                    trace.error(`response too long, increase maxTokens.`)
                 } else if (finish_reason === "stop") {
                     finishReason = finish_reason
-                    seenDone = true
-                } else if (finish_reason) {
-                    logVerbose(YAMLStringify(choice))
+                } else if (finish_reason === "content_filter") {
+                    finishReason = finish_reason
                 }
-            } catch {
-                logError(`invalid json in chat response: ${json}`)
+            } catch (e) {
+                trace.error(`error processing chunk`, e)
             }
             return ""
         })

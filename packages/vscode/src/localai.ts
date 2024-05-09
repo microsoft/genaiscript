@@ -1,5 +1,6 @@
 import { ICON_LOGO_NAME } from "genaiscript-core"
 import * as vscode from "vscode"
+import { openUrlInTab } from "./browser"
 
 export async function startLocalAI() {
     const name = "LocalAI"
@@ -17,9 +18,6 @@ export async function startLocalAI() {
 docker start local-ai
 docker stats
 `)
-        await vscode.commands.executeCommand(
-            "simpleBrowser.show",
-            vscode.Uri.parse(`http://127.0.0.1:${port}`)
-        )
+        await openUrlInTab(`http://127.0.0.1:${port}`)
     }
 }
