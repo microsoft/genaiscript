@@ -136,7 +136,7 @@ export function dotEnvTemplate(provider?: string, apiType?: APIType) {
     const res = `# GenAIScript configuration (${DOCS_CONFIGURATION_URL})
 
 ## OpenAI
-${active(provider === MODEL_PROVIDER_OPENAI && apiType !== "azure")}OPENAI_API_KEY="<your token>"
+${active(provider === MODEL_PROVIDER_OPENAI && apiType === "openai")}OPENAI_API_KEY="<your token>"
 # OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
 
 ## Azure OpenAI
