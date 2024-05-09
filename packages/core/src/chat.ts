@@ -167,21 +167,6 @@ export interface LanguageModel {
     completer: ChatCompletionHandler
 }
 
-function traceCompletionResonse(
-    trace: MarkdownTrace,
-    resp: ChatCompletionResponse
-) {
-    trace.startDetails("📩 llm response")
-    try {
-        if (resp.finishReason && resp.finishReason !== "stop")
-            trace.itemValue(`finish reason`, resp.finishReason)
-        if (resp.cached) trace.itemValue(`cached`, resp.cached)
-        if (resp.finishReason === "stop") trace.fence(resp.text, "markdown")
-    } finally {
-        trace.endDetails()
-    }
-}
-
 async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
@@ -395,8 +380,6 @@ async function processChatMessage(
 ): Promise<RunPromptResult> {
     const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
     const maxRepairs = MAX_DATA_REPAIRS
-
-    traceCompletionResonse(trace, resp)
 
     // execute tools as needed
     if (resp.toolCalls?.length) {

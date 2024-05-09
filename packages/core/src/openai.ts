@@ -29,7 +29,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     options,
     trace
 ) => {
-    const { temperature, top_p, seed, response_format, tools } = req
+    const { temperature, top_p, seed, tools } = req
     const {
         requestOptions,
         partialCb,
@@ -153,14 +153,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         )
     }
 
-    let finishReason: ChatCompletionResponse["finishReason"] = undefined
-    let seenDone = false
-    let chatResp = ""
+    trace.content += "\n\n"
 
+    let done = false
+    let finishReason: ChatCompletionResponse["finishReason"] = undefined
+    let chatResp = ""
     let pref = ""
 
     const decoder = host.createUTF8Decoder()
-
     if (r.body.getReader) {
         const reader = r.body.getReader()
         while (!signal?.aborted) {
@@ -174,17 +174,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             doChunk(value)
         }
     }
+    if (signal?.aborted) finishReason = "cancel"
 
-    if (seenDone) {
-        if (finishReason === "stop" && seenDone) {
-            await cache.set(cachedKey, chatResp)
-        }
-        return { text: chatResp, toolCalls, finishReason }
-    } else {
-        trace.error(`invalid response`)
-        trace.fence(pref)
-        throw new Error(`invalid response: ${pref}`)
-    }
+    trace.content += "\n\n"
+    trace.itemValue(`finish reason`, finishReason)
+    if (done && finishReason === "stop")
+        await cache.set(cachedKey, chatResp, { trace })
+
+    return { text: chatResp, toolCalls, finishReason }
 
     function doChunk(value: Uint8Array) {
         // Massage and parse the chunk of data
@@ -193,24 +190,28 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         chunk = pref + chunk
         const ch0 = chatResp
         chunk = chunk.replace(/^data:\s*(.*)[\r\n]+/gm, (_, json) => {
-            if (json == "[DONE]") {
-                seenDone = true
-                return ""
-            }
-            if (seenDone) {
-                logError(`tokens after done! '${json}'`)
+            if (json === "[DONE]") {
+                done = true
                 return ""
             }
             try {
                 const obj: ChatCompletionChunk = JSON.parse(json)
                 if (!obj.choices?.length) return ""
-                else if (obj.choices?.length != 1) throw new Error()
+                else if (obj.choices?.length != 1)
+                    throw new Error("too many choices in response")
                 const choice = obj.choices[0]
                 const { finish_reason, delta } = choice
                 if (typeof delta?.content == "string") {
                     numTokens += estimateTokens(model, delta.content)
                     chatResp += delta.content
-                } else if (delta?.tool_calls?.length) {
+                    if (finish_reason) finishReason = finish_reason as any
+                    if (delta.content)
+                        trace.content += `\`${delta.content.replace(/\n/g, " ")}\` `
+                } else if (
+                    finish_reason === "function_call" ||
+                    finish_reason === "tool_calls"
+                ) {
+                    finishReason = "tool_calls"
                     const { tool_calls } = delta
                     //logVerbose(
                     //    `delta tool calls: ${JSON.stringify(tool_calls)}`
@@ -226,23 +227,15 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                         if (call.function.arguments)
                             tc.arguments += call.function.arguments
                     }
-                } else if (finish_reason == "tool_calls") {
-                    // apply tools and restart
-                    finishReason = finish_reason
-                    seenDone = true
-                    //logVerbose(`tool calls: ${JSON.stringify(toolCalls)}`)
                 } else if (finish_reason === "length") {
                     finishReason = finish_reason
-                    logVerbose(`response too long`)
-                    trace.error(`response too long, increase maxTokens.`)
                 } else if (finish_reason === "stop") {
                     finishReason = finish_reason
-                    seenDone = true
-                } else if (finish_reason) {
-                    logVerbose(YAMLStringify(choice))
+                } else if (finish_reason === "content_filter") {
+                    finishReason = finish_reason
                 }
-            } catch {
-                logError(`invalid json in chat response: ${json}`)
+            } catch (e) {
+                trace.error(`error processing chunk`, e)
             }
             return ""
         })

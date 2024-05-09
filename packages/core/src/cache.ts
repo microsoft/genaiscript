@@ -2,6 +2,7 @@ import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
 import { host } from "./host"
 import { dotGenaiscriptPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
+import { TraceOptions } from "./trace"
 
 export type CacheEntry<K, V> = { sha: string; key: K; val: V }
 
@@ -63,7 +64,8 @@ export class Cache<K, V> extends EventTarget {
         const sha = await keySHA(key)
         return this._entries[sha]?.val
     }
-    async set(key: K, val: V) {
+    async set(key: K, val: V, options?: TraceOptions) {
+        const { trace } = options || {}
         await this.initialize()
         const sha = await keySHA(key)
         const ent = { sha, key, val }
@@ -71,6 +73,7 @@ export class Cache<K, V> extends EventTarget {
         if (ex && JSON.stringify(ex) == JSON.stringify(ent)) return
         this._entries[sha] = ent
         await appendJSONL(this.path(), [ent])
+        trace?.item(`cache ${this.name} set`)
         this.dispatchEvent(new Event(CHANGE))
     }
     async getKeySHA(key: K) {
