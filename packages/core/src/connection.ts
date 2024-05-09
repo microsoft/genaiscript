@@ -1,7 +1,11 @@
 import {
     AZURE_OPENAI_API_VERSION,
-    DOCS_CONFIGURATION_URL,
+    DOCS_CONFIGURATION_AICI_URL,
+    DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    DOCS_CONFIGURATION_OLLAMA_URL,
+    DOCS_CONFIGURATION_OPENAI_URL,
     LOCALAI_API_BASE,
+    MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
@@ -131,27 +135,33 @@ export async function parseTokenFromEnv(
     return undefined
 }
 
-export function dotEnvTemplate(provider?: string, apiType?: APIType) {
-    const active = (v: boolean) => (!v ? "# " : "")
-    const res = `# GenAIScript configuration (${DOCS_CONFIGURATION_URL})
-
-## OpenAI
-${active(provider === MODEL_PROVIDER_OPENAI && apiType === "openai")}OPENAI_API_KEY="<your token>"
-# OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
-
-## Azure OpenAI
-${active(provider === MODEL_PROVIDER_OPENAI && apiType === "azure")}AZURE_OPENAI_ENDPOINT="<your api endpoint>"
-${active(provider === MODEL_PROVIDER_OPENAI && apiType === "azure")}AZURE_OPENAI_API_KEY="<your token>"
-
-## Ollama
+export function dotEnvTemplate(provider: string, apiType: APIType) {
+    if (provider === MODEL_PROVIDER_OLLAMA)
+        return `## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
-
-## LocalAI
-${active(provider === MODEL_PROVIDER_OPENAI && apiType === "localai")}OPENAI_API_TYPE="localai"
-# set OPENAI_API_KEY if you configured an access token in the localai web editor
-# set OPENAI_API_BASE if you are using a different port than ${LOCALAI_API_BASE}
 `
-    return res
+
+    if (provider === MODEL_PROVIDER_AICI)
+        return `## AICI ${DOCS_CONFIGURATION_AICI_URL}
+AICI_API_BASE="<custom api base>"
+`
+
+    if (apiType === "azure")
+        return `## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
+AZURE_OPENAI_ENDPOINT="<your api endpoint>"
+AZURE_OPENAI_API_KEY="<your token>"
+`
+
+    if (apiType === "localai")
+        return `OPENAI_API_TYPE="localai"
+# OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
+# OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
+`
+
+    return `## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
+OPENAI_API_KEY="<your token>"
+# OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
+`
 }
 
 export async function updateConnectionConfiguration(
@@ -168,10 +178,7 @@ export async function updateConnectionConfiguration(
     }
 
     // update .env
-    if (!(await fileExists(".env"))) {
-        const src = dotEnvTemplate(provider, apiType)
-        await writeText(".env", src)
-    } else {
-        // else patch
-    }
+    let src = dotEnvTemplate(provider, apiType)
+    if (await fileExists(".env")) src = (await readText(".env")) + "\n" + src
+    await writeText(".env", src)
 }

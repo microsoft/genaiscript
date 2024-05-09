@@ -80,4 +80,7 @@ export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
 export const DOCS_CONFIGURATION_URL = "https://microsoft.github.io/genaiscript/getting-started/configuration/"
 export const DOCS_CONFIGURATION_OPENAI_URL = "https://microsoft.github.io/genaiscript/getting-started/configuration/#openai"
+export const DOCS_CONFIGURATION_AZURE_OPENAI_URL = "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure-openai"
+export const DOCS_CONFIGURATION_OLLAMA_URL = "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
 export const DOCS_CONFIGURATION_LOCALAI_URL = "https://microsoft.github.io/genaiscript/getting-started/configuration/#localai"
+export const DOCS_CONFIGURATION_AICI_URL = "https://microsoft.github.io/genaiscript/getting-started/configuration/#aici"

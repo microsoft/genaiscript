@@ -54,7 +54,7 @@ export async function pickLanguageModel(
                 {
                     label: "LocalAI",
                     description: "https://localai.io/",
-                    detail: "Run a development server with local LLMs. Requires LocalAI and Docker.",
+                    detail: "Use local LLM as OpenAI subscription. Requires LocalAI and Docker.",
                     provider: MODEL_PROVIDER_OPENAI,
                     apiType: "localai",
                 },
@@ -75,6 +75,7 @@ export async function pickLanguageModel(
                 title: `Pick a Language Model for ${modelId}`,
             }
         )
+    if (cmodel === undefined) return undefined
 
     const { model, provider, apiType } = cmodel || {}
     if (model) return model
@@ -84,7 +85,6 @@ export async function pickLanguageModel(
             vscode.Uri.joinPath(state.host.projectUri, ".env")
         )
         await vscode.window.showTextDocument(doc)
-        await openUrlInTab(DOCS_CONFIGURATION_URL)
         return undefined
     }
 }
