@@ -293,11 +293,6 @@ ${errorMessage(e)}`
         }
     }
 
-    readonly requestHistory: {
-        filename: string
-        template: string
-    }[] = []
-
     private async startAIRequest(
         options: AIRequestOptions
     ): Promise<AIRequest> {
@@ -379,13 +374,6 @@ ${errorMessage(e)}`
             connectionToken = await this.host.getSecretToken(template)
         }
         if (connectionToken.type === "localai") await startLocalAI()
-
-        this.requestHistory.push({
-            template: template.id,
-            filename: fragment.file.filename,
-        })
-        if (this.requestHistory.length > MAX_HISTORY_LENGTH)
-            this.requestHistory.shift()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")
