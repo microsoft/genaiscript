@@ -5,6 +5,7 @@ import {
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_OPENAI,
 } from "./constants"
 import { errorMessage } from "./error"
 import { OAIToken, host } from "./host"
@@ -40,7 +41,7 @@ export function parseModelIdentifier(id: string) {
         }
     else if (parts.length === 2)
         return { provider: parts[0], model: parts[1], modelId: parts[1] }
-    else return { provider: "openai", model: id, modelId: id }
+    else return { provider: MODEL_PROVIDER_OPENAI, model: id, modelId: id }
 }
 
 export interface ModelConnectionInfo

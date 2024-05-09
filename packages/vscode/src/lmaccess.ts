@@ -12,13 +12,23 @@ import {
     MODEL_PROVIDER_AICI,
     updateConnectionConfiguration,
     MODEL_PROVIDER_AZURE,
+    parseModelIdentifier,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
 
-export async function pickLanguageModel(
+async function generateLanguageModelConfiguration(
     state: ExtensionState,
     modelId: string
 ) {
+    const { provider } = parseModelIdentifier(modelId)
+    if (
+        provider === MODEL_PROVIDER_OLLAMA ||
+        provider === MODEL_PROVIDER_AICI ||
+        provider === MODEL_PROVIDER_AZURE
+    ) {
+        return { provider }
+    }
+
     let models: vscode.LanguageModelChat[] = []
     if (isLanguageModelsAvailable(state.context))
         models = await vscode.lm.selectChatModels({})
@@ -67,7 +77,7 @@ export async function pickLanguageModel(
         }
     )
 
-    const cmodel: { model?: string; provider?: string; apiType?: APIType } =
+    const res: { model?: string; provider?: string; apiType?: APIType } =
         await vscode.window.showQuickPick<
             vscode.QuickPickItem & {
                 model?: string
@@ -77,12 +87,19 @@ export async function pickLanguageModel(
         >(items, {
             title: `Pick a Language Model for ${modelId}`,
         })
-    if (cmodel === undefined) return undefined
+    return res
+}
 
-    const { model, provider, apiType } = cmodel || {}
-    if (model) return model
+export async function pickLanguageModel(
+    state: ExtensionState,
+    modelId: string
+) {
+    const res = await generateLanguageModelConfiguration(state, modelId)
+    if (res === undefined) return undefined
+
+    if (res.model) return res.model
     else {
-        await updateConnectionConfiguration(provider, apiType)
+        await updateConnectionConfiguration(res.provider, res.apiType)
         const doc = await vscode.workspace.openTextDocument(
             vscode.Uri.joinPath(state.host.projectUri, ".env")
         )
