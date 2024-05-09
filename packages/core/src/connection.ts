@@ -1,9 +1,13 @@
 import {
     AZURE_OPENAI_API_VERSION,
+    DOCS_CONFIGURATION_URL,
+    LOCALAI_API_BASE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
+    OPENAI_API_BASE,
 } from "./constants"
+import { fileExists, readText, writeText } from "./fs"
 import { APIType, OAIToken } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
@@ -26,8 +30,8 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     "OPENAI_API_TYPE must be 'azure' or 'openai' or 'localai'"
                 )
-            if (type === "openai" && !base) base = "https://api.openai.com/v1"
-            if (type === "localai" && !base) base = "http://localhost:8080/v1"
+            if (type === "openai" && !base) base = OPENAI_API_BASE
+            if (type === "localai" && !base) base = LOCALAI_API_BASE
             if (type === "azure" && !base)
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
@@ -125,4 +129,49 @@ export async function parseTokenFromEnv(
         }
     }
     return undefined
+}
+
+export function dotEnvTemplate(provider?: string, apiType?: APIType) {
+    const active = (v: boolean) => (!v ? "# " : "")
+    const res = `# GenAIScript configuration (${DOCS_CONFIGURATION_URL})
+
+## OpenAI
+${active(provider === MODEL_PROVIDER_OPENAI && apiType !== "azure")}OPENAI_API_KEY="<your token>"
+# OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
+
+## Azure OpenAI
+${active(provider === MODEL_PROVIDER_OPENAI && apiType === "azure")}AZURE_OPENAI_ENDPOINT="<your api endpoint>"
+${active(provider === MODEL_PROVIDER_OPENAI && apiType === "azure")}AZURE_OPENAI_API_KEY="<your token>"
+
+## Ollama
+# OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
+
+## LocalAI
+${active(provider === MODEL_PROVIDER_OPENAI && apiType === "localai")}OPENAI_API_TYPE="localai"
+# set OPENAI_API_KEY if you configured an access token in the localai web editor
+# set OPENAI_API_BASE if you are using a different port than ${LOCALAI_API_BASE}
+`
+    return res
+}
+
+export async function updateConnectionConfiguration(
+    provider?: string,
+    apiType?: APIType
+): Promise<void> {
+    // update .gitignore file
+    if (!(await fileExists(".gitignore")))
+        await writeText(".gitignore", ".env\n")
+    else {
+        const content = await readText(".gitignore")
+        if (!content.includes(".env"))
+            await writeText(".gitignore", content + "\n.env\n")
+    }
+
+    // update .env
+    if (!(await fileExists(".env"))) {
+        const src = dotEnvTemplate(provider, apiType)
+        await writeText(".env", src)
+    } else {
+        // else patch
+    }
 }

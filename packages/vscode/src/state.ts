@@ -31,6 +31,7 @@ import {
     GENAI_JS_GLOB,
     fixPromptDefinitions,
     errorMessage,
+    DEFAULT_MODEL,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -363,7 +364,10 @@ ${errorMessage(e)}`
         let connectionToken = await this.host.getSecretToken(template)
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel(this, template.model)
+            const lmmodel = await pickLanguageModel(
+                this,
+                template.model ?? DEFAULT_MODEL
+            )
             if (lmmodel) {
                 configureLanguageModelAccess(
                     this.context,

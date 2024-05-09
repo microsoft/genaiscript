@@ -25,6 +25,7 @@ import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 import { dispose } from "./components"
+import { openUrlInTab } from "./browser"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -90,47 +91,6 @@ export class VSCodeHost extends EventTarget implements Host {
         return r.fsPath
     }
 
-    public async setupDotEnv(): Promise<string> {
-        // update .gitignore file
-        if (!(await checkFileExists(this.projectUri, ".gitignore")))
-            await writeFile(this.projectUri, ".gitignore", ".env\n")
-        else {
-            const content = await readFileText(this.projectUri, ".gitignore")
-            if (!content.includes(".env"))
-                await writeFile(
-                    this.projectUri,
-                    ".gitignore",
-                    content + "\n.env\n"
-                )
-        }
-
-        // update .env
-        const uri = Uri.joinPath(this.projectUri, ".env")
-        if (!(await checkFileExists(uri)))
-            await writeFile(
-                this.projectUri,
-                ".env",
-                `OPENAI_API_KEY="<your token>"
-`
-            )
-
-        const doc = await vscode.workspace.openTextDocument(uri)
-        await window.showTextDocument(doc)
-        const text = doc.getText()
-        let nextText = text
-        if (!/OPENAI_API_KEY/.test(text))
-            nextText += `\nOPENAI_API_KEY="<your token>"`
-        if (nextText !== text) {
-            const edit = new vscode.WorkspaceEdit()
-            edit.replace(
-                uri,
-                doc.validateRange(new vscode.Range(0, 0, 999, 999)),
-                nextText
-            )
-            await vscode.workspace.applyEdit(edit)
-        }
-        return undefined
-    }
     log(level: LogLevel, msg: string): void {
         const output = this.state.output
         switch (level) {
@@ -152,17 +112,7 @@ export class VSCodeHost extends EventTarget implements Host {
         name: string,
         options?: ReadFileOptions
     ): Promise<Uint8Array> {
-        const wksrx = /^workspace:\/\//i
-        const uri = wksrx.test(name)
-            ? Utils.joinPath(
-                  vscode.workspace.workspaceFolders[0].uri,
-                  name.replace(wksrx, "")
-              )
-            : /^(\/|\w:\\)/i.test(name) ||
-                name.startsWith(vscode.workspace.workspaceFolders[0].uri.fsPath)
-              ? Uri.file(name)
-              : Utils.joinPath(vscode.workspace.workspaceFolders[0].uri, name)
-
+        const uri = this.toProjectFileUri(name)
         const v = this.virtualFiles[uri.fsPath]
         if (options?.virtual) {
             if (!v) throw new Error("virtual file not found")
@@ -173,12 +123,26 @@ export class VSCodeHost extends EventTarget implements Host {
         return new Uint8Array(buffer)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
-        const uri = Uri.file(name)
+        const uri = this.toProjectFileUri(name)
         delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.writeFile(uri, content)
     }
+    private toProjectFileUri(name: string) {
+        const wksrx = /^workspace:\/\//i
+        const uri = wksrx.test(name)
+            ? Utils.joinPath(
+                  vscode.workspace.workspaceFolders[0].uri,
+                  name.replace(wksrx, "")
+              )
+            : /^(\/|\w:\\)/i.test(name) ||
+                name.startsWith(vscode.workspace.workspaceFolders[0].uri.fsPath)
+              ? Uri.file(name)
+              : Utils.joinPath(vscode.workspace.workspaceFolders[0].uri, name)
+        return uri
+    }
+
     async deleteFile(name: string): Promise<void> {
-        const uri = Uri.file(name)
+        const uri = this.toProjectFileUri(name)
         delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.delete(uri)
     }
@@ -187,10 +151,12 @@ export class VSCodeHost extends EventTarget implements Host {
         return uris.map((u) => vscode.workspace.asRelativePath(u, false))
     }
     async createDirectory(name: string): Promise<void> {
-        await vscode.workspace.fs.createDirectory(Uri.file(name))
+        const uri = this.toProjectFileUri(name)
+        await vscode.workspace.fs.createDirectory(uri)
     }
     async deleteDirectory(name: string): Promise<void> {
-        await vscode.workspace.fs.delete(Uri.file(name), { recursive: true })
+        const uri = this.toProjectFileUri(name)
+        await vscode.workspace.fs.delete(uri, { recursive: true })
     }
 
     async readSecret(name: string): Promise<string | undefined> {

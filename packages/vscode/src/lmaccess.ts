@@ -7,58 +7,85 @@ import {
     estimateTokens,
     logVerbose,
     parseModelIdentifier,
+    APIType,
+    MODEL_PROVIDER_OPENAI,
+    DOCS_CONFIGURATION_URL,
+    MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_AICI,
+    updateConnectionConfiguration,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
-import { setupDotEnv } from "./dotenv"
+import { openUrlInTab } from "./browser"
 
 export async function pickLanguageModel(
     state: ExtensionState,
     modelId: string
 ) {
-    const { provider } = parseModelIdentifier(modelId)
     const models = isLanguageModelsAvailable(state.context)
         ? vscode.lm.languageModels
         : []
     const dotenv = ".env"
-    const localai = "localai"
-    const cmodel = models?.length
-        ? await vscode.window.showQuickPick<
-              vscode.QuickPickItem & { model: string }
-          >(
-              [
-                  {
-                      label: "Configure .env file",
-                      detail: `A .env file contains secrets and configuration variables. It is not committed to the git.`,
-                      model: dotenv,
-                  },
-                  ...models.map((model) => ({
-                      label: model,
-                      description: `Visual Studio Code Language Model`,
-                      detail: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
-                      model,
-                  })),
-                  {
-                      label: "LocalAI",
-                      description: "https://localai.io/",
-                      detail: "Run a development server with local LLMs. Requires Docker.",
-                      model: localai,
-                  },
-              ],
-              {
-                  title: `Pick a Language Model for ${provider}`,
-              }
-          )
-        : { model: dotenv }
+    const cmodel: { model?: string; provider?: string; apiType?: APIType } =
+        await vscode.window.showQuickPick<
+            vscode.QuickPickItem & {
+                model?: string
+                provider?: string
+                apiType?: APIType
+            }
+        >(
+            [
+                ...models.map((model) => ({
+                    label: model,
+                    description: `Visual Studio Code Language Model`,
+                    detail: `Use the Copilot language model ${model} through your GitHub Copilot subscription.`,
+                    model,
+                })),
+                {
+                    label: "OpenAI",
+                    detail: `Use a personal OpenAI subscription.`,
+                    provider: MODEL_PROVIDER_OPENAI,
+                },
+                {
+                    label: "Azure OpenAI",
+                    detail: `Use a Azure-hosted OpenAI subscription.`,
+                    provider: MODEL_PROVIDER_OPENAI,
+                    apiType: "azure",
+                },
+                {
+                    label: "LocalAI",
+                    description: "https://localai.io/",
+                    detail: "Run a development server with local LLMs. Requires LocalAI and Docker.",
+                    provider: MODEL_PROVIDER_OPENAI,
+                    apiType: "localai",
+                },
+                {
+                    label: "Ollama",
+                    description: "https://ollama.com/",
+                    detail: "Run a open source LLMs locally. Requires Ollama.",
+                    provider: MODEL_PROVIDER_OLLAMA,
+                },
+                {
+                    label: "AICI",
+                    description: "http://github.com/microsoft/aici",
+                    detail: "Generate AICI javascript prompts.",
+                    provider: MODEL_PROVIDER_AICI,
+                },
+            ],
+            {
+                title: `Pick a Language Model for ${modelId}`,
+            }
+        )
 
-    const { model } = cmodel || {}
-    if (model === dotenv) {
-        await setupDotEnv(state.host.projectUri, modelId)
+    const { model, provider, apiType } = cmodel || {}
+    if (model) return model
+    else {
+        await updateConnectionConfiguration(provider, apiType)
+        const doc = await vscode.workspace.openTextDocument(
+            vscode.Uri.joinPath(state.host.projectUri, ".env")
+        )
+        await vscode.window.showTextDocument(doc)
+        await openUrlInTab(DOCS_CONFIGURATION_URL)
         return undefined
-    } else if (model === localai) {
-        await setupDotEnv(state.host.projectUri, modelId, "localai")
-        return undefined
-    } else {
-        return model
     }
 }
 
