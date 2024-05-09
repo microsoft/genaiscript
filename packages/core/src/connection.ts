@@ -2,6 +2,7 @@ import {
     AZURE_OPENAI_API_VERSION,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
     LOCALAI_API_BASE,
@@ -153,7 +154,8 @@ AZURE_OPENAI_API_KEY="<your token>"
 `
 
     if (apiType === "localai")
-        return `OPENAI_API_TYPE="localai"
+        return `## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
+OPENAI_API_TYPE="localai"
 # OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
 # OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
 `

@@ -369,7 +369,7 @@ ${errorMessage(e)}`
                 template.model ?? DEFAULT_MODEL
             )
             if (lmmodel) {
-                configureLanguageModelAccess(
+                await configureLanguageModelAccess(
                     this.context,
                     options,
                     genOptions,
