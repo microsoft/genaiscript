@@ -3,6 +3,7 @@ import { host } from "./host"
 import { dotGenaiscriptPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
 import { TraceOptions } from "./trace"
+import { CORE_VERSION } from "./version"
 
 export type CacheEntry<K, V> = { sha: string; key: K; val: V }
 
@@ -83,6 +84,6 @@ export class Cache<K, V> extends EventTarget {
     }
 }
 async function keySHA(key: any) {
-    if (typeof key != "string") key = JSON.stringify(key)
+    if (typeof key != "string") key = JSON.stringify(key) + CORE_VERSION
     return await sha256string(key)
 }
