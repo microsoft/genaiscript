@@ -258,6 +258,7 @@ export async function parsePromptTemplate(
             c.checkObjectArray("urlAdapters")
             c.checkRecord("parameters")
             c.checkRecord("vars")
+            c.checkStringArray("secrets")
 
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")

@@ -12,6 +12,7 @@ import { OAIToken, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
 import { GenerationOptions } from "./promptcontext"
+import { TraceOptions } from "./trace"
 
 export function resolveLanguageModel(
     options: GenerationOptions
@@ -52,29 +53,45 @@ export interface ModelConnectionInfo
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { token?: boolean }
+    options?: { token?: boolean } & TraceOptions
 ): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
+    const { trace } = options
     try {
+        trace?.startDetails(`configuration`)
         const secret = await host.getSecretToken(conn)
+        trace?.itemValue(`model`, conn.model ?? DEFAULT_MODEL)
         if (!secret) {
             return { info: { ...conn } }
         } else {
             const { token: theToken, ...rest } = secret
+            const starToken = theToken
+                ? options?.token
+                    ? theToken
+                    : "***"
+                : ""
+            trace?.itemValue(`base`, rest.base)
+            trace?.itemValue(`type`, rest.type)
+            trace?.itemValue(`version`, rest.version)
+            trace?.itemValue(`token`, starToken)
+            trace?.itemValue(`source`, rest.source)
             return {
                 info: {
                     ...conn,
                     ...rest,
-                    token: theToken ? (options?.token ? theToken : "***") : "",
+                    token: starToken,
                 },
                 token: secret,
             }
         }
     } catch (e) {
+        trace?.error(undefined, e)
         return {
             info: {
                 ...conn,
                 error: errorMessage(e),
             },
         }
+    } finally {
+        trace?.endDetails()
     }
 }

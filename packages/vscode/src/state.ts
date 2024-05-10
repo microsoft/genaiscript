@@ -363,25 +363,28 @@ ${errorMessage(e)}`
         }
 
         const { info, token: connectionToken } =
-            await resolveModelConnectionInfo(template, { token: true })
+            await resolveModelConnectionInfo(template, { token: true, trace })
+        if (info.error) {
+            trace.renderErrors()
+            return undefined
+        }
         if (!connectionToken) {
-            if (info.error) {
-                trace.error(undefined, info.error)
-                return undefined
-            }
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(
                 this,
                 template.model ?? DEFAULT_MODEL
             )
-            if (lmmodel) {
-                await configureLanguageModelAccess(
-                    this.context,
-                    options,
-                    genOptions,
-                    lmmodel
-                )
-            } else return undefined
+            if (!lmmodel) {
+                trace.error("no model provider selected")
+                return undefined
+            }
+
+            await configureLanguageModelAccess(
+                this.context,
+                options,
+                genOptions,
+                lmmodel
+            )
         } else if (connectionToken.type === "localai") await startLocalAI()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
