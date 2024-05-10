@@ -3,7 +3,7 @@ script({
     tests: {
         files: ["src/rag/*"],
         keywords: ["markdown", "lorem", "microsoft"],
-    },
+    }
 })
 
 // summarize each files individually

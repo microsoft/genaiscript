@@ -5,6 +5,9 @@ script({
         files: ["src/rag/*"],
         keywords: ["markdown", "lorem", "word"],
     },
+    vars: {
+        "system.fs_read_summary.model": "ollama:phi3",
+    },
 })
 
 const files = def(

@@ -66,8 +66,13 @@ export class WebSocketClient
             )
                 this._ws.send(m)
         })
-        this._ws.addEventListener("error", () => this.reconnect())
-        this._ws.addEventListener("close", () => this.reconnect())
+        this._ws.addEventListener("error", (ev) => {
+            this.reconnect()
+        })
+        this._ws.addEventListener("close", (ev: CloseEvent) => {
+            this.cancel(ev.reason)
+            this.reconnect()
+        })
         this._ws.addEventListener("message", <
             (event: MessageEvent<any>) => void
         >(async (event) => {
@@ -104,11 +109,11 @@ export class WebSocketClient
         this.cancel()
     }
 
-    cancel() {
+    cancel(reason?: string) {
         this._pendingMessages = []
         const cancellers = Object.values(this.awaiters)
         this.awaiters = {}
-        cancellers.forEach((a) => a.reject("cancelled"))
+        cancellers.forEach((a) => a.reject(reason || "cancelled"))
     }
 
     async version(): Promise<string> {

@@ -192,7 +192,12 @@ function traceEnv(
     env: ExpansionVariables
 ) {
     trace.startDetails("🏡 env")
-    trace.files(env.files, { title: "💾 files", model, skipIfEmpty: true, secrets: env.secrets })
+    trace.files(env.files, {
+        title: "💾 files",
+        model,
+        skipIfEmpty: true,
+        secrets: env.secrets,
+    })
     const vars = Object.entries(env.vars || {})
     if (vars.length) {
         trace.startDetails("🧮 vars")
@@ -215,7 +220,7 @@ function resolveTool(prj: Project, tool: string) {
     return system.id
 }
 
-function resolveSystems(prj: Project, template: PromptScript) {
+export function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
     const systems = Array.from(
         new Set([
@@ -249,17 +254,11 @@ export async function expandTemplate(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
-    const cancellationToken = options?.cancellationToken
-
+    const model = options.model
+    assert(model !== undefined)
+    const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
-    const model =
-        options.model ??
-        normalizeString(env.vars["model"]) ??
-        template.model ??
-        DEFAULT_MODEL
-    const systemTemplates = systems.map((s) =>
-        fragment.file.project.getTemplate(s)
-    )
+    const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
     options.lineNumbers =
         options.lineNumbers ??
@@ -294,7 +293,6 @@ export async function expandTemplate(
 
     trace.startDetails("💾 script")
 
-    trace.itemValue(`model`, model)
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)

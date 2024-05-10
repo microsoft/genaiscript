@@ -17,14 +17,14 @@ import {
     RUNTIME_ERROR_CODE,
     ANNOTATION_ERROR_CODE,
     writeFileEdits,
-    parseVars,
-    parsePromptParameters,
     logError,
     isCancelError,
     USER_CANCELLED_ERROR_CODE,
     errorMessage,
     MarkdownTrace,
     HTTPS_REGEX,
+    resolveModelConnectionInfo,
+    CONFIGURATION_ERROR_CODE,
 } from "genaiscript-core"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
@@ -85,7 +85,6 @@ export async function runScript(
     const maxToolCalls = normalizeInt(options.maxToolCalls)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
-    const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
     const cacheName = options.cacheName
@@ -173,15 +172,21 @@ ${Array.from(files)
     const fragment = gpspec.fragments[0]
     if (!fragment) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
-    const vars = parsePromptParameters(
-        script.parameters,
-        parseVars(options.vars)
-    )
-
+    const vars = options.vars
     let tokens = 0
     let res: GenerationResult
     try {
         const trace = new MarkdownTrace()
+        trace.heading(2, options.label || script.id)
+        const { info } = await resolveModelConnectionInfo(script, {
+            trace,
+            model: options.model,
+        })
+        if (info.error) {
+            trace.error(undefined, info.error)
+            logError(info.error)
+            process.exit(CONFIGURATION_ERROR_CODE)
+        }
         res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
                 if (text) {
@@ -203,7 +208,7 @@ ${Array.from(files)
             seed,
             maxTokens,
             maxToolCalls,
-            model,
+            model: info.model,
             retry,
             retryDelay,
             maxDelay,

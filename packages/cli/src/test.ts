@@ -43,7 +43,7 @@ function parseModelSpec(m: string): ModelOptions {
 }
 
 async function resolveTestProvider(script: PromptScript) {
-    const token = await host.getSecretToken(script)
+    const token = await host.getSecretToken(script.model)
     if (token && token.type === "azure") return token.base
     return undefined
 }

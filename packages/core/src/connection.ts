@@ -20,9 +20,9 @@ import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    options: ModelConnectionOptions
+    modelId: string
 ): Promise<OAIToken> {
-    const { provider, model, tag } = parseModelIdentifier(options.model)
+    const { provider, model, tag } = parseModelIdentifier(modelId)
 
     if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {
@@ -152,29 +152,34 @@ export async function parseTokenFromEnv(
 
 export function dotEnvTemplate(provider: string, apiType: APIType) {
     if (provider === MODEL_PROVIDER_OLLAMA)
-        return `## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
+        return `
+## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
 `
 
     if (provider === MODEL_PROVIDER_AICI)
-        return `## AICI ${DOCS_CONFIGURATION_AICI_URL}
+        return `
+## AICI ${DOCS_CONFIGURATION_AICI_URL}
 AICI_API_BASE="<custom api base>"
 `
 
     if (apiType === "azure" || provider === MODEL_PROVIDER_AZURE)
-        return `## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
+        return `
+## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
 AZURE_OPENAI_API_KEY="<your token>"
 `
 
     if (apiType === "localai")
-        return `## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
+        return `
+## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
 OPENAI_API_TYPE="localai"
 # OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
 # OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
 `
 
-    return `## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
+    return `
+## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
 OPENAI_API_KEY="<your token>"
 # OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
 `

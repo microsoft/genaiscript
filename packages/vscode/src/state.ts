@@ -11,7 +11,6 @@ import {
     groupBy,
     GenerationOptions,
     isCancelError,
-    isRequestError,
     delay,
     CHANGE,
     Cache,
@@ -30,8 +29,8 @@ import {
     GENAI_JS_REGEX,
     GENAI_JS_GLOB,
     fixPromptDefinitions,
-    errorMessage,
     DEFAULT_MODEL,
+    resolveModelConnectionInfo,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -40,6 +39,7 @@ import { Utils } from "vscode-uri"
 import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 import { startLocalAI } from "./localai"
+import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -229,19 +229,17 @@ temp/
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
             const req = await this.startAIRequest(options)
-            if (!req) return
+            if (!req) {
+                await this.cancelAiRequest()
+                vscode.commands.executeCommand("genaiscript.request.open.trace")
+                return
+            }
             const res = await req?.request
             const { edits, text, status } = res || {}
 
-            const hasPreviewOpened =
-                vscode.window.tabGroups.activeTabGroup?.tabs?.some((t) =>
-                    [REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME].some(
-                        (f) => t.label.includes(f)
-                    )
-                )
             if (status === "error")
                 vscode.commands.executeCommand("genaiscript.request.open.trace")
-            else if (!hasPreviewOpened && text)
+            else if (!hasOutputOrTraceOpened() && text)
                 vscode.commands.executeCommand(
                     "genaiscript.request.open.output"
                 )
@@ -307,6 +305,7 @@ ${errorMessage(e)}`
         const signal = controller.signal
         const cancellationToken = new AbortSignalCancellationToken(signal)
         const trace = new MarkdownTrace()
+        trace.heading(2, options.template.id)
 
         const r: AIRequest = {
             creationTime: new Date().toISOString(),
@@ -336,6 +335,14 @@ ${errorMessage(e)}`
         }
         this.aiRequest = r
         const { template, fragment } = options
+        const { info, token: connectionToken } =
+            await resolveModelConnectionInfo(template, { token: true })
+        if (info.error) {
+            trace.error(info.error)
+            trace.renderErrors()
+            return undefined
+        }
+
         const genOptions: GenerationOptions = {
             requestOptions: { signal },
             cancellationToken,
@@ -357,29 +364,27 @@ ${errorMessage(e)}`
                         : fragment.file.filename
                 ),
             },
+            model: info.model,
         }
-
-        let connectionToken = await this.host.getSecretToken(template)
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel(
-                this,
-                template.model ?? DEFAULT_MODEL
+            const lmmodel = await pickLanguageModel(this, genOptions.model)
+            if (!lmmodel) {
+                trace.error("no model provider selected")
+                return undefined
+            }
+
+            await configureLanguageModelAccess(
+                this.context,
+                options,
+                genOptions,
+                lmmodel
             )
-            if (lmmodel) {
-                await configureLanguageModelAccess(
-                    this.context,
-                    options,
-                    genOptions,
-                    lmmodel
-                )
-            } else return undefined
-            connectionToken = await this.host.getSecretToken(template)
-        }
-        if (connectionToken.type === "localai") await startLocalAI()
+        } else if (connectionToken.type === "localai") await startLocalAI()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
-        vscode.commands.executeCommand("genaiscript.request.open.output")
+        if (!hasOutputOrTraceOpened())
+            vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
                 r.response = resp
@@ -419,8 +424,10 @@ ${errorMessage(e)}`
 
     async cancelAiRequest() {
         const a = this.aiRequest
-        if (a && a.computing && !a?.controller?.signal?.aborted) {
-            a.controller?.abort("user cancelled")
+        if (a && a.computing) {
+            a.computing = false
+            if (a.controller && !a.controller?.signal?.aborted)
+                a.controller.abort?.("user cancelled")
             this.host.server.client.cancel()
             this.dispatchChange()
             await delay(100)

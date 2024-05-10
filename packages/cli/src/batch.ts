@@ -15,12 +15,13 @@ import {
     GENERATION_ERROR_CODE,
     appendJSONL,
     writeFileEdits,
-    parseVars,
-    parsePromptParameters,
     logVerbose,
     errorMessage,
     EMOJI_SUCCESS,
     EMOJI_FAIL,
+    resolveModelConnectionInfo,
+    logError,
+    CONFIGURATION_ERROR_CODE,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -61,7 +62,6 @@ export async function batchScript(
     const {
         out = dotGenaiscriptPath("results"),
         removeOut,
-        model,
         cache,
         cacheName,
         label,
@@ -131,10 +131,7 @@ export async function batchScript(
         `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
-    const vars = parsePromptParameters(
-        script.parameters,
-        parseVars(options.vars)
-    )
+    const vars = options.vars
 
     let errors = 0
     let totalTokens = 0
@@ -152,6 +149,16 @@ export async function batchScript(
             assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
             const trace = new MarkdownTrace()
+            trace.heading(2, fragment.file.filename)
+            const { info } = await resolveModelConnectionInfo(script, {
+                trace,
+                model: options.model,
+            })
+            if (info.error) {
+                trace.error(undefined, info.error)
+                logError(info.error)
+                process.exit(CONFIGURATION_ERROR_CODE)
+            }
             const result: GenerationResult = await runTemplate(
                 prj,
                 script,
@@ -170,7 +177,7 @@ export async function batchScript(
                     topP,
                     seed,
                     maxTokens,
-                    model,
+                    model: info.model,
                     retry,
                     retryDelay,
                     maxDelay,

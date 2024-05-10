@@ -207,17 +207,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     if (finish_reason) finishReason = finish_reason as any
                     if (delta.content)
                         trace.content += delta.content.includes("`")
-                            ? `\`\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\`\`\` `
+                            ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
                             : `\`${delta.content.replace(/\n/g, " ")}\` `
-                } else if (
-                    finish_reason === "function_call" ||
-                    finish_reason === "tool_calls"
-                ) {
-                    finishReason = "tool_calls"
+                } else if (Array.isArray(delta.tool_calls)) {
                     const { tool_calls } = delta
-                    //logVerbose(
-                    //    `delta tool calls: ${JSON.stringify(tool_calls)}`
-                    //)
                     for (const call of tool_calls) {
                         const tc =
                             toolCalls[call.index] ||
@@ -229,11 +222,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                         if (call.function.arguments)
                             tc.arguments += call.function.arguments
                     }
-                } else if (finish_reason === "length") {
-                    finishReason = finish_reason
-                } else if (finish_reason === "stop") {
-                    finishReason = finish_reason
-                } else if (finish_reason === "content_filter") {
+                }
+                if (
+                    finish_reason === "function_call" ||
+                    finish_reason === "tool_calls"
+                ) {
+                    finishReason = "tool_calls"
+                } else {
                     finishReason = finish_reason
                 }
             } catch (e) {

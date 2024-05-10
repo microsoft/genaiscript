@@ -133,6 +133,39 @@ script({
 })
 \`\`\`
 
+## Parameters and variables
+
+System also support parameters as script but the parameter names will automatically be prepended
+with the script id
+
+- declare and use the parameter in the system script
+
+\`\`\`js title="system.fs_read_summary.genai.js"
+system({ ...,
+    parameters: {
+        model: {
+            type: "string",
+            description: "LLM model to use",
+            default: "gpt-35-turbo",
+        },
+    },
+})
+...
+// populate from the default value or script override
+const model = env.vars["system.fs_read_summary.model"]
+\`\`\`
+
+- override the parameter value in the script script
+
+\`\`\`js
+script({ ...,
+    system: ["system", "system.fs_read_summary"],
+    vars: {
+        "system.fs_read_summary.model": "ollama:phi3",
+    },
+})
+\`\`\`
+
 ## Builtin System Prompts
 
 GenAIScript comes with a number of system prompt that support features like creating files, extracting diffs or
