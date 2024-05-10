@@ -254,14 +254,10 @@ export async function expandTemplate(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
-    const cancellationToken = options?.cancellationToken
-
+    const model = options.model
+    assert(model !== undefined)
+    const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
-    const model =
-        options.model ??
-        normalizeString(env.vars["model"]) ??
-        template.model ??
-        DEFAULT_MODEL
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
     options.lineNumbers =

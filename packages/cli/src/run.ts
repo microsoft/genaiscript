@@ -23,6 +23,8 @@ import {
     errorMessage,
     MarkdownTrace,
     HTTPS_REGEX,
+    resolveModelConnectionInfo,
+    CONFIGURATION_ERROR_CODE,
 } from "genaiscript-core"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
@@ -83,7 +85,6 @@ export async function runScript(
     const maxToolCalls = normalizeInt(options.maxToolCalls)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
-    const model = options.model
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
     const cacheName = options.cacheName
@@ -177,6 +178,15 @@ ${Array.from(files)
     try {
         const trace = new MarkdownTrace()
         trace.heading(2, options.label || script.id)
+        const { info } = await resolveModelConnectionInfo(script, {
+            trace,
+            model: options.model,
+        })
+        if (info.error) {
+            trace.error(undefined, info.error)
+            logError(info.error)
+            process.exit(CONFIGURATION_ERROR_CODE)
+        }
         res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
                 if (text) {
@@ -198,7 +208,7 @@ ${Array.from(files)
             seed,
             maxTokens,
             maxToolCalls,
-            model,
+            model: info.model,
             retry,
             retryDelay,
             maxDelay,

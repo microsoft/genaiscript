@@ -49,19 +49,21 @@ export interface ModelConnectionInfo
     extends ModelConnectionOptions,
         Partial<OAIToken> {
     error?: string
+    model: string
 }
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { token?: boolean } & TraceOptions
+    options?: { model?: string; token?: boolean } & TraceOptions
 ): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
     const { trace } = options || {}
+    const model = options.model ?? conn.model ?? DEFAULT_MODEL
     try {
         trace?.startDetails(`⚙️ configuration`)
-        const secret = await host.getSecretToken(conn)
-        trace?.itemValue(`model`, conn.model ?? DEFAULT_MODEL)
+        trace?.itemValue(`model`, model)
+        const secret = await host.getSecretToken(model)
         if (!secret) {
-            return { info: { ...conn } }
+            return { info: { ...conn, model } }
         } else {
             const { token: theToken, ...rest } = secret
             trace?.itemValue(`base`, rest.base)
@@ -72,6 +74,7 @@ export async function resolveModelConnectionInfo(
                 info: {
                     ...conn,
                     ...rest,
+                    model,
                     token: theToken ? (options?.token ? theToken : "***") : "",
                 },
                 token: secret,
@@ -82,6 +85,7 @@ export async function resolveModelConnectionInfo(
         return {
             info: {
                 ...conn,
+                model,
                 error: errorMessage(e),
             },
         }

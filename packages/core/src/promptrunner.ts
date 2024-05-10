@@ -134,6 +134,8 @@ export async function runTemplate(
     const { skipLLM, label, cliInfo, trace } = options
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
+    const model = options.model
+    assert(model !== undefined)
 
     if (cliInfo) traceCliArgs(trace, template, options)
 
@@ -153,7 +155,6 @@ export async function runTemplate(
         statusText,
         temperature,
         topP,
-        model,
         max_tokens,
         seed,
     } = await expandTemplate(

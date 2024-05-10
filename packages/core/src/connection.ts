@@ -20,9 +20,9 @@ import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
-    options: ModelConnectionOptions
+    modelId: string
 ): Promise<OAIToken> {
-    const { provider, model, tag } = parseModelIdentifier(options.model)
+    const { provider, model, tag } = parseModelIdentifier(modelId)
 
     if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {

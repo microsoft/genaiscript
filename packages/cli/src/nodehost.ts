@@ -70,8 +70,8 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
-    async getSecretToken(options: ModelConnectionOptions): Promise<OAIToken> {
-        return await parseTokenFromEnv(process.env, options)
+    async getSecretToken(modelId:string): Promise<OAIToken> {
+        return await parseTokenFromEnv(process.env, modelId)
     }
 
     clearVirtualFiles(): void {

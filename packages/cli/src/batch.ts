@@ -19,6 +19,9 @@ import {
     errorMessage,
     EMOJI_SUCCESS,
     EMOJI_FAIL,
+    resolveModelConnectionInfo,
+    logError,
+    CONFIGURATION_ERROR_CODE,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -59,7 +62,6 @@ export async function batchScript(
     const {
         out = dotGenaiscriptPath("results"),
         removeOut,
-        model,
         cache,
         cacheName,
         label,
@@ -148,6 +150,15 @@ export async function batchScript(
             let tokens = 0
             const trace = new MarkdownTrace()
             trace.heading(2, fragment.file.filename)
+            const { info } = await resolveModelConnectionInfo(script, {
+                trace,
+                model: options.model,
+            })
+            if (info.error) {
+                trace.error(undefined, info.error)
+                logError(info.error)
+                process.exit(CONFIGURATION_ERROR_CODE)
+            }
             const result: GenerationResult = await runTemplate(
                 prj,
                 script,
@@ -166,7 +177,7 @@ export async function batchScript(
                     topP,
                     seed,
                     maxTokens,
-                    model,
+                    model: info.model,
                     retry,
                     retryDelay,
                     maxDelay,

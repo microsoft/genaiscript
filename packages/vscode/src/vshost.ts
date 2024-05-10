@@ -169,10 +169,10 @@ export class VSCodeHost extends EventTarget implements Host {
         }
     }
 
-    async getSecretToken(options: ModelConnectionOptions): Promise<OAIToken> {
+    async getSecretToken(modelId: string): Promise<OAIToken> {
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
-        const tok = await parseTokenFromEnv(env, options)
+        const tok = await parseTokenFromEnv(env, modelId)
         return tok
     }
 

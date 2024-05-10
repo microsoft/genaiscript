@@ -335,6 +335,14 @@ ${errorMessage(e)}`
         }
         this.aiRequest = r
         const { template, fragment } = options
+        const { info, token: connectionToken } =
+            await resolveModelConnectionInfo(template, { token: true })
+        if (info.error) {
+            trace.error(info.error)
+            trace.renderErrors()
+            return undefined
+        }
+
         const genOptions: GenerationOptions = {
             requestOptions: { signal },
             cancellationToken,
@@ -356,20 +364,11 @@ ${errorMessage(e)}`
                         : fragment.file.filename
                 ),
             },
-        }
-
-        const { info, token: connectionToken } =
-            await resolveModelConnectionInfo(template, { token: true, trace })
-        if (info.error) {
-            trace.renderErrors()
-            return undefined
+            model: info.model,
         }
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel(
-                this,
-                template.model ?? DEFAULT_MODEL
-            )
+            const lmmodel = await pickLanguageModel(this, genOptions.model)
             if (!lmmodel) {
                 trace.error("no model provider selected")
                 return undefined
