@@ -22,6 +22,7 @@ import {
     resolveModelConnectionInfo,
     logError,
     CONFIGURATION_ERROR_CODE,
+    parseKeyValuePairs,
 } from "genaiscript-core"
 import { basename, resolve, join, relative, dirname } from "node:path"
 import { appendFile, writeFile } from "node:fs/promises"
@@ -131,7 +132,7 @@ export async function batchScript(
         `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
-    const vars = options.vars
+    const vars = parseKeyValuePairs(options.vars)
 
     let errors = 0
     let totalTokens = 0

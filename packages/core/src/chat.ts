@@ -245,7 +245,7 @@ async function runToolCalls(
                     )
             }
 
-            const { content, edits: functionEdits } = output
+            const { content, edits: functionEdits } = output || {}
 
             if (content) trace.fence(content, "markdown")
             if (functionEdits?.length) {

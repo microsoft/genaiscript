@@ -25,6 +25,7 @@ import {
     HTTPS_REGEX,
     resolveModelConnectionInfo,
     CONFIGURATION_ERROR_CODE,
+    parseKeyValuePairs,
 } from "genaiscript-core"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
@@ -172,7 +173,7 @@ ${Array.from(files)
     const fragment = gpspec.fragments[0]
     if (!fragment) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
-    const vars = options.vars
+    const vars = parseKeyValuePairs(options.vars)
     let tokens = 0
     let res: GenerationResult
     try {

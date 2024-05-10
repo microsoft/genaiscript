@@ -1,4 +1,5 @@
 import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_UNDEFINED } from "./constants"
+import { arrayify } from "./util"
 
 const promptFenceStartRx =
     /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
@@ -17,13 +18,16 @@ export function undoublequote(s: string) {
     return s
 }
 
-export function parseKeyValuePairs(text: string) {
+export function parseKeyValuePairs(text: string | string[]) {
     const res: Record<string, string> = {}
-    text
-        ?.split(/\s+/g)
-        .map((kv) => kv.split(/[=:]/))
-        .filter((m) => m.length == 2)
-        .forEach((m) => (res[m[0]] = undoublequote(m[1])))
+    const chunks = arrayify(text)
+    chunks.forEach((chunk) =>
+        chunk
+            ?.split(/\s+/g)
+            .map((kv) => kv.split(/[=:]/))
+            .filter((m) => m.length == 2)
+            .forEach((m) => (res[m[0]] = undoublequote(m[1])))
+    )
     return Object.freeze(res)
 }
 

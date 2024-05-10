@@ -15,7 +15,7 @@ import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
-import { RequestError } from "./error"
+import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
 import { undoublequote } from "./fence"
 import { HTTPS_REGEX } from "./constants"
@@ -249,13 +249,17 @@ export async function runTemplate(
 
     updateStatus(`prompting model ${model}`)
     const connection = await resolveModelConnectionInfo(
-        {
-            model,
-        },
+        { model },
         { trace, token: true }
     )
+    if (connection.info.error)
+        throw new Error(errorMessage(connection.info.error))
     if (!connection.token)
-        throw new RequestError(403, "token not configured", connection.info)
+        throw new RequestError(
+            403,
+            "LLM configuration missing",
+            connection.info
+        )
 
     const { completer } = resolveLanguageModel(genOptions)
     const output = await executeChatSession(
