@@ -147,6 +147,7 @@ export async function batchScript(
             assert(fragment !== undefined, `${specFile} not found`)
             let tokens = 0
             const trace = new MarkdownTrace()
+            trace.heading(2, fragment.file.filename)
             const result: GenerationResult = await runTemplate(
                 prj,
                 script,

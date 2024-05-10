@@ -39,6 +39,7 @@ import { Utils } from "vscode-uri"
 import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 import { startLocalAI } from "./localai"
+import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
 const MAX_HISTORY_LENGTH = 500
 
@@ -236,15 +237,9 @@ temp/
             const res = await req?.request
             const { edits, text, status } = res || {}
 
-            const hasPreviewOpened =
-                vscode.window.tabGroups.activeTabGroup?.tabs?.some((t) =>
-                    [REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME].some(
-                        (f) => t.label.includes(f)
-                    )
-                )
             if (status === "error")
                 vscode.commands.executeCommand("genaiscript.request.open.trace")
-            else if (!hasPreviewOpened && text)
+            else if (!hasOutputOrTraceOpened() && text)
                 vscode.commands.executeCommand(
                     "genaiscript.request.open.output"
                 )
@@ -310,6 +305,7 @@ ${errorMessage(e)}`
         const signal = controller.signal
         const cancellationToken = new AbortSignalCancellationToken(signal)
         const trace = new MarkdownTrace()
+        trace.heading(2, options.template.id)
 
         const r: AIRequest = {
             creationTime: new Date().toISOString(),
@@ -388,7 +384,8 @@ ${errorMessage(e)}`
         } else if (connectionToken.type === "localai") await startLocalAI()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
-        vscode.commands.executeCommand("genaiscript.request.open.output")
+        if (!hasOutputOrTraceOpened())
+            vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
                 r.response = resp

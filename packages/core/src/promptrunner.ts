@@ -135,8 +135,6 @@ export async function runTemplate(
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
 
-    trace.heading(2, label || template.id)
-
     if (cliInfo) traceCliArgs(trace, template, options)
 
     const vars = await resolveExpansionVars(trace, template, fragment, options.vars)

@@ -176,6 +176,7 @@ ${Array.from(files)
     let res: GenerationResult
     try {
         const trace = new MarkdownTrace()
+        trace.heading(2, options.label || script.id)
         res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
                 if (text) {

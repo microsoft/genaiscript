@@ -57,28 +57,22 @@ export async function resolveModelConnectionInfo(
 ): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
     const { trace } = options
     try {
-        trace?.startDetails(`configuration`)
+        trace?.startDetails(`⚙️ configuration`)
         const secret = await host.getSecretToken(conn)
         trace?.itemValue(`model`, conn.model ?? DEFAULT_MODEL)
         if (!secret) {
             return { info: { ...conn } }
         } else {
             const { token: theToken, ...rest } = secret
-            const starToken = theToken
-                ? options?.token
-                    ? theToken
-                    : "***"
-                : ""
             trace?.itemValue(`base`, rest.base)
             trace?.itemValue(`type`, rest.type)
             trace?.itemValue(`version`, rest.version)
-            trace?.itemValue(`token`, starToken)
             trace?.itemValue(`source`, rest.source)
             return {
                 info: {
                     ...conn,
                     ...rest,
-                    token: starToken,
+                    token: theToken ? (options?.token ? theToken : "***") : "",
                 },
                 token: secret,
             }
