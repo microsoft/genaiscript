@@ -6,7 +6,7 @@ script({
         keywords: ["markdown", "lorem", "word"],
     },
     vars: {
-        ["system.fs_read_summary.model"]: "ollama:phi3",
+        "system.fs_read_summary.model": "ollama:phi3",
     },
 })
 
