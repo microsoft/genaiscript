@@ -173,11 +173,7 @@ ${Array.from(files)
     const fragment = gpspec.fragments[0]
     if (!fragment) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
-    const vars = parsePromptParameters(
-        script.parameters,
-        parseVars(options.vars)
-    )
-
+    const vars = options.vars
     let tokens = 0
     let res: GenerationResult
     try {

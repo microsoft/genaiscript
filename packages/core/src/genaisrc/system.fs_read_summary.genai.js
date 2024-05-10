@@ -1,6 +1,13 @@
 system({
     title: "File Read Summary",
     description: "Function to summarize the content of a file.",
+    parameters: {
+        model: {
+            type: "string",
+            description: "LLM model to use",
+            default: "gpt-35-turbo",
+        },
+    },
 })
 
 defTool(
@@ -21,14 +28,23 @@ defTool(
         const { filename } = args
         if (!filename) return ""
         const { content } = await workspace.readText(filename)
-        const summary = await runPrompt(_ => {
-            const f = _.def("FILE", { filename, content }, { maxTokens: 12000 })
-            _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
-        }, {
-            model: "gpt-3.5-turbo",
-            cache: true,
-            cacheName: "fs_read_summary"
-        })
+        const model = env.vars["fs_read_summary.model"] ?? "gpt-35-turbo"
+        const cacheName = `fs_read_summary_${model}`
+        const summary = await runPrompt(
+            (_) => {
+                const f = _.def(
+                    "FILE",
+                    { filename, content },
+                    { maxTokens: 12000 }
+                )
+                _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
+            },
+            {
+                model,
+                cache: true,
+                cacheName,
+            }
+        )
         return summary.text
     }
 )

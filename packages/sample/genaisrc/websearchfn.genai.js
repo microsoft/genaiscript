@@ -1,6 +1,6 @@
 script({
     title: "Search the web using functions",
-    system: ["system", "system.web_search"]
+    system: ["system", "system.retrieval_web_search"],
 })
 
 def("FILES", env.files)

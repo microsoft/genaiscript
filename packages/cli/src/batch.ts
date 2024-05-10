@@ -131,10 +131,7 @@ export async function batchScript(
         `tool: ${script.id} (${script.title}), files: ${specFiles.size}, out: ${resolve(out)}`
     )
 
-    const vars = parsePromptParameters(
-        script.parameters,
-        parseVars(options.vars)
-    )
+    const vars = options.vars
 
     let errors = 0
     let totalTokens = 0

@@ -54,9 +54,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.json" | "system.math" | "system.python" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.web_search" | "system.zero_shot_cot"
+type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.json" | "system.math" | "system.python" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot"
 
-type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "web_search"
+type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search"
 
 type FileMergeHandler = (
     filename: string,
@@ -188,11 +188,13 @@ interface ScriptRuntimeOptions {
 * - `system.json`: JSON system prompt
 * - `system.math`: Math expression evaluator
 * - `system.python`: Expert at generating and understanding Python code.
+* - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
+* - `system.retrieval_vector_search`: Embeddings Vector Search
+* - `system.retrieval_web_search`: Web Search
 * - `system.schema`: JSON Schema support
 * - `system.tasks`: Generates tasks
 * - `system.technical`: Technical Writer
 * - `system.typescript`: Export TypeScript Developer
-* - `system.web_search`: Web Search
 * - `system.zero_shot_cot`: Zero-shot Chain Of Though
 **/
     system?: SystemPromptId[]
@@ -203,7 +205,9 @@ interface ScriptRuntimeOptions {
 * - `fs_read_file`: Reads a file as text from the file system.
 * - `fs_read_summary`: Reads a summary of a file from the file system.
 * - `math_eval`: Evaluates a math expression
-* - `web_search`: Search the web for a user query using Bing Search.
+* - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
+* - `retrieval_vector_search`: Search files using embeddings and similarity distance.
+* - `retrieval_web_search`: Search the web for a user query using Bing Search.
 **/
     tools?: SystemToolId[]
 
@@ -549,7 +553,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,

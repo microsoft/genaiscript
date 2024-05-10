@@ -411,6 +411,13 @@ Function to summarize the content of a file.
 system({
     title: "File Read Summary",
     description: "Function to summarize the content of a file.",
+    parameters: {
+        model: {
+            type: "string",
+            description: "LLM model to use",
+            default: "gpt-35-turbo",
+        },
+    },
 })
 
 defTool(
@@ -431,14 +438,23 @@ defTool(
         const { filename } = args
         if (!filename) return ""
         const { content } = await workspace.readText(filename)
-        const summary = await runPrompt(_ => {
-            const f = _.def("FILE", { filename, content }, { maxTokens: 12000 })
-            _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
-        }, {
-            model: "gpt-3.5-turbo",
-            cache: true,
-            cacheName: "fs_read_summary"
-        })
+        const model = env.vars["fs_read_summary.model"] ?? "gpt-35-turbo"
+        const cacheName = `fs_read_summary_${model}`
+        const summary = await runPrompt(
+            (_) => {
+                const f = _.def(
+                    "FILE",
+                    { filename, content },
+                    { maxTokens: 12000 }
+                )
+                _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
+            },
+            {
+                model,
+                cache: true,
+                cacheName,
+            }
+        )
         return summary.text
     }
 )
@@ -523,6 +539,148 @@ system({
 $`Also, you are an expert coder in Python. 
 You create code that is PEP8 compliant. 
 Emit type information compatible with PyLance.`
+
+`````
+
+
+### `system.retrieval_fuzz_search`
+
+Full Text Fuzzy Search
+
+Function to do a full text fuzz search.
+
+-  tool `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
+
+`````js wrap title="system.retrieval_fuzz_search"
+system({
+    title: "Full Text Fuzzy Search",
+    description: "Function to do a full text fuzz search.",
+})
+
+defTool(
+    "retrieval_fuzz_search",
+    "Search for keywords using the full text of files and a fuzzy distance.",
+    {
+        type: "object",
+        properties: {
+            files: {
+                description: "array of file paths to search,",
+                type: "array",
+                items: {
+                    type: "string",
+                    description:
+                        "path to the file to search, relative to the workspace root",
+                },
+            },
+            q: {
+                type: "string",
+                description: "Search query.",
+            },
+        },
+        required: ["q", "files"],
+    },
+    async (args) => {
+        const { files, q } = args
+        const res = await retrieval.fuzzSearch(
+            q,
+            files.map((filename) => ({ filename }))
+        )
+        return YAML.stringify(res.map(({ filename }) => filename))
+    }
+)
+
+`````
+
+
+### `system.retrieval_vector_search`
+
+Embeddings Vector Search
+
+Function to do a search using embeddings vector similarity distance.
+
+-  tool `retrieval_vector_search`: Search files using embeddings and similarity distance.
+
+`````js wrap title="system.retrieval_vector_search"
+system({
+    title: "Embeddings Vector Search",
+    description:
+        "Function to do a search using embeddings vector similarity distance.",
+})
+
+defTool(
+    "retrieval_vector_search",
+    "Search files using embeddings and similarity distance.",
+    {
+        type: "object",
+        properties: {
+            files: {
+                description: "array of file paths to search,",
+                type: "array",
+                items: {
+                    type: "string",
+                    description:
+                        "path to the file to search, relative to the workspace root",
+                },
+            },
+            q: {
+                type: "string",
+                description: "Search query.",
+            },
+        },
+        required: ["q", "files"],
+    },
+    async (args) => {
+        const { files, q } = args
+        const res = await retrieval.vectorSearch(
+            q,
+            files.map((filename) => ({ filename }))
+        )
+        return YAML.stringify(res.map(({ filename }) => filename))
+    }
+)
+
+`````
+
+
+### `system.retrieval_web_search`
+
+Web Search
+
+Function to do a web search.
+
+-  tool `retrieval_web_search`: Search the web for a user query using Bing Search.
+
+`````js wrap title="system.retrieval_web_search"
+system({
+    title: "Web Search",
+    description: "Function to do a web search.",
+    secrets: ["BING_SEARCH_ENDPOINT"],
+})
+
+defTool(
+    "retrieval_web_search",
+    "Search the web for a user query using Bing Search.",
+    {
+        type: "object",
+        properties: {
+            q: {
+                type: "string",
+                description: "Search query.",
+            },
+        },
+        required: ["q"],
+    },
+    async (args) => {
+        const { q } = args
+        const webPages = await retrieval.webSearch(q)
+        return YAML.stringify(
+            webPages.map((f) => ({
+                url: f.filename,
+                snippet: f.content,
+            }))
+        )
+    }
+)
 
 `````
 
@@ -618,48 +776,6 @@ system({
 })
 
 $`Also, you are an expert coder in TypeScript.`
-
-`````
-
-
-### `system.web_search`
-
-Web Search
-
-Function to do a web search.
-
--  tool `web_search`: Search the web for a user query using Bing Search.
-
-`````js wrap title="system.web_search"
-system({
-    title: "Web Search",
-    description: "Function to do a web search.",
-})
-
-defTool(
-    "web_search",
-    "Search the web for a user query using Bing Search.",
-    {
-        type: "object",
-        properties: {
-            q: {
-                type: "string",
-                description: "Search query.",
-            },
-        },
-        required: ["q"],
-    },
-    async (args) => {
-        const { q } = args
-        const webPages = await retrieval.webSearch(q)
-        return YAML.stringify(
-            webPages.map((f) => ({
-                url: f.filename,
-                snippet: f.content,
-            }))
-        )
-    }
-)
 
 `````
 

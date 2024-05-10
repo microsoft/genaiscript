@@ -1,10 +1,11 @@
 system({
     title: "Web Search",
     description: "Function to do a web search.",
+    secrets: ["BING_SEARCH_ENDPOINT"],
 })
 
 defTool(
-    "web_search",
+    "retrieval_web_search",
     "Search the web for a user query using Bing Search.",
     {
         type: "object",

@@ -1,4 +1,6 @@
+import { Project } from "./ast"
 import { NotSupportedError } from "./error"
+import { resolveSystems } from "./expander"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
@@ -15,10 +17,24 @@ export function promptParameterTypeToJSONSchema(
 }
 
 export function parsePromptParameters(
-    parameters: PromptParametersSchema,
+    prj: Project,
+    script: PromptScript,
     vars: Record<string, string>
 ): PromptParameters {
     const res: PromptParameters = {}
+
+    // create the mega parameter structure
+    const parameters: PromptParameters = {
+        ...(script.parameters || {}),
+        ...resolveSystems(prj, script)
+            .map((s) => prj.getTemplate(s))
+            .filter((t) => t.parameters)
+            .map((t) => ({
+                ...Object.entries(t.parameters).map(([k, v]) => ({
+                    [t.isSystem ? `${t.id}_${k}` : k]: v,
+                })),
+            })),
+    }
 
     // apply defaults
     for (const key in parameters || {}) {
