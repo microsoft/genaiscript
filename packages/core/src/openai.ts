@@ -228,11 +228,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     finish_reason === "tool_calls"
                 ) {
                     finishReason = "tool_calls"
-                } else if (finish_reason === "length") {
-                    finishReason = finish_reason
-                } else if (finish_reason === "stop") {
-                    finishReason = finish_reason
-                } else if (finish_reason === "content_filter") {
+                } else {
                     finishReason = finish_reason
                 }
             } catch (e) {
