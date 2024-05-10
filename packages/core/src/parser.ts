@@ -166,23 +166,3 @@ export async function parseProject(options: {
 
     return prj
 }
-
-export function commentAttributes(frag: Fragment) {
-    const r: Record<string, string> = {}
-    frag.text.replace(/<!--([^]*?)-->/g, (_, txt) => {
-        for (;;) {
-            const m =
-                /(^|\n)\s*\@([\w\.\-]+)\s+([^]*?)($|\n\s*\@[\w\.\-]+\s+[^]*)/.exec(
-                    txt
-                )
-            if (!m) break
-            const id = m[2]
-            const body = m[3].trim()
-            txt = m[4]
-            if (r[id]) r[id] += "\n" + body
-            else r[id] = body
-        }
-        return ""
-    })
-    return r
-}

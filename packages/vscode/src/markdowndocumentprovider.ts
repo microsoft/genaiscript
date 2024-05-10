@@ -31,6 +31,14 @@ const noResponse = `
 Waiting for GenAiScript response...
 `
 
+export function hasOutputOrTraceOpened() {
+    return vscode.window.tabGroups.activeTabGroup?.tabs?.some((t) =>
+        [REQUEST_OUTPUT_FILENAME, REQUEST_TRACE_FILENAME].some((f) =>
+            t.label.includes(f)
+        )
+    )
+}
+
 class MarkdownTextDocumentContentProvider
     implements vscode.TextDocumentContentProvider
 {

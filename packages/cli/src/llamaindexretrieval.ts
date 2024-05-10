@@ -143,9 +143,9 @@ export class LlamaIndexRetrievalService
         return { storageContext, persistDir }
     }
 
-    private async getModelToken(modelid: string) {
-        const { provider } = parseModelIdentifier(modelid)
-        const conn = await this.host.getSecretToken({ model: modelid })
+    private async getModelToken(modelId: string) {
+        const { provider } = parseModelIdentifier(modelId)
+        const conn = await this.host.getSecretToken(modelId)
         if (provider === MODEL_PROVIDER_OLLAMA)
             conn.base = conn.base.replace(/\/v1$/i, "")
         return conn

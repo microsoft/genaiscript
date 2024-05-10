@@ -303,6 +303,11 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     parameters?: PromptParametersSchema
 
     /**
+     * Extra variable values that can be used to configure system prompts.
+     */
+    vars?: Record<string, string>
+
+    /**
      * Tests to validate this script.
      */
     tests?: PromptTest | PromptTest[]
@@ -518,7 +523,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,

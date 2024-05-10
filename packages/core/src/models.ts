@@ -12,6 +12,7 @@ import { OAIToken, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
 import { GenerationOptions } from "./promptcontext"
+import { TraceOptions } from "./trace"
 
 export function resolveLanguageModel(
     options: GenerationOptions
@@ -48,33 +49,47 @@ export interface ModelConnectionInfo
     extends ModelConnectionOptions,
         Partial<OAIToken> {
     error?: string
+    model: string
 }
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { token?: boolean }
+    options?: { model?: string; token?: boolean } & TraceOptions
 ): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
+    const { trace } = options || {}
+    const model = options.model ?? conn.model ?? DEFAULT_MODEL
     try {
-        const secret = await host.getSecretToken(conn)
+        trace?.startDetails(`⚙️ configuration`)
+        trace?.itemValue(`model`, model)
+        const secret = await host.getSecretToken(model)
         if (!secret) {
-            return { info: { ...conn, error: "model configuration not found" } }
+            return { info: { ...conn, model } }
         } else {
             const { token: theToken, ...rest } = secret
+            trace?.itemValue(`base`, rest.base)
+            trace?.itemValue(`type`, rest.type)
+            trace?.itemValue(`version`, rest.version)
+            trace?.itemValue(`source`, rest.source)
             return {
                 info: {
                     ...conn,
                     ...rest,
+                    model,
                     token: theToken ? (options?.token ? theToken : "***") : "",
                 },
                 token: secret,
             }
         }
     } catch (e) {
+        trace?.error(undefined, e)
         return {
             info: {
                 ...conn,
+                model,
                 error: errorMessage(e),
             },
         }
+    } finally {
+        trace?.endDetails()
     }
 }

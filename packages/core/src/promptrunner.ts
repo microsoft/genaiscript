@@ -1,6 +1,6 @@
 import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
-import { commentAttributes, stringToPos } from "./parser"
+import { stringToPos } from "./parser"
 import { assert, logVerbose, relativePath } from "./util"
 import { staticVars } from "./template"
 import { host } from "./host"
@@ -19,11 +19,13 @@ import { RequestError } from "./error"
 import { createFetch } from "./fetch"
 import { undoublequote } from "./fence"
 import { HTTPS_REGEX } from "./constants"
+import { parsePromptParameters } from "./parameters"
 
-async function fragmentVars(
+async function resolveExpansionVars(
     trace: MarkdownTrace,
     template: PromptScript,
-    frag: Fragment
+    frag: Fragment,
+    vars: Record<string, string>
 ) {
     const { file } = frag
     const project = file.project
@@ -93,7 +95,7 @@ async function fragmentVars(
                 content: projectFile.content,
             })
     }
-    const attrs = commentAttributes(frag)
+    const attrs = parsePromptParameters(project, template, vars)
     const secrets: Record<string, string> = {}
     for (const secret of template.secrets || []) {
         const value = await host.readSecret(secret)
@@ -102,7 +104,7 @@ async function fragmentVars(
             secrets[secret] = value
         } else trace.error(`secret \`${secret}\` not found`)
     }
-    const vars: Partial<ExpansionVariables> = {
+    const res: Partial<ExpansionVariables> = {
         ...staticVars(),
         spec: {
             filename: relativePath(host.projectFolder(), file.filename),
@@ -117,7 +119,7 @@ async function fragmentVars(
         vars: attrs,
         secrets,
     }
-    return vars
+    return res
 }
 
 export async function runTemplate(
@@ -132,16 +134,17 @@ export async function runTemplate(
     const { skipLLM, label, cliInfo, trace } = options
     const cancellationToken = options?.cancellationToken
     const version = CORE_VERSION
-
-    trace.heading(2, label || template.id)
+    const model = options.model
+    assert(model !== undefined)
 
     if (cliInfo) traceCliArgs(trace, template, options)
 
-    const vars = await fragmentVars(trace, template, fragment)
-    // override with options vars
-    if (options.vars)
-        vars.vars = { ...(vars.vars || {}), ...(options.vars || {}) }
-
+    const vars = await resolveExpansionVars(
+        trace,
+        template,
+        fragment,
+        options.vars
+    )
     let {
         messages,
         schemas,
@@ -152,7 +155,6 @@ export async function runTemplate(
         statusText,
         temperature,
         topP,
-        model,
         max_tokens,
         seed,
     } = await expandTemplate(
@@ -246,13 +248,14 @@ export async function runTemplate(
     }
 
     updateStatus(`prompting model ${model}`)
-    const connection = await resolveModelConnectionInfo({
-        model,
-    })
-    if (!connection.token) {
-        trace.error(`model connection error`, connection.info)
+    const connection = await resolveModelConnectionInfo(
+        {
+            model,
+        },
+        { trace, token: true }
+    )
+    if (!connection.token)
         throw new RequestError(403, "token not configured", connection.info)
-    }
 
     const { completer } = resolveLanguageModel(genOptions)
     const output = await executeChatSession(

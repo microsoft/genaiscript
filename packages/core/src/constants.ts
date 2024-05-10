@@ -55,6 +55,7 @@ export const GENERATION_ERROR_CODE = -4
 export const RUNTIME_ERROR_CODE = -5
 export const CONNECTION_CONFIGURATION_ERROR_CODE = -6
 export const USER_CANCELLED_ERROR_CODE = -7
+export const CONFIGURATION_ERROR_CODE = -8
 
 export const DOT_ENV_REGEX = /\.env$/i
 export const PROMPT_FENCE = "```"
