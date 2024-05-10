@@ -137,7 +137,12 @@ export async function runTemplate(
 
     if (cliInfo) traceCliArgs(trace, template, options)
 
-    const vars = await resolveExpansionVars(trace, template, fragment, options.vars)
+    const vars = await resolveExpansionVars(
+        trace,
+        template,
+        fragment,
+        options.vars
+    )
     let {
         messages,
         schemas,
@@ -242,13 +247,14 @@ export async function runTemplate(
     }
 
     updateStatus(`prompting model ${model}`)
-    const connection = await resolveModelConnectionInfo({
-        model,
-    })
-    if (!connection.token) {
-        trace.error(`model connection error`, connection.info)
+    const connection = await resolveModelConnectionInfo(
+        {
+            model,
+        },
+        { trace, token: true }
+    )
+    if (!connection.token)
         throw new RequestError(403, "token not configured", connection.info)
-    }
 
     const { completer } = resolveLanguageModel(genOptions)
     const output = await executeChatSession(

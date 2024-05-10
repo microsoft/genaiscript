@@ -163,7 +163,10 @@ export function createRunPromptContext(
                         throw new Error("errors while running prompt")
                 }
 
-                const connection = await resolveModelConnectionInfo(genOptions)
+                const connection = await resolveModelConnectionInfo(
+                    genOptions,
+                    { trace, token: true }
+                )
                 if (!connection.token)
                     throw new Error("model connection error " + connection.info)
                 const { completer } = resolveLanguageModel(genOptions)

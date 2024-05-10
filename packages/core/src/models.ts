@@ -55,7 +55,7 @@ export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: { token?: boolean } & TraceOptions
 ): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
-    const { trace } = options
+    const { trace } = options || {}
     try {
         trace?.startDetails(`⚙️ configuration`)
         const secret = await host.getSecretToken(conn)
