@@ -297,7 +297,6 @@ export async function expandTemplate(
 
     trace.startDetails("💾 script")
 
-    trace.itemValue(`model`, model)
     trace.itemValue(`temperature`, temperature)
     trace.itemValue(`top_p`, topP)
     trace.itemValue(`max tokens`, max_tokens)

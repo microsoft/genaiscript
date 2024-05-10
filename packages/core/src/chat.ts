@@ -444,7 +444,7 @@ export async function executeChatSession(
     trace.startDetails(`🧠 llm chat`)
     try {
         trace.itemValue(`model`, model)
-        trace.itemValue(`api type`, connectionToken.type || "")
+        trace.itemValue(`api type`, connectionToken.type)
         trace.itemValue(`configuration source`, connectionToken.source)
         trace.itemValue(`temperature`, temperature)
         trace.itemValue(`top_p`, topP)

@@ -19,21 +19,20 @@ export function promptParameterTypeToJSONSchema(
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,
-    vars: Record<string, string>
+    optionsVars: Record<string, string>
 ): PromptParameters {
     const res: PromptParameters = {}
 
     // create the mega parameter structure
     const parameters: PromptParameters = {
         ...(script.parameters || {}),
-        ...resolveSystems(prj, script)
-            .map((s) => prj.getTemplate(s))
-            .filter((t) => t.parameters)
-            .map((t) => ({
-                ...Object.entries(t.parameters).map(([k, v]) => ({
-                    [t.isSystem ? `${t.id}_${k}` : k]: v,
-                })),
-            })),
+    }
+    for (const system of resolveSystems(prj, script)
+        .map((s) => prj.getTemplate(s))
+        .filter((t) => t?.parameters)) {
+        Object.entries(system.parameters).forEach(([k, v]) => {
+            parameters[`${system.id.replace(/^system./i, "")}_${k}`] = v
+        })
     }
 
     // apply defaults
@@ -42,20 +41,21 @@ export function parsePromptParameters(
         if (t.default !== undefined) res[key] = t.default
     }
 
-    const allVars = {
+    const vars = {
         ...(script.vars || {}),
-        ...(vars || {}),
+        ...(optionsVars || {}),
     }
     // override with user parameters
-    for (const key in allVars) {
+    for (const key in vars) {
         const p = parameters[key]
         if (!p) res[key] = vars[key]
+
         const t = promptParameterTypeToJSONSchema(p)
         if (t?.type === "number") res[key] = parseFloat(vars[key])
         else if (t?.type === "integer") res[key] = parseInt(vars[key])
         else if (t?.type === "boolean")
             res[key] = /^\s*(yes|true|ok)\s*$/i.test(vars[key])
-        else res[key] = vars[key]
+        else if (t?.type === "string") res[key] = vars[key]
     }
     return Object.freeze(res)
 }
