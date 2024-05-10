@@ -207,7 +207,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     if (finish_reason) finishReason = finish_reason as any
                     if (delta.content)
                         trace.content += delta.content.includes("`")
-                            ? `\`\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\`\`\` `
+                            ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
                             : `\`${delta.content.replace(/\n/g, " ")}\` `
                 } else if (Array.isArray(delta.tool_calls)) {
                     const { tool_calls } = delta
@@ -222,7 +222,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                         if (call.function.arguments)
                             tc.arguments += call.function.arguments
                     }
-                } else if (
+                }
+                if (
                     finish_reason === "function_call" ||
                     finish_reason === "tool_calls"
                 ) {
