@@ -8,7 +8,7 @@ on:
             - "packages/cli/*.ts"
 
 jobs:
-    approved:
+    tests:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
