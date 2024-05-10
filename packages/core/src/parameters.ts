@@ -31,7 +31,7 @@ export function parsePromptParameters(
         .map((s) => prj.getTemplate(s))
         .filter((t) => t?.parameters)) {
         Object.entries(system.parameters).forEach(([k, v]) => {
-            parameters[`${system.id.replace(/^system./i, "")}_${k}`] = v
+            parameters[`${system.id}.${k}`] = v
         })
     }
 
