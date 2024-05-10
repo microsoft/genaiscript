@@ -43,7 +43,11 @@ async function generateLanguageModelConfiguration(
         model: model.id,
     }))
     if (items.length)
-        items.push({ kind: vscode.QuickPickItemKind.Separator, label: ".env" })
+        items.unshift({
+            kind: vscode.QuickPickItemKind.Separator,
+            label: "Visual Studio Code Language Model",
+        })
+    items.push({ kind: vscode.QuickPickItemKind.Separator, label: ".env" })
     items.push(
         {
             label: "OpenAI",
