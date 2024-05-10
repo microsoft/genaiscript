@@ -201,8 +201,8 @@ export function logWarn(msg: string) {
 
 export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
-    host.log(LogLevel.Error, message || "error")
-    host.log(LogLevel.Verbose, YAMLStringify(e))
+    if (message) host.log(LogLevel.Error, message )
+    host.log(LogLevel.Info, YAMLStringify(e))
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {

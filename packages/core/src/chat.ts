@@ -180,7 +180,6 @@ async function runToolCalls(
 
     messages.push({
         role: "assistant",
-        content: null,
         tool_calls: resp.toolCalls.map((c) => ({
             id: c.id,
             function: {
@@ -208,6 +207,8 @@ async function runToolCalls(
             }
 
             let output = await fd.fn({ context, ...callArgs })
+            if (output === undefined || output === null)
+                throw new Error(`output is undefined`)
             if (typeof output === "string") output = { content: output }
             if (output?.type === "shell") {
                 let {
@@ -245,7 +246,7 @@ async function runToolCalls(
                     )
             }
 
-            const { content, edits: functionEdits } = output || {}
+            const { content, edits: functionEdits } = output
 
             if (content) trace.fence(content, "markdown")
             if (functionEdits?.length) {
@@ -410,9 +411,9 @@ export function mergeGenerationOptions(
 ): GenerationOptions {
     return {
         ...options,
-        ...runOptions,
-        model: runOptions.model ?? DEFAULT_MODEL,
-        temperature: runOptions.temperature ?? DEFAULT_TEMPERATURE,
+        ...(runOptions || {}),
+        model: runOptions?.model ?? options?.model ?? DEFAULT_MODEL,
+        temperature: runOptions?.temperature ?? DEFAULT_TEMPERATURE,
     }
 }
 
