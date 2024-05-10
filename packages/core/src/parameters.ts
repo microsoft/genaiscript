@@ -42,8 +42,12 @@ export function parsePromptParameters(
         if (t.default !== undefined) res[key] = t.default
     }
 
+    const allVars = {
+        ...(script.vars || {}),
+        ...(vars || {}),
+    }
     // override with user parameters
-    for (const key in vars || {}) {
+    for (const key in allVars) {
         const p = parameters[key]
         if (!p) res[key] = vars[key]
         const t = promptParameterTypeToJSONSchema(p)

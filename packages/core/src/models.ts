@@ -57,7 +57,7 @@ export async function resolveModelConnectionInfo(
     try {
         const secret = await host.getSecretToken(conn)
         if (!secret) {
-            return { info: { ...conn, error: "model configuration not found" } }
+            return { info: { ...conn } }
         } else {
             const { token: theToken, ...rest } = secret
             return {

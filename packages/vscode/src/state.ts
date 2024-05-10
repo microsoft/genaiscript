@@ -11,7 +11,6 @@ import {
     groupBy,
     GenerationOptions,
     isCancelError,
-    isRequestError,
     delay,
     CHANGE,
     Cache,
@@ -30,8 +29,8 @@ import {
     GENAI_JS_REGEX,
     GENAI_JS_GLOB,
     fixPromptDefinitions,
-    errorMessage,
     DEFAULT_MODEL,
+    resolveModelConnectionInfo,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -229,7 +228,11 @@ temp/
     async requestAI(options: AIRequestOptions): Promise<void> {
         try {
             const req = await this.startAIRequest(options)
-            if (!req) return
+            if (!req) {
+                await this.cancelAiRequest()
+                vscode.commands.executeCommand("genaiscript.request.open.trace")
+                return
+            }
             const res = await req?.request
             const { edits, text, status } = res || {}
 
@@ -359,8 +362,13 @@ ${errorMessage(e)}`
             },
         }
 
-        let connectionToken = await this.host.getSecretToken(template)
+        const { info, token: connectionToken } =
+            await resolveModelConnectionInfo(template, { token: true })
         if (!connectionToken) {
+            if (info.error) {
+                trace.error(undefined, info.error)
+                return undefined
+            }
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(
                 this,
@@ -374,9 +382,7 @@ ${errorMessage(e)}`
                     lmmodel
                 )
             } else return undefined
-            connectionToken = await this.host.getSecretToken(template)
-        }
-        if (connectionToken.type === "localai") await startLocalAI()
+        } else if (connectionToken.type === "localai") await startLocalAI()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
         vscode.commands.executeCommand("genaiscript.request.open.output")
@@ -419,8 +425,10 @@ ${errorMessage(e)}`
 
     async cancelAiRequest() {
         const a = this.aiRequest
-        if (a && a.computing && !a?.controller?.signal?.aborted) {
-            a.controller?.abort("user cancelled")
+        if (a && a.computing) {
+            a.computing = false
+            if (a.controller && !a.controller?.signal?.aborted)
+                a.controller.abort?.("user cancelled")
             this.host.server.client.cancel()
             this.dispatchChange()
             await delay(100)

@@ -303,6 +303,11 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     parameters?: PromptParametersSchema
 
     /**
+     * Extra variable values that can be used to configure system prompts.
+     */
+    vars?: Record<string, string>
+
+    /**
      * Tests to validate this script.
      */
     tests?: PromptTest | PromptTest[]

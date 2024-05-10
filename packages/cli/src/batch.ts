@@ -15,8 +15,6 @@ import {
     GENERATION_ERROR_CODE,
     appendJSONL,
     writeFileEdits,
-    parseVars,
-    parsePromptParameters,
     logVerbose,
     errorMessage,
     EMOJI_SUCCESS,

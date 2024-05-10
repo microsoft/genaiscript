@@ -31,7 +31,7 @@ async function generateLanguageModelConfiguration(
 
     let models: vscode.LanguageModelChat[] = []
     if (isLanguageModelsAvailable(state.context))
-        models = await vscode.lm.selectChatModels({})
+        models = await vscode.lm.selectChatModels()
     const items: (vscode.QuickPickItem & {
         model?: string
         provider?: string

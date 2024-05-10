@@ -1,7 +1,5 @@
 import { Project, PromptScript } from "./ast"
-import {
-    BUILTIN_PREFIX,
-} from "./constants"
+import { BUILTIN_PREFIX } from "./constants"
 import { errorMessage } from "./error"
 import { JSON5TryParse } from "./json5"
 function templateIdFromFileName(filename: string) {
@@ -259,6 +257,7 @@ export async function parsePromptTemplate(
             c.checkBool("isSystem")
             c.checkObjectArray("urlAdapters")
             c.checkRecord("parameters")
+            c.checkRecord("vars")
 
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")

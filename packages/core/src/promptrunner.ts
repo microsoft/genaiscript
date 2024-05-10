@@ -21,7 +21,7 @@ import { undoublequote } from "./fence"
 import { HTTPS_REGEX } from "./constants"
 import { parsePromptParameters } from "./parameters"
 
-async function resolveEnvVars(
+async function resolveExpansionVars(
     trace: MarkdownTrace,
     template: PromptScript,
     frag: Fragment,
@@ -139,7 +139,7 @@ export async function runTemplate(
 
     if (cliInfo) traceCliArgs(trace, template, options)
 
-    const vars = await resolveEnvVars(trace, template, fragment, options.vars)
+    const vars = await resolveExpansionVars(trace, template, fragment, options.vars)
     let {
         messages,
         schemas,

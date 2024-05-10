@@ -17,8 +17,6 @@ import {
     RUNTIME_ERROR_CODE,
     ANNOTATION_ERROR_CODE,
     writeFileEdits,
-    parseVars,
-    parsePromptParameters,
     logError,
     isCancelError,
     USER_CANCELLED_ERROR_CODE,
