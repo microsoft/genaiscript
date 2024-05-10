@@ -3,6 +3,10 @@ on:
     workflow_dispatch:
     push:
         branches: [main]
+        paths:
+            - "packages/core/*.ts"
+            - "packages/cli/*.ts"
+
 jobs:
     approved:
         runs-on: ubuntu-latest
