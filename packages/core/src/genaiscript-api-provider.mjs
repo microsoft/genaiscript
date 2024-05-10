@@ -44,7 +44,7 @@ class GenAIScriptApiProvider {
             if (testVars && typeof testVars === "object") {
                 args.push("--vars")
                 for (const [key, value] of Object.entries(testVars)) {
-                    args.push(`${key}=${value}`)
+                    args.push(`${key}=${JSON.stringify(value)}`)
                 }
             }
             args.push("--json")
