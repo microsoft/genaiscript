@@ -3,7 +3,7 @@ import { serializeError as rawSerializeError } from "serialize-error"
 export function serializeError(
     e: unknown | string | Error | SerializedError
 ): SerializedError {
-    if (e === undefined || e === null) return {}
+    if (e === undefined || e === null) return undefined
     else if (e instanceof Error) {
         const err = rawSerializeError(e, { maxDepth: 3, useToJSON: false })
         const m = /at eval.*<anonymous>:(\d+):(\d+)/.exec(err.stack)
@@ -16,8 +16,7 @@ export function serializeError(
         const obj = e as SerializedError
         return obj
     } else if (typeof e === "string") return { message: e }
-    else if (e !== undefined && e !== null) return { message: e.toString?.() }
-    else return {}
+    else return { message: e.toString?.() }
 }
 
 export function errorMessage(e: any, defaultValue: string = "error"): string {

@@ -6,7 +6,7 @@ script({
             files: "src/rag/markdown.md",
             rubrics: "is a summary",
             facts: ["Markdown is a text-based syntax to generate documents"],
-            keywords: "markdown"
+            keywords: "markdown",
         },
     ],
 })
@@ -14,7 +14,9 @@ script({
 def("FILE", env.files)
 
 $`
-    Summarize each file with one paragraph. 
-    Be concise. 
-    Answer in plain text.
+Summarize each FILE with one paragraph.
+
+- Be concise. 
+- Answer in plain text.
+- Use less than 20 words.
 `

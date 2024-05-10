@@ -178,11 +178,6 @@ async function runToolCalls(
     assert(!!trace)
     let edits: Edits[] = []
 
-    if (resp.text)
-        messages.push({
-            role: "assistant",
-            content: resp.text,
-        })
     messages.push({
         role: "assistant",
         content: null,
@@ -381,6 +376,12 @@ async function processChatMessage(
     const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
     const maxRepairs = MAX_DATA_REPAIRS
 
+    if (resp.text)
+        messages.push({
+            role: "assistant",
+            content: resp.text,
+        })
+
     // execute tools as needed
     if (resp.toolCalls?.length) {
         await runToolCalls(resp, messages, functions, options)
@@ -392,9 +393,9 @@ async function processChatMessage(
         return undefined // keep working
     }
     // apply repairs if necessary
-    else if (applyRepairs(messages, schemas, options)) {
+    else if (await applyRepairs(messages, schemas, options)) {
         stats.repairs++
-        if (stats.repairs >= maxRepairs)
+        if (stats.repairs > maxRepairs)
             throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
         return undefined // keep working
     } else
@@ -432,7 +433,6 @@ export async function executeChatSession(
         maxTokens,
         seed,
         cacheName,
-        stats,
     } = genOptions
 
     const tools: ChatCompletionTool[] = functions?.length

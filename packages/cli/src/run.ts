@@ -232,7 +232,6 @@ ${Array.from(files)
         else spinner.succeed()
     } else if (res.status !== "success")
         logVerbose(res.statusText ?? res.status)
-    if (res.error) logError(res.error as Error)
 
     if (outTrace && res.trace) await writeText(outTrace, res.trace)
     if (outAnnotations && res.annotations?.length) {
