@@ -27,6 +27,7 @@ import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 import { GenerationStats } from "./expander"
 import { fuzzSearch } from "./fuzzsearch"
+import { exec } from "./exec"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -191,11 +192,24 @@ export function createPromptContext(
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
-    const chat: ChatSession = {
+    const promptHost: PromptHost = {
         askUser: (question) =>
             host.askUser({
                 prompt: question,
             }),
+        exec: async (command, args, options) => {
+            const res = await exec(host, {
+                label: `exec`,
+                trace,
+                call: {
+                    type: "shell",
+                    command,
+                    args,
+                    cwd: options?.cwd,
+                },
+            })
+            return res
+        },
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
@@ -213,7 +227,7 @@ export function createPromptContext(
         AICI,
         XML,
         retrieval,
-        chat,
+        host: promptHost,
         defImages,
         defOutputProcessor,
         defFileMerge: (fn) => {

@@ -1,6 +1,6 @@
 script({ title: "ask-user" })
 
-const question = chat.askUser("what is your question?")
+const question = host.askUser("what is your question?")
 
 $`Answer this question:
 

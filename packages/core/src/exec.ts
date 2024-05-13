@@ -1,5 +1,5 @@
 import { fileExists, readText, writeText } from "./fs"
-import { Host, ShellOutput } from "./host"
+import { Host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { dotGenaiscriptPath } from "./util"
 

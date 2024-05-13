@@ -129,7 +129,7 @@ declare var AICI: AICI
 /**
  * Access to current LLM chat session information
  */
-declare var chat: ChatSession
+declare var host: PromptHost
 
 /**
  * Fetches a given URL and returns the response.

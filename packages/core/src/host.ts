@@ -38,16 +38,7 @@ export interface ReadFileOptions {
     virtual?: boolean
 }
 
-export interface ShellOutput {
-    stdout?: string
-    stderr?: string
-    output?: string
-    exitCode: number
-    failed: boolean
-}
-
-export interface ShellCallOptions {
-    cwd?: string
+export interface ShellCallOptions extends ShellOptions {
     timeout?: number
     stdin?: string
     keepOnError?: boolean

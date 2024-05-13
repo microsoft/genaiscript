@@ -441,13 +441,12 @@ interface ChatFunctionCallContent {
     edits?: Edits[]
 }
 
-interface ChatFunctionCallShell {
+interface ChatFunctionCallShell extends ShellOptions {
     type: "shell"
     command: string
     stdin?: string
     files?: Record<string, string>
     outputFile?: string
-    cwd?: string
     args?: string[]
     timeout?: number
     ignoreExitCode?: boolean
@@ -1304,8 +1303,25 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
-interface ChatSession {
+interface ShellOptions {
+    cwd?: string
+}
+
+interface ShellOutput {
+    stdout?: string
+    stderr?: string
+    output?: string
+    exitCode: number
+    failed: boolean
+}
+
+interface PromptHost {
     askUser(question: string): Promise<string>
+    exec(
+        command: string,
+        args: string[],
+        options: ShellOptions
+    ): Promise<Partial<ShellOutput>>
 }
 
 interface PromptContext extends RunPromptContext {
@@ -1335,5 +1351,5 @@ interface PromptContext extends RunPromptContext {
     CSV: CSV
     INI: INI
     AICI: AICI
-    chat: ChatSession
+    host: PromptHost
 }
