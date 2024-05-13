@@ -674,7 +674,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - mongodb-connection-string-url@3.0.0
+ - mongodb-connection-string-url@3.0.1
 
 This package contains the following license and notice below:
 
@@ -905,7 +905,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/reset@0.59.4
+ - @unocss/reset@0.60.2
 
 This package contains the following license and notice below:
 
@@ -2814,7 +2814,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - openai@4.42.0
+ - openai@4.45.0
 
 This package contains the following license and notice below:
 
@@ -3024,7 +3024,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @pinecone-database/pinecone@2.2.0
+ - @pinecone-database/pinecone@2.2.1
 
 This package contains the following license and notice below:
 
@@ -4531,8 +4531,8 @@ The following npm packages may be included in this product:
  - @types/nlcst@1.0.4
  - @types/node-fetch@2.6.11
  - @types/node@17.0.45
- - @types/node@18.19.32
- - @types/node@20.12.10
+ - @types/node@18.19.33
+ - @types/node@20.12.11
  - @types/papaparse@5.3.14
  - @types/pg@8.11.6
  - @types/qs@6.9.15
@@ -4572,7 +4572,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.25.0
+ - genaiscript-vscode@1.27.0
 
 This package contains the following license and notice below:
 
@@ -6995,7 +6995,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - jackspeak@2.3.6
- - path-scurry@1.10.2
+ - path-scurry@1.11.1
 
 These packages each contain the following license and notice below:
 
@@ -17902,7 +17902,7 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @iconify-json/carbon@1.1.32
+ - @iconify-json/carbon@1.1.33
  - drizzle-orm@0.29.5
 
 These packages each contain the following license and notice below:
@@ -17913,7 +17913,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001616
+ - caniuse-lite@1.0.30001617
 
 This package contains the following license and notice below:
 
@@ -19575,7 +19575,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - @mongodb-js/saslprep@1.1.6
+ - @mongodb-js/saslprep@1.1.7
 
 This package contains the following license and notice below:
 
@@ -20608,7 +20608,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - promptfoo@0.57.1
+ - promptfoo@0.58.0
 
 This package contains the following license and notice below:
 
@@ -21186,37 +21186,6 @@ The views and conclusions contained in the software and documentation are those 
 
 -----------
 
-The following npm package may be included in this product:
-
- - lodash-node@2.4.1
-
-This package contains the following license and notice below:
-
-Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-Based on Underscore.js 1.5.2, copyright 2009-2013 Jeremy Ashkenas,
-DocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------------
-
 The following npm packages may be included in this product:
 
  - lodash.isboolean@3.0.3
@@ -21567,7 +21536,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.757
+ - electron-to-chromium@1.4.763
 
 This package contains the following license and notice below:
 
@@ -21824,7 +21793,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @anthropic-ai/sdk@0.15.0
- - @anthropic-ai/sdk@0.20.8
+ - @anthropic-ai/sdk@0.20.9
 
 These packages each contain the following license and notice below:
 
@@ -22194,7 +22163,7 @@ DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - dompurify@3.1.2
+ - dompurify@3.1.3
 
 This package contains the following license and notice below:
 
@@ -23791,6 +23760,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @esbuild/darwin-x64@0.20.2
+ - @esbuild/darwin-x64@0.21.2
  - @iconify-json/ph@1.1.13
  - @iconify-json/svg-spinners@1.1.2
  - @pagefind/darwin-x64@1.1.0
@@ -23810,11 +23780,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.25.0
+ - docs@1.27.0
  - eastasianwidth@0.2.0
- - genaiscript-core@1.25.0
- - genaiscript-sample@1.25.0
- - genaiscript@1.25.0
+ - genaiscript-core@1.27.0
+ - genaiscript-sample@1.27.0
+ - genaiscript@1.27.0
  - hast-util-to-string@3.0.0
  - https-proxy-agent@5.0.1
  - inline-style-parser@0.1.1
@@ -24304,7 +24274,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cli-table3@0.6.4
+ - cli-table3@0.6.5
 
 This package contains the following license and notice below:
 
@@ -25736,7 +25706,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - zod@3.23.6
+ - zod@3.23.8
 
 This package contains the following license and notice below:
 
@@ -25764,11 +25734,12 @@ SOFTWARE.
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - esbuild@0.20.2
+ - esbuild@0.21.2
 
-This package contains the following license and notice below:
+These packages each contain the following license and notice below:
 
 MIT License
 
@@ -26013,11 +25984,8 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @drauu/core@0.4.0
- - @slidev/cli@0.49.0-beta.6
- - @slidev/client@0.49.0-beta.6
- - @slidev/parser@0.49.0-beta.6
+ - @slidev/cli@0.49.2
  - @slidev/types@0.47.5
- - @slidev/types@0.49.0-beta.6
  - drauu@0.4.0
 
 These packages each contain the following license and notice below:
@@ -26025,6 +25993,38 @@ These packages each contain the following license and notice below:
 MIT License
 
 Copyright (c) 2020-2021 Anthony Fu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm packages may be included in this product:
+
+ - @slidev/client@0.49.2
+ - @slidev/parser@0.49.2
+ - @slidev/types@0.49.2
+
+These packages each contain the following license and notice below:
+
+MIT License
+
+Copyright (c) 2020-PRESENT Anthony Fu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26266,7 +26266,7 @@ The following npm packages may be included in this product:
 
  - @antfu/install-pkg@0.1.1
  - @antfu/install-pkg@0.3.3
- - @antfu/utils@0.7.7
+ - @antfu/utils@0.7.8
  - local-pkg@0.5.0
  - unconfig@0.3.13
  - vite-plugin-remote-assets@0.4.1
@@ -26397,7 +26397,7 @@ The following npm packages may be included in this product:
  - @astrojs/prism@3.1.0
  - @astrojs/sitemap@3.1.4
  - @astrojs/telemetry@3.1.0
- - astro@4.7.1
+ - astro@4.8.3
 
 These packages each contain the following license and notice below:
 
@@ -26555,13 +26555,13 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @shikijs/core@1.4.0
- - @shikijs/markdown-it@1.4.0
- - @shikijs/monaco@1.4.0
- - @shikijs/transformers@1.4.0
- - @shikijs/twoslash@1.4.0
- - @shikijs/vitepress-twoslash@1.4.0
- - shiki@1.4.0
+ - @shikijs/core@1.5.1
+ - @shikijs/markdown-it@1.5.1
+ - @shikijs/monaco@1.5.1
+ - @shikijs/transformers@1.5.1
+ - @shikijs/twoslash@1.5.1
+ - @shikijs/vitepress-twoslash@1.5.1
+ - shiki@1.5.1
 
 These packages each contain the following license and notice below:
 
@@ -26653,27 +26653,27 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @unocss/astro@0.59.4
- - @unocss/config@0.59.4
- - @unocss/core@0.59.4
- - @unocss/extractor-arbitrary-variants@0.59.4
- - @unocss/extractor-mdc@0.59.4
- - @unocss/inspector@0.59.4
- - @unocss/postcss@0.59.4
- - @unocss/preset-attributify@0.59.4
- - @unocss/preset-icons@0.59.4
- - @unocss/preset-mini@0.59.4
- - @unocss/preset-uno@0.59.4
- - @unocss/preset-web-fonts@0.59.4
- - @unocss/preset-wind@0.59.4
- - @unocss/rule-utils@0.59.4
- - @unocss/scope@0.59.4
- - @unocss/transformer-attributify-jsx-babel@0.59.4
- - @unocss/transformer-attributify-jsx@0.59.4
- - @unocss/transformer-compile-class@0.59.4
- - @unocss/transformer-variant-group@0.59.4
- - @unocss/vite@0.59.4
- - unocss@0.59.4
+ - @unocss/astro@0.60.2
+ - @unocss/config@0.60.2
+ - @unocss/core@0.60.2
+ - @unocss/extractor-arbitrary-variants@0.60.2
+ - @unocss/extractor-mdc@0.60.2
+ - @unocss/inspector@0.60.2
+ - @unocss/postcss@0.60.2
+ - @unocss/preset-attributify@0.60.2
+ - @unocss/preset-icons@0.60.2
+ - @unocss/preset-mini@0.60.2
+ - @unocss/preset-uno@0.60.2
+ - @unocss/preset-web-fonts@0.60.2
+ - @unocss/preset-wind@0.60.2
+ - @unocss/rule-utils@0.60.2
+ - @unocss/scope@0.60.2
+ - @unocss/transformer-attributify-jsx-babel@0.60.2
+ - @unocss/transformer-attributify-jsx@0.60.2
+ - @unocss/transformer-compile-class@0.60.2
+ - @unocss/transformer-variant-group@0.60.2
+ - @unocss/vite@0.60.2
+ - unocss@0.60.2
  - vite-plugin-inspect@0.8.4
 
 These packages each contain the following license and notice below:
@@ -26704,7 +26704,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/cli@0.59.4
+ - @unocss/cli@0.60.2
 
 This package contains the following license and notice below:
 
@@ -26820,7 +26820,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/preset-typography@0.59.4
+ - @unocss/preset-typography@0.60.2
 
 This package contains the following license and notice below:
 
@@ -26850,15 +26850,15 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @volar/kit@2.1.6
+ - @volar/kit@2.2.2
  - @volar/language-core@1.11.1
- - @volar/language-core@2.1.6
- - @volar/language-server@2.1.6
- - @volar/language-service@2.1.6
- - @volar/snapshot-document@2.1.6
+ - @volar/language-core@2.2.2
+ - @volar/language-server@2.2.2
+ - @volar/language-service@2.2.2
+ - @volar/snapshot-document@2.2.2
  - @volar/source-map@1.11.1
- - @volar/source-map@2.1.6
- - @volar/typescript@2.1.6
+ - @volar/source-map@2.2.2
+ - @volar/typescript@2.2.2
  - @vue/language-core@1.8.27
  - typescript-auto-import-cache@0.3.2
 
@@ -27012,7 +27012,7 @@ The following npm packages may be included in this product:
 
  - magic-string-stack@0.1.1
  - markdown-it-mdc@0.2.3
- - shiki-magic-move@0.3.7
+ - shiki-magic-move@0.4.2
  - strip-literal@1.3.0
 
 These packages each contain the following license and notice below:
@@ -27105,7 +27105,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/check@0.5.10
+ - @astrojs/check@0.6.0
 
 This package contains the following license and notice below:
 
@@ -27165,7 +27165,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/transformer-directives@0.59.4
+ - @unocss/transformer-directives@0.60.2
 
 This package contains the following license and notice below:
 
@@ -27195,7 +27195,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/preset-tagify@0.59.4
+ - @unocss/preset-tagify@0.60.2
 
 This package contains the following license and notice below:
 
@@ -27229,11 +27229,11 @@ The following npm packages may be included in this product:
  - muggle-string@0.3.1
  - muggle-string@0.4.1
  - typesafe-path@0.2.2
- - volar-service-css@0.0.34
- - volar-service-emmet@0.0.34
- - volar-service-html@0.0.34
- - volar-service-typescript-twoslash-queries@0.0.34
- - volar-service-typescript@0.0.34
+ - volar-service-css@0.0.43
+ - volar-service-emmet@0.0.43
+ - volar-service-html@0.0.43
+ - volar-service-typescript-twoslash-queries@0.0.43
+ - volar-service-typescript@0.0.43
 
 These packages each contain the following license and notice below:
 
@@ -27263,7 +27263,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - volar-service-prettier@0.0.34
+ - volar-service-prettier@0.0.43
 
 This package contains the following license and notice below:
 
@@ -27503,7 +27503,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/language-server@2.8.4
+ - @astrojs/language-server@2.9.0
 
 This package contains the following license and notice below:
 
@@ -27643,7 +27643,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - error-stack-parser-es@0.1.1
+ - error-stack-parser-es@0.1.2
 
 This package contains the following license and notice below:
 
@@ -28505,7 +28505,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - pathe@1.1.2
- - pkg-types@1.1.0
+ - pkg-types@1.1.1
 
 These packages each contain the following license and notice below:
 
@@ -29183,7 +29183,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - glob@10.3.12
+ - glob@10.3.15
 
 This package contains the following license and notice below:
 
@@ -29453,7 +29453,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 The following npm packages may be included in this product:
 
  - minipass@5.0.0
- - minipass@7.1.0
+ - minipass@7.1.1
 
 These packages each contain the following license and notice below:
 
@@ -29559,14 +29559,13 @@ The following npm packages may be included in this product:
  - isexe@2.0.0
  - lockfile@1.0.4
  - lru-cache@5.1.1
- - lru-cache@6.0.0
  - minimatch@3.1.2
  - nopt@5.0.0
  - npmlog@5.0.1
  - once@1.4.0
  - rimraf@3.0.2
  - semver@6.3.1
- - semver@7.6.0
+ - semver@7.6.2
  - tar@6.2.1
  - which@2.0.2
  - wrappy@1.0.2
@@ -30560,36 +30559,6 @@ THE SOFTWARE.
 
 -----------
 
-The following npm package may be included in this product:
-
- - rouge@1.0.3
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2014 Kenneth Lim
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
 The following npm packages may be included in this product:
 
  - end-of-stream@1.4.4
@@ -31201,6 +31170,36 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - rouge@2.0.0
+
+This package contains the following license and notice below:
+
+The MIT License (MIT)
+
+Copyright (c) 2015 Kenneth Lim
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 -----------
 
@@ -33850,6 +33849,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
+ - @johnsoncodehk/vscode-html-languageservice@5.2.0-34a5462
  - jsonc-parser@2.3.1
  - request-light@0.7.0
  - vscode-css-languageservice@6.2.14
