@@ -1320,7 +1320,7 @@ interface PromptHost {
     exec(
         command: string,
         args: string[],
-        options: ShellOptions
+        options?: ShellOptions
     ): Promise<Partial<ShellOutput>>
 }
 
