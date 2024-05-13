@@ -6,6 +6,10 @@ sidebar:
     order: 13
 ---
 
+GenAIScript provides access to the file system of workspace and to the selected files in the user interface.
+
+The file path are rooted to the project workspace folder. In Visual Studio Code, this is the root folder opened (multi-root workspaces are not yet supported). Using the command line, the workspace root is the current working directory when launching the CLI.
+
 ## `env.files`
 
 The variable `env.files` contains an array of files that have been
