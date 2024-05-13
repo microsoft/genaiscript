@@ -458,6 +458,7 @@ export async function runTemplate(
         fences,
         frames,
         genVars,
+        json
     }
     options?.infoCb?.({
         label: res.label,

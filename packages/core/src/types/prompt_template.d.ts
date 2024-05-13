@@ -1188,6 +1188,11 @@ interface GenerationOutput {
      * Generated annotations
      */
     annotations: Diagnostic[]
+
+    /**
+     * Output as JSON if parseable
+     */
+    json?: any
 }
 
 type Point = {
