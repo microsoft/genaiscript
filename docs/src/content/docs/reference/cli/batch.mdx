@@ -1,24 +1,34 @@
 ---
-title: Batching a Script to Many Files
+title: Batch
+description: Learn how to use the batch command to process multiple files with GenAIScript, including JSON Lines output and GitHub Actions integration.
 sidebar:
-  order: 20
+  order: 4
+keywords: batch processing, JSON Lines, CLI tool, automation, GitHub Actions
 ---
 import { Steps } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 Once you have a script that works in Visual Studio Code, you can use the [command line](/genaiscript/reference/cli/)
-to run the script automatically.
+to run the script automatically over many files.
 
-```sh wrap
-npx genaiscript run <script> <files>
+The `batch` command runs the tool over many files in a batch mode (one full LLM iteration per file).
+
+```bash "batch"
+npx genaiscript batch <script> "<files...>"
 ```
 
-You can also use traditional scripting languages like Bash, Powershell, Python, or JavaScript to automate the process.
+The script will create various JSON Lines files with the results (JSON Lines is a file format where each line is a valid JSON object, which allows for appending results). You can post-process those results using your favorite script environment.
+
+By default, results will be saved in the `.genaiscript/results` folder, this can be overriden with `--out`. The execution produces various `.jsonl` (JSON Lines) files that provide a convinient way to append runs to the same files.
+
+## Scripting
+
+You can also use the [run](../run) command and your favorite scripting language (_enter favorite language here_) to automate the process.
 
 Let's assume you start with a file `ex1.pdf` you want the output in a new file `ex1.tweet.md`.
 How you do this depends on the shell script you prefer. 
 
-## Bash
+### Bash
 
 ```bash wrap frame="none"
 for file in *.pdf; do 
@@ -29,7 +39,7 @@ for file in *.pdf; do
 done
 ```
 
-## Powershell
+### Powershell
 
 ```powershell wrap frame="none"
 Get-ChildItem -Filter *.pdf | ForEach-Object {
@@ -40,7 +50,7 @@ Get-ChildItem -Filter *.pdf | ForEach-Object {
 }
 ```
 
-## Python
+### Python
 
 ```python wrap frame="none"
 import subprocess, sys, os
@@ -54,7 +64,7 @@ for input_file in sys.argv[1:]:
             outfile.write(result)
 ```
 
-## JavaScript (node.js + google/zx)
+### JavaScript (node.js + google/zx)
 
 ```js wrap frame="none"
 #!/usr/bin/env zx
@@ -72,4 +82,20 @@ This script requires [zx](https://github.com/google/zx).
 
 ```sh
 npm install -g zx
+```
+
+## GitHub Actions
+
+In a GitHub Actions workflow, you can inject a report in the step summary (`GITHUB_STEP_SUMMARY`) using `--out-summary` (`-os`).
+
+```yaml "-os $GITHUB_STEP_SUMMARY"
+- name: Batch genaiscript <script> on <files>
+  run: |
+      npx --yes genaiscript batch <script> <files> -os $GITHUB_STEP_SUMMARY
+- name: Upload GenAIScript results
+  if: success() || failure()
+  uses: actions/upload-artifact@v4
+  with:
+      path: |
+          results/**
 ```
