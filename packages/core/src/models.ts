@@ -22,6 +22,7 @@ export function resolveLanguageModel(
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_AZURE) return OpenAIModel
+    //MODEL_PROVIDER_LITELLM
     return OpenAIModel
 }
 

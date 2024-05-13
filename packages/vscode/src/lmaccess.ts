@@ -13,6 +13,7 @@ import {
     updateConnectionConfiguration,
     MODEL_PROVIDER_AZURE,
     parseModelIdentifier,
+    MODEL_PROVIDER_LITELLM,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
 
@@ -24,7 +25,8 @@ async function generateLanguageModelConfiguration(
     if (
         provider === MODEL_PROVIDER_OLLAMA ||
         provider === MODEL_PROVIDER_AICI ||
-        provider === MODEL_PROVIDER_AZURE
+        provider === MODEL_PROVIDER_AZURE ||
+        provider === MODEL_PROVIDER_LITELLM
     ) {
         return { provider }
     }

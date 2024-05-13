@@ -2,12 +2,15 @@ import {
     AZURE_OPENAI_API_VERSION,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    DOCS_CONFIGURATION_LITELLM_URL,
     DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
+    LITELLM_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
@@ -137,11 +140,19 @@ export async function parseTokenFromEnv(
         }
     }
 
-    // default connection location
     if (provider === MODEL_PROVIDER_OLLAMA) {
         return {
             base: OLLAMA_API_BASE,
             token: "ollama",
+            type: "openai",
+            source: "default",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_LITELLM) {
+        return {
+            base: LITELLM_API_BASE,
+            token: "litellm",
             type: "openai",
             source: "default",
         }
@@ -155,6 +166,12 @@ export function dotEnvTemplate(provider: string, apiType: APIType) {
         return `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
+`
+
+    if (provider === MODEL_PROVIDER_LITELLM)
+        return `
+## LiteLLM ${DOCS_CONFIGURATION_LITELLM_URL}
+# LITELLM_API_BASE="<custom api base>" # uses ${LITELLM_API_BASE} by default
 `
 
     if (provider === MODEL_PROVIDER_AICI)
