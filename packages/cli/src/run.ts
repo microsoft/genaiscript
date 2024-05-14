@@ -300,7 +300,10 @@ ${Array.from(files)
         }
         if (res.schemas) {
             for (const [sname, schema] of Object.entries(res.schemas)) {
-                const schemaFile = join(out, `${sname}.schema.d.ts`)
+                const schemaFile = join(
+                    out,
+                    `${sname.toLocaleLowerCase()}.schema.d.ts`
+                )
                 await writeText(
                     schemaFile,
                     stringifySchemaToTypeScript(schema, {
