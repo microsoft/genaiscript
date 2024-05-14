@@ -8,7 +8,7 @@ script(...)
 $`Write a poem.`
 ```
 
-- Debugging through `sourceMappingURL` + CLI
+- Debugging Just Works™
 
 - Support for `esm` through dynamic `import` (CLI only)
 

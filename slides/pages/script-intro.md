@@ -22,7 +22,8 @@ Each GenAIScript is JavaScript that defines a call/return to an LLM
 script({ title: "Summarize", model: "gpt4" })
 
 // insert the context, define a "FILE" variable
-const file = def("FILE", env.files)
+def("FILE", env.files)
+def("FILE", await workspace.findFile("**/*.txt"))
 
 // appends text to the prompt (file is the variable name)
 $`Summarize FILE. Save output to summary.txt`

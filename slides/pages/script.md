@@ -20,7 +20,7 @@ $`Analyze ${file} and extract data to JSON using the ${schema} schema.`
 
 - **It Is Just JavaScript(TM)**
 - **`$...`** writes to the prompt, **`def`** defines a "variable" + various builtin parsers and utilities
-- Fast development loop in Visual Studio Code + command line
+- Fast development loop in Visual Studio Code + Automation with Command Line
 
 </v-click>
 
