@@ -53,9 +53,10 @@ Pre-compiled the regular expression to improve the performance of the is_valid_e
 `
 
         const fenced = extractFenced(source)
-        assert.equal(fenced.length, 2)
+        assert.equal(fenced.length, 3)
         assert.equal(fenced[0].label, "DIFF ./email_recognizer.py")
-        assert.equal(fenced[1].label, "SUMMARY")
+        assert.equal(fenced[1].language, "python")
+        assert.equal(fenced[2].label, "SUMMARY")
     })
 
     test("file arg", () => {
