@@ -4,6 +4,12 @@ import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
 
+export function isJSONSchema(obj: any) {
+    if (typeof obj === "object" && obj.type === "object") return true
+    if (typeof obj === "object" && obj.type === "array") return true
+    return false
+}
+
 export function stringifySchemaToTypeScript(
     schema: JSONSchema,
     options?: { typeName?: string }

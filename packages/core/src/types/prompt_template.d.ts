@@ -1117,19 +1117,10 @@ interface RunPromptContext {
         generator: string | RunPromptGenerator,
         options?: ModelOptions
     ): Promise<RunPromptResult>
-    /**
-     * @deprecated use `defTool` instead
-     */
-    defFunction(
-        name: string,
-        description: string,
-        parameters: PromptParametersSchema,
-        fn: ChatFunctionHandler
-    ): void
     defTool(
         name: string,
         description: string,
-        parameters: PromptParametersSchema,
+        parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
 }

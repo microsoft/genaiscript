@@ -51,16 +51,6 @@ declare function def(
 ): string
 
 /**
- * @deprecated Use `defTool` instead.
- */
-declare function defFunction(
-    name: string,
-    description: string,
-    parameters: ChatFunctionParameters,
-    fn: ChatFunctionHandler
-): void
-
-/**
  * Declares a tool that can be called from the prompt.
  * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
  * @param description A description of what the function does, used by the model to choose when and how to call the function.

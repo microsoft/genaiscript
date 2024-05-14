@@ -28,6 +28,7 @@ import { CancelError, isCancelError, serializeError } from "./error"
 import { checkCancelled } from "./cancellation"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { isJSONSchema } from "./schema"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -44,10 +45,14 @@ export function createRunPromptContext(
     const defTool: (
         name: string,
         description: string,
-        parameters: PromptParametersSchema,
+        parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ) => void = (name, description, parameters, fn) => {
-        const parameterSchema = promptParametersSchemaToJSONSchema(parameters)
+        const parameterSchema = isJSONSchema(parameters)
+            ? (parameters as JSONSchema)
+            : promptParametersSchemaToJSONSchema(
+                  parameters as PromptParametersSchema
+              )
         appendChild(
             node,
             createFunctionNode(name, description, parameterSchema, fn)
@@ -120,7 +125,6 @@ export function createRunPromptContext(
             return name
         },
         defTool,
-        defFunction: defTool,
         defSchema,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)

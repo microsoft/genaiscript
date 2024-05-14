@@ -1,3 +1,4 @@
+import { assert } from "node:console"
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { resolveSystems } from "./expander"
@@ -20,6 +21,7 @@ export function promptParametersSchemaToJSONSchema(
     parameters: PromptParametersSchema
 ) {
     if (!parameters) return undefined
+
     const res: JSONSchemaObject = {
         type: "object",
         properties: {},

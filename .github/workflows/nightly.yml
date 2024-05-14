@@ -4,6 +4,9 @@ on:
     workflow_dispatch:
     schedule:
         - cron: "0 7 * * *"
+    release:
+      types: [created]      
+    
 jobs:
     build:
         runs-on: ubuntu-latest
