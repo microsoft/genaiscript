@@ -367,19 +367,8 @@ interface ChatFunctionDefinition {
      *
      * Omitting `parameters` defines a function with an empty parameter list.
      */
-    parameters?: ChatFunctionParameters
+    parameters?: JSONSchema
 }
-
-/**
- * The parameters the functions accepts, described as a JSON Schema object. See the
- * [guide](https://platform.openai.com/docs/guides/text-generation/function-calling)
- * for examples, and the
- * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
- * documentation about the format.
- *
- * Omitting `parameters` defines a function with an empty parameter list.
- */
-type ChatFunctionParameters = JSONSchema
 
 interface ChatFunctionCallTrace {
     log(message: string): void
@@ -1146,13 +1135,13 @@ interface RunPromptContext {
     defFunction(
         name: string,
         description: string,
-        parameters: ChatFunctionParameters,
+        parameters: PromptParametersSchema,
         fn: ChatFunctionHandler
     ): void
     defTool(
         name: string,
         description: string,
-        parameters: ChatFunctionParameters,
+        parameters: PromptParametersSchema,
         fn: ChatFunctionHandler
     ): void
 }

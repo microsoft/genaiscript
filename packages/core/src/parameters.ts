@@ -16,6 +16,23 @@ export function promptParameterTypeToJSONSchema(
     else throw new NotSupportedError(`prompt type ${typeof t} not supported`)
 }
 
+export function promptParametersSchemaToJSONSchema(
+    parameters: PromptParametersSchema
+) {
+    if (!parameters) return undefined
+    const res: JSONSchemaObject = {
+        type: "object",
+        properties: {},
+        required: [],
+    }
+    for (const [k, v] of Object.entries(parameters)) {
+        const t = promptParameterTypeToJSONSchema(v)
+        res.properties[k] = t
+        if (t.default !== undefined && t.default !== null) res.required.push(k)
+    }
+    return res
+}
+
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,

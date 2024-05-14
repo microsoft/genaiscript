@@ -83,7 +83,7 @@ export interface PromptFunctionNode extends PromptNode {
     type: "function"
     name: string
     description: string
-    parameters: ChatFunctionParameters
+    parameters: JSONSchema
     fn: ChatFunctionHandler
 }
 
@@ -203,7 +203,7 @@ export function createSchemaNode(
 export function createFunctionNode(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: JSONSchema,
     fn: ChatFunctionHandler
 ): PromptFunctionNode {
     assert(!!name)
