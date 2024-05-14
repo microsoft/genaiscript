@@ -26,7 +26,9 @@ import {
     resolveModelConnectionInfo,
     CONFIGURATION_ERROR_CODE,
     parseKeyValuePairs,
+    stringifySchemaToTypeScript,
 } from "genaiscript-core"
+import { capitalize } from "inflection"
 import { basename, resolve, join } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
@@ -295,6 +297,17 @@ ${Array.from(files)
         if (specf) {
             const spect = await readText(spec)
             await writeText(specf, spect)
+        }
+        if (res.schemas) {
+            for (const [sname, schema] of Object.entries(res.schemas)) {
+                const schemaFile = join(out, `${sname}.schema.d.ts`)
+                await writeText(
+                    schemaFile,
+                    stringifySchemaToTypeScript(schema, {
+                        typeName: capitalize(sname),
+                    })
+                )
+            }
         }
         if (annotationf) {
             await writeText(

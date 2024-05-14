@@ -375,6 +375,7 @@ export async function runTemplate(
                     frames,
                     genVars,
                     annotations,
+                    schemas
                 })) || {}
 
                 if (newText !== undefined) {
@@ -458,6 +459,7 @@ export async function runTemplate(
         fences,
         frames,
         genVars,
+        schemas,
         json
     }
     options?.infoCb?.({

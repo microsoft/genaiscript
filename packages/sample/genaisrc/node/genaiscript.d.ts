@@ -678,6 +678,7 @@ interface RunPromptResult {
     json?: any
     error?: SerializedError
     genVars?: Record<string, string>
+    schemas?: Record<string, JSONSchema>
     finishReason:
         | "stop"
         | "length"
@@ -1192,7 +1193,12 @@ interface GenerationOutput {
     annotations: Diagnostic[]
 
     /**
-     * Output as JSON if parseable
+     * Schema definition used in the generation
+     */
+    schemas: Record<string, JSONSchema>
+
+    /**
+     * Output as JSON if parsable
      */
     json?: any
 }

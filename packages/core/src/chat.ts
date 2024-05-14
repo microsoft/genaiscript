@@ -328,6 +328,7 @@ function structurifyChatSession(
         json,
         error,
         genVars,
+        schemas
     }
 }
 
