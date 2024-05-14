@@ -25,7 +25,7 @@ def(
 def(
     "WORD",
     await retrieval.vectorSearch(
-        "lorem ipsum",
+        "word",
         env.files.filter((f) => f.filename.endsWith(".docx"))
     )
 )

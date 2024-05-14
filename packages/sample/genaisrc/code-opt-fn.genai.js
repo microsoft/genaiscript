@@ -16,7 +16,7 @@ defTool("check_syntax", "Checks code for syntax errors", {
         },
     },
     "required": ["code"],
-}, (args) => {
+}, async (args) => {
     const { code } = args
     const { stdout } = await host.exec("node", ["genaisrc/check-syntax.js"], { stdin: code })
     return stdout
