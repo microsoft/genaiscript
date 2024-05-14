@@ -316,8 +316,8 @@ function structurifyChatSession(
 
     // validate schemas in fences
     if (fences?.length) {
-        trace.details("📩 code regions", renderFencedVariables(fences))
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
+        trace.details("📩 code regions", renderFencedVariables(fences))
     }
 
     return {

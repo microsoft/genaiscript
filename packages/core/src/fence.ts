@@ -173,9 +173,9 @@ export function renderFencedVariables(vars: Fenced[]) {
                     : ""
             }\n
 \`\`\`\`\`${
-                language ?? /^Note/.test(k)
+                language ?? (/^Note/.test(k)
                     ? "markdown"
-                    : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""
+                    : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || "")
             }
 ${v}
 \`\`\`\`\`
