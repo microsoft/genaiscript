@@ -1,7 +1,9 @@
 import { Project, PromptScript } from "./ast"
 import { BUILTIN_PREFIX } from "./constants"
 import { errorMessage } from "./error"
+import { host } from "./host"
 import { JSON5TryParse } from "./json5"
+import { humanize } from "inflection"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.(mjs|ts|js)$/i, "")
@@ -202,6 +204,7 @@ async function parsePromptTemplateCore(
 ) {
     const r = {
         id: templateIdFromFileName(filename),
+        title: humanize(host.path.basename(filename)),
         text: "<nothing yet>",
         jsSource: content,
     } as PromptScript
