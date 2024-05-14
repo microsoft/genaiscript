@@ -5,6 +5,7 @@ sidebar:
 description: Slides
 ---
 
+- [msr-eng-may2024](/genaiscript/slides/msr-eng-may2024/)
 - [networking-apr2024](/genaiscript/slides/networking-apr2024/)
 - [overview-may2024](/genaiscript/slides/overview-may2024/)
 - [pnw-plse-may2024](/genaiscript/slides/pnw-plse-may2024/)
