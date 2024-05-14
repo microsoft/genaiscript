@@ -1,0 +1,18 @@
+{
+    "iconDefinitions": {
+        "genaiscript_logo_dark": {
+            "iconPath": "./icon-dark.svg"
+        },
+        "genaiscript_logo_light": {
+            "iconPath": "./icon-light.svg"
+        }
+    },
+    "folderNames": {
+        ".genaiscript": "genaiscript_logo_dark"
+    },
+    "light": {
+        "folderNames": {
+            ".genaiscript": "genaiscript_logo_light"
+        }
+    }
+}

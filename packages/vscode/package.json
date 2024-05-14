@@ -51,11 +51,21 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "files": [
-        "./genaiscript.cjs"
+        "./genaiscript.cjs",
+        "./icon-light.svg",
+        "./icon-dark.svg",
+        "./icons.json"
     ],
     "contributes": {
         "markdown.previewStyles": [
             "./markdown.css"
+        ],
+        "iconThemes": [
+            {
+                "id": "genaiscript-icons",
+                "label": "GenAIScript Icons",
+                "path": "./icons.json"
+            }
         ],
         "icons": {
             "genaiscript-logo": {
