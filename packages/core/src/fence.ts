@@ -170,7 +170,7 @@ export function renderFencedVariables(vars: Fenced[]) {
             }) => `-   \`${k}\` ${
                 validation !== undefined
                     ? `schema ${args.schema}: ${validation.valid === undefined ? EMOJI_UNDEFINED : validation.valid ? EMOJI_SUCCESS : EMOJI_FAIL}`
-                    : ""
+                    : "no label"
             }\n
 \`\`\`\`\`${
                 language ?? (/^Note/.test(k)
