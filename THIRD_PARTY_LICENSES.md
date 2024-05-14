@@ -2814,7 +2814,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - openai@4.45.0
+ - openai@4.47.1
 
 This package contains the following license and notice below:
 
@@ -4075,7 +4075,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @smithy/types@2.12.0
+ - @smithy/types@3.0.0
 
 This package contains the following license and notice below:
 
@@ -4524,7 +4524,7 @@ The following npm packages may be included in this product:
  - @types/long@4.0.2
  - @types/markdown-it@14.1.1
  - @types/mdast@3.0.15
- - @types/mdast@4.0.3
+ - @types/mdast@4.0.4
  - @types/mdurl@2.0.0
  - @types/mdx@2.0.13
  - @types/ms@0.7.34
@@ -4532,7 +4532,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.11
  - @types/node@17.0.45
  - @types/node@18.19.33
- - @types/node@20.12.11
+ - @types/node@20.12.12
  - @types/papaparse@5.3.14
  - @types/pg@8.11.6
  - @types/qs@6.9.15
@@ -4572,7 +4572,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.27.0
+ - genaiscript-vscode@1.28.2
 
 This package contains the following license and notice below:
 
@@ -6415,10 +6415,12 @@ The following npm packages may be included in this product:
 
  - bcp-47@2.1.0
  - comma-separated-tokens@2.0.3
+ - hast-util-embedded@3.0.0
  - hast-util-from-parse5@8.0.1
  - hast-util-has-property@3.0.0
  - hast-util-is-element@3.0.0
  - hast-util-parse-selector@4.0.0
+ - hast-util-phrasing@3.0.1
  - hast-util-raw@9.0.3
  - hast-util-to-estree@3.1.0
  - hast-util-to-html@9.0.1
@@ -6432,6 +6434,7 @@ The following npm packages may be included in this product:
  - is-decimal@2.0.1
  - is-hexadecimal@2.0.1
  - mdast-util-to-hast@13.1.0
+ - rehype-format@5.0.0
  - rehype-raw@7.0.0
  - remark-rehype@11.1.0
  - space-separated-tokens@2.0.2
@@ -17213,7 +17216,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/types@3.567.0
+ - @aws-sdk/types@3.575.0
  - @smithy/is-array-buffer@2.2.0
  - @smithy/util-buffer-from@2.2.0
  - @smithy/util-utf8@2.3.0
@@ -17913,7 +17916,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001617
+ - caniuse-lite@1.0.30001618
 
 This package contains the following license and notice below:
 
@@ -20608,7 +20611,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - promptfoo@0.58.0
+ - promptfoo@0.58.1
 
 This package contains the following license and notice below:
 
@@ -21536,7 +21539,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.763
+ - electron-to-chromium@1.4.768
 
 This package contains the following license and notice below:
 
@@ -22860,7 +22863,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - picocolors@1.0.0
+ - picocolors@1.0.1
 
 This package contains the following license and notice below:
 
@@ -23780,18 +23783,20 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.27.0
+ - docs@1.28.2
  - eastasianwidth@0.2.0
- - genaiscript-core@1.27.0
- - genaiscript-sample@1.27.0
- - genaiscript@1.27.0
+ - genaiscript-core@1.28.2
+ - genaiscript-sample@1.28.2
+ - genaiscript@1.28.2
+ - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
+ - html-whitespace-sensitive-tag-names@3.0.0
  - https-proxy-agent@5.0.1
  - inline-style-parser@0.1.1
  - is-reference@3.0.2
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
- - js-tiktoken@1.0.11
+ - js-tiktoken@1.0.12
  - keyv@4.5.4
  - load-yaml-file@0.2.0
  - micromark-core-commonmark@1.1.0
@@ -23849,6 +23854,7 @@ The following npm packages may be included in this product:
  - portkey-ai@0.1.16
  - python-shell@5.0.0
  - readable-web-to-node-stream@3.0.2
+ - rehype-minify-whitespace@6.0.0
  - rehype-parse@9.0.0
  - rehype-stringify@10.0.0
  - rehype@13.0.1
@@ -25858,7 +25864,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.8.0
+ - @azure/msal-node@2.8.1
 
 This package contains the following license and notice below:
 
@@ -26555,13 +26561,13 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @shikijs/core@1.5.1
- - @shikijs/markdown-it@1.5.1
- - @shikijs/monaco@1.5.1
- - @shikijs/transformers@1.5.1
- - @shikijs/twoslash@1.5.1
- - @shikijs/vitepress-twoslash@1.5.1
- - shiki@1.5.1
+ - @shikijs/core@1.5.2
+ - @shikijs/markdown-it@1.5.2
+ - @shikijs/monaco@1.5.2
+ - @shikijs/transformers@1.5.2
+ - @shikijs/twoslash@1.5.2
+ - @shikijs/vitepress-twoslash@1.5.2
+ - shiki@1.5.2
 
 These packages each contain the following license and notice below:
 
@@ -27293,7 +27299,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/starlight@0.22.2
+ - @astrojs/starlight@0.22.3
 
 This package contains the following license and notice below:
 
@@ -27643,7 +27649,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - error-stack-parser-es@0.1.2
+ - error-stack-parser-es@0.1.4
 
 This package contains the following license and notice below:
 
@@ -29942,8 +29948,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - csv-parse@5.5.5
- - csv-stringify@6.4.6
+ - csv-parse@5.5.6
+ - csv-stringify@6.5.0
 
 These packages each contain the following license and notice below:
 
@@ -30380,7 +30386,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - mermaid@10.9.0
+ - mermaid@10.9.1
 
 This package contains the following license and notice below:
 
@@ -32810,8 +32816,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @mdit-vue/plugin-component@2.1.2
- - @mdit-vue/plugin-frontmatter@2.1.2
+ - @mdit-vue/plugin-component@2.1.3
+ - @mdit-vue/plugin-frontmatter@2.1.3
  - @mdit-vue/types@2.1.0
 
 These packages each contain the following license and notice below:
@@ -33645,7 +33651,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - update-browserslist-db@1.0.15
+ - update-browserslist-db@1.0.16
 
 This package contains the following license and notice below:
 

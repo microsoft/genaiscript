@@ -9,7 +9,7 @@ import { JSON5TryParse } from "./json5"
 import { exec } from "./exec"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
-import { extractFenced, renderFencedVariables } from "./fence"
+import { extractFenced, findFirstDataFence, renderFencedVariables } from "./fence"
 import { validateFencesWithSchema } from "./schema"
 import dedent from "ts-dedent"
 import {
@@ -308,10 +308,8 @@ function structurifyChatSession(
         : resp?.finishReason ?? "fail"
     const error = serializeError(err)
 
-    const json = /^\s*[{[]/.test(text)
-        ? JSON5TryParse(text, undefined)
-        : undefined
-    const fences = json === undefined ? extractFenced(text) : []
+    const fences = extractFenced(text)
+    const json: any = findFirstDataFence(fences)
     const frames: DataFrame[] = []
 
     // validate schemas in fences

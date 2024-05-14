@@ -1,5 +1,7 @@
 import { EMOJI_FAIL, EMOJI_SUCCESS, EMOJI_UNDEFINED } from "./constants"
+import { JSON5TryParse } from "./json5"
 import { arrayify } from "./util"
+import { YAMLTryParse } from "./yaml"
 
 const promptFenceStartRx =
     /^(?<fence>`{3,})(?<language>[^=:]+)?(\s+(?<args>.*))?$/m
@@ -92,7 +94,7 @@ export function extractFenced(text: string): Fenced[] {
                 currArgs = fence.args
             } else if (fence.fence) {
                 // unlabelled fence
-                currLbl = ''
+                currLbl = ""
                 currFence = fence.fence
                 currLanguage = fence.language || ""
                 currArgs = fence.args
@@ -151,6 +153,19 @@ import re
     }
 }
 
+export function findFirstDataFence(fences: Fenced[]): any {
+    const { content, language } =
+        fences?.find(
+            (f) =>
+                f.content &&
+                !f.label &&
+                (f.language === "yaml" || f.language === "json")
+        ) || {}
+    if (language === "yaml") return YAMLTryParse(content)
+    else if (language === "json") return JSON5TryParse(content)
+    return undefined
+}
+
 export function parseVars(vars: string[]) {
     if (!vars?.length) return undefined
     const res: Record<string, string> = {}
@@ -173,7 +188,8 @@ export function renderFencedVariables(vars: Fenced[]) {
                     : "no label"
             }\n
 \`\`\`\`\`${
-                language ?? (/^Note/.test(k)
+                language ??
+                (/^Note/.test(k)
                     ? "markdown"
                     : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || "")
             }

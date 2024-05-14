@@ -278,6 +278,7 @@ ${Array.from(files)
         const promptf = mkfn(".prompt.json")
         const outputf = mkfn(".output.md")
         const outputjson = mkfn(".output.json")
+        const outputyaml = mkfn(".output.yaml")
         const tracef = mkfn(".trace.md")
         const annotationf = res.annotations?.length
             ? mkfn(".annotations.csv")
@@ -290,8 +291,10 @@ ${Array.from(files)
         await writeText(jsonf, JSON.stringify(res, null, 2))
         await writeText(yamlf, YAMLStringify(res))
         if (promptjson) await writeText(promptf, promptjson)
-        if (res.json)
+        if (res.json) {
             await writeText(outputjson, JSON.stringify(res.json, null, 2))
+            await writeText(outputyaml, YAMLStringify(res.json))
+        }
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
         if (specf) {
