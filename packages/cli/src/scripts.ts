@@ -41,7 +41,6 @@ export async function compileScript() {
         const res = await exec(host, {
             label: folder,
             call: {
-                type: "shell",
                 cwd: folder,
                 command: "npx",
                 args: [

@@ -430,21 +430,9 @@ interface ChatFunctionCallContent {
     edits?: Edits[]
 }
 
-interface ChatFunctionCallShell extends ShellOptions {
-    type: "shell"
-    command: string
-    stdin?: string
-    files?: Record<string, string>
-    outputFile?: string
-    args?: string[]
-    timeout?: number
-    ignoreExitCode?: boolean
-}
-
 type ChatFunctionCallOutput =
     | string
     | ChatFunctionCallContent
-    | ChatFunctionCallShell
 
 interface WorkspaceFileSystem {
     /**
@@ -1294,6 +1282,8 @@ interface QueryCapture {
 
 interface ShellOptions {
     cwd?: string
+    stdin?: string
+    timeout?: number
 }
 
 interface ShellOutput {

@@ -3,6 +3,14 @@ import { Host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { dotGenaiscriptPath } from "./util"
 
+export interface ChatFunctionCallShell extends ShellOptions {
+    command: string
+    files?: Record<string, string>
+    outputFile?: string
+    args?: string[]
+    ignoreExitCode?: boolean
+}
+
 export async function exec(
     host: Host,
     options: {

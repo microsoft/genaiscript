@@ -199,10 +199,9 @@ export function createPromptContext(
             }),
         exec: async (command, args, options) => {
             const res = await exec(host, {
-                label: `exec`,
+                label: `host.exec`,
                 trace,
                 call: {
-                    type: "shell",
                     command,
                     args,
                     cwd: options?.cwd,
