@@ -20,7 +20,6 @@ export async function installImport(
         label: `install ${mod}`,
         keepOnError: true,
         call: {
-            type: "shell",
             command,
             args,
             cwd,

@@ -210,41 +210,6 @@ async function runToolCalls(
             if (output === undefined || output === null)
                 throw new Error(`output is undefined`)
             if (typeof output === "string") output = { content: output }
-            if (output?.type === "shell") {
-                let {
-                    command,
-                    args = [],
-                    stdin,
-                    cwd,
-                    timeout,
-                    ignoreExitCode,
-                    files,
-                    outputFile,
-                } = output
-                trace.item(`shell command: \`${command}\` ${args.join(" ")}`)
-                const { stdout, stderr, exitCode } = await exec(host, {
-                    trace,
-                    label: call.name,
-                    call: {
-                        type: "shell",
-                        command,
-                        args,
-                        stdin,
-                        files,
-                        outputFile,
-                        cwd: cwd ?? projFolder,
-                        timeout: timeout ?? 60000,
-                    },
-                })
-                output = { content: stdout }
-                trace.itemValue(`exit code`, exitCode)
-                if (stdout) trace.details("📩 shell output", stdout)
-                if (stderr) trace.details("📩 shell error", stderr)
-                if (exitCode !== 0 && !ignoreExitCode)
-                    throw new Error(
-                        `tool ${call.name} failed with exit code ${exitCode}}`
-                    )
-            }
 
             const { content, edits: functionEdits } = output
 

@@ -93,35 +93,3 @@ We can then apply this script to the `questions.md` file blow.
 After the first request, the LLM requests to call the `web_search` for each questions.
 The web search answers are then added to the LLM message history and the request is made again.
 The second yields the final result which includes the web search results.
-
-
-## Running CLIs as tools
-
-A tool may also return a request to run a native tool in a terminal. The `stdout` output of the tool
-will be used as the tool result.
-
-```js
-defTool(
-    "check_syntax",
-    "Checks code for syntax errors",
-    {
-        type: "object",
-        properties: {
-            code: {
-                type: "string",
-                description: "Code to check.",
-            },
-        },
-        required: ["code"],
-    },
-    (args) => {
-        const { code } = args
-        return {
-            type: "shell",
-            stdin: code,
-            command: "node",
-            args: ["genaiscript/check-syntax.js"],
-        }
-    }
-)
-```

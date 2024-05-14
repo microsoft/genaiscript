@@ -16,14 +16,10 @@ defTool("check_syntax", "Checks code for syntax errors", {
         },
     },
     "required": ["code"],
-}, (args) => {
+}, async (args) => {
     const { code } = args
-    return {
-        type: "shell",
-        stdin: code,
-        command: "node",
-        args: ["genaisrc/check-syntax.js"],
-    }
+    const { stdout } = await host.exec("node", ["genaisrc/check-syntax.js"], { stdin: code })
+    return stdout
 })
 
 defTool("update_file", "Describes an update (patch) of a file.", {

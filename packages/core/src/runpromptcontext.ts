@@ -13,11 +13,9 @@ import {
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import {
-    ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
     executeChatSession,
     mergeGenerationOptions,
-    toChatCompletionUserMessage,
 } from "./chat"
 import { GenerationOptions } from "./promptcontext"
 import {
@@ -29,6 +27,7 @@ import { renderAICI } from "./aici"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { checkCancelled } from "./cancellation"
 import { MODEL_PROVIDER_AICI } from "./constants"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -45,10 +44,14 @@ export function createRunPromptContext(
     const defTool: (
         name: string,
         description: string,
-        parameters: ChatFunctionParameters,
+        parameters: PromptParametersSchema,
         fn: ChatFunctionHandler
     ) => void = (name, description, parameters, fn) => {
-        appendChild(node, createFunctionNode(name, description, parameters, fn))
+        const parameterSchema = promptParametersSchemaToJSONSchema(parameters)
+        appendChild(
+            node,
+            createFunctionNode(name, description, parameterSchema, fn)
+        )
     }
 
     const defSchema = (

@@ -367,19 +367,8 @@ interface ChatFunctionDefinition {
      *
      * Omitting `parameters` defines a function with an empty parameter list.
      */
-    parameters?: ChatFunctionParameters
+    parameters?: JSONSchema
 }
-
-/**
- * The parameters the functions accepts, described as a JSON Schema object. See the
- * [guide](https://platform.openai.com/docs/guides/text-generation/function-calling)
- * for examples, and the
- * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
- * documentation about the format.
- *
- * Omitting `parameters` defines a function with an empty parameter list.
- */
-type ChatFunctionParameters = JSONSchema
 
 interface ChatFunctionCallTrace {
     log(message: string): void
@@ -441,22 +430,9 @@ interface ChatFunctionCallContent {
     edits?: Edits[]
 }
 
-interface ChatFunctionCallShell {
-    type: "shell"
-    command: string
-    stdin?: string
-    files?: Record<string, string>
-    outputFile?: string
-    cwd?: string
-    args?: string[]
-    timeout?: number
-    ignoreExitCode?: boolean
-}
-
 type ChatFunctionCallOutput =
     | string
     | ChatFunctionCallContent
-    | ChatFunctionCallShell
 
 interface WorkspaceFileSystem {
     /**
@@ -1147,13 +1123,13 @@ interface RunPromptContext {
     defFunction(
         name: string,
         description: string,
-        parameters: ChatFunctionParameters,
+        parameters: PromptParametersSchema,
         fn: ChatFunctionHandler
     ): void
     defTool(
         name: string,
         description: string,
-        parameters: ChatFunctionParameters,
+        parameters: PromptParametersSchema,
         fn: ChatFunctionHandler
     ): void
 }
@@ -1304,8 +1280,27 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
-interface ChatSession {
+interface ShellOptions {
+    cwd?: string
+    stdin?: string
+    timeout?: number
+}
+
+interface ShellOutput {
+    stdout?: string
+    stderr?: string
+    output?: string
+    exitCode: number
+    failed: boolean
+}
+
+interface PromptHost {
     askUser(question: string): Promise<string>
+    exec(
+        command: string,
+        args: string[],
+        options?: ShellOptions
+    ): Promise<Partial<ShellOutput>>
 }
 
 interface PromptContext extends RunPromptContext {
@@ -1335,5 +1330,5 @@ interface PromptContext extends RunPromptContext {
     CSV: CSV
     INI: INI
     AICI: AICI
-    chat: ChatSession
+    host: PromptHost
 }

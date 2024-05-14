@@ -2,7 +2,6 @@ import * as vscode from "vscode"
 import {
     Fragment,
     GENAI_JS_REGEX,
-    ICON_LOGO_NAME,
     NotSupportedError,
     PromptScript,
     assert,
@@ -13,7 +12,6 @@ import {
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
-import { startTestViewer } from "./testcontroller"
 
 type TemplateQuickPickItem = {
     template?: PromptScript

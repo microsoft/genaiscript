@@ -6,10 +6,8 @@ import {
     OAIToken,
     ReadFileOptions,
     ShellCallOptions,
-    ShellOutput,
     TOOL_NAME,
     createFileSystem,
-    logVerbose,
     parseTokenFromEnv,
     setHost,
     ICON_LOGO_NAME,
@@ -17,15 +15,14 @@ import {
     createBundledParsers,
     AskUserOptions,
 } from "genaiscript-core"
-import { Uri, window } from "vscode"
+import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { checkFileExists, readFileText, writeFile } from "./fs"
+import { checkFileExists, readFileText } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 import { dispose } from "./components"
-import { openUrlInTab } from "./browser"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
