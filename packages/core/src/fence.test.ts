@@ -53,9 +53,10 @@ Pre-compiled the regular expression to improve the performance of the is_valid_e
 `
 
         const fenced = extractFenced(source)
-        assert.equal(fenced.length, 2)
+        assert.equal(fenced.length, 3)
         assert.equal(fenced[0].label, "DIFF ./email_recognizer.py")
-        assert.equal(fenced[1].label, "SUMMARY")
+        assert.equal(fenced[1].language, "python")
+        assert.equal(fenced[2].label, "SUMMARY")
     })
 
     test("file arg", () => {
@@ -90,5 +91,37 @@ bla
         const fenced = extractFenced(source)
         assert.equal(fenced.length, 1)
         assert.equal(fenced[0].label, "FILE ./somefile.md")
+    })
+
+    test("data with schema", () => {
+        const source = `
+        
+ 
+\`\`\`yaml schema=CITY_SCHEMA
+- name: New York
+  population: 8419000
+  url: https://en.wikipedia.org/wiki/New_York_City
+- name: Los Angeles
+  population: 3971000
+  url: https://en.wikipedia.org/wiki/Los_Angeles
+- name: Tokyo
+  population: 13960000
+  url: https://en.wikipedia.org/wiki/Tokyo
+- name: London
+  population: 8982000
+  url: https://en.wikipedia.org/wiki/London
+- name: Paris
+  population: 2148000
+  url: https://en.wikipedia.org/wiki/Paris
+\`\`\`    
+                    
+        `
+
+        const fenced = extractFenced(source)
+        console.log(fenced)
+        assert.equal(fenced.length, 1)
+        assert.equal(fenced[0].args.schema, "CITY_SCHEMA")
+        assert.equal(fenced[0].language, "yaml")
+
     })
 })

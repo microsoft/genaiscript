@@ -296,11 +296,12 @@ function structurifyChatSession(
 ): RunPromptResult {
     const { trace } = options
     const { resp, err } = others || {}
-    const text =
-        messages
-            .filter((msg) => msg.role === "assistant" && msg.content)
-            .map((m) => m.content)
-            .join("\n") + (resp?.text || "")
+    const text = messages
+        .filter(
+            (msg) => msg.role === "assistant" && typeof msg.content === "string"
+        )
+        .map((m) => m.content)
+        .join("\n") //+ (resp?.text || "")
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -315,8 +316,8 @@ function structurifyChatSession(
 
     // validate schemas in fences
     if (fences?.length) {
-        trace.details("📩 code regions", renderFencedVariables(fences))
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
+        trace.details("📩 code regions", renderFencedVariables(fences))
     }
 
     return {
@@ -328,6 +329,7 @@ function structurifyChatSession(
         json,
         error,
         genVars,
+        schemas,
     }
 }
 

@@ -32,7 +32,6 @@ OriginalCode@23-23:
 [23] <white space> <original code line>
 ChangedCode@23-23:
 [23] <white space> <changed code line>`
-        debugger
         const res = parseChangeLogs(source)
         assert.equal(res.length, 2)
         assert.equal(res[0].filename, "<file1>")

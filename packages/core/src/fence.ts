@@ -90,6 +90,12 @@ export function extractFenced(text: string): Fenced[] {
                 currFence = fence.fence
                 currLanguage = fence.language || ""
                 currArgs = fence.args
+            } else if (fence.fence) {
+                // unlabelled fence
+                currLbl = ''
+                currFence = fence.fence
+                currLanguage = fence.language || ""
+                currArgs = fence.args
             } else {
                 const start = startFence(lines[i + 1])
                 const m = /(\w+):\s+([^\s]+)/.exec(line)
@@ -164,12 +170,12 @@ export function renderFencedVariables(vars: Fenced[]) {
             }) => `-   \`${k}\` ${
                 validation !== undefined
                     ? `schema ${args.schema}: ${validation.valid === undefined ? EMOJI_UNDEFINED : validation.valid ? EMOJI_SUCCESS : EMOJI_FAIL}`
-                    : ""
+                    : "no label"
             }\n
 \`\`\`\`\`${
-                language ?? /^Note/.test(k)
+                language ?? (/^Note/.test(k)
                     ? "markdown"
-                    : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || ""
+                    : /^File [^\n]+.\.(\w+)$/m.exec(k)?.[1] || "")
             }
 ${v}
 \`\`\`\`\`
