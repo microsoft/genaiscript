@@ -1,6 +1,4 @@
-// metadata and model configuration
-// https://microsoft.github.io/genaiscript/reference/scripts/metadata/
-script({ title: "git-history" })
+script({ title: "git-history", tests: {} })
 
 const author = env.vars.author || "pelikhan"
 const until = env.vars.until || "2023-11-15"
