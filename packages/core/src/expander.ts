@@ -384,15 +384,13 @@ export async function expandTemplate(
             return { status: sysr.status, statusText: sysr.statusText }
     }
 
-    if (systemMessage.content) messages.unshift(systemMessage)
-
     if (responseSchema) {
         responseType = "json_object"
         const typeName = "Output"
         const schemaTs = stringifySchemaToTypeScript(responseSchema, {
             typeName,
         })
-        messages.push({
+        messages.unshift({
             role: "system",
             content: `You are a service that translates user requests 
 into JSON objects of type "${typeName}" 
@@ -402,6 +400,7 @@ ${schemaTs}
 \`\`\``,
         })
     }
+    if (systemMessage.content) messages.unshift(systemMessage)
 
     if (prompt.assistantText) {
         trace.detailsFenced("🤖 assistant", prompt.assistantText, "markdown")

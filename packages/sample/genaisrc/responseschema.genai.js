@@ -23,4 +23,4 @@ script({
     },
 })
 
-$`Give 5 cities with their populations.`
+$`Enumerate 5 cities with their populations.`
