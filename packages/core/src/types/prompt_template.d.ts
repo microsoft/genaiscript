@@ -183,9 +183,9 @@ interface ScriptRuntimeOptions {
     responseType?: PromptTemplateResponseType
 
     /**
-     * JSON schema for the output. Enables the `JSON` output mode.
+     * JSON object schema for the output. Enables the `JSON` output mode.
      */
-    responseSchema?: JSONSchema
+    responseSchema?: JSONSchemaObject
 
     /**
      * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
@@ -436,9 +436,7 @@ interface ChatFunctionCallContent {
     edits?: Edits[]
 }
 
-type ChatFunctionCallOutput =
-    | string
-    | ChatFunctionCallContent
+type ChatFunctionCallOutput = string | ChatFunctionCallContent
 
 interface WorkspaceFileSystem {
     /**
