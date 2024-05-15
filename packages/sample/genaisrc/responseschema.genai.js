@@ -1,5 +1,13 @@
 script({
-    tests: {},
+    tests: {
+        asserts: [
+            {
+                type: "equals",
+                value: "5",
+                transform: "output.json.cities.length",
+            },
+        ],
+    },
     responseSchema: {
         type: "object",
         properties: {

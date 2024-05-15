@@ -306,6 +306,7 @@ function structurifyChatSession(
 ): RunPromptResult {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
+    // TODO slice after repairs
     const text = messages
         .filter(
             (msg) => msg.role === "assistant" && typeof msg.content === "string"
@@ -322,7 +323,7 @@ function structurifyChatSession(
     let json: any
     if (responseType === "json_object") {
         try {
-            json = JSON5parse(text, { repair: true })
+            json = JSON5parse(resp.text, { repair: true })
             if (responseSchema) {
                 const res = validateJSONWithSchema(json, responseSchema, {
                     trace,
@@ -335,7 +336,7 @@ function structurifyChatSession(
             trace.error("response json_object parsing failed", e)
         }
     } else {
-        json = isJSONObjectOrArray(text)
+        json = isJSONObjectOrArray(resp.text)
             ? JSON5TryParse(text, undefined)
             : undefined ?? findFirstDataFence(fences)
     }
