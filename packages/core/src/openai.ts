@@ -8,7 +8,6 @@ import {
     TOOL_ID,
 } from "./constants"
 import { estimateTokens } from "./tokens"
-import { YAMLStringify } from "./yaml"
 import {
     ChatCompletionChunk,
     ChatCompletionHandler,
@@ -67,7 +66,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
               max_tokens: req.max_tokens,
           }
         : undefined
-    const cached = cachedKey ? await cache.get(cachedKey) : undefined
+    const { text: cached, finishReason: cachedFinishReason } =
+        (cachedKey ? await cache.get(cachedKey) : undefined) || {}
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: estimateTokens(model, cached),
@@ -75,7 +75,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             responseChunk: cached,
         })
         trace.itemValue(`cache hit`, await cache.getKeySHA(cachedKey))
-        return { text: cached, cached: true }
+        return { text: cached, finishReason: cachedFinishReason, cached: true }
     }
 
     const r2 = { ...req, model }
@@ -179,7 +179,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.content += "\n\n"
     trace.itemValue(`finish reason`, finishReason)
     if (done && finishReason === "stop")
-        await cache.set(cachedKey, chatResp, { trace })
+        await cache.set(cachedKey, { text: chatResp, finishReason }, { trace })
 
     return { text: chatResp, toolCalls, finishReason }
 
@@ -201,10 +201,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                     throw new Error("too many choices in response")
                 const choice = obj.choices[0]
                 const { finish_reason, delta } = choice
+                if (finish_reason) finishReason = finish_reason as any
                 if (typeof delta?.content == "string") {
                     numTokens += estimateTokens(model, delta.content)
                     chatResp += delta.content
-                    if (finish_reason) finishReason = finish_reason as any
                     if (delta.content)
                         trace.content += delta.content.includes("`")
                             ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `

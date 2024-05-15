@@ -82,8 +82,23 @@ export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
     ModelOptions &
     Omit<OAIToken, "token" | "source">
 
-export function getChatCompletionCache(name?: string) {
-    return Cache.byName<ChatCompletionRequestCacheKey, string>(name || "chat")
+export type ChatCompletationRequestCacheValue = {
+    text: string
+    finishReason: ChatCompletionResponse["finishReason"]
+}
+
+export type ChatCompletationRequestCache = Cache<
+    ChatCompletionRequestCacheKey,
+    ChatCompletationRequestCacheValue
+>
+
+export function getChatCompletionCache(
+    name?: string
+): ChatCompletationRequestCache {
+    return Cache.byName<
+        ChatCompletionRequestCacheKey,
+        ChatCompletationRequestCacheValue
+    >(name || "chatv2")
 }
 
 export interface ChatCompletionsProgressReport {
