@@ -399,6 +399,11 @@ according to the following TypeScript definitions:
 ${schemaTs}
 \`\`\``,
         })
+    } else if (responseType === "json_object") {
+        messages.unshift({
+            role: "system",
+            content: `Answer using JSON.`,
+        })
     }
     if (systemMessage.content) messages.unshift(systemMessage)
 
