@@ -177,9 +177,15 @@ interface ScriptRuntimeOptions {
     tools?: SystemToolId[]
 
     /**
-     * Specifies the type of output. Default is `markdown`.
+     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
+     * specify an output schema.
      */
     responseType?: PromptTemplateResponseType
+
+    /**
+     * JSON schema for the output. Enables the `JSON` output mode.
+     */
+    responseSchema?: JSONSchema
 
     /**
      * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.

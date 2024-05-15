@@ -83,7 +83,7 @@ export function stringifySchemaToTypeScript(
     }
 }
 
-export async function validateSchema(trace: MarkdownTrace, schema: JSONSchema) {
+export async function validateSchema(schema: JSONSchema) {
     const ajv = new Ajv()
     return await ajv.validateSchema(schema, false)
 }

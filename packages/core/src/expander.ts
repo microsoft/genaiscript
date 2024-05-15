@@ -23,6 +23,7 @@ import {
 import { importPrompt } from "./importprompt"
 import { lookupMime } from "./mime"
 import { parseModelIdentifier } from "./models"
+import { stringifySchemaToTypeScript } from "./schema"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -327,6 +328,7 @@ export async function expandTemplate(
     if (cancellationToken?.isCancellationRequested)
         return { status: "cancelled", statusText: "user cancelled" }
 
+    let responseSchema: JSONSchema = template.responseSchema
     let responseType = template.responseType
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
@@ -355,6 +357,7 @@ export async function expandTemplate(
 
         const sysr = await callExpander(system, env, trace, options)
         responseType = responseType ?? system.responseType
+        responseSchema = responseSchema ?? system.responseSchema
 
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
@@ -383,6 +386,24 @@ export async function expandTemplate(
 
     if (systemMessage.content) messages.unshift(systemMessage)
 
+    if (responseSchema) {
+        responseType = "json_object"
+        const typeName = "Output"
+        const schemaTs = stringifySchemaToTypeScript(responseSchema, {
+            typeName,
+        })
+        trace.detailsFenced("📦 response schema", schemaTs, "ts")
+        messages.push({
+            role: "system",
+            content: `You are a service that translates user requests 
+into JSON objects of type "${typeName}" 
+according to the following TypeScript definitions:
+\`\`\`ts
+${schemaTs}
+\`\`\``,
+        })
+    }
+
     if (prompt.assistantText) {
         trace.detailsFenced("🤖 assistant", prompt.assistantText, "markdown")
         const assistantMessage: ChatCompletionAssistantMessageParam = {
@@ -408,6 +429,7 @@ export async function expandTemplate(
         maxToolCalls,
         seed,
         responseType,
+        responseSchema,
         fileMerges,
         outputProcessors,
     }

@@ -3,10 +3,12 @@
 
 - In process eval or `esm` import
 ```js
+// poem.genai.js
 script(...)
 $`Write a poem.`
 ```
 ```js
+// poem.genai.mjs
 script(...)
 export default async function() {
     $`Write a poem.`

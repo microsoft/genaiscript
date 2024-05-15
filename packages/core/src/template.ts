@@ -4,6 +4,7 @@ import { errorMessage } from "./error"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
+import { validateSchema } from "./schema"
 function templateIdFromFileName(filename: string) {
     return filename
         .replace(/\.(mjs|ts|js)$/i, "")
@@ -108,6 +109,13 @@ class Checker<T extends PromptLike> {
             this.verror("expecting an object or an array of object here")
             return
         }
+    }
+
+    checkJSONSchema(k: any) {
+        if (this.skip(k)) return
+        if (k && !validateSchema(k))
+            this.verror("expecting valid JSON schema here")
+        return 
     }
 
     checkObjectArray(k: any) {
@@ -246,6 +254,7 @@ export async function parsePromptTemplate(
             c.checkString("description")
             c.checkString("model")
             c.checkString("responseType")
+            c.checkJSONSchema("responseSchema")
 
             c.checkBool("unlisted")
 
