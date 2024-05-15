@@ -2,6 +2,10 @@
 import { parse } from "json5"
 import { jsonrepair } from "jsonrepair"
 
+export function isJSONObjectOrArray(text: string) {
+    return /^\s*[\{\[]/.test(text)
+}
+
 export function JSONrepair(text: string) {
     const repaired = jsonrepair(text)
     return repaired
