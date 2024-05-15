@@ -507,7 +507,7 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests"
+    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests" | "responseType" | "responseSchema"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
