@@ -392,7 +392,6 @@ export async function expandTemplate(
         const schemaTs = stringifySchemaToTypeScript(responseSchema, {
             typeName,
         })
-        trace.detailsFenced("📦 response schema", schemaTs, "ts")
         messages.push({
             role: "system",
             content: `You are a service that translates user requests 

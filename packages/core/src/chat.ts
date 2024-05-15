@@ -447,7 +447,7 @@ export async function executeChatSession(
         trace.itemValue(`cache name`, cacheName)
         trace.itemValue(`response type`, responseType)
         if (responseSchema)
-            trace.detailsFenced(`response schema`, responseSchema, "json")
+            trace.detailsFenced(`📦 response schema`, responseSchema, "json")
 
         let genVars: Record<string, string>
         while (true) {
