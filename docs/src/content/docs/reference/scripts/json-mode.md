@@ -6,7 +6,7 @@ sidebar:
     order: 12
 ---
 
-Some models support forcing the output format to JSON, like the [JSON mode](https://platform.openai.com/docs/guides/text-generation/json-mode) of OpenAI.
+Some models support forcing the output format to a JSON object, like the [JSON Object mode](https://platform.openai.com/docs/guides/text-generation/json-mode) of OpenAI.
 
 The generated file name will be `[spec].[template].json`.
 
@@ -45,7 +45,6 @@ script({
 })
 ```
 
-
 ## `responseType`
 
 You can also enable this mode without a schema by setting `response_type` to `json_object`.
@@ -56,3 +55,7 @@ script({
     responseType: `json_object`,
 })
 ```
+
+## Inline schemas
+
+You can also specify the [schema inline](/genaiscript/reference/scripts/schemas) in the script and use a mixed markdown/data that GenAIScript will parse.

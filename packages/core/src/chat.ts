@@ -309,6 +309,16 @@ async function applyRepairs(
     return false
 }
 
+function assistantText(messages: ChatCompletionMessageParam[]) {
+    let text = ""
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i]
+        if (msg.role !== "assistant") break
+        text = msg.content + text
+    }
+    return text
+}
+
 function structurifyChatSession(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
@@ -321,13 +331,7 @@ function structurifyChatSession(
 ): RunPromptResult {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    // TODO slice after repairs
-    const text = messages
-        .filter(
-            (msg) => msg.role === "assistant" && typeof msg.content === "string"
-        )
-        .map((m) => m.content)
-        .join("\n") //+ (resp?.text || "")
+    const text = assistantText(messages)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
