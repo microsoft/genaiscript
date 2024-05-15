@@ -27,6 +27,7 @@ import {
     CONFIGURATION_ERROR_CODE,
     parseKeyValuePairs,
     stringifySchemaToTypeScript,
+    filePathOrUrlToWorkspaceFile,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join } from "node:path"
@@ -147,7 +148,7 @@ export async function runScript(
         specContent = `${md || "# Specification"}
 
 ${Array.from(files)
-    .map((f) => `-   [${basename(f)}](./${f})`)
+    .map((f) => `-   [${basename(f)}](${filePathOrUrlToWorkspaceFile(f)})`)
     .join("\n")}
 `
     }
