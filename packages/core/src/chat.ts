@@ -5,11 +5,14 @@ import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
 import { OAIToken, host } from "./host"
 import { GenerationOptions } from "./promptcontext"
-import { JSON5TryParse } from "./json5"
-import { exec } from "./exec"
+import { JSON5TryParse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
-import { extractFenced, findFirstDataFence, renderFencedVariables } from "./fence"
+import {
+    extractFenced,
+    findFirstDataFence,
+    renderFencedVariables,
+} from "./fence"
 import { validateFencesWithSchema } from "./schema"
 import dedent from "ts-dedent"
 import {
@@ -309,7 +312,9 @@ function structurifyChatSession(
     const error = serializeError(err)
 
     const fences = extractFenced(text)
-    const json: any = findFirstDataFence(fences)
+    const json: any = isJSONObjectOrArray(text)
+        ? JSON5TryParse(text, undefined)
+        : undefined ?? findFirstDataFence(fences)
     const frames: DataFrame[] = []
 
     // validate schemas in fences
