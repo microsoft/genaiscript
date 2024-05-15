@@ -23,6 +23,7 @@ import {
 import { importPrompt } from "./importprompt"
 import { lookupMime } from "./mime"
 import { parseModelIdentifier } from "./models"
+import { stringifySchemaToTypeScript } from "./schema"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -231,8 +232,10 @@ export function resolveSystems(prj: Project, template: PromptScript) {
 
     if (template.system === undefined) {
         const useSchema = /defschema/i.test(jsSource)
-        systems.push("system")
-        systems.push("system.explanations")
+        if (!template.responseType) {
+            systems.push("system")
+            systems.push("system.explanations")
+        }
         // select file expansion type
         if (/diff/i.test(jsSource)) systems.push("system.diff")
         else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
@@ -327,7 +330,6 @@ export async function expandTemplate(
     if (cancellationToken?.isCancellationRequested)
         return { status: "cancelled", statusText: "user cancelled" }
 
-    let responseType = template.responseType
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
         content: "",
@@ -354,7 +356,6 @@ export async function expandTemplate(
         trace.startDetails(`👾 ${systemTemplate}`)
 
         const sysr = await callExpander(system, env, trace, options)
-        responseType = responseType ?? system.responseType
 
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
@@ -381,6 +382,29 @@ export async function expandTemplate(
             return { status: sysr.status, statusText: sysr.statusText }
     }
 
+    const responseSchema: JSONSchema = template.responseSchema
+    let responseType = template.responseType
+    if (responseSchema) {
+        responseType = "json_object"
+        const typeName = "Output"
+        const schemaTs = stringifySchemaToTypeScript(responseSchema, {
+            typeName,
+        })
+        messages.unshift({
+            role: "system",
+            content: `You are a service that translates user requests 
+into JSON objects of type "${typeName}" 
+according to the following TypeScript definitions:
+\`\`\`ts
+${schemaTs}
+\`\`\``,
+        })
+    } else if (responseType === "json_object") {
+        messages.unshift({
+            role: "system",
+            content: `Answer using JSON.`,
+        })
+    }
     if (systemMessage.content) messages.unshift(systemMessage)
 
     if (prompt.assistantText) {
@@ -408,6 +432,7 @@ export async function expandTemplate(
         maxToolCalls,
         seed,
         responseType,
+        responseSchema,
         fileMerges,
         outputProcessors,
     }

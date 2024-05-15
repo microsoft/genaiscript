@@ -6,16 +6,20 @@ import {
     CreateChatCompletionRequest,
     CACHE_LLMREQUEST_PREFIX,
     getChatCompletionCache,
+    ChatCompletationRequestCache,
+    ChatCompletationRequestCacheValue,
 } from "genaiscript-core"
-import { Cache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 
-type OpenAIRequestTreeNode = CacheEntry<CreateChatCompletionRequest, string>
+type OpenAIRequestTreeNode = CacheEntry<
+    CreateChatCompletionRequest,
+    ChatCompletationRequestCacheValue
+>
 
 class OpenAIRequestTreeDataProvider
     implements vscode.TreeDataProvider<OpenAIRequestTreeNode>
 {
-    cache: Cache<CreateChatCompletionRequest, string>
+    cache: ChatCompletationRequestCache
     constructor(readonly state: ExtensionState) {
         this.cache = getChatCompletionCache()
         this.cache.addEventListener(CHANGE, () => this.refresh())

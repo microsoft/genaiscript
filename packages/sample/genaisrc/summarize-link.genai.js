@@ -19,4 +19,4 @@ for (const link of env.files.filter((file) =>
     const { file } = await fetchText(link)
     def("FILE", file)
 }
-$`Summarize FILE`
+$`Summarize the content of FILE`

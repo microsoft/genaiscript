@@ -157,6 +157,8 @@ export async function runTemplate(
         topP,
         max_tokens,
         seed,
+        responseType,
+        responseSchema
     } = await expandTemplate(
         prj,
         template,
@@ -208,6 +210,8 @@ export async function runTemplate(
     }
     const genOptions: GenerationOptions = {
         ...options,
+        responseType,
+        responseSchema,
         model,
         temperature: temperature,
         maxTokens: max_tokens,

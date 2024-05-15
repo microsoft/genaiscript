@@ -1,12 +1,15 @@
-name: nightly test
+name: main build genai tests
 
 on:
     workflow_dispatch:
     schedule:
         - cron: "0 7 * * *"
-    release:
-      types: [created]      
-    
+    push:
+      branches: [main]
+      paths:
+        - "packages/core/**"
+        - "packages/cli/**"
+      
 jobs:
     build:
         runs-on: ubuntu-latest

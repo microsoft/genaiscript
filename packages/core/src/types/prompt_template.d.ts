@@ -177,9 +177,15 @@ interface ScriptRuntimeOptions {
     tools?: SystemToolId[]
 
     /**
-     * Specifies the type of output. Default is `markdown`.
+     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
+     * specify an output schema.
      */
     responseType?: PromptTemplateResponseType
+
+    /**
+     * JSON object schema for the output. Enables the `JSON` output mode.
+     */
+    responseSchema?: JSONSchemaObject
 
     /**
      * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
@@ -430,9 +436,7 @@ interface ChatFunctionCallContent {
     edits?: Edits[]
 }
 
-type ChatFunctionCallOutput =
-    | string
-    | ChatFunctionCallContent
+type ChatFunctionCallOutput = string | ChatFunctionCallContent
 
 interface WorkspaceFileSystem {
     /**
@@ -503,7 +507,7 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests"
+    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests" | "responseType" | "responseSchema"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]

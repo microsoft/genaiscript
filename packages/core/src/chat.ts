@@ -5,7 +5,7 @@ import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
 import { OAIToken, host } from "./host"
 import { GenerationOptions } from "./promptcontext"
-import { JSON5TryParse, isJSONObjectOrArray } from "./json5"
+import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
 import {
@@ -13,7 +13,7 @@ import {
     findFirstDataFence,
     renderFencedVariables,
 } from "./fence"
-import { validateFencesWithSchema } from "./schema"
+import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
 import dedent from "ts-dedent"
 import {
     DEFAULT_MODEL,
@@ -82,8 +82,23 @@ export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
     ModelOptions &
     Omit<OAIToken, "token" | "source">
 
-export function getChatCompletionCache(name?: string) {
-    return Cache.byName<ChatCompletionRequestCacheKey, string>(name || "chat")
+export type ChatCompletationRequestCacheValue = {
+    text: string
+    finishReason: ChatCompletionResponse["finishReason"]
+}
+
+export type ChatCompletationRequestCache = Cache<
+    ChatCompletionRequestCacheKey,
+    ChatCompletationRequestCacheValue
+>
+
+export function getChatCompletionCache(
+    name?: string
+): ChatCompletationRequestCache {
+    return Cache.byName<
+        ChatCompletionRequestCacheKey,
+        ChatCompletationRequestCacheValue
+    >(name || "chatv2")
 }
 
 export interface ChatCompletionsProgressReport {
@@ -252,19 +267,26 @@ async function applyRepairs(
     schemas: Record<string, JSONSchema>,
     options: GenerationOptions
 ) {
-    const { trace } = options
+    const { trace, responseSchema } = options
     // perform repair
     const lastMessage = messages[messages.length - 1]
     if (lastMessage.role !== "assistant") return false
 
     const fences = extractFenced(lastMessage.content)
     validateFencesWithSchema(fences, schemas, { trace })
-    const invalids = fences.filter((f) => f.validation?.valid === false)
+    const invalids = fences
+        .map((f) => f.validation)
+        .filter((f) => f?.valid === false)
+
+    if (responseSchema) {
+        const value = JSON5TryParse(lastMessage.content)
+        const res = validateJSONWithSchema(value, responseSchema, { trace })
+        if (!res.valid) invalids.push(res)
+    }
+
     if (invalids.length) {
         trace.startDetails("🔧 repair")
-        const repair = invalids
-            .map((f) => `${f.label}: ${f.validation.error}`)
-            .join("\n")
+        const repair = invalids.map((f) => f.error).join("\n\n")
         trace.fence(repair, "txt")
         messages.push({
             role: "user",
@@ -287,6 +309,16 @@ async function applyRepairs(
     return false
 }
 
+function assistantText(messages: ChatCompletionMessageParam[]) {
+    let text = ""
+    for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i]
+        if (msg.role !== "assistant") break
+        text = msg.content + text
+    }
+    return text
+}
+
 function structurifyChatSession(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
@@ -297,14 +329,9 @@ function structurifyChatSession(
         err?: any
     }
 ): RunPromptResult {
-    const { trace } = options
+    const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = messages
-        .filter(
-            (msg) => msg.role === "assistant" && typeof msg.content === "string"
-        )
-        .map((m) => m.content)
-        .join("\n") //+ (resp?.text || "")
+    const text = assistantText(messages)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -312,9 +339,26 @@ function structurifyChatSession(
     const error = serializeError(err)
 
     const fences = extractFenced(text)
-    const json: any = isJSONObjectOrArray(text)
-        ? JSON5TryParse(text, undefined)
-        : undefined ?? findFirstDataFence(fences)
+    let json: any
+    if (responseType === "json_object") {
+        try {
+            json = JSON5parse(resp.text, { repair: true })
+            if (responseSchema) {
+                const res = validateJSONWithSchema(json, responseSchema, {
+                    trace,
+                })
+                if (!res.valid) {
+                    trace.error("response schema validation failed", res.error)
+                }
+            }
+        } catch (e) {
+            trace.error("response json_object parsing failed", e)
+        }
+    } else {
+        json = isJSONObjectOrArray(resp.text)
+            ? JSON5TryParse(text, undefined)
+            : undefined ?? findFirstDataFence(fences)
+    }
     const frames: DataFrame[] = []
 
     // validate schemas in fences
@@ -404,6 +448,8 @@ export async function executeChatSession(
         maxTokens,
         seed,
         cacheName,
+        responseType,
+        responseSchema,
     } = genOptions
 
     const tools: ChatCompletionTool[] = functions?.length
@@ -419,6 +465,9 @@ export async function executeChatSession(
         trace.itemValue(`top_p`, topP)
         trace.itemValue(`seed`, seed)
         trace.itemValue(`cache name`, cacheName)
+        trace.itemValue(`response type`, responseType)
+        if (responseSchema)
+            trace.detailsFenced(`📦 response schema`, responseSchema, "json")
 
         let genVars: Record<string, string>
         while (true) {
@@ -437,6 +486,9 @@ export async function executeChatSession(
                         stream: true,
                         messages,
                         tools,
+                        response_format: responseType
+                            ? { type: responseType }
+                            : undefined,
                     },
                     connectionToken,
                     genOptions,

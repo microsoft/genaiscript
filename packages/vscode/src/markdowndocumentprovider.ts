@@ -128,7 +128,7 @@ async function previewOpenAICacheEntry(sha: string) {
     Request \`${sha}\` not found in cache.
     `
 
-    const extr = extractFenced(val)
+    const extr = extractFenced(val.text)
     return `# Cached Request
 
 -   \`${sha}\`

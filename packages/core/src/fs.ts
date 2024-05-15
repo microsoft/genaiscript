@@ -1,4 +1,4 @@
-import { DOT_ENV_REGEX } from "./constants"
+import { DOT_ENV_REGEX, HTTPS_REGEX } from "./constants"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { ReadFileOptions, host } from "./host"
@@ -89,7 +89,9 @@ export function createFileSystem(): WorkspaceFileSystem {
             try {
                 await resolveFileContent(file)
             } catch (e) {
-                logVerbose(`error reading file ${file.filename}: ${errorMessage(e)}`)
+                logVerbose(
+                    `error reading file ${file.filename}: ${errorMessage(e)}`
+                )
             }
             return file
         },
@@ -115,4 +117,8 @@ export async function expandFiles(files: string[], excludedFiles?: string[]) {
     }
 
     return Array.from(res.values())
+}
+
+export function filePathOrUrlToWorkspaceFile(f: string) {
+    return HTTPS_REGEX.test(f) || host.path.resolve(f) === f ? f : `./${f}`
 }
