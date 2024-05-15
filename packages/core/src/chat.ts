@@ -342,7 +342,7 @@ function structurifyChatSession(
     let json: any
     if (responseType === "json_object") {
         try {
-            json = JSON5parse(resp.text, { repair: true })
+            json = JSON5parse(text, { repair: true })
             if (responseSchema) {
                 const res = validateJSONWithSchema(json, responseSchema, {
                     trace,
@@ -355,7 +355,7 @@ function structurifyChatSession(
             trace.error("response json_object parsing failed", e)
         }
     } else {
-        json = isJSONObjectOrArray(resp.text)
+        json = isJSONObjectOrArray(text)
             ? JSON5TryParse(text, undefined)
             : undefined ?? findFirstDataFence(fences)
     }
