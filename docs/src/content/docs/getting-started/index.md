@@ -71,7 +71,7 @@ What goes in ./file1.ts
 
 ## LLM invocation
 
-All the generate prompts are formatted and sent to the LLM for processing. Typically, using the [OpenAI Chat API](https://platform.openai.com/docs/api-reference/chat/create) (or compatible), this would be a JSON object with an array of messages.
+All the generated prompts are formatted and sent to the LLM server, which can be remote like [OpenAI](https://platform.openai.com/docs/api-reference/chat/create) or running locally like [ollama](https://ollama.com/) (there are many other LLM providers).
 
 ```json title="llmrequest.json"
 {
