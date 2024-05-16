@@ -22,6 +22,8 @@ import {
     EMOJI_SUCCESS,
     GENAI_JS_REGEX,
     JSON5TryParse,
+    normalizeInt,
+    delay,
 } from "genaiscript-core"
 
 import { readFile, writeFile, appendFile } from "node:fs/promises"
@@ -70,6 +72,7 @@ export async function runPromptScriptTests(
         write?: boolean
         promptfooVersion?: string
         outSummary?: string
+        testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
     const prj = await buildProject()
@@ -88,6 +91,7 @@ export async function runPromptScriptTests(
     const outSummary = options.outSummary
     const provider = join(out, "provider.mjs")
     const models = options?.models
+    const testDelay = normalizeInt(options?.testDelay)
     logInfo(`writing tests to ${out}`)
 
     if (options?.removeOut) await emptyDir(out)
@@ -172,6 +176,11 @@ export async function runPromptScriptTests(
             script: script.id,
             value,
         })
+
+        if (testDelay > 0) {
+            logVerbose(`  waiting ${testDelay}s`)
+            await delay(testDelay * 1000)
+        }
     }
 
     const ok = results.every((r) => !!r.ok)
@@ -194,6 +203,7 @@ export async function scriptsTest(
         write?: boolean
         promptfooVersion?: string
         outSummary?: string
+        testDelay?: string
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)
