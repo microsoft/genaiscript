@@ -144,3 +144,11 @@ and can confuse the LLM.
 
 GenAIScript will automatically try to repair the data by issues additional messages 
 back to the LLM with the parsing output.
+
+## Runtime Validation
+
+Use `parsers.validateJSON` to validate JSON when running the script.
+
+```js
+const validation = parsers.validateJSON(schema, json)
+```

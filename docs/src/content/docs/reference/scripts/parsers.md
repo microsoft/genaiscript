@@ -227,3 +227,19 @@ for the current model. This is useful for estimating the number of prompts that 
 ```js
 const count = parsers.tokens("...")
 ```
+
+## math
+
+The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math expression.
+
+```js
+const res = parsers.math("1 + 1")
+```
+
+## validateJSON
+
+The `parsers.validateJSON` function validates a JSON string against a schema.
+
+```js
+const validation = parsers.validateJSON(schema, json)
+```
