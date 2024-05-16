@@ -41,8 +41,6 @@ import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
-const MAX_HISTORY_LENGTH = 500
-
 export const TOKEN_DOCUMENTATION_URL =
     "https://github.com/microsoft/genaiscript/blob/main/docs/token.md"
 export const CONTEXT_LENGTH_DOCUMENTATION_URL =

@@ -189,6 +189,7 @@ export async function cli() {
         .option("-rmo, --remove-out", "remove output folder if it exists")
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
+        .option("-td, --test-delay <string>", "delay between tests in seconds")
         .option("--no-cache", "disable LLM result cache")
         .option("-v, --verbose", "verbose output")
         .option(
