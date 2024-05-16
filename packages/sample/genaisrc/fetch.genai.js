@@ -4,7 +4,10 @@ script({
     },
 })
 
-const res = await fetch(
+/**
+ * @type {any}
+ */
+const res  = await fetch(
     "https://raw.githubusercontent.com/microsoft/genaiscript/main/package.json",
     { method: "GET" }
 )
