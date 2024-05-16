@@ -892,6 +892,13 @@ interface Parsers {
      * @param expression math expression compatible with mathjs
      */
     math(expression: string): string | number | undefined
+
+    /**
+     * Using the JSON schema, validates the content
+     * @param schema JSON schema instance
+     * @param content object to validate
+     */
+    validateJSON(schema: JSONSchema, content: any): JSONSchemaValidation
 }
 
 interface AICIGenOptions {

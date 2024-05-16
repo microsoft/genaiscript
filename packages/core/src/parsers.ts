@@ -16,6 +16,7 @@ import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
 import { HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
+import { validateJSONWithSchema } from "./schema"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -82,5 +83,7 @@ export function createParsers(options: {
         code: async (file, query) =>
             await treeSitterQuery(file, query, { trace }),
         math: (expression) => MathTryEvaluate(expression, { trace }),
+        validateJSON: (schema, content) =>
+            validateJSONWithSchema(content, schema, { trace }),
     })
 }
