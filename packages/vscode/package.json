@@ -53,19 +53,11 @@
     "files": [
         "./genaiscript.cjs",
         "./icon-light.svg",
-        "./icon-dark.svg",
-        "./icons.json"
+        "./icon-dark.svg"
     ],
     "contributes": {
         "markdown.previewStyles": [
             "./markdown.css"
-        ],
-        "iconThemes": [
-            {
-                "id": "genaiscript-icons",
-                "label": "GenAIScript Icons",
-                "path": "./icons.json"
-            }
         ],
         "icons": {
             "genaiscript-logo": {
