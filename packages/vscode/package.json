@@ -317,8 +317,8 @@
     "devDependencies": {
         "@types/mocha": "^10.0.6",
         "@types/vscode": "^1.86.0",
-        "@typescript-eslint/eslint-plugin": "^7.8.0",
-        "@typescript-eslint/parser": "^7.8.0",
+        "@typescript-eslint/eslint-plugin": "^7.9.0",
+        "@typescript-eslint/parser": "^7.9.0",
         "@vscode/test-web": "^0.0.53",
         "@vscode/vsce": "^2.25.0",
         "assert": "^2.1.0",
@@ -331,7 +331,7 @@
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.0.2"
+        "zx": "^8.1.0"
     },
     "dependencies": {
         "mammoth": "^1.7.2",
