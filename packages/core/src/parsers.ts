@@ -19,6 +19,7 @@ import { MathTryEvaluate } from "./math"
 import { validateJSONWithSchema } from "./schema"
 import { XSLXTryParse } from "./xslx"
 import { host } from "./host"
+import { unzip } from "./zip"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -49,6 +50,8 @@ export function createParsers(options: {
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
+        Zip: async (file, options) =>
+            await unzip(await host.readFile(file.filename), options),
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
