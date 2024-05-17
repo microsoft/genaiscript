@@ -161,6 +161,14 @@ const res = parsers.XLSX("...filename.xlsx", {
 })
 ```
 
+## Zip
+
+Unpacks the contents of a zip file and returns an array of files.
+
+```js
+const files = await parsers.zip(env.files[0])
+```
+
 ## HTML to Text
 
 The `parsers.HTMLToText` converts HTML to plain text using [html-to-text](https://www.npmjs.com/package/html-to-text).
