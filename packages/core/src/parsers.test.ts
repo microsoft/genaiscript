@@ -34,6 +34,15 @@ describe("parsers", () => {
         assert.equal(result.key, "value")
     })
 
+    test("CSV", () => {
+        const result = parsers.CSV("key,value\n1,2")
+        assert.deepStrictEqual(result, [{ key: "1", value: "2" }])
+    })
+
+    test("XSLX", () => {
+        const result = parsers.XSLX(file)
+    })
+
     test("frontmatter", () => {
         const result = parsers.frontmatter("---\nkey: value\n---\n")
         assert.deepStrictEqual(result, { key: "value" })

@@ -507,7 +507,14 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests" | "responseType" | "responseSchema"
+    | "model"
+    | "temperature"
+    | "topP"
+    | "maxTokens"
+    | "seed"
+    | "tests"
+    | "responseType"
+    | "responseSchema"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -792,6 +799,15 @@ interface Parsers {
     CSV(
         content: string | WorkspaceFile,
         options?: { delimiter?: string; headers?: string[] }
+    ): object[] | undefined
+
+    /**
+     * Parses a XLSX file and a given worksheet
+     * @param content
+     */
+    XSLX(
+        content: WorkspaceFile,
+        options?: { worksheet?: string }
     ): object[] | undefined
 
     /**

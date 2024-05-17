@@ -119,9 +119,10 @@ Options:
   -rmo, --remove-out                  remove output folder if it exists
   --cli <string>                      override path to the cli
   -tp, --test-provider <string>       test provider
+  -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.58.0
+  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.58.1
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
