@@ -747,6 +747,9 @@ interface ParseXLSXOptions {
     range?: string
 }
 
+interface ParseZipOptions {
+    glob?: string
+}
 
 interface Parsers {
     /**
@@ -851,6 +854,13 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: HTMLToTextOptions
     ): string
+
+    /**
+     * Extracts the contents of a zip archive file
+     * @param file 
+     * @param options 
+     */
+    unzip(file: WorkspaceFile, options?: ParseZipOptions): Promise<WorkspaceFile[]>
 
     /**
      * Estimates the number of tokens in the content.

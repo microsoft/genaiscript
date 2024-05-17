@@ -3,8 +3,24 @@ import assert from "node:assert/strict"
 import { createParsers } from "./parsers"
 import { MarkdownTrace } from "./trace"
 import { XSLXParse } from "./xslx"
-import { readFile } from "fs/promises"
+import { readFile, writeFile } from "fs/promises"
 import { resolve } from "path"
+import {
+    setHost,
+    Host,
+    AskUserOptions,
+    LogLevel,
+    ModelService,
+    OAIToken,
+    ParseService,
+    ReadFileOptions,
+    RetrievalService,
+    ServerManager,
+    ShellCallOptions,
+    UTF8Decoder,
+    UTF8Encoder,
+} from "./host"
+import { TestHost } from "./testhost"
 
 describe("parsers", () => {
     let trace: MarkdownTrace
@@ -15,6 +31,7 @@ describe("parsers", () => {
         trace = new MarkdownTrace()
         model = "test model"
         parsers = createParsers({ trace, model })
+        TestHost.install()
     })
 
     test("JSON5", () => {
@@ -43,13 +60,27 @@ describe("parsers", () => {
     })
 
     test("XSLX", async () => {
-        const result = XSLXParse(await readFile(resolve("./src/parsers.test.xlsx")))
+        const result = XSLXParse(
+            await readFile(resolve("./src/parsers.test.xlsx"))
+        )
         assert.deepStrictEqual(result, [{ key: 1, value: 2 }])
     })
 
     test("frontmatter", () => {
         const result = parsers.frontmatter("---\nkey: value\n---\n")
         assert.deepStrictEqual(result, { key: "value" })
+    })
+
+    test("zip", async () => {
+        const result = await parsers.unzip(
+            {
+                filename: "./src/parsers.test.zip",
+                content: undefined,
+            },
+            { glob: "*.md" }
+        )
+        assert(result.find((f) => f.filename === "markdown.md"))
+        assert(!result.find((f) => f.filename === "loremipsum.pdf"))
     })
 
     test("math", () => {
