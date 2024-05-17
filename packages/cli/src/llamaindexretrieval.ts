@@ -24,6 +24,10 @@ import {
     TOOL_ID,
     tryReadJSON,
     writeJSON,
+    JAVASCRIPT_MIME_TYPE,
+    JSON_MIME_TYPE,
+    PDF_MIME_TYPE,
+    DOCX_MIME_TYPE,
 } from "genaiscript-core"
 import { type BaseReader, OllamaEmbedding } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
@@ -84,11 +88,11 @@ export class LlamaIndexRetrievalService
         this.module = await tryImportLlamaIndex(trace)
         this.READERS = {
             "text/plain": new this.module.TextFileReader(),
-            "application/javascript": new this.module.TextFileReader(),
-            "application/json": new this.module.TextFileReader(),
-            "application/pdf": new this.module.PDFReader(),
+            [JAVASCRIPT_MIME_TYPE]: new this.module.TextFileReader(),
+            [JSON_MIME_TYPE]: new this.module.TextFileReader(),
+            [PDF_MIME_TYPE]: new this.module.PDFReader(),
             "text/markdown": new this.module.MarkdownReader(),
-            DOCX_MIME_TYPE: new this.module.DocxReader(),
+            [DOCX_MIME_TYPE]: new this.module.DocxReader(),
             "text/html": new this.module.HTMLReader(),
             "text/csv": new this.module.PapaCSVReader(),
         }
@@ -296,7 +300,9 @@ export class LlamaIndexRetrievalService
             this.READERS[type] ||
             (/^text\//.test(type) && this.READERS["text/plain"]) ||
             (!type && this.READERS["text/plain"]) // assume unknown type is text
-        if (!reader) throw new Error(`no reader for content type '${type}'`)
+        if (!reader) {
+            throw new Error(`no reader for content type '${type}'`)
+        }
         const fs = new BlobFileSystem(filenameOrUrl, blob)
         const documents = (await reader.loadData(filenameOrUrl, fs)).map(
             (doc) =>

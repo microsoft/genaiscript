@@ -1,13 +1,23 @@
 import {
+    DOCX_MIME_TYPE,
+    JAVASCRIPT_MIME_TYPE,
+    JSON_MIME_TYPE,
+    PDF_MIME_TYPE,
+} from "./constants"
+import {
     RetrievalClientOptions,
     RetrievalSearchOptions,
     RetrievalUpsertOptions,
     host,
 } from "./host"
 import { lookupMime } from "./mime"
-import { DOCX_MIME_TYPE, PDF_MIME_TYPE } from "./parser"
 
-const UPSERTFILE_MIME_TYPES = [PDF_MIME_TYPE, DOCX_MIME_TYPE]
+const UPSERTFILE_MIME_TYPES = [
+    PDF_MIME_TYPE,
+    DOCX_MIME_TYPE,
+    JSON_MIME_TYPE,
+    JAVASCRIPT_MIME_TYPE,
+]
 
 export function isIndexable(filename: string) {
     const type = lookupMime(filename) || "text/plain"

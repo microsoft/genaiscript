@@ -4,7 +4,12 @@ import { Project, TextFile, PromptScript, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
 import { parsePromptTemplate } from "./template"
 import { fileExists, readText } from "./fs"
-import { BUILTIN_PREFIX } from "./constants"
+import {
+    BUILTIN_PREFIX,
+    DOCX_MIME_TYPE,
+    PDF_MIME_TYPE,
+    XLSX_MIME_TYPE,
+} from "./constants"
 import { host } from "./host"
 
 type Parser = (
@@ -53,9 +58,6 @@ export function isBinaryMimeType(mimeType: string) {
     )
 }
 
-export const PDF_MIME_TYPE = "application/pdf"
-export const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-export const XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 const BINARY_MIME_TYPES = [
     // Documents
     PDF_MIME_TYPE,

@@ -108,3 +108,9 @@ $\`TELL THE LLM WHAT TO DO...\`
 // next, "Run GenAIScript"
 // https://microsoft.github.io/genaiscript/getting-started/running-scripts/
 `
+
+export const PDF_MIME_TYPE = "application/pdf"
+export const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+export const XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+export const JSON_MIME_TYPE = "application/json"
+export const JAVASCRIPT_MIME_TYPE = "application/javascript"

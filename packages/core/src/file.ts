@@ -1,7 +1,7 @@
 import { DOCXTryParse } from "./docx"
 import { readText } from "./fs"
 import { lookupMime } from "./mime"
-import { XLSX_MIME_TYPE, isBinaryMimeType } from "./parser"
+import { isBinaryMimeType } from "./parser"
 import { createFetch } from "./fetch"
 import { fileTypeFromBuffer } from "file-type"
 import { toBase64 } from "./util"
@@ -10,6 +10,7 @@ import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
 import { XSLXParseAll } from "./xslx"
 import { CSVToMarkdown } from "./csv"
+import { XLSX_MIME_TYPE } from "./constants"
 
 export async function resolveFileContent(
     file: WorkspaceFile,
