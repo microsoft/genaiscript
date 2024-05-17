@@ -775,6 +775,14 @@ interface HTMLToTextOptions {
     wordwrap?: number | false | null | undefined
 }
 
+interface ParseXLSXOptions {
+    // specific worksheet name
+    sheet?: string
+    // Use specified range (A1-style bounded range string)
+    range?: string
+}
+
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -842,7 +850,7 @@ interface Parsers {
      */
     XSLX(
         content: WorkspaceFile,
-        options?: { worksheet?: string }
+        options?: ParseXLSXOptions
     ): Promise<object[] | undefined>
 
     /**

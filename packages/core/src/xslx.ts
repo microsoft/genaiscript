@@ -1,31 +1,23 @@
 import { read, utils } from "xlsx"
-import { host } from "./host"
 import { logInfo } from "./util"
-
-export interface XSLXParseOptions {
-    // specific worksheet name
-    worksheet?: string
-    // Use specified range (A1-style bounded range string)
-    range?: string
-}
 
 export function XSLXParse(
     data: Uint8Array,
-    options?: XSLXParseOptions
+    options?: ParseXLSXOptions
 ): object[] {
-    const { worksheet, ...rest } = options || {}
+    const { sheet, ...rest } = options || {}
     const workbook = read(data, { type: "array" })
-    const sheetName = worksheet || workbook.SheetNames[0]
-    const sheet = workbook.Sheets[sheetName]
-    if (!sheet) throw new Error(`Sheet not found: ${sheetName}`)
+    const sheetName = sheet || workbook.SheetNames[0]
+    const worksheet = workbook.Sheets[sheetName]
+    if (!worksheet) throw new Error(`Sheet not found: ${sheetName}`)
 
-    const res = utils.sheet_to_json(sheet, rest)
+    const res = utils.sheet_to_json(worksheet, rest)
     return res as object[]
 }
 
 export function XSLXTryParse(
     data: Uint8Array,
-    options?: XSLXParseOptions
+    options?: ParseXLSXOptions
 ): object[] {
     try {
         return XSLXParse(data, options)
