@@ -87,7 +87,7 @@ def("FILE", env.files)
 ### Referencing
 
 The `def` function returns a variable name that can be used in the prompt.
-The name might be formatted diferently to accomodate the model's preference.
+The name might be formatted diferently to accommodate the model's preference.
 
 ```js "const f = "
 const f = def("FILE", file)
