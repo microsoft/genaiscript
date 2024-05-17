@@ -2,6 +2,9 @@ import { describe, beforeEach, test } from "node:test"
 import assert from "node:assert/strict"
 import { createParsers } from "./parsers"
 import { MarkdownTrace } from "./trace"
+import { XSLXParse } from "./xslx"
+import { readFile } from "fs/promises"
+import { resolve } from "path"
 
 describe("parsers", () => {
     let trace: MarkdownTrace
@@ -39,8 +42,9 @@ describe("parsers", () => {
         assert.deepStrictEqual(result, [{ key: "1", value: "2" }])
     })
 
-    test("XSLX", () => {
-        const result = parsers.XSLX(file)
+    test("XSLX", async () => {
+        const result = XSLXParse(await readFile(resolve("./src/parsers.test.xlsx")))
+        assert.deepStrictEqual(result, [{ key: 1, value: 2 }])
     })
 
     test("frontmatter", () => {

@@ -808,7 +808,7 @@ interface Parsers {
     XSLX(
         content: WorkspaceFile,
         options?: { worksheet?: string }
-    ): object[] | undefined
+    ): Promise<object[] | undefined>
 
     /**
      * Parses a .env file

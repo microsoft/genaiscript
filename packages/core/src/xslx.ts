@@ -3,26 +3,25 @@ import { host } from "./host"
 import { logInfo } from "./util"
 
 export function XSLXParse(
-    filename: string,
+    data: Uint8Array,
     options?: { worksheet?: string }
 ): object[] {
     const { worksheet } = options || {}
-    const bytes = host.readFile(filename)
-    const workbook = read(bytes, { type: "array" })
+    const workbook = read(data, { type: "array" })
     const sheetName = worksheet || workbook.SheetNames[0]
     const sheet = workbook.Sheets[sheetName]
     if (!sheet) throw new Error(`Sheet not found: ${sheetName}`)
 
-    const res = utils.sheet_to_json(workbook)
+    const res = utils.sheet_to_json(sheet)
     return res as object[]
 }
 
 export function XSLXTryParse(
-    filename: string,
+    data: Uint8Array,
     options?: { worksheet?: string }
 ): object[] {
     try {
-        return XSLXParse(filename, options)
+        return XSLXParse(data, options)
     } catch (e) {
         logInfo(e)
         return []

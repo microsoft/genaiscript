@@ -18,6 +18,7 @@ import { HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
 import { validateJSONWithSchema } from "./schema"
 import { XSLXTryParse } from "./xslx"
+import { host } from "./host"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -43,7 +44,8 @@ export function createParsers(options: {
             frontmatterTryParse(filenameOrFileToContent(text), options),
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
-        XSLX: (file, options) => XSLXTryParse(file?.filename, options),
+        XSLX: async (file, options) =>
+            XSLXTryParse(await host.readFile(file?.filename), options),
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
