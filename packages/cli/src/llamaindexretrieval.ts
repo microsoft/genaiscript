@@ -28,6 +28,7 @@ import {
     JSON_MIME_TYPE,
     PDF_MIME_TYPE,
     DOCX_MIME_TYPE,
+    JSON_SCHEMA_MIME_TYPE,
 } from "genaiscript-core"
 import { type BaseReader, OllamaEmbedding } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
@@ -90,6 +91,7 @@ export class LlamaIndexRetrievalService
             "text/plain": new this.module.TextFileReader(),
             [JAVASCRIPT_MIME_TYPE]: new this.module.TextFileReader(),
             [JSON_MIME_TYPE]: new this.module.TextFileReader(),
+            [JSON_SCHEMA_MIME_TYPE]: new this.module.TextFileReader(),
             [PDF_MIME_TYPE]: new this.module.PDFReader(),
             "text/markdown": new this.module.MarkdownReader(),
             [DOCX_MIME_TYPE]: new this.module.DocxReader(),

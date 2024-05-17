@@ -26,8 +26,9 @@ import {
     resolveModelConnectionInfo,
     CONFIGURATION_ERROR_CODE,
     parseKeyValuePairs,
-    stringifySchemaToTypeScript,
+    JSONSchemaStringifyToTypeScript,
     filePathOrUrlToWorkspaceFile,
+    JSONSchemaStringify,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join } from "node:path"
@@ -304,15 +305,16 @@ ${Array.from(files)
         }
         if (res.schemas) {
             for (const [sname, schema] of Object.entries(res.schemas)) {
-                const schemaFile = join(
-                    out,
-                    `${sname.toLocaleLowerCase()}.schema.d.ts`
+                await writeText(
+                    join(out, `${sname.toLocaleLowerCase()}.schema.ts`),
+                    JSONSchemaStringifyToTypeScript(schema, {
+                        typeName: capitalize(sname),
+                        export: true,
+                    })
                 )
                 await writeText(
-                    schemaFile,
-                    stringifySchemaToTypeScript(schema, {
-                        typeName: capitalize(sname),
-                    })
+                    join(out, `${sname.toLocaleLowerCase()}.schema.json`),
+                    JSONSchemaStringify(schema)
                 )
             }
         }

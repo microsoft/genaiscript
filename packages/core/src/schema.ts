@@ -10,16 +10,18 @@ export function isJSONSchema(obj: any) {
     return false
 }
 
-export function stringifySchemaToTypeScript(
+export function JSONSchemaStringifyToTypeScript(
     schema: JSONSchema,
-    options?: { typeName?: string }
+    options?: { typeName?: string; export?: boolean }
 ) {
     const { typeName = "Response" } = options || {}
     let lines: string[] = []
     let indent = 0
 
     appendJsDoc(schema.description)
-    append(`type ${typeName.replace(/\s+/g, "_")} =`)
+    append(
+        `${options?.export ? "export " : ""}type ${typeName.replace(/\s+/g, "_")} =`
+    )
     stringifyNode(schema)
     return lines.join("\n")
 
@@ -170,4 +172,16 @@ export function validateFencesWithSchema(
         })
     }
     return frames
+}
+
+export function JSONSchemaStringify(schema: JSONSchema) {
+    return JSON.stringify(
+        {
+            $schema:
+                schema.$schema ?? "http://json-schema.org/draft-07/schema#",
+            ...schema,
+        },
+        null,
+        2
+    )
 }

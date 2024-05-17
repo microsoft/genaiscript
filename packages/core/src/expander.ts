@@ -1,5 +1,5 @@
 import { Fragment, Project, PromptScript } from "./ast"
-import { assert, normalizeFloat, normalizeInt, normalizeString } from "./util"
+import { assert, normalizeFloat, normalizeInt } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
@@ -21,9 +21,8 @@ import {
     toChatCompletionUserMessage,
 } from "./chat"
 import { importPrompt } from "./importprompt"
-import { lookupMime } from "./mime"
 import { parseModelIdentifier } from "./models"
-import { stringifySchemaToTypeScript } from "./schema"
+import { JSONSchemaStringifyToTypeScript } from "./schema"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -387,7 +386,7 @@ export async function expandTemplate(
     if (responseSchema) {
         responseType = "json_object"
         const typeName = "Output"
-        const schemaTs = stringifySchemaToTypeScript(responseSchema, {
+        const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
             typeName,
         })
         messages.unshift({

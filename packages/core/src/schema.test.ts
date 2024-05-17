@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { stringifySchemaToTypeScript } from "./schema"
+import { JSONSchemaStringifyToTypeScript } from "./schema"
 
 describe("schema", () => {
     test("cities", () => {
@@ -30,7 +30,7 @@ describe("schema", () => {
             },
         }
 
-        const ts = stringifySchemaToTypeScript(source, { typeName: "Foo" })
+        const ts = JSONSchemaStringifyToTypeScript(source, { typeName: "Foo" })
      //   console.log(ts)
         assert.equal(
             ts,
@@ -68,7 +68,7 @@ of the city.`,
                 required: ["name", "url"],
             }
 
-            const ts = stringifySchemaToTypeScript(source)
+            const ts = JSONSchemaStringifyToTypeScript(source)
           //  console.log(ts)
             assert.equal(
                 ts,

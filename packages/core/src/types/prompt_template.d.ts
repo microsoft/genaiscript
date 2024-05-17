@@ -617,6 +617,7 @@ interface JSONSchemaBoolean {
 }
 
 interface JSONSchemaObject {
+    $schema?: string
     type: "object"
     description?: string
     properties?: {
@@ -627,6 +628,7 @@ interface JSONSchemaObject {
 }
 
 interface JSONSchemaArray {
+    $schema?: string
     type: "array"
     description?: string
     items?: JSONSchemaType

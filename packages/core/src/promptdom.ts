@@ -1,7 +1,7 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
 import { resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
-import { stringifySchemaToTypeScript } from "./schema"
+import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { assert, toStringList, trimNewlines } from "./util"
@@ -548,7 +548,7 @@ export async function renderPromptNode(
                     schemaText = YAMLStringify(schema)
                     break
                 default:
-                    schemaText = stringifySchemaToTypeScript(schema, {
+                    schemaText = JSONSchemaStringifyToTypeScript(schema, {
                         typeName: schemaName,
                     })
                     break

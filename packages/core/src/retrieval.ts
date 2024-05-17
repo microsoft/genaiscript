@@ -2,6 +2,7 @@ import {
     DOCX_MIME_TYPE,
     JAVASCRIPT_MIME_TYPE,
     JSON_MIME_TYPE,
+    JSON_SCHEMA_MIME_TYPE,
     PDF_MIME_TYPE,
 } from "./constants"
 import {
@@ -16,6 +17,7 @@ const UPSERTFILE_MIME_TYPES = [
     PDF_MIME_TYPE,
     DOCX_MIME_TYPE,
     JSON_MIME_TYPE,
+    JSON_SCHEMA_MIME_TYPE,
     JAVASCRIPT_MIME_TYPE,
 ]
 
