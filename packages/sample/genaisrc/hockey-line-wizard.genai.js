@@ -3,9 +3,6 @@ script({
     title: "hockey-line-wizard",
     temperature: 0.01,
     system: ["system", "system.functions", "system.zero_shot_cot"],
-    tests: {
-        keywords: "CW3",
-    },
 })
 
 const players = [
