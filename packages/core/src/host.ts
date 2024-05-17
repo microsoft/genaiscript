@@ -28,6 +28,7 @@ export type APIType = "openai" | "azure" | "localai"
 export interface OAIToken {
     base: string
     token: string
+    curlHeaders?: Record<string, string>
     type?: APIType
     source?: string
     aici?: boolean

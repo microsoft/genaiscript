@@ -108,7 +108,17 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
     trace.dispatchChange()
 
-    trace.detailsFenced(`✉️ POST ${url}`, postReq, "json")
+    trace.detailsFenced(
+        `✉️ fetch`,
+        `curl ${url} \\
+-H "Content-Type: application/json" \\
+${Object.entries(cfg.curlHeaders || {})
+    .map(([k, v]) => `-H "${k}: ${v}" \\`)
+    .join("\n")}
+-d '${JSON.stringify(postReq, null, 2)}' 
+`,
+        "bash"
+    )
     const body = JSON.stringify(postReq)
     let r: Response
     try {
