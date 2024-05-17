@@ -50,7 +50,7 @@ export function createParsers(options: {
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
-        Zip: async (file, options) =>
+        unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
         tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),

@@ -161,12 +161,12 @@ const res = parsers.XLSX("...filename.xlsx", {
 })
 ```
 
-## Zip
+## Unzip
 
 Unpacks the contents of a zip file and returns an array of files.
 
 ```js
-const files = await parsers.zip(env.files[0])
+const files = await parsers.unzip(env.files[0])
 ```
 
 ## HTML to Text

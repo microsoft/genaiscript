@@ -860,7 +860,7 @@ interface Parsers {
      * @param file 
      * @param options 
      */
-    Zip(file: WorkspaceFile, options?: ParseZipOptions): Promise<WorkspaceFile[]>
+    unzip(file: WorkspaceFile, options?: ParseZipOptions): Promise<WorkspaceFile[]>
 
     /**
      * Estimates the number of tokens in the content.

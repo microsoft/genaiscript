@@ -72,7 +72,7 @@ describe("parsers", () => {
     })
 
     test("zip", async () => {
-        const result = await parsers.Zip(
+        const result = await parsers.unzip(
             {
                 filename: "./src/parsers.test.zip",
                 content: undefined,
