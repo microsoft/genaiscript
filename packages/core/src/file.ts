@@ -1,15 +1,20 @@
 import { DOCXTryParse } from "./docx"
 import { readText } from "./fs"
 import { lookupMime } from "./mime"
-import { isBinaryMimeType } from "./parser"
+import { XLSX_MIME_TYPE, isBinaryMimeType } from "./parser"
 import { createFetch } from "./fetch"
 import { fileTypeFromBuffer } from "file-type"
 import { toBase64 } from "./util"
 import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
+import { XSLXParseAll } from "./xslx"
+import { CSVToMarkdown } from "./csv"
 
-export async function resolveFileContent(file: WorkspaceFile, options?: TraceOptions) {
+export async function resolveFileContent(
+    file: WorkspaceFile,
+    options?: TraceOptions
+) {
     const { filename } = file
     if (file.content) return file
 
@@ -20,14 +25,30 @@ export async function resolveFileContent(file: WorkspaceFile, options?: TraceOpt
         file.content = await DOCXTryParse(filename, options)
     } else {
         const mime = lookupMime(filename)
-        const isBinary = isBinaryMimeType(mime)
-        if (!isBinary)
-            file.content = await readText(filename)
+        if (mime === XLSX_MIME_TYPE) {
+            const bytes = await host.readFile(filename)
+            const sheets = Object.entries(XSLXParseAll(bytes))
+            file.content = sheets.length
+                ? sheets
+                      .map(
+                          ([name, rows]) => `## ${name}
+${CSVToMarkdown(rows)}
+`
+                      )
+                      .join("\n")
+                : CSVToMarkdown(sheets[0][1])
+        } else {
+            const isBinary = isBinaryMimeType(mime)
+            if (!isBinary) file.content = await readText(filename)
+        }
     }
     return file
 }
 
-export async function resolveFileDataUri(file: WorkspaceFile, options?: TraceOptions) {
+export async function resolveFileDataUri(
+    file: WorkspaceFile,
+    options?: TraceOptions
+) {
     let bytes: Uint8Array
     if (/^https?:\/\//i.test(file.filename)) {
         const fetch = await createFetch(options)
@@ -35,13 +56,10 @@ export async function resolveFileDataUri(file: WorkspaceFile, options?: TraceOpt
         const buffer = await resp.arrayBuffer()
         bytes = new Uint8Array(buffer)
     } else {
-        bytes = new Uint8Array(
-            await host.readFile(file.filename)
-        )
+        bytes = new Uint8Array(await host.readFile(file.filename))
     }
     const mime = (await fileTypeFromBuffer(bytes))?.mime
-    if (!mime)
-        return undefined
+    if (!mime) return undefined
     const b64 = toBase64(bytes)
     return `data:${mime};base64,${b64}`
 }

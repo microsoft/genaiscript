@@ -7,6 +7,7 @@ import {
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
+import { toStringList } from "./util"
 
 export async function createFetch(
     options?: {
@@ -35,7 +36,10 @@ export async function createFetch(
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
             trace?.resultItem(
                 false,
-                `${message}, retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
+                toStringList(
+                    message,
+                    `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
+                )
             )
             return delay
         },

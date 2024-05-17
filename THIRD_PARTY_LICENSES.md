@@ -4520,7 +4520,7 @@ The following npm packages may be included in this product:
  - @types/linkify-it@5.0.0
  - @types/lodash-es@4.17.12
  - @types/lodash.clonedeep@4.5.9
- - @types/lodash@4.17.1
+ - @types/lodash@4.17.3
  - @types/long@4.0.2
  - @types/markdown-it@14.1.1
  - @types/mdast@3.0.15
@@ -4572,7 +4572,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.28.2
+ - genaiscript-vscode@1.29.2
 
 This package contains the following license and notice below:
 
@@ -16796,7 +16796,7 @@ END OF TERMS AND CONDITIONS
 The following npm packages may be included in this product:
 
  - @aws-crypto/sha256-js@5.2.0
- - mongodb@6.6.1
+ - mongodb@6.6.2
 
 These packages each contain the following license and notice below:
 
@@ -17216,7 +17216,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/types@3.575.0
+ - @aws-sdk/types@3.577.0
  - @smithy/is-array-buffer@2.2.0
  - @smithy/util-buffer-from@2.2.0
  - @smithy/util-utf8@2.3.0
@@ -17641,7 +17641,7 @@ limitations under the License.
 The following npm packages may be included in this product:
 
  - sharp@0.32.6
- - sharp@0.33.3
+ - sharp@0.33.4
 
 These packages each contain the following license and notice below:
 
@@ -17916,7 +17916,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001618
+ - caniuse-lite@1.0.30001620
 
 This package contains the following license and notice below:
 
@@ -21539,7 +21539,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.768
+ - electron-to-chromium@1.4.772
 
 This package contains the following license and notice below:
 
@@ -23763,7 +23763,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 The following npm packages may be included in this product:
 
  - @esbuild/darwin-x64@0.20.2
- - @esbuild/darwin-x64@0.21.2
+ - @esbuild/darwin-x64@0.21.3
  - @iconify-json/ph@1.1.13
  - @iconify-json/svg-spinners@1.1.2
  - @pagefind/darwin-x64@1.1.0
@@ -23783,11 +23783,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.28.2
+ - docs@1.29.2
  - eastasianwidth@0.2.0
- - genaiscript-core@1.28.2
- - genaiscript-sample@1.28.2
- - genaiscript@1.28.2
+ - genaiscript-core@1.29.2
+ - genaiscript-sample@1.29.2
+ - genaiscript@1.29.2
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
@@ -24702,6 +24702,39 @@ This package contains the following license and notice below:
 MIT License
 
 Copyright (c) 2017 Charlie Robbins & the Contributors.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm packages may be included in this product:
+
+ - @emmetio/css-parser@0.4.0
+ - @emmetio/html-matcher@1.3.0
+ - @emmetio/stream-reader-utils@0.1.0
+ - @emmetio/stream-reader@2.2.0
+
+These packages each contain the following license and notice below:
+
+MIT License
+
+Copyright (c) 2017 Emmet.io
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25743,7 +25776,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - esbuild@0.20.2
- - esbuild@0.21.2
+ - esbuild@0.21.3
 
 These packages each contain the following license and notice below:
 
@@ -26337,7 +26370,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cohere-ai@7.9.5
+ - cohere-ai@7.10.0
 
 This package contains the following license and notice below:
 
@@ -26403,7 +26436,7 @@ The following npm packages may be included in this product:
  - @astrojs/prism@3.1.0
  - @astrojs/sitemap@3.1.4
  - @astrojs/telemetry@3.1.0
- - astro@4.8.3
+ - astro@4.8.4
 
 These packages each contain the following license and notice below:
 
@@ -26796,7 +26829,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @floating-ui/core@1.6.1
+ - @floating-ui/core@1.6.2
  - @floating-ui/utils@0.2.2
 
 These packages each contain the following license and notice below:
@@ -26856,15 +26889,15 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @volar/kit@2.2.2
+ - @volar/kit@2.2.4
  - @volar/language-core@1.11.1
- - @volar/language-core@2.2.2
- - @volar/language-server@2.2.2
- - @volar/language-service@2.2.2
- - @volar/snapshot-document@2.2.2
+ - @volar/language-core@2.2.4
+ - @volar/language-server@2.2.4
+ - @volar/language-service@2.2.4
+ - @volar/snapshot-document@2.2.4
  - @volar/source-map@1.11.1
- - @volar/source-map@2.2.2
- - @volar/typescript@2.2.2
+ - @volar/source-map@2.2.4
+ - @volar/typescript@2.2.4
  - @vue/language-core@1.8.27
  - typescript-auto-import-cache@0.3.2
 
@@ -27111,7 +27144,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/check@0.6.0
+ - @astrojs/check@0.7.0
 
 This package contains the following license and notice below:
 
@@ -27235,11 +27268,11 @@ The following npm packages may be included in this product:
  - muggle-string@0.3.1
  - muggle-string@0.4.1
  - typesafe-path@0.2.2
- - volar-service-css@0.0.43
- - volar-service-emmet@0.0.43
- - volar-service-html@0.0.43
- - volar-service-typescript-twoslash-queries@0.0.43
- - volar-service-typescript@0.0.43
+ - volar-service-css@0.0.45
+ - volar-service-emmet@0.0.45
+ - volar-service-html@0.0.45
+ - volar-service-typescript-twoslash-queries@0.0.45
+ - volar-service-typescript@0.0.45
 
 These packages each contain the following license and notice below:
 
@@ -27269,7 +27302,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - volar-service-prettier@0.0.43
+ - volar-service-prettier@0.0.45
 
 This package contains the following license and notice below:
 
@@ -27329,7 +27362,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - assemblyai@4.4.2
+ - assemblyai@4.4.3
 
 This package contains the following license and notice below:
 
@@ -27509,7 +27542,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/language-server@2.9.0
+ - @astrojs/language-server@2.10.0
 
 This package contains the following license and notice below:
 
@@ -32025,12 +32058,11 @@ SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
  - which-pm-runs@1.1.0
- - which-pm@2.1.1
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 The MIT License (MIT)
 
@@ -32058,9 +32090,40 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - formdata-node@4.4.1
+ - which-pm@2.2.0
 
 This package contains the following license and notice below:
+
+The MIT License (MIT)
+
+Copyright (c) 2017-2024 Zoltan Kochan <z@kochan.io>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
+The following npm packages may be included in this product:
+
+ - formdata-node@4.4.1
+ - formdata-node@6.0.3
+
+These packages each contain the following license and notice below:
 
 The MIT License (MIT)
 
@@ -32787,6 +32850,7 @@ The following npm packages may be included in this product:
 
  - form-data-encoder@1.7.2
  - form-data-encoder@2.1.4
+ - form-data-encoder@4.0.2
 
 These packages each contain the following license and notice below:
 

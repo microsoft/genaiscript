@@ -507,7 +507,14 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests" | "responseType" | "responseSchema"
+    | "model"
+    | "temperature"
+    | "topP"
+    | "maxTokens"
+    | "seed"
+    | "tests"
+    | "responseType"
+    | "responseSchema"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -733,6 +740,14 @@ interface HTMLToTextOptions {
     wordwrap?: number | false | null | undefined
 }
 
+interface ParseXLSXOptions {
+    // specific worksheet name
+    sheet?: string
+    // Use specified range (A1-style bounded range string)
+    range?: string
+}
+
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -793,6 +808,15 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: { delimiter?: string; headers?: string[] }
     ): object[] | undefined
+
+    /**
+     * Parses a XLSX file and a given worksheet
+     * @param content
+     */
+    XSLX(
+        content: WorkspaceFile,
+        options?: ParseXLSXOptions
+    ): Promise<object[] | undefined>
 
     /**
      * Parses a .env file

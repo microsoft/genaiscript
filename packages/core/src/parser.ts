@@ -52,14 +52,18 @@ export function isBinaryMimeType(mimeType: string) {
         BINARY_MIME_TYPES.includes(mimeType)
     )
 }
+
+export const PDF_MIME_TYPE = "application/pdf"
+export const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+export const XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 const BINARY_MIME_TYPES = [
     // Documents
-    "application/pdf",
+    PDF_MIME_TYPE,
     "application/msword",
     "application/vnd.ms-excel",
     "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
+    DOCX_MIME_TYPE, // .docx
+    XLSX_MIME_TYPE, // .xlsx
     "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx
 
     // Archives

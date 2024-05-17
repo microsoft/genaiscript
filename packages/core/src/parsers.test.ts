@@ -2,6 +2,9 @@ import { describe, beforeEach, test } from "node:test"
 import assert from "node:assert/strict"
 import { createParsers } from "./parsers"
 import { MarkdownTrace } from "./trace"
+import { XSLXParse } from "./xslx"
+import { readFile } from "fs/promises"
+import { resolve } from "path"
 
 describe("parsers", () => {
     let trace: MarkdownTrace
@@ -32,6 +35,16 @@ describe("parsers", () => {
     test("TOML", () => {
         const result = parsers.TOML('key = "value"')
         assert.equal(result.key, "value")
+    })
+
+    test("CSV", () => {
+        const result = parsers.CSV("key,value\n1,2")
+        assert.deepStrictEqual(result, [{ key: "1", value: "2" }])
+    })
+
+    test("XSLX", async () => {
+        const result = XSLXParse(await readFile(resolve("./src/parsers.test.xlsx")))
+        assert.deepStrictEqual(result, [{ key: 1, value: 2 }])
     })
 
     test("frontmatter", () => {

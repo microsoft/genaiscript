@@ -141,6 +141,26 @@ using for configuration files. This format is similar to the `key=value` format.
 KEY=VALUE
 ```
 
+## [XSLX](./xlsx.md)
+
+The `parsers.XLSX` function reads a .xlsx file and returns an array of objects where each object represents a row in the spreadsheet.
+The first row is used as headers.
+The function uses the [xlsx](https://www.npmjs.com/package/xlsx) library.
+
+```js
+const res = parsers.XLSX("...filename.xlsx")
+```
+
+By default, it reads the first sheet and the first row as headers. You can pass a worksheet name
+and/or a range to process as options.
+
+```js
+const res = parsers.XLSX("...filename.xlsx", {
+    sheet: "Sheet2",
+    range: "A1:C10",
+})
+```
+
 ## HTML to Text
 
 The `parsers.HTMLToText` converts HTML to plain text using [html-to-text](https://www.npmjs.com/package/html-to-text).
