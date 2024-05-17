@@ -13,7 +13,6 @@ import {
     dotGenaiscriptPath,
     installImport,
     lookupMime,
-    serializeError,
     createFetch,
     RETRIEVAL_PERSIST_DIR,
     parseModelIdentifier,
@@ -26,12 +25,7 @@ import {
     tryReadJSON,
     writeJSON,
 } from "genaiscript-core"
-import {
-    type BaseReader,
-    type NodeWithScore,
-    type Metadata,
-    OllamaEmbedding,
-} from "llamaindex"
+import { type BaseReader, OllamaEmbedding } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
@@ -94,8 +88,7 @@ export class LlamaIndexRetrievalService
             "application/json": new this.module.TextFileReader(),
             "application/pdf": new this.module.PDFReader(),
             "text/markdown": new this.module.MarkdownReader(),
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-                new this.module.DocxReader(),
+            DOCX_MIME_TYPE: new this.module.DocxReader(),
             "text/html": new this.module.HTMLReader(),
             "text/csv": new this.module.PapaCSVReader(),
         }

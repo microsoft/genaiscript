@@ -5,11 +5,9 @@ import {
     host,
 } from "./host"
 import { lookupMime } from "./mime"
+import { DOCX_MIME_TYPE, PDF_MIME_TYPE } from "./parser"
 
-const UPSERTFILE_MIME_TYPES = [
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]
+const UPSERTFILE_MIME_TYPES = [PDF_MIME_TYPE, DOCX_MIME_TYPE]
 
 export function isIndexable(filename: string) {
     const type = lookupMime(filename) || "text/plain"
