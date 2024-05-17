@@ -66,6 +66,9 @@ export async function parseTokenFromEnv(
                 token,
                 source: "env: OPENAI_API_...",
                 version,
+                curlHeaders: {
+                    Authorization: `Bearer $OPENAI_API_KEY`,
+                },
             }
         }
     }
@@ -83,6 +86,11 @@ export async function parseTokenFromEnv(
                 env.AZURE_OPENAI_API_KEY ||
                 env.AZURE_API_KEY ||
                 env.OPENAI_API_KEY
+            const tokenVar = env.AZURE_OPENAI_API_KEY
+                ? "AZURE_OPENAI_API_KEY"
+                : env.AZURE_API_KEY
+                  ? "AZURE_API_KEY"
+                  : "OPENAI_API_KEY"
             let base = trimTrailingSlash(
                 env.AZURE_OPENAI_ENDPOINT ||
                     env.AZURE_OPENAI_API_BASE ||
@@ -113,6 +121,9 @@ export async function parseTokenFromEnv(
                 type: "azure",
                 source: "env: AZURE_...",
                 version,
+                curlHeaders: {
+                    "api-key": `$${tokenVar}`,
+                },
             }
         }
     }
@@ -136,7 +147,18 @@ export async function parseTokenFromEnv(
             const type: APIType = "openai"
             if (base && !URL.canParse(base))
                 throw new Error(`${modelBase} must be a valid URL`)
-            return { token, base, type, version, source }
+            return {
+                token,
+                base,
+                type,
+                version,
+                source,
+                curlHeaders: token
+                    ? {
+                          Authorization: `Bearer $${modelKey}`,
+                      }
+                    : undefined,
+            }
         }
     }
 
