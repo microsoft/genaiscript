@@ -2,8 +2,13 @@ script({
     title: "analyze-data",
     tests: [
         {
-            description: "penguins",
+            description: "penguins csv",
             files: "src/penguins.csv",
+            keywords: "penguin",
+        },
+        {
+            description: "penguins xlsx",
+            files: "src/penguins.xlsx",
             keywords: "penguin",
         },
     ],

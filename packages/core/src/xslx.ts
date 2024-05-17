@@ -1,6 +1,17 @@
 import { read, utils } from "xlsx"
 import { logInfo } from "./util"
 
+export function XSLXParseAll(data: Uint8Array): Record<string, object[]> {
+    const workbook = read(data, { type: "array" })
+    const res: Record<string, object[]> = {}
+    return workbook.SheetNames.reduce((acc, sheetName) => {
+        const worksheet = workbook.Sheets[sheetName]
+        const rows = utils.sheet_to_json(worksheet) as object[]
+        acc[sheetName] = rows
+        return acc
+    }, res)
+}
+
 export function XSLXParse(
     data: Uint8Array,
     options?: ParseXLSXOptions
