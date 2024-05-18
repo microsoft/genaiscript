@@ -749,6 +749,11 @@ interface ParseXLSXOptions {
     range?: string
 }
 
+interface WorkbookSheet {
+    name: string
+    rows: object[]
+}
+
 interface ParseZipOptions {
     glob?: string
 }
@@ -821,7 +826,7 @@ interface Parsers {
     XLSX(
         content: WorkspaceFile,
         options?: ParseXLSXOptions
-    ): Promise<object[] | undefined>
+    ): Promise<WorkbookSheet[] | undefined>
 
     /**
      * Parses a .env file
@@ -859,10 +864,13 @@ interface Parsers {
 
     /**
      * Extracts the contents of a zip archive file
-     * @param file 
-     * @param options 
+     * @param file
+     * @param options
      */
-    unzip(file: WorkspaceFile, options?: ParseZipOptions): Promise<WorkspaceFile[]>
+    unzip(
+        file: WorkspaceFile,
+        options?: ParseZipOptions
+    ): Promise<WorkspaceFile[]>
 
     /**
      * Estimates the number of tokens in the content.

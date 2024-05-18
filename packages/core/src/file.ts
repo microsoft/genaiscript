@@ -8,7 +8,7 @@ import { toBase64 } from "./util"
 import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
-import { XLSXParseAll } from "./xlsx"
+import { XLSXParse } from "./xlsx"
 import { CSVToMarkdown } from "./csv"
 import { XLSX_MIME_TYPE } from "./constants"
 
@@ -28,16 +28,16 @@ export async function resolveFileContent(
         const mime = lookupMime(filename)
         if (mime === XLSX_MIME_TYPE) {
             const bytes = await host.readFile(filename)
-            const sheets = Object.entries(XLSXParseAll(bytes))
+            const sheets = XLSXParse(bytes)
             file.content = sheets.length
                 ? sheets
                       .map(
-                          ([name, rows]) => `## ${name}
+                          ({ name, rows }) => `## ${name}
 ${CSVToMarkdown(rows)}
 `
                       )
                       .join("\n")
-                : CSVToMarkdown(sheets[0][1])
+                : CSVToMarkdown(sheets[0].rows)
         } else {
             const isBinary = isBinaryMimeType(mime)
             if (!isBinary) file.content = await readText(filename)

@@ -148,14 +148,15 @@ The first row is used as headers.
 The function uses the [xlsx](https://www.npmjs.com/package/xlsx) library.
 
 ```js
-const res = parsers.XLSX("...filename.xlsx")
+const sheets = await parsers.XLSX("...filename.xlsx")
+const { rows } = sheets[0]
 ```
 
 By default, it reads the first sheet and the first row as headers. You can pass a worksheet name
 and/or a range to process as options.
 
 ```js
-const res = parsers.XLSX("...filename.xlsx", {
+const res = await parsers.XLSX("...filename.xlsx", {
     sheet: "Sheet2",
     range: "A1:C10",
 })

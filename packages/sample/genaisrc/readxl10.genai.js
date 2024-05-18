@@ -5,7 +5,8 @@ script({
     system: ["system"],
 })
 
-const rows = await parsers.XLSX(env.files[0])
+const sheets = await parsers.XLSX(env.files[0])
+const { rows } = sheets[0]
 const rows10 = rows.slice(0, 10)
 console.log("rows10", rows10)
 
