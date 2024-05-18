@@ -17,7 +17,7 @@ import { parsePdf } from "./pdf"
 import { HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
 import { validateJSONWithSchema } from "./schema"
-import { XSLXTryParse } from "./xslx"
+import { XLSXTryParse } from "./xlsx"
 import { host } from "./host"
 import { unzip } from "./zip"
 
@@ -45,8 +45,8 @@ export function createParsers(options: {
             frontmatterTryParse(filenameOrFileToContent(text), options),
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
-        XSLX: async (file, options) =>
-            XSLXTryParse(await host.readFile(file?.filename), options),
+        XLSX: async (file, options) =>
+            XLSXTryParse(await host.readFile(file?.filename), options),
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),

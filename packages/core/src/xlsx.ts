@@ -1,7 +1,7 @@
 import { read, utils } from "xlsx"
 import { logInfo } from "./util"
 
-export function XSLXParseAll(data: Uint8Array): Record<string, object[]> {
+export function XLSXParseAll(data: Uint8Array): Record<string, object[]> {
     const workbook = read(data, { type: "array" })
     const res: Record<string, object[]> = {}
     return workbook.SheetNames.reduce((acc, sheetName) => {
@@ -12,7 +12,7 @@ export function XSLXParseAll(data: Uint8Array): Record<string, object[]> {
     }, res)
 }
 
-export function XSLXParse(
+export function XLSXParse(
     data: Uint8Array,
     options?: ParseXLSXOptions
 ): object[] {
@@ -26,12 +26,12 @@ export function XSLXParse(
     return res as object[]
 }
 
-export function XSLXTryParse(
+export function XLSXTryParse(
     data: Uint8Array,
     options?: ParseXLSXOptions
 ): object[] {
     try {
-        return XSLXParse(data, options)
+        return XLSXParse(data, options)
     } catch (e) {
         logInfo(e)
         return []

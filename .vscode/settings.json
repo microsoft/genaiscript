@@ -19,6 +19,7 @@
         "ollama",
         "openai",
         "promptfoo",
+        "treesitter",
         "typecheck",
         "vsix"
     ],

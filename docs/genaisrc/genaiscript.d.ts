@@ -652,6 +652,7 @@ interface JSONSchemaBoolean {
 }
 
 interface JSONSchemaObject {
+    $schema?: string
     type: "object"
     description?: string
     properties?: {
@@ -662,6 +663,7 @@ interface JSONSchemaObject {
 }
 
 interface JSONSchemaArray {
+    $schema?: string
     type: "array"
     description?: string
     items?: JSONSchemaType
@@ -851,7 +853,7 @@ interface Parsers {
      * Parses a XLSX file and a given worksheet
      * @param content
      */
-    XSLX(
+    XLSX(
         content: WorkspaceFile,
         options?: ParseXLSXOptions
     ): Promise<object[] | undefined>

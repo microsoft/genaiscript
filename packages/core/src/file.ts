@@ -8,7 +8,7 @@ import { toBase64 } from "./util"
 import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
-import { XSLXParseAll } from "./xslx"
+import { XLSXParseAll } from "./xlsx"
 import { CSVToMarkdown } from "./csv"
 import { XLSX_MIME_TYPE } from "./constants"
 
@@ -28,7 +28,7 @@ export async function resolveFileContent(
         const mime = lookupMime(filename)
         if (mime === XLSX_MIME_TYPE) {
             const bytes = await host.readFile(filename)
-            const sheets = Object.entries(XSLXParseAll(bytes))
+            const sheets = Object.entries(XLSXParseAll(bytes))
             file.content = sheets.length
                 ? sheets
                       .map(

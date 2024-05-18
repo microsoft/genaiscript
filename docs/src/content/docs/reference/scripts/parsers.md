@@ -141,7 +141,7 @@ using for configuration files. This format is similar to the `key=value` format.
 KEY=VALUE
 ```
 
-## [XSLX](./xlsx.md)
+## [XLSX](./xlsx.md)
 
 The `parsers.XLSX` function reads a .xlsx file and returns an array of objects where each object represents a row in the spreadsheet.
 The first row is used as headers.

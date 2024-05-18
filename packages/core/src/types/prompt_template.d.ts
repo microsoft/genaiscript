@@ -818,7 +818,7 @@ interface Parsers {
      * Parses a XLSX file and a given worksheet
      * @param content
      */
-    XSLX(
+    XLSX(
         content: WorkspaceFile,
         options?: ParseXLSXOptions
     ): Promise<object[] | undefined>

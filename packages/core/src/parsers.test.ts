@@ -2,24 +2,9 @@ import { describe, beforeEach, test } from "node:test"
 import assert from "node:assert/strict"
 import { createParsers } from "./parsers"
 import { MarkdownTrace } from "./trace"
-import { XSLXParse } from "./xslx"
-import { readFile, writeFile } from "fs/promises"
+import { XLSXParse } from "./xlsx"
+import { readFile } from "fs/promises"
 import { resolve } from "path"
-import {
-    setHost,
-    Host,
-    AskUserOptions,
-    LogLevel,
-    ModelService,
-    OAIToken,
-    ParseService,
-    ReadFileOptions,
-    RetrievalService,
-    ServerManager,
-    ShellCallOptions,
-    UTF8Decoder,
-    UTF8Encoder,
-} from "./host"
 import { TestHost } from "./testhost"
 
 describe("parsers", () => {
@@ -59,8 +44,8 @@ describe("parsers", () => {
         assert.deepStrictEqual(result, [{ key: "1", value: "2" }])
     })
 
-    test("XSLX", async () => {
-        const result = XSLXParse(
+    test("XLSX", async () => {
+        const result = XLSXParse(
             await readFile(resolve("./src/parsers.test.xlsx"))
         )
         assert.deepStrictEqual(result, [{ key: 1, value: 2 }])
