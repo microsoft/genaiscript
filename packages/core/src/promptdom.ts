@@ -1,5 +1,5 @@
 import { CSVToMarkdown, CSVTryParse } from "./csv"
-import { resolveFileContent } from "./file"
+import { renderFileContent, resolveFileContent } from "./file"
 import { addLineNumbers } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
@@ -114,7 +114,8 @@ export function createDefNode(
     name = name ?? ""
     const render = async () => {
         await resolveFileContent(file, options)
-        return file
+        const res = await renderFileContent(file, options)
+        return res
     }
     const value = render()
     return { type: "def", name, value, ...(options || {}) }

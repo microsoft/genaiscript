@@ -9,8 +9,15 @@ import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { parsePdf } from "./pdf"
 import { XLSXParse } from "./xlsx"
-import { CSVToMarkdown } from "./csv"
-import { XLSX_MIME_TYPE } from "./constants"
+import { CSVToMarkdown, CSVTryParse } from "./csv"
+import {
+    CSV_REGEX,
+    DOCX_REGEX,
+    PDF_REGEX,
+    XLSX_MIME_TYPE,
+    XLSX_REGEX,
+} from "./constants"
+import { tidyData } from "./tidy"
 
 export async function resolveFileContent(
     file: WorkspaceFile,
@@ -19,31 +26,49 @@ export async function resolveFileContent(
     const { filename } = file
     if (file.content) return file
 
-    if (/\.pdf$/i.test(filename)) {
+    if (PDF_REGEX.test(filename)) {
         const { content } = await parsePdf(filename, options)
         file.content = content
-    } else if (/\.docx$/i.test(filename)) {
+    } else if (DOCX_REGEX.test(filename)) {
         file.content = await DOCXTryParse(filename, options)
+    } else if (XLSX_REGEX.test(filename)) {
+        const bytes = await host.readFile(filename)
+        const sheets = XLSXParse(bytes)
+        file.content = JSON.stringify(sheets, null, 2)
     } else {
         const mime = lookupMime(filename)
-        if (mime === XLSX_MIME_TYPE) {
-            const bytes = await host.readFile(filename)
-            const sheets = XLSXParse(bytes)
-            file.content = sheets.length
-                ? sheets
-                      .map(
-                          ({ name, rows }) => `## ${name}
-${CSVToMarkdown(rows)}
-`
-                      )
-                      .join("\n")
-                : CSVToMarkdown(sheets[0].rows)
-        } else {
-            const isBinary = isBinaryMimeType(mime)
-            if (!isBinary) file.content = await readText(filename)
-        }
+        const isBinary = isBinaryMimeType(mime)
+        if (!isBinary) file.content = await readText(filename)
     }
+
     return file
+}
+
+export async function renderFileContent(
+    file: WorkspaceFile,
+    options: TraceOptions & DataFilter
+) {
+    const { filename, content } = file
+    if (content && CSV_REGEX.test(filename)) {
+        let csv = CSVTryParse(content, options)
+        if (csv) {
+            csv = tidyData(csv, options)
+            return { filename, content: CSVToMarkdown(csv, options) }
+        }
+    } else if (content && XLSX_REGEX.test(filename)) {
+        const sheets = JSON.parse(content) as WorkbookSheet[]
+        const trimmed = sheets.length
+            ? sheets
+                  .map(
+                      ({ name, rows }) => `## ${name}
+${CSVToMarkdown(tidyData(rows, options))}
+`
+                  )
+                  .join("\n")
+            : CSVToMarkdown(tidyData(sheets[0].rows, options))
+        return { filename, content: trimmed }
+    }
+    return { ...file }
 }
 
 export async function resolveFileDataUri(

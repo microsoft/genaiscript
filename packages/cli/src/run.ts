@@ -29,6 +29,7 @@ import {
     JSONSchemaStringifyToTypeScript,
     filePathOrUrlToWorkspaceFile,
     JSONSchemaStringify,
+    CSV_REGEX,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join } from "node:path"
@@ -245,7 +246,7 @@ ${Array.from(files)
         else
             await writeText(
                 outAnnotations,
-                /\.(c|t)sv$/i.test(outAnnotations)
+                CSV_REGEX.test(outAnnotations)
                     ? diagnosticsToCSV(res.annotations, csvSeparator)
                     : /\.ya?ml$/i.test(outAnnotations)
                       ? YAMLStringify(res.annotations)
