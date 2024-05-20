@@ -1,5 +1,7 @@
 ---
 title: XLSX
+description: Learn how to parse and stringify Excel XLSX files with ease using our tools.
+keywords: XLSX parsing, Excel file handling, spreadsheet manipulation, XLSX stringify, Excel data processing
 sidebar:
     order: 17.5
 ---
