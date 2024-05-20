@@ -14,6 +14,6 @@ export function tidyData(rows: object[], options: DefDataOptions) {
     if (options.sliceSample > 0)
         rows = tidy(rows, sliceSample(options.sliceSample))
     if (options.sliceHead > 0) rows = tidy(rows, sliceHead(options.sliceHead))
-    if (options.sliceSample > 0) rows = tidy(rows, sliceTail(options.sliceTail))
+    if (options.sliceTail > 0) rows = tidy(rows, sliceTail(options.sliceTail))
     return rows
 }

@@ -48,7 +48,9 @@ describe("parsers", () => {
         const result = XLSXParse(
             await readFile(resolve("./src/parsers.test.xlsx"))
         )
-        assert.deepStrictEqual(result, [{ key: 1, value: 2 }])
+        assert.deepStrictEqual(result, [
+            { name: "Sheet1", rows: [{ key: 1, value: 2 }] },
+        ])
     })
 
     test("frontmatter", () => {
