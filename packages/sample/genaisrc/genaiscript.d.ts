@@ -376,7 +376,7 @@ interface WorkspaceFile {
     /**
      * Content of the file.
      */
-    content: string
+    content?: string
 }
 
 interface WorkspaceFileWithScore extends WorkspaceFile {
