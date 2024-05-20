@@ -16,6 +16,7 @@ import {
     toChatCompletionUserMessage,
 } from "./chat"
 import { errorMessage } from "./error"
+import { tidyData } from "./tidy"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -235,10 +236,12 @@ export function createDefDataNode(
     if (!format && headers && Array.isArray(data)) format = "csv"
     else if (!format) format = "yaml"
 
+    if (Array.isArray(data)) data = tidyData(data as object[], options)
+
     let text: string
     let lang: string
     if (Array.isArray(data) && format === "csv") {
-        text = CSVToMarkdown(data, { headers })
+        text = CSVToMarkdown(data)
     } else if (format === "json") {
         text = JSON.stringify(data)
         lang = "json"
