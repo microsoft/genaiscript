@@ -122,7 +122,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.58.1
+  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.59.1
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
