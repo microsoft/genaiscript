@@ -1,6 +1,6 @@
 script({
     title: "unit test generator",
-    system: ["system", "system.typescript", "system.files", "system.diff", "system.fs_find_files", "system.fs_read_file", "system.fs_read_summary"]
+    system: ["system", "system.typescript", "system.files", "system.fs_find_files"]
 })
 
 const code = def("CODE", env.files)
@@ -20,7 +20,6 @@ For each file in ${code},
 generate a plan to test the source code in each file
 
 - use input test files from packages/sample/src/rag/*
-- read the existing test file to update it
 - only generate tests for files in ${code}
 
 ## Step 2
@@ -36,6 +35,5 @@ For each generate test, implement the source code.
 ## Step 3
 
 Write the test files in the same directory with the suffix ".test.ts".
-If the test file already exists, update it using a DIFF.
 
 `
