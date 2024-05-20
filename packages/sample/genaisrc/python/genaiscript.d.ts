@@ -376,7 +376,7 @@ interface WorkspaceFile {
     /**
      * Content of the file.
      */
-    content: string
+    content?: string
 }
 
 interface WorkspaceFileWithScore extends WorkspaceFile {
@@ -588,7 +588,7 @@ interface ContextExpansionOptions {
     maxTokens?: number
 }
 
-interface DefOptions extends FenceOptions, ContextExpansionOptions {
+interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -1166,11 +1166,7 @@ interface Retrieval {
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
-interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens"> {
-    /**
-     * Output format in the prompt. Defaults to markdownified CSV
-     */
-    format?: "json" | "yaml" | "csv"
+interface DataFilter {
     /**
      * The keys to select from the object.
      * If a key is prefixed with -, it will be removed from the object.
@@ -1193,6 +1189,13 @@ interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens"> {
      * Removes items with duplicate values for the specified keys.
      */
     distinct?: string[]
+}
+
+interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens">, DataFilter {
+    /**
+     * Output format in the prompt. Defaults to markdownified CSV
+     */
+    format?: "json" | "yaml" | "csv"
 }
 
 interface DefSchemaOptions {

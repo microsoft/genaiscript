@@ -30,7 +30,13 @@ defTool(
         if (!filename) return ""
         linestart = parseInt(linestart) - 1
         lineend = parseInt(lineend)
-        let { content } = await workspace.readText(filename)
+        let content
+        try {
+            const res = await workspace.readText(filename)
+            content = res.content ?? ""
+        } catch (e) {
+            return ""
+        }
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
             content = lines.slice(linestart, lineend).join("\n")

@@ -10,13 +10,14 @@ function startFence(text: string) {
     const groups: Record<string, string> = m?.groups || {}
     return {
         fence: groups.fence,
-        language: undoublequote(groups.language),
+        language: unquote(groups.language),
         args: parseKeyValuePairs(groups.args),
     }
 }
 
-export function undoublequote(s: string) {
-    if (s && s[0] === `"` && s[s.length - 1] === `"`) return s.slice(1, -1)
+export function unquote(s: string) {
+    for (const sep of "\"'`")
+        if (s && s[0] === sep && s[s.length - 1] === sep) return s.slice(1, -1)
     return s
 }
 
@@ -28,7 +29,7 @@ export function parseKeyValuePairs(text: string | string[]) {
             ?.split(/\s+/g)
             .map((kv) => kv.split(/[=:]/))
             .filter((m) => m.length == 2)
-            .forEach((m) => (res[m[0]] = undoublequote(m[1])))
+            .forEach((m) => (res[m[0]] = unquote(m[1])))
     )
     return Object.freeze(res)
 }
@@ -103,7 +104,7 @@ export function extractFenced(text: string): Fenced[] {
                 const m = /(\w+):\s+([^\s]+)/.exec(line)
                 if (start.fence && line.endsWith(":")) {
                     currLbl = (
-                        undoublequote(line.slice(0, -1)) +
+                        unquote(line.slice(0, -1)) +
                         " " +
                         (start.args["file"] || "")
                     ).trim()
@@ -113,9 +114,9 @@ export function extractFenced(text: string): Fenced[] {
                     i++
                 } else if (start.fence && m) {
                     currLbl =
-                        undoublequote(m[1]) +
+                        unquote(m[1]) +
                         " " +
-                        (start.args["file"] || undoublequote(m[2]))
+                        (start.args["file"] || unquote(m[2]))
                     currFence = start.fence
                     currLanguage = start.language || ""
                     currArgs = start.args

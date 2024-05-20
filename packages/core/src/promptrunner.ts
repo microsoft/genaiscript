@@ -17,7 +17,7 @@ import { GenerationResult, expandTemplate } from "./expander"
 import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
-import { undoublequote } from "./fence"
+import { unquote } from "./fence"
 import { HTTPS_REGEX } from "./constants"
 import { parsePromptParameters } from "./parameters"
 
@@ -294,7 +294,7 @@ export async function runTemplate(
             const pm = /^((file|diff):?)\s+/i.exec(name)
             if (pm) {
                 const kw = pm[1].toLowerCase()
-                const n = undoublequote(name.slice(pm[0].length).trim())
+                const n = unquote(name.slice(pm[0].length).trim())
                 const fn = /^[^\/]/.test(n)
                     ? host.resolvePath(projFolder, n)
                     : n

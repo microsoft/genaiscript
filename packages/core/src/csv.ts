@@ -1,6 +1,6 @@
 import { parse } from "csv-parse/sync"
 import { markdownTable } from "markdown-table"
-import { logInfo } from "./util"
+import { TraceOptions } from "./trace"
 
 export function CSVParse(
     text: string,
@@ -26,12 +26,13 @@ export function CSVTryParse(
     options?: {
         delimiter?: string
         headers?: string[]
-    }
+    } & TraceOptions
 ): object[] {
+    const { trace } = options || {}
     try {
         return CSVParse(text, options)
     } catch (e) {
-        logInfo(e)
+        trace?.error("reading csv", e)
         return undefined
     }
 }
