@@ -1132,8 +1132,32 @@ interface Retrieval {
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
 interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens"> {
+    /**
+     * Output format in the prompt. Defaults to markdownified CSV
+     */
     format?: "json" | "yaml" | "csv"
+    /**
+     * The keys to select from the object.
+     * If a key is prefixed with -, it will be removed from the object.
+     */
     headers?: string[]
+    /**
+     * Selects the first N elements from the data
+     */
+    sliceHead?: number
+    /**
+     * Selects the last N elements from the data
+     */
+    sliceTail?: number
+    /**
+     * Selects the a random sample of N items in the collection.
+     */
+    sliceSample?: number
+
+    /**
+     * Removes items with duplicate values for the specified keys.
+     */
+    distinct?: string[]
 }
 
 interface DefSchemaOptions {

@@ -16,6 +16,7 @@
     "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
+    "@tidyjs/tidy": "^2.5.2",
     "@types/html-escaper": "^3.0.2",
     "@types/html-to-text": "^9.0.4",
     "@types/inflection": "^1.13.2",
