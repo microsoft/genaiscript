@@ -74,6 +74,12 @@ export function createFileSystem(): WorkspaceFileSystem {
             }
             return files
         },
+        writeText: async (filename: string, c: string) => {
+            if (DOT_ENV_REGEX.test(filename))
+                throw new Error("writing .env not allowed")
+            
+            host.workspace.writeText(filename, c)
+        },
         readText: async (f: string | WorkspaceFile) => {
             if (f === undefined)
                 throw new NotSupportedError("missing file name")

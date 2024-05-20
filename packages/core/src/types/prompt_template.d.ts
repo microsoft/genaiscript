@@ -458,6 +458,13 @@ interface WorkspaceFileSystem {
      * @param path
      */
     readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+
+    /**
+     * Writes a file as text to the file system
+     * @param path
+     * @param content
+     */
+    writeText(path: string, content: string): Promise<void>
 }
 
 interface ChatFunctionCallContext {
@@ -1156,7 +1163,9 @@ interface DataFilter {
     distinct?: string[]
 }
 
-interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens">, DataFilter {
+interface DefDataOptions
+    extends Omit<ContextExpansionOptions, "maxTokens">,
+        DataFilter {
     /**
      * Output format in the prompt. Defaults to markdownified CSV
      */
