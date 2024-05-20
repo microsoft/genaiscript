@@ -70,7 +70,7 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
-    async getSecretToken(modelId:string): Promise<OAIToken> {
+    async getSecretToken(modelId: string): Promise<OAIToken> {
         return await parseTokenFromEnv(process.env, modelId)
     }
 
@@ -143,7 +143,8 @@ export class NodeHost implements Host {
         } else if (options?.virtual !== false && !!v) return v // optional return virtual files
 
         // read file
-        return new Uint8Array(await readFile(name))
+        const res = await readFile(name)
+        return res ? new Uint8Array(res) : new Uint8Array()
     }
     async findFiles(path: string): Promise<string[]> {
         const files = await glob(path, {

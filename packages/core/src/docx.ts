@@ -21,7 +21,6 @@ export async function DOCXTryParse(
         const results = await extractRawText({ path })
         return results.value
     } catch (error) {
-        logError(error)
         trace?.error(`reading docx`, error)
         return undefined
     }

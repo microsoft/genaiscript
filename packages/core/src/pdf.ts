@@ -47,7 +47,7 @@ async function PDFTryParse(
     content?: Uint8Array,
     options?: { disableCleanup?: boolean } & TraceOptions
 ): Promise<ParsePdfResponse> {
-    const { disableCleanup } = options || {}
+    const { disableCleanup, trace } = options || {}
     try {
         const pdfjs = await tryImportPdfjs(options)
         const { getDocument } = pdfjs
@@ -73,7 +73,7 @@ async function PDFTryParse(
         }
         return { ok: true, pages }
     } catch (error) {
-        logError(error)
+        trace?.error(`reading pdf`, error)
         return { ok: false, error: serializeError(error) }
     }
 }

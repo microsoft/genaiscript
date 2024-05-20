@@ -1,6 +1,6 @@
 script({
     title: "unit test generator",
-    system: ["system", "system.typescript", "system.files", "system.changelog", "system.fs_find_files", "system.fs_read_file", "system.fs_read_summary"]
+    system: ["system", "system.typescript", "system.files", "system.diff", "system.fs_find_files", "system.fs_read_file", "system.fs_read_summary"]
 })
 
 const code = def("CODE", env.files)
@@ -19,7 +19,7 @@ $`## Step 1
 For each file in ${code}, 
 generate a plan to test the source code in each file
 
-- read files from packages/src/rag/*
+- use input test files from packages/sample/src/rag/*
 - read the existing test file to update it
 - only generate tests for files in ${code}
 
@@ -27,7 +27,8 @@ generate a plan to test the source code in each file
 
 For each generate test, implement the source code.
 
-- use the "node:test" test runner framework
+- use "describe", "test" from the "node:test" test runner framework
+- use "assert" from node:assert/strict (default export)
 - the test title should describe the tested function
 - you must implement the body of each test. THIS IS IMPORTANT.
 - do not use mocks
@@ -35,7 +36,6 @@ For each generate test, implement the source code.
 ## Step 3
 
 Write the test files in the same directory with the suffix ".test.ts".
-If the test file already exists, update it using a CHANGELOG.
-
+If the test file already exists, update it using a DIFF.
 
 `
