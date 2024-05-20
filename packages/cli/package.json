@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "pdfjs-dist": "4.0.379",
-    "promptfoo": "^0.58.1",
+    "promptfoo": "^0.59.1",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
     "web-tree-sitter": "^0.22.2"
