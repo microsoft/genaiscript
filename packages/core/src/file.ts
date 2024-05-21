@@ -14,7 +14,6 @@ import {
     CSV_REGEX,
     DOCX_REGEX,
     PDF_REGEX,
-    XLSX_MIME_TYPE,
     XLSX_REGEX,
 } from "./constants"
 import { tidyData } from "./tidy"

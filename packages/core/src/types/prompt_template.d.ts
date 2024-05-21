@@ -1085,6 +1085,10 @@ interface FuzzSearchOptions {
      * meaningful results, but can excessively impact search performance.
      */
     maxFuzzy?: number
+    /**
+     * Maximum number of results to return
+     */
+    topK?: number
 }
 
 interface Retrieval {
@@ -1156,7 +1160,9 @@ interface DataFilter {
     distinct?: string[]
 }
 
-interface DefDataOptions extends Omit<ContextExpansionOptions, "maxTokens">, DataFilter {
+interface DefDataOptions
+    extends Omit<ContextExpansionOptions, "maxTokens">,
+        DataFilter {
     /**
      * Output format in the prompt. Defaults to markdownified CSV
      */

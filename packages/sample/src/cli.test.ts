@@ -64,7 +64,7 @@ describe("parse", async () => {
         )
     })
     test("tokens", async () => {
-        const res = await $`node ${cli} ${cmd} tokens "**/*.md"`
+        await $`node ${cli} ${cmd} tokens "src/**" -ef "**/*.pdf"`
     })
     describe("code", async () => {
         const action = "code"
@@ -92,5 +92,16 @@ describe("parse", async () => {
                 await $`node ${cli} ${cmd} ${action} README.md`.nothrow()
             assert(res.exitCode)
         })
+    })
+})
+
+describe("retrieval", () => {
+    const cmd = "retrieval"
+    test("fuzz markdown", async () => {
+        const action = "fuzz"
+        const res =
+            await $`node ${cli} ${cmd} ${action} markdown src/rag/*`.nothrow()
+        assert(res.stdout.includes("markdown.md"))
+        assert(!res.exitCode)
     })
 })
