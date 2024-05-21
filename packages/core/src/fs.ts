@@ -101,6 +101,10 @@ export function createFileSystem(): WorkspaceFileSystem {
 }
 
 export async function expandFiles(files: string[], excludedFiles?: string[]) {
+    if (!files?.length) {
+        files = ["**"]
+        if (!excludedFiles) excludedFiles = ["node_modules/**"]
+    }
     const res = new Set<string>()
     for (const file of files) {
         const fs = await host.findFiles(file)

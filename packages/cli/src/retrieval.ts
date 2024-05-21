@@ -88,7 +88,7 @@ export async function retrievalFuzz(
         topK: string
     }
 ) {
-    const { excludedFiles, topK } = options || {}
+    let { excludedFiles, topK } = options || {}
     const files = await expandFiles(filesGlobs, excludedFiles)
     const progress = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
@@ -96,7 +96,7 @@ export async function retrievalFuzz(
     const res = await fuzzSearch(
         q,
         files.map((filename) => ({ filename })),
-        { topK }
+        { topK: normalizeInt(topK) }
     )
     progress.stop()
     console.log(YAMLStringify(res))
