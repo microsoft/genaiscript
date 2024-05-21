@@ -94,3 +94,14 @@ describe("parse", async () => {
         })
     })
 })
+
+describe("retrival", () => {
+    const cmd = "retrieval"
+    test("fuzz WorkspaceFile", async () => {
+        const action = "fuzz"
+        const res =
+            await $`node ${cli} ${cmd} ${action} markdown src/rag/*`.nothrow()
+        assert(res.stdout.includes("markdown.md"))
+        assert(res.exitCode)
+    })
+})

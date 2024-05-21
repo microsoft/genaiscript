@@ -8,6 +8,7 @@ import {
     normalizeInt,
     expandFiles,
     normalizeFloat,
+    fuzzSearch,
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 
@@ -75,6 +76,28 @@ export async function retrievalSearch(
         indexName,
         progress,
     })
+    progress.stop()
+    console.log(YAMLStringify(res))
+}
+
+export async function retrievalFuzz(
+    q: string,
+    filesGlobs: string[],
+    options: {
+        excludedFiles: string[]
+        topK: string
+    }
+) {
+    const { excludedFiles, topK } = options || {}
+    const files = await expandFiles(filesGlobs, excludedFiles)
+    const progress = createProgressSpinner(
+        `searching '${q}' in ${files.length} files`
+    )
+    const res = await fuzzSearch(
+        q,
+        files.map((filename) => ({ filename })),
+        { topK }
+    )
     progress.stop()
     console.log(YAMLStringify(res))
 }

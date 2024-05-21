@@ -21,6 +21,7 @@ import { runScript } from "./run"
 import { batchScript } from "./batch"
 import {
     retrievalClear,
+    retrievalFuzz,
     retrievalIndex,
     retrievalSearch,
     retrievalTokens,
@@ -255,10 +256,10 @@ export async function cli() {
         .action(retrievalIndex)
     retrieval
         .command("search")
-        .description("Search index")
+        .description("Search using vector embeddings similarity")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
-        .option("-tk, --top-k <number>", "maximum number of embeddings")
+        .option("-tk, --top-k <number>", "maximum number of results")
         .option("-n, --name <string>", "index name")
         .action(retrievalSearch)
     retrieval
@@ -266,6 +267,14 @@ export async function cli() {
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
         .action(retrievalClear)
+    retrieval
+        .command("fuzz")
+        .description("Search using string distance")
+        .arguments("<query> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .option("-tk, --top-k <number>", "maximum number of results")
+        .action(retrievalFuzz)
+    retrieval.command("code")
 
     program
         .command("serve")

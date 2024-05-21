@@ -260,8 +260,11 @@ Options:
 
 Commands:
   index [options] <file...>            Index a set of documents
-  search [options] <query> [files...]  Search index
+  search [options] <query> [files...]  Search using vector embeddings
+                                       similarity
   clear [options]                      Clear index to force re-indexing
+  fuzz [options] <query> [files...]    Search using string distance
+  code
   help [command]                       display help for command
 ```
 
@@ -290,11 +293,11 @@ Options:
 ```
 Usage: genaiscript retrieval search [options] <query> [files...]
 
-Search index
+Search using vector embeddings similarity
 
 Options:
   -ef, --excluded-files <string...>  excluded files
-  -tk, --top-k <number>              maximum number of embeddings
+  -tk, --top-k <number>              maximum number of results
   -n, --name <string>                index name
   -h, --help                         display help for command
 ```
@@ -309,6 +312,28 @@ Clear index to force re-indexing
 Options:
   -n, --name <string>  index name
   -h, --help           display help for command
+```
+
+### `retrieval fuzz`
+
+```
+Usage: genaiscript retrieval fuzz [options] <query> [files...]
+
+Search using string distance
+
+Options:
+  -ef, --excluded-files <string...>  excluded files
+  -tk, --top-k <number>              maximum number of results
+  -h, --help                         display help for command
+```
+
+### `retrieval code`
+
+```
+Usage: genaiscript retrieval code [options]
+
+Options:
+  -h, --help  display help for command
 ```
 
 ## `serve`
