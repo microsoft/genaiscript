@@ -21,9 +21,9 @@ import { runScript } from "./run"
 import { batchScript } from "./batch"
 import {
     retrievalClear,
+    retrievalFuzz,
     retrievalIndex,
     retrievalSearch,
-    retrievalTokens,
 } from "./retrieval"
 import { helpAll } from "./help"
 import {
@@ -32,6 +32,7 @@ import {
     parseFence,
     parseHTMLToText,
     parsePDF,
+    parseTokens,
 } from "./parse"
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
@@ -255,10 +256,10 @@ export async function cli() {
         .action(retrievalIndex)
     retrieval
         .command("search")
-        .description("Search index")
+        .description("Search using vector embeddings similarity")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
-        .option("-tk, --top-k <number>", "maximum number of embeddings")
+        .option("-tk, --top-k <number>", "maximum number of results")
         .option("-n, --name <string>", "index name")
         .action(retrievalSearch)
     retrieval
@@ -266,6 +267,14 @@ export async function cli() {
         .description("Clear index to force re-indexing")
         .option("-n, --name <string>", "index name")
         .action(retrievalClear)
+    retrieval
+        .command("fuzz")
+        .description("Search using string distance")
+        .arguments("<query> [files...]")
+        .option("-ef, --excluded-files <string...>", "excluded files")
+        .option("-tk, --top-k <number>", "maximum number of results")
+        .action(retrievalFuzz)
+    retrieval.command("code")
 
     program
         .command("serve")
@@ -310,7 +319,7 @@ export async function cli() {
         .description("Count tokens in a set of files")
         .arguments("<files...>")
         .option("-ef, --excluded-files <string...>", "excluded files")
-        .action(retrievalTokens)
+        .action(parseTokens)
     parser
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")

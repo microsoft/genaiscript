@@ -8,6 +8,8 @@ import {
     writeText,
     parsePdf,
     HTMLToText,
+    estimateTokens,
+    readText,
 } from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 import replaceExt from "replace-ext"
@@ -55,4 +57,27 @@ export async function jsonl2json(files: string[]) {
         spinner.report({ succeeded: true })
     }
     spinner.stop()
+}
+
+export async function parseTokens(
+    filesGlobs: string[],
+    options: { excludedFiles: string[]; model: string }
+) {
+    const { model = "gpt4" } = options || {}
+
+    const files = await expandFiles(filesGlobs, options?.excludedFiles)
+    const progress = createProgressSpinner(`parsing ${files.length} files`)
+    let text = ""
+    for (const file of files) {
+        const content = await readText(file)
+        if (content) {
+            const tokens = estimateTokens(model, content)
+            progress.report({
+                message: `${file}, ${tokens}`,
+            })
+            text += `${file}, ${tokens}\n`
+        }
+    }
+    progress.stop()
+    console.log(text)
 }
