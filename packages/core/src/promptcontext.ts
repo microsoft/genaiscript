@@ -78,6 +78,7 @@ export function createPromptContext(
     const path = host.path
     const workspace: WorkspaceFileSystem = {
         readText: (f) => host.workspace.readText(f),
+        writeText: (f,c) => host.workspace.writeText(f, c),
         findFiles: async (pattern, options) => {
             const res = await host.workspace.findFiles(pattern, options)
             trace.files(res, {

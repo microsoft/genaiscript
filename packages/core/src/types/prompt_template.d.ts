@@ -458,6 +458,13 @@ interface WorkspaceFileSystem {
      * @param path
      */
     readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+
+    /**
+     * Writes a file as text to the file system
+     * @param path
+     * @param content
+     */
+    writeText(path: string, content: string): Promise<void>
 }
 
 interface ChatFunctionCallContext {
