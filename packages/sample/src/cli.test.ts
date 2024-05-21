@@ -95,9 +95,9 @@ describe("parse", async () => {
     })
 })
 
-describe("retrival", () => {
+describe("retrieval", () => {
     const cmd = "retrieval"
-    test("fuzz WorkspaceFile", async () => {
+    test("fuzz markdown", async () => {
         const action = "fuzz"
         const res =
             await $`node ${cli} ${cmd} ${action} markdown src/rag/*`.nothrow()
