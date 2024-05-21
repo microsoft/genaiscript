@@ -24,7 +24,6 @@ import {
     retrievalFuzz,
     retrievalIndex,
     retrievalSearch,
-    retrievalTokens,
 } from "./retrieval"
 import { helpAll } from "./help"
 import {
@@ -33,6 +32,7 @@ import {
     parseFence,
     parseHTMLToText,
     parsePDF,
+    parseTokens,
 } from "./parse"
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
@@ -319,7 +319,7 @@ export async function cli() {
         .description("Count tokens in a set of files")
         .arguments("<files...>")
         .option("-ef, --excluded-files <string...>", "excluded files")
-        .action(retrievalTokens)
+        .action(parseTokens)
     parser
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")

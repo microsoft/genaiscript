@@ -1,10 +1,8 @@
 import {
     YAMLStringify,
-    readText,
     upsertVector,
     vectorSearch,
     clearVectorIndex,
-    estimateTokens,
     normalizeInt,
     expandFiles,
     normalizeFloat,
@@ -89,6 +87,8 @@ export async function retrievalFuzz(
     }
 ) {
     let { excludedFiles, topK } = options || {}
+    if (!filesGlobs?.length) filesGlobs = ["**"]
+    if (!excludedFiles?.length) excludedFiles = ["**/node_modules/**"]
     const files = await expandFiles(filesGlobs, excludedFiles)
     const progress = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
@@ -100,27 +100,4 @@ export async function retrievalFuzz(
     )
     progress.stop()
     console.log(YAMLStringify(res))
-}
-
-export async function retrievalTokens(
-    filesGlobs: string[],
-    options: { excludedFiles: string[]; model: string }
-) {
-    const { model = "gpt4" } = options || {}
-
-    const print = (file: string, content: string) =>
-        console.log(
-            `${file}, ${content.length} chars, ${estimateTokens(model, content)} tokens`
-        )
-
-    const files = await expandFiles(filesGlobs, options?.excludedFiles)
-    let text = ""
-    for (const file of files) {
-        const content = await readText(file)
-        if (content) {
-            print(file, content)
-            text += content
-        }
-    }
-    print("total", text)
 }
