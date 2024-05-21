@@ -57,6 +57,24 @@ export function JSONSchemaStringifyToTypeScript(
         else return "unknown"
     }
 
+    function stringifyNodeDoc(node: JSONSchemaType): string {
+        const doc = [node.description]
+        switch (node.type) {
+            case "number":
+            case "integer": {
+                if (node.minimum !== undefined)
+                    doc.push(`minimum: ${node.minimum}`)
+                if (node.exclusiveMinimum !== undefined)
+                    doc.push(`exclusiveMinimum: ${node.exclusiveMinimum}`)
+                if (node.exclusiveMaximum !== undefined)
+                    doc.push(`exclusiveMaximum : ${node.exclusiveMaximum}`)
+                if (node.maximum !== undefined)
+                    doc.push(`maximum: ${node.maximum}`)
+            }
+        }
+        return doc.filter((d) => d).join("\n")
+    }
+
     function stringifyObject(object: JSONSchemaObject): void {
         const { required, additionalProperties } = object
         append(`{`)
@@ -65,7 +83,8 @@ export function JSONSchemaStringifyToTypeScript(
         Object.keys(object.properties).forEach((key) => {
             const prop = object.properties[key]
             const field = `${key}${required?.includes(key) ? "" : "?"}`
-            appendJsDoc(prop.description)
+            const doc = stringifyNodeDoc(prop)
+            appendJsDoc(doc)
             append(`${field}:`)
             const v = stringifyNode(prop)
             if (v) lines[lines.length - 1] = lines[lines.length - 1] + " " + v
