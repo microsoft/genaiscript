@@ -650,6 +650,10 @@ interface JSONSchemaNumber {
     type: "number" | "integer"
     description?: string
     default?: number
+    minimum?: number
+    exclusiveMinimum?: number
+    maximum?: number
+    exclusiveMaximum?: number
 }
 
 interface JSONSchemaBoolean {
