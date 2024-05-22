@@ -1,4 +1,5 @@
 script({
+    model: "gpt-3.5-turbo",
     tests: {
         keywords: "Python"
     }
