@@ -11,6 +11,7 @@ import {
     ParseService,
     createBundledParsers,
     AskUserOptions,
+    TraceOptions,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -35,6 +36,17 @@ export class VSCodeHost extends EventTarget implements Host {
         this.server = new TerminalServerManager(state)
         this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
+    }
+
+    async container(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
+        await this.server.start()
+        const res = await this.server.client.containerStart(options)
+        return {
+            id: res.id,
+            exec: undefined, // TODO
+        }
     }
 
     get retrieval() {
