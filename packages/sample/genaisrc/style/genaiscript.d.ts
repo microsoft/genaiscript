@@ -1432,13 +1432,29 @@ interface ShellOutput {
     failed: boolean
 }
 
-interface PromptHost {
-    askUser(question: string): Promise<string>
+interface ShellHost {
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<Partial<ShellOutput>>
+}
+
+interface ContainerOptions {
+    /**
+     * Container image names.
+     * @see https://hub.docker.com/_/python/
+     */
+    image?: string
+}
+
+interface PromptHost extends ShellHost {
+    askUser(question: string): Promise<string>
+    container(options?: ContainerOptions): Promise<ContainerHost>
+}
+
+interface ContainerHost extends ShellHost {
+    id: string
 }
 
 interface PromptContext extends RunPromptContext {

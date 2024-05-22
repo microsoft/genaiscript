@@ -82,6 +82,16 @@ export interface ShellCall extends RequestMessage {
     response?: ShellCallResponse
 }
 
+export interface ContainerStartResponse extends ResponseStatus {
+    id: string
+}
+
+export interface ContainerStart extends RequestMessage {
+    type: "container.start"
+    options: ContainerOptions
+    response?: ContainerStartResponse
+}
+
 export type RequestMessages =
     | ServerKill
     | RetrievalVectorClear
@@ -92,3 +102,4 @@ export type RequestMessages =
     | PromptScriptTestRun
     | ModelsPull
     | ShellCall
+    | ContainerStart

@@ -167,6 +167,12 @@ export interface Host {
         args: string[],
         options: ShellOptions & TraceOptions
     ): Promise<Partial<ShellOutput>>
+
+    /**
+     * Starts a container to execute sandboxed code
+     * @param options
+     */
+    container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
 }
 
 export let host: Host

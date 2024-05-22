@@ -10,6 +10,8 @@ import {
     ServerResponse,
     serializeError,
     ShellCallResponse,
+    ContainerStartResponse,
+    DOCKER_DEFAULT_IMAGE,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
@@ -105,6 +107,17 @@ export async function startServer(options: { port: string }) {
                             value,
                             ok: !value.failed,
                             status: value.exitCode,
+                        }
+                        break
+                    }
+                    case "container.start": {
+                        console.log(
+                            `container: start ${data.options.image || DOCKER_DEFAULT_IMAGE}`
+                        )
+                        const container = await host.container(data.options)
+                        response = <ContainerStartResponse>{
+                            ok: true,
+                            id: container.id,
                         }
                         break
                     }

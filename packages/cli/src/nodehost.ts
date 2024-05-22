@@ -215,4 +215,21 @@ export class NodeHost implements Host {
             trace?.endDetails()
         }
     }
+
+    /**
+     * Starts a container to execute sandboxed code
+     * @param options
+     */
+    async container(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
+        const { trace } = options || {}
+        try {
+            trace?.startDetails(`container`)
+
+            return undefined
+        } finally {
+            trace?.endDetails()
+        }
+    }
 }

@@ -14,6 +14,7 @@ import {
     UTF8Encoder,
 } from "./host"
 import { resolve } from "path"
+import { TraceOptions } from "./trace"
 
 export class TestHost implements Host {
     userState: any
@@ -90,6 +91,11 @@ export class TestHost implements Host {
         args: string[],
         options: ShellOptions
     ): Promise<Partial<ShellOutput>> {
+        throw new Error("Method not implemented.")
+    }
+    container(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
         throw new Error("Method not implemented.")
     }
 }

@@ -26,6 +26,8 @@ import {
     PromptScriptTestRunResponse,
     ShellCallResponse,
     ShellCall,
+    ContainerStartResponse,
+    ContainerStart,
 } from "./messages"
 
 export class WebSocketClient
@@ -191,6 +193,14 @@ export class WebSocketClient
             type: "shell.call",
             command,
             args,
+            options,
+        })
+        return res.response
+    }
+
+    async containerStart(options: ContainerOptions): Promise<ContainerStartResponse> {
+        const res = await this.queue<ContainerStart>({
+            type: "container.start",
             options,
         })
         return res.response
