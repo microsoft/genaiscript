@@ -28,6 +28,7 @@ import { execa } from "execa"
 import { join } from "node:path"
 import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
+import { DockerManager } from "./docker"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -47,6 +48,7 @@ export class NodeHost implements Host {
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
+    readonly docker = new DockerManager()
 
     constructor() {
         const srv = new LlamaIndexRetrievalService(this)
@@ -220,16 +222,9 @@ export class NodeHost implements Host {
      * Starts a container to execute sandboxed code
      * @param options
      */
-    async container(
+    container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        const { trace } = options || {}
-        try {
-            trace?.startDetails(`container`)
-
-            return undefined
-        } finally {
-            trace?.endDetails()
-        }
+        return this.docker.startContainer(options)
     }
 }
