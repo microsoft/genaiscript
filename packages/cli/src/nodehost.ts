@@ -66,7 +66,13 @@ export class NodeHost implements Host {
             })
             if (res.error) throw res.error
         }
-        setHost(new NodeHost())
+        const h = new NodeHost()
+        setHost(h)
+        return h
+    }
+
+    dispose() {
+        this.docker.stop()
     }
 
     async readSecret(name: string): Promise<string | undefined> {
