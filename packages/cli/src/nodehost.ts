@@ -185,6 +185,11 @@ export class NodeHost implements Host {
         } = options
         try {
             trace?.startDetails(label || command)
+
+            // python3 on windows -> python
+            if (command === "python3" && process.platform === "win32")
+                command = "python"
+
             trace?.itemValue(`cwd`, cwd)
             trace?.item(`\`${command}\` ${args.join(" ")}`)
 
