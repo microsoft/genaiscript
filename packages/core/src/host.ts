@@ -39,17 +39,6 @@ export interface ReadFileOptions {
     virtual?: boolean
 }
 
-export interface ShellCallOptions extends ShellOptions {
-    timeout?: number
-    stdin?: string
-    keepOnError?: boolean
-    outputdir: string
-    stdinfile: string
-    stdoutfile: string
-    stderrfile: string
-    exitcodefile: string
-}
-
 export interface RetrievalClientOptions {
     progress?: Progress
     token?: CancellationToken
@@ -148,9 +137,7 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getSecretToken(
-        modelId: string
-    ): Promise<OAIToken | undefined>
+    getSecretToken(modelId: string): Promise<OAIToken | undefined>
 
     log(level: LogLevel, msg: string): void
 
@@ -178,7 +165,7 @@ export interface Host {
     exec(
         command: string,
         args: string[],
-        options: ShellCallOptions
+        options: ShellOptions & TraceOptions
     ): Promise<Partial<ShellOutput>>
 }
 

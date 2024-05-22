@@ -5,12 +5,9 @@ import {
     LogLevel,
     OAIToken,
     ReadFileOptions,
-    ShellCallOptions,
-    TOOL_NAME,
     createFileSystem,
     parseTokenFromEnv,
     setHost,
-    ICON_LOGO_NAME,
     ParseService,
     createBundledParsers,
     AskUserOptions,
@@ -18,11 +15,10 @@ import {
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { checkFileExists, readFileText } from "./fs"
+import { readFileText } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
-import { dispose } from "./components"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -190,58 +186,10 @@ export class VSCodeHost extends EventTarget implements Host {
     async exec(
         command: string,
         args: string[],
-        options: ShellCallOptions
+        options: ShellOptions
     ): Promise<Partial<ShellOutput>> {
-        const {
-            cwd,
-            exitcodefile,
-            stdoutfile,
-            stdinfile,
-            outputdir,
-            keepOnError,
-        } = options
-        const { subscriptions } = this.state.context
-
-        const terminal = vscode.window.createTerminal({
-            cwd,
-            isTransient: true,
-            name: TOOL_NAME,
-            iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
-        })
-        subscriptions.push(terminal)
-        let watcher: vscode.FileSystemWatcher
-        let exitCode: number
-
-        const clean = async () => {
-            dispose(this.context, watcher)
-            if (exitCode === 0 || !keepOnError) dispose(this.context, terminal)
-        }
-
-        return new Promise<Partial<ShellOutput>>(async (resolve, reject) => {
-            watcher = vscode.workspace.createFileSystemWatcher(
-                new vscode.RelativePattern(outputdir, "*.txt"),
-                true,
-                false,
-                true
-            )
-            subscriptions.push(watcher)
-            watcher.onDidChange(async (e) => {
-                if (await checkFileExists(Uri.file(exitcodefile))) {
-                    exitCode = parseInt(
-                        await readFileText(Uri.file(exitcodefile))
-                    )
-                    resolve(<Partial<ShellOutput>>{
-                        exitCode,
-                    })
-                }
-            })
-            const text = `${command} ${args
-                .map((a) => (/\s/.test(a) ? `"${a}"` : a))
-                .join(" ")} > "${stdoutfile}" 2>&1 < "${stdinfile}"`
-            this.state.output.info(`${options.cwd || ""}> ` + text)
-            terminal.sendText(text)
-            terminal.sendText(`echo $? > "${exitcodefile}"`)
-            terminal.sendText("exit 0") // vscode gives an annoying error message
-        }).finally(clean)
+        await this.server.start()
+        const res = await this.server.client.exec(command, args, options)
+        return res.value
     }
 }

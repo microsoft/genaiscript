@@ -1375,7 +1375,14 @@ interface QueryCapture {
 interface ShellOptions {
     cwd?: string
     stdin?: string
+    /**
+     * Process timeout in  milliseconds, default is 60s
+     */
     timeout?: number
+    /**
+     * trace label
+     */
+    label?: string
 }
 
 interface ShellOutput {

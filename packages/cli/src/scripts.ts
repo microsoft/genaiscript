@@ -2,7 +2,6 @@ import { buildProject } from "./build"
 import {
     copyPrompt,
     createScript as coreCreateScript,
-    exec,
     fixPromptDefinitions,
     host,
     logVerbose,
@@ -38,21 +37,20 @@ export async function compileScript() {
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
         logVerbose(`compiling ${host.path.join(folder, "*.genai.js")}`)
-        const res = await exec(host, {
-            label: folder,
-            call: {
+        const res = await host.exec(
+            "npx",
+            [
+                "--yes",
+                "--package",
+                `typescript@${TYPESCRIPT_VERSION}`,
+                "tsc",
+                "--project",
+                host.path.resolve(folder, "jsconfig.json"),
+            ],
+            {
                 cwd: folder,
-                command: "npx",
-                args: [
-                    "--yes",
-                    "--package",
-                    `typescript@${TYPESCRIPT_VERSION}`,
-                    "tsc",
-                    "--project",
-                    host.path.resolve(folder, "jsconfig.json"),
-                ],
-            },
-        })
+            }
+        )
         logVerbose(res.output)
     }
 }

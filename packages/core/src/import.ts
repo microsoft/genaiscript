@@ -1,4 +1,3 @@
-import { exec } from "./exec"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
 import { fileExists } from "./fs"
@@ -15,15 +14,8 @@ export async function installImport(
     const args = yarn
         ? ["add", mod]
         : ["install", "--no-save", "--ignore-scripts", mod]
-    const res = await exec(host, {
-        trace,
-        label: `install ${mod}`,
-        keepOnError: true,
-        call: {
-            command,
-            args,
-            cwd,
-        },
+    const res = await host.exec(command, args, {
+        cwd,
     })
     return res.exitCode === 0
 }
