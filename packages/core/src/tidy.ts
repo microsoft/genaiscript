@@ -7,7 +7,7 @@ import {
     distinct,
 } from "@tidyjs/tidy"
 
-export function tidyData(rows: object[], options: DataFilter) {
+export function tidyData(rows: object[], options: DataFilter = {}) {
     if (options.distinct?.length)
         rows = tidy(rows, distinct(options.distinct as any))
     if (options.headers?.length) rows = tidy(rows, select(options.headers))
