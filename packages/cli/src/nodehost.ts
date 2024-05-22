@@ -186,10 +186,7 @@ export class NodeHost implements Host {
         try {
             trace?.startDetails(label || command)
             trace?.itemValue(`cwd`, cwd)
-            trace?.itemValue(
-                `shell command`,
-                `\`${command}\` ${args.join(" ")}`
-            )
+            trace?.item(`\`${command}\` ${args.join(" ")}`)
 
             const { stdout, stderr, exitCode, failed } = await execa(
                 command,
