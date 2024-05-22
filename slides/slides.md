@@ -89,3 +89,6 @@ src: pages/tla-plus.md
 src: pages/system-components.md
 ---
 
+---
+src: pages/tools.md
+---
