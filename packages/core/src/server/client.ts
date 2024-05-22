@@ -24,6 +24,8 @@ import {
     PromptScriptTestRunOptions,
     ModelsPull,
     PromptScriptTestRunResponse,
+    ShellCallResponse,
+    ShellCall,
 } from "./messages"
 
 export class WebSocketClient
@@ -175,6 +177,20 @@ export class WebSocketClient
         const res = await this.queue<PromptScriptTestRun>({
             type: "tests.run",
             scripts: script?.id ? [script?.id] : undefined,
+            options,
+        })
+        return res.response
+    }
+
+    async exec(
+        command: string,
+        args: string[],
+        options: ShellOptions
+    ): Promise<ShellCallResponse> {
+        const res = await this.queue<ShellCall>({
+            type: "shell.call",
+            command,
+            args,
             options,
         })
         return res.response

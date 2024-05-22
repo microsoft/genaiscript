@@ -121,3 +121,5 @@ export const JSON_SCHEMA_MIME_TYPE = "application/schema+json"
 export const JAVASCRIPT_MIME_TYPE = "application/javascript"
 
 export const JSON_META_SCHEMA_URI = "https://json-schema.org/draft/2020-12/schema"
+
+export const SHELL_EXEC_TIMEOUT = 300000

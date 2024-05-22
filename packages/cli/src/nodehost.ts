@@ -8,8 +8,9 @@ import {
     OAIToken,
     ReadFileOptions,
     RetrievalService,
+    SHELL_EXEC_TIMEOUT,
     ServerManager,
-    ShellCallOptions,
+    TraceOptions,
     UTF8Decoder,
     UTF8Encoder,
     createBundledParsers,
@@ -170,17 +171,48 @@ export class NodeHost implements Host {
         await remove(name)
     }
 
-    async exec(command: string, args: string[], options: ShellCallOptions) {
-        const { cwd, timeout, stdin: input } = options
-        const exec = execa
-        const { stdout, stderr, exitCode, failed } = await exec(command, args, {
-            cleanup: true,
-            input,
-            timeout,
+    async exec(
+        command: string,
+        args: string[],
+        options: ShellOptions & TraceOptions
+    ) {
+        const {
+            trace,
+            label,
             cwd,
-            preferLocal: true,
-            stripFinalNewline: true,
-        })
-        return { stdout, stderr, exitCode, failed }
+            timeout = SHELL_EXEC_TIMEOUT,
+            stdin: input,
+        } = options
+        try {
+            trace?.startDetails(label || command)
+
+            // python3 on windows -> python
+            if (command === "python3" && process.platform === "win32")
+                command = "python"
+            if (command === "python" && process.platform !== "win32")
+                command = "python3"
+
+            trace?.itemValue(`cwd`, cwd)
+            trace?.item(`\`${command}\` ${args.join(" ")}`)
+
+            const { stdout, stderr, exitCode, failed } = await execa(
+                command,
+                args,
+                {
+                    cleanup: true,
+                    input,
+                    timeout,
+                    cwd,
+                    preferLocal: true,
+                    stripFinalNewline: true,
+                }
+            )
+            trace?.itemValue(`exit code`, `${exitCode}`)
+            trace?.detailsFenced(`📩 stdout`, stdout)
+            trace?.detailsFenced(`📩 stderr`, stderr)
+            return { stdout, stderr, exitCode, failed }
+        } finally {
+            trace?.endDetails()
+        }
     }
 }

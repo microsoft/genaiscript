@@ -10,7 +10,6 @@ import {
     ReadFileOptions,
     RetrievalService,
     ServerManager,
-    ShellCallOptions,
     UTF8Decoder,
     UTF8Encoder,
 } from "./host"
@@ -89,7 +88,7 @@ export class TestHost implements Host {
     exec(
         command: string,
         args: string[],
-        options: ShellCallOptions
+        options: ShellOptions
     ): Promise<Partial<ShellOutput>> {
         throw new Error("Method not implemented.")
     }

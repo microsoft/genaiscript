@@ -27,7 +27,6 @@ import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 import { GenerationStats } from "./expander"
 import { fuzzSearch } from "./fuzzsearch"
-import { exec } from "./exec"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -78,7 +77,7 @@ export function createPromptContext(
     const path = host.path
     const workspace: WorkspaceFileSystem = {
         readText: (f) => host.workspace.readText(f),
-        writeText: (f,c) => host.workspace.writeText(f, c),
+        writeText: (f, c) => host.workspace.writeText(f, c),
         findFiles: async (pattern, options) => {
             const res = await host.workspace.findFiles(pattern, options)
             trace.files(res, {
@@ -199,14 +198,9 @@ export function createPromptContext(
                 prompt: question,
             }),
         exec: async (command, args, options) => {
-            const res = await exec(host, {
-                label: `host.exec`,
-                trace,
-                call: {
-                    command,
-                    args,
-                    cwd: options?.cwd,
-                },
+            const res = await host.exec(command, args, {
+                cwd: options?.cwd,
+                trace
             })
             return res
         },

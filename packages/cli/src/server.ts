@@ -9,6 +9,7 @@ import {
     CORE_VERSION,
     ServerResponse,
     serializeError,
+    ShellCallResponse,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
@@ -54,7 +55,9 @@ export async function startServer(options: { port: string }) {
                     case "retrieval.vectorClear":
                         console.log(`retrieval: clear`)
                         await host.retrieval.init()
-                        response = await host.retrieval.vectorClear(data.options)
+                        response = await host.retrieval.vectorClear(
+                            data.options
+                        )
                         break
                     case "retrieval.vectorUpsert": {
                         console.log(`retrieval: upsert ${data.filename}`)
@@ -90,8 +93,19 @@ export async function startServer(options: { port: string }) {
                             ...(data.options || {}),
                             cache: true,
                             verbose: true,
-                            promptfooVersion: PROMPTFOO_VERSION
+                            promptfooVersion: PROMPTFOO_VERSION,
                         })
+                        break
+                    }
+                    case "shell.call": {
+                        console.log(`exec ${data.command}`)
+                        const { command, args, options } = data
+                        const value = await host.exec(command, args, options)
+                        response = <ShellCallResponse>{
+                            value,
+                            ok: !value.failed,
+                            status: value.exitCode,
+                        }
                         break
                     }
                     default:

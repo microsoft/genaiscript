@@ -70,6 +70,18 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
     value?: PromptScriptTestResult[]
 }
 
+export interface ShellCallResponse extends ResponseStatus {
+    value: ShellOutput
+}
+
+export interface ShellCall extends RequestMessage {
+    type: "shell.call"
+    command: string
+    args: string[]
+    options: ShellOptions
+    response?: ShellCallResponse
+}
+
 export type RequestMessages =
     | ServerKill
     | RetrievalVectorClear
@@ -79,3 +91,4 @@ export type RequestMessages =
     | ParsePdfMessage
     | PromptScriptTestRun
     | ModelsPull
+    | ShellCall
