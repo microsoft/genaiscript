@@ -34,21 +34,9 @@ export class TerminalServerManager implements ServerManager {
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
     }
 
-    private installPolyfill() {
-        if (typeof WebSocket === "undefined") {
-            try {
-                require("websocket-polyfill")
-            } catch (err) {
-                logError("websocket polyfill failed")
-                logError(err)
-            }
-        }
-    }
-
     async start() {
         if (this._terminal) return
 
-        this.installPolyfill()
         this._terminal = vscode.window.createTerminal({
             name: `${TOOL_NAME} Server`,
             cwd: host.projectFolder(),

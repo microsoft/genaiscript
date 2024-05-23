@@ -40,11 +40,20 @@ export class VSCodeHost extends EventTarget implements Host {
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        await this.server.start()
-        const res = await this.server.client.containerStart(options)
+        const { trace, ...rest } = options || {}
+        const res = await this.server.client.containerStart(rest)
+        const containerId = res.id
         return {
-            id: res.id,
-            exec: undefined, // TODO
+            id: containerId,
+            exec: async (command, args, options) => {
+                const r = await this.server.client.exec(
+                    containerId,
+                    command,
+                    args,
+                    options
+                )
+                return r.value
+            },
         }
     }
     async removeContainers(): Promise<void> {
@@ -199,12 +208,17 @@ export class VSCodeHost extends EventTarget implements Host {
 
     // executes a process
     async exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions
     ): Promise<Partial<ShellOutput>> {
-        await this.server.start()
-        const res = await this.server.client.exec(command, args, options)
+        const res = await this.server.client.exec(
+            containerId,
+            command,
+            args,
+            options
+        )
         return res.value
     }
 }

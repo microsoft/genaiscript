@@ -70,16 +70,17 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
     value?: PromptScriptTestResult[]
 }
 
-export interface ShellCallResponse extends ResponseStatus {
+export interface ShellExecResponse extends ResponseStatus {
     value: ShellOutput
 }
 
-export interface ShellCall extends RequestMessage {
-    type: "shell.call"
+export interface ShellExec extends RequestMessage {
+    type: "shell.exec"
+    containerId?: string
     command: string
     args: string[]
     options: ShellOptions
-    response?: ShellCallResponse
+    response?: ShellExecResponse
 }
 
 export interface ContainerStartResponse extends ResponseStatus {
@@ -105,6 +106,6 @@ export type RequestMessages =
     | ParsePdfMessage
     | PromptScriptTestRun
     | ModelsPull
-    | ShellCall
+    | ShellExec
     | ContainerStart
     | ContainerRemove

@@ -87,6 +87,7 @@ export class TestHost implements Host {
         throw new Error("Method not implemented.")
     }
     exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions

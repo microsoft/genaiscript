@@ -176,10 +176,16 @@ export class NodeHost implements Host {
     }
 
     async exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions & TraceOptions
     ) {
+        if (containerId) {
+            const container = await this.docker.container(containerId)
+            return await container.exec(command, args, options)
+        }
+
         const {
             trace,
             label,

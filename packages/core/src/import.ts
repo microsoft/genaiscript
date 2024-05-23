@@ -14,7 +14,7 @@ export async function installImport(
     const args = yarn
         ? ["add", mod]
         : ["install", "--no-save", "--ignore-scripts", mod]
-    const res = await host.exec(command, args, {
+    const res = await host.exec(undefined, command, args, {
         cwd,
     })
     return res.exitCode === 0

@@ -9,7 +9,7 @@ import {
     CORE_VERSION,
     ServerResponse,
     serializeError,
-    ShellCallResponse,
+    ShellExecResponse,
     ContainerStartResponse,
     DOCKER_DEFAULT_IMAGE,
 } from "genaiscript-core"
@@ -99,11 +99,11 @@ export async function startServer(options: { port: string }) {
                         })
                         break
                     }
-                    case "shell.call": {
+                    case "shell.exec": {
                         console.log(`exec ${data.command}`)
-                        const { command, args, options } = data
-                        const value = await host.exec(command, args, options)
-                        response = <ShellCallResponse>{
+                        const { command, args, options, containerId } = data
+                        const value = await host.exec(containerId, command, args, options)
+                        response = <ShellExecResponse>{
                             value,
                             ok: !value.failed,
                             status: value.exitCode,

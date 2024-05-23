@@ -1,23 +1,19 @@
 import Docker from "dockerode"
 import MemoryStream from "memorystream"
-import {
-    DOCKER_DEFAULT_IMAGE,
-    TraceOptions,
-    logError,
-    logVerbose,
-} from "genaiscript-core"
+import { DOCKER_DEFAULT_IMAGE, TraceOptions, logError } from "genaiscript-core"
 import { finished } from "stream/promises"
 
 export class DockerManager {
-    private containers: Docker.Container[] = []
+    private containers: ContainerHost[] = []
     private docker = new Docker()
     private pulledImages: string[] = []
 
     async stopAndRemove() {
         for (const container of this.containers) {
             try {
-                await container.stop()
-                await container.remove()
+                const c = await this.docker.getContainer(container.id)
+                await c.stop()
+                await c.remove()
             } catch (e) {
                 logError(e)
             }
@@ -54,6 +50,11 @@ export class DockerManager {
         }
     }
 
+    async container(id: string) {
+        const c = this.containers.find((c) => c.id === id)
+        return c
+    }
+
     async startContainer(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
@@ -83,9 +84,7 @@ export class DockerManager {
                         : `${key}=${value}`
                 ),
             })
-            this.containers.push(container)
             trace?.itemValue(`id`, container.id)
-            await container.start()
 
             const exec: ShellHost["exec"] = async (command, args, options) => {
                 const { cwd, label } = options || {}
@@ -133,10 +132,14 @@ export class DockerManager {
                 }
             }
 
-            return <ContainerHost>{
+            const c = <ContainerHost>{
                 id: container.id,
                 exec,
             }
+            this.containers.push(c)
+            await container.start()
+
+            return c
         } finally {
             trace?.endDetails()
         }

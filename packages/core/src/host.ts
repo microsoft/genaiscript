@@ -163,6 +163,7 @@ export interface Host {
 
     // executes a process
     exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions & TraceOptions
