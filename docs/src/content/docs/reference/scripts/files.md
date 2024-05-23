@@ -26,6 +26,15 @@ def("PDFS", env.files, { endsWith: ".pdf" })
 
 The `workspace` object gives access to file system of the workspace.
 
+### `findFiles`
+
+Performs a search for files under the workspace. glob patterns are supported.
+
+```ts
+const mds = await workspace.findFiles("**/*.md")
+defFile("DOCS", mds)
+```
+
 ### `readText`
 
 Reads the content of a file as text, relative to the workspace root.
@@ -37,13 +46,12 @@ const content = file.content
 
 It will automatically convert PDFs and DOCX files to text.
 
-### `findFiles`
+### `writeText`
 
-Performs a blog search for files under the workspace.
+Writes text to a file, relative to the workspace root.
 
 ```ts
-const mds = await workspace.findFiles("**/*.md")
-defFile("DOCS", mds)
+await workspace.writeText("output.txt", "Hello, world!")
 ```
 
 ## paths
