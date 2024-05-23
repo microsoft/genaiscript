@@ -59,6 +59,10 @@ export class TerminalServerManager implements ServerManager {
         this._terminal.show()
     }
 
+    get started() {
+        return !!this._terminal
+    }
+
     get retrieval(): RetrievalService {
         return this.client
     }

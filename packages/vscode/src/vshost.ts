@@ -37,7 +37,6 @@ export class VSCodeHost extends EventTarget implements Host {
         this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
     }
-
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
@@ -47,6 +46,9 @@ export class VSCodeHost extends EventTarget implements Host {
             id: res.id,
             exec: undefined, // TODO
         }
+    }
+    async removeContainers(): Promise<void> {
+        if (this.server.started) await this.server.client.containerRemove()
     }
 
     get retrieval() {

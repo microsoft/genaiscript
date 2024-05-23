@@ -98,4 +98,5 @@ export class TestHost implements Host {
     ): Promise<ContainerHost> {
         throw new Error("Method not implemented.")
     }
+    async removeContainers(): Promise<void> {}
 }

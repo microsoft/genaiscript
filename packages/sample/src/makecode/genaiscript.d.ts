@@ -1447,7 +1447,20 @@ interface ContainerOptions {
      */
     image?: string
 
+    /**
+     * Enable networking in container (disabled by default)
+     */
     networkEnabled?: boolean
+
+    /**
+     * Environment variables in container. A null/undefined variable is removed from the environment.
+     */
+    env?: Record<string, string>
+
+    /**
+     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
+     */
+    name?: string
 }
 
 interface PromptHost extends ShellHost {

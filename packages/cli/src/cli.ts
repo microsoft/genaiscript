@@ -68,9 +68,6 @@ export async function cli() {
     program.hook("preAction", (cmd) => {
         nodeHost = NodeHost.install(cmd.opts().env)
     })
-    process.on("beforeExit", async () => {
-        await nodeHost?.dispose()
-    })
     program
         .name(TOOL_ID)
         .version(CORE_VERSION)

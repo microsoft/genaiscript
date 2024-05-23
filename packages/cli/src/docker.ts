@@ -10,11 +10,12 @@ import { finished } from "stream/promises"
 
 export class DockerManager {
     private containers: Docker.Container[] = []
+    private docker = new Docker()
+    private pulledImages: string[] = []
 
-    async stop() {
+    async stopAndRemove() {
         for (const container of this.containers) {
             try {
-                logVerbose(`stopping container ${container.id}`)
                 await container.stop()
                 await container.remove()
             } catch (e) {
@@ -24,29 +25,50 @@ export class DockerManager {
         this.containers = []
     }
 
-    async startContainer(
-        options: ContainerOptions & TraceOptions
-    ): Promise<ContainerHost> {
-        const { image = DOCKER_DEFAULT_IMAGE, trace } = options
-        try {
-            trace?.startDetails(`📦 container ${image}`)
+    async pullImage(image: string, options?: TraceOptions) {
+        const { trace } = options || {}
 
-            const docker = new Docker()
-            const res = await docker.pull(image)
-            docker.modem.followProgress(
+        if (this.pulledImages.includes(image)) return
+
+        try {
+            trace?.startDetails(`📥 pull image ${image}`)
+            const res = await this.docker.pull(image)
+            this.docker.modem.followProgress(
                 res,
                 (err, output) => {
-                    //console.log(output)
-                    trace?.log(`pulled image`)
-                    if (err) trace?.error(`failed to pull image`, err)
+                    if (err) trace?.error(`failed to pull image ${image}`, err)
+                    else {
+                        this.pulledImages.push(image)
+                    }
                 },
                 (ev) => {
-                    //console.log(ev)
+                    trace?.item(ev.progress || ev.status)
                 }
             )
             await finished(res)
+        } catch (e) {
+            trace?.error(`failed to pull image ${image}`, e)
+            throw e
+        } finally {
+            trace?.endDetails()
+        }
+    }
 
-            const container = await docker.createContainer({
+    async startContainer(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
+        const {
+            image = DOCKER_DEFAULT_IMAGE,
+            trace,
+            env = {},
+            networkEnabled,
+            name,
+        } = options
+        try {
+            trace?.startDetails(`📦 container start ${image}`)
+            await this.pullImage(image, { trace })
+            const container = await this.docker.createContainer({
+                name,
                 Image: image,
                 AttachStdin: false,
                 AttachStdout: true,
@@ -54,13 +76,24 @@ export class DockerManager {
                 Tty: true,
                 OpenStdin: false,
                 StdinOnce: false,
+                NetworkDisabled: !networkEnabled,
+                Env: Object.entries(env).map(([key, value]) =>
+                    value === undefined || value === null
+                        ? key
+                        : `${key}=${value}`
+                ),
             })
+            this.containers.push(container)
+            trace?.itemValue(`id`, container.id)
             await container.start()
 
             const exec: ShellHost["exec"] = async (command, args, options) => {
                 const { cwd, label } = options || {}
                 try {
-                    trace?.startDetails(label || command)
+                    trace?.startDetails(
+                        `📦 ▶️ container exec ${label || command}`
+                    )
+                    trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
                     trace?.item(`\`${command}\` ${args.join(" ")}`)
 

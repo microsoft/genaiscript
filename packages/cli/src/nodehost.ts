@@ -71,10 +71,6 @@ export class NodeHost implements Host {
         return h
     }
 
-    dispose() {
-        this.docker.stop()
-    }
-
     async readSecret(name: string): Promise<string | undefined> {
         return process.env[name]
     }
@@ -228,9 +224,13 @@ export class NodeHost implements Host {
      * Starts a container to execute sandboxed code
      * @param options
      */
-    container(
+    async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        return this.docker.startContainer(options)
+        return await this.docker.startContainer(options)
+    }
+
+    async removeContainers(): Promise<void> {
+        await this.docker.stopAndRemove()
     }
 }

@@ -173,6 +173,11 @@ export interface Host {
      * @param options
      */
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
+
+    /**
+     * Cleanup all temperorary containers.
+     */
+    removeContainers(): Promise<void>
 }
 
 export let host: Host

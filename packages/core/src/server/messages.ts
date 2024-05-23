@@ -92,6 +92,10 @@ export interface ContainerStart extends RequestMessage {
     response?: ContainerStartResponse
 }
 
+export interface ContainerRemove extends RequestMessage {
+    type: "container.remove"
+}
+
 export type RequestMessages =
     | ServerKill
     | RetrievalVectorClear
@@ -103,3 +107,4 @@ export type RequestMessages =
     | ModelsPull
     | ShellCall
     | ContainerStart
+    | ContainerRemove

@@ -28,6 +28,7 @@ import {
     ShellCall,
     ContainerStartResponse,
     ContainerStart,
+    ContainerRemove,
 } from "./messages"
 
 export class WebSocketClient
@@ -204,6 +205,12 @@ export class WebSocketClient
             options,
         })
         return res.response
+    }
+
+    async containerRemove(): Promise<void> {
+        await this.queue<ContainerRemove>({
+            type: "container.remove",
+        })
     }
 
     kill(): void {

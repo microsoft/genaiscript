@@ -121,6 +121,12 @@ export async function startServer(options: { port: string }) {
                         }
                         break
                     }
+                    case "container.remove": {
+                        console.log(`container: remove all`)
+                        await host.removeContainers()
+                        response = { ok: true }
+                        break
+                    }
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }
