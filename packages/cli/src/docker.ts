@@ -1,41 +1,63 @@
 import Docker from "dockerode"
 import MemoryStream from "memorystream"
-import { DOCKER_DEFAULT_IMAGE, TraceOptions, logError } from "genaiscript-core"
+import {
+    CORE_VERSION,
+    DOCKER_CONTAINER_VOLUME,
+    DOCKER_DEFAULT_IMAGE,
+    DOCKER_VOLUMES_DIR,
+    TraceOptions,
+    dotGenaiscriptPath,
+    host,
+    logError,
+} from "genaiscript-core"
 import { finished } from "stream/promises"
+import { ensureDir, remove } from "fs-extra"
+import { randomBytes } from "node:crypto"
+import { writeFile } from "fs/promises"
 
 export class DockerManager {
     private containers: ContainerHost[] = []
     private docker = new Docker()
-    private pulledImages: string[] = []
 
     async stopAndRemove() {
         for (const container of this.containers) {
+            const c = await this.docker.getContainer(container.id)
             try {
-                const c = await this.docker.getContainer(container.id)
                 await c.stop()
+            } catch {}
+            try {
                 await c.remove()
             } catch (e) {
                 logError(e)
             }
+            await remove(container.hostPath)
         }
         this.containers = []
+    }
+
+    async checkImage(image: string) {
+        try {
+            const info = await this.docker.getImage(image).inspect()
+            return info?.Size > 0
+        } catch (e) {
+            // statusCode: 404
+            return false
+        }
     }
 
     async pullImage(image: string, options?: TraceOptions) {
         const { trace } = options || {}
 
-        if (this.pulledImages.includes(image)) return
+        if (await this.checkImage(image)) return
 
+        // pull image
         try {
             trace?.startDetails(`📥 pull image ${image}`)
             const res = await this.docker.pull(image)
             this.docker.modem.followProgress(
                 res,
-                (err, output) => {
+                (err) => {
                     if (err) trace?.error(`failed to pull image ${image}`, err)
-                    else {
-                        this.pulledImages.push(image)
-                    }
                 },
                 (ev) => {
                     trace?.item(ev.progress || ev.status)
@@ -68,6 +90,17 @@ export class DockerManager {
         try {
             trace?.startDetails(`📦 container start ${image}`)
             await this.pullImage(image, { trace })
+
+            const hostPath = host.path.resolve(
+                dotGenaiscriptPath(
+                    DOCKER_VOLUMES_DIR,
+                    image.replace(/:/g, "_"),
+                    randomBytes(16).toString("hex")
+                )
+            )
+            await ensureDir(hostPath)
+            const containerPath = DOCKER_CONTAINER_VOLUME
+
             const container = await this.docker.createContainer({
                 name,
                 Image: image,
@@ -78,16 +111,27 @@ export class DockerManager {
                 OpenStdin: false,
                 StdinOnce: false,
                 NetworkDisabled: !networkEnabled,
+                WorkingDir: containerPath,
+                Labels: {
+                    genaiscript: "true",
+                    "genaiscript.version": CORE_VERSION,
+                    "genaiscript.hostpath": hostPath,
+                },
                 Env: Object.entries(env).map(([key, value]) =>
                     value === undefined || value === null
                         ? key
                         : `${key}=${value}`
                 ),
+                HostConfig: {
+                    Binds: [`${hostPath}:${containerPath}`],
+                },
             })
             trace?.itemValue(`id`, container.id)
+            trace?.itemValue(`host path`, hostPath)
+            trace?.itemValue(`container path`, containerPath)
 
             const exec: ShellHost["exec"] = async (command, args, options) => {
-                const { cwd, label } = options || {}
+                const { cwd = containerPath, label } = options || {}
                 try {
                     trace?.startDetails(
                         `📦 ▶️ container exec ${label || command}`
@@ -132,9 +176,17 @@ export class DockerManager {
                 }
             }
 
+            const writeText = async (filename: string, content: string) => {
+                const hostFilename = host.path.resolve(hostPath, filename)
+                await writeFile(hostFilename, content, { encoding: "utf8" })
+            }
+
             const c = <ContainerHost>{
                 id: container.id,
+                hostPath,
+                containerPath,
                 exec,
+                writeText,
             }
             this.containers.push(c)
             await container.start()

@@ -16,7 +16,7 @@ import {
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { readFileText } from "./fs"
+import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
@@ -43,8 +43,19 @@ export class VSCodeHost extends EventTarget implements Host {
         const { trace, ...rest } = options || {}
         const res = await this.server.client.containerStart(rest)
         const containerId = res.id
+        const hostPath = res.hostPath
+        const containerPath = res.containerPath
         return {
             id: containerId,
+            hostPath,
+            containerPath,
+            writeText: async (filename, content) => {
+                const fn = vscode.workspace.asRelativePath(
+                    this.path.join(hostPath, filename),
+                    false
+                )
+                await writeFile(this.projectUri, fn, content)
+            },
             exec: async (command, args, options) => {
                 const r = await this.server.client.exec(
                     containerId,

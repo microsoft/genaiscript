@@ -191,6 +191,7 @@ export class ExtensionState extends EventTarget {
 genaiscript.cjs
 cache/
 retrieval/
+containers/
 temp/
 `
         )

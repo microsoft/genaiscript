@@ -102,7 +102,12 @@ export async function startServer(options: { port: string }) {
                     case "shell.exec": {
                         console.log(`exec ${data.command}`)
                         const { command, args, options, containerId } = data
-                        const value = await host.exec(containerId, command, args, options)
+                        const value = await host.exec(
+                            containerId,
+                            command,
+                            args,
+                            options
+                        )
                         response = <ShellExecResponse>{
                             value,
                             ok: !value.failed,
@@ -118,6 +123,8 @@ export async function startServer(options: { port: string }) {
                         response = <ContainerStartResponse>{
                             ok: true,
                             id: container.id,
+                            hostPath: container.hostPath,
+                            containerPath: container.containerPath,
                         }
                         break
                     }

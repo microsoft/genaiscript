@@ -1469,7 +1469,27 @@ interface PromptHost extends ShellHost {
 }
 
 interface ContainerHost extends ShellHost {
+    /**
+     * Container unique identifier in provider
+     */
     id: string
+
+    /**
+     * Path to the volume mounted in the host
+     */
+    hostPath: string
+
+    /**
+     * Path to the volume mounted in the container
+     */
+    containerPath: string
+
+    /**
+     * Writes a file as text to the file system
+     * @param path
+     * @param content
+     */
+    writeText(path: string, content: string): Promise<void>
 }
 
 interface PromptContext extends RunPromptContext {

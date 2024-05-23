@@ -38,6 +38,7 @@ export async function compileScript() {
     for (const folder of project.folders()) {
         logVerbose(`compiling ${host.path.join(folder, "*.genai.js")}`)
         const res = await host.exec(
+            undefined,
             "npx",
             [
                 "--yes",

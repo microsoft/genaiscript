@@ -85,6 +85,8 @@ export interface ShellExec extends RequestMessage {
 
 export interface ContainerStartResponse extends ResponseStatus {
     id: string
+    hostPath: string
+    containerPath: string
 }
 
 export interface ContainerStart extends RequestMessage {
