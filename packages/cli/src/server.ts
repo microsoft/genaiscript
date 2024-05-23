@@ -9,7 +9,9 @@ import {
     CORE_VERSION,
     ServerResponse,
     serializeError,
-    ShellCallResponse,
+    ShellExecResponse,
+    ContainerStartResponse,
+    DOCKER_DEFAULT_IMAGE,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
@@ -97,15 +99,40 @@ export async function startServer(options: { port: string }) {
                         })
                         break
                     }
-                    case "shell.call": {
+                    case "shell.exec": {
                         console.log(`exec ${data.command}`)
-                        const { command, args, options } = data
-                        const value = await host.exec(command, args, options)
-                        response = <ShellCallResponse>{
+                        const { command, args, options, containerId } = data
+                        const value = await host.exec(
+                            containerId,
+                            command,
+                            args,
+                            options
+                        )
+                        response = <ShellExecResponse>{
                             value,
                             ok: !value.failed,
                             status: value.exitCode,
                         }
+                        break
+                    }
+                    case "container.start": {
+                        console.log(
+                            `container: start ${data.options.image || DOCKER_DEFAULT_IMAGE}`
+                        )
+                        const container = await host.container(data.options)
+                        response = <ContainerStartResponse>{
+                            ok: true,
+                            id: container.id,
+                            hostPath: container.hostPath,
+                            containerPath: container.containerPath,
+                            disablePurge: container.disablePurge
+                        }
+                        break
+                    }
+                    case "container.remove": {
+                        console.log(`container: remove all`)
+                        await host.removeContainers()
+                        response = { ok: true }
                         break
                     }
                     default:

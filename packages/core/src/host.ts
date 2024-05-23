@@ -163,10 +163,22 @@ export interface Host {
 
     // executes a process
     exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions & TraceOptions
     ): Promise<Partial<ShellOutput>>
+
+    /**
+     * Starts a container to execute sandboxed code
+     * @param options
+     */
+    container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
+
+    /**
+     * Cleanup all temperorary containers.
+     */
+    removeContainers(): Promise<void>
 }
 
 export let host: Host

@@ -198,10 +198,14 @@ export function createPromptContext(
                 prompt: question,
             }),
         exec: async (command, args, options) => {
-            const res = await host.exec(command, args, {
+            const res = await host.exec(undefined, command, args, {
                 cwd: options?.cwd,
-                trace
+                trace,
             })
+            return res
+        },
+        container: async (options) => {
+            const res = await host.container({ ...(options || {}), trace })
             return res
         },
     }

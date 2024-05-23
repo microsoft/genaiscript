@@ -37,7 +37,9 @@
   },
   "devDependencies": {
     "@llamaindex/env": "^0.0.5",
+    "@types/dockerode": "^3.3.29",
     "@types/fs-extra": "^11.0.4",
+    "@types/memorystream": "^0.3.4",
     "@types/node": "^20.12.12",
     "@types/papaparse": "^5.3.14",
     "@types/pg": "^8.11.2",
@@ -46,6 +48,7 @@
     "@types/semver": "^7.5.8",
     "@types/ws": "^8.5.10",
     "commander": "^12.0.0",
+    "dockerode": "^4.0.2",
     "dotenv": "^16.4.5",
     "esbuild": "^0.21.3",
     "execa": "^9.1.0",
@@ -55,6 +58,7 @@
     "get-stdin": "^9.0.0",
     "glob": "^10.3.15",
     "mammoth": "^1.7.2",
+    "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.1.0",
     "openai": "^4.47.1",
     "ora": "^8.0.1",
@@ -66,7 +70,7 @@
     "zx": "^8.1.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",

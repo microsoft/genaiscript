@@ -11,11 +11,12 @@ import {
     ParseService,
     createBundledParsers,
     AskUserOptions,
+    TraceOptions,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { readFileText } from "./fs"
+import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
@@ -35,6 +36,47 @@ export class VSCodeHost extends EventTarget implements Host {
         this.server = new TerminalServerManager(state)
         this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
+    }
+    async container(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
+        const { trace, ...rest } = options || {}
+        const res = await this.server.client.containerStart(rest)
+        const containerId = res.id
+        const hostPath = res.hostPath
+        const containerPath = res.containerPath
+        return {
+            id: containerId,
+            disablePurge: res.disablePurge,
+            hostPath,
+            containerPath,
+            writeText: async (filename, content) => {
+                const fn = vscode.workspace.asRelativePath(
+                    this.path.join(hostPath, filename),
+                    false
+                )
+                await writeFile(this.projectUri, fn, content)
+            },
+            readText: async (filename) => {
+                const fn = vscode.workspace.asRelativePath(
+                    this.path.join(hostPath, filename),
+                    false
+                )
+                return await readFileText(this.projectUri, fn)
+            },
+            exec: async (command, args, options) => {
+                const r = await this.server.client.exec(
+                    containerId,
+                    command,
+                    args,
+                    options
+                )
+                return r.value
+            },
+        }
+    }
+    async removeContainers(): Promise<void> {
+        if (this.server.started) await this.server.client.containerRemove()
     }
 
     get retrieval() {
@@ -61,6 +103,7 @@ export class VSCodeHost extends EventTarget implements Host {
     dispose() {
         setHost(undefined)
     }
+
     createUTF8Decoder() {
         return new TextDecoder("utf-8")
     }
@@ -184,12 +227,17 @@ export class VSCodeHost extends EventTarget implements Host {
 
     // executes a process
     async exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions
     ): Promise<Partial<ShellOutput>> {
-        await this.server.start()
-        const res = await this.server.client.exec(command, args, options)
+        const res = await this.server.client.exec(
+            containerId,
+            command,
+            args,
+            options
+        )
         return res.value
     }
 }

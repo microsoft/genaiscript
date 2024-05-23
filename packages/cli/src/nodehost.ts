@@ -28,6 +28,7 @@ import { execa } from "execa"
 import { join } from "node:path"
 import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
+import { DockerManager } from "./docker"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -47,6 +48,7 @@ export class NodeHost implements Host {
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
+    readonly docker = new DockerManager()
 
     constructor() {
         const srv = new LlamaIndexRetrievalService(this)
@@ -64,7 +66,9 @@ export class NodeHost implements Host {
             })
             if (res.error) throw res.error
         }
-        setHost(new NodeHost())
+        const h = new NodeHost()
+        setHost(h)
+        return h
     }
 
     async readSecret(name: string): Promise<string | undefined> {
@@ -172,10 +176,16 @@ export class NodeHost implements Host {
     }
 
     async exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions & TraceOptions
     ) {
+        if (containerId) {
+            const container = await this.docker.container(containerId)
+            return await container.exec(command, args, options)
+        }
+
         const {
             trace,
             label,
@@ -208,11 +218,25 @@ export class NodeHost implements Host {
                 }
             )
             trace?.itemValue(`exit code`, `${exitCode}`)
-            trace?.detailsFenced(`📩 stdout`, stdout)
-            trace?.detailsFenced(`📩 stderr`, stderr)
+            if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
+            if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
         } finally {
             trace?.endDetails()
         }
+    }
+
+    /**
+     * Starts a container to execute sandboxed code
+     * @param options
+     */
+    async container(
+        options: ContainerOptions & TraceOptions
+    ): Promise<ContainerHost> {
+        return await this.docker.startContainer(options)
+    }
+
+    async removeContainers(): Promise<void> {
+        await this.docker.stopAndRemove()
     }
 }

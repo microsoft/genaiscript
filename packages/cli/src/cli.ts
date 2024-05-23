@@ -64,10 +64,10 @@ export async function cli() {
         process.exit(RUNTIME_ERROR_CODE)
     }
 
+    let nodeHost: NodeHost
     program.hook("preAction", (cmd) => {
-        NodeHost.install(cmd.opts().env)
+        nodeHost = NodeHost.install(cmd.opts().env)
     })
-
     program
         .name(TOOL_ID)
         .version(CORE_VERSION)

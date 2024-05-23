@@ -66,13 +66,16 @@ export function parsePromptParameters(
     // override with user parameters
     for (const key in vars) {
         const p = parameters[key]
-        if (!p) res[key] = vars[key]
+        if (!p) {
+            res[key] = vars[key]
+            continue
+        }
 
         const t = promptParameterTypeToJSONSchema(p)
         if (t?.type === "number") res[key] = parseFloat(vars[key])
         else if (t?.type === "integer") res[key] = parseInt(vars[key])
         else if (t?.type === "boolean")
-            res[key] = /^\s*(yes|true|ok)\s*$/i.test(vars[key])
+            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key])
         else if (t?.type === "string") res[key] = vars[key]
     }
     return Object.freeze(res)

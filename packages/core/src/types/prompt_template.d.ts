@@ -1397,13 +1397,81 @@ interface ShellOutput {
     failed: boolean
 }
 
-interface PromptHost {
-    askUser(question: string): Promise<string>
+interface ShellHost {
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<Partial<ShellOutput>>
+}
+
+interface ContainerOptions {
+    /**
+     * Container image names.
+     * @example python:alpine python:slim python
+     * @see https://hub.docker.com/_/python/
+     */
+    image?: string
+
+    /**
+     * Enable networking in container (disabled by default)
+     */
+    networkEnabled?: boolean
+
+    /**
+     * Environment variables in container. A null/undefined variable is removed from the environment.
+     */
+    env?: Record<string, string>
+
+    /**
+     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
+     */
+    name?: string
+
+    /**
+     * Disable automatic purge of container and volume directory
+     */
+    disablePurge?: boolean
+}
+
+interface PromptHost extends ShellHost {
+    askUser(question: string): Promise<string>
+    container(options?: ContainerOptions): Promise<ContainerHost>
+}
+
+interface ContainerHost extends ShellHost {
+    /**
+     * Container unique identifier in provider
+     */
+    id: string
+
+    /**
+     * Disable automatic purge of container and volume directory
+     */
+    disablePurge: boolean
+
+    /**
+     * Path to the volume mounted in the host
+     */
+    hostPath: string
+
+    /**
+     * Path to the volume mounted in the container
+     */
+    containerPath: string
+
+    /**
+     * Writes a file as text to the file system
+     * @param path
+     * @param content
+     */
+    writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Reads a file as text from the container mounted volume
+     * @param path
+     */
+    readText(path: string): Promise<string>
 }
 
 interface PromptContext extends RunPromptContext {

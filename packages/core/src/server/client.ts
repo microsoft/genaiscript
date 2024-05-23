@@ -11,7 +11,7 @@ import {
     host,
 } from "../host"
 import { TraceOptions } from "../trace"
-import { assert } from "../util"
+import { assert, logError } from "../util"
 import {
     ParsePdfMessage,
     RequestMessage,
@@ -24,8 +24,11 @@ import {
     PromptScriptTestRunOptions,
     ModelsPull,
     PromptScriptTestRunResponse,
-    ShellCallResponse,
-    ShellCall,
+    ShellExecResponse,
+    ShellExec,
+    ContainerStartResponse,
+    ContainerStart,
+    ContainerRemove,
 } from "./messages"
 
 export class WebSocketClient
@@ -42,10 +45,21 @@ export class WebSocketClient
 
     constructor(readonly url: string) {}
 
+    private installPolyfill() {
+        if (typeof WebSocket === "undefined") {
+            try {
+                require("websocket-polyfill")
+            } catch (err) {
+                logError("websocket polyfill failed")
+                logError(err)
+            }
+        }
+    }
+
     async init(): Promise<void> {
         if (this._ws) return Promise.resolve(undefined)
+        this.connect()
         await host.server.start()
-        return this.connect()
     }
 
     private reconnect() {
@@ -58,6 +72,8 @@ export class WebSocketClient
 
     private connect(): void {
         assert(!this._ws, "already connected")
+        this.installPolyfill()
+
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener("open", () => {
             // flush cached messages
@@ -89,10 +105,15 @@ export class WebSocketClient
     }
 
     private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
+        const id = this._nextId++ + ""
+        const m = JSON.stringify({ ...msg, id })
+
+        this.init()
         return new Promise<T>((resolve, reject) => {
-            const id = this._nextId++ + ""
-            this.awaiters[id] = { resolve: (data) => resolve(data), reject }
-            const m = JSON.stringify({ ...msg, id })
+            this.awaiters[id] = {
+                resolve: (data) => resolve(data),
+                reject,
+            }
             if (this._ws?.readyState === WebSocket.OPEN) {
                 this._ws.send(m)
             } else this._pendingMessages.push(m)
@@ -183,17 +204,35 @@ export class WebSocketClient
     }
 
     async exec(
+        containerId: string,
         command: string,
         args: string[],
         options: ShellOptions
-    ): Promise<ShellCallResponse> {
-        const res = await this.queue<ShellCall>({
-            type: "shell.call",
+    ): Promise<ShellExecResponse> {
+        const res = await this.queue<ShellExec>({
+            type: "shell.exec",
+            containerId,
             command,
             args,
             options,
         })
         return res.response
+    }
+
+    async containerStart(
+        options: ContainerOptions
+    ): Promise<ContainerStartResponse> {
+        const res = await this.queue<ContainerStart>({
+            type: "container.start",
+            options,
+        })
+        return res.response
+    }
+
+    async containerRemove(): Promise<void> {
+        await this.queue<ContainerRemove>({
+            type: "container.remove",
+        })
     }
 
     kill(): void {
