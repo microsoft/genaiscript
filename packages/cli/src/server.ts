@@ -125,6 +125,7 @@ export async function startServer(options: { port: string }) {
                             id: container.id,
                             hostPath: container.hostPath,
                             containerPath: container.containerPath,
+                            disablePurge: container.disablePurge
                         }
                         break
                     }

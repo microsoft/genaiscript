@@ -20,7 +20,9 @@ export class DockerManager {
     private docker = new Docker()
 
     async stopAndRemove() {
-        for (const container of this.containers) {
+        for (const container of this.containers.filter(
+            (c) => !c.disablePurge
+        )) {
             const c = await this.docker.getContainer(container.id)
             try {
                 await c.stop()
@@ -178,6 +180,7 @@ export class DockerManager {
 
             const writeText = async (filename: string, content: string) => {
                 const hostFilename = host.path.resolve(hostPath, filename)
+                await ensureDir(host.path.dirname(hostFilename))
                 await writeFile(hostFilename, content, { encoding: "utf8" })
             }
 
@@ -188,11 +191,12 @@ export class DockerManager {
 
             const c = <ContainerHost>{
                 id: container.id,
+                disablePurge: !!options.disablePurge,
                 hostPath,
                 containerPath,
                 exec,
                 writeText,
-                readText
+                readText,
             }
             this.containers.push(c)
             await container.start()

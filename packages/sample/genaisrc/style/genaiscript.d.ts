@@ -1461,6 +1461,11 @@ interface ContainerOptions {
      * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
      */
     name?: string
+
+    /**
+     * Disable automatic purge of container and volume directory
+     */
+    disablePurge?: boolean
 }
 
 interface PromptHost extends ShellHost {
@@ -1473,6 +1478,11 @@ interface ContainerHost extends ShellHost {
      * Container unique identifier in provider
      */
     id: string
+
+    /**
+     * Disable automatic purge of container and volume directory
+     */
+    disablePurge: boolean
 
     /**
      * Path to the volume mounted in the host

@@ -47,6 +47,7 @@ export class VSCodeHost extends EventTarget implements Host {
         const containerPath = res.containerPath
         return {
             id: containerId,
+            disablePurge: res.disablePurge,
             hostPath,
             containerPath,
             writeText: async (filename, content) => {
@@ -55,6 +56,13 @@ export class VSCodeHost extends EventTarget implements Host {
                     false
                 )
                 await writeFile(this.projectUri, fn, content)
+            },
+            readText: async (filename) => {
+                const fn = vscode.workspace.asRelativePath(
+                    this.path.join(hostPath, filename),
+                    false
+                )
+                return await readFileText(this.projectUri, fn)
             },
             exec: async (command, args, options) => {
                 const r = await this.server.client.exec(
