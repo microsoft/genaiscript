@@ -1443,6 +1443,7 @@ interface ShellHost {
 interface ContainerOptions {
     /**
      * Container image names.
+     * @example python:alpine python:slim python
      * @see https://hub.docker.com/_/python/
      */
     image?: string
