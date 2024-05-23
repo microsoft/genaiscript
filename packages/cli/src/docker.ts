@@ -13,7 +13,7 @@ import {
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
 import { randomBytes } from "node:crypto"
-import { writeFile } from "fs/promises"
+import { readFile, writeFile } from "fs/promises"
 
 export class DockerManager {
     private containers: ContainerHost[] = []
@@ -181,12 +181,18 @@ export class DockerManager {
                 await writeFile(hostFilename, content, { encoding: "utf8" })
             }
 
+            const readText = async (filename: string, content: string) => {
+                const hostFilename = host.path.resolve(hostPath, filename)
+                return await readFile(hostFilename, { encoding: "utf8" })
+            }
+
             const c = <ContainerHost>{
                 id: container.id,
                 hostPath,
                 containerPath,
                 exec,
                 writeText,
+                readText
             }
             this.containers.push(c)
             await container.start()

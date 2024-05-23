@@ -1490,6 +1490,12 @@ interface ContainerHost extends ShellHost {
      * @param content
      */
     writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Reads a file as text from the container mounted volume
+     * @param path
+     */
+    readText(path: string): Promise<string>
 }
 
 interface PromptContext extends RunPromptContext {
