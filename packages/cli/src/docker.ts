@@ -6,6 +6,7 @@ import {
     logError,
     logVerbose,
 } from "genaiscript-core"
+import { finished } from "stream/promises"
 
 export class DockerManager {
     private containers: Docker.Container[] = []
@@ -28,9 +29,23 @@ export class DockerManager {
     ): Promise<ContainerHost> {
         const { image = DOCKER_DEFAULT_IMAGE, trace } = options
         try {
-            trace?.startDetails(`📦 start container ${image}`)
+            trace?.startDetails(`📦 container ${image}`)
 
             const docker = new Docker()
+            const res = await docker.pull(image)
+            docker.modem.followProgress(
+                res,
+                (err, output) => {
+                    //console.log(output)
+                    trace?.log(`pulled image`)
+                    if (err) trace?.error(`failed to pull image`, err)
+                },
+                (ev) => {
+                    //console.log(ev)
+                }
+            )
+            await finished(res)
+
             const container = await docker.createContainer({
                 Image: image,
                 AttachStdin: false,
@@ -43,33 +58,46 @@ export class DockerManager {
             await container.start()
 
             const exec: ShellHost["exec"] = async (command, args, options) => {
-                const { cwd } = options || {}
-                const exec = await container.exec({
-                    Cmd: [command, ...args],
-                    WorkingDir: cwd,
-                    Privileged: false,
-                    AttachStdin: false,
-                    AttachStderr: true,
-                    AttachStdout: true,
-                })
-                const stream = await exec.start({})
-                const stdout = MemoryStream.createWriteStream()
-                const stderr = MemoryStream.createWriteStream()
-                container.modem.demuxStream(stream, stdout, stderr)
-                return new Promise<Partial<ShellOutput>>((resolve, reject) => {
-                    stream.on("end", async () => {
-                        stdout.end()
-                        stderr.end()
-                        const inspect = await exec.inspect()
-                        const exitCode = inspect.ExitCode
-                        resolve({
-                            exitCode,
-                            stdout: stdout.toString(),
-                            stderr: stdout.toString(),
-                        })
+                const { cwd, label } = options || {}
+                try {
+                    trace?.startDetails(label || command)
+                    trace?.itemValue(`cwd`, cwd)
+                    trace?.item(`\`${command}\` ${args.join(" ")}`)
+
+                    const exec = await container.exec({
+                        Cmd: [command, ...args],
+                        WorkingDir: cwd,
+                        Privileged: false,
+                        AttachStdin: false,
+                        AttachStderr: true,
+                        AttachStdout: true,
                     })
-                    stream.on("error", reject)
-                })
+                    const stream = await exec.start({})
+                    const stdout = MemoryStream.createWriteStream()
+                    const stderr = MemoryStream.createWriteStream()
+                    container.modem.demuxStream(stream, stdout, stderr)
+                    await finished(stream)
+                    stdout.end()
+                    stderr.end()
+                    const inspect = await exec.inspect()
+                    const exitCode = inspect.ExitCode
+
+                    const sres = {
+                        exitCode,
+                        stdout: stdout.toString(),
+                        stderr: stderr.toString(),
+                    }
+                    trace?.resultItem(
+                        exitCode === 0,
+                        `exit code: ${sres.exitCode}`
+                    )
+                    if (sres.stdout) trace?.detailsFenced(`output`, sres.stdout)
+                    if (sres.stderr) trace?.detailsFenced(`error`, sres.stderr)
+
+                    return sres
+                } finally {
+                    trace?.endDetails()
+                }
             }
 
             return <ContainerHost>{

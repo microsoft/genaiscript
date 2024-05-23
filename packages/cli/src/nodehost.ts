@@ -216,8 +216,8 @@ export class NodeHost implements Host {
                 }
             )
             trace?.itemValue(`exit code`, `${exitCode}`)
-            trace?.detailsFenced(`📩 stdout`, stdout)
-            trace?.detailsFenced(`📩 stderr`, stderr)
+            if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
+            if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
         } finally {
             trace?.endDetails()

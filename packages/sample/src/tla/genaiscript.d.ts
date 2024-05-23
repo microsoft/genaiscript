@@ -1446,6 +1446,8 @@ interface ContainerOptions {
      * @see https://hub.docker.com/_/python/
      */
     image?: string
+
+    networkEnabled?: boolean
 }
 
 interface PromptHost extends ShellHost {

@@ -114,13 +114,16 @@ $\`TELL THE LLM WHAT TO DO...\`
 `
 
 export const PDF_MIME_TYPE = "application/pdf"
-export const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-export const XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+export const DOCX_MIME_TYPE =
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+export const XLSX_MIME_TYPE =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 export const JSON_MIME_TYPE = "application/json"
 export const JSON_SCHEMA_MIME_TYPE = "application/schema+json"
 export const JAVASCRIPT_MIME_TYPE = "application/javascript"
 
-export const JSON_META_SCHEMA_URI = "https://json-schema.org/draft/2020-12/schema"
+export const JSON_META_SCHEMA_URI =
+    "https://json-schema.org/draft/2020-12/schema"
 
 export const SHELL_EXEC_TIMEOUT = 300000
-export const DOCKER_DEFAULT_IMAGE = "python:3"
+export const DOCKER_DEFAULT_IMAGE = "python:alpine"

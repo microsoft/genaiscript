@@ -5,7 +5,7 @@ script({
     }
 })
 
-const container = await host.container()
+const container = await host.container({ image: "python:alpine"})
 const version = await container.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
