@@ -36,13 +36,13 @@ export class TestHost implements Host {
         return new TextEncoder()
     }
     projectFolder(): string {
-        throw new Error("Method not implemented.")
+        return resolve(".")
     }
     installFolder(): string {
-        throw new Error("Method not implemented.")
+        return this.projectFolder()
     }
-    resolvePath(...segments: string[]): string {
-        throw new Error("Method not implemented.")
+    resolvePath(...segments: string[]) {
+        return resolve(...segments)
     }
     readSecret(name: string): Promise<string> {
         throw new Error("Method not implemented.")
