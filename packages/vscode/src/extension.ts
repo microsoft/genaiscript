@@ -10,6 +10,7 @@ import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
+import { activateModelCompletionProvider } from "./modelcompletionprovider"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -20,6 +21,7 @@ export async function activate(context: ExtensionContext) {
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
     activateStatusBar(state)
+    activateModelCompletionProvider(state)
     // activateChatParticipant(state)
 
     context.subscriptions.push(

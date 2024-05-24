@@ -4,6 +4,7 @@ import { isRequestError } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { OpenAIChatCompletion } from "./openai"
+import { host } from "./host"
 
 export const OllamaCompletion: ChatCompletionHandler = async (
     req,
@@ -41,6 +42,22 @@ export const OllamaCompletion: ChatCompletionHandler = async (
 
         throw e
     }
+}
+
+export async function listLocalModels() {
+    const cfg = await host.getSecretToken("ollama:*")
+    const fetch = await createFetch()
+    const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
+        method: "GET",
+    })
+    const { models } = await res.json()
+    return models as {
+        name: string
+        size: number
+        details: {
+            family: string
+        }
+    }[]
 }
 
 export const OllamaModel = Object.freeze<LanguageModel>({
