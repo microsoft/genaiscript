@@ -46,6 +46,8 @@ export const OllamaCompletion: ChatCompletionHandler = async (
 
 export async function listLocalModels() {
     const cfg = await host.getSecretToken("ollama:*")
+    if (!cfg) return []
+
     const fetch = await createFetch()
     const res = await fetch(cfg.base.replace("/v1", "/api/tags"), {
         method: "GET",
