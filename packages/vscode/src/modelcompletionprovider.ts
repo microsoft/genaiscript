@@ -40,6 +40,9 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                     return []
                 }
             },
+            resolveCompletionItem: async (item, token) => {
+                return item
+            }
         }
 
     // ollama:...

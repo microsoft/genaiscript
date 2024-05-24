@@ -44,6 +44,11 @@ export const OllamaCompletion: ChatCompletionHandler = async (
     }
 }
 
+export const OllamaModel = Object.freeze<LanguageModel>({
+    completer: OllamaCompletion,
+    id: MODEL_PROVIDER_OLLAMA,
+})
+
 export async function listLocalModels() {
     const cfg = await host.getSecretToken("ollama:*")
     if (!cfg) return []
@@ -62,8 +67,3 @@ export async function listLocalModels() {
         }
     }[]
 }
-
-export const OllamaModel = Object.freeze<LanguageModel>({
-    completer: OllamaCompletion,
-    id: MODEL_PROVIDER_OLLAMA,
-})
