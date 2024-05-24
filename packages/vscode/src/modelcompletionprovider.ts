@@ -24,11 +24,16 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                     const models = await listLocalModels()
                     if (token.isCancellationRequested) return []
                     return models.map((model) => {
+                        const url = `https://ollama.com/library/${model.name}`
                         const completionItem = new vscode.CompletionItem(
                             model.name
                         )
                         completionItem.kind = vscode.CompletionItemKind.Constant
-                        completionItem.detail = `${Math.ceil(model.size / 1e6)}Mb, ${model.details.family}`
+                        completionItem.detail = `${model.name}, ${model.details.parameter_size}`
+                        completionItem.documentation =
+                            new vscode.MarkdownString(`${Math.ceil(model.size / 1e6)}Mb, ${model.details.family}
+                            
+- [${url}](${url})`)
                         return completionItem
                     })
                 } catch (e) {

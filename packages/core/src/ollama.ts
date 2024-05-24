@@ -57,6 +57,7 @@ export async function listLocalModels() {
         name: string
         size: number
         details: {
+            parameter_size: string
             family: string
         }
     }[]

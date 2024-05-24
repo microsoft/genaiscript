@@ -1,3 +1,3 @@
 script({
-    model: "ollama:"
+    model: "ollama:
 })
