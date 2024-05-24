@@ -30,9 +30,10 @@ import {
     filePathOrUrlToWorkspaceFile,
     JSONSchemaStringify,
     CSV_REGEX,
+    CLI_RUN_FILES_FOLDER,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
-import { basename, resolve, join } from "node:path"
+import { basename, resolve, join, relative } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
@@ -338,6 +339,12 @@ ${Array.from(files)
             )
         if (changelogf && res.changelogs?.length)
             await writeText(changelogf, res.changelogs.join("\n"))
+        for (const [filename, edits] of Object.entries(res.fileEdits || {})) {
+            const rel = relative(process.cwd(), filename)
+            const isAbsolutePath = resolve(rel) === rel
+            if (!isAbsolutePath)
+                await writeText(join(out, CLI_RUN_FILES_FOLDER, rel), edits.after)
+        }
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.yaml) console.log(YAMLStringify(res))
