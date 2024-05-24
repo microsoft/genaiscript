@@ -334,7 +334,6 @@
         "zx": "^8.1.0"
     },
     "dependencies": {
-        "dockerode": "^4.0.2",
         "mammoth": "^1.7.2",
         "pdfjs-dist": "4.2.67",
         "tree-sitter-wasms": "^0.1.11",

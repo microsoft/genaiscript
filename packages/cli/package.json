@@ -70,7 +70,7 @@
     "zx": "^8.1.0"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:ssh2 --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",
