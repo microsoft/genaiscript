@@ -1,5 +1,7 @@
 ---
 title: Containers
+description: Learn how to use containers for secure and isolated execution of untrusted code with Docker in software development.
+keywords: Docker, Containers, Software Development, Code Isolation, Execution Environment
 sidebar:
     order: 20
 ---
