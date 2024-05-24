@@ -4,6 +4,7 @@ import "zx/globals"
 await fs.copy('../../node_modules/pdfjs-dist', './node_modules/pdfjs-dist', { recursive: true })
 await fs.copy('../../node_modules/tree-sitter-wasms', './node_modules/tree-sitter-wasms', { recursive: true })
 await fs.copy('../../node_modules/web-tree-sitter', './node_modules/web-tree-sitter', { recursive: true })
+await fs.copy('../../node_modules/dockerode', './node_modules/dockerode', { recursive: true })
 
 const pkg = await fs.readJSON("./package.json")
 pkg._enabledApiProposals = pkg.enabledApiProposals
