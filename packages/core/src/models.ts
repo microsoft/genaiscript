@@ -8,15 +8,15 @@ import {
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 import { errorMessage } from "./error"
-import { OAIToken, host } from "./host"
+import { LanguageModelConfiguration, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
-import { GenerationOptions } from "./promptcontext"
 import { TraceOptions } from "./trace"
 
-export function resolveLanguageModel(
-    options: GenerationOptions
-): LanguageModel {
+export function resolveLanguageModel(options: {
+    model?: string
+    languageModel?: LanguageModel
+}): LanguageModel {
     if (options.languageModel) return options.languageModel
     const { provider } = parseModelIdentifier(options.model)
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
@@ -48,7 +48,7 @@ export function parseModelIdentifier(id: string) {
 
 export interface ModelConnectionInfo
     extends ModelConnectionOptions,
-        Partial<OAIToken> {
+        Partial<LanguageModelConfiguration> {
     error?: string
     model: string
 }
@@ -56,13 +56,13 @@ export interface ModelConnectionInfo
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: { model?: string; token?: boolean } & TraceOptions
-): Promise<{ info: ModelConnectionInfo; token?: OAIToken }> {
+): Promise<{ info: ModelConnectionInfo; token?: LanguageModelConfiguration }> {
     const { trace } = options || {}
     const model = options.model ?? conn.model ?? DEFAULT_MODEL
     try {
         trace?.startDetails(`⚙️ configuration`)
         trace?.itemValue(`model`, model)
-        const secret = await host.getSecretToken(model)
+        const secret = await host.getLanguageModelConfiguration(model)
         if (!secret) {
             return { info: { ...conn, model } }
         } else {

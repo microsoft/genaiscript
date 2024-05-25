@@ -1,48 +1,85 @@
 import * as vscode from "vscode" // Import the 'vscode' module
 
 import { ExtensionState } from "./state"
-import { listLocalModels } from "genaiscript-core"
+import {
+    LanguageModelConfiguration,
+    LanguageModelInfo,
+    MODEL_PROVIDERS,
+    logError,
+    logVerbose,
+    resolveLanguageModel,
+} from "genaiscript-core"
 
 export async function activateModelCompletionProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const ollamaCompletionProvider: vscode.CompletionItemProvider<vscode.CompletionItem> =
+    const modelCompletionProvider: vscode.CompletionItemProvider<vscode.CompletionItem> =
         {
             provideCompletionItems: async (document, position, token) => {
-                // get the last 10 characters before the cursor
                 const range = new vscode.Range(
                     position.line,
-                    Math.max(0, position.character - "'ollama:".length),
+                    Math.max(0, position.character - 30),
                     position.line,
                     position.character
                 )
                 const lastChars = document.getText(range)
-                if (!/^[`'"]ollama:$/i.test(lastChars)) return []
+                if (
+                    !/\s[`'"]?model[`'"]?\s{0,10}:\s{0,10}[`'"]$/i.test(
+                        lastChars
+                    )
+                )
+                    return []
 
                 try {
-                    const models = await listLocalModels()
-                    if (token.isCancellationRequested) return []
-                    return models.map((model) => {
-                        const url = `https://ollama.com/library/${model.name}`
-                        const completionItem = new vscode.CompletionItem(
-                            model.name
-                        )
-                        completionItem.kind = vscode.CompletionItemKind.Constant
-                        completionItem.detail = `${model.name}, ${model.details.parameter_size}`
-                        completionItem.documentation =
-                            new vscode.MarkdownString(`${Math.ceil(model.size / 1e6)}Mb, ${model.details.family}
-                            
-- [${url}](${url})`)
-                        return completionItem
-                    })
+                    const completions: vscode.CompletionItem[] = []
+                    for (const provider of MODEL_PROVIDERS) {
+                        const modelid = provider + ":*"
+                        const lm = resolveLanguageModel({ model: modelid })
+                        if (!lm.listModels) continue
+
+                        const cfg =
+                            await state.host.getLanguageModelConfiguration(
+                                modelid
+                            )
+                        if (token.isCancellationRequested) return []
+                        if (!cfg) continue
+
+                        let models: LanguageModelInfo[]
+                        try {
+                            models = await lm.listModels(cfg)
+                        } catch (e) {
+                            logVerbose(e)
+                            models = []
+                        }
+                        if (token.isCancellationRequested) return []
+                        if (models.length)
+                            completions.push(
+                                ...models.map((model) => {
+                                    const completionItem =
+                                        new vscode.CompletionItem(model.id)
+                                    completionItem.kind =
+                                        vscode.CompletionItemKind.Constant
+                                    completionItem.detail = model.details
+                                    if (model.url)
+                                        completionItem.documentation =
+                                            new vscode.MarkdownString(
+                                                `[${model.url}](${model.url})`
+                                            )
+                                    return completionItem
+                                })
+                            )
+                    }
+
+                    return completions
                 } catch (e) {
+                    logError(e)
                     return []
                 }
             },
             resolveCompletionItem: async (item, token) => {
                 return item
-            }
+            },
         }
 
     // ollama:...
@@ -53,8 +90,10 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                 language: "javascript",
                 pattern: "**/*.genai.js",
             },
-            ollamaCompletionProvider,
-            ":"
+            modelCompletionProvider,
+            '"',
+            "'",
+            "`"
         )
     )
 }

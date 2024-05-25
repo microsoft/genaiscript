@@ -1,5 +1,5 @@
 import { logError, logVerbose, normalizeInt, trimTrailingSlash } from "./util"
-import { host } from "./host"
+import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
@@ -15,12 +15,26 @@ import {
     ChatCompletionResponse,
     ChatCompletionToolCall,
     LanguageModel,
+    LanguageModelInfo,
     getChatCompletionCache,
 } from "./chat"
 import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
+
+function getConfigHeaders(cfg: LanguageModelConfiguration) {
+    return {
+        // openai
+        authorization:
+            cfg.token && (cfg.type === "openai" || cfg.type === "localai")
+                ? `Bearer ${cfg.token}`
+                : undefined,
+        // azure
+        "api-key": cfg.token && cfg.type === "azure" ? cfg.token : undefined,
+        "user-agent": TOOL_ID,
+    }
+}
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (
     req,
@@ -124,16 +138,7 @@ ${Object.entries(cfg.curlHeaders || {})
     try {
         r = await fetchRetry(url, {
             headers: {
-                // openai
-                authorization:
-                    cfg.token &&
-                    (cfg.type === "openai" || cfg.type === "localai")
-                        ? `Bearer ${cfg.token}`
-                        : undefined,
-                // azure
-                "api-key":
-                    cfg.token && cfg.type === "azure" ? cfg.token : undefined,
-                "user-agent": TOOL_ID,
+                ...getConfigHeaders(cfg),
                 "content-type": "application/json",
                 ...(headers || {}),
             },
@@ -259,7 +264,38 @@ ${Object.entries(cfg.curlHeaders || {})
     }
 }
 
+async function listModels(
+    cfg: LanguageModelConfiguration
+): Promise<LanguageModelInfo[]> {
+    const fetch = await createFetch()
+    const res = await fetch(cfg.base + "/models", {
+        method: "GET",
+        headers: {
+            ...getConfigHeaders(cfg),
+            Accept: "application/json",
+        },
+    })
+    if (res.status !== 200) return []
+    const { data } = (await res.json()) as {
+        object: "list"
+        data: {
+            id: string
+            object: "model"
+            created: number
+            owned_by: string
+        }[]
+    }
+    return data.map(
+        (m) =>
+            <LanguageModelInfo>{
+                id: `${cfg.provider}:${m.id}`,
+                details: `${m.id}, ${m.owned_by}`,
+            }
+    )
+}
+
 export const OpenAIModel = Object.freeze<LanguageModel>({
     completer: OpenAIChatCompletion,
     id: MODEL_PROVIDER_OPENAI,
+    listModels,
 })

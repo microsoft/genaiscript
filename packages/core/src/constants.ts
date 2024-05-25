@@ -84,6 +84,14 @@ export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
 
+export const MODEL_PROVIDERS = Object.freeze([
+    MODEL_PROVIDER_OPENAI,
+    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_LITELLM,
+    MODEL_PROVIDER_AICI,
+])
+
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
 export const DOCS_CONFIGURATION_URL =
