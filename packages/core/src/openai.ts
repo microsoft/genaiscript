@@ -288,7 +288,7 @@ async function listModels(
     return data.map(
         (m) =>
             <LanguageModelInfo>{
-                id: `${cfg.provider}:${m.id}`,
+                id: m.id,
                 details: `${m.id}, ${m.owned_by}`,
             }
     )

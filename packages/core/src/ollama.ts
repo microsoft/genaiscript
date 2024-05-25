@@ -65,7 +65,7 @@ async function listModels(
     return models.map(
         (m) =>
             <LanguageModelInfo>{
-                id: `${MODEL_PROVIDER_OLLAMA}:${m.name}`,
+                id: m.name,
                 details: `${m.name}, ${m.details.parameter_size}`,
                 url: `https://ollama.com/library/${m.name}`,
             }

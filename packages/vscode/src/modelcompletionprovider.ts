@@ -2,7 +2,6 @@ import * as vscode from "vscode" // Import the 'vscode' module
 
 import { ExtensionState } from "./state"
 import {
-    LanguageModelConfiguration,
     LanguageModelInfo,
     MODEL_PROVIDERS,
     logError,
@@ -14,7 +13,7 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
 
-    const modelCompletionProvider: vscode.CompletionItemProvider<vscode.CompletionItem> =
+    const providerCompletionProvider: vscode.CompletionItemProvider<vscode.CompletionItem> =
         {
             provideCompletionItems: async (document, position, token) => {
                 const range = new vscode.Range(
@@ -31,54 +30,67 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                 )
                     return []
 
+                return MODEL_PROVIDERS.map((provider) => {
+                    const completionItem = new vscode.CompletionItem(
+                        provider + ":"
+                    )
+                    completionItem.kind = vscode.CompletionItemKind.Constant
+                    return completionItem
+                })
+            },
+        }
+
+    const modelCompletionProvider: vscode.CompletionItemProvider<vscode.CompletionItem> =
+        {
+            provideCompletionItems: async (document, position, token) => {
+                const range = new vscode.Range(
+                    position.line,
+                    Math.max(0, position.character - 40),
+                    position.line,
+                    position.character
+                )
+                const lastChars = document.getText(range)
+                const m =
+                    /\s[`'"]?model[`'"]?\s{0,10}:\s{0,10}[`'"](?<provider>[a-z0-9_\-]+):$/i.exec(
+                        lastChars
+                    )
+                if (!m) return []
+
+                const provider = m.groups.provider
+                const modelid = provider + ":*"
+                const lm = resolveLanguageModel({ model: modelid })
+                if (!lm.listModels) return []
                 try {
-                    const completions: vscode.CompletionItem[] = []
-                    for (const provider of MODEL_PROVIDERS) {
-                        const modelid = provider + ":*"
-                        const lm = resolveLanguageModel({ model: modelid })
-                        if (!lm.listModels) continue
+                    const cfg =
+                        await state.host.getLanguageModelConfiguration(modelid)
+                    if (token.isCancellationRequested || !cfg) return []
+                    console.log(`resolving models for ${provider}`)
 
-                        const cfg =
-                            await state.host.getLanguageModelConfiguration(
-                                modelid
-                            )
-                        if (token.isCancellationRequested) return []
-                        if (!cfg) continue
-
-                        let models: LanguageModelInfo[]
-                        try {
-                            models = await lm.listModels(cfg)
-                        } catch (e) {
-                            logVerbose(e)
-                            models = []
-                        }
-                        if (token.isCancellationRequested) return []
-                        if (models.length)
-                            completions.push(
-                                ...models.map((model) => {
-                                    const completionItem =
-                                        new vscode.CompletionItem(model.id)
-                                    completionItem.kind =
-                                        vscode.CompletionItemKind.Constant
-                                    completionItem.detail = model.details
-                                    if (model.url)
-                                        completionItem.documentation =
-                                            new vscode.MarkdownString(
-                                                `[${model.url}](${model.url})`
-                                            )
-                                    return completionItem
-                                })
-                            )
+                    let models: LanguageModelInfo[]
+                    try {
+                        models = await lm.listModels(cfg)
+                    } catch (e) {
+                        logVerbose(e)
+                        models = []
                     }
-
-                    return completions
+                    if (token.isCancellationRequested) return []
+                    return models.map((model) => {
+                        const completionItem = new vscode.CompletionItem(
+                            model.id
+                        )
+                        completionItem.kind = vscode.CompletionItemKind.Constant
+                        completionItem.detail = model.details
+                        if (model.url)
+                            completionItem.documentation =
+                                new vscode.MarkdownString(
+                                    `[${model.url}](${model.url})`
+                                )
+                        return completionItem
+                    })
                 } catch (e) {
                     logError(e)
                     return []
                 }
-            },
-            resolveCompletionItem: async (item, token) => {
-                return item
             },
         }
 
@@ -90,10 +102,19 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                 language: "javascript",
                 pattern: "**/*.genai.js",
             },
-            modelCompletionProvider,
+            providerCompletionProvider,
             '"',
             "'",
             "`"
+        ),
+        vscode.languages.registerCompletionItemProvider(
+            {
+                scheme: "file",
+                language: "javascript",
+                pattern: "**/*.genai.js",
+            },
+            modelCompletionProvider,
+            ":"
         )
     )
 }

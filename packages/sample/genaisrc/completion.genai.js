@@ -1,3 +1,3 @@
 script({
-    model:""
+    model:"aici:"
 })
