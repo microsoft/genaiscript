@@ -2,6 +2,7 @@ import * as vscode from "vscode" // Import the 'vscode' module
 
 import { ExtensionState } from "./state"
 import {
+    GENAI_JS_GLOB,
     LanguageModelInfo,
     MODEL_PROVIDERS,
     logError,
@@ -99,8 +100,7 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
         vscode.languages.registerCompletionItemProvider(
             {
                 scheme: "file",
-                language: "javascript",
-                pattern: "**/*.genai.js",
+                pattern: GENAI_JS_GLOB,
             },
             providerCompletionProvider,
             '"',
@@ -110,8 +110,7 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
         vscode.languages.registerCompletionItemProvider(
             {
                 scheme: "file",
-                language: "javascript",
-                pattern: "**/*.genai.js",
+                pattern: GENAI_JS_GLOB,
             },
             modelCompletionProvider,
             ":"
