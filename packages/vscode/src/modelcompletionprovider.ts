@@ -36,6 +36,8 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                         provider + ":"
                     )
                     completionItem.kind = vscode.CompletionItemKind.Constant
+                    completionItem.insertText = provider
+                    completionItem.commitCharacters = [":", "."]
                     return completionItem
                 })
             },

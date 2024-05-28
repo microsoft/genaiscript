@@ -1,3 +1,3 @@
 script({
-    model:"aici:"
+    model:"ollama:phi3:latest"
 })
