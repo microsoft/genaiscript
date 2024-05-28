@@ -4,6 +4,7 @@ import {
     DEFAULT_MODEL,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
@@ -43,6 +44,8 @@ export function parseModelIdentifier(id: string) {
         }
     else if (parts.length === 2)
         return { provider: parts[0], model: parts[1], modelId: parts[1] }
+    else if (id === MODEL_PROVIDER_LLAMAFILE)
+        return { provider: MODEL_PROVIDER_LLAMAFILE, model: "*", modelId: id }
     else return { provider: MODEL_PROVIDER_OPENAI, model: id, modelId: id }
 }
 
