@@ -3,7 +3,7 @@ import { Cache } from "./cache"
 import { MarkdownTrace } from "./trace"
 import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
-import { OAIToken, host } from "./host"
+import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./promptcontext"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
@@ -80,7 +80,7 @@ export const ModelError = OpenAI.APIError
 
 export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
     ModelOptions &
-    Omit<OAIToken, "token" | "source">
+    Omit<LanguageModelConfiguration, "token" | "source">
 
 export type ChatCompletationRequestCacheValue = {
     text: string
@@ -175,14 +175,23 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
 */
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
-    connection: OAIToken,
+    connection: LanguageModelConfiguration,
     options: ChatCompletionsOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
 
+export interface LanguageModelInfo {
+    id: string
+    details?: string
+    url?: string
+}
+
+export type ListModelsFunction = (cfg: LanguageModelConfiguration) => Promise<LanguageModelInfo[]>
+
 export interface LanguageModel {
     id: string
     completer: ChatCompletionHandler
+    listModels?: ListModelsFunction
 }
 
 async function runToolCalls(
@@ -432,7 +441,7 @@ export function mergeGenerationOptions(
 }
 
 export async function executeChatSession(
-    connectionToken: OAIToken,
+    connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],

@@ -17,14 +17,14 @@ import {
     OPENAI_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
-import { APIType, OAIToken } from "./host"
+import { APIType, LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     modelId: string
-): Promise<OAIToken> {
+): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(modelId)
 
     if (provider === MODEL_PROVIDER_OPENAI) {
@@ -61,6 +61,7 @@ export async function parseTokenFromEnv(
             if (base && !URL.canParse(base))
                 throw new Error("OPENAI_API_BASE must be a valid URL")
             return {
+                provider,
                 base,
                 type,
                 token,
@@ -116,6 +117,7 @@ export async function parseTokenFromEnv(
             if (!base.endsWith("/openai/deployments"))
                 base += "/openai/deployments"
             return {
+                provider,
                 base,
                 token,
                 type: "azure",
@@ -148,6 +150,7 @@ export async function parseTokenFromEnv(
             if (base && !URL.canParse(base))
                 throw new Error(`${modelBase} must be a valid URL`)
             return {
+                provider,
                 token,
                 base,
                 type,
@@ -164,6 +167,7 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_OLLAMA) {
         return {
+            provider,
             base: OLLAMA_API_BASE,
             token: "ollama",
             type: "openai",
@@ -173,6 +177,7 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_LITELLM) {
         return {
+            provider,
             base: LITELLM_API_BASE,
             token: "litellm",
             type: "openai",

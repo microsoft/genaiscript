@@ -25,7 +25,8 @@ export enum LogLevel {
 
 export type APIType = "openai" | "azure" | "localai"
 
-export interface OAIToken {
+export interface LanguageModelConfiguration {
+    provider: string
     base: string
     token: string
     curlHeaders?: Record<string, string>
@@ -137,7 +138,7 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getSecretToken(modelId: string): Promise<OAIToken | undefined>
+    getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration | undefined>
 
     log(level: LogLevel, msg: string): void
 

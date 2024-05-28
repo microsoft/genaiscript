@@ -2,11 +2,12 @@ import {
     ChatCompletionHandler,
     ChatCompletionResponse,
     LanguageModel,
+    LanguageModelInfo,
 } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
-import { host } from "./host"
+import { LanguageModelConfiguration, host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
 import { ChatCompletionContentPartText } from "openai/resources"
 import { createFetch } from "./fetch"
@@ -356,7 +357,40 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     }
 }
 
+async function listModels(cfg: LanguageModelConfiguration) {
+    const { token, base, version } = cfg
+    const url = `${base}/${version || "v1"}/controllers/tags`
+    const fetch = await createFetch()
+    const res = await fetch(url, {
+        method: "GET",
+        headers: {
+            "api-key": token,
+            "user-agent": TOOL_ID,
+            accept: "application/json",
+        },
+    })
+    if (res.status !== 200) return []
+    const body = (await res.json()) as {
+        tags: {
+            tag: string
+            module_id: string
+            updated_at: number
+            updated_by: string
+            wasm_size: number
+            compiled_size: number
+        }[]
+    }
+    return body.tags.map(
+        (tag) =>
+            <LanguageModelInfo>{
+                id: tag.tag,
+                details: `${tag.module_id}`,
+            }
+    )
+}
+
 export const AICIModel = Object.freeze<LanguageModel>({
     completer: AICIChatCompletion,
     id: "aici",
+    listModels,
 })

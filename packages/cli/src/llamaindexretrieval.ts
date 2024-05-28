@@ -144,7 +144,7 @@ export class LlamaIndexRetrievalService
 
     private async getModelToken(modelId: string) {
         const { provider } = parseModelIdentifier(modelId)
-        const conn = await this.host.getSecretToken(modelId)
+        const conn = await this.host.getLanguageModelConfiguration(modelId)
         if (provider === MODEL_PROVIDER_OLLAMA)
             conn.base = conn.base.replace(/\/v1$/i, "")
         return conn
