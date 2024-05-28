@@ -31,7 +31,6 @@ import sarifAlt from "../../assets/tla-ai-linter.png.txt?raw"
 import testExplorerSrc from "../../assets/vscode-test-explorer.png"
 import testExplorerAlt from "../../assets/vscode-test-explorer.png.txt?raw"
 
-
 ```js wrap title="extract-data.genai.js"
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
@@ -97,23 +96,6 @@ or with a [command line](/genaiscript/getting-started/installation).
 
 </Card>
 
-<Card title="Tests and Evals" icon="star">
-
-Build reliable prompts using [tests and evals](/genaiscript/reference/scripts/tests)
-powered by [promptfoo](https://promptfoo.dev/).
-
-```js wrap
-script({ ..., tests: {
-  files: "penguins.csv",
-  rubric: "is a data analysis report",
-  facts: "The data refers about penguin population in Antartica.",
-}})
-```
-
-<Image src={testExplorerSrc} alt={testExplorerAlt} loading="lazy" />
-
-</Card>
-
 <Card title="Reuse and Share Scripts" icon="star">
 
 Scripts are [files](/genaiscript/reference/scripts/)! They can be versioned, shared, forked, ...
@@ -140,16 +122,65 @@ $`Extract data from files using ${data} schema.`
 
 </Card>
 
-<Card title="Ingest PDFs, DOCX, CSV, .." icon="seti:pdf">
+<Card title="Ingest text from PDFs, DOCX, ..." icon="seti:pdf">
 
-Seamlessly ingest and manipulate
+Manipulate
 [PDFs](/genaiscript/reference/scripts/pdf),
 [DOCX](/genaiscript/reference/scripts/docx),
-[CSV](/genaiscript/reference/scripts/csv), ...
+...
 
-```js
+```js wrap
+// automatically convert to text
+def("PDF", env.files, { endsWith: ".pdf" })
+// or parse and process
 const { pages } = await parsers.PDF(env.files[0])
 ```
+
+</Card>
+
+<Card title="Ingest tables from CSV, XLSX, .." icon="seti:pdf">
+
+Manipulate tabular data from
+[CSV](/genaiscript/reference/scripts/csv),
+[XLSX](/genaiscript/reference/scripts/xlsx),
+...
+
+```js wrap
+// automatically convert to text
+def("DATA", env.files, {
+    endsWith: ".csv",
+    // take top 100 rows
+    sliceHead: 100,
+})
+// or parse to JavaScript object array
+const rows = await parsers.CSV(env.files[0])
+// render as markdown table
+defData("ROWS", rows, { sliceHead: 100 })
+```
+
+</Card>
+
+<Card title="Generate Files" icon="document">
+
+Extract files and diff from the LLM output.
+Preview changes in Refactoring UI.
+
+```js wrap
+$`Save the result in poem.txt.`
+```
+
+````txt wrap
+FILE ./poem.txt
+```txt
+The quick brown fox jumps over the lazy dog.
+```
+````
+
+<FileTree>
+
+-   poem.txt extracted by genaiscript
+
+</FileTree>
 
 </Card>
 
@@ -169,22 +200,22 @@ Run your scripts with [Open Source models](/genaiscript/getting-started/configur
 like [Phi-3](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/),
 using [Ollama](https://ollama.com/), [LocalAI](https://localai.io/)...
 
-```js
+```js wrap
 script({ ..., model: "ollama:phi3" })
 ```
 
 </Card>
 
-<Card title="Automate" icon="github">
+<Card title="Code Interpreter" icon="seti:python">
 
-Automate using the [CLI](/genaiscript/reference/cli),
-integrate reports in your CI/CD pipeline.
+Run code in Docker [containers](/genaiscript/reference/scripts/containers).
 
-```bash frame="none" wrap
-npx genaiscript run tlaplus-linter "*.tla"
+```js wrap
+const c = await host.container({
+    image: "python:alpine",
+})
+const res = await c.exec("python", ["--version"])
 ```
-
-<Image src={sarifSrc} alt={sarifAlt} loading="lazy" />
 
 </Card>
 
@@ -205,6 +236,36 @@ for (const file of env.files) {
 // use summary
 $`Summarize all the summaries.`
 ```
+
+</Card>
+
+<Card title="Automate" icon="github">
+
+Automate using the [CLI](/genaiscript/reference/cli),
+integrate reports in your CI/CD pipeline.
+
+```bash frame="none" wrap
+npx genaiscript run tlaplus-linter "*.tla"
+```
+
+<Image src={sarifSrc} alt={sarifAlt} loading="lazy" />
+
+</Card>
+
+<Card title="Tests and Evals" icon="star">
+
+Build reliable prompts using [tests and evals](/genaiscript/reference/scripts/tests)
+powered by [promptfoo](https://promptfoo.dev/).
+
+```js wrap
+script({ ..., tests: {
+  files: "penguins.csv",
+  rubric: "is a data analysis report",
+  facts: "The data refers about penguin population in Antartica.",
+}})
+```
+
+<Image src={testExplorerSrc} alt={testExplorerAlt} loading="lazy" />
 
 </Card>
 

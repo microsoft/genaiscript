@@ -3,9 +3,9 @@ import prompts from "prompts"
 import {
     AskUserOptions,
     Host,
+    LanguageModelConfiguration,
     LogLevel,
     ModelService,
-    OAIToken,
     ReadFileOptions,
     RetrievalService,
     SHELL_EXEC_TIMEOUT,
@@ -75,7 +75,9 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
-    async getSecretToken(modelId: string): Promise<OAIToken> {
+    async getLanguageModelConfiguration(
+        modelId: string
+    ): Promise<LanguageModelConfiguration> {
         return await parseTokenFromEnv(process.env, modelId)
     }
 

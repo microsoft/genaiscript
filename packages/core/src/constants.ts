@@ -67,6 +67,7 @@ export const MARKDOWN_PROMPT_FENCE = "`````"
 
 export const OPENAI_API_BASE = "https://api.openai.com/v1"
 export const OLLAMA_API_BASE = "http://localhost:11434/v1"
+export const LLAMAFILE_API_BASE = "http://localhost:8080/v1"
 export const LOCALAI_API_BASE = "http://localhost:8080/v1"
 export const LITELLM_API_BASE = "http://localhost:4000"
 
@@ -81,6 +82,7 @@ export const EMOJI_UNDEFINED = "?"
 export const MODEL_PROVIDER_OPENAI = "openai"
 export const MODEL_PROVIDER_AZURE = "azure"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
+export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
 export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
 
@@ -94,12 +96,47 @@ export const DOCS_CONFIGURATION_AZURE_OPENAI_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure-openai"
 export const DOCS_CONFIGURATION_OLLAMA_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
+export const DOCS_CONFIGURATION_LLAMAFILE_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#llamafile"
 export const DOCS_CONFIGURATION_LITELLM_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#litellm"
 export const DOCS_CONFIGURATION_LOCALAI_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#localai"
 export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
+
+export const MODEL_PROVIDERS = Object.freeze([
+    {
+        id: MODEL_PROVIDER_OPENAI,
+        detail: "OpenAI or compatible",
+        url: DOCS_CONFIGURATION_OPENAI_URL,
+    },
+    {
+        id: MODEL_PROVIDER_AZURE,
+        detail: "Azure OpenAI deployment",
+        url: DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    },
+    {
+        id: MODEL_PROVIDER_OLLAMA,
+        detail: "Ollama local model",
+        url: DOCS_CONFIGURATION_OLLAMA_URL,
+    },
+    {
+        id: MODEL_PROVIDER_LLAMAFILE,
+        detail: "llamafile.ai local model",
+        url: DOCS_CONFIGURATION_LLAMAFILE_URL,
+    },
+    {
+        id: MODEL_PROVIDER_LITELLM,
+        detail: "LiteLLM proxy",
+        url: DOCS_CONFIGURATION_LITELLM_URL,
+    },
+    {
+        id: MODEL_PROVIDER_AICI,
+        detail: "AICI controller",
+        url: DOCS_CONFIGURATION_AICI_URL,
+    },
+])
 
 export const NEW_SCRIPT_TEMPLATE = `// use def to emit LLM variables 
 // https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def

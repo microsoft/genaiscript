@@ -3,28 +3,31 @@ import {
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     DOCS_CONFIGURATION_LITELLM_URL,
+    DOCS_CONFIGURATION_LLAMAFILE_URL,
     DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
     LITELLM_API_BASE,
+    LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_LITELLM,
+    MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
     OPENAI_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
-import { APIType, OAIToken } from "./host"
+import { APIType, LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     modelId: string
-): Promise<OAIToken> {
+): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(modelId)
 
     if (provider === MODEL_PROVIDER_OPENAI) {
@@ -61,6 +64,7 @@ export async function parseTokenFromEnv(
             if (base && !URL.canParse(base))
                 throw new Error("OPENAI_API_BASE must be a valid URL")
             return {
+                provider,
                 base,
                 type,
                 token,
@@ -116,6 +120,7 @@ export async function parseTokenFromEnv(
             if (!base.endsWith("/openai/deployments"))
                 base += "/openai/deployments"
             return {
+                provider,
                 base,
                 token,
                 type: "azure",
@@ -148,6 +153,7 @@ export async function parseTokenFromEnv(
             if (base && !URL.canParse(base))
                 throw new Error(`${modelBase} must be a valid URL`)
             return {
+                provider,
                 token,
                 base,
                 type,
@@ -164,6 +170,7 @@ export async function parseTokenFromEnv(
 
     if (provider === MODEL_PROVIDER_OLLAMA) {
         return {
+            provider,
             base: OLLAMA_API_BASE,
             token: "ollama",
             type: "openai",
@@ -171,8 +178,19 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (provider === MODEL_PROVIDER_LLAMAFILE) {
+        return {
+            provider,
+            base: LLAMAFILE_API_BASE,
+            token: "llamafile",
+            type: "openai",
+            source: "default",
+        }
+    }
+
     if (provider === MODEL_PROVIDER_LITELLM) {
         return {
+            provider,
             base: LITELLM_API_BASE,
             token: "litellm",
             type: "openai",
@@ -188,6 +206,12 @@ export function dotEnvTemplate(provider: string, apiType: APIType) {
         return `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
+`
+
+    if (provider === MODEL_PROVIDER_LLAMAFILE)
+        return `
+## llamafile ${DOCS_CONFIGURATION_LLAMAFILE_URL}
+# There is no configuration for llamafile
 `
 
     if (provider === MODEL_PROVIDER_LITELLM)

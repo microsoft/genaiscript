@@ -3,7 +3,7 @@ import {
     dotEnvTryParse,
     Host,
     LogLevel,
-    OAIToken,
+    LanguageModelConfiguration,
     ReadFileOptions,
     createFileSystem,
     parseTokenFromEnv,
@@ -205,14 +205,14 @@ export class VSCodeHost extends EventTarget implements Host {
         }
     }
 
-    async getSecretToken(modelId: string): Promise<OAIToken> {
+    async getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration> {
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)
         return tok
     }
 
-    async setSecretToken(tok: OAIToken): Promise<void> {
+    async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {
         this.dispatchEvent(new Event(CHANGE))
     }
 

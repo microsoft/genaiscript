@@ -5,7 +5,7 @@ import {
     AskUserOptions,
     LogLevel,
     ModelService,
-    OAIToken,
+    LanguageModelConfiguration,
     ParseService,
     ReadFileOptions,
     RetrievalService,
@@ -47,7 +47,7 @@ export class TestHost implements Host {
     readSecret(name: string): Promise<string> {
         throw new Error("Method not implemented.")
     }
-    getSecretToken(modelId: string): Promise<OAIToken> {
+    getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
     }
     log(level: LogLevel, msg: string): void {
