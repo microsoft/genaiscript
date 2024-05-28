@@ -84,14 +84,6 @@ export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
 
-export const MODEL_PROVIDERS = Object.freeze([
-    MODEL_PROVIDER_OPENAI,
-    MODEL_PROVIDER_AZURE,
-    MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_LITELLM,
-    MODEL_PROVIDER_AICI,
-])
-
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
 export const DOCS_CONFIGURATION_URL =
@@ -108,6 +100,34 @@ export const DOCS_CONFIGURATION_LOCALAI_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#localai"
 export const DOCS_CONFIGURATION_AICI_URL =
     "https://microsoft.github.io/genaiscript/reference/scripts/aici/"
+
+export const MODEL_PROVIDERS = Object.freeze([
+    {
+        id: MODEL_PROVIDER_OPENAI,
+        detail: "OpenAI or compatible",
+        url: DOCS_CONFIGURATION_OPENAI_URL,
+    },
+    {
+        id: MODEL_PROVIDER_AZURE,
+        detail: "Azure OpenAI deployment",
+        url: DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    },
+    {
+        id: MODEL_PROVIDER_OLLAMA,
+        detail: "Ollama local model",
+        url: DOCS_CONFIGURATION_OLLAMA_URL,
+    },
+    {
+        id: MODEL_PROVIDER_LITELLM,
+        detail: "LiteLLM proxy",
+        url: DOCS_CONFIGURATION_LITELLM_URL,
+    },
+    {
+        id: MODEL_PROVIDER_AICI,
+        detail: "AICI controller",
+        url: DOCS_CONFIGURATION_AICI_URL,
+    },
+])
 
 export const NEW_SCRIPT_TEMPLATE = `// use def to emit LLM variables 
 // https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def

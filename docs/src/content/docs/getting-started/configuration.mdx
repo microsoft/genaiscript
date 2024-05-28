@@ -22,6 +22,18 @@ You will need to configure the LLM connection and authorizion secrets.
 If you do not have access to an LLM, you can use a [local model](#local-models) for inferencing.
 :::
 
+## model selection
+
+The model used by the script is configured throught the `model` field in the `script` function.
+The model name is formatted as `provider:model-name`, where `provider` is the LLM provider
+and the `model-name` is provider specific.
+
+```js 'model: "openai:gpt-4"'
+script({
+    model: "openai:gpt-4",    
+})
+```
+
 ## `.env` file
 
 GenAIScript uses a `.env` file to store the secrets.
@@ -77,6 +89,9 @@ the `.env` file will appear grayed out in Visual Studio Code.
 
 ## OpenAI
 
+This provider, `openai`, is the default provider. 
+It uses the `OPENAI_API_...` environment variables.
+
 <Steps>
 
 <ol>
@@ -94,11 +109,28 @@ OPENAI_API_KEY=sk_...
 ```
 </li>
 
+<li>
+
+Set the `model` field in `script` to the model you want to use.
+
+```js 'model: "openai:gpt-4"'
+script({
+    model: "openai:gpt-4",
+    ...
+})
+```
+
+</li>
+
 </ol>
 
 </Steps>
 
-## Azure OpenAI ([reference](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions))
+## Azure OpenAI ([reference](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions)) 
+
+<a id="azure" href=""></a>
+
+The Azure OpenAI provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
 
 <Steps>
 
@@ -131,7 +163,7 @@ AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
 
 Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
 
-```js "model"
+```js 'model: "azure:deployment-id"'
 script({
     model: "azure:deployment-id",
     ...
@@ -188,6 +220,8 @@ OPENAI_API_TYPE=localai
 [Ollama](https://ollama.ai/) is a desktop application that let you download and run model locally.
 
 Running tools locally may require additional GPU resources depending on the model you are using.
+
+Use the `ollama` provider to access Ollama models.
 
 <Steps>
 

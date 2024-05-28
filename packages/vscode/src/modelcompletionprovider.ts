@@ -31,12 +31,14 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                 )
                     return []
 
-                return MODEL_PROVIDERS.map((provider) => {
-                    const completionItem = new vscode.CompletionItem(
-                        provider + ":"
-                    )
+                return MODEL_PROVIDERS.map(({ id, detail, url }) => {
+                    const completionItem = new vscode.CompletionItem(id + ":")
                     completionItem.kind = vscode.CompletionItemKind.Constant
-                    completionItem.insertText = provider
+                    completionItem.insertText = id
+                    completionItem.detail = detail
+                    if (url)
+                        completionItem.documentation =
+                            new vscode.MarkdownString(`[Docs](${url})`)
                     completionItem.commitCharacters = [":", "."]
                     return completionItem
                 })
