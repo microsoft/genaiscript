@@ -1,3 +1,5 @@
 script({
-    model:"ollama:phi3:latest"
+    model:"llamafile"
 })
+
+$`Write a poem.`

@@ -3,14 +3,17 @@ import {
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     DOCS_CONFIGURATION_LITELLM_URL,
+    DOCS_CONFIGURATION_LLAMAFILE_URL,
     DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
     LITELLM_API_BASE,
+    LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_LITELLM,
+    MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
@@ -175,6 +178,16 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (provider === MODEL_PROVIDER_LLAMAFILE) {
+        return {
+            provider,
+            base: LLAMAFILE_API_BASE,
+            token: "llamafile",
+            type: "openai",
+            source: "default",
+        }
+    }
+
     if (provider === MODEL_PROVIDER_LITELLM) {
         return {
             provider,
@@ -193,6 +206,12 @@ export function dotEnvTemplate(provider: string, apiType: APIType) {
         return `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
+`
+
+    if (provider === MODEL_PROVIDER_LLAMAFILE)
+        return `
+## llamafile ${DOCS_CONFIGURATION_LLAMAFILE_URL}
+# There is no configuration for llamafile
 `
 
     if (provider === MODEL_PROVIDER_LITELLM)
