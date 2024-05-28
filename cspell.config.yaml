@@ -1,7 +1,9 @@
 version: "0.2"
-ignorePaths: ["yarn.lock"]
+ignorePaths:
+  - yarn.lock
 dictionaryDefinitions: []
 dictionaries: []
-words: []
+words:
+  - testhost
 ignoreWords: []
 import: []
