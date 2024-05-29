@@ -20,14 +20,19 @@ export async function importPrompt(
     const { filename } = r
     if (!filename) throw new Error("filename is required")
 
+    const oldGlb: any = {}
     const glb: any = resolveGlobal()
     try {
+        // override global context
         for (const field of Object.keys(ctx0)) {
             assert(!glb[field])
+            oldGlb[field] = glb[field]
             glb[field] = (ctx0 as any)[field]
         }
 
-        const modulePath = filename.startsWith("/") ? filename : host.path.join(host.projectFolder(), filename)
+        const modulePath = filename.startsWith("/")
+            ? filename
+            : host.path.join(host.projectFolder(), filename)
         const module = await import(modulePath)
         const main = module.default
         if (!main) throw new Error("default import function missing")
@@ -38,6 +43,11 @@ export async function importPrompt(
         logError(err)
         throw err
     } finally {
-        for (const field of Object.keys(ctx0)) delete glb[field]
+        // restore global context
+        for (const field of Object.keys(oldGlb)) {
+            const v = oldGlb[field]
+            if (v === undefined) delete glb[field]
+            else glb[field] = oldGlb[field]
+        }
     }
 }
