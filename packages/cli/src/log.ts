@@ -1,4 +1,5 @@
 import { stdout } from "node:process"
+import console from "node:console"
 
 export const info = console.error
 

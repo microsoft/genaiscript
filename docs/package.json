@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
-    "@astrojs/starlight": "^0.23.1",
-    "astro": "^4.8.6",
+    "@astrojs/starlight": "^0.23.2",
+    "astro": "^4.9.2",
     "typescript": "5.4.5"
   },
   "devDependencies": {
-    "zx": "^8.1.0"
+    "zx": "^8.1.2"
   }
 }

@@ -1,6 +1,5 @@
-import { LogLevel, host } from "./host"
+import { host } from "./host"
 import MagicString from "magic-string"
-import { consoleLogFormat } from "./logging"
 
 export async function evalPrompt(
     ctx0: PromptContext,
