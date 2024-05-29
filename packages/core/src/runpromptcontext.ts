@@ -203,6 +203,11 @@ export function createRunPromptContext(
                     completer,
                     genOptions
                 )
+                const { json, text } = resp
+                if (resp.json)
+                    trace.detailsFenced("📩 json (parsed)", json, "json")
+                else if (text)
+                    trace.detailsFenced(`🔠 output`, text, `markdown`)
                 return resp
             } catch (e) {
                 trace.error(e)

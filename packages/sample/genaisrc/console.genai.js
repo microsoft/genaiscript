@@ -3,6 +3,10 @@ script({
     tests: {},
 })
 
+console.log("log")
+console.warn(`warn`)
+console.error(`error`)
+
 await runPrompt((_) => {
     _.console.log("prompt.log")
     _.console.warn("prompt.warn")
@@ -10,7 +14,6 @@ await runPrompt((_) => {
     _.$`write a movie title`
 }, { label: "inner prompt"})
 
-console.log("log")
-console.warn(`warn`)
-console.error(`error`)
+console.log(`after run prompt`)
+
 $`write a poem`
