@@ -34,6 +34,8 @@ script({
 })
 ```
 
+The model can also be overriden from the [cli run command](/genaiscript/reference/cli/run#model).
+
 ## `.env` file
 
 GenAIScript uses a `.env` file to store the secrets.
@@ -75,9 +77,6 @@ Update the `.env` file with the configuration information (see below).
 </ol>
 
 </Steps>
-
-To learn more about LLM configurations, 
-see [authorization information](/genaiscript/reference/token).
 
 :::caution[Do Not Commit Secrets]
 
@@ -285,10 +284,27 @@ OPENAI_API_BASE=http://localhost:...
 
 </Steps>
 
-### VSCode Copilot
+
+### Model specific environment variables
+
+You can provide different environment variables
+for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
+The model name is capitalized and 
+all non-alphanumeric characters are converted to `_`.
+
+This allows to have various sources of LLM computations
+for different models. For example, to enable the `ollama:phi3`
+model running locally, while keeping the default `openai` model connection information.
+
+```txt title=".env"
+OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
+```
+
+## VSCode Copilot Insiders
 
 Visual Studio Code **Insiders** provides an 
-**experimental support** to use your Copilot subscription to access a LLM inside of Visual Studio Code.
+**experimental support** to use your Copilot subscription 
+to access a LLM inside of Visual Studio Code.
 
 :::caution[Limitations]
 
@@ -376,21 +392,6 @@ Note that this dialog is not used once you have a populated `.env` file.
 If you are using the Insiders build, make sure to update the **genaiscript.insiders.vsix** regularly
 by repeating the steps above. The daily builds of Insiders may contain breaking chagnes that require new builds
 of our extension.
-
-## Model specific environment variables
-
-You can provide different environment variables
-for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
-The model name is capitalized and 
-all non-alphanumeric characters are converted to `_`.
-
-This allows to have various sources of LLM computations
-for different models. For example, to enable the `ollama:phi3`
-model running locally, while keeping the default `openai` model connection information.
-
-```txt title=".env"
-OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
-```
 
 ## Next steps
 
