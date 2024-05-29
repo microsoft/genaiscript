@@ -1,3 +1,10 @@
+interface PromptConsole {
+    log(...data: any[]): void
+    warn(...data: any[]): void
+    debug(...data: any[]): void
+    error(...data: any[]): void
+}
+
 type DiagnosticSeverity = "error" | "warning" | "info"
 
 interface Diagnostic {
@@ -1232,6 +1239,13 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
 
+interface RunPromptOptions extends ModelOptions {
+    /**
+     * Label for trace
+     */
+    label?:string
+}
+
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
@@ -1250,7 +1264,7 @@ interface RunPromptContext {
     ): string
     runPrompt(
         generator: string | RunPromptGenerator,
-        options?: ModelOptions
+        options?: RunPromptOptions
     ): Promise<RunPromptResult>
     defTool(
         name: string,
@@ -1258,6 +1272,7 @@ interface RunPromptContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
+    console: PromptConsole
 }
 
 interface GenerationOutput {
@@ -1544,6 +1559,11 @@ interface PromptContext extends RunPromptContext {
 // keep in sync with PromptContext!
 
 /**
+ * Console functions
+ */
+declare var console: PromptConsole
+
+/**
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .genai.js file.
  */
@@ -1715,7 +1735,7 @@ declare function cancel(reason?: string): void
  */
 declare function runPrompt(
     generator: string | RunPromptGenerator,
-    options?: ModelOptions
+    options?: RunPromptOptions
 ): Promise<RunPromptResult>
 
 /**
