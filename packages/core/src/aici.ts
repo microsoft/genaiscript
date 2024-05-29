@@ -359,7 +359,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
 
 async function listModels(cfg: LanguageModelConfiguration) {
     const { token, base, version } = cfg
-    const url = `${base}/${version || "v1"}/controllers/tags`
+    const url = `${base}/proxy/info`
     const fetch = await createFetch()
     const res = await fetch(url, {
         method: "GET",
@@ -371,20 +371,12 @@ async function listModels(cfg: LanguageModelConfiguration) {
     })
     if (res.status !== 200) return []
     const body = (await res.json()) as {
-        tags: {
-            tag: string
-            module_id: string
-            updated_at: number
-            updated_by: string
-            wasm_size: number
-            compiled_size: number
-        }[]
+        prefixes: string[]
     }
-    return body.tags.map(
+    return body.prefixes.map(
         (tag) =>
             <LanguageModelInfo>{
-                id: tag.tag,
-                details: `${tag.module_id}`,
+                id: tag.replace(/^\//, ""),
             }
     )
 }
