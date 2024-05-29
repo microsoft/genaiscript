@@ -29,6 +29,7 @@ import { checkCancelled } from "./cancellation"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
+import { consoleLogFormat } from "./logging"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -41,6 +42,17 @@ export function createRunPromptContext(
 ): RunPromptContextNode {
     const { cancellationToken } = options || {}
     const node: PromptNode = { children: [] }
+
+    const log = (...args: any[]) => {
+        const line = consoleLogFormat(...args)
+        if (line) trace.log(line)
+    }
+    const console = Object.freeze<PromptConsole>({
+        log,
+        debug: log,
+        warn: log,
+        error: log,
+    })
 
     const defTool: (
         name: string,
@@ -201,6 +213,7 @@ export function createRunPromptContext(
                 trace.endDetails()
             }
         },
+        console,
     }
 
     return ctx

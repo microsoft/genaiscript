@@ -3,6 +3,11 @@
 // keep in sync with PromptContext!
 
 /**
+ * Console functions
+ */
+declare var console: PromptConsole
+
+/**
  * Setup prompt title and other parameters.
  * Exactly one call should be present on top of .genai.js file.
  */

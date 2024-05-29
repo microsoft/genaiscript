@@ -1,3 +1,10 @@
+interface PromptConsole {
+    log(...data: any[]): void
+    warn(...data: any[]): void
+    debug(...data: any[]): void
+    error(...data: any[]): void
+}
+
 type DiagnosticSeverity = "error" | "warning" | "info"
 
 interface Diagnostic {
@@ -1223,6 +1230,7 @@ interface RunPromptContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
+    console: PromptConsole
 }
 
 interface GenerationOutput {
