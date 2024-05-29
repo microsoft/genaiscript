@@ -15,6 +15,7 @@ declare global {
 async function tryImportPdfjs(options?: TraceOptions) {
     const { trace } = options || {}
     try {
+        installPromiseWithResolversShim()
         const pdfjs = await import("pdfjs-dist")
         let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
         if (os.platform() === "win32")
@@ -34,6 +35,23 @@ async function tryImportPdfjs(options?: TraceOptions) {
         pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
         return pdfjs
     }
+}
+
+function installPromiseWithResolversShim() {
+    (Promise as any).withResolvers ||
+        ((Promise as any).withResolvers = function () {
+            let rs,
+                rj,
+                pm = new this((resolve: any, reject: any) => {
+                    rs = resolve
+                    rj = reject
+                })
+            return {
+                resolve: rs,
+                reject: rj,
+                promise: pm,
+            }
+        })
 }
 
 /**

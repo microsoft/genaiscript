@@ -12,7 +12,7 @@
     "url": "https://github.com/microsoft/genaiscript"
   },
   "optionalDependencies": {
-    "pdfjs-dist": "4.0.379",
+    "pdfjs-dist": "4.3.136",
     "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
