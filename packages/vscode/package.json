@@ -335,7 +335,7 @@
     },
     "dependencies": {
         "mammoth": "^1.7.2",
-        "pdfjs-dist": "4.2.67",
+        "pdfjs-dist": "4.3.136",
         "tree-sitter-wasms": "^0.1.11",
         "web-tree-sitter": "^0.22.6"
     },
