@@ -351,6 +351,11 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     parameters?: PromptParametersSchema
 
     /**
+     * A file path or list of file paths or globs
+     */
+    files?: string | string[]
+
+    /**
      * Extra variable values that can be used to configure system prompts.
      */
     vars?: Record<string, string>
@@ -564,6 +569,7 @@ type PromptSystemArgs = Omit<
     | "tests"
     | "responseType"
     | "responseSchema"
+    | "files"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]

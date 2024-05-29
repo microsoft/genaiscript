@@ -1,7 +1,7 @@
 import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
-import { assert, logVerbose, relativePath } from "./util"
+import { arrayify, assert, logVerbose, relativePath, unique } from "./util"
 import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
@@ -30,19 +30,22 @@ async function resolveExpansionVars(
     const { file } = frag
     const project = file.project
 
-    const fetch = await createFetch()
     const files: WorkspaceFile[] = []
     const fr = frag
-    for (const ref of fr.references) {
+    const filenames = unique([
+        ...arrayify(template.files),
+        ...fr.references.map(({ filename }) => filename),
+    ])
+    for (const filename of filenames) {
         // what about URLs?
-        if (HTTPS_REGEX.test(ref.filename)) {
-            if (!files.find((lk) => lk.filename === ref.filename)) {
+        if (HTTPS_REGEX.test(filename)) {
+            if (!files.find((lk) => lk.filename === filename)) {
                 let content: string = ""
                 try {
                     const urlAdapters = defaultUrlAdapters.concat(
                         template.urlAdapters ?? []
                     )
-                    let url = ref.filename
+                    let url = filename
                     let adapter: UrlAdapter = undefined
                     for (const a of urlAdapters) {
                         const newUrl = a.matcher(url)
@@ -53,6 +56,7 @@ async function resolveExpansionVars(
                         }
                     }
                     trace.item(`fetch ${url}`)
+                    const fetch = await createFetch()
                     const resp = await fetch(url, {
                         headers: {
                             "Content-Type":
@@ -72,7 +76,7 @@ async function resolveExpansionVars(
                     trace.error(`fetch def error`, e)
                 }
                 files.push({
-                    filename: ref.filename,
+                    filename,
                     content,
                 })
             }
@@ -81,10 +85,10 @@ async function resolveExpansionVars(
 
         // check for existing file
         const projectFile = project.allFiles.find(
-            (f) => f.filename === ref.filename
+            (f) => f.filename === filename
         )
         if (!projectFile) {
-            trace.error(`reference ${ref.filename} not found`)
+            trace.error(`reference ${filename} not found`)
             continue
         }
 
@@ -95,6 +99,7 @@ async function resolveExpansionVars(
                 content: projectFile.content,
             })
     }
+
     const attrs = parsePromptParameters(project, template, vars)
     const secrets: Record<string, string> = {}
     for (const secret of template.secrets || []) {
