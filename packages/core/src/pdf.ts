@@ -36,6 +36,23 @@ async function tryImportPdfjs(options?: TraceOptions) {
     }
 }
 
+function installPromiseWithResolversShim() {
+    (Promise as any).withResolvers ||
+        ((Promise as any).withResolvers = function () {
+            let rs,
+                rj,
+                pm = new this((resolve: any, reject: any) => {
+                    rs = resolve
+                    rj = reject
+                })
+            return {
+                resolve: rs,
+                reject: rj,
+                promise: pm,
+            }
+        })
+}
+
 /**
  * parses pdfs, require pdfjs-dist to be installed
  * @param fileOrUrl
@@ -49,6 +66,7 @@ async function PDFTryParse(
 ): Promise<ParsePdfResponse> {
     const { disableCleanup, trace } = options || {}
     try {
+        installPromiseWithResolversShim()
         const pdfjs = await tryImportPdfjs(options)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
