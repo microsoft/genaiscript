@@ -12,7 +12,6 @@ import {
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { GenerationOptions, createPromptContext } from "./promptcontext"
-import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import {
     ChatCompletionAssistantMessageParam,
@@ -118,16 +117,7 @@ async function callExpander(
     }
 
     try {
-        if (/^export\s+default\s+/m.test(r.jsSource)) {
-            if (!/\.mjs$/i.test(r.filename))
-                throw new Error("export default requires .mjs file")
-            await importPrompt(ctx, r, { logCb })
-        } else {
-            await evalPrompt(ctx, r, {
-                sourceMaps: true,
-                logCb,
-            })
-        }
+        await importPrompt(ctx, r, { logCb })
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {

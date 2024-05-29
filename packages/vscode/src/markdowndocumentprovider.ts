@@ -8,7 +8,6 @@ import {
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
 import {
-    GENAI_JS_EXT,
     YAMLStringify,
     BUILTIN_PREFIX,
     CACHE_AIREQUEST_PREFIX,
@@ -20,6 +19,7 @@ import {
     pretifyMarkdown,
     renderFencedVariables,
     GENAI_JS_REGEX,
+    GENAI_TS_EXT,
 } from "genaiscript-core"
 
 const SCHEME = "genaiscript"
@@ -176,7 +176,7 @@ export function infoUri(path: string) {
 export function builtinPromptUri(id: string) {
     return vscode.Uri.from({
         scheme: SCHEME,
-        path: BUILTIN_PREFIX + id + GENAI_JS_EXT,
+        path: BUILTIN_PREFIX + id + GENAI_TS_EXT,
     })
 }
 

@@ -22,7 +22,7 @@ const promptFooDriver = readFileSync(
 )
 const promptDefs = {
     ".gitattributes": "genaiscript.d.ts -diff merge=ours linguist-generated",
-    "jsconfig.json": JSON.stringify(
+    "tsconfig.json": JSON.stringify(
         {
             compilerOptions: {
                 lib: ["ES2022"],
@@ -33,7 +33,7 @@ const promptDefs = {
                 allowJs: true,
                 skipLibCheck: true,
             },
-            include: ["*.js", "./genaiscript.d.ts"],
+            include: ["*.js", "*.mjs", "*.ts", "./genaiscript.d.ts"],
         },
         null,
         4
@@ -55,7 +55,7 @@ const wasms = await readdirSync("../../node_modules/tree-sitter-wasms/out/")
     .map((m) => m?.[1])
     .filter((f) => !!f)
 
-    const functions = Object.keys(promptMap)
+const functions = Object.keys(promptMap)
     .sort()
     .map((k) => {
         const v = promptMap[k]

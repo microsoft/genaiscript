@@ -46,7 +46,7 @@ export async function compileScript() {
                 `typescript@${TYPESCRIPT_VERSION}`,
                 "tsc",
                 "--project",
-                host.path.resolve(folder, "jsconfig.json"),
+                host.path.resolve(folder, "tsconfig.json"),
             ],
             {
                 cwd: folder,

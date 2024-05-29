@@ -1,7 +1,7 @@
 import { Project } from "./ast"
 import { NEW_SCRIPT_TEMPLATE } from "./constants"
 import { promptDefinitions } from "./default_prompts"
-import { tryReadText, writeText } from "./fs"
+import { fileExists, tryReadText, writeText } from "./fs"
 import { host } from "./host"
 import { logVerbose } from "./util"
 
@@ -38,7 +38,15 @@ export async function fixPromptDefinitions(project: Project) {
     const folders = project.folders()
     for (const folder of folders) {
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
-            if (project && defName === "genaiscript.d.ts") {
+            if (defName === "tsconfig.json") {
+                // older version used jsconfig.json
+                const fn = host.path.join(folder, "jsconfig.json")
+                if (await fileExists(fn)) {
+                    logVerbose(`deleting ${fn}`)
+                    host.deleteFile(fn)
+                }
+            }
+            if (defName === "genaiscript.d.ts") {
                 const systems = project.templates.filter((t) => t.isSystem)
                 const tools = systems
                     .map(({ jsSource }) => scanTools(jsSource))
