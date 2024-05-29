@@ -27,7 +27,8 @@
     "promptfoo": "^0.60.0",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
-    "web-tree-sitter": "^0.22.2"
+    "web-tree-sitter": "^0.22.2",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
   },
   "optionalDependencies": {
     "llamaindex": "0.1.21"
