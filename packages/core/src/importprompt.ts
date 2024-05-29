@@ -34,7 +34,9 @@ export async function importPrompt(
         const modulePath = filename.startsWith("/")
             ? filename
             : host.path.join(host.projectFolder(), filename)
-        const module = await tsImport(modulePath, import.meta.url)
+        const module = await tsImport(modulePath, {
+            parentURL: import.meta.url || new URL(__filename, "file://").href,
+        })
         const main = module.default
         if (typeof main === "function") await main(ctx0)
     } catch (err) {
