@@ -15,6 +15,7 @@ declare global {
 async function tryImportPdfjs(options?: TraceOptions) {
     const { trace } = options || {}
     try {
+        installPromiseWithResolversShim()
         const pdfjs = await import("pdfjs-dist")
         let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
         if (os.platform() === "win32")
@@ -66,7 +67,6 @@ async function PDFTryParse(
 ): Promise<ParsePdfResponse> {
     const { disableCleanup, trace } = options || {}
     try {
-        installPromiseWithResolversShim()
         const pdfjs = await tryImportPdfjs(options)
         const { getDocument } = pdfjs
         const data = content || (await host.readFile(fileOrUrl))
