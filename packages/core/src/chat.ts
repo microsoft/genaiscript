@@ -24,6 +24,10 @@ import {
 import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
 
+export type ChatCompletionContentPartText = OpenAI.Chat.Completions.ChatCompletionContentPartText
+
+export type ChatCompletionContentPart = OpenAI.Chat.Completions.ChatCompletionContentPart
+
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
 export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
