@@ -29,6 +29,7 @@ import { checkCancelled } from "./cancellation"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
+import { consoleLogFormat } from "./logging"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -41,6 +42,17 @@ export function createRunPromptContext(
 ): RunPromptContextNode {
     const { cancellationToken } = options || {}
     const node: PromptNode = { children: [] }
+
+    const log = (...args: any[]) => {
+        const line = consoleLogFormat(...args)
+        if (line) trace.log(line)
+    }
+    const console = Object.freeze<PromptConsole>({
+        log,
+        debug: log,
+        warn: (args) => trace.warn(consoleLogFormat(...args)),
+        error: (args) => trace.error(consoleLogFormat(...args)),
+    })
 
     const defTool: (
         name: string,
@@ -132,7 +144,8 @@ export function createRunPromptContext(
         },
         runPrompt: async (generator, runOptions) => {
             try {
-                trace.startDetails(`🎁 run prompt`)
+                const { label } = runOptions || {}
+                trace.startDetails(`🎁 run prompt ${label || ""}`)
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
                 const ctx = createRunPromptContext(genOptions, env, trace)
@@ -190,6 +203,11 @@ export function createRunPromptContext(
                     completer,
                     genOptions
                 )
+                const { json, text } = resp
+                if (resp.json)
+                    trace.detailsFenced("📩 json (parsed)", json, "json")
+                else if (text)
+                    trace.detailsFenced(`🔠 output`, text, `markdown`)
                 return resp
             } catch (e) {
                 trace.error(e)
@@ -201,6 +219,7 @@ export function createRunPromptContext(
                 trace.endDetails()
             }
         },
+        console,
     }
 
     return ctx

@@ -30,7 +30,7 @@ import {
     DOCX_MIME_TYPE,
     JSON_SCHEMA_MIME_TYPE,
 } from "genaiscript-core"
-import { type BaseReader, OllamaEmbedding } from "llamaindex"
+import { type BaseReader } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
@@ -187,6 +187,7 @@ export class LlamaIndexRetrievalService
             OpenAIEmbedding,
             Ollama,
             OpenAI,
+            OllamaEmbedding
         } = this.module
         const { provider: llmProvider, model: llmModel } =
             parseModelIdentifier(llmModel_)

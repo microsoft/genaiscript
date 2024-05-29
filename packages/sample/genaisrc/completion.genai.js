@@ -1,5 +1,5 @@
 script({
-    model:"llamafile"
+    model:"aici:phi3"
 })
 
 $`Write a poem.`
