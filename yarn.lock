@@ -1868,7 +1868,7 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/merge-streams/-/merge-streams-4.0.0.tgz#abb11d99aeb6d27f1b563c38147a72d50058e339"
   integrity sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==
 
-"@slidev/cli@^0.49.2":
+"@slidev/cli@^0.49.5":
   version "0.49.5"
   resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-0.49.5.tgz#94cb2bfbdc2a639ba14053020ce44917b64e9eef"
   integrity sha512-PYvV8Qr3/EeyPb6s0yJkF0+rVopQOltmSc/72RpV8GcELIUcmQInT8iNmkp1iQcKNdFBgbFtgrguoXP9I7YgCg==
@@ -12342,7 +12342,7 @@ tstl@^2.0.7:
   resolved "https://registry.yarnpkg.com/tstl/-/tstl-2.5.16.tgz#0b52a6a572ece7dc2b532ebc89ba3a95c95c4009"
   integrity sha512-+O2ybLVLKcBwKm4HymCEwZIT0PpwS3gCYnxfSDEjJEKADvIFruaQjd3m7CAKNU1c7N3X3WjVz87re7TA2A5FUw==
 
-tsx@^4.10.3:
+tsx@^4.11.0:
   version "4.11.0"
   resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.11.0.tgz#fdd8ce7ccaa0a84aed64c11e2fc5da314e1d8d14"
   integrity sha512-vzGGELOgAupsNVssAmZjbUDfdm/pWP4R+Kg8TVdsonxbXk0bEpE1qh0yV6/QxUVXaVlNemgcPajGdJJ82n3stg==
