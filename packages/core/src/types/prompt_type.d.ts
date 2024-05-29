@@ -179,7 +179,7 @@ declare function cancel(reason?: string): void
  */
 declare function runPrompt(
     generator: string | RunPromptGenerator,
-    options?: ModelOptions
+    options?: RunPromptOptions
 ): Promise<RunPromptResult>
 
 /**

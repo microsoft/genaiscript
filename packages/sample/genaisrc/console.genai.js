@@ -8,7 +8,7 @@ await runPrompt((_) => {
     _.console.warn("prompt.warn")
     _.console.error("prompt.error")
     _.$`write a movie title`
-})
+}, { label: "inner prompt"})
 
 console.log("log")
 console.warn(`warn`)

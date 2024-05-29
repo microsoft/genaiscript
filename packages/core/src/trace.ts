@@ -114,7 +114,7 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     log(message: string) {
-        this.content += "> " + (message ?? "") + "\n"
+        this.content += "\n> " + (message ?? "") + "\n"
     }
 
     startFence(language: string) {
@@ -201,7 +201,7 @@ ${this.toResultIcon(success, "")}${title}
         const emsg = errorMessage(error)
         const msg = message || emsg
         this.disableChange(() => {
-            this.warn(msg)
+            this.caution(msg)
             if (options.details && error?.stack) {
                 this.content += `> \`\`\`\`\`\`\`markdown`
                 this.content += error.stack
@@ -213,6 +213,10 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     warn(msg: string) {
+        this.content += `\n> [!WARNING] ${msg}\n`
+    }
+
+    caution(msg: string) {
         this.content += `\n> [!CAUTION] ${msg}\n`
     }
 

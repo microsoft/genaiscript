@@ -1239,6 +1239,13 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
 
+interface RunPromptOptions extends ModelOptions {
+    /**
+     * Label for trace
+     */
+    label?:string
+}
+
 // keep in sync with prompt_type.d.ts
 interface RunPromptContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
@@ -1257,7 +1264,7 @@ interface RunPromptContext {
     ): string
     runPrompt(
         generator: string | RunPromptGenerator,
-        options?: ModelOptions
+        options?: RunPromptOptions
     ): Promise<RunPromptResult>
     defTool(
         name: string,
@@ -1728,7 +1735,7 @@ declare function cancel(reason?: string): void
  */
 declare function runPrompt(
     generator: string | RunPromptGenerator,
-    options?: ModelOptions
+    options?: RunPromptOptions
 ): Promise<RunPromptResult>
 
 /**

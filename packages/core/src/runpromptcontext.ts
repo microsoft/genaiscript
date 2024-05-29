@@ -50,8 +50,8 @@ export function createRunPromptContext(
     const console = Object.freeze<PromptConsole>({
         log,
         debug: log,
-        warn: log,
-        error: log,
+        warn: (args) => trace.warn(consoleLogFormat(...args)),
+        error: (args) => trace.error(consoleLogFormat(...args)),
     })
 
     const defTool: (
@@ -144,7 +144,8 @@ export function createRunPromptContext(
         },
         runPrompt: async (generator, runOptions) => {
             try {
-                trace.startDetails(`🎁 run prompt`)
+                const { label } = runOptions || {}
+                trace.startDetails(`🎁 run prompt ${label || ""}`)
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
                 const ctx = createRunPromptContext(genOptions, env, trace)
