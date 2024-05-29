@@ -7,19 +7,25 @@ import {
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
+    MODEL_PROVIDER_VSCODE,
 } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
 import { TraceOptions } from "./trace"
+import { assert } from "./util"
 
 export function resolveLanguageModel(options: {
     model?: string
     languageModel?: LanguageModel
 }): LanguageModel {
-    if (options.languageModel) return options.languageModel
     const { provider } = parseModelIdentifier(options.model)
+
+    if (options.languageModel) return options.languageModel
+    assert(provider !== MODEL_PROVIDER_VSCODE)
+    if (provider === MODEL_PROVIDER_VSCODE) return undefined
+
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_AZURE) return OpenAIModel

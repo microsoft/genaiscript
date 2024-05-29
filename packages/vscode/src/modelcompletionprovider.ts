@@ -64,7 +64,7 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
                 const provider = m.groups.provider
                 const modelid = provider + ":*"
                 const lm = resolveLanguageModel({ model: modelid })
-                if (!lm.listModels) return []
+                if (!lm?.listModels) return []
                 try {
                     const cfg =
                         await state.host.getLanguageModelConfiguration(modelid)

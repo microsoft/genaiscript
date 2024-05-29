@@ -16,6 +16,7 @@ import {
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
+    MODEL_PROVIDER_VSCODE,
     OLLAMA_API_BASE,
     OPENAI_API_BASE,
 } from "./constants"
@@ -130,6 +131,14 @@ export async function parseTokenFromEnv(
                     "api-key": `$${tokenVar}`,
                 },
             }
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_VSCODE) {
+        // no token
+        return <LanguageModelConfiguration>{
+            provider,
+            source: "copilot",
         }
     }
 

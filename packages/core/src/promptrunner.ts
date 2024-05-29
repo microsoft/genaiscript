@@ -259,14 +259,10 @@ export async function runTemplate(
         )
         if (connection.info.error)
             throw new Error(errorMessage(connection.info.error))
-        if (!connection.token)
-            throw new RequestError(
-                403,
-                "LLM configuration missing",
-                connection.info
-            )
-
         const { completer } = resolveLanguageModel(genOptions)
+        if (!completer)
+            throw new Error("model driver not found for " + connection.info)
+
         const output = await executeChatSession(
             connection.token,
             cancellationToken,

@@ -13,29 +13,27 @@ import {
     updateConnectionConfiguration,
     MODEL_PROVIDER_AZURE,
     parseModelIdentifier,
-    MODEL_PROVIDER_LITELLM,
-    MODEL_PROVIDER_LLAMAFILE,
+    MODEL_PROVIDER_VSCODE,
 } from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
     modelId: string
-) {
-    const { provider } = parseModelIdentifier(modelId)
-    if (
-        provider === MODEL_PROVIDER_OLLAMA ||
-        provider === MODEL_PROVIDER_LLAMAFILE ||
-        provider === MODEL_PROVIDER_AICI ||
-        provider === MODEL_PROVIDER_AZURE ||
-        provider === MODEL_PROVIDER_LITELLM
-    ) {
+): Promise<{ model?: string; provider?: string; apiType?: APIType }> {
+    const { provider, model } = parseModelIdentifier(modelId)
+    if (provider && provider !== MODEL_PROVIDER_VSCODE) {
         return { provider }
     }
 
     let models: vscode.LanguageModelChat[] = []
     if (isLanguageModelsAvailable(state.context))
         models = await vscode.lm.selectChatModels()
+
+    const modelChat = model && models.find((m) => m.id === model)
+    if (modelChat)
+        return { model: modelChat.id, provider: MODEL_PROVIDER_VSCODE }
+
     const items: (vscode.QuickPickItem & {
         model?: string
         provider?: string
