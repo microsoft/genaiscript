@@ -40,6 +40,7 @@ import { modelInfo, systemInfo } from "./info"
 import { scriptTestsView, scriptsTest } from "./test"
 import { emptyDir } from "fs-extra"
 import { join } from "path"
+import "node:console"
 
 async function cacheClear(name: string) {
     let dir = dotGenaiscriptPath("cache")
