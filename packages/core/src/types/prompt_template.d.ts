@@ -316,7 +316,8 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     parameters?: PromptParametersSchema
 
     /**
-     * A file path or list of file paths or globs
+     * A file path or list of file paths or globs. 
+     * The content of these files will be by the files selected in the UI by the user or the cli arguments.
      */
     files?: string | string[]
 
@@ -1214,7 +1215,7 @@ interface RunPromptOptions extends ModelOptions {
     /**
      * Label for trace
      */
-    label?:string
+    label?: string
 }
 
 // keep in sync with prompt_type.d.ts

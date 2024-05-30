@@ -9,7 +9,7 @@ import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
-import { fileExists, readText } from "./fs"
+import { expandFiles, fileExists, readText } from "./fs"
 import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
@@ -32,10 +32,11 @@ async function resolveExpansionVars(
 
     const files: WorkspaceFile[] = []
     const fr = frag
-    const filenames = unique([
-        ...arrayify(template.files),
-        ...fr.references.map(({ filename }) => filename),
-    ])
+    const templateFiles = arrayify(template.files)
+    const referenceFiles = fr.references.map(({ filename }) => filename)
+    const filenames = await expandFiles(
+        referenceFiles?.length ? referenceFiles : templateFiles
+    )
     for (const filename of filenames) {
         // what about URLs?
         if (HTTPS_REGEX.test(filename)) {
