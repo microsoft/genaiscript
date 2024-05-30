@@ -9,7 +9,7 @@ import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
-import { expandFiles, fileExists, readText } from "./fs"
+import { expandFiles, fileExists, readText, tryReadText } from "./fs"
 import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
@@ -85,19 +85,17 @@ async function resolveExpansionVars(
         }
 
         // check for existing file
-        const projectFile = project.allFiles.find(
-            (f) => f.filename === filename
-        )
-        if (!projectFile) {
+        const content = await tryReadText(filename)
+        if (!content) {
             trace.error(`reference ${filename} not found`)
             continue
         }
 
-        const fn = relativePath(host.projectFolder(), projectFile.filename)
+        const fn = relativePath(host.projectFolder(), filename)
         if (!files.find((lk) => lk.filename === fn))
             files.push({
                 filename: fn,
-                content: projectFile.content,
+                content: content,
             })
     }
 

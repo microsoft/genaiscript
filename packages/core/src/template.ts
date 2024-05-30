@@ -264,6 +264,7 @@ export async function parsePromptTemplate(
             c.checkNumber("seed")
 
             c.checkStringArray("system")
+            c.checkStringArray("files")
             c.checkString("group")
 
             c.checkBool("isSystem")
