@@ -20,6 +20,7 @@ import { createFetch } from "./fetch"
 import { unquote } from "./fence"
 import { HTTPS_REGEX } from "./constants"
 import { parsePromptParameters } from "./parameters"
+import { resolveFileContent } from "./file"
 
 async function resolveExpansionVars(
     trace: MarkdownTrace,
@@ -81,22 +82,14 @@ async function resolveExpansionVars(
                     content,
                 })
             }
-            continue
+        } else {
+            // check for existing file
+            const fn = relativePath(host.projectFolder(), filename)
+            if (files.find((lk) => lk.filename === fn)) continue
+            const file: WorkspaceFile = { filename }
+            await resolveFileContent(file)
+            files.push(file)
         }
-
-        // check for existing file
-        const content = await tryReadText(filename)
-        if (!content) {
-            trace.error(`reference ${filename} not found`)
-            continue
-        }
-
-        const fn = relativePath(host.projectFolder(), filename)
-        if (!files.find((lk) => lk.filename === fn))
-            files.push({
-                filename: fn,
-                content: content,
-            })
     }
 
     const attrs = parsePromptParameters(project, template, vars)
