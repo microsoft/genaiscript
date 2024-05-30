@@ -1,4 +1,5 @@
 script({
+    model: "openai:gpt-4",
     parameters: {
         topic: {
             type: "string",

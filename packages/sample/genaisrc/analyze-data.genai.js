@@ -1,5 +1,6 @@
 script({
     title: "analyze-data",
+    model: "openai:gpt-3.5-turbo",
     tests: [
         {
             description: "penguins csv",
