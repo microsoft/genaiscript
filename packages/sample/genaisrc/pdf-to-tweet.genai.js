@@ -1,4 +1,5 @@
 script({
+    model: "openai:gpt-3.5-turbo",
     title: "generate a tweet from a pdf file",    
     tests: {
         files: "src/rag/loremipsum.pdf",
