@@ -24,7 +24,7 @@ export async function resolveFileContent(
     file: WorkspaceFile,
     options?: TraceOptions
 ) {
-    const { trace } = options
+    const { trace } = options || {}
     const { filename } = file
     if (file.content) return file
 
