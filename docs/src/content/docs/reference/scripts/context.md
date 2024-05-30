@@ -26,6 +26,14 @@ script({
 })
 ```
 
+or multiple paths
+
+```js
+script({
+    files: ["src/*.pdf", "other/*.pdf"],
+})
+```
+
 -   the UI location to start the tool
 
 -   [CLI](/genaiscript/reference/cli) files arguments.
