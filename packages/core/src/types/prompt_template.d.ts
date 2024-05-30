@@ -96,24 +96,6 @@ type PromptOutputProcessorHandler = (
     | undefined
     | Promise<undefined>
 
-interface UrlAdapter {
-    contentType?: "text/plain" | "application/json"
-
-    /**
-     * Given a friendly URL, return a URL that can be used to fetch the content.
-     * @param url
-     * @returns
-     */
-    matcher: (url: string) => string
-
-    /**
-     * Convers the body of the response to a string.
-     * @param body
-     * @returns
-     */
-    adapter?: (body: string | any) => string | undefined
-}
-
 type PromptTemplateResponseType = "json_object" | undefined
 
 interface ModelConnectionOptions {
@@ -193,11 +175,6 @@ interface ScriptRuntimeOptions {
      * JSON object schema for the output. Enables the `JSON` output mode.
      */
     responseSchema?: JSONSchemaObject
-
-    /**
-     * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
-     */
-    urlAdapters?: UrlAdapter[]
 
     /**
      * Secrets required by the prompt

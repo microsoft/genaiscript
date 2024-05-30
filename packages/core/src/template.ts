@@ -268,7 +268,6 @@ export async function parsePromptTemplate(
             c.checkString("group")
 
             c.checkBool("isSystem")
-            c.checkObjectArray("urlAdapters")
             c.checkRecord("parameters")
             c.checkRecord("vars")
             c.checkStringArray("secrets")

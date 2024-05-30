@@ -5,7 +5,6 @@ import { arrayify, assert, logVerbose, relativePath, unique } from "./util"
 import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
-import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
@@ -39,57 +38,10 @@ async function resolveExpansionVars(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
     for (const filename of filenames) {
-        // what about URLs?
-        if (HTTPS_REGEX.test(filename)) {
-            if (!files.find((lk) => lk.filename === filename)) {
-                let content: string = ""
-                try {
-                    const urlAdapters = defaultUrlAdapters.concat(
-                        template.urlAdapters ?? []
-                    )
-                    let url = filename
-                    let adapter: UrlAdapter = undefined
-                    for (const a of urlAdapters) {
-                        const newUrl = a.matcher(url)
-                        if (newUrl) {
-                            url = newUrl
-                            adapter = a
-                            break
-                        }
-                    }
-                    trace.item(`fetch ${url}`)
-                    const fetch = await createFetch()
-                    const resp = await fetch(url, {
-                        headers: {
-                            "Content-Type":
-                                adapter?.contentType ?? "text/plain",
-                        },
-                    })
-                    trace.itemValue(
-                        `status`,
-                        `${resp.status}, ${resp.statusText}`
-                    )
-                    if (resp.ok)
-                        content =
-                            adapter?.contentType === "application/json"
-                                ? adapter.adapter(await resp.json())
-                                : await resp.text()
-                } catch (e) {
-                    trace.error(`fetch def error`, e)
-                }
-                files.push({
-                    filename,
-                    content,
-                })
-            }
-        } else {
-            // check for existing file
-            const fn = relativePath(host.projectFolder(), filename)
-            if (files.find((lk) => lk.filename === fn)) continue
-            const file: WorkspaceFile = { filename }
-            await resolveFileContent(file)
-            files.push(file)
-        }
+        if (files.find((lk) => lk.filename === filename)) continue
+        const file: WorkspaceFile = { filename }
+        await resolveFileContent(file)
+        files.push(file)
     }
 
     const attrs = parsePromptParameters(project, template, vars)
