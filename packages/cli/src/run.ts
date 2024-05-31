@@ -58,7 +58,7 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
-        outPullRequestComment: string
+        outPullRequestComment: boolean
         outData: string
         label: string
         temperature: string
