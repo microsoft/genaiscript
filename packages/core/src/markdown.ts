@@ -1,7 +1,7 @@
 import { convertAnnotationsToMarkdown } from "./annotations"
 import { trimNewlines } from "./util"
 
-export function pretifyMarkdown(md: string) {
+export function prettifyMarkdown(md: string) {
     let res = md
     res = convertAnnotationsToMarkdown(res)
     return res

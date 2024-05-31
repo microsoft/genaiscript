@@ -40,6 +40,6 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:phi3 --out ./temp -ghc
+              run: yarn test:summarize --model ollama:phi3 --out ./temp -ghc ollama
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -10,6 +10,7 @@ import {
     UNHANDLED_ERROR_CODE,
     errorMessage,
     dotGenaiscriptPath,
+    GITHUB_COMMENT_ID_NONE,
 } from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
@@ -101,8 +102,9 @@ export async function cli() {
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option(
-            "-ghc, --github-comment",
-            "create github comment on a pull request or commit with output"
+            "-ghc, --github-comment [string]",
+            "create github comment on a pull request or commit with output. Use commentid to upsert comment.",
+            GITHUB_COMMENT_ID_NONE
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
