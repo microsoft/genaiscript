@@ -1,5 +1,7 @@
 script({
     tests: {},
+    model: "openai:gpt-3.5-turbo",
+    files: "src/cities.md"
 })
 
 // JSON schema to constrain the output of the tool.

@@ -13,19 +13,46 @@ import { CSVToMarkdown, CSVTryParse } from "./csv"
 import {
     CSV_REGEX,
     DOCX_REGEX,
+    HTTPS_REGEX,
     PDF_REGEX,
     XLSX_REGEX,
 } from "./constants"
+import { UrlAdapter, defaultUrlAdapters } from "./urlAdapters"
 import { tidyData } from "./tidy"
 
 export async function resolveFileContent(
     file: WorkspaceFile,
     options?: TraceOptions
 ) {
+    const { trace } = options || {}
     const { filename } = file
     if (file.content) return file
 
-    if (PDF_REGEX.test(filename)) {
+    if (HTTPS_REGEX.test(filename)) {
+        let url = filename
+        let adapter: UrlAdapter = undefined
+        for (const a of defaultUrlAdapters) {
+            const newUrl = a.matcher(url)
+            if (newUrl) {
+                url = newUrl
+                adapter = a
+                break
+            }
+        }
+        trace?.item(`fetch ${url}`)
+        const fetch = await createFetch()
+        const resp = await fetch(url, {
+            headers: {
+                "Content-Type": adapter?.contentType ?? "text/plain",
+            },
+        })
+        trace?.itemValue(`status`, `${resp.status}, ${resp.statusText}`)
+        if (resp.ok)
+            file.content =
+                adapter?.contentType === "application/json"
+                    ? adapter.adapter(await resp.json())
+                    : await resp.text()
+    } else if (PDF_REGEX.test(filename)) {
         const { content } = await parsePdf(filename, options)
         file.content = content
     } else if (DOCX_REGEX.test(filename)) {

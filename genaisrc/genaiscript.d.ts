@@ -96,24 +96,6 @@ type PromptOutputProcessorHandler = (
     | undefined
     | Promise<undefined>
 
-interface UrlAdapter {
-    contentType?: "text/plain" | "application/json"
-
-    /**
-     * Given a friendly URL, return a URL that can be used to fetch the content.
-     * @param url
-     * @returns
-     */
-    matcher: (url: string) => string
-
-    /**
-     * Convers the body of the response to a string.
-     * @param body
-     * @returns
-     */
-    adapter?: (body: string | any) => string | undefined
-}
-
 type PromptTemplateResponseType = "json_object" | undefined
 
 interface ModelConnectionOptions {
@@ -230,11 +212,6 @@ interface ScriptRuntimeOptions {
     responseSchema?: JSONSchemaObject
 
     /**
-     * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
-     */
-    urlAdapters?: UrlAdapter[]
-
-    /**
      * Secrets required by the prompt
      */
     secrets?: string[]
@@ -349,6 +326,12 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
      * Additional template parameters that will populate `env.vars`
      */
     parameters?: PromptParametersSchema
+
+    /**
+     * A file path or list of file paths or globs. 
+     * The content of these files will be by the files selected in the UI by the user or the cli arguments.
+     */
+    files?: string | string[]
 
     /**
      * Extra variable values that can be used to configure system prompts.
@@ -564,6 +547,7 @@ type PromptSystemArgs = Omit<
     | "tests"
     | "responseType"
     | "responseSchema"
+    | "files"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -1243,7 +1227,7 @@ interface RunPromptOptions extends ModelOptions {
     /**
      * Label for trace
      */
-    label?:string
+    label?: string
 }
 
 // keep in sync with prompt_type.d.ts

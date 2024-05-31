@@ -221,7 +221,7 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     note(msg: string) {
-        this.content += `\n> [!INFO] ${msg}\n`
+        this.content += `\n> [!NOTE] ${msg}\n`
     }
 
     files(

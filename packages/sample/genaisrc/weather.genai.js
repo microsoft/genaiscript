@@ -1,8 +1,10 @@
 script({
+    model: "openai:gpt-3.5-turbo",
     title: "Weather as function",
     description:
         "Query the weather for each city using a dummy weather function",
     temperature: 0.5,
+    files: "src/cities.md",
     tests: {
         files: "src/cities.md",
         keywords: "Brussels",

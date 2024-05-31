@@ -264,10 +264,10 @@ export async function parsePromptTemplate(
             c.checkNumber("seed")
 
             c.checkStringArray("system")
+            c.checkStringArray("files")
             c.checkString("group")
 
             c.checkBool("isSystem")
-            c.checkObjectArray("urlAdapters")
             c.checkRecord("parameters")
             c.checkRecord("vars")
             c.checkStringArray("secrets")

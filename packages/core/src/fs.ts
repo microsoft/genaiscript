@@ -109,8 +109,12 @@ export function createFileSystem(): WorkspaceFileSystem {
 export async function expandFiles(files: string[], excludedFiles?: string[]) {
     const res = new Set<string>()
     for (const file of files) {
-        const fs = await host.findFiles(file)
-        for (const f of fs) res.add(f)
+        if (HTTPS_REGEX.test(file)) res.add(file)
+        // is this a glob?
+        else if (/(\*|\{|\?|\[)/.test(file)) {
+            const fs = await host.findFiles(file)
+            for (const f of fs) res.add(f)
+        } else res.add(file)
     }
 
     if (excludedFiles?.length) {

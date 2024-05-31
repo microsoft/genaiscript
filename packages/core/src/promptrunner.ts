@@ -1,15 +1,14 @@
 import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
-import { assert, logVerbose, relativePath } from "./util"
+import { arrayify, assert, logVerbose, relativePath, unique } from "./util"
 import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
-import { defaultUrlAdapters } from "./urlAdapters"
 import { MarkdownTrace } from "./trace"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
-import { fileExists, readText } from "./fs"
+import { expandFiles, fileExists, readText, tryReadText } from "./fs"
 import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
@@ -20,6 +19,7 @@ import { createFetch } from "./fetch"
 import { unquote } from "./fence"
 import { HTTPS_REGEX } from "./constants"
 import { parsePromptParameters } from "./parameters"
+import { resolveFileContent } from "./file"
 
 async function resolveExpansionVars(
     trace: MarkdownTrace,
@@ -30,71 +30,20 @@ async function resolveExpansionVars(
     const { file } = frag
     const project = file.project
 
-    const fetch = await createFetch()
     const files: WorkspaceFile[] = []
     const fr = frag
-    for (const ref of fr.references) {
-        // what about URLs?
-        if (HTTPS_REGEX.test(ref.filename)) {
-            if (!files.find((lk) => lk.filename === ref.filename)) {
-                let content: string = ""
-                try {
-                    const urlAdapters = defaultUrlAdapters.concat(
-                        template.urlAdapters ?? []
-                    )
-                    let url = ref.filename
-                    let adapter: UrlAdapter = undefined
-                    for (const a of urlAdapters) {
-                        const newUrl = a.matcher(url)
-                        if (newUrl) {
-                            url = newUrl
-                            adapter = a
-                            break
-                        }
-                    }
-                    trace.item(`fetch ${url}`)
-                    const resp = await fetch(url, {
-                        headers: {
-                            "Content-Type":
-                                adapter?.contentType ?? "text/plain",
-                        },
-                    })
-                    trace.itemValue(
-                        `status`,
-                        `${resp.status}, ${resp.statusText}`
-                    )
-                    if (resp.ok)
-                        content =
-                            adapter?.contentType === "application/json"
-                                ? adapter.adapter(await resp.json())
-                                : await resp.text()
-                } catch (e) {
-                    trace.error(`fetch def error`, e)
-                }
-                files.push({
-                    filename: ref.filename,
-                    content,
-                })
-            }
-            continue
-        }
-
-        // check for existing file
-        const projectFile = project.allFiles.find(
-            (f) => f.filename === ref.filename
-        )
-        if (!projectFile) {
-            trace.error(`reference ${ref.filename} not found`)
-            continue
-        }
-
-        const fn = relativePath(host.projectFolder(), projectFile.filename)
-        if (!files.find((lk) => lk.filename === fn))
-            files.push({
-                filename: fn,
-                content: projectFile.content,
-            })
+    const templateFiles = arrayify(template.files)
+    const referenceFiles = fr.references.map(({ filename }) => filename)
+    const filenames = await expandFiles(
+        referenceFiles?.length ? referenceFiles : templateFiles
+    )
+    for (const filename of filenames) {
+        if (files.find((lk) => lk.filename === filename)) continue
+        const file: WorkspaceFile = { filename }
+        await resolveFileContent(file)
+        files.push(file)
     }
+
     const attrs = parsePromptParameters(project, template, vars)
     const secrets: Record<string, string> = {}
     for (const secret of template.secrets || []) {
