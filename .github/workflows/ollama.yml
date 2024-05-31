@@ -4,6 +4,7 @@ on:
     pull_request:
         paths:
             - yarn.lock
+            - ".github/workflows/ollama.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
@@ -12,6 +13,7 @@ on:
             - main
         paths:
             - yarn.lock
+            - ".github/workflows/ollama.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
@@ -39,3 +41,5 @@ jobs:
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
               run: yarn test:summarize --model ollama:phi3 --out ./temp -oprc
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
