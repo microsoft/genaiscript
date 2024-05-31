@@ -29,6 +29,7 @@ async function resolveExpansionVars(
 ) {
     const { file } = frag
     const project = file.project
+    const root = host.projectFolder()
 
     const files: WorkspaceFile[] = []
     const fr = frag
@@ -37,7 +38,9 @@ async function resolveExpansionVars(
     const filenames = await expandFiles(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
-    for (const filename of filenames) {
+    for (let filename of filenames) {
+        filename = relativePath(root, filename)
+
         if (files.find((lk) => lk.filename === filename)) continue
         const file: WorkspaceFile = { filename }
         await resolveFileContent(file)
