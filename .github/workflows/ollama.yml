@@ -46,7 +46,7 @@ jobs:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const fs = require('fs/promises');
-                      const comment = await fs.readFile('./temp/res.output.md', 'utf8');
+                      const comment = await fs.readFile('./temp/res.trace.md', 'utf8');
                       await github.rest.issues.createComment({
                         issue_number: context.issue.number,
                         owner: context.repo.owner,
