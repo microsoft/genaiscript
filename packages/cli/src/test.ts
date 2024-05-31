@@ -121,7 +121,13 @@ export async function runPromptScriptTests(
     logVerbose(`running tests with promptfoo`)
     await ensureDir(PROMPTFOO_CACHE_PATH)
     await ensureDir(PROMPTFOO_CONFIG_DIR)
-    if (outSummary) await ensureDir(basename(resolve(outSummary)))
+    if (outSummary) {
+        await ensureDir(basename(resolve(outSummary)))
+        await appendFile(outSummary, 
+            `## GenAIScript test results
+
+`)
+    }
 
     const results: PromptScriptTestResult[] = []
     for (const config of configurations) {
