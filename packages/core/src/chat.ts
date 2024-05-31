@@ -480,8 +480,8 @@ export async function executeChatSession(
 
         let genVars: Record<string, string>
         while (true) {
+            trace.detailsFenced(`💬 messages`, messages, "yaml")
             trace.startDetails(`📤 llm request (${messages.length} messages)`)
-            trace.detailsFenced(`💬 messages`, messages, "json")
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)

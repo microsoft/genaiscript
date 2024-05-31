@@ -1,9 +1,13 @@
 script({
     system: [],
+    files: "src/xpai/write-a-poem.txt",
 })
 
-const file = await workspace.readText("src/xpai/write-a-poem.txt")
+const file = env.files[0]
 
 $`Translate the following text from English to French:
 
-> ${file.content}`
+\`\`\`
+${file.content}
+\`\`\`
+`
