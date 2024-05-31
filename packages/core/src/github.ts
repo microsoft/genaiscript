@@ -1,3 +1,8 @@
+import { GITHUB_API_VERSION } from "./constants"
+import { createFetch } from "./fetch"
+import { host } from "./host"
+import { TraceOptions } from "./trace"
+
 export interface GithubConnectionInfo {
     auth: string
     baseUrl?: string
@@ -20,5 +25,39 @@ export function parseGHTokenFromEnv(
         baseUrl,
         owner,
         repo,
+    }
+}
+
+export interface GitHubComment {
+    id: string
+    html_url: string
+    body: string
+}
+
+// https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
+export async function createComment(
+    options: {
+        repository: string
+        issue: number
+        body: string
+    } & TraceOptions
+): Promise<GitHubComment> {
+    const { repository, issue, body, trace } = options
+    const fetch = await createFetch({ trace })
+    const token = await host.readSecret("GITHUB_TOKEN")
+    const url = `https://api.github.com/repos/${repository}/issues/${issue}/comments`
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    })
+    return (await res.json()) as {
+        id: string
+        html_url: string
+        body: string
     }
 }
