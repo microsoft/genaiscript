@@ -124,7 +124,7 @@ export async function runPromptScriptTests(
     if (outSummary) {
         await ensureDir(basename(resolve(outSummary)))
         await appendFile(outSummary, 
-            `## GenAIScript test results
+            `## GenAIScript Test Results
 
 `)
     }
