@@ -24,7 +24,8 @@
         "promptfoo",
         "treesitter",
         "typecheck",
-        "vsix"
+        "vsix",
+        "xpai"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",
     "cSpell.language": "en,en-US",
