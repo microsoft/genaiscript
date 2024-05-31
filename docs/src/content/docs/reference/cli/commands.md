@@ -28,8 +28,9 @@ Options:
                                      rendered as csv, .jsonl/ndjson will be
                                      aggregated)
   -ocl, --out-changelog <string>     output file for changelogs
-  -ghc, --github-comment             create github comment on a pull request or
-                                     commit with output
+  -ghc, --github-comment [string]    create github comment on a pull request or
+                                     commit with output. Use commentid to
+                                     upsert comment. (default: "none")
   -j, --json                         emit full JSON response to output
   -y, --yaml                         emit full YAML response to output
   -p, --prompt                       dry run, don't execute LLM and return

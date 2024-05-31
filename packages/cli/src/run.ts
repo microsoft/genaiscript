@@ -34,6 +34,7 @@ import {
     parseGHTokenFromEnv,
     githubCreateIssueComment,
     pretifyMarkdown,
+    GITHUB_COMMENT_ID_NONE,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -58,7 +59,7 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
-        githubComment: boolean
+        githubComment: string
         outData: string
         label: string
         temperature: string
@@ -366,7 +367,10 @@ ${Array.from(files)
         if (info.repository && info.issue) {
             const ghres = await githubCreateIssueComment(
                 info,
-                pretifyMarkdown(res.text)
+                pretifyMarkdown(res.text),
+                gitHubComment !== GITHUB_COMMENT_ID_NONE
+                    ? gitHubComment
+                    : undefined
             )
             if (!ghres.created) {
                 logError(

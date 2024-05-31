@@ -42,9 +42,10 @@ export function parseGHTokenFromEnv(
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateIssueComment(
     info: GithubConnectionInfo,
-    body: string
+    body: string,
+    commentTag?: string
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
-    const { apiUrl, repository, issue, sha } = info
+    const { apiUrl, repository, issue } = info
 
     if (!issue) return { created: false, statusText: "missing issue or sha" }
 
@@ -54,15 +55,48 @@ export async function githubCreateIssueComment(
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
 
-    const res = await fetch(url, {
-        method: "POST",
-        headers: {
-            Accept: "application/vnd.github+json",
-            Authorization: `Bearer ${token}`,
-            "X-GitHub-Api-Version": GITHUB_API_VERSION,
-        },
-        body: JSON.stringify({ body }),
-    })
+    let res: Awaited<ReturnType<typeof fetch>>
+    if (commentTag) {
+        const tag = `<!-- genaiscript ${commentTag} -->`
+        body = `${body}\n\n${tag}\n\n`
+        // try to find the existing comment
+        const resListComments = await fetch(`${url}?per_page=100`, {
+            headers: {
+                Accept: "application/vnd.github+json",
+                Authorization: `Bearer ${token}`,
+                "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            },
+        })
+        if (resListComments.status !== 200)
+            return { created: false, statusText: resListComments.statusText }
+        const comments = (await resListComments.json()) as {
+            id: string
+            body: string
+        }[]
+        const comment = comments.find((c) => c.body.includes(tag))
+        if (comment) {
+            res = await fetch(`${url}/${comment.id}`, {
+                method: "PATCH",
+                headers: {
+                    Accept: "application/vnd.github+json",
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                },
+                body: JSON.stringify({ body }),
+            })
+        }
+    }
+
+    if (!res)
+        res = await fetch(url, {
+            method: "POST",
+            headers: {
+                Accept: "application/vnd.github+json",
+                Authorization: `Bearer ${token}`,
+                "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            },
+            body: JSON.stringify({ body }),
+        })
     const resp: { id: string; html_url: string } = await res.json()
     return {
         created: res.status === 201,
