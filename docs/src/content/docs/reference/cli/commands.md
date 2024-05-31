@@ -28,7 +28,7 @@ Options:
                                      rendered as csv, .jsonl/ndjson will be
                                      aggregated)
   -ocl, --out-changelog <string>     output file for changelogs
-  -oghc, --out-github-comment        create github comment on a pull request or
+  -ghc, --github-comment             create github comment on a pull request or
                                      commit with output
   -j, --json                         emit full JSON response to output
   -y, --yaml                         emit full YAML response to output
