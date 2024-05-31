@@ -55,7 +55,6 @@ export async function githubCreateIssueComment(
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
 
-    let res: Awaited<ReturnType<typeof fetch>>
     if (commentTag) {
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
@@ -75,28 +74,26 @@ export async function githubCreateIssueComment(
         }[]
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
-            res = await fetch(`${url}/${comment.id}`, {
-                method: "PATCH",
+            await fetch(`${url}/${comment.id}`, {
+                method: "DELETE",
                 headers: {
                     Accept: "application/vnd.github+json",
                     Authorization: `Bearer ${token}`,
                     "X-GitHub-Api-Version": GITHUB_API_VERSION,
                 },
-                body: JSON.stringify({ body }),
             })
         }
     }
 
-    if (!res)
-        res = await fetch(url, {
-            method: "POST",
-            headers: {
-                Accept: "application/vnd.github+json",
-                Authorization: `Bearer ${token}`,
-                "X-GitHub-Api-Version": GITHUB_API_VERSION,
-            },
-            body: JSON.stringify({ body }),
-        })
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    })
     const resp: { id: string; html_url: string } = await res.json()
     return {
         created: res.status === 201,
