@@ -198,7 +198,8 @@ ${v}
 \`\`\`\`\`
 ${
     validation?.error
-        ? `> [!CAUTION] Schema ${args.schema} validation errors
+        ? `> [!CAUTION] 
+> Schema ${args.schema} validation errors
 ${validation.error.split("\n").join("\n> ")}`
         : ""
 }
