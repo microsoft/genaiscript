@@ -33,6 +33,7 @@ import {
     CLI_RUN_FILES_FOLDER,
     parseGHTokenFromEnv,
     githubCreateComment,
+    pretifyMarkdown,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -41,7 +42,6 @@ import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
-import { githubInfoFromEnv } from "./github"
 
 export async function runScript(
     tool: string,
@@ -270,7 +270,10 @@ ${Array.from(files)
     if (outPullRequestComment) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue !== undefined) {
-            const ghres = await githubCreateComment(info, res.text)
+            const ghres = await githubCreateComment(
+                info,
+                pretifyMarkdown(res.text)
+            )
             logVerbose(`pull request comment created at ${ghres.html_url}`)
         }
     }
