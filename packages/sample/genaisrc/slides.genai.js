@@ -3,6 +3,7 @@ script({
     description:
         "Generate a slidedeck in markdown. Install extension 'vscode-reveal'.",
     group: "samples",
+    model: "openai:gpt-3.5-turbo",
     temperature: 0.1,
     tests: {
         files: ["src/greeter.ts"],
