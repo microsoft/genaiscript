@@ -31,6 +31,9 @@ import {
     JSONSchemaStringify,
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
+    parseGHTokenFromEnv,
+    githubCreateComment,
+    pretifyMarkdown,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -55,6 +58,7 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
+        outPullRequestComment: boolean
         outData: string
         label: string
         temperature: string
@@ -83,6 +87,7 @@ export async function runScript(
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
+    const outPullRequestComment = options.outPullRequestComment
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -343,13 +348,35 @@ ${Array.from(files)
             const rel = relative(process.cwd(), filename)
             const isAbsolutePath = resolve(rel) === rel
             if (!isAbsolutePath)
-                await writeText(join(out, CLI_RUN_FILES_FOLDER, rel), edits.after)
+                await writeText(
+                    join(out, CLI_RUN_FILES_FOLDER, rel),
+                    edits.after
+                )
         }
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
         if (options.yaml) console.log(YAMLStringify(res))
         if (options.prompt && promptjson) {
             console.log(promptjson)
+        }
+    }
+
+    if (outPullRequestComment && res.text) {
+        const info = parseGHTokenFromEnv(process.env)
+        if (info.repository && info.issue !== undefined) {
+            const ghres = await githubCreateComment(
+                info,
+                pretifyMarkdown(res.text)
+            )
+            if (!ghres.created) {
+                logError(
+                    `pull request ${info.repository}/pull/${info.issue} comment failed ${ghres.statusText}`
+                )
+                process.exit(CONFIGURATION_ERROR_CODE)
+            }
+            logVerbose(
+                `pull request ${info.repository}/pull/${info.issue} comment created at ${ghres.html_url}`
+            )
         }
     }
 

@@ -100,6 +100,10 @@ export async function cli() {
             "output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)"
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
+        .option(
+            "-oprc, --out-pull-request-comment",
+            "create github comment on pull request with output"
+        )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
         .option(
