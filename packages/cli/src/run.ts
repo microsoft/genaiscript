@@ -271,7 +271,7 @@ ${Array.from(files)
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue !== undefined) {
             const ghres = await githubCreateComment(info, res.text)
-            logVerbose(`comment created at ${ghres.html_url}`)
+            logVerbose(`pull request comment created at ${ghres.html_url}`)
         }
     }
 

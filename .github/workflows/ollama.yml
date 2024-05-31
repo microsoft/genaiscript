@@ -38,18 +38,4 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:phi3 --out ./temp
-            - name: Add comment to PR
-              uses: actions/github-script@v5
-              if: github.event_name == 'pull_request'
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  script: |
-                      const fs = require('fs/promises');
-                      const comment = await fs.readFile('./temp/res.trace.md', 'utf8');
-                      await github.rest.issues.createComment({
-                        issue_number: context.issue.number,
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        body: comment
-                      })
+              run: yarn test:summarize --model ollama:phi3 --out ./temp -oprc
