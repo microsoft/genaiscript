@@ -18,8 +18,8 @@ on:
             - "packages/cli/**/*"
             - "packages/samples/**/*"
 permissions:
-    issues: write
     pull-requests: write
+    contents: read
 jobs:
     tests:
         runs-on: ubuntu-latest
