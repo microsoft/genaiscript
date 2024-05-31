@@ -15,7 +15,8 @@ on:
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
-
+permissions:
+    issues: write
 jobs:
     tests:
         runs-on: ubuntu-latest
