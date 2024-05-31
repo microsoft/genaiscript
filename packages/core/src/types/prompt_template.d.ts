@@ -276,6 +276,10 @@ interface PromptTest {
      */
     keywords?: string | string[]
     /**
+     * List of keywords that should not be contained in the LLM output. 
+     */
+    forbidden?: string | string[]
+    /**
      * Additional deterministic assertions.
      */
     asserts?: PromptAssertion | PromptAssertion[]

@@ -90,6 +90,7 @@ export function generatePromptFooConfiguration(
                 rubrics,
                 facts,
                 keywords = [],
+                forbidden = [],
                 asserts = [],
             }) => ({
                 description,
@@ -100,6 +101,11 @@ export function generatePromptFooConfiguration(
                 assert: [
                     ...arrayify(keywords).map((kv) => ({
                         type: "icontains",
+                        value: kv,
+                        transform,
+                    })),
+                    ...arrayify(forbidden).map((kv) => ({
+                        type: "not-icontains",
                         value: kv,
                         transform,
                     })),
