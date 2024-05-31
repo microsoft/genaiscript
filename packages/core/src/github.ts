@@ -1,7 +1,7 @@
 import { GITHUB_API_VERSION } from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { normalizeInt } from "./util"
 
 export interface GithubConnectionInfo {
     auth: string
@@ -21,9 +21,8 @@ export function parseGHTokenFromEnv(
     const repository = env.GITHUB_REPOSITORY
     const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
     const ref = env.GITHUB_REF
-    const issue = parseInt(
-        /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue ||
-            ""
+    const issue = normalizeInt(
+        /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
 
     return {
