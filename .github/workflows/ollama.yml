@@ -2,7 +2,6 @@ name: ollama smoke tests
 on:
     workflow_dispatch:
     push:
-        branches: [main]
         paths:
             - yarn.lock
             - "packages/core/**/*"
