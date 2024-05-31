@@ -1,6 +1,12 @@
 name: ollama smoke tests
 on:
     workflow_dispatch:
+    pull_request:
+        paths:
+            - yarn.lock
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
     push:
         paths:
             - yarn.lock
