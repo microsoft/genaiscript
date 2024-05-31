@@ -267,18 +267,6 @@ ${Array.from(files)
         if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
         else await writeText(outData, JSON.stringify(res.frames, null, 2))
 
-    if (outPullRequestComment) {
-        const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.issue !== undefined) {
-            const ghres = await githubCreateComment(
-                info,
-                pretifyMarkdown(res.text)
-            )
-            if (!ghres.created) logError(`pull request comment failed ${ghres.statusText}`)
-            else logVerbose(`pull request comment created at ${ghres.html_url}`)
-        }
-    }
-
     if (
         applyEdits &&
         res.status === "success" &&
@@ -370,6 +358,25 @@ ${Array.from(files)
         if (options.yaml) console.log(YAMLStringify(res))
         if (options.prompt && promptjson) {
             console.log(promptjson)
+        }
+    }
+
+    if (outPullRequestComment && res.text) {
+        const info = parseGHTokenFromEnv(process.env)
+        if (info.repository && info.issue !== undefined) {
+            const ghres = await githubCreateComment(
+                info,
+                pretifyMarkdown(res.text)
+            )
+            if (!ghres.created) {
+                logError(
+                    `pull request ${info.repository}/pull/${info.issue} comment failed ${ghres.statusText}`
+                )
+                process.exit(CONFIGURATION_ERROR_CODE)
+            }
+            logVerbose(
+                `pull request ${info.repository}/pull/${info.issue} comment created at ${ghres.html_url}`
+            )
         }
     }
 
