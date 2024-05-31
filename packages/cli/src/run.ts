@@ -365,4 +365,5 @@ ${Array.from(files)
     }
 
     spinner?.stop()
+    process.stderr.write("\n")
 }

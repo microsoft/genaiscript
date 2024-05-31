@@ -163,7 +163,7 @@ interface ModelOptions extends ModelConnectionOptions {
 interface ScriptRuntimeOptions {
 /**
 * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
-* - `system`: Markdown system prompt
+* - `system`: Base system prompt
 * - `system.annotations`: Emits annotations compatible with GitHub Actions
 * - `system.changelog`: Generate changelog formatter edits
 * - `system.diff`: Generates concise file diffs.
