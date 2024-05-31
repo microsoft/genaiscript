@@ -112,7 +112,7 @@ export async function expandFiles(files: string[], excludedFiles?: string[]) {
         .filter((f) => !excludedFiles?.includes(f))
     const others = await host.findFiles(
         files.filter((f) => !HTTPS_REGEX.test(f)),
-        excludedFiles.filter((f) => !HTTPS_REGEX.test(f))
+        excludedFiles?.filter((f) => !HTTPS_REGEX.test(f))
     )
     return unique([...urls, ...others])
 }
