@@ -28,8 +28,8 @@ Options:
                                      rendered as csv, .jsonl/ndjson will be
                                      aggregated)
   -ocl, --out-changelog <string>     output file for changelogs
-  -oprc, --out-pull-request-comment  create github comment on pull request with
-                                     output
+  -oghc, --out-github-comment        create github comment on a pull request or
+                                     commit with output
   -j, --json                         emit full JSON response to output
   -y, --yaml                         emit full YAML response to output
   -p, --prompt                       dry run, don't execute LLM and return

@@ -58,7 +58,7 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
-        outPullRequestComment: boolean
+        githubComment: boolean
         outData: string
         label: string
         temperature: string
@@ -87,7 +87,7 @@ export async function runScript(
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
-    const outPullRequestComment = options.outPullRequestComment
+    const gitHubComment = options.githubComment
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -361,9 +361,9 @@ ${Array.from(files)
         }
     }
 
-    if (outPullRequestComment && res.text) {
+    if (gitHubComment && res.text) {
         const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.issue !== undefined) {
+        if (info.repository && info.token) {
             const ghres = await githubCreateComment(
                 info,
                 pretifyMarkdown(res.text)

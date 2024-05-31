@@ -4,12 +4,13 @@ import { host } from "./host"
 import { normalizeInt } from "./util"
 
 export interface GithubConnectionInfo {
-    auth: string
-    baseUrl?: string
+    token: string
+    apiUrl?: string
     repository: string
     owner: string
     repo: string
-    ref: string
+    ref?: string
+    sha?: string
     issue?: number
 }
 
@@ -17,21 +18,23 @@ export function parseGHTokenFromEnv(
     env: Record<string, string>
 ): GithubConnectionInfo {
     const token = env.GITHUB_TOKEN
-    const baseUrl = env.GITHUB_API_URL
+    const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
     const repository = env.GITHUB_REPOSITORY
     const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
     const ref = env.GITHUB_REF
+    const sha = env.GITHUB_SHA
     const issue = normalizeInt(
         /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
     )
 
     return {
-        auth: token,
-        baseUrl,
+        token,
+        apiUrl,
         repository,
         owner,
         repo,
         ref,
+        sha,
         issue,
     }
 }
@@ -40,11 +43,20 @@ export function parseGHTokenFromEnv(
 export async function githubCreateComment(
     info: GithubConnectionInfo,
     body: string
-) {
-    const { repository, issue } = info
-    const fetch = await createFetch()
+): Promise<{ created: boolean; statusText: string; html_url?: string }> {
+    const { apiUrl, repository, issue, sha } = info
+
+    if (!issue && !sha)
+        return { created: false, statusText: "missing issue or sha" }
+
     const token = await host.readSecret("GITHUB_TOKEN")
-    const url = `https://api.github.com/repos/${repository}/issues/${issue}/comments`
+    if (!token) return { created: false, statusText: "missing token" }
+
+    const fetch = await createFetch()
+    const url = issue
+        ? `${apiUrl}/repos/${repository}/issues/${issue}/comments`
+        : `${apiUrl}/repos/${repository}/commits/${sha}/comments`
+
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -57,8 +69,7 @@ export async function githubCreateComment(
     const resp: { id: string; html_url: string } = await res.json()
     return {
         created: res.status === 201,
-        status: res.status,
         statusText: res.statusText,
-        ...resp,
+        html_url: resp.html_url,
     }
 }

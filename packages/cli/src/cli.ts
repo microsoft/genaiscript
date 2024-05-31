@@ -101,8 +101,8 @@ export async function cli() {
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option(
-            "-oprc, --out-pull-request-comment",
-            "create github comment on pull request with output"
+            "-ghc, --github-comment",
+            "create github comment on a pull request or commit with output"
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
