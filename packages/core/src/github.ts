@@ -40,22 +40,19 @@ export function parseGHTokenFromEnv(
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
-export async function githubCreateComment(
+export async function githubCreateIssueComment(
     info: GithubConnectionInfo,
     body: string
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { apiUrl, repository, issue, sha } = info
 
-    if (!issue && !sha)
-        return { created: false, statusText: "missing issue or sha" }
+    if (!issue) return { created: false, statusText: "missing issue or sha" }
 
     const token = await host.readSecret("GITHUB_TOKEN")
     if (!token) return { created: false, statusText: "missing token" }
 
     const fetch = await createFetch()
-    const url = issue
-        ? `${apiUrl}/repos/${repository}/issues/${issue}/comments`
-        : `${apiUrl}/repos/${repository}/commits/${sha}/comments`
+    const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
 
     const res = await fetch(url, {
         method: "POST",

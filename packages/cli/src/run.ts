@@ -32,7 +32,7 @@ import {
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
     parseGHTokenFromEnv,
-    githubCreateComment,
+    githubCreateIssueComment,
     pretifyMarkdown,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
@@ -363,8 +363,8 @@ ${Array.from(files)
 
     if (gitHubComment && res.text) {
         const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.token) {
-            const ghres = await githubCreateComment(
+        if (info.repository && info.issue) {
+            const ghres = await githubCreateIssueComment(
                 info,
                 pretifyMarkdown(res.text)
             )
