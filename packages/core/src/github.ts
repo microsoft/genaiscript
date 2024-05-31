@@ -1,30 +1,39 @@
 import { GITHUB_API_VERSION } from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
-import { TraceOptions } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 
 export interface GithubConnectionInfo {
     auth: string
     baseUrl?: string
+    repository: string
     owner: string
     repo: string
+    ref: string
+    issue?: number
 }
 
 export function parseGHTokenFromEnv(
     env: Record<string, string>
 ): GithubConnectionInfo {
-    const auth = env.GITHUB_TOKEN
-    if (!auth) throw new Error("GITHUB_TOKEN is not set in the environment")
+    const token = env.GITHUB_TOKEN
     const baseUrl = env.GITHUB_API_URL
-    const rep = env.GITHUB_REPOSITORY
-    if (!rep) throw new Error(`GITHUB_REPOSITORY is not set in the environment`)
-    const [owner, repo] = rep.split("/", 2)
+    const repository = env.GITHUB_REPOSITORY
+    const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
+    const ref = env.GITHUB_REF
+    const issue = parseInt(
+        /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue ||
+            ""
+    )
 
     return {
-        auth,
+        auth: token,
         baseUrl,
+        repository,
         owner,
         repo,
+        ref,
+        issue,
     }
 }
 
@@ -35,15 +44,12 @@ export interface GitHubComment {
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
-export async function createComment(
-    options: {
-        repository: string
-        issue: number
-        body: string
-    } & TraceOptions
+export async function githubCreateComment(
+    info: GithubConnectionInfo,
+    body: string
 ): Promise<GitHubComment> {
-    const { repository, issue, body, trace } = options
-    const fetch = await createFetch({ trace })
+    const { repository, issue } = info
+    const fetch = await createFetch()
     const token = await host.readSecret("GITHUB_TOKEN")
     const url = `https://api.github.com/repos/${repository}/issues/${issue}/comments`
     const res = await fetch(url, {

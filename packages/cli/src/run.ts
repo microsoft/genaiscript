@@ -31,6 +31,8 @@ import {
     JSONSchemaStringify,
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
+    parseGHTokenFromEnv,
+    githubCreateComment,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -39,6 +41,7 @@ import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
+import { githubInfoFromEnv } from "./github"
 
 export async function runScript(
     tool: string,
@@ -55,6 +58,7 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
+        outPullRequestComment: string
         outData: string
         label: string
         temperature: string
@@ -83,6 +87,7 @@ export async function runScript(
     const outAnnotations = options.outAnnotations
     const failOnErrors = options.failOnErrors
     const outChangelogs = options.outChangelogs
+    const outPullRequestComment = options.outPullRequestComment
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -262,6 +267,14 @@ ${Array.from(files)
         if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
         else await writeText(outData, JSON.stringify(res.frames, null, 2))
 
+    if (outPullRequestComment) {
+        const info = parseGHTokenFromEnv(process.env)
+        if (info.repository && info.issue !== undefined) {
+            const ghres = await githubCreateComment(info, res.text)
+            logVerbose(`comment created at ${ghres.html_url}`)
+        }
+    }
+
     if (
         applyEdits &&
         res.status === "success" &&
@@ -343,7 +356,10 @@ ${Array.from(files)
             const rel = relative(process.cwd(), filename)
             const isAbsolutePath = resolve(rel) === rel
             if (!isAbsolutePath)
-                await writeText(join(out, CLI_RUN_FILES_FOLDER, rel), edits.after)
+                await writeText(
+                    join(out, CLI_RUN_FILES_FOLDER, rel),
+                    edits.after
+                )
         }
     } else {
         if (options.json) console.log(JSON.stringify(res, null, 2))
