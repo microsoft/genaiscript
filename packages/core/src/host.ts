@@ -146,7 +146,7 @@ export interface Host {
     readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
     deleteFile(name: string): Promise<void>
-    findFiles(glob: string): Promise<string[]>
+    findFiles(pattern: string | string[], ignore?: string | string[]): Promise<string[]>
 
     clearVirtualFiles(): void
     setVirtualFile(name: string, content: string): void
