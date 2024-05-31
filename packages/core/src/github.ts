@@ -37,17 +37,11 @@ export function parseGHTokenFromEnv(
     }
 }
 
-export interface GitHubComment {
-    id: string
-    html_url: string
-    body: string
-}
-
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateComment(
     info: GithubConnectionInfo,
     body: string
-): Promise<GitHubComment> {
+) {
     const { repository, issue } = info
     const fetch = await createFetch()
     const token = await host.readSecret("GITHUB_TOKEN")
@@ -61,9 +55,11 @@ export async function githubCreateComment(
         },
         body: JSON.stringify({ body }),
     })
-    return (await res.json()) as {
-        id: string
-        html_url: string
-        body: string
+    const resp: { id: string; html_url: string } = await res.json()
+    return {
+        created: res.status === 201,
+        status: res.status,
+        statusText: res.statusText,
+        ...resp,
     }
 }

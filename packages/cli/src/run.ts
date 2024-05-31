@@ -274,7 +274,8 @@ ${Array.from(files)
                 info,
                 pretifyMarkdown(res.text)
             )
-            logVerbose(`pull request comment created at ${ghres.html_url}`)
+            if (!ghres.created) logError(`pull request comment failed ${ghres.statusText}`)
+            else logVerbose(`pull request comment created at ${ghres.html_url}`)
         }
     }
 
