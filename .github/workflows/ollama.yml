@@ -17,6 +17,7 @@ on:
             - "packages/samples/**/*"
 permissions:
     issues: write
+    pull-requests: write
 jobs:
     tests:
         runs-on: ubuntu-latest
