@@ -44,6 +44,7 @@ function parseModelSpec(m: string): ModelOptions {
     else return { model: m }
 }
 
+// special handling of azure ai
 async function resolveTestProvider(script: PromptScript) {
     const token = await host.getLanguageModelConfiguration(script.model)
     if (token && token.type === "azure") return token.base
