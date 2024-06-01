@@ -7,7 +7,7 @@ script({
         "system.typescript",
         "system.fs_find_files",
         "system.fs_read_file",
-        "system.annotations"
+        "system.annotations",
     ],
 })
 const { stdout: changes } = await host.exec("git", [
@@ -28,8 +28,9 @@ an expert in software reliability, security, scalability, and performance.
 
 Review the changes in GIT_DIFF and provide feedback to the author using annotations.
 
-- report errors only, ignore notes and warnings.
+- report errors only, ignore notes and warnings
 - use a friendly tone
 - use emojis
 - read the full source code of the files if you need more context
+- only report issues about code in GIT_DIFF
 `

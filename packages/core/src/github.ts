@@ -1,4 +1,5 @@
-import { GITHUB_API_VERSION } from "./constants"
+import { assert } from "node:console"
+import { GITHUB_API_VERSION, GITHUB_TOKEN } from "./constants"
 import { GenerationResult } from "./expander"
 import { createFetch } from "./fetch"
 import { host } from "./host"
@@ -50,9 +51,8 @@ export async function githubUpsetPullRequest(
     const { apiUrl, repository, issue } = info
 
     if (!issue) return { updated: false, statusText: "missing issue number" }
-
-    const token = await host.readSecret("GITHUB_TOKEN")
-    if (!token) return { updated: false, statusText: "missing token" }
+    const token = await host.readSecret(GITHUB_TOKEN)
+    if (!token) return { updated: false, statusText: "missing github token" }
 
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
@@ -101,14 +101,18 @@ function appendGeneratedComment(script: PromptScript, text: string) {
 }
 
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
-async function githubCreateIssueComment(
+export async function githubCreateIssueComment(
     script: PromptScript,
     info: GithubConnectionInfo,
-    token: string,
     body: string,
     commentTag: string
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { apiUrl, repository, issue } = info
+
+    if (!issue) return { created: false, statusText: "missing issue number" }
+    const token = await host.readSecret(GITHUB_TOKEN)
+    if (!token) return { created: false, statusText: "missing github token" }
+
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
 
@@ -170,6 +174,7 @@ async function githubCreateCommitComment(
     token: string,
     annotation: Diagnostic
 ) {
+    assert(token)
     const { apiUrl, repository, sha } = info
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/commits/${sha}/comments`
@@ -195,44 +200,25 @@ async function githubCreateCommitComment(
     }
 }
 
-export async function githubCreateIssueComments(
+export async function githubCreateCommitComments(
     script: PromptScript,
     info: GithubConnectionInfo,
-    gen: GenerationResult,
-    commentTag: string
+    annotations: Diagnostic[]
 ): Promise<boolean> {
-    const { issue, sha } = info
-    if (!issue) {
-        logError("missing issue number")
+    if (!annotations?.length) return true
+    const { sha } = info
+    if (!sha) {
+        logError("missing commit sha")
         return false
     }
-    const token = await host.readSecret("GITHUB_TOKEN")
+    const token = await host.readSecret(GITHUB_TOKEN)
     if (!token) {
-        logError("missing token")
+        logError("missing github token")
         return false
     }
-    const { text, annotations } = gen
 
-    if (text) {
-        // output text
-        const r = await githubCreateIssueComment(
-            script,
-            info,
-            token,
-            text,
-            commentTag
-        )
-        if (!r.created) {
-            logError(`pull request comment failed ${r.statusText}`)
-            return false
-        }
-        logVerbose(`pull request comment created at ${r.html_url}`)
-    }
-
-    if (annotations?.length && sha) {
-        // code annotations
-        for (const annotation of annotations)
-            await githubCreateCommitComment(script, info, token, annotation)
-    }
+    // code annotations
+    for (const annotation of annotations)
+        await githubCreateCommitComment(script, info, token, annotation)
     return true
 }

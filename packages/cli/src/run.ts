@@ -34,7 +34,8 @@ import {
     parseGHTokenFromEnv,
     prettifyMarkdown,
     githubUpsetPullRequest,
-    githubCreateIssueComments,
+    githubCreateCommitComments,
+    githubCreateIssueComment,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -61,6 +62,7 @@ export async function runScript(
         outChangelogs: string
         pullRequestComment: string
         pullRequestDescription: string
+        commitComments: boolean
         outData: string
         label: string
         temperature: string
@@ -91,6 +93,7 @@ export async function runScript(
     const outChangelogs = options.outChangelogs
     const pullRequestComment = options.pullRequestComment
     const pullRequestDescription = options.pullRequestDescription
+    const commitComments = options.commitComments
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -364,16 +367,28 @@ ${Array.from(files)
         }
     }
 
+    if (commitComments && res.annotations?.length) {
+        const info = parseGHTokenFromEnv(process.env)
+        if (info.repository && info.sha) {
+            const ghres = await githubCreateCommitComments(
+                script,
+                info,
+                res.annotations
+            )
+            if (!ghres) process.exit(CONFIGURATION_ERROR_CODE)
+        }
+    }
+
     if (pullRequestComment && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            const ghres = await githubCreateIssueComments(
+            const ghres = await githubCreateIssueComment(
                 script,
                 info,
-                res,
+                res.text,
                 pullRequestComment
             )
-            if (!ghres) process.exit(CONFIGURATION_ERROR_CODE)
+            if (!ghres.created) process.exit(CONFIGURATION_ERROR_CODE)
         }
     }
 
