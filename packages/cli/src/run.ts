@@ -33,7 +33,7 @@ import {
     CLI_RUN_FILES_FOLDER,
     parseGHTokenFromEnv,
     githubUpsetPullRequest,
-    githubCreateCommitComments,
+    githubCreatePullRequestReviews,
     githubCreateIssueComment,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
@@ -368,9 +368,8 @@ ${Array.from(files)
 
     if (commitComments && res.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.sha) {
-            await githubCreateCommitComments(script, info, res.annotations)
-        }
+        if (info.repository && info.issue && info.sha)
+            await githubCreatePullRequestReviews(script, info, res.annotations)
     }
 
     if (pullRequestComment && res.text) {

@@ -202,16 +202,16 @@ export async function githubCreateIssueComment(
     return r
 }
 
-async function githubCreateCommitComment(
+async function githubCreatePullRequestReview(
     script: PromptScript,
     info: GithubConnectionInfo,
     token: string,
     annotation: Diagnostic
 ) {
     assert(token)
-    const { apiUrl, repository, sha } = info
+    const { apiUrl, repository, issue, sha } = info
     const fetch = await createFetch()
-    const url = `${apiUrl}/repos/${repository}/commits/${sha}/comments`
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -221,8 +221,11 @@ async function githubCreateCommitComment(
         },
         body: JSON.stringify({
             body: appendGeneratedComment(script, info, annotation.message),
+            commit_id: sha,
             path: annotation.filename,
-            position: annotation.range?.[0]?.[0],
+            start_line: annotation.range?.[0]?.[0],
+            line: annotation.range?.[1]?.[0],
+            subject_type: "line",
         }),
     })
     const resp: { id: string; html_url: string } = await res.json()
@@ -238,13 +241,17 @@ async function githubCreateCommitComment(
     return r
 }
 
-export async function githubCreateCommitComments(
+export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: GithubConnectionInfo,
     annotations: Diagnostic[]
 ): Promise<boolean> {
     if (!annotations?.length) return true
-    const { sha } = info
+    const { issue, sha } = info
+    if (!issue) {
+        logError("missing pull request number")
+        return false
+    }
     if (!sha) {
         logError("missing commit sha")
         return false
@@ -257,6 +264,6 @@ export async function githubCreateCommitComments(
 
     // code annotations
     for (const annotation of annotations)
-        await githubCreateCommitComment(script, info, token, annotation)
+        await githubCreatePullRequestReview(script, info, token, annotation)
     return true
 }
