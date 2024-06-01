@@ -194,8 +194,10 @@ export async function githubCreateIssueComment(
         html_url: resp.html_url,
     }
     if (!r.created)
-        logError(`pull request comment creation failed, ${r.statusText}`)
-    else logVerbose(`pull request comment created at ${r.html_url}`)
+        logError(
+            `pull request ${issue} comment creation failed, ${r.statusText}`
+        )
+    else logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
 
     return r
 }
@@ -230,8 +232,9 @@ async function githubCreateCommitComment(
         statusText: res.statusText,
         html_url: resp.html_url,
     }
-    if (!r.created) logError(`commit comment creation failed, ${r.statusText}`)
-    else logVerbose(`commit comment created at ${r.html_url}`)
+    if (!r.created)
+        logError(`commit ${sha} comment creation failed, ${r.statusText}`)
+    else logVerbose(`commit ${sha} comment created at ${r.html_url}`)
     return r
 }
 
