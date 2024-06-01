@@ -1,7 +1,7 @@
 script({
     model: "openai:gpt-4",
     files: [],
-    title: "pr-describe",
+    title: "pull request description",
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
 const { stdout: changes } = await host.exec("git", [
