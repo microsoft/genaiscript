@@ -68,10 +68,12 @@ export async function githubCreateIssueComment(
         })
         if (resListComments.status !== 200)
             return { created: false, statusText: resListComments.statusText }
-        const comments = (await resListComments.json()) as {
-            id: string
-            body: string
-        }[]
+        const { comments } = (await resListComments.json()) as {
+            comments: {
+                id: string
+                body: string
+            }[]
+        }
         const comment = comments.find((c) => c.body.includes(tag))
         console.log({ comments, comment })
         if (comment) {
