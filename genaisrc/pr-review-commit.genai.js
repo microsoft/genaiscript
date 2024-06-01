@@ -1,7 +1,7 @@
 script({
     model: "openai:gpt-4",
     files: [],
-    title: "pull request review",
+    title: "pull request commit review",
     system: [
         "system",
         "system.typescript",
@@ -10,16 +10,12 @@ script({
         "system.annotations",
     ],
 })
-
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "main",
+    "HEAD^",
+    "HEAD",
     "--",
-    ":!**/genaiscript.d.ts",
-    ":!genaisrc/*",
-    ":!.github/*",
-    ":!.vscode/*",
-    ":!yarn.lock",
+    "**.ts",
 ])
 
 def("GIT_DIFF", changes, { maxTokens: 20000 })
@@ -29,7 +25,7 @@ an expert in software reliability, security, scalability, and performance.
 
 ## Task
 
-Review the changes in GIT_DIFF which contains the changes the pull request branch.
+Review the changes in GIT_DIFF which contains the changes of the last commit in the pull request branch.
 Provide feedback to the author using annotations.
 
 Think step by step and for each annotation explain your result.
@@ -40,5 +36,4 @@ Think step by step and for each annotation explain your result.
 - use emojis
 - read the full source code of the files if you need more context
 - only report issues about code in GIT_DIFF
-- if the comment above the line contains "@genai-ignore", do not report errors for that line
 `

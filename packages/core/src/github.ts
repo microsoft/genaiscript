@@ -18,7 +18,7 @@ export interface GithubConnectionInfo {
     issue?: number
     runId?: string
     runUrl?: string
-    pullRequestHeadSha?: string
+    commitSha?: string
 }
 
 export function parseGHTokenFromEnv(
@@ -30,7 +30,7 @@ export function parseGHTokenFromEnv(
     const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
     const ref = env.GITHUB_REF
     const sha = env.GITHUB_SHA
-    const pullRequestHeadSha = env.GITHUB_PULL_REQUEST_HEAD_SHA
+    const commitSha = env.GITHUB_COMMIT_SHA
     const runId = env.GITHUB_RUN_ID
     const serverUrl = env.GITHUB_SERVER_URL
     const runUrl =
@@ -52,7 +52,7 @@ export function parseGHTokenFromEnv(
         issue,
         runId,
         runUrl,
-        pullRequestHeadSha,
+        commitSha,
     }
 }
 
@@ -212,13 +212,13 @@ async function githubCreatePullRequestReview(
     annotation: Diagnostic
 ) {
     assert(token)
-    const { apiUrl, repository, issue, pullRequestHeadSha } = info
+    const { apiUrl, repository, issue, commitSha } = info
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     logVerbose(url)
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
-        commit_id: pullRequestHeadSha,
+        commit_id: commitSha,
         path: annotation.filename,
         line: annotation.range?.[0]?.[0],
         side: "RIGHT",
@@ -241,13 +241,8 @@ async function githubCreatePullRequestReview(
         html_url: resp.html_url,
     }
     if (!r.created)
-        logError(
-            `commit ${pullRequestHeadSha} comment creation failed, ${r.statusText}`
-        )
-    else
-        logVerbose(
-            `commit ${pullRequestHeadSha} comment created at ${r.html_url}`
-        )
+        logError(`commit ${commitSha} comment creation failed, ${r.statusText}`)
+    else logVerbose(`commit ${commitSha} comment created at ${r.html_url}`)
     return r
 }
 
