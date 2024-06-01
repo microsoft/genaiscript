@@ -43,7 +43,7 @@ jobs:
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             - name: genaiscript pr-review
-              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp -prd pr-review
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp -prc pr-review
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
