@@ -12,7 +12,8 @@ script({
 })
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "main",
+    "HEAD^",
+    "HEAD",
     "--",
     "**.ts",
 ])
