@@ -46,6 +46,7 @@ jobs:
               run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/pr-review -prc pr-review -prr
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha}}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}

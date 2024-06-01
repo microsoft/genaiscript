@@ -368,7 +368,7 @@ ${Array.from(files)
 
     if (pullRequestReviews && res.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.issue && info.sha)
+        if (info.repository && info.issue)
             await githubCreatePullRequestReviews(script, info, res.annotations)
     }
 
