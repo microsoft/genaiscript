@@ -15,43 +15,34 @@ Usage: genaiscript run [options] <script> [files...]
 Runs a GenAIScript against files.
 
 Options:
-  -ef, --excluded-files <string...>  excluded files
-  -o, --out <string>                 output folder. Extra markdown fields for
-                                     output and trace will also be generated
-  -rmo, --remove-out                 remove output folder if it exists
-  -ot, --out-trace <string>          output file for trace
-  -od, --out-data <string>           output file for data (.jsonl/ndjson will
-                                     be aggregated). JSON schema information
-                                     and validation will be included if
-                                     available.
-  -oa, --out-annotations <string>    output file for annotations (.csv will be
-                                     rendered as csv, .jsonl/ndjson will be
-                                     aggregated)
-  -ocl, --out-changelog <string>     output file for changelogs
-  -j, --json                         emit full JSON response to output
-  -y, --yaml                         emit full YAML response to output
-  -p, --prompt                       dry run, don't execute LLM and return
-                                     expanded prompt
-  -fe, --fail-on-errors              fails on detected annotation error
-  -r, --retry <number>               number of retries (default: "8")
-  -rd, --retry-delay <number>        minimum delay between retries (default:
-                                     "15000")
-  -md, --max-delay <number>          maximum delay between retries (default:
-                                     "180000")
-  -l, --label <string>               label for the run
-  -t, --temperature <number>         temperature for the run
-  -tp, --top-p <number>              top-p for the run
-  -m, --model <string>               model for the run
-  -mt, --max-tokens <number>         maximum tokens for the run
-  -mtc, --max-tool-calls <number>    maximum tool calls for the run
-  -se, --seed <number>               seed for the run
-  --no-cache                         disable LLM result cache
-  -cn, --cache-name <name>           custom cache file name
-  --cs, --csv-separator <string>     csv separator (default: "\t")
-  -ae, --apply-edits                 apply file edits
-  --vars <namevalue...>              variables, as name=value, stored in
-                                     env.vars
-  -h, --help                         display help for command
+  -ef, --excluded-files <string...>      excluded files
+  -o, --out <string>                     output folder. Extra markdown fields for output and trace will also be generated
+  -rmo, --remove-out                     remove output folder if it exists
+  -ot, --out-trace <string>              output file for trace
+  -od, --out-data <string>               output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.
+  -oa, --out-annotations <string>        output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)
+  -ocl, --out-changelog <string>         output file for changelogs
+  -prc, --pull-request-comment [string]  create github comment on a pull request. Use commentid to upsert the comment. (default: "none")
+  -j, --json                             emit full JSON response to output
+  -y, --yaml                             emit full YAML response to output
+  -p, --prompt                           dry run, don't execute LLM and return expanded prompt
+  -fe, --fail-on-errors                  fails on detected annotation error
+  -r, --retry <number>                   number of retries (default: "8")
+  -rd, --retry-delay <number>            minimum delay between retries (default: "15000")
+  -md, --max-delay <number>              maximum delay between retries (default: "180000")
+  -l, --label <string>                   label for the run
+  -t, --temperature <number>             temperature for the run
+  -tp, --top-p <number>                  top-p for the run
+  -m, --model <string>                   model for the run
+  -mt, --max-tokens <number>             maximum tokens for the run
+  -mtc, --max-tool-calls <number>        maximum tool calls for the run
+  -se, --seed <number>                   seed for the run
+  --no-cache                             disable LLM result cache
+  -cn, --cache-name <name>               custom cache file name
+  --cs, --csv-separator <string>         csv separator (default: "\t")
+  -ae, --apply-edits                     apply file edits
+  --vars <namevalue...>                  variables, as name=value, stored in env.vars
+  -h, --help                             display help for command
 ```
 
 ## `batch`

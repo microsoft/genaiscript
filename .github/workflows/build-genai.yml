@@ -5,12 +5,12 @@ on:
     schedule:
         - cron: "0 7 * * *"
     push:
-      branches: [main]
-      paths:
-        - "packages/core/**"
-        - "packages/sample/**"
-        - "packages/cli/**"
-      
+        branches: [main]
+        paths:
+            - "packages/core/**"
+            - "packages/sample/**"
+            - "packages/cli/**"
+
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -37,4 +37,21 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run test within scripts
-              run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
+              run: yarn test:scripts --out-summary ./summary.txt --test-delay 10
+            - name: Append summary.txt to $GITHUB_STEP_SUMMARY
+              run: |
+                  cat packages/sample/summary.txt >> $GITHUB_STEP_SUMMARY
+            - name: Add comment to PR
+              uses: actions/github-script@v5
+              if: github.event_name == 'pull_request'
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      import { readFile } from 'fs/promises';
+                      const comment = await readFile('packages/sample/summary.txt', 'utf8');
+                      await github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: comment
+                      })

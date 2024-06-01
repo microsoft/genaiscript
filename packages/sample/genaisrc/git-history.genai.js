@@ -1,4 +1,6 @@
-script({ title: "git-history", tests: {} })
+script({ 
+    model: "openai:gpt-3.5-turbo",
+    title: "git-history", tests: {} })
 
 const author = env.vars.author || "pelikhan"
 const until = env.vars.until || "2023-11-15"

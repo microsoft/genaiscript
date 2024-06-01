@@ -28,7 +28,7 @@ import {
 
 import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
-import { basename, join, resolve } from "node:path"
+import { dirname, join, resolve } from "node:path"
 import { emptyDir, ensureDir, exists } from "fs-extra"
 import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
@@ -44,6 +44,7 @@ function parseModelSpec(m: string): ModelOptions {
     else return { model: m }
 }
 
+// build trigger..
 async function resolveTestProvider(script: PromptScript) {
     const token = await host.getLanguageModelConfiguration(script.model)
     if (token && token.type === "azure") return token.base
@@ -89,6 +90,8 @@ export async function runPromptScriptTests(
     const cli = options.cli || resolve(__filename)
     const out = options.out || join(GENAISCRIPT_FOLDER, "tests")
     const outSummary = options.outSummary
+        ? resolve(options.outSummary)
+        : undefined
     const provider = join(out, "provider.mjs")
     const models = options?.models
     const testDelay = normalizeInt(options?.testDelay)
@@ -118,10 +121,17 @@ export async function runPromptScriptTests(
         configurations.push({ script, configuration: fn })
     }
 
-    logVerbose(`running tests with promptfoo`)
     await ensureDir(PROMPTFOO_CACHE_PATH)
     await ensureDir(PROMPTFOO_CONFIG_DIR)
-    if (outSummary) await ensureDir(basename(resolve(outSummary)))
+    if (outSummary) {
+        await ensureDir(dirname(outSummary))
+        await appendFile(
+            outSummary,
+            `## GenAIScript Test Results
+
+`
+        )
+    }
 
     const results: PromptScriptTestResult[] = []
     for (const config of configurations) {

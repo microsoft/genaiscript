@@ -25,6 +25,7 @@
         "treesitter",
         "typecheck",
         "vsix",
+        "xpai",
         "xenova"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",

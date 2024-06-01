@@ -12,6 +12,7 @@ import {
     createBundledParsers,
     AskUserOptions,
     TraceOptions,
+    arrayify,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -182,9 +183,27 @@ export class VSCodeHost extends EventTarget implements Host {
         delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.delete(uri)
     }
-    async findFiles(path: string): Promise<string[]> {
-        const uris = await vscode.workspace.findFiles(path)
-        return uris.map((u) => vscode.workspace.asRelativePath(u, false))
+    async findFiles(
+        pattern: string | string[],
+        ignore?: string | string[]
+    ): Promise<string[]> {
+        pattern = arrayify(pattern)
+        ignore = arrayify(ignore)
+
+        const uris = new Set<string>()
+        for (const pat of pattern) {
+            const res = await vscode.workspace.findFiles(pat)
+            res.map((u) => vscode.workspace.asRelativePath(u, false)).forEach(
+                (u) => uris.add(u)
+            )
+        }
+        for(const pat of ignore) {
+            const res = await vscode.workspace.findFiles(pat)
+            res.map((u) => vscode.workspace.asRelativePath(u, false)).forEach(
+                (u) => uris.delete(u)
+            )
+        }
+        return Array.from(uris.values())
     }
     async createDirectory(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)
@@ -205,7 +224,9 @@ export class VSCodeHost extends EventTarget implements Host {
         }
     }
 
-    async getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration> {
+    async getLanguageModelConfiguration(
+        modelId: string
+    ): Promise<LanguageModelConfiguration> {
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)

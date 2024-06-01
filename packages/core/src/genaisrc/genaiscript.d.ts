@@ -96,24 +96,6 @@ type PromptOutputProcessorHandler = (
     | undefined
     | Promise<undefined>
 
-interface UrlAdapter {
-    contentType?: "text/plain" | "application/json"
-
-    /**
-     * Given a friendly URL, return a URL that can be used to fetch the content.
-     * @param url
-     * @returns
-     */
-    matcher: (url: string) => string
-
-    /**
-     * Convers the body of the response to a string.
-     * @param body
-     * @returns
-     */
-    adapter?: (body: string | any) => string | undefined
-}
-
 type PromptTemplateResponseType = "json_object" | undefined
 
 interface ModelConnectionOptions {
@@ -181,7 +163,7 @@ interface ModelOptions extends ModelConnectionOptions {
 interface ScriptRuntimeOptions {
 /**
 * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
-* - `system`: Markdown system prompt
+* - `system`: Base system prompt
 * - `system.annotations`: Emits annotations compatible with GitHub Actions
 * - `system.changelog`: Generate changelog formatter edits
 * - `system.diff`: Generates concise file diffs.
@@ -228,11 +210,6 @@ interface ScriptRuntimeOptions {
      * JSON object schema for the output. Enables the `JSON` output mode.
      */
     responseSchema?: JSONSchemaObject
-
-    /**
-     * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
-     */
-    urlAdapters?: UrlAdapter[]
 
     /**
      * Secrets required by the prompt
@@ -334,6 +311,10 @@ interface PromptTest {
      */
     keywords?: string | string[]
     /**
+     * List of keywords that should not be contained in the LLM output. 
+     */
+    forbidden?: string | string[]
+    /**
      * Additional deterministic assertions.
      */
     asserts?: PromptAssertion | PromptAssertion[]
@@ -349,6 +330,12 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
      * Additional template parameters that will populate `env.vars`
      */
     parameters?: PromptParametersSchema
+
+    /**
+     * A file path or list of file paths or globs. 
+     * The content of these files will be by the files selected in the UI by the user or the cli arguments.
+     */
+    files?: string | string[]
 
     /**
      * Extra variable values that can be used to configure system prompts.
@@ -564,6 +551,7 @@ type PromptSystemArgs = Omit<
     | "tests"
     | "responseType"
     | "responseSchema"
+    | "files"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -1243,7 +1231,7 @@ interface RunPromptOptions extends ModelOptions {
     /**
      * Label for trace
      */
-    label?:string
+    label?: string
 }
 
 // keep in sync with prompt_type.d.ts

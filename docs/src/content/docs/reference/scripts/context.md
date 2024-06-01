@@ -16,7 +16,27 @@ The `env` global object contains properties that provide information about the s
 ### `env.files`
 
 The `env.files` array contains all files within the execution context. The context is defined implicitly
-by the user based on the UI location to start the tool or from the CLI arguments.
+by the user based on:
+
+-   `script` `files` option
+
+```js
+script({
+    files: "**/*.pdf",
+})
+```
+
+or multiple paths
+
+```js
+script({
+    files: ["src/*.pdf", "other/*.pdf"],
+})
+```
+
+-   the UI location to start the tool
+
+-   [CLI](/genaiscript/reference/cli) files arguments.
 
 ```js
 def("FILE", env.files)
@@ -135,19 +155,19 @@ def("FILE", env.files, { maxTokens: 100 })
 The `def` function treats data files such as [CSV](/genaiscript/reference/scripts/csv) and [XLSX](/genaiscript/reference/scripts/xlsx) specially. It will automatically convert the data into a
 markdown table format to improve tokenization.
 
--  `sliceHead`, keep the top N rows
+-   `sliceHead`, keep the top N rows
 
 ```js "sliceHead: 100"
 def("FILE", env.files, { sliceHead: 100 })
 ```
 
--  `sliceTail`, keep the last N rows
+-   `sliceTail`, keep the last N rows
 
 ```js "sliceTail: 100"
 def("FILE", env.files, { sliceTail: 100 })
 ```
 
--  `sliceSample`, keep a random sample of N rows
+-   `sliceSample`, keep a random sample of N rows
 
 ```js "sliceSample: 100"
 def("FILE", env.files, { sliceSample: 100 })
@@ -174,9 +194,9 @@ The `defData` function also support functions to slice the input rows and column
 -   `distinct`, list of column names to deduplicate the data based on
 
 ```js
-defData("DATA", data, { 
-    sliceHead: 5, 
-    sliceTail: 5, 
-    sliceSample: 100 
+defData("DATA", data, {
+    sliceHead: 5,
+    sliceTail: 5,
+    sliceSample: 100,
 })
 ```

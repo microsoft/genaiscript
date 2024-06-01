@@ -1,6 +1,7 @@
 script({
     title: "summarize all files",
-    system: [],
+    model: "openai:gpt-3.5-turbo",
+    files: "src/rag/markdown.md",
     tests: [
         {
             files: "src/rag/markdown.md",
@@ -14,8 +15,6 @@ def("FILE", env.files)
 
 $`
 Summarize each FILE with one paragraph.
-
-- Be concise. 
-- Answer in plain text.
+- Do not wrap results in code section.
 - Use less than 20 words.
 `

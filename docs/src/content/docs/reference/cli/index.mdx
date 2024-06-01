@@ -132,7 +132,19 @@ npx genaiscript run <script> [files...]
 
 where `<script>` is the id or file path of the tool to run, and `[files...]` is the name of the spec file to run it on.
 
-## [Secrets](/genaiscript/reference/token)
+## [Secrets](/genaiscript/getting-started/configuration)
 
 The CLI will load the secrets from the environment variables or a `./.env` file.
-You can also specify a different `.env` file using the `--env` option.
+
+You can override the default `.env` file name by adding the `--env myother.env` file.
+
+### Listing model configuration
+
+Run the `script model` command to list the available scripts and their model configuration. This can be useful to diagnose configuration issues in CI/CD environments.
+
+```sh
+npx genaiscript scripts model [script]
+```
+
+where [script] can be a script id or a file path.
+
