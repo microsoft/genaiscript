@@ -75,7 +75,7 @@ export async function githubCreateIssueComment(
 
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
-            const delurl = `/repos/${repository}/issues/comments/${comment.id}`
+            const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
             console.log({ comment, delurl })
             const resd = await fetch(delurl, {
                 method: "DELETE",
