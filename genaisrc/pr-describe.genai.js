@@ -2,7 +2,7 @@ script({
     model: "openai:gpt-4",
     files: [],
     title: "pr-describe",
-    system: ["system"],
+    system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
 const { stdout: changes } = await host.exec("git", [
     "diff",
@@ -16,10 +16,12 @@ $`You are an expert software developer and architect.
 
 ## Task
 
-- Summarize the changes in GIT_DIFF.
-- Provide a sate diagram of the changes in GIT_DIFF using mermaid syntax.
+- Describe the changes in GIT_DIFF in a way that a non-technical person can understand.
 
 ## Instructions
 
-- do NOT repeat the contents of GIT_DIFF
+- use emojis to make the description more engaging
+- if needed inline code snippets can be used. The code snippets should be taken
+from the changes in GIT_DIFF.
+
 `
