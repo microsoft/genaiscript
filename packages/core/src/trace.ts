@@ -213,15 +213,18 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     warn(msg: string) {
-        this.content += `\n> [!WARNING] ${msg}\n`
+        this.content += `\n> [!WARNING]
+> ${msg}\n`
     }
 
     caution(msg: string) {
-        this.content += `\n> [!CAUTION] ${msg}\n`
+        this.content += `\n> [!CAUTION]
+> ${msg}\n`
     }
 
     note(msg: string) {
-        this.content += `\n> [!INFO] ${msg}\n`
+        this.content += `\n> [!NOTE]
+> ${msg}\n`
     }
 
     files(

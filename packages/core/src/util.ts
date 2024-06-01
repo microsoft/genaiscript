@@ -4,6 +4,10 @@ import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
 import { escape as HTMLEscape_ } from "html-escaper"
 
+export function unique(strings: string[]) {
+    return Array.from(new Set(strings))
+}
+
 export function trimNewlines(s: string) {
     return s?.replace(/^\n*/, "").replace(/\n*$/, "")
 }

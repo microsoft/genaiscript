@@ -1,4 +1,3 @@
-import Docker from "dockerode"
 import MemoryStream from "memorystream"
 import {
     CORE_VERSION,
@@ -8,22 +7,48 @@ import {
     TraceOptions,
     dotGenaiscriptPath,
     host,
+    installImport,
     logError,
 } from "genaiscript-core"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
 import { randomBytes } from "node:crypto"
 import { readFile, writeFile } from "fs/promises"
+import { DOCKERODE_VERSION } from "./version"
+
+type DockerodeType = import("dockerode")
+
+async function tryImportDockerode(options?: TraceOptions) {
+    const { trace } = options || {}
+    try {
+        const m = await import("dockerode")
+        return m
+    } catch (e) {
+        trace?.error(`llamaindex not found, installing ${DOCKERODE_VERSION}...`)
+        await installImport("dockerode", DOCKERODE_VERSION, trace)
+        const m = await import("dockerode")
+        return m
+    }
+}
 
 export class DockerManager {
     private containers: ContainerHost[] = []
-    private docker = new Docker()
+    private _docker: DockerodeType
+
+    constructor() {}
+
+    private async init(options?: TraceOptions) {
+        if (this._docker) return
+        const Docker = (await tryImportDockerode(options)).default
+        this._docker = new Docker()
+    }
 
     async stopAndRemove() {
+        if (!this._docker) return
         for (const container of this.containers.filter(
             (c) => !c.disablePurge
         )) {
-            const c = await this.docker.getContainer(container.id)
+            const c = await this._docker.getContainer(container.id)
             try {
                 await c.stop()
             } catch {}
@@ -38,8 +63,9 @@ export class DockerManager {
     }
 
     async checkImage(image: string) {
+        await this.init()
         try {
-            const info = await this.docker.getImage(image).inspect()
+            const info = await this._docker.getImage(image).inspect()
             return info?.Size > 0
         } catch (e) {
             // statusCode: 404
@@ -48,6 +74,7 @@ export class DockerManager {
     }
 
     async pullImage(image: string, options?: TraceOptions) {
+        await this.init()
         const { trace } = options || {}
 
         if (await this.checkImage(image)) return
@@ -55,8 +82,8 @@ export class DockerManager {
         // pull image
         try {
             trace?.startDetails(`📥 pull image ${image}`)
-            const res = await this.docker.pull(image)
-            this.docker.modem.followProgress(
+            const res = await this._docker.pull(image)
+            this._docker.modem.followProgress(
                 res,
                 (err) => {
                     if (err) trace?.error(`failed to pull image ${image}`, err)
@@ -82,6 +109,7 @@ export class DockerManager {
     async startContainer(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
+        await this.init()
         const {
             image = DOCKER_DEFAULT_IMAGE,
             trace,
@@ -103,7 +131,7 @@ export class DockerManager {
             await ensureDir(hostPath)
             const containerPath = DOCKER_CONTAINER_VOLUME
 
-            const container = await this.docker.createContainer({
+            const container = await this._docker.createContainer({
                 name,
                 Image: image,
                 AttachStdin: false,

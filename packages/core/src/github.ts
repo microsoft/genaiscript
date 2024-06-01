@@ -1,24 +1,159 @@
+import { GITHUB_API_VERSION } from "./constants"
+import { createFetch } from "./fetch"
+import { host } from "./host"
+import { logError, normalizeInt } from "./util"
+
 export interface GithubConnectionInfo {
-    auth: string
-    baseUrl?: string
+    token: string
+    apiUrl?: string
+    repository: string
     owner: string
     repo: string
+    ref?: string
+    sha?: string
+    issue?: number
 }
 
 export function parseGHTokenFromEnv(
     env: Record<string, string>
 ): GithubConnectionInfo {
-    const auth = env.GITHUB_TOKEN
-    if (!auth) throw new Error("GITHUB_TOKEN is not set in the environment")
-    const baseUrl = env.GITHUB_API_URL
-    const rep = env.GITHUB_REPOSITORY
-    if (!rep) throw new Error(`GITHUB_REPOSITORY is not set in the environment`)
-    const [owner, repo] = rep.split("/", 2)
+    const token = env.GITHUB_TOKEN
+    const apiUrl = env.GITHUB_API_URL || "https://api.github.com"
+    const repository = env.GITHUB_REPOSITORY
+    const [owner, repo] = repository?.split("/", 2) || [undefined, undefined]
+    const ref = env.GITHUB_REF
+    const sha = env.GITHUB_SHA
+    const issue = normalizeInt(
+        /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
+    )
 
     return {
-        auth,
-        baseUrl,
+        token,
+        apiUrl,
+        repository,
         owner,
         repo,
+        ref,
+        sha,
+        issue,
+    }
+}
+
+// https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
+export async function githubUpsetPullRequest(
+    info: GithubConnectionInfo,
+    text: string,
+    commentTag: string
+) {
+    const { apiUrl, repository, issue } = info
+
+    if (!issue) return { updated: false, statusText: "missing issue number" }
+
+    const token = await host.readSecret("GITHUB_TOKEN")
+    if (!token) return { updated: false, statusText: "missing token" }
+
+    const fetch = await createFetch()
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
+    // get current body
+    const resGet = await fetch(url, {
+        method: "GET",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+    })
+    const resGetJson = (await resGet.json()) as { body: string }
+    let { body } = resGetJson
+    if (!body) body = ""
+    const tag = `\n<!-- genaiscript begin ${commentTag} -->\n`
+    const endTag = `\n<!-- genaiscript end ${commentTag} -->\n`
+
+    if (body.includes(tag)) {
+        const start = body.indexOf(tag)
+        const end = body.indexOf(endTag)
+        body = body.slice(0, start) + text + body.slice(end + endTag.length)
+    } else {
+        body = body + tag + text + endTag
+    }
+
+    const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    })
+    return {
+        updated: res.status === 200,
+        statusText: res.statusText,
+    }
+}
+
+// https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
+export async function githubCreateIssueComment(
+    info: GithubConnectionInfo,
+    body: string,
+    commentTag?: string
+): Promise<{ created: boolean; statusText: string; html_url?: string }> {
+    const { apiUrl, repository, issue } = info
+
+    if (!issue) return { created: false, statusText: "missing issue number" }
+
+    const token = await host.readSecret("GITHUB_TOKEN")
+    if (!token) return { created: false, statusText: "missing token" }
+
+    const fetch = await createFetch()
+    const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
+
+    if (commentTag) {
+        const tag = `<!-- genaiscript ${commentTag} -->`
+        body = `${body}\n\n${tag}\n\n`
+        // try to find the existing comment
+        const resListComments = await fetch(`${url}?per_page=100`, {
+            headers: {
+                Accept: "application/vnd.github+json",
+                Authorization: `Bearer ${token}`,
+                "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            },
+        })
+        if (resListComments.status !== 200)
+            return { created: false, statusText: resListComments.statusText }
+        const comments = (await resListComments.json()) as {
+            id: string
+            body: string
+        }[]
+
+        const comment = comments.find((c) => c.body.includes(tag))
+        if (comment) {
+            const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
+            const resd = await fetch(delurl, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                },
+            })
+            if (!resd.ok)
+                logError(`issue comment delete failed ` + resd.statusText)
+        }
+    }
+
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    })
+    const resp: { id: string; html_url: string } = await res.json()
+    return {
+        created: res.status === 201,
+        statusText: res.statusText,
+        html_url: resp.html_url,
     }
 }

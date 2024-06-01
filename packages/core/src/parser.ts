@@ -20,6 +20,7 @@ type Parser = (
 ) => TextFile
 
 export function stringToPos(str: string): CharPosition {
+    if (!str) return [0, 0]
     return [str.replace(/[^\n]/g, "").length, str.replace(/[^]*\n/, "").length]
 }
 
