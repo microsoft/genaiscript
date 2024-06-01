@@ -64,8 +64,8 @@ export async function githubUpsetPullRequest(
         },
     })
     const resGetJson = (await resGet.json()) as { body: string }
-    console.log(resGetJson)
-    let { body = "" } = resGetJson
+    let { body } = resGetJson
+    if (!body) body = ""
     const tag = `\n<!-- genaiscript begin ${commentTag} -->\n`
     const endTag = `\n<!-- genaiscript end ${commentTag} -->\n`
 
