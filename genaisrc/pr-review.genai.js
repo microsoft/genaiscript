@@ -14,9 +14,7 @@ const { stdout: changes } = await host.exec("git", [
     "diff",
     "main",
     "--",
-    ":!**/genaiscript.d.ts",
-    ":!.vscode/*",
-    ":!yarn.lock",
+    "**.ts",
 ])
 
 def("GIT_DIFF", changes, { maxTokens: 20000 })
