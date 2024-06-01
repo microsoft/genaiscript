@@ -217,8 +217,11 @@ async function githubCreatePullRequestReview(
         body: appendGeneratedComment(script, info, annotation.message),
         commit_id: sha,
         path: annotation.filename,
-        start_line: annotation.range?.[0]?.[0],
         line: annotation.range?.[1]?.[0],
+        start_line:
+            annotation.range?.[0]?.[0] !== annotation.range?.[1]?.[0]
+                ? annotation.range?.[0]?.[0]
+                : undefined,
         subject_type: "line",
     }
     logVerbose(JSON.stringify(body, null, 2))
