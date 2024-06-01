@@ -39,6 +39,57 @@ export function parseGHTokenFromEnv(
     }
 }
 
+// https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
+export async function githubUpsetPullRequest(
+    info: GithubConnectionInfo,
+    text: string,
+    commentTag: string
+) {
+    const { apiUrl, repository, issue } = info
+
+    if (!issue) return { updated: false, statusText: "missing issue number" }
+
+    const token = await host.readSecret("GITHUB_TOKEN")
+    if (!token) return { updated: false, statusText: "missing token" }
+
+    const fetch = await createFetch()
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
+    // get current body
+    const resGet = await fetch(url, {
+        method: "GET",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+    })
+    let { body } = (await resGet.json()) as { body: string }
+    const tag = `\n<!-- genaiscript begin ${commentTag} -->\n`
+    const endTag = `\n<!-- genaiscript end ${commentTag} -->\n`
+
+    if (body.includes(tag)) {
+        const start = body.indexOf(tag)
+        const end = body.indexOf(endTag)
+        body = body.slice(0, start) + text + body.slice(end + endTag.length)
+    } else {
+        body = body + tag + text + endTag
+    }
+
+    const res = await fetch(url, {
+        method: "PATCH",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    })
+    return {
+        updated: res.status === 200,
+        statusText: res.statusText,
+    }
+}
+
 // https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
 export async function githubCreateIssueComment(
     info: GithubConnectionInfo,
@@ -47,7 +98,7 @@ export async function githubCreateIssueComment(
 ): Promise<{ created: boolean; statusText: string; html_url?: string }> {
     const { apiUrl, repository, issue } = info
 
-    if (!issue) return { created: false, statusText: "missing issue or sha" }
+    if (!issue) return { created: false, statusText: "missing issue number" }
 
     const token = await host.readSecret("GITHUB_TOKEN")
     if (!token) return { created: false, statusText: "missing token" }

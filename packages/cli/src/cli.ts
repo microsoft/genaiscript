@@ -103,8 +103,12 @@ export async function cli() {
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option(
             "-prc, --pull-request-comment [string]",
-            "create github comment on a pull request. Use commentid to upsert the comment.",
+            "create comment on a pull request. Use commentid to upsert the comment.",
             GITHUB_COMMENT_ID_NONE
+        )
+        .option(
+            "-prd, --pull-request-description <string>",
+            "upsert comment on a pull request description. The comment tag is mandatory to update the comment"
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
