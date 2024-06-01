@@ -68,23 +68,23 @@ export async function githubCreateIssueComment(
         })
         if (resListComments.status !== 200)
             return { created: false, statusText: resListComments.statusText }
-        const { comments } = (await resListComments.json()) as {
-            comments: {
-                id: string
-                body: string
-            }[]
-        }
+        const comments = (await resListComments.json()) as {
+            id: string
+            body: string
+        }[]
+
         const comment = comments.find((c) => c.body.includes(tag))
-        console.log({ comments, comment })
         if (comment) {
-            const resd = await fetch(`${url}/${comment.id}`, {
+            const delurl = `/repos/${repository}/issues/comments/${comment.id}`
+            console.log({ comment, delurl })
+            const resd = await fetch(delurl, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "X-GitHub-Api-Version": GITHUB_API_VERSION,
                 },
             })
-            console.log(resd.statusText)
+            if (!resd.ok) console.log(resd.statusText)
         }
     }
 
