@@ -63,7 +63,9 @@ export async function githubUpsetPullRequest(
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
     })
-    let { body } = (await resGet.json()) as { body: string }
+    const resGetJson = (await resGet.json()) as { body: string }
+    console.log(resGetJson)
+    let { body = "" } = resGetJson
     const tag = `\n<!-- genaiscript begin ${commentTag} -->\n`
     const endTag = `\n<!-- genaiscript end ${commentTag} -->\n`
 
