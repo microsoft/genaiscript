@@ -31,7 +31,7 @@ jobs:
             - name: git stuff
               run: git fetch origin && git pull origin main:main
             - name: genaiscript run
-              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp -ghc pr-describe
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp -prc pr-describe
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
