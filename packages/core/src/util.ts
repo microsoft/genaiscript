@@ -183,12 +183,15 @@ export function dotGenaiscriptPath(...segments: string[]) {
     )
 }
 
-export function relativePath(root: string, path: string) {
-    if (path.startsWith(root)) {
-        path = path.slice(root.length)
-        return path.replace(/^[\/\\]+/, "")
+export function relativePath(root: string, fn: string) {
+    if (!fn) return fn
+
+    const afn = host.path.resolve(fn)
+    if (afn.startsWith(root)) {
+        return afn.slice(root.length).replace(/^[\/\\]+/, "")
     }
-    return path
+
+    return fn
 }
 
 export function logInfo(msg: string) {
@@ -205,7 +208,7 @@ export function logWarn(msg: string) {
 
 export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
-    if (message) host.log(LogLevel.Error, message )
+    if (message) host.log(LogLevel.Error, message)
     host.log(LogLevel.Info, YAMLStringify(e))
 }
 
