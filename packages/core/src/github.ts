@@ -82,13 +82,13 @@ export async function githubUpsetPullRequest(
     const resGetJson = (await resGet.json()) as { body: string }
     let { body } = resGetJson
     if (!body) body = ""
-    const tag = `\n<!-- genaiscript begin ${commentTag} -->\n`
-    const endTag = `\n<!-- genaiscript end ${commentTag} -->\n`
+    const tag = `\n\n<!-- genaiscript begin ${commentTag} -->\n\n`
+    const endTag = `\n\n<!-- genaiscript end ${commentTag} -->\n\n`
 
-    if (body.includes(tag)) {
-        const start = body.indexOf(tag)
-        const end = body.indexOf(endTag)
-        body = body.slice(0, start) + text + body.slice(end + endTag.length)
+    const start = body.indexOf(tag)
+    const end = body.indexOf(endTag)
+    if (start > -1 && end > -1 && start < end) {
+        body = body.slice(0, start + tag.length) + text + body.slice(end)
     } else {
         body = body + tag + text + endTag
     }
