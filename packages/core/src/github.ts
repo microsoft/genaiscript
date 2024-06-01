@@ -33,7 +33,7 @@ export function parseGHTokenFromEnv(
     const serverUrl = env.GITHUB_SERVER_URL
     const runUrl =
         serverUrl && runId
-            ? `${serverUrl}/${repository}}/actions/runs/${runId}`
+            ? `${serverUrl}/${repository}/actions/runs/${runId}`
             : undefined
     const issue = normalizeInt(
         /^refs\/pull\/(?<issue>\d+)\/merge$/.exec(ref || "")?.groups?.issue
