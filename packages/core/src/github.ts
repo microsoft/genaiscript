@@ -1,7 +1,7 @@
 import { GITHUB_API_VERSION } from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
-import { normalizeInt } from "./util"
+import { logError, normalizeInt } from "./util"
 
 export interface GithubConnectionInfo {
     token: string
@@ -72,15 +72,19 @@ export async function githubCreateIssueComment(
             id: string
             body: string
         }[]
+
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
-            await fetch(`${url}/${comment.id}`, {
+            const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
+            const resd = await fetch(delurl, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "X-GitHub-Api-Version": GITHUB_API_VERSION,
                 },
             })
+            if (!resd.ok)
+                logError(`issue comment delete failed ` + resd.statusText)
         }
     }
 

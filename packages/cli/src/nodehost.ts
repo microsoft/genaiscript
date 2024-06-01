@@ -153,10 +153,14 @@ export class NodeHost implements Host {
         const res = await readFile(name)
         return res ? new Uint8Array(res) : new Uint8Array()
     }
-    async findFiles(path: string): Promise<string[]> {
+    async findFiles(
+        path: string | string[],
+        ignore?: string | string[]
+    ): Promise<string[]> {
         const files = await glob(path, {
             nodir: true,
             windowsPathsNoEscape: true,
+            ignore,
         })
         return files
     }

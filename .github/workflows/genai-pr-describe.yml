@@ -1,16 +1,6 @@
-name: ollama smoke tests
+name: genai pull request describe
 on:
-    workflow_dispatch:
     pull_request:
-        paths:
-            - yarn.lock
-            - ".github/workflows/ollama.yml"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
-    push:
-        branches:
-            - main
         paths:
             - yarn.lock
             - ".github/workflows/ollama.yml"
@@ -20,25 +10,30 @@ on:
 permissions:
     pull-requests: write
 jobs:
-    tests:
+    build:
         runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: write
+            pull-requests: write
         steps:
             - uses: actions/checkout@v4
               with:
                   submodules: "recursive"
-                  fetch-depth: 0
+                  fetch-depth: 10
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
-            - name: typecheck
-              run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: download ollama docker
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-            - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:phi3 --out ./temp -prc ollama
+            - name: git stuff
+              run: git fetch origin && git pull origin main:main
+            - name: genaiscript run
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp -prc pr-describe
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}

@@ -2,7 +2,7 @@ import { DOT_ENV_REGEX, HTTPS_REGEX } from "./constants"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { ReadFileOptions, host } from "./host"
-import { logVerbose, utf8Decode, utf8Encode } from "./util"
+import { logVerbose, unique, utf8Decode, utf8Encode } from "./util"
 
 export async function readText(fn: string) {
     const curr = await host.readFile(fn)
@@ -107,26 +107,14 @@ export function createFileSystem(): WorkspaceFileSystem {
 }
 
 export async function expandFiles(files: string[], excludedFiles?: string[]) {
-    const res = new Set<string>()
-    for (const file of files) {
-        if (HTTPS_REGEX.test(file)) res.add(file)
-        // is this a glob?
-        else if (/(\*|\{|\?|\[)/.test(file)) {
-            const fs = await host.findFiles(file)
-            for (const f of fs) res.add(f)
-        } else res.add(file)
-    }
-
-    if (excludedFiles?.length) {
-        for (const arg of excludedFiles) {
-            const ffs = await host.findFiles(arg)
-            for (const f of ffs) {
-                res.delete(f)
-            }
-        }
-    }
-
-    return Array.from(res.values())
+    const urls = files
+        .filter((f) => HTTPS_REGEX.test(f))
+        .filter((f) => !excludedFiles?.includes(f))
+    const others = await host.findFiles(
+        files.filter((f) => !HTTPS_REGEX.test(f)),
+        excludedFiles?.filter((f) => !HTTPS_REGEX.test(f))
+    )
+    return unique([...urls, ...others])
 }
 
 export function filePathOrUrlToWorkspaceFile(f: string) {
