@@ -17,7 +17,7 @@ import {
     extractFenced,
     fenceMD,
     getChatCompletionCache,
-    pretifyMarkdown,
+    prettifyMarkdown,
     renderFencedVariables,
     GENAI_JS_REGEX,
 } from "genaiscript-core"
@@ -67,7 +67,7 @@ class MarkdownTextDocumentContentProvider
             if (!aiRequest) return noRequest
             if (!md) return noResponse
             return `${computing ? `> **GenAiScript run in progress.**\n` : ""} 
-${pretifyMarkdown(md)}    
+${prettifyMarkdown(md)}    
             `
         }
 
