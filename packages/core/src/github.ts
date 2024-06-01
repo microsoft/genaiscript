@@ -226,7 +226,7 @@ async function githubCreateCommitComment(
         }),
     })
     const resp: { id: string; html_url: string } = await res.json()
-    logVerbose(YAMLStringify(resp))
+    logVerbose(JSON.stringify(resp, null, 2))
     const r = {
         created: res.status === 201,
         statusText: res.statusText,
