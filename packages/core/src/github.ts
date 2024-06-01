@@ -5,6 +5,7 @@ import { createFetch } from "./fetch"
 import { host } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, normalizeInt } from "./util"
+import { YAMLStringify } from "./yaml"
 
 export interface GithubConnectionInfo {
     token: string
@@ -223,6 +224,7 @@ async function githubCreateCommitComment(
         }),
     })
     const resp: { id: string; html_url: string } = await res.json()
+    logVerbose(YAMLStringify(resp))
     const r = {
         created: res.status === 201,
         statusText: res.statusText,
