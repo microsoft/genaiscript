@@ -369,45 +369,30 @@ ${Array.from(files)
     if (commitComments && res.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.sha) {
-            const ghres = await githubCreateCommitComments(
-                script,
-                info,
-                res.annotations
-            )
-            if (!ghres) process.exit(CONFIGURATION_ERROR_CODE)
+            await githubCreateCommitComments(script, info, res.annotations)
         }
     }
 
     if (pullRequestComment && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            const ghres = await githubCreateIssueComment(
+            await githubCreateIssueComment(
                 script,
                 info,
                 res.text,
                 pullRequestComment
             )
-            if (!ghres.created) process.exit(CONFIGURATION_ERROR_CODE)
         }
     }
 
     if (pullRequestDescription && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            const ghres = await githubUpsetPullRequest(
+            await githubUpsetPullRequest(
                 script,
                 info,
                 res.text,
                 pullRequestDescription
-            )
-            if (!ghres.updated) {
-                logError(
-                    `pull request ${info.repository}/pull/${info.issue} update failed ${ghres.statusText}`
-                )
-                process.exit(CONFIGURATION_ERROR_CODE)
-            }
-            logVerbose(
-                `pull request ${info.repository}/pull/${info.issue} updated`
             )
         }
     }

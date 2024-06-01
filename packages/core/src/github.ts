@@ -91,10 +91,19 @@ export async function githubUpsetPullRequest(
         },
         body: JSON.stringify({ body }),
     })
-    return {
+    const r = {
         updated: res.status === 200,
         statusText: res.statusText,
     }
+
+    if (!r.updated)
+        logError(
+            `pull request ${info.repository}/pull/${info.issue} update failed, ${r.statusText}`
+        )
+    else
+        logVerbose(`pull request ${info.repository}/pull/${info.issue} updated`)
+
+    return r
 }
 
 function appendGeneratedComment(script: PromptScript, text: string) {
@@ -150,7 +159,7 @@ export async function githubCreateIssueComment(
                 },
             })
             if (!resd.ok)
-                logError(`issue comment delete failed ` + resd.statusText)
+                logError(`issue comment delete failed, ` + resd.statusText)
         }
     }
 
@@ -164,11 +173,16 @@ export async function githubCreateIssueComment(
         body: JSON.stringify({ body }),
     })
     const resp: { id: string; html_url: string } = await res.json()
-    return {
+    const r = {
         created: res.status === 201,
         statusText: res.statusText,
         html_url: resp.html_url,
     }
+    if (!r.created)
+        logError(`pull request comment creation failed, ${r.statusText}`)
+    else logVerbose(`pull request comment created at ${r.html_url}`)
+
+    return r
 }
 
 async function githubCreateCommitComment(
@@ -181,7 +195,6 @@ async function githubCreateCommitComment(
     const { apiUrl, repository, sha } = info
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/commits/${sha}/comments`
-
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -196,11 +209,14 @@ async function githubCreateCommitComment(
         }),
     })
     const resp: { id: string; html_url: string } = await res.json()
-    return {
+    const r = {
         created: res.status === 201,
         statusText: res.statusText,
         html_url: resp.html_url,
     }
+    if (!r.created) logError(`commit comment creation failed, ${r.statusText}`)
+    else logVerbose(`commit comment created at ${r.html_url}`)
+    return r
 }
 
 export async function githubCreateCommitComments(
