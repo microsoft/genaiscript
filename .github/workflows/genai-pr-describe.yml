@@ -1,0 +1,36 @@
+name: genai pull request describe
+on:
+    pull_request:
+        paths:
+            - yarn.lock
+            - ".github/workflows/ollama.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
+permissions:
+    pull-requests: write
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: write
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile
+              run: yarn compile
+            - name: genaiscript run
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp -ghc pr-describe
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
