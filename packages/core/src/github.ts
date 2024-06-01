@@ -1,4 +1,4 @@
-import { assert } from "node:console"
+import { assert, log } from "node:console"
 import { GITHUB_API_VERSION, GITHUB_TOKEN } from "./constants"
 import { GenerationResult } from "./expander"
 import { createFetch } from "./fetch"
@@ -212,6 +212,16 @@ async function githubCreatePullRequestReview(
     const { apiUrl, repository, issue, sha } = info
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    logVerbose(url)
+    const body = {
+        body: appendGeneratedComment(script, info, annotation.message),
+        commit_id: sha,
+        path: annotation.filename,
+        start_line: annotation.range?.[0]?.[0],
+        line: annotation.range?.[1]?.[0],
+        subject_type: "line",
+    }
+    logVerbose(JSON.stringify(body, null, 2))
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -219,14 +229,7 @@ async function githubCreatePullRequestReview(
             Authorization: `Bearer ${token}`,
             "X-GitHub-Api-Version": GITHUB_API_VERSION,
         },
-        body: JSON.stringify({
-            body: appendGeneratedComment(script, info, annotation.message),
-            commit_id: sha,
-            path: annotation.filename,
-            start_line: annotation.range?.[0]?.[0],
-            line: annotation.range?.[1]?.[0],
-            subject_type: "line",
-        }),
+        body: JSON.stringify(body),
     })
     const resp: { id: string; html_url: string } = await res.json()
     logVerbose(JSON.stringify(resp, null, 2))

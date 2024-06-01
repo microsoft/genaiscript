@@ -61,7 +61,7 @@ export async function runScript(
         outChangelogs: string
         pullRequestComment: string
         pullRequestDescription: string
-        commitComments: boolean
+        pullRequestReviews: boolean
         outData: string
         label: string
         temperature: string
@@ -92,7 +92,7 @@ export async function runScript(
     const outChangelogs = options.outChangelogs
     const pullRequestComment = options.pullRequestComment
     const pullRequestDescription = options.pullRequestDescription
-    const commitComments = options.commitComments
+    const pullRequestReviews = options.pullRequestReviews
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -366,7 +366,7 @@ ${Array.from(files)
         }
     }
 
-    if (commitComments && res.annotations?.length) {
+    if (pullRequestReviews && res.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue && info.sha)
             await githubCreatePullRequestReviews(script, info, res.annotations)

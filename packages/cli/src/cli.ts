@@ -110,8 +110,8 @@ export async function cli() {
             "upsert comment on a pull request description."
         )
         .option(
-            "-cc, --commit-comments",
-            "upsert annotations as comment on a commit"
+            "-prr, --pull-request-reviews",
+            "create pull request reviews from annotations"
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
