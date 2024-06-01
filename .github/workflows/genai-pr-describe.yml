@@ -28,6 +28,10 @@ jobs:
             - run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
+            - name: git stuff
+              run: |
+                  | git fetch origin
+                  | git checkout -b main origin/main
             - name: genaiscript run
               run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp -ghc pr-describe
               env:

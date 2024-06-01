@@ -6,7 +6,7 @@ script({
 })
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "origin/main",
+    "main",
     "--",
     ":!**/genaiscript.d.ts",
 ])
