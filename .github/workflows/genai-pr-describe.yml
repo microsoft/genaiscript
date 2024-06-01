@@ -31,6 +31,7 @@ jobs:
             - name: genaiscript run
               run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp -ghc pr-describe
               env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}

@@ -6,7 +6,8 @@ script({
 })
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "main",
+    "origin/main",
+    "--",
     ":!**/genaiscript.d.ts",
 ])
 
@@ -16,7 +17,7 @@ $`You are an expert software developer and architect.
 
 ## Task
 
-- Describe the changes in GIT_DIFF in a way that a non-technical person can understand.
+- Describe the changes in GIT_DIFF in a way that a software engineer will understand.
 
 ## Instructions
 
