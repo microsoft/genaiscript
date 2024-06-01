@@ -219,7 +219,6 @@ async function githubCreatePullRequestReview(
         path: annotation.filename,
         line: annotation.range?.[0]?.[0],
         side: "RIGHT",
-        subject_type: "line",
     }
     logVerbose(JSON.stringify(body, null, 2))
     const res = await fetch(url, {
