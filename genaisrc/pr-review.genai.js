@@ -7,7 +7,6 @@ script({
         "system.typescript",
         "system.fs_find_files",
         "system.fs_read_file",
-        "system.annotations",
     ],
 })
 
@@ -29,16 +28,10 @@ an expert in software reliability, security, scalability, and performance.
 
 ## Task
 
-Review the changes in GIT_DIFF which contains the changes the pull request branch.
-Provide feedback to the author using annotations.
+GIT_DIFF contains the changes the pull request branch.
 
-Think step by step and for each annotation explain your result.
+Provide a high level review of the changes in the pull request. Do not enter into details.
 
-- report errors only, ignore notes and warnings
-- only report issues you are absolutely certain about
-- use a friendly tone
-- use emojis
-- read the full source code of the files if you need more context
-- only report issues about code in GIT_DIFF
-- if the comment above the line contains "@genai-ignore", do not report errors for that line
+If the changes look good, respond LGTM (Looks Good To Me). If you have any concerns, provide a brief description of the concerns.
+
 `
