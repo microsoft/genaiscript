@@ -28,8 +28,6 @@ $`You are an expert software developer and architect.
 - use bullet points to list the changes
 - use emojis to make the description more engaging
 - focus on the most important changes
-- if needed inline code snippets can be used. The code snippets should be taken
-from the changes in GIT_DIFF.
 - ignore comments about imports (like added, remove, changed, etc.)
 
 `
