@@ -1,11 +1,9 @@
-import { assert, log } from "node:console"
+import { assert } from "node:console"
 import { GITHUB_API_VERSION, GITHUB_TOKEN } from "./constants"
-import { GenerationResult } from "./expander"
 import { createFetch } from "./fetch"
 import { host } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, normalizeInt } from "./util"
-import { YAMLStringify } from "./yaml"
 
 export interface GithubConnectionInfo {
     token: string
@@ -71,7 +69,7 @@ export async function githubUpsetPullRequest(
 
     text = appendGeneratedComment(script, info, text)
 
-    const fetch = await createFetch()
+    const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}`
     // get current body
     const resGet = await fetch(url, {
@@ -143,7 +141,7 @@ export async function githubCreateIssueComment(
     const token = await host.readSecret(GITHUB_TOKEN)
     if (!token) return { created: false, statusText: "missing github token" }
 
-    const fetch = await createFetch()
+    const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
 
     body = appendGeneratedComment(script, info, body)
@@ -213,7 +211,7 @@ async function githubCreatePullRequestReview(
 ) {
     assert(token)
     const { apiUrl, repository, issue, commitSha } = info
-    const fetch = await createFetch()
+    const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
