@@ -20,7 +20,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
         ["warning"]: "warning",
         ["error"]: "error",
     }
-    const annotations: Diagnostic[] = []
+    const annotations: Record<string, Diagnostic> = {}
     const projectFolder = host.projectFolder()
     text?.replace(
         GITHUB_ANNOTATIONS_RX,
@@ -40,7 +40,8 @@ export function parseAnnotations(text: string): Diagnostic[] {
                 ],
                 message,
             }
-            annotations.push(annotation)
+            const key = JSON.stringify(annotation)
+            annotations[key] = annotation
             return ""
         }
     )
@@ -59,11 +60,12 @@ export function parseAnnotations(text: string): Diagnostic[] {
                 ],
                 message,
             }
-            annotations.push(annotation)
+            const key = JSON.stringify(annotation)
+            annotations[key] = annotation
             return ""
         }
     )
-    return annotations
+    return Object.values(annotations)
 }
 
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
