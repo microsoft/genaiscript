@@ -215,7 +215,6 @@ async function githubCreatePullRequestReview(
     const { apiUrl, repository, issue, commitSha } = info
     const fetch = await createFetch()
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
-    logVerbose(url)
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
         commit_id: commitSha,
@@ -223,7 +222,6 @@ async function githubCreatePullRequestReview(
         line: annotation.range?.[0]?.[0],
         side: "RIGHT",
     }
-    logVerbose(JSON.stringify(body, null, 2))
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -234,7 +232,6 @@ async function githubCreatePullRequestReview(
         body: JSON.stringify(body),
     })
     const resp: { id: string; html_url: string } = await res.json()
-    logVerbose(JSON.stringify(resp, null, 2))
     const r = {
         created: res.status === 201,
         statusText: res.statusText,
