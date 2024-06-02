@@ -30,7 +30,7 @@ Provide feedback to the author using annotations.
 
 Think step by step and for each annotation explain your result.
 
-- report errors only, ignore notes and warnings
+- report 3 most serious errors only, ignore notes and warnings
 - only report issues you are absolutely certain about
 - do NOT repeat the same issue multiple times
 - use a friendly tone

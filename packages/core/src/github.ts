@@ -236,10 +236,9 @@ async function githubCreatePullRequestReview(
         html_url: resp.html_url,
     }
     if (!r.created) {
-        logError(
+        logVerbose(
             `pull request ${commitSha} comment creation failed, ${r.statusText}`
         )
-        logVerbose(JSON.stringify(body, null, 2))
     } else
         logVerbose(`pull request ${commitSha} comment created at ${r.html_url}`)
     return r
