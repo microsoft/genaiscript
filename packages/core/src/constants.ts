@@ -171,3 +171,4 @@ export const CLI_RUN_FILES_FOLDER = "files"
 
 export const GITHUB_API_VERSION = "2022-11-28"
 export const GITHUB_COMMENT_ID_NONE = "none"
+export const GITHUB_TOKEN = "GITHUB_TOKEN"

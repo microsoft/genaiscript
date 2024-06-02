@@ -82,7 +82,7 @@ export async function cli() {
     program.on("option:quiet", () => setQuiet(true))
 
     program
-        .command("run")
+        .command("run", { isDefault: true })
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
@@ -108,6 +108,10 @@ export async function cli() {
         .option(
             "-prd, --pull-request-description <string>",
             "upsert comment on a pull request description."
+        )
+        .option(
+            "-prr, --pull-request-reviews",
+            "create pull request reviews from annotations"
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")

@@ -24,6 +24,9 @@ export async function createFetch(
         retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
         maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
     } = options || {}
+
+    if (!retryOn?.length) return crossFetch
+
     const fetchRetry = await wrapFetch(crossFetch, {
         retryOn,
         retries,

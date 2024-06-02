@@ -24,6 +24,7 @@ Options:
   -ocl, --out-changelog <string>             output file for changelogs
   -prc, --pull-request-comment <string>      create comment on a pull request.
   -prd, --pull-request-description <string>  upsert comment on a pull request description.
+  -prr, --pull-request-reviews               create pull request reviews from annotations
   -j, --json                                 emit full JSON response to output
   -y, --yaml                                 emit full YAML response to output
   -p, --prompt                               dry run, don't execute LLM and return expanded prompt

@@ -7,14 +7,16 @@ script({
         "system.typescript",
         "system.fs_find_files",
         "system.fs_read_file",
-        "system.annotations"
     ],
 })
+
 const { stdout: changes } = await host.exec("git", [
     "diff",
     "main",
     "--",
     ":!**/genaiscript.d.ts",
+    ":!genaisrc/*",
+    ":!.github/*",
     ":!.vscode/*",
     ":!yarn.lock",
 ])
@@ -26,10 +28,10 @@ an expert in software reliability, security, scalability, and performance.
 
 ## Task
 
-Review the changes in GIT_DIFF and provide feedback to the author using annotations.
+GIT_DIFF contains the changes the pull request branch.
 
-- report errors only, ignore notes and warnings.
-- use a friendly tone
-- use emojis
-- read the full source code of the files if you need more context
+Provide a high level review of the changes in the pull request. Do not enter into details.
+
+If the changes look good, respond LGTM (Looks Good To Me). If you have any concerns, provide a brief description of the concerns.
+
 `

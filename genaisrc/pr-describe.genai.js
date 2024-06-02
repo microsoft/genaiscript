@@ -9,6 +9,8 @@ const { stdout: changes } = await host.exec("git", [
     "main",
     "--",
     ":!**/genaiscript.d.ts",
+    ":!genaisrc/*",
+    ":!.github/*",
     ":!.vscode/*",
     ":!yarn.lock",
 ])
@@ -19,13 +21,13 @@ $`You are an expert software developer and architect.
 
 ## Task
 
-- Describe the changes in GIT_DIFF in a way that a software engineer will understand.
+- Describe a summary of the changes in GIT_DIFF in a way that a software engineer will understand.
 
 ## Instructions
 
 - use bullet points to list the changes
 - use emojis to make the description more engaging
-- if needed inline code snippets can be used. The code snippets should be taken
-from the changes in GIT_DIFF.
+- focus on the most important changes
+- ignore comments about imports (like added, remove, changed, etc.)
 
 `

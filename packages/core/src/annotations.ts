@@ -1,4 +1,5 @@
 import { host } from "./host"
+import { relativePath } from "./util"
 
 const GITHUB_ANNOTATIONS_RX =
     /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*::(?<message>.*)$/gim
@@ -19,14 +20,17 @@ export function parseAnnotations(text: string): Diagnostic[] {
         ["warning"]: "warning",
         ["error"]: "error",
     }
-    const annotations: Diagnostic[] = []
+    const annotations: Record<string, Diagnostic> = {}
     const projectFolder = host.projectFolder()
     text?.replace(
         GITHUB_ANNOTATIONS_RX,
         (_, severity, file, line, endLine, message) => {
-            const filename = /^[^\/]/.test(file)
-                ? host.resolvePath(projectFolder, file)
-                : file
+            const filename = relativePath(
+                projectFolder,
+                /^[^\/]/.test(file)
+                    ? host.resolvePath(projectFolder, file)
+                    : file
+            )
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
                 filename,
@@ -36,7 +40,8 @@ export function parseAnnotations(text: string): Diagnostic[] {
                 ],
                 message,
             }
-            annotations.push(annotation)
+            const key = JSON.stringify(annotation)
+            annotations[key] = annotation
             return ""
         }
     )
@@ -55,11 +60,12 @@ export function parseAnnotations(text: string): Diagnostic[] {
                 ],
                 message,
             }
-            annotations.push(annotation)
+            const key = JSON.stringify(annotation)
+            annotations[key] = annotation
             return ""
         }
     )
-    return annotations
+    return Object.values(annotations)
 }
 
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
