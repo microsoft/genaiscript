@@ -1,4 +1,4 @@
-name: genai pull request review
+name: genai pull request commit review
 on:
     pull_request:
         paths:
