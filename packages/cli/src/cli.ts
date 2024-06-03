@@ -10,7 +10,6 @@ import {
     UNHANDLED_ERROR_CODE,
     errorMessage,
     dotGenaiscriptPath,
-    GITHUB_COMMENT_ID_NONE,
 } from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
