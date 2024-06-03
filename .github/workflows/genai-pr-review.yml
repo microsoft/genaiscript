@@ -1,6 +1,7 @@
-name: genai pull request review
+name: genai pull request commit review
 on:
     pull_request:
+        types: [review_requested]
         paths:
             - yarn.lock
             - ".github/workflows/ollama.yml"
@@ -33,11 +34,18 @@ jobs:
               run: yarn compile
             - name: git stuff
               run: git fetch origin && git pull origin main:main
-            - name: genaiscript pr-review-commit
-              run: node packages/cli/built/genaiscript.cjs run pr-review-commit --out ./temp/genai/pr-review-commit -prr
+            - name: genaiscript pr-describe
+              run: node packages/cli/built/genaiscript.cjs run pr-describe --out ./temp/genai/pr-describe -prd pr-describe
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.head.sha}}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: genaiscript pr-review
+              run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc pr-review
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
