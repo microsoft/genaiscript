@@ -34,4 +34,8 @@ Provide a high level review of the changes in the pull request. Do not enter int
 
 If the changes look good, respond LGTM (Looks Good To Me). If you have any concerns, provide a brief description of the concerns.
 
+- All the TypeScript files are compiled and type-checked by the TypeScript compiler. Do not report issues that the TypeScript compiler would find.
+- Use emojis
+- If available, suggest code fixes and improvements
+
 `

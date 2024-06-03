@@ -1,0 +1,48 @@
+name: genai pull request commit review
+on:
+    pull_request:
+        paths:
+            - yarn.lock
+            - ".github/workflows/ollama.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: write
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: cache .genaiscript
+              uses: actions/cache@v4
+              with:
+                  path: .genaiscript
+                  key: genaiscript-${{ hashFiles('**/yarn.lock') }}
+            - name: compile
+              run: yarn compile
+            - name: git stuff
+              run: git fetch origin && git pull origin main:main
+            - name: genaiscript pr-review-commit
+              run: node packages/cli/built/genaiscript.cjs run pr-review-commit --out ./temp/genai/pr-review-commit -prr
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.head.sha}}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: Archive genai results
+              uses: actions/upload-artifact@v4
+              with:
+                  name: genai-results
+                  path: ./temp/genai/**

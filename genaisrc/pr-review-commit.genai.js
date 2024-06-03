@@ -30,9 +30,11 @@ Provide feedback to the author using annotations.
 
 Think step by step and for each annotation explain your result.
 
+- Assume the TypeScript code is type correct. do NOT report issues that the TypeScript type checker would find.
 - report 3 most serious errors only, ignore notes and warnings
 - only report issues you are absolutely certain about
 - do NOT repeat the same issue multiple times
+- do NOT report common convention issues
 - use a friendly tone
 - use emojis
 - read the full source code of the files if you need more context

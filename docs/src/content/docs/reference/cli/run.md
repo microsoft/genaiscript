@@ -66,12 +66,12 @@ Output the entire response as YAML to the stdout.
 
 Populate values in the `env.vars` map that can be used when running the prompt.
 
-### --out-trace <file>
+### --out-trace &lt;file&gt;
 
 Save the markdown trace to the specified file.
 
 ```sh
-npx genaiscript run <script> <spec> --out-trace <file>
+npx genaiscript run <script> <spec> --out-trace &lt;file&gt;
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
@@ -82,7 +82,7 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
       genaiscript run <script> <spec> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
-### --out-annotations <file>
+### --out-annotations &lt;file&gt;
 
 Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
@@ -96,7 +96,7 @@ Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a singl
 npx genaiscript run <script> <spec> --out-annotations diags.jsonl
 ```
 
-### --out-data <file>
+### --out-data &lt;file&gt;
 
 Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
 and availabe, the JSON validation result is also stored.
@@ -105,7 +105,7 @@ and availabe, the JSON validation result is also stored.
 npx genaiscript run <script> <spec> --out-data data.jsonl
 ```
 
-### --out-changelogs <file>
+### --out-changelogs &lt;file&gt;
 
 Emit changelogs in the specified file as text.
 
@@ -117,16 +117,16 @@ npx genaiscript run <script> <spec> --out-changelogs changelogs.txt
 
 Skips the LLM invocation and only prints the expanded system and user chat messages.
 
-### --retry <number>
+### --retry &lt;number&gt;
 
 Specifies the number of retries when the LLM invocations fails with throttling (429).
 Default is 3.
 
-### --retry-delay <number>
+### --retry-delay &lt;number&gt;
 
 Minimum delay between retries in milliseconds.
 
-### --label <label>
+### --label &lt;label&gt;
 
 Adds a run label that will be used in generating the trace title.
 
@@ -135,15 +135,15 @@ Adds a run label that will be used in generating the trace title.
 Enables LLM caching in JSONL file under `.genaiscript/tmp/openai.genaiscript.cjsonl`. Caching is enabled by default in VSCode
 but not for the CLI.
 
-### --temperature <number>
+### --temperature &lt;number&gt;
 
 Overrides the LLM run temperature.
 
-### --top-p <number>
+### --top-p &lt;number&gt;
 
 Overrides the LLM run `top_p` value.
 
-### --model <string>
+### --model &lt;string&gt;
 
 Overrides the LLM model identifier.
 
