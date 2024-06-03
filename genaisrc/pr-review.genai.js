@@ -32,6 +32,8 @@ GIT_DIFF contains the changes the pull request branch.
 
 Provide a high level review of the changes in the pull request. Do not enter into details.
 
+- All the TypeScript files are compiled and type-checked by the TypeScript compiler. Do not report issues that the TypeScript compiler would find.
+
 If the changes look good, respond LGTM (Looks Good To Me). If you have any concerns, provide a brief description of the concerns.
 
 `
