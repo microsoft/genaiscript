@@ -106,6 +106,8 @@ export class WebSocketClient
 
     private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
         const id = this._nextId++ + ""
+        const mo: any = { ...msg, id }
+        delete mo.trace // avoid pollution
         const m = JSON.stringify({ ...msg, id })
 
         this.init()
