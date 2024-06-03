@@ -125,12 +125,11 @@ export async function startServer(options: { port: string }) {
                             id: container.id,
                             hostPath: container.hostPath,
                             containerPath: container.containerPath,
-                            disablePurge: container.disablePurge
+                            disablePurge: container.disablePurge,
                         }
                         break
                     }
                     case "container.remove": {
-                        console.log(`container: remove all`)
                         await host.removeContainers()
                         response = { ok: true }
                         break
