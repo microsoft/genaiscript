@@ -34,6 +34,7 @@ Think step by step and for each annotation explain your result.
 - report 3 most serious errors only, ignore notes and warnings
 - only report issues you are absolutely certain about
 - do NOT repeat the same issue multiple times
+- do NOT report common convention issues
 - use a friendly tone
 - use emojis
 - read the full source code of the files if you need more context
