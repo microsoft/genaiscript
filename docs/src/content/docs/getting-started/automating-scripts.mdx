@@ -110,11 +110,17 @@ Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_
 If your GitHub Action is triggered by a [pull request event](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request),
 you can use the following flags to add comments: description, conversation and reviews.
 
-In order to create comments, the workflow must have the `pull-requests: write` [permission](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs).
+In order to create comments, 
+the workflow must have the `pull-requests: write` [permission](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
+and the `GITHUB_TOKEN` secret must be passed to the script.
 
 ```yaml
 permissions:
     pull-requests: write
+...
+    - run: npx --yes genaiscript run ...
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Diff
