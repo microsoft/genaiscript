@@ -13,6 +13,7 @@ const { stdout: diff } = await host.exec("git", [
     "diff",
     "main",
     "--",
+    "**.ts",
     ":!**/genaiscript.d.ts",
     ":!genaisrc/*",
     ":!.github/*",
