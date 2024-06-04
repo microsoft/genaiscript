@@ -42,6 +42,19 @@ To run the script on the root folder, right click under the files.
 
 :::
 
+### Default files
+
+You can specify default file or files to run the script on.
+When you run the script from the script file itself, or with the command line without file arguments,
+the default files will be used.
+
+```js
+script({
+    files: "path/to/files*.md",
+})
+...
+```
+
 ## Command Line
 
 Use the [run](/genaiscript/reference/cli/run) command to execute a script from the command line.
