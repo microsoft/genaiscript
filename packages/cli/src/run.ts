@@ -372,26 +372,26 @@ ${Array.from(files)
             await githubCreatePullRequestReviews(script, info, res.annotations)
     }
 
-    if (pullRequestComment && res.text) {
+    if (pullRequestComment !== undefined && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
                 info,
                 res.text,
-                pullRequestComment
+                pullRequestComment || script.id
             )
         }
     }
 
-    if (pullRequestDescription && res.text) {
+    if (pullRequestDescription !== undefined && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
             await githubUpsetPullRequest(
                 script,
                 info,
                 res.text,
-                pullRequestDescription
+                pullRequestDescription || script.id
             )
         }
     }
