@@ -10,6 +10,8 @@ script({
         "system.annotations",
     ],
 })
+
+// diff latest commit
 const { stdout: changes } = await host.exec("git", [
     "diff",
     "HEAD^",
