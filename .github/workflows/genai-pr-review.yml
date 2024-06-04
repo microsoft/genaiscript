@@ -1,7 +1,7 @@
 name: genai pull request review
 on:
     pull_request:
-        types: [review_requested, ready_for_review]
+        types: [ready_for_review]
         paths:
             - yarn.lock
             - ".github/workflows/ollama.yml"
@@ -28,7 +28,7 @@ jobs:
             - name: cache .genaiscript
               uses: actions/cache@v4
               with:
-                  path: .genaiscript
+                  path: .genaiscript/cache
                   key: genaiscript-${{ hashFiles('**/yarn.lock') }}
             - name: compile
               run: yarn compile

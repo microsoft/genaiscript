@@ -35,6 +35,14 @@ the precision of the LLM's responses and reduces the likelihood of hallucination
 By default, the annotations use the [GitHub Action Commands](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-error-message) syntax.
 This means that the annotations will automatically be extracted by GitHub if you run your script in a GitHub Action.
 
+## Github Pull Request Review Comments
+
+Use the `--pull-request-review-comment` flag on the [cli](/genaiscript/reference/cli/run/) to add annotations as review comments on a pull request.
+
+```sh "cli"
+npx --yes genaiscript run ... --pull-request-review-comment
+```
+
 ## Visual Studio Code Programs
 
 Annotations are converted into Visual Studio **Diagnostics**, which are presented to the user
@@ -53,31 +61,31 @@ name: "Upload SARIF"
 # Run workflow each time code is pushed to your repository and on a schedule.
 # The scheduled workflow runs every Thursday at 15:45 UTC.
 on:
-  push:
-  schedule:
-    - cron: '45 15 * * 4'
+    push:
+    schedule:
+        - cron: "45 15 * * 4"
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      # required for all workflows
-      security-events: write
-      # only required for workflows in private repositories
-      actions: read
-      contents: read
-    steps:
-      # This step checks out a copy of your repository.
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      # Run GenAIScript tools
-      - name: Run GenAIScript
-        run: npx --yes genaiscript ... -oa result.sarif
-      # Upload the generated SARIF file to GitHub
-      - name: Upload SARIF file
-        if: success() || failure()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: result.sarif
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            # required for all workflows
+            security-events: write
+            # only required for workflows in private repositories
+            actions: read
+            contents: read
+        steps:
+            # This step checks out a copy of your repository.
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            # Run GenAIScript tools
+            - name: Run GenAIScript
+              run: npx --yes genaiscript ... -oa result.sarif
+            # Upload the generated SARIF file to GitHub
+            - name: Upload SARIF file
+              if: success() || failure()
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: result.sarif
 ```
 
 ### Limitations

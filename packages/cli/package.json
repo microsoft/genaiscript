@@ -24,7 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "pdfjs-dist": "4.3.136",
-    "promptfoo": "^0.60.0",
+    "promptfoo": "^0.61.0",
     "dockerode": "^4.0.2",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
@@ -42,7 +42,7 @@
     "@types/dockerode": "^3.3.29",
     "@types/fs-extra": "^11.0.4",
     "@types/memorystream": "^0.3.4",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.14.1",
     "@types/papaparse": "^5.3.14",
     "@types/pg": "^8.11.2",
     "@types/prompts": "^2.4.9",
@@ -61,13 +61,13 @@
     "mammoth": "^1.7.2",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.1.0",
-    "openai": "^4.47.2",
+    "openai": "^4.47.3",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
     "prompts": "^2.4.2",
     "replace-ext": "^2.0.0",
     "semver": "^7.6.2",
-    "tsx": "^4.11.0",
+    "tsx": "^4.11.2",
     "zx": "^8.1.2"
   },
   "scripts": {
