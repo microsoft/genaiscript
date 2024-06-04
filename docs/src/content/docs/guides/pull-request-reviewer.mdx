@@ -30,7 +30,7 @@ const { stdout: diff } = await host.exec("git", [
     "main",
     "--",
     "**.ts",
-    ":!**/genaiscript.d.ts",
+    ":!**/genaiscript.d.ts", // git exclude format
     ":!genaisrc/*",
     ":!.github/*",
     ":!.vscode/*",

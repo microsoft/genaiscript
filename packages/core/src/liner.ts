@@ -1,5 +1,5 @@
 /**
- * @param text Adds 1-based line numbrers
+ * @param text Adds 1-based line numbers
  * @returns
  */
 export function addLineNumbers(text: string, language?: string) {
