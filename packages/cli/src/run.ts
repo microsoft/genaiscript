@@ -59,8 +59,8 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
-        pullRequestComment: string
-        pullRequestDescription: string
+        pullRequestComment: string | boolean
+        pullRequestDescription: string | boolean
         pullRequestReviews: boolean
         outData: string
         label: string
@@ -372,26 +372,30 @@ ${Array.from(files)
             await githubCreatePullRequestReviews(script, info, res.annotations)
     }
 
-    if (pullRequestComment !== undefined && res.text) {
+    if (pullRequestComment && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
                 info,
                 res.text,
-                pullRequestComment || script.id
+                typeof pullRequestComment === "string"
+                    ? pullRequestComment
+                    : script.id
             )
         }
     }
 
-    if (pullRequestDescription !== undefined && res.text) {
+    if (pullRequestDescription && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
             await githubUpsetPullRequest(
                 script,
                 info,
                 res.text,
-                pullRequestDescription || script.id
+                typeof pullRequestDescription === "string"
+                    ? pullRequestDescription
+                    : script.id
             )
         }
     }
