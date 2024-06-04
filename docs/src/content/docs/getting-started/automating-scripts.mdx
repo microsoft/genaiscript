@@ -96,6 +96,14 @@ You can use the [actions/cache](https://github.com/actions/cache) action to cach
             key: genaiscript
 ```
 
+### Add the trace to the summary
+
+Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_SUMMARY`.
+
+```yaml "--out-trace $GITHUB_STEP_SUMMARY"
+- run: npx --yes genaiscript run ... --out-trace $GITHUB_STEP_SUMMARY
+```
+
 ### Annotations
 
 You can use [annotations](/genaiscript/reference/scripts/annotations) to automatically annotate the 
