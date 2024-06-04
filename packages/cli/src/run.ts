@@ -59,8 +59,8 @@ export async function runScript(
         outTrace: string
         outAnnotations: string
         outChangelogs: string
-        pullRequestComment: string
-        pullRequestDescription: string
+        pullRequestComment: string | boolean
+        pullRequestDescription: string | boolean
         pullRequestReviews: boolean
         outData: string
         label: string
@@ -379,7 +379,9 @@ ${Array.from(files)
                 script,
                 info,
                 res.text,
-                pullRequestComment
+                typeof pullRequestComment === "string"
+                    ? pullRequestComment
+                    : script.id
             )
         }
     }
@@ -391,7 +393,9 @@ ${Array.from(files)
                 script,
                 info,
                 res.text,
-                pullRequestDescription
+                typeof pullRequestDescription === "string"
+                    ? pullRequestDescription
+                    : script.id
             )
         }
     }

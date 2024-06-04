@@ -22,8 +22,8 @@ Options:
   -od, --out-data <string>                   output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.
   -oa, --out-annotations <string>            output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)
   -ocl, --out-changelog <string>             output file for changelogs
-  -prc, --pull-request-comment <string>      create comment on a pull request.
-  -prd, --pull-request-description <string>  upsert comment on a pull request description.
+  -prc, --pull-request-comment [string]      create comment on a pull request.
+  -prd, --pull-request-description [string]  upsert comment on a pull request description.
   -prr, --pull-request-reviews               create pull request reviews from annotations
   -j, --json                                 emit full JSON response to output
   -y, --yaml                                 emit full YAML response to output
@@ -115,7 +115,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.60.0
+  -pv, --promptfoo-version [version]  propmtfoo version, default is ^0.61.0
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
