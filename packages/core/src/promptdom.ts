@@ -129,9 +129,9 @@ function renderDefNode(def: PromptDefNode): string {
         language === "markdown" || language === "mdx"
             ? MARKDOWN_PROMPT_FENCE
             : PROMPT_FENCE
-    const norm = (s: string) => {
+    const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s)
+        if (s && lineNumbers) s = addLineNumbers(s, lang)
         if (s) s += "\n"
         return s
     }
@@ -149,7 +149,7 @@ function renderDefNode(def: PromptDefNode): string {
             dfence = ""
         }
     }
-    body = norm(body)
+    body = norm(body, dtype)
     while (dfence && body.includes(dfence)) {
         dfence += "`"
     }

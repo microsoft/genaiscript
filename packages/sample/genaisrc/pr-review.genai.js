@@ -5,15 +5,15 @@ script({
     system: [
         "system",
         "system.typescript",
-        "system.fs_find_files",
-        "system.fs_read_file",
     ],
+    tools: ["fs_find_files", "fs_read_file"],
 })
 
-const { stdout: changes } = await host.exec("git", [
+const { stdout: diff } = await host.exec("git", [
     "diff",
     "main",
     "--",
+    "**.ts",
     ":!**/genaiscript.d.ts",
     ":!genaisrc/*",
     ":!.github/*",
@@ -21,7 +21,11 @@ const { stdout: changes } = await host.exec("git", [
     ":!yarn.lock",
 ])
 
-def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000, lineNumbers: false })
+def("GIT_DIFF", diff, {
+    language: "diff",
+    maxTokens: 20000,
+    lineNumbers: false,
+})
 
 $`You are an expert software developer and architect. You are
 an expert in software reliability, security, scalability, and performance.
@@ -30,7 +34,7 @@ an expert in software reliability, security, scalability, and performance.
 
 GIT_DIFF contains the changes the pull request branch.
 
-Provide a high level review of the changes in the pull request. Do not enter into details.
+Analyze the changes in GIT_DIFF in your mind.
 
 If the changes look good, respond "LGTM :rocket:". If you have any concerns, provide a brief description of the concerns.
 
@@ -38,5 +42,4 @@ If the changes look good, respond "LGTM :rocket:". If you have any concerns, pro
 - only report functional issues
 - Use emojis
 - If available, suggest code fixes and improvements
-
 `
