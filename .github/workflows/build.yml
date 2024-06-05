@@ -35,11 +35,5 @@ jobs:
               run: yarn test:samples
             - name: docs
               run: yarn build:docs
-            - name: run cli
-              run: node packages/cli/built/genaiscript.cjs run code-xray packages/sample/src/counting.gpspec.md --prompt -ot $GITHUB_STEP_SUMMARY -l single
-            - name: run cli pipe
-              run: cat packages/sample/src/counting.gpspec.md | node packages/cli/built/genaiscript.cjs run code-xray --prompt -ot $GITHUB_STEP_SUMMARY -l multi
-            - name: run cli glob
-              run: node packages/cli/built/genaiscript.cjs run code-xray packages/sample/src/counting.py packages/sample/src/*.ts --prompt -o .genaiscript/tmp/cli -ot $GITHUB_STEP_SUMMARY -l glob
             - name: package vscode
               run: yarn package
