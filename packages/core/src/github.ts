@@ -1,8 +1,5 @@
 import { assert } from "node:console"
-import {
-    GITHUB_API_VERSION,
-    GITHUB_TOKEN,
-} from "./constants"
+import { GITHUB_API_VERSION, GITHUB_TOKEN } from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
@@ -160,13 +157,16 @@ export async function githubCreateIssueComment(
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
         // try to find the existing comment
-        const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
-            headers: {
-                Accept: "application/vnd.github+json",
-                Authorization: `Bearer ${token}`,
-                "X-GitHub-Api-Version": GITHUB_API_VERSION,
-            },
-        })
+        const resListComments = await fetch(
+            `${url}?per_page=100&sort=updated`,
+            {
+                headers: {
+                    Accept: "application/vnd.github+json",
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                },
+            }
+        )
         if (resListComments.status !== 200)
             return { created: false, statusText: resListComments.statusText }
         const comments = (await resListComments.json()) as {
@@ -238,6 +238,9 @@ async function githubCreatePullRequestReview(
                 c.body === body.body
         )
     ) {
+        logVerbose(
+            `pull request ${commitSha} comment creation already exists, skipping`
+        )
         return { created: false, statusText: "comment already exists" }
     }
     const fetch = await createFetch({ retryOn: [] })
@@ -305,7 +308,6 @@ export async function githubCreatePullRequestReviews(
         line: number
         body: string
     }[]
-    console.log(comments)
     // code annotations
     for (const annotation of annotations) {
         await githubCreatePullRequestReview(
