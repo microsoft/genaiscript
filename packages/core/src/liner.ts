@@ -5,7 +5,10 @@ import { llmifyDiff } from "./diff"
  * @returns
  */
 export function addLineNumbers(text: string, language?: string) {
-    if (language === "diff") return llmifyDiff(text)
+    if (language === "diff") {
+        const diffed = llmifyDiff(text)
+        if (diffed !== undefined) return diffed
+    }
 
     return text
         .split("\n")
