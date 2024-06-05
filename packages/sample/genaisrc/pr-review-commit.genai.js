@@ -27,7 +27,7 @@ an expert in software reliability, security, scalability, and performance.
 
 ## Task
 
-Review the changes in GIT_DIFF which contains the changes of the last commit in the pull request branch.
+Review the changes in GIT_DIFF which contains the diff of the last commit in the pull request branch.
 Provide feedback to the author using annotations.
 
 Think step by step and for each annotation explain your result.

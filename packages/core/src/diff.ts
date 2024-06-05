@@ -253,7 +253,7 @@ export function llmifyDiff(diff: string) {
 
     for (const file of parsed) {
         for (const chunk of file.chunks) {
-            let currentLineNumber = chunk.oldStart
+            let currentLineNumber = chunk.newStart
             for (const change of chunk.changes) {
                 if (change.type === "del") continue
                 ;(change as any).line = currentLineNumber
@@ -269,7 +269,11 @@ export function llmifyDiff(diff: string) {
         for (const chunk of file.chunks) {
             result += `${chunk.content}\n`
             for (const change of chunk.changes) {
-                result += `${(change as any).line !== undefined ? `[${(change as any).line}] ` : ""}${change.content}\n`
+                const ln =
+                    (change as any).line !== undefined
+                        ? `[${(change as any).line}] `
+                        : ""
+                result += `${ln}${change.content}\n`
             }
         }
     }
