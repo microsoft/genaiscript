@@ -83,19 +83,6 @@ Make sure to pass the secrets and variables to the script.
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
 
-### Caching LLM queries
-
-GenAIScript stores LLM request caches in the `.genaiscript/cache` folder.
-You can use the [actions/cache](https://github.com/actions/cache) action to cache the LLM queries.
-
-```yaml
-    - name: cache genaiscript
-        uses: actions/cache@v4
-        with:
-            path: .genaiscript/cache
-            key: genaiscript
-```
-
 ### Add the trace to the action summary
 
 Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_SUMMARY`
