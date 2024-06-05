@@ -323,7 +323,7 @@
         "@vscode/vsce": "^2.25.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
-        "eslint": "^9.3.0",
+        "eslint": "^9.4.0",
         "mocha": "^10.4.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
