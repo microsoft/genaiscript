@@ -276,7 +276,7 @@ interface PromptTest {
      */
     keywords?: string | string[]
     /**
-     * List of keywords that should not be contained in the LLM output. 
+     * List of keywords that should not be contained in the LLM output.
      */
     forbidden?: string | string[]
     /**
@@ -297,7 +297,7 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     parameters?: PromptParametersSchema
 
     /**
-     * A file path or list of file paths or globs. 
+     * A file path or list of file paths or globs.
      * The content of these files will be by the files selected in the UI by the user or the cli arguments.
      */
     files?: string | string[]
@@ -714,6 +714,12 @@ interface Path {
      * @param pathSegments
      */
     resolve(...pathSegments: string[]): string
+
+    /**
+     * Determines whether the path is an absolute path.
+     * @param path
+     */
+    isAbsolute(path: string): boolean
 }
 
 interface Fenced {

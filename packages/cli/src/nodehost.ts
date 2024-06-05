@@ -87,7 +87,7 @@ export class NodeHost implements Host {
     }
 
     setVirtualFile(name: string, content: string) {
-        this.virtualFiles[resolve(name)] =
+        this.virtualFiles[this.path.resolve(name)] =
             this.createUTF8Encoder().encode(content)
     }
     isVirtualFile(name: string) {
@@ -119,13 +119,13 @@ export class NodeHost implements Host {
         return new TextEncoder()
     }
     projectFolder(): string {
-        return resolve(".")
+        return this.path.resolve(".")
     }
     installFolder(): string {
         return this.projectFolder()
     }
     resolvePath(...segments: string[]) {
-        return resolve(...segments)
+        return this.path.resolve(...segments)
     }
     async askUser(options: AskUserOptions) {
         const res = await prompts({
@@ -167,7 +167,7 @@ export class NodeHost implements Host {
             const gitignore = await readFile(".gitignore", {
                 encoding: "utf-8",
             })
-            const ig = ignorer().add(gitignore.toString())
+            const ig = ignorer().add(gitignore)
             files = ig.filter(files)
         }
         return files
