@@ -386,7 +386,7 @@ ${Array.from(files)
                 res.text,
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
-                    : undefined
+                    : script.id
             )
         }
     }
@@ -400,7 +400,7 @@ ${Array.from(files)
                 res.text,
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
-                    : undefined
+                    : script.id
             )
         }
     }
