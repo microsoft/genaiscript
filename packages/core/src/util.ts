@@ -1,4 +1,5 @@
-import { GENAISCRIPT_FOLDER } from "./constants"
+import path from "path"
+import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
 import { serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
@@ -184,14 +185,8 @@ export function dotGenaiscriptPath(...segments: string[]) {
 }
 
 export function relativePath(root: string, fn: string) {
-    if (!fn) return fn
-
-    const afn = host.path.resolve(fn)
-    if (afn.startsWith(root)) {
-        return afn.slice(root.length).replace(/^[\/\\]+/, "")
-    }
-
-    return fn
+    if (!fn || HTTPS_REGEX.test(fn)) return fn
+    return path.relative(root, fn)
 }
 
 export function logInfo(msg: string) {
