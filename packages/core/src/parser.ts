@@ -7,6 +7,7 @@ import { fileExists, readText } from "./fs"
 import {
     BUILTIN_PREFIX,
     DOCX_MIME_TYPE,
+    HTTPS_REGEX,
     PDF_MIME_TYPE,
     XLSX_MIME_TYPE,
 } from "./constants"
@@ -42,12 +43,13 @@ const parseTextPlain: Parser = (prj, filename, mime, content) => {
         (_, name, file) => {
             newelt.references.push({
                 name,
-                filename: host.path.isAbsolute(file)
-                    ? file
-                    : host.path.relative(
-                          host.projectFolder(),
-                          host.resolvePath(filename, "..", file)
-                      ),
+                filename:
+                    host.path.isAbsolute(file) || HTTPS_REGEX.test(file)
+                        ? file
+                        : host.path.relative(
+                              host.projectFolder(),
+                              host.resolvePath(filename, "..", file)
+                          ),
             })
             return ""
         }
