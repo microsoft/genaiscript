@@ -1,6 +1,3 @@
-import { host } from "./host"
-import { relativePath } from "./util"
-
 const GITHUB_ANNOTATIONS_RX =
     /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
 // ##vso[task.logissue type=warning;sourcepath=consoleap
