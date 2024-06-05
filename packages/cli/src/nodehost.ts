@@ -19,10 +19,11 @@ import {
     setHost,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
-import { readFile, unlink, writeFile } from "node:fs/promises"
+import { readFile, unlink, writeFile, stat } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
+import ignorer from "ignore"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
@@ -157,11 +158,18 @@ export class NodeHost implements Host {
         path: string | string[],
         ignore?: string | string[]
     ): Promise<string[]> {
-        const files = await glob(path, {
+        let files = await glob(path, {
             nodir: true,
             windowsPathsNoEscape: true,
             ignore,
         })
+        if (await stat(".gitignore")) {
+            const gitignore = await readFile(".gitignore", {
+                encoding: "utf-8",
+            })
+            const ig = ignorer().add(gitignore.toString())
+            files = ig.filter(files)
+        }
         return files
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {

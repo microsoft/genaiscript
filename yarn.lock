@@ -10898,9 +10898,9 @@ open@^8.0.0:
     is-wsl "^2.2.0"
 
 openai@^4.26.1, openai@^4.38.5, openai@^4.48.1:
-  version "4.48.1"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.48.1.tgz#689f7f5daad3c811344a2f4731297c7558ed6849"
-  integrity sha512-nlEzUAzDG1GsTlBVAFFtB0WZB8BFY+XU7o4oslzC7YMZ9PlgDixnbM49hXRWzv5OztevSn64hVKqptvzHq5/6Q==
+  version "4.48.2"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.48.2.tgz#f06cba9c3d90628d625f04a70901f2d5c4dd974c"
+  integrity sha512-3z4JEipIzwFtLvDC3KigZEWH4ALWDHPr6XCq/xYi8O1AQ5lAtu6Ib6FO8KeQ8RdjwfIqHWOWk/zopW5g780s/w==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
