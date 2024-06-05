@@ -32,7 +32,7 @@ import {
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
     parseGHTokenFromEnv,
-    githubUpsetPullRequest,
+    githubUpdatePullRequestDescription,
     githubCreatePullRequestReviews,
     githubCreateIssueComment,
 } from "genaiscript-core"
@@ -368,8 +368,9 @@ ${Array.from(files)
 
     if (pullRequestReviews && res.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.issue)
+        if (info.repository && info.issue) {
             await githubCreatePullRequestReviews(script, info, res.annotations)
+        }
     }
 
     if (pullRequestComment && res.text) {
@@ -389,7 +390,7 @@ ${Array.from(files)
     if (pullRequestDescription && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            await githubUpsetPullRequest(
+            await githubUpdatePullRequestDescription(
                 script,
                 info,
                 res.text,

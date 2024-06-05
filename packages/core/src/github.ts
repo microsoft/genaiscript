@@ -55,13 +55,14 @@ export function parseGHTokenFromEnv(
 }
 
 // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
-export async function githubUpsetPullRequest(
+export async function githubUpdatePullRequestDescription(
     script: PromptScript,
     info: GithubConnectionInfo,
     text: string,
     commentTag: string
 ) {
     const { apiUrl, repository, issue } = info
+    assert(commentTag)
 
     if (!issue) return { updated: false, statusText: "missing issue number" }
     const token = await host.readSecret(GITHUB_TOKEN)
@@ -83,15 +84,21 @@ export async function githubUpsetPullRequest(
     const resGetJson = (await resGet.json()) as { body: string }
     let { body } = resGetJson
     if (!body) body = ""
-    const tag = `\n\n<!-- genaiscript begin ${commentTag} -->\n\n`
-    const endTag = `\n\n<!-- genaiscript end ${commentTag} -->\n\n`
+    const tag = `<!-- genaiscript begin ${commentTag} -->`
+    const endTag = `<!-- genaiscript end ${commentTag} -->`
+    const sep = "\n\n"
 
     const start = body.indexOf(tag)
     const end = body.indexOf(endTag)
     if (start > -1 && end > -1 && start < end) {
-        body = body.slice(0, start + tag.length) + text + body.slice(end)
+        body =
+            body.slice(0, start + tag.length) +
+            sep +
+            text +
+            sep +
+            body.slice(end)
     } else {
-        body = body + tag + text + endTag
+        body = body + sep + tag + sep + text + sep + endTag + sep
     }
 
     const res = await fetch(url, {
@@ -150,20 +157,22 @@ export async function githubCreateIssueComment(
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
         // try to find the existing comment
-        const resListComments = await fetch(`${url}?per_page=100`, {
-            headers: {
-                Accept: "application/vnd.github+json",
-                Authorization: `Bearer ${token}`,
-                "X-GitHub-Api-Version": GITHUB_API_VERSION,
-            },
-        })
+        const resListComments = await fetch(
+            `${url}?per_page=100&sort=updated`,
+            {
+                headers: {
+                    Accept: "application/vnd.github+json",
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                },
+            }
+        )
         if (resListComments.status !== 200)
             return { created: false, statusText: resListComments.statusText }
         const comments = (await resListComments.json()) as {
             id: string
             body: string
         }[]
-
         const comment = comments.find((c) => c.body.includes(tag))
         if (comment) {
             const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
@@ -207,12 +216,12 @@ async function githubCreatePullRequestReview(
     script: PromptScript,
     info: GithubConnectionInfo,
     token: string,
-    annotation: Diagnostic
+    annotation: Diagnostic,
+    existingComments: { id: string; path: string; line: number; body: string }[]
 ) {
     assert(token)
     const { apiUrl, repository, issue, commitSha } = info
-    const fetch = await createFetch({ retryOn: [] })
-    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
         commit_id: commitSha,
@@ -220,6 +229,21 @@ async function githubCreatePullRequestReview(
         line: annotation.range?.[0]?.[0],
         side: "RIGHT",
     }
+    if (
+        existingComments.find(
+            (c) =>
+                c.path === body.path &&
+                c.line === body.line &&
+                c.body === body.body
+        )
+    ) {
+        logVerbose(
+            `pull request ${commitSha} comment creation already exists, skipping`
+        )
+        return { created: false, statusText: "comment already exists" }
+    }
+    const fetch = await createFetch({ retryOn: [] })
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -249,8 +273,9 @@ export async function githubCreatePullRequestReviews(
     info: GithubConnectionInfo,
     annotations: Diagnostic[]
 ): Promise<boolean> {
+    const { repository, issue, sha, apiUrl } = info
+
     if (!annotations?.length) return true
-    const { issue, sha } = info
     if (!issue) {
         logError("missing pull request number")
         return false
@@ -265,8 +290,32 @@ export async function githubCreatePullRequestReviews(
         return false
     }
 
+    // query existing reviews
+    const fetch = await createFetch({ retryOn: [] })
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+    })
+    if (resListComments.status !== 200) return false
+    const comments = (await resListComments.json()) as {
+        id: string
+        path: string
+        line: number
+        body: string
+    }[]
     // code annotations
-    for (const annotation of annotations)
-        await githubCreatePullRequestReview(script, info, token, annotation)
+    for (const annotation of annotations) {
+        await githubCreatePullRequestReview(
+            script,
+            info,
+            token,
+            annotation,
+            comments
+        )
+    }
     return true
 }

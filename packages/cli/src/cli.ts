@@ -102,11 +102,11 @@ export async function cli() {
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option(
             "-prc, --pull-request-comment [string]",
-            "create comment on a pull request."
+            "create comment on a pull request with a unique id (defaults to script id)"
         )
         .option(
             "-prd, --pull-request-description [string]",
-            "upsert comment on a pull request description."
+            "create comment on a pull request description with a unique id (defaults to script id)"
         )
         .option(
             "-prr, --pull-request-reviews",

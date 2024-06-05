@@ -13,7 +13,7 @@ import {
     isCancelError,
     delay,
     CHANGE,
-    Cache,
+    JSONLineCache,
     logInfo,
     logMeasure,
     parseAnnotations,
@@ -31,6 +31,7 @@ import {
     fixPromptDefinitions,
     DEFAULT_MODEL,
     resolveModelConnectionInfo,
+    AI_REQUESTS_CACHE,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
@@ -124,7 +125,7 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
 }
 
 function getAIRequestCache() {
-    return Cache.byName<AIRequestSnapshotKey, AIRequestSnapshot>("airequests")
+    return JSONLineCache.byName<AIRequestSnapshotKey, AIRequestSnapshot>(AI_REQUESTS_CACHE)
 }
 
 export class ExtensionState extends EventTarget {
@@ -133,7 +134,7 @@ export class ExtensionState extends EventTarget {
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _aiRequestCache: Cache<AIRequestSnapshotKey, AIRequestSnapshot> =
+    private _aiRequestCache: JSONLineCache<AIRequestSnapshotKey, AIRequestSnapshot> =
         undefined
     readonly output: vscode.LogOutputChannel
 
