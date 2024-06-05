@@ -1,5 +1,4 @@
 import { assert } from "./util"
-import parseUniDiff from "parse-diff"
 
 export interface Chunk {
     state: "existing" | "deleted" | "added"
@@ -8,7 +7,7 @@ export interface Chunk {
 }
 
 /**
- * The LLMD diff format is a simple format that can be used to represent changes. 
+ * The LLMD diff format is a simple format that can be used to represent changes.
  * It is not precise:
  * - indentation may be lost
  * - some code may be not regenerated
