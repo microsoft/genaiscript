@@ -29,6 +29,7 @@ $`You are an expert software developer and architect.
 
 ## Instructions
 
+- separate changes that affect the CLI from changes that affect the library
 - use bullet points to list the changes
 - use emojis to make the description more engaging
 - focus on the most important changes

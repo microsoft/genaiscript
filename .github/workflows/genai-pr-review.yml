@@ -1,13 +1,16 @@
 name: genai pull request review
 on:
     pull_request:
-        types: [ready_for_review]
+        types: [opened, ready_for_review, reopened]
         paths:
             - yarn.lock
             - ".github/workflows/ollama.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 jobs:
     build:
         runs-on: ubuntu-latest

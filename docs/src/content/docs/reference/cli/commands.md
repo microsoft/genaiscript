@@ -22,10 +22,9 @@ Options:
   -od, --out-data <string>                   output file for data (.jsonl/ndjson will be aggregated). JSON schema information and validation will be included if available.
   -oa, --out-annotations <string>            output file for annotations (.csv will be rendered as csv, .jsonl/ndjson will be aggregated)
   -ocl, --out-changelog <string>             output file for changelogs
-  -prc, --pull-request-comment [string]      create comment on a pull request.
-  -prd, --pull-request-description [string]  upsert comment on a pull request description.
+  -prc, --pull-request-comment [string]      create comment on a pull request with a unique id (defaults to script id)
+  -prd, --pull-request-description [string]  create comment on a pull request description with a unique id (defaults to script id)
   -prr, --pull-request-reviews               create pull request reviews from annotations
-  --no-pull-request-reviews-cache            disable pull request reviews cache
   -j, --json                                 emit full JSON response to output
   -y, --yaml                                 emit full YAML response to output
   -p, --prompt                               dry run, don't execute LLM and return expanded prompt
