@@ -112,7 +112,7 @@ export async function runPromptScriptTests(
         const config = generatePromptFooConfiguration(script, {
             out,
             cli,
-            models: models?.map((m) => parseModelSpec(m)),
+            models: models?.map(parseModelSpec),
             provider: "provider.mjs",
             testProvider,
         })
