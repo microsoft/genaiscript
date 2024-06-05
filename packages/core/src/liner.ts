@@ -31,7 +31,7 @@ export function addLineNumbersToDiff(diff: string) {
             let currentLineNumber = chunk.oldStart
             for (const change of chunk.changes) {
                 if (change.type === "add") continue
-                change.content = `${currentLineNumber}: ${change.content}`
+                (change as any).line = currentLineNumber
                 if (change.type !== "del") currentLineNumber++
             }
         }
@@ -44,7 +44,7 @@ export function addLineNumbersToDiff(diff: string) {
         for (const chunk of file.chunks) {
             result += `@@ -${chunk.oldStart},${chunk.oldLines} +${chunk.newStart},${chunk.newLines} @@\n`
             for (const change of chunk.changes) {
-                result += `${change.type === "del" ? "-" : change.type === "add" ? "+" : " "}${change.content}\n`
+                result += `${(change as any).line !== undefined ? `[${(change as any).line}] ` : ''}${change.type === "del" ? "-" : change.type === "add" ? "+" : " "}${change.content}\n`
             }
         }
     }

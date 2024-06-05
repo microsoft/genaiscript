@@ -2,14 +2,16 @@ import test, { describe } from "node:test"
 import assert from "node:assert"
 import { addLineNumbersToDiff } from "./liner"
 
-describe("addLineNumbersToDiff", function () {
+describe("liner", function () {
     test("adds line numbers to a simple diff", function () {
         const diff = `--- a/file1.txt\n+++ b/file2.txt\n@@ -1,2 +1,2 @@\n-line1\n-line2\n+line1\n+line2`
         const expected = `--- a/file1.txt\n+++ b/file2.txt\n@@ -1,2 +1,2 @@\n-1: line1\n-2: line2\n+line1\n+line2`
         const result = addLineNumbersToDiff(diff)
-console.log(diff)
-console.log(result)        
-console.log(expected)
+        console.log(diff)
+        console.log('\n> result')
+        console.log(result)
+        console.log('\n> expected')
+        console.log(expected)
         assert.strictEqual(result, expected)
     })
 
