@@ -1,9 +1,14 @@
+import { llmifyDiff } from "./diff"
+
 /**
  * @param text Adds 1-based line numbers
  * @returns
  */
 export function addLineNumbers(text: string, language?: string) {
-    if (language === "diff") return text
+    if (language === "diff") {
+        const diffed = llmifyDiff(text)
+        if (diffed !== undefined) return diffed
+    }
 
     return text
         .split("\n")
