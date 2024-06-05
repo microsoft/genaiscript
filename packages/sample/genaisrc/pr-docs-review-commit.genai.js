@@ -30,5 +30,5 @@ Analyze the changes in GIT_DIFF in your mind and provide feedback on the documen
 - ignore '...' ellipsis errors in code snippets. This placeholder is perfectly acceptable in code snippets.
 - ignore capitalization errors
 - read the full source code of the files if you need more context
-
+- if your confidence in the feedback is low, ignore the feedback
 `
