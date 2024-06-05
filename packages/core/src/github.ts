@@ -222,11 +222,12 @@ async function githubCreatePullRequestReview(
     assert(token)
     const { apiUrl, repository, issue, commitSha } = info
 
+    const line = annotation.range?.[1]?.[0] + 1
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
         commit_id: commitSha,
         path: annotation.filename,
-        line: annotation.range?.[1]?.[0] + 1,
+        line: normalizeInt(line),
         side: "RIGHT",
     }
     if (
