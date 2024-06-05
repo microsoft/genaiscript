@@ -226,7 +226,7 @@ async function githubCreatePullRequestReview(
         body: appendGeneratedComment(script, info, annotation.message),
         commit_id: commitSha,
         path: annotation.filename,
-        line: annotation.range?.[0]?.[0],
+        line: annotation.range?.[1]?.[0] + 1,
         side: "RIGHT",
     }
     if (
