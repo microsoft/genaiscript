@@ -241,11 +241,16 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     return lines.filter((l) => l !== undefined).join("\n")
 }
 
-
 export function llmifyDiff(diff: string) {
     if (!diff) return diff
 
-    const parsed = parseDiff(diff)
+    let parsed: parseDiff.File[]
+    try {
+        parsed = parseDiff(diff)
+    } catch (e) {
+        return undefined // probably not a diff
+    }
+
     for (const file of parsed) {
         for (const chunk of file.chunks) {
             let currentLineNumber = chunk.oldStart
