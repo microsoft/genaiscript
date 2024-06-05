@@ -28,7 +28,7 @@ and emit the output to the standard output.
 
 [npx](https://docs.npmjs.com/cli/v10/commands/npx) allows you to run a command
 from the [genaiscript npm package](https://www.npmjs.com/package/genaiscript) (either one installed locally, or fetched remotely).
-Add `--yes` flag skips the confirmation prompt.
+Add `--yes` flag to automatically agree to any prompts without confirmation.
 
 :::
 
@@ -45,7 +45,7 @@ npx --yes genaiscript run <script> <...files> --apply-edits
 
 :::caution
 
-An LLM maybe generate arbitrary code that can be harmful to your system.
+An LLM may generate arbitrary code that can be harmful to your system.
 We recommend that you review the modified code before executing it. This could be done through a separate
 branch and a pull request. You can also use a [container](/genaiscript/reference/scripts/container)
 to run the script in a sandboxed environment.
@@ -58,7 +58,7 @@ Refer to [Security and Trust](/genaiscript/reference/security-and-trust) for mor
 
 [GitHub Actions](https://docs.github.com/en/actions) is a continuous integration and continuous delivery (CI/CD)
 platform that allows you to automate your build, test, and deployment pipeline.
-This section integrates how to integrate your genai scripts in workflows and pull requests.
+This section explains how to integrate your GenAIScript in GitHub Actions workflows and pull requests.
 
 ### Authentication
 
@@ -118,7 +118,7 @@ def("GIT_DIFF", changes, {
 
 ### Storing output in artifacts
 
-Don't forget to upload the directory containing the results as an artifact. You can review the trace by opening the `res.trace.md` file
+Ensure that the directory containing the results is uploaded as an artifact. You can review the trace by opening the `res.trace.md` file.
 in the zipped artifact.
 
 ```yaml
