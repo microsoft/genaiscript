@@ -66,7 +66,6 @@ export async function runScript(
         pullRequestComment: string | boolean
         pullRequestDescription: string | boolean
         pullRequestReviews: boolean
-        pullRequestReviewsCache: boolean
         outData: string
         label: string
         temperature: string
@@ -106,7 +105,6 @@ export async function runScript(
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
     const cache = !!options.cache
-    const pullRequestReviewsCache = !!options.pullRequestReviewsCache
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
@@ -375,18 +373,7 @@ ${Array.from(files)
     if (pullRequestReviews && res.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            const cache = pullRequestReviewsCache
-                ? JSONLineCache.byName<
-                      PullRequestReviewsCacheKey,
-                      PullRequestReviewsCacheValue
-                  >(GITHUB_PULL_REQUEST_REVIEWS_CACHE)
-                : undefined
-            await githubCreatePullRequestReviews(
-                script,
-                info,
-                res.annotations,
-                { cache }
-            )
+            await githubCreatePullRequestReviews(script, info, res.annotations)
         }
     }
 
@@ -399,7 +386,7 @@ ${Array.from(files)
                 res.text,
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
-                    : script.id
+                    : undefined
             )
         }
     }
@@ -413,7 +400,7 @@ ${Array.from(files)
                 res.text,
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
-                    : script.id
+                    : undefined
             )
         }
     }

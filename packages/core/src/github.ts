@@ -251,36 +251,12 @@ async function githubCreatePullRequestReview(
     return r
 }
 
-export interface PullRequestReviewsCacheKey {
-    repository: string
-    issue: number
-    scriptId: string
-    message: string
-    filename: string
-    line: number
-}
-
-export interface PullRequestReviewsCacheValue {
-    created: boolean
-    statusText: string
-    html_url: string
-}
-
-export type PullRequestReviewsCache = JSONLineCache<
-    PullRequestReviewsCacheKey,
-    PullRequestReviewsCacheValue
->
-
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: GithubConnectionInfo,
-    annotations: Diagnostic[],
-    options?: {
-        cache?: PullRequestReviewsCache
-    }
+    annotations: Diagnostic[]
 ): Promise<boolean> {
     const { repository, issue, sha } = info
-    const { cache } = options || {}
 
     if (!annotations?.length) return true
     if (!issue) {
@@ -299,26 +275,7 @@ export async function githubCreatePullRequestReviews(
 
     // code annotations
     for (const annotation of annotations) {
-        const cacheKey = {
-            repository,
-            issue,
-            scriptId: script.id,
-            message: annotation.message,
-            filename: annotation.filename,
-            line: annotation.range?.[0]?.[0],
-        }
-        const cached = await cache?.get(cacheKey)
-        if (cached)
-            logVerbose("ignore cached pull request review, " + cached.html_url)
-        else {
-            const res = await githubCreatePullRequestReview(
-                script,
-                info,
-                token,
-                annotation
-            )
-            if (res.created) await cache?.set(cacheKey, res)
-        }
+        await githubCreatePullRequestReview(script, info, token, annotation)
     }
     return true
 }
