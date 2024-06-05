@@ -2,7 +2,7 @@ import { host } from "./host"
 import { relativePath } from "./util"
 
 const GITHUB_ANNOTATIONS_RX =
-    /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>\d+)\s*)?::(?<message>.*)$/gim
+    /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)\s*)?::(?<message>.*)$/gim
 // ##vso[task.logissue type=warning;sourcepath=consoleap
 // https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file
 // ##vso[task.logissue type=warning;sourcepath=consoleapp/main.cs;linenumber=1;columnnumber=1;code=100;]Found something that could be a problem.
@@ -21,19 +21,12 @@ export function parseAnnotations(text: string): Diagnostic[] {
         ["error"]: "error",
     }
     const annotations: Record<string, Diagnostic> = {}
-    const projectFolder = host.projectFolder()
     text?.replace(
         GITHUB_ANNOTATIONS_RX,
         (_, severity, file, line, endLine, message, code) => {
-            const filename = relativePath(
-                projectFolder,
-                host.path.isAbsolute(file)
-                    ? file
-                    : host.resolvePath(projectFolder, file)
-            )
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
-                filename,
+                filename: file,
                 range: [
                     [parseInt(line) - 1, 0],
                     [parseInt(endLine) - 1, Number.MAX_VALUE],
@@ -49,12 +42,9 @@ export function parseAnnotations(text: string): Diagnostic[] {
     text?.replace(
         AZURE_DEVOPS_ANNOTATIONS_RX,
         (_, severity, file, line, message, code) => {
-            const filename = /^[^\/]/.test(file)
-                ? host.resolvePath(projectFolder, file)
-                : file
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
-                filename,
+                filename: file,
                 range: [
                     [parseInt(line) - 1, 0],
                     [parseInt(line) - 1, Number.MAX_VALUE],

@@ -7,7 +7,7 @@ system({
 
 $`Use the following format to create **file annotations** (same as GitHub Actions workflow).
 
-::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>::<message>,code=<error_id>
+::(notice|warning|error) file=<filename>,line=<start line>,endLine=<end line>,code=<error_id>::<message>
 
 For example, an warning in main.py on line 3 with message "There seems to be a typo here." would be:
 
