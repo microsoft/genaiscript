@@ -13,7 +13,7 @@ import {
     UTF8Decoder,
     UTF8Encoder,
 } from "./host"
-import { resolve } from "path"
+import { resolve } from "node:path"
 import { TraceOptions } from "./trace"
 
 export class TestHost implements Host {
@@ -36,7 +36,7 @@ export class TestHost implements Host {
         return new TextEncoder()
     }
     projectFolder(): string {
-        throw new Error("Method not implemented.")
+        return resolve(".")
     }
     installFolder(): string {
         throw new Error("Method not implemented.")
@@ -47,7 +47,9 @@ export class TestHost implements Host {
     readSecret(name: string): Promise<string> {
         throw new Error("Method not implemented.")
     }
-    getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration> {
+    getLanguageModelConfiguration(
+        modelId: string
+    ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
     }
     log(level: LogLevel, msg: string): void {

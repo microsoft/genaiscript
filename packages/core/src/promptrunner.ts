@@ -406,9 +406,21 @@ export async function runTemplate(
             trace.details(
                 "⚠️ annotations",
                 CSVToMarkdown(
-                    annotations.map((a) => ({ ...a, line: a.range?.[0]?.[0] })),
+                    annotations.map((a) => ({
+                        ...a,
+                        line: a.range?.[0]?.[0],
+                        endLine: a.range?.[1]?.[0] || "",
+                        code: a.code || "",
+                    })),
                     {
-                        headers: ["severity", "filename", "line", "message"],
+                        headers: [
+                            "severity",
+                            "filename",
+                            "line",
+                            "endLine",
+                            "code",
+                            "message",
+                        ],
                     }
                 )
             )

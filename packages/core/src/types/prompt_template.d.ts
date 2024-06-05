@@ -12,6 +12,10 @@ interface Diagnostic {
     range: CharRange
     severity: DiagnosticSeverity
     message: string
+    /**
+     * error or warning code
+     */
+    code?: string
 }
 
 type Awaitable<T> = T | PromiseLike<T>

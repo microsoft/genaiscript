@@ -6,6 +6,7 @@
         "bitindex",
         "demux",
         "dockerode",
+        "doptions",
         "execa",
         "genai",
         "Genaiscript",
