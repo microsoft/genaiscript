@@ -32,13 +32,9 @@ import {
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
     parseGHTokenFromEnv,
-    githubUpsetPullRequest,
+    githubUpdatePullRequestDescription,
     githubCreatePullRequestReviews,
     githubCreateIssueComment,
-    GITHUB_PULL_REQUEST_REVIEWS_CACHE,
-    JSONLineCache,
-    PullRequestReviewsCacheKey,
-    PullRequestReviewsCacheValue,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -394,7 +390,7 @@ ${Array.from(files)
     if (pullRequestDescription && res.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            await githubUpsetPullRequest(
+            await githubUpdatePullRequestDescription(
                 script,
                 info,
                 res.text,

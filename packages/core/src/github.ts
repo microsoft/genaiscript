@@ -61,7 +61,7 @@ export function parseGHTokenFromEnv(
 }
 
 // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
-export async function githubUpsetPullRequest(
+export async function githubUpdatePullRequestDescription(
     script: PromptScript,
     info: GithubConnectionInfo,
     text: string,
