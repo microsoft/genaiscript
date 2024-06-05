@@ -280,6 +280,8 @@ export async function githubCreatePullRequestReviews(
         return false
     }
 
+    // query existing reviews
+
     // code annotations
     for (const annotation of annotations) {
         await githubCreatePullRequestReview(script, info, token, annotation)
