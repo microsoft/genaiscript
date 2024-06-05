@@ -255,7 +255,9 @@ export interface PullRequestReviewsCacheKey {
     repository: string
     issue: number
     scriptId: string
-    annotation: Diagnostic
+    message: string
+    filename: string
+    line: number
 }
 
 export interface PullRequestReviewsCacheValue {
@@ -301,7 +303,9 @@ export async function githubCreatePullRequestReviews(
             repository,
             issue,
             scriptId: script.id,
-            annotation,
+            message: annotation.message,
+            filename: annotation.filename,
+            line: annotation.range?.[0]?.[0],
         }
         const cached = await cache?.get(cacheKey)
         if (cached)
