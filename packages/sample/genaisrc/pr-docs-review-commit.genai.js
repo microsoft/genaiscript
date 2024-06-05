@@ -17,7 +17,6 @@ const { stdout: diff } = await host.exec("git", [
 def("GIT_DIFF", diff, {
     language: "diff",
     maxTokens: 20000,
-    lineNumbers: false,
 })
 
 $`You are an expert technical documentation writer.

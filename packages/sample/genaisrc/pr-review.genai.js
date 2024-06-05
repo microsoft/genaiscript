@@ -2,10 +2,7 @@ script({
     model: "openai:gpt-4",
     files: [],
     title: "pull request review",
-    system: [
-        "system",
-        "system.typescript",
-    ],
+    system: ["system", "system.typescript"],
     tools: ["fs_find_files", "fs_read_file"],
 })
 
@@ -24,7 +21,6 @@ const { stdout: diff } = await host.exec("git", [
 def("GIT_DIFF", diff, {
     language: "diff",
     maxTokens: 20000,
-    lineNumbers: false,
 })
 
 $`You are an expert software developer and architect. You are
