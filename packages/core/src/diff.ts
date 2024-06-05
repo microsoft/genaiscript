@@ -246,7 +246,6 @@ export function llmifyDiff(diff: string) {
     if (!diff) return diff
 
     const parsed = parseDiff(diff)
-    console.log(JSON.stringify(parsed, null, 2))
     for (const file of parsed) {
         for (const chunk of file.chunks) {
             let currentLineNumber = chunk.oldStart
