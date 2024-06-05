@@ -1,6 +1,7 @@
 script({
     model: "openai:gpt-4",
     files: [],
+    temperature: 0,
     title: "pull request docs review",
     system: ["system", "system.technical", "system.annotations"],
     tools: ["fs_find_files", "fs_read_file"],
