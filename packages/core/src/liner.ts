@@ -5,7 +5,7 @@ import parseDiff from "parse-diff"
  * @returns
  */
 export function addLineNumbers(text: string, language?: string) {
-    if (language === "diff") return text
+    if (language === "diff") return addLineNumbersToDiff(text)
 
     return text
         .split("\n")
@@ -26,13 +26,14 @@ export function addLineNumbersToDiff(diff: string) {
     if (!diff) return diff
 
     const parsed = parseDiff(diff)
+    console.log(JSON.stringify(parsed, null, 2))
     for (const file of parsed) {
         for (const chunk of file.chunks) {
             let currentLineNumber = chunk.oldStart
             for (const change of chunk.changes) {
                 if (change.type === "add") continue
-                (change as any).line = currentLineNumber
-                if (change.type !== "del") currentLineNumber++
+                ;(change as any).line = currentLineNumber
+                currentLineNumber++
             }
         }
     }
@@ -42,9 +43,9 @@ export function addLineNumbersToDiff(diff: string) {
     for (const file of parsed) {
         result += `--- ${file.from}\n+++ ${file.to}\n`
         for (const chunk of file.chunks) {
-            result += `@@ -${chunk.oldStart},${chunk.oldLines} +${chunk.newStart},${chunk.newLines} @@\n`
+            result += `${chunk.content}\n`
             for (const change of chunk.changes) {
-                result += `${(change as any).line !== undefined ? `[${(change as any).line}] ` : ''}${change.type === "del" ? "-" : change.type === "add" ? "+" : " "}${change.content}\n`
+                result += `${(change as any).line !== undefined ? `[${(change as any).line}] ` : ""}${change.content}\n`
             }
         }
     }
