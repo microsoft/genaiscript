@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { Cache } from "./cache"
+import { JSONLineCache } from "./cache"
 import { MarkdownTrace } from "./trace"
 import { PromptImage } from "./promptdom"
 import { AICIRequest } from "./aici"
@@ -16,6 +16,7 @@ import {
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
 import dedent from "ts-dedent"
 import {
+    CHAT_CACHE,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     MAX_DATA_REPAIRS,
@@ -87,7 +88,7 @@ export type ChatCompletationRequestCacheValue = {
     finishReason: ChatCompletionResponse["finishReason"]
 }
 
-export type ChatCompletationRequestCache = Cache<
+export type ChatCompletationRequestCache = JSONLineCache<
     ChatCompletionRequestCacheKey,
     ChatCompletationRequestCacheValue
 >
@@ -95,10 +96,10 @@ export type ChatCompletationRequestCache = Cache<
 export function getChatCompletionCache(
     name?: string
 ): ChatCompletationRequestCache {
-    return Cache.byName<
+    return JSONLineCache.byName<
         ChatCompletionRequestCacheKey,
         ChatCompletationRequestCacheValue
-    >(name || "chatv2")
+    >(name || CHAT_CACHE)
 }
 
 export interface ChatCompletionsProgressReport {

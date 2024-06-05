@@ -171,3 +171,7 @@ export const CLI_RUN_FILES_FOLDER = "files"
 
 export const GITHUB_API_VERSION = "2022-11-28"
 export const GITHUB_TOKEN = "GITHUB_TOKEN"
+
+export const AI_REQUESTS_CACHE = "airequests"
+export const CHAT_CACHE = "chatv2"
+export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"

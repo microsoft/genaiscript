@@ -1,9 +1,15 @@
 import { assert } from "node:console"
-import { GITHUB_API_VERSION, GITHUB_TOKEN } from "./constants"
+import {
+    GITHUB_API_VERSION,
+    GITHUB_PULL_REQUEST_REVIEWS_CACHE,
+    GITHUB_TOKEN,
+} from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, normalizeInt } from "./util"
+import { string } from "mathjs"
+import { JSONLineCache } from "./cache"
 
 export interface GithubConnectionInfo {
     token: string
@@ -211,6 +217,7 @@ async function githubCreatePullRequestReview(
 ) {
     assert(token)
     const { apiUrl, repository, issue, commitSha } = info
+
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     const body = {
@@ -244,13 +251,36 @@ async function githubCreatePullRequestReview(
     return r
 }
 
+export interface PullRequestReviewsCacheKey {
+    repository: string
+    issue: number
+    scriptId: string
+    annotation: Diagnostic
+}
+
+export interface PullRequestReviewsCacheValue {
+    created: boolean
+    statusText: string
+    html_url: string
+}
+
+export type PullRequestReviewsCache = JSONLineCache<
+    PullRequestReviewsCacheKey,
+    PullRequestReviewsCacheValue
+>
+
 export async function githubCreatePullRequestReviews(
     script: PromptScript,
     info: GithubConnectionInfo,
-    annotations: Diagnostic[]
+    annotations: Diagnostic[],
+    options?: {
+        cache?: PullRequestReviewsCache
+    }
 ): Promise<boolean> {
+    const { repository, issue, sha } = info
+    const { cache } = options || {}
+
     if (!annotations?.length) return true
-    const { issue, sha } = info
     if (!issue) {
         logError("missing pull request number")
         return false
@@ -266,7 +296,25 @@ export async function githubCreatePullRequestReviews(
     }
 
     // code annotations
-    for (const annotation of annotations)
-        await githubCreatePullRequestReview(script, info, token, annotation)
+    for (const annotation of annotations) {
+        const cacheKey = {
+            repository,
+            issue,
+            scriptId: script.id,
+            annotation,
+        }
+        const cached = await cache?.get(cacheKey)
+        if (cached)
+            logVerbose("ignore cached pull request review, " + cached.html_url)
+        else {
+            const res = await githubCreatePullRequestReview(
+                script,
+                info,
+                token,
+                annotation
+            )
+            if (res.created) await cache?.set(cacheKey, res)
+        }
+    }
     return true
 }

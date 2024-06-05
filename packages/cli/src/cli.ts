@@ -112,6 +112,10 @@ export async function cli() {
             "-prr, --pull-request-reviews",
             "create pull request reviews from annotations"
         )
+        .option(
+            "--no-pull-request-reviews-cache",
+            "disable pull request reviews cache"
+        )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
         .option(

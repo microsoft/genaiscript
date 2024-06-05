@@ -5,7 +5,7 @@ import {
     ExtensionState,
 } from "./state"
 import { CACHE_AIREQUEST_PREFIX, CHANGE, CacheEntry } from "genaiscript-core"
-import { Cache } from "genaiscript-core"
+import { JSONLineCache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
 
@@ -14,7 +14,7 @@ type AIRequestTreeNode = CacheEntry<AIRequestSnapshotKey, AIRequestSnapshot>
 class AIRequestTreeDataProvider
     implements vscode.TreeDataProvider<AIRequestTreeNode>
 {
-    cache: Cache<AIRequestSnapshotKey, AIRequestSnapshot>
+    cache: JSONLineCache<AIRequestSnapshotKey, AIRequestSnapshot>
     constructor(readonly state: ExtensionState) {
         this.cache = state.aiRequestCache()
         this.cache.addEventListener(CHANGE, () => this.refresh())
