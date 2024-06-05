@@ -18,7 +18,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
         ["error"]: "error",
     }
     const annotations: Record<string, Diagnostic> = {}
-    text?.replace(
+    text.replace(
         GITHUB_ANNOTATIONS_RX,
         (_, severity, file, line, endLine, __, code, message) => {
             const annotation: Diagnostic = {
