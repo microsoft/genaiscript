@@ -35,7 +35,7 @@ import { PROMPTFOO_VERSION } from "./version"
 
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)
-    if (Object.keys(values).length)
+    if (Object.keys(values).length > 1)
         return {
             model: values["m"],
             temperature: normalizeFloat(values["t"]),

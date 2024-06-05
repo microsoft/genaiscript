@@ -11,10 +11,5 @@ script({
     },
 })
 
-for (const link of env.files.filter((file) =>
-    file.filename.startsWith("https://")
-)) {
-    const { file } = await fetchText(link)
-    def("FILE", file)
-}
+def("FILE", env.files)
 $`Summarize the content of FILE`

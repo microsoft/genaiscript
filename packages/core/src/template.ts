@@ -115,7 +115,7 @@ class Checker<T extends PromptLike> {
         if (this.skip(k)) return
         if (k && !validateSchema(k))
             this.verror("expecting valid JSON schema here")
-        return 
+        return
     }
 
     checkObjectArray(k: any) {
@@ -212,7 +212,9 @@ async function parsePromptTemplateCore(
 ) {
     const r = {
         id: templateIdFromFileName(filename),
-        title: humanize(host.path.basename(filename).replace(GENAI_JS_REGEX, '')),
+        title: humanize(
+            host.path.basename(filename).replace(GENAI_JS_REGEX, "")
+        ),
         text: "<nothing yet>",
         jsSource: content,
     } as PromptScript
@@ -274,6 +276,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")
+            c.checkAny("tools", () => {})
         })
 
         const r = c.template
