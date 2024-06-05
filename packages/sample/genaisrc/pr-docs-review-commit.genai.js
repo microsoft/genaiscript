@@ -1,6 +1,7 @@
 script({
     model: "openai:gpt-4",
     files: [],
+    temperature: 0,
     title: "pull request docs review",
     system: ["system", "system.technical", "system.annotations"],
     tools: ["fs_find_files", "fs_read_file"],
@@ -30,5 +31,5 @@ Analyze the changes in GIT_DIFF in your mind and provide feedback on the documen
 - ignore '...' ellipsis errors in code snippets. This placeholder is perfectly acceptable in code snippets.
 - ignore capitalization errors
 - read the full source code of the files if you need more context
-
+- if your confidence in the feedback is low, ignore the feedback
 `

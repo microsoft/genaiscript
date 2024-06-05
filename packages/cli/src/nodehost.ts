@@ -23,6 +23,7 @@ import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
+import ignorer from "ignore"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
@@ -86,7 +87,7 @@ export class NodeHost implements Host {
     }
 
     setVirtualFile(name: string, content: string) {
-        this.virtualFiles[resolve(name)] =
+        this.virtualFiles[this.path.resolve(name)] =
             this.createUTF8Encoder().encode(content)
     }
     isVirtualFile(name: string) {
@@ -118,13 +119,13 @@ export class NodeHost implements Host {
         return new TextEncoder()
     }
     projectFolder(): string {
-        return resolve(".")
+        return this.path.resolve(".")
     }
     installFolder(): string {
         return this.projectFolder()
     }
     resolvePath(...segments: string[]) {
-        return resolve(...segments)
+        return this.path.resolve(...segments)
     }
     async askUser(options: AskUserOptions) {
         const res = await prompts({
@@ -157,11 +158,18 @@ export class NodeHost implements Host {
         path: string | string[],
         ignore?: string | string[]
     ): Promise<string[]> {
-        const files = await glob(path, {
+        let files = await glob(path, {
             nodir: true,
             windowsPathsNoEscape: true,
             ignore,
         })
+        if (existsSync(".gitignore")) {
+            const gitignore = await readFile(".gitignore", {
+                encoding: "utf-8",
+            })
+            const ig = ignorer().add(gitignore)
+            files = ig.filter(files)
+        }
         return files
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {

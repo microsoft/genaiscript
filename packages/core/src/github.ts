@@ -222,6 +222,7 @@ async function githubCreatePullRequestReview(
     assert(token)
     const { apiUrl, repository, issue, commitSha } = info
 
+    const prettyMessage = prettifyMarkdown(annotation.message)
     const line = annotation.range?.[1]?.[0] + 1
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
@@ -235,7 +236,7 @@ async function githubCreatePullRequestReview(
             (c) =>
                 c.path === body.path &&
                 c.line === body.line &&
-                c.body === body.body
+                c.body?.includes(prettyMessage)
         )
     ) {
         logVerbose(

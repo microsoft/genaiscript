@@ -5,8 +5,9 @@ sidebar:
 description: Learn how to automate your scripts using the GenAIScript CLI for efficient batch processing and integration into CI/CD pipelines.
 keywords: automation, CLI, batch processing, CI/CD integration, script execution
 ---
-import { FileTree } from '@astrojs/starlight/components';
-import { Image } from 'astro:assets';
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Image } from "astro:assets"
 import { Code } from "@astrojs/starlight/components"
 import prDescribeSrc from "../../../../../packages/sample/genaisrc/pr-describe.genai.js?raw"
 
@@ -25,13 +26,13 @@ and emit the output to the standard output.
 
 :::tip
 
-[npx](https://docs.npmjs.com/cli/v10/commands/npx) allows you to run a command 
-from the [genaiscript npm package](https://www.npmjs.com/package/genaiscript) (either one installed locally, or fetched remotely). 
-Add `--yes` flag skips the confirmation prompt.
+[npx](https://docs.npmjs.com/cli/v10/commands/npx) allows you to run a command
+from the [genaiscript npm package](https://www.npmjs.com/package/genaiscript) (either one installed locally, or fetched remotely).
+Add `--yes` flag to automatically agree to any prompts without confirmation.
 
 :::
 
-You can use the CLI to run your scripts in a CI/CD pipeline. 
+You can use the CLI to run your scripts in a CI/CD pipeline.
 The CLI will return a non-zero exit code if the script fails, which can be used to fail the pipeline.
 
 ### Apply Edits
@@ -44,7 +45,7 @@ npx --yes genaiscript run <script> <...files> --apply-edits
 
 :::caution
 
-An LLM maybe generate arbitrary code that can be harmful to your system. 
+An LLM may generate arbitrary code that can be harmful to your system.
 We recommend that you review the modified code before executing it. This could be done through a separate
 branch and a pull request. You can also use a [container](/genaiscript/reference/scripts/container)
 to run the script in a sandboxed environment.
@@ -53,16 +54,15 @@ Refer to [Security and Trust](/genaiscript/reference/security-and-trust) for mor
 
 :::
 
-
 ## GitHub Action
 
-[GitHub Actions](https://docs.github.com/en/actions) is a continuous integration and continuous delivery (CI/CD) 
-platform that allows you to automate your build, test, and deployment pipeline. 
-This section integrates how to integrate your genai scripts in workflows and pull requests.
+[GitHub Actions](https://docs.github.com/en/actions) is a continuous integration and continuous delivery (CI/CD)
+platform that allows you to automate your build, test, and deployment pipeline.
+This section explains how to integrate your GenAIScript in GitHub Actions workflows and pull requests.
 
 ### Authentication
 
-Configure the [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) 
+Configure the [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 and [variables](https://docs.github.com/en/actions/learn-github-actions/variables)
 on your repository or organization so that GenAIScript can connect to your LLM.
 
@@ -70,11 +70,13 @@ The secrets and variables should match the `.env` file in your local environment
 
 ### Running a script
 
-Use the [cli](/genaiscript/reference/cli/run/) to run the script in a GitHub Action. 
-Make sure to pass the secrets and variables to the script.
+Use the [cli](/genaiscript/reference/cli/run/) to run the script in a GitHub Action.
+
+-   Make sure to pass the secrets and variables to the script to give access to the LLM.
+-   use the `--out <path>` flag to store the results in a directory so that you can upload them as an artifact.
 
 ```yaml
-    - run: npx --yes genaiscript run <script> <...files>
+    - run: npx --yes genaiscript run <script> <...files> --out genairesults
         env:
             # variables
             OPENAI_API_TYPE: ${{ env.OPENAI_API_TYPE }}
@@ -91,7 +93,6 @@ Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_
 ```yaml "--out-trace $GITHUB_STEP_SUMMARY"
 - run: npx --yes genaiscript run ... --out-trace $GITHUB_STEP_SUMMARY
 ```
-
 
 ### Diff
 
@@ -115,12 +116,25 @@ def("GIT_DIFF", changes, {
 })
 ```
 
+### Storing output in artifacts
+
+Ensure that the directory containing the results is uploaded as an artifact. You can review the trace by opening the `res.trace.md` file.
+in the zipped artifact.
+
+```yaml
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+      path: |
+          genairesults/**
+```
+
 ## GitHub Pull request
 
 If your GitHub Action is triggered by a [pull request event](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request),
 you can use the following flags to add comments: description, conversation and reviews.
 
-In order to create comments, 
+In order to create comments,
 the workflow must have the `pull-requests: write` [permission](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
 and the `GITHUB_TOKEN` secret must be passed to the script.
 
@@ -153,7 +167,7 @@ on:
 
 :::note
 
-The comment is enclosed in two XML comments (`<genaiscript begin [id]>`, `<genaiscript end [id]>`) 
+The comment is enclosed in two XML comments (`<genaiscript begin [id]>`, `<genaiscript end [id]>`)
 to allow for easy identification and removal. Make sure to keep those.
 
 :::
@@ -165,19 +179,17 @@ The optional argument is an identifier for the comment (default is the script id
 
 ```yaml "--pull-request-comment"
 - run: npx --yes genaiscript run --pull-request-comment
-  env:
-    ...
+  env: ...
 ```
 
 ### Review comments
 
-Use the `--pull-request-reviews` to convert [annotations](/genaiscript/reference/scripts/annotations) as review comments 
+Use the `--pull-request-reviews` to convert [annotations](/genaiscript/reference/scripts/annotations) as review comments
 **to the last commit** on the pull request (see [example](https://github.com/microsoft/genaiscript/pull/504#pullrequestreview-2093960791)).
 
 ```yaml "--pull-request-reviews"
 - run: npx --yes genaiscript run --pull-request-reviews
-  env:
-    ...
+  env: ...
 ```
 
 GenAIScript will automatically try to ignore duplicate review comments and only create new ones.

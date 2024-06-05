@@ -42,9 +42,12 @@ const parseTextPlain: Parser = (prj, filename, mime, content) => {
         (_, name, file) => {
             newelt.references.push({
                 name,
-                filename: /^\w+:\/\//.test(file)
+                filename: host.path.isAbsolute(file)
                     ? file
-                    : host.resolvePath(filename, "..", file),
+                    : host.path.relative(
+                          host.projectFolder(),
+                          host.resolvePath(filename, "..", file)
+                      ),
             })
             return ""
         }

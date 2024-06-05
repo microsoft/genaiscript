@@ -19,6 +19,7 @@ const { stdout: changes } = await host.exec("git", [
     "--",
     "**.ts",
 ])
+if (!changes.trim()) cancel("no changes detected")
 
 def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
 
