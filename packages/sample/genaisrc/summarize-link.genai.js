@@ -7,7 +7,7 @@ script({
     temperature: 0,
     tests: {
         files: [
-            "https://raw.githubusercontent.com/microsoft/genaiscript/main/packages/sample/src/rag/markdown.md",
+            `https://raw.githubusercontent.com/microsoft/genaiscript/main/packages/sample/src/rag/markdown.md`,
         ],
         keywords: "markdown",
     },
