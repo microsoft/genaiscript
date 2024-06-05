@@ -93,7 +93,7 @@ In a GitHub Actions workflow, you can inject a report in the step summary (`GITH
   run: |
       npx --yes genaiscript batch <script> <files> -os $GITHUB_STEP_SUMMARY
 - name: Upload GenAIScript results
-  if: success() || failure()
+  if: always()
   uses: actions/upload-artifact@v4
   with:
       path: |
