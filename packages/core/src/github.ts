@@ -1,15 +1,12 @@
 import { assert } from "node:console"
 import {
     GITHUB_API_VERSION,
-    GITHUB_PULL_REQUEST_REVIEWS_CACHE,
     GITHUB_TOKEN,
 } from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, normalizeInt } from "./util"
-import { string } from "mathjs"
-import { JSONLineCache } from "./cache"
 
 export interface GithubConnectionInfo {
     token: string
@@ -220,13 +217,12 @@ async function githubCreatePullRequestReview(
     script: PromptScript,
     info: GithubConnectionInfo,
     token: string,
-    annotation: Diagnostic
+    annotation: Diagnostic,
+    existingComments: { id: string; path: string; line: number; body: string }[]
 ) {
     assert(token)
     const { apiUrl, repository, issue, commitSha } = info
 
-    const fetch = await createFetch({ retryOn: [] })
-    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     const body = {
         body: appendGeneratedComment(script, info, annotation.message),
         commit_id: commitSha,
@@ -234,6 +230,18 @@ async function githubCreatePullRequestReview(
         line: annotation.range?.[0]?.[0],
         side: "RIGHT",
     }
+    if (
+        existingComments.find(
+            (c) =>
+                c.path === body.path &&
+                c.line === body.line &&
+                c.body === body.body
+        )
+    ) {
+        return { created: false, statusText: "comment already exists" }
+    }
+    const fetch = await createFetch({ retryOn: [] })
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
     const res = await fetch(url, {
         method: "POST",
         headers: {
@@ -263,7 +271,7 @@ export async function githubCreatePullRequestReviews(
     info: GithubConnectionInfo,
     annotations: Diagnostic[]
 ): Promise<boolean> {
-    const { repository, issue, sha } = info
+    const { repository, issue, sha, apiUrl } = info
 
     if (!annotations?.length) return true
     if (!issue) {
@@ -281,10 +289,32 @@ export async function githubCreatePullRequestReviews(
     }
 
     // query existing reviews
-
+    const fetch = await createFetch({ retryOn: [] })
+    const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
+    const resListComments = await fetch(`${url}?per_page=100`, {
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+    })
+    if (resListComments.status !== 200) return false
+    const comments = (await resListComments.json()) as {
+        id: string
+        path: string
+        line: number
+        body: string
+    }[]
+    console.log(comments)
     // code annotations
     for (const annotation of annotations) {
-        await githubCreatePullRequestReview(script, info, token, annotation)
+        await githubCreatePullRequestReview(
+            script,
+            info,
+            token,
+            annotation,
+            comments
+        )
     }
     return true
 }
