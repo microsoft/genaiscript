@@ -185,8 +185,13 @@ export function dotGenaiscriptPath(...segments: string[]) {
 }
 
 export function relativePath(root: string, fn: string) {
+    // ignore empty path or urls
     if (!fn || HTTPS_REGEX.test(fn)) return fn
-    return path.relative(root, fn)
+    const afn = host.path.resolve(fn)
+    if (afn.startsWith(root)) {
+        return afn.slice(root.length).replace(/^[\/\\]+/, "")
+    }
+    return fn
 }
 
 export function logInfo(msg: string) {
