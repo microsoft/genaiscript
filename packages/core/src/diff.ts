@@ -1,4 +1,5 @@
 import { assert } from "./util"
+import parseDiff from "parse-diff"
 
 export interface Chunk {
     state: "existing" | "deleted" | "added"
@@ -238,4 +239,36 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     }
 
     return lines.filter((l) => l !== undefined).join("\n")
+}
+
+
+export function llmifyDiff(diff: string) {
+    if (!diff) return diff
+
+    const parsed = parseDiff(diff)
+    console.log(JSON.stringify(parsed, null, 2))
+    for (const file of parsed) {
+        for (const chunk of file.chunks) {
+            let currentLineNumber = chunk.oldStart
+            for (const change of chunk.changes) {
+                if (change.type === "del") continue
+                ;(change as any).line = currentLineNumber
+                currentLineNumber++
+            }
+        }
+    }
+
+    // Convert back to unified diff format
+    let result = ""
+    for (const file of parsed) {
+        result += `--- ${file.from}\n+++ ${file.to}\n`
+        for (const chunk of file.chunks) {
+            result += `${chunk.content}\n`
+            for (const change of chunk.changes) {
+                result += `${(change as any).line !== undefined ? `[${(change as any).line}] ` : ""}${change.content}\n`
+            }
+        }
+    }
+
+    return result
 }
