@@ -92,27 +92,10 @@ Use the `out-trace` flag to output the trace to the summary file, `$GITHUB_STEP_
 - run: npx --yes genaiscript run ... --out-trace $GITHUB_STEP_SUMMARY
 ```
 
-## GitHub Pull request
-
-If your GitHub Action is triggered by a [pull request event](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request),
-you can use the following flags to add comments: description, conversation and reviews.
-
-In order to create comments, 
-the workflow must have the `pull-requests: write` [permission](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
-and the `GITHUB_TOKEN` secret must be passed to the script.
-
-```yaml
-permissions:
-    pull-requests: write
-...
-    - run: npx --yes genaiscript run ...
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
 
 ### Diff
 
-You can use `host.exec` to execute [git]() command to retrieve information about the current pull request.
+You can use `host.exec` to execute [git]() command to retrieve changes in the current branch.
 
 ```js
 const { stdout: changes } = await host.exec("git", [
@@ -132,6 +115,25 @@ def("GIT_DIFF", changes, {
 })
 ```
 
+## GitHub Pull request
+
+If your GitHub Action is triggered by a [pull request event](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request),
+you can use the following flags to add comments: description, conversation and reviews.
+
+In order to create comments, 
+the workflow must have the `pull-requests: write` [permission](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
+and the `GITHUB_TOKEN` secret must be passed to the script.
+
+```yaml
+permissions:
+    pull-requests: write
+...
+    - run: npx --yes genaiscript run ...
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ...
+```
+
 ### Update Description
 
 The `--pull-request-description` inserts the LLM output into the pull request section (see [example](https://github.com/microsoft/genaiscript/pull/504)).
@@ -141,12 +143,12 @@ The command takes an optional string argument to uniquely identify this comment,
 - run: npx --yes genaiscript run --pull-request-description
 ```
 
-If you want to run this script when the pull request is ready for review, use the [`ready_for_review`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request) event.
+If you want to run this script when the pull request is ready for review, use the [`ready_for_review`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request), `opened`, `reopened` events.
 
 ```yaml
 on:
     pull_request:
-        types: [ready_for_review]
+        types: [ready_for_review, opened, reopened]
 ```
 
 :::note
@@ -163,6 +165,8 @@ The optional argument is an identifier for the comment (default is the script id
 
 ```yaml "--pull-request-comment"
 - run: npx --yes genaiscript run --pull-request-comment
+  env:
+    ...
 ```
 
 ### Review comments
@@ -172,4 +176,18 @@ Use the `--pull-request-reviews` to convert [annotations](/genaiscript/reference
 
 ```yaml "--pull-request-reviews"
 - run: npx --yes genaiscript run --pull-request-reviews
+  env:
+    ...
+```
+
+To collect the changes of the last commit in the pull request branch (see [cool blog post](https://www.kenmuse.com/blog/the-many-shas-of-a-github-pull-request/)), you can try this git command:
+
+```js
+const { stdout: changes } = await host.exec("git", [
+    "diff",
+    "HEAD^",
+    "HEAD",
+    "--",
+    "**.ts",
+])
 ```
