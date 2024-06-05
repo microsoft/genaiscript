@@ -102,10 +102,13 @@ export function createRunPromptContext(
             const doptions = { ...(defOptions || {}), trace }
             doptions.lineNumbers = doptions.lineNumbers ?? options.lineNumbers
             // shortcuts
-            if (body === undefined || body === null) return undefined
-            else if (Array.isArray(body)) {
+            if (body === undefined || body === null) {
+                if (!doptions.ignoreEmpty)
+                    throw new CancelError(`def ${name} is ${body}`)
+                return undefined
+            } else if (Array.isArray(body)) {
                 if (body.length === 0 && !doptions.ignoreEmpty)
-                    throw new CancelError(`def ${name} files empty`)
+                    throw new CancelError(`def ${name} files is empty`)
                 body.forEach((f) => ctx.def(name, f, defOptions))
             } else if (typeof body === "object" && body.filename) {
                 const { glob, endsWith } = defOptions || {}
@@ -119,6 +122,8 @@ export function createRunPromptContext(
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
                 appendChild(node, createDefNode(name, body, doptions))
             } else if (typeof body === "string") {
+                if (body.trim() === "" && !doptions.ignoreEmpty)
+                    throw new CancelError(`def ${name} is empty`)
                 appendChild(
                     node,
                     createDefNode(
