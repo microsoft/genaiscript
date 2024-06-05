@@ -31,7 +31,7 @@ export function addLineNumbersToDiff(diff: string) {
         for (const chunk of file.chunks) {
             let currentLineNumber = chunk.oldStart
             for (const change of chunk.changes) {
-                if (change.type === "add") continue
+                if (change.type === "del") continue
                 ;(change as any).line = currentLineNumber
                 currentLineNumber++
             }
