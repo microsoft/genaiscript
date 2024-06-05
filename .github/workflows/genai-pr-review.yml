@@ -1,7 +1,6 @@
 name: genai pull request review
 on:
     pull_request:
-        types: [ready_for_review]
         paths:
             - yarn.lock
             - ".github/workflows/ollama.yml"

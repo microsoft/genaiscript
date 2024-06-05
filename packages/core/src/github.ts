@@ -68,6 +68,7 @@ export async function githubUpdatePullRequestDescription(
     commentTag: string
 ) {
     const { apiUrl, repository, issue } = info
+    assert(commentTag)
 
     if (!issue) return { updated: false, statusText: "missing issue number" }
     const token = await host.readSecret(GITHUB_TOKEN)
@@ -89,15 +90,21 @@ export async function githubUpdatePullRequestDescription(
     const resGetJson = (await resGet.json()) as { body: string }
     let { body } = resGetJson
     if (!body) body = ""
-    const tag = `\n\n<!-- genaiscript begin ${commentTag} -->\n\n`
-    const endTag = `\n\n<!-- genaiscript end ${commentTag} -->\n\n`
+    const tag = `<!-- genaiscript begin ${commentTag} -->`
+    const endTag = `<!-- genaiscript end ${commentTag} -->`
+    const sep = "\n\n"
 
     const start = body.indexOf(tag)
     const end = body.indexOf(endTag)
     if (start > -1 && end > -1 && start < end) {
-        body = body.slice(0, start + tag.length) + text + body.slice(end)
+        body =
+            body.slice(0, start + tag.length) +
+            sep +
+            text +
+            sep +
+            body.slice(end)
     } else {
-        body = body + tag + text + endTag
+        body = body + sep + tag + sep + text + sep + endTag + sep
     }
 
     const res = await fetch(url, {
