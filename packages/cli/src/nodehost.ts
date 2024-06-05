@@ -19,7 +19,7 @@ import {
     setHost,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
-import { readFile, unlink, writeFile, stat } from "node:fs/promises"
+import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
@@ -163,7 +163,7 @@ export class NodeHost implements Host {
             windowsPathsNoEscape: true,
             ignore,
         })
-        if (await stat(".gitignore")) {
+        if (existsSync(".gitignore")) {
             const gitignore = await readFile(".gitignore", {
                 encoding: "utf-8",
             })
