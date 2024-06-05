@@ -2,12 +2,12 @@ import { host } from "./host"
 import { relativePath } from "./util"
 
 const GITHUB_ANNOTATIONS_RX =
-    /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)\s*)?::(?<message>.*)$/gim
+    /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
 // ##vso[task.logissue type=warning;sourcepath=consoleap
 // https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file
 // ##vso[task.logissue type=warning;sourcepath=consoleapp/main.cs;linenumber=1;columnnumber=1;code=100;]Found something that could be a problem.
 const AZURE_DEVOPS_ANNOTATIONS_RX =
-    /^##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)[^\]]*\](?<message>.*)$/gim
+    /^##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)?[^\]]*\](?<message>.*)$/gim
 
 /**
  * Matches ::(notice|warning|error) file=<filename>,line=<start line>::<message>
@@ -23,7 +23,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
     const annotations: Record<string, Diagnostic> = {}
     text?.replace(
         GITHUB_ANNOTATIONS_RX,
-        (_, severity, file, line, endLine, message, code) => {
+        (_, severity, file, line, endLine, __, code, message) => {
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
                 filename: file,
@@ -41,7 +41,7 @@ export function parseAnnotations(text: string): Diagnostic[] {
     )
     text?.replace(
         AZURE_DEVOPS_ANNOTATIONS_RX,
-        (_, severity, file, line, message, code) => {
+        (_, severity, file, line, __, code, message) => {
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
                 filename: file,

@@ -20,5 +20,10 @@ describe("annotations", () => {
         assert.strictEqual(diags[0].filename, "packages/core/src/github.ts")
         assert.strictEqual(diags[0].range[0][0], 70)
         assert.strictEqual(diags[0].range[1][0], 70)
+        assert.strictEqual(diags[0].code, "concatenation_override")
+        assert.strictEqual(
+            diags[0].message,
+            "The change on line 71 may lead to the original `text` content being overridden instead of appending the footer. Consider using `text = appendGeneratedComment(script, info, text)` to ensure the original text is preserved and the footer is appended. 😇"
+        )
     })
 })
