@@ -160,7 +160,7 @@ export async function githubCreateIssueComment(
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
         // try to find the existing comment
-        const resListComments = await fetch(`${url}?per_page=100`, {
+        const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
             headers: {
                 Accept: "application/vnd.github+json",
                 Authorization: `Bearer ${token}`,
@@ -291,7 +291,7 @@ export async function githubCreatePullRequestReviews(
     // query existing reviews
     const fetch = await createFetch({ retryOn: [] })
     const url = `${apiUrl}/repos/${repository}/pulls/${issue}/comments`
-    const resListComments = await fetch(`${url}?per_page=100`, {
+    const resListComments = await fetch(`${url}?per_page=100&sort=updated`, {
         headers: {
             Accept: "application/vnd.github+json",
             Authorization: `Bearer ${token}`,
