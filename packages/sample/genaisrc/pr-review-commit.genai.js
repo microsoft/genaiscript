@@ -20,7 +20,7 @@ const { stdout: changes } = await host.exec("git", [
     "**.ts",
 ])
 
-def("GIT_DIFF", changes, { maxTokens: 20000, lineNumbers: false })
+def("GIT_DIFF", changes, { maxTokens: 20000 })
 
 $`You are an expert software developer and architect. You are
 an expert in software reliability, security, scalability, and performance.
