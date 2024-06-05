@@ -39,6 +39,7 @@ Think step by step and for each annotation explain your result.
 - do NOT report common convention issues
 - use a friendly tone
 - use emojis
+- do NOT cross-reference annotations, assume they are all independent
 - read the full source code of the files if you need more context
 - only report issues about code in GIT_DIFF
 `
