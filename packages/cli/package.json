@@ -25,7 +25,7 @@
   "dependencies": {
     "dockerode": "^4.0.2",
     "pdfjs-dist": "4.3.136",
-    "promptfoo": "^0.62.0",
+    "promptfoo": "^0.62.1",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
     "web-tree-sitter": "^0.22.2",
