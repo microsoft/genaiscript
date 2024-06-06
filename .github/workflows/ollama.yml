@@ -41,5 +41,5 @@ jobs:
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
               run: yarn test:summarize --model ollama:phi3 --out ./temp
-            - name: run summarize-links-phi3
+            - name: test summarize-links-phi3
               run: yarn test:scripts summarize-link --models ollama:phi3 --out ./temp
