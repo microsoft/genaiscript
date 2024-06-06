@@ -22,7 +22,7 @@ jobs:
               with:
                   node-version: "20"
                   cache: yarn
-            - run: yarn install --frozen-lockfile
+            - run: yarn install --frozen-lockfile --ignore-engines
             - name: compile
               run: yarn compile
             - name: git stuff

@@ -26,7 +26,7 @@ You can open this repo in GitHub Codespace/Docker to get the build environment n
 -   Run yarn
 
 ```sh
-yarn install --frozen-lockfile --prefer-offline
+yarn install --frozen-lockfile --prefer-offline --ignore-engines
 ```
 
 -   Start the **Run - sample** Debugger to launch the sample project in debugging mode
