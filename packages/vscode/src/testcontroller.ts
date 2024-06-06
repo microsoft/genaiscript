@@ -162,7 +162,7 @@ async function startTestViewer() {
         })
         const promptfooVersion = PROMPTFOO_VERSION
         terminal.sendText(
-            `npx --yes promptfoo@${promptfooVersion} view --port ${port} --yes`
+            `npx --yes promptfoo@${promptfooVersion} view --port ${port} --no`
         )
     }
     return serverUrl
