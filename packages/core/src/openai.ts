@@ -1,9 +1,10 @@
-import { logError, logVerbose, normalizeInt, trimTrailingSlash } from "./util"
+import { normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
+    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
@@ -22,6 +23,7 @@ import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
+import { assert } from "console"
 
 function getConfigHeaders(cfg: LanguageModelConfiguration) {
     return {
@@ -57,13 +59,14 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
-    const { model } = parseModelIdentifier(req.model)
+    const { provider, model } = parseModelIdentifier(req.model)
+    assert(provider != MODEL_PROVIDER_AZURE)
 
     const cache = getChatCompletionCache(cacheName)
     const caching =
         useCache === true || // always use cache
         (useCache !== false && // never use cache
-            seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
+            seed === undefined && // seed is not cacheable (let the LLM make the run deterministic)
             !tools?.length && // assume tools are non-deterministic by default
             (isNaN(temperature) ||
                 isNaN(maxCachedTemperature) ||

@@ -1,4 +1,5 @@
 import { AICIModel } from "./aici"
+import { AzureOpenAIModel } from "./azure"
 import { LanguageModel } from "./chat"
 import {
     DEFAULT_MODEL,
@@ -19,11 +20,11 @@ export function resolveLanguageModel(options: {
     languageModel?: LanguageModel
 }): LanguageModel {
     if (options.languageModel) return options.languageModel
+
     const { provider } = parseModelIdentifier(options.model)
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
-    if (provider === MODEL_PROVIDER_AZURE) return OpenAIModel
-    //MODEL_PROVIDER_LITELLM
+    if (provider === MODEL_PROVIDER_AZURE) return AzureOpenAIModel
     return OpenAIModel
 }
 
