@@ -7,7 +7,6 @@ import {
     MODEL_PROVIDERS,
     logError,
     logVerbose,
-    resolveLanguageModel,
 } from "genaiscript-core"
 
 export async function activateModelCompletionProvider(state: ExtensionState) {
@@ -63,7 +62,7 @@ export async function activateModelCompletionProvider(state: ExtensionState) {
 
                 const provider = m.groups.provider
                 const modelid = provider + ":*"
-                const lm = resolveLanguageModel({ model: modelid })
+                const lm = state.host.resolveLanguageModel({ model: modelid })
                 if (!lm.listModels) return []
                 try {
                     const cfg =

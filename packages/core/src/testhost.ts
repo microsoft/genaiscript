@@ -15,6 +15,8 @@ import {
 } from "./host"
 import { resolve } from "node:path"
 import { TraceOptions } from "./trace"
+import { LanguageModel } from "./chat"
+import { resolveLanguageModel } from "./models"
 
 export class TestHost implements Host {
     userState: any
@@ -51,6 +53,12 @@ export class TestHost implements Host {
         modelId: string
     ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
+    }
+    resolveLanguageModel(options: {
+        model?: string
+        languageModel?: LanguageModel
+    }): LanguageModel {
+        return resolveLanguageModel(options)
     }
     log(level: LogLevel, msg: string): void {
         throw new Error("Method not implemented.")

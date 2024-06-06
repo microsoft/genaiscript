@@ -3,6 +3,7 @@ import prompts from "prompts"
 import {
     AskUserOptions,
     Host,
+    LanguageModel,
     LanguageModelConfiguration,
     LogLevel,
     ModelService,
@@ -16,6 +17,7 @@ import {
     createBundledParsers,
     createFileSystem,
     parseTokenFromEnv,
+    resolveLanguageModel,
     setHost,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
@@ -80,6 +82,13 @@ export class NodeHost implements Host {
         modelId: string
     ): Promise<LanguageModelConfiguration> {
         return await parseTokenFromEnv(process.env, modelId)
+    }
+
+    resolveLanguageModel(options: {
+        model?: string
+        languageModel?: LanguageModel
+    }): LanguageModel {
+        return resolveLanguageModel(options)
     }
 
     clearVirtualFiles(): void {

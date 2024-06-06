@@ -13,7 +13,7 @@ import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
-import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
+import { resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
 import { unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
@@ -216,7 +216,7 @@ export async function runTemplate(
                 connection.info
             )
 
-        const { completer } = resolveLanguageModel(genOptions)
+        const { completer } = host.resolveLanguageModel(genOptions)
         const output = await executeChatSession(
             connection.token,
             cancellationToken,

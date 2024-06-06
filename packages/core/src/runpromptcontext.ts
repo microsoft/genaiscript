@@ -18,11 +18,7 @@ import {
     mergeGenerationOptions,
 } from "./chat"
 import { GenerationOptions } from "./promptcontext"
-import {
-    parseModelIdentifier,
-    resolveLanguageModel,
-    resolveModelConnectionInfo,
-} from "./models"
+import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { checkCancelled } from "./cancellation"
@@ -30,6 +26,7 @@ import { MODEL_PROVIDER_AICI } from "./constants"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
+import { host } from "./host"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -194,7 +191,7 @@ export function createRunPromptContext(
                 )
                 if (!connection.token)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = resolveLanguageModel(genOptions)
+                const { completer } = host.resolveLanguageModel(genOptions)
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info

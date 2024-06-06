@@ -13,6 +13,8 @@ import {
     AskUserOptions,
     TraceOptions,
     arrayify,
+    resolveLanguageModel,
+    LanguageModel,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -197,7 +199,7 @@ export class VSCodeHost extends EventTarget implements Host {
                 (u) => uris.add(u)
             )
         }
-        for(const pat of ignore) {
+        for (const pat of ignore) {
             const res = await vscode.workspace.findFiles(pat)
             res.map((u) => vscode.workspace.asRelativePath(u, false)).forEach(
                 (u) => uris.delete(u)
@@ -231,6 +233,13 @@ export class VSCodeHost extends EventTarget implements Host {
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)
         return tok
+    }
+
+    resolveLanguageModel(options: {
+        model?: string
+        languageModel?: LanguageModel
+    }): LanguageModel {
+        return resolveLanguageModel(options)
     }
 
     async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {
