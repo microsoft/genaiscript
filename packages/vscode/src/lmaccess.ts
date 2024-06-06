@@ -195,7 +195,7 @@ export async function configureLanguageModelAccess(
             )
 
             let text = ""
-            for await (const fragment of request.stream) {
+            for await (const fragment of request.text) {
                 text += fragment
                 partialCb?.({
                     responseSoFar: text,
