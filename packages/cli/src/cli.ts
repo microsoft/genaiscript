@@ -208,7 +208,7 @@ export async function cli() {
         .option("-v, --verbose", "verbose output")
         .option(
             "-pv, --promptfoo-version [version]",
-            `propmtfoo version, default is ${PROMPTFOO_VERSION}`
+            `promptfoo version, default is ${PROMPTFOO_VERSION}`
         )
         .option("-os, --out-summary <file>", "append output summary in file")
         .action(scriptsTest)

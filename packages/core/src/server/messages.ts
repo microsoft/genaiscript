@@ -63,7 +63,7 @@ export interface PromptScriptTestRun extends RequestMessage {
 
 export interface PromptScriptTestResult extends ResponseStatus {
     script: string
-    value?: any /** OutputFile */
+    value?: { evalId: string } /** OutputFile */
 }
 
 export interface PromptScriptTestRunResponse extends ResponseStatus {
