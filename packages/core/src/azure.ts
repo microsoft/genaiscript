@@ -19,10 +19,12 @@ import { assert } from "./util"
 import {
     ChatChoice,
     ChatCompletionsFunctionToolCall,
-    ChatCompletionsToolCall,
     OpenAIClient,
 } from "@azure/openai"
-import { DefaultAzureCredential } from "@azure/identity"
+import {
+    DefaultAzureCredential,
+    VisualStudioCodeCredential,
+} from "@azure/identity"
 
 const AzureOpenAIChatCompletion: ChatCompletionHandler = async (
     req,
@@ -46,12 +48,9 @@ const AzureOpenAIChatCompletion: ChatCompletionHandler = async (
         maxCachedTopP = MAX_CACHED_TOP_P,
         cache: useCache,
         cacheName,
-        retry,
-        retryDelay,
-        maxDelay,
+        vscode,
     } = options
     const { signal } = requestOptions || {}
-    const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
 
@@ -97,7 +96,10 @@ const AzureOpenAIChatCompletion: ChatCompletionHandler = async (
     let finishReason: ChatChoice["finishReason"] = undefined
 
     try {
-        const client = new OpenAIClient(cfg.base, new DefaultAzureCredential())
+        const credentials = vscode
+            ? new VisualStudioCodeCredential()
+            : new DefaultAzureCredential()
+        const client = new OpenAIClient(cfg.base, credentials)
         const events = await client.streamChatCompletions(model, messages, {
             temperature,
             topP: top_p,
@@ -162,9 +164,7 @@ const AzureOpenAIChatCompletion: ChatCompletionHandler = async (
     return <ChatCompletionResponse>{ text: chatResp, toolCalls, finishReason }
 }
 
-async function listModels(
-    cfg: LanguageModelConfiguration
-): Promise<LanguageModelInfo[]> {
+async function listModels(): Promise<LanguageModelInfo[]> {
     return []
 }
 

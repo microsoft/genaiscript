@@ -62,7 +62,7 @@
     "mammoth": "^1.7.2",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.1.0",
-    "openai": "^4.48.3",
+    "openai": "^4.49.0",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
     "prompts": "^2.4.2",

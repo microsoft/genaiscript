@@ -48,7 +48,7 @@
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.4",
     "minisearch": "^6.3.0",
-    "openai": "^4.48.3",
+    "openai": "^4.49.0",
     "parse-diff": "^0.11.1",
     "prettier": "^3.3.1",
     "pretty-bytes": "^6.1.1",

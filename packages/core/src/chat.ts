@@ -118,6 +118,10 @@ export interface ChatCompletionsOptions {
     retry?: number
     retryDelay?: number
     maxDelay?: number
+    /**
+     * Running inside a vscode extension
+     */
+    vscode?: boolean
 }
 
 export function toChatCompletionUserMessage(

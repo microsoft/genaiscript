@@ -25,7 +25,7 @@
         "setup": "git submodule update --init --recursive",
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
         "setup:bicep": "az bicep upgrade",
-        "install:force": "rm yarn.lock && yarn install",
+        "install:force": "rm yarn.lock && yarn install --ignore-engines",
         "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile",
         "compile-cli": "yarn --cwd packages/cli run compile",
         "compile": "yarn compile-ext && yarn compile-cli && yarn test:fix",

@@ -12,6 +12,10 @@ import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
 import { activateModelCompletionProvider } from "./modelcompletionprovider"
 
+import { useIdentityPlugin } from "@azure/identity"
+import { vsCodePlugin } from "@azure/identity-vscode"
+useIdentityPlugin(vsCodePlugin)
+
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
     activatePromptCommands(state)
