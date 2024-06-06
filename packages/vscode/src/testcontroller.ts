@@ -164,7 +164,6 @@ async function startTestViewer() {
         terminal.sendText(
             `npx --yes promptfoo@${promptfooVersion} view --port ${port} --yes`
         )
-        //await openUrlInTab(serverUrl)
     }
     return serverUrl
 }
