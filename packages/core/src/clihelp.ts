@@ -1,11 +1,9 @@
-import { Fragment } from "./ast"
 import { NPM_CLI_PACKAGE } from "./constants"
 import { GenerationOptions } from "./promptcontext"
-import { generatePromptFooConfiguration } from "./test"
 import { MarkdownTrace } from "./trace"
-import { arrayify } from "./util"
+import { arrayify, relativePath } from "./util"
 import { CORE_VERSION } from "./version"
-import { YAMLStringify } from "./yaml"
+import { host } from "./host"
 
 export function generateCliArguments(
     template: PromptScript,
@@ -20,7 +18,7 @@ export function generateCliArguments(
         `${NPM_CLI_PACKAGE}@^${CORE_VERSION}`,
         command,
         template.id,
-        `"${cliInfo.spec}"`,
+        `"${relativePath(host.projectFolder(), cliInfo.spec)}"`,
         "--apply-edits",
     ]
     if (model) cli.push(`--model`, model)
@@ -38,7 +36,7 @@ export function traceCliArgs(
 ) {
     trace.details(
         "🤖 automation",
-        `This operation can be automated using the command line interface using the \`run\` command:
+        `Use the [command line interface \`run\`](https://microsoft.github.io/genaiscript/reference/cli/run/) to automate this task:
 
 \`\`\`bash
 ${generateCliArguments(template, options, "run")}
@@ -46,7 +44,7 @@ ${generateCliArguments(template, options, "run")}
 
 
 -   You will need to install [Node.js LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
--   The CLI uses the same secrets in the \`.env\` file.
+-   The cli uses the same secrets in the \`.env\` file.
 `
     )
 
@@ -54,13 +52,7 @@ ${generateCliArguments(template, options, "run")}
         trace.details(
             "🧪 testing",
             `
-- [promptfoo](https://www.promptfoo.dev/) configuration
-
-\`\`\`yaml
-${YAMLStringify(generatePromptFooConfiguration(template, { models: [options] }))}
-\`\`\`
-
-- run the test command
+Use the [command line interface \`test\`://microsoft.github.io/genaiscript/reference/cli/test) to run the tests for this script:
 
 \`\`\`sh
 npx --yes genaiscript test ${template.id}

@@ -29,7 +29,6 @@ import {
     GENAI_JS_REGEX,
     GENAI_JS_GLOB,
     fixPromptDefinitions,
-    DEFAULT_MODEL,
     resolveModelConnectionInfo,
     AI_REQUESTS_CACHE,
 } from "genaiscript-core"
@@ -125,7 +124,9 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
 }
 
 function getAIRequestCache() {
-    return JSONLineCache.byName<AIRequestSnapshotKey, AIRequestSnapshot>(AI_REQUESTS_CACHE)
+    return JSONLineCache.byName<AIRequestSnapshotKey, AIRequestSnapshot>(
+        AI_REQUESTS_CACHE
+    )
 }
 
 export class ExtensionState extends EventTarget {
@@ -134,8 +135,10 @@ export class ExtensionState extends EventTarget {
     private _project: Project = undefined
     private _aiRequest: AIRequest = undefined
     private _diagColl: vscode.DiagnosticCollection
-    private _aiRequestCache: JSONLineCache<AIRequestSnapshotKey, AIRequestSnapshot> =
-        undefined
+    private _aiRequestCache: JSONLineCache<
+        AIRequestSnapshotKey,
+        AIRequestSnapshot
+    > = undefined
     readonly output: vscode.LogOutputChannel
 
     lastSearch: RetrievalSearchResult
@@ -353,11 +356,17 @@ ${errorMessage(e)}`
             cache: cache && template.cache,
             stats: { toolCalls: 0, repairs: 0 },
             cliInfo: {
-                spec: vscode.workspace.asRelativePath(
-                    this.host.isVirtualFile(fragment.file.filename)
-                        ? fragment.file.filename.replace(/\.gpspec\.md$/i, "")
-                        : fragment.file.filename
-                ),
+                spec:
+                    this.host.isVirtualFile(fragment.file.filename) &&
+                    this.host.path.basename(fragment.file.filename) ===
+                        "dir.gpspec.md"
+                        ? fragment.file.filename.replace(
+                              /dir\.gpspec\.md$/i,
+                              "**"
+                          )
+                        : this.host.isVirtualFile(fragment.file.filename)
+                          ? fragment.file.filename.replace(/\.gpspec\.md$/i, "")
+                          : fragment.file.filename,
             },
             model: info.model,
         }
