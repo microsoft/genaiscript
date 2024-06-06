@@ -2,6 +2,8 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
     CHANGE,
+    EMOJI_FAIL,
+    EMOJI_SUCCESS,
     ICON_LOGO_NAME,
     PROMPTFOO_CACHE_PATH,
     PROMPTFOO_CONFIG_DIR,
@@ -94,7 +96,7 @@ export async function activateTestController(state: ExtensionState) {
                 return
             }
 
-            startTestViewer()
+            const serverUrl = await startTestViewer()
             await state.host.server.client.init()
             try {
                 for (const { script, test } of scripts) {
@@ -105,7 +107,13 @@ export async function activateTestController(state: ExtensionState) {
                     }
                     run.started(test)
                     const res = await state.host.server.client.runTest(script)
-                    run.appendOutput(JSON.stringify(res), undefined, test)
+                    for (const r of res.value || []) {
+                        run.appendOutput(
+                            `${r.ok ? EMOJI_SUCCESS : EMOJI_FAIL} ${r.script} ${errorMessage(r.error) || ""} ${serverUrl}/eval?evalId=${encodeURIComponent(r.value?.evalId)}`,
+                            undefined,
+                            test
+                        )
+                    }
                     if (res.error)
                         run.failed(
                             test,
@@ -135,9 +143,10 @@ export async function activateTestController(state: ExtensionState) {
     }
 }
 
-export async function startTestViewer() {
+async function startTestViewer() {
     const name = "Promptfoo View"
     const port = PROMPTFOO_REMOTE_API_PORT
+    const serverUrl = `http://127.0.0.1:${port}`
     if (!vscode.window.terminals.find((t) => t.name === name)) {
         // show results
         const terminal = vscode.window.createTerminal({
@@ -153,8 +162,9 @@ export async function startTestViewer() {
         })
         const promptfooVersion = PROMPTFOO_VERSION
         terminal.sendText(
-            `npx --yes promptfoo@${promptfooVersion} view --port ${port}`
+            `npx --yes promptfoo@${promptfooVersion} view --port ${port} --yes`
         )
-        await openUrlInTab(`http://127.0.0.1:${port}`)
+        //await openUrlInTab(serverUrl)
     }
+    return serverUrl
 }
