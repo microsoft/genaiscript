@@ -38,7 +38,7 @@ export function traceCliArgs(
 ) {
     trace.details(
         "🤖 automation",
-        `This operation can be automated using the command line interface using the \`run\` command:
+        `This operation can be automated using the [command line interface](https://microsoft.github.io/genaiscript/reference/cli/run/):
 
 \`\`\`bash
 ${generateCliArguments(template, options, "run")}
@@ -46,7 +46,7 @@ ${generateCliArguments(template, options, "run")}
 
 
 -   You will need to install [Node.js LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
--   The CLI uses the same secrets in the \`.env\` file.
+-   The cli uses the same secrets in the \`.env\` file.
 `
     )
 
@@ -54,13 +54,7 @@ ${generateCliArguments(template, options, "run")}
         trace.details(
             "🧪 testing",
             `
-- [promptfoo](https://www.promptfoo.dev/) configuration
-
-\`\`\`yaml
-${YAMLStringify(generatePromptFooConfiguration(template, { models: [options] }))}
-\`\`\`
-
-- run the test command
+- run the [test command](https://microsoft.github.io/genaiscript/reference/cli/test):
 
 \`\`\`sh
 npx --yes genaiscript test ${template.id}
