@@ -60,7 +60,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { provider, model } = parseModelIdentifier(req.model)
-    assert(provider != MODEL_PROVIDER_AZURE)
 
     const cache = getChatCompletionCache(cacheName)
     const caching =
