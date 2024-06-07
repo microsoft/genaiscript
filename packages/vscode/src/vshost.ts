@@ -25,6 +25,7 @@ import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 import { AzureManager } from "./azuremanager"
+import { AzureOpenAILanguageModel } from "genaiscript-core/src/azure"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -252,7 +253,9 @@ export class VSCodeHost extends EventTarget implements Host {
     ): Promise<LanguageModel> {
         const model = resolveLanguageModel(options, configuration)
         if (model?.id === MODEL_PROVIDER_AZURE) {
-            await this.azure.signIn()
+            const cred = await this.azure.signIn()
+            const azModel = model as AzureOpenAILanguageModel
+            azModel.credential = cred
         }
         return model
     }

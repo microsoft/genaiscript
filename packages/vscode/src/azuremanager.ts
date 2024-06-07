@@ -1,32 +1,53 @@
 import {
+    AzureSubscription,
     signInToTenant,
     VSCodeAzureSubscriptionProvider,
 } from "@microsoft/vscode-azext-azureauth"
 import { ExtensionState } from "./state"
 import * as vscode from "vscode"
 import { CancelError, errorMessage, isCancelError } from "genaiscript-core"
+import { TokenCredential } from "@azure/identity"
 
 export class AzureManager {
     private _vscodeAzureSubscriptionProvider:
         | VSCodeAzureSubscriptionProvider
         | undefined
+    private _credential: TokenCredential
 
     constructor(readonly state: ExtensionState) {}
 
-    async signIn(): Promise<void> {
+    async signIn(): Promise<TokenCredential> {
+        if (this._credential) return this._credential
+
         if (!this._vscodeAzureSubscriptionProvider)
             this._vscodeAzureSubscriptionProvider =
                 new VSCodeAzureSubscriptionProvider()
 
         try {
-            const signed = await this._vscodeAzureSubscriptionProvider.signIn()
-            if (!signed) throw new CancelError("Azure sign in failed")
+            if (!this._vscodeAzureSubscriptionProvider.isSignedIn()) {
+                const signed =
+                    await this._vscodeAzureSubscriptionProvider.signIn()
+                if (!signed) throw new CancelError("Azure sign in failed")
+            }
+            const subscriptions =
+                await this._vscodeAzureSubscriptionProvider.getSubscriptions()
+            const sub = await vscode.window.showQuickPick(<
+                (vscode.QuickPickItem & { subscription: AzureSubscription })[]
+            >[
+                ...subscriptions.map((s) => ({
+                    label: s.name,
+                    description: s.subscriptionId,
+                    subscription: s,
+                })),
+            ])
+            if (sub === undefined) return undefined
+            return sub.subscription.credential
         } catch (e) {
             if (!isCancelError(e)) throw e
 
             const msg = errorMessage(e)
             vscode.window.showErrorMessage(msg)
-            throw new CancelError("Azure sign in failed")
+            throw new CancelError(msg)
         }
     }
 }

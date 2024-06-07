@@ -1,5 +1,5 @@
 import { AICIModel } from "./aici"
-import { createAzureOpenAIModel } from "./azure"
+import { AzureOpenAILanguageModel } from "./azure"
 import { LanguageModel } from "./chat"
 import {
     DEFAULT_MODEL,
@@ -29,7 +29,7 @@ export function resolveLanguageModel(
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_AZURE && !configuration.token)
-        return createAzureOpenAIModel()
+        return new AzureOpenAILanguageModel()
     return OpenAIModel
 }
 
