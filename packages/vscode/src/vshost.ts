@@ -239,7 +239,7 @@ export class VSCodeHost extends EventTarget implements Host {
         model?: string
         languageModel?: LanguageModel
     }): LanguageModel {
-        return resolveLanguageModel({ ...(options || {}), vscode: true })
+        return resolveLanguageModel(options)
     }
 
     async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {

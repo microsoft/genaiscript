@@ -18,15 +18,12 @@ import {
     ChatCompletionsFunctionToolCall,
     OpenAIClient,
 } from "@azure/openai"
-import {
-    DefaultAzureCredential,
-    VisualStudioCodeCredential,
-} from "@azure/identity"
+import { DefaultAzureCredential } from "@azure/identity"
 
 /**
  * Azure specific support with managed identity
  */
-export function createAzureOpenAIModel(azureOptions?: { vscode?: boolean }) {
+export function createAzureOpenAIModel() {
     const completer: ChatCompletionHandler = async (
         req,
         cfg,
@@ -100,9 +97,7 @@ export function createAzureOpenAIModel(azureOptions?: { vscode?: boolean }) {
         let finishReason: ChatChoice["finishReason"] = undefined
 
         try {
-            const credentials = azureOptions?.vscode
-                ? new VisualStudioCodeCredential()
-                : new DefaultAzureCredential()
+            const credentials = new DefaultAzureCredential()
             const client = new OpenAIClient(cfg.base, credentials)
             const events = await client.streamChatCompletions(model, messages, {
                 temperature,

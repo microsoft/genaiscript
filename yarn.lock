@@ -6592,9 +6592,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.668:
-  version "1.4.793"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.793.tgz#7536a58ab166fb399683e837d5e1ae5f5f593e2a"
-  integrity sha512-eGGzOCtlwNLVoMgOAXKLvesX6X7HM/KMJ+3x/yjcCBbZfpFhQvZUFvhnHxJT3jHJ8RpstR5npd0krWLPTCoh0g==
+  version "1.4.794"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.794.tgz#cca7762998f6c42517770666e272f52a53c08605"
+  integrity sha512-6FApLtsYhDCY0Vglq3AptsdxQ+PJLc6AxlAM0HjEihUAiOPPbkASEsq9gtxUeZY9o0sJIEa3WnF0vVH4VT4iug==
 
 elkjs@^0.9.0:
   version "0.9.3"
@@ -13563,9 +13563,9 @@ tstl@^2.0.7:
   integrity sha512-+O2ybLVLKcBwKm4HymCEwZIT0PpwS3gCYnxfSDEjJEKADvIFruaQjd3m7CAKNU1c7N3X3WjVz87re7TA2A5FUw==
 
 tsx@^4.11.2:
-  version "4.12.0"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.12.0.tgz#2a2483d27f2073fc36e8f89bcb1b753d031d699b"
-  integrity sha512-642NAWAbDqPZINjmL32Lh/B+pd8vbVj6LHPsWm09IIHqQuWhCrNfcPTjRlHFWvv3FfM4vt9NLReBIjUNj5ZhDg==
+  version "4.13.0"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.13.0.tgz#f0f98d1adcd8de397e46b3242805e9098449b8ac"
+  integrity sha512-kNY70P2aLMdVBii1Err5ENxDhQ6Vz2PbQGX68DcvzY2/PWK5NLBO6vI7lPr1/2xG3IKSt2MN+KOAyWDQSRlbCA==
   dependencies:
     esbuild "~0.20.2"
     get-tsconfig "^4.7.5"

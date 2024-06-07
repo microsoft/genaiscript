@@ -304,7 +304,7 @@
         "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
         "vscode:prepublish": "yarn run compile",
         "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:vscode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:@azure/openai --external:@azure/identity --external:@azure/identity-vscode",
         "compile": "yarn compile:icons && yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
@@ -335,6 +335,8 @@
         "zx": "^8.1.2"
     },
     "dependencies": {
+        "@azure/identity": "^4.2.0",
+        "@azure/openai": "^1.0.0-beta.12",
         "mammoth": "^1.7.2",
         "pdfjs-dist": "4.3.136",
         "tree-sitter-wasms": "^0.1.11",

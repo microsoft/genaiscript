@@ -18,16 +18,14 @@ import { TraceOptions } from "./trace"
 export function resolveLanguageModel(options: {
     model?: string
     languageModel?: LanguageModel
-    vscode?: boolean
 }): LanguageModel {
-    const { model, vscode, languageModel } = options || {}
+    const { model, languageModel } = options || {}
     if (languageModel) return languageModel
 
     const { provider } = parseModelIdentifier(model)
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
-    if (provider === MODEL_PROVIDER_AZURE)
-        return createAzureOpenAIModel({ vscode })
+    if (provider === MODEL_PROVIDER_AZURE) return createAzureOpenAIModel()
     return OpenAIModel
 }
 
