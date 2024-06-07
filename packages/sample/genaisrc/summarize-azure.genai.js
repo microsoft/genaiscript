@@ -1,6 +1,6 @@
 script({
     title: "summarize azure",
-    model: "azure:gpt-4o",
+    model: "azure:gpt2networkverification",
     files: "src/rag/markdown.md",
 })
 
