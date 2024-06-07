@@ -4,7 +4,12 @@ import {
 } from "@microsoft/vscode-azext-azureauth"
 import { ExtensionState } from "./state"
 import * as vscode from "vscode"
-import { CancelError, errorMessage, isCancelError } from "genaiscript-core"
+import {
+    AZURE_OPENAI_TOKEN_SCOPE,
+    CancelError,
+    errorMessage,
+    isCancelError,
+} from "genaiscript-core"
 import { TokenCredential } from "@azure/identity"
 
 export class AzureManager {
@@ -58,11 +63,12 @@ export class AzureManager {
         }
     }
 
-    async getOpenAIToken() {
+    async getOpenAIToken(options?: { signal: AbortSignal }) {
+        const { signal } = options || {}
         const credential = await this.signIn()
-        const token = await credential.getToken([
-            "https://cognitiveservices.azure.com/.default",
-        ])
+        const token = await credential.getToken([AZURE_OPENAI_TOKEN_SCOPE], {
+            abortSignal: signal,
+        })
         return token.token
     }
 }

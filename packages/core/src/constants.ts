@@ -4,6 +4,7 @@ export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 100
 //https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 export const AZURE_OPENAI_API_VERSION = "2024-02-01"
+export const AZURE_OPENAI_TOKEN_SCOPE = "https://cognitiveservices.azure.com/.default"
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"

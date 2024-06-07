@@ -16,7 +16,7 @@ import {
     resolveLanguageModel,
     LanguageModel,
     MODEL_PROVIDER_AZURE,
-    MODEL_PROVIDER_OPENAI,
+    AbortSignalOptions,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -236,13 +236,20 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
+        const { signal, token: askToken } = options || {}
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)
-        if (tok && !tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
-            const azureToken = await this.azure.getOpenAIToken()
+        if (
+            askToken &&
+            tok &&
+            !tok.token &&
+            tok.provider === MODEL_PROVIDER_AZURE
+        ) {
+            const azureToken = await this.azure.getOpenAIToken({ signal })
             if (!azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + azureToken
         }

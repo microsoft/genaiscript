@@ -12,7 +12,7 @@ import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
-import { TraceOptions } from "./trace"
+import { AbortSignalOptions, TraceOptions } from "./trace"
 
 export function resolveLanguageModel(
     options: {
@@ -61,17 +61,22 @@ export interface ModelConnectionInfo
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { model?: string; token?: boolean } & TraceOptions
+    options?: { model?: string; token?: boolean } & TraceOptions &
+        AbortSignalOptions
 ): Promise<{
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
-    const { trace } = options || {}
+    const { trace, token: askToken, signal } = options || {}
     const model = options.model ?? conn.model ?? DEFAULT_MODEL
     try {
         trace?.startDetails(`⚙️ configuration`)
         trace?.itemValue(`model`, model)
-        const configuration = await host.getLanguageModelConfiguration(model)
+        const configuration = await host.getLanguageModelConfiguration(model, {
+            token: askToken,
+            signal,
+            trace,
+        })
         if (!configuration) {
             return { info: { ...conn, model } }
         } else {

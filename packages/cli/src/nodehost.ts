@@ -1,6 +1,8 @@
 import dotenv from "dotenv"
 import prompts from "prompts"
 import {
+    AZURE_OPENAI_TOKEN_SCOPE,
+    AbortSignalOptions,
     AskUserOptions,
     Host,
     LanguageModel,
@@ -81,13 +83,21 @@ export class NodeHost implements Host {
     }
 
     async getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
+        const { signal, token: askToken } = options || {}
         const tok = await parseTokenFromEnv(process.env, modelId)
-        if (tok && !tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
-            const azureToken = await new DefaultAzureCredential().getToken([
-                "https://cognitiveservices.azure.com/.default",
-            ])
+        if (
+            askToken &&
+            tok &&
+            !tok.token &&
+            tok.provider === MODEL_PROVIDER_AZURE
+        ) {
+            const azureToken = await new DefaultAzureCredential().getToken(
+                [AZURE_OPENAI_TOKEN_SCOPE],
+                { abortSignal: signal }
+            )
             if (!azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + azureToken.token
         }

@@ -81,10 +81,8 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { skipLLM, label, cliInfo, trace } = options
-    const cancellationToken = options?.cancellationToken
+    const { skipLLM, label, cliInfo, trace, cancellationToken, model } = options
     const version = CORE_VERSION
-    const model = options.model
     assert(model !== undefined)
 
     try {
@@ -205,7 +203,7 @@ export async function runTemplate(
         updateStatus(`prompting model ${model}`)
         const connection = await resolveModelConnectionInfo(
             { model },
-            { trace, token: true }
+            { trace, token: true, signal }
         )
         if (connection.info.error)
             throw new Error(errorMessage(connection.info.error))
@@ -215,7 +213,10 @@ export async function runTemplate(
                 "LLM configuration missing",
                 connection.info
             )
-        const { completer } = await host.resolveLanguageModel(genOptions, connection.configuration)
+        const { completer } = await host.resolveLanguageModel(
+            genOptions,
+            connection.configuration
+        )
         const output = await executeChatSession(
             connection.configuration,
             cancellationToken,

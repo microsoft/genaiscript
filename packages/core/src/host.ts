@@ -1,7 +1,7 @@
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -140,7 +140,8 @@ export interface Host {
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
     getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration | undefined>
     resolveLanguageModel(
         options: {
