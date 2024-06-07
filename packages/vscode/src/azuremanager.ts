@@ -12,12 +12,16 @@ export class AzureManager {
     private _vscodeAzureSubscriptionProvider:
         | VSCodeAzureSubscriptionProvider
         | undefined
-    private _credential: TokenCredential
+    private _subscription: AzureSubscription
 
     constructor(readonly state: ExtensionState) {}
 
+    get subscription() {
+        return this._subscription
+    }
+
     async signIn(): Promise<TokenCredential> {
-        if (this._credential) return this._credential
+        if (this._subscription) return this._subscription.credential
 
         if (!this._vscodeAzureSubscriptionProvider)
             this._vscodeAzureSubscriptionProvider =
@@ -40,8 +44,12 @@ export class AzureManager {
                     subscription: s,
                 })),
             ])
-            if (sub === undefined) return undefined
-            return sub.subscription.credential
+            if (sub === undefined) {
+                this._subscription = undefined
+                return undefined
+            }
+            this._subscription = sub.subscription
+            return this._subscription.credential
         } catch (e) {
             if (!isCancelError(e)) throw e
 
