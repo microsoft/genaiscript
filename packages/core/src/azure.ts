@@ -43,6 +43,8 @@ export class AzureOpenAILanguageModel implements LanguageModel {
                 maxCachedTopP = MAX_CACHED_TOP_P,
                 cache: useCache,
                 cacheName,
+                retry,
+                retryDelay,
             } = options
             const { signal } = requestOptions || {}
             const { token, source, ...cfgNoToken } = cfg
@@ -96,7 +98,13 @@ export class AzureOpenAILanguageModel implements LanguageModel {
 
             try {
                 const cred = this.credential ?? new DefaultAzureCredential()
-                const client = new OpenAIClient(cfg.base, cred)
+                const client = new OpenAIClient(cfg.base, cred, {
+                    apiVersion: cfg.version,
+                    retryOptions: {
+                        retryDelayInMs: retryDelay,
+                        maxRetries: retry,
+                    },
+                })
                 const events = await client.streamChatCompletions(
                     model,
                     messages,
