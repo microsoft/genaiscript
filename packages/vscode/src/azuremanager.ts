@@ -1,6 +1,5 @@
 import {
     AzureSubscription,
-    signInToTenant,
     VSCodeAzureSubscriptionProvider,
 } from "@microsoft/vscode-azext-azureauth"
 import { ExtensionState } from "./state"
