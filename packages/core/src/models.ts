@@ -29,7 +29,7 @@ export function resolveLanguageModel(
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_AZURE && !configuration.token)
-        return AzureOpenAIModel // entra id
+        return AzureOpenAIModel
     return OpenAIModel
 }
 

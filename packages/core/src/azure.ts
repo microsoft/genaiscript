@@ -131,7 +131,6 @@ const completer: ChatCompletionHandler = async (req, cfg, options, trace) => {
                     if (delta.content) {
                         numTokens += estimateTokens(model, delta.content)
                         chatResp += delta.content
-                        chatResp += delta.content
                         trace.content += delta.content.includes("`")
                             ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
                             : `\`${delta.content.replace(/\n/g, " ")}\` `
