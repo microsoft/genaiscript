@@ -101,7 +101,7 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
-            if (token && !base.endsWith("/openai/deployments"))
+            if (!base.endsWith("/openai/deployments"))
                 base += "/openai/deployments"
             return {
                 provider,

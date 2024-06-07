@@ -57,4 +57,12 @@ export class AzureManager {
             throw new CancelError(msg)
         }
     }
+
+    async getOpenAIToken() {
+        const credential = await this.signIn()
+        const token = await credential.getToken([
+            "https://cognitiveservices.azure.com/.default",
+        ])
+        return token.token
+    }
 }

@@ -16,6 +16,7 @@ import {
     resolveLanguageModel,
     LanguageModel,
     MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_OPENAI,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -25,7 +26,6 @@ import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 import { AzureManager } from "./azuremanager"
-import { AzureOpenAILanguageModel } from "genaiscript-core/src/azure"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -241,6 +241,11 @@ export class VSCodeHost extends EventTarget implements Host {
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)
+        if (!tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
+            tok.provider = MODEL_PROVIDER_OPENAI
+            tok.type = "azure"
+            tok.token = "Bearer " + (await this.azure.getOpenAIToken())
+        }
         return tok
     }
 
@@ -252,11 +257,6 @@ export class VSCodeHost extends EventTarget implements Host {
         configuration: LanguageModelConfiguration
     ): Promise<LanguageModel> {
         const model = resolveLanguageModel(options, configuration)
-        if (model?.id === MODEL_PROVIDER_AZURE) {
-            const cred = await this.azure.signIn()
-            const azModel = model as AzureOpenAILanguageModel
-            azModel.credential = cred
-        }
         return model
     }
 

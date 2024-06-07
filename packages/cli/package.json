@@ -39,7 +39,6 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@azure/openai": "^1.0.0-beta.12",
     "@llamaindex/env": "^0.0.5",
     "@types/dockerode": "^3.3.29",
     "@types/fs-extra": "^11.0.4",

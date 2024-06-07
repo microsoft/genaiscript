@@ -6,6 +6,7 @@ import {
     LanguageModel,
     LanguageModelConfiguration,
     LogLevel,
+    MODEL_PROVIDER_AZURE,
     ModelService,
     ReadFileOptions,
     RetrievalService,
@@ -32,6 +33,7 @@ import { join } from "node:path"
 import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
+import { DefaultAzureCredential } from "@azure/identity"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -81,7 +83,17 @@ export class NodeHost implements Host {
     async getLanguageModelConfiguration(
         modelId: string
     ): Promise<LanguageModelConfiguration> {
-        return await parseTokenFromEnv(process.env, modelId)
+        const tok = await parseTokenFromEnv(process.env, modelId)
+        if (!tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
+            tok.token =
+                "Bearer " +
+                (
+                    await new DefaultAzureCredential().getToken([
+                        "https://cognitiveservices.azure.com/.default",
+                    ])
+                ).token
+        }
+        return tok
     }
 
     async resolveLanguageModel(

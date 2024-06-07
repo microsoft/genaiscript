@@ -23,19 +23,23 @@ import { RequestError, errorMessage } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
-import { assert } from "console"
 
 function getConfigHeaders(cfg: LanguageModelConfiguration) {
-    return {
+    const res = {
         // openai
-        authorization:
-            cfg.token && (cfg.type === "openai" || cfg.type === "localai")
-                ? `Bearer ${cfg.token}`
-                : undefined,
+        authorization: /^Bearer /.test(cfg.token)
+            ? cfg.token
+            : cfg.token && (cfg.type === "openai" || cfg.type === "localai")
+              ? `Bearer ${cfg.token}`
+              : undefined,
         // azure
-        "api-key": cfg.token && cfg.type === "azure" ? cfg.token : undefined,
+        "api-key":
+            cfg.token && !/^Bearer /.test(cfg.token) && cfg.type === "azure"
+                ? cfg.token
+                : undefined,
         "user-agent": TOOL_ID,
     }
+    return res
 }
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (
