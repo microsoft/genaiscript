@@ -18,7 +18,24 @@ import {
     ChatCompletionsFunctionToolCall,
     OpenAIClient,
 } from "@azure/openai"
-import { DefaultAzureCredential } from "@azure/identity"
+import { TraceOptions } from "./trace"
+import { installImport } from "./import"
+import { AZURE_IDENTITY_VERSION } from "./version"
+
+async function tryImportAzureIdentity(options?: TraceOptions) {
+    const { trace } = options || {}
+    try {
+        const m = await import("@azure/identity")
+        return m
+    } catch (e) {
+        trace?.error(
+            `@azure/identity not found, installing ${AZURE_IDENTITY_VERSION}...`
+        )
+        await installImport("@azure/identity", AZURE_IDENTITY_VERSION, trace)
+        const m = await import("@azure/identity")
+        return m
+    }
+}
 
 /**
  * Azure specific support with managed identity
@@ -83,7 +100,6 @@ const completer: ChatCompletionHandler = async (req, cfg, options, trace) => {
     }
 
     trace.itemValue(`endpoint`, `[${cfg.base}](${cfg.base})`)
-
     const toolCalls: ChatCompletionToolCall[] = []
 
     let chatResp = ""
@@ -91,6 +107,9 @@ const completer: ChatCompletionHandler = async (req, cfg, options, trace) => {
     let finishReason: ChatChoice["finishReason"] = undefined
 
     try {
+        const { DefaultAzureCredential } = await tryImportAzureIdentity({
+            trace,
+        })
         const credentials = new DefaultAzureCredential()
         const client = new OpenAIClient(cfg.base, credentials)
         const events = await client.streamChatCompletions(model, messages, {
