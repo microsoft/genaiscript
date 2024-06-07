@@ -24,7 +24,6 @@
   "license": "MIT",
   "dependencies": {
     "@azure/identity": "^4.2.0",
-    "@azure/openai": "^1.0.0-beta.12",
     "dockerode": "^4.0.2",
     "pdfjs-dist": "4.3.136",
     "promptfoo": "^0.62.1",
@@ -40,6 +39,7 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
+    "@azure/openai": "^1.0.0-beta.12",
     "@llamaindex/env": "^0.0.5",
     "@types/dockerode": "^3.3.29",
     "@types/fs-extra": "^11.0.4",
@@ -74,7 +74,7 @@
     "zx": "^8.1.2"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:@azure/openai --external:@azure/identity && node ../../scripts/patch-cli.mjs",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:@azure/identity && node ../../scripts/patch-cli.mjs",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",
