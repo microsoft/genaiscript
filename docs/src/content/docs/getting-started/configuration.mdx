@@ -130,6 +130,71 @@ script({
 <a id="azure" href=""></a>
 
 The Azure OpenAI provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
+
+### Managed Identity (Entra ID)
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to the **Keys and Endpoint** tab.
+
+</li>
+
+<li>
+
+Update the `.env` file with the endpoint. 
+
+```txt title=".env"
+AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
+```
+
+:::note
+
+Make sure to remove any `AZURE_API_KEY`, `AZURE_OPENAI_API_KEY` entries from `.env` file.
+
+:::
+
+</li>
+
+<li>
+
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure:deployment-id"'
+script({
+    model: "azure:deployment-id",
+    ...
+})
+```
+
+</li>
+
+<li>
+
+If you are using the command line, you will need to login with the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/get-started-with-azure-cli).
+
+```sh
+az login
+```
+
+If you are using Visual Studio Code, the extension will ask you to sign in. 
+
+</li>
+
+</ol>
+
+</Steps>
+
+### API Key
 
 <Steps>
 
@@ -143,18 +208,20 @@ Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to the 
 
 <li>
 
-Make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
-
-</li>
-
-<li>
-
 Update the `.env` file with the secret key (**Key 1** or **Key 2**) and the endpoint.
 
 ```txt title=".env"
 AZURE_API_KEY=...
 AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
 ```
+
+</li>
+
+<li>
+
+Open Azure AI Studio, select **Deployments** 
+and make sure that you have your LLM deployed and copy the `deployment-id`, 
+you will need it in the script.
 
 </li>
 
