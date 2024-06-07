@@ -24,6 +24,7 @@ import {
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
+import { fenceMD } from "./markdown"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -187,7 +188,9 @@ export interface LanguageModelInfo {
     url?: string
 }
 
-export type ListModelsFunction = (cfg: LanguageModelConfiguration) => Promise<LanguageModelInfo[]>
+export type ListModelsFunction = (
+    cfg: LanguageModelConfiguration
+) => Promise<LanguageModelInfo[]>
 
 export interface LanguageModel {
     id: string
@@ -481,7 +484,7 @@ export async function executeChatSession(
 
         let genVars: Record<string, string>
         while (true) {
-            trace.detailsFenced(`💬 messages`, messages, "yaml")
+            trace.details(`💬 messages`, renderMessagesToMarkdown(messages))
             trace.startDetails(`📤 llm request (${messages.length} messages)`)
             let resp: ChatCompletionResponse
             try {
@@ -530,4 +533,34 @@ export async function executeChatSession(
     } finally {
         trace.endDetails()
     }
+}
+
+function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
+    const res: string[] = []
+    messages.forEach((msg) => {
+        const { role } = msg
+        res.push(`> ${role}`)
+        switch (role) {
+            case "system":
+                res.push(fenceMD(msg.content, "markdown"))
+                break
+            case "user":
+                if (typeof msg.content === "string")
+                    res.push(fenceMD(msg.content, "markdown"))
+                else
+                    for (const part of msg.content) {
+                        if (part.type === "text")
+                            res.push(fenceMD(part.text, "markdown"))
+                        else res.push(`![image](${part.image_url.url})`)
+                    }
+                break
+            case "assistant":
+                res.push(fenceMD(msg.content, "markdown"))
+                break
+            default:
+                res.push(fenceMD(YAML.stringify(msg), "yaml"))
+                break
+        }
+    })
+    return res.join("\n")
 }
