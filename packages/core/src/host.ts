@@ -148,7 +148,7 @@ export interface Host {
             languageModel?: LanguageModel
         },
         configuration: LanguageModelConfiguration
-    ): LanguageModel
+    ): Promise<LanguageModel>
 
     log(level: LogLevel, msg: string): void
 

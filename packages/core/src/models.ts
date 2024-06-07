@@ -1,5 +1,5 @@
 import { AICIModel } from "./aici"
-import { AzureOpenAIModel } from "./azure"
+import { createAzureOpenAIModel } from "./azure"
 import { LanguageModel } from "./chat"
 import {
     DEFAULT_MODEL,
@@ -29,7 +29,7 @@ export function resolveLanguageModel(
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
     if (provider === MODEL_PROVIDER_AZURE && !configuration.token)
-        return AzureOpenAIModel
+        return createAzureOpenAIModel()
     return OpenAIModel
 }
 
@@ -65,17 +65,20 @@ export interface ModelConnectionInfo
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: { model?: string; token?: boolean } & TraceOptions
-): Promise<{ info: ModelConnectionInfo; token?: LanguageModelConfiguration }> {
+): Promise<{
+    info: ModelConnectionInfo
+    configuration?: LanguageModelConfiguration
+}> {
     const { trace } = options || {}
     const model = options.model ?? conn.model ?? DEFAULT_MODEL
     try {
         trace?.startDetails(`⚙️ configuration`)
         trace?.itemValue(`model`, model)
-        const secret = await host.getLanguageModelConfiguration(model)
-        if (!secret) {
+        const configuration = await host.getLanguageModelConfiguration(model)
+        if (!configuration) {
             return { info: { ...conn, model } }
         } else {
-            const { token: theToken, ...rest } = secret
+            const { token: theToken, ...rest } = configuration
             trace?.itemValue(`base`, rest.base)
             trace?.itemValue(`type`, rest.type)
             trace?.itemValue(`version`, rest.version)
@@ -87,7 +90,7 @@ export async function resolveModelConnectionInfo(
                     model,
                     token: theToken ? (options?.token ? theToken : "***") : "",
                 },
-                token: secret,
+                configuration,
             }
         }
     } catch (e) {

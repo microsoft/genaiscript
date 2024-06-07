@@ -84,13 +84,13 @@ export class NodeHost implements Host {
         return await parseTokenFromEnv(process.env, modelId)
     }
 
-    resolveLanguageModel(
+    async resolveLanguageModel(
         options: {
             model?: string
             languageModel?: LanguageModel
         },
         configuration: LanguageModelConfiguration
-    ): LanguageModel {
+    ): Promise<LanguageModel> {
         return resolveLanguageModel(options, configuration)
     }
 

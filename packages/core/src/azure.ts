@@ -18,24 +18,7 @@ import {
     ChatCompletionsFunctionToolCall,
     OpenAIClient,
 } from "@azure/openai"
-import { TraceOptions } from "./trace"
-import { installImport } from "./import"
-import { AZURE_IDENTITY_VERSION } from "./version"
-
-async function tryImportAzureIdentity(options?: TraceOptions) {
-    const { trace } = options || {}
-    try {
-        const m = await import("@azure/identity")
-        return m
-    } catch (e) {
-        trace?.error(
-            `@azure/identity not found, installing ${AZURE_IDENTITY_VERSION}...`
-        )
-        await installImport("@azure/identity", AZURE_IDENTITY_VERSION, trace)
-        const m = await import("@azure/identity")
-        return m
-    }
-}
+import { DefaultAzureCredential } from "@azure/identity"
 
 /**
  * Azure specific support with managed identity
@@ -107,9 +90,6 @@ const completer: ChatCompletionHandler = async (req, cfg, options, trace) => {
     let finishReason: ChatChoice["finishReason"] = undefined
 
     try {
-        const { DefaultAzureCredential } = await tryImportAzureIdentity({
-            trace,
-        })
         const credentials = new DefaultAzureCredential()
         const client = new OpenAIClient(cfg.base, credentials)
         const events = await client.streamChatCompletions(model, messages, {
@@ -179,7 +159,13 @@ const completer: ChatCompletionHandler = async (req, cfg, options, trace) => {
     }
 }
 
-export const AzureOpenAIModel = Object.freeze<LanguageModel>({
-    completer,
-    id: MODEL_PROVIDER_AZURE,
-})
+export interface AzureLanguageModel extends LanguageModel {
+    credentials?: any
+}
+
+export function createAzureOpenAIModel() {
+    return Object.freeze<AzureLanguageModel>({
+        completer,
+        id: MODEL_PROVIDER_AZURE,
+    })
+}

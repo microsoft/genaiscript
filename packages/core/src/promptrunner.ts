@@ -209,15 +209,15 @@ export async function runTemplate(
         )
         if (connection.info.error)
             throw new Error(errorMessage(connection.info.error))
-        if (!connection.token)
+        if (!connection.configuration)
             throw new RequestError(
                 403,
                 "LLM configuration missing",
                 connection.info
             )
-        const { completer } = host.resolveLanguageModel(genOptions, connection.token)
+        const { completer } = await host.resolveLanguageModel(genOptions, connection.configuration)
         const output = await executeChatSession(
-            connection.token,
+            connection.configuration,
             cancellationToken,
             messages,
             functions,

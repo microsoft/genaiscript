@@ -820,6 +820,17 @@
   dependencies:
     tslib "^2.6.2"
 
+"@azure/arm-resources-subscriptions@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@azure/arm-resources-subscriptions/-/arm-resources-subscriptions-2.1.0.tgz#a736ac80ef4dfc5dbc1a85222445c960de65824b"
+  integrity sha512-vKiu/3Yh84IV3IuJJ+0Fgs/ZQpvuGzoZ3dAoBksIV++Uu/Qz9RcQVz7pj+APWYIuODuR9I0eGKswZvzynzekug==
+  dependencies:
+    "@azure/core-auth" "^1.3.0"
+    "@azure/core-client" "^1.7.0"
+    "@azure/core-paging" "^1.2.0"
+    "@azure/core-rest-pipeline" "^1.8.0"
+    tslib "^2.2.0"
+
 "@azure/core-auth@^1.3.0", "@azure/core-auth@^1.4.0", "@azure/core-auth@^1.5.0":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@azure/core-auth/-/core-auth-1.7.2.tgz#558b7cb7dd12b00beec07ae5df5907d74df1ebd9"
@@ -829,7 +840,7 @@
     "@azure/core-util" "^1.1.0"
     tslib "^2.6.2"
 
-"@azure/core-client@^1.4.0":
+"@azure/core-client@^1.4.0", "@azure/core-client@^1.7.0", "@azure/core-client@^1.9.2":
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/@azure/core-client/-/core-client-1.9.2.tgz#6fc69cee2816883ab6c5cdd653ee4f2ff9774f74"
   integrity sha512-kRdry/rav3fUKHl/aDLd/pDLcB+4pOFwPPTVEExuMyaI5r+JBbMWqRbCY1pn5BniDaU3lRxO9eaQ1AmSMehl/w==
@@ -842,7 +853,14 @@
     "@azure/logger" "^1.0.0"
     tslib "^2.6.2"
 
-"@azure/core-rest-pipeline@^1.1.0", "@azure/core-rest-pipeline@^1.13.0", "@azure/core-rest-pipeline@^1.5.0", "@azure/core-rest-pipeline@^1.9.1":
+"@azure/core-paging@^1.2.0":
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@azure/core-paging/-/core-paging-1.6.2.tgz#40d3860dc2df7f291d66350b2cfd9171526433e7"
+  integrity sha512-YKWi9YuCU04B55h25cnOYZHxXYtEvQEbKST5vqRga7hWY9ydd3FZHdeQF8pyh+acWZvppw13M/LMGx0LABUVMA==
+  dependencies:
+    tslib "^2.6.2"
+
+"@azure/core-rest-pipeline@^1.1.0", "@azure/core-rest-pipeline@^1.13.0", "@azure/core-rest-pipeline@^1.16.0", "@azure/core-rest-pipeline@^1.5.0", "@azure/core-rest-pipeline@^1.8.0", "@azure/core-rest-pipeline@^1.9.1":
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/@azure/core-rest-pipeline/-/core-rest-pipeline-1.16.0.tgz#631172e2fe0346cf4410d1c8e01ad98d849738e2"
   integrity sha512-CeuTvsXxCUmEuxH5g/aceuSl6w2EugvNHKAtKKVdiX915EjJJxAwfzNNWZreNnbxHZ2fi0zaM6wwS23x2JVqSQ==
@@ -878,37 +896,6 @@
     "@azure/abort-controller" "^2.0.0"
     tslib "^2.6.2"
 
-"@azure/identity-vscode@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@azure/identity-vscode/-/identity-vscode-1.0.0.tgz#91b9f855ac9ef27323c3b10f15e651f98d293dd4"
-  integrity sha512-bHB50nK+s3Bw2hfkRu9Y1sO81rtX544hx1rNeizq0z+/tq5BZo+M6mXadE/LT2SF8cDDP4wJ9Lzy0leci5cJhA==
-  dependencies:
-    "@azure/identity" "^2.0.0"
-    keytar "^7.6.0"
-    tslib "^2.2.0"
-
-"@azure/identity@^2.0.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@azure/identity/-/identity-2.1.0.tgz#89f0bfc1d1264dfd3d0cb19837c33a9c6706d548"
-  integrity sha512-BPDz1sK7Ul9t0l9YKLEa8PHqWU4iCfhGJ+ELJl6c8CP3TpJt2urNCbm0ZHsthmxRsYoMPbz2Dvzj30zXZVmAFw==
-  dependencies:
-    "@azure/abort-controller" "^1.0.0"
-    "@azure/core-auth" "^1.3.0"
-    "@azure/core-client" "^1.4.0"
-    "@azure/core-rest-pipeline" "^1.1.0"
-    "@azure/core-tracing" "^1.0.0"
-    "@azure/core-util" "^1.0.0"
-    "@azure/logger" "^1.0.0"
-    "@azure/msal-browser" "^2.26.0"
-    "@azure/msal-common" "^7.0.0"
-    "@azure/msal-node" "^1.10.0"
-    events "^3.0.0"
-    jws "^4.0.0"
-    open "^8.0.0"
-    stoppable "^1.1.0"
-    tslib "^2.2.0"
-    uuid "^8.3.0"
-
 "@azure/identity@^4.1.0", "@azure/identity@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@azure/identity/-/identity-4.2.0.tgz#acaee2f50785cc87778ec7eedcc20d6e72c1da23"
@@ -936,12 +923,10 @@
   dependencies:
     tslib "^2.6.2"
 
-"@azure/msal-browser@^2.26.0":
-  version "2.39.0"
-  resolved "https://registry.yarnpkg.com/@azure/msal-browser/-/msal-browser-2.39.0.tgz#684fd3974c2628b2dffd04a4c8416a0945b42b69"
-  integrity sha512-kks/n2AJzKUk+DBqZhiD+7zeQGBl+WpSOQYzWy6hff3bU0ZrYFqr4keFLlzB5VKuKZog0X59/FGHb1RPBDZLVg==
-  dependencies:
-    "@azure/msal-common" "13.3.3"
+"@azure/ms-rest-azure-env@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@azure/ms-rest-azure-env/-/ms-rest-azure-env-2.0.0.tgz#45809f89763a480924e21d3c620cd40866771625"
+  integrity sha512-dG76W7ElfLi+fbTjnZVGj+M9e0BIEJmRxU6fHaUQ12bZBe8EJKYb2GV50YWNaP2uJiVQ5+7nXEVj1VN1UQtaEw==
 
 "@azure/msal-browser@^3.11.1":
   version "3.16.0"
@@ -950,34 +935,10 @@
   dependencies:
     "@azure/msal-common" "14.11.0"
 
-"@azure/msal-common@13.3.1":
-  version "13.3.1"
-  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-13.3.1.tgz#012465bf940d12375dc47387b754ccf9d6b92180"
-  integrity sha512-Lrk1ozoAtaP/cp53May3v6HtcFSVxdFrg2Pa/1xu5oIvsIwhxW6zSPibKefCOVgd5osgykMi5jjcZHv8XkzZEQ==
-
-"@azure/msal-common@13.3.3":
-  version "13.3.3"
-  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-13.3.3.tgz#b4963c9e5a164ed890b204becb036303ccf4f6ac"
-  integrity sha512-n278DdCXKeiWhLwhEL7/u9HRMyzhUXLefeajiknf6AmEedoiOiv2r5aRJ7LXdT3NGPyubkdIbthaJlVtmuEqvA==
-
 "@azure/msal-common@14.11.0":
   version "14.11.0"
   resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-14.11.0.tgz#a34483ae6b1009d0058472f2c5db4569071dc51a"
   integrity sha512-B6+IKLFs7Lsr06vjX8dPN61ENpTgiFrHf+CVo1UasHcmk5uEOq5D4thrbjsauKX+xtFryYsCDtznVDmWS4/sCg==
-
-"@azure/msal-common@^7.0.0":
-  version "7.6.0"
-  resolved "https://registry.yarnpkg.com/@azure/msal-common/-/msal-common-7.6.0.tgz#b52e97ef540275f72611cff57937dfa0b34cdcca"
-  integrity sha512-XqfbglUTVLdkHQ8F9UQJtKseRr3sSnr9ysboxtoswvaMVaEfvyLtMoHv9XdKUfOc0qKGzNgRFd9yRjIWVepl6Q==
-
-"@azure/msal-node@^1.10.0":
-  version "1.18.4"
-  resolved "https://registry.yarnpkg.com/@azure/msal-node/-/msal-node-1.18.4.tgz#c921b0447c92fb3b0cb1ebf5a9a76fcad2ec7c21"
-  integrity sha512-Kc/dRvhZ9Q4+1FSfsTFDME/v6+R2Y1fuMty/TfwqE5p9GTPw08BPbKgeWinE8JRHRp+LemjQbUZsn4Q4l6Lszg==
-  dependencies:
-    "@azure/msal-common" "13.3.1"
-    jsonwebtoken "^9.0.0"
-    uuid "^8.3.0"
 
 "@azure/msal-node@^2.6.6":
   version "2.9.1"
@@ -2108,6 +2069,16 @@
     unist-util-visit "^5.0.0"
     vfile "^6.0.0"
 
+"@microsoft/vscode-azext-azureauth@^2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@microsoft/vscode-azext-azureauth/-/vscode-azext-azureauth-2.4.1.tgz#e8325d1c3ce8445c4f3e05469fdd45ee98653afa"
+  integrity sha512-xt+amhbEzzrK5fFdsXxkpwBRrQDNoA02OtJX4bUApkz0vcp6q3jPChqrM2wZ3X8vZD+JjEmnfCniHwD4uo4eVw==
+  dependencies:
+    "@azure/arm-resources-subscriptions" "^2.1.0"
+    "@azure/core-client" "^1.9.2"
+    "@azure/core-rest-pipeline" "^1.16.0"
+    "@azure/ms-rest-azure-env" "^2.0.0"
+
 "@mistralai/mistralai@^0.0.10":
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/@mistralai/mistralai/-/mistralai-0.0.10.tgz#4f27f289f9499479ba2cf0a53741f41798e272ba"
@@ -2442,53 +2413,53 @@
   resolved "https://registry.yarnpkg.com/@sevinf/maybe/-/maybe-0.5.0.tgz#e59fcea028df615fe87d708bb30e1f338e46bb44"
   integrity sha512-ARhyoYDnY1LES3vYI0fiG6e9esWfTNcXcO6+MPJJXcnyMV3bim4lnFt45VXouV7y82F4x3YH8nOQ6VztuvUiWg==
 
-"@shikijs/core@1.6.2":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.6.2.tgz#29be410e33e604c8ccc7d5ab75cade1a52db8ec2"
-  integrity sha512-guW5JeDzZ7uwOjTfCOFZ2VtVXk5tmkMzBYbKGfXsmAH1qYOej49L5jQDcGmwd6/OgvpmWhzO2GNJkQIFnbwLPQ==
+"@shikijs/core@1.6.3":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.6.3.tgz#3dc1ff78d5fedd97b7d38bb0fda115d40d8b9ff9"
+  integrity sha512-QnJKHFUW95GnlJLJGP6QLx4M69HM0KlXk+R2Y8lr/x4nAx1Yb/lsuxq4XwybuUjTxbJk+BT0g/kvn0bcsjGGHg==
 
 "@shikijs/markdown-it@^1.6.1":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/markdown-it/-/markdown-it-1.6.2.tgz#a93cae50cd1ad6ed749e68ded77de56c667aa9db"
-  integrity sha512-VhY7XJepbcb7ORS7uOyK0E3cgt7Ov8yMxyhZLbTm09SjfGlWUyLULHXzzyutCEOLWW4LWnemK521xJiG7dC1HQ==
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@shikijs/markdown-it/-/markdown-it-1.6.3.tgz#54a9e64a8956ab25d65644ad15de855e417eea0a"
+  integrity sha512-NDaAoJdmRtyvIAEERMhkRPvuAxiWq4uwvexrnWSYPZk6UQvl91kP48nUhOE8XLyUwlRvNx9/wHv1DmZOKjUwXA==
   dependencies:
-    "@shikijs/transformers" "1.6.2"
+    "@shikijs/transformers" "1.6.3"
     markdown-it "^14.1.0"
-    shiki "1.6.2"
+    shiki "1.6.3"
 
 "@shikijs/monaco@^1.6.1":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/monaco/-/monaco-1.6.2.tgz#9a8a32ce759c97260176a88864cc51e8eb832e59"
-  integrity sha512-0X/ud3naqebORTkXdC2dKNM3ymxMKxGBaS+H2qlWEG4O+UfEhdYdN9BFNFVibGwcnAft4dNNW+fIimYgBhZUpw==
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@shikijs/monaco/-/monaco-1.6.3.tgz#9beb005aaac1338e0a000f8000dc6f74d3e1f686"
+  integrity sha512-FDB7+cs5FFWGYMGWQ4DkMpHWMPDOqaCYi0nOBduzgdGAz8qtDqfSlfoPEQE1r6YoQhJ44oE08dXAmp5nZ7nhrg==
   dependencies:
-    "@shikijs/core" "1.6.2"
+    "@shikijs/core" "1.6.3"
 
-"@shikijs/transformers@1.6.2":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/transformers/-/transformers-1.6.2.tgz#dab9f22531f1a16114a59f11e5d681edbd764970"
-  integrity sha512-ndqTWyHnxmsLkowhKWTam26opw8hg5a34y6FAUG/Xf6E49n3MM//nenKxXiWpPYkNPl1KZnYXB1k+Ia46wjOZg==
+"@shikijs/transformers@1.6.3":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@shikijs/transformers/-/transformers-1.6.3.tgz#d6faca7f6fd2a6db7efd5c5fe672cd67b4bb5c59"
+  integrity sha512-ptBuP/IIeqCzK3zZO/knFICZWs58uZWzbv7ND+bKOewe5NcCjZfSiMyzFwOyl23ewPJ1APjRBwLi6Asrodmmxw==
   dependencies:
-    shiki "1.6.2"
+    shiki "1.6.3"
 
-"@shikijs/twoslash@1.6.2", "@shikijs/twoslash@^1.6.1":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/twoslash/-/twoslash-1.6.2.tgz#e13d0559f52a4bf46932db448d2a133d54d05122"
-  integrity sha512-s2dtnY0WY9RagnS3z2tkS4hNhz2mW2DXlfo3XmfT2yExkFQ4kg3W/gquB07hl4ebIuwI87u2sppVYBUZQQ53RA==
+"@shikijs/twoslash@1.6.3", "@shikijs/twoslash@^1.6.1":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@shikijs/twoslash/-/twoslash-1.6.3.tgz#6e386da5e44e83e95713b36020d008481fce46f0"
+  integrity sha512-GGCq9BBCzwIFSSwI7bss1y6Yd3jrHaoN4g4OF+85cKg0mP6a8GK5u3YwqxDoFjkEzt0Aj3FKIEpX7ICYNQJluw==
   dependencies:
-    "@shikijs/core" "1.6.2"
+    "@shikijs/core" "1.6.3"
     twoslash "^0.2.6"
 
 "@shikijs/vitepress-twoslash@^1.6.1":
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/@shikijs/vitepress-twoslash/-/vitepress-twoslash-1.6.2.tgz#436d754f33e4cce33344a3970825af517a28728f"
-  integrity sha512-LVtE2k95ljB2fMR/fPr1V34Q+I+mA/LyqrQRe1CttMZ+Nc9mj+11Whu7B5Q7410GBoIo1KdKcPuFcM+/v8ghUQ==
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@shikijs/vitepress-twoslash/-/vitepress-twoslash-1.6.3.tgz#b6b89e63615c922953a3c3179842016975ec3f93"
+  integrity sha512-9j0rhqlp+gNjb6fNc+tZx02jD4wtzxMIZSp/PNcPhKxdRUJRSE8LF9iVeN06e2Rd13cBa+F1ZEJjjxvgPDM0ww==
   dependencies:
-    "@shikijs/twoslash" "1.6.2"
+    "@shikijs/twoslash" "1.6.3"
     floating-vue "^5.2.2"
     mdast-util-from-markdown "^2.0.1"
     mdast-util-gfm "^3.0.0"
     mdast-util-to-hast "^13.1.0"
-    shiki "1.6.2"
+    shiki "1.6.3"
     twoslash "^0.2.6"
     twoslash-vue "^0.2.6"
     vue "^3.4.27"
@@ -2519,9 +2490,9 @@
   integrity sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==
 
 "@slidev/cli@^0.49.9":
-  version "0.49.9"
-  resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-0.49.9.tgz#6b835494b9acff7902bd6d1c89ef7aa72ba646f6"
-  integrity sha512-5r0K+hyfv0WW+n7Tb4oaHGJnwAv/TQFO36pmf3f4RPsTm8cYNh69UQygb8UCNV0FhdC5WmdQ/I+nHwrsu9dMkQ==
+  version "0.49.10"
+  resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-0.49.10.tgz#666938a19d1f5a010e1f2ed592659677c38727d4"
+  integrity sha512-DnVsvB+5CQPAexBwl0DUwp8/4n5FOQYDhAryZqTiUoO7ig5KRqb+FXnvhk5jGJeOdpuaegyjT4ll/5VWDXCdUA==
   dependencies:
     "@antfu/ni" "^0.21.12"
     "@antfu/utils" "^0.7.8"
@@ -2532,9 +2503,9 @@
     "@shikijs/markdown-it" "^1.6.1"
     "@shikijs/twoslash" "^1.6.1"
     "@shikijs/vitepress-twoslash" "^1.6.1"
-    "@slidev/client" "0.49.9"
-    "@slidev/parser" "0.49.9"
-    "@slidev/types" "0.49.9"
+    "@slidev/client" "0.49.10"
+    "@slidev/parser" "0.49.10"
+    "@slidev/types" "0.49.10"
     "@unocss/extractor-mdc" "^0.60.4"
     "@unocss/reset" "^0.60.4"
     "@vitejs/plugin-vue" "^5.0.5"
@@ -2595,10 +2566,10 @@
     vue "^3.4.27"
     yargs "^17.7.2"
 
-"@slidev/client@0.49.9":
-  version "0.49.9"
-  resolved "https://registry.yarnpkg.com/@slidev/client/-/client-0.49.9.tgz#a04b5196773ec81544ebd93121bcaf0217f797d3"
-  integrity sha512-5+SoeLvCv9SXm7XSW4W2r07FRwcZHykjsqs4n/i2mBhhFxr18y1/fP+Wmv8Mu2NuEeEVnxfb/lslhiVDYsCOvg==
+"@slidev/client@0.49.10":
+  version "0.49.10"
+  resolved "https://registry.yarnpkg.com/@slidev/client/-/client-0.49.10.tgz#6b111170cc70c1c9cfa90e7e82b293b0261e7376"
+  integrity sha512-YMHSoo3SJsFS2uY2ISFuWmXjEDDav7gyF7iEYtTQu/uB5qDfB5pmfJsTXbosw1yS8iecQFMd8H4ONCdvCbix3w==
   dependencies:
     "@antfu/utils" "^0.7.8"
     "@iconify-json/carbon" "^1.1.34"
@@ -2606,9 +2577,9 @@
     "@iconify-json/svg-spinners" "^1.1.2"
     "@shikijs/monaco" "^1.6.1"
     "@shikijs/vitepress-twoslash" "^1.6.1"
-    "@slidev/parser" "0.49.9"
+    "@slidev/parser" "0.49.10"
     "@slidev/rough-notation" "^0.1.0"
-    "@slidev/types" "0.49.9"
+    "@slidev/types" "0.49.10"
     "@typescript/ata" "^0.9.5"
     "@unhead/vue" "^1.9.11"
     "@unocss/reset" "^0.60.4"
@@ -2634,13 +2605,13 @@
     vue-router "^4.3.2"
     yaml "^2.4.2"
 
-"@slidev/parser@0.49.9":
-  version "0.49.9"
-  resolved "https://registry.yarnpkg.com/@slidev/parser/-/parser-0.49.9.tgz#a057744ce937620d5df962e82b18194fbeb583c4"
-  integrity sha512-ASYPj8QsdauBazB58E/3YD2TyxPZdg1d1N29eVIPCiIpS53WNac2O1WjNKuPbx33kcR3tNCGkDe/4fmORulGrA==
+"@slidev/parser@0.49.10":
+  version "0.49.10"
+  resolved "https://registry.yarnpkg.com/@slidev/parser/-/parser-0.49.10.tgz#94dcf04f4cdc2d6e5bf49facfdaf8cb64eebfca8"
+  integrity sha512-k2Piz458grqnUmSnfT9X1EgF59isckj0VY6VypCzqP7I6yauEHFEX25Z/OJPzXeY2B8gWdvw9Vd99cColzHEMQ==
   dependencies:
     "@antfu/utils" "^0.7.8"
-    "@slidev/types" "0.49.9"
+    "@slidev/types" "0.49.10"
     yaml "^2.4.2"
 
 "@slidev/rough-notation@^0.1.0":
@@ -2668,10 +2639,10 @@
     codemirror-theme-vars "^0.1.2"
     prism-theme-vars "^0.2.4"
 
-"@slidev/types@0.49.9":
-  version "0.49.9"
-  resolved "https://registry.yarnpkg.com/@slidev/types/-/types-0.49.9.tgz#4932c688f850a803a0a2043c40423619bb081409"
-  integrity sha512-dOifysjvWPmbplNUi9K1CM9qwOQBtM6uXnQ4VdjT0GGlRUUsIUAbCaYs7QTXuHVLJBbvo7bbtf9ReJ7OTjvGXQ==
+"@slidev/types@0.49.10":
+  version "0.49.10"
+  resolved "https://registry.yarnpkg.com/@slidev/types/-/types-0.49.10.tgz#2778f016f8a09ef6d8366d6b4cade014969da92a"
+  integrity sha512-PysrP4nZX/e8hnbmq7JZPmQ/lYyXNPKpHgD2M04Rc1sMajJOO8o/6BJPRTfaF4+UQzdpjlILG0lkWEGJiwiC6w==
   dependencies:
     "@antfu/utils" "^0.7.8"
     "@vitejs/plugin-vue" "^5.0.5"
@@ -6592,9 +6563,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.668:
-  version "1.4.794"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.794.tgz#cca7762998f6c42517770666e272f52a53c08605"
-  integrity sha512-6FApLtsYhDCY0Vglq3AptsdxQ+PJLc6AxlAM0HjEihUAiOPPbkASEsq9gtxUeZY9o0sJIEa3WnF0vVH4VT4iug==
+  version "1.4.795"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.795.tgz#25d05961c529bc32435e5e4abdd8f9dabcbc9dc5"
+  integrity sha512-hHo4lK/8wb4NUa+NJYSFyJ0xedNHiR6ylilDtb8NUW9d4dmBFmGiecYEKCEbti1wTNzbKXLfl4hPWEkAFbHYlw==
 
 elkjs@^0.9.0:
   version "0.9.3"
@@ -8918,7 +8889,7 @@ keygrip@~1.1.0:
   dependencies:
     tsscmp "1.0.6"
 
-keytar@^7.6.0, keytar@^7.7.0:
+keytar@^7.7.0:
   version "7.9.0"
   resolved "https://registry.yarnpkg.com/keytar/-/keytar-7.9.0.tgz#4c6225708f51b50cbf77c5aae81721964c2918cb"
   integrity sha512-VPD8mtVtm5JNtA2AErl6Chp06JBfy7diFQ7TQQhdpWOl6MrCRB+eRbvAZUsbGQS9kiMq0coJsy0W0vHpDCkWsQ==
@@ -9653,9 +9624,9 @@ mdast-util-phrasing@^4.0.0:
     unist-util-is "^6.0.0"
 
 mdast-util-to-hast@^13.0.0, mdast-util-to-hast@^13.1.0:
-  version "13.1.0"
-  resolved "https://registry.yarnpkg.com/mdast-util-to-hast/-/mdast-util-to-hast-13.1.0.tgz#1ae54d903150a10fe04d59f03b2b95fd210b2124"
-  integrity sha512-/e2l/6+OdGp/FB+ctrJ9Avz71AN/GRH3oi/3KAx/kMnoUsD6q0woXlDT8lLEeViVKE7oZxE7RXzvO3T8kF2/sA==
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/mdast-util-to-hast/-/mdast-util-to-hast-13.2.0.tgz#5ca58e5b921cc0a3ded1bc02eed79a4fe4fe41f4"
+  integrity sha512-QGYKEuUsYT9ykKBCMOEDLsU5JRObWQusAolFMeko/tYPufNkRffBAQjIE+99jbA87xv6FgmjLtwjh9wBWajwAA==
   dependencies:
     "@types/hast" "^3.0.0"
     "@types/mdast" "^4.0.0"
@@ -12728,12 +12699,12 @@ shiki-magic-move@^0.4.2:
     diff-match-patch-es "^0.1.0"
     ohash "^1.1.3"
 
-shiki@1.6.2, shiki@^1.1.2, shiki@^1.1.7, shiki@^1.6.1:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.6.2.tgz#082db563387a94c10e4002e0c62c61bc78e9cae7"
-  integrity sha512-X3hSm5GzzBd/BmPmGfkueOUADLyBoZo1ojYQXhd+NU2VJn458yt4duaS0rVzC+WtqftSV7mTVvDw+OB9AHi3Eg==
+shiki@1.6.3, shiki@^1.1.2, shiki@^1.1.7, shiki@^1.6.1:
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.6.3.tgz#e2b55227ed794bb023478b3005b87bae5829e6cc"
+  integrity sha512-lE1/YGlzFY0hQSyEfsZj18xGrTWxyhFQkaiILALqTBZPbJeYFWpbUhlmTGPOupYB/qC+H6sV4UznJzcEh3WMHQ==
   dependencies:
-    "@shikijs/core" "1.6.2"
+    "@shikijs/core" "1.6.3"
 
 side-channel@^1.0.4, side-channel@^1.0.6:
   version "1.0.6"
@@ -13563,9 +13534,9 @@ tstl@^2.0.7:
   integrity sha512-+O2ybLVLKcBwKm4HymCEwZIT0PpwS3gCYnxfSDEjJEKADvIFruaQjd3m7CAKNU1c7N3X3WjVz87re7TA2A5FUw==
 
 tsx@^4.11.2:
-  version "4.13.0"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.13.0.tgz#f0f98d1adcd8de397e46b3242805e9098449b8ac"
-  integrity sha512-kNY70P2aLMdVBii1Err5ENxDhQ6Vz2PbQGX68DcvzY2/PWK5NLBO6vI7lPr1/2xG3IKSt2MN+KOAyWDQSRlbCA==
+  version "4.13.2"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.13.2.tgz#e59c0a0abf955d1c352081352657a3f92c832e36"
+  integrity sha512-s+WGqChkA77uU8xij1IdO9jQnwJAiWJto0bF5yJLbAZpLtNs82Qa5CwMBxWjJ7QOYU9MzBf4MCNt6lZduwkQ+g==
   dependencies:
     esbuild "~0.20.2"
     get-tsconfig "^4.7.5"
@@ -14255,9 +14226,9 @@ vite-plugin-vue-server-ref@^0.4.2:
     ufo "^1.3.2"
 
 vite@^5.0.0, vite@^5.2.12:
-  version "5.2.12"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-5.2.12.tgz#3536c93c58ba18edea4915a2ac573e6537409d97"
-  integrity sha512-/gC8GxzxMK5ntBwb48pR32GGhENnjtY30G4A0jemunsBkiEZFw60s8InGpN8gkhHEkjnRK1aSAxeQgwvFhUHAA==
+  version "5.2.13"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-5.2.13.tgz#945ababcbe3d837ae2479c29f661cd20bc5e1a80"
+  integrity sha512-SSq1noJfY9pR3I1TUENL3rQYDQCFqgD+lM6fTRAM8Nv6Lsg5hDLaXkjETVeBt+7vZBCMoibD+6IWnT2mJ+Zb/A==
   dependencies:
     esbuild "^0.20.1"
     postcss "^8.4.38"

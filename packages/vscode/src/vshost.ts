@@ -15,6 +15,7 @@ import {
     arrayify,
     resolveLanguageModel,
     LanguageModel,
+    MODEL_PROVIDER_AZURE,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -23,6 +24,7 @@ import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
+import { AzureManager } from "./azuremanager"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -31,6 +33,7 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly server: TerminalServerManager
     readonly workspace = createFileSystem()
     readonly parser: ParseService
+    private _azure: AzureManager
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -80,6 +83,11 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async removeContainers(): Promise<void> {
         if (this.server.started) await this.server.client.containerRemove()
+    }
+
+    get azure() {
+        if (!this._azure) this._azure = new AzureManager(this.state)
+        return this._azure
     }
 
     get retrieval() {
@@ -235,14 +243,18 @@ export class VSCodeHost extends EventTarget implements Host {
         return tok
     }
 
-    resolveLanguageModel(
+    async resolveLanguageModel(
         options: {
             model?: string
             languageModel?: LanguageModel
         },
         configuration: LanguageModelConfiguration
-    ): LanguageModel {
-        return resolveLanguageModel(options, configuration)
+    ): Promise<LanguageModel> {
+        const model = resolveLanguageModel(options, configuration)
+        if (model?.id === MODEL_PROVIDER_AZURE) {
+            await this.azure.signIn()
+        }
+        return model
     }
 
     async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {

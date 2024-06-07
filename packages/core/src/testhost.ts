@@ -54,13 +54,13 @@ export class TestHost implements Host {
     ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
     }
-    resolveLanguageModel(
+    async resolveLanguageModel(
         options: {
             model?: string
             languageModel?: LanguageModel
         },
         configuration: LanguageModelConfiguration
-    ): LanguageModel {
+    ): Promise<LanguageModel> {
         return resolveLanguageModel(options, configuration)
     }
     log(level: LogLevel, msg: string): void {

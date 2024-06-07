@@ -189,18 +189,18 @@ export function createRunPromptContext(
                     genOptions,
                     { trace, token: true }
                 )
-                if (!connection.token)
+                if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = host.resolveLanguageModel(
+                const { completer } = await host.resolveLanguageModel(
                     genOptions,
-                    connection.token
+                    connection.configuration
                 )
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info
                     )
                 const resp = await executeChatSession(
-                    connection.token,
+                    connection.configuration,
                     cancellationToken,
                     messages,
                     functions,

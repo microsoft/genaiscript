@@ -10,5 +10,3 @@ export const CORE_VERSION = packageJson.version
  */
 export const GITHUB_REPO = packageJson.repository.url
 export const PDFJS_DIST_VERSION = packageJson.optionalDependencies["pdfjs-dist"]
-export const AZURE_IDENTITY_VERSION =
-    packageJson.devDependencies["@azure/identity"]
