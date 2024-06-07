@@ -25,6 +25,7 @@ import {
 import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
 import { fenceMD } from "./markdown"
+import { YAMLStringify } from "./yaml"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -558,7 +559,7 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
                 res.push(fenceMD(msg.content, "markdown"))
                 break
             default:
-                res.push(fenceMD(YAML.stringify(msg), "yaml"))
+                res.push(fenceMD(YAMLStringify(msg), "yaml"))
                 break
         }
     })
