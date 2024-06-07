@@ -241,10 +241,10 @@ export class VSCodeHost extends EventTarget implements Host {
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)
-        if (!tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
-            tok.provider = MODEL_PROVIDER_OPENAI
-            tok.type = "azure"
-            tok.token = "Bearer " + (await this.azure.getOpenAIToken())
+        if (tok && !tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
+            const azureToken = await this.azure.getOpenAIToken()
+            if (!azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + azureToken
         }
         return tok
     }

@@ -84,14 +84,12 @@ export class NodeHost implements Host {
         modelId: string
     ): Promise<LanguageModelConfiguration> {
         const tok = await parseTokenFromEnv(process.env, modelId)
-        if (!tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
-            tok.token =
-                "Bearer " +
-                (
-                    await new DefaultAzureCredential().getToken([
-                        "https://cognitiveservices.azure.com/.default",
-                    ])
-                ).token
+        if (tok && !tok.token && tok.provider === MODEL_PROVIDER_AZURE) {
+            const azureToken = await new DefaultAzureCredential().getToken([
+                "https://cognitiveservices.azure.com/.default",
+            ])
+            if (!azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + azureToken.token
         }
         return tok
     }
