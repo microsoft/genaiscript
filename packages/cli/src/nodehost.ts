@@ -84,11 +84,14 @@ export class NodeHost implements Host {
         return await parseTokenFromEnv(process.env, modelId)
     }
 
-    resolveLanguageModel(options: {
-        model?: string
-        languageModel?: LanguageModel
-    }): LanguageModel {
-        return resolveLanguageModel(options)
+    resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): LanguageModel {
+        return resolveLanguageModel(options, configuration)
     }
 
     clearVirtualFiles(): void {

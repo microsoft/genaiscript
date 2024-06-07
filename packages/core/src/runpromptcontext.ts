@@ -191,7 +191,10 @@ export function createRunPromptContext(
                 )
                 if (!connection.token)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = host.resolveLanguageModel(genOptions)
+                const { completer } = host.resolveLanguageModel(
+                    genOptions,
+                    connection.token
+                )
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info

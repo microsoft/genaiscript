@@ -142,10 +142,13 @@ export interface Host {
     getLanguageModelConfiguration(
         modelId: string
     ): Promise<LanguageModelConfiguration | undefined>
-    resolveLanguageModel(options: {
-        model?: string
-        languageModel?: LanguageModel
-    }): LanguageModel
+    resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): LanguageModel
 
     log(level: LogLevel, msg: string): void
 

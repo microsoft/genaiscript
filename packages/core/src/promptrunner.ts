@@ -215,8 +215,7 @@ export async function runTemplate(
                 "LLM configuration missing",
                 connection.info
             )
-
-        const { completer } = host.resolveLanguageModel(genOptions)
+        const { completer } = host.resolveLanguageModel(genOptions, connection.token)
         const output = await executeChatSession(
             connection.token,
             cancellationToken,

@@ -235,11 +235,14 @@ export class VSCodeHost extends EventTarget implements Host {
         return tok
     }
 
-    resolveLanguageModel(options: {
-        model?: string
-        languageModel?: LanguageModel
-    }): LanguageModel {
-        return resolveLanguageModel(options)
+    resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): LanguageModel {
+        return resolveLanguageModel(options, configuration)
     }
 
     async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {

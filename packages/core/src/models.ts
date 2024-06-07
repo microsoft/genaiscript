@@ -1,5 +1,5 @@
 import { AICIModel } from "./aici"
-import { createAzureOpenAIModel } from "./azure"
+import { AzureOpenAIModel } from "./azure"
 import { LanguageModel } from "./chat"
 import {
     DEFAULT_MODEL,
@@ -15,17 +15,21 @@ import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
 import { TraceOptions } from "./trace"
 
-export function resolveLanguageModel(options: {
-    model?: string
-    languageModel?: LanguageModel
-}): LanguageModel {
+export function resolveLanguageModel(
+    options: {
+        model?: string
+        languageModel?: LanguageModel
+    },
+    configuration: LanguageModelConfiguration
+): LanguageModel {
     const { model, languageModel } = options || {}
     if (languageModel) return languageModel
 
     const { provider } = parseModelIdentifier(model)
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
-    if (provider === MODEL_PROVIDER_AZURE) return createAzureOpenAIModel()
+    if (provider === MODEL_PROVIDER_AZURE && !configuration.token)
+        return AzureOpenAIModel // entra id
     return OpenAIModel
 }
 
