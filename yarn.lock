@@ -13502,9 +13502,9 @@ tstl@^2.0.7:
   integrity sha512-+O2ybLVLKcBwKm4HymCEwZIT0PpwS3gCYnxfSDEjJEKADvIFruaQjd3m7CAKNU1c7N3X3WjVz87re7TA2A5FUw==
 
 tsx@^4.11.2:
-  version "4.13.3"
-  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.13.3.tgz#7ec1d2ec3e011555c56433a24f990c9dd4f97494"
-  integrity sha512-FTAJJLQCMiIbt78kD5qhLjHIR5NOQDKC63wcdelWRDBE+d1xSrXYhXq4DzejnC2tGhFZHpDy2Ika0Ugf7sK8gA==
+  version "4.14.0"
+  resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.14.0.tgz#71eb2abacdd6187befda3883ca46ae4e32f38bd5"
+  integrity sha512-DsDLlJlusAPyCnz07S4y0gqJoUl8GciBeYcXQd75/5DqkZ4gfjKpvAUFUzmZf62nEotkcqC7JCWrdL8d+PXSng==
   dependencies:
     esbuild "~0.20.2"
     get-tsconfig "^4.7.5"
