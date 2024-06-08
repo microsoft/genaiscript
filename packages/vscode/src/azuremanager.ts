@@ -9,14 +9,16 @@ import {
     CancelError,
     errorMessage,
     isCancelError,
+    logVerbose,
 } from "genaiscript-core"
-import { TokenCredential } from "@azure/identity"
+import { AccessToken, TokenCredential } from "@azure/identity"
 
 export class AzureManager {
     private _vscodeAzureSubscriptionProvider:
         | VSCodeAzureSubscriptionProvider
         | undefined
     private _subscription: AzureSubscription
+    private _token: AccessToken
 
     constructor(readonly state: ExtensionState) {}
 
@@ -32,7 +34,7 @@ export class AzureManager {
                 new VSCodeAzureSubscriptionProvider()
 
         try {
-            if (!this._vscodeAzureSubscriptionProvider.isSignedIn()) {
+            if (!(await this._vscodeAzureSubscriptionProvider.isSignedIn())) {
                 const signed =
                     await this._vscodeAzureSubscriptionProvider.signIn()
                 if (!signed) throw new CancelError("Azure sign in failed")
@@ -65,10 +67,27 @@ export class AzureManager {
 
     async getOpenAIToken(options?: { signal: AbortSignal }) {
         const { signal } = options || {}
-        const credential = await this.signIn()
-        const token = await credential.getToken([AZURE_OPENAI_TOKEN_SCOPE], {
-            abortSignal: signal,
-        })
-        return token.token
+
+        // check expiration
+        if (
+            this._token &&
+            this._token.expiresOnTimestamp > 0 &&
+            this._token.expiresOnTimestamp > Date.now()
+        ) {
+            logVerbose("azure: token expired")
+            this._token = undefined
+        }
+
+        if (!this._token) {
+            const credential = await this.signIn()
+            logVerbose("azure: new token")
+            this._token = await credential.getToken(
+                [AZURE_OPENAI_TOKEN_SCOPE],
+                {
+                    abortSignal: signal,
+                }
+            )
+        }
+        return this._token.token
     }
 }

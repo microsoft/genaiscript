@@ -82,6 +82,7 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
+    private _azureToken: AccessToken
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -94,12 +95,14 @@ export class NodeHost implements Host {
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            const azureToken = await new DefaultAzureCredential().getToken(
-                [AZURE_OPENAI_TOKEN_SCOPE],
-                { abortSignal: signal }
-            )
-            if (!azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + azureToken.token
+            if (!this._azureToken) {
+                this._azureToken = await new DefaultAzureCredential().getToken(
+                    [AZURE_OPENAI_TOKEN_SCOPE],
+                    { abortSignal: signal }
+                )
+            }
+            if (!this._azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + this._azureToken.token
         }
         return tok
     }
