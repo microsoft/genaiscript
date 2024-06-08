@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 import prompts from "prompts"
 import {
-    AZURE_OPENAI_TOKEN_SCOPE,
+    AZURE_OPENAI_TOKEN_SCOPES,
     AbortSignalOptions,
     AskUserOptions,
     Host,
@@ -97,7 +97,7 @@ export class NodeHost implements Host {
         ) {
             if (!this._azureToken) {
                 this._azureToken = await new DefaultAzureCredential().getToken(
-                    [AZURE_OPENAI_TOKEN_SCOPE],
+                    AZURE_OPENAI_TOKEN_SCOPES,
                     { abortSignal: signal }
                 )
             }

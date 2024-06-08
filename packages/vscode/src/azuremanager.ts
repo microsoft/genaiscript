@@ -5,7 +5,7 @@ import {
 import { ExtensionState } from "./state"
 import * as vscode from "vscode"
 import {
-    AZURE_OPENAI_TOKEN_SCOPE,
+    AZURE_OPENAI_TOKEN_SCOPES,
     CancelError,
     errorMessage,
     isCancelError,
@@ -86,12 +86,9 @@ export class AzureManager {
         if (!this._token) {
             const credential = await this.signIn()
             logVerbose("azure: new token")
-            this._token = await credential.getToken(
-                [AZURE_OPENAI_TOKEN_SCOPE, "offline_access"],
-                {
-                    abortSignal: signal,
-                }
-            )
+            this._token = await credential.getToken(AZURE_OPENAI_TOKEN_SCOPES, {
+                abortSignal: signal,
+            })
         }
         return this._token.token
     }
