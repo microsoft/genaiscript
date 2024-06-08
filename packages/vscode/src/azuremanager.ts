@@ -106,7 +106,7 @@ export class AzureManager {
             if (!credential) return undefined
 
             logVerbose("azure: new token")
-            this._token = await credential.getToken(AZURE_OPENAI_TOKEN_SCOPES, {
+            this._token = await credential.getToken(AZURE_OPENAI_TOKEN_SCOPES.slice(), {
                 abortSignal: signal,
             })
         }

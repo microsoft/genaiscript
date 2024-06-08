@@ -35,7 +35,7 @@ import { join } from "node:path"
 import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
-import { DefaultAzureCredential } from "@azure/identity"
+import { DefaultAzureCredential, AccessToken } from "@azure/identity"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -97,7 +97,7 @@ export class NodeHost implements Host {
         ) {
             if (!this._azureToken) {
                 this._azureToken = await new DefaultAzureCredential().getToken(
-                    AZURE_OPENAI_TOKEN_SCOPES,
+                    AZURE_OPENAI_TOKEN_SCOPES.slice(),
                     { abortSignal: signal }
                 )
             }
