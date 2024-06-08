@@ -26,6 +26,7 @@ import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
 import { fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
+import { estimateChatTokens } from "./tokens"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -487,7 +488,7 @@ export async function executeChatSession(
         let genVars: Record<string, string>
         while (true) {
             infoCb?.({
-                text: `prompting ${model} with ${messages.length} messages`,
+                text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
             })
             trace.details(`💬 messages`, renderMessagesToMarkdown(messages))
             trace.startDetails(`📤 llm request (${messages.length} messages)`)
