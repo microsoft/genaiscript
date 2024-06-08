@@ -46,6 +46,24 @@ export class AzureManager {
             }
             const subscriptions =
                 await this._vscodeAzureSubscriptionProvider.getSubscriptions()
+            const subscriptionId = await this.state.host.readSecret(
+                "AZURE_SUBSCRIPTION_ID"
+            )
+            if (subscriptionId) {
+                const sub = subscriptions.find(
+                    (s) => s.subscriptionId === subscriptionId
+                )
+                if (sub) {
+                    this._subscription = sub
+                    return sub.credential
+                } else {
+                    vscode.window.showErrorMessage(
+                        `Azure subscription ${subscriptionId} from .env not found`
+                    )
+                    return undefined
+                }
+            }
+
             const sub = await vscode.window.showQuickPick(<
                 (vscode.QuickPickItem & { subscription: AzureSubscription })[]
             >[
@@ -85,6 +103,8 @@ export class AzureManager {
 
         if (!this._token) {
             const credential = await this.signIn()
+            if (!credential) return undefined
+
             logVerbose("azure: new token")
             this._token = await credential.getToken(AZURE_OPENAI_TOKEN_SCOPES, {
                 abortSignal: signal,
