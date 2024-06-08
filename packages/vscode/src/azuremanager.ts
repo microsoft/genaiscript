@@ -29,9 +29,14 @@ export class AzureManager {
     async signIn(): Promise<TokenCredential> {
         if (this._subscription) return this._subscription.credential
 
-        if (!this._vscodeAzureSubscriptionProvider)
+        if (!this._vscodeAzureSubscriptionProvider) {
             this._vscodeAzureSubscriptionProvider =
                 new VSCodeAzureSubscriptionProvider()
+            this._vscodeAzureSubscriptionProvider.onDidSignOut(() => {
+                this._subscription = undefined
+                this._token = undefined
+            })
+        }
 
         try {
             if (!(await this._vscodeAzureSubscriptionProvider.isSignedIn())) {
