@@ -37,7 +37,7 @@ export function createRunPromptContext(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ): RunPromptContextNode {
-    const { cancellationToken } = options || {}
+    const { cancellationToken, infoCb } = options || {}
     const node: PromptNode = { children: [] }
 
     const log = (...args: any[]) => {
@@ -148,6 +148,7 @@ export function createRunPromptContext(
             try {
                 const { label } = runOptions || {}
                 trace.startDetails(`🎁 run prompt ${label || ""}`)
+                infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
                 const ctx = createRunPromptContext(genOptions, env, trace)

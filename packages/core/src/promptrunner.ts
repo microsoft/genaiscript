@@ -200,10 +200,9 @@ export async function runTemplate(
             return fileEdit
         }
 
-        updateStatus(`prompting model ${model}`)
         const connection = await resolveModelConnectionInfo(
             { model },
-            { trace, token: true, signal }
+            { trace, token: true }
         )
         if (connection.info.error)
             throw new Error(errorMessage(connection.info.error))

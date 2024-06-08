@@ -464,6 +464,7 @@ export async function executeChatSession(
         cacheName,
         responseType,
         responseSchema,
+        infoCb,
     } = genOptions
 
     const tools: ChatCompletionTool[] = functions?.length
@@ -485,6 +486,9 @@ export async function executeChatSession(
 
         let genVars: Record<string, string>
         while (true) {
+            infoCb?.({
+                text: `prompting ${model} with ${messages.length} messages`,
+            })
             trace.details(`💬 messages`, renderMessagesToMarkdown(messages))
             trace.startDetails(`📤 llm request (${messages.length} messages)`)
             let resp: ChatCompletionResponse
