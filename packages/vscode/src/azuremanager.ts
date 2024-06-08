@@ -87,7 +87,7 @@ export class AzureManager {
             const credential = await this.signIn()
             logVerbose("azure: new token")
             this._token = await credential.getToken(
-                [AZURE_OPENAI_TOKEN_SCOPE],
+                [AZURE_OPENAI_TOKEN_SCOPE, "offline_access"],
                 {
                     abortSignal: signal,
                 }
