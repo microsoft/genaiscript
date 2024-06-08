@@ -553,12 +553,15 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
             case "user":
                 if (typeof msg.content === "string")
                     res.push(fenceMD(msg.content, "markdown"))
-                else
+                else if (Array.isArray(msg.content))
                     for (const part of msg.content) {
                         if (part.type === "text")
                             res.push(fenceMD(part.text, "markdown"))
-                        else res.push(`![image](${part.image_url.url})`)
+                        else if (part.type === "image_url")
+                            res.push(`![image](${part.image_url.url})`)
+                        else res.push(fenceMD(YAMLStringify(part), "yaml"))
                     }
+                else res.push(fenceMD(YAMLStringify(msg), "yaml"))
                 break
             case "assistant":
                 res.push(fenceMD(msg.content, "markdown"))
@@ -568,5 +571,5 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
                 break
         }
     })
-    return res.join("\n")
+    return res.filter((s) => s !== undefined).join("\n")
 }

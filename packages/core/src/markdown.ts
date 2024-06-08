@@ -8,6 +8,7 @@ export function prettifyMarkdown(md: string) {
 }
 
 export function fenceMD(t: string, contentType?: string) {
+    if (t === undefined) return undefined
     if (!contentType) contentType = "markdown"
     let f = "```"
     while (t.includes(f) && f.length < 8) f += "`"
