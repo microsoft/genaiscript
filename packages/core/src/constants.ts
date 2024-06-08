@@ -3,7 +3,11 @@ export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 100
 //https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
-export const AZURE_OPENAI_API_VERSION = "2023-09-01-preview"
+export const AZURE_OPENAI_API_VERSION = "2024-02-01"
+export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
+    "https://cognitiveservices.azure.com/.default",
+    "offline_access",
+])
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
@@ -39,7 +43,7 @@ export const RETRIEVAL_DEFAULT_INDEX = "default"
 export const RETRIEVAL_DEFAULT_LLM_MODEL = "gpt-35-turbo"
 export const RETRIEVAL_DEFAULT_EMBED_MODEL = "text-embedding-ada-002"
 export const RETRIEVAL_DEFAULT_TEMPERATURE = 0
-export const SYSTEM_FENCE = "---"
+export const SYSTEM_FENCE = "\n"
 export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript"
 export const AICI_CONTROLLER = "gh:microsoft/aici/jsctrl"

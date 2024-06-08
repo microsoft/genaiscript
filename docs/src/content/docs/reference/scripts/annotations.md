@@ -25,6 +25,12 @@ script({
 })
 ```
 
+:::hint
+
+To get a pretty rendering in the Markdown preview, try the [Markdown Preview for Github Alerts](https://marketplace.visualstudio.com/items?itemName=yahyabatulu.vscode-markdown-alert) extension.
+
+:::
+
 ### Line numbers
 
 The `system.annotations` prompt automatically enables line number injection for all `def` sections. This enhances

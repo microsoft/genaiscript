@@ -3,11 +3,8 @@ on:
     workflow_dispatch:
     schedule:
         - cron: "0 4 * * *"
-    pull_request:
-        paths:
-            - "docs/src/**/*.png"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}-${{ github.ref }}-genai-alt-text
     cancel-in-progress: true
 jobs:
     build:

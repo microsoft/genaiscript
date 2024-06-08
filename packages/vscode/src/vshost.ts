@@ -13,6 +13,10 @@ import {
     AskUserOptions,
     TraceOptions,
     arrayify,
+    resolveLanguageModel,
+    LanguageModel,
+    MODEL_PROVIDER_AZURE,
+    AbortSignalOptions,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -21,6 +25,7 @@ import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
+import { AzureManager } from "./azuremanager"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
@@ -29,6 +34,7 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly server: TerminalServerManager
     readonly workspace = createFileSystem()
     readonly parser: ParseService
+    private _azure: AzureManager
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -78,6 +84,11 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async removeContainers(): Promise<void> {
         if (this.server.started) await this.server.client.containerRemove()
+    }
+
+    get azure() {
+        if (!this._azure) this._azure = new AzureManager(this.state)
+        return this._azure
     }
 
     get retrieval() {
@@ -197,7 +208,7 @@ export class VSCodeHost extends EventTarget implements Host {
                 (u) => uris.add(u)
             )
         }
-        for(const pat of ignore) {
+        for (const pat of ignore) {
             const res = await vscode.workspace.findFiles(pat)
             res.map((u) => vscode.workspace.asRelativePath(u, false)).forEach(
                 (u) => uris.delete(u)
@@ -225,12 +236,37 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
+        const { signal, token: askToken } = options || {}
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         const tok = await parseTokenFromEnv(env, modelId)
+        if (
+            askToken &&
+            tok &&
+            !tok.token &&
+            tok.provider === MODEL_PROVIDER_AZURE
+        ) {
+            const azureToken = await this.azure.getOpenAIToken({
+                signal,
+            })
+            if (!azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + azureToken
+        }
         return tok
+    }
+
+    async resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel> {
+        const model = resolveLanguageModel(options, configuration)
+        return model
     }
 
     async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {

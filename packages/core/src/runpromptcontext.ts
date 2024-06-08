@@ -18,11 +18,7 @@ import {
     mergeGenerationOptions,
 } from "./chat"
 import { GenerationOptions } from "./promptcontext"
-import {
-    parseModelIdentifier,
-    resolveLanguageModel,
-    resolveModelConnectionInfo,
-} from "./models"
+import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { checkCancelled } from "./cancellation"
@@ -30,6 +26,7 @@ import { MODEL_PROVIDER_AICI } from "./constants"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
+import { host } from "./host"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -40,7 +37,7 @@ export function createRunPromptContext(
     env: ExpansionVariables,
     trace: MarkdownTrace
 ): RunPromptContextNode {
-    const { cancellationToken } = options || {}
+    const { cancellationToken, infoCb } = options || {}
     const node: PromptNode = { children: [] }
 
     const log = (...args: any[]) => {
@@ -151,6 +148,7 @@ export function createRunPromptContext(
             try {
                 const { label } = runOptions || {}
                 trace.startDetails(`🎁 run prompt ${label || ""}`)
+                infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
                 const ctx = createRunPromptContext(genOptions, env, trace)
@@ -192,15 +190,18 @@ export function createRunPromptContext(
                     genOptions,
                     { trace, token: true }
                 )
-                if (!connection.token)
+                if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = resolveLanguageModel(genOptions)
+                const { completer } = await host.resolveLanguageModel(
+                    genOptions,
+                    connection.configuration
+                )
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info
                     )
                 const resp = await executeChatSession(
-                    connection.token,
+                    connection.configuration,
                     cancellationToken,
                     messages,
                     functions,

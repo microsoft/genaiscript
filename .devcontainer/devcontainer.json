@@ -1,22 +1,24 @@
 {
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-	"postCreateCommand": "yarn install --frozen-lockfile --prefer-offline",
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"GitHub.copilot-chat",
-				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint",
-				"bierner.markdown-mermaid",
-				"yoavbls.pretty-ts-errors",
-				"kejun.markdown-alert",
-				"astro-build.astro-vscode",
-				"unifiedjs.vscode-mdx",
-				"streetsidesoftware.code-spell-checker"
-			]
-		}
-	},
-	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
-	}
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+    "postCreateCommand": "yarn install --frozen-lockfile --prefer-offline",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "GitHub.copilot-chat",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "bierner.markdown-mermaid",
+                "yoavbls.pretty-ts-errors",
+                "kejun.markdown-alert",
+                "astro-build.astro-vscode",
+                "unifiedjs.vscode-mdx",
+                "streetsidesoftware.code-spell-checker",
+                "file-icons.file-icons"
+            ]
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/azure-cli:1.2.5": {}
+    }
 }

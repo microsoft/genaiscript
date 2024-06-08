@@ -77,46 +77,30 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (
-        provider === MODEL_PROVIDER_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE
-    ) {
-        if (
-            env.AZURE_OPENAI_API_KEY ||
-            env.AZURE_API_KEY ||
-            env.AZURE_OPENAI_ENDPOINT
-        ) {
-            const token =
-                env.AZURE_OPENAI_API_KEY ||
-                env.AZURE_API_KEY ||
-                env.OPENAI_API_KEY
-            const tokenVar = env.AZURE_OPENAI_API_KEY
-                ? "AZURE_OPENAI_API_KEY"
-                : env.AZURE_API_KEY
-                  ? "AZURE_API_KEY"
-                  : "OPENAI_API_KEY"
-            let base = trimTrailingSlash(
-                env.AZURE_OPENAI_ENDPOINT ||
-                    env.AZURE_OPENAI_API_BASE ||
-                    env.AZURE_API_BASE ||
-                    env.AZURE_OPENAI_API_ENDPOINT
-            )
-            const version =
-                env.AZURE_OPENAI_API_VERSION ||
-                env.AZURE_API_VERSION ||
-                env.OPENAI_API_VERSION
+    if (provider === MODEL_PROVIDER_AZURE) {
+        const tokenVar = env.AZURE_OPENAI_API_KEY
+            ? "AZURE_OPENAI_API_KEY"
+            : env.AZURE_API_KEY
+        const token = env[tokenVar]
+        let base = trimTrailingSlash(
+            env.AZURE_OPENAI_ENDPOINT ||
+                env.AZURE_OPENAI_API_BASE ||
+                env.AZURE_API_BASE ||
+                env.AZURE_OPENAI_API_ENDPOINT
+        )
+        if (token || base) {
             if (!base)
                 throw new Error(
                     "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
                 )
             if (!URL.canParse(base))
-                throw new Error("OPENAI_API_BASE must be a valid URL")
-
+                throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
+            const version =
+                env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
             if (version && version !== AZURE_OPENAI_API_VERSION)
                 throw new Error(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
-            if (!token) throw new Error("AZURE_OPENAI_API_KEY missing")
             if (!base.endsWith("/openai/deployments"))
                 base += "/openai/deployments"
             return {
@@ -124,11 +108,13 @@ export async function parseTokenFromEnv(
                 base,
                 token,
                 type: "azure",
-                source: "env: AZURE_...",
+                source: token ? "env: AZURE_..." : "env: AZURE_... + Entra ID",
                 version,
-                curlHeaders: {
-                    "api-key": `$${tokenVar}`,
-                },
+                curlHeaders: tokenVar
+                    ? {
+                          "api-key": `$${tokenVar}`,
+                      }
+                    : undefined,
             }
         }
     }

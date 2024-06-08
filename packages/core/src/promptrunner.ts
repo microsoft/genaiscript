@@ -13,7 +13,7 @@ import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
-import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
+import { resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
 import { unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
@@ -81,10 +81,8 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { skipLLM, label, cliInfo, trace } = options
-    const cancellationToken = options?.cancellationToken
+    const { skipLLM, label, cliInfo, trace, cancellationToken, model } = options
     const version = CORE_VERSION
-    const model = options.model
     assert(model !== undefined)
 
     try {
@@ -202,23 +200,24 @@ export async function runTemplate(
             return fileEdit
         }
 
-        updateStatus(`prompting model ${model}`)
         const connection = await resolveModelConnectionInfo(
             { model },
             { trace, token: true }
         )
         if (connection.info.error)
             throw new Error(errorMessage(connection.info.error))
-        if (!connection.token)
+        if (!connection.configuration)
             throw new RequestError(
                 403,
                 "LLM configuration missing",
                 connection.info
             )
-
-        const { completer } = resolveLanguageModel(genOptions)
+        const { completer } = await host.resolveLanguageModel(
+            genOptions,
+            connection.configuration
+        )
         const output = await executeChatSession(
-            connection.token,
+            connection.configuration,
             cancellationToken,
             messages,
             functions,

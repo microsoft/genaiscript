@@ -65,7 +65,7 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.json" | "system.math" | "system.python" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot"
+type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot"
 
 type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search"
 
@@ -178,7 +178,6 @@ interface ScriptRuntimeOptions {
 * - `system.fs_read_file`: File Read File
 * - `system.fs_read_summary`: File Read Summary
 * - `system.functions`: use functions
-* - `system.json`: JSON system prompt
 * - `system.math`: Math expression evaluator
 * - `system.python`: Expert at generating and understanding Python code.
 * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search

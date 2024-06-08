@@ -24,7 +24,7 @@ async function tryImportDockerode(options?: TraceOptions) {
         const m = await import("dockerode")
         return m
     } catch (e) {
-        trace?.error(`llamaindex not found, installing ${DOCKERODE_VERSION}...`)
+        trace?.error(`dockerode not found, installing ${DOCKERODE_VERSION}...`)
         await installImport("dockerode", DOCKERODE_VERSION, trace)
         const m = await import("dockerode")
         return m

@@ -3,12 +3,8 @@ on:
     workflow_dispatch:
     schedule:
         - cron: "0 5 * * *"
-    pull_request:
-        paths:
-            - "docs/src/**/*.md"
-            - "docs/src/**/*.mdx"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}-${{ github.ref }}-genai-frontmatter
     cancel-in-progress: true
 jobs:
     build:

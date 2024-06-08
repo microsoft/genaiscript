@@ -1,6 +1,7 @@
 import { CancellationToken } from "./cancellation"
+import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -138,7 +139,17 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration | undefined>
+    getLanguageModelConfiguration(
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
+    ): Promise<LanguageModelConfiguration | undefined>
+    resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel>
 
     log(level: LogLevel, msg: string): void
 
@@ -146,7 +157,10 @@ export interface Host {
     readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
     deleteFile(name: string): Promise<void>
-    findFiles(pattern: string | string[], ignore?: string | string[]): Promise<string[]>
+    findFiles(
+        pattern: string | string[],
+        ignore?: string | string[]
+    ): Promise<string[]>
 
     clearVirtualFiles(): void
     setVirtualFile(name: string, content: string): void

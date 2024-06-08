@@ -333,7 +333,7 @@ ${errorMessage(e)}`
         }
         this.aiRequest = r
         const { template, fragment } = options
-        const { info, token: connectionToken } =
+        const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
             trace.error(info.error)

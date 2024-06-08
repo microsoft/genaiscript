@@ -10,7 +10,7 @@
     "version": "1.37.0",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.86.0"
+        "vscode": "^1.90.0"
     },
     "keywords": [
         "javascript",
@@ -315,12 +315,13 @@
         "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
     },
     "devDependencies": {
+        "@microsoft/vscode-azext-azureauth": "^2.4.1",
         "@types/mocha": "^10.0.6",
-        "@types/vscode": "^1.86.0",
+        "@types/vscode": "^1.90.0",
         "@typescript-eslint/eslint-plugin": "^7.9.0",
         "@typescript-eslint/parser": "^7.9.0",
-        "@vscode/test-web": "^0.0.53",
-        "@vscode/vsce": "^2.25.0",
+        "@vscode/test-web": "^0.0.54",
+        "@vscode/vsce": "^2.27.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
         "eslint": "^9.4.0",
@@ -334,6 +335,7 @@
         "zx": "^8.1.2"
     },
     "dependencies": {
+        "@azure/identity": "^4.2.0",
         "mammoth": "^1.7.2",
         "pdfjs-dist": "4.3.136",
         "tree-sitter-wasms": "^0.1.11",

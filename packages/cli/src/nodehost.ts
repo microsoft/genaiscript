@@ -1,10 +1,14 @@
 import dotenv from "dotenv"
 import prompts from "prompts"
 import {
+    AZURE_OPENAI_TOKEN_SCOPES,
+    AbortSignalOptions,
     AskUserOptions,
     Host,
+    LanguageModel,
     LanguageModelConfiguration,
     LogLevel,
+    MODEL_PROVIDER_AZURE,
     ModelService,
     ReadFileOptions,
     RetrievalService,
@@ -16,6 +20,7 @@ import {
     createBundledParsers,
     createFileSystem,
     parseTokenFromEnv,
+    resolveLanguageModel,
     setHost,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
@@ -30,6 +35,7 @@ import { join } from "node:path"
 import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
+import { DefaultAzureCredential, AccessToken } from "@azure/identity"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -76,10 +82,39 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
+    private _azureToken: AccessToken
     async getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        return await parseTokenFromEnv(process.env, modelId)
+        const { signal, token: askToken } = options || {}
+        const tok = await parseTokenFromEnv(process.env, modelId)
+        if (
+            askToken &&
+            tok &&
+            !tok.token &&
+            tok.provider === MODEL_PROVIDER_AZURE
+        ) {
+            if (!this._azureToken) {
+                this._azureToken = await new DefaultAzureCredential().getToken(
+                    AZURE_OPENAI_TOKEN_SCOPES.slice(),
+                    { abortSignal: signal }
+                )
+            }
+            if (!this._azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + this._azureToken.token
+        }
+        return tok
+    }
+
+    async resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel> {
+        return resolveLanguageModel(options, configuration)
     }
 
     clearVirtualFiles(): void {
