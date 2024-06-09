@@ -546,12 +546,14 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
     const res: string[] = []
     messages.forEach((msg) => {
         const { role } = msg
-        res.push(`> ${role}`)
+        const roleMsg = `> ${role}`
         switch (role) {
             case "system":
+                res.push(roleMsg)
                 res.push(fenceMD(msg.content, "markdown"))
                 break
             case "user":
+                res.push(roleMsg)
                 if (typeof msg.content === "string")
                     res.push(fenceMD(msg.content, "markdown"))
                 else if (Array.isArray(msg.content))
@@ -565,9 +567,19 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
                 else res.push(fenceMD(YAMLStringify(msg), "yaml"))
                 break
             case "assistant":
+                res.push(roleMsg)
                 res.push(fenceMD(msg.content, "markdown"))
                 break
+            case "aici":
+                res.push(`> ${role} ${msg.functionName}`)
+                res.push(fenceMD(msg.content, "markdown"))
+                break
+            case "tool":
+                res.push(`> ${role} ${msg.tool_call_id}`)
+                res.push(fenceMD(msg.content, "json"))
+                break
             default:
+                res.push(roleMsg)
                 res.push(fenceMD(YAMLStringify(msg), "yaml"))
                 break
         }
