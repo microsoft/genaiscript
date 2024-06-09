@@ -165,29 +165,6 @@ export function createPromptContext(
         },
     }
 
-    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
-        const { detail } = defOptions || {}
-        if (Array.isArray(files))
-            files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendPromptChild(createImageNode({ url: files, detail }))
-        else {
-            const file: WorkspaceFile = files
-            appendPromptChild(
-                createImageNode(
-                    (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
-                        return {
-                            url,
-                            filename: file.filename,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        }
-    }
-
     const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
@@ -226,7 +203,6 @@ export function createPromptContext(
         XML,
         retrieval,
         host: promptHost,
-        defImages,
         defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
