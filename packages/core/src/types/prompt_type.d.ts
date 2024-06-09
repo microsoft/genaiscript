@@ -5,7 +5,7 @@
 /**
  * Console functions
  */
-declare var console: PromptConsole
+declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.

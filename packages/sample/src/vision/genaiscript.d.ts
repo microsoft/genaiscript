@@ -1,4 +1,4 @@
-interface PromptConsole {
+interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
     debug(...data: any[]): void
@@ -1276,7 +1276,7 @@ interface PromptGenerationContext {
         fn: ChatFunctionHandler
     ): void
     defChatParticipant(participant: ChatParticipantHandler): void
-    console: PromptConsole
+    console: PromptGenerationConsole
 }
 
 interface GenerationOutput {
@@ -1564,7 +1564,7 @@ interface PromptContext extends PromptGenerationContext {
 /**
  * Console functions
  */
-declare var console: PromptConsole
+declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.

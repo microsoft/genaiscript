@@ -47,7 +47,7 @@ export function createRunPromptContext(
         const line = consoleLogFormat(...args)
         if (line) trace.log(line)
     }
-    const console = Object.freeze<PromptConsole>({
+    const console = Object.freeze<PromptGenerationConsole>({
         log,
         debug: log,
         warn: (args) => trace.warn(consoleLogFormat(...args)),
