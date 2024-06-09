@@ -513,7 +513,7 @@ interface ChatFunctionCallback {
 type ChatParticipantHandler = (
     context: PromptGenerationContext,
     messages: ChatCompletionMessageParam[]
-) => Awaitable<void>
+) => Awaitable<ChatCompletionMessageParam[]>
 
 /**
  * A set of text extracted from the context of the prompt execution

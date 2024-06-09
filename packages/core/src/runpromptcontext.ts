@@ -3,6 +3,7 @@ import {
     PromptNode,
     appendChild,
     createAssistantNode,
+    createChatParticipant,
     createDefDataNode,
     createDefNode,
     createFunctionNode,
@@ -104,6 +105,10 @@ export function createRunPromptContext(
         }
     }
 
+    const defChatParticipant = (participant: ChatParticipantHandler) => {
+        appendChild(node, createChatParticipant(participant))
+    }
+
     const ctx = <RunPromptContextNode>{
         node,
         writeText: (body, options) => {
@@ -167,6 +172,7 @@ export function createRunPromptContext(
         defTool,
         defSchema,
         defImages,
+        defChatParticipant,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined
