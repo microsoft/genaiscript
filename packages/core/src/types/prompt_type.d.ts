@@ -192,7 +192,7 @@ declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
  * Registers a chat participant
  * @param participant
  */
-declare function defChatParticipant(participant: ChatParticipantHandler): void
+declare function defChatParticipant(participant: ChatParticipantHandler, options?: ChatParticipantOptions): void
 
 /**
  * @deprecated Use `defOutputProcessor` instead.

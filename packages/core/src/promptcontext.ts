@@ -18,7 +18,7 @@ import { bingSearch } from "./websearch"
 import { CancellationToken } from "./cancellation"
 import {
     RunPromptContextNode,
-    createRunPromptContext,
+    createChatGenerationContext,
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
@@ -170,10 +170,6 @@ export function createPromptContext(
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
-    const defChatParticipant = (participant: ChatParticipantHandler) => {
-        if (participant) appendPromptChild(createChatParticipant(participant))
-    }
-
     const promptHost: PromptHost = {
         askUser: (question) =>
             host.askUser({
@@ -193,7 +189,7 @@ export function createPromptContext(
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
-        ...createRunPromptContext(options, env, trace),
+        ...createChatGenerationContext(options, env, trace),
         script: () => {},
         system: () => {},
         env,
@@ -209,7 +205,6 @@ export function createPromptContext(
         retrieval,
         host: promptHost,
         defOutputProcessor,
-        defChatParticipant,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
         },

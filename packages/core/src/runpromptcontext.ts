@@ -31,13 +31,13 @@ import { consoleLogFormat } from "./logging"
 import { host } from "./host"
 import { resolveFileDataUri } from "./file"
 
-export interface RunPromptContextNode extends PromptGenerationContext {
+export interface RunPromptContextNode extends ChatGenerationContext {
     node: PromptNode
 }
 
-export function createRunPromptContext(
+export function createChatGenerationContext(
     options: GenerationOptions,
-    env: ExpansionVariables,
+    vars: Partial<ExpansionVariables>,
     trace: MarkdownTrace
 ): RunPromptContextNode {
     const { cancellationToken, infoCb } = options || {}
@@ -105,8 +105,12 @@ export function createRunPromptContext(
         }
     }
 
-    const defChatParticipant = (participant: ChatParticipantHandler) => {
-        appendChild(node, createChatParticipant(participant))
+    const defChatParticipant = (
+        generator: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ) => {
+        if (generator)
+            appendChild(node, createChatParticipant({ generator, options }))
     }
 
     const ctx = <RunPromptContextNode>{
@@ -184,7 +188,7 @@ export function createRunPromptContext(
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
-                const ctx = createRunPromptContext(genOptions, env, trace)
+                const ctx = createChatGenerationContext(genOptions, vars, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)
@@ -195,7 +199,7 @@ export function createRunPromptContext(
                 let messages: ChatCompletionMessageParam[] = []
                 let functions: ChatFunctionCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
-                let chatParticipants: ChatParticipantHandler[] = undefined
+                let chatParticipants: ChatParticipant[] = undefined
                 // expand template
                 const { provider } = parseModelIdentifier(genOptions.model)
                 if (provider === MODEL_PROVIDER_AICI) {
@@ -240,6 +244,7 @@ export function createRunPromptContext(
                     connection.configuration,
                     cancellationToken,
                     messages,
+                    vars,
                     functions,
                     schemas,
                     completer,

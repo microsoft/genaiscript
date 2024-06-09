@@ -88,6 +88,7 @@ export interface GenerationResult extends GenerationOutput {
 export interface GenerationStats {
     toolCalls: number
     repairs: number
+    turns: number
 }
 
 export type GenerationStatus = "success" | "error" | "cancelled" | undefined
@@ -111,7 +112,7 @@ async function callExpander(
     let functions: ChatFunctionCallback[] = []
     let fileMerges: FileMergeHandler[] = []
     let outputProcessors: PromptOutputProcessorHandler[] = []
-    let chatParticipants: ChatParticipantHandler[] = []
+    let chatParticipants: ChatParticipant[] = []
     let aici: AICIRequest
 
     const logCb = (msg: any) => {

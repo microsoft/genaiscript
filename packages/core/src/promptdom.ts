@@ -101,7 +101,7 @@ export interface PromptOutputProcessorNode extends PromptNode {
 
 export interface PromptChatParticipantNode extends PromptNode {
     type: "chatParticipant"
-    participant: ChatParticipantHandler
+    participant: ChatParticipant
 }
 
 export function createTextNode(
@@ -234,7 +234,7 @@ export function createOutputProcessor(
 }
 
 export function createChatParticipant(
-    participant: ChatParticipantHandler
+    participant: ChatParticipant
 ): PromptChatParticipantNode {
     return { type: "chatParticipant", participant }
 }
@@ -344,7 +344,7 @@ export interface PromptNodeRender {
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: PromptOutputProcessorHandler[]
-    chatParticipants: ChatParticipantHandler[]
+    chatParticipants: ChatParticipant[]
     messages: ChatCompletionMessageParam[]
 }
 
@@ -518,7 +518,7 @@ export async function renderPromptNode(
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
-    const chatParticipants: ChatParticipantHandler[] = []
+    const chatParticipants: ChatParticipant[] = []
 
     await visitNode(node, {
         text: async (n) => {
@@ -611,7 +611,10 @@ ${trimNewlines(schemaText)}
         },
         chatParticipant: (n) => {
             chatParticipants.push(n.participant)
-            trace.itemValue(`chat participant`, n.participant.name)
+            trace.itemValue(
+                `chat participant`,
+                n.participant.options?.label || n.participant.generator.name
+            )
         },
     })
 
