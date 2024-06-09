@@ -1207,7 +1207,7 @@ interface WriteTextOptions extends ContextExpansionOptions {
 
 type PromptGenerator = (ctx: PromptGenerationContext) => Awaitable<void>
 
-interface RunPromptOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions {
     /**
      * Label for trace
      */
@@ -1232,7 +1232,7 @@ interface PromptGenerationContext {
     ): string
     runPrompt(
         generator: string | PromptGenerator,
-        options?: RunPromptOptions
+        options?: PromptGeneratorOptions
     ): Promise<RunPromptResult>
     defImages(files: StringLike, options?: DefImagesOptions): void
     defTool(
