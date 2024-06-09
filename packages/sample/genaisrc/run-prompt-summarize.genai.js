@@ -1,5 +1,6 @@
 script({
     title: "run prompt summarize",
+    model: "openai:gpt-3.5-turbo",
     tests: [
         {
             files: ["src/rag/markdown.md"],
