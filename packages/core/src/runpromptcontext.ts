@@ -162,6 +162,7 @@ export function createRunPromptContext(
                 let messages: ChatCompletionMessageParam[] = []
                 let functions: ChatFunctionCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
+                let chatParticipants: ChatParticipantHandler[] = undefined
                 // expand template
                 const { provider } = parseModelIdentifier(genOptions.model)
                 if (provider === MODEL_PROVIDER_AICI) {
@@ -174,12 +175,14 @@ export function createRunPromptContext(
                         schemas: scs,
                         functions: fns,
                         messages: msgs,
+                        chatParticipants: cps,
                     } = await renderPromptNode(genOptions.model, node, {
                         trace,
                     })
 
                     schemas = scs
                     functions = fns
+                    chatParticipants = cps
                     messages.push(...msgs)
 
                     if (errors?.length)
@@ -207,6 +210,7 @@ export function createRunPromptContext(
                     functions,
                     schemas,
                     completer,
+                    chatParticipants,
                     genOptions
                 )
                 const { json, text } = resp

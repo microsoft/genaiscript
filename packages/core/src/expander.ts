@@ -111,6 +111,7 @@ async function callExpander(
     let functions: ChatFunctionCallback[] = []
     let fileMerges: FileMergeHandler[] = []
     let outputProcessors: PromptOutputProcessorHandler[] = []
+    let chatParticipants: ChatParticipantHandler[] = []
     let aici: AICIRequest
 
     const logCb = (msg: any) => {
@@ -139,6 +140,7 @@ async function callExpander(
                 functions: fns,
                 fileMerges: fms,
                 outputProcessors: ops,
+                chatParticipants: cps,
             } = await renderPromptNode(model, node, { trace })
             text = prompt
             assistantText = assistantPrompt
@@ -147,6 +149,7 @@ async function callExpander(
             functions = fns
             fileMerges = fms
             outputProcessors = ops
+            chatParticipants = cps
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
                 status = "error"
@@ -182,6 +185,7 @@ async function callExpander(
         functions,
         fileMerges,
         outputProcessors,
+        chatParticipants,
         aici,
     }
 }
@@ -313,6 +317,7 @@ export async function expandTemplate(
     const functions = prompt.functions
     const fileMerges = prompt.fileMerges
     const outputProcessors = prompt.outputProcessors
+    const chatParticipants = prompt.chatParticipants
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     if (prompt.text) {
@@ -361,6 +366,7 @@ export async function expandTemplate(
         if (sysr.functions) functions.push(...sysr.functions)
         if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
         if (sysr.outputProcessors) outputProcessors.push(...outputProcessors)
+        if (sysr.chatParticipants) chatParticipants.push(...chatParticipants)
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (sysr.text) {
             systemMessage.content += SYSTEM_FENCE + "\n" + sysr.text + "\n"
@@ -434,5 +440,6 @@ ${schemaTs}
         responseSchema,
         fileMerges,
         outputProcessors,
+        chatParticipants,
     }
 }

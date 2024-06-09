@@ -29,6 +29,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "stringTemplate"
         | "assistant"
         | "def"
+        | "chatParticipant"
         | undefined
     children?: PromptNode[]
     error?: unknown
@@ -96,6 +97,11 @@ export interface PromptFileMergeNode extends PromptNode {
 export interface PromptOutputProcessorNode extends PromptNode {
     type: "outputProcessor"
     fn: PromptOutputProcessorHandler
+}
+
+export interface PromptChatParticipantNode extends PromptNode {
+    type: "chatParticipant"
+    participant: ChatParticipantHandler
 }
 
 export function createTextNode(
@@ -227,6 +233,12 @@ export function createOutputProcessor(
     return { type: "outputProcessor", fn }
 }
 
+export function createChatParticipant(
+    participant: ChatParticipantHandler
+): PromptChatParticipantNode {
+    return { type: "chatParticipant", participant }
+}
+
 export function createDefDataNode(
     name: string,
     data: object | object[],
@@ -277,6 +289,7 @@ export interface PromptNodeVisitor {
     stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void>
     outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void>
     assistant?: (node: PromptAssistantNode) => Awaitable<void>
+    chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>
 }
 
 export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
@@ -309,6 +322,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "assistant":
             await visitor.assistant?.(node as PromptAssistantNode)
             break
+        case "chatParticipant":
+            await visitor.chatParticipant?.(node as PromptChatParticipantNode)
+            break
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && node.children) {
@@ -328,6 +344,7 @@ export interface PromptNodeRender {
     functions: ChatFunctionCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: PromptOutputProcessorHandler[]
+    chatParticipants: ChatParticipantHandler[]
     messages: ChatCompletionMessageParam[]
 }
 
@@ -501,6 +518,7 @@ export async function renderPromptNode(
     const functions: ChatFunctionCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
+    const chatParticipants: ChatParticipantHandler[] = []
 
     await visitNode(node, {
         text: async (n) => {
@@ -589,7 +607,11 @@ ${trimNewlines(schemaText)}
         },
         outputProcessor: (n) => {
             outputProcessors.push(n.fn)
-            trace.itemValue(`output processor`, n.fn)
+            trace.itemValue(`output processor`, n.fn.name)
+        },
+        chatParticipant: (n) => {
+            chatParticipants.push(n.participant)
+            trace.itemValue(`chat participant`, n.participant.name)
         },
     })
 
@@ -609,6 +631,7 @@ ${trimNewlines(schemaText)}
         functions,
         fileMerges,
         outputProcessors,
+        chatParticipants,
         errors,
         messages,
     }

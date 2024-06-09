@@ -189,6 +189,12 @@ declare function runPrompt(
 declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
 
 /**
+ * Registers a chat participant
+ * @param participant
+ */
+declare function defChatParticipant(participant: ChatParticipantHandler): void
+
+/**
  * @deprecated Use `defOutputProcessor` instead.
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void

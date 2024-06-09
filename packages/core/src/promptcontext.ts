@@ -9,6 +9,7 @@ import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
+    createChatParticipant,
     createFileMergeNode,
     createImageNode,
     createOutputProcessor,
@@ -192,6 +193,10 @@ export function createPromptContext(
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
+    const defChatParticipant = (participant: ChatParticipantHandler) => {
+        if (participant) appendPromptChild(createChatParticipant(participant))
+    }
+
     const promptHost: PromptHost = {
         askUser: (question) =>
             host.askUser({
@@ -228,6 +233,7 @@ export function createPromptContext(
         host: promptHost,
         defImages,
         defOutputProcessor,
+        defChatParticipant,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
         },

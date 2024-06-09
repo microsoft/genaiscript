@@ -453,6 +453,7 @@ export async function executeChatSession(
     functions: ChatFunctionCallback[],
     schemas: Record<string, JSONSchema>,
     completer: ChatCompletionHandler,
+    chatParticipants: ChatParticipantHandler[],
     genOptions: GenerationOptions
 ) {
     const {

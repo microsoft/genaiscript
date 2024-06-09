@@ -100,6 +100,7 @@ export async function runTemplate(
             functions,
             fileMerges,
             outputProcessors,
+            chatParticipants,
             status,
             statusText,
             temperature,
@@ -223,6 +224,7 @@ export async function runTemplate(
             functions,
             schemas,
             completer,
+            chatParticipants,
             genOptions
         )
         const {

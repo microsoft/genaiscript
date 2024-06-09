@@ -476,6 +476,10 @@ interface ChatFunctionCallback {
     ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 }
 
+type ChatParticipantHandler = (
+    messages: ChatCompletionMessageParam[]
+) => Promise<string>
+
 /**
  * A set of text extracted from the context of the prompt execution
  */
@@ -1493,6 +1497,7 @@ interface PromptContext extends RunPromptContext {
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
+    defChatParticipant(participant: ChatParticipantHandler): void
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
