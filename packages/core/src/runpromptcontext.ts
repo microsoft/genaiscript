@@ -30,7 +30,7 @@ import { consoleLogFormat } from "./logging"
 import { host } from "./host"
 import { resolveFileDataUri } from "./file"
 
-export interface RunPromptContextNode extends RunPromptContext {
+export interface RunPromptContextNode extends PromptGenerationContext {
     node: PromptNode
 }
 

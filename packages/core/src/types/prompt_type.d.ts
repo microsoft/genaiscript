@@ -178,7 +178,7 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: string | RunPromptGenerator,
+    generator: string | PromptGenerator,
     options?: RunPromptOptions
 ): Promise<RunPromptResult>
 

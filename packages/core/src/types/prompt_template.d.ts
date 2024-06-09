@@ -477,8 +477,9 @@ interface ChatFunctionCallback {
 }
 
 type ChatParticipantHandler = (
+    context: PromptGenerationContext,
     messages: ChatCompletionMessageParam[]
-) => Promise<string>
+) => Awaitable<void>
 
 /**
  * A set of text extracted from the context of the prompt execution
@@ -1204,7 +1205,7 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
+type PromptGenerator = (ctx: PromptGenerationContext) => Awaitable<void>
 
 interface RunPromptOptions extends ModelOptions {
     /**
@@ -1214,7 +1215,7 @@ interface RunPromptOptions extends ModelOptions {
 }
 
 // keep in sync with prompt_type.d.ts
-interface RunPromptContext {
+interface PromptGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
@@ -1230,7 +1231,7 @@ interface RunPromptContext {
         options?: DefSchemaOptions
     ): string
     runPrompt(
-        generator: string | RunPromptGenerator,
+        generator: string | PromptGenerator,
         options?: RunPromptOptions
     ): Promise<RunPromptResult>
     defImages(files: StringLike, options?: DefImagesOptions): void
@@ -1493,7 +1494,7 @@ interface ContainerHost extends ShellHost {
     readText(path: string): Promise<string>
 }
 
-interface PromptContext extends RunPromptContext {
+interface PromptContext extends PromptGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     defFileMerge(fn: FileMergeHandler): void
