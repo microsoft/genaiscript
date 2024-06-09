@@ -6,6 +6,7 @@ import {
     createDefDataNode,
     createDefNode,
     createFunctionNode,
+    createImageNode,
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
@@ -27,6 +28,7 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { host } from "./host"
+import { resolveFileDataUri } from "./file"
 
 export interface RunPromptContextNode extends RunPromptContext {
     node: PromptNode
@@ -76,6 +78,30 @@ export function createRunPromptContext(
         appendChild(node, createSchemaNode(name, schema, defOptions))
 
         return name
+    }
+
+    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
+        const { detail } = defOptions || {}
+        if (Array.isArray(files))
+            files.forEach((file) => defImages(file, defOptions))
+        else if (typeof files === "string")
+            appendChild(node, createImageNode({ url: files, detail }))
+        else {
+            const file: WorkspaceFile = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const url = await resolveFileDataUri(file, { trace })
+                        return {
+                            url,
+                            filename: file.filename,
+                            detail,
+                        }
+                    })()
+                )
+            )
+        }
     }
 
     const ctx = <RunPromptContextNode>{
@@ -140,6 +166,7 @@ export function createRunPromptContext(
         },
         defTool,
         defSchema,
+        defImages,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined
