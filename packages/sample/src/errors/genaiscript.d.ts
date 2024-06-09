@@ -1263,6 +1263,7 @@ interface RunPromptContext {
         generator: string | RunPromptGenerator,
         options?: RunPromptOptions
     ): Promise<RunPromptResult>
+    defImages(files: StringLike, options?: DefImagesOptions): void
     defTool(
         name: string,
         description: string,
@@ -1524,7 +1525,6 @@ interface ContainerHost extends ShellHost {
 interface PromptContext extends RunPromptContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    defImages(files: StringLike, options?: DefImagesOptions): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
     fetchText(
