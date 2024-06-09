@@ -510,6 +510,10 @@ interface ChatFunctionCallback {
     ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
 }
 
+type ChatParticipantHandler = (
+    messages: ChatCompletionMessageParam[]
+) => Promise<string>
+
 /**
  * A set of text extracted from the context of the prompt execution
  */
@@ -1269,6 +1273,7 @@ interface RunPromptContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
+    defChatParticipant(participant: ChatParticipantHandler): void
     console: PromptConsole
 }
 
@@ -1740,6 +1745,12 @@ declare function runPrompt(
  * @param fn
  */
 declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
+
+/**
+ * Registers a chat participant
+ * @param participant
+ */
+declare function defChatParticipant(participant: ChatParticipantHandler): void
 
 /**
  * @deprecated Use `defOutputProcessor` instead.

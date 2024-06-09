@@ -1239,6 +1239,7 @@ interface RunPromptContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
+    defChatParticipant(participant: ChatParticipantHandler): void
     console: PromptConsole
 }
 
@@ -1497,7 +1498,6 @@ interface PromptContext extends RunPromptContext {
     defImages(files: StringLike, options?: DefImagesOptions): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
-    defChatParticipant(participant: ChatParticipantHandler): void
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
