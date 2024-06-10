@@ -3,6 +3,7 @@ import {
     PromptNode,
     appendChild,
     createAssistantNode,
+    createChatParticipant,
     createDefDataNode,
     createDefNode,
     createFunctionNode,
@@ -10,35 +11,20 @@ import {
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
-    renderPromptNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import {
-    ChatCompletionMessageParam,
-    executeChatSession,
-    mergeGenerationOptions,
-} from "./chat"
 import { GenerationOptions } from "./promptcontext"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
-import { renderAICI } from "./aici"
-import { CancelError, isCancelError, serializeError } from "./error"
-import { checkCancelled } from "./cancellation"
-import { MODEL_PROVIDER_AICI } from "./constants"
+import { CancelError } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
-import { host } from "./host"
 import { resolveFileDataUri } from "./file"
 
-export interface RunPromptContextNode extends RunPromptContext {
-    node: PromptNode
-}
-
-export function createRunPromptContext(
+export function createChatTurnGenerationContext(
     options: GenerationOptions,
-    env: ExpansionVariables,
+    vars: Partial<ExpansionVariables>,
     trace: MarkdownTrace
-): RunPromptContextNode {
+): ChatTurnGenerationContext & { node: PromptNode } {
     const { cancellationToken, infoCb } = options || {}
     const node: PromptNode = { children: [] }
 
@@ -46,65 +32,14 @@ export function createRunPromptContext(
         const line = consoleLogFormat(...args)
         if (line) trace.log(line)
     }
-    const console = Object.freeze<PromptConsole>({
+    const console = Object.freeze<PromptGenerationConsole>({
         log,
         debug: log,
         warn: (args) => trace.warn(consoleLogFormat(...args)),
         error: (args) => trace.error(consoleLogFormat(...args)),
     })
 
-    const defTool: (
-        name: string,
-        description: string,
-        parameters: PromptParametersSchema | JSONSchema,
-        fn: ChatFunctionHandler
-    ) => void = (name, description, parameters, fn) => {
-        const parameterSchema = isJSONSchema(parameters)
-            ? (parameters as JSONSchema)
-            : promptParametersSchemaToJSONSchema(
-                  parameters as PromptParametersSchema
-              )
-        appendChild(
-            node,
-            createFunctionNode(name, description, parameterSchema, fn)
-        )
-    }
-
-    const defSchema = (
-        name: string,
-        schema: JSONSchema,
-        defOptions?: DefSchemaOptions
-    ) => {
-        appendChild(node, createSchemaNode(name, schema, defOptions))
-
-        return name
-    }
-
-    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
-        const { detail } = defOptions || {}
-        if (Array.isArray(files))
-            files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendChild(node, createImageNode({ url: files, detail }))
-        else {
-            const file: WorkspaceFile = files
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
-                        return {
-                            url,
-                            filename: file.filename,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        }
-    }
-
-    const ctx = <RunPromptContextNode>{
+    const ctx = <ChatTurnGenerationContext & { node: PromptNode }>{
         node,
         writeText: (body, options) => {
             if (body !== undefined && body !== null) {
@@ -164,95 +99,93 @@ export function createRunPromptContext(
             appendChild(node, createDefDataNode(name, data, defOptions))
             return name
         },
-        defTool,
-        defSchema,
-        defImages,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined
         },
-        runPrompt: async (generator, runOptions) => {
-            try {
-                const { label } = runOptions || {}
-                trace.startDetails(`🎁 run prompt ${label || ""}`)
-                infoCb?.({ text: `run prompt ${label || ""}` })
-
-                const genOptions = mergeGenerationOptions(options, runOptions)
-                const ctx = createRunPromptContext(genOptions, env, trace)
-                if (typeof generator === "string")
-                    ctx.node.children.push(createTextNode(generator))
-                else await generator(ctx)
-                const node = ctx.node
-
-                checkCancelled(cancellationToken)
-
-                let messages: ChatCompletionMessageParam[] = []
-                let functions: ChatFunctionCallback[] = undefined
-                let schemas: Record<string, JSONSchema> = undefined
-                // expand template
-                const { provider } = parseModelIdentifier(genOptions.model)
-                if (provider === MODEL_PROVIDER_AICI) {
-                    const { aici } = await renderAICI("prompt", node)
-                    // todo: output processor?
-                    messages.push(aici)
-                } else {
-                    const {
-                        errors,
-                        schemas: scs,
-                        functions: fns,
-                        messages: msgs,
-                    } = await renderPromptNode(genOptions.model, node, {
-                        trace,
-                    })
-
-                    schemas = scs
-                    functions = fns
-                    messages.push(...msgs)
-
-                    if (errors?.length)
-                        throw new Error("errors while running prompt")
-                }
-
-                const connection = await resolveModelConnectionInfo(
-                    genOptions,
-                    { trace, token: true }
-                )
-                if (!connection.configuration)
-                    throw new Error("model connection error " + connection.info)
-                const { completer } = await host.resolveLanguageModel(
-                    genOptions,
-                    connection.configuration
-                )
-                if (!completer)
-                    throw new Error(
-                        "model driver not found for " + connection.info
-                    )
-                const resp = await executeChatSession(
-                    connection.configuration,
-                    cancellationToken,
-                    messages,
-                    functions,
-                    schemas,
-                    completer,
-                    genOptions
-                )
-                const { json, text } = resp
-                if (resp.json)
-                    trace.detailsFenced("📩 json (parsed)", json, "json")
-                else if (text)
-                    trace.detailsFenced(`🔠 output`, text, `markdown`)
-                return resp
-            } catch (e) {
-                trace.error(e)
-                return {
-                    finishReason: isCancelError(e) ? "cancel" : "fail",
-                    error: serializeError(e),
-                }
-            } finally {
-                trace.endDetails()
-            }
-        },
         console,
+    }
+
+    return ctx
+}
+
+export interface RunPromptContextNode extends ChatGenerationContext {
+    node: PromptNode
+}
+
+export function createChatGenerationContext(
+    options: GenerationOptions,
+    vars: Partial<ExpansionVariables>,
+    trace: MarkdownTrace
+): RunPromptContextNode {
+    const turnCtx = createChatTurnGenerationContext(options, vars, trace)
+    const node = turnCtx.node
+
+    const defTool: (
+        name: string,
+        description: string,
+        parameters: PromptParametersSchema | JSONSchema,
+        fn: ChatFunctionHandler
+    ) => void = (name, description, parameters, fn) => {
+        const parameterSchema = isJSONSchema(parameters)
+            ? (parameters as JSONSchema)
+            : promptParametersSchemaToJSONSchema(
+                  parameters as PromptParametersSchema
+              )
+        appendChild(
+            node,
+            createFunctionNode(name, description, parameterSchema, fn)
+        )
+    }
+
+    const defSchema = (
+        name: string,
+        schema: JSONSchema,
+        defOptions?: DefSchemaOptions
+    ) => {
+        appendChild(node, createSchemaNode(name, schema, defOptions))
+
+        return name
+    }
+
+    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
+        const { detail } = defOptions || {}
+        if (Array.isArray(files))
+            files.forEach((file) => defImages(file, defOptions))
+        else if (typeof files === "string")
+            appendChild(node, createImageNode({ url: files, detail }))
+        else {
+            const file: WorkspaceFile = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const url = await resolveFileDataUri(file, { trace })
+                        return {
+                            url,
+                            filename: file.filename,
+                            detail,
+                        }
+                    })()
+                )
+            )
+        }
+    }
+
+    const defChatParticipant = (
+        generator: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ) => {
+        if (generator)
+            appendChild(node, createChatParticipant({ generator, options }))
+    }
+
+    const ctx = <RunPromptContextNode>{
+        ...turnCtx,
+        defTool,
+        defSchema,
+        defImages,
+        defChatParticipant,
     }
 
     return ctx

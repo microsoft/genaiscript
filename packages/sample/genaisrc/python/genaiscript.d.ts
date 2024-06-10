@@ -1,4 +1,4 @@
-interface PromptConsole {
+interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
     debug(...data: any[]): void
@@ -508,6 +508,20 @@ interface ChatFunctionCallback {
     fn: (
         args: { context: ChatFunctionCallContext } & Record<string, any>
     ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+}
+
+type ChatParticipantHandler = (
+    context: ChatTurnGenerationContext,
+    messages: ChatCompletionMessageParam[]
+) => Awaitable<void>
+
+interface ChatParticipantOptions {
+    label?: string
+}
+
+interface ChatParticipant {
+    generator: ChatParticipantHandler
+    options: ChatParticipantOptions
 }
 
 /**
@@ -1234,17 +1248,16 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
 
-interface RunPromptOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions {
     /**
      * Label for trace
      */
     label?: string
 }
 
-// keep in sync with prompt_type.d.ts
-interface RunPromptContext {
+interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
@@ -1254,15 +1267,15 @@ interface RunPromptContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
+    console: PromptGenerationConsole
+}
+
+interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    runPrompt(
-        generator: string | RunPromptGenerator,
-        options?: RunPromptOptions
-    ): Promise<RunPromptResult>
     defImages(files: StringLike, options?: DefImagesOptions): void
     defTool(
         name: string,
@@ -1270,7 +1283,10 @@ interface RunPromptContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
-    console: PromptConsole
+    defChatParticipant(
+        participant: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ): void
 }
 
 interface GenerationOutput {
@@ -1522,11 +1538,15 @@ interface ContainerHost extends ShellHost {
     readText(path: string): Promise<string>
 }
 
-interface PromptContext extends RunPromptContext {
+interface PromptContext extends ChatGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
@@ -1558,7 +1578,7 @@ interface PromptContext extends RunPromptContext {
 /**
  * Console functions
  */
-declare var console: PromptConsole
+declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.
@@ -1731,8 +1751,8 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: string | RunPromptGenerator,
-    options?: RunPromptOptions
+    generator: string | PromptGenerator,
+    options?: PromptGeneratorOptions
 ): Promise<RunPromptResult>
 
 /**
@@ -1740,6 +1760,12 @@ declare function runPrompt(
  * @param fn
  */
 declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
+
+/**
+ * Registers a chat participant
+ * @param participant
+ */
+declare function defChatParticipant(participant: ChatParticipantHandler, options?: ChatParticipantOptions): void
 
 /**
  * @deprecated Use `defOutputProcessor` instead.

@@ -183,7 +183,7 @@ export async function batchScript(
                     retryDelay,
                     maxDelay,
                     vars,
-                    stats: { toolCalls: 0, repairs: 0 },
+                    stats: { toolCalls: 0, repairs: 0, turns: 0 },
                     trace,
                 }
             )

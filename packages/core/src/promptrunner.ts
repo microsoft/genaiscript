@@ -100,6 +100,7 @@ export async function runTemplate(
             functions,
             fileMerges,
             outputProcessors,
+            chatParticipants,
             status,
             statusText,
             temperature,
@@ -167,14 +168,6 @@ export async function runTemplate(
             topP: topP,
             seed: seed,
         }
-        const updateStatus = (text?: string) => {
-            options.infoCb?.({
-                vars,
-                text,
-                label,
-            })
-        }
-
         const fileEdits: Record<string, { before: string; after: string }> = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
@@ -220,9 +213,11 @@ export async function runTemplate(
             connection.configuration,
             cancellationToken,
             messages,
+            vars,
             functions,
             schemas,
             completer,
+            chatParticipants,
             genOptions
         )
         const {

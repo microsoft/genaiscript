@@ -24,11 +24,11 @@ $`You are an expert software developer and architect.
 
 ## Task
 
-- Describe a summary of the changes in GIT_DIFF in a way that a software engineer will understand.
+- Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
 
 ## Instructions
 
-- separate changes that affect the CLI from changes that affect the library
+- try to extract the intent of the changes, don't focus on the details
 - use bullet points to list the changes
 - use emojis to make the description more engaging
 - focus on the most important changes

@@ -234,6 +234,7 @@ ${Array.from(files)
             stats: {
                 toolCalls: 0,
                 repairs: 0,
+                turns: 0
             },
         })
     } catch (err) {

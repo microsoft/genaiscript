@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import { JSONLineCache } from "./cache"
 import { MarkdownTrace } from "./trace"
-import { PromptImage } from "./promptdom"
+import { PromptImage, renderPromptNode } from "./promptdom"
 import { AICIRequest } from "./aici"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./promptcontext"
@@ -27,6 +27,7 @@ import { isCancelError, serializeError } from "./error"
 import { fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
+import { createChatTurnGenerationContext } from "./runpromptcontext"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -399,11 +400,18 @@ async function processChatMessage(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
     functions: ChatFunctionCallback[],
+    chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
+    vars: Partial<ExpansionVariables>,
     genVars: Record<string, string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
-    const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
+    const {
+        stats,
+        maxToolCalls = MAX_TOOL_CALLS,
+        trace,
+        cancellationToken,
+    } = options
     const maxRepairs = MAX_DATA_REPAIRS
 
     if (resp.text)
@@ -428,10 +436,55 @@ async function processChatMessage(
         if (stats.repairs > maxRepairs)
             throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
         return undefined // keep working
-    } else
-        return structurifyChatSession(messages, schemas, genVars, options, {
-            resp,
-        })
+    } else if (chatParticipants?.length) {
+        let needsNewTurn = false
+        for (const participant of chatParticipants) {
+            try {
+                const { generator, options: participantOptions } =
+                    participant || {}
+                const { label } = participantOptions || {}
+                trace.startDetails(`🙋 participant ${label || ""}`)
+
+                const ctx = createChatTurnGenerationContext(
+                    options,
+                    vars,
+                    trace
+                )
+                await generator(ctx, structuredClone(messages))
+                const node = ctx.node
+                checkCancelled(cancellationToken)
+                // expand template
+                const { errors, prompt } = await renderPromptNode(
+                    options.model,
+                    node,
+                    {
+                        trace,
+                    }
+                )
+                if (prompt?.trim().length) {
+                    trace.detailsFenced(`💬 message`, prompt, "markdown")
+                    messages.push({ role: "user", content: prompt })
+                    needsNewTurn = true
+                } else trace.item("no message")
+                if (errors?.length) {
+                    for (const error of errors) trace.error(undefined, error)
+                    needsNewTurn = false
+                    break
+                }
+            } catch (e) {
+                trace.error(`participant error`, e)
+                needsNewTurn = false
+                break
+            } finally {
+                trace?.endDetails()
+            }
+        }
+        if (needsNewTurn) return undefined
+    }
+
+    return structurifyChatSession(messages, schemas, genVars, options, {
+        resp,
+    })
 }
 
 export function mergeGenerationOptions(
@@ -450,9 +503,11 @@ export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
+    vars: Partial<ExpansionVariables>,
     functions: ChatFunctionCallback[],
     schemas: Record<string, JSONSchema>,
     completer: ChatCompletionHandler,
+    chatParticipants: ChatParticipant[],
     genOptions: GenerationOptions
 ) {
     const {
@@ -465,6 +520,7 @@ export async function executeChatSession(
         cacheName,
         responseType,
         responseSchema,
+        stats,
         infoCb,
     } = genOptions
 
@@ -487,6 +543,7 @@ export async function executeChatSession(
 
         let genVars: Record<string, string>
         while (true) {
+            stats.turns++
             infoCb?.({
                 text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
             })
@@ -519,7 +576,9 @@ export async function executeChatSession(
                     resp,
                     messages,
                     functions,
+                    chatParticipants,
                     schemas,
+                    vars,
                     genVars,
                     genOptions
                 )
@@ -545,12 +604,14 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
     const res: string[] = []
     messages.forEach((msg) => {
         const { role } = msg
-        res.push(`> ${role}`)
+        const roleMsg = `> ${role}`
         switch (role) {
             case "system":
+                res.push(roleMsg)
                 res.push(fenceMD(msg.content, "markdown"))
                 break
             case "user":
+                res.push(roleMsg)
                 if (typeof msg.content === "string")
                     res.push(fenceMD(msg.content, "markdown"))
                 else if (Array.isArray(msg.content))
@@ -564,9 +625,19 @@ function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
                 else res.push(fenceMD(YAMLStringify(msg), "yaml"))
                 break
             case "assistant":
+                res.push(roleMsg)
                 res.push(fenceMD(msg.content, "markdown"))
                 break
+            case "aici":
+                res.push(`> ${role} ${msg.functionName}`)
+                res.push(fenceMD(msg.content, "markdown"))
+                break
+            case "tool":
+                res.push(`> ${role} ${msg.tool_call_id}`)
+                res.push(fenceMD(msg.content, "json"))
+                break
             default:
+                res.push(roleMsg)
                 res.push(fenceMD(YAMLStringify(msg), "yaml"))
                 break
         }

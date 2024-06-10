@@ -354,7 +354,7 @@ ${errorMessage(e)}`
             maxCachedTopP,
             vars: options.parameters,
             cache: cache && template.cache,
-            stats: { toolCalls: 0, repairs: 0 },
+            stats: { toolCalls: 0, repairs: 0, turns: 0 },
             cliInfo: {
                 spec:
                     this.host.isVirtualFile(fragment.file.filename) &&
