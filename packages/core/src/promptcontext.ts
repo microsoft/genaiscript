@@ -198,7 +198,7 @@ export function createPromptContext(
     }
 
     const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
-        ...createChatGenerationContext(options, env, trace),
+        ...createChatGenerationContext(options, trace),
         script: () => {},
         system: () => {},
         env,
@@ -227,7 +227,7 @@ export function createPromptContext(
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
-                const ctx = createChatGenerationContext(genOptions, vars, trace)
+                const ctx = createChatGenerationContext(genOptions, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
                 else await generator(ctx)

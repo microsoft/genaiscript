@@ -402,7 +402,6 @@ async function processChatMessage(
     functions: ChatFunctionCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
-    vars: Partial<ExpansionVariables>,
     genVars: Record<string, string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
@@ -445,11 +444,7 @@ async function processChatMessage(
                 const { label } = participantOptions || {}
                 trace.startDetails(`🙋 participant ${label || ""}`)
 
-                const ctx = createChatTurnGenerationContext(
-                    options,
-                    vars,
-                    trace
-                )
+                const ctx = createChatTurnGenerationContext(options, trace)
                 await generator(ctx, structuredClone(messages))
                 const node = ctx.node
                 checkCancelled(cancellationToken)
@@ -578,7 +573,6 @@ export async function executeChatSession(
                     functions,
                     chatParticipants,
                     schemas,
-                    vars,
                     genVars,
                     genOptions
                 )

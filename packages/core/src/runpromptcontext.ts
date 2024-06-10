@@ -22,10 +22,8 @@ import { resolveFileDataUri } from "./file"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
-    vars: Partial<ExpansionVariables>,
     trace: MarkdownTrace
 ): ChatTurnGenerationContext & { node: PromptNode } {
-    const { cancellationToken, infoCb } = options || {}
     const node: PromptNode = { children: [] }
 
     const log = (...args: any[]) => {
@@ -115,10 +113,9 @@ export interface RunPromptContextNode extends ChatGenerationContext {
 
 export function createChatGenerationContext(
     options: GenerationOptions,
-    vars: Partial<ExpansionVariables>,
     trace: MarkdownTrace
 ): RunPromptContextNode {
-    const turnCtx = createChatTurnGenerationContext(options, vars, trace)
+    const turnCtx = createChatTurnGenerationContext(options, trace)
     const node = turnCtx.node
 
     const defTool: (

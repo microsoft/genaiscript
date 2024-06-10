@@ -3,9 +3,8 @@ script({
     title: "Multi-turn conversation",
     files: ["src/rag/markdown.md"],
     system: ["system", "system.files"],
+    tests: {},
 })
-
-def("FILE", env.files)
 
 let turn = 0
 defChatParticipant(
@@ -79,4 +78,5 @@ Answer the QUESTION using the contents in FILE.
     { label: "answerer" }
 )
 
+def("FILE", env.files)
 $`Generate a set of questions for the files to build a FAQ. Format one line per question in text.`
