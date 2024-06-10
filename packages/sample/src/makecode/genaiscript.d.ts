@@ -1594,8 +1594,6 @@ interface PromptContext extends ChatGenerationContext {
 
 
 
-import { JSONL } from "./prompt_template"
-
 // keep in sync with PromptContext!
 
 /**

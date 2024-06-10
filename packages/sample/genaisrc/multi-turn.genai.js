@@ -38,8 +38,10 @@ using the JSONL format:
 \`\`\`\`markdown
 File: <filename>.qt.jsonl
 \`\`\`
-{ q: "<question1>", a: "<answer1>" }
-{ q: "<question2>", a: "<answer2>" }
+${JSONL.stringify([
+                { q: "<question1>", a: "<answer1>" },
+                { q: "<question2>", a: "<answer2>" }
+            ])}
 ...
 \`\`\`
 \`\`\`\`

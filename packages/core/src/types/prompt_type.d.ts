@@ -1,7 +1,5 @@
 /// <reference path="./prompt_template.d.ts"/>
 
-import { JSONL } from "./prompt_template"
-
 // keep in sync with PromptContext!
 
 /**
