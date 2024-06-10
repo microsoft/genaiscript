@@ -27,7 +27,7 @@ import { isCancelError, serializeError } from "./error"
 import { fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
-import { createChatGenerationContext, createChatTurnGenerationContext } from "./runpromptcontext"
+import { createChatTurnGenerationContext } from "./runpromptcontext"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -443,24 +443,29 @@ async function processChatMessage(
                 const { generator, options: participantOptions } =
                     participant || {}
                 const { label } = participantOptions || {}
-                trace.startDetails(`participant ${label || ""}`)
+                trace.startDetails(`🙋 participant ${label || ""}`)
 
-                const ctx = createChatTurnGenerationContext(options, vars, trace)
+                const ctx = createChatTurnGenerationContext(
+                    options,
+                    vars,
+                    trace
+                )
                 await generator(ctx, structuredClone(messages))
                 const node = ctx.node
                 checkCancelled(cancellationToken)
                 // expand template
-                const { errors, messages: msgs } = await renderPromptNode(
+                const { errors, prompt } = await renderPromptNode(
                     options.model,
                     node,
                     {
                         trace,
                     }
                 )
-                if (msgs?.length) {
-                    trace.details(`💬 messages`, renderMessagesToMarkdown(msgs))
-                    messages.push(...msgs)
-                }
+                if (prompt?.trim().length) {
+                    trace.detailsFenced(`💬 message`, prompt, "markdown")
+                    messages.push({ role: "user", content: prompt })
+                    needsNewTurn = true
+                } else trace.item("no message")
                 if (errors?.length) {
                     for (const error of errors) trace.error(undefined, error)
                     needsNewTurn = false
