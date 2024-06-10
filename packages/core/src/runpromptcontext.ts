@@ -11,24 +11,13 @@ import {
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
-    renderPromptNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import {
-    ChatCompletionMessageParam,
-    executeChatSession,
-    mergeGenerationOptions,
-} from "./chat"
 import { GenerationOptions } from "./promptcontext"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
-import { renderAICI } from "./aici"
-import { CancelError, isCancelError, serializeError } from "./error"
-import { checkCancelled } from "./cancellation"
-import { MODEL_PROVIDER_AICI } from "./constants"
+import { CancelError } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
-import { host } from "./host"
 import { resolveFileDataUri } from "./file"
 
 export function createChatTurnGenerationContext(
@@ -113,92 +102,6 @@ export function createChatTurnGenerationContext(
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined
-        },
-        runPrompt: async (generator, runOptions) => {
-            try {
-                const { label } = runOptions || {}
-                trace.startDetails(`🎁 run prompt ${label || ""}`)
-                infoCb?.({ text: `run prompt ${label || ""}` })
-
-                const genOptions = mergeGenerationOptions(options, runOptions)
-                const ctx = createChatGenerationContext(genOptions, vars, trace)
-                if (typeof generator === "string")
-                    ctx.node.children.push(createTextNode(generator))
-                else await generator(ctx)
-                const node = ctx.node
-
-                checkCancelled(cancellationToken)
-
-                let messages: ChatCompletionMessageParam[] = []
-                let functions: ChatFunctionCallback[] = undefined
-                let schemas: Record<string, JSONSchema> = undefined
-                let chatParticipants: ChatParticipant[] = undefined
-                // expand template
-                const { provider } = parseModelIdentifier(genOptions.model)
-                if (provider === MODEL_PROVIDER_AICI) {
-                    const { aici } = await renderAICI("prompt", node)
-                    // todo: output processor?
-                    messages.push(aici)
-                } else {
-                    const {
-                        errors,
-                        schemas: scs,
-                        functions: fns,
-                        messages: msgs,
-                        chatParticipants: cps,
-                    } = await renderPromptNode(genOptions.model, node, {
-                        trace,
-                    })
-
-                    schemas = scs
-                    functions = fns
-                    chatParticipants = cps
-                    messages.push(...msgs)
-
-                    if (errors?.length)
-                        throw new Error("errors while running prompt")
-                }
-
-                const connection = await resolveModelConnectionInfo(
-                    genOptions,
-                    { trace, token: true }
-                )
-                if (!connection.configuration)
-                    throw new Error("model connection error " + connection.info)
-                const { completer } = await host.resolveLanguageModel(
-                    genOptions,
-                    connection.configuration
-                )
-                if (!completer)
-                    throw new Error(
-                        "model driver not found for " + connection.info
-                    )
-                const resp = await executeChatSession(
-                    connection.configuration,
-                    cancellationToken,
-                    messages,
-                    vars,
-                    functions,
-                    schemas,
-                    completer,
-                    chatParticipants,
-                    genOptions
-                )
-                const { json, text } = resp
-                if (resp.json)
-                    trace.detailsFenced("📩 json (parsed)", json, "json")
-                else if (text)
-                    trace.detailsFenced(`🔠 output`, text, `markdown`)
-                return resp
-            } catch (e) {
-                trace.error(e)
-                return {
-                    finishReason: isCancelError(e) ? "cancel" : "fail",
-                    error: serializeError(e),
-                }
-            } finally {
-                trace.endDetails()
-            }
         },
         console,
     }

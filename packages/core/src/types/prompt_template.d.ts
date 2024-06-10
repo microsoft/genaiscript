@@ -1233,10 +1233,6 @@ interface ChatTurnGenerationContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
-    runPrompt(
-        generator: string | PromptGenerator,
-        options?: PromptGeneratorOptions
-    ): Promise<RunPromptResult>
     console: PromptGenerationConsole
 }
 
@@ -1513,6 +1509,10 @@ interface PromptContext extends ChatGenerationContext {
     system(options: PromptSystemArgs): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
