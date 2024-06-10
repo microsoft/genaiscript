@@ -796,6 +796,13 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
+
+    /**
+     * Parses text or file as a JSONL payload. Empty lines are ignore, and JSON5 is used for parsing.
+     * @param content
+     */
+    JSONL(content: string | WorkspaceFile): any[] | undefined
+
     /**
      * Parses text as a YAML paylaod
      */

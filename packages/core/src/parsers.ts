@@ -20,6 +20,7 @@ import { validateJSONWithSchema } from "./schema"
 import { XLSXTryParse } from "./xlsx"
 import { host } from "./host"
 import { unzip } from "./zip"
+import { JSONLTryParse } from "./jsonl"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -29,6 +30,7 @@ export function createParsers(options: {
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
+        JSONL: (text) => JSONLTryParse(filenameOrFileToContent(text)),
         YAML: (text, options) =>
             YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
         XML: (text, options) => {

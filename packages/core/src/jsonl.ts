@@ -38,7 +38,7 @@ export async function readJSONL(fn: string) {
     return res
 }
 
-export function JSONLParse(
+export function JSONLTryParse(
     text: string,
     options?: {
         repair?: boolean
