@@ -7,7 +7,7 @@ import {
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
-import { toStringList } from "./util"
+import { logVerbose, toStringList } from "./util"
 
 export async function createFetch(
     options?: {
@@ -37,13 +37,12 @@ export async function createFetch(
                 return undefined
             const message = errorMessage(error)
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
-            trace?.resultItem(
-                false,
-                toStringList(
-                    message,
-                    `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
-                )
+            const msg = toStringList(
+                message,
+                `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
             )
+            logVerbose(msg)
+            trace?.resultItem(false, msg)
             return delay
         },
     })
