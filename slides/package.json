@@ -11,7 +11,7 @@
     "dev": "slidev --open"
   },
   "dependencies": {
-    "@slidev/cli": "^0.49.9",
+    "@slidev/cli": "^0.49.10",
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",
     "vue": "^3.4.27"
