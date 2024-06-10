@@ -393,6 +393,8 @@ async function resolvePromptNode(
                 const resolvedArgs: any[] = []
                 for (const arg of args) {
                     let resolvedArg = await arg
+                    if (typeof resolvedArg === "function")
+                        resolvedArg = resolvedArg()
                     // render objects
                     if (
                         typeof resolvedArg === "object" ||
