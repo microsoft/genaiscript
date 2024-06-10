@@ -82,17 +82,17 @@ export function convertAnnotationsToMarkdown(text: string): string {
     return text
         ?.replace(
             GITHUB_ANNOTATIONS_RX,
-            (_, severity, file, line, endLine, message) => `> [!${
+            (_, severity, file, line, endLine, __, code, message) => `> [!${
                 severities[severity] || severity
             }]
-> ${message} (${file}#L${line})
+> ${message} (${file}#L${line} ${code || ""})
 `
         )
         ?.replace(
             AZURE_DEVOPS_ANNOTATIONS_RX,
-            (_, severity, file, line, message) => {
+            (_, severity, file, line, __, code, message) => {
                 return `> [!${severities[severity] || severity}] ${message}
-> ${message} (${file}#L${line})
+> ${message} (${file}#L${line} ${code || ""})
 `
             }
         )
