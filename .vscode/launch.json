@@ -20,6 +20,23 @@
             "cwd": "${workspaceFolder}/packages/vscode"
         },
         {
+            "name": "Run - demo",
+            "type": "extensionHost",
+            "debugWebWorkerHost": true,
+            "request": "launch",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode",
+                "${workspaceFolder}/demo"
+            ],
+            "outFiles": ["${workspaceFolder}/packages/vscode/built/**"],
+            "preLaunchTask": "npm: compile",
+            "resolveSourceMapLocations": [
+                "${workspaceFolder}/**",
+                "!**/node_modules/**"
+            ],
+            "cwd": "${workspaceFolder}/packages/vscode"
+        },
+        {
             "name": "Run - Docs",
             "type": "extensionHost",
             "debugWebWorkerHost": true,
@@ -52,6 +69,6 @@
                 "!**/node_modules/**"
             ],
             "cwd": "${workspaceFolder}/packages/vscode"
-        },        
+        }
     ]
 }
