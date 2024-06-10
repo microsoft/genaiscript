@@ -1,4 +1,5 @@
 import { host } from "./host"
+import { JSON5TryParse } from "./json5"
 import { concatBuffers, logWarn, utf8Decode, utf8Encode } from "./util"
 
 function tryReadFile(fn: string) {
@@ -37,15 +38,34 @@ export async function readJSONL(fn: string) {
     return res
 }
 
-function serialize(objs: any[]) {
-    let accLen = 0
-    let acc = ""
-    for (const o of objs) {
-        const s = JSON.stringify(o)
-        accLen += s.length + 1
-        acc += s + "\n"
+export function JSONLParse(
+    text: string,
+    options?: {
+        repair?: boolean
     }
+): any[] {
+    if (!text) return []
+    const res: any[] = []
+    for (const line of text.split("\n")) {
+        if (!line) continue
+        const obj = JSON5TryParse(line, options)
+        res.push(obj)
+    }
+    return res
+}
 
+export function JSONLStringify(objs: any[]) {
+    const acc: string[] = []
+    if (objs?.length)
+        for (const o of objs) {
+            const s = JSON.stringify(o)
+            acc.push(s)
+        }
+    return acc.join("\n")
+}
+
+function serialize(objs: any[]) {
+    const acc = JSONLStringify(objs)
     const buf = host.createUTF8Encoder().encode(acc)
     return buf
 }
