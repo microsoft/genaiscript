@@ -31,15 +31,11 @@ import { consoleLogFormat } from "./logging"
 import { host } from "./host"
 import { resolveFileDataUri } from "./file"
 
-export interface RunPromptContextNode extends ChatGenerationContext {
-    node: PromptNode
-}
-
-export function createChatGenerationContext(
+export function createChatTurnGenerationContext(
     options: GenerationOptions,
     vars: Partial<ExpansionVariables>,
     trace: MarkdownTrace
-): RunPromptContextNode {
+): ChatTurnGenerationContext & { node: PromptNode } {
     const { cancellationToken, infoCb } = options || {}
     const node: PromptNode = { children: [] }
 
@@ -54,66 +50,7 @@ export function createChatGenerationContext(
         error: (args) => trace.error(consoleLogFormat(...args)),
     })
 
-    const defTool: (
-        name: string,
-        description: string,
-        parameters: PromptParametersSchema | JSONSchema,
-        fn: ChatFunctionHandler
-    ) => void = (name, description, parameters, fn) => {
-        const parameterSchema = isJSONSchema(parameters)
-            ? (parameters as JSONSchema)
-            : promptParametersSchemaToJSONSchema(
-                  parameters as PromptParametersSchema
-              )
-        appendChild(
-            node,
-            createFunctionNode(name, description, parameterSchema, fn)
-        )
-    }
-
-    const defSchema = (
-        name: string,
-        schema: JSONSchema,
-        defOptions?: DefSchemaOptions
-    ) => {
-        appendChild(node, createSchemaNode(name, schema, defOptions))
-
-        return name
-    }
-
-    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
-        const { detail } = defOptions || {}
-        if (Array.isArray(files))
-            files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendChild(node, createImageNode({ url: files, detail }))
-        else {
-            const file: WorkspaceFile = files
-            appendChild(
-                node,
-                createImageNode(
-                    (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
-                        return {
-                            url,
-                            filename: file.filename,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        }
-    }
-
-    const defChatParticipant = (
-        generator: ChatParticipantHandler,
-        options?: ChatParticipantOptions
-    ) => {
-        if (generator)
-            appendChild(node, createChatParticipant({ generator, options }))
-    }
-
-    const ctx = <RunPromptContextNode>{
+    const ctx = <ChatTurnGenerationContext & { node: PromptNode }>{
         node,
         writeText: (body, options) => {
             if (body !== undefined && body !== null) {
@@ -173,10 +110,6 @@ export function createChatGenerationContext(
             appendChild(node, createDefDataNode(name, data, defOptions))
             return name
         },
-        defTool,
-        defSchema,
-        defImages,
-        defChatParticipant,
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
             return undefined
@@ -268,6 +201,88 @@ export function createChatGenerationContext(
             }
         },
         console,
+    }
+
+    return ctx
+}
+
+export interface RunPromptContextNode extends ChatGenerationContext {
+    node: PromptNode
+}
+
+export function createChatGenerationContext(
+    options: GenerationOptions,
+    vars: Partial<ExpansionVariables>,
+    trace: MarkdownTrace
+): RunPromptContextNode {
+    const turnCtx = createChatTurnGenerationContext(options, vars, trace)
+    const node = turnCtx.node
+
+    const defTool: (
+        name: string,
+        description: string,
+        parameters: PromptParametersSchema | JSONSchema,
+        fn: ChatFunctionHandler
+    ) => void = (name, description, parameters, fn) => {
+        const parameterSchema = isJSONSchema(parameters)
+            ? (parameters as JSONSchema)
+            : promptParametersSchemaToJSONSchema(
+                  parameters as PromptParametersSchema
+              )
+        appendChild(
+            node,
+            createFunctionNode(name, description, parameterSchema, fn)
+        )
+    }
+
+    const defSchema = (
+        name: string,
+        schema: JSONSchema,
+        defOptions?: DefSchemaOptions
+    ) => {
+        appendChild(node, createSchemaNode(name, schema, defOptions))
+
+        return name
+    }
+
+    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
+        const { detail } = defOptions || {}
+        if (Array.isArray(files))
+            files.forEach((file) => defImages(file, defOptions))
+        else if (typeof files === "string")
+            appendChild(node, createImageNode({ url: files, detail }))
+        else {
+            const file: WorkspaceFile = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const url = await resolveFileDataUri(file, { trace })
+                        return {
+                            url,
+                            filename: file.filename,
+                            detail,
+                        }
+                    })()
+                )
+            )
+        }
+    }
+
+    const defChatParticipant = (
+        generator: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ) => {
+        if (generator)
+            appendChild(node, createChatParticipant({ generator, options }))
+    }
+
+    const ctx = <RunPromptContextNode>{
+        ...turnCtx,
+        defTool,
+        defSchema,
+        defImages,
+        defChatParticipant,
     }
 
     return ctx

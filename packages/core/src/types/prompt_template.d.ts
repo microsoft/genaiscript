@@ -477,9 +477,9 @@ interface ChatFunctionCallback {
 }
 
 type ChatParticipantHandler = (
-    context: ChatGenerationContext,
+    context: ChatTurnGenerationContext,
     messages: ChatCompletionMessageParam[]
-) => Awaitable<ChatCompletionMessageParam[]>
+) => Awaitable<void>
 
 interface ChatParticipantOptions {
     label?: string
@@ -1233,6 +1233,10 @@ interface ChatTurnGenerationContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
     console: PromptGenerationConsole
 }
 
@@ -1242,10 +1246,6 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    runPrompt(
-        generator: string | PromptGenerator,
-        options?: PromptGeneratorOptions
-    ): Promise<RunPromptResult>
     defImages(files: StringLike, options?: DefImagesOptions): void
     defTool(
         name: string,
@@ -1253,7 +1253,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
-    defChatParticipant(participant: ChatParticipantHandler, options?: ChatParticipantOptions): void
+    defChatParticipant(
+        participant: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ): void
 }
 
 interface GenerationOutput {

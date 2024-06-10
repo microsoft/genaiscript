@@ -27,7 +27,7 @@ import { isCancelError, serializeError } from "./error"
 import { fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
-import { createChatGenerationContext } from "./runpromptcontext"
+import { createChatGenerationContext, createChatTurnGenerationContext } from "./runpromptcontext"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -445,7 +445,7 @@ async function processChatMessage(
                 const { label } = participantOptions || {}
                 trace.startDetails(`participant ${label || ""}`)
 
-                const ctx = createChatGenerationContext(options, vars, trace)
+                const ctx = createChatTurnGenerationContext(options, vars, trace)
                 await generator(ctx, structuredClone(messages))
                 const node = ctx.node
                 checkCancelled(cancellationToken)

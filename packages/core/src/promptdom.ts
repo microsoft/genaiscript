@@ -102,6 +102,7 @@ export interface PromptOutputProcessorNode extends PromptNode {
 export interface PromptChatParticipantNode extends PromptNode {
     type: "chatParticipant"
     participant: ChatParticipant
+    options?: ChatParticipantOptions
 }
 
 export function createTextNode(
