@@ -12,8 +12,15 @@ export interface FileReference {
 
 export function diagnosticsToCSV(diagnostics: Diagnostic[], sep: string) {
     return diagnostics
-        .map(({ severity, filename, range, message }) =>
-            [severity, filename, range[0][0], range[1][0], message].join(sep)
+        .map(({ severity, filename, range, code, message }) =>
+            [
+                severity,
+                filename,
+                range[0][0],
+                range[1][0],
+                code || "",
+                message,
+            ].join(sep)
         )
         .join("\n")
 }
@@ -100,11 +107,13 @@ export class Project {
     _finalizers: (() => void)[] = []
 
     folders() {
-        const res: string[] = Array.from(new Set(
-            Object.values(this.templates)
-                .filter((t) => t.filename)
-                .map((t) => host.path.dirname(t.filename))
-        ))
+        const res: string[] = Array.from(
+            new Set(
+                Object.values(this.templates)
+                    .filter((t) => t.filename)
+                    .map((t) => host.path.dirname(t.filename))
+            )
+        )
         return res
     }
 
@@ -149,7 +158,7 @@ export class TextFile {
         public readonly filename: string,
         public readonly mime: string,
         public readonly content: string
-    ) { }
+    ) {}
 
     relativeName() {
         const prj = host.projectFolder()
