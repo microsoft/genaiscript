@@ -17,6 +17,7 @@ import {
 } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
+import { inspect } from "./logging"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -391,7 +392,15 @@ async function resolvePromptNode(
             try {
                 const resolvedArgs: any[] = []
                 for (const arg of args) {
-                    const resolvedArg = await arg
+                    let resolvedArg = await arg
+                    // render objects
+                    if (
+                        typeof resolvedArg === "object" ||
+                        Array.isArray(resolvedArg)
+                    )
+                        resolvedArg = inspect(resolvedArg, {
+                            maxDepth: 3,
+                        })
                     resolvedArgs.push(resolvedArg ?? "")
                 }
                 const value = dedent(strings, ...resolvedArgs)

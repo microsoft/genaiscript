@@ -1,6 +1,6 @@
 script({
     title: "defData demo",
-    model: "gpt-3.5-turbo",
+    model: "openai:gpt-3.5-turbo",
     tests: {},
     system: ["system"]
 })
@@ -17,5 +17,10 @@ defData(
     { format: "csv" }
 )
 
-$`Identify the data formats of A,B,C,D and return the format results as CSV with key value pairs variable,format.
+$`
+E:
+${[{ a: 7, b: 8 },
+    { a: 9, b: 10 },]}
+
+Identify the data formats of A,B,C,D,E and return the format results as CSV with key value pairs variable,format.
 `
