@@ -1,5 +1,7 @@
 /// <reference path="./prompt_template.d.ts"/>
 
+import { JSONL } from "./prompt_template"
+
 // keep in sync with PromptContext!
 
 /**
@@ -115,6 +117,16 @@ declare var YAML: YAML
  * INI parsing and stringifying.
  */
 declare var INI: INI
+
+/**
+ * XML parsing and stringifying.
+ */
+declare var XML: XML
+
+/**
+ * JSONL parsing and stringifying.
+ */
+declare var JSONL: JSONL
 
 /**
  * AICI operations

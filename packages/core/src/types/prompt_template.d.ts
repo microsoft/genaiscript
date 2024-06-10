@@ -1021,6 +1021,19 @@ interface XML {
     parse(text: string): any
 }
 
+interface JSONL {
+    /**
+     * Parses a JSONL string to an array of objects
+     * @param text 
+     */
+    parse(text: string): any[]
+    /**
+     * Converts objects to JSONL format
+     * @param objs 
+     */
+    stringify(objs: any[]): string
+}
+
 interface INI {
     /**
      * Parses a .ini file
@@ -1538,6 +1551,7 @@ interface PromptContext extends ChatGenerationContext {
     workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML
+    JSONL: JSONL
     CSV: CSV
     INI: INI
     AICI: AICI
