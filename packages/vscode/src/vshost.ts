@@ -1,5 +1,4 @@
 import {
-    CHANGE,
     dotEnvTryParse,
     Host,
     LogLevel,
@@ -249,9 +248,7 @@ export class VSCodeHost extends EventTarget implements Host {
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            const azureToken = await this.azure.getOpenAIToken({
-                signal,
-            })
+            const azureToken = await this.azure.getOpenAIToken()
             if (!azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + azureToken
             tok.curlHeaders = {

@@ -216,7 +216,6 @@ AICI_API_BASE="<custom api base>"
         return `
 ## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
-# AZURE_SUBSCRIPTION_ID="<subscription id>"
 # AZURE_OPENAI_API_KEY="<your token>"
 `
 

@@ -13,9 +13,7 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
-        const { parsing, host } = state
-        const { azure } = host
-        const { subscription } = azure
+        const { parsing } = state
         const { computing, progress, options } = state.aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
@@ -34,9 +32,6 @@ export function activateStatusBar(state: ExtensionState) {
                     : undefined,
                 template
                     ? `-  tool: ${template.title} (${template.id})`
-                    : undefined,
-                subscription
-                    ? `-  Azure subscription: ${subscription.name} (${subscription.subscriptionId})`
                     : undefined
             ),
             true
