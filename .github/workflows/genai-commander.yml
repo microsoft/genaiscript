@@ -25,6 +25,8 @@ jobs:
                       return JSON.stringify(res)
             - name: checkout
               uses: actions/checkout@v4
+            - name: fetch main branch
+              run: git fetch origin main
             - name: fetch PR branch
               run: git fetch origin ${{ fromJSON(steps.sha.outputs.result).ref }}
             - name: diff PR branch
