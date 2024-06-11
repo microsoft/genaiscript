@@ -1,6 +1,6 @@
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
-import { concatBuffers, logWarn, utf8Decode, utf8Encode } from "./util"
+import { concatBuffers, logVerbose, logWarn } from "./util"
 
 function tryReadFile(fn: string) {
     return host.readFile(fn).then<Uint8Array>(
@@ -27,7 +27,7 @@ export async function readJSONL(fn: string) {
         if (!/^\s*$/.test(str)) {
             try {
                 res.push(JSON.parse(str))
-            } catch {
+            } catch (e) {
                 if (!numerr) logWarn(`${fn}(${line}): JSON error`)
                 numerr++
             }
@@ -61,7 +61,7 @@ export function JSONLStringify(objs: any[]) {
             const s = JSON.stringify(o)
             acc.push(s)
         }
-    return acc.join("\n")
+    return acc.join("\n") + "\n"
 }
 
 function serialize(objs: any[]) {

@@ -16,4 +16,4 @@ await runPrompt((_) => {
 
 console.log(`after run prompt`)
 
-$`write a poem`
+$`write a poem of 2 verse.`
