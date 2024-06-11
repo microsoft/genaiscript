@@ -27,10 +27,6 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
-            - name: fetch main branch
-              run: git fetch origin main
-            - name: fetch PR branch
-              run: git fetch origin ${{ fromJSON(steps.sha.outputs.result).ref }}
             - name: diff PR branch
               run: git diff origin/main...origin/${{ fromJSON(steps.sha.outputs.result).ref }}
             - uses: actions/setup-node@v4
