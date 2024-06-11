@@ -29,6 +29,8 @@ jobs:
                   fetch-depth: 0
             - name: diff PR branch
               run: git diff origin/main...origin/${{ fromJSON(steps.sha.outputs.result).ref }}
+            - name: diff PR commit
+              run: git diff origin/main...${{ fromJSON(steps.sha.outputs.result).sha }}
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
