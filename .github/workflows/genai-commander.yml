@@ -5,12 +5,15 @@ on:
 jobs:
     pr_commented:
         # must be PR and have a comment starting with /genai
-        if: ${{ github.event.issue.pull_request && contains(github.event.issue.body, '/genai-') }}
+        #if: ${{ github.event.issue.pull_request }}
         runs-on: ubuntu-latest
         permissions:
             contents: write
             pull-requests: write
         steps:
+            - run: echo "${{ github.event.issue.pull_request }}"
+            - run: echo "${{ github.event.issue.body }}"
+            - run: echo "${{contains(github.event.issue.body, '/genai-')}}
             - uses: actions/checkout@v4
               with:
                   submodules: "recursive"
