@@ -1,4 +1,6 @@
-script({ files: "web-app-basic-linux/main.bicep" })
+script({ 
+    model: "azure:gpt2networkverification",
+    files: "web-app-basic-linux/main.bicep" })
 def("FILE", env.files, { endsWith: ".bicep" } )
 $`
 - Write a 1 sentence short poem about FILE.
