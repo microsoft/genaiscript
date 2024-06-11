@@ -15,6 +15,7 @@ jobs:
               with:
                   submodules: "recursive"
                   fetch-depth: 10
+                  ref: ${{ github.event.pull_request.base.sha }}                  
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
@@ -37,7 +38,7 @@ jobs:
               run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha}}
+                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
