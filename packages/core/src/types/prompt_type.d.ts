@@ -117,6 +117,16 @@ declare var YAML: YAML
 declare var INI: INI
 
 /**
+ * XML parsing and stringifying.
+ */
+declare var XML: XML
+
+/**
+ * JSONL parsing and stringifying.
+ */
+declare var JSONL: JSONL
+
+/**
  * AICI operations
  */
 declare var AICI: AICI

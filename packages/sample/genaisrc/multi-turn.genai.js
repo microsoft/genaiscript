@@ -6,9 +6,15 @@ script({
     tests: {},
 })
 
+
+def("FILE", env.files)
+$`Generate a set of questions for the files to build a FAQ.`
+
+
+// turn 2
 let turn = 0
 defChatParticipant(
-    async (_, messages) => {
+    async (ctx, messages) => {
         turn++
         if (turn <= 1) {
             const text = messages.at(-1).content
@@ -18,7 +24,7 @@ defChatParticipant(
                     .map((q) => q.trim())
                     .filter((q) => q.length > 0) || []
 
-            _.$`Here is the list of answers to the questions in the file. 
+            ctx.$`Here is the list of answers to the questions in the file. 
             
 ## Task 1:
 
@@ -26,20 +32,21 @@ Validate the quality of the answer.
 
 ## Task 2:
 
-Write the question/answers pairs for each file in a "<filename>.qt.txt" file
-using the following format:
+Write the question/answers pairs for each file in a "<filename>.qt.jsonl" file
+using the JSONL format:
 
 \`\`\`\`markdown
-File: <filename>.qt.txt
+File: <filename>.qt.jsonl
 \`\`\`
-## <question>
-
-<answer>
+${JSONL.stringify([
+                { q: "<question1>", a: "<answer1>" },
+                { q: "<question2>", a: "<answer2>" }
+            ])}
 ...
 \`\`\`
 \`\`\`\`
 
-
+### Questions:
             `
 
             for (const question of questions) {
@@ -67,16 +74,13 @@ Answer the QUESTION using the contents in FILE.
                     { label: question }
                 )
 
-                _.$`
+                ctx.$`
             
 - question: ${question}`
-                _.fence(res.text)
-                _.$`\n\n`
+                ctx.fence(res.text)
+                ctx.$`\n\n`
             }
         }
     },
     { label: "answerer" }
 )
-
-def("FILE", env.files)
-$`Generate a set of questions for the files to build a FAQ. Format one line per question in text.`

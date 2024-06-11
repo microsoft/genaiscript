@@ -796,6 +796,13 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
+
+    /**
+     * Parses text or file as a JSONL payload. Empty lines are ignore, and JSON5 is used for parsing.
+     * @param content
+     */
+    JSONL(content: string | WorkspaceFile): any[] | undefined
+
     /**
      * Parses text as a YAML paylaod
      */
@@ -1012,6 +1019,19 @@ interface XML {
      * @param text
      */
     parse(text: string): any
+}
+
+interface JSONL {
+    /**
+     * Parses a JSONL string to an array of objects
+     * @param text 
+     */
+    parse(text: string): any[]
+    /**
+     * Converts objects to JSONL format
+     * @param objs 
+     */
+    stringify(objs: any[]): string
 }
 
 interface INI {
@@ -1531,6 +1551,7 @@ interface PromptContext extends ChatGenerationContext {
     workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML
+    JSONL: JSONL
     CSV: CSV
     INI: INI
     AICI: AICI

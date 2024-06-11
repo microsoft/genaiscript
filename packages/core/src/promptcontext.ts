@@ -36,6 +36,7 @@ import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
+import { JSONLStringify, JSONLTryParse } from "./jsonl"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -73,6 +74,10 @@ export function createPromptContext(
     })
     const XML = Object.freeze<XML>({
         parse: XMLParse,
+    })
+    const JSONL = Object.freeze<JSONL>({
+        parse: JSONLTryParse,
+        stringify: JSONLStringify,
     })
     const AICI = Object.freeze<AICI>({
         gen: (options: AICIGenOptions) => {
@@ -211,6 +216,7 @@ export function createPromptContext(
         INI,
         AICI,
         XML,
+        JSONL,
         retrieval,
         host: promptHost,
         defOutputProcessor,
