@@ -269,10 +269,6 @@ export class VSCodeHost extends EventTarget implements Host {
         return model
     }
 
-    async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {
-        this.dispatchEvent(new Event(CHANGE))
-    }
-
     async askUser(options: AskUserOptions) {
         const res = vscode.window.showInputBox({
             ...options,
