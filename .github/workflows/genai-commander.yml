@@ -23,8 +23,10 @@ jobs:
                       return { sha: pr.data.head.sha, ref: pr.data.ref }
             - name: checkout
               uses: actions/checkout@v4
-            - run: git fetch origin ${{ fromJSON(steps.sha.outputs.result).ref }}
-            - run: git diff origin/main...${{ fromJSON(steps.sha.outputs.result).ref }}
+            - name: fetch PR branch
+              run: git fetch origin ${{ fromJSON(steps.sha.outputs.result).ref }}
+            - name: diff PR branch
+              run: git diff origin/main...${{ fromJSON(steps.sha.outputs.result).ref }}
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
