@@ -276,7 +276,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")
-            c.checkAny("tools", () => {})
+            c.checkStringArray("tools")
         })
 
         const r = c.template

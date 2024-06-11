@@ -1,5 +1,5 @@
 import { Fragment, Project, PromptScript } from "./ast"
-import { assert, normalizeFloat, normalizeInt } from "./util"
+import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
@@ -219,20 +219,16 @@ function traceEnv(
 }
 
 function resolveTool(prj: Project, tool: string) {
+    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}('|"|\`)`)
     const system = prj.templates.find(
-        (t) => t.isSystem && t.jsSource.includes(`defTool("${tool}"`)
+        (t) => t.isSystem && toolsRx.test(t.jsSource)
     )
     return system.id
 }
 
 export function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
-    const systems = Array.from(
-        new Set([
-            ...(template.system ?? []),
-            ...(template.tools ?? []).map((tool) => resolveTool(prj, tool)),
-        ])
-    ).filter((s) => s)
+    const systems = Array.from(template.system ?? []).slice(0)
 
     if (template.system === undefined) {
         const useSchema = /defschema/i.test(jsSource)
@@ -250,7 +246,11 @@ export function resolveSystems(prj: Project, template: PromptScript) {
         if (useSchema) systems.push("system.schema")
         if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
     }
-    return systems
+
+    if (template.tools?.length)
+        template.tools.forEach((tool) => systems.push(resolveTool(prj, tool)))
+
+    return unique(systems.filter((s) => !!s))
 }
 
 export async function expandTemplate(

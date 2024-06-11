@@ -610,7 +610,7 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
                     : undefined
                 return r
             })
-            const uri = vscode.Uri.file(filename)
+            const uri = Utils.resolvePath(this.host.projectUri, filename)
             this._diagColl.set(uri, ds)
         }
     }
