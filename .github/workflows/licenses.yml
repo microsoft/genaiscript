@@ -12,6 +12,10 @@ concurrency:
 jobs:
     build:
         runs-on: ubuntu-latest
+        permissions:
+          actions: read
+          contents: write
+          pull-requests: write
         steps:
             - uses: actions/checkout@v4
               with:
