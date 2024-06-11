@@ -116,6 +116,12 @@ def("GIT_DIFF", changes, {
 })
 ```
 
+Note that you'll need to pull `origin/main` branch to make this command work in an action.
+
+```yaml
+- run: git fetch origin && git pull origin main:main
+```
+
 ### Storing output in artifacts
 
 Ensure that the directory containing the results is uploaded as an artifact. You can review the trace by opening the `res.trace.md` file.
