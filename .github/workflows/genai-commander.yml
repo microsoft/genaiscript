@@ -19,10 +19,12 @@ jobs:
                   script: |
                       const { owner, repo, number } = context.issue;
                       const pr = await github.pulls.get({ owner, repo, pull_number: number, });
-                      return pr.data.head.sha
+                      console.log(pr)
+                      return { sha: pr.data.head.sha, ref: pr.data.ref }
             - name: checkout
               uses: actions/checkout@v4
-            - run: git diff ${{ steps.sha.outputs.result }}
+            - run: git fetch origin ${{ fromJSON(steps.sha.outputs.result).ref }}
+            - run: git diff origin/main...${{ fromJSON(steps.sha.outputs.result).ref }}
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
@@ -44,7 +46,7 @@ jobs:
               run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_COMMIT_SHA: ${{ steps.sha.outputs.result }}
+                  GITHUB_COMMIT_SHA: ${{ fromJSON(steps.sha.outputs.result).sha }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
