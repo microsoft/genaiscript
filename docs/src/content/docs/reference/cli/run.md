@@ -3,10 +3,10 @@ title: Run
 description: Learn how to execute genai scripts on files with streaming output to stdout, including usage of glob patterns, environment variables, and output options.
 sidebar:
     order: 1
-keywords: CLI tool execution, genai script running, stdout streaming, file globbing, environment configuration
+keywords: CLI tool execution, genai script running, stdout streaming, file globing, environment configuration
 ---
 
-Runs a script on files and streams the LLM output to stdout.
+Runs a script on files and streams the LLM output to stdout or a folder.
 
 ```bash
 npx genaiscript run <script> "<files...>"
@@ -14,7 +14,7 @@ npx genaiscript run <script> "<files...>"
 
 where `<script>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
 
-If `spec` is not a `.gpspec.md` file, a wrapper spec is generated on the fly. In this case, spec can also be a [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns.
+Files can also include [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) pattern.
 
 ```sh
 npx genaiscript run code-annotator "src/*.ts"
