@@ -2,8 +2,13 @@ script({
     model: "gpt-3.5-turbo",
     temperature: 0,
     files: "web-app-basic-linux/main.bicep",
-    system: ["system", "system.explanations", "system.files", "system.annotations"],
-    tools: ["fs_find_files", "fs_read_file"]
+    system: [
+        "system",
+        "system.explanations",
+        "system.files",
+        "system.annotations",
+    ],
+    tools: ["fs_find_files", "fs_read_file"],
 })
 def("BICEP", env.files)
 $`You are a Azure export using the Bicep Language.`

@@ -36,10 +36,12 @@ export async function createFetch(
                 // fatal
                 return undefined
             const message = errorMessage(error)
+            const status = statusToMessage(response)
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
             const msg = toStringList(
+                `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`,
                 message,
-                `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
+                status
             )
             logVerbose(msg)
             trace?.resultItem(false, msg)
@@ -47,4 +49,15 @@ export async function createFetch(
         },
     })
     return fetchRetry
+}
+
+export function statusToMessage(res?: {
+    status?: number
+    statusText?: string
+}) {
+    const { status, statusText } = res || {}
+    return toStringList(
+        typeof status === "number" ? status + "" : undefined,
+        statusText
+    )
 }
