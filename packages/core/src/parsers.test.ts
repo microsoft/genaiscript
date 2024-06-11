@@ -24,6 +24,12 @@ describe("parsers", () => {
         assert.deepStrictEqual(result, { key: "value" })
     })
 
+    test("JSONL", () => {
+        const result = parsers.JSONL('{"key": "value"}\n{"key2": "value2"}')
+        assert.deepStrictEqual(result[0], { key: "value" })
+        assert.deepStrictEqual(result[1], { key2: "value2" })
+    })
+
     test("YAML", () => {
         const result = parsers.YAML("key: value")
         assert.deepStrictEqual(result, { key: "value" })

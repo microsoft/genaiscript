@@ -83,6 +83,21 @@ To parse, use `parsers.TOML`. It supports both a text content or a file as input
 const res = parsers.TOML("...")
 ```
 
+## JSONL
+
+JSON**L** is a format that stores JSON objects in a line-by-line format. Each line is a valid JSON(5) object (we use the JSON5 parser to be more error resilient).
+
+```jsonl title="data.jsonl"
+{"name": "Alice"}
+{"name": "Bob"}
+```
+
+You can use `parsers.JSONL` to parse the JSONL files into an array of object (`any[]`).
+
+```js
+const res = parsers.JSONL(file)
+```
+
 ## XML
 
 The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/wiki/XML).
