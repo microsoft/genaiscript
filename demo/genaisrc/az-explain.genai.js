@@ -1,5 +1,5 @@
 script({
-    model: "gpt-3.5-turbo",
+    model: "azure:gpt2networkverification",
     temperature: 0,
     files: "web-app-basic-linux/main.bicep",
     system: [

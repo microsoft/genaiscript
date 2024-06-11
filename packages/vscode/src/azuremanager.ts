@@ -26,6 +26,10 @@ export class AzureManager {
         return this._subscription
     }
 
+    get hasToken() {
+        return this._token?.token !== undefined
+    }
+
     async signIn(): Promise<TokenCredential> {
         if (this._subscription) return this._subscription.credential
 

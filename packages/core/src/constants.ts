@@ -2,7 +2,8 @@ export const CHANGE = "change"
 export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 100
-//https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+// https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
 export const AZURE_OPENAI_API_VERSION = "2024-02-01"
 export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
