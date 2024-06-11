@@ -4,7 +4,7 @@ on:
     schedule:
         - cron: "0 4 * * *"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-genai-alt-text
+    group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 jobs:
     build:
