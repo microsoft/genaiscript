@@ -254,6 +254,9 @@ export class VSCodeHost extends EventTarget implements Host {
             })
             if (!azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + azureToken
+            tok.curlHeaders = {
+                Authorization: "Bearer ***",
+            }
         }
         return tok
     }
