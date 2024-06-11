@@ -23,7 +23,7 @@
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
   "dependencies": {
-    "@azure/identity": "^4.2.0",
+    "@azure/identity": "^4.2.1",
     "dockerode": "^4.0.2",
     "pdfjs-dist": "4.3.136",
     "promptfoo": "^0.63.0",
