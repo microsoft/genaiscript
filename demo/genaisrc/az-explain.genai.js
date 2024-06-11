@@ -6,4 +6,7 @@ script({
 def("BICEP", env.files)
 $`You are a Azure export using the Bicep Language.`
 
-$`Use best practices to reports annotations for the BICEP file.`
+$`Use best practices to reports annotations for the BICEP file.
+
+- only report errors
+`

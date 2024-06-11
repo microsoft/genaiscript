@@ -12,7 +12,6 @@ param linuxFxVersion string = 'php|7.4'
 param location string = resourceGroup().location
 
 var webAppPortalName = '${webAppName}-webapp'
-#disable-next-line genaiscript
 var appServicePlanName = 'AppServicePlan-${webAppName}'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {

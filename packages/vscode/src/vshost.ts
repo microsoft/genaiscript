@@ -134,8 +134,8 @@ export class VSCodeHost extends EventTarget implements Host {
     resolvePath(...segments: string[]): string {
         if (segments.length === 0) return "."
         const s0 = segments.shift()
-        let r = Uri.file(s0)
-        if (segments.length) r = Uri.joinPath(r, ...segments)
+        let r = vscode.Uri.file(s0)
+        if (segments.length) r = Utils.resolvePath(r, ...segments)
         return r.fsPath
     }
 
