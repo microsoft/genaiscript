@@ -20,7 +20,9 @@ jobs:
                       const { owner, repo, number } = context.issue;
                       const pr = await github.pulls.get({ owner, repo, pull_number: number, });
                       console.log(pr)
-                      return { sha: pr.data.head.sha, ref: pr.data.ref }
+                      const res = { sha: pr.data.head.sha, ref: pr.data.head.ref }
+                      console.log(res)
+                      return JSON.stringify(res)
             - name: checkout
               uses: actions/checkout@v4
             - name: fetch PR branch
