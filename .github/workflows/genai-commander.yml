@@ -11,11 +11,20 @@ jobs:
             contents: write
             pull-requests: write
         steps:
+            - name: resolve pr sha
+              id: sha
+              uses: actions/github-script@v4
+              with:
+                result-encoding: string
+                script: |
+                  const { owner, repo, number } = context.issue;
+                  const pr = await github.pulls.get({ owner, repo, pull_number: number, });
+                  return pr.data.head.sha 
             - uses: actions/checkout@v4
               with:
                   submodules: "recursive"
                   fetch-depth: 10
-                  ref: ${{ github.event.pull_request.base.sha }}                  
+                  ref: ${{ steps.sha.outputs.result }}                  
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
@@ -38,7 +47,7 @@ jobs:
               run: node packages/cli/built/genaiscript.cjs run pr-review --out ./temp/genai/pr-review -prc --out-trace $GITHUB_STEP_SUMMARY
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.base.sha }}
+                  GITHUB_COMMIT_SHA: ${{ steps.sha.outputs.result }}
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
