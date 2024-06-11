@@ -20,17 +20,15 @@ jobs:
                       const { owner, repo, number } = context.issue;
                       const pr = await github.pulls.get({ owner, repo, pull_number: number, });
                       return pr.data.head.sha
-            - uses: actions/checkout@v4
-              with:
-                  ref: main
-            - uses: actions/checkout@v4
-              with:
-                  ref: ${{ steps.sha.outputs.result }}
+            - name: checkout
+              uses: actions/checkout@v4
+            - run: git diff ${{ steps.sha.outputs.result }}
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
                   cache: yarn
-            - run: yarn install --frozen-lockfile
+            - name: install dependencies
+              run: yarn install --frozen-lockfile
             - name: compile
               run: yarn compile
             - name: genaiscript pr-describe
