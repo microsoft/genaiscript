@@ -31,6 +31,10 @@ jobs:
               run: git diff origin/main...origin/${{ fromJSON(steps.sha.outputs.result).ref }}
             - name: diff PR commit
               run: git diff origin/main...${{ fromJSON(steps.sha.outputs.result).sha }}
+            - name: checkout PR commit
+              run: git checkout ${{ fromJSON(steps.sha.outputs.result).sha }}
+            - name: diff main
+              run: git diff origin/main
             - uses: actions/setup-node@v4
               with:
                   node-version: "20"
