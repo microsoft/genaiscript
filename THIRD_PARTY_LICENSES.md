@@ -3032,7 +3032,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - openai@4.49.1
+ - openai@4.50.0
 
 This package contains the following license and notice below:
 
@@ -4298,7 +4298,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/client-cognito-identity@3.592.0
- - @aws-sdk/client-sagemaker@3.593.0
+ - @aws-sdk/client-sagemaker@3.595.0
  - @aws-sdk/client-sso-oidc@3.592.0
  - @aws-sdk/client-sso@3.592.0
  - @aws-sdk/client-sts@3.592.0
@@ -7959,7 +7959,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - prettier@3.3.1
+ - prettier@3.3.2
 
 This package contains the following license and notice below:
 
@@ -7982,7 +7982,7 @@ MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0
 
 ## Bundled dependencies
 
-### @angular/compiler@v18.0.0
+### @angular/compiler@v18.0.2
 
 > Angular - the compiler library
 
@@ -7992,7 +7992,7 @@ Author: angular
 
 ----------------------------------------
 
-### @babel/code-frame@v7.24.6
+### @babel/code-frame@v7.24.7
 
 > Generate errors that contain a code frame that point to source locations.
 
@@ -8026,7 +8026,7 @@ Author: The Babel Team (https://babel.dev/team)
 
 ----------------------------------------
 
-### @babel/helper-validator-identifier@v7.24.6
+### @babel/helper-validator-identifier@v7.24.7
 
 > Validate identifier/keywords name
 
@@ -8059,7 +8059,7 @@ Author: The Babel Team (https://babel.dev/team)
 
 ----------------------------------------
 
-### @babel/highlight@v7.24.6
+### @babel/highlight@v7.24.7
 
 > Syntax highlight JavaScript strings for output in terminals.
 
@@ -8093,7 +8093,7 @@ Author: The Babel Team (https://babel.dev/team)
 
 ----------------------------------------
 
-### @babel/parser@v7.24.6
+### @babel/parser@v7.24.7
 
 > A JavaScript parser
 
@@ -8421,7 +8421,7 @@ Author: Alex Bell <alex@bellandwhistle.net>
 
 ----------------------------------------
 
-### @typescript-eslint/types@v7.10.0
+### @typescript-eslint/types@v7.13.0
 
 > Types for the TypeScript-ESTree AST spec
 
@@ -8453,7 +8453,7 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### @typescript-eslint/typescript-estree@v7.10.0
+### @typescript-eslint/typescript-estree@v7.13.0
 
 > A parser that converts TypeScript source code into an ESTree compatible form
 
@@ -9493,7 +9493,7 @@ Contributors:
 
 ----------------------------------------
 
-### flow-parser@v0.236.0
+### flow-parser@v0.237.2
 
 > JavaScript parser written in OCaml. Produces ESTree AST
 
@@ -10529,7 +10529,7 @@ Repository: <git@github.com:teambition/merge2.git>
 
 ----------------------------------------
 
-### meriyah@v4.4.3
+### meriyah@v4.5.0
 
 > A 100% compliant, self-hosted javascript parser with high focus on both performance and stability
 
@@ -10799,7 +10799,7 @@ Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 ----------------------------------------
 
-### picocolors@v1.0.0
+### picocolors@v1.0.1
 
 > The tiniest and the fastest library for terminal output formatting with ANSI colors
 
@@ -21903,7 +21903,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - promptfoo@0.63.0
+ - promptfoo@0.63.2
 
 This package contains the following license and notice below:
 
@@ -22906,7 +22906,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.796
+ - electron-to-chromium@1.4.798
 
 This package contains the following license and notice below:
 
@@ -25190,7 +25190,6 @@ The following npm packages may be included in this product:
  - @esbuild/linux-x64@0.21.5
  - @iconify-json/ph@1.1.13
  - @iconify-json/svg-spinners@1.1.2
- - @nuxt/ui-templates@1.3.4
  - @pagefind/default-ui@1.1.0
  - @pagefind/linux-x64@1.1.0
  - @polka/url@1.0.0-next.25
@@ -25943,7 +25942,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - node-abi@3.63.0
+ - node-abi@3.64.0
 
 This package contains the following license and notice below:
 
@@ -27078,10 +27077,10 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @vueuse/core@10.10.0
- - @vueuse/math@10.10.0
- - @vueuse/metadata@10.10.0
- - @vueuse/shared@10.10.0
+ - @vueuse/core@10.10.1
+ - @vueuse/math@10.10.1
+ - @vueuse/metadata@10.10.1
+ - @vueuse/shared@10.10.1
 
 These packages each contain the following license and notice below:
 
@@ -27354,7 +27353,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.9.1
+ - @azure/msal-node@2.9.2
 
 This package contains the following license and notice below:
 
@@ -27827,7 +27826,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cohere-ai@7.10.2
+ - cohere-ai@7.10.5
 
 This package contains the following license and notice below:
 
@@ -27893,7 +27892,7 @@ The following npm packages may be included in this product:
  - @astrojs/prism@3.1.0
  - @astrojs/sitemap@3.1.5
  - @astrojs/telemetry@3.1.0
- - astro@4.10.1
+ - astro@4.10.2
 
 These packages each contain the following license and notice below:
 
@@ -28051,13 +28050,13 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @shikijs/core@1.6.3
- - @shikijs/markdown-it@1.6.3
- - @shikijs/monaco@1.6.3
- - @shikijs/transformers@1.6.3
- - @shikijs/twoslash@1.6.3
- - @shikijs/vitepress-twoslash@1.6.3
- - shiki@1.6.3
+ - @shikijs/core@1.6.4
+ - @shikijs/markdown-it@1.6.4
+ - @shikijs/monaco@1.6.4
+ - @shikijs/transformers@1.6.4
+ - @shikijs/twoslash@1.6.4
+ - @shikijs/vitepress-twoslash@1.6.4
+ - shiki@1.6.4
 
 These packages each contain the following license and notice below:
 
@@ -28347,15 +28346,15 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @volar/kit@2.2.5
- - @volar/language-core@1.11.1
  - @volar/language-core@2.2.5
+ - @volar/language-core@2.3.0
  - @volar/language-server@2.2.5
  - @volar/language-service@2.2.5
  - @volar/snapshot-document@2.2.5
- - @volar/source-map@1.11.1
  - @volar/source-map@2.2.5
+ - @volar/source-map@2.3.0
  - @volar/typescript@2.2.5
- - @vue/language-core@1.8.27
+ - @vue/language-core@2.0.21
  - typescript-auto-import-cache@0.3.2
 
 These packages each contain the following license and notice below:
@@ -28722,7 +28721,6 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - muggle-string@0.3.1
  - muggle-string@0.4.1
  - typesafe-path@0.2.2
  - volar-service-css@0.0.45
@@ -29231,7 +29229,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - twoslash-vue@0.2.7
+ - twoslash-vue@0.2.8
 
 This package contains the following license and notice below:
 
@@ -29413,8 +29411,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.16.0
- - @azure/msal-common@14.11.0
+ - @azure/msal-browser@3.17.0
+ - @azure/msal-common@14.12.0
 
 These packages each contain the following license and notice below:
 
@@ -29445,6 +29443,7 @@ SOFTWARE
 The following npm packages may be included in this product:
 
  - c12@1.10.0
+ - compatx@0.1.3
  - defu@6.1.4
  - destr@2.0.3
  - get-port-please@3.1.2
@@ -29457,6 +29456,7 @@ The following npm packages may be included in this product:
  - perfect-debounce@1.0.0
  - scule@1.3.0
  - ufo@1.5.3
+ - uncrypto@0.1.3
  - untyped@1.4.2
 
 These packages each contain the following license and notice below:
@@ -33468,8 +33468,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @nuxt/kit@3.11.2
- - @nuxt/schema@3.11.2
+ - @nuxt/kit@3.12.1
+ - @nuxt/schema@3.12.1
 
 These packages each contain the following license and notice below:
 
@@ -34288,7 +34288,7 @@ The following npm packages may be included in this product:
  - @azure/core-rest-pipeline@1.16.0
  - @azure/core-tracing@1.1.2
  - @azure/core-util@1.9.0
- - @azure/identity@4.2.0
+ - @azure/identity@4.2.1
  - @azure/logger@1.1.2
 
 These packages each contain the following license and notice below:
@@ -34623,11 +34623,12 @@ THE SOFTWARE.
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - web-streams-polyfill@3.3.3
+ - web-streams-polyfill@4.0.0
 
-This package contains the following license and notice below:
+These packages each contain the following license and notice below:
 
 The MIT License (MIT)
 
@@ -34656,7 +34657,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - twoslash-protocol@0.2.7
+ - twoslash-protocol@0.2.8
 
 This package contains the following license and notice below:
 
@@ -35023,7 +35024,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 
 The following npm package may be included in this product:
 
- - twoslash@0.2.7
+ - twoslash@0.2.8
 
 This package contains the following license and notice below:
 
