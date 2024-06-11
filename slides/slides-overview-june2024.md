@@ -34,7 +34,7 @@ layout: center
 #### with contributions from Markus Kuppe, Michał Moskal, and Madan Musuvathi
 <br/>
 
-#### May 2024
+#### June 2024
 
 <br/>
 
@@ -66,58 +66,6 @@ src: pages/alt-text-deploy.md
 
 ---
 src: pages/abstractions.md
----
-
----
-src: pages/other-features.md
----
-
----
-src: pages/script.md
----
-
----
-src: pages/script-prompt.md
----
-
----
-src: pages/system-scripts.md
----
-
----
-src: pages/response-processing.md
----
-
----
-src: pages/vscode.md
----
-
----
-src: pages/image-alt-text.md
----
-
----
-src: pages/makecode-translations.md
----
-
----
-src: pages/makecode-timeline.md
----
-
----
-src: pages/script-vs-agent.md
----
-
----
-src: pages/research-topics.md
----
-
----
-src: pages/stack-2.md
----
-
----
-src: pages/stack-2-elements.md
 ---
 
 ---
