@@ -1,5 +1,4 @@
 import {
-    CHANGE,
     dotEnvTryParse,
     Host,
     LogLevel,
@@ -17,7 +16,6 @@ import {
     LanguageModel,
     MODEL_PROVIDER_AZURE,
     AbortSignalOptions,
-    AZURE_OPENAI_TOKEN_SCOPES,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
