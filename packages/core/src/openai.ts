@@ -130,12 +130,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     trace.detailsFenced(
         `✉️ fetch`,
-        `curl ${url} \\
+        `curl -X POST ${url} \\
 -H "Content-Type: application/json" \\
 ${Object.entries(cfg.curlHeaders || {})
     .map(([k, v]) => `-H "${k}: ${v}" \\`)
     .join("\n")}
--d '${JSON.stringify(postReq, null, 2)}' 
+-d '${JSON.stringify(postReq).replace(/'/g, "'\\''")}' 
 `,
         "bash"
     )
