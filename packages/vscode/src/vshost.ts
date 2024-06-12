@@ -16,6 +16,7 @@ import {
     LanguageModel,
     MODEL_PROVIDER_AZURE,
     AbortSignalOptions,
+    HTTPS_REGEX,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -136,6 +137,16 @@ export class VSCodeHost extends EventTarget implements Host {
         let r = vscode.Uri.file(s0)
         if (segments.length) r = Utils.resolvePath(r, ...segments)
         return r.fsPath
+    }
+
+    toUri(filenameOrUrl: string): vscode.Uri {
+        const folder = this.projectUri
+        if (!filenameOrUrl) return folder
+        if (/^[a-z][a-z0-9+\-.]*:\/\//.test(filenameOrUrl))
+            return vscode.Uri.parse(filenameOrUrl, true)
+        if (this.path.isAbsolute(filenameOrUrl))
+            return vscode.Uri.file(filenameOrUrl)
+        else return Utils.resolvePath(folder, filenameOrUrl)
     }
 
     log(level: LogLevel, msg: string): void {

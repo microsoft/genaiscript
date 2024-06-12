@@ -16,7 +16,7 @@ import { PROMPTFOO_VERSION } from "../../cli/src/version"
 import { openUrlInTab } from "./browser"
 
 export async function activateTestController(state: ExtensionState) {
-    const { context } = state
+    const { context, host } = state
     const { subscriptions } = context
 
     const ctrl = vscode.tests.createTestController(TOOL_ID, "GenAIScript")
@@ -135,7 +135,7 @@ export async function activateTestController(state: ExtensionState) {
         const file = ctrl.createTestItem(
             script.id,
             script.id,
-            vscode.Uri.file(script.filename)
+            host.toUri(script.filename)
         )
         file.description = script.title ?? script.description
         ctrl.items.add(file)

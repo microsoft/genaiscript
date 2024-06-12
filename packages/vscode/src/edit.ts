@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
 import { Fragment, eolPosition } from "genaiscript-core"
+import { ExtensionState } from "./state"
 
 export function toPos(p: CharPosition | number) {
     if (typeof p === "number") return new vscode.Position(p, 0)
@@ -7,7 +8,11 @@ export function toPos(p: CharPosition | number) {
 }
 export function toRange(p: CharRange | LineRange) {
     if (!p) return undefined
-    if (Array.isArray(p) && typeof p[0] === "number" && typeof p[1] === "number")
+    if (
+        Array.isArray(p) &&
+        typeof p[0] === "number" &&
+        typeof p[1] === "number"
+    )
         return new vscode.Range(
             new vscode.Position(p[0], 0),
             new vscode.Position(p[1], eolPosition)
@@ -21,6 +26,7 @@ export function fragmentRange(frag: Fragment) {
 }
 
 export async function applyEdits(
+    state: ExtensionState,
     edits: Edits[],
     options?: {
         needsConfirmation?: boolean
@@ -31,7 +37,7 @@ export async function applyEdits(
     const { needsConfirmation } = options || {}
     const edit = new vscode.WorkspaceEdit()
     for (const e of edits) {
-        const uri = vscode.Uri.file(e.filename)
+        const uri = state.host.toUri(e.filename)
         const meta: vscode.WorkspaceEditEntryMetadata = {
             label: e.label,
             needsConfirmation: false,
@@ -68,7 +74,7 @@ export async function applyEdits(
         }
     }
     if (needsConfirmation)
-        edit.insert(vscode.Uri.file(edits[0].filename), toPos([0, 0]), "", {
+        edit.insert(state.host.toUri(edits[0].filename), toPos([0, 0]), "", {
             label: "Fake edit",
             needsConfirmation: true,
         })
