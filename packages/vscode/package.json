@@ -41,7 +41,8 @@
     },
     "activationEvents": [
         "workspaceContains:**/*.gpspec.md",
-        "workspaceContains:**/*.genai.js"
+        "workspaceContains:**/*.genai.js",
+        "onNotebook:genaiscript"
     ],
     "main": "./built/extension.js",
     "bugs": {
@@ -56,6 +57,17 @@
         "./icon-dark.svg"
     ],
     "contributes": {
+        "notebooks": [
+            {
+                "type": "genaiscript",
+                "displayName": "GenAIScript",
+                "selector": [
+                    {
+                        "filenamePattern": "*.genaibook"
+                    }
+                ]
+            }
+        ],
         "markdown.previewStyles": [
             "./markdown.css"
         ],
@@ -213,6 +225,11 @@
             }
         ],
         "commands": [
+            {
+                "command": "genaiscript.notebook.new",
+                "title": "New Notebook",
+                "category": "GenAIScript"
+            },
             {
                 "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",

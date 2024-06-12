@@ -1,0 +1,18 @@
+{
+  "cells": [
+    {
+      "type": "code",
+      "source": "$`Write a poem`",
+      "outputs": [
+        {
+          "items": [
+            {
+              "mime": "text/markdown",
+              "data": "24605772697465206120706f656d60"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
