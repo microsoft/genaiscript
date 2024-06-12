@@ -94,6 +94,14 @@ export async function activateNotebook(state: ExtensionState) {
                             MARKDOWN_MIME_TYPE
                         ),
                     ]),
+                    new vscode.NotebookCellOutput([
+                        vscode.NotebookCellOutputItem.text(
+                            `<details><summary>trace</summary>\n\n` +
+                                res.trace +
+                                `\n\n</summary></details>`,
+                            MARKDOWN_MIME_TYPE
+                        ),
+                    ]),
                 ])
                 execution.end(true, Date.now())
             } catch (e) {
