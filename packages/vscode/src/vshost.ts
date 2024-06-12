@@ -16,7 +16,6 @@ import {
     LanguageModel,
     MODEL_PROVIDER_AZURE,
     AbortSignalOptions,
-    HTTPS_REGEX,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"

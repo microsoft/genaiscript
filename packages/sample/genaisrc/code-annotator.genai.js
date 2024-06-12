@@ -6,6 +6,10 @@ script({
     group: "hello world",
     system: ["system", "system.annotations"],
     temperature: 0,
+    files: "src/counting.py",
+    tests: {
+        files: "src/counting.py"
+    }
 })
 
 def(
@@ -16,7 +20,7 @@ def(
 )
 
 $`
-You are an EXPORT software developer with deep knowledge of all programming languages.
+You are an EXPERT software developer with deep knowledge of all programming languages.
 
 Your job is to do a code review of CODE and create ANNOTATION with code improvement notice, warning and errors. 
 - No more than 5 annotations per code file.
