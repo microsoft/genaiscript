@@ -56,6 +56,7 @@ export async function activateNotebook(state: ExtensionState) {
             execution.executionOrder = executionOrder++
             try {
                 execution.start(Date.now())
+                execution.clearOutput()
                 const jsSource = cell.document.getText()
                 const template: PromptScript = {
                     id: "notebook-cell-" + cell.index,
