@@ -78,10 +78,6 @@ export class Fragment {
         Object.assign(this, init)
         if (!this.fullId) this.fullId = this.id
     }
-
-    get project() {
-        return this.file.project
-    }
 }
 
 export function templateGroup(template: PromptScript) {

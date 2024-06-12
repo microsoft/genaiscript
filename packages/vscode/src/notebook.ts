@@ -2,8 +2,12 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
     errorMessage,
+    Fragment,
     fromHex,
+    JAVASCRIPT_MIME_TYPE,
     MARKDOWN_MIME_TYPE,
+    stringToPos,
+    TextFile,
     toHex,
     TOOL_NAME,
 } from "genaiscript-core"
@@ -44,24 +48,40 @@ export async function activateNotebook(state: ExtensionState) {
 
     let executionOrder = 0
     controller.executeHandler = async (cells, notebook) => {
+        await state.cancelAiRequest()
+        await state.parseWorkspace()
+        const project = state.project
         for (const cell of cells) {
             const execution = controller.createNotebookCellExecution(cell)
             execution.executionOrder = executionOrder++
             try {
                 execution.start(Date.now())
-
                 const jsSource = cell.document.getText()
-
                 const template: PromptScript = {
                     id: "notebook-cell-" + cell.index,
-
                     jsSource,
+                }
+                const fragment: Fragment = {
+                    id: "notebook-cell-" + cell.index,
+                    text: "",
+                    references: [],
+                    fullId: "",
+                    title: "",
+                    hash: "",
+                    file: new TextFile(
+                        project,
+                        "notebook.cell." + cell.index + ".txt",
+                        "text/plain",
+                        ""
+                    ),
+                    startPos: [0, 0],
+                    endPos: stringToPos(""),
                 }
                 await state.requestAI({
                     template,
                     label: "Executing cell",
                     parameters: undefined,
-                    fragment: undefined,
+                    fragment,
                 })
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
