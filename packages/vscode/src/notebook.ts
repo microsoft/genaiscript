@@ -125,7 +125,7 @@ export async function activateNotebook(state: ExtensionState) {
                     new vscode.NotebookCellOutput([
                         vscode.NotebookCellOutputItem.text(
                             details(
-                                "output",
+                                "env.vars.output",
                                 fenceMD(YAMLStringify(output), "yaml")
                             ) + details("trace", trace),
                             MARKDOWN_MIME_TYPE
