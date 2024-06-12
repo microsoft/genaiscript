@@ -164,6 +164,7 @@ export const JSON_MIME_TYPE = "application/json"
 export const JSON_SCHEMA_MIME_TYPE = "application/schema+json"
 export const JAVASCRIPT_MIME_TYPE = "application/javascript"
 export const MARKDOWN_MIME_TYPE = "text/markdown"
+export const YAML_MIME_TYPE = "application/yaml"
 
 export const JSON_META_SCHEMA_URI =
     "https://json-schema.org/draft/2020-12/schema"

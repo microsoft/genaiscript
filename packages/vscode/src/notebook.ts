@@ -1,6 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
+    details,
+    fenceMD,
     Fragment,
     fromHex,
     MARKDOWN_MIME_TYPE,
@@ -8,6 +10,8 @@ import {
     TextFile,
     toHex,
     TOOL_NAME,
+    YAML_MIME_TYPE,
+    YAMLStringify,
 } from "genaiscript-core"
 
 const NOTEBOOK_ID = "genaiscript"
@@ -86,7 +90,28 @@ export async function activateNotebook(state: ExtensionState) {
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
 
-                const { trace, label, ...output } = res
+                const {
+                    text,
+                    fileEdits,
+                    changelogs,
+                    annotations,
+                    edits,
+                    fences,
+                    frames,
+                    schemas,
+                    trace,
+                } = res
+                const output = {
+                    text,
+                    fileEdits,
+                    changelogs,
+                    annotations,
+                    edits,
+                    fences,
+                    frames,
+                    schemas,
+                }
+
                 // call LLM
                 await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
@@ -96,13 +121,11 @@ export async function activateNotebook(state: ExtensionState) {
                         ),
                     ]),
                     new vscode.NotebookCellOutput([
-                        vscode.NotebookCellOutputItem.json(output),
-                    ]),
-                    new vscode.NotebookCellOutput([
                         vscode.NotebookCellOutputItem.text(
-                            `<details><summary>trace</summary>\n\n` +
-                                trace +
-                                `\n\n</summary></details>`,
+                            details(
+                                "output",
+                                fenceMD(YAMLStringify(output), "yaml")
+                            ) + details("trace", trace),
                             MARKDOWN_MIME_TYPE
                         ),
                     ]),
