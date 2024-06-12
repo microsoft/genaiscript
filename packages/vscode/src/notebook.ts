@@ -50,12 +50,27 @@ export async function activateNotebook(state: ExtensionState) {
             try {
                 execution.start(Date.now())
 
-                const source = cell.document.getText()
+                const jsSource = cell.document.getText()
+
+                const template: PromptScript = {
+                    id: "notebook-cell-" + cell.index,
+
+                    jsSource,
+                }
+                await state.requestAI({
+                    template,
+                    label: "Executing cell",
+                    parameters: undefined,
+                    fragment: undefined,
+                })
+                const res = state.aiRequest?.response
+                if (!res) throw new Error("No GenAI result")
+
                 // call LLM
                 execution.replaceOutput([
                     new vscode.NotebookCellOutput([
                         vscode.NotebookCellOutputItem.text(
-                            source,
+                            res.text,
                             MARKDOWN_MIME_TYPE
                         ),
                     ]),

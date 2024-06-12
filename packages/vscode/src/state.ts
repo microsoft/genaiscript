@@ -318,7 +318,7 @@ temp/
             vars: options.parameters,
             cache: cache && template.cache,
             stats: { toolCalls: 0, repairs: 0, turns: 0 },
-            cliInfo: {
+            cliInfo: fragment ? {
                 spec:
                     this.host.isVirtualFile(fragment.file.filename) &&
                     this.host.path.basename(fragment.file.filename) ===
@@ -330,7 +330,7 @@ temp/
                         : this.host.isVirtualFile(fragment.file.filename)
                           ? fragment.file.filename.replace(/\.gpspec\.md$/i, "")
                           : fragment.file.filename,
-            },
+            } : undefined,
             model: info.model,
         }
         if (!connectionToken) {
