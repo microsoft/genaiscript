@@ -88,7 +88,7 @@ export async function activateNotebook(state: ExtensionState) {
                 if (!res) throw new Error("No GenAI result")
 
                 // call LLM
-                execution.replaceOutput([
+                await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
                         vscode.NotebookCellOutputItem.text(
                             res.text,
@@ -106,12 +106,9 @@ export async function activateNotebook(state: ExtensionState) {
                 ])
                 execution.end(true, Date.now())
             } catch (e) {
-                execution.replaceOutput([
+                await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
-                        vscode.NotebookCellOutputItem.error({
-                            name: e?.name || "Error",
-                            message: errorMessage(e),
-                        }),
+                        vscode.NotebookCellOutputItem.error(e),
                     ]),
                 ])
                 execution.end(false, Date.now())
