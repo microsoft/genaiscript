@@ -1,10 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
-    errorMessage,
     Fragment,
     fromHex,
-    JAVASCRIPT_MIME_TYPE,
     MARKDOWN_MIME_TYPE,
     stringToPos,
     TextFile,
@@ -83,10 +81,12 @@ export async function activateNotebook(state: ExtensionState) {
                     label: "Executing cell",
                     parameters: undefined,
                     fragment,
+                    notebook: true,
                 })
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
 
+                const { trace, label, ...output } = res
                 // call LLM
                 await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
@@ -96,9 +96,12 @@ export async function activateNotebook(state: ExtensionState) {
                         ),
                     ]),
                     new vscode.NotebookCellOutput([
+                        vscode.NotebookCellOutputItem.json(output),
+                    ]),
+                    new vscode.NotebookCellOutput([
                         vscode.NotebookCellOutputItem.text(
                             `<details><summary>trace</summary>\n\n` +
-                                res.trace +
+                                trace +
                                 `\n\n</summary></details>`,
                             MARKDOWN_MIME_TYPE
                         ),
