@@ -2,7 +2,7 @@
   "cells": [
     {
       "type": "code",
-      "source": "$`Write a 1 sentence poem.`",
+      "source": "$`Write a 1 sentence poem.`\n\n",
       "outputs": [
         {
           "items": [

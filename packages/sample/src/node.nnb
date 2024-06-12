@@ -1,0 +1,41 @@
+{
+    "cells": [
+        {
+            "language": "typescript",
+            "source": [
+                "var x = 2\ny =1"
+            ],
+            "outputs": [
+                {
+                    "items": [
+                        {
+                            "mime": "text/plain",
+                            "value": [
+                                "\u001b[33m1\u001b[39m"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "// <reference path=\"../genaisrc/genaiscript.d.ts\" />\nconsole.log({ x,y})\n"
+            ],
+            "outputs": [
+                {
+                    "items": [
+                        {
+                            "mime": "application/vnd.code.notebook.stdout",
+                            "value": [
+                                "{ x: 2, y: 1 }",
+                                ""
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
