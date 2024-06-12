@@ -37,5 +37,5 @@ If the changes look good, respond "LGTM :rocket:". If you have any concerns, pro
 - All the TypeScript files are compiled and type-checked by the TypeScript compiler. Do not report issues that the TypeScript compiler would find.
 - only report functional issues
 - Use emojis
-- If available, suggest code fixes and improvements
+- If available, suggest code fixes and improvements using a diff format.
 `

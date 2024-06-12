@@ -5,12 +5,12 @@ import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 
 export function activatePromptCommands(state: ExtensionState) {
-    const { context } = state
+    const { context, host } = state
     const { subscriptions } = context
 
     async function showPrompt(fn: string) {
         await state.fixPromptDefinitions()
-        vscode.window.showTextDocument(vscode.Uri.file(fn))
+        vscode.window.showTextDocument(host.toUri(fn))
         await state.parseWorkspace()
     }
 
@@ -73,7 +73,7 @@ export function activatePromptCommands(state: ExtensionState) {
             "genaiscript.prompt.navigate",
             async (prompt: PromptScript) => {
                 const uri = prompt.filename
-                    ? vscode.Uri.file(prompt.filename)
+                    ? host.toUri(prompt.filename)
                     : builtinPromptUri(prompt.id)
                 await vscode.window.showTextDocument(uri)
             }

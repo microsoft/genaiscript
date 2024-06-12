@@ -138,6 +138,16 @@ export class VSCodeHost extends EventTarget implements Host {
         return r.fsPath
     }
 
+    toUri(filenameOrUrl: string): vscode.Uri {
+        const folder = this.projectUri
+        if (!filenameOrUrl) return folder
+        if (/^[a-z][a-z0-9+\-.]*:\/\//.test(filenameOrUrl))
+            return vscode.Uri.parse(filenameOrUrl, true)
+        if (this.path.isAbsolute(filenameOrUrl))
+            return vscode.Uri.file(filenameOrUrl)
+        else return Utils.resolvePath(folder, filenameOrUrl)
+    }
+
     log(level: LogLevel, msg: string): void {
         const output = this.state.output
         switch (level) {

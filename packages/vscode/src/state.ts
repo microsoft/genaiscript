@@ -169,7 +169,7 @@ export class ExtensionState extends EventTarget {
     }
 
     private async saveScripts() {
-        const dir = vscode.Uri.file(dotGenaiscriptPath("."))
+        const dir = this.host.toUri(dotGenaiscriptPath("."))
         await vscode.workspace.fs.createDirectory(dir)
 
         // add .gitignore
@@ -214,7 +214,7 @@ temp/
         req.editsApplied = null
         this.dispatchChange()
 
-        const applied = await applyEdits(edits, {
+        const applied = await applyEdits(this, edits, {
             needsConfirmation: true,
         })
 
@@ -251,43 +251,6 @@ temp/
             if (edits?.length) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
-            /*
-            else if (isRequestError(e, 403)) {
-                const trace = "Open Trace"
-                const res = await vscode.window.showErrorMessage(
-                    "OpenAI token refused (403).",
-                    trace
-                )
-                if (res === trace)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.trace"
-                    )
-            } else if (isRequestError(e, 400, "context_length_exceeded")) {
-                const help = "Documentation"
-                const title = `Context length exceeded.`
-                const msg = `${title}.
-    ${errorMessage(e)}`
-                const res = await vscode.window.showWarningMessage(msg, help)
-                if (res === help)
-                    vscode.env.openExternal(
-                        vscode.Uri.parse(CONTEXT_LENGTH_DOCUMENTATION_URL)
-                    )
-            } else if (isRequestError(e, 400)) {
-                const help = "Documentation"
-                const msg = `OpenAI model error (400).
-${errorMessage(e)}`
-                const res = await vscode.window.showWarningMessage(msg, help)
-                if (res === help)
-                    vscode.env.openExternal(
-                        vscode.Uri.parse(TOKEN_DOCUMENTATION_URL)
-                    )
-            } else if (isRequestError(e)) {
-                const msg = isRequestError(e, 404)
-                    ? `LLM model not found (404).`
-                    : errorMessage(e)
-                await vscode.window.showWarningMessage(msg)
-            } else 
-            */
             throw e
         }
     }
@@ -594,7 +557,7 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
                 const murl = /\[([^\]]+)\]\((https:\/\/([^)]+))\)/.exec(message)
                 if (murl) {
                     value = murl[1]
-                    target = vscode.Uri.parse(murl[2])
+                    target = vscode.Uri.parse(murl[2], true)
                 }
                 const r = new vscode.Diagnostic(
                     toRange(d.range),

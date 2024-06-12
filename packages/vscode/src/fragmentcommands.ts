@@ -73,7 +73,7 @@ async function showPromptParametersQuickPicks(
 }
 
 export function activateFragmentCommands(state: ExtensionState) {
-    const { context } = state
+    const { context, host } = state
     const { subscriptions } = context
 
     const pickTemplate = async (options?: {
@@ -110,7 +110,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let fragment: Fragment
         if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
-            const fragUri = vscode.Uri.file(frag)
+            const fragUri = host.toUri(frag)
             if (await checkFileExists(fragUri)) {
                 const prj = await state.parseDocument(fragUri)
                 fragment = prj?.rootFiles?.[0].fragments?.[0]
@@ -119,7 +119,7 @@ export function activateFragmentCommands(state: ExtensionState) {
                 fragment = prj?.rootFiles?.[0].fragments?.[0]
             }
         } else if (typeof frag === "string" && GENAI_JS_REGEX.test(frag)) {
-            const fragUri = vscode.Uri.file(frag)
+            const fragUri = host.toUri(frag)
             const prj = await state.parseDocument(fragUri)
             fragment = prj?.rootFiles?.[0].fragments?.[0]
         } else {
@@ -223,7 +223,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         fragment = state.project.resolveFragment(fragment)
         if (!fragment) return
         const { file, startPos } = fragment
-        const uri = vscode.Uri.file(file.filename)
+        const uri = host.toUri(file.filename)
         const editor = await vscode.window.showTextDocument(uri)
         const pos = new vscode.Position(...startPos)
         editor.selections = [new vscode.Selection(pos, pos)]

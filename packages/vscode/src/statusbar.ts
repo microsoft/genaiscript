@@ -13,8 +13,8 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
-        const { parsing } = state
-        const { computing, progress, options } = state.aiRequest || {}
+        const { parsing, host, aiRequest } = state
+        const { computing, progress, options } = aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
         statusBarItem.text = toStringList(
@@ -28,7 +28,7 @@ export function activateStatusBar(state: ExtensionState) {
         const md = new vscode.MarkdownString(
             toMarkdownString(
                 fragment
-                    ? Utils.basename(vscode.Uri.file(fragment.file.filename))
+                    ? Utils.basename(host.toUri(fragment.file.filename))
                     : undefined,
                 template
                     ? `-  tool: ${template.title} (${template.id})`
