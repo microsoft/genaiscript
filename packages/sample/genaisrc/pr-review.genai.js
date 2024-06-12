@@ -1,5 +1,5 @@
 script({
-    model: "openai:gpt-4",
+    model: "openai:gpt-4-32k",
     files: [],
     title: "pull request review",
     system: ["system", "system.typescript"],
