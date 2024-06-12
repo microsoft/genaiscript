@@ -48,6 +48,7 @@ export async function activateNotebook(state: ExtensionState) {
     controller.supportsExecutionOrder = true
     controller.description = "GenAIScript interactive notebook"
 
+    const env: Record<string, object> = {}
     let executionOrder = 0
     controller.executeHandler = async (cells, notebook) => {
         await state.cancelAiRequest()
@@ -83,7 +84,7 @@ export async function activateNotebook(state: ExtensionState) {
                 await state.requestAI({
                     template,
                     label: "Executing cell",
-                    parameters: undefined,
+                    parameters: env,
                     fragment,
                     notebook: true,
                 })
@@ -111,6 +112,7 @@ export async function activateNotebook(state: ExtensionState) {
                     frames,
                     schemas,
                 }
+                env.output = output
 
                 // call LLM
                 await execution.replaceOutput([
