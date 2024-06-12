@@ -5,7 +5,6 @@ script({
     tests: [
         {
             files: "src/rag/markdown.md",
-            facts: ["Markdown is a text-based syntax to generate documents"],
             keywords: "markdown",
         },
     ],

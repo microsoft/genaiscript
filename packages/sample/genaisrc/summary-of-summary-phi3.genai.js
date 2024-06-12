@@ -1,4 +1,5 @@
 script({
+    model: "openai:gpt-4-32k",
     title: "summary of summary - phi3",
     tests: {
         files: ["src/rag/*"],
