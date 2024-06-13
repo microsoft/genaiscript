@@ -32,6 +32,17 @@ interface GenAINotebook {
     cells: GenAINotebookCell[]
 }
 
+function clean(o: any) {
+    o = structuredClone(o)
+    Object.keys(o).forEach((k) => {
+        const v = o[k]
+        if (v === undefined) delete o[k]
+        if (Array.isArray(v) && v.length === 0) delete o[k]
+        else if (typeof v === "object" && JSON.stringify(v) == "{}") delete o[k]
+    })
+    return o
+}
+
 export async function activateNotebook(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
@@ -68,6 +79,10 @@ export async function activateNotebook(state: ExtensionState) {
                 execution.start(Date.now())
                 execution.clearOutput()
                 const jsSource = cell.document.getText()
+                if (jsSource.trim() === "") {
+                    execution.end(true, Date.now())
+                    continue
+                }
                 const template: PromptScript = {
                     id: "notebook-cell-" + cell.index,
                     jsSource,
@@ -133,7 +148,7 @@ export async function activateNotebook(state: ExtensionState) {
                         vscode.NotebookCellOutputItem.text(
                             details(
                                 "env.vars.output",
-                                fenceMD(YAMLStringify(output), "yaml")
+                                fenceMD(YAMLStringify(clean(output)), "yaml")
                             ) + details("trace", trace),
                             MARKDOWN_MIME_TYPE
                         ),
