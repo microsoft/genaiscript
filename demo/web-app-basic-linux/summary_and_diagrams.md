@@ -16,6 +16,10 @@ stateDiagram
 $`Write a one sentence poem.`
 ```
 
+```md title="output"
+Beneath the silver moon's tender glow, the silent lake whispers secrets to the night.
+```
+
 ```js
 $`Write another poem`
 ```

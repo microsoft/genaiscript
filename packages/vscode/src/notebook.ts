@@ -4,6 +4,7 @@ import {
     details,
     fenceMD,
     Fragment,
+    indent,
     MARKDOWN_MIME_TYPE,
     stringToPos,
     TextFile,
@@ -188,7 +189,16 @@ function activateNotebookSerializer(state: ExtensionState) {
                                     editable: true,
                                     custom: true,
                                 },
-                                outputs: [],
+                                outputs: data.output
+                                    ? [
+                                          new vscode.NotebookCellOutput([
+                                              vscode.NotebookCellOutputItem.text(
+                                                  data.output,
+                                                  MARKDOWN_MIME_TYPE
+                                              ),
+                                          ]),
+                                      ]
+                                    : [],
                                 value: data.content,
                             }
                     )
@@ -229,6 +239,47 @@ function activateNotebookSerializer(state: ExtensionState) {
             }
         )
     )
+
+    function writeCellsToMarkdown(
+        cells: ReadonlyArray<vscode.NotebookCellData>
+    ): string {
+        let result = ""
+        for (let i = 0; i < cells.length; i++) {
+            const cell = cells[i]
+            if (i === 0) {
+                result += cell.metadata?.leadingWhitespace ?? ""
+            }
+
+            if (cell.kind === vscode.NotebookCellKind.Code) {
+                const indentation = cell.metadata?.indentation || ""
+                const options = cell.metadata?.options || ""
+                const languageAbbrev =
+                    LANG_ABBREVS.get(cell.languageId) ?? cell.languageId
+                const codePrefix =
+                    "```" +
+                    languageAbbrev +
+                    (options ? ` ${options}` : "") +
+                    "\n"
+                result += indent(codePrefix + cell.value + "\n```", indentation)
+                const output = cell.outputs?.[0]?.items?.[0]
+                if (output && output.mime === MARKDOWN_MIME_TYPE) {
+                    result +=
+                        "\n\n" +
+                        indent(
+                            '```md title="output"\n' +
+                                decoder.decode(output.data) +
+                                "\n```\n",
+                            indentation
+                        )
+                }
+            } else {
+                result += cell.value
+            }
+
+            result += getBetweenCellsWhitespace(cells, i)
+        }
+        return result
+    }
 }
 
 interface RawNotebookCell {
@@ -239,6 +290,7 @@ interface RawNotebookCell {
     options?: string
     content: string
     kind: vscode.NotebookCellKind
+    output?: string
 }
 
 const LANG_IDS = new Map([
@@ -345,6 +397,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
             i++
         }
 
+        const options = codeBlockStart.options || ""
         const content = lines
             .slice(startSourceIdx, i - 1)
             .map((line) =>
@@ -352,15 +405,25 @@ function parseMarkdown(content: string): RawNotebookCell[] {
             )
             .join("\n")
         const trailingWhitespace = parseWhitespaceLines(false)
-        cells.push({
-            language,
-            options: codeBlockStart.options,
-            content,
-            kind: vscode.NotebookCellKind.Code,
-            leadingWhitespace: leadingWhitespace,
-            trailingWhitespace: trailingWhitespace,
-            indentation: codeBlockStart.indentation,
-        })
+
+        const lastCell = cells.at(-1)
+        if (
+            language === "markdown" &&
+            options.includes('title="output"') &&
+            lastCell.kind === vscode.NotebookCellKind.Code &&
+            lastCell.language === "javascript"
+        ) {
+            lastCell.output = content
+        } else
+            cells.push({
+                language,
+                options: codeBlockStart.options,
+                content,
+                kind: vscode.NotebookCellKind.Code,
+                leadingWhitespace: leadingWhitespace,
+                trailingWhitespace: trailingWhitespace,
+                indentation: codeBlockStart.indentation,
+            })
     }
 
     function parseMarkdownParagraph(leadingWhitespace: string): void {
@@ -390,43 +453,6 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     }
 
     return cells
-}
-
-function writeCellsToMarkdown(
-    cells: ReadonlyArray<vscode.NotebookCellData>
-): string {
-    let result = ""
-    for (let i = 0; i < cells.length; i++) {
-        const cell = cells[i]
-        if (i === 0) {
-            result += cell.metadata?.leadingWhitespace ?? ""
-        }
-
-        if (cell.kind === vscode.NotebookCellKind.Code) {
-            const indentation = cell.metadata?.indentation || ""
-            const options = cell.metadata?.options || ""
-            const languageAbbrev =
-                LANG_ABBREVS.get(cell.languageId) ?? cell.languageId
-            const codePrefix =
-                indentation +
-                "```" +
-                languageAbbrev +
-                (options ? ` ${options}` : "") +
-                "\n"
-            const contents = cell.value
-                .split(/\r?\n/g)
-                .map((line) => indentation + line)
-                .join("\n")
-            const codeSuffix = "\n" + indentation + "```"
-
-            result += codePrefix + contents + codeSuffix
-        } else {
-            result += cell.value
-        }
-
-        result += getBetweenCellsWhitespace(cells, i)
-    }
-    return result
 }
 
 function getBetweenCellsWhitespace(

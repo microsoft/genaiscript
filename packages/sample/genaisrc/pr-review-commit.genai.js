@@ -1,5 +1,6 @@
 script({
     model: "openai:gpt-4-32k",
+    temperature: 0,
     files: [],
     title: "pull request commit review",
     system: [
@@ -32,11 +33,14 @@ Provide feedback to the author using annotations.
 
 Think step by step and for each annotation explain your result.
 
+## Guidelines
+
 - Assume the TypeScript code is type correct. do NOT report issues that the TypeScript type checker would find.
 - report 3 most serious errors only, ignore notes and warnings
 - only report issues you are absolutely certain about
 - do NOT repeat the same issue multiple times
 - do NOT report common convention issues
+- do NOT report deleted code since you cannot review the entire codebase
 - use a friendly tone
 - use emojis
 - do NOT cross-reference annotations, assume they are all independent
