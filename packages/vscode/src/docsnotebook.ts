@@ -110,12 +110,13 @@ function activateNotebookExecutor(state: ExtensionState) {
             {}
         const {
             model,
-            env,
+            files,
+            vars,
         }: {
             model?: string
-            env?: { vars?: Record<string, any>; files?: string | string[] }
+            vars?: Record<string, any>
+            files?: string | string[]
         } = frontmatter || {}
-        const { files = [], vars = {} } = env || {}
 
         for (const cell of cells) {
             if (executionId !== currentExecutionId) return
@@ -303,7 +304,7 @@ function activateNotebookSerializer(state: ExtensionState) {
                             result += cell.metadata?.leadingWhitespace ?? ""
 
                         if (cell.kind === vscode.NotebookCellKind.Code) {
-                            if (cell.languageId === "yaml") {
+                            if (cell.languageId === "yaml" && i === 0) {
                                 result += `---\n${cell.value}\n---\n`
                             } else {
                                 const indentation =
@@ -474,13 +475,15 @@ function parseMarkdown(content: string): RawNotebookCell[] {
         return "\n".repeat(numWhitespaceLines)
     }
 
+    function resolveLanguage(langId: string) {
+        return NOTEBOOK_LANG_IDS.get(langId) || langId
+    }
+
     function parseCodeBlock(
         leadingWhitespace: string,
         codeBlockStart: ICodeBlockStart
     ): RawNotebookCell {
-        const language =
-            NOTEBOOK_LANG_IDS.get(codeBlockStart.langId) ||
-            codeBlockStart.langId
+        const language = resolveLanguage(codeBlockStart.langId)
         const startSourceIdx = ++i
         while (true) {
             const currLine = lines[i]
@@ -517,6 +520,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
 
     function parseMarkdownParagraph(leadingWhitespace: string): void {
         const startSourceIdx = i
+        i++
         while (i < lines.length) {
             const currLine = lines[i]
             if (isCodeBlockStart(currLine)) {
