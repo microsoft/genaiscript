@@ -358,14 +358,54 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     let i = 0
 
     // Each parse function starts with line i, leaves i on the line after the last line parsed
-    for (; i < lines.length; ) {
+    while (i < lines.length) {
         const leadingWhitespace = i === 0 ? parseWhitespaceLines(true) : ""
         if (i >= lines.length) {
             break
         }
-        const codeBlockMatch = parseCodeBlockStart(lines[i])
+        const line = lines[i]
+        const codeBlockMatch = parseCodeBlockStart(line)
         if (codeBlockMatch) {
-            parseCodeBlock(leadingWhitespace, codeBlockMatch)
+            const lastCell = parseCodeBlock(leadingWhitespace, codeBlockMatch)
+            let cs = i
+            let cf = false
+            while (cs < lines.length) {
+                if (lines[cs].trim() === "") {
+                    cs++
+                    continue
+                }
+                if (
+                    /(<!--|\{\/\*)\s+genaiscript output start\s+(-->|\*\/\})/.test(
+                        lines[cs]
+                    )
+                ) {
+                    cf = true
+                    break
+                }
+                cs++
+            }
+            if (cf) {
+                let ce = cs + 1
+                cf = false
+                while (ce < lines.length) {
+                    if (
+                        /(<!--|\{\/\*)\s+genaiscript output end\s+(-->|\*\/\})/.test(
+                            lines[ce]
+                        )
+                    ) {
+                        cf = true
+                        break
+                    }
+                    ce++
+                }
+                if (cf) {
+                    ce = ce + 1
+                    while (ce < lines.length && lines[ce].trim() === "") ce++
+                    const comment = "\n\n" + lines.slice(i, ce).join("\n")
+                    lastCell.output = comment
+                    i = ce
+                }
+            }
         } else {
             parseMarkdownParagraph(leadingWhitespace)
         }
@@ -393,7 +433,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     function parseCodeBlock(
         leadingWhitespace: string,
         codeBlockStart: ICodeBlockStart
-    ): void {
+    ): RawNotebookCell {
         const language =
             NOTEBOOK_LANG_IDS.get(codeBlockStart.langId) ||
             codeBlockStart.langId
@@ -418,7 +458,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
             )
             .join("\n")
         const trailingWhitespace = parseWhitespaceLines(false)
-        cells.push({
+        const cell = {
             language,
             options,
             content,
@@ -426,7 +466,9 @@ function parseMarkdown(content: string): RawNotebookCell[] {
             leadingWhitespace: leadingWhitespace,
             trailingWhitespace: trailingWhitespace,
             indentation: codeBlockStart.indentation,
-        })
+        }
+        cells.push(cell)
+        return cell
     }
 
     function parseMarkdownParagraph(leadingWhitespace: string): void {
