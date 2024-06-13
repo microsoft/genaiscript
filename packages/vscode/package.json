@@ -63,7 +63,7 @@
                 "displayName": "GenAIScript",
                 "selector": [
                     {
-                        "filenamePattern": "*.genaibook"
+                        "filenamePattern": "*.{md,mdx}"
                     }
                 ]
             }
