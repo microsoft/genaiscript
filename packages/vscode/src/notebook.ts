@@ -154,8 +154,6 @@ function activateNotebookExecutor(state: ExtensionState) {
             }
         }
     }
-
-    activateNotebookSerializer(state)
 }
 
 function activateNotebookSerializer(state: ExtensionState) {
