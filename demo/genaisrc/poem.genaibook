@@ -1,0 +1,23 @@
+{
+  "cells": [
+    {
+      "type": "code",
+      "source": "$`Write a 1 sentence poem`",
+      "outputs": [
+        {
+          "items": [
+            {
+              "mime": "text/markdown",
+              "data": "496e20746865207175696574206d6561646f772c207768697370657273206f66207468652077696e642064616e636520776974682074686520646169736965732e"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "source": "def(\"FILE\", env.vars.output.text)\n$`Summarize FILE`\n",
+      "outputs": []
+    }
+  ]
+}

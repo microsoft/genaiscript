@@ -49,12 +49,19 @@ export async function activateNotebook(state: ExtensionState) {
     controller.description = "GenAIScript interactive notebook"
 
     const env: Record<string, object> = {}
+    let executionId = 0
     let executionOrder = 0
+    controller.interruptHandler = async () => {
+        executionId++
+        await state.cancelAiRequest()
+    }
     controller.executeHandler = async (cells, notebook) => {
+        const currentExecutionId = executionId
         await state.cancelAiRequest()
         await state.parseWorkspace()
         const project = state.project
         for (const cell of cells) {
+            if (executionId !== currentExecutionId) return
             const execution = controller.createNotebookCellExecution(cell)
             execution.executionOrder = executionOrder++
             try {
