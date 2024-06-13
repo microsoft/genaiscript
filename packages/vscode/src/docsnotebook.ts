@@ -16,6 +16,9 @@ import {
     errorMessage,
     MDX_REGEX,
     frontmatterTryParse,
+    YAMLTryParse,
+    arrayify,
+    FileReference,
 } from "genaiscript-core"
 
 // parser
@@ -86,7 +89,7 @@ function activateNotebookExecutor(state: ExtensionState) {
     controller.supportsExecutionOrder = true
     controller.description = "GenAIScript interactive notebook"
 
-    const env: Record<string, object> = {}
+    const heap: Record<string, object> = {}
     let executionId = 0
     let executionOrder = 0
     controller.interruptHandler = async () => {
@@ -98,6 +101,22 @@ function activateNotebookExecutor(state: ExtensionState) {
         await state.cancelAiRequest()
         await state.parseWorkspace()
         const project = state.project
+
+        // frontmatter
+        const firstCell = notebook.cellAt(0)
+        const { genaiscript: frontmatter = {} } =
+            (firstCell.document.languageId === "yaml" &&
+                YAMLTryParse(firstCell.document.getText())) ||
+            {}
+        const {
+            model,
+            env,
+        }: {
+            model?: string
+            env?: { vars?: Record<string, any>; files?: string | string[] }
+        } = frontmatter || {}
+        const { files = [], vars = {} } = env || {}
+
         for (const cell of cells) {
             if (executionId !== currentExecutionId) return
             const execution = controller.createNotebookCellExecution(cell)
@@ -116,16 +135,20 @@ function activateNotebookExecutor(state: ExtensionState) {
                     continue
                 }
                 const meta = parsePromptScriptMeta(jsSource)
+                if (model) meta.model = model
                 const template: PromptScript = {
                     ...meta,
                     id: "notebook-cell-" + cell.index,
                     jsSource,
                 }
+                const id = "notebook-cell-" + cell.index
                 const fragment: Fragment = {
-                    id: "notebook-cell-" + cell.index,
+                    id: id,
                     text: "",
-                    references: [],
-                    fullId: "",
+                    references: arrayify(files).map(
+                        (f) => <FileReference>{ filename: f }
+                    ),
+                    fullId: id,
                     title: "",
                     hash: "",
                     file: new TextFile(
@@ -137,10 +160,11 @@ function activateNotebookExecutor(state: ExtensionState) {
                     startPos: [0, 0],
                     endPos: stringToPos(""),
                 }
+                const parameters = { ...heap, ...vars }
                 await state.requestAI({
                     template,
                     label: "Executing cell",
-                    parameters: env,
+                    parameters,
                     fragment,
                     notebook: true,
                 })
@@ -170,7 +194,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     frames,
                     schemas,
                 }
-                env.output = output
+                heap.output = output
 
                 let chat = renderMessagesToMarkdown(messages)
                 if (error)
