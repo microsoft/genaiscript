@@ -17,6 +17,8 @@ import {
 
 const NOTEBOOK_ID = "genaiscript"
 const NOTEBOOK_TYPE = "genaiscript"
+const LLM_OUTPUT_TITLE = 'title="🤖"'
+const LLM_OUTPUT_OPTIONS = "wrap"
 
 function clean(o: any) {
     o = structuredClone(o)
@@ -241,7 +243,11 @@ function activateNotebookSerializer(state: ExtensionState) {
                     result +=
                         "\n\n" +
                         indent(
-                            '```md title="output" wrap\n' +
+                            "```md " +
+                                LLM_OUTPUT_TITLE +
+                                " " +
+                                LLM_OUTPUT_OPTIONS +
+                                "\n" +
                                 decoder.decode(output.data) +
                                 "\n```\n",
                             indentation
@@ -384,7 +390,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
         const lastCell = cells.at(-1)
         if (
             language === "markdown" &&
-            options.includes('title="output"') &&
+            options.includes(LLM_OUTPUT_TITLE) &&
             lastCell.kind === vscode.NotebookCellKind.Code &&
             lastCell.language === "javascript"
         ) {
