@@ -17,21 +17,6 @@ import {
 const NOTEBOOK_ID = "genaiscript"
 const NOTEBOOK_TYPE = "genaiscript"
 
-interface GenAINotebookCell {
-    type: "code" | "markdown"
-    source: string
-    outputs?: {
-        items: {
-            mime: string
-            data: string
-        }[]
-    }[]
-}
-
-interface GenAINotebook {
-    cells: GenAINotebookCell[]
-}
-
 function clean(o: any) {
     o = structuredClone(o)
     Object.keys(o).forEach((k) => {
@@ -247,6 +232,7 @@ interface RawNotebookCell {
     leadingWhitespace: string
     trailingWhitespace: string
     language: string
+    options?: string
     content: string
     kind: vscode.NotebookCellKind
 }
@@ -268,18 +254,21 @@ const LANG_ABBREVS = new Map(
 interface ICodeBlockStart {
     langId: string
     indentation: string
+    options: string
 }
 
 /**
- * Note - the indented code block parsing is basic. It should only be applied inside lists, indentation should be consistent across lines and
+ * Note - the indented code block parsing is basic. It should only be applied inside lists,
+ * indentation should be consistent across lines and
  * between the start and end blocks, etc. This is good enough for typical use cases.
  */
 function parseCodeBlockStart(line: string): ICodeBlockStart | null {
-    const match = line.match(/(    |\t)?```(\S*)/)
+    const match = line.match(/(    |\t)?```(\S*)\s*(.+)?$/)
     return (
         match && {
             indentation: match[1],
             langId: match[2],
+            options: match[3] || "",
         }
     )
 }
@@ -358,6 +347,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
         const trailingWhitespace = parseWhitespaceLines(false)
         cells.push({
             language,
+            options: codeBlockStart.options,
             content,
             kind: vscode.NotebookCellKind.Code,
             leadingWhitespace: leadingWhitespace,
@@ -407,9 +397,15 @@ function writeCellsToMarkdown(
 
         if (cell.kind === vscode.NotebookCellKind.Code) {
             const indentation = cell.metadata?.indentation || ""
+            const options = cell.metadata?.options || ""
             const languageAbbrev =
                 LANG_ABBREVS.get(cell.languageId) ?? cell.languageId
-            const codePrefix = indentation + "```" + languageAbbrev + "\n"
+            const codePrefix =
+                indentation +
+                "```" +
+                languageAbbrev +
+                (options ? ` ${options}` : "") +
+                "\n"
             const contents = cell.value
                 .split(/\r?\n/g)
                 .map((line) => indentation + line)

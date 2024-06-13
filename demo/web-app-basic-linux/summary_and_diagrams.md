@@ -11,3 +11,7 @@ stateDiagram
     [*] --> AppServicePlan
     AppServicePlan --> WebApp
 ```
+
+```js title="foo.genai.js"
+$`Hwllo`
+```
