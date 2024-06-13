@@ -11,3 +11,16 @@ stateDiagram
     [*] --> AppServicePlan
     AppServicePlan --> WebApp
 ```
+
+```js title="foo.genai.js"
+$`Write a one sentence poem.`
+```
+
+```md title="output"
+Beneath the silver moon's soft glow, the silent lake whispers secrets to the night.
+```
+
+
+```js
+$`Write another poem`
+```

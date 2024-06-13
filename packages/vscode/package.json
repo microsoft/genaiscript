@@ -41,7 +41,8 @@
     },
     "activationEvents": [
         "workspaceContains:**/*.gpspec.md",
-        "workspaceContains:**/*.genai.js"
+        "workspaceContains:**/*.genai.js",
+        "onNotebook:genaiscript"
     ],
     "main": "./built/extension.js",
     "bugs": {
@@ -56,6 +57,18 @@
         "./icon-dark.svg"
     ],
     "contributes": {
+        "notebooks": [
+            {
+                "type": "genaiscript",
+                "displayName": "GenAIScript Markdown Notebook",
+                "priority": "option",
+                "selector": [
+                    {
+                        "filenamePattern": "*.{md,mdx,markdown}"
+                    }
+                ]
+            }
+        ],
         "markdown.previewStyles": [
             "./markdown.css"
         ],

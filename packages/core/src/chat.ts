@@ -14,7 +14,6 @@ import {
     renderFencedVariables,
 } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
-import dedent from "ts-dedent"
 import {
     CHAT_CACHE,
     DEFAULT_MODEL,
@@ -28,6 +27,7 @@ import { fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
+import { dedent } from "./indent"
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 

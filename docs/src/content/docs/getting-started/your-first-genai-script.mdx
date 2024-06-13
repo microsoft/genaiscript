@@ -40,6 +40,21 @@ The resulting file will be placed in the `genaisrc` folder in your project.
 </ol>
 </Steps>
 
+## the prompt
+
+The execution of the GenAIScript generates a prompt (and more) 
+that gets sent to the LLM model. 
+
+The ` $``...`` ` template string function formats and write the string to the prompt; which gets sent to the LLM.
+
+```js title="poem.genai.js"
+$`Write a one sentence poem.`
+```
+
+```md title="🤖" wrap
+In the quiet dusk, the willow whispers secrets to the passing breeze.
+```
+
 
 ## the Context
 
