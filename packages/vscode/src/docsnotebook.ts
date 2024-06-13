@@ -473,16 +473,11 @@ function parseMarkdown(content: string): RawNotebookCell[] {
 
     function parseMarkdownParagraph(leadingWhitespace: string): void {
         const startSourceIdx = i
-        while (true) {
-            if (i >= lines.length) {
-                break
-            }
-
+        while (i < lines.length) {
             const currLine = lines[i]
-            if (currLine === "" || isCodeBlockStart(currLine)) {
+            if (isCodeBlockStart(currLine)) {
                 break
             }
-
             i++
         }
 
