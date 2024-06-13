@@ -14,7 +14,7 @@ keywords:
 GenAIScript is a scripting language that integrates LLMs into the scripting process using a simplified JavaScript syntax.
 It allows users to create, debug, and automate LLM-based scripts.
 
-GenAIScript brings the flexibility of JavaScript with the convinience of built-in output parsing
+GenAIScript brings the flexibility of JavaScript with the convenience of built-in output parsing
 to streamline the creation of LLM-based software solutions.
 
 ## the script
