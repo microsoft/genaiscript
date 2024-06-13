@@ -23,7 +23,7 @@ import {
 } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
-import { fenceMD } from "./markdown"
+import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
@@ -594,45 +594,53 @@ export async function executeChatSession(
     }
 }
 
-export function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
+export function renderMessagesToMarkdown(
+    messages: ChatCompletionMessageParam[]
+) {
     const res: string[] = []
     messages.forEach((msg) => {
         const { role } = msg
-        const roleMsg = `> ${role}`
         switch (role) {
             case "system":
-                res.push(roleMsg)
-                res.push(fenceMD(msg.content, "markdown"))
+                res.push(details("📙 system", fenceMD(msg.content, "markdown")))
                 break
             case "user":
-                res.push(roleMsg)
+                let content: string
                 if (typeof msg.content === "string")
-                    res.push(fenceMD(msg.content, "markdown"))
+                    content = fenceMD(msg.content, "markdown")
                 else if (Array.isArray(msg.content))
                     for (const part of msg.content) {
                         if (part.type === "text")
-                            res.push(fenceMD(part.text, "markdown"))
+                            content = fenceMD(part.text, "markdown")
                         else if (part.type === "image_url")
-                            res.push(`![image](${part.image_url.url})`)
-                        else res.push(fenceMD(YAMLStringify(part), "yaml"))
+                            content = `![image](${part.image_url.url})`
+                        else content = fenceMD(YAMLStringify(part), "yaml")
                     }
-                else res.push(fenceMD(YAMLStringify(msg), "yaml"))
+                else content = fenceMD(YAMLStringify(msg), "yaml")
+                res.push(details(`👤 user`, content, true))
                 break
             case "assistant":
-                res.push(roleMsg)
-                res.push(fenceMD(msg.content, "markdown"))
+                res.push(
+                    details(
+                        `🤖 assistant`,
+                        fenceMD(msg.content, "markdown"),
+                        true
+                    )
+                )
                 break
             case "aici":
-                res.push(`> ${role} ${msg.functionName}`)
-                res.push(fenceMD(msg.content, "markdown"))
+                res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
                 break
             case "tool":
-                res.push(`> ${role} ${msg.tool_call_id}`)
-                res.push(fenceMD(msg.content, "json"))
+                res.push(
+                    details(
+                        `🛠️ tool ${msg.tool_call_id}`,
+                        fenceMD(msg.content, "json")
+                    )
+                )
                 break
             default:
-                res.push(roleMsg)
-                res.push(fenceMD(YAMLStringify(msg), "yaml"))
+                res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
                 break
         }
     })

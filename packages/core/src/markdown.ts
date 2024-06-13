@@ -19,10 +19,12 @@ export function link(text: string, href: string) {
     return href ? `[${text}](${href})` : text
 }
 
-export function details(summary: string, body: string) {
-    return `\n<details><summary>${summary}</summary>
+export function details(summary: string, body: string, open?: boolean) {
+    return `\n<details${open ? " open" : ""}>
+<summary>${summary}</summary>
 
 ${body}
 
-</summary></details>\n`
+</summary>
+</details>\n`
 }
