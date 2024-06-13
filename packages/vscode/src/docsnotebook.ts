@@ -424,11 +424,9 @@ function parseMarkdown(content: string): RawNotebookCell[] {
                     /(<!--|\{\/\*)\s+genaiscript output start\s+(-->|\*\/\})/.test(
                         lines[cs]
                     )
-                ) {
+                )
                     cf = true
-                    break
-                }
-                cs++
+                break
             }
             if (cf) {
                 let ce = cs + 1
