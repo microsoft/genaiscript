@@ -243,7 +243,7 @@ function activateNotebookSerializer(state: ExtensionState) {
                     result +=
                         "\n\n" +
                         indent(
-                            '```md title="output"\n' +
+                            '```md title="output" wrap\n' +
                                 decoder.decode(output.data) +
                                 "\n```\n",
                             indentation
