@@ -166,34 +166,39 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 env.output = output
 
-                let chat = renderMessagesToMarkdown(messages)
-                if (error)
-                    chat +=
-                        "\n" +
-                        details(
-                            `${EMOJI_FAIL} ${errorMessage(error)}`,
-                            fenceMD(serializeError(error)?.stack, "text")
-                        )
+                const chat = renderMessagesToMarkdown(messages)
 
                 // call LLM
-                await execution.replaceOutput([
-                    new vscode.NotebookCellOutput([
-                        vscode.NotebookCellOutputItem.text(
-                            chat,
-                            MARKDOWN_MIME_TYPE
-                        ),
-                    ]),
-                    new vscode.NotebookCellOutput([
-                        vscode.NotebookCellOutputItem.text(
-                            details(
-                                "env.vars.output",
-                                fenceMD(YAMLStringify(clean(output)), "yaml")
-                            ) + details("trace", trace),
-                            MARKDOWN_MIME_TYPE
-                        ),
-                    ]),
-                ])
-                execution.end(true, Date.now())
+                await execution.replaceOutput(
+                    [
+                        error
+                            ? new vscode.NotebookCellOutput([
+                                  vscode.NotebookCellOutputItem.text(
+                                      errorMessage(error)
+                                  ),
+                              ])
+                            : undefined,
+                        new vscode.NotebookCellOutput([
+                            vscode.NotebookCellOutputItem.text(
+                                chat,
+                                MARKDOWN_MIME_TYPE
+                            ),
+                        ]),
+                        new vscode.NotebookCellOutput([
+                            vscode.NotebookCellOutputItem.text(
+                                details(
+                                    "env.vars.output",
+                                    fenceMD(
+                                        YAMLStringify(clean(output)),
+                                        "yaml"
+                                    )
+                                ) + details("trace", trace),
+                                MARKDOWN_MIME_TYPE
+                            ),
+                        ]),
+                    ].filter((o) => o)
+                )
+                execution.end(!error, Date.now())
             } catch (e) {
                 await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
