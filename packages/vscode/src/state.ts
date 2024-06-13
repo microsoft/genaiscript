@@ -326,24 +326,28 @@ temp/
             vars: options.parameters,
             cache: cache && template.cache,
             stats: { toolCalls: 0, repairs: 0, turns: 0 },
-            cliInfo: fragment
-                ? {
-                      spec:
-                          this.host.isVirtualFile(fragment.file.filename) &&
-                          this.host.path.basename(fragment.file.filename) ===
-                              "dir.gpspec.md"
-                              ? fragment.file.filename.replace(
-                                    /dir\.gpspec\.md$/i,
-                                    "**"
-                                )
-                              : this.host.isVirtualFile(fragment.file.filename)
-                                ? fragment.file.filename.replace(
-                                      /\.gpspec\.md$/i,
-                                      ""
-                                  )
-                                : fragment.file.filename,
-                  }
-                : undefined,
+            cliInfo:
+                fragment && !options.notebook
+                    ? {
+                          spec:
+                              this.host.isVirtualFile(fragment.file.filename) &&
+                              this.host.path.basename(
+                                  fragment.file.filename
+                              ) === "dir.gpspec.md"
+                                  ? fragment.file.filename.replace(
+                                        /dir\.gpspec\.md$/i,
+                                        "**"
+                                    )
+                                  : this.host.isVirtualFile(
+                                          fragment.file.filename
+                                      )
+                                    ? fragment.file.filename.replace(
+                                          /\.gpspec\.md$/i,
+                                          ""
+                                      )
+                                    : fragment.file.filename,
+                      }
+                    : undefined,
             model: info.model,
         }
         if (!connectionToken) {
