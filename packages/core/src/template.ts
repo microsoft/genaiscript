@@ -182,10 +182,10 @@ class Checker<T extends PromptLike> {
     }
 }
 
-async function parseMeta(r: PromptScript) {
+export function parsePromptScriptMeta(jsSource: string) {
     // shortcut
     const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
-        r.jsSource
+        jsSource
     )
     const meta: PromptArgs = JSON5TryParse(m?.groups?.meta) ?? {}
     if (m?.groups?.kind === "system") {
@@ -221,7 +221,7 @@ async function parsePromptTemplateCore(
     if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
 
     try {
-        const meta = await parseMeta(r)
+        const meta = parsePromptScriptMeta(r.jsSource)
         const checker = new Checker<PromptScript>(
             r,
             filename,
@@ -245,7 +245,7 @@ async function parsePromptTemplateCore(
     }
 }
 
-export async function parsePromptTemplate(
+export async function parsePromptScript(
     filename: string,
     content: string,
     prj: Project

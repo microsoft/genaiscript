@@ -594,7 +594,7 @@ export async function executeChatSession(
     }
 }
 
-function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
+export function renderMessagesToMarkdown(messages: ChatCompletionMessageParam[]) {
     const res: string[] = []
     messages.forEach((msg) => {
         const { role } = msg

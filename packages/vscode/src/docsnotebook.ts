@@ -9,7 +9,9 @@ import {
     stringToPos,
     TextFile,
     TOOL_NAME,
+    renderMessagesToMarkdown,
     YAMLStringify,
+    parsePromptScriptMeta,
 } from "genaiscript-core"
 
 // parser
@@ -74,7 +76,9 @@ function activateNotebookExecutor(state: ExtensionState) {
                     execution.end(true, Date.now())
                     continue
                 }
+                const meta = parsePromptScriptMeta(jsSource)
                 const template: PromptScript = {
+                    ...meta,
                     id: "notebook-cell-" + cell.index,
                     jsSource,
                 }
@@ -114,6 +118,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     frames,
                     schemas,
                     trace,
+                    messages,
                 } = res
                 const output = {
                     text,
@@ -127,11 +132,13 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 env.output = output
 
+                const chat = renderMessagesToMarkdown(messages)
+
                 // call LLM
                 await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
                         vscode.NotebookCellOutputItem.text(
-                            res.text,
+                            chat,
                             MARKDOWN_MIME_TYPE
                         ),
                     ]),
