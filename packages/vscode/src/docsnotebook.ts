@@ -15,6 +15,7 @@ import {
     EMOJI_FAIL,
     errorMessage,
     serializeError,
+    MDX_REGEX,
 } from "genaiscript-core"
 
 // parser
@@ -101,6 +102,11 @@ function activateNotebookExecutor(state: ExtensionState) {
             if (executionId !== currentExecutionId) return
             const execution = controller.createNotebookCellExecution(cell)
             execution.executionOrder = executionOrder++
+            const mdx = MDX_REGEX.test(cell.document.fileName)
+            const syntax = mdx
+                ? NOTEBOOK_MARKERS.mdx
+                : NOTEBOOK_MARKERS.markdown
+
             try {
                 execution.start(Date.now())
                 execution.clearOutput()
@@ -166,18 +172,21 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 env.output = output
 
-                const chat = renderMessagesToMarkdown(messages)
+                let chat = renderMessagesToMarkdown(messages)
+                if (error)
+                    chat += details(`${EMOJI_FAIL} error`, errorMessage(error))
+                chat =
+                    "\n\n" +
+                    syntax.startMarker +
+                    "\n" +
+                    chat +
+                    "\n" +
+                    syntax.endMarker +
+                    "\n\n"
 
                 // call LLM
                 await execution.replaceOutput(
                     [
-                        error
-                            ? new vscode.NotebookCellOutput([
-                                  vscode.NotebookCellOutputItem.text(
-                                      errorMessage(error)
-                                  ),
-                              ])
-                            : undefined,
                         new vscode.NotebookCellOutput([
                             vscode.NotebookCellOutputItem.text(
                                 chat,
@@ -286,15 +295,7 @@ function activateNotebookSerializer(state: ExtensionState) {
                             )
                             const output = cell.outputs?.[0]?.items?.[0]
                             if (output && output.mime === MARKDOWN_MIME_TYPE) {
-                                const syntax = NOTEBOOK_MARKERS[cell.languageId]
-                                result +=
-                                    "\n\n" +
-                                    syntax.startMarker +
-                                    "\n" +
-                                    decoder.decode(output.data) +
-                                    "\n" +
-                                    syntax.endMarker +
-                                    "\n\n"
+                                result += decoder.decode(output.data)
                             }
                         } else {
                             result += cell.value
