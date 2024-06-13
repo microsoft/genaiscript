@@ -617,7 +617,7 @@ export function renderMessagesToMarkdown(
                         else content = fenceMD(YAMLStringify(part), "yaml")
                     }
                 else content = fenceMD(YAMLStringify(msg), "yaml")
-                res.push(details(`👤 user`, content, true))
+                res.push(details(`👤 user`, content))
                 break
             case "assistant":
                 res.push(
