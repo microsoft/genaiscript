@@ -31,7 +31,7 @@ function clean(o: any) {
     return o
 }
 
-export async function activateNotebook(state: ExtensionState) {
+export async function activateDocsNotebook(state: ExtensionState) {
     activateNotebookSerializer(state)
     activateNotebookExecutor(state)
 }
