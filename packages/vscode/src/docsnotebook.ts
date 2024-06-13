@@ -12,6 +12,9 @@ import {
     renderMessagesToMarkdown,
     YAMLStringify,
     parsePromptScriptMeta,
+    EMOJI_FAIL,
+    errorMessage,
+    serializeError,
 } from "genaiscript-core"
 
 // parser
@@ -19,8 +22,38 @@ import {
 
 const NOTEBOOK_ID = "genaiscript"
 const NOTEBOOK_TYPE = "genaiscript"
-const LLM_OUTPUT_TITLE = 'title="🤖"'
-const LLM_OUTPUT_OPTIONS = "wrap"
+const NOTEBOOK_LANG_IDS = new Map([
+    ["sh", "bash"],
+    ["bat", "batch"],
+    ["c++", "cpp"],
+    ["js", "javascript"],
+    ["ts", "typescript"],
+    ["cs", "csharp"],
+    ["py", "python"],
+    ["py2", "python"],
+    ["py3", "python"],
+    ["md", "markdown"],
+    ["mdx", "mdx"],
+])
+const NOTEBOOK_LANG_ABBREVS = new Map(
+    Array.from(NOTEBOOK_LANG_IDS.keys()).map((k) => [
+        NOTEBOOK_LANG_IDS.get(k),
+        k,
+    ])
+)
+const NOTEBOOK_MARKERS: Record<
+    string,
+    { startMarker: string; endMarker: string }
+> = {
+    markdown: {
+        startMarker: "<!-- genaiscript output start -->",
+        endMarker: "<!-- genaiscript output end -->",
+    },
+    mdx: {
+        startMarker: "{/* genaiscript output start */}",
+        endMarker: "{/* genaiscript output end */}",
+    },
+}
 
 function clean(o: any) {
     o = structuredClone(o)
@@ -109,6 +142,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                 if (!res) throw new Error("No GenAI result")
 
                 const {
+                    error,
                     text,
                     fileEdits,
                     changelogs,
@@ -132,7 +166,14 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 env.output = output
 
-                const chat = renderMessagesToMarkdown(messages)
+                let chat = renderMessagesToMarkdown(messages)
+                if (error)
+                    chat +=
+                        "\n" +
+                        details(
+                            `${EMOJI_FAIL} ${errorMessage(error)}`,
+                            fenceMD(serializeError(error)?.stack, "text")
+                        )
 
                 // call LLM
                 await execution.replaceOutput([
@@ -180,7 +221,6 @@ function activateNotebookSerializer(state: ExtensionState) {
                     token: vscode.CancellationToken
                 ): vscode.NotebookData => {
                     const content = decoder.decode(data)
-
                     const cellRawData = parseMarkdown(content)
                     const cells = cellRawData.map(
                         (data) =>
@@ -210,64 +250,59 @@ function activateNotebookSerializer(state: ExtensionState) {
                             }
                     )
 
-                    return new vscode.NotebookData(cells)
+                    const res = new vscode.NotebookData(cells)
+                    return res
                 },
                 serializeNotebook: function (
                     data: vscode.NotebookData,
                     token: vscode.CancellationToken
                 ): Uint8Array {
-                    const stringOutput = writeCellsToMarkdown(data.cells)
-                    return encoder.encode(stringOutput)
+                    const { cells } = data
+                    let result = ""
+                    for (let i = 0; i < cells.length; i++) {
+                        const cell = cells[i]
+                        if (i === 0)
+                            result += cell.metadata?.leadingWhitespace ?? ""
+
+                        if (cell.kind === vscode.NotebookCellKind.Code) {
+                            const indentation = cell.metadata?.indentation || ""
+                            const options = cell.metadata?.options || ""
+                            const languageAbbrev =
+                                NOTEBOOK_LANG_ABBREVS.get(cell.languageId) ??
+                                cell.languageId
+                            const codePrefix =
+                                "```" +
+                                languageAbbrev +
+                                (options ? ` ${options}` : "") +
+                                "\n"
+                            result += indent(
+                                codePrefix + cell.value + "\n```",
+                                indentation
+                            )
+                            const output = cell.outputs?.[0]?.items?.[0]
+                            if (output && output.mime === MARKDOWN_MIME_TYPE) {
+                                const syntax = NOTEBOOK_MARKERS[cell.languageId]
+                                result +=
+                                    "\n\n" +
+                                    syntax.startMarker +
+                                    "\n" +
+                                    decoder.decode(output.data) +
+                                    "\n" +
+                                    syntax.endMarker +
+                                    "\n\n"
+                            }
+                        } else {
+                            result += cell.value
+                        }
+
+                        result += getBetweenCellsWhitespace(cells, i)
+                    }
+                    return encoder.encode(result)
                 },
             },
             { transientOutputs: false }
         )
     )
-
-    function writeCellsToMarkdown(
-        cells: ReadonlyArray<vscode.NotebookCellData>
-    ): string {
-        let result = ""
-        for (let i = 0; i < cells.length; i++) {
-            const cell = cells[i]
-            if (i === 0) {
-                result += cell.metadata?.leadingWhitespace ?? ""
-            }
-
-            if (cell.kind === vscode.NotebookCellKind.Code) {
-                const indentation = cell.metadata?.indentation || ""
-                const options = cell.metadata?.options || ""
-                const languageAbbrev =
-                    LANG_ABBREVS.get(cell.languageId) ?? cell.languageId
-                const codePrefix =
-                    "```" +
-                    languageAbbrev +
-                    (options ? ` ${options}` : "") +
-                    "\n"
-                result += indent(codePrefix + cell.value + "\n```", indentation)
-                const output = cell.outputs?.[0]?.items?.[0]
-                if (output && output.mime === MARKDOWN_MIME_TYPE) {
-                    result +=
-                        "\n\n" +
-                        indent(
-                            "```md " +
-                                LLM_OUTPUT_TITLE +
-                                " " +
-                                LLM_OUTPUT_OPTIONS +
-                                "\n" +
-                                decoder.decode(output.data) +
-                                "\n```\n",
-                            indentation
-                        )
-                }
-            } else {
-                result += cell.value
-            }
-
-            result += getBetweenCellsWhitespace(cells, i)
-        }
-        return result
-    }
 }
 
 interface RawNotebookCell {
@@ -280,23 +315,6 @@ interface RawNotebookCell {
     kind: vscode.NotebookCellKind
     output?: string
 }
-
-const LANG_IDS = new Map([
-    ["sh", "bash"],
-    ["bat", "batch"],
-    ["c++", "cpp"],
-    ["js", "javascript"],
-    ["ts", "typescript"],
-    ["cs", "csharp"],
-    ["py", "python"],
-    ["py2", "python"],
-    ["py3", "python"],
-    ["md", "markdown"],
-    ["mdx", "markdown"],
-])
-const LANG_ABBREVS = new Map(
-    Array.from(LANG_IDS.keys()).map((k) => [LANG_IDS.get(k), k])
-)
 
 interface ICodeBlockStart {
     langId: string
@@ -371,7 +389,8 @@ function parseMarkdown(content: string): RawNotebookCell[] {
         codeBlockStart: ICodeBlockStart
     ): void {
         const language =
-            LANG_IDS.get(codeBlockStart.langId) || codeBlockStart.langId
+            NOTEBOOK_LANG_IDS.get(codeBlockStart.langId) ||
+            codeBlockStart.langId
         const startSourceIdx = ++i
         while (true) {
             const currLine = lines[i]
@@ -393,25 +412,15 @@ function parseMarkdown(content: string): RawNotebookCell[] {
             )
             .join("\n")
         const trailingWhitespace = parseWhitespaceLines(false)
-
-        const lastCell = cells.at(-1)
-        if (
-            language === "markdown" &&
-            options.includes(LLM_OUTPUT_TITLE) &&
-            lastCell.kind === vscode.NotebookCellKind.Code &&
-            lastCell.language === "javascript"
-        ) {
-            lastCell.output = content
-        } else
-            cells.push({
-                language,
-                options: codeBlockStart.options,
-                content,
-                kind: vscode.NotebookCellKind.Code,
-                leadingWhitespace: leadingWhitespace,
-                trailingWhitespace: trailingWhitespace,
-                indentation: codeBlockStart.indentation,
-            })
+        cells.push({
+            language,
+            options,
+            content,
+            kind: vscode.NotebookCellKind.Code,
+            leadingWhitespace: leadingWhitespace,
+            trailingWhitespace: trailingWhitespace,
+            indentation: codeBlockStart.indentation,
+        })
     }
 
     function parseMarkdownParagraph(leadingWhitespace: string): void {

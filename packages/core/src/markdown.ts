@@ -25,6 +25,5 @@ export function details(summary: string, body: string, open?: boolean) {
 
 ${body}
 
-</summary>
 </details>\n`
 }
