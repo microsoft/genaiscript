@@ -217,29 +217,6 @@ function activateNotebookSerializer(state: ExtensionState) {
         )
     )
 
-    subscriptions.push(
-        vscode.commands.registerCommand(
-            "genaiscript.notebook.new",
-            async () => {
-                const newNotebook = await vscode.workspace.openNotebookDocument(
-                    NOTEBOOK_TYPE,
-                    new vscode.NotebookData([
-                        new vscode.NotebookCellData(
-                            vscode.NotebookCellKind.Code,
-                            "$`Write a poem`",
-                            "javascript"
-                        ),
-                    ])
-                )
-                await vscode.commands.executeCommand(
-                    "vscode.openWith",
-                    newNotebook.uri,
-                    NOTEBOOK_TYPE
-                )
-            }
-        )
-    )
-
     function writeCellsToMarkdown(
         cells: ReadonlyArray<vscode.NotebookCellData>
     ): string {

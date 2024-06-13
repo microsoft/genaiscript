@@ -227,11 +227,6 @@
         ],
         "commands": [
             {
-                "command": "genaiscript.notebook.new",
-                "title": "New Notebook",
-                "category": "GenAIScript"
-            },
-            {
                 "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",
                 "category": "GenAIScript"
