@@ -14,8 +14,8 @@ import {
     parsePromptScriptMeta,
     EMOJI_FAIL,
     errorMessage,
-    serializeError,
     MDX_REGEX,
+    frontmatterTryParse,
 } from "genaiscript-core"
 
 // parser
@@ -279,23 +279,32 @@ function activateNotebookSerializer(state: ExtensionState) {
                             result += cell.metadata?.leadingWhitespace ?? ""
 
                         if (cell.kind === vscode.NotebookCellKind.Code) {
-                            const indentation = cell.metadata?.indentation || ""
-                            const options = cell.metadata?.options || ""
-                            const languageAbbrev =
-                                NOTEBOOK_LANG_ABBREVS.get(cell.languageId) ??
-                                cell.languageId
-                            const codePrefix =
-                                "```" +
-                                languageAbbrev +
-                                (options ? ` ${options}` : "") +
-                                "\n"
-                            result += indent(
-                                codePrefix + cell.value + "\n```",
-                                indentation
-                            )
-                            const output = cell.outputs?.[0]?.items?.[0]
-                            if (output && output.mime === MARKDOWN_MIME_TYPE) {
-                                result += decoder.decode(output.data)
+                            if (cell.languageId === "yaml") {
+                                result += `---\n${cell.value}\n---\n`
+                            } else {
+                                const indentation =
+                                    cell.metadata?.indentation || ""
+                                const options = cell.metadata?.options || ""
+                                const languageAbbrev =
+                                    NOTEBOOK_LANG_ABBREVS.get(
+                                        cell.languageId
+                                    ) ?? cell.languageId
+                                const codePrefix =
+                                    "```" +
+                                    languageAbbrev +
+                                    (options ? ` ${options}` : "") +
+                                    "\n"
+                                result += indent(
+                                    codePrefix + cell.value + "\n```",
+                                    indentation
+                                )
+                                const output = cell.outputs?.[0]?.items?.[0]
+                                if (
+                                    output &&
+                                    output.mime === MARKDOWN_MIME_TYPE
+                                ) {
+                                    result += decoder.decode(output.data)
+                                }
                             }
                         } else {
                             result += cell.value
@@ -356,6 +365,19 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     const lines = content.split(/\r?\n/g)
     let cells: RawNotebookCell[] = []
     let i = 0
+
+    // eat frontmatter
+    const frontmatter = frontmatterTryParse(content)
+    if (frontmatter) {
+        i = frontmatter.end
+        cells.push({
+            language: "yaml",
+            content: YAMLStringify(frontmatter.value),
+            kind: vscode.NotebookCellKind.Code,
+            leadingWhitespace: "",
+            trailingWhitespace: "",
+        })
+    }
 
     // Each parse function starts with line i, leaves i on the line after the last line parsed
     while (i < lines.length) {
