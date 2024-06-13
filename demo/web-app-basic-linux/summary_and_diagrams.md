@@ -13,5 +13,5 @@ stateDiagram
 ```
 
 ```js title="foo.genai.js"
-$`Hwllo`
+$`Write a one sentence poem.`
 ```

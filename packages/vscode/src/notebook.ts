@@ -182,7 +182,11 @@ function activateNotebookSerializer(state: ExtensionState) {
                                 metadata: {
                                     leadingWhitespace: data.leadingWhitespace,
                                     trailingWhitespace: data.trailingWhitespace,
+                                    options: data.options,
                                     indentation: data.indentation,
+                                    runnable: data.language === "javascript",
+                                    editable: true,
+                                    custom: true,
                                 },
                                 outputs: [],
                                 value: data.content,
@@ -238,6 +242,7 @@ interface RawNotebookCell {
 }
 
 const LANG_IDS = new Map([
+    ["sh", "bash"],
     ["bat", "batch"],
     ["c++", "cpp"],
     ["js", "javascript"],
@@ -246,6 +251,8 @@ const LANG_IDS = new Map([
     ["py", "python"],
     ["py2", "python"],
     ["py3", "python"],
+    ["md", "markdown"],
+    ["mdx", "markdown"],
 ])
 const LANG_ABBREVS = new Map(
     Array.from(LANG_IDS.keys()).map((k) => [LANG_IDS.get(k), k])

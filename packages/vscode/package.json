@@ -60,10 +60,11 @@
         "notebooks": [
             {
                 "type": "genaiscript",
-                "displayName": "GenAIScript",
+                "displayName": "GenAIScript Markdown Notebook",
+                "priority": "option",
                 "selector": [
                     {
-                        "filenamePattern": "*.{md,mdx}"
+                        "filenamePattern": "*.{md,mdx,markdown}"
                     }
                 ]
             }
