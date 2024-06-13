@@ -598,7 +598,7 @@ export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[]
 ) {
     const res: string[] = []
-    messages.forEach((msg) => {
+    messages?.forEach((msg) => {
         const { role } = msg
         switch (role) {
             case "system":
