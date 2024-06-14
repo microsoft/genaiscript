@@ -4,6 +4,8 @@ import {
     AZURE_OPENAI_TOKEN_SCOPES,
     AbortSignalOptions,
     AskUserOptions,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
     Host,
     LanguageModel,
     LanguageModelConfiguration,
@@ -56,6 +58,10 @@ export class NodeHost implements Host {
     readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
     readonly docker = new DockerManager()
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     constructor() {
         const srv = new LlamaIndexRetrievalService(this)

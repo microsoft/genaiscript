@@ -16,6 +16,8 @@ import {
     LanguageModel,
     MODEL_PROVIDER_AZURE,
     AbortSignalOptions,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -34,6 +36,10 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly workspace = createFileSystem()
     readonly parser: ParseService
     private _azure: AzureManager
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     constructor(readonly state: ExtensionState) {
         super()

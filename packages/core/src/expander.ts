@@ -371,9 +371,6 @@ export async function expandTemplate(
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (sysr.text) {
             systemMessage.content += SYSTEM_FENCE + "\n" + sysr.text + "\n"
-            trace.item(
-                `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysr.text)}`
-            )
             trace.fence(sysr.text, "markdown")
         }
         if (sysr.aici) {

@@ -33,7 +33,7 @@ export function resolveLanguageModel(
 /**
  * model
  * provider:model
- * provider:model:size where modelId model:size
+ * provider:model:tag where modelId model:tag
  */
 export function parseModelIdentifier(id: string) {
     id = (id ?? DEFAULT_MODEL).replace("-35-", "-3.5-")
