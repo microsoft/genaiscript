@@ -9,7 +9,6 @@ import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { fenceMD } from "./markdown"
 import { parseModelIdentifier } from "./models"
-import dedent from "ts-dedent"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
@@ -18,6 +17,7 @@ import {
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { inspect } from "./logging"
+import { dedent } from "./indent"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:

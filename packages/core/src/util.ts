@@ -41,6 +41,14 @@ export function toStringList(...token: string[]) {
     return md
 }
 
+export function parseBoolean(s: string) {
+    return /^\s*(y|yes|true|ok)\s*$/i.test(s)
+        ? true
+        : /^\s*(n|no|false|ok)\s*$/i.test(s)
+          ? false
+          : undefined
+}
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",

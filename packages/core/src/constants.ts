@@ -23,6 +23,7 @@ export const CSV_REGEX = /\.(t|c)sv$/i
 export const XLSX_REGEX = /\.xlsx$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
+export const MDX_REGEX = /\.mdx$/i
 export const GPSPEC_GLOB = "**/*.gpspec.md"
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
@@ -163,6 +164,8 @@ export const XLSX_MIME_TYPE =
 export const JSON_MIME_TYPE = "application/json"
 export const JSON_SCHEMA_MIME_TYPE = "application/schema+json"
 export const JAVASCRIPT_MIME_TYPE = "application/javascript"
+export const MARKDOWN_MIME_TYPE = "text/markdown"
+export const YAML_MIME_TYPE = "application/yaml"
 
 export const JSON_META_SCHEMA_URI =
     "https://json-schema.org/draft/2020-12/schema"

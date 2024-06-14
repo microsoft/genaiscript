@@ -44,7 +44,7 @@ export function createParsers(options: {
         TOML: (text, options) =>
             TOMLTryParse(filenameOrFileToContent(text), options),
         frontmatter: (text, options) =>
-            frontmatterTryParse(filenameOrFileToContent(text), options),
+            frontmatterTryParse(filenameOrFileToContent(text), options)?.value,
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         XLSX: async (file, options) =>

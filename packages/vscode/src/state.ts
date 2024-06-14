@@ -53,6 +53,7 @@ export interface AIRequestOptions {
     template: PromptScript
     fragment: Fragment
     parameters: PromptParameters
+    notebook?: boolean
 }
 
 export class FragmentsEvent extends Event {
@@ -229,18 +230,25 @@ temp/
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                vscode.commands.executeCommand("genaiscript.request.open.trace")
+                if (!options.notebook)
+                    vscode.commands.executeCommand(
+                        "genaiscript.request.open.trace"
+                    )
                 return
             }
             const res = await req?.request
             const { edits, text, status } = res || {}
 
-            if (status === "error")
-                vscode.commands.executeCommand("genaiscript.request.open.trace")
-            else if (!hasOutputOrTraceOpened() && text)
-                vscode.commands.executeCommand(
-                    "genaiscript.request.open.output"
-                )
+            if (!options.notebook) {
+                if (status === "error")
+                    vscode.commands.executeCommand(
+                        "genaiscript.request.open.trace"
+                    )
+                else if (!hasOutputOrTraceOpened() && text)
+                    vscode.commands.executeCommand(
+                        "genaiscript.request.open.output"
+                    )
+            }
 
             const key = await snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
@@ -248,7 +256,7 @@ temp/
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (edits?.length) this.applyEdits()
+            if (edits?.length && !options.notebook) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
             throw e
@@ -266,7 +274,7 @@ temp/
         const signal = controller.signal
         const cancellationToken = new AbortSignalCancellationToken(signal)
         const trace = new MarkdownTrace()
-        trace.heading(2, options.template.id)
+        if (!options.notebook) trace.heading(2, options.template.id)
 
         const r: AIRequest = {
             creationTime: new Date().toISOString(),
@@ -318,19 +326,28 @@ temp/
             vars: options.parameters,
             cache: cache && template.cache,
             stats: { toolCalls: 0, repairs: 0, turns: 0 },
-            cliInfo: {
-                spec:
-                    this.host.isVirtualFile(fragment.file.filename) &&
-                    this.host.path.basename(fragment.file.filename) ===
-                        "dir.gpspec.md"
-                        ? fragment.file.filename.replace(
-                              /dir\.gpspec\.md$/i,
-                              "**"
-                          )
-                        : this.host.isVirtualFile(fragment.file.filename)
-                          ? fragment.file.filename.replace(/\.gpspec\.md$/i, "")
-                          : fragment.file.filename,
-            },
+            cliInfo:
+                fragment && !options.notebook
+                    ? {
+                          spec:
+                              this.host.isVirtualFile(fragment.file.filename) &&
+                              this.host.path.basename(
+                                  fragment.file.filename
+                              ) === "dir.gpspec.md"
+                                  ? fragment.file.filename.replace(
+                                        /dir\.gpspec\.md$/i,
+                                        "**"
+                                    )
+                                  : this.host.isVirtualFile(
+                                          fragment.file.filename
+                                      )
+                                    ? fragment.file.filename.replace(
+                                          /\.gpspec\.md$/i,
+                                          ""
+                                      )
+                                    : fragment.file.filename,
+                      }
+                    : undefined,
             model: info.model,
         }
         if (!connectionToken) {
@@ -350,7 +367,7 @@ temp/
         } else if (connectionToken.type === "localai") await startLocalAI()
 
         r.request = runTemplate(this.project, template, fragment, genOptions)
-        if (!hasOutputOrTraceOpened())
+        if (!options.notebook && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
             .then((resp) => {
@@ -531,12 +548,14 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
     }
 
     private setDiagnostics() {
+        this._diagColl.clear()
+        if (this._aiRequest?.options?.notebook) return
+
         let diagnostics = this.project.diagnostics
         if (this._aiRequest?.response?.annotations?.length)
             diagnostics = diagnostics.concat(
                 this._aiRequest?.response?.annotations
             )
-        this._diagColl.clear()
         // project entries
         const severities: Record<
             DiagnosticSeverity | "notice",
