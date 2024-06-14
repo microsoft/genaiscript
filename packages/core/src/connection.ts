@@ -199,57 +199,82 @@ export async function parseTokenFromEnv(
     return undefined
 }
 
-export function dotEnvTemplate(provider: string, apiType: APIType) {
+function dotEnvTemplate(
+    provider: string,
+    apiType: APIType
+): { config: string; model: string } {
     if (provider === MODEL_PROVIDER_OLLAMA)
-        return `
+        return {
+            config: `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
-# use "ollama:<model>" or "ollama:<model>:<tag>" in script({ model: ... })
+# use "${MODEL_PROVIDER_OLLAMA}:<model>" or "${MODEL_PROVIDER_OLLAMA}:<model>:<tag>" in script({ model: ... })
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
-`
+`,
+            model: `${MODEL_PROVIDER_OLLAMA}:phi3`,
+        }
 
     if (provider === MODEL_PROVIDER_LLAMAFILE)
-        return `
+        return {
+            config: `
 ## llamafile ${DOCS_CONFIGURATION_LLAMAFILE_URL}
-# use "llamafile" in script({ model: ... })
+# use "${MODEL_PROVIDER_LLAMAFILE}" in script({ model: ... })
 # There is no configuration for llamafile
-`
+`,
+            model: MODEL_PROVIDER_LLAMAFILE,
+        }
 
     if (provider === MODEL_PROVIDER_LITELLM)
-        return `
+        return {
+            config: `
 ## LiteLLM ${DOCS_CONFIGURATION_LITELLM_URL}
+# use "${MODEL_PROVIDER_LITELLM}" in script({ model: ... })
 # LITELLM_API_BASE="<custom api base>" # uses ${LITELLM_API_BASE} by default
-`
+`,
+            model: MODEL_PROVIDER_LITELLM,
+        }
 
     if (provider === MODEL_PROVIDER_AICI)
-        return `
+        return {
+            config: `
 ## AICI ${DOCS_CONFIGURATION_AICI_URL}
-# use "aici:<model>" in script({ model: ... })
+# use "${MODEL_PROVIDER_AICI}:<model>" in script({ model: ... })
 AICI_API_BASE="<custom api base>"
-`
+`,
+            model: `${MODEL_PROVIDER_AICI}:mixtral`,
+        }
 
     if (apiType === "azure" || provider === MODEL_PROVIDER_AZURE)
-        return `
+        return {
+            config: `
 ## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
-# use "azure:<deployment>" in script({ model: ... })
+# use "${MODEL_PROVIDER_AZURE}:<deployment>" in script({ model: ... })
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
 # AZURE_OPENAI_API_KEY="<your token>"
-`
+`,
+            model: `${MODEL_PROVIDER_AZURE}:gpt-4o`,
+        }
 
     if (apiType === "localai")
-        return `
+        return {
+            config: `
 ## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
-# use "openai:<model>" in script({ model: ... })
+# use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
 OPENAI_API_TYPE="localai"
 # OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
 # OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
-`
+`,
+            model: `${MODEL_PROVIDER_OPENAI}:gpt-3.5-turbo`,
+        }
 
-    return `
+    return {
+        config: `
 ## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
-# use "openai:<model>" in script({ model: ... })
+# use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
 OPENAI_API_KEY="<your token>"
 # OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
-`
+`,
+        model: `${MODEL_PROVIDER_OPENAI}:gpt-4o`,
+    }
 }
 
 export async function updateConnectionConfiguration(
@@ -266,14 +291,15 @@ export async function updateConnectionConfiguration(
     }
 
     // update .env
-    let src = dotEnvTemplate(provider, apiType)
+    const { config, model } = dotEnvTemplate(provider, apiType)
+    let src = config
     const current = await tryReadText(".env")
     if (current) {
         if (!current.includes("GENAISCRIPT_DEFAULT_MODEL"))
             src =
                 dedent`
-                    # GenAISCript default
-                    # GENAISCRIPT_DEFAULT_MODEL="${DEFAULT_MODEL}"
+                    # GenAISCript defaults
+                    GENAISCRIPT_DEFAULT_MODEL="${model}"
                     # GENAISCRIPT_DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE}
                     
                     ` + src
