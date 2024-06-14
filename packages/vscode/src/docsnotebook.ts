@@ -104,12 +104,9 @@ function activateNotebookExecutor(state: ExtensionState) {
         await state.parseWorkspace()
         const project = state.project
 
-        // frontmatter
         const firstCell = notebook.cellAt(0)
         const { genaiscript: frontmatter = {} } =
-            (firstCell.document.languageId === "yaml" &&
-                YAMLTryParse(firstCell.document.getText())) ||
-            {}
+            frontmatterTryParse(firstCell?.document?.getText())?.value || {}
         const {
             model,
             files,
