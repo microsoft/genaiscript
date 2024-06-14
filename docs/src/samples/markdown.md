@@ -1,3 +1,9 @@
+---
+title: What is Markdown? - Understanding Markdown Syntax
+description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
+keywords: Markdown, markup language, formatting, plain text, syntax
+sidebar: mydoc_sidebar
+---
 What is Markdown?
  Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
 
