@@ -186,6 +186,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     schemas,
                     trace,
                     messages,
+                    status,
                 } = res
                 const output = {
                     text,
@@ -240,7 +241,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                         ]),
                     ].filter((o) => o)
                 )
-                execution.end(!error, Date.now())
+                execution.end(status === "success", Date.now())
             } catch (e) {
                 await execution.replaceOutput([
                     new vscode.NotebookCellOutput([
