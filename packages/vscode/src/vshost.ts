@@ -18,6 +18,7 @@ import {
     AbortSignalOptions,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
+    parseDefaultsFromEnv,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -257,6 +258,7 @@ export class VSCodeHost extends EventTarget implements Host {
         const { signal, token: askToken } = options || {}
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
+        await parseDefaultsFromEnv(env)
         const tok = await parseTokenFromEnv(env, modelId)
         if (
             askToken &&

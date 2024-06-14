@@ -21,6 +21,7 @@ import {
     UTF8Encoder,
     createBundledParsers,
     createFileSystem,
+    parseDefaultsFromEnv,
     parseTokenFromEnv,
     resolveLanguageModel,
     setHost,
@@ -94,6 +95,7 @@ export class NodeHost implements Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
+        await parseDefaultsFromEnv(process.env)
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (
             askToken &&

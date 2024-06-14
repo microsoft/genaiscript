@@ -1,5 +1,7 @@
 import {
     AZURE_OPENAI_API_VERSION,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     DOCS_CONFIGURATION_LITELLM_URL,
@@ -19,19 +21,25 @@ import {
     OLLAMA_API_BASE,
     OPENAI_API_BASE,
 } from "./constants"
-import { fileExists, readText, writeText } from "./fs"
+import { fileExists, readText, tryReadText, writeText } from "./fs"
 import { APIType, host, LanguageModelConfiguration } from "./host"
+import { dedent } from "./indent"
 import { parseModelIdentifier } from "./models"
-import { trimTrailingSlash } from "./util"
+import { normalizeFloat, trimTrailingSlash } from "./util"
+
+export async function parseDefaultsFromEnv(env: Record<string, string>) {
+    if (env.GENAISCRIPT_DEFAULT_MODEL)
+        host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
+    const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
+    if (!isNaN(t)) host.defaultModelOptions.temperature = t
+}
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     modelId: string
 ): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(
-        modelId ??
-            env.GENAISCRIPT_DEFAULT_MODEL ??
-            host.defaultModelOptions.model
+        modelId ?? host.defaultModelOptions.model
     )
 
     if (provider === MODEL_PROVIDER_OPENAI) {
@@ -195,12 +203,14 @@ export function dotEnvTemplate(provider: string, apiType: APIType) {
     if (provider === MODEL_PROVIDER_OLLAMA)
         return `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
+# use "ollama:<model>" or "ollama:<model>:<tag>" in script({ model: ... })
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
 `
 
     if (provider === MODEL_PROVIDER_LLAMAFILE)
         return `
 ## llamafile ${DOCS_CONFIGURATION_LLAMAFILE_URL}
+# use "llamafile" in script({ model: ... })
 # There is no configuration for llamafile
 `
 
@@ -213,12 +223,14 @@ export function dotEnvTemplate(provider: string, apiType: APIType) {
     if (provider === MODEL_PROVIDER_AICI)
         return `
 ## AICI ${DOCS_CONFIGURATION_AICI_URL}
+# use "aici:<model>" in script({ model: ... })
 AICI_API_BASE="<custom api base>"
 `
 
     if (apiType === "azure" || provider === MODEL_PROVIDER_AZURE)
         return `
 ## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
+# use "azure:<deployment>" in script({ model: ... })
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
 # AZURE_OPENAI_API_KEY="<your token>"
 `
@@ -226,6 +238,7 @@ AZURE_OPENAI_ENDPOINT="<your api endpoint>"
     if (apiType === "localai")
         return `
 ## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
+# use "openai:<model>" in script({ model: ... })
 OPENAI_API_TYPE="localai"
 # OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
 # OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
@@ -233,6 +246,7 @@ OPENAI_API_TYPE="localai"
 
     return `
 ## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
+# use "openai:<model>" in script({ model: ... })
 OPENAI_API_KEY="<your token>"
 # OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
 `
@@ -253,6 +267,17 @@ export async function updateConnectionConfiguration(
 
     // update .env
     let src = dotEnvTemplate(provider, apiType)
-    if (await fileExists(".env")) src = (await readText(".env")) + "\n" + src
+    const current = await tryReadText(".env")
+    if (current) {
+        if (!current.includes("GENAISCRIPT_DEFAULT_MODEL"))
+            src =
+                dedent`
+                    # GenAISCript default
+                    # GENAISCRIPT_DEFAULT_MODEL="${DEFAULT_MODEL}"
+                    # GENAISCRIPT_DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE}
+                    
+                    ` + src
+        src = current + "\n" + src
+    }
     await writeText(".env", src)
 }

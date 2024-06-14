@@ -3,12 +3,7 @@ import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
-import {
-    DEFAULT_TEMPERATURE,
-    MAX_TOOL_CALLS,
-    MODEL_PROVIDER_AICI,
-    SYSTEM_FENCE,
-} from "./constants"
+import { MAX_TOOL_CALLS, MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { GenerationOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
@@ -22,6 +17,7 @@ import {
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
+import { host } from "./host"
 
 const defaultTopP: number = undefined
 const defaultSeed: number = undefined
@@ -274,7 +270,7 @@ export async function expandTemplate(
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
-        DEFAULT_TEMPERATURE
+        host.defaultModelOptions.temperature
     const topP =
         options.topP ??
         normalizeFloat(env.vars["top_p"]) ??
@@ -283,11 +279,13 @@ export async function expandTemplate(
     const max_tokens =
         options.maxTokens ??
         normalizeInt(env.vars["maxTokens"]) ??
+        normalizeInt(env.vars["max_tokens"]) ??
         template.maxTokens ??
         defaultMaxTokens
     const maxToolCalls =
         options.maxToolCalls ??
         normalizeInt(env.vars["maxToolCalls"]) ??
+        normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
         MAX_TOOL_CALLS
     let seed =

@@ -144,7 +144,7 @@ export const MODEL_PROVIDERS = Object.freeze([
     },
 ])
 
-export const NEW_SCRIPT_TEMPLATE = `// use def to emit LLM variables 
+export const NEW_SCRIPT_TEMPLATE = `// use def to define context 
 // https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def
 def("FILE", env.files)
 
