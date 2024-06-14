@@ -16,7 +16,7 @@
     "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
-    "@azure/identity": "^4.2.0",
+    "@azure/identity": "^4.2.1",
     "@tidyjs/tidy": "^2.5.2",
     "@types/html-escaper": "^3.0.2",
     "@types/html-to-text": "^9.0.4",
@@ -47,9 +47,9 @@
     "mime-types": "^2.1.35",
     "minimatch": "^9.0.4",
     "minisearch": "^6.3.0",
-    "openai": "^4.49.1",
+    "openai": "^4.51.0",
     "parse-diff": "^0.11.1",
-    "prettier": "^3.3.1",
+    "prettier": "^3.3.2",
     "pretty-bytes": "^6.1.1",
     "serialize-error": "^11.0.3",
     "toml": "^3.0.0",

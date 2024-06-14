@@ -23,10 +23,10 @@
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
   "dependencies": {
-    "@azure/identity": "^4.2.0",
+    "@azure/identity": "^4.2.1",
     "dockerode": "^4.0.2",
     "pdfjs-dist": "4.3.136",
-    "promptfoo": "^0.63.0",
+    "promptfoo": "^0.63.2",
     "tree-sitter-wasms": "^0.1.11",
     "typescript": "5.4.5",
     "web-tree-sitter": "^0.22.2",
@@ -63,13 +63,13 @@
     "mammoth": "^1.7.2",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.1.0",
-    "openai": "^4.49.1",
+    "openai": "^4.51.0",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
     "prompts": "^2.4.2",
     "replace-ext": "^2.0.0",
     "semver": "^7.6.2",
-    "tsx": "^4.11.2",
+    "tsx": "^4.15.4",
     "zx": "^8.1.2"
   },
   "scripts": {
