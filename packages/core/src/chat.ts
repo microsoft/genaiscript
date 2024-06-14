@@ -629,7 +629,7 @@ export function renderMessagesToMarkdown(
                         details(
                             "📙 system",
                             fenceMD(msg.content, "markdown"),
-                            system === true
+                            false
                         )
                     )
                     break

@@ -200,7 +200,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 heap.output = output
 
-                const { system, user, assistant } =
+                const { system = "false", user, assistant } =
                     parseKeyValuePairs(cell.metadata.options || "") || {}
                 let chat = renderMessagesToMarkdown(messages, {
                     system: parseBoolean(system),
