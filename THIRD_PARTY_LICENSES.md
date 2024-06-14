@@ -3032,7 +3032,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - openai@4.50.0
+ - openai@4.51.0
 
 This package contains the following license and notice below:
 
@@ -4297,22 +4297,22 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.592.0
- - @aws-sdk/client-sagemaker@3.595.0
- - @aws-sdk/client-sso-oidc@3.592.0
+ - @aws-sdk/client-cognito-identity@3.596.0
+ - @aws-sdk/client-sagemaker@3.596.0
+ - @aws-sdk/client-sso-oidc@3.596.0
  - @aws-sdk/client-sso@3.592.0
- - @aws-sdk/client-sts@3.592.0
- - @aws-sdk/credential-provider-cognito-identity@3.592.0
+ - @aws-sdk/client-sts@3.596.0
+ - @aws-sdk/credential-provider-cognito-identity@3.596.0
  - @aws-sdk/util-user-agent-browser@3.577.0
  - @aws-sdk/util-user-agent-node@3.587.0
  - @smithy/eventstream-codec@1.1.0
- - @smithy/middleware-retry@3.0.3
- - @smithy/querystring-builder@3.0.0
- - @smithy/querystring-parser@3.0.0
- - @smithy/service-error-classification@3.0.0
- - @smithy/url-parser@3.0.0
- - @smithy/util-defaults-mode-browser@3.0.3
- - @smithy/util-defaults-mode-node@3.0.3
+ - @smithy/middleware-retry@3.0.4
+ - @smithy/querystring-builder@3.0.1
+ - @smithy/querystring-parser@3.0.1
+ - @smithy/service-error-classification@3.0.1
+ - @smithy/url-parser@3.0.1
+ - @smithy/util-defaults-mode-browser@3.0.4
+ - @smithy/util-defaults-mode-node@3.0.4
 
 These packages each contain the following license and notice below:
 
@@ -4526,14 +4526,14 @@ The following npm packages may be included in this product:
  - @aws-sdk/middleware-recursion-detection@3.577.0
  - @aws-sdk/middleware-user-agent@3.587.0
  - @aws-sdk/protocol-http@3.374.0
- - @smithy/core@2.2.0
- - @smithy/invalid-dependency@3.0.0
- - @smithy/middleware-serde@3.0.0
+ - @smithy/core@2.2.1
+ - @smithy/invalid-dependency@3.0.1
+ - @smithy/middleware-serde@3.0.1
  - @smithy/protocol-http@1.2.0
- - @smithy/protocol-http@4.0.0
- - @smithy/smithy-client@3.1.1
+ - @smithy/protocol-http@4.0.1
+ - @smithy/smithy-client@3.1.2
  - @smithy/types@1.2.0
- - @smithy/types@3.0.0
+ - @smithy/types@3.1.0
 
 These packages each contain the following license and notice below:
 
@@ -5055,7 +5055,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.39.1
+ - genaiscript-vscode@1.39.2
 
 This package contains the following license and notice below:
 
@@ -13030,7 +13030,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 The following npm package may be included in this product:
 
- - vite@5.2.13
+ - vite@5.3.1
 
 This package contains the following license and notice below:
 
@@ -13061,7 +13061,7 @@ SOFTWARE.
 
 # Licenses of bundled dependencies
 The published Vite artifact additionally contains code with the following licenses:
-Apache-2.0, BSD-2-Clause, CC0-1.0, ISC, MIT
+Apache-2.0, BSD-2-Clause, BlueOak-1.0.0, CC0-1.0, ISC, MIT
 
 # Bundled dependencies:
 ## @ampproject/remapping
@@ -13602,64 +13602,6 @@ Repository: rollup/plugins
 > The MIT License (MIT)
 > 
 > Copyright (c) 2019 RollupJS Plugin Contributors (https://github.com/rollup/plugins/graphs/contributors)
-> 
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
-> 
-> The above copyright notice and this permission notice shall be included in
-> all copies or substantial portions of the Software.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-> THE SOFTWARE.
-
----------------------------------------
-
-## acorn
-License: MIT
-By: Marijn Haverbeke, Ingvar Stepanyan, Adrian Heine
-Repository: https://github.com/acornjs/acorn.git
-
-> MIT License
-> 
-> Copyright (C) 2012-2022 by various contributors (see AUTHORS)
-> 
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
-> 
-> The above copyright notice and this permission notice shall be included in
-> all copies or substantial portions of the Software.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-> THE SOFTWARE.
-
----------------------------------------
-
-## acorn-walk
-License: MIT
-By: Marijn Haverbeke, Ingvar Stepanyan, Adrian Heine
-Repository: https://github.com/acornjs/acorn.git
-
-> MIT License
-> 
-> Copyright (C) 2012-2020 by various contributors (see AUTHORS)
 > 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -14564,57 +14506,6 @@ Repository: git@github.com:follow-redirects/follow-redirects.git
 
 ---------------------------------------
 
-## fs.realpath
-License: ISC
-By: Isaac Z. Schlueter
-Repository: git+https://github.com/isaacs/fs.realpath.git
-
-> The ISC License
-> 
-> Copyright (c) Isaac Z. Schlueter and Contributors
-> 
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-> WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-> MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-> ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-> WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-> ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-> IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-> 
-> ----
-> 
-> This library bundles a version of the `fs.realpath` and `fs.realpathSync`
-> methods from Node.js v0.10 under the terms of the Node.js MIT license.
-> 
-> Node's license follows, also included at the header of `old.js` which contains
-> the licensed code:
-> 
->   Copyright Joyent, Inc. and other Node contributors.
-> 
->   Permission is hereby granted, free of charge, to any person obtaining a
->   copy of this software and associated documentation files (the "Software"),
->   to deal in the Software without restriction, including without limitation
->   the rights to use, copy, modify, merge, publish, distribute, sublicense,
->   and/or sell copies of the Software, and to permit persons to whom the
->   Software is furnished to do so, subject to the following conditions:
-> 
->   The above copyright notice and this permission notice shall be included in
->   all copies or substantial portions of the Software.
-> 
->   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
->   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
->   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
->   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
->   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
->   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
->   DEALINGS IN THE SOFTWARE.
-
----------------------------------------
-
 ## generic-names
 License: MIT
 By: Alexey Litvinov
@@ -14651,7 +14542,7 @@ Repository: git://github.com/isaacs/node-glob.git
 
 > The ISC License
 > 
-> Copyright (c) 2009-2022 Isaac Z. Schlueter and Contributors
+> Copyright (c) 2009-2023 Isaac Z. Schlueter and Contributors
 > 
 > Permission to use, copy, modify, and/or distribute this software for any
 > purpose with or without fee is hereby granted, provided that the above
@@ -14731,51 +14622,6 @@ Repository: git+https://github.com/css-modules/icss-utils.git
 > Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
 > 
 > THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
----------------------------------------
-
-## inflight
-License: ISC
-By: Isaac Z. Schlueter
-Repository: https://github.com/npm/inflight.git
-
-> The ISC License
-> 
-> Copyright (c) Isaac Z. Schlueter
-> 
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-> WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-> MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-> ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-> WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-> ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-> IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
----------------------------------------
-
-## inherits
-License: ISC
-Repository: git://github.com/isaacs/inherits
-
-> The ISC License
-> 
-> Copyright (c) Isaac Z. Schlueter
-> 
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-> REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
-> FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-> INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-> LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-> OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-> PERFORMANCE OF THIS SOFTWARE.
 
 ---------------------------------------
 
@@ -15146,6 +14992,29 @@ Repository: lodash/lodash
 
 ---------------------------------------
 
+## lru-cache
+License: ISC
+By: Isaac Z. Schlueter
+Repository: git://github.com/isaacs/node-lru-cache.git
+
+> The ISC License
+> 
+> Copyright (c) 2010-2023 Isaac Z. Schlueter and Contributors
+> 
+> Permission to use, copy, modify, and/or distribute this software for any
+> purpose with or without fee is hereby granted, provided that the above
+> copyright notice and this permission notice appear in all copies.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+> WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+> MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+> ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+> WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+> ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+> IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+---------------------------------------
+
 ## magic-string
 License: MIT
 By: Rich Harris
@@ -15226,6 +15095,29 @@ Repository: git://github.com/isaacs/minimatch.git
 > The ISC License
 > 
 > Copyright (c) 2011-2023 Isaac Z. Schlueter and Contributors
+> 
+> Permission to use, copy, modify, and/or distribute this software for any
+> purpose with or without fee is hereby granted, provided that the above
+> copyright notice and this permission notice appear in all copies.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+> WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+> MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+> ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+> WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+> ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
+> IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+---------------------------------------
+
+## minipass
+License: ISC
+By: Isaac Z. Schlueter
+Repository: https://github.com/isaacs/minipass
+
+> The ISC License
+> 
+> Copyright (c) 2017-2023 npm, Inc., Isaac Z. Schlueter, and Contributors
 > 
 > Permission to use, copy, modify, and/or distribute this software for any
 > purpose with or without fee is hereby granted, provided that the above
@@ -15415,29 +15307,6 @@ Repository: jshttp/on-finished
 
 ---------------------------------------
 
-## once
-License: ISC
-By: Isaac Z. Schlueter
-Repository: git://github.com/isaacs/once
-
-> The ISC License
-> 
-> Copyright (c) Isaac Z. Schlueter and Contributors
-> 
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-> WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-> MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-> ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-> WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-> ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-> IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
----------------------------------------
-
 ## open
 License: MIT
 By: Sindre Sorhus
@@ -15527,6 +15396,69 @@ Repository: sindresorhus/path-key
 > The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 > 
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------
+
+## path-scurry
+License: BlueOak-1.0.0
+By: Isaac Z. Schlueter
+Repository: git+https://github.com/isaacs/path-scurry
+
+> # Blue Oak Model License
+> 
+> Version 1.0.0
+> 
+> ## Purpose
+> 
+> This license gives everyone as much permission to work with
+> this software as possible, while protecting contributors
+> from liability.
+> 
+> ## Acceptance
+> 
+> In order to receive this license, you must agree to its
+> rules.  The rules of this license are both obligations
+> under that agreement and conditions to your license.
+> You must not do anything with this software that triggers
+> a rule that you cannot or will not follow.
+> 
+> ## Copyright
+> 
+> Each contributor licenses you to do everything with this
+> software that would otherwise infringe that contributor's
+> copyright in it.
+> 
+> ## Notices
+> 
+> You must ensure that everyone who gets a copy of
+> any part of this software from you, with or without
+> changes, also gets the text of this license or a link to
+> <https://blueoakcouncil.org/license/1.0.0>.
+> 
+> ## Excuse
+> 
+> If anyone notifies you in writing that you have not
+> complied with [Notices](#notices), you can keep your
+> license by taking all practical steps to comply within 30
+> days after the notice.  If you do not do so, your license
+> ends immediately.
+> 
+> ## Patent
+> 
+> Each contributor licenses you to do everything with this
+> software that would otherwise infringe any patent claims
+> they can license or become able to license.
+> 
+> ## Reliability
+> 
+> No contributor can revoke this license.
+> 
+> ## No Liability
+> 
+> ***As far as the law allows, this software comes as is,
+> without any warranty or condition, and no contributor
+> will be liable to anyone for any damages related to this
+> software or this license, under any kind of legal claim.***
 
 ---------------------------------------
 
@@ -16479,29 +16411,6 @@ Repository: git://github.com/isaacs/node-which.git
 
 ---------------------------------------
 
-## wrappy
-License: ISC
-By: Isaac Z. Schlueter
-Repository: https://github.com/npm/wrappy
-
-> The ISC License
-> 
-> Copyright (c) Isaac Z. Schlueter and Contributors
-> 
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
-> 
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-> WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-> MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-> ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-> WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-> ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-> IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
----------------------------------------
-
 ## ws
 License: MIT
 By: Einar Otto Stangvik
@@ -17319,9 +17228,9 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/credential-provider-env@3.587.0
- - @aws-sdk/credential-provider-ini@3.592.0
- - @aws-sdk/credential-provider-node@3.592.0
- - @aws-sdk/credential-providers@3.592.0
+ - @aws-sdk/credential-provider-ini@3.596.0
+ - @aws-sdk/credential-provider-node@3.596.0
+ - @aws-sdk/credential-providers@3.596.0
  - @aws-sdk/region-config-resolver@3.587.0
  - @aws-sdk/signature-v4@3.374.0
  - @aws-sdk/token-providers@3.587.0
@@ -17329,22 +17238,22 @@ The following npm packages may be included in this product:
  - @aws-sdk/util-endpoints@3.587.0
  - @aws-sdk/util-locate-window@3.568.0
  - @aws-sdk/util-utf8-browser@3.259.0
- - @smithy/abort-controller@3.0.0
- - @smithy/config-resolver@3.0.1
- - @smithy/credential-provider-imds@3.1.0
- - @smithy/fetch-http-handler@3.0.1
- - @smithy/hash-node@3.0.0
+ - @smithy/abort-controller@3.0.1
+ - @smithy/config-resolver@3.0.2
+ - @smithy/credential-provider-imds@3.1.1
+ - @smithy/fetch-http-handler@3.0.2
+ - @smithy/hash-node@3.0.1
  - @smithy/is-array-buffer@1.1.0
  - @smithy/is-array-buffer@2.2.0
  - @smithy/is-array-buffer@3.0.0
- - @smithy/middleware-content-length@3.0.0
- - @smithy/middleware-endpoint@3.0.1
- - @smithy/middleware-stack@3.0.0
- - @smithy/node-http-handler@3.0.0
- - @smithy/property-provider@3.1.0
- - @smithy/shared-ini-file-loader@3.1.0
+ - @smithy/middleware-content-length@3.0.1
+ - @smithy/middleware-endpoint@3.0.2
+ - @smithy/middleware-stack@3.0.1
+ - @smithy/node-http-handler@3.0.1
+ - @smithy/property-provider@3.1.1
+ - @smithy/shared-ini-file-loader@3.1.1
  - @smithy/signature-v4@1.1.0
- - @smithy/signature-v4@3.0.0
+ - @smithy/signature-v4@3.1.0
  - @smithy/util-base64@3.0.0
  - @smithy/util-body-length-browser@3.0.0
  - @smithy/util-body-length-node@3.0.0
@@ -17353,13 +17262,13 @@ The following npm packages may be included in this product:
  - @smithy/util-buffer-from@3.0.0
  - @smithy/util-hex-encoding@1.1.0
  - @smithy/util-hex-encoding@3.0.0
- - @smithy/util-stream@3.0.1
+ - @smithy/util-stream@3.0.2
  - @smithy/util-uri-escape@1.1.0
  - @smithy/util-uri-escape@3.0.0
  - @smithy/util-utf8@1.1.0
  - @smithy/util-utf8@2.3.0
  - @smithy/util-utf8@3.0.0
- - @smithy/util-waiter@3.0.0
+ - @smithy/util-waiter@3.0.1
 
 These packages each contain the following license and notice below:
 
@@ -17782,7 +17691,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/middleware-logger@3.577.0
- - @smithy/node-config-provider@3.1.0
+ - @smithy/node-config-provider@3.1.1
  - @smithy/util-config-provider@3.0.0
 
 These packages each contain the following license and notice below:
@@ -17993,10 +17902,10 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @smithy/util-endpoints@2.0.1
+ - @smithy/util-endpoints@2.0.2
  - @smithy/util-middleware@1.1.0
- - @smithy/util-middleware@3.0.0
- - @smithy/util-retry@3.0.0
+ - @smithy/util-middleware@3.0.1
+ - @smithy/util-retry@3.0.1
 
 These packages each contain the following license and notice below:
 
@@ -18683,7 +18592,7 @@ END OF TERMS AND CONDITIONS
 The following npm packages may be included in this product:
 
  - @aws-sdk/core@3.592.0
- - @aws-sdk/credential-provider-http@3.587.0
+ - @aws-sdk/credential-provider-http@3.596.0
  - @iconify-json/carbon@1.1.35
  - drizzle-orm@0.29.5
 
@@ -18695,7 +18604,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001632
+ - caniuse-lite@1.0.30001634
 
 This package contains the following license and notice below:
 
@@ -22906,7 +22815,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.798
+ - electron-to-chromium@1.4.802
 
 This package contains the following license and notice below:
 
@@ -22992,7 +22901,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - rfdc@1.3.1
+ - rfdc@1.4.1
 
 This package contains the following license and notice below:
 
@@ -25186,7 +25095,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @esbuild/linux-x64@0.20.2
  - @esbuild/linux-x64@0.21.5
  - @iconify-json/ph@1.1.13
  - @iconify-json/svg-spinners@1.1.2
@@ -25207,11 +25115,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.39.1
+ - docs@1.39.2
  - eastasianwidth@0.2.0
- - genaiscript-core@1.39.1
- - genaiscript-sample@1.39.1
- - genaiscript@1.39.1
+ - genaiscript-core@1.39.2
+ - genaiscript-sample@1.39.2
+ - genaiscript@1.39.2
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
@@ -25557,7 +25465,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - acorn@8.11.3
+ - acorn@8.12.0
 
 This package contains the following license and notice below:
 
@@ -25942,7 +25850,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - node-abi@3.64.0
+ - node-abi@3.65.0
 
 This package contains the following license and notice below:
 
@@ -27077,10 +26985,10 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @vueuse/core@10.10.1
- - @vueuse/math@10.10.1
- - @vueuse/metadata@10.10.1
- - @vueuse/shared@10.10.1
+ - @vueuse/core@10.11.0
+ - @vueuse/math@10.11.0
+ - @vueuse/metadata@10.11.0
+ - @vueuse/shared@10.11.0
 
 These packages each contain the following license and notice below:
 
@@ -27229,12 +27137,11 @@ SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
- - esbuild@0.20.2
  - esbuild@0.21.5
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 MIT License
 
@@ -28787,7 +28694,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/starlight@0.24.1
+ - @astrojs/starlight@0.24.2
 
 This package contains the following license and notice below:
 
@@ -28817,7 +28724,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - assemblyai@4.4.6
+ - assemblyai@4.4.7
 
 This package contains the following license and notice below:
 
@@ -29259,11 +29166,11 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @unhead/dom@1.9.12
- - @unhead/schema@1.9.12
- - @unhead/shared@1.9.12
- - @unhead/vue@1.9.12
- - unhead@1.9.12
+ - @unhead/dom@1.9.13
+ - @unhead/schema@1.9.13
+ - @unhead/shared@1.9.13
+ - @unhead/vue@1.9.13
+ - unhead@1.9.13
 
 These packages each contain the following license and notice below:
 
@@ -29442,8 +29349,8 @@ SOFTWARE
 
 The following npm packages may be included in this product:
 
- - c12@1.10.0
- - compatx@0.1.3
+ - c12@1.11.1
+ - compatx@0.1.8
  - defu@6.1.4
  - destr@2.0.3
  - get-port-please@3.1.2
@@ -30923,7 +30830,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - foreground-child@3.1.1
+ - foreground-child@3.2.0
 
 This package contains the following license and notice below:
 
@@ -33923,7 +33830,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - nan@2.19.0
+ - nan@2.20.0
 
 This package contains the following license and notice below:
 
@@ -34091,16 +33998,16 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @vue/compiler-core@3.4.27
- - @vue/compiler-dom@3.4.27
- - @vue/compiler-sfc@3.4.27
- - @vue/compiler-ssr@3.4.27
- - @vue/reactivity@3.4.27
- - @vue/runtime-core@3.4.27
- - @vue/runtime-dom@3.4.27
- - @vue/server-renderer@3.4.27
- - @vue/shared@3.4.27
- - vue@3.4.27
+ - @vue/compiler-core@3.4.29
+ - @vue/compiler-dom@3.4.29
+ - @vue/compiler-sfc@3.4.29
+ - @vue/compiler-ssr@3.4.29
+ - @vue/reactivity@3.4.29
+ - @vue/runtime-core@3.4.29
+ - @vue/runtime-dom@3.4.29
+ - @vue/server-renderer@3.4.29
+ - @vue/shared@3.4.29
+ - vue@3.4.29
 
 These packages each contain the following license and notice below:
 
