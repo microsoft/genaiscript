@@ -154,10 +154,19 @@ You can use a managed identity (recommended) or a API key to authenticate with t
 
 <li>
 
-Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
+Open your [Azure OpenAI resource](https://portal.azure.com) 
 
 </li>
+<li> 
 
+Navigate to **Access Control**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, it's typically here that you will fix it.
+
+</li>
+<li>
+Navigate to **Resource Management**, then **Keys and Endpoint**.
+</li>
 <li>
 
 Update the `.env` file with the endpoint.
@@ -192,20 +201,25 @@ script({
 ```
 
 </li>
+</ol>
 
-<li>
+</Steps>
 
-If you are using the command line, you will need to [login with the Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+#### Visual Studio Code
+
+Visual Studio Code will ask you to allow using the **Microsoft** account
+and then will open a browser where you can choose the user or service principal.
+
+- If you are getting `401` errors after a while, try signing out in the user menu (lower left in Visual Studio Code) and back in.
+
+#### CLI
+
+Login with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli)
+then use the [cli](/genaiscript/reference/cli) as usual.
 
 ```sh
 az login
 ```
-
-</li>
-
-</ol>
-
-</Steps>
 
 ### API Key
 
