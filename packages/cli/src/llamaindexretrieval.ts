@@ -29,6 +29,7 @@ import {
     PDF_MIME_TYPE,
     DOCX_MIME_TYPE,
     JSON_SCHEMA_MIME_TYPE,
+    assert,
 } from "genaiscript-core"
 import { type BaseReader } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
@@ -143,6 +144,7 @@ export class LlamaIndexRetrievalService
     }
 
     private async getModelToken(modelId: string) {
+        assert(!!modelId)
         const { provider } = parseModelIdentifier(modelId)
         const conn = await this.host.getLanguageModelConfiguration(modelId)
         if (provider === MODEL_PROVIDER_OLLAMA)
@@ -151,6 +153,7 @@ export class LlamaIndexRetrievalService
     }
 
     async pullModel(modelid: string): Promise<ResponseStatus> {
+        assert(!!modelid)
         const { provider, model } = parseModelIdentifier(modelid)
         const conn = await this.getModelToken(modelid)
         if (provider === MODEL_PROVIDER_OLLAMA) {

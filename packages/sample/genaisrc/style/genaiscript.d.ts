@@ -110,13 +110,12 @@ interface ModelConnectionOptions {
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
      */
     model?:
-        | "gpt-4"
-        | "gpt-4-32k"
-        | "gpt-3.5-turbo"
+        | "openai:gpt-4"
+        | "openai:gpt-4-32k"
+        | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
-        | "aici:mixtral"
         | string
 }
 
@@ -1058,12 +1057,12 @@ interface XML {
 interface JSONL {
     /**
      * Parses a JSONL string to an array of objects
-     * @param text 
+     * @param text
      */
     parse(text: string): any[]
     /**
      * Converts objects to JSONL format
-     * @param objs 
+     * @param objs
      */
     stringify(objs: any[]): string
 }

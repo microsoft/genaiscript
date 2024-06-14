@@ -4,7 +4,6 @@ import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
 import {
-    DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     MAX_TOOL_CALLS,
     MODEL_PROVIDER_AICI,

@@ -20,7 +20,7 @@ import {
     OPENAI_API_BASE,
 } from "./constants"
 import { fileExists, readText, writeText } from "./fs"
-import { APIType, LanguageModelConfiguration } from "./host"
+import { APIType, host, LanguageModelConfiguration } from "./host"
 import { parseModelIdentifier } from "./models"
 import { trimTrailingSlash } from "./util"
 
@@ -28,7 +28,11 @@ export async function parseTokenFromEnv(
     env: Record<string, string>,
     modelId: string
 ): Promise<LanguageModelConfiguration> {
-    const { provider, model, tag } = parseModelIdentifier(modelId)
+    const { provider, model, tag } = parseModelIdentifier(
+        modelId ??
+            env.GENAISCRIPT_DEFAULT_MODEL ??
+            host.defaultModelOptions.model
+    )
 
     if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {

@@ -14,13 +14,7 @@ import {
     renderFencedVariables,
 } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
-import {
-    CHAT_CACHE,
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
-    MAX_DATA_REPAIRS,
-    MAX_TOOL_CALLS,
-} from "./constants"
+import { CHAT_CACHE, MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { isCancelError, serializeError } from "./error"
 import { details, fenceMD } from "./markdown"
@@ -489,8 +483,12 @@ export function mergeGenerationOptions(
     return {
         ...options,
         ...(runOptions || {}),
-        model: runOptions?.model ?? options?.model ?? DEFAULT_MODEL,
-        temperature: runOptions?.temperature ?? DEFAULT_TEMPERATURE,
+        model:
+            runOptions?.model ??
+            options?.model ??
+            host.defaultModelOptions.model,
+        temperature:
+            runOptions?.temperature ?? host.defaultModelOptions.temperature,
     }
 }
 
@@ -507,8 +505,8 @@ export async function executeChatSession(
 ) {
     const {
         trace,
-        model = DEFAULT_MODEL,
-        temperature = DEFAULT_TEMPERATURE,
+        model = host.defaultModelOptions.model,
+        temperature = host.defaultModelOptions.temperature,
         topP,
         maxTokens,
         seed,
