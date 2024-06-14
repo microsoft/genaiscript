@@ -1,6 +1,5 @@
 import {
     AZURE_OPENAI_API_VERSION,
-    DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
@@ -249,9 +248,10 @@ AICI_API_BASE="<custom api base>"
 ## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
 # use "${MODEL_PROVIDER_AZURE}:<deployment>" in script({ model: ... })
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
+# Uses managed identity by default, or set:
 # AZURE_OPENAI_API_KEY="<your token>"
 `,
-            model: `${MODEL_PROVIDER_AZURE}:gpt-4o`,
+            model: `${MODEL_PROVIDER_AZURE}:deployment`,
         }
 
     if (apiType === "localai")
@@ -298,7 +298,8 @@ export async function updateConnectionConfiguration(
         if (!current.includes("GENAISCRIPT_DEFAULT_MODEL"))
             src =
                 dedent`
-                    # GenAISCript defaults
+
+                    ### GenAISCript defaults
                     GENAISCRIPT_DEFAULT_MODEL="${model}"
                     # GENAISCRIPT_DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE}
                     
