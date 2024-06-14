@@ -75,4 +75,4 @@ You can also use the **Trace** to review the each transformation step of the scr
 
 ## Next steps
 
-[Debug](./debugging-scripts.mdx) your scripts using the Visual Studio Code Debugger!
+[Debug](/genaiscript/getting-started/debugging-scripts) your scripts using the Visual Studio Code Debugger!
