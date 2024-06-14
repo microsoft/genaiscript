@@ -256,7 +256,7 @@ temp/
             this.setDiagnostics()
             this.dispatchChange()
 
-            if (edits?.length) this.applyEdits()
+            if (edits?.length && !options.notebook) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
             throw e
@@ -548,12 +548,14 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
     }
 
     private setDiagnostics() {
+        this._diagColl.clear()
+        if (this._aiRequest?.options?.notebook) return
+
         let diagnostics = this.project.diagnostics
         if (this._aiRequest?.response?.annotations?.length)
             diagnostics = diagnostics.concat(
                 this._aiRequest?.response?.annotations
             )
-        this._diagColl.clear()
         // project entries
         const severities: Record<
             DiagnosticSeverity | "notice",

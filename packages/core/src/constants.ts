@@ -23,6 +23,7 @@ export const CSV_REGEX = /\.(t|c)sv$/i
 export const XLSX_REGEX = /\.xlsx$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
+export const MDX_REGEX = /\.mdx$/i
 export const GPSPEC_GLOB = "**/*.gpspec.md"
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003

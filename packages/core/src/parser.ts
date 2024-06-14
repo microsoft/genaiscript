@@ -2,7 +2,7 @@ import { lookupMime } from "./mime"
 import { sha256string, strcmp } from "./util"
 import { Project, TextFile, PromptScript, Fragment } from "./ast"
 import { defaultPrompts } from "./default_prompts"
-import { parsePromptTemplate } from "./template"
+import { parsePromptScript } from "./template"
 import { fileExists, readText } from "./fs"
 import {
     BUILTIN_PREFIX,
@@ -116,14 +116,14 @@ export async function parseProject(options: {
 
     const deflPr: Record<string, string> = Object.assign({}, defaultPrompts)
     for (const f of scriptFiles) {
-        const tmpl = await parsePromptTemplate(f, await readText(f), prj)
+        const tmpl = await parsePromptScript(f, await readText(f), prj)
         if (!tmpl) continue
         delete deflPr[tmpl.id]
         prj.templates.push(tmpl)
     }
     for (const [id, v] of Object.entries(deflPr)) {
         prj.templates.push(
-            await parsePromptTemplate(BUILTIN_PREFIX + id, v, prj)
+            await parsePromptScript(BUILTIN_PREFIX + id, v, prj)
         )
     }
     runFinalizers()

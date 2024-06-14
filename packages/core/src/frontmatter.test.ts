@@ -8,7 +8,7 @@ describe("replace frontmatter", () => {
 foo: bar
 ---
 `
-        const res = frontmatterTryParse(actual)
+        const { value: res } = frontmatterTryParse(actual)
         assert.deepEqual(res, { foo: "bar" })
     })
     test("mix", () => {
@@ -17,7 +17,7 @@ foo: bar
 ---
 foo bar
 `
-        const res = frontmatterTryParse(actual)
+        const { value: res } = frontmatterTryParse(actual)
         assert.deepEqual(res, { foo: "bar" })
     })
 })
