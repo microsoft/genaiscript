@@ -66,8 +66,8 @@ export async function cli() {
     }
 
     let nodeHost: NodeHost
-    program.hook("preAction", (cmd) => {
-        nodeHost = NodeHost.install(cmd.opts().env)
+    program.hook("preAction", async (cmd) => {
+        nodeHost = await NodeHost.install(cmd.opts().env)
     })
     program
         .name(TOOL_ID)

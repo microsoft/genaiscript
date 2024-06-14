@@ -94,7 +94,8 @@ async function callExpander(
     trace: MarkdownTrace,
     options: GenerationOptions
 ) {
-    const { provider, model } = parseModelIdentifier(r.model)
+    assert(!!options.model)
+    const { provider, model } = parseModelIdentifier(r.model ?? options.model)
     const ctx = createPromptContext(vars, trace, options, model)
 
     let status: GenerationStatus = undefined
@@ -257,7 +258,7 @@ export async function expandTemplate(
     trace: MarkdownTrace
 ) {
     const model = options.model
-    assert(model !== undefined)
+    assert(!!model)
     const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))

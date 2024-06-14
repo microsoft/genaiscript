@@ -24,8 +24,7 @@ export async function activate(context: ExtensionContext) {
     activateStatusBar(state)
     activateModelCompletionProvider(state)
     activateDocsNotebook(state)
-    // activateChatParticipant(state)
-
+    
     context.subscriptions.push(
         vscode.commands.registerCommand(
             "genaiscript.request.abort",

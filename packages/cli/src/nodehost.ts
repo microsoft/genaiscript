@@ -70,7 +70,7 @@ export class NodeHost implements Host {
         this.models = srv
     }
 
-    static install(dotEnvPath: string) {
+    static async install(dotEnvPath: string) {
         dotEnvPath = dotEnvPath || resolve(".env")
         if (existsSync(dotEnvPath)) {
             const res = dotenv.config({
@@ -82,11 +82,16 @@ export class NodeHost implements Host {
         }
         const h = new NodeHost()
         setHost(h)
+        await h.parseDefaults()
         return h
     }
 
     async readSecret(name: string): Promise<string | undefined> {
         return process.env[name]
+    }
+
+    private async parseDefaults() {
+        await parseDefaultsFromEnv(process.env)
     }
 
     private _azureToken: AccessToken
@@ -95,7 +100,7 @@ export class NodeHost implements Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
-        await parseDefaultsFromEnv(process.env)
+        await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (
             askToken &&

@@ -50,6 +50,13 @@ export class VSCodeHost extends EventTarget implements Host {
         this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
     }
+
+    async activate() {
+        const dotenv = await readFileText(this.projectUri, ".env")
+        const env = dotEnvTryParse(dotenv) ?? {}
+        await parseDefaultsFromEnv(env)
+    }
+
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
