@@ -17,6 +17,7 @@ import { resolve } from "node:path"
 import { TraceOptions } from "./trace"
 import { LanguageModel } from "./chat"
 import { resolveLanguageModel } from "./models"
+import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 
 export class TestHost implements Host {
     userState: any
@@ -26,6 +27,10 @@ export class TestHost implements Host {
     server: ServerManager
     path: Path
     workspace: WorkspaceFileSystem
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     static install() {
         setHost(new TestHost())

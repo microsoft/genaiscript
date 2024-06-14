@@ -1,5 +1,9 @@
 import { assert } from "node:console"
-import { GITHUB_API_VERSION, GITHUB_TOKEN } from "./constants"
+import {
+    GITHUB_API_VERSION,
+    GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE,
+    GITHUB_TOKEN,
+} from "./constants"
 import { createFetch } from "./fetch"
 import { host } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
@@ -247,7 +251,8 @@ async function githubCreatePullRequestReview(
         existingComments.find(
             (c) =>
                 c.path === body.path &&
-                c.line === body.line &&
+                Math.abs(c.line - body.line) <
+                    GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE &&
                 (annotation.code
                     ? c.body?.includes(annotation.code)
                     : c.body?.includes(prettyMessage))

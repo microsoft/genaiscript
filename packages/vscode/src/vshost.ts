@@ -16,6 +16,9 @@ import {
     LanguageModel,
     MODEL_PROVIDER_AZURE,
     AbortSignalOptions,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    parseDefaultsFromEnv,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -34,6 +37,10 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly workspace = createFileSystem()
     readonly parser: ParseService
     private _azure: AzureManager
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -43,6 +50,13 @@ export class VSCodeHost extends EventTarget implements Host {
         this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
     }
+
+    async activate() {
+        const dotenv = await readFileText(this.projectUri, ".env")
+        const env = dotEnvTryParse(dotenv) ?? {}
+        await parseDefaultsFromEnv(env)
+    }
+
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
@@ -251,6 +265,7 @@ export class VSCodeHost extends EventTarget implements Host {
         const { signal, token: askToken } = options || {}
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
+        await parseDefaultsFromEnv(env)
         const tok = await parseTokenFromEnv(env, modelId)
         if (
             askToken &&

@@ -139,6 +139,7 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
+    defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
     getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions

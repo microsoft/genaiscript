@@ -444,6 +444,7 @@ temp/
     }
 
     async activate() {
+        await this.host.activate()
         await this.saveScripts()
         await this.parseWorkspace()
         await this.fixPromptDefinitions()

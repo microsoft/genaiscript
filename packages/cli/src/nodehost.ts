@@ -4,6 +4,8 @@ import {
     AZURE_OPENAI_TOKEN_SCOPES,
     AbortSignalOptions,
     AskUserOptions,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
     Host,
     LanguageModel,
     LanguageModelConfiguration,
@@ -19,6 +21,7 @@ import {
     UTF8Encoder,
     createBundledParsers,
     createFileSystem,
+    parseDefaultsFromEnv,
     parseTokenFromEnv,
     resolveLanguageModel,
     setHost,
@@ -56,6 +59,10 @@ export class NodeHost implements Host {
     readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
     readonly docker = new DockerManager()
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     constructor() {
         const srv = new LlamaIndexRetrievalService(this)
@@ -63,7 +70,7 @@ export class NodeHost implements Host {
         this.models = srv
     }
 
-    static install(dotEnvPath: string) {
+    static async install(dotEnvPath: string) {
         dotEnvPath = dotEnvPath || resolve(".env")
         if (existsSync(dotEnvPath)) {
             const res = dotenv.config({
@@ -75,11 +82,16 @@ export class NodeHost implements Host {
         }
         const h = new NodeHost()
         setHost(h)
+        await h.parseDefaults()
         return h
     }
 
     async readSecret(name: string): Promise<string | undefined> {
         return process.env[name]
+    }
+
+    private async parseDefaults() {
+        await parseDefaultsFromEnv(process.env)
     }
 
     private _azureToken: AccessToken
@@ -88,6 +100,7 @@ export class NodeHost implements Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
+        await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (
             askToken &&

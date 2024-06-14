@@ -30,8 +30,8 @@ export const SERVER_PORT = 8003
 export const CLIENT_RECONNECT_DELAY = 2000
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
-export const DEFAULT_MODEL = "gpt-4"
-export const DEFAULT_TEMPERATURE = 0.2 // 0.0-2.0, defaults to 1.0
+export const DEFAULT_MODEL = "openai:gpt-4"
+export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
 export const CACHE_LLMREQUEST_PREFIX = "cache.llm.request/"
 export const CACHE_AIREQUEST_PREFIX = "cache.ai.request/"
@@ -144,7 +144,7 @@ export const MODEL_PROVIDERS = Object.freeze([
     },
 ])
 
-export const NEW_SCRIPT_TEMPLATE = `// use def to emit LLM variables 
+export const NEW_SCRIPT_TEMPLATE = `// use def to define context 
 // https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def
 def("FILE", env.files)
 
@@ -183,3 +183,4 @@ export const GITHUB_TOKEN = "GITHUB_TOKEN"
 export const AI_REQUESTS_CACHE = "airequests"
 export const CHAT_CACHE = "chatv2"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
+export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5

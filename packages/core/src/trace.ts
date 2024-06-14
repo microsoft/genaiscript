@@ -1,6 +1,5 @@
 import {
     CHANGE,
-    DEFAULT_MODEL,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
@@ -238,8 +237,8 @@ ${this.toResultIcon(success, "")}${title}
         }
     ) {
         const {
-            model = DEFAULT_MODEL,
-            maxLength = TRACE_FILE_PREVIEW_MAX_LENGTH,
+            model = host.defaultModelOptions.model,
+            maxLength = host.defaultModelOptions.temperature,
             title,
             skipIfEmpty,
             secrets = {},

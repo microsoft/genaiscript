@@ -1,6 +1,5 @@
 import {
     CORE_VERSION,
-    DEFAULT_MODEL,
     ModelConnectionInfo,
     YAMLStringify,
     host,
@@ -23,7 +22,7 @@ async function resolveScriptsConnectionInfo(
     const models: Record<string, ModelConnectionOptions> = {}
     for (const template of templates) {
         const conn: ModelConnectionOptions = {
-            model: template.model ?? DEFAULT_MODEL,
+            model: template.model ?? host.defaultModelOptions.model,
         }
         const key = JSON.stringify(conn)
         if (!models[key]) models[key] = conn

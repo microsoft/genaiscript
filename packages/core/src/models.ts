@@ -1,9 +1,8 @@
+import assert from "assert"
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
 import {
-    DEFAULT_MODEL,
     MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
@@ -33,10 +32,11 @@ export function resolveLanguageModel(
 /**
  * model
  * provider:model
- * provider:model:size where modelId model:size
+ * provider:model:tag where modelId model:tag
  */
 export function parseModelIdentifier(id: string) {
-    id = (id ?? DEFAULT_MODEL).replace("-35-", "-3.5-")
+    assert(!!id)
+    id = id.replace("-35-", "-3.5-")
     const parts = id.split(":")
     if (parts.length >= 3)
         return {
@@ -68,7 +68,7 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
-    const model = options.model ?? conn.model ?? DEFAULT_MODEL
+    const model = options.model ?? conn.model ?? host.defaultModelOptions.model
     try {
         trace?.startDetails(`⚙️ configuration`)
         trace?.itemValue(`model`, model)
