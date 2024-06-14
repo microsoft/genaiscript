@@ -19,6 +19,8 @@ import {
     YAMLTryParse,
     arrayify,
     FileReference,
+    parseKeyValuePairs,
+    parseBoolean,
 } from "genaiscript-core"
 
 // parser
@@ -197,7 +199,13 @@ function activateNotebookExecutor(state: ExtensionState) {
                 }
                 heap.output = output
 
-                let chat = renderMessagesToMarkdown(messages)
+                const { system, user, assistant } =
+                    parseKeyValuePairs(cell.metadata.options || "") || {}
+                let chat = renderMessagesToMarkdown(messages, {
+                    system: parseBoolean(system),
+                    user: parseBoolean(user),
+                    assistant: parseBoolean(assistant),
+                })
                 if (error)
                     chat += details(`${EMOJI_FAIL} error`, errorMessage(error))
                 chat =

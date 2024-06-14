@@ -595,54 +595,83 @@ export async function executeChatSession(
 }
 
 export function renderMessagesToMarkdown(
-    messages: ChatCompletionMessageParam[]
+    messages: ChatCompletionMessageParam[],
+    options?: {
+        system?: boolean
+        user?: boolean
+        assistant?: boolean
+    }
 ) {
+    const {
+        system = undefined,
+        user = undefined,
+        assistant = true,
+    } = options || {}
     const res: string[] = []
-    messages?.forEach((msg) => {
-        const { role } = msg
-        switch (role) {
-            case "system":
-                res.push(details("📙 system", fenceMD(msg.content, "markdown")))
-                break
-            case "user":
-                let content: string
-                if (typeof msg.content === "string")
-                    content = fenceMD(msg.content, "markdown")
-                else if (Array.isArray(msg.content))
-                    for (const part of msg.content) {
-                        if (part.type === "text")
-                            content = fenceMD(part.text, "markdown")
-                        else if (part.type === "image_url")
-                            content = `![image](${part.image_url.url})`
-                        else content = fenceMD(YAMLStringify(part), "yaml")
-                    }
-                else content = fenceMD(YAMLStringify(msg), "yaml")
-                res.push(details(`👤 user`, content))
-                break
-            case "assistant":
-                res.push(
-                    details(
-                        `🤖 assistant`,
-                        fenceMD(msg.content, "markdown"),
-                        true
+    messages
+        ?.filter((msg) => {
+            switch (msg.role) {
+                case "system":
+                    return system !== false
+                case "user":
+                    return user !== false
+                case "assistant":
+                    return assistant !== false
+                default:
+                    return true
+            }
+        })
+        ?.forEach((msg) => {
+            const { role } = msg
+            switch (role) {
+                case "system":
+                    res.push(
+                        details(
+                            "📙 system",
+                            fenceMD(msg.content, "markdown"),
+                            system === true
+                        )
                     )
-                )
-                break
-            case "aici":
-                res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
-                break
-            case "tool":
-                res.push(
-                    details(
-                        `🛠️ tool ${msg.tool_call_id}`,
-                        fenceMD(msg.content, "json")
+                    break
+                case "user":
+                    let content: string
+                    if (typeof msg.content === "string")
+                        content = fenceMD(msg.content, "markdown")
+                    else if (Array.isArray(msg.content))
+                        for (const part of msg.content) {
+                            if (part.type === "text")
+                                content = fenceMD(part.text, "markdown")
+                            else if (part.type === "image_url")
+                                content = `![image](${part.image_url.url})`
+                            else content = fenceMD(YAMLStringify(part), "yaml")
+                        }
+                    else content = fenceMD(YAMLStringify(msg), "yaml")
+                    res.push(details(`👤 user`, content, user === true))
+                    break
+                case "assistant":
+                    res.push(
+                        details(
+                            `🤖 assistant`,
+                            fenceMD(msg.content, "markdown"),
+                            assistant === true
+                        )
                     )
-                )
-                break
-            default:
-                res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
-                break
-        }
-    })
+                    break
+                case "aici":
+                    res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
+                    break
+                case "tool":
+                    res.push(
+                        details(
+                            `🛠️ tool ${msg.tool_call_id}`,
+                            fenceMD(msg.content, "json")
+                        )
+                    )
+                    break
+                default:
+                    res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
+                    break
+            }
+        })
     return res.filter((s) => s !== undefined).join("\n")
 }
