@@ -116,9 +116,9 @@ OPENAI_API_KEY=sk_...
 
 Set the `model` field in `script` to the model you want to use.
 
-```js 'model: "openai:gpt-4"'
+```js 'model: "openai:gpt-4o"'
 script({
-    model: "openai:gpt-4",
+    model: "openai:gpt-4o",
     ...
 })
 ```
@@ -128,6 +128,14 @@ script({
 </ol>
 
 </Steps>
+
+If you want to make this model the default, 
+update the `.env` file with the `GENAISCRIPT_DEFAULT_MODEL` environment variable.
+
+```txt title=".env"
+...
+GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
+```
 
 ## Azure OpenAI
 <a id="azure" href=""></a>
