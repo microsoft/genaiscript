@@ -4,12 +4,12 @@ import { trimNewlines } from "./util"
 export function prettifyMarkdown(md: string) {
     let res = md
     res = convertAnnotationsToMarkdown(res)
-    res = eatTooManyNewlines(res)
+    res = cleanMarkdown(res)
     return res
 }
 
-function eatTooManyNewlines(res: string): string {
-    return res?.replace(/\n{3,}/g, "\n\n")
+export function cleanMarkdown(res: string): string {
+    return res?.replace(/(\r?\n){3,}/g, "\n\n")
 }
 
 export function fenceMD(t: string, contentType?: string) {
