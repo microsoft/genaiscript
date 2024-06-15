@@ -649,8 +649,18 @@ export function renderMessagesToMarkdown(
                 case "assistant":
                     res.push(
                         details(
-                            `🤖 assistant`,
-                            fenceMD(msg.content, "markdown"),
+                            `🤖 assistant ${msg.name ? msg.name : ""}`,
+                            [
+                                fenceMD(msg.content, "markdown"),
+                                msg.tool_calls
+                                    ?.map(
+                                        (tc) =>
+                                            `-  📠 tool call \`${tc.function.name}(${tc.function.arguments})\` (\`${tc.id}\`)`
+                                    )
+                                    .join("\n"),
+                            ]
+                                .filter((s) => !!s)
+                                .join("\n\n"),
                             assistant === true
                         )
                     )
@@ -661,7 +671,7 @@ export function renderMessagesToMarkdown(
                 case "tool":
                     res.push(
                         details(
-                            `🛠️ tool ${msg.tool_call_id}`,
+                            `🛠️ tool <code>${msg.tool_call_id}</code>`,
                             fenceMD(msg.content, "json")
                         )
                     )
