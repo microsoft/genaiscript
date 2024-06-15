@@ -95,13 +95,13 @@ GenAIScript exposes the context through the `env` variable. The context is impli
 -   you can right click on or in a file and the `env.files` will contain only that file.
 -   you can run the script using the [command line interface](/genaiscript/reference/cli) and specify content of `env.files` in the CLI arguments.
 
-```js title="proofreader.genai.js" system=false assistant=false
+```js title="proofreader.genai.js" system=false assistant=false user=true
 def("FILES", env.files)
 ```
 
 {/* genaiscript output start */}
 
-<details>
+<details open>
 <summary>👤 user</summary>
 
 
