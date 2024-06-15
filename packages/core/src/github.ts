@@ -73,6 +73,7 @@ export async function githubUpdatePullRequestDescription(
     const token = await host.readSecret(GITHUB_TOKEN)
     if (!token) return { updated: false, statusText: "missing github token" }
 
+    text = prettifyMarkdown(text)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
