@@ -1,15 +1,14 @@
 ---
 title: Your first GenAI script
 sidebar:
-  order: 3
+    order: 3
 description: Learn how to create and execute your initial GenAI script to
-  automate interactions with language models.
+    automate interactions with language models.
 keywords: GenAI script creation, language model automation, script execution,
-  LLM prompt generation, genaisrc setup
+    LLM prompt generation, genaisrc setup
 genaiscript:
-  model: openai:gpt-3.5-turbo
-  files: src/samples/markdown.md
-
+    model: openai:gpt-3.5-turbo
+    files: src/samples/markdown.md
 ---
 
 import { Tabs, TabItem } from "@astrojs/starlight/components"
@@ -52,7 +51,8 @@ The resulting file will be placed in the `genaisrc` folder in your project.
 The execution of the GenAIScript generates a prompt (and more)
 that gets sent to the LLM model.
 
-The ` $``...`` ` template string function formats and write the string to the prompt; which gets sent to the LLM.
+The ` $``...`` ` template string function formats and write the string to the prompt;
+which gets sent to the LLM.
 
 ```js title="poem.genai.js" system=false assistant=true
 $`Write a one sentence poem.`
@@ -63,29 +63,22 @@ $`Write a one sentence poem.`
 <details>
 <summary>👤 user</summary>
 
-
 ```markdown wrap
 Write a one sentence poem.
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant</summary>
-
 
 ```markdown wrap
 Roses bloom, hearts swoon, under the silver moon.
 ```
 
-
 </details>
 
 {/* genaiscript output end */}
-
-
 
 ## the Context
 
@@ -104,31 +97,29 @@ def("FILES", env.files)
 <details open>
 <summary>👤 user</summary>
 
-
 ``````markdown wrap
 FILES:
-`````md file="src/samples/markdown.md"
+
+```md file="src/samples/markdown.md"
 ---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
 sidebar: mydoc_sidebar
 ---
+
 What is Markdown?
- Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
+Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 
 Using Markdown is different than using a WYSIWYG editor. In an application like Microsoft Word, you click buttons to format words and phrases, and the changes are visible immediately. Markdown isn’t like that. When you create a Markdown-formatted file, you add Markdown syntax to the text to indicate which words and phrases should look different.
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
-`````
+```
 ``````
-
 
 </details>
 
 {/* genaiscript output end */}
-
-
 
 ## the Task
 
@@ -146,35 +137,33 @@ Review the documents in FILE and report the 2 most important issues.`
 <details>
 <summary>👤 user</summary>
 
-
 ``````markdown wrap
 FILES:
-`````md file="src/samples/markdown.md"
+
+```md file="src/samples/markdown.md"
 ---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
 sidebar: mydoc_sidebar
 ---
+
 What is Markdown?
- Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
+Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 
 Using Markdown is different than using a WYSIWYG editor. In an application like Microsoft Word, you click buttons to format words and phrases, and the changes are visible immediately. Markdown isn’t like that. When you create a Markdown-formatted file, you add Markdown syntax to the text to indicate which words and phrases should look different.
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
-`````
+```
 
 You are an expert technical writer and proofreader.
 Review the documents in FILE and report the 2 most important issues.
 ``````
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant</summary>
-
 
 ```markdown wrap
 I reviewed the document in "src/samples/markdown.md" and found the following two important issues:
@@ -186,12 +175,9 @@ I reviewed the document in "src/samples/markdown.md" and found the following two
 These are the two most important issues that need to be addressed in the document.
 ```
 
-
 </details>
 
 {/* genaiscript output end */}
-
-
 
 ## the Metadata
 
@@ -219,35 +205,33 @@ Review the documents in FILE and report the 2 most important issues.`
 <details>
 <summary>👤 user</summary>
 
-
 ``````markdown wrap
 FILES:
-`````md file="src/samples/markdown.md"
+
+```md file="src/samples/markdown.md"
 ---
 title: What is Markdown? - Understanding Markdown Syntax
 description: Learn about Markdown, a lightweight markup language for formatting plain text, its syntax, and how it differs from WYSIWYG editors.
 keywords: Markdown, markup language, formatting, plain text, syntax
 sidebar: mydoc_sidebar
 ---
+
 What is Markdown?
- Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages. 
+Markdown is a lightweight markup language that you can use to add formatting elements to plaintext text documents. Created by John Gruber in 2004, Markdown is now one of the world’s most popular markup languages.
 
 Using Markdown is different than using a WYSIWYG editor. In an application like Microsoft Word, you click buttons to format words and phrases, and the changes are visible immediately. Markdown isn’t like that. When you create a Markdown-formatted file, you add Markdown syntax to the text to indicate which words and phrases should look different.
 
 For example, to denote a heading, you add a number sign before it (e.g., # Heading One). Or to make a phrase bold, you add two asterisks before and after it (e.g., **this text is bold**). It may take a while to get used to seeing Markdown syntax in your text, especially if you’re accustomed to WYSIWYG applications. The screenshot below shows a Markdown file displayed in the Visual Studio Code text editor....
-`````
+```
 
 You are an expert technical writer and proofreader.
 Review the documents in FILE and report the 2 most important issues.
 ``````
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant</summary>
-
 
 ```markdown wrap
 File src/samples/markdown.md:
@@ -259,12 +243,9 @@ File src/samples/markdown.md:
 These are the two most important issues in the document.
 ```
 
-
 </details>
 
 {/* genaiscript output end */}
-
-
 
 The `title`, `description`, and `group` properties are used to display the script in the UI
 and can be helpful when the user is searching for a script.
@@ -273,4 +254,5 @@ and can be helpful when the user is searching for a script.
 
 ## Next steps
 
-[Run your script](/genaiscript/getting-started/running-scripts) from Visual Studio Code.
+-   Follow the [Prompt As Code guide](/genaiscript/guides/prompt-as-code) to dive deeper in programmatically generating prompts
+-   [Run your script](/genaiscript/getting-started/running-scripts) from Visual Studio Code.

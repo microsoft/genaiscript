@@ -229,13 +229,13 @@ function activateNotebookExecutor(state: ExtensionState) {
                         ]),
                         new vscode.NotebookCellOutput([
                             vscode.NotebookCellOutputItem.text(
-                                details(
+                                /*details(
                                     "env.vars.output",
                                     fenceMD(
                                         YAMLStringify(clean(output)),
                                         "yaml"
                                     )
-                                ) + details("trace", trace),
+                                ) + */ details("trace", trace),
                                 MARKDOWN_MIME_TYPE
                             ),
                         ]),
