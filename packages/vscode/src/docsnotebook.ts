@@ -105,8 +105,11 @@ function activateNotebookExecutor(state: ExtensionState) {
         const project = state.project
 
         const firstCell = notebook.cellAt(0)
+        const frontMatterText = firstCell?.document?.getText()
         const { genaiscript: frontmatter = {} } =
-            frontmatterTryParse(firstCell?.document?.getText())?.value || {}
+            frontmatterTryParse(frontMatterText)?.value ??
+            YAMLTryParse(frontMatterText) ??
+            {}
         const {
             model,
             files,
@@ -279,7 +282,6 @@ function activateNotebookSerializer(state: ExtensionState) {
                                     leadingWhitespace: data.leadingWhitespace,
                                     trailingWhitespace: data.trailingWhitespace,
                                     options: data.options,
-                                    indentation: data.indentation,
                                     runnable: data.language === "javascript",
                                     editable: true,
                                     custom: true,
@@ -316,8 +318,6 @@ function activateNotebookSerializer(state: ExtensionState) {
                             if (cell.languageId === "yaml" && i === 0) {
                                 result += `---\n${cell.value}\n---\n`
                             } else {
-                                const indentation =
-                                    cell.metadata?.indentation || ""
                                 const options = cell.metadata?.options || ""
                                 const languageAbbrev =
                                     NOTEBOOK_LANG_ABBREVS.get(
@@ -328,10 +328,7 @@ function activateNotebookSerializer(state: ExtensionState) {
                                     languageAbbrev +
                                     (options ? ` ${options}` : "") +
                                     "\n"
-                                result += indent(
-                                    codePrefix + cell.value + "\n```",
-                                    indentation
-                                )
+                                result += codePrefix + cell.value + "\n```"
                                 const output = cell.outputs?.[0]?.items?.[0]
                                 if (
                                     output &&
@@ -355,7 +352,6 @@ function activateNotebookSerializer(state: ExtensionState) {
 }
 
 interface RawNotebookCell {
-    indentation?: string
     leadingWhitespace: string
     trailingWhitespace: string
     language: string
@@ -367,7 +363,6 @@ interface RawNotebookCell {
 
 interface ICodeBlockStart {
     langId: string
-    indentation: string
     options: string
 }
 
@@ -377,12 +372,11 @@ interface ICodeBlockStart {
  * between the start and end blocks, etc. This is good enough for typical use cases.
  */
 function parseCodeBlockStart(line: string): ICodeBlockStart | null {
-    const match = line.match(/(    |\t)?```(\S*)\s*(.+)?$/)
+    const match = line.match(/^```(\S*)\s*(.+)?$/)
     return (
         match && {
-            indentation: match[1],
-            langId: match[2],
-            options: match[3] || "",
+            langId: match[1],
+            options: match[2] || "",
         }
     )
 }
@@ -507,12 +501,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
         }
 
         const options = codeBlockStart.options || ""
-        const content = lines
-            .slice(startSourceIdx, i - 1)
-            .map((line) =>
-                line.replace(new RegExp("^" + codeBlockStart.indentation), "")
-            )
-            .join("\n")
+        const content = lines.slice(startSourceIdx, i - 1).join("\n")
         const trailingWhitespace = parseWhitespaceLines(false)
         const cell = {
             language,
@@ -521,7 +510,6 @@ function parseMarkdown(content: string): RawNotebookCell[] {
             kind: vscode.NotebookCellKind.Code,
             leadingWhitespace: leadingWhitespace,
             trailingWhitespace: trailingWhitespace,
-            indentation: codeBlockStart.indentation,
         }
         cells.push(cell)
         return cell
