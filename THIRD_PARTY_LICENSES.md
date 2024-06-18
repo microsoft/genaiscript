@@ -253,9 +253,8 @@ Apache License
 The following npm packages may be included in this product:
 
  - @ampproject/remapping@2.3.0
- - @aws-crypto/ie11-detection@3.0.0
- - @aws-crypto/sha256-browser@3.0.0
- - @aws-crypto/supports-web-crypto@3.0.0
+ - @aws-crypto/sha256-browser@5.2.0
+ - @aws-crypto/supports-web-crypto@5.2.0
  - @xenova/transformers@2.17.2
  - flatbuffers@1.12.0
 
@@ -4297,22 +4296,22 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.596.0
- - @aws-sdk/client-sagemaker@3.596.0
- - @aws-sdk/client-sso-oidc@3.596.0
- - @aws-sdk/client-sso@3.592.0
- - @aws-sdk/client-sts@3.596.0
- - @aws-sdk/credential-provider-cognito-identity@3.596.0
- - @aws-sdk/util-user-agent-browser@3.577.0
- - @aws-sdk/util-user-agent-node@3.587.0
+ - @aws-sdk/client-cognito-identity@3.598.0
+ - @aws-sdk/client-sagemaker@3.598.0
+ - @aws-sdk/client-sso-oidc@3.598.0
+ - @aws-sdk/client-sso@3.598.0
+ - @aws-sdk/client-sts@3.598.0
+ - @aws-sdk/credential-provider-cognito-identity@3.598.0
+ - @aws-sdk/util-user-agent-browser@3.598.0
+ - @aws-sdk/util-user-agent-node@3.598.0
  - @smithy/eventstream-codec@1.1.0
- - @smithy/middleware-retry@3.0.4
+ - @smithy/middleware-retry@3.0.5
  - @smithy/querystring-builder@3.0.1
  - @smithy/querystring-parser@3.0.1
  - @smithy/service-error-classification@3.0.1
  - @smithy/url-parser@3.0.1
- - @smithy/util-defaults-mode-browser@3.0.4
- - @smithy/util-defaults-mode-node@3.0.4
+ - @smithy/util-defaults-mode-browser@3.0.5
+ - @smithy/util-defaults-mode-node@3.0.5
 
 These packages each contain the following license and notice below:
 
@@ -4522,16 +4521,16 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-host-header@3.577.0
- - @aws-sdk/middleware-recursion-detection@3.577.0
- - @aws-sdk/middleware-user-agent@3.587.0
+ - @aws-sdk/middleware-host-header@3.598.0
+ - @aws-sdk/middleware-recursion-detection@3.598.0
+ - @aws-sdk/middleware-user-agent@3.598.0
  - @aws-sdk/protocol-http@3.374.0
- - @smithy/core@2.2.1
+ - @smithy/core@2.2.2
  - @smithy/invalid-dependency@3.0.1
  - @smithy/middleware-serde@3.0.1
  - @smithy/protocol-http@1.2.0
  - @smithy/protocol-http@4.0.1
- - @smithy/smithy-client@3.1.2
+ - @smithy/smithy-client@3.1.3
  - @smithy/types@1.2.0
  - @smithy/types@3.1.0
 
@@ -5014,8 +5013,8 @@ The following npm packages may be included in this product:
  - @types/nlcst@2.0.3
  - @types/node-fetch@2.6.11
  - @types/node@17.0.45
- - @types/node@18.19.34
- - @types/node@20.14.2
+ - @types/node@18.19.36
+ - @types/node@20.14.5
  - @types/papaparse@5.3.14
  - @types/pg@8.11.6
  - @types/qs@6.9.15
@@ -5055,7 +5054,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.39.2
+ - genaiscript-vscode@1.40.2
 
 This package contains the following license and notice below:
 
@@ -6033,7 +6032,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - socket.io-adapter@2.5.4
+ - socket.io-adapter@2.5.5
  - socket.io-parser@4.2.4
 
 These packages each contain the following license and notice below:
@@ -6063,7 +6062,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - engine.io@6.5.4
+ - engine.io@6.5.5
 
 This package contains the following license and notice below:
 
@@ -6909,7 +6908,7 @@ The following npm packages may be included in this product:
  - hast-util-is-element@3.0.0
  - hast-util-parse-selector@4.0.0
  - hast-util-phrasing@3.0.1
- - hast-util-raw@9.0.3
+ - hast-util-raw@9.0.4
  - hast-util-to-estree@3.1.0
  - hast-util-to-html@9.0.1
  - hast-util-to-parse5@8.0.0
@@ -16805,7 +16804,6 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-crypto/sha256-js@3.0.0
  - @aws-crypto/sha256-js@5.2.0
  - mongodb@6.7.0
 
@@ -17227,21 +17225,21 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.587.0
- - @aws-sdk/credential-provider-ini@3.596.0
- - @aws-sdk/credential-provider-node@3.596.0
- - @aws-sdk/credential-providers@3.596.0
- - @aws-sdk/region-config-resolver@3.587.0
+ - @aws-sdk/credential-provider-env@3.598.0
+ - @aws-sdk/credential-provider-ini@3.598.0
+ - @aws-sdk/credential-provider-node@3.598.0
+ - @aws-sdk/credential-providers@3.598.0
+ - @aws-sdk/region-config-resolver@3.598.0
  - @aws-sdk/signature-v4@3.374.0
- - @aws-sdk/token-providers@3.587.0
- - @aws-sdk/types@3.577.0
- - @aws-sdk/util-endpoints@3.587.0
+ - @aws-sdk/token-providers@3.598.0
+ - @aws-sdk/types@3.598.0
+ - @aws-sdk/util-endpoints@3.598.0
  - @aws-sdk/util-locate-window@3.568.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@3.0.1
  - @smithy/config-resolver@3.0.2
  - @smithy/credential-provider-imds@3.1.1
- - @smithy/fetch-http-handler@3.0.2
+ - @smithy/fetch-http-handler@3.0.3
  - @smithy/hash-node@3.0.1
  - @smithy/is-array-buffer@1.1.0
  - @smithy/is-array-buffer@2.2.0
@@ -17262,7 +17260,7 @@ The following npm packages may be included in this product:
  - @smithy/util-buffer-from@3.0.0
  - @smithy/util-hex-encoding@1.1.0
  - @smithy/util-hex-encoding@3.0.0
- - @smithy/util-stream@3.0.2
+ - @smithy/util-stream@3.0.3
  - @smithy/util-uri-escape@1.1.0
  - @smithy/util-uri-escape@3.0.0
  - @smithy/util-utf8@1.1.0
@@ -17478,9 +17476,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.587.0
- - @aws-sdk/credential-provider-sso@3.592.0
- - @aws-sdk/credential-provider-web-identity@3.587.0
+ - @aws-sdk/credential-provider-process@3.598.0
+ - @aws-sdk/credential-provider-sso@3.598.0
+ - @aws-sdk/credential-provider-web-identity@3.598.0
 
 These packages each contain the following license and notice below:
 
@@ -17690,7 +17688,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-logger@3.577.0
+ - @aws-sdk/middleware-logger@3.598.0
  - @smithy/node-config-provider@3.1.1
  - @smithy/util-config-provider@3.0.0
 
@@ -18591,8 +18589,8 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.592.0
- - @aws-sdk/credential-provider-http@3.596.0
+ - @aws-sdk/core@3.598.0
+ - @aws-sdk/credential-provider-http@3.598.0
  - @iconify-json/carbon@1.1.35
  - drizzle-orm@0.29.5
 
@@ -18604,7 +18602,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001634
+ - caniuse-lite@1.0.30001636
 
 This package contains the following license and notice below:
 
@@ -19864,38 +19862,10 @@ THE SOFTWARE.
 
 -----------
 
-The following npm package may be included in this product:
-
- - ws@8.11.0
-
-This package contains the following license and notice below:
-
-Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
 The following npm packages may be included in this product:
 
  - bufferutil@4.0.8
- - ws@8.17.0
+ - ws@8.17.1
 
 These packages each contain the following license and notice below:
 
@@ -20666,7 +20636,7 @@ The following npm packages may be included in this product:
 
  - duck@0.1.12
  - lop@0.4.1
- - mammoth@1.7.2
+ - mammoth@1.8.0
  - option@0.2.4
 
 These packages each contain the following license and notice below:
@@ -21812,7 +21782,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - promptfoo@0.63.2
+ - promptfoo@0.65.0
 
 This package contains the following license and notice below:
 
@@ -22815,7 +22785,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.802
+ - electron-to-chromium@1.4.805
 
 This package contains the following license and notice below:
 
@@ -23072,7 +23042,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @anthropic-ai/sdk@0.15.0
- - @anthropic-ai/sdk@0.20.9
+ - @anthropic-ai/sdk@0.23.0
 
 These packages each contain the following license and notice below:
 
@@ -24147,7 +24117,7 @@ ISC
 
 The following npm package may be included in this product:
 
- - zod-to-json-schema@3.23.0
+ - zod-to-json-schema@3.23.1
 
 This package contains the following license and notice below:
 
@@ -25115,11 +25085,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.39.2
+ - docs@1.40.2
  - eastasianwidth@0.2.0
- - genaiscript-core@1.39.2
- - genaiscript-sample@1.39.2
- - genaiscript@1.39.2
+ - genaiscript-core@1.40.2
+ - genaiscript-sample@1.40.2
+ - genaiscript@1.40.2
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
@@ -27733,7 +27703,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cohere-ai@7.10.5
+ - cohere-ai@7.10.6
 
 This package contains the following license and notice below:
 
@@ -27795,11 +27765,11 @@ The following npm packages may be included in this product:
 
  - @astrojs/internal-helpers@0.4.0
  - @astrojs/markdown-remark@5.1.0
- - @astrojs/mdx@3.1.0
+ - @astrojs/mdx@3.1.1
  - @astrojs/prism@3.1.0
- - @astrojs/sitemap@3.1.5
+ - @astrojs/sitemap@3.1.6
  - @astrojs/telemetry@3.1.0
- - astro@4.10.2
+ - astro@4.10.3
 
 These packages each contain the following license and notice below:
 
@@ -27957,13 +27927,13 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @shikijs/core@1.6.4
- - @shikijs/markdown-it@1.6.4
- - @shikijs/monaco@1.6.4
- - @shikijs/transformers@1.6.4
- - @shikijs/twoslash@1.6.4
- - @shikijs/vitepress-twoslash@1.6.4
- - shiki@1.6.4
+ - @shikijs/core@1.7.0
+ - @shikijs/markdown-it@1.7.0
+ - @shikijs/monaco@1.7.0
+ - @shikijs/transformers@1.7.0
+ - @shikijs/twoslash@1.7.0
+ - @shikijs/vitepress-twoslash@1.7.0
+ - shiki@1.7.0
 
 These packages each contain the following license and notice below:
 
@@ -28724,7 +28694,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - assemblyai@4.4.7
+ - assemblyai@4.5.0
 
 This package contains the following license and notice below:
 
@@ -30830,7 +30800,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - foreground-child@3.2.0
+ - foreground-child@3.2.1
 
 This package contains the following license and notice below:
 
@@ -31480,6 +31450,7 @@ THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
+ - uuid@10.0.0
  - uuid@8.3.2
  - uuid@9.0.1
 
@@ -33375,8 +33346,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @nuxt/kit@3.12.1
- - @nuxt/schema@3.12.1
+ - @nuxt/kit@3.12.2
+ - @nuxt/schema@3.12.2
 
 These packages each contain the following license and notice below:
 
@@ -34530,12 +34501,11 @@ THE SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
  - web-streams-polyfill@3.3.3
- - web-streams-polyfill@4.0.0
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 The MIT License (MIT)
 
