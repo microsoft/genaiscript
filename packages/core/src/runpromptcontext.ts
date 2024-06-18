@@ -60,11 +60,11 @@ export function createChatTurnGenerationContext(
             // shortcuts
             if (body === undefined || body === null) {
                 if (!doptions.ignoreEmpty)
-                    throw new CancelError(`def ${name} is ${body}`)
+                    throw new Error(`def ${name} is ${body}`)
                 return undefined
             } else if (Array.isArray(body)) {
                 if (body.length === 0 && !doptions.ignoreEmpty)
-                    throw new CancelError(`def ${name} files is empty`)
+                    throw new Error(`def ${name} is empty`)
                 body.forEach((f) => ctx.def(name, f, defOptions))
             } else if (typeof body === "object" && body.filename) {
                 const { glob, endsWith } = defOptions || {}
@@ -79,7 +79,7 @@ export function createChatTurnGenerationContext(
                 appendChild(node, createDefNode(name, body, doptions))
             } else if (typeof body === "string") {
                 if (body.trim() === "" && !doptions.ignoreEmpty)
-                    throw new CancelError(`def ${name} is empty`)
+                    throw new Error(`def ${name} is empty`)
                 appendChild(
                     node,
                     createDefNode(
