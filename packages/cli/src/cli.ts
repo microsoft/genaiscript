@@ -86,6 +86,10 @@ export async function cli() {
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option(
+            "-egi, --exclude-git-ignore",
+            "exclude files that are ignore through the .gitignore file in the workspace root"
+        )
+        .option(
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"
         )
@@ -155,6 +159,10 @@ export async function cli() {
         .description("Run a tool on a batch of specs")
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
+        .option(
+            "-egi, --exclude-git-ignore",
+            "exclude files that are ignore through the .gitignore file in the workspace root"
+        )
         .option(
             "-o, --out <folder>",
             "output folder. Extra markdown fields for output and trace will also be generated"

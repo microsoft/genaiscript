@@ -19,6 +19,9 @@ import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     parseDefaultsFromEnv,
+    fileExists,
+    filterGitIgnore,
+    unique,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -219,10 +222,14 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async findFiles(
         pattern: string | string[],
-        ignore?: string | string[]
+        options: {
+            ignore?: string | string[]
+            applyGitIgnore?: boolean
+        }
     ): Promise<string[]> {
+        const { applyGitIgnore } = options || {} // always applied?
         pattern = arrayify(pattern)
-        ignore = arrayify(ignore)
+        const ignore = arrayify(options?.ignore)
 
         const uris = new Set<string>()
         for (const pat of pattern) {
@@ -237,7 +244,12 @@ export class VSCodeHost extends EventTarget implements Host {
                 (u) => uris.delete(u)
             )
         }
-        return Array.from(uris.values())
+
+        let files = Array.from(uris.values())
+        if (applyGitIgnore && (await fileExists(".gitignore"))) {
+            files = await filterGitIgnore(files)
+        }
+        return unique(files)
     }
     async createDirectory(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)

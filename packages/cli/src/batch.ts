@@ -35,6 +35,7 @@ export async function batchScript(
     specs: string[],
     options: {
         excludedFiles: string[]
+        excludeGitIgnore: boolean
         out: string
         outSummary: string
         removeOut: boolean
@@ -69,6 +70,7 @@ export async function batchScript(
         outSummary,
         applyEdits,
         excludedFiles,
+        excludeGitIgnore,
     } = options
     const outAnnotations = join(out, "annotations.jsonl")
     const outData = join(out, "data.jsonl")
@@ -89,7 +91,9 @@ export async function batchScript(
     if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
     const specFiles = new Set<string>()
     for (const arg of specs) {
-        const ffs = await host.findFiles(arg)
+        const ffs = await host.findFiles(arg, {
+            applyGitIgnore: excludeGitIgnore,
+        })
         if (!ffs.length)
             fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
 

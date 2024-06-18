@@ -49,6 +49,7 @@ export async function runScript(
     specs: string[],
     options: {
         excludedFiles: string[]
+        excludeGitIgnore: boolean
         out: string
         retry: string
         retryDelay: string
@@ -80,6 +81,7 @@ export async function runScript(
     }
 ) {
     const excludedFiles = options.excludedFiles
+    const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
     const stream = !options.json && !options.yaml && !out
     const skipLLM = !!options.prompt
@@ -134,7 +136,9 @@ export async function runScript(
         for (const arg of specs) {
             if (HTTPS_REGEX.test(arg)) files.add(arg)
             else {
-                const ffs = await host.findFiles(arg)
+                const ffs = await host.findFiles(arg, {
+                    applyGitIgnore: excludeGitIgnore,
+                })
                 if (!ffs.length)
                     fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
 
@@ -234,7 +238,7 @@ ${Array.from(files)
             stats: {
                 toolCalls: 0,
                 repairs: 0,
-                turns: 0
+                turns: 0,
             },
         })
     } catch (err) {
