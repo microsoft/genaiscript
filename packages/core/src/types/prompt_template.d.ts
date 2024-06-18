@@ -438,14 +438,14 @@ type ChatFunctionCallOutput = string | ChatFunctionCallContent
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
-     * If the file is text, also return the content.
+     * Ignore `.env` files and apply `.gitignore` if present.
      * @param glob
      */
     findFiles(
         glob: string,
         options?: {
             /**
-             * Set to false to read text content by default
+             * Set to false to skip read text content. True by default
              */
             readText?: boolean
         }

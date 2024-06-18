@@ -83,7 +83,7 @@ export class TestHost implements Host {
     deleteFile(name: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
-    findFiles(glob: string): Promise<string[]> {
+    findFiles(glob: string, options?: {}): Promise<string[]> {
         throw new Error("Method not implemented.")
     }
     clearVirtualFiles(): void {

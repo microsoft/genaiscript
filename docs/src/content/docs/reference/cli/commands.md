@@ -16,6 +16,7 @@ Runs a GenAIScript against files.
 
 Options:
   -ef, --excluded-files <string...>          excluded files
+  -egi, --exclude-git-ignore                 exclude files that are ignore through the .gitignore file in the workspace root
   -o, --out <string>                         output folder. Extra markdown fields for output and trace will also be generated
   -rmo, --remove-out                         remove output folder if it exists
   -ot, --out-trace <string>                  output file for trace
@@ -56,6 +57,8 @@ Run a tool on a batch of specs
 
 Options:
   -ef, --excluded-files <string...>  excluded files
+  -egi, --exclude-git-ignore         exclude files that are ignore through the
+                                     .gitignore file in the workspace root
   -o, --out <folder>                 output folder. Extra markdown fields for
                                      output and trace will also be generated
   -rmo, --remove-out                 remove output folder if it exists
@@ -115,7 +118,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.63.2
+  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.65.0
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```

@@ -160,7 +160,10 @@ export interface Host {
     deleteFile(name: string): Promise<void>
     findFiles(
         pattern: string | string[],
-        ignore?: string | string[]
+        options?: {
+            ignore?: string | string[]
+            applyGitIgnore?: boolean
+        }
     ): Promise<string[]>
 
     clearVirtualFiles(): void

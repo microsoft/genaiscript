@@ -21,17 +21,18 @@ import {
     UTF8Encoder,
     createBundledParsers,
     createFileSystem,
+    filterGitIgnore,
     parseDefaultsFromEnv,
     parseTokenFromEnv,
     resolveLanguageModel,
     setHost,
+    unique,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
-import ignorer from "ignore"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
@@ -204,21 +205,19 @@ export class NodeHost implements Host {
     }
     async findFiles(
         path: string | string[],
-        ignore?: string | string[]
+        options: {
+            ignore?: string | string[]
+            applyGitIgnore?: boolean
+        }
     ): Promise<string[]> {
+        const { ignore, applyGitIgnore } = options || {}
         let files = await glob(path, {
             nodir: true,
             windowsPathsNoEscape: true,
             ignore,
         })
-        if (existsSync(".gitignore")) {
-            const gitignore = await readFile(".gitignore", {
-                encoding: "utf-8",
-            })
-            const ig = ignorer().add(gitignore)
-            files = ig.filter(files)
-        }
-        return files
+        if (applyGitIgnore) files = await filterGitIgnore(files)
+        return unique(files)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))

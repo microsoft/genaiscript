@@ -36,22 +36,30 @@ See [configuration](/genaiscript/getting-started/configuration).
 
 Excludes the specified files from the file set.
 
-```sh
-npx genaiscript run <script> <spec> --excluded-files <excluded-files...>
+```sh "--excluded-files <excluded-files...>"
+npx genaiscript run <script> <files> --excluded-files <excluded-files...>
+```
+
+### --exclude-git-ignore
+
+Exclude files ignored by the `.gitignore` file at the workspace root.
+
+```sh "--exclude-git-ignore"
+npx genaiscript run <script> <files> --exclude-git-ignore
 ```
 
 ### --out <file|directory>
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
 
-```sh
-npx genaiscript run <script> <spec> --out output/results.json
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out out/res.json
 ```
 
 If `file` does not end with `.json`, the path is treated as a directory path.
 
-```sh
-npx genaiscript run <script> <spec> --out output
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out tmp
 ```
 
 ### --json
@@ -71,7 +79,7 @@ Populate values in the `env.vars` map that can be used when running the prompt.
 Save the markdown trace to the specified file.
 
 ```sh
-npx genaiscript run <script> <spec> --out-trace &lt;file&gt;
+npx genaiscript run <script> <files> --out-trace &lt;file&gt;
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
@@ -79,7 +87,7 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 ```yaml
 - name: Run GenAIScript tool on spec
   run: |
-      genaiscript run <script> <spec> --out-trace $GITHUB_STEP_SUMMARY
+      genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
 ### --out-annotations &lt;file&gt;
@@ -87,13 +95,13 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
 ```sh
-npx genaiscript run <script> <spec> --out-annotations diags.csv
+npx genaiscript run <script> <files> --out-annotations diags.csv
 ```
 
 Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
 
 ```sh
-npx genaiscript run <script> <spec> --out-annotations diags.jsonl
+npx genaiscript run <script> <files> --out-annotations diags.jsonl
 ```
 
 ### --out-data &lt;file&gt;
@@ -102,7 +110,7 @@ Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
 and availabe, the JSON validation result is also stored.
 
 ```sh
-npx genaiscript run <script> <spec> --out-data data.jsonl
+npx genaiscript run <script> <files> --out-data data.jsonl
 ```
 
 ### --out-changelogs &lt;file&gt;
@@ -110,7 +118,7 @@ npx genaiscript run <script> <spec> --out-data data.jsonl
 Emit changelogs in the specified file as text.
 
 ```sh
-npx genaiscript run <script> <spec> --out-changelogs changelogs.txt
+npx genaiscript run <script> <files> --out-changelogs changelogs.txt
 ```
 
 ### --prompt
