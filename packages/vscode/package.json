@@ -56,9 +56,31 @@
         "./genaiscript.cjs",
         "./icon-light.svg",
         "./icon-dark.svg",
-        "./tutoria.md"
+        "./tutoria.md",
+        "./media/**"
     ],
     "contributes": {
+        "walkthroughs": [
+            {
+                "id": "genaiscript.tutorial",
+                "title": "GenAI scripting with GenAIScript",
+                "description": "Use GenAIScript to create LLM-powered scripts.",
+                "steps": [
+                    {
+                        "id": "genaiscript.tutorial.start",
+                        "title": "Start Tutorial",
+                        "description": "Welcome to the GenAIScript tutorial!\nIn this tutorial, you'll learn how to create LLM-powered scripts using JavaScript.\nOpen the command palette and select **GenAIScript: Create Mardown Notebook** to get started.",
+                        "media": {
+                            "image": "media/tutorial-start.png",
+                            "altText": ""
+                        },
+                        "completionEvents": [
+                            "onCommand:genaiscript.notebook.create"
+                        ]
+                    }
+                ]
+            }
+        ],
         "notebooks": [
             {
                 "type": "genaiscript",
