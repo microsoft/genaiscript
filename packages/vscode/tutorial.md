@@ -7,6 +7,7 @@ genaiscript:
 
 This Notebook is a GenAISCript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block.
 
+Follow the steps in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration) to set up your environment and LLM access.
 
 
 ## Prompt as code
@@ -45,7 +46,7 @@ Say "hello!" in emojis
 
 The `$` function formats the strings and write them to the user message. This user message is added to the chat messages and sent to the LLM API. Under the snippet, you can review both the **user** message (that our program generated) and the **assistant** (LLM) response.
 
-You can run the code block by clicking the **Execute Cell** button on the top left corner of the code block. It will be default try to use the `openai:gpt-3.5-turbo` LLM. If you need to use a different model, update the `model` field in the front matter at the start of the document. There are many options documented in [configuration](/genaiscript/getting-started/configuration).
+You can run the code block by clicking the **Execute Cell** button on the top left corner of the code block. It will be default try to use the `openai:gpt-3.5-turbo` LLM. If you need to use a different model, update the `model` field in the front matter at the start of the document. There are many options documented in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration).
 
 Once the execution is done, you will also an additional **trace** entry that allows you to dive in the internal details of the GenAIScript execution. This is very helpful to diagnose issues with your prompts. The trace can be quite large so it is not serialized in the markdown file.
 
@@ -136,7 +137,7 @@ Markdown is a lightweight markup language for formatting plain text, using synta
 
 <!-- genaiscript output end -->
 
-In GenAIScript, the [`env.files`](https://microsoft.github.io/genaiscript/reference/scripts/context/#environment-env) variable contains the [list of files in context](/genaiscript/reference/script/files), which can be determined by a user selection in the UI, CLI arguments, or pre-configured like in this script. You can change the files in `env.files` by editing the `files` field in the front matter at the start of the document.
+In GenAIScript, the [`env.files`](https://microsoft.github.io/genaiscript/reference/scripts/context/#environment-env) variable contains the [list of files in context](https://microsoft.github.io/genaiscript/reference/script/files), which can be determined by a user selection in the UI, CLI arguments, or pre-configured like in this script. You can change the files in `env.files` by editing the `files` field in the front matter at the start of the document.
 
 ### Filtering `env.files`
 
