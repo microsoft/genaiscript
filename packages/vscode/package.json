@@ -55,7 +55,8 @@
     "files": [
         "./genaiscript.cjs",
         "./icon-light.svg",
-        "./icon-dark.svg"
+        "./icon-dark.svg",
+        "./tutoria.md"
     ],
     "contributes": {
         "notebooks": [
@@ -227,6 +228,11 @@
             }
         ],
         "commands": [
+            {
+                "command": "genaiscript.notebook.create",
+                "title": "Create GenAIScript Mardown Notebook",
+                "category": "GenAIScript"
+            },
             {
                 "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",

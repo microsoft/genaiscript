@@ -22,6 +22,7 @@ import {
     parseKeyValuePairs,
     parseBoolean,
 } from "genaiscript-core"
+import { Utils } from "vscode-uri"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts
@@ -59,17 +60,6 @@ const NOTEBOOK_MARKERS: Record<
         startMarker: "{/* genaiscript output start */}",
         endMarker: "{/* genaiscript output end */}",
     },
-}
-
-function clean(o: any) {
-    o = structuredClone(o)
-    Object.keys(o).forEach((k) => {
-        const v = o[k]
-        if (v === undefined) delete o[k]
-        if (Array.isArray(v) && v.length === 0) delete o[k]
-        else if (typeof v === "object" && JSON.stringify(v) == "{}") delete o[k]
-    })
-    return o
 }
 
 export async function activateDocsNotebook(state: ExtensionState) {
@@ -263,46 +253,48 @@ function activateNotebookSerializer(state: ExtensionState) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
 
+    const deserializeNotebook: (
+        data: Uint8Array,
+        token: vscode.CancellationToken
+    ) => vscode.NotebookData = (data, token) => {
+        const content = decoder.decode(data)
+        const cellRawData = parseMarkdown(content)
+        const cells = cellRawData.map(
+            (data) =>
+                <vscode.NotebookCellData>{
+                    kind: data.kind,
+                    languageId: data.language,
+                    metadata: {
+                        leadingWhitespace: data.leadingWhitespace,
+                        trailingWhitespace: data.trailingWhitespace,
+                        options: data.options,
+                        runnable: data.language === "javascript",
+                        editable: true,
+                        custom: true,
+                    },
+                    outputs: data.output
+                        ? [
+                              new vscode.NotebookCellOutput([
+                                  vscode.NotebookCellOutputItem.text(
+                                      data.output,
+                                      MARKDOWN_MIME_TYPE
+                                  ),
+                              ]),
+                          ]
+                        : [],
+                    value: data.content,
+                }
+        )
+
+        const res = new vscode.NotebookData(cells)
+        return res
+    }
+
     subscriptions.push(
         vscode.workspace.registerNotebookSerializer(
             NOTEBOOK_TYPE,
             {
-                deserializeNotebook: (
-                    data: Uint8Array,
-                    token: vscode.CancellationToken
-                ): vscode.NotebookData => {
-                    const content = decoder.decode(data)
-                    const cellRawData = parseMarkdown(content)
-                    const cells = cellRawData.map(
-                        (data) =>
-                            <vscode.NotebookCellData>{
-                                kind: data.kind,
-                                languageId: data.language,
-                                metadata: {
-                                    leadingWhitespace: data.leadingWhitespace,
-                                    trailingWhitespace: data.trailingWhitespace,
-                                    options: data.options,
-                                    runnable: data.language === "javascript",
-                                    editable: true,
-                                    custom: true,
-                                },
-                                outputs: data.output
-                                    ? [
-                                          new vscode.NotebookCellOutput([
-                                              vscode.NotebookCellOutputItem.text(
-                                                  data.output,
-                                                  MARKDOWN_MIME_TYPE
-                                              ),
-                                          ]),
-                                      ]
-                                    : [],
-                                value: data.content,
-                            }
-                    )
-
-                    const res = new vscode.NotebookData(cells)
-                    return res
-                },
+                deserializeNotebook,
                 serializeNotebook: function (
                     data: vscode.NotebookData,
                     token: vscode.CancellationToken
@@ -347,6 +339,23 @@ function activateNotebookSerializer(state: ExtensionState) {
                 },
             },
             { transientOutputs: false }
+        )
+    )
+
+    subscriptions.push(
+        vscode.commands.registerCommand(
+            "genaiscript.notebook.create",
+            async (uri?: vscode.Uri) => {
+                uri = uri || Utils.joinPath(context.extensionUri, "tutorial.md")
+                const canceller = new vscode.CancellationTokenSource()
+                const bytes = await vscode.workspace.fs.readFile(uri)
+                const data = deserializeNotebook(bytes, canceller.token)
+                const notebook = await vscode.workspace.openNotebookDocument(
+                    NOTEBOOK_TYPE,
+                    data
+                )
+                vscode.window.showNotebookDocument(notebook)
+            }
         )
     )
 }
