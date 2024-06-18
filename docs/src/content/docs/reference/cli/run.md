@@ -6,7 +6,7 @@ sidebar:
 keywords: CLI tool execution, genai script running, stdout streaming, file globing, environment configuration
 ---
 
-Runs a script on files and streams the LLM output to stdout or a folder.
+Runs a script on files and streams the LLM output to stdout or a folder from the workspace root.
 
 ```bash
 npx genaiscript run <script> "<files...>"
