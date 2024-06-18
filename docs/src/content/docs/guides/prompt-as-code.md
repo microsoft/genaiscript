@@ -9,14 +9,18 @@ genaiscript:
 
 ---
 
-This page is a tutorial on creating prompt with GenAIScript. It is designed to be opened
-in Visual Studio Code as a Notebook.
+This page is a tutorial on creating prompt with GenAIScript. It is designed to be opened in Visual Studio Code as a Notebook.
+
+:::tip
+
+To follow this tutorial in Visual Studio Code,
 
 1. Follow the steps in [installation](/genaiscript/getting-started/installation) and
 [configuration](/genaiscript/getting-started/configuration) to set up your environment.
 
-2. Right click on this file and select **Open With...**, then **GenAIScript Markdown Notebook**
-to edit this file as a Notebook.
+2. Open the command palette (Ctrl+Shift+P) and run the `GenAIScript: Open Markdown Notebook` command.
+
+:::
 
 ## About GenAIScript Markdown Notebooks
 
