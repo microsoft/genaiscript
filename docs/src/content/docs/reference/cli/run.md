@@ -52,14 +52,14 @@ npx genaiscript run <script> <files> --exclude-git-ignore
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
 
-```sh
-npx genaiscript run <script> <files> --out output/results.json
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out out/res.json
 ```
 
 If `file` does not end with `.json`, the path is treated as a directory path.
 
-```sh
-npx genaiscript run <script> <files> --out output
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out tmp
 ```
 
 ### --json
