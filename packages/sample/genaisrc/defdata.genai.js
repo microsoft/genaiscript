@@ -1,7 +1,8 @@
 script({
     title: "defData demo",
     model: "openai:gpt-3.5-turbo",
-    tests: {},
+    tests: {
+    },
     system: ["system"]
 })
 

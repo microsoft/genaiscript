@@ -7,7 +7,6 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
-import { fenceMD } from "./markdown"
 import { parseModelIdentifier } from "./models"
 import {
     ChatCompletionAssistantMessageParam,
@@ -265,8 +264,15 @@ export function createDefDataNode(
         lang = "yaml"
     }
 
-    const value = `${name}:
-    ${lang ? fenceMD(text, lang) : text}`
+    const value = lang
+        ? `${name}:
+\`\`\`${lang}
+${trimNewlines(text)}
+\`\`\`
+`
+        : `${name}:
+${trimNewlines(text)}
+`
     // TODO maxTokens does not work well with data
     return createTextNode(value, { priority })
 }
