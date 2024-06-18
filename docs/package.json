@@ -20,7 +20,7 @@
   "dependencies": {
     "@astrojs/check": "^0.7.0",
     "@astrojs/starlight": "^0.24.2",
-    "astro": "^4.10.2",
+    "astro": "^4.10.3",
     "typescript": "5.4.5"
   },
   "devDependencies": {

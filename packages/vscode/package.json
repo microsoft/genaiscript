@@ -331,13 +331,13 @@
     "devDependencies": {
         "@types/mocha": "^10.0.6",
         "@types/vscode": "^1.90.0",
-        "@typescript-eslint/eslint-plugin": "^7.13.0",
-        "@typescript-eslint/parser": "^7.13.0",
+        "@typescript-eslint/eslint-plugin": "^7.13.1",
+        "@typescript-eslint/parser": "^7.13.1",
         "@vscode/test-web": "^0.0.54",
         "@vscode/vsce": "^2.27.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
-        "eslint": "^9.4.0",
+        "eslint": "^9.5.0",
         "mocha": "^10.4.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
@@ -349,7 +349,7 @@
     },
     "dependencies": {
         "@azure/identity": "^4.2.1",
-        "mammoth": "^1.7.2",
+        "mammoth": "^1.8.0",
         "pdfjs-dist": "4.3.136",
         "tree-sitter-wasms": "^0.1.11",
         "web-tree-sitter": "^0.22.6"

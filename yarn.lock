@@ -50,10 +50,10 @@
     node-fetch "^2.6.7"
     web-streams-polyfill "^3.2.1"
 
-"@anthropic-ai/sdk@^0.20.1":
-  version "0.20.9"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.20.9.tgz#f7c983861774e1595d5941a4d02774b7aa87c780"
-  integrity sha512-Lq74+DhiEQO6F9/gdVOLmHx57pX45ebK2Q/zH14xYe1157a7QeUVknRqIp0Jz5gQI01o7NKbuv9Dag2uQsLjDg==
+"@anthropic-ai/sdk@^0.23.0":
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.23.0.tgz#982a9ffcc9bf115e4287317ca36145346f7d0e07"
+  integrity sha512-pRz7xamFPIUYW1w9H1iFiLJ2AK3oZC1crNLJXazyjLo9cDLCR5CCXWi8rH6CF9szVKRsI5h8Duno12/2cfSAfA==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -3240,7 +3240,7 @@
     "@types/node" "*"
     form-data "^4.0.0"
 
-"@types/node@*", "@types/node@>=10.0.0", "@types/node@>=13.7.0", "@types/node@>=20.12.12", "@types/node@^20.11.20", "@types/node@^20.14.2":
+"@types/node@*", "@types/node@>=10.0.0", "@types/node@>=13.7.0", "@types/node@>=20.12.12", "@types/node@^20.11.20", "@types/node@^20.14.5":
   version "20.14.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.14.5.tgz#fe35e3022ebe58b8f201580eb24e1fcfc0f2487d"
   integrity sha512-aoRR+fJkZT2l0aGOJhuA8frnCSoNX6W7U2mpNq63+BxBIj5BQFt8rHy627kijCmm63ijdSdwvGgpUsU6MBsZZA==
@@ -3366,7 +3366,7 @@
   dependencies:
     "@types/node" "*"
 
-"@typescript-eslint/eslint-plugin@^7.13.0":
+"@typescript-eslint/eslint-plugin@^7.13.1":
   version "7.13.1"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-7.13.1.tgz#cdc521c8bca38b55585cf30db787fb2abad3f9fd"
   integrity sha512-kZqi+WZQaZfPKnsflLJQCz6Ze9FFSMfXrrIOcyargekQxG37ES7DJNpJUE9Q/X5n3yTIP/WPutVNzgknQ7biLg==
@@ -3381,7 +3381,7 @@
     natural-compare "^1.4.0"
     ts-api-utils "^1.3.0"
 
-"@typescript-eslint/parser@^7.13.0":
+"@typescript-eslint/parser@^7.13.1":
   version "7.13.1"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-7.13.1.tgz#fac57811b3e519185f7259bac312291f7b9c4e72"
   integrity sha512-1ELDPlnLvDQ5ybTSrMhRTFDfOQEOXNM+eP+3HT/Yq7ruWpciQw+Avi73pdEbA4SooCawEWo3dtYbF68gN7Ed1A==
@@ -4463,7 +4463,7 @@ astro-expressive-code@^0.35.3:
   dependencies:
     rehype-expressive-code "^0.35.3"
 
-astro@^4.10.2:
+astro@^4.10.3:
   version "4.10.3"
   resolved "https://registry.yarnpkg.com/astro/-/astro-4.10.3.tgz#d551786179375274e93b56a774034e519ac238d2"
   integrity sha512-TWCJM+Vg+y0UoEz/H75rfp/u2N8yxeQQ2UrU9+fMcbjlzQJtGGDq3ApdundqPZgAuCryRuJnrKytStMZCFnlvQ==
@@ -6637,7 +6637,7 @@ eslint-visitor-keys@^4.0.0:
   resolved "https://registry.yarnpkg.com/eslint-visitor-keys/-/eslint-visitor-keys-4.0.0.tgz#e3adc021aa038a2a8e0b2f8b0ce8f66b9483b1fb"
   integrity sha512-OtIRv/2GyiF6o/d8K7MYKKbXrOUBIK6SfkIRM4Z0dY3w+LiQ0vy3F57m0Z71bjbyeiWFiHJ8brqnmE6H6/jEuw==
 
-eslint@^9.4.0:
+eslint@^9.5.0:
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-9.5.0.tgz#11856034b94a9e1a02cfcc7e96a9f0956963cd2f"
   integrity sha512-+NAOZFrW/jFTS3dASCGBxX1pkFD0/fsO+hfAkJ4TyYKwgsXZbqzrw+seCYFCcPCYXvnD67tAnglU7GQTz6kcVw==
@@ -9160,7 +9160,7 @@ make-dir@^3.1.0:
   dependencies:
     semver "^6.0.0"
 
-mammoth@^1.6.0, mammoth@^1.7.2:
+mammoth@^1.6.0, mammoth@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/mammoth/-/mammoth-1.8.0.tgz#d8f1b0d3a0355fda129270346e9dc853f223028f"
   integrity sha512-pJNfxSk9IEGVpau+tsZFz22ofjUsl2mnA5eT8PjPs2n0BP+rhVte4Nez6FdgEuxv3IGI3afiV46ImKqTGDVlbA==
@@ -10805,7 +10805,7 @@ open@^8.0.0:
     is-docker "^2.1.1"
     is-wsl "^2.2.0"
 
-openai@^4.26.1, openai@^4.49.1, openai@^4.51.0:
+openai@^4.26.1, openai@^4.51.0:
   version "4.51.0"
   resolved "https://registry.yarnpkg.com/openai/-/openai-4.51.0.tgz#8ab08bba2441375e8e4ce6161f9ac987d2b2c157"
   integrity sha512-UKuWc3/qQyklqhHM8CbdXCv0Z0obap6T0ECdcO5oATQxAbKE5Ky3YCXFQY207z+eGG6ez4U9wvAcuMygxhmStg==
@@ -11559,12 +11559,12 @@ process@^0.11.10:
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
-promptfoo@^0.63.2:
-  version "0.63.2"
-  resolved "https://registry.yarnpkg.com/promptfoo/-/promptfoo-0.63.2.tgz#13c9f3ca21145131ee08d8bc86f1a8c88088a653"
-  integrity sha512-1tYhEyNtaYbFkWl/KOk3tFcPmXUvWeij8V06bu4u+euxGX/Cld/sEAtCwg6ZFzOWhajCliwjwCT9B7fgFugEiw==
+promptfoo@^0.65.0:
+  version "0.65.0"
+  resolved "https://registry.yarnpkg.com/promptfoo/-/promptfoo-0.65.0.tgz#9dee6d702ed8b73d4242741318deced9927d2a85"
+  integrity sha512-i5d62pfM5f1nv0MhcBWoxDLAQsG/P3EWwTdzmBoJAMocoeW64yA8+32zDpwdi1uZp37VwOP78nt36Hjc75mmBw==
   dependencies:
-    "@anthropic-ai/sdk" "^0.20.1"
+    "@anthropic-ai/sdk" "^0.23.0"
     "@apidevtools/json-schema-ref-parser" "^11.6.4"
     ajv "^8.16.0"
     ajv-formats "^2.1.1"
@@ -11594,16 +11594,17 @@ promptfoo@^0.63.2:
     mathjs "^12.4.1"
     node-fetch "^2.6.7"
     nunjucks "^3.2.4"
-    openai "^4.49.1"
+    openai "^4.51.0"
     opener "^1.5.2"
     proxy-agent "^6.4.0"
     python-shell "^5.0.0"
-    replicate "^0.30.1"
+    replicate "^0.30.2"
+    rfdc "^1.4.1"
     rouge "git+https://github.com/kenlimmj/rouge.git#f35111b599aca55f1d4dc1d4a3d15e28e7f7c55f"
     semver "^7.6.2"
     socket.io "^4.7.5"
     tiny-invariant "^1.3.3"
-    uuid "^9.0.1"
+    uuid "^10.0.0"
     winston "^3.13.0"
 
 prompts@^2.4.2:
@@ -12108,7 +12109,7 @@ replicate@^0.25.2:
   optionalDependencies:
     readable-stream ">=4.0.0"
 
-replicate@^0.30.1:
+replicate@^0.30.2:
   version "0.30.2"
   resolved "https://registry.yarnpkg.com/replicate/-/replicate-0.30.2.tgz#079dca3bb60b88000955068756c0dc4eb91d51f9"
   integrity sha512-U3yDrlwAV/zhaCd5Tcb8IPXqwkzvfXbN+YABM6RGPugtmuo8W5uwxoEQAetWD+xjS5jWLzISBYR5gPNBZPLOQw==
@@ -12288,7 +12289,7 @@ rfc4648@^1.5.2:
   resolved "https://registry.yarnpkg.com/rfc4648/-/rfc4648-1.5.3.tgz#e62b81736c10361ca614efe618a566e93d0b41c0"
   integrity sha512-MjOWxM065+WswwnmNONOT+bD1nXzY9Km6u3kzvnx8F8/HXGZdz3T6e6vZJ8Q/RIMUSp/nxqjH3GwvJDy8ijeQQ==
 
-rfdc@^1.3.1:
+rfdc@^1.3.1, rfdc@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/rfdc/-/rfdc-1.4.1.tgz#778f76c4fb731d93414e8f925fbecf64cce7f6ca"
   integrity sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==
@@ -13429,7 +13430,7 @@ tstl@^2.0.7:
   resolved "https://registry.yarnpkg.com/tstl/-/tstl-2.5.16.tgz#0b52a6a572ece7dc2b532ebc89ba3a95c95c4009"
   integrity sha512-+O2ybLVLKcBwKm4HymCEwZIT0PpwS3gCYnxfSDEjJEKADvIFruaQjd3m7CAKNU1c7N3X3WjVz87re7TA2A5FUw==
 
-tsx@^4.15.4:
+tsx@^4.15.6:
   version "4.15.6"
   resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.15.6.tgz#4522ed093f7fa54f031a7a999274e8b35dbf3165"
   integrity sha512-is0VQQlfNZRHEuSSTKA6m4xw74IU4AizmuB6lAYLRt9XtuyeQnyJYexhNZOPCB59SqC4JzmSzPnHGBXxf3k0hA==
@@ -13988,6 +13989,11 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==
+
+uuid@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-10.0.0.tgz#5a95aa454e6e002725c79055fd42aaba30ca6294"
+  integrity sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==
 
 uuid@^8.3.0:
   version "8.3.2"
