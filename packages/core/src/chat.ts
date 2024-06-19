@@ -295,20 +295,21 @@ async function applyRepairs(
     }
 
     if (invalids.length) {
-        trace.startDetails("🔧 repair")
+        trace.startDetails("🔧 data repairs")
         const repair = invalids.map((f) => f.error).join("\n\n")
-        trace.fence(repair, "txt")
+        const repairMsg = dedent`FORMATTING_ISSUES:
+\`\`\`
+${repair}
+\`\`\`
+                            
+Repair the FORMATTING_ISSUES. THIS IS IMPORTANT.`
+        trace.fence(repairMsg, "markdown")
         messages.push({
             role: "user",
             content: [
                 {
                     type: "text",
-                    text: dedent`FORMATING_ISSUES:
-                        \`\`\`
-                        ${repair}
-                        \`\`\`
-                                            
-                        Repair the FORMATING_ISSUES. THIS IS IMPORTANT.`,
+                    text: repairMsg,
                 },
             ],
         })
@@ -404,8 +405,8 @@ async function processChatMessage(
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
+        maxDataRepairs = MAX_DATA_REPAIRS,
     } = options
-    const maxRepairs = MAX_DATA_REPAIRS
 
     if (resp.text)
         messages.push({
@@ -426,8 +427,10 @@ async function processChatMessage(
     // apply repairs if necessary
     else if (await applyRepairs(messages, schemas, options)) {
         stats.repairs++
-        if (stats.repairs > maxRepairs)
-            throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
+        if (stats.repairs > maxDataRepairs)
+            throw new Error(
+                `maximum number of repairs (${maxDataRepairs}) reached`
+            )
         return undefined // keep working
     } else if (chatParticipants?.length) {
         let needsNewTurn = false
