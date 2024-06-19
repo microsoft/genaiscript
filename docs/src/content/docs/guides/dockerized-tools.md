@@ -1,24 +1,30 @@
 ---
 title: Dockerized Tools
 sidebar:
-  order: 10
-
+    order: 10
 ---
 
-We will show how to create a [tool](/genaiscript/reference/scripts/tools) 
-that a call to an executable in a [container](/genaiscript/referenc/scripts/container).
+This guide shows how to create a [tool](/genaiscript/reference/scripts/tools)
+that call an executable in a [container](/genaiscript/referenc/scripts/container).
 This is a flexible and secure way to run tools that may have dependencies or security concerns.
+
+This is typically done by creating a container with a particular image (`gcc` here)
 
 ```js
 // start a fresh container
 const container = await host.container({
     image: "gcc",
 })
+```
 
+then reusing the container in the tool invocations. You can return the result of `container.exec`
+from the tool and it will be handled by the runtime.
+
+```js
 defTool(..., async (args) => {
     ...
     // use container in tool
-    const res = await container.exec("gcc", [fn])
+    const res = await container.exec("gcc", ["main.c"])
     return res
 })
 ```
@@ -59,43 +65,34 @@ $`Generate a valid C program that prints "Hello, World!"`
 <details>
 <summary>👤 user</summary>
 
-
 ```markdown wrap
 Generate a valid C program that prints "Hello, World!"
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
 
-
 <details>
 <summary>📠 tool call <code>gcc</code> (<code>call_IH693jAqZaC7i3AkUa3eIFXi</code>)</summary>
 
-
 ```yaml wrap
 source: |-
-  #include <stdio.h>
+    #include <stdio.h>
 
-  int main() {
-      printf("Hello, World!\n");
-      return 0;
-  }
+    int main() {
+        printf("Hello, World!\n");
+        return 0;
+    }
 ```
 
-
 </details>
 
-
 </details>
-
 
 <details>
 <summary>🛠️ tool output <code>call_IH693jAqZaC7i3AkUa3eIFXi</code></summary>
-
 
 ```json wrap
 exitCode: 0
@@ -104,16 +101,14 @@ stderr: ""
 failed: false
 ```
 
-
 </details>
-
 
 <details open>
 <summary>🤖 assistant </summary>
 
-
 ````markdown wrap
 File ./file1.c:
+
 ```c
 #include <stdio.h>
 
@@ -124,8 +119,6 @@ int main() {
 ```
 ````
 
-
 </details>
 
 <!-- genaiscript output end -->
-
