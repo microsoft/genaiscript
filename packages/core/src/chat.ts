@@ -277,8 +277,13 @@ async function applyRepairs(
     schemas: Record<string, JSONSchema>,
     options: GenerationOptions
 ) {
-    const { trace, responseSchema } = options
-    // perform repair
+    const {
+        stats,
+        trace,
+        responseSchema,
+        maxDataRepairs = MAX_DATA_REPAIRS,
+        infoCb,
+    } = options
     const lastMessage = messages[messages.length - 1]
     if (lastMessage.role !== "assistant") return false
 
@@ -297,37 +302,44 @@ async function applyRepairs(
             })
     }
 
-    if (invalids.length) {
-        trace.startDetails("🔧 data repairs")
-        const repair = invalids
-            .map(
-                (f) =>
-                    `data: ${f.label || ""}
+    // nothing to repair
+    if (!invalids.length) return false
+    // too many attempts
+    if (stats.repairs >= maxDataRepairs) {
+        trace.error(`maximum number of repairs (${maxDataRepairs}) reached`)
+        return false
+    }
+
+    infoCb?.({ text: "appending data repair instructions" })
+    // let's get to work
+    trace.startDetails("🔧 data repairs")
+    const repair = invalids
+        .map(
+            (f) =>
+                `data: ${f.label || ""}
 schema: ${f.args?.schema || ""},
 error: ${f.validation.error}`
-            )
-            .join("\n\n")
-        const repairMsg = dedent`DATA_FORMAT_ISSUES:
+        )
+        .join("\n\n")
+    const repairMsg = dedent`DATA_FORMAT_ISSUES:
 \`\`\`
 ${repair}
 \`\`\`
                             
 Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
-        trace.fence(repairMsg, "markdown")
-        messages.push({
-            role: "user",
-            content: [
-                {
-                    type: "text",
-                    text: repairMsg,
-                },
-            ],
-        })
-        trace.endDetails()
-        return true
-    }
-
-    return false
+    trace.fence(repairMsg, "markdown")
+    messages.push({
+        role: "user",
+        content: [
+            {
+                type: "text",
+                text: repairMsg,
+            },
+        ],
+    })
+    trace.endDetails()
+    stats.repairs++
+    return true
 }
 
 function assistantText(messages: ChatCompletionMessageParam[]) {
@@ -435,15 +447,8 @@ async function processChatMessage(
         return undefined // keep working
     }
     // apply repairs if necessary
-    if (stats.repairs < maxDataRepairs) {
-        if (await applyRepairs(messages, schemas, options)) {
-            stats.repairs++
-            if (stats.repairs > maxDataRepairs)
-                trace.error(
-                    `maximum number of repairs (${maxDataRepairs}) reached`
-                )
-            else return undefined // keep working
-        }
+    if (await applyRepairs(messages, schemas, options)) {
+        return undefined // keep working
     }
 
     if (chatParticipants?.length) {
