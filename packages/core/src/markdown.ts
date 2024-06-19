@@ -33,19 +33,32 @@ ${body}
 </details>\n`
 }
 
-export interface DetailsNode {
+export interface ItemNode {
+    type: "item"
     label: string
-    content: (string | DetailsNode)[]
+    value: string
+}
+
+export interface DetailsNode {
+    type: "details"
+    label: string
+    content: (string | DetailsNode | ItemNode)[]
 }
 
 export function parseDetailsTree(text: string): DetailsNode {
-    const stack: DetailsNode[] = [{ label: "root", content: [] }]
+    const stack: DetailsNode[] = [
+        { type: "details", label: "root", content: [] },
+    ]
     const lines = (text || "").split("\n")
     for (let i = 0; i < lines.length; ++i) {
         const startDetails = /^\s*<details[^>]*>\s*$/m.exec(lines[i])
         if (startDetails) {
             const parent = stack.at(-1)
-            const current: DetailsNode = { label: "", content: [] }
+            const current: DetailsNode = {
+                type: "details",
+                label: "",
+                content: [],
+            }
             parent.content.push(current)
             stack.push(current)
             continue
@@ -72,6 +85,16 @@ export function parseDetailsTree(text: string): DetailsNode {
             const current = stack.at(-1)
             current.label = lines.slice(i, j).join("\n")
             i = j
+            continue
+        }
+        const item = /^\s*-\s+([^:]+):(.+)$/m.exec(lines[i])
+        if (item) {
+            const current = stack.at(-1)
+            current.content.push({
+                type: "item",
+                label: item[1],
+                value: item[2],
+            })
             continue
         }
 

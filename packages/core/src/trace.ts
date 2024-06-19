@@ -15,10 +15,7 @@ import { host } from "./host"
 import { ellipse, renderWithPrecision, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
 
-export class MarkdownTrace
-    extends EventTarget
-    implements ToolCallTrace
-{
+export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     readonly errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: string = ""
@@ -183,8 +180,14 @@ ${this.toResultIcon(success, "")}${title}
         const errors = this.errors || []
         if (errors.length) {
             this.disableChange(() => {
-                this.heading(3, "Errors")
-                errors.forEach((e) => this.renderError(e, { details: true }))
+                try {
+                    this.startDetails("Errors")
+                    errors.forEach((e) =>
+                        this.renderError(e, { details: true })
+                    )
+                } finally {
+                    this.endDetails()
+                }
             })
         }
     }

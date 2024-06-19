@@ -36,7 +36,7 @@ export function traceCliArgs(
 ) {
     trace.details(
         "🤖 automation",
-        `Use the [command line interface \`run\`](https://microsoft.github.io/genaiscript/reference/cli/run/) to automate this task:
+        `Use the command line interface [run](https://microsoft.github.io/genaiscript/reference/cli/run/) to automate this task:
 
 \`\`\`bash
 ${generateCliArguments(template, options, "run")}

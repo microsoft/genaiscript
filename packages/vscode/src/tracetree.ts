@@ -1,8 +1,13 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { CHANGE, DetailsNode, parseDetailsTree } from "genaiscript-core"
+import {
+    CHANGE,
+    DetailsNode,
+    ItemNode,
+    parseDetailsTree,
+} from "genaiscript-core"
 
-type TraceNode = string | DetailsNode
+type TraceNode = string | DetailsNode | ItemNode
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     constructor(readonly state: ExtensionState) {
@@ -12,22 +17,43 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     getTreeItem(
         element: TraceNode
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        if (typeof element === "string") return new vscode.TreeItem(element)
-        const item = new vscode.TreeItem(
-            element.label,
-            element.content.length > 0
-                ? vscode.TreeItemCollapsibleState.Collapsed
-                : vscode.TreeItemCollapsibleState.None
-        )
-        return item
+        if (typeof element === "string") {
+            const tooltip = new vscode.MarkdownString(element, true)
+            tooltip.isTrusted = false // LLM, user generated
+            const item = new vscode.TreeItem(element)
+            item.tooltip = tooltip
+            item.description = "..."
+            return item
+        } else {
+            const item = new vscode.TreeItem(element.label)
+            if (element.type === "details") {
+                item.collapsibleState =
+                    element.content.filter((s) => typeof s !== "string")
+                        .length > 0
+                        ? vscode.TreeItemCollapsibleState.Collapsed
+                        : vscode.TreeItemCollapsibleState.None
+                if (typeof element.content[0] === "string") {
+                    const tooltip = new vscode.MarkdownString(
+                        element.content[0] as string,
+                        true
+                    )
+                    tooltip.isTrusted = false // LLM, user generated
+                    item.tooltip = tooltip
+                }
+            } else if (element.type === "item") {
+                item.description = element.value
+            }
+            return item
+        }
     }
 
     getChildren(element?: TraceNode): vscode.ProviderResult<TraceNode[]> {
         if (element === undefined)
             element = parseDetailsTree(this.state.aiRequest?.trace?.content)
-        if (typeof element === "object")
+        if (typeof element === "string") return undefined
+        else if (element.type === "details")
             return element?.content?.filter((s) => typeof s !== "string")
-        return undefined
+        else return undefined
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
