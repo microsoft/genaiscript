@@ -12,6 +12,7 @@ import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
 import { activateModelCompletionProvider } from "./modelcompletionprovider"
 import { activateDocsNotebook } from "./docsnotebook"
+import { activateTraceTreeDataProvider } from "./tracetree"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -21,6 +22,7 @@ export async function activate(context: ExtensionContext) {
     activatePrompTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
     activateOpenAIRequestTreeDataProvider(state)
+    activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateModelCompletionProvider(state)
     activateDocsNotebook(state)

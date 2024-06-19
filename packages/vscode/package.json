@@ -117,8 +117,13 @@
         "views": {
             "genaiscript": [
                 {
+                    "id": "genaiscript.trace",
+                    "name": "Trace"
+                },
+                {
                     "id": "genaiscript.prompts",
-                    "name": "GenAIScript"
+                    "name": "GenAIScript",
+                    "visibility": "collapsed"
                 },
                 {
                     "id": "genaiscript.prompts.requests",
