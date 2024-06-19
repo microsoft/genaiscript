@@ -52,7 +52,7 @@ ${generateCliArguments(template, options, "run")}
         trace.details(
             "🧪 testing",
             `
-Use the [command line interface \`test\`://microsoft.github.io/genaiscript/reference/cli/test) to run the tests for this script:
+Use the command line interface [test](https://microsoft.github.io/genaiscript/reference/cli/test) to run the tests for this script:
 
 \`\`\`sh
 npx --yes genaiscript test ${template.id}

@@ -100,7 +100,7 @@ export function parseTraceTree(text: string): TraceTree {
             i = j
             continue
         }
-        const item = /^\s*-\s+([^:]+):(.+)$/m.exec(lines[i])
+        const item = /^\s*-\s+([^:]+): (.+)$/m.exec(lines[i])
         if (item) {
             const current = stack.at(-1)
             current.content.push({
