@@ -1,11 +1,13 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { DetailsNode, parseDetailsTree } from "genaiscript-core"
+import { CHANGE, DetailsNode, parseDetailsTree } from "genaiscript-core"
 
 type TraceNode = string | DetailsNode
 
 class TraceTree implements vscode.TreeDataProvider<TraceNode> {
-    constructor(readonly state: ExtensionState) {}
+    constructor(readonly state: ExtensionState) {
+        this.state.addEventListener(CHANGE, () => this.refresh())
+    }
 
     getTreeItem(
         element: TraceNode

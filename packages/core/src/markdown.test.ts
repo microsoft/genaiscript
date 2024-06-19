@@ -20,4 +20,25 @@ flat tree
             ],
         })
     })
+
+    test("one node", () => {
+        const res = parseDetailsTree(`
+flat tree
+<details>
+<summary>2</summary>
+2.5
+</details>
+3
+`)
+        assert.deepStrictEqual(res, {
+            label: "root",
+            content: [
+                `
+flat tree`,
+                { label: "2", content: ["2.5"] },
+                `3
+`,
+            ],
+        })
+    })
 })

@@ -42,7 +42,7 @@ export function parseDetailsTree(text: string): DetailsNode {
     const stack: DetailsNode[] = [{ label: "root", content: [] }]
     const lines = text?.split("\n")
     for (let i = 0; i < lines.length; ++i) {
-        const startDetails = /^\s*<details( open)>\s*$/m.exec(lines[i])
+        const startDetails = /^\s*<details[^>]*>\s*$/m.exec(lines[i])
         if (startDetails) {
             const parent = stack.at(-1)
             const current: DetailsNode = { label: "", content: [] }
