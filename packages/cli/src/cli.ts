@@ -139,6 +139,7 @@ export async function cli() {
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
         .option("-mt, --max-tokens <number>", "maximum tokens for the run")
+        .option("-mdr, --max-data-repairs <number>", "maximum data repairs")
         .option(
             "-mtc, --max-tool-calls <number>",
             "maximum tool calls for the run"

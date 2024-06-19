@@ -38,6 +38,7 @@ Options:
   -tp, --top-p <number>                      top-p for the run
   -m, --model <string>                       model for the run
   -mt, --max-tokens <number>                 maximum tokens for the run
+  -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
   --no-cache                                 disable LLM result cache

@@ -70,6 +70,7 @@ export async function runScript(
         seed: string
         maxTokens: string
         maxToolCalls: string
+        maxDataRepairs: string
         model: string
         csvSeparator: string
         cache: boolean
@@ -102,6 +103,7 @@ export async function runScript(
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
+    const maxDataRepairs = normalizeInt(options.maxDataRepairs)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
@@ -229,6 +231,7 @@ ${Array.from(files)
             seed,
             maxTokens,
             maxToolCalls,
+            maxDataRepairs,
             model: info.model,
             retry,
             retryDelay,
