@@ -284,25 +284,35 @@ async function applyRepairs(
 
     const fences = extractFenced(lastMessage.content)
     validateFencesWithSchema(fences, schemas, { trace })
-    const invalids = fences
-        .map((f) => f.validation)
-        .filter((f) => f?.valid === false)
+    const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
         const value = JSON5TryParse(lastMessage.content)
         const res = validateJSONWithSchema(value, responseSchema, { trace })
-        if (!res.valid) invalids.push(res)
+        if (!res.valid)
+            invalids.push({
+                label: "",
+                content: lastMessage.content,
+                validation: res,
+            })
     }
 
     if (invalids.length) {
         trace.startDetails("🔧 data repairs")
-        const repair = invalids.map((f) => f.error).join("\n\n")
-        const repairMsg = dedent`FORMATTING_ISSUES:
+        const repair = invalids
+            .map(
+                (f) =>
+                    `data: ${f.label || ""}
+schema: ${f.args?.schema || ""},
+error: ${f.validation.error}`
+            )
+            .join("\n\n")
+        const repairMsg = dedent`DATA_FORMAT_ISSUES:
 \`\`\`
 ${repair}
 \`\`\`
                             
-Repair the FORMATTING_ISSUES. THIS IS IMPORTANT.`
+Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
         trace.fence(repairMsg, "markdown")
         messages.push({
             role: "user",
@@ -359,7 +369,7 @@ function structurifyChatSession(
                     trace,
                 })
                 if (!res.valid) {
-                    trace.error("response schema validation failed", res.error)
+                    trace?.warn("response schema validation failed", res.error)
                 }
             }
         } catch (e) {
@@ -425,14 +435,18 @@ async function processChatMessage(
         return undefined // keep working
     }
     // apply repairs if necessary
-    else if (await applyRepairs(messages, schemas, options)) {
-        stats.repairs++
-        if (stats.repairs > maxDataRepairs)
-            throw new Error(
-                `maximum number of repairs (${maxDataRepairs}) reached`
-            )
-        return undefined // keep working
-    } else if (chatParticipants?.length) {
+    if (stats.repairs < maxDataRepairs) {
+        if (await applyRepairs(messages, schemas, options)) {
+            stats.repairs++
+            if (stats.repairs > maxDataRepairs)
+                trace.error(
+                    `maximum number of repairs (${maxDataRepairs}) reached`
+                )
+            else return undefined // keep working
+        }
+    }
+
+    if (chatParticipants?.length) {
         let needsNewTurn = false
         for (const participant of chatParticipants) {
             try {
@@ -543,8 +557,11 @@ export async function executeChatSession(
             infoCb?.({
                 text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
             })
-            trace.details(`💬 messages`, renderMessagesToMarkdown(messages))
-            trace.startDetails(`📤 llm request (${messages.length} messages)`)
+            trace.details(
+                `💬 messages (${messages.length})`,
+                renderMessagesToMarkdown(messages)
+            )
+            trace.startDetails(`📤 llm request`)
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
@@ -658,7 +675,9 @@ export function renderMessagesToMarkdown(
                                 msg.tool_calls
                                     ?.map(
                                         (tc) =>
-                                            `-  📠 tool call \`${tc.function.name}(${tc.function.arguments})\` (\`${tc.id}\`)`
+                                            dedent`-  📠 tool call \`${tc.function.name}\` (\`${tc.id}\`)
+                                        ${fenceMD(YAMLStringify(tc.function.arguments), "yaml")}    
+                                        `
                                     )
                                     .join("\n"),
                             ]
