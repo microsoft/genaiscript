@@ -92,25 +92,6 @@ export interface AIRequest {
     editsApplied?: boolean // null = waiting, false, true
 }
 
-export async function snapshotAIRequestKey(
-    r: AIRequest
-): Promise<AIRequestSnapshotKey> {
-    const { options, request } = r
-    const key = {
-        template: {
-            id: options.template.id,
-            title: options.template.title,
-            hash: await sha256string(JSON.stringify(options.template)),
-        },
-        fragment: {
-            fullId: options.fragment.fullId,
-            hash: options.fragment.hash,
-        },
-        version: CORE_VERSION,
-    }
-    return key
-}
-
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
     const { response, error, creationTime } = r
     const { vars, ...responseWithoutVars } = response || {}
@@ -122,12 +103,6 @@ export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
         trace: r.trace.content,
     })
     return snapshot
-}
-
-function getAIRequestCache() {
-    return JSONLineCache.byName<AIRequestSnapshotKey, AIRequestSnapshot>(
-        AI_REQUESTS_CACHE
-    )
 }
 
 export class ExtensionState extends EventTarget {
@@ -157,7 +132,10 @@ export class ExtensionState extends EventTarget {
         this._diagColl = vscode.languages.createDiagnosticCollection(TOOL_NAME)
         subscriptions.push(this._diagColl)
 
-        this._aiRequestCache = getAIRequestCache()
+        this._aiRequestCache = JSONLineCache.byName<
+            AIRequestSnapshotKey,
+            AIRequestSnapshot
+        >(AI_REQUESTS_CACHE)
 
         // clear errors when file edited (remove me?)
         vscode.workspace.onDidChangeTextDocument(
@@ -250,7 +228,7 @@ temp/
                     )
             }
 
-            const key = await snapshotAIRequestKey(req)
+            const key = await this.snapshotAIRequestKey(req)
             const snapshot = snapshotAIRequest(req)
             await this._aiRequestCache.set(key, snapshot)
             this.setDiagnostics()
@@ -261,6 +239,30 @@ temp/
             if (isCancelError(e)) return
             throw e
         }
+    }
+
+    private async snapshotAIRequestKey(
+        r: AIRequest
+    ): Promise<AIRequestSnapshotKey> {
+        const { options } = r
+        const prj = this._project
+        const key = {
+            template: {
+                id: options.template.id,
+                title: options.template.title,
+                hash: await sha256string(
+                    JSON.stringify({
+                        template: options.template,
+                    })
+                ),
+            },
+            fragment: {
+                fullId: options.fragment.fullId,
+                hash: options.fragment.hash,
+            },
+            version: CORE_VERSION,
+        }
+        return key
     }
 
     private async startAIRequest(

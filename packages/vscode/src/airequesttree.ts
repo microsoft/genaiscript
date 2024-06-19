@@ -14,7 +14,7 @@ type AIRequestTreeNode = CacheEntry<AIRequestSnapshotKey, AIRequestSnapshot>
 class AIRequestTreeDataProvider
     implements vscode.TreeDataProvider<AIRequestTreeNode>
 {
-    cache: JSONLineCache<AIRequestSnapshotKey, AIRequestSnapshot>
+    readonly cache: JSONLineCache<AIRequestSnapshotKey, AIRequestSnapshot>
     constructor(readonly state: ExtensionState) {
         this.cache = state.aiRequestCache()
         this.cache.addEventListener(CHANGE, () => this.refresh())
