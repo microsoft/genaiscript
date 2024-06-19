@@ -16,7 +16,7 @@ import {
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
 import { CHAT_CACHE, MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
-import { isCancelError, serializeError } from "./error"
+import { errorMessage, isCancelError, serializeError } from "./error"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
@@ -381,7 +381,9 @@ function structurifyChatSession(
                     trace,
                 })
                 if (!res.valid) {
-                    trace?.warn("response schema validation failed", res.error)
+                    trace?.warn(
+                        `response schema validation failed, ${errorMessage(e)}`
+                    )
                 }
             }
         } catch (e) {
