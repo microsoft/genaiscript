@@ -233,7 +233,7 @@ export function createPromptContext(
                 checkCancelled(cancellationToken)
 
                 let messages: ChatCompletionMessageParam[] = []
-                let functions: ChatFunctionCallback[] = undefined
+                let tools: ToolCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
                 let chatParticipants: ChatParticipant[] = undefined
                 // expand template
@@ -254,7 +254,7 @@ export function createPromptContext(
                     })
 
                     schemas = scs
-                    functions = fns
+                    tools = fns
                     chatParticipants = cps
                     messages.push(...msgs)
 
@@ -281,7 +281,7 @@ export function createPromptContext(
                     cancellationToken,
                     messages,
                     vars,
-                    functions,
+                    tools,
                     schemas,
                     completer,
                     chatParticipants,

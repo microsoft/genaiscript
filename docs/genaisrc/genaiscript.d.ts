@@ -387,7 +387,7 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface ChatFunctionDefinition {
+interface ToolDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -412,7 +412,7 @@ interface ChatFunctionDefinition {
     parameters?: JSONSchema
 }
 
-interface ChatFunctionCallTrace {
+interface ToolCallTrace {
     log(message: string): void
     item(message: string): void
     tip(message: string): void
@@ -466,13 +466,13 @@ interface CreateFileEdit extends FileEdit {
 
 type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
 
-interface ChatFunctionCallContent {
+interface ToolCallContent {
     type?: "content"
     content: string
     edits?: Edits[]
 }
 
-type ChatFunctionCallOutput = string | ChatFunctionCallContent
+type ToolCallOutput = string | ToolCallContent | ShellOutput
 
 interface WorkspaceFileSystem {
     /**
@@ -503,15 +503,15 @@ interface WorkspaceFileSystem {
     writeText(path: string, content: string): Promise<void>
 }
 
-interface ChatFunctionCallContext {
-    trace: ChatFunctionCallTrace
+interface ToolCallContext {
+    trace: ToolCallTrace
 }
 
-interface ChatFunctionCallback {
-    definition: ChatFunctionDefinition
+interface ToolCallback {
+    definition: ToolDefinition
     fn: (
-        args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+        args: { context: ToolCallContext } & Record<string, any>
+    ) => ToolCallOutput | Promise<ToolCallOutput>
 }
 
 type ChatParticipantHandler = (
@@ -1265,8 +1265,8 @@ interface DefSchemaOptions {
 }
 
 type ChatFunctionHandler = (
-    args: { context: ChatFunctionCallContext } & Record<string, any>
-) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+    args: { context: ToolCallContext } & Record<string, any>
+) => ToolCallOutput | Promise<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -1493,7 +1493,7 @@ interface ShellHost {
         command: string,
         args: string[],
         options?: ShellOptions
-    ): Promise<Partial<ShellOutput>>
+    ): Promise<ShellOutput>
 }
 
 interface ContainerOptions {

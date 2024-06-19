@@ -186,7 +186,7 @@ export interface Host {
         command: string,
         args: string[],
         options: ShellOptions & TraceOptions
-    ): Promise<Partial<ShellOutput>>
+    ): Promise<ShellOutput>
 
     /**
      * Starts a container to execute sandboxed code

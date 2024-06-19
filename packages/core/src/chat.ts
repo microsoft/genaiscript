@@ -198,7 +198,7 @@ export interface LanguageModel {
 async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ChatFunctionCallback[],
+    functions: ToolCallback[],
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
@@ -230,22 +230,31 @@ async function runToolCalls(
             const fd = functions.find((f) => f.definition.name === call.name)
             if (!fd) throw new Error(`tool ${call.name} not found`)
 
-            const context: ChatFunctionCallContext = {
+            const context: ToolCallContext = {
                 trace,
             }
 
-            let output = await fd.fn({ context, ...callArgs })
+            const output = await fd.fn({ context, ...callArgs })
             if (output === undefined || output === null)
                 throw new Error(`output is undefined`)
-            if (typeof output === "string") output = { content: output }
+            let toolContent: string = undefined
+            let toolEdits: Edits[] = undefined
+            if (typeof output === "string") toolContent = output
+            if (
+                typeof output === "object" &&
+                (output as ShellOutput).exitCode !== undefined
+            ) {
+                toolContent = YAMLStringify(output)
+            } else {
+                toolContent = (output as ToolCallContent)?.content
+                toolEdits = (output as ToolCallContent)?.edits
+            }
 
-            const { content, edits: functionEdits } = output
-
-            if (content) trace.fence(content, "markdown")
-            if (functionEdits?.length) {
-                trace.fence(functionEdits)
+            if (toolContent) trace.fence(toolContent, "markdown")
+            if (toolEdits?.length) {
+                trace.fence(toolEdits)
                 edits.push(
-                    ...functionEdits.map((e) => {
+                    ...toolEdits.map((e) => {
                         const { filename, ...rest } = e
                         const n = e.filename
                         const fn = /^[^\/]/.test(n)
@@ -258,7 +267,7 @@ async function runToolCalls(
 
             messages.push({
                 role: "tool",
-                content,
+                content: toolContent,
                 tool_call_id: call.id,
             })
         } catch (e) {
@@ -418,7 +427,7 @@ function structurifyChatSession(
 async function processChatMessage(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ChatFunctionCallback[],
+    functions: ToolCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
@@ -521,7 +530,7 @@ export async function executeChatSession(
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
     vars: Partial<ExpansionVariables>,
-    functions: ChatFunctionCallback[],
+    toolDefinitions: ToolCallback[],
     schemas: Record<string, JSONSchema>,
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
@@ -541,8 +550,8 @@ export async function executeChatSession(
         infoCb,
     } = genOptions
 
-    const tools: ChatCompletionTool[] = functions?.length
-        ? functions.map((f) => ({
+    const tools: ChatCompletionTool[] = toolDefinitions?.length
+        ? toolDefinitions.map((f) => ({
               type: "function",
               function: f.definition as any,
           }))
@@ -595,7 +604,7 @@ export async function executeChatSession(
                 const output = await processChatMessage(
                     resp,
                     messages,
-                    functions,
+                    toolDefinitions,
                     chatParticipants,
                     schemas,
                     genVars,

@@ -105,7 +105,7 @@ async function callExpander(
     let assistantText = ""
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
-    let functions: ChatFunctionCallback[] = []
+    let functions: ToolCallback[] = []
     let fileMerges: FileMergeHandler[] = []
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let chatParticipants: ChatParticipant[] = []

@@ -17,7 +17,7 @@ import { estimateTokens } from "./tokens"
 
 export class MarkdownTrace
     extends EventTarget
-    implements ChatFunctionCallTrace
+    implements ToolCallTrace
 {
     readonly errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
