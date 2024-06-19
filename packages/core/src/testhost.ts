@@ -109,7 +109,7 @@ export class TestHost implements Host {
         command: string,
         args: string[],
         options: ShellOptions
-    ): Promise<Partial<ShellOutput>> {
+    ): Promise<ShellOutput> {
         throw new Error("Method not implemented.")
     }
     container(

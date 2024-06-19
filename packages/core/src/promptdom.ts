@@ -349,7 +349,7 @@ export interface PromptNodeRender {
     images: PromptImage[]
     errors: unknown[]
     schemas: Record<string, JSONSchema>
-    functions: ChatFunctionCallback[]
+    functions: ToolCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: PromptOutputProcessorHandler[]
     chatParticipants: ChatParticipant[]
@@ -533,7 +533,7 @@ export async function renderPromptNode(
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
-    const functions: ChatFunctionCallback[] = []
+    const functions: ToolCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []

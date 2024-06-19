@@ -160,7 +160,11 @@ export class DockerManager {
             trace?.itemValue(`host path`, hostPath)
             trace?.itemValue(`container path`, containerPath)
 
-            const exec: ShellHost["exec"] = async (command, args, options) => {
+            const exec: ShellHost["exec"] = async (
+                command,
+                args,
+                options
+            ): Promise<ShellOutput> => {
                 const { cwd = containerPath, label } = options || {}
                 try {
                     trace?.startDetails(
@@ -188,17 +192,18 @@ export class DockerManager {
                     const inspect = await exec.inspect()
                     const exitCode = inspect.ExitCode
 
-                    const sres = {
+                    const sres: ShellOutput = {
                         exitCode,
                         stdout: stdout.toString(),
                         stderr: stderr.toString(),
+                        failed: exitCode !== 0,
                     }
                     trace?.resultItem(
                         exitCode === 0,
                         `exit code: ${sres.exitCode}`
                     )
-                    if (sres.stdout) trace?.detailsFenced(`output`, sres.stdout)
-                    if (sres.stderr) trace?.detailsFenced(`error`, sres.stderr)
+                    if (sres.stdout) trace?.detailsFenced(`stdout`, sres.stdout)
+                    if (sres.stderr) trace?.detailsFenced(`stderr`, sres.stderr)
 
                     return sres
                 } finally {

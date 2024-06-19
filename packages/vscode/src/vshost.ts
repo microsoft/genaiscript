@@ -321,7 +321,7 @@ export class VSCodeHost extends EventTarget implements Host {
         command: string,
         args: string[],
         options: ShellOptions
-    ): Promise<Partial<ShellOutput>> {
+    ): Promise<ShellOutput> {
         const res = await this.server.client.exec(
             containerId,
             command,
