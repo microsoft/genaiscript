@@ -49,16 +49,7 @@ export function createPromptContext(
     model: string
 ) {
     const { cancellationToken, infoCb } = options || {}
-    const env = new Proxy(vars, {
-        get: (target: any, prop, recv) => {
-            const v = target[prop]
-            if (v === undefined) {
-                trace.error(`\`env.${String(prop)}\` not defined`)
-                return ""
-            }
-            return v
-        },
-    })
+    const env = Object.freeze(vars)
     const parsers = createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,

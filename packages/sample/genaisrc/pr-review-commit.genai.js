@@ -23,12 +23,12 @@ const { stdout: changes } = await host.exec("git", [
 
 def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
 
-$`You are an expert software developer and architect. You are
+$`You are an expert TypeScript software developer and architect. You are
 an expert in software reliability, security, scalability, and performance.
 
 ## Task
 
-Review the changes in GIT_DIFF which contains the diff of the last commit in the pull request branch.
+Review the changes in GIT_DIFF which contains the diff of the last commit in the pull request branch using the TypeScript language.
 Provide feedback to the author using annotations.
 
 Think step by step and for each annotation explain your result.
