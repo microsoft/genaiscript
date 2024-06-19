@@ -382,7 +382,7 @@ function structurifyChatSession(
                 })
                 if (!res.valid) {
                     trace?.warn(
-                        `response schema validation failed, ${errorMessage(e)}`
+                        `response schema validation failed, ${errorMessage(res.error)}`
                     )
                 }
             }
