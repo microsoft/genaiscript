@@ -147,6 +147,11 @@ interface ModelOptions extends ModelConnectionOptions {
     maxToolCalls?: number
 
     /**
+     * Maximum number of data repairs to attempt.
+     */
+    maxDataRepairs?: number
+
+    /**
      * A deterministic integer seed to use for the model.
      */
     seed?: number
@@ -1219,6 +1224,9 @@ interface DefDataOptions
 }
 
 interface DefSchemaOptions {
+    /**
+     * Output format in the prompt.
+     */
     format?: "typescript" | "json" | "yaml"
 }
 
