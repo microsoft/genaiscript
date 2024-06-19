@@ -181,7 +181,7 @@ ${this.toResultIcon(success, "")}${title}
         if (errors.length) {
             this.disableChange(() => {
                 try {
-                    this.startDetails("Errors")
+                    this.startDetails(`${EMOJI_FAIL} Errors`)
                     errors.forEach((e) =>
                         this.renderError(e, { details: true })
                     )

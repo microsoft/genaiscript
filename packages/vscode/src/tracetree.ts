@@ -4,10 +4,10 @@ import {
     CHANGE,
     DetailsNode,
     ItemNode,
-    parseDetailsTree,
+    TraceNode,
+    TraceTree,
+    parseTraceTree,
 } from "genaiscript-core"
-
-type TraceNode = string | DetailsNode | ItemNode
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     constructor(readonly state: ExtensionState) {
@@ -22,17 +22,20 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
             tooltip.isTrusted = false // LLM, user generated
             const item = new vscode.TreeItem(element)
             item.tooltip = tooltip
-            item.description = "..."
             return item
         } else {
             const item = new vscode.TreeItem(element.label)
+            item.id = element.id
             if (element.type === "details") {
                 item.collapsibleState =
                     element.content.filter((s) => typeof s !== "string")
                         .length > 0
                         ? vscode.TreeItemCollapsibleState.Collapsed
                         : vscode.TreeItemCollapsibleState.None
-                if (typeof element.content[0] === "string") {
+                if (
+                    typeof element.content[0] === "string" &&
+                    element.content[0]
+                ) {
                     const tooltip = new vscode.MarkdownString(
                         element.content[0] as string,
                         true
@@ -47,9 +50,12 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
         }
     }
 
+    private _tree: TraceTree
     getChildren(element?: TraceNode): vscode.ProviderResult<TraceNode[]> {
-        if (element === undefined)
-            element = parseDetailsTree(this.state.aiRequest?.trace?.content)
+        if (element === undefined) {
+            this._tree = parseTraceTree(this.state.aiRequest?.trace?.content)
+            element = this._tree.root
+        }
         if (typeof element === "string") return undefined
         else if (element.type === "details")
             return element?.content?.filter((s) => typeof s !== "string")

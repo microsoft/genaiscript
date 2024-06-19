@@ -34,20 +34,31 @@ ${body}
 }
 
 export interface ItemNode {
+    id: string
     type: "item"
     label: string
     value: string
 }
 
 export interface DetailsNode {
+    id: string
     type: "details"
     label: string
-    content: (string | DetailsNode | ItemNode)[]
+    content: TraceNode[]
 }
 
-export function parseDetailsTree(text: string): DetailsNode {
+export type TraceNode = string | DetailsNode | ItemNode
+
+export interface TraceTree {
+    root: DetailsNode
+    nodes: Record<string, TraceNode>
+}
+
+export function parseTraceTree(text: string): TraceTree {
+    let nextId = 1
+    const nodes: Record<string, TraceNode> = {}
     const stack: DetailsNode[] = [
-        { type: "details", label: "root", content: [] },
+        { type: "details", id: "" + nextId++, label: "root", content: [] },
     ]
     const lines = (text || "").split("\n")
     for (let i = 0; i < lines.length; ++i) {
@@ -56,11 +67,13 @@ export function parseDetailsTree(text: string): DetailsNode {
             const parent = stack.at(-1)
             const current: DetailsNode = {
                 type: "details",
+                id: "" + nextId++,
                 label: "",
                 content: [],
             }
             parent.content.push(current)
             stack.push(current)
+            nodes[current.id] = current
             continue
         }
         const endDetails = /^\s*<\/details>\s*$/m.exec(lines[i])
@@ -92,9 +105,11 @@ export function parseDetailsTree(text: string): DetailsNode {
             const current = stack.at(-1)
             current.content.push({
                 type: "item",
+                id: "" + nextId++,
                 label: item[1],
                 value: item[2],
             })
+            nodes[current.id] = current
             continue
         }
 
@@ -106,5 +121,5 @@ export function parseDetailsTree(text: string): DetailsNode {
         else contents.push(content)
     }
 
-    return stack[0]
+    return { root: stack[0], nodes }
 }

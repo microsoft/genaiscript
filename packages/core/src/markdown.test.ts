@@ -1,10 +1,10 @@
 import { describe, test } from "node:test"
-import { parseDetailsTree } from "./markdown"
+import { parseTraceTree } from "./markdown"
 import assert from "node:assert/strict"
 
 describe("trace tree", () => {
     test("flat", () => {
-        const res = parseDetailsTree(undefined)
+        const res = parseTraceTree(undefined)
         assert.deepStrictEqual(res, {
             label: "root",
             content: [''],
@@ -12,7 +12,7 @@ describe("trace tree", () => {
     })
 
     test("flat", () => {
-        const res = parseDetailsTree(`
+        const res = parseTraceTree(`
 flat tree
 2
 3
@@ -30,7 +30,7 @@ flat tree
     })
 
     test("one node", () => {
-        const res = parseDetailsTree(`
+        const res = parseTraceTree(`
 flat tree
 <details>
 <summary>2</summary>
@@ -51,7 +51,7 @@ flat tree`,
     })
 
     test("multi node", () => {
-        const res = parseDetailsTree(`
+        const res = parseTraceTree(`
 flat tree
 <details>
 <summary>
@@ -74,7 +74,7 @@ flat tree`,
     })
 
     test("nested node", () => {
-        const res = parseDetailsTree(`
+        const res = parseTraceTree(`
 flat tree
 <details>
 <summary>
