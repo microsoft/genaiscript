@@ -40,7 +40,7 @@ export interface DetailsNode {
 
 export function parseDetailsTree(text: string): DetailsNode {
     const stack: DetailsNode[] = [{ label: "root", content: [] }]
-    const lines = text?.split("\n")
+    const lines = (text || "").split("\n")
     for (let i = 0; i < lines.length; ++i) {
         const startDetails = /^\s*<details[^>]*>\s*$/m.exec(lines[i])
         if (startDetails) {
@@ -59,6 +59,19 @@ export function parseDetailsTree(text: string): DetailsNode {
         if (summary) {
             const current = stack.at(-1)
             current.label = summary[1]
+            continue
+        }
+        const startSummary = /^\s*<summary>\s*$/m.exec(lines[i])
+        if (startSummary) {
+            let j = ++i
+            while (j < lines.length) {
+                const endSummary = /^\s*<\/summary>\s*$/m.exec(lines[j])
+                if (endSummary) break
+                j++
+            }
+            const current = stack.at(-1)
+            current.label = lines.slice(i, j).join("\n")
+            i = j
             continue
         }
 

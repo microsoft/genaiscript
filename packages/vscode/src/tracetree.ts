@@ -13,13 +13,20 @@ class TraceTree implements vscode.TreeDataProvider<TraceNode> {
         element: TraceNode
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if (typeof element === "string") return new vscode.TreeItem(element)
-        return element
+        const item = new vscode.TreeItem(
+            element.label,
+            element.content.length > 0
+                ? vscode.TreeItemCollapsibleState.Collapsed
+                : vscode.TreeItemCollapsibleState.None
+        )
+        return item
     }
 
     getChildren(element?: TraceNode): vscode.ProviderResult<TraceNode[]> {
         if (element === undefined)
             element = parseDetailsTree(this.state.aiRequest?.trace?.content)
-        if (typeof element === "object") return element?.content
+        if (typeof element === "object")
+            return element?.content?.filter((s) => typeof s !== "string")
         return undefined
     }
 
