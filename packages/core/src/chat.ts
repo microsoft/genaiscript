@@ -240,7 +240,7 @@ async function runToolCalls(
             let toolContent: string = undefined
             let toolEdits: Edits[] = undefined
             if (typeof output === "string") toolContent = output
-            if (
+            else if (
                 typeof output === "object" &&
                 (output as ShellOutput).exitCode !== undefined
             ) {
