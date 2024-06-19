@@ -4,7 +4,7 @@ import { CHANGE, DetailsNode, parseDetailsTree } from "genaiscript-core"
 
 type TraceNode = string | DetailsNode
 
-class TraceTree implements vscode.TreeDataProvider<TraceNode> {
+class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     constructor(readonly state: ExtensionState) {
         this.state.addEventListener(CHANGE, () => this.refresh())
     }
@@ -44,7 +44,7 @@ class TraceTree implements vscode.TreeDataProvider<TraceNode> {
 export function activateTraceTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
-    const treeDataProvider = new TraceTree(state)
+    const treeDataProvider = new TraceTreeDataProvider(state)
     const treeView = vscode.window.createTreeView("genaiscript.trace", {
         treeDataProvider,
     })
