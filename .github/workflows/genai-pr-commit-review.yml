@@ -22,6 +22,8 @@ jobs:
                   node-version: "20"
                   cache: yarn
             - run: yarn install --frozen-lockfile
+            - name: typecheck
+              run: yarn typecheck
             - name: compile
               run: yarn compile
             - name: git stuff
