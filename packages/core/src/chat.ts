@@ -236,7 +236,7 @@ async function runToolCalls(
 
             const output = await fd.fn({ context, ...callArgs })
             if (output === undefined || output === null)
-                throw new Error(`output is undefined`)
+                throw new Error(`tool ${call.name} output is undefined`)
             let toolContent: string = undefined
             let toolEdits: Edits[] = undefined
             if (typeof output === "string") toolContent = output
@@ -628,6 +628,12 @@ export async function executeChatSession(
     }
 }
 
+function renderToolArguments(args: string) {
+    const js = JSON5TryParse(args)
+    if (js) return fenceMD(YAMLStringify(js), "yaml")
+    else return fenceMD(args, "json")
+}
+
 export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
     options?: {
@@ -688,14 +694,14 @@ export function renderMessagesToMarkdown(
                             `🤖 assistant ${msg.name ? msg.name : ""}`,
                             [
                                 fenceMD(msg.content, "markdown"),
-                                msg.tool_calls
-                                    ?.map(
-                                        (tc) =>
-                                            dedent`-  📠 tool call \`${tc.function.name}\` (\`${tc.id}\`)
-                                        ${fenceMD(YAMLStringify(tc.function.arguments), "yaml")}    
-                                        `
+                                ...(msg.tool_calls?.map((tc) =>
+                                    details(
+                                        `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
+                                        renderToolArguments(
+                                            tc.function.arguments
+                                        )
                                     )
-                                    .join("\n"),
+                                ) || []),
                             ]
                                 .filter((s) => !!s)
                                 .join("\n\n"),
@@ -709,7 +715,7 @@ export function renderMessagesToMarkdown(
                 case "tool":
                     res.push(
                         details(
-                            `🛠️ tool <code>${msg.tool_call_id}</code>`,
+                            `🛠️ tool output <code>${msg.tool_call_id}</code>`,
                             fenceMD(msg.content, "json")
                         )
                     )

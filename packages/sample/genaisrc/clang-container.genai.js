@@ -2,7 +2,7 @@ script({
     model: "openai:gpt-3.5-turbo",
 })
 const container = await host.container({
-    image: "chainguard/clang",
+    image: "microblinkdev/clang-devenv",
 })
 let sourceIndex = 0
 defTool(
@@ -14,10 +14,10 @@ defTool(
     async (args) => {
         const { source } = args
 
-        const cwd = `tmp/${sourceIndex++}`
-        const fn = `main.c`
+        const fn = `tmp/${sourceIndex++}/main.c`
         await container.writeText(fn, source)
-        return await container.exec("clang", [fn], { cwd })
+        const res = await container.exec("clang", [fn])
+        return res
     }
 )
 

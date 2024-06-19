@@ -6,6 +6,7 @@ import {
     DOCKER_VOLUMES_DIR,
     TraceOptions,
     dotGenaiscriptPath,
+    errorMessage,
     host,
     installImport,
     logError,
@@ -101,7 +102,7 @@ export class DockerManager {
         }
     }
 
-    async container(id: string) {
+    async container(id: string): Promise<ContainerHost> {
         const c = this.containers.find((c) => c.id === id)
         return c
     }
@@ -159,13 +160,18 @@ export class DockerManager {
             trace?.itemValue(`id`, container.id)
             trace?.itemValue(`host path`, hostPath)
             trace?.itemValue(`container path`, containerPath)
+            const inspection = await container.inspect()
+            trace?.itemValue(`container state`, inspection.State?.Status)
 
             const exec: ShellHost["exec"] = async (
                 command,
                 args,
                 options
             ): Promise<ShellOutput> => {
-                const { cwd = containerPath, label } = options || {}
+                const { cwd: userCwd, label } = options || {}
+                const cwd = userCwd
+                    ? host.path.join(containerPath, userCwd)
+                    : containerPath
                 try {
                     trace?.startDetails(
                         `📦 ▶️ container exec ${label || command}`
@@ -173,6 +179,19 @@ export class DockerManager {
                     trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
                     trace?.item(`\`${command}\` ${args.join(" ")}`)
+
+                    let inspection = await container.inspect()
+                    trace?.itemValue(
+                        `container state`,
+                        inspection.State?.Status
+                    )
+                    if (inspection.State?.Paused) {
+                        trace?.log(`unpausing container`)
+                        await container.unpause()
+                    } else if (!inspection.State?.Running) {
+                        trace?.log(`restarting container`)
+                        await container.restart()
+                    }
 
                     const exec = await container.exec({
                         Cmd: [command, ...args],
@@ -206,6 +225,13 @@ export class DockerManager {
                     if (sres.stderr) trace?.detailsFenced(`stderr`, sres.stderr)
 
                     return sres
+                } catch (e) {
+                    trace?.error(`${command} failed`, e)
+                    return {
+                        exitCode: -1,
+                        failed: true,
+                        stderr: errorMessage(e),
+                    }
                 } finally {
                     trace?.endDetails()
                 }
