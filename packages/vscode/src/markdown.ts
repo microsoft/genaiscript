@@ -7,6 +7,7 @@ export function toMarkdownString(...lines: string[]) {
 
 export async function showMarkdownPreview(uri: vscode.Uri) {
     await vscode.commands.executeCommand("markdown.showPreview", uri)
+    await vscode.commands.executeCommand("markdown.preview.refresh")
 }
 
 export function toFencedCodeBlock(code: string, language?: string) {

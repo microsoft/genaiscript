@@ -4,9 +4,8 @@ import {
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
     TOOL_ID,
-    TRACE_FILE_PREVIEW_MAX_LENGTH,
 } from "./constants"
-import { fenceMD } from "./markdown"
+import { fenceMD, parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
@@ -15,13 +14,11 @@ import { host } from "./host"
 import { ellipse, renderWithPrecision, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
 
-export class MarkdownTrace
-    extends EventTarget
-    implements ToolCallTrace
-{
+export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     readonly errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: string = ""
+    private _tree: TraceTree
 
     constructor() {
         super()
@@ -32,6 +29,11 @@ export class MarkdownTrace
         if (!this.disableChangeDispatch) this.dispatchEvent(new Event(CHANGE))
     }
 
+    get tree() {
+        if (!this._tree) this._tree = parseTraceTree(this._content)
+        return this._tree
+    }
+
     get content() {
         return this._content
     }
@@ -39,6 +41,7 @@ export class MarkdownTrace
     set content(value: string) {
         if (this._content !== value) {
             this._content = value
+            this._tree = undefined
             this.dispatchChange()
         }
     }
@@ -46,10 +49,7 @@ export class MarkdownTrace
     startDetails(title: string, success?: boolean) {
         this.detailsDepth++
         title = title?.trim() || ""
-        this.content += `\n\n<details id="${title.replace(
-            /\s+/g,
-            "-"
-        )}" class="${TOOL_ID}">
+        this.content += `\n\n<details class="${TOOL_ID}">
 <summary>
 ${this.toResultIcon(success, "")}${title}
 </summary>
@@ -183,8 +183,14 @@ ${this.toResultIcon(success, "")}${title}
         const errors = this.errors || []
         if (errors.length) {
             this.disableChange(() => {
-                this.heading(3, "Errors")
-                errors.forEach((e) => this.renderError(e, { details: true }))
+                try {
+                    this.startDetails(`${EMOJI_FAIL} Errors`)
+                    errors.forEach((e) =>
+                        this.renderError(e, { details: true })
+                    )
+                } finally {
+                    this.endDetails()
+                }
             })
         }
     }
@@ -200,7 +206,7 @@ ${this.toResultIcon(success, "")}${title}
         const emsg = errorMessage(error)
         const msg = message || emsg
         this.disableChange(() => {
-            this.caution(msg)
+            this.item(msg)
             if (options.details && error?.stack) {
                 this.content += `> \`\`\`\`\`\`\`markdown`
                 this.content += error.stack

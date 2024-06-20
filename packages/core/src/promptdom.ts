@@ -496,14 +496,17 @@ async function tracePromptNode(
     await visitNode(root, {
         node: (n) => {
             const error = errorMessage(n.error)
-            const title = toStringList(
+            let title = toStringList(
                 n.type || `🌳 prompt tree ${options?.label || ""}`,
-                n.priority ? `#${n.priority}` : undefined,
+                n.priority ? `#${n.priority}` : undefined
+            )
+            const value = toStringList(
                 n.tokens
                     ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
                     : undefined,
                 error
             )
+            if (value.length > 0) title += `: ${value}`
             if (n.children?.length)
                 trace.startDetails(title, n.error ? false : undefined)
             else trace.resultItem(!n.error, title)

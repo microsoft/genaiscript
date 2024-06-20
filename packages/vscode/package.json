@@ -117,8 +117,13 @@
         "views": {
             "genaiscript": [
                 {
+                    "id": "genaiscript.trace",
+                    "name": "Trace"
+                },
+                {
                     "id": "genaiscript.prompts",
-                    "name": "GenAIScript"
+                    "name": "Scripts",
+                    "visibility": "collapsed"
                 },
                 {
                     "id": "genaiscript.prompts.requests",
@@ -126,8 +131,8 @@
                     "visibility": "collapsed"
                 },
                 {
-                    "id": "genaiscript.openai.requests",
-                    "name": "OpenAI Requests",
+                    "id": "genaiscript.llm.requests",
+                    "name": "Chat Requests",
                     "visibility": "collapsed"
                 }
             ]
@@ -194,6 +199,11 @@
             ],
             "view/title": [
                 {
+                    "command": "genaiscript.request.abort",
+                    "when": "view == genaiscript.trace",
+                    "group": "navigation"
+                },
+                {
                     "command": "genaiscript.prompt.create",
                     "when": "view == genaiscript.prompts",
                     "group": "navigation"
@@ -258,7 +268,8 @@
             {
                 "command": "genaiscript.request.abort",
                 "title": "Abort OpenAI request",
-                "category": "GenAIScript"
+                "category": "GenAIScript",
+                "icon": "$(debug-stop)"
             },
             {
                 "command": "genaiscript.fragment.navigate",
