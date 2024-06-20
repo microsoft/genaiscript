@@ -1,15 +1,13 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import {
-    CHANGE,
-    DetailsNode,
-    ItemNode,
-    TRACE_NODE_PREFIX,
-    TraceNode,
-    TraceTree,
-    parseTraceTree,
-} from "genaiscript-core"
+import { CHANGE, TRACE_NODE_PREFIX, TraceNode } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
+
+function unmarkdown(text: string) {
+    return text
+        ?.replace(/\[([^\]]+)\]\([^)]+\)/g, (m, n) => n)
+        ?.replace(/<\/?([^>]+)>/g, "")
+}
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     constructor(readonly state: ExtensionState) {
@@ -26,7 +24,7 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
             item.tooltip = tooltip
             return item
         } else {
-            const item = new vscode.TreeItem(element.label)
+            const item = new vscode.TreeItem(unmarkdown(element.label))
             item.id = element.id
             if (element.type === "details") {
                 item.collapsibleState =
@@ -57,10 +55,7 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
                     item.tooltip = tooltip
                 }
             } else if (element.type === "item") {
-                item.description = element.value?.replace(
-                    /\[([^\]]+)\]\([^)]+\)/g,
-                    (m, n) => n
-                )
+                item.description = unmarkdown(element.value)
                 const tooltip = new vscode.MarkdownString(element.value, true)
                 tooltip.isTrusted = false // LLM, user generated
                 item.tooltip = tooltip
