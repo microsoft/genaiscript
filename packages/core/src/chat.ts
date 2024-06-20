@@ -8,11 +8,7 @@ import { GenerationOptions } from "./promptcontext"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
-import {
-    extractFenced,
-    findFirstDataFence,
-    renderFencedVariables,
-} from "./fence"
+import { extractFenced, findFirstDataFence } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
 import { CHAT_CACHE, MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
@@ -406,10 +402,8 @@ function structurifyChatSession(
     const frames: DataFrame[] = []
 
     // validate schemas in fences
-    if (fences?.length) {
+    if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
-        trace.details("📩 code regions", renderFencedVariables(fences))
-    }
 
     return {
         text,

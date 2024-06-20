@@ -15,7 +15,7 @@ import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
 import { resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
-import { unquote } from "./fence"
+import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
@@ -387,6 +387,8 @@ export async function runTemplate(
             })
 
         // reporting
+        if (fences?.length)
+            trace.details("📩 code regions", renderFencedVariables(fences))
         if (edits.length)
             trace.details(
                 "✏️ edits",

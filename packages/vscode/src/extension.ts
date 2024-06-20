@@ -7,7 +7,7 @@ import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
-import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
+import { activateLLMRequestTreeDataProvider } from "./llmrequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
 import { activateModelCompletionProvider } from "./modelcompletionprovider"
@@ -21,7 +21,7 @@ export async function activate(context: ExtensionContext) {
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
-    activateOpenAIRequestTreeDataProvider(state)
+    activateLLMRequestTreeDataProvider(state)
     activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateModelCompletionProvider(state)

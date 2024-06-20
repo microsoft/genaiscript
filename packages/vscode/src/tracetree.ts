@@ -1,6 +1,11 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { CHANGE, TRACE_NODE_PREFIX, TraceNode } from "genaiscript-core"
+import {
+    CHANGE,
+    throttle,
+    TRACE_NODE_PREFIX,
+    TraceNode,
+} from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 
 function unmarkdown(text: string) {
@@ -11,7 +16,8 @@ function unmarkdown(text: string) {
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     constructor(readonly state: ExtensionState) {
-        this.state.addEventListener(CHANGE, () => this.refresh())
+        const throttledRefresh = throttle(this.refresh.bind(this), 1000)
+        this.state.addEventListener(CHANGE, throttledRefresh)
     }
 
     getTreeItem(

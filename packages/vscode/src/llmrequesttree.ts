@@ -11,13 +11,13 @@ import {
 } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 
-type OpenAIRequestTreeNode = CacheEntry<
+type LLMRequestTreeNode = CacheEntry<
     CreateChatCompletionRequest,
     ChatCompletationRequestCacheValue
 >
 
-class OpenAIRequestTreeDataProvider
-    implements vscode.TreeDataProvider<OpenAIRequestTreeNode>
+class LLMRequestTreeDataProvider
+    implements vscode.TreeDataProvider<LLMRequestTreeNode>
 {
     cache: ChatCompletationRequestCache
     constructor(readonly state: ExtensionState) {
@@ -25,9 +25,7 @@ class OpenAIRequestTreeDataProvider
         this.cache.addEventListener(CHANGE, () => this.refresh())
     }
 
-    async getTreeItem(
-        element: OpenAIRequestTreeNode
-    ): Promise<vscode.TreeItem> {
+    async getTreeItem(element: LLMRequestTreeNode): Promise<vscode.TreeItem> {
         const { sha, key, val } = element
         const item = new vscode.TreeItem(
             sha,
@@ -43,8 +41,8 @@ class OpenAIRequestTreeDataProvider
     }
 
     async getChildren(
-        element?: OpenAIRequestTreeNode | undefined
-    ): Promise<OpenAIRequestTreeNode[]> {
+        element?: LLMRequestTreeNode | undefined
+    ): Promise<LLMRequestTreeNode[]> {
         if (!element) {
             const entries = await this.cache.entries()
             return entries
@@ -54,35 +52,32 @@ class OpenAIRequestTreeDataProvider
 
     async resolveTreeItem?(
         item: vscode.TreeItem,
-        element: OpenAIRequestTreeNode,
+        element: LLMRequestTreeNode,
         token: vscode.CancellationToken
     ) {
         return item
     }
 
     private _onDidChangeTreeData: vscode.EventEmitter<
-        void | OpenAIRequestTreeNode | OpenAIRequestTreeNode[]
+        void | LLMRequestTreeNode | LLMRequestTreeNode[]
     > = new vscode.EventEmitter<
-        void | OpenAIRequestTreeNode | OpenAIRequestTreeNode[]
+        void | LLMRequestTreeNode | LLMRequestTreeNode[]
     >()
     readonly onDidChangeTreeData: vscode.Event<
-        void | OpenAIRequestTreeNode | OpenAIRequestTreeNode[]
+        void | LLMRequestTreeNode | LLMRequestTreeNode[]
     > = this._onDidChangeTreeData.event
 
-    refresh(treeItem?: OpenAIRequestTreeNode | OpenAIRequestTreeNode[]): void {
+    refresh(treeItem?: LLMRequestTreeNode | LLMRequestTreeNode[]): void {
         this._onDidChangeTreeData.fire(treeItem)
     }
 }
 
-export function activateOpenAIRequestTreeDataProvider(state: ExtensionState) {
+export function activateLLMRequestTreeDataProvider(state: ExtensionState) {
     const { context } = state
     const { subscriptions } = context
-    const treeDataProvider = new OpenAIRequestTreeDataProvider(state)
-    const treeView = vscode.window.createTreeView(
-        "genaiscript.openai.requests",
-        {
-            treeDataProvider,
-        }
-    )
+    const treeDataProvider = new LLMRequestTreeDataProvider(state)
+    const treeView = vscode.window.createTreeView("genaiscript.llm.requests", {
+        treeDataProvider,
+    })
     subscriptions.push(treeView)
 }
