@@ -30,8 +30,7 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     }
 
     get tree() {
-        if (!this._tree)
-            this._tree = parseTraceTree(this._content)
+        if (!this._tree) this._tree = parseTraceTree(this._content)
         return this._tree
     }
 
@@ -50,10 +49,7 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     startDetails(title: string, success?: boolean) {
         this.detailsDepth++
         title = title?.trim() || ""
-        this.content += `\n\n<details id="${title.replace(
-            /\s+/g,
-            "-"
-        )}" class="${TOOL_ID}">
+        this.content += `\n\n<details class="${TOOL_ID}">
 <summary>
 ${this.toResultIcon(success, "")}${title}
 </summary>
@@ -210,7 +206,7 @@ ${this.toResultIcon(success, "")}${title}
         const emsg = errorMessage(error)
         const msg = message || emsg
         this.disableChange(() => {
-            this.caution(msg)
+            this.item(msg)
             if (options.details && error?.stack) {
                 this.content += `> \`\`\`\`\`\`\`markdown`
                 this.content += error.stack
