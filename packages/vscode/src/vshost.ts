@@ -92,8 +92,8 @@ export class VSCodeHost extends EventTarget implements Host {
                 const files = await this.findFiles(from)
                 for (const file of files) {
                     const source = Utils.joinPath(prj, file)
-                    const target = Utils.joinPath(prj, hostPath, file)
-                    vscode.workspace.fs.copy(source, target, {
+                    const target = vscode.Uri.file(this.path.join(hostPath, to, file))
+                    await vscode.workspace.fs.copy(source, target, {
                         overwrite: true,
                     })
                 }
