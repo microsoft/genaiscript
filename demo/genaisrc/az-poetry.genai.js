@@ -7,7 +7,7 @@ defTool("search_files", "search files in the workspace", {
         }
     }
 }, async args => {
-    const { search} = args
+    const { search } = args
     const files = await workspace.findFiles(search)
     return files.map(f => f.filename).join("\n")
 })

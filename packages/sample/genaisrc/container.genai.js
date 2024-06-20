@@ -16,6 +16,8 @@ if (version.stdout !== fversion)
     throw new Error(
         `writetext/readtext error, expected '${version.stdout}', got '${fversion}'`
     )
+await container.copy("src/rag/*", "rag")
+if (!await container.readText("src/rag/markdown.md")) throw new Error("copy failed")
 await container.writeText("main.py", 'print("hello")')
 const hello = await container.exec("python", ["main.py"])
 if (hello.exitCode) throw new Error("python script failed")

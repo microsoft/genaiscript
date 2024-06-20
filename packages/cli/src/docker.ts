@@ -10,11 +10,12 @@ import {
     host,
     installImport,
     logError,
+    logVerbose,
 } from "genaiscript-core"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
 import { randomBytes } from "node:crypto"
-import { readFile, writeFile } from "fs/promises"
+import { copyFile, readFile, writeFile } from "fs/promises"
 import { DOCKERODE_VERSION } from "./version"
 
 type DockerodeType = import("dockerode")
@@ -248,6 +249,17 @@ export class DockerManager {
                 return await readFile(hostFilename, { encoding: "utf8" })
             }
 
+            const copy = async (from: string | string[], to: string) => {
+                const files = await host.findFiles(from)
+                for (const file of files) {
+                    const source = host.path.resolve(file)
+                    const target = host.path.resolve(hostPath, file)
+                    logVerbose(`copy ${source} -> ${target}`)
+                    await ensureDir(host.path.dirname(target))
+                    await copyFile(source, target)
+                }
+            }
+
             const c = <ContainerHost>{
                 id: container.id,
                 disablePurge: !!options.disablePurge,
@@ -256,6 +268,7 @@ export class DockerManager {
                 exec,
                 writeText,
                 readText,
+                copy,
             }
             this.containers.push(c)
             await container.start()

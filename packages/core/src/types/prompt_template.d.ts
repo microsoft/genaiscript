@@ -1529,6 +1529,13 @@ interface ContainerHost extends ShellHost {
      * @param path
      */
     readText(path: string): Promise<string>
+
+    /**
+     * Copies a set of files into the container
+     * @param fromHost glob matching files
+     * @param toContainer directory in the container
+     */
+    copy(fromHost: string | string[], toContainer: string): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {
