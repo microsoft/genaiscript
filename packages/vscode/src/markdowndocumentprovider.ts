@@ -207,10 +207,8 @@ export function activateMarkdownTextDocumentContentProvider(
         vscode.commands.registerCommand(
             "genaiscript.request.open",
             async (id: string) => {
-                if (state.aiRequest) {
-                    const uri = infoUri(id || REQUEST_TRACE_FILENAME)
-                    await showMarkdownPreview(uri)
-                }
+                const uri = infoUri(id || REQUEST_TRACE_FILENAME)
+                await showMarkdownPreview(uri)
             }
         ),
         vscode.commands.registerCommand("genaiscript.request.open.trace", () =>

@@ -57,7 +57,10 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
                     item.tooltip = tooltip
                 }
             } else if (element.type === "item") {
-                item.description = element.value
+                item.description = element.value?.replace(
+                    /\[([^\]]+)\]\([^)]+\)/g,
+                    (m, n) => n
+                )
                 const tooltip = new vscode.MarkdownString(element.value, true)
                 tooltip.isTrusted = false // LLM, user generated
                 item.tooltip = tooltip
