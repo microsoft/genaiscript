@@ -7,7 +7,7 @@ describe("trace tree", () => {
         const res = parseTraceTree(undefined)
         assert.deepStrictEqual(res, {
             label: "root",
-            content: [''],
+            content: [""],
         })
     })
 
