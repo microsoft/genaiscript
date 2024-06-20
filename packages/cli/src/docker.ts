@@ -249,7 +249,7 @@ export class DockerManager {
                 return await readFile(hostFilename, { encoding: "utf8" })
             }
 
-            const copy = async (from: string | string[], to: string) => {
+            const copyTo = async (from: string | string[], to: string) => {
                 const files = await host.findFiles(from)
                 for (const file of files) {
                     const source = host.path.resolve(file)
@@ -267,7 +267,7 @@ export class DockerManager {
                 exec,
                 writeText,
                 readText,
-                copy,
+                copyTo,
             }
             this.containers.push(c)
             await container.start()

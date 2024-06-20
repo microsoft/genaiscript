@@ -87,12 +87,14 @@ export class VSCodeHost extends EventTarget implements Host {
                 )
                 return await readFileText(this.projectUri, fn)
             },
-            copy: async (from, to) => {
+            copyTo: async (from, to) => {
                 const prj = this.projectUri
                 const files = await this.findFiles(from)
                 for (const file of files) {
                     const source = Utils.joinPath(prj, file)
-                    const target = vscode.Uri.file(this.path.join(hostPath, to, file))
+                    const target = vscode.Uri.file(
+                        this.path.join(hostPath, to, file)
+                    )
                     await vscode.workspace.fs.copy(source, target, {
                         overwrite: true,
                     })
