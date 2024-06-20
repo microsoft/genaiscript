@@ -20,6 +20,9 @@ import {
     prettifyMarkdown,
     renderFencedVariables,
     GENAI_JS_REGEX,
+    TRACE_NODE_PREFIX,
+    parseTraceTree,
+    renderTraceTree,
 } from "genaiscript-core"
 
 const SCHEME = "genaiscript"
@@ -56,6 +59,14 @@ class MarkdownTextDocumentContentProvider
         new vscode.EventEmitter<vscode.Uri>()
     readonly onDidChange: vscode.Event<vscode.Uri> = this._onDidChange.event
 
+    private previewTraceNode(id: string) {
+        const tree = parseTraceTree(this.state.aiRequest?.trace?.content)
+        const node = tree?.nodes[id]
+        if (typeof node === "object" && node?.type === "details")
+            return node.content.map(renderTraceTree).join("\n")
+        return renderTraceTree(node)
+    }
+
     async provideTextDocumentContent(
         uri: vscode.Uri,
         token: vscode.CancellationToken
@@ -84,6 +95,12 @@ ${prettifyMarkdown(md)}
                     YAMLStringify(this.state.lastSearch || {}),
                     "yaml"
                 )
+        }
+        if (uri.path.startsWith(TRACE_NODE_PREFIX)) {
+            const id = uri.path
+                .slice(TRACE_NODE_PREFIX.length)
+                .replace(/\.md$/, "")
+            return this.previewTraceNode(id)
         }
         if (uri.path.startsWith(CACHE_LLMREQUEST_PREFIX)) {
             const sha = uri.path

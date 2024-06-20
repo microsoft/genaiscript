@@ -123,3 +123,12 @@ export function parseTraceTree(text: string): TraceTree {
 
     return { root: stack[0], nodes }
 }
+
+export function renderTraceTree(node: TraceNode): string {
+    if (!node) return ""
+    if (typeof node === "string") return node
+    else if (node.type === "item") return `- ${node.label}: ${node.value}`
+    else if (node.type === "details")
+        return details(node.label, node.content.map(renderTraceTree).join("\n"))
+    else return ""
+}

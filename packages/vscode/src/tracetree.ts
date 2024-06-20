@@ -4,10 +4,12 @@ import {
     CHANGE,
     DetailsNode,
     ItemNode,
+    TRACE_NODE_PREFIX,
     TraceNode,
     TraceTree,
     parseTraceTree,
 } from "genaiscript-core"
+import { infoUri } from "./markdowndocumentprovider"
 
 class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
     constructor(readonly state: ExtensionState) {
@@ -26,6 +28,11 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
         } else {
             const item = new vscode.TreeItem(element.label)
             item.id = element.id
+            item.command = {
+                command: "markdown.showPreview",
+                arguments: [infoUri(TRACE_NODE_PREFIX + item.id + ".md")],
+                title: "Show Preview",
+            }
             if (element.type === "details") {
                 item.collapsibleState =
                     element.content.filter((s) => typeof s !== "string")
