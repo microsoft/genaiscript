@@ -68,7 +68,7 @@ export class VSCodeHost extends EventTarget implements Host {
         const containerId = res.id
         const hostPath = res.hostPath
         const containerPath = res.containerPath
-        return {
+        return <ContainerHost>{
             id: containerId,
             disablePurge: res.disablePurge,
             hostPath,
@@ -86,6 +86,19 @@ export class VSCodeHost extends EventTarget implements Host {
                     false
                 )
                 return await readFileText(this.projectUri, fn)
+            },
+            copyTo: async (from, to) => {
+                const prj = this.projectUri
+                const files = await this.findFiles(from)
+                for (const file of files) {
+                    const source = Utils.joinPath(prj, file)
+                    const target = vscode.Uri.file(
+                        this.path.join(hostPath, to, file)
+                    )
+                    await vscode.workspace.fs.copy(source, target, {
+                        overwrite: true,
+                    })
+                }
             },
             exec: async (command, args, options) => {
                 const r = await this.server.client.exec(
@@ -222,7 +235,7 @@ export class VSCodeHost extends EventTarget implements Host {
     }
     async findFiles(
         pattern: string | string[],
-        options: {
+        options?: {
             ignore?: string | string[]
             applyGitIgnore?: boolean
         }

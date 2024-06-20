@@ -61,3 +61,16 @@ The container has a volume mounted in the host file system, which allows to read
 await container.writeText("hello.txt", "Hello, world!")
 const content = await container.readText("hello.txt")
 ```
+
+## Copy files to container
+
+You can also copy files from the host to the container.
+
+```js
+// src/* -> ./src/*
+await container.copyTo("src/**", ".")
+```
+
+## Using containers in tools
+
+The [containerized tools](/genaiscript/guides/containerized-tools) guide shows how to use containers in tools to handle untrusted text securely.

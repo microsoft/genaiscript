@@ -1,5 +1,5 @@
 ---
-title: Dockerized Tools
+title: Containerized Tools
 sidebar:
     order: 10
 ---
