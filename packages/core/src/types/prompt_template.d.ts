@@ -135,6 +135,11 @@ interface ModelOptions extends ModelConnectionOptions {
     responseType?: PromptTemplateResponseType
 
     /**
+     * JSON object schema for the output. Enables the `JSON` output mode.
+     */
+    responseSchema?: JSONSchemaObject
+
+    /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
      * A high “top_p” value means the model looks at more possible words, even the less likely ones,
      * which makes the generated text more diverse.
@@ -175,14 +180,15 @@ interface ModelOptions extends ModelConnectionOptions {
 }
 
 interface ScriptRuntimeOptions {
+    /**
+     * List of system script ids used by the prompt.
+     */
     system?: SystemPromptId[]
 
-    tools?: SystemToolId[]
-
     /**
-     * JSON object schema for the output. Enables the `JSON` output mode.
+     * List of tools used by the prompt.
      */
-    responseSchema?: JSONSchemaObject
+    tools?: SystemToolId[]
 
     /**
      * Secrets required by the prompt
