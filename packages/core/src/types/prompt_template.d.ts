@@ -129,6 +129,12 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
+     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
+     * specify an output schema.
+     */
+    responseType?: PromptTemplateResponseType
+
+    /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
      * A high “top_p” value means the model looks at more possible words, even the less likely ones,
      * which makes the generated text more diverse.
@@ -172,12 +178,6 @@ interface ScriptRuntimeOptions {
     system?: SystemPromptId[]
 
     tools?: SystemToolId[]
-
-    /**
-     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
-     * specify an output schema.
-     */
-    responseType?: PromptTemplateResponseType
 
     /**
      * JSON object schema for the output. Enables the `JSON` output mode.
