@@ -3,21 +3,25 @@ import { parseTraceTree } from "./markdown"
 import assert from "node:assert/strict"
 
 describe("trace tree", () => {
-    test("flat", () => {
-        const res = parseTraceTree(undefined)
+    test("empty", () => {
+        const { root: res } = parseTraceTree(undefined)
         assert.deepStrictEqual(res, {
+            type: "details",
+            id: "1",
             label: "root",
             content: [""],
         })
     })
 
     test("flat", () => {
-        const res = parseTraceTree(`
+        const { root: res } = parseTraceTree(`
 flat tree
 2
 3
 `)
         assert.deepStrictEqual(res, {
+            type: "details",
+            id: "1",
             label: "root",
             content: [
                 `
@@ -30,7 +34,7 @@ flat tree
     })
 
     test("one node", () => {
-        const res = parseTraceTree(`
+        const { root: res } = parseTraceTree(`
 flat tree
 <details>
 <summary>2</summary>
@@ -39,11 +43,13 @@ flat tree
 3
 `)
         assert.deepStrictEqual(res, {
+            type: "details",
+            id: "1",
             label: "root",
             content: [
                 `
 flat tree`,
-                { label: "2", content: ["2.5"] },
+                { type: "details", id: "2", label: "2", content: ["2.5"] },
                 `3
 `,
             ],
@@ -51,7 +57,7 @@ flat tree`,
     })
 
     test("multi node", () => {
-        const res = parseTraceTree(`
+        const { root: res } = parseTraceTree(`
 flat tree
 <details>
 <summary>
@@ -62,11 +68,13 @@ flat tree
 3
 `)
         assert.deepStrictEqual(res, {
+            type: "details",
+            id: "1",
             label: "root",
             content: [
                 `
 flat tree`,
-                { label: "2", content: ["2.5"] },
+                { type: "details", id: "2", label: "2", content: ["2.5"] },
                 `3
 `,
             ],
@@ -74,7 +82,7 @@ flat tree`,
     })
 
     test("nested node", () => {
-        const res = parseTraceTree(`
+        const { root: res } = parseTraceTree(`
 flat tree
 <details>
 <summary>
@@ -90,11 +98,25 @@ flat tree
 3
 `)
         assert.deepStrictEqual(res, {
+            type: "details",
+            id: "1",
             label: "root",
             content: [
                 `
 flat tree`,
-                { label: "2", content: [{ label: "2.5", content: ["2.5.5"] }] },
+                {
+                    type: "details",
+                    id: "2",
+                    label: "2",
+                    content: [
+                        {
+                            type: "details",
+                            id: "3",
+                            label: "2.5",
+                            content: ["2.5.5"],
+                        },
+                    ],
+                },
                 `3
 `,
             ],
