@@ -1,6 +1,7 @@
 script({
     model: "openai:gpt-4-32k",
     files: [],
+    temperature: 1,
     title: "pr-describe",
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
@@ -28,6 +29,7 @@ $`You are an expert software developer and architect.
 
 ## Instructions
 
+- do NOT explain that GIT_DIFF displays changes in the codebase
 - try to extract the intent of the changes, don't focus on the details
 - use bullet points to list the changes
 - use emojis to make the description more engaging
