@@ -28,17 +28,23 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
         } else {
             const item = new vscode.TreeItem(element.label)
             item.id = element.id
-            item.command = {
-                command: "markdown.showPreview",
-                arguments: [infoUri(TRACE_NODE_PREFIX + item.id + ".md")],
-                title: "Show Preview",
-            }
             if (element.type === "details") {
                 item.collapsibleState =
                     element.content.filter((s) => typeof s !== "string")
                         .length > 0
                         ? vscode.TreeItemCollapsibleState.Collapsed
                         : vscode.TreeItemCollapsibleState.None
+                if (
+                    item.collapsibleState ===
+                    vscode.TreeItemCollapsibleState.None
+                )
+                    item.command = {
+                        command: "markdown.showPreview",
+                        arguments: [
+                            infoUri(TRACE_NODE_PREFIX + item.id + ".md"),
+                        ],
+                        title: "Show Preview",
+                    }
                 if (
                     typeof element.content[0] === "string" &&
                     element.content[0]
@@ -52,17 +58,20 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
                 }
             } else if (element.type === "item") {
                 item.description = element.value
+                const tooltip = new vscode.MarkdownString(element.value, true)
+                tooltip.isTrusted = false // LLM, user generated
+                item.tooltip = tooltip
             }
             return item
         }
     }
 
-    private _tree: TraceTree
     getChildren(element?: TraceNode): vscode.ProviderResult<TraceNode[]> {
         if (element === undefined) {
-            this._tree = parseTraceTree(this.state.aiRequest?.trace?.content)
-            element = this._tree.root
+            const tree = this.state.aiRequest?.trace?.tree
+            element = tree?.root
         }
+        if (!element) return []
         if (typeof element === "string") return undefined
         else if (element.type === "details")
             return element?.content?.filter((s) => typeof s !== "string")

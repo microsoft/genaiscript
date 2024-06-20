@@ -21,7 +21,6 @@ import {
     renderFencedVariables,
     GENAI_JS_REGEX,
     TRACE_NODE_PREFIX,
-    parseTraceTree,
     renderTraceTree,
 } from "genaiscript-core"
 
@@ -60,7 +59,7 @@ class MarkdownTextDocumentContentProvider
     readonly onDidChange: vscode.Event<vscode.Uri> = this._onDidChange.event
 
     private previewTraceNode(id: string) {
-        const tree = parseTraceTree(this.state.aiRequest?.trace?.content)
+        const tree = this.state.aiRequest?.trace?.tree
         const node = tree?.nodes[id]
         if (typeof node === "object" && node?.type === "details")
             return node.content.map(renderTraceTree).join("\n")

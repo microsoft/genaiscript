@@ -4,9 +4,8 @@ import {
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
     TOOL_ID,
-    TRACE_FILE_PREVIEW_MAX_LENGTH,
 } from "./constants"
-import { fenceMD } from "./markdown"
+import { fenceMD, parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
@@ -19,6 +18,7 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     readonly errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: string = ""
+    private _tree: TraceTree
 
     constructor() {
         super()
@@ -29,6 +29,12 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
         if (!this.disableChangeDispatch) this.dispatchEvent(new Event(CHANGE))
     }
 
+    get tree() {
+        if (!this._tree)
+            this._tree = parseTraceTree(this._content)
+        return this._tree
+    }
+
     get content() {
         return this._content
     }
@@ -36,6 +42,7 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     set content(value: string) {
         if (this._content !== value) {
             this._content = value
+            this._tree = undefined
             this.dispatchChange()
         }
     }
