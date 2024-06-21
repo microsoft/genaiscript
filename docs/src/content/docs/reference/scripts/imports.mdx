@@ -43,18 +43,6 @@ You're done!
 
 </Steps>
 
-## Default export
-
-If you set a function as the default export, GenAIScript will call it.
-
-```js title="poem.genai.mjs" "export default async function() {" "}"
-script(...)
-export default async function() {
-    $`Write a poem.`
-}
-```
-
-
 ## Imports
 
 Once the file is converted, you can use static or dynamic imports as any other module file.
@@ -85,4 +73,17 @@ export function summarize(files) {
 ```js title="summarize.genai.mjs"
 import { summarize } from "./summarizer.mjs"
 summarize(env.files)
+```
+
+
+## Default function export
+
+If you set a function as the default export, GenAIScript will call it.
+The function can be async.
+
+```js title="poem.genai.mjs" "export default async function() {" "}"
+script(...)
+export default async function() {
+    $`Write a poem.`
+}
 ```
