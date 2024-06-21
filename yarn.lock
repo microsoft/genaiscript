@@ -13411,7 +13411,7 @@ tstl@^2.0.7:
   resolved "https://registry.yarnpkg.com/tstl/-/tstl-2.5.16.tgz#0b52a6a572ece7dc2b532ebc89ba3a95c95c4009"
   integrity sha512-+O2ybLVLKcBwKm4HymCEwZIT0PpwS3gCYnxfSDEjJEKADvIFruaQjd3m7CAKNU1c7N3X3WjVz87re7TA2A5FUw==
 
-tsx@^4.15.6, tsx@^4.15.7:
+tsx@^4.15.7:
   version "4.15.7"
   resolved "https://registry.yarnpkg.com/tsx/-/tsx-4.15.7.tgz#69d7499196a323507c4051d2ba10753edcc057e5"
   integrity sha512-u3H0iSFDZM3za+VxkZ1kywdCeHCn+8/qHQS1MNoO2sONDgD95HlWtt8aB23OzeTmFP9IU4/8bZUdg58Uu5J4cg==

@@ -28,6 +28,7 @@
     "pdfjs-dist": "4.3.136",
     "promptfoo": "^0.65.2",
     "tree-sitter-wasms": "^0.1.11",
+    "tsx": "^4.15.7",
     "typescript": "5.4.5",
     "web-tree-sitter": "^0.22.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
@@ -68,11 +69,10 @@
     "prompts": "^2.4.2",
     "replace-ext": "^2.0.0",
     "semver": "^7.6.2",
-    "tsx": "^4.15.6",
     "zx": "^8.1.2"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:esbuild --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
+    "compile": "esbuild src/main.ts --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo && node ../../scripts/patch-cli.mjs",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "go": "yarn compile && node built/genaiscript.cjs",
     "test": "node --import tsx --test src/**.test.ts",

@@ -357,7 +357,7 @@
         "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
         "vscode:prepublish": "yarn run compile",
         "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:esbuild --external:vscode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:tsx --external:vscode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms",
         "compile": "yarn compile:icons && yarn compile:extension",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
@@ -391,6 +391,7 @@
         "mammoth": "^1.8.0",
         "pdfjs-dist": "4.3.136",
         "tree-sitter-wasms": "^0.1.11",
+        "tsx": "^4.15.7",
         "web-tree-sitter": "^0.22.6"
     },
     "optionalDependencies": {
