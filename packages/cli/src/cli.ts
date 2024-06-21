@@ -17,7 +17,7 @@ import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
-import { runScript } from "./run"
+import { runScriptWithExitCode } from "./run"
 import { batchScript } from "./batch"
 import {
     retrievalClear,
@@ -153,7 +153,7 @@ export async function cli() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
-        .action(runScript)
+        .action(runScriptWithExitCode)
 
     program
         .command("batch")

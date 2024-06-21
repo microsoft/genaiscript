@@ -35,6 +35,9 @@ import {
     githubUpdatePullRequestDescription,
     githubCreatePullRequestReviews,
     githubCreateIssueComment,
+    PromptScriptRunOptions,
+    TraceOptions,
+    CancellationOptions,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -44,43 +47,20 @@ import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
 
-export async function runScript(
-    tool: string,
-    specs: string[],
-    options: {
-        excludedFiles: string[]
-        excludeGitIgnore: boolean
-        out: string
-        retry: string
-        retryDelay: string
-        maxDelay: string
-        json: boolean
-        yaml: boolean
-        prompt: boolean
-        outTrace: string
-        outAnnotations: string
-        outChangelogs: string
-        pullRequestComment: string | boolean
-        pullRequestDescription: string | boolean
-        pullRequestReviews: boolean
-        outData: string
-        label: string
-        temperature: string
-        topP: string
-        seed: string
-        maxTokens: string
-        maxToolCalls: string
-        maxDataRepairs: string
-        model: string
-        csvSeparator: string
-        cache: boolean
-        cacheName: string
-        applyEdits: boolean
-        failOnErrors: boolean
-        removeOut: boolean
-        vars: string[]
-    }
+export async function runScriptWithExitCode(
+    scriptId: string,
+    files: string[],
+    options: PromptScriptRunOptions & TraceOptions & CancellationOptions
 ) {
+    const exitCode = await runScript(scriptId, files, options)
+    process.exit(exitCode)
+}
+
+export async function runScript(
+    scriptId: string,
+    files: string[],
+    options: PromptScriptRunOptions & TraceOptions & CancellationOptions
+): Promise<number> {
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
@@ -109,6 +89,7 @@ export async function runScript(
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
     const cacheName = options.cacheName
+    const cancellationToken = options.cancellationToken
 
     const spinner =
         !stream && !isQuiet
@@ -117,7 +98,7 @@ export async function runScript(
     const fail = (msg: string, exitCode: number) => {
         if (spinner) spinner.fail(msg)
         else logVerbose(msg)
-        process.exit(exitCode)
+        return exitCode
     }
 
     let spec: string
@@ -125,30 +106,34 @@ export async function runScript(
     const toolFiles: string[] = []
 
     let md: string
-    const files = new Set<string>()
+    const resolvedFiles = new Set<string>()
 
-    if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
+    if (GENAI_JS_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
-    if (!specs?.length) {
+    if (!files?.length) {
         specContent = "\n"
         spec = "stdin.gpspec.md"
-    } else if (specs.length === 1 && GPSPEC_REGEX.test(specs[0])) {
-        spec = specs[0]
+    } else if (files.length === 1 && GPSPEC_REGEX.test(files[0])) {
+        spec = files[0]
     } else {
-        for (const arg of specs) {
-            if (HTTPS_REGEX.test(arg)) files.add(arg)
+        for (const arg of files) {
+            if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
             else {
                 const ffs = await host.findFiles(arg, {
                     applyGitIgnore: excludeGitIgnore,
                 })
-                if (!ffs.length)
-                    fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
+                if (!ffs.length) {
+                    return fail(
+                        `no files matching ${arg}`,
+                        FILES_NOT_FOUND_ERROR_CODE
+                    )
+                }
 
                 for (const file of ffs) {
                     if (GPSPEC_REGEX.test(file)) {
                         md = (md || "") + (await readText(file)) + "\n"
                     } else {
-                        files.add(file)
+                        resolvedFiles.add(file)
                     }
                 }
             }
@@ -158,21 +143,21 @@ export async function runScript(
     if (excludedFiles?.length) {
         for (const arg of excludedFiles) {
             const ffs = await host.findFiles(arg)
-            for (const f of ffs) files.delete(f)
+            for (const f of ffs) resolvedFiles.delete(f)
         }
     }
 
-    if (md || files.size) {
+    if (md || resolvedFiles.size) {
         spec = "cli.gpspec.md"
         specContent = `${md || "# Specification"}
 
-${Array.from(files)
+${Array.from(resolvedFiles)
     .map((f) => `-   [${basename(f)}](${filePathOrUrlToWorkspaceFile(f)})`)
     .join("\n")}
 `
     }
 
-    if (!spec) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
+    if (!spec) return fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
     if (specContent !== undefined) host.setVirtualFile(spec, specContent)
 
@@ -182,25 +167,27 @@ ${Array.from(files)
     })
     const script = prj.templates.find(
         (t) =>
-            t.id === tool ||
+            t.id === scriptId ||
             (t.filename &&
-                GENAI_JS_REGEX.test(tool) &&
-                resolve(t.filename) === resolve(tool))
+                GENAI_JS_REGEX.test(scriptId) &&
+                resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`tool ${tool} not found`)
+    if (!script) throw new Error(`tool ${scriptId} not found`)
     const gpspec = prj.rootFiles.find(
         (f) => resolve(f.filename) === resolve(spec)
     )
-    if (!gpspec) throw new Error(`spec ${spec} not found`)
+    if (!gpspec)
+        return fail(`spec ${spec} not found`, FILES_NOT_FOUND_ERROR_CODE)
     const fragment = gpspec.fragments[0]
-    if (!fragment) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
+    if (!fragment)
+        return fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
     const vars = parseKeyValuePairs(options.vars)
     let tokens = 0
     let res: GenerationResult
     try {
-        const trace = new MarkdownTrace()
-        trace.heading(2, options.label || script.id)
+        const trace = options?.trace ?? new MarkdownTrace()
+        if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
             model: options.model,
@@ -208,7 +195,7 @@ ${Array.from(files)
         if (info.error) {
             trace.error(undefined, info.error)
             logError(info.error)
-            process.exit(CONFIGURATION_ERROR_CODE)
+            return CONFIGURATION_ERROR_CODE
         }
         res = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
@@ -229,6 +216,7 @@ ${Array.from(files)
             temperature,
             topP,
             seed,
+            cancellationToken,
             maxTokens,
             maxToolCalls,
             maxDataRepairs,
@@ -246,9 +234,9 @@ ${Array.from(files)
         })
     } catch (err) {
         if (spinner) spinner.fail()
-        if (isCancelError(err)) process.exit(USER_CANCELLED_ERROR_CODE)
+        if (isCancelError(err)) return USER_CANCELLED_ERROR_CODE
         logError(err)
-        process.exit(RUNTIME_ERROR_CODE)
+        return RUNTIME_ERROR_CODE
     }
 
     if (spinner) {
@@ -411,14 +399,15 @@ ${Array.from(files)
     // final fail
     if (res.error) {
         logVerbose(errorMessage(res.error))
-        process.exit(RUNTIME_ERROR_CODE)
+        return RUNTIME_ERROR_CODE
     }
 
     if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
         logVerbose(`error annotations found, exiting with error code`)
-        process.exit(ANNOTATION_ERROR_CODE)
+        return ANNOTATION_ERROR_CODE
     }
 
     spinner?.stop()
     process.stderr.write("\n")
+    return 0
 }

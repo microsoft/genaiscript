@@ -70,6 +70,62 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
     value?: PromptScriptTestResult[]
 }
 
+export interface PromptScriptRunOptions {
+    excludedFiles: string[]
+    excludeGitIgnore: boolean
+    out: string
+    retry: string
+    retryDelay: string
+    maxDelay: string
+    json: boolean
+    yaml: boolean
+    prompt: boolean
+    outTrace: string
+    outAnnotations: string
+    outChangelogs: string
+    pullRequestComment: string | boolean
+    pullRequestDescription: string | boolean
+    pullRequestReviews: boolean
+    outData: string
+    label: string
+    temperature: string
+    topP: string
+    seed: string
+    maxTokens: string
+    maxToolCalls: string
+    maxDataRepairs: string
+    model: string
+    csvSeparator: string
+    cache: boolean
+    cacheName: string
+    applyEdits: boolean
+    failOnErrors: boolean
+    removeOut: boolean
+    vars: string[]
+}
+
+export interface PromptScriptRun extends RequestMessage {
+    type: "script.run"
+    script: string
+    files: string[]
+    options: PromptScriptRunOptions
+}
+
+export interface PromptScriptRunResponse extends ResponseStatus {
+    runId: string
+}
+
+export interface PromptScriptAbort extends RequestMessage {
+    type: "script.abort"
+    runId: string
+}
+
+export interface TraceChunk extends RequestMessage {
+    type: "trace.chunk"
+    runId: string
+    chunk: string
+}
+
 export interface ShellExecResponse extends ResponseStatus {
     value: ShellOutput
 }
@@ -112,3 +168,6 @@ export type RequestMessages =
     | ShellExec
     | ContainerStart
     | ContainerRemove
+    | PromptScriptRun
+    | PromptScriptAbort
+    | TraceChunk

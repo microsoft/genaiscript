@@ -12,13 +12,25 @@ import {
     ShellExecResponse,
     ContainerStartResponse,
     DOCKER_DEFAULT_IMAGE,
+    AbortSignalCancellationController,
+    MarkdownTrace,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
+import { runScript } from "./run"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
+
+    const runs: Record<
+        string,
+        {
+            canceller: AbortSignalCancellationController
+            trace: MarkdownTrace
+            runner: Promise<void>
+        }
+    > = {}
 
     wss.on("connection", function connection(ws) {
         console.log(`clients: connected (${wss.clients.size} clients)`)
@@ -97,6 +109,42 @@ export async function startServer(options: { port: string }) {
                             verbose: true,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })
+                        break
+                    }
+                    case "script.run": {
+                        const { script, files, options, id } = data
+                        const canceller =
+                            new AbortSignalCancellationController()
+                        const trace = new MarkdownTrace()
+                        console.log(`run ${id} starting`)
+                        const runner = runScript(script, files, {
+                            ...options,
+                            trace,
+                            cancellationToken: canceller.token,
+                        }).then((exitCode) => {
+                            delete runs[id]
+                            console.log(`run ${id} completed with ${exitCode}`)
+                        })
+                        runs[id] = {
+                            runner,
+                            canceller,
+                            trace,
+                        }
+                        response = <ResponseStatus>{
+                            ok: true,
+                            status: 0,
+                            runId: id,
+                        }
+                        break
+                    }
+                    case "script.abort": {
+                        const { runId } = data
+                        console.log(`abort run ${runId}`)
+                        const run = runs[runId]
+                        if (run) {
+                            delete runs[runId]
+                            run.abort()
+                        }
                         break
                     }
                     case "shell.exec": {
