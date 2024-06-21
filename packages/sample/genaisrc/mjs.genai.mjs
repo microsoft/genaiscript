@@ -9,6 +9,9 @@ script({
 })
 
 import { summarize } from "./summarizer.mjs"
-$`2`
-summarize(env.files)
 
+$`You are an export at analyzing data.`
+
+export default async function () {
+    summarize(env.files)
+}
