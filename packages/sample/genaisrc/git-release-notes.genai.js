@@ -31,8 +31,8 @@ const { stdout: diff } = await host.exec("git", [
     ":!yarn.lock",
 ])
 
-def("COMMITS", commits, { maxTokens: 4000 })
-def("DIFF", diff, { maxTokens: 20000 })
+const commitsName = def("COMMITS", commits, { maxTokens: 4000 })
+const diffName = def("DIFF", diff, { maxTokens: 20000 })
 
 $`
 You are an expert software developer and release manager.
@@ -40,8 +40,10 @@ You are an expert software developer and release manager.
 ## Task
 
 Generate a clear, exciting, relevant, useful release notes
-for the upcoming release ${version} of ${product} on GitHub. The commits in the release are in COMMITS.
-The diff of the changes are in DIFF.
+for the upcoming release ${version} of ${product} on GitHub. 
+
+- The commits in the release are in ${commitsName}.
+- The diff of the changes are in ${diffName}.
 
 ## Guidelines
 
