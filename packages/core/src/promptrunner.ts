@@ -2,7 +2,6 @@ import { executeChatSession } from "./chat"
 import { Fragment, Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
 import { arrayify, assert, logVerbose, relativePath } from "./util"
-import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
@@ -55,7 +54,6 @@ async function resolveExpansionVars(
         } else trace.error(`secret \`${secret}\` not found`)
     }
     const res: Partial<ExpansionVariables> = {
-        ...staticVars(),
         spec: {
             filename: relativePath(host.projectFolder(), file.filename),
             content: file.content,

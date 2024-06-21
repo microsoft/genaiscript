@@ -196,14 +196,6 @@ export function parsePromptScriptMeta(jsSource: string) {
     return meta
 }
 
-export function staticVars(): Omit<ExpansionVariables, "template"> {
-    return {
-        spec: { filename: "spec.gpspec.md", content: "" } as WorkspaceFile,
-        files: [] as WorkspaceFile[],
-        vars: {} as Record<string, string>,
-    }
-}
-
 async function parsePromptTemplateCore(
     filename: string,
     content: string,

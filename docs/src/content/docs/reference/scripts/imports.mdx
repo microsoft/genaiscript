@@ -43,9 +43,19 @@ export function summarize(files) {
 
 ```js title="summarize.genai.mjs"
 import { summarize } from "./summarizer.mjs"
-summarize(env.files)
+summarize(env.generator, env.files)
 ```
 
+## `env.generator`
+
+The `env.generator` references the root prompt generator context, the top level `$`, `def` functions... It can be used to create function that can be used with those function or also with `runPrompt`.
+
+```js title="summarizer.mjs" "_"
+export function summarize(_, files) {
+    _.def("FILE", files)
+    _.$`Summarize each file. Be concise.`
+}
+```
 
 ## Default function export
 

@@ -13,5 +13,5 @@ import { summarize } from "./summarizer.mjs"
 $`You are an export at analyzing data.`
 
 export default async function () {
-    summarize(env.files)
+    summarize(env.generator, env.files)
 }

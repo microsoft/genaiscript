@@ -1,5 +1,5 @@
-export function summarize(files) {
-    def("FILE", files)
-    $`...`
-    $`Summarize each file. Be concise.`
+export function summarize(_, files) {
+    _.def("FILE", files)
+    _.$`...`
+    _.$`Summarize each file. Be concise.`
 }
