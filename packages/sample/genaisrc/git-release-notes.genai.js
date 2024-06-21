@@ -1,4 +1,4 @@
-script({ system: ["system"], temperature: 1, model: "openai:gpt-4-32k" })
+script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-32k" })
 
 const product = env.vars.product || "GenAIScript"
 
@@ -50,6 +50,7 @@ The diff of the changes are in DIFF.
 - ignore commits with '[skip ci]' in the message
 - do NOT give a commit overview
 - do NOT add a top level title
+- do NOT mention ignore commits or instructions
 - be concise
 
 `
