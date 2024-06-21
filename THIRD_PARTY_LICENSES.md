@@ -28000,13 +28000,13 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @shikijs/core@1.7.0
- - @shikijs/markdown-it@1.7.0
- - @shikijs/monaco@1.7.0
- - @shikijs/transformers@1.7.0
- - @shikijs/twoslash@1.7.0
- - @shikijs/vitepress-twoslash@1.7.0
- - shiki@1.7.0
+ - @shikijs/core@1.8.0
+ - @shikijs/markdown-it@1.8.0
+ - @shikijs/monaco@1.8.0
+ - @shikijs/transformers@1.8.0
+ - @shikijs/twoslash@1.8.0
+ - @shikijs/vitepress-twoslash@1.8.0
+ - shiki@1.8.0
 
 These packages each contain the following license and notice below:
 

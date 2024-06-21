@@ -2212,53 +2212,53 @@
   resolved "https://registry.yarnpkg.com/@sevinf/maybe/-/maybe-0.5.0.tgz#e59fcea028df615fe87d708bb30e1f338e46bb44"
   integrity sha512-ARhyoYDnY1LES3vYI0fiG6e9esWfTNcXcO6+MPJJXcnyMV3bim4lnFt45VXouV7y82F4x3YH8nOQ6VztuvUiWg==
 
-"@shikijs/core@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.7.0.tgz#fe4f276519ff224719c6373d66b29fc5ee771abd"
-  integrity sha512-O6j27b7dGmJbR3mjwh/aHH8Ld+GQvA0OQsNO43wKWnqbAae3AYXrhFyScHGX8hXZD6vX2ngjzDFkZY5srtIJbQ==
+"@shikijs/core@1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/core/-/core-1.8.0.tgz#8e12826fc837bebc957b6f0c0211fd6a7f5694f9"
+  integrity sha512-wzVkFzqAVhIOvRTSDwHWVQIpRU66sCjZ/cg5E4bO9jtTEKj94HTRKVVDYgM6ein5KfBCFB61hN3RuSFcpYPq7g==
 
 "@shikijs/markdown-it@^1.6.1":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shikijs/markdown-it/-/markdown-it-1.7.0.tgz#f0ed7b8876a3aca5b81060fbf09d3959f5a7bc4b"
-  integrity sha512-R/FdTmvynOjkiGDCIypmBIEunUVpMegk4x+C/weFQnfK5vQekBQfRZu/7sMBzhBZTncBcafhAQDK7QiNkOvwjQ==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/markdown-it/-/markdown-it-1.8.0.tgz#c8b9dc90605640a216aa959be190e90c72aaaa18"
+  integrity sha512-JpfrztwY4xV3xMARtkB7nbCAxlOOg5rw5VPGi5SJjFZfgNaKiJ60tsTBoNz3YSSLMmdWxJBY6sOOxFTMSxvIYg==
   dependencies:
-    "@shikijs/transformers" "1.7.0"
+    "@shikijs/transformers" "1.8.0"
     markdown-it "^14.1.0"
-    shiki "1.7.0"
+    shiki "1.8.0"
 
 "@shikijs/monaco@^1.6.1":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shikijs/monaco/-/monaco-1.7.0.tgz#af941d1eeb2cfaba38fe137fe5033af1c0873eb5"
-  integrity sha512-7wLuwcMhxYShdSOJ0c8z3puiwi0j9EFzCsIDWo8Q4wWc1sX2XrsGg/e4LyydwwydY4Kwc40KDgXBsX/0A211mg==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/monaco/-/monaco-1.8.0.tgz#b1e51df650e517a9b2e70c2be6c5e07346a98bf1"
+  integrity sha512-gnZULs1Pf/wyYF8EJ3W/8xxgZw78xi/FJOdAzXTza6oQoRdbhwLS7l2ufRcDeJuQgS4PfVnNiIsPuiVq2Zhr7Q==
   dependencies:
-    "@shikijs/core" "1.7.0"
+    "@shikijs/core" "1.8.0"
 
-"@shikijs/transformers@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shikijs/transformers/-/transformers-1.7.0.tgz#382dbf222616171c78bbbaf87e496634ee153243"
-  integrity sha512-QX3TP+CS4yYLt4X4Dk7wT0MsC7yweTYHMAAKY+ay+uuR9yRdFae/h+hivny2O+YixJHfZl57xtiZfWSrHdyVhQ==
+"@shikijs/transformers@1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/transformers/-/transformers-1.8.0.tgz#c1cc29b1ea3aa0b200cff3378be1c71460e0db9b"
+  integrity sha512-cBSjK0ddsUqBV867NY0nW9J5lwgOOUDpIRbqhxB1p3r8N4l/OwX1tUciAAQUOjpWU54r8uhdIIjN9sHY5GrZ3w==
   dependencies:
-    shiki "1.7.0"
+    shiki "1.8.0"
 
-"@shikijs/twoslash@1.7.0", "@shikijs/twoslash@^1.6.1":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shikijs/twoslash/-/twoslash-1.7.0.tgz#1aca821eb5d2506d3f9d06852c8c02060a608fce"
-  integrity sha512-UztoY1kFhRR8b/eZGfCkM70L8WQB7zZsj5xTRZUaLx6bwMZdDdlJmJu2lPAkPZ5h7wHVDJB6Lq3k8fN9Sxakgw==
+"@shikijs/twoslash@1.8.0", "@shikijs/twoslash@^1.6.1":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/twoslash/-/twoslash-1.8.0.tgz#23c8cff6c1efd03e5f37550980aee2742c0bd683"
+  integrity sha512-ZO7dpwqhHcGQ4lUvnohFEc57h4u7YEk1AQt9iQfKdpPOp125G6t1V4VpziRE/I5dPygMtU6rytOlqpfKfHFcWg==
   dependencies:
-    "@shikijs/core" "1.7.0"
+    "@shikijs/core" "1.8.0"
     twoslash "^0.2.8"
 
 "@shikijs/vitepress-twoslash@^1.6.1":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@shikijs/vitepress-twoslash/-/vitepress-twoslash-1.7.0.tgz#7bb7e9d4db8b38fdd32442f4b7f1cbb05087aea2"
-  integrity sha512-oFkqJ9+ObFUBA3oSkYm0z33S3tp5HMgJYXOEmXf9u5e6NNScp0J0OpRvWRtX33ebDEGUMj1hNEP7X9+auHW0Bw==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@shikijs/vitepress-twoslash/-/vitepress-twoslash-1.8.0.tgz#99392494f05de700b59508c623d31340443d41b0"
+  integrity sha512-k4vjPeokCx8+78x6lmQnrmqujVta0ybdhKqapfsvgfNPxH6hiu4KWCRFKPZq3rnYpGNH9+3tT6cKWiHPbCN3lA==
   dependencies:
-    "@shikijs/twoslash" "1.7.0"
+    "@shikijs/twoslash" "1.8.0"
     floating-vue "^5.2.2"
     mdast-util-from-markdown "^2.0.1"
     mdast-util-gfm "^3.0.0"
     mdast-util-to-hast "^13.2.0"
-    shiki "1.7.0"
+    shiki "1.8.0"
     twoslash "^0.2.8"
     twoslash-vue "^0.2.8"
     vue "^3.4.29"
@@ -12565,12 +12565,12 @@ shiki-magic-move@^0.4.2:
     diff-match-patch-es "^0.1.0"
     ohash "^1.1.3"
 
-shiki@1.7.0, shiki@^1.1.2, shiki@^1.1.7, shiki@^1.6.1, shiki@^1.6.5:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.7.0.tgz#de220937e9f91ba695fb2b23b4f4ddc9a393b320"
-  integrity sha512-H5pMn4JA7ayx8H0qOz1k2qANq6mZVCMl1gKLK6kWIrv1s2Ial4EmD4s4jE8QB5Dw03d/oCQUxc24sotuyR5byA==
+shiki@1.8.0, shiki@^1.1.2, shiki@^1.1.7, shiki@^1.6.1, shiki@^1.6.5:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-1.8.0.tgz#0b7d0f82e30a7c8141af619de2321db808f7e1ab"
+  integrity sha512-Nyoc/J7bMfJ44rOoVspOYHafTZvvkmLOXRwwj4Wo/QhonIv6SA9WETZE8+2ziVjT956EyfrmXGvYD3RMh1MTfw==
   dependencies:
-    "@shikijs/core" "1.7.0"
+    "@shikijs/core" "1.8.0"
 
 side-channel@^1.0.4, side-channel@^1.0.6:
   version "1.0.6"

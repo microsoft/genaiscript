@@ -1,3 +1,5 @@
+import { tidy, sliceHead } from "@tidyjs/tidy"
+
 script({
     files: "src/penguins.csv",
     tests: {},
@@ -26,6 +28,10 @@ if (
         { name: "B", value: 2 },
     ])
 )
+    throw new Error("csv error")
+
+tidy(srows, sliceHead(1))
+if (JSON.stringify(srows) === JSON.stringify([{ name: "A", value: 1 }]))
     throw new Error("csv error")
 
 $`Describe the data in DATA.`

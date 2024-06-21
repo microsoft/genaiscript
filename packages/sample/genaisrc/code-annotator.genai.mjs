@@ -1,6 +1,6 @@
 script({
     title: "Code annotator",
-    description: "Given a problem desciption and code, write a code review",
+    description: "Given a problem description and code, write a code review",
     maxTokens: 4000,
     model: "gpt-4-32k",
     group: "hello world",
