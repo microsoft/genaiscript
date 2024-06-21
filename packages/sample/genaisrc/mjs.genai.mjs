@@ -9,4 +9,6 @@ script({
 })
 
 import { summarize } from "./summarizer.mjs"
+$`2`
 summarize(env.files)
+

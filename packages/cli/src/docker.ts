@@ -10,11 +10,10 @@ import {
     host,
     installImport,
     logError,
-    logVerbose,
+    randomHex,
 } from "genaiscript-core"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
-import { randomBytes } from "node:crypto"
 import { copyFile, readFile, writeFile } from "fs/promises"
 import { DOCKERODE_VERSION } from "./version"
 
@@ -127,7 +126,7 @@ export class DockerManager {
                 dotGenaiscriptPath(
                     DOCKER_VOLUMES_DIR,
                     image.replace(/:/g, "_"),
-                    randomBytes(16).toString("hex")
+                    randomHex(16)
                 )
             )
             await ensureDir(hostPath)
