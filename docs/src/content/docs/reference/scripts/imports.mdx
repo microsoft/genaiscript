@@ -9,11 +9,9 @@ keywords: imports, modules, .mjs, GenAI scripts, JavaScript
 import { Steps } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
-By default, the scripts cannot import modules (they are evaled).
+Scripts using the `.mjs` extension can use static or dynamic imports as any other module file.
 
-You can add support for imports by following these steps.
-
-## Converting to a module
+## Converting .js to .mjs
 
 <Steps>
 
@@ -43,9 +41,9 @@ You're done!
 
 </Steps>
 
-## Imports
+## Module Imports
 
-Once the file is converted, you can use static or dynamic imports as any other module file.
+You can import module installed in your project.
 
 ```js
 import { parse } from "ini"
@@ -60,6 +58,8 @@ export default async function () {
     console.log(stringify(res))
 }
 ```
+
+## File imports
 
 You can also import other local files.
 
