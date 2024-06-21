@@ -26,7 +26,7 @@ export async function importPrompt(
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
-            assert(!glb[field])
+            assert(field === "console" || !glb[field], `overriding global field ${field}`)
             oldGlb[field] = glb[field]
             glb[field] = (ctx0 as any)[field]
         }
