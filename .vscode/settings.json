@@ -25,6 +25,7 @@
         "ollama",
         "openai",
         "promptfoo",
+        "stringifying",
         "treesitter",
         "typecheck",
         "vsix",
