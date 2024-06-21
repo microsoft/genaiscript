@@ -7,7 +7,15 @@ const { stdout: tag } = await host.exec("git", [
     "HEAD^",
 ])
 const { stdout: commits } = await host.exec("git", ["log", `HEAD...${tag}`])
-const { stdout: diff } = await host.exec("git", ["diff", `${tag}..HEAD`])
+const { stdout: diff } = await host.exec("git", [
+    "diff",
+    `${tag}..HEAD`,
+    "--",
+    ":!**/genaiscript.d.ts",
+    ":!.github/*",
+    ":!.vscode/*",
+    ":!yarn.lock",
+])
 
 def("COMMITS", commits, { maxTokens: 4000 })
 def("DIFF", diff, { maxTokens: 20000 })
