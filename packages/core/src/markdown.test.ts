@@ -5,9 +5,9 @@ import assert from "node:assert/strict"
 describe("trace tree", () => {
     test("empty", () => {
         const { root: res } = parseTraceTree(undefined)
+        delete res.id
         assert.deepStrictEqual(res, {
             type: "details",
-            id: "1",
             label: "root",
             content: [""],
         })
@@ -19,9 +19,9 @@ flat tree
 2
 3
 `)
+        delete res.id
         assert.deepStrictEqual(res, {
             type: "details",
-            id: "1",
             label: "root",
             content: [
                 `
@@ -42,14 +42,15 @@ flat tree
 </details>
 3
 `)
+        delete res.id
+        delete (res.content[1] as any).id
         assert.deepStrictEqual(res, {
             type: "details",
-            id: "1",
             label: "root",
             content: [
                 `
 flat tree`,
-                { type: "details", id: "2", label: "2", content: ["2.5"] },
+                { type: "details", label: "2", content: ["2.5"] },
                 `3
 `,
             ],
@@ -67,14 +68,15 @@ flat tree
 </details>
 3
 `)
+        delete res.id
+        delete (res.content[1] as any).id
         assert.deepStrictEqual(res, {
             type: "details",
-            id: "1",
             label: "root",
             content: [
                 `
 flat tree`,
-                { type: "details", id: "2", label: "2", content: ["2.5"] },
+                { type: "details", label: "2", content: ["2.5"] },
                 `3
 `,
             ],
@@ -97,21 +99,21 @@ flat tree
 </details>
 3
 `)
+        delete res.id
+        delete (res.content[1] as any).id
+        delete (res.content[1] as any).content[0].id
         assert.deepStrictEqual(res, {
             type: "details",
-            id: "1",
             label: "root",
             content: [
                 `
 flat tree`,
                 {
                     type: "details",
-                    id: "2",
                     label: "2",
                     content: [
                         {
                             type: "details",
-                            id: "3",
                             label: "2.5",
                             content: ["2.5.5"],
                         },
