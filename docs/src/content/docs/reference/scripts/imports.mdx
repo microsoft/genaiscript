@@ -9,7 +9,7 @@ keywords: imports, modules, .mjs, GenAI scripts, JavaScript
 import { Steps } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
-By default, the scripts cannot import modules (they are evaled) and are expected to execute the code directly.
+By default, the scripts cannot import modules (they are evaled).
 
 You can add support for imports by following these steps.
 
@@ -35,7 +35,17 @@ to [module file](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/M
 
 <li>
 
-Wrap the script code in a function and make it the default export. You can leave `script` in the main scope.
+You're done!
+
+</li>
+
+</ol>
+
+</Steps>
+
+## Default export
+
+If you set a function as the default export, GenAIScript will call it.
 
 ```js title="poem.genai.mjs" "export default async function() {" "}"
 script(...)
@@ -44,11 +54,6 @@ export default async function() {
 }
 ```
 
-</li>
-
-</ol>
-
-</Steps>
 
 ## Imports
 
@@ -66,4 +71,18 @@ export default async function () {
     const { stringify } = await import("ini")
     console.log(stringify(res))
 }
+```
+
+You can also import other local files.
+
+```js title="summarizer.mjs"
+export function summarize(files) {
+    def("FILE", files)
+    $`Summarize each file. Be concise.`
+}
+```
+
+```js title="summerize.genai.mjs"
+import { summarize } from "./summarizer.mjs"
+summarize(env.files)
 ```

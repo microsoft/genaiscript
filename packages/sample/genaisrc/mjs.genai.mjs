@@ -9,5 +9,4 @@ script({
 })
 
 import { summarize } from "./summarizer.mjs"
-
 summarize(env.files)

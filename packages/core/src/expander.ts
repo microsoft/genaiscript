@@ -121,14 +121,14 @@ async function callExpander(
     }
 
     try {
-        if (MODULE_JS_REGEX.test(r.filename))
-            await importPrompt(ctx, r, { logCb })
-        else {
-            await evalPrompt(ctx, r, {
-                sourceMaps: true,
-                logCb,
-            })
-        }
+        // if (MODULE_JS_REGEX.test(r.filename))
+        await importPrompt(ctx, r, { logCb })
+        //else {
+        //    await evalPrompt(ctx, r, {
+        //        sourceMaps: true,
+        //       logCb,
+        //    })
+        //}
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {
