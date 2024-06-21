@@ -24,5 +24,7 @@ The diff of the changes are in DIFF.
 ## Guidelines
 
 - use emojis
+- ignore any package version number updates
+- add deep links to commits if possible. The repository is hosted at https://github.com/microsoft/genaiscript
 
 `
