@@ -23,6 +23,7 @@ const { stdout: diff } = await host.exec("git", [
     `${tag}..HEAD`,
     "--no-merges",
     "--",
+    "docs/**",
     ":!**/package.json",
     ":!**/genaiscript.d.ts",
     ":!.github/*",
