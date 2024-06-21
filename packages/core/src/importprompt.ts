@@ -1,6 +1,7 @@
 import { assert } from "console"
 import { host } from "./host"
 import { logError } from "./util"
+import { tsImport } from "tsx/esm/api"
 
 function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -33,12 +34,12 @@ export async function importPrompt(
         const modulePath = filename.startsWith("/")
             ? filename
             : host.path.join(host.projectFolder(), filename)
-        const module = await import(modulePath)
+        const parentURL = import.meta.url || new URL(__filename, "file://").href
+        const module = await tsImport(modulePath, {
+            parentURL,
+        })
         const main = module.default
-        if (!main) throw new Error("default import function missing")
-        if (typeof main !== "function")
-            throw new Error("default export must be a function")
-        await main(ctx0)
+        if (typeof main === "function") await main(ctx0)
     } catch (err) {
         logError(err)
         throw err

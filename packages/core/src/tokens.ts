@@ -1,12 +1,11 @@
-import { ChatCompletionMessageParam } from "./chat"
 import {
     ChatCompletionContentPart,
     ChatCompletionContentPartText,
-    type ChatCompletionTool,
-} from "openai/resources"
+    ChatCompletionMessageParam,
+    ChatCompletionTool,
+} from "./chat"
 import { encodeChat, encode } from "gpt-tokenizer"
-import { logError, logVerbose } from "./util"
-import { parseModelIdentifier } from "./models"
+import { logVerbose } from "./util"
 
 export function estimateTokens(model: string, text: string) {
     if (!text?.length) return 0

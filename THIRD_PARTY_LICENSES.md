@@ -4297,7 +4297,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - @aws-sdk/client-cognito-identity@3.600.0
- - @aws-sdk/client-sagemaker@3.600.0
+ - @aws-sdk/client-sagemaker@3.602.0
  - @aws-sdk/client-sso-oidc@3.600.0
  - @aws-sdk/client-sso@3.598.0
  - @aws-sdk/client-sts@3.600.0
@@ -5013,8 +5013,8 @@ The following npm packages may be included in this product:
  - @types/nlcst@2.0.3
  - @types/node-fetch@2.6.11
  - @types/node@17.0.45
- - @types/node@18.19.37
- - @types/node@20.14.6
+ - @types/node@18.19.38
+ - @types/node@20.14.7
  - @types/papaparse@5.3.14
  - @types/pg@8.11.6
  - @types/qs@6.9.15
@@ -5054,7 +5054,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.40.4
+ - genaiscript-vscode@1.41.7
 
 This package contains the following license and notice below:
 
@@ -18595,11 +18595,12 @@ third-party archives.
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
  - typescript@5.4.5
+ - typescript@5.5.2
 
-This package contains the following license and notice below:
+These packages each contain the following license and notice below:
 
 Apache License
 
@@ -22857,7 +22858,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.807
+ - electron-to-chromium@1.4.808
 
 This package contains the following license and notice below:
 
@@ -25157,11 +25158,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.40.4
+ - docs@1.41.7
  - eastasianwidth@0.2.0
- - genaiscript-core@1.40.4
- - genaiscript-sample@1.40.4
- - genaiscript@1.40.4
+ - genaiscript-core@1.41.7
+ - genaiscript-sample@1.41.7
+ - genaiscript@1.41.7
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
@@ -28304,7 +28305,7 @@ The following npm packages may be included in this product:
  - @volar/source-map@2.3.0
  - @volar/typescript@2.2.5
  - @vue/language-core@2.0.21
- - typescript-auto-import-cache@0.3.2
+ - typescript-auto-import-cache@0.3.3
 
 These packages each contain the following license and notice below:
 
@@ -28736,7 +28737,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/starlight@0.24.3
+ - @astrojs/starlight@0.24.4
 
 This package contains the following license and notice below:
 
@@ -31992,7 +31993,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - is-core-module@2.13.1
+ - is-core-module@2.14.0
 
 This package contains the following license and notice below:
 
@@ -34141,7 +34142,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - vue-router@4.3.3
+ - vue-router@4.4.0
 
 This package contains the following license and notice below:
 

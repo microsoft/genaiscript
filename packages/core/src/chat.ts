@@ -19,6 +19,10 @@ import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 
+export type ChatCompletionContentPartText = OpenAI.Chat.Completions.ChatCompletionContentPartText
+
+export type ChatCompletionContentPart = OpenAI.Chat.Completions.ChatCompletionContentPart
+
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
 export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
