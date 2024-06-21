@@ -8,6 +8,7 @@
         "kejun.markdown-alert",
         "astro-build.astro-vscode",
         "github.copilot-chat",
-        "tldraw-org.tldraw-vscode"
+        "tldraw-org.tldraw-vscode",
+        "bierner.emojisense"
     ]
 }

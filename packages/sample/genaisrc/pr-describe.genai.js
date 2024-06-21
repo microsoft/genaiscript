@@ -35,5 +35,7 @@ $`You are an expert software developer and architect.
 - use emojis to make the description more engaging
 - focus on the most important changes
 - ignore comments about imports (like added, remove, changed, etc.)
+- the public API is defined in "packages/core/src/prompt_template.d.ts" and "packages/core/src/prompt_type.ts".
+  Changes in those files are "user facing".
 
 `

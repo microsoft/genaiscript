@@ -1111,7 +1111,7 @@ interface CSV {
      * @param csv
      * @param options
      */
-    mardownify(csv: object[], options?: { headers?: string[] }): string
+    markdownify(csv: object[], options?: { headers?: string[] }): string
 }
 
 interface HighlightOptions {
@@ -1729,6 +1729,11 @@ declare var YAML: YAML
  * INI parsing and stringifying.
  */
 declare var INI: INI
+
+/**
+ * CSV parsing and stringifying.
+ */
+declare var CSV: CSV
 
 /**
  * XML parsing and stringifying.

@@ -117,6 +117,11 @@ declare var YAML: YAML
 declare var INI: INI
 
 /**
+ * CSV parsing and stringifying.
+ */
+declare var CSV: CSV
+
+/**
  * XML parsing and stringifying.
  */
 declare var XML: XML
