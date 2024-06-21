@@ -1,0 +1,5 @@
+{
+    "git": {
+        "changelog": "node packages/cli/built/genaiscript.cjs run git-release-notes"
+    }
+}
