@@ -11,7 +11,13 @@ const { stdout: tag } = await host.exec("git", [
     "--abbrev=0",
     "HEAD^",
 ])
-const { stdout: commits } = await host.exec("git", ["log", `HEAD...${tag}`])
+const { stdout: commits } = await host.exec("git", [
+    "log",
+    "--grep='skip ci'",
+    "--invert-grep",
+    "--no-merges",
+    `HEAD...${tag}`,
+])
 const { stdout: diff } = await host.exec("git", [
     "diff",
     `${tag}..HEAD`,
@@ -38,10 +44,12 @@ The diff of the changes are in DIFF.
 
 ## Guidelines
 
+- only include the most important changes. All changes must be in the commits.
 - tell a story about the changes
 - use emojis
+- ignore commits with '[skip ci]' in the message
 - do NOT give a commit overview
 - do NOT add a top level title
-- add deep links to commits if possible. The repository is hosted at https://github.com/microsoft/genaiscript
+- be concise
 
 `
