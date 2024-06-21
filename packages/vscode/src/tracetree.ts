@@ -1,10 +1,6 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import {
-    CHANGE,
-    TRACE_NODE_PREFIX,
-    TraceNode,
-} from "genaiscript-core"
+import { CHANGE, TRACE_NODE_PREFIX, TraceNode } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 
 function unmarkdown(text: string) {
@@ -36,17 +32,11 @@ class TraceTreeDataProvider implements vscode.TreeDataProvider<TraceNode> {
                         .length > 0
                         ? vscode.TreeItemCollapsibleState.Collapsed
                         : vscode.TreeItemCollapsibleState.None
-                if (
-                    item.collapsibleState ===
-                    vscode.TreeItemCollapsibleState.None
-                )
-                    item.command = {
-                        command: "markdown.showPreview",
-                        arguments: [
-                            infoUri(TRACE_NODE_PREFIX + item.id + ".md"),
-                        ],
-                        title: "Show Preview",
-                    }
+                item.command = {
+                    command: "markdown.showPreview",
+                    arguments: [infoUri(TRACE_NODE_PREFIX + item.id + ".md")],
+                    title: "Show Preview",
+                }
                 if (
                     typeof element.content[0] === "string" &&
                     element.content[0]
