@@ -1,6 +1,10 @@
 script({ system: ["system"], temperature: 1, model: "openai:gpt-4-32k" })
+
+const product = env.vars.product || "GenAIScript"
+
 // find previous tag
 const pkg = JSON.parse((await workspace.readText("package.json")).content)
+const { version } = pkg
 const { stdout: tag } = await host.exec("git", [
     "describe",
     "--tags",
@@ -29,7 +33,7 @@ You are an expert software developer and release manager.
 ## Task
 
 Generate a clear, exciting, relevant, useful release notes
-for the upcoming release ${pkg.version} of your software. The commits in the release are in COMMITS.
+for the upcoming release ${version} of ${product} on GitHub. The commits in the release are in COMMITS.
 The diff of the changes are in DIFF.
 
 ## Guidelines
@@ -37,6 +41,7 @@ The diff of the changes are in DIFF.
 - tell a story about the changes
 - use emojis
 - do NOT give a commit overview
+- do NOT add a top level title
 - add deep links to commits if possible. The repository is hosted at https://github.com/microsoft/genaiscript
 
 `
