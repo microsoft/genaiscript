@@ -42,7 +42,7 @@
     },
     "activationEvents": [
         "workspaceContains:**/*.gpspec.md",
-        "workspaceContains:**/*.genai.js",
+        "workspaceContains:**/*.genai.{mjs,js}",
         "onNotebook:genaiscript"
     ],
     "main": "./built/extension.js",
