@@ -24,7 +24,6 @@ export async function importPrompt(
 
     const oldGlb: any = {}
     const glb: any = resolveGlobal()
-    const { tsImport } = await import("tsx/esm/api")
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
@@ -36,7 +35,7 @@ export async function importPrompt(
             glb[field] = (ctx0 as any)[field]
         }
 
-        const modulePath = filename.startsWith("/")
+        const modulePath = host.path.isAbsolute(filename)
             ? filename
             : host.path.join(host.projectFolder(), filename)
         const parentURL =
@@ -44,6 +43,7 @@ export async function importPrompt(
             new URL(__filename ?? host.projectFolder(), "file://").href
 
         trace?.itemValue(`import`, `${modulePath}, parent: ${parentURL}`)
+        const { tsImport } = await import("tsx/esm/api")
         const module = await tsImport(modulePath, {
             parentURL,
             tsconfig: false,
