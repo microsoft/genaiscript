@@ -14,7 +14,7 @@ const api = env.vars.api + ""
 console.log(`generating sample for ${api}`)
 
 const scripts = (
-    await workspace.findFiles("packages/*/src/**/*genai.js")
+    await workspace.findFiles("packages/*/src/**/*genai.{js,mjs}")
 ).filter((f) => f.content?.includes(api))
 const samples = await retrieval.vectorSearch(api, scripts)
 console.debug(samples)

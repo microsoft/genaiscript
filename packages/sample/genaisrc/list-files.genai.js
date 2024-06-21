@@ -5,9 +5,9 @@ script({
     },
 })
 
-const files = await workspace.findFiles("**/*.genai.js", { readText: false })
+const files = await workspace.findFiles("**/*.genai.{js,mjs}", { readText: false })
 
-$`Select the 3 most interresting files from the list below:
+$`Select the 3 most interesting files from the list below:
 
 ${files.map((f) => f.filename).join("\n")}
 `

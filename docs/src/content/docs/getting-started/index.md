@@ -28,7 +28,7 @@ The following script generates a prompt that
 takes files (.txt, .pdf, .docx) as input and
 saves the summaries in another files.
 
-```js wrap title="summarize.genai.js" system=false assistant=true user=true
+```js wrap title="summarize.genai.mjs" system=false assistant=true user=true
 // context: define a "FILE" variable
 const file = def("FILE", env.files)
 // task: appends text to the prompt (file is the variable name)
