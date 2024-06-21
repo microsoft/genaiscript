@@ -72,13 +72,11 @@
         "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen"
     },
     "release-it": {
-        "git": {
-            "changelog": "node packages/cli/built/genaiscript.cjs run git-release-notes"
-        },
         "github": {
             "release": true,
             "releaseName": "v${version}",
-            "draft": true
+            "draft": true,
+            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes"
         }
     },
     "devDependencies": {

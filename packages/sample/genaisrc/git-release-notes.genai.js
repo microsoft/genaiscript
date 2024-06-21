@@ -1,4 +1,4 @@
-script({ system: ["system"], model: "openai:gpt-4-32k" })
+script({ system: ["system"], temperature: 1, model: "openai:gpt-4-32k" })
 // find previous tag
 const { stdout: tag } = await host.exec("git", [
     "describe",
@@ -10,7 +10,9 @@ const { stdout: commits } = await host.exec("git", ["log", `HEAD...${tag}`])
 const { stdout: diff } = await host.exec("git", [
     "diff",
     `${tag}..HEAD`,
+    "--no-merges",
     "--",
+    ":!**/package.json",
     ":!**/genaiscript.d.ts",
     ":!.github/*",
     ":!.vscode/*",
@@ -32,7 +34,6 @@ The diff of the changes are in DIFF.
 ## Guidelines
 
 - use emojis
-- ignore any package version number updates
 - add deep links to commits if possible. The repository is hosted at https://github.com/microsoft/genaiscript
 
 `
