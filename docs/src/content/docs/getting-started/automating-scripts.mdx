@@ -104,6 +104,7 @@ const { stdout: changes } = await host.exec("git", [
     "main",
     "--",
     ":!**/genaiscript.d.ts",
+    ":!**/jsconfig.json",
     ":!genaisrc/*",
     ":!.github/*",
     ":!.vscode/*",

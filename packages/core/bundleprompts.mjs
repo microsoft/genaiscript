@@ -33,7 +33,7 @@ const promptDefs = {
                 allowJs: true,
                 skipLibCheck: true,
             },
-            include: ["*.js", "./genaiscript.d.ts"],
+            include: ["*.js", "*.mjs", "./genaiscript.d.ts"],
         },
         null,
         4
@@ -55,7 +55,7 @@ const wasms = await readdirSync("../../node_modules/tree-sitter-wasms/out/")
     .map((m) => m?.[1])
     .filter((f) => !!f)
 
-    const functions = Object.keys(promptMap)
+const functions = Object.keys(promptMap)
     .sort()
     .map((k) => {
         const v = promptMap[k]
@@ -172,20 +172,20 @@ GenAIScript comes with a number of system prompt that support features like crea
 generating annotations. If unspecified, GenAIScript looks for specific keywords to activate the various system prompts.
 
 ${Object.keys(promptMap)
-    .sort()
-    .map((k) => {
-        const v = promptMap[k]
-        const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
-        const meta = parse(m.groups.meta)
-        const tools = []
-        v.replace(
-            /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
-            (m, name, description) => {
-                tools.push({ name, description })
-                return ""
-            }
-        )
-        return `### \`${k}\`
+        .sort()
+        .map((k) => {
+            const v = promptMap[k]
+            const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(v)
+            const meta = parse(m.groups.meta)
+            const tools = []
+            v.replace(
+                /defTool\s*\(\s*"([^"]+)"\s*,\s*"([^"]+)"/gm,
+                (m, name, description) => {
+                    tools.push({ name, description })
+                    return ""
+                }
+            )
+            return `### \`${k}\`
 
 ${meta.title || ""}
 
@@ -197,8 +197,8 @@ ${tools.map(({ name, description }) => `-  tool \`${name}\`: ${description}`).jo
 ${v}
 \`\`\`\`\`
 `
-    })
-    .join("\n\n")}
+        })
+        .join("\n\n")}
 `
 writeFileSync(fmp, markdown, "utf-8")
 
