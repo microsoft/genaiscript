@@ -29,7 +29,6 @@ const promptDefs = {
                 target: "ES2022",
                 module: "ES2022",
                 moduleDetection: "force",
-                moduleResolution: "node",
                 checkJs: true,
                 allowJs: true,
                 skipLibCheck: true,
