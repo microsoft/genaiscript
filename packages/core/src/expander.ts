@@ -122,7 +122,7 @@ async function callExpander(
 
     try {
         if (MODULE_JS_REGEX.test(r.filename))
-            await importPrompt(ctx, r, { logCb })
+            await importPrompt(ctx, r, { logCb, trace })
         else {
             await evalPrompt(ctx, r, {
                 sourceMaps: true,

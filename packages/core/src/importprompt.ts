@@ -1,7 +1,7 @@
 import { assert } from "console"
 import { host } from "./host"
-import { logError } from "./util"
-import { tsImport } from "tsx/esm/api"
+import { logError, logVerbose } from "./util"
+import { TraceOptions } from "./trace"
 
 function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -16,13 +16,15 @@ export async function importPrompt(
     r: PromptScript,
     options?: {
         logCb?: (msg: string) => void
-    }
+    } & TraceOptions
 ) {
     const { filename } = r
     if (!filename) throw new Error("filename is required")
+    const { trace } = options || {}
 
     const oldGlb: any = {}
     const glb: any = resolveGlobal()
+    const { tsImport } = await import("tsx/esm/api")
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
@@ -37,14 +39,23 @@ export async function importPrompt(
         const modulePath = filename.startsWith("/")
             ? filename
             : host.path.join(host.projectFolder(), filename)
-        const parentURL = import.meta.url || new URL(__filename, "file://").href
+        const parentURL =
+            import.meta.url ??
+            new URL(__filename ?? host.projectFolder(), "file://").href
+
+        trace?.itemValue(`import`, `${modulePath}, parent: ${parentURL}`)
         const module = await tsImport(modulePath, {
             parentURL,
+            tsconfig: false,
+            onImport: (file: string) => {
+                trace?.itemValue("imported", file)
+            },
         })
         const main = module.default
         if (typeof main === "function") await main(ctx0)
     } catch (err) {
         logError(err)
+        trace?.error(err)
         throw err
     } finally {
         // restore global context
