@@ -63,43 +63,6 @@ export function assert(
     }
 }
 
-export function throttle(handler: () => void, delay: number): () => void {
-    let enableCall = true
-    return function () {
-        if (!enableCall) return
-        enableCall = false
-        handler()
-        setTimeout(() => (enableCall = true), delay)
-    }
-}
-
-export function arrayShuffle<T>(a: T[]): T[] {
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[a[i], a[j]] = [a[j], a[i]]
-    }
-    return a
-}
-
-export function range(end: number): number[] {
-    return Array(end)
-        .fill(0)
-        .map((_, i) => i)
-}
-
-export function toggleBit(data: Uint8Array, bitindex: number) {
-    data[bitindex >> 3] ^= 1 << (bitindex & 7)
-}
-
-export function getBit(data: Uint8Array, bitindex: number) {
-    return !!(data[bitindex >> 3] & (1 << (bitindex & 7)))
-}
-
-export function setBit(data: Uint8Array, bitindex: number, on: boolean) {
-    if (on) data[bitindex >> 3] |= 1 << (bitindex & 7)
-    else data[bitindex >> 3] &= ~(1 << (bitindex & 7))
-}
-
 export function concatBuffers(...chunks: Uint8Array[]) {
     let sz = 0
     for (const ch of chunks) sz += ch.length
