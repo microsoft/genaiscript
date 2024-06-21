@@ -3,7 +3,12 @@ import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import { estimateTokens } from "./tokens"
-import { MAX_TOOL_CALLS, MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
+import {
+    MAX_TOOL_CALLS,
+    MODEL_PROVIDER_AICI,
+    MODULE_JS_REGEX,
+    SYSTEM_FENCE,
+} from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { GenerationOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
@@ -116,11 +121,9 @@ async function callExpander(
     }
 
     try {
-        if (/^export\s+default\s+/m.test(r.jsSource)) {
-            if (!/\.mjs$/i.test(r.filename))
-                throw new Error("export default requires .mjs file")
+        if (MODULE_JS_REGEX.test(r.filename))
             await importPrompt(ctx, r, { logCb })
-        } else {
+        else {
             await evalPrompt(ctx, r, {
                 sourceMaps: true,
                 logCb,
