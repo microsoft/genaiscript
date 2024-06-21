@@ -57,7 +57,7 @@ export function createPromptContext(
     })
     const CSV = Object.freeze<CSV>({
         parse: CSVParse,
-        mardownify: CSVToMarkdown,
+        markdownify: CSVToMarkdown,
     })
     const INI = Object.freeze<INI>({
         parse: INIParse,

@@ -1077,7 +1077,7 @@ interface CSV {
      * @param csv
      * @param options
      */
-    mardownify(csv: object[], options?: { headers?: string[] }): string
+    markdownify(csv: object[], options?: { headers?: string[] }): string
 }
 
 interface HighlightOptions {

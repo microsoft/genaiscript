@@ -80,7 +80,7 @@ const rows = CSV.parse(csv, {
 ```
 
 You can use [defData](/genaiscript/reference/scripts/context)
-to serialize the `rows` object to the prompt. `defData` also support
+to serialize the `rows` object to the prompt. `defData` also supports
 basic row filtering options like with `def`.
 
 ```js
@@ -98,8 +98,8 @@ The `def` function works with files, while `defData` works with live objects.
 The `markdownify` method converts an array of objects into a markdown table. 
 This is an encoding that is somewhat more efficient with LLM tokenizers.
 
-```js "CSV.mardownify"
-const md = CSV.mardownify(rows)
+```js "CSV.markdownify"
+const md = CSV.markdownify(rows)
 ```
 
 ```text
