@@ -1,6 +1,7 @@
 import "zx/globals"
 
 // workaround yarn workspaces
+await fs.rmdir("./node_modules", { recursive: true })
 for (const m of [
     "pdfjs-dist",
     "tree-sitter-wasms",
@@ -8,6 +9,7 @@ for (const m of [
     "tsx",
     "esbuild",
     "get-tsconfig",
+    "resolve-pkg-maps"
 ]) {
     await fs.copy(`../../node_modules/${m}`, `./node_modules/${m}`, {
         recursive: true,
