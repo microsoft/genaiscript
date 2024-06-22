@@ -29,6 +29,9 @@ import {
     ContainerStartResponse,
     ContainerStart,
     ContainerRemove,
+    PromptScriptRunOptions,
+    PromptScriptStart,
+    PromptScriptAbort,
 } from "./messages"
 
 export class WebSocketClient
@@ -191,6 +194,29 @@ export class WebSocketClient
         const res = await this.queue<ParsePdfMessage>({
             type: "parse.pdf",
             filename,
+        })
+        return res.response
+    }
+
+    async startScript(
+        script: string,
+        files: string[],
+        options: PromptScriptRunOptions
+    ): Promise<PromptScriptTestRunResponse> {
+        const res = await this.queue<PromptScriptStart>({
+            type: "script.start",
+            script,
+            files,
+            options,
+        })
+        return res.response
+    }
+
+    async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
+        const res = await this.queue<PromptScriptAbort>({
+            type: "script.abort",
+            runId,
+            reason,
         })
         return res.response
     }
