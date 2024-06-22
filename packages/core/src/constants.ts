@@ -1,4 +1,5 @@
 export const CHANGE = "change"
+export const TRACE_CHUNK = "traceChunk"
 export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 100

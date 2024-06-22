@@ -104,23 +104,30 @@ export interface PromptScriptRunOptions {
     vars: string[]
 }
 
-export interface PromptScriptRun extends RequestMessage {
-    type: "script.run"
+export interface PromptScriptStart extends RequestMessage {
+    type: "script.start"
     script: string
     files: string[]
     options: PromptScriptRunOptions
 }
 
-export interface PromptScriptRunResponse extends ResponseStatus {
+export interface PromptScriptStartResponse extends ResponseStatus {
     runId: string
+}
+
+export interface PromptScriptEndResponseEvent {
+    type: "script.end"
+    runId: string
+    exitCode: number
 }
 
 export interface PromptScriptAbort extends RequestMessage {
     type: "script.abort"
+    reason: string
     runId: string
 }
 
-export interface TraceChunk extends RequestMessage {
+export interface TraceChunkResponseEvent {
     type: "trace.chunk"
     runId: string
     chunk: string
@@ -168,6 +175,5 @@ export type RequestMessages =
     | ShellExec
     | ContainerStart
     | ContainerRemove
-    | PromptScriptRun
+    | PromptScriptStart
     | PromptScriptAbort
-    | TraceChunk

@@ -174,7 +174,7 @@ ${Object.entries(cfg.curlHeaders || {})
         )
     }
 
-    trace.content += "\n\n"
+    trace.appendContent("\n\n")
 
     let done = false
     let finishReason: ChatCompletionResponse["finishReason"] = undefined
@@ -197,7 +197,7 @@ ${Object.entries(cfg.curlHeaders || {})
     }
     if (signal?.aborted) finishReason = "cancel"
 
-    trace.content += "\n\n"
+    trace.appendContent("\n\n")
     trace.itemValue(`finish reason`, finishReason)
     if (done && finishReason === "stop")
         await cache.set(cachedKey, { text: chatResp, finishReason }, { trace })
@@ -227,9 +227,11 @@ ${Object.entries(cfg.curlHeaders || {})
                     numTokens += estimateTokens(model, delta.content)
                     chatResp += delta.content
                     if (delta.content)
-                        trace.content += delta.content.includes("`")
-                            ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
-                            : `\`${delta.content.replace(/\n/g, " ")}\` `
+                        trace.appendContent(
+                            delta.content.includes("`")
+                                ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
+                                : `\`${delta.content.replace(/\n/g, " ")}\` `
+                        )
                 } else if (Array.isArray(delta.tool_calls)) {
                     const { tool_calls } = delta
                     for (const call of tool_calls) {

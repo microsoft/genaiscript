@@ -14,10 +14,18 @@ import {
     DOCKER_DEFAULT_IMAGE,
     AbortSignalCancellationController,
     MarkdownTrace,
+    TRACE_CHUNK,
+    TraceChunkEvent,
+    TraceChunkResponseEvent,
+    PromptScriptEndResponseEvent,
+    UNHANDLED_ERROR_CODE,
+    isCancelError,
+    USER_CANCELLED_ERROR_CODE,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
 import { runScript } from "./run"
+import { isAccessor } from "typescript"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -111,21 +119,58 @@ export async function startServer(options: { port: string }) {
                         })
                         break
                     }
-                    case "script.run": {
+                    case "script.start": {
                         const { script, files, options, id } = data
+                        const runId = id
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
+                        trace.addEventListener(TRACE_CHUNK, (ev) => {
+                            const tev = ev as TraceChunkEvent
+                            ws?.send(
+                                JSON.stringify(<TraceChunkResponseEvent>{
+                                    type: "trace.chunk",
+                                    chunk: tev.chunk,
+                                    runId,
+                                })
+                            )
+                        })
                         console.log(`run ${id} starting`)
                         const runner = runScript(script, files, {
                             ...options,
                             trace,
                             cancellationToken: canceller.token,
-                        }).then((exitCode) => {
-                            delete runs[id]
-                            console.log(`run ${id} completed with ${exitCode}`)
                         })
-                        runs[id] = {
+                            .then((exitCode) => {
+                                delete runs[runId]
+                                console.log(
+                                    `run ${runId} completed with ${exitCode}`
+                                )
+                                ws?.send(
+                                    JSON.stringify(<
+                                        PromptScriptEndResponseEvent
+                                    >{
+                                        type: "script.end",
+                                        runId,
+                                        exitCode,
+                                    })
+                                )
+                            })
+                            .catch((e) => {
+                                if (!isCancelError(e)) trace.error(e)
+                                ws?.send(
+                                    JSON.stringify(<
+                                        PromptScriptEndResponseEvent
+                                    >{
+                                        type: "script.end",
+                                        runId,
+                                        exitCode: isAccessor(e)
+                                            ? USER_CANCELLED_ERROR_CODE
+                                            : UNHANDLED_ERROR_CODE,
+                                    })
+                                )
+                            })
+                        runs[runId] = {
                             runner,
                             canceller,
                             trace,
@@ -133,17 +178,17 @@ export async function startServer(options: { port: string }) {
                         response = <ResponseStatus>{
                             ok: true,
                             status: 0,
-                            runId: id,
+                            runId,
                         }
                         break
                     }
                     case "script.abort": {
-                        const { runId } = data
+                        const { runId, reason } = data
                         console.log(`abort run ${runId}`)
                         const run = runs[runId]
                         if (run) {
                             delete runs[runId]
-                            run.abort()
+                            run.canceller.abort(reason)
                         }
                         break
                     }
