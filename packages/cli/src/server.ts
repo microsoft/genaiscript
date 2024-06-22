@@ -40,6 +40,18 @@ export async function startServer(options: { port: string }) {
         }
     > = {}
 
+    const cancelAll = () => {
+        for (const [runId, run] of Object.entries(runs)) {
+            console.log(`abort run ${runId}`)
+            run.canceller.abort("closing")
+            delete runs[runId]
+        }
+    }
+
+    // cleanup runs
+    wss.on("close", () => {
+        cancelAll()
+    })
     wss.on("connection", function connection(ws) {
         console.log(`clients: connected (${wss.clients.size} clients)`)
         ws.on("error", console.error)
@@ -120,6 +132,8 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "script.start": {
+                        cancelAll()
+
                         const { script, files, options, id } = data
                         const runId = id
                         const canceller =
@@ -157,6 +171,7 @@ export async function startServer(options: { port: string }) {
                                 )
                             })
                             .catch((e) => {
+                                if (canceller.controller.signal.aborted) return
                                 if (!isCancelError(e)) trace.error(e)
                                 ws?.send(
                                     JSON.stringify(<
