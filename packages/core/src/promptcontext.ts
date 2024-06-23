@@ -358,11 +358,7 @@ export interface GenerationOptions
         ModelOptions,
         ScriptRuntimeOptions {
     cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: {
-        text: string
-        label?: string
-        vars?: Partial<ExpansionVariables>
-    }) => void
+    infoCb?: (partialResponse: { text: string }) => void
     trace: MarkdownTrace
     maxCachedTemperature?: number
     maxCachedTopP?: number

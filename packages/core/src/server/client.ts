@@ -1,4 +1,6 @@
+import { ChatCompletionsProgressReport } from "../chat"
 import { CLIENT_RECONNECT_DELAY } from "../constants"
+import { randomHex } from "../crypto"
 import {
     ModelService,
     ParsePdfResponse,
@@ -10,7 +12,7 @@ import {
     RetrievalUpsertOptions,
     host,
 } from "../host"
-import { TraceOptions } from "../trace"
+import { MarkdownTrace, TraceOptions } from "../trace"
 import { assert, logError } from "../util"
 import {
     ParsePdfMessage,
@@ -32,6 +34,8 @@ import {
     PromptScriptRunOptions,
     PromptScriptStart,
     PromptScriptAbort,
+    PromptScriptProgressResponseEvent,
+    ResponseEvents,
 } from "./messages"
 
 export class WebSocketClient
@@ -45,6 +49,15 @@ export class WebSocketClient
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
+
+    private runs: Record<
+        string,
+        {
+            trace: MarkdownTrace
+            infoCb: (partialResponse: { text: string }) => void
+            partialCb: (progress: ChatCompletionsProgressReport) => void
+        }
+    > = {}
 
     constructor(readonly url: string) {}
 
@@ -97,12 +110,39 @@ export class WebSocketClient
         this._ws.addEventListener("message", <
             (event: MessageEvent<any>) => void
         >(async (event) => {
-            const data: RequestMessages = JSON.parse(event.data)
-            const { id } = data
+            const data = JSON.parse(event.data)
+            // handle responses
+            const req: RequestMessages = data
+            const { id } = req
             const awaiter = this.awaiters[id]
             if (awaiter) {
                 delete this.awaiters[id]
-                await awaiter.resolve(data)
+                await awaiter.resolve(req)
+            }
+
+            // handle run progress
+            const ev: ResponseEvents = data
+            const { runId, type } = ev
+            const run = this.runs[runId]
+            if (run) {
+                switch (type) {
+                    case "script.progress": {
+                        if (ev.trace) run.trace.appendContent(ev.trace)
+                        if (ev.progress) run.infoCb({ text: ev.progress })
+                        if (ev.response || ev.tokens !== undefined)
+                            run.partialCb({
+                                responseChunk: ev.response,
+                                responseSoFar: ev.response,
+                                tokensSoFar: ev.tokens,
+                            })
+                        break
+                    }
+                    case "script.end": {
+                        // todo: final result message?
+                        delete this.runs[runId]
+                        break
+                    }
+                }
             }
         }))
     }
@@ -203,16 +243,27 @@ export class WebSocketClient
         files: string[],
         options: PromptScriptRunOptions
     ): Promise<PromptScriptTestRunResponse> {
+        const runId = randomHex(6)
+        this.runs[runId] = {
+            trace: new MarkdownTrace(),
+            infoCb: options.infoCb,
+            partialCb: options.partialCb,
+        }
         const res = await this.queue<PromptScriptStart>({
             type: "script.start",
+            runId,
             script,
             files,
             options,
         })
+        if (!res.response?.ok) {
+            delete this.runs[runId] // failed to start
+        }
         return res.response
     }
 
     async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
+        delete this.runs[runId]
         const res = await this.queue<PromptScriptAbort>({
             type: "script.abort",
             runId,

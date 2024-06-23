@@ -16,11 +16,11 @@ import {
     MarkdownTrace,
     TRACE_CHUNK,
     TraceChunkEvent,
-    TraceChunkResponseEvent,
-    PromptScriptEndResponseEvent,
     UNHANDLED_ERROR_CODE,
     isCancelError,
     USER_CANCELLED_ERROR_CODE,
+    PromptScriptProgressResponseEvent,
+    PromptScriptEndResponseEvent,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
@@ -134,22 +134,23 @@ export async function startServer(options: { port: string }) {
                     case "script.start": {
                         cancelAll()
 
-                        const { script, files, options, id } = data
-                        const runId = id
+                        const { script, files, options, runId } = data
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
                         trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             ws?.send(
-                                JSON.stringify(<TraceChunkResponseEvent>{
-                                    type: "trace.chunk",
-                                    chunk: tev.chunk,
+                                JSON.stringify(<
+                                    PromptScriptProgressResponseEvent
+                                >{
+                                    type: "script.progress",
                                     runId,
+                                    chunk: tev.chunk,
                                 })
                             )
                         })
-                        console.log(`run ${id} starting`)
+                        console.log(`run ${runId} starting`)
                         const runner = runScript(script, files, {
                             ...options,
                             trace,

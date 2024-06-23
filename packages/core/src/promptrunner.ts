@@ -441,11 +441,6 @@ export async function runTemplate(
             schemas,
             json,
         }
-        options?.infoCb?.({
-            label: res.label,
-            vars: res.vars,
-            text: undefined,
-        })
         return res
     } finally {
         await host.removeContainers()

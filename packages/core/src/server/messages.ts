@@ -1,3 +1,4 @@
+import { GenerationResult } from "../expander"
 import {
     ParsePdfResponse,
     ResponseStatus,
@@ -106,6 +107,7 @@ export interface PromptScriptRunOptions {
 
 export interface PromptScriptStart extends RequestMessage {
     type: "script.start"
+    runId: string
     script: string
     files: string[]
     options: PromptScriptRunOptions
@@ -119,6 +121,7 @@ export interface PromptScriptEndResponseEvent {
     type: "script.end"
     runId: string
     exitCode: number
+    result: GenerationResult
 }
 
 export interface PromptScriptAbort extends RequestMessage {
@@ -127,10 +130,17 @@ export interface PromptScriptAbort extends RequestMessage {
     runId: string
 }
 
-export interface TraceChunkResponseEvent {
-    type: "trace.chunk"
+export interface PromptScriptProgressResponseEvent {
+    type: "script.progress"
     runId: string
-    chunk: string
+
+    trace?: string
+
+    progress?: string
+
+    tokens?: number
+    response?: string
+    responseChunk?: string
 }
 
 export interface ShellExecResponse extends ResponseStatus {
@@ -177,3 +187,7 @@ export type RequestMessages =
     | ContainerRemove
     | PromptScriptStart
     | PromptScriptAbort
+
+export type ResponseEvents =
+    | PromptScriptProgressResponseEvent
+    | PromptScriptEndResponseEvent

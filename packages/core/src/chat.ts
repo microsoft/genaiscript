@@ -107,7 +107,7 @@ export interface ChatCompletionsProgressReport {
 }
 
 export interface ChatCompletionsOptions {
-    partialCb?: (progres: ChatCompletionsProgressReport) => void
+    partialCb?: (progress: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
     maxCachedTopP?: number
