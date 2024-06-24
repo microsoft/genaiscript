@@ -1,5 +1,5 @@
 import { executeChatSession } from "./chat"
-import { Fragment, Project, PromptScript } from "./ast"
+import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
 import { arrayify, assert, logVerbose, relativePath } from "./util"
 import { host } from "./host"
@@ -18,14 +18,19 @@ import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
+export interface Fragment {
+    file: WorkspaceFile
+    references: WorkspaceFile[]
+}
+
 async function resolveExpansionVars(
+    project: Project,
     trace: MarkdownTrace,
     template: PromptScript,
     frag: Fragment,
     vars: Record<string, string>
 ) {
     const { file } = frag
-    const project = file.project
     const root = host.projectFolder()
 
     const files: WorkspaceFile[] = []
@@ -87,6 +92,7 @@ export async function runTemplate(
         if (cliInfo) traceCliArgs(trace, template, options)
 
         const vars = await resolveExpansionVars(
+            prj,
             trace,
             template,
             fragment,
@@ -182,10 +188,8 @@ export async function runTemplate(
             if (!fileEdit) {
                 let before: string = null
                 let after: string = undefined
-                if (await fileExists(fn, { virtual: false }))
-                    before = await readText(fn)
-                else if (await fileExists(fn, { virtual: true }))
-                    after = await readText(fn)
+                if (await fileExists(fn)) before = await readText(fn)
+                else if (await fileExists(fn)) after = await readText(fn)
                 fileEdit = fileEdits[fn] = { before, after }
             }
             return fileEdit

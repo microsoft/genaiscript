@@ -12,7 +12,6 @@ import {
     LogLevel,
     MODEL_PROVIDER_AZURE,
     ModelService,
-    ReadFileOptions,
     RetrievalService,
     SHELL_EXEC_TIMEOUT,
     ServerManager,
@@ -52,7 +51,6 @@ class NodeServerManager implements ServerManager {
 
 export class NodeHost implements Host {
     userState: any = {}
-    virtualFiles: Record<string, Uint8Array> = {}
     retrieval: RetrievalService
     models: ModelService
     readonly path = createNodePath()
@@ -131,18 +129,6 @@ export class NodeHost implements Host {
         return resolveLanguageModel(options, configuration)
     }
 
-    clearVirtualFiles(): void {
-        this.virtualFiles = {}
-    }
-
-    setVirtualFile(name: string, content: string) {
-        this.virtualFiles[this.path.resolve(name)] =
-            this.createUTF8Encoder().encode(content)
-    }
-    isVirtualFile(name: string) {
-        return !!this.virtualFiles[name]
-    }
-
     log(level: LogLevel, msg: string): void {
         if (msg === undefined) return
         switch (level) {
@@ -184,20 +170,10 @@ export class NodeHost implements Host {
         })
         return res?.value
     }
-    async readFile(
-        name: string,
-        options?: ReadFileOptions
-    ): Promise<Uint8Array> {
+    async readFile(name: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i
         if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
-
-        // virtual file handler
-        const v = this.virtualFiles[resolve(name)]
-        if (options?.virtual) {
-            if (!v) throw new Error("virtual file not found")
-            return v // alway return virtual files
-        } else if (options?.virtual !== false && !!v) return v // optional return virtual files
 
         // read file
         const res = await readFile(name)
@@ -221,11 +197,9 @@ export class NodeHost implements Host {
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))
-        delete this.virtualFiles[resolve(name)]
         await writeFile(name, content)
     }
     async deleteFile(name: string) {
-        delete this.virtualFiles[resolve(name)]
         await unlink(name)
     }
     async createDirectory(name: string): Promise<void> {

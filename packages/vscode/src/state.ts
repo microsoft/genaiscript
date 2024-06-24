@@ -35,7 +35,6 @@ import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
-import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
@@ -65,10 +64,7 @@ export interface AIRequestSnapshotKey {
         title: string
         hash: string
     }
-    fragment: {
-        fullId: string
-        hash: string
-    }
+    fragment: Fragment
     version: string
 }
 export interface AIRequestSnapshot {
@@ -244,7 +240,6 @@ temp/
         r: AIRequest
     ): Promise<AIRequestSnapshotKey> {
         const { options } = r
-        const prj = this._project
         const key = {
             template: {
                 id: options.template.id,
@@ -255,10 +250,7 @@ temp/
                     })
                 ),
             },
-            fragment: {
-                fullId: options.fragment.fullId,
-                hash: options.fragment.hash,
-            },
+            fragment: options.fragment,
             version: CORE_VERSION,
         }
         return key
@@ -439,12 +431,6 @@ temp/
         return this._project
     }
 
-    get rootFragments() {
-        return this._project
-            ? concatArrays(...this._project.rootFiles.map((p) => p.fragments))
-            : []
-    }
-
     private async setProject(prj: Project) {
         this._project = prj
         await this.fixPromptDefinitions()
@@ -488,12 +474,10 @@ temp/
                 performance.mark(`save-docs`)
                 await saveAllTextDocuments()
                 performance.mark(`project-start`)
-                const gpspecFiles = await findFiles("**/*.gpspec.md")
                 performance.mark(`scan-tools`)
                 const scriptFiles = await this.findScripts()
                 performance.mark(`parse-project`)
                 const newProject = await parseProject({
-                    gpspecFiles,
                     scriptFiles,
                 })
                 await this.setProject(newProject)
@@ -533,7 +517,6 @@ ${files
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
-            gpspecFiles,
             scriptFiles,
         })
         return newProject
@@ -559,7 +542,6 @@ ${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
         if (token?.isCancellationRequested) return undefined
 
         const newProject = await parseProject({
-            gpspecFiles,
             scriptFiles,
         })
         return newProject

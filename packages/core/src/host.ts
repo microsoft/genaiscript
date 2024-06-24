@@ -37,10 +37,6 @@ export interface LanguageModelConfiguration {
     version?: string
 }
 
-export interface ReadFileOptions {
-    virtual?: boolean
-}
-
 export interface RetrievalClientOptions {
     progress?: Progress
     token?: CancellationToken
@@ -155,7 +151,7 @@ export interface Host {
     log(level: LogLevel, msg: string): void
 
     // fs
-    readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
+    readFile(name: string): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
     deleteFile(name: string): Promise<void>
     findFiles(
@@ -165,10 +161,6 @@ export interface Host {
             applyGitIgnore?: boolean
         }
     ): Promise<string[]>
-
-    clearVirtualFiles(): void
-    setVirtualFile(name: string, content: string): void
-    isVirtualFile(name: string): boolean
 
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>

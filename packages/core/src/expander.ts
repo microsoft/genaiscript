@@ -1,4 +1,4 @@
-import { Fragment, Project, PromptScript } from "./ast"
+import { Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
@@ -255,7 +255,7 @@ export function resolveSystems(prj: Project, template: PromptScript) {
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,
-    fragment: Fragment,
+    files: { },
     options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
@@ -350,12 +350,12 @@ export async function expandTemplate(
             return { status: "cancelled", statusText: "user cancelled" }
 
         let systemTemplate = systems[i]
-        let system = fragment.file.project.getTemplate(systemTemplate)
+        let system = prj.getTemplate(systemTemplate)
         if (!system) {
             if (systemTemplate) trace.error(`\`${systemTemplate}\` not found\n`)
             if (i > 0) continue
             systemTemplate = "system"
-            system = fragment.file.project.getTemplate(systemTemplate)
+            system = prj.getTemplate(systemTemplate)
             assert(!!system)
         }
 

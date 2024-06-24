@@ -1,7 +1,7 @@
 import { DOT_ENV_REGEX, HTTPS_REGEX } from "./constants"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
-import { ReadFileOptions, host } from "./host"
+import { host } from "./host"
 import { logVerbose, unique, utf8Decode, utf8Encode } from "./util"
 import ignorer from "ignore"
 
@@ -22,9 +22,9 @@ export async function writeText(fn: string, content: string) {
     await host.writeFile(fn, utf8Encode(content))
 }
 
-export async function fileExists(fn: string, options?: ReadFileOptions) {
+export async function fileExists(fn: string) {
     try {
-        await host.readFile(fn, options)
+        await host.readFile(fn)
         return true
     } catch {
         return false
