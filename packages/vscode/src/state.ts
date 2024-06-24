@@ -7,9 +7,7 @@ import {
     concatArrays,
     parseProject,
     GenerationResult,
-    runTemplate,
     groupBy,
-    GenerationOptions,
     isCancelError,
     delay,
     CHANGE,
@@ -84,6 +82,7 @@ export interface AIRequest {
     options: AIRequestOptions
     controller: AbortController
     trace: MarkdownTrace
+    runId?: string
     request?: Promise<GenerationResult>
     response?: Partial<GenerationResult>
     computing?: boolean
@@ -94,7 +93,7 @@ export interface AIRequest {
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
     const { response, error, creationTime } = r
-    const { vars, ...responseWithoutVars } = response || {}
+    const { vars, trace, ...responseWithoutVars } = response || {}
     const snapshot = structuredClone({
         creationTime,
         cacheTime: new Date().toISOString(),
@@ -271,12 +270,8 @@ temp/
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
         const cache = config.get("cache")
-        const maxCachedTemperature: number = config.get("maxCachedTemperature")
-        const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
-        const cancellationToken = new AbortSignalCancellationToken(signal)
         const trace = new MarkdownTrace()
-        if (!options.notebook) trace.heading(2, options.template.id)
 
         const r: AIRequest = {
             creationTime: new Date().toISOString(),
@@ -294,7 +289,6 @@ temp/
                 this.dispatchChange()
             }
         }
-        trace.addEventListener(CHANGE, reqChange)
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
             if (r.response) {
@@ -305,7 +299,8 @@ temp/
             reqChange()
         }
         this.aiRequest = r
-        const { template, fragment } = options
+
+        const { template, fragment, label } = options
         const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
@@ -313,7 +308,11 @@ temp/
             trace.renderErrors()
             return undefined
         }
-
+        const infoCb = (partialResponse: { text: string }) => {
+            r.response = partialResponse
+            reqChange()
+        }
+        /*
         const genOptions: GenerationOptions = {
             requestOptions: { signal },
             cancellationToken,
@@ -351,7 +350,7 @@ temp/
                       }
                     : undefined,
             model: info.model,
-        }
+        }       
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this, genOptions.model)
@@ -366,9 +365,25 @@ temp/
                 genOptions,
                 lmmodel
             )
-        } else if (connectionToken.type === "localai") await startLocalAI()
+        } else 
+        */
 
-        r.request = runTemplate(this.project, template, fragment, genOptions)
+        if (connectionToken.type === "localai") await startLocalAI()
+
+        const { runId, request } = await this.host.server.client.startScript(
+            template.id,
+            [],
+            {
+                signal,
+                trace,
+                infoCb,
+                partialCb,
+                label: options.label,
+                cache: cache && template.cache,
+            }
+        )
+        r.runId = runId
+        r.request = request
         if (!options.notebook && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request

@@ -50,7 +50,9 @@ import { createProgressSpinner } from "./spinner"
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
-    options: PromptScriptRunOptions & TraceOptions & CancellationOptions
+    options: Partial<PromptScriptRunOptions> &
+        TraceOptions &
+        CancellationOptions
 ) {
     const exitCode = await runScript(scriptId, files, options)
     process.exit(exitCode)
@@ -59,7 +61,9 @@ export async function runScriptWithExitCode(
 export async function runScript(
     scriptId: string,
     files: string[],
-    options: PromptScriptRunOptions & TraceOptions & CancellationOptions
+    options: Partial<PromptScriptRunOptions> &
+        TraceOptions &
+        CancellationOptions
 ): Promise<number> {
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore

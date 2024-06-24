@@ -1,6 +1,8 @@
 import { ChatCompletionsProgressReport } from "../chat"
 import { CLIENT_RECONNECT_DELAY } from "../constants"
 import { randomHex } from "../crypto"
+import { errorMessage } from "../error"
+import { GenerationResult } from "../expander"
 import {
     ModelService,
     ParsePdfResponse,
@@ -53,9 +55,15 @@ export class WebSocketClient
     private runs: Record<
         string,
         {
+            script: string
+            files: string[]
+            options: Partial<PromptScriptRunOptions>
             trace: MarkdownTrace
             infoCb: (partialResponse: { text: string }) => void
             partialCb: (progress: ChatCompletionsProgressReport) => void
+            promise: Promise<GenerationResult>
+            resolve: (value: GenerationResult) => void
+            reject: (reason?: any) => void
         }
     > = {}
 
@@ -105,6 +113,10 @@ export class WebSocketClient
         })
         this._ws.addEventListener("close", (ev: CloseEvent) => {
             this.cancel(ev.reason)
+            for (const [runId, run] of Object.entries(this.runs)) {
+                run.reject(ev.reason || "websocket closed")
+                delete this.runs[runId]
+            }
             this.reconnect()
         })
         this._ws.addEventListener("message", <
@@ -138,8 +150,14 @@ export class WebSocketClient
                         break
                     }
                     case "script.end": {
-                        // todo: final result message?
+                        const run = this.runs[runId]
                         delete this.runs[runId]
+                        if (run) {
+                            const res = structuredClone(ev.result)
+                            res.trace = run.trace.content
+                            run.infoCb(ev.result)
+                            run.resolve(res)
+                        }
                         break
                     }
                 }
@@ -241,13 +259,30 @@ export class WebSocketClient
     async startScript(
         script: string,
         files: string[],
-        options: PromptScriptRunOptions
-    ): Promise<PromptScriptTestRunResponse> {
+        options: Partial<PromptScriptRunOptions> & {
+            signal: AbortSignal
+            trace: MarkdownTrace
+            infoCb: (partialResponse: { text: string }) => void
+            partialCb: (progress: ChatCompletionsProgressReport) => void
+        }
+    ) {
         const runId = randomHex(6)
+        let resolve: (value: GenerationResult) => void
+        let reject: (reason?: any) => void
+        const promise = new Promise<GenerationResult>((res, rej) => {
+            resolve = res
+            reject = rej
+        })
         this.runs[runId] = {
-            trace: new MarkdownTrace(),
+            script,
+            files,
+            options,
+            trace: options.trace,
             infoCb: options.infoCb,
             partialCb: options.partialCb,
+            promise,
+            resolve,
+            reject,
         }
         const res = await this.queue<PromptScriptStart>({
             type: "script.start",
@@ -258,8 +293,11 @@ export class WebSocketClient
         })
         if (!res.response?.ok) {
             delete this.runs[runId] // failed to start
+            throw new Error(
+                errorMessage(res.response?.error) ?? "failed to start script"
+            )
         }
-        return res.response
+        return { runId, request: promise }
     }
 
     async abortScript(runId: string, reason?: string): Promise<ResponseStatus> {
@@ -270,6 +308,13 @@ export class WebSocketClient
             reason,
         })
         return res.response
+    }
+
+    abortScriptRuns(reason?: string) {
+        for (const runId of Object.keys(this.runs)) {
+            this.abortScript(runId, reason)
+            delete this.runs[runId]
+        }
     }
 
     async runTest(

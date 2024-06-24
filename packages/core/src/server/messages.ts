@@ -110,7 +110,7 @@ export interface PromptScriptStart extends RequestMessage {
     runId: string
     script: string
     files: string[]
-    options: PromptScriptRunOptions
+    options: Partial<PromptScriptRunOptions>
 }
 
 export interface PromptScriptStartResponse extends ResponseStatus {
