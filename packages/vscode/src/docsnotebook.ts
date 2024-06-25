@@ -20,6 +20,7 @@ import {
     arrayify,
     parseKeyValuePairs,
     parseBoolean,
+    host,
 } from "genaiscript-core"
 import { Utils } from "vscode-uri"
 
@@ -134,10 +135,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     jsSource,
                 }
                 const fragment: Fragment = {
-                    file: {
-                        filename: "notebook.cell." + cell.index + ".txt",
-                        content: "",
-                    },
+                    dir: host.path.dirname(cell.document.fileName),
                     files: arrayify(files).map(
                         (f) => <WorkspaceFile>{ filename: f }
                     ),

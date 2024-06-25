@@ -19,7 +19,7 @@ import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
 export interface Fragment {
-    dir: string
+    dir?: string
     files: WorkspaceFile[]
 }
 

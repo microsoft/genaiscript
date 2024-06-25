@@ -40,7 +40,7 @@ import {
     Fragment,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
-import { basename, resolve, join, relative } from "node:path"
+import { resolve, join, relative } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
@@ -106,11 +106,10 @@ export async function runScript(
     }
 
     const toolFiles: string[] = []
-
-    let md: string
     const resolvedFiles = new Set<string>()
 
     if (GENAI_JS_REGEX.test(scriptId)) toolFiles.push(scriptId)
+
     for (const arg of files) {
         if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
         else {

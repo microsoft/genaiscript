@@ -509,10 +509,7 @@ temp/
         const files = await listFiles(uri)
 
         return <Fragment>{
-            file: {
-                filename: this.host.path.join(fspath, "dir.gpspec.md"),
-                content: "",
-            },
+            dir: fspath,
             files: files.map((fs) => ({
                 filename: fs.fsPath,
             })),
@@ -527,10 +524,13 @@ temp/
         const fn = Utils.basename(document)
         const content = await readFileText(this.host.projectUri, fspath)
         return <Fragment>{
-            file: {
-                filename: fspath,
-                content,
-            },
+            dir: this.host.path.dirname(fspath),
+            files: [
+                {
+                    filename: fspath,
+                    content,
+                },
+            ],
         }
     }
 
