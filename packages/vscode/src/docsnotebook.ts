@@ -18,7 +18,6 @@ import {
     frontmatterTryParse,
     YAMLTryParse,
     arrayify,
-    FileReference,
     parseKeyValuePairs,
     parseBoolean,
 } from "genaiscript-core"
@@ -134,24 +133,14 @@ function activateNotebookExecutor(state: ExtensionState) {
                     id: "notebook-cell-" + cell.index,
                     jsSource,
                 }
-                const id = "notebook-cell-" + cell.index
                 const fragment: Fragment = {
-                    id: id,
-                    text: "",
+                    file: {
+                        filename: "notebook.cell." + cell.index + ".txt",
+                        content: "",
+                    },
                     references: arrayify(files).map(
-                        (f) => <FileReference>{ filename: f }
+                        (f) => <WorkspaceFile>{ filename: f }
                     ),
-                    fullId: id,
-                    title: "",
-                    hash: "",
-                    file: new TextFile(
-                        project,
-                        "notebook.cell." + cell.index + ".txt",
-                        "text/plain",
-                        ""
-                    ),
-                    startPos: [0, 0],
-                    endPos: stringToPos(""),
                 }
                 const parameters = { ...heap, ...vars }
                 await state.requestAI({

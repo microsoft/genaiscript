@@ -185,10 +185,6 @@
                     "when": "false"
                 },
                 {
-                    "command": "genaiscript.fragment.navigate",
-                    "when": "false"
-                },
-                {
                     "command": "genaiscript.request.open",
                     "when": "false"
                 },
@@ -270,11 +266,6 @@
                 "title": "Abort OpenAI request",
                 "category": "GenAIScript",
                 "icon": "$(debug-stop)"
-            },
-            {
-                "command": "genaiscript.fragment.navigate",
-                "title": "Navigate to fragment",
-                "category": "GenAIScript"
             },
             {
                 "command": "genaiscript.fragment.prompt",

@@ -219,18 +219,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
     }
 
-    const fragmentNavigate = async (fragment: Fragment | string) => {
-        fragment = state.project.resolveFragment(fragment)
-        if (!fragment) return
-        const { file, startPos } = fragment
-        const uri = host.toUri(file.filename)
-        const editor = await vscode.window.showTextDocument(uri)
-        const pos = new vscode.Position(...startPos)
-        editor.selections = [new vscode.Selection(pos, pos)]
-        var range = new vscode.Range(pos, pos)
-        editor.revealRange(range)
-    }
-
     const applyEdits = async () => state.applyEdits()
 
     subscriptions.push(
@@ -241,10 +229,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         vscode.commands.registerCommand(
             "genaiscript.fragment.debug",
             fragmentDebug
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.navigate",
-            fragmentNavigate
         ),
         vscode.commands.registerCommand(
             "genaiscript.request.applyEdits",
