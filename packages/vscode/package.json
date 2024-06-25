@@ -41,7 +41,6 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:**/*.gpspec.md",
         "workspaceContains:**/*.genai.{mjs,js}",
         "onNotebook:genaiscript"
     ],

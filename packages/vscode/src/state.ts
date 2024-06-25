@@ -29,12 +29,19 @@ import {
     fixPromptDefinitions,
     resolveModelConnectionInfo,
     AI_REQUESTS_CACHE,
+    readText,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
+import {
+    findFiles,
+    listFiles,
+    readFileText,
+    saveAllTextDocuments,
+    writeFile,
+} from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
@@ -494,57 +501,37 @@ temp/
         await this._parseWorkspacePromise
     }
 
-    async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
-        const fspath = uri.fsPath        
-        const specn = this.host.path.join(fspath, "dir.gpspec.md")
-        const files = (await listFiles(uri)).filter(
-            (uri) => !uri.fsPath.endsWith(".gpspec.md")
-        )
-        if (token?.isCancellationRequested) return undefined
+    async parseDirectory(
+        uri: vscode.Uri,
+        token?: vscode.CancellationToken
+    ): Promise<Fragment> {
+        const fspath = uri.fsPath
+        const files = await listFiles(uri)
 
-        const spec = `# Specification
-
-${files
-    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
-    .map((fn) => `-   [${fn}](./${fn})`)
-    .join("\n")}
-`
-        this.host.clearVirtualFiles()
-        this.host.setVirtualFile(specn, spec)
-
-        const gpspecFiles = [specn]
-        const scriptFiles = await this.findScripts()
-        if (token?.isCancellationRequested) return undefined
-
-        const newProject = await parseProject({
-            scriptFiles,
-        })
-        return newProject
+        return <Fragment>{
+            file: {
+                filename: this.host.path.join(fspath, "dir.gpspec.md"),
+                content: "",
+            },
+            references: files.map((fs) => ({
+                filename: fs.fsPath,
+            })),
+        }
     }
 
     async parseDocument(
         document: vscode.Uri,
         token?: vscode.CancellationToken
-    ) {
+    ): Promise<Fragment> {
         const fspath = document.fsPath
         const fn = Utils.basename(document)
-        const specn = fspath + ".gpspec.md"
-        this.host.clearVirtualFiles()
-        this.host.setVirtualFile(
-            specn,
-            `# Specification
-
-${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
-`
-        )
-        const gpspecFiles = [specn]
-        const scriptFiles = await this.findScripts()
-        if (token?.isCancellationRequested) return undefined
-
-        const newProject = await parseProject({
-            scriptFiles,
-        })
-        return newProject
+        const content = await readFileText(this.host.projectUri, fspath)
+        return <Fragment>{
+            file: {
+                filename: fspath,
+                content,
+            },
+        }
     }
 
     private setDiagnostics() {

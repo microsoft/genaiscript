@@ -26,9 +26,6 @@ keywords: AI, script generation, performance, best practices, limitations
 -   **Can I use GenAIScript in IDEs other than VS Code?**
     Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts.
 
--   **What is a GPSpec and how do I create one?**
-    A GPSpec is an optional markdown file that provides context for a GenAIScript. You can create one by writing a markdown document that lists arguments or includes more complex documentation.
-
 -   **What are foundation models and LLMs in the context of GenAIScript?**
     Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
 
@@ -59,9 +56,6 @@ keywords: AI, script generation, performance, best practices, limitations
 
 -   **How can I use GenAIScript to automate document translation?**
     One of our case studies illustrates the use of GenAIScript for translating document fragments between languages: [Translation Case Study](/genaiscript/case-studies/documentation-translations)
-
--   **Is it possible to generate executable code from natural language specifications using GenAIScript?**
-    Yes, you can use a GPSpec to define the task and a GenAIScript to translate the spec into code in a particular programming language.
 
 -   **Can I use GenAIScript to summarize documents or create dialogues from monologues?**
     Yes, LLMs are good at summarizing and can be used within GenAIScript to summarize documents or convert monologues into dialogues.

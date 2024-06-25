@@ -97,35 +97,24 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
+        let fragment: Fragment
         // active text editor
         if (frag === undefined && vscode.window.activeTextEditor) {
             const document = vscode.window.activeTextEditor.document
             if (document && document.uri.scheme === "file")
                 frag = document.uri.fsPath
         }
-
         if (frag instanceof vscode.Uri) frag = frag.fsPath
-
-        const { project } = state
-
-        let fragment: Fragment
-        if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
+        if (typeof frag === "string") {
             const fragUri = host.toUri(frag)
             if (await checkFileExists(fragUri)) {
-                const prj = await state.parseDocument(fragUri)
-                fragment = prj?.rootFiles?.[0].fragments?.[0]
+                fragment = await state.parseDocument(fragUri)
             } else if (await checkDirectoryExists(fragUri)) {
-                const prj = await state.parseDirectory(fragUri)
-                fragment = prj?.rootFiles?.[0].fragments?.[0]
+                fragment = await state.parseDirectory(fragUri)
             }
-        } else if (typeof frag === "string" && GENAI_JS_REGEX.test(frag)) {
-            const fragUri = host.toUri(frag)
-            const prj = await state.parseDocument(fragUri)
-            fragment = prj?.rootFiles?.[0].fragments?.[0]
         } else {
-            fragment = project.resolveFragment(frag)
+            fragment = frag
         }
-
         return fragment
     }
 
@@ -168,7 +157,6 @@ export function activateFragmentCommands(state: ExtensionState) {
         }
 
         if (!fragment) return
-        fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
 
         const parameters = await showPromptParametersQuickPicks(template)
         if (parameters === undefined) return

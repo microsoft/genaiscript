@@ -1,18 +1,19 @@
 ---
 title: Image Alt Text
 sidebar:
-  order: 10
+    order: 10
 description: Learn how to automatically generate descriptive alt text for images using OpenAI Vision model to enhance accessibility and SEO.
 keywords: alt text automation, image accessibility, SEO optimization, OpenAI Vision, Astro integration
 ---
-import { Image } from 'astro:assets';
-import { Code } from '@astrojs/starlight/components';
+
+import { Image } from "astro:assets"
+import { Code } from "@astrojs/starlight/components"
 import scriptSrc from "../../../../genaisrc/image-alt-text.genai.js?raw"
-import src from '../../../assets/debugger.png';
+import src from "../../../assets/debugger.png"
 import alt from "../../../assets/debugger.png.txt?raw"
 
-It is a best practice to provide an `alt` attribute for images. 
-This attribute is used to describe the image to users who are unable to see it. 
+It is a best practice to provide an `alt` attribute for images.
+This attribute is used to describe the image to users who are unable to see it.
 It is also used by search engines to understand the content of the image.
 
 ```html "alt"
@@ -30,7 +31,7 @@ However, this task can be tedious and developer are often tempted to skip it, or
 To solve this issue, we created a script that uses the OpenAI Vision model to analyze the documentation
 images and generate a description alt text.
 
-To start, we assume that the script is run on a single image file 
+To start, we assume that the script is run on a single image file
 and we use [defImage](/genaiscript/reference/scripts/images) to add it to the prompt context.
 
 ```js title="image-alt-text.genai.js"
@@ -55,18 +56,16 @@ The GenAIScript documentation uses Astro, which allows to author pages in [MDX](
 The code below shows how the generate alt text, stored in a separate text file, is injected in the final HTML.
 
 ```mdx
-
-import { Image } from 'astro:assets';
-import src from '../../../assets/debugger.png';
+import { Image } from "astro:assets"
+import src from "../../../assets/debugger.png"
 import alt from "../../../assets/debugger.png.txt?raw"
 
-<Image src={src} alt={alt}/>
-
+<Image src={src} alt={alt} />
 ```
 
 The `debugger.png` image shows the screenshot of a debugging session and the generate alt text file contents.
 
-<Image src={src} alt={alt}/>
+<Image src={src} alt={alt} />
 
 <Code code={alt} wrap={true} lang="txt" title="debugger.png.txt" />
 
@@ -76,7 +75,8 @@ Using the [batch](/genaiscript/reference/cli/batch) command, we can apply the sc
 in a single command.
 
 ```sh
-npx --yes genaiscript batch image-alt-text assets/**.png --apply-edits
+for file in assets/**.png; do
+  npx --yes genaiscript run image-alt-text "$file" --apply-edits
 ```
 
 To avoid regenerating the alt text, we also detect if a file exists in the script and cancel accordingly.

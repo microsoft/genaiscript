@@ -11,7 +11,6 @@ import {
     normalizeInt,
     normalizeFloat,
     GENAI_JS_REGEX,
-    GPSPEC_REGEX,
     FILES_NOT_FOUND_ERROR_CODE,
     appendJSONL,
     RUNTIME_ERROR_CODE,
@@ -117,8 +116,7 @@ export async function runScript(
     if (!files?.length) {
         specContent = "\n"
         spec = "stdin.gpspec.md"
-    } else if (files.length === 1 && GPSPEC_REGEX.test(files[0])) {
-        spec = files[0]
+        // TODO
     } else {
         for (const arg of files) {
             if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
@@ -134,11 +132,7 @@ export async function runScript(
                 }
 
                 for (const file of ffs) {
-                    if (GPSPEC_REGEX.test(file)) {
-                        md = (md || "") + (await readText(file)) + "\n"
-                    } else {
-                        resolvedFiles.add(file)
-                    }
+                    resolvedFiles.add(file)
                 }
             }
         }
@@ -163,11 +157,8 @@ ${Array.from(resolvedFiles)
 
     if (!spec) return fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
-    if (specContent !== undefined) host.setVirtualFile(spec, specContent)
-
     const prj = await buildProject({
         toolFiles,
-        specFiles: [spec],
     })
     const script = prj.templates.find(
         (t) =>
