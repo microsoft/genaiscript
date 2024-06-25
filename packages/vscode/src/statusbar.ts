@@ -27,9 +27,7 @@ export function activateStatusBar(state: ExtensionState) {
 
         const md = new vscode.MarkdownString(
             toMarkdownString(
-                fragment
-                    ? Utils.basename(host.toUri(fragment.file.filename))
-                    : undefined,
+                fragment.files?.[0]?.filename ?? fragment.dir,
                 template
                     ? `-  tool: ${template.title} (${template.id})`
                     : undefined

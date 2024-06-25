@@ -37,6 +37,7 @@ import {
     PromptScriptRunOptions,
     TraceOptions,
     CancellationOptions,
+    Fragment,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { basename, resolve, join, relative } from "node:path"
@@ -104,36 +105,26 @@ export async function runScript(
         return exitCode
     }
 
-    let spec: string
-    let specContent: string
     const toolFiles: string[] = []
 
     let md: string
     const resolvedFiles = new Set<string>()
 
     if (GENAI_JS_REGEX.test(scriptId)) toolFiles.push(scriptId)
-
-    if (!files?.length) {
-        specContent = "\n"
-        spec = "stdin.gpspec.md"
-        // TODO
-    } else {
-        for (const arg of files) {
-            if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
-            else {
-                const ffs = await host.findFiles(arg, {
-                    applyGitIgnore: excludeGitIgnore,
-                })
-                if (!ffs.length) {
-                    return fail(
-                        `no files matching ${arg}`,
-                        FILES_NOT_FOUND_ERROR_CODE
-                    )
-                }
-
-                for (const file of ffs) {
-                    resolvedFiles.add(file)
-                }
+    for (const arg of files) {
+        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
+        else {
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore: excludeGitIgnore,
+            })
+            if (!ffs.length) {
+                return fail(
+                    `no files matching ${arg}`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            }
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
             }
         }
     }
@@ -141,21 +132,10 @@ export async function runScript(
     if (excludedFiles?.length) {
         for (const arg of excludedFiles) {
             const ffs = await host.findFiles(arg)
-            for (const f of ffs) resolvedFiles.delete(f)
+            for (const f of ffs)
+                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
         }
     }
-
-    if (md || resolvedFiles.size) {
-        spec = "cli.gpspec.md"
-        specContent = `${md || "# Specification"}
-
-${Array.from(resolvedFiles)
-    .map((f) => `-   [${basename(f)}](${filePathOrUrlToWorkspaceFile(f)})`)
-    .join("\n")}
-`
-    }
-
-    if (!spec) return fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
 
     const prj = await buildProject({
         toolFiles,
@@ -168,15 +148,9 @@ ${Array.from(resolvedFiles)
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) throw new Error(`tool ${scriptId} not found`)
-    const gpspec = prj.rootFiles.find(
-        (f) => resolve(f.filename) === resolve(spec)
-    )
-    if (!gpspec)
-        return fail(`spec ${spec} not found`, FILES_NOT_FOUND_ERROR_CODE)
-    const fragment = gpspec.fragments[0]
-    if (!fragment)
-        return fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
-
+    const fragment: Fragment = {
+        files: Array.from(resolvedFiles).map((filename) => ({ filename })),
+    }
     const vars = parseKeyValuePairs(options.vars)
     let tokens = 0
     let res: GenerationResult
@@ -289,7 +263,6 @@ ${Array.from(resolvedFiles)
             ? mkfn(".annotations.csv")
             : undefined
         const sariff = res.annotations?.length ? mkfn(".sarif") : undefined
-        const specf = specContent ? mkfn(".gpspec.md") : undefined
         const changelogf = res.changelogs?.length
             ? mkfn(".changelog.txt")
             : undefined
@@ -302,10 +275,6 @@ ${Array.from(resolvedFiles)
         }
         if (res.text) await writeText(outputf, res.text)
         if (res.trace) await writeText(tracef, res.trace)
-        if (specf) {
-            const spect = await readText(spec)
-            await writeText(specf, spect)
-        }
         if (res.schemas) {
             for (const [sname, schema] of Object.entries(res.schemas)) {
                 await writeText(

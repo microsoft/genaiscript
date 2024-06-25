@@ -513,7 +513,7 @@ temp/
                 filename: this.host.path.join(fspath, "dir.gpspec.md"),
                 content: "",
             },
-            references: files.map((fs) => ({
+            files: files.map((fs) => ({
                 filename: fs.fsPath,
             })),
         }

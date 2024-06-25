@@ -19,8 +19,8 @@ import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
 export interface Fragment {
-    file: WorkspaceFile
-    references: WorkspaceFile[]
+    dir: string
+    files: WorkspaceFile[]
 }
 
 async function resolveExpansionVars(
@@ -30,13 +30,12 @@ async function resolveExpansionVars(
     frag: Fragment,
     vars: Record<string, string>
 ) {
-    const { file } = frag
     const root = host.projectFolder()
 
     const files: WorkspaceFile[] = []
     const fr = frag
     const templateFiles = arrayify(template.files)
-    const referenceFiles = fr.references.map(({ filename }) => filename)
+    const referenceFiles = fr.files.map(({ filename }) => filename)
     const filenames = await expandFiles(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
@@ -59,10 +58,7 @@ async function resolveExpansionVars(
         } else trace.error(`secret \`${secret}\` not found`)
     }
     const res: Partial<ExpansionVariables> = {
-        spec: {
-            filename: relativePath(host.projectFolder(), file.filename),
-            content: file.content,
-        },
+        dir: fr.dir,
         files,
         template: {
             id: template.id,
@@ -176,13 +172,12 @@ export async function runTemplate(
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
-        const links: string[] = []
-        const fp = fragment.file.filename
-        const fragn = /^.\//.test(fp)
-            ? host.resolvePath(projFolder, fragment.file.filename)
-            : fp
-        const ff = host.resolvePath(fp, "..")
-        const refs = fragment.references
+        //const fp = fragment.file.filename
+        //const fragn = /^.\//.test(fp)
+        //    ? host.resolvePath(projFolder, fragment.file.filename)
+        //    : fp
+        const ff = host.resolvePath(fragment.dir)
+        const refs = fragment.files
         const getFileEdit = async (fn: string) => {
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
@@ -233,12 +228,6 @@ export async function runTemplate(
         let { text, annotations } = output
         if (json !== undefined) {
             trace.detailsFenced("📩 json (parsed)", json, "json")
-            const fn = fragment.file.filename.replace(
-                /\.gpspec\.md$/i,
-                "." + template.id + ".json"
-            )
-            const fileEdit = await getFileEdit(fn)
-            fileEdit.after = text
         } else {
             if (text) trace.detailsFenced(`🔠 output`, text, `markdown`)
             for (const fence of fences.filter(
@@ -296,8 +285,6 @@ export async function runTemplate(
                             }
                         }
                     }
-                    if (!curr && fragn !== fn)
-                        links.push(`-   [${ffn}](${ffn})`)
                 } else if (/^changelog$/i.test(name)) {
                     changelogs.push(val)
                     const cls = parseChangeLogs(val)
@@ -316,8 +303,6 @@ export async function runTemplate(
                             fileEdit.after || fileEdit.before || "",
                             changelog
                         )
-                        if (!curr && fragn !== fn)
-                            links.push(`-   [${ffn}](${ffn})`)
                     }
                 }
             }

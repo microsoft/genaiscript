@@ -138,7 +138,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                         filename: "notebook.cell." + cell.index + ".txt",
                         content: "",
                     },
-                    references: arrayify(files).map(
+                    files: arrayify(files).map(
                         (f) => <WorkspaceFile>{ filename: f }
                     ),
                 }

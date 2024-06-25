@@ -505,9 +505,9 @@ interface ChatParticipant {
  */
 interface ExpansionVariables {
     /**
-     * Description of the context as markdown; typically the content of a .gpspec.md file.
+     * Directory where the prompt is executed
      */
-    spec: WorkspaceFile
+    dir: string
 
     /**
      * List of linked files parsed in context
