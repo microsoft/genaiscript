@@ -148,7 +148,7 @@ export async function runScript(
     )
     if (!script) throw new Error(`tool ${scriptId} not found`)
     const fragment: Fragment = {
-        files: Array.from(resolvedFiles).map((filename) => ({ filename })),
+        files: Array.from(resolvedFiles),
     }
     const vars = parseKeyValuePairs(options.vars)
     let tokens = 0

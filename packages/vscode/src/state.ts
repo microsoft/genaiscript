@@ -371,13 +371,13 @@ temp/
 
         const { runId, request } = await this.host.server.client.startScript(
             template.id,
-            [],
+            fragment.files,
             {
                 signal,
                 trace,
                 infoCb,
                 partialCb,
-                label: options.label,
+                label,
                 cache: cache && template.cache,
             }
         )
@@ -509,10 +509,7 @@ temp/
         const files = await listFiles(uri)
 
         return <Fragment>{
-            dir: fspath,
-            files: files.map((fs) => ({
-                filename: fs.fsPath,
-            })),
+            files: files.map((fs) => fs.fsPath),
         }
     }
 
@@ -521,16 +518,8 @@ temp/
         token?: vscode.CancellationToken
     ): Promise<Fragment> {
         const fspath = document.fsPath
-        const fn = Utils.basename(document)
-        const content = await readFileText(this.host.projectUri, fspath)
         return <Fragment>{
-            dir: this.host.path.dirname(fspath),
-            files: [
-                {
-                    filename: fspath,
-                    content,
-                },
-            ],
+            files: [fspath],
         }
     }
 

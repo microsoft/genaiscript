@@ -19,8 +19,7 @@ import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
 export interface Fragment {
-    dir?: string
-    files: WorkspaceFile[]
+    files: string[]
 }
 
 async function resolveExpansionVars(
@@ -35,7 +34,7 @@ async function resolveExpansionVars(
     const files: WorkspaceFile[] = []
     const fr = frag
     const templateFiles = arrayify(template.files)
-    const referenceFiles = fr.files.map(({ filename }) => filename)
+    const referenceFiles = fr.files.slice(0)
     const filenames = await expandFiles(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
@@ -58,7 +57,7 @@ async function resolveExpansionVars(
         } else trace.error(`secret \`${secret}\` not found`)
     }
     const res: Partial<ExpansionVariables> = {
-        dir: fr.dir,
+        dir: ".",
         files,
         template: {
             id: template.id,
@@ -172,12 +171,6 @@ export async function runTemplate(
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
-        //const fp = fragment.file.filename
-        //const fragn = /^.\//.test(fp)
-        //    ? host.resolvePath(projFolder, fragment.file.filename)
-        //    : fp
-        const ff = host.resolvePath(fragment.dir)
-        const refs = fragment.files
         const getFileEdit = async (fn: string) => {
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
@@ -241,9 +234,6 @@ export async function runTemplate(
                     const fn = /^[^\/]/.test(n)
                         ? host.resolvePath(projFolder, n)
                         : n
-                    const ffn = relativePath(ff, fn)
-                    const curr = refs.find((r) => r.filename === fn)?.filename
-
                     const fileEdit = await getFileEdit(fn)
                     if (kw === "file") {
                         if (fileMerges.length) {
@@ -293,11 +283,6 @@ export async function runTemplate(
                         const fn = /^[^\/]/.test(filename)
                             ? host.resolvePath(projFolder, filename)
                             : filename
-                        const ffn = relativePath(ff, fn)
-                        const curr = refs.find(
-                            (r) => r.filename === fn
-                        )?.filename
-
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = applyChangeLog(
                             fileEdit.after || fileEdit.before || "",

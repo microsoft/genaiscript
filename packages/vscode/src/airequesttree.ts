@@ -23,7 +23,7 @@ class AIRequestTreeDataProvider
     async getTreeItem(element: AIRequestTreeNode): Promise<vscode.TreeItem> {
         const { sha, key } = element
         const item = new vscode.TreeItem(
-            key.fragment.files?.[0]?.filename || key.fragment.dir,
+            key.fragment.files?.[0],
             vscode.TreeItemCollapsibleState.None
         )
         item.description = key.template.title

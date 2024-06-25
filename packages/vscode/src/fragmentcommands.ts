@@ -156,8 +156,6 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (!template) return
         }
 
-        if (!fragment) return
-
         const parameters = await showPromptParametersQuickPicks(template)
         if (parameters === undefined) return
 

@@ -146,11 +146,12 @@ export async function startServer(options: { port: string }) {
                                 >{
                                     type: "script.progress",
                                     runId,
-                                    chunk: tev.chunk,
+                                    trace: tev.chunk,
                                 })
                             )
                         })
                         console.log(`run ${runId} starting`)
+                        console.log({ script, files, options })
                         const runner = runScript(script, files, {
                             ...options,
                             trace,

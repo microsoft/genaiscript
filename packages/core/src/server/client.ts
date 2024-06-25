@@ -36,7 +36,6 @@ import {
     PromptScriptRunOptions,
     PromptScriptStart,
     PromptScriptAbort,
-    PromptScriptProgressResponseEvent,
     ResponseEvents,
 } from "./messages"
 
@@ -64,6 +63,7 @@ export class WebSocketClient
             promise: Promise<GenerationResult>
             resolve: (value: GenerationResult) => void
             reject: (reason?: any) => void
+            signal: AbortSignal
         }
     > = {}
 
@@ -130,6 +130,7 @@ export class WebSocketClient
             if (awaiter) {
                 delete this.awaiters[id]
                 await awaiter.resolve(req)
+                return
             }
 
             // handle run progress
@@ -267,6 +268,7 @@ export class WebSocketClient
         }
     ) {
         const runId = randomHex(6)
+        const { signal, infoCb, partialCb, trace, ...optionsRest } = options
         let resolve: (value: GenerationResult) => void
         let reject: (reason?: any) => void
         const promise = new Promise<GenerationResult>((res, rej) => {
@@ -277,19 +279,23 @@ export class WebSocketClient
             script,
             files,
             options,
-            trace: options.trace,
-            infoCb: options.infoCb,
-            partialCb: options.partialCb,
+            trace,
+            infoCb,
+            partialCb,
             promise,
             resolve,
             reject,
+            signal,
         }
+        signal?.addEventListener("abort", () => {
+            this.abortScript(runId)
+        })
         const res = await this.queue<PromptScriptStart>({
             type: "script.start",
             runId,
             script,
             files,
-            options,
+            options: optionsRest,
         })
         if (!res.response?.ok) {
             delete this.runs[runId] // failed to start

@@ -135,10 +135,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     jsSource,
                 }
                 const fragment: Fragment = {
-                    dir: host.path.dirname(cell.document.fileName),
-                    files: arrayify(files).map(
-                        (f) => <WorkspaceFile>{ filename: f }
-                    ),
+                    files: arrayify(files),
                 }
                 const parameters = { ...heap, ...vars }
                 await state.requestAI({
