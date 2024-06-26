@@ -11,4 +11,6 @@ script({
 
 const file = def("FILE", env.files)
 
-$`Summarize ${file} in a single paragraph in plaintext.`
+$`Summarize ${file} in a single sentence in plaintext with less than 7 words.
+
+- Do not justify why you used more words.`
