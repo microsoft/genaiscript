@@ -230,7 +230,7 @@ temp/
             if (edits?.length && !options.notebook) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
-            vscode.window.showErrorMessage(errorMessage(e))
+            throw e
         }
     }
 

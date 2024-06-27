@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import { PromptScript, copyPrompt, createScript } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
+import { registerCommand } from "./commands"
 
 export function activatePromptCommands(state: ExtensionState) {
     const { context, host } = state
@@ -15,16 +16,13 @@ export function activatePromptCommands(state: ExtensionState) {
     }
 
     subscriptions.push(
-        vscode.commands.registerCommand("genaiscript.newfile.script", () =>
+        registerCommand("genaiscript.newfile.script", () =>
             vscode.commands.executeCommand("genaiscript.prompt.create")
         ),
-        vscode.commands.registerCommand(
-            "genaiscript.prompt.refresh",
-            async () => {
-                await state.parseWorkspace()
-            }
-        ),
-        vscode.commands.registerCommand(
+        registerCommand("genaiscript.prompt.refresh", async () => {
+            await state.parseWorkspace()
+        }),
+        registerCommand(
             "genaiscript.prompt.create",
             async (template?: PromptScript) => {
                 const name = await vscode.window.showInputBox({
@@ -36,7 +34,7 @@ export function activatePromptCommands(state: ExtensionState) {
                 await showPrompt(pr)
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.prompt.fork",
             async (template: PromptScript) => {
                 if (!template) {
@@ -62,14 +60,14 @@ export function activatePromptCommands(state: ExtensionState) {
                 )
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.prompt.unbuiltin",
             async (template: PromptScript) => {
                 if (!template) return
                 await showPrompt(await copyPrompt(template, { fork: false }))
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.prompt.navigate",
             async (prompt: PromptScript) => {
                 const uri = prompt.filename

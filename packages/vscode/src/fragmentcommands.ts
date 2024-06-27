@@ -6,12 +6,14 @@ import {
     PromptScript,
     assert,
     dotGenaiscriptPath,
+    errorMessage,
     groupBy,
     promptParameterTypeToJSONSchema,
     templateGroup,
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
+import { registerCommand } from "./commands"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -101,7 +103,11 @@ export function activateFragmentCommands(state: ExtensionState) {
         // active text editor
         if (frag === undefined && vscode.window.activeTextEditor) {
             const document = vscode.window.activeTextEditor.document
-            if (document && document.uri.scheme === "file" && !GENAI_ANYJS_REGEX.test(document.fileName))
+            if (
+                document &&
+                document.uri.scheme === "file" &&
+                !GENAI_ANYJS_REGEX.test(document.fileName)
+            )
                 frag = document.uri.fsPath
         }
         if (frag instanceof vscode.Uri) frag = frag.fsPath
@@ -198,21 +204,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
     }
 
-    const applyEdits = async () => state.applyEdits()
-
     subscriptions.push(
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.prompt",
-            fragmentPrompt
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.debug",
-            fragmentDebug
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.request.applyEdits",
-            applyEdits
-        )
+        registerCommand("genaiscript.fragment.prompt", fragmentPrompt),
+        registerCommand("genaiscript.fragment.debug", fragmentDebug),
     )
 }
 

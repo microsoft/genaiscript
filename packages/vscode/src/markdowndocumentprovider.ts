@@ -23,6 +23,7 @@ import {
     TRACE_NODE_PREFIX,
     renderTraceTree,
 } from "genaiscript-core"
+import { registerCommand } from "./commands"
 
 const SCHEME = "genaiscript"
 
@@ -204,20 +205,17 @@ export function activateMarkdownTextDocumentContentProvider(
     const provider = new MarkdownTextDocumentContentProvider(state)
     subscriptions.push(
         vscode.workspace.registerTextDocumentContentProvider(SCHEME, provider),
-        vscode.commands.registerCommand(
-            "genaiscript.request.open",
-            async (id: string) => {
-                const uri = infoUri(id || REQUEST_TRACE_FILENAME)
-                await showMarkdownPreview(uri)
-            }
-        ),
-        vscode.commands.registerCommand("genaiscript.request.open.trace", () =>
+        registerCommand("genaiscript.request.open", async (id: string) => {
+            const uri = infoUri(id || REQUEST_TRACE_FILENAME)
+            await showMarkdownPreview(uri)
+        }),
+        registerCommand("genaiscript.request.open.trace", () =>
             vscode.commands.executeCommand(
                 "genaiscript.request.open",
                 REQUEST_TRACE_FILENAME
             )
         ),
-        vscode.commands.registerCommand("genaiscript.request.open.output", () =>
+        registerCommand("genaiscript.request.open.output", () =>
             vscode.commands.executeCommand(
                 "genaiscript.request.open",
                 REQUEST_OUTPUT_FILENAME

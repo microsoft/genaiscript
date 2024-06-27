@@ -18,6 +18,8 @@ import {
     parseBoolean,
 } from "genaiscript-core"
 import { Utils } from "vscode-uri"
+import { register } from "tsx/cjs/api"
+import { registerCommand } from "./commands"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts
@@ -322,7 +324,7 @@ function activateNotebookSerializer(state: ExtensionState) {
     )
 
     subscriptions.push(
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.notebook.create",
             async (uri?: vscode.Uri) => {
                 uri = uri || Utils.joinPath(context.extensionUri, "tutorial.md")

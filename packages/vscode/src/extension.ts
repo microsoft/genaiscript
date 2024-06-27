@@ -13,6 +13,7 @@ import { activateTestController } from "./testcontroller"
 import { activateModelCompletionProvider } from "./modelcompletionprovider"
 import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
+import { registerCommand } from "./commands"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -28,7 +29,7 @@ export async function activate(context: ExtensionContext) {
     activateDocsNotebook(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.request.abort",
             async () => {
                 await state.cancelAiRequest()
@@ -37,7 +38,7 @@ export async function activate(context: ExtensionContext) {
                 )
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.request.status",
             async () => {
                 const cmds = commandButtons(state)
@@ -53,7 +54,7 @@ export async function activate(context: ExtensionContext) {
                 }
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.openIssueReporter",
             async () => {
                 const issueBody: string[] = [

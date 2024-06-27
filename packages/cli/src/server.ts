@@ -21,6 +21,8 @@ import {
     USER_CANCELLED_ERROR_CODE,
     PromptScriptProgressResponseEvent,
     PromptScriptEndResponseEvent,
+    logVerbose,
+    errorMessage,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
@@ -150,8 +152,7 @@ export async function startServer(options: { port: string }) {
                                 })
                             )
                         })
-                        console.log(`run ${runId} starting`)
-                        console.log({ script, files, options })
+                        logVerbose(`run ${runId}: starting`)
                         const runner = runScript(script, files, {
                             ...options,
                             trace,
@@ -159,8 +160,8 @@ export async function startServer(options: { port: string }) {
                         })
                             .then(({ exitCode, result }) => {
                                 delete runs[runId]
-                                console.log(
-                                    `run ${runId} completed with ${exitCode}`
+                                logVerbose(
+                                    `\nrun ${runId}: completed with ${exitCode}`
                                 )
                                 ws?.send(
                                     JSON.stringify(<
@@ -176,6 +177,9 @@ export async function startServer(options: { port: string }) {
                             .catch((e) => {
                                 if (canceller.controller.signal.aborted) return
                                 if (!isCancelError(e)) trace.error(e)
+                                logVerbose(
+                                    `\nrun ${runId}: failed with ${errorMessage(e)}`
+                                )
                                 ws?.send(
                                     JSON.stringify(<
                                         PromptScriptEndResponseEvent

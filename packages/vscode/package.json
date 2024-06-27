@@ -327,11 +327,6 @@
                 "category": "GenAIScript"
             },
             {
-                "command": "genaiscript.request.applyEdits",
-                "title": "Apply Edits",
-                "category": "GenAIScript"
-            },
-            {
                 "command": "genaiscript.request.status",
                 "title": "Show information message about OpenAI request status",
                 "category": "GenAIScript"
