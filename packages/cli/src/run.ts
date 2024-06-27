@@ -5,12 +5,11 @@ import {
     host,
     isJSONLFilename,
     logVerbose,
-    readText,
     runTemplate,
     writeText,
     normalizeInt,
     normalizeFloat,
-    GENAI_JS_REGEX,
+    GENAI_ANYJS_REGEX,
     FILES_NOT_FOUND_ERROR_CODE,
     appendJSONL,
     RUNTIME_ERROR_CODE,
@@ -110,7 +109,7 @@ export async function runScript(
     const toolFiles: string[] = []
     const resolvedFiles = new Set<string>()
 
-    if (GENAI_JS_REGEX.test(scriptId)) toolFiles.push(scriptId)
+    if (GENAI_ANYJS_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     for (const arg of files) {
         if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
@@ -145,7 +144,7 @@ export async function runScript(
         (t) =>
             t.id === scriptId ||
             (t.filename &&
-                GENAI_JS_REGEX.test(scriptId) &&
+                GENAI_ANYJS_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) throw new Error(`tool ${scriptId} not found`)

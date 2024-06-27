@@ -4,7 +4,6 @@ import {
     Project,
     Fragment,
     PromptScript,
-    concatArrays,
     parseProject,
     GenerationResult,
     groupBy,
@@ -23,25 +22,17 @@ import {
     TOOL_ID,
     TOOL_NAME,
     RetrievalSearchResult,
-    AbortSignalCancellationToken,
-    GENAI_JS_REGEX,
     GENAI_JS_GLOB,
     fixPromptDefinitions,
     resolveModelConnectionInfo,
     AI_REQUESTS_CACHE,
-    readText,
+    errorMessage,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
-import {
-    findFiles,
-    listFiles,
-    readFileText,
-    saveAllTextDocuments,
-    writeFile,
-} from "./fs"
+import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
@@ -239,7 +230,7 @@ temp/
             if (edits?.length && !options.notebook) this.applyEdits()
         } catch (e) {
             if (isCancelError(e)) return
-            throw e
+            vscode.window.showErrorMessage(errorMessage(e))
         }
     }
 
@@ -302,6 +293,7 @@ temp/
         reqChange()
 
         const { template, fragment, label } = options
+        const { files } = fragment || {}
         const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
@@ -373,7 +365,7 @@ temp/
 
         const { runId, request } = await this.host.server.client.startScript(
             template.id,
-            fragment.files,
+            files,
             {
                 signal,
                 trace,

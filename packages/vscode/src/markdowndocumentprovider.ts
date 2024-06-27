@@ -19,7 +19,7 @@ import {
     getChatCompletionCache,
     prettifyMarkdown,
     renderFencedVariables,
-    GENAI_JS_REGEX,
+    GENAI_ANYJS_REGEX,
     TRACE_NODE_PREFIX,
     renderTraceTree,
 } from "genaiscript-core"
@@ -116,7 +116,7 @@ ${prettifyMarkdown(md)}
         if (uri.path.startsWith(BUILTIN_PREFIX)) {
             const id = uri.path
                 .slice(BUILTIN_PREFIX.length)
-                .replace(GENAI_JS_REGEX, "")
+                .replace(GENAI_ANYJS_REGEX, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""

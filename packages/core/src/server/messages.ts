@@ -109,7 +109,7 @@ export interface PromptScriptStart extends RequestMessage {
     type: "script.start"
     runId: string
     script: string
-    files: string[]
+    files?: string[]
     options: Partial<PromptScriptRunOptions>
 }
 

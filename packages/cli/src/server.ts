@@ -134,7 +134,7 @@ export async function startServer(options: { port: string }) {
                     case "script.start": {
                         cancelAll()
 
-                        const { script, files, options, runId } = data
+                        const { script, files = [], options = {}, runId } = data
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()

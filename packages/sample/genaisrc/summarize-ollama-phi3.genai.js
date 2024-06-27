@@ -11,7 +11,5 @@ script({
 
 const file = def("FILE", env.files)
 
-$`Summarize ${file} in a sentence. 
-- Be concise, do not justify or explain yourself.
-- Only report summary, do not reply anything else.
+$`Summarize ${file} in a sentence. Make it short.
 `

@@ -1,5 +1,5 @@
 import { Project, PromptScript } from "./ast"
-import { BUILTIN_PREFIX, GENAI_JS_REGEX } from "./constants"
+import { BUILTIN_PREFIX, GENAI_ANYJS_REGEX } from "./constants"
 import { errorMessage } from "./error"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
@@ -205,7 +205,7 @@ async function parsePromptTemplateCore(
     const r = {
         id: templateIdFromFileName(filename),
         title: humanize(
-            host.path.basename(filename).replace(GENAI_JS_REGEX, "")
+            host.path.basename(filename).replace(GENAI_ANYJS_REGEX, "")
         ),
         text: "<nothing yet>",
         jsSource: content,

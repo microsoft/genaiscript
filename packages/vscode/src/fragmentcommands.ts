@@ -1,7 +1,7 @@
 import * as vscode from "vscode"
 import {
     Fragment,
-    GENAI_JS_REGEX,
+    GENAI_ANYJS_REGEX,
     NotSupportedError,
     PromptScript,
     assert,
@@ -101,7 +101,7 @@ export function activateFragmentCommands(state: ExtensionState) {
         // active text editor
         if (frag === undefined && vscode.window.activeTextEditor) {
             const document = vscode.window.activeTextEditor.document
-            if (document && document.uri.scheme === "file")
+            if (document && document.uri.scheme === "file" && !GENAI_ANYJS_REGEX.test(document.fileName))
                 frag = document.uri.fsPath
         }
         if (frag instanceof vscode.Uri) frag = frag.fsPath
@@ -135,21 +135,15 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         if (
             fragment instanceof vscode.Uri &&
-            GENAI_JS_REGEX.test(fragment.path)
+            GENAI_ANYJS_REGEX.test(fragment.path)
         ) {
             template = state.project.templates.find(
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
             )
             assert(template !== undefined)
-            fragment = <Fragment>{ files: template.files.slice(0) }
+            fragment = undefined
         }
         fragment = await resolveSpec(fragment)
-        if (!fragment) {
-            vscode.window.showErrorMessage(
-                "GenAIScript - sorry, we could not find where to apply the tool. Please try to launch GenAIScript from the editor."
-            )
-            return
-        }
         if (!template) {
             template = await pickTemplate()
             if (!template) return
@@ -173,7 +167,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let template: PromptScript
         let files: vscode.Uri[]
-        if (GENAI_JS_REGEX.test(file.path)) {
+        if (GENAI_ANYJS_REGEX.test(file.path)) {
             template = state.project.templates.find(
                 (p) => p.filename === file.fsPath
             )
