@@ -56,6 +56,7 @@ export async function startServer(options: { port: string }) {
     })
     wss.on("connection", function connection(ws) {
         console.log(`clients: connected (${wss.clients.size} clients)`)
+
         ws.on("error", console.error)
         ws.on("close", () =>
             console.log(`clients: closed (${wss.clients.size} clients)`)
@@ -140,23 +141,44 @@ export async function startServer(options: { port: string }) {
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
-                        trace.addEventListener(TRACE_CHUNK, (ev) => {
-                            const tev = ev as TraceChunkEvent
+                        const send = (
+                            payload: Omit<
+                                PromptScriptProgressResponseEvent,
+                                "type" | "runId"
+                            >
+                        ) =>
                             ws?.send(
                                 JSON.stringify(<
                                     PromptScriptProgressResponseEvent
                                 >{
                                     type: "script.progress",
                                     runId,
-                                    trace: tev.chunk,
+                                    ...payload,
                                 })
                             )
+                        trace.addEventListener(TRACE_CHUNK, (ev) => {
+                            const tev = ev as TraceChunkEvent
+                            send({ trace: tev.chunk })
                         })
                         logVerbose(`run ${runId}: starting`)
                         const runner = runScript(script, files, {
                             ...options,
                             trace,
                             cancellationToken: canceller.token,
+                            infoCb: ({ text }) => {
+                                send({ progress: text })
+                            },
+                            partialCb: ({
+                                responseChunk,
+                                responseSoFar,
+                                tokensSoFar,
+                            }) => {
+                                send({
+                                    response: responseSoFar,
+                                    responseChunk,
+                                    tokens: tokensSoFar,
+                                })
+                            },
                         })
                             .then(({ exitCode, result }) => {
                                 delete runs[runId]

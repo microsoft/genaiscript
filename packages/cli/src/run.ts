@@ -37,6 +37,7 @@ import {
     TraceOptions,
     CancellationOptions,
     Fragment,
+    ChatCompletionsProgressReport,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
@@ -62,9 +63,12 @@ export async function runScript(
     files: string[],
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
-        CancellationOptions
+        CancellationOptions & {
+            infoCb?: (partialResponse: { text: string }) => void
+            partialCb?: (progress: ChatCompletionsProgressReport) => void
+        }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace() } = options || {}
+    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
     let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
@@ -165,16 +169,20 @@ export async function runScript(
             return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
         result = await runTemplate(prj, script, fragment, {
-            infoCb: ({ text }) => {
+            infoCb: (args) => {
+                const { text } = args
                 if (text) {
                     if (spinner) spinner.start(text)
                     else if (!isQuiet) logVerbose(text)
+                    infoCb?.(args)
                 }
             },
-            partialCb: ({ responseChunk, tokensSoFar }) => {
+            partialCb: (args) => {
+                const { responseChunk, tokensSoFar } = args
                 tokens = tokensSoFar
                 if (stream && responseChunk) process.stdout.write(responseChunk)
                 if (spinner) spinner.report({ count: tokens })
+                partialCb?.(args)
             },
             skipLLM,
             label,

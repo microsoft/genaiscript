@@ -144,7 +144,7 @@ export class WebSocketClient
                         if (ev.progress) run.infoCb({ text: ev.progress })
                         if (ev.response || ev.tokens !== undefined)
                             run.partialCb({
-                                responseChunk: ev.response,
+                                responseChunk: ev.responseChunk,
                                 responseSoFar: ev.response,
                                 tokensSoFar: ev.tokens,
                             })

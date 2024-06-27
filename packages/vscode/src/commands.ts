@@ -7,7 +7,7 @@ export function registerCommand(
 ) {
     return vscode.commands.registerCommand(id, async function (...args: any[]) {
         try {
-            await command(args)
+            await command(...args)
         } catch (e) {
             vscode.window.showErrorMessage(TOOL_NAME + "- " + errorMessage(e))
         }
