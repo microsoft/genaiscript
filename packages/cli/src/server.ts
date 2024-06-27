@@ -157,7 +157,7 @@ export async function startServer(options: { port: string }) {
                             trace,
                             cancellationToken: canceller.token,
                         })
-                            .then((exitCode) => {
+                            .then(({ exitCode, result }) => {
                                 delete runs[runId]
                                 console.log(
                                     `run ${runId} completed with ${exitCode}`
@@ -169,6 +169,7 @@ export async function startServer(options: { port: string }) {
                                         type: "script.end",
                                         runId,
                                         exitCode,
+                                        result,
                                     })
                                 )
                             })

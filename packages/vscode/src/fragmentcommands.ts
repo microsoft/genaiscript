@@ -141,9 +141,8 @@ export function activateFragmentCommands(state: ExtensionState) {
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
             )
             assert(template !== undefined)
-            fragment = undefined
+            fragment = <Fragment>{ files: template.files.slice(0) }
         }
-
         fragment = await resolveSpec(fragment)
         if (!fragment) {
             vscode.window.showErrorMessage(

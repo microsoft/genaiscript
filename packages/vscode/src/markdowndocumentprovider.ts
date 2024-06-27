@@ -131,7 +131,7 @@ ${prettifyMarkdown(md)}
         Request \`${sha}\` not found in cache.
         `
 
-        return val?.trace || val?.response?.trace
+        return val?.trace
     }
 }
 

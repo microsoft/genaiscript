@@ -55,11 +55,6 @@ export interface GenerationResult extends GenerationOutput {
     changelogs: string[]
 
     /**
-     * MD-formatted trace.
-     */
-    trace: string
-
-    /**
      * Error message if any
      */
     error?: unknown

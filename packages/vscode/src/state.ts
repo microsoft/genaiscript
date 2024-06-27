@@ -95,14 +95,14 @@ export interface AIRequest {
 }
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
-    const { response, error, creationTime } = r
-    const { vars, trace, ...responseWithoutVars } = response || {}
+    const { response, error, creationTime, trace } = r
+    const { vars, ...responseWithoutVars } = response || {}
     const snapshot = structuredClone({
         creationTime,
         cacheTime: new Date().toISOString(),
         response: responseWithoutVars,
         error,
-        trace: r.trace.content,
+        trace: trace.content,
     })
     return snapshot
 }
@@ -298,6 +298,8 @@ temp/
             reqChange()
         }
         this.aiRequest = r
+        trace.addEventListener(CHANGE, reqChange)
+        reqChange()
 
         const { template, fragment, label } = options
         const { info, configuration: connectionToken } =

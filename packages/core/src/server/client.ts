@@ -155,8 +155,7 @@ export class WebSocketClient
                         delete this.runs[runId]
                         if (run) {
                             const res = structuredClone(ev.result)
-                            res.trace = run.trace.content
-                            run.infoCb(ev.result)
+                            if (res) run.infoCb(res)
                             run.resolve(res)
                         }
                         break

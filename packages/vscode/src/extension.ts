@@ -26,7 +26,7 @@ export async function activate(context: ExtensionContext) {
     activateStatusBar(state)
     activateModelCompletionProvider(state)
     activateDocsNotebook(state)
-    
+
     context.subscriptions.push(
         vscode.commands.registerCommand(
             "genaiscript.request.abort",
@@ -75,10 +75,10 @@ export async function activate(context: ExtensionContext) {
                         context.extension?.packageJSON?.version || "?"
                     }`
                 )
-                if (state.aiRequest?.response) {
-                    issueBody.push(`## Request`)
+                if (state.aiRequest?.trace) {
+                    issueBody.push(`## Trace`)
                     issueBody.push("`````")
-                    issueBody.push(state.aiRequest.response.trace)
+                    issueBody.push(state.aiRequest?.trace?.content)
                     issueBody.push("`````")
                 }
                 await vscode.commands.executeCommand(

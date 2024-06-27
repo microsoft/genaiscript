@@ -2,12 +2,8 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
     details,
-    fenceMD,
     Fragment,
-    indent,
     MARKDOWN_MIME_TYPE,
-    stringToPos,
-    TextFile,
     TOOL_NAME,
     renderMessagesToMarkdown,
     YAMLStringify,
@@ -20,7 +16,6 @@ import {
     arrayify,
     parseKeyValuePairs,
     parseBoolean,
-    host,
 } from "genaiscript-core"
 import { Utils } from "vscode-uri"
 
@@ -148,6 +143,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
 
+                const trace = state.aiRequest?.trace
                 const {
                     error,
                     text,
@@ -158,7 +154,6 @@ function activateNotebookExecutor(state: ExtensionState) {
                     fences,
                     frames,
                     schemas,
-                    trace,
                     messages,
                     status,
                 } = res
@@ -212,7 +207,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                                         YAMLStringify(clean(output)),
                                         "yaml"
                                     )
-                                ) + */ details("trace", trace),
+                                ) + */ details("trace", trace.content),
                                 MARKDOWN_MIME_TYPE
                             ),
                         ]),

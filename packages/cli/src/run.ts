@@ -54,7 +54,7 @@ export async function runScriptWithExitCode(
         TraceOptions &
         CancellationOptions
 ) {
-    const exitCode = await runScript(scriptId, files, options)
+    const { exitCode } = await runScript(scriptId, files, options)
     process.exit(exitCode)
 }
 
@@ -64,7 +64,9 @@ export async function runScript(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions
-): Promise<number> {
+): Promise<{ exitCode: number; result?: GenerationResult }> {
+    const { trace = new MarkdownTrace() } = options || {}
+    let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
@@ -102,7 +104,7 @@ export async function runScript(
     const fail = (msg: string, exitCode: number) => {
         if (spinner) spinner.fail(msg)
         else logVerbose(msg)
-        return exitCode
+        return { exitCode, result }
     }
 
     const toolFiles: string[] = []
@@ -152,9 +154,7 @@ export async function runScript(
     }
     const vars = parseKeyValuePairs(options.vars)
     let tokens = 0
-    let res: GenerationResult
     try {
-        const trace = options?.trace ?? new MarkdownTrace()
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
@@ -163,9 +163,9 @@ export async function runScript(
         if (info.error) {
             trace.error(undefined, info.error)
             logError(info.error)
-            return CONFIGURATION_ERROR_CODE
+            return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
-        res = await runTemplate(prj, script, fragment, {
+        result = await runTemplate(prj, script, fragment, {
             infoCb: ({ text }) => {
                 if (text) {
                     if (spinner) spinner.start(text)
@@ -202,49 +202,50 @@ export async function runScript(
         })
     } catch (err) {
         if (spinner) spinner.fail()
-        if (isCancelError(err)) return USER_CANCELLED_ERROR_CODE
+        if (isCancelError(err))
+            return fail("user cancelled", USER_CANCELLED_ERROR_CODE)
         logError(err)
-        return RUNTIME_ERROR_CODE
+        return fail("runtime error", RUNTIME_ERROR_CODE)
     }
 
     if (spinner) {
-        if (res.status !== "success")
-            spinner.fail(`${spinner.text}, ${res.statusText}`)
+        if (result.status !== "success")
+            spinner.fail(`${spinner.text}, ${result.statusText}`)
         else spinner.succeed()
-    } else if (res.status !== "success")
-        logVerbose(res.statusText ?? res.status)
+    } else if (result.status !== "success")
+        logVerbose(result.statusText ?? result.status)
 
-    if (outTrace && res.trace) await writeText(outTrace, res.trace)
-    if (outAnnotations && res.annotations?.length) {
+    if (outTrace) await writeText(outTrace, trace.content)
+    if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
-            await appendJSONL(outAnnotations, res.annotations)
+            await appendJSONL(outAnnotations, result.annotations)
         else
             await writeText(
                 outAnnotations,
                 CSV_REGEX.test(outAnnotations)
-                    ? diagnosticsToCSV(res.annotations, csvSeparator)
+                    ? diagnosticsToCSV(result.annotations, csvSeparator)
                     : /\.ya?ml$/i.test(outAnnotations)
-                      ? YAMLStringify(res.annotations)
+                      ? YAMLStringify(result.annotations)
                       : /\.sarif$/i.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(script, res.annotations)
-                        : JSON.stringify(res.annotations, null, 2)
+                        ? convertDiagnosticsToSARIF(script, result.annotations)
+                        : JSON.stringify(result.annotations, null, 2)
             )
     }
-    if (outChangelogs && res.changelogs?.length)
-        await writeText(outChangelogs, res.changelogs.join("\n"))
-    if (outData && res.frames?.length)
-        if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
-        else await writeText(outData, JSON.stringify(res.frames, null, 2))
+    if (outChangelogs && result.changelogs?.length)
+        await writeText(outChangelogs, result.changelogs.join("\n"))
+    if (outData && result.frames?.length)
+        if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames)
+        else await writeText(outData, JSON.stringify(result.frames, null, 2))
 
     if (
         applyEdits &&
-        res.status === "success" &&
-        Object.keys(res.fileEdits || {}).length
+        result.status === "success" &&
+        Object.keys(result.fileEdits || {}).length
     )
-        await writeFileEdits(res)
+        await writeFileEdits(result)
 
-    const promptjson = res.messages?.length
-        ? JSON.stringify(res.messages, null, 2)
+    const promptjson = result.messages?.length
+        ? JSON.stringify(result.messages, null, 2)
         : undefined
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -258,24 +259,24 @@ export async function runScript(
         const outputjson = mkfn(".output.json")
         const outputyaml = mkfn(".output.yaml")
         const tracef = mkfn(".trace.md")
-        const annotationf = res.annotations?.length
+        const annotationf = result.annotations?.length
             ? mkfn(".annotations.csv")
             : undefined
-        const sariff = res.annotations?.length ? mkfn(".sarif") : undefined
-        const changelogf = res.changelogs?.length
+        const sariff = result.annotations?.length ? mkfn(".sarif") : undefined
+        const changelogf = result.changelogs?.length
             ? mkfn(".changelog.txt")
             : undefined
-        await writeText(jsonf, JSON.stringify(res, null, 2))
-        await writeText(yamlf, YAMLStringify(res))
+        await writeText(jsonf, JSON.stringify(result, null, 2))
+        await writeText(yamlf, YAMLStringify(result))
         if (promptjson) await writeText(promptf, promptjson)
-        if (res.json) {
-            await writeText(outputjson, JSON.stringify(res.json, null, 2))
-            await writeText(outputyaml, YAMLStringify(res.json))
+        if (result.json) {
+            await writeText(outputjson, JSON.stringify(result.json, null, 2))
+            await writeText(outputyaml, YAMLStringify(result.json))
         }
-        if (res.text) await writeText(outputf, res.text)
-        if (res.trace) await writeText(tracef, res.trace)
-        if (res.schemas) {
-            for (const [sname, schema] of Object.entries(res.schemas)) {
+        if (result.text) await writeText(outputf, result.text)
+        if (trace) await writeText(tracef, trace.content)
+        if (result.schemas) {
+            for (const [sname, schema] of Object.entries(result.schemas)) {
                 await writeText(
                     join(out, `${sname.toLocaleLowerCase()}.schema.ts`),
                     JSONSchemaStringifyToTypeScript(schema, {
@@ -293,7 +294,7 @@ export async function runScript(
             await writeText(
                 annotationf,
                 `severity, filename, start, end, message\n` +
-                    res.annotations
+                    result.annotations
                         .map(
                             ({ severity, filename, range, message }) =>
                                 `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
@@ -304,11 +305,13 @@ export async function runScript(
         if (sariff)
             await writeText(
                 sariff,
-                convertDiagnosticsToSARIF(script, res.annotations)
+                convertDiagnosticsToSARIF(script, result.annotations)
             )
-        if (changelogf && res.changelogs?.length)
-            await writeText(changelogf, res.changelogs.join("\n"))
-        for (const [filename, edits] of Object.entries(res.fileEdits || {})) {
+        if (changelogf && result.changelogs?.length)
+            await writeText(changelogf, result.changelogs.join("\n"))
+        for (const [filename, edits] of Object.entries(
+            result.fileEdits || {}
+        )) {
             const rel = relative(process.cwd(), filename)
             const isAbsolutePath = resolve(rel) === rel
             if (!isAbsolutePath)
@@ -318,27 +321,31 @@ export async function runScript(
                 )
         }
     } else {
-        if (options.json) console.log(JSON.stringify(res, null, 2))
-        if (options.yaml) console.log(YAMLStringify(res))
+        if (options.json) console.log(JSON.stringify(result, null, 2))
+        if (options.yaml) console.log(YAMLStringify(result))
         if (options.prompt && promptjson) {
             console.log(promptjson)
         }
     }
 
-    if (pullRequestReviews && res.annotations?.length) {
+    if (pullRequestReviews && result.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            await githubCreatePullRequestReviews(script, info, res.annotations)
+            await githubCreatePullRequestReviews(
+                script,
+                info,
+                result.annotations
+            )
         }
     }
 
-    if (pullRequestComment && res.text) {
+    if (pullRequestComment && result.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
                 info,
-                res.text,
+                result.text,
                 typeof pullRequestComment === "string"
                     ? pullRequestComment
                     : script.id
@@ -346,13 +353,13 @@ export async function runScript(
         }
     }
 
-    if (pullRequestDescription && res.text) {
+    if (pullRequestDescription && result.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
             await githubUpdatePullRequestDescription(
                 script,
                 info,
-                res.text,
+                result.text,
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
                     : script.id
@@ -360,17 +367,13 @@ export async function runScript(
         }
     }
     // final fail
-    if (res.error) {
-        logVerbose(errorMessage(res.error))
-        return RUNTIME_ERROR_CODE
-    }
+    if (result.error)
+        return fail(errorMessage(result.error), RUNTIME_ERROR_CODE)
 
-    if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
-        logVerbose(`error annotations found, exiting with error code`)
-        return ANNOTATION_ERROR_CODE
-    }
+    if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
+        return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
     spinner?.stop()
     process.stderr.write("\n")
-    return 0
+    return { exitCode: 0, result }
 }
