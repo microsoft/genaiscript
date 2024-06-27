@@ -11,6 +11,7 @@ script({
 
 const file = def("FILE", env.files)
 
-$`Summarize ${file} in a single sentence in plaintext with less than 7 words.
-
-- Do not justify why you used more words.`
+$`Summarize ${file} in a sentence. 
+- Be concise, do not justify or explain yourself.
+- Only report summary, do not reply anything else.
+`
