@@ -201,6 +201,9 @@ export async function runScript(
             maxDelay,
             vars,
             trace,
+            cliInfo: {
+                files,
+            },
             stats: {
                 toolCalls: 0,
                 repairs: 0,

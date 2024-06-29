@@ -365,7 +365,7 @@ export interface GenerationOptions
     skipLLM?: boolean
     label?: string
     cliInfo?: {
-        spec: string
+        files: string[]
     }
     languageModel?: LanguageModel
     vars?: PromptParameters
