@@ -6,6 +6,6 @@ script({
 
 $`Shorten the following SUMMARY. Limit changes to minimum.`
 
-def("SUMMARY", env.spec)
+def("SUMMARY", env.files)
 
 $`Respond with the new SUMMARY.`

@@ -5,4 +5,4 @@ script({
 
 $`Shorten the following FILE. Limit changes to minimum.`
 
-def("FILE", env.spec)
+def("FILE", env.files)
