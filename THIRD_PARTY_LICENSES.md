@@ -23055,7 +23055,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.814
+ - electron-to-chromium@1.4.815
 
 This package contains the following license and notice below:
 
@@ -29349,7 +29349,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.15.9
+ - tsx@4.16.0
 
 This package contains the following license and notice below:
 
