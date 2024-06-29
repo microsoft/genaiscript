@@ -111,7 +111,6 @@ export async function runTemplate(
         } = await expandTemplate(
             prj,
             template,
-            fragment,
             options,
             vars as ExpansionVariables,
             trace

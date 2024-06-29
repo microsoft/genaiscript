@@ -250,7 +250,6 @@ export function resolveSystems(prj: Project, template: PromptScript) {
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,
-    files: { },
     options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
@@ -317,10 +316,12 @@ export async function expandTemplate(
     const chatParticipants = prompt.chatParticipants
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.text) {
-        trace.itemValue(`tokens`, estimateTokens(model, expanded))
-        trace.fence(prompt.text, "markdown")
-    }
+    if (prompt.text)
+        trace.detailsFenced(
+            `📝 prompt`,
+            prompt.text,
+            "markdown"
+        )
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
