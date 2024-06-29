@@ -2,10 +2,10 @@ script({
     title: "Generate BDD scenarios",
     description: "Generate a Gherkin .feature file from the node and children.",
     group: "samples",
-    temperature: 0.5
+    temperature: 0.5,
 })
 
-def("FILE", env.spec)
+def("FILE", env.files, { endsWith: ".md" })
 def("FEATURE", env.files, { endsWith: ".feature" })
 
 $`

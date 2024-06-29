@@ -7,7 +7,8 @@ script({
 })
 
 // content
-def("SPEC", env.spec)
+const spec = env.files.find((f) => f.filename.endsWith(".md"))
+def("SPEC", spec)
 def(
     "CODE",
     env.files.filter(
@@ -31,6 +32,6 @@ Your job is to critique the code and create a list ways in which it could be imp
 Use context from README to help you understand the problem and the code.
 `
 
-$`Replace the entire "Code Review" section in the SPEC ${env.spec.filename} file 
+$`Replace the entire "Code Review" section in the SPEC ${spec.filename} file 
 with your code review. Do not generate python or modify python files. Do not modify file names.
 `

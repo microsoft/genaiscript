@@ -7,7 +7,7 @@ script({
     system: []
 })
 
-def("SPEC", env.spec)
+def("SPEC", env.files)
 
 $`
 You are an writer of large language model prompts and you have been given SPEC which has 2 sections.  

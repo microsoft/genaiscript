@@ -11,7 +11,7 @@ script({
     },
 })
 
-const output = env.spec.filename + ".slides.md"
+const output = env.files[0].filename + ".slides.md"
 def(
     "SOURCE",
     env.files.filter((f) => !f.filename.endsWith(".slides.md"))

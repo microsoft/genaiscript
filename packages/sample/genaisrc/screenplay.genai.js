@@ -4,12 +4,13 @@ script({
         "Given a description of scenes, generate a dialog between two avatar characters.",
 })
 
-const output = env.spec.filename.replace(".gpspec.md", ".dialog.md")
+const spec = env.files.find((f) => f.filename.endsWith(".gpspec.md"))
+const output = spec.filename.replace(".gpspec.md", ".dialog.md")
 def(
     "INFO",
     env.files.filter((f) => f.filename.includes("info"))
 )
-def("TASK", env.spec)
+def("TASK", spec)
 def(
     "TRANSCRIPT",
     env.files.filter((f) => f.filename.endsWith(".transcript.md"))
