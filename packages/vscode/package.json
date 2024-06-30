@@ -376,7 +376,7 @@
         "mammoth": "^1.8.0",
         "pdfjs-dist": "4.3.136",
         "tree-sitter-wasms": "^0.1.11",
-        "tsx": "^4.15.9",
+        "tsx": "^4.16.0",
         "web-tree-sitter": "^0.22.6"
     },
     "optionalDependencies": {

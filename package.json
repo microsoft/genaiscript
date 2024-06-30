@@ -66,9 +66,9 @@
         "build:slides": "yarn --cwd slides build",
         "build:docs": "yarn build:slides && yarn --cwd docs build && yarn --cwd docs build:asw",
         "gen:licenses": "npx --yes generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
-        "genai:technical": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/technical.genai.js \"docs/src/**/*.md\" --excluded-files \"docs/src/**/index.{md,mdx}\" --apply-edits",
-        "genai:frontmatter": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/frontmatter.genai.js \"docs/src/**/*.{md,mdx}\" --apply-edits",
-        "genai:alt": "node packages/cli/built/genaiscript.cjs batch docs/genaisrc/image-alt-text.genai.js \"docs/src/**/*.png\" --apply-edits",
+        "genai:technical": "cd docs && yarn genai:technical",
+        "genai:frontmatter": "cd docs && yarn genai:frontmatter",
+        "genai:alt": "cd docs && yarn genai:alt",
         "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen"
     },
     "release-it": {

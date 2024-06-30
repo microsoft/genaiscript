@@ -28,7 +28,7 @@
     "pdfjs-dist": "4.3.136",
     "promptfoo": "^0.67.0",
     "tree-sitter-wasms": "^0.1.11",
-    "tsx": "^4.15.9",
+    "tsx": "^4.16.0",
     "typescript": "5.5.2",
     "web-tree-sitter": "^0.22.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"

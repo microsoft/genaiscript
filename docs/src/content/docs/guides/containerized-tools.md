@@ -2,6 +2,8 @@
 title: Containerized Tools
 sidebar:
     order: 10
+description: Learn how to create and use containerized tools with executable dependencies in a secure environment using GCC as an example.
+keywords: containerization, docker, GCC, tool integration, secure execution
 ---
 
 This guide shows how to create a [tool](/genaiscript/reference/scripts/tools)

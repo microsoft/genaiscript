@@ -38,7 +38,7 @@ Add this command to your `package.json` to make it easier to run again.
 {
   ...
   "scripts": {
-    "genai:frontmatter": "genaiscript batch frontmatter src/**/*.md --apply-edits",
+    "genai:frontmatter": "for file in \"src/**/*.md\"; do\ngenaiscript run frontmatter \"$file\" --apply-edits\ndone",
   }
 }
 ```
