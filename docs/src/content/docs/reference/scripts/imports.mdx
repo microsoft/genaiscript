@@ -18,16 +18,14 @@ You can import module installed in your project.
 
 ```js
 import { parse } from "ini"
-...
-export default async function () {
-    // static import
-    const res = parse("x = 1\ny = 2")
-    console.log(res)
 
-    // dynamic import
-    const { stringify } = await import("ini")
-    console.log(stringify(res))
-}
+// static import
+const res = parse("x = 1\ny = 2")
+console.log(res)
+
+// dynamic import with top-level await
+const { stringify } = await import("ini")
+console.log(stringify(res))
 ```
 
 ## File imports
