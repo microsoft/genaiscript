@@ -2,7 +2,12 @@ import { Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
-import { MAX_TOOL_CALLS, MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
+import {
+    MAX_TOOL_CALLS,
+    MJS_REGEX,
+    MODEL_PROVIDER_AICI,
+    SYSTEM_FENCE,
+} from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { GenerationOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
@@ -106,7 +111,8 @@ async function callExpander(
     }
 
     try {
-        if (r.filename) await importPrompt(ctx, r, { logCb, trace })
+        if (MJS_REGEX.test(r.filename))
+            await importPrompt(ctx, r, { logCb, trace })
         else {
             await evalPrompt(ctx, r, {
                 sourceMaps: true,
