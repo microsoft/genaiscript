@@ -1,4 +1,5 @@
 import {
+    ChatCompletionContentPartText,
     ChatCompletionHandler,
     ChatCompletionResponse,
     LanguageModel,
@@ -9,7 +10,6 @@ import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
 import { LanguageModelConfiguration, host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
-import { ChatCompletionContentPartText } from "openai/resources"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 

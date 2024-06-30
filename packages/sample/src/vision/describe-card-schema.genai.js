@@ -1,5 +1,6 @@
 script({
-    description: "Given an image of a receipt, extract a csv of the receipt data",
+    description:
+        "Given an image of a receipt, extract a csv of the receipt data",
     group: "image tools",
     model: "gpt-4-turbo-v",
     maxTokens: 4000,
@@ -22,7 +23,7 @@ const schema = defSchema("EXPENSE", {
     },
 })
 
-const outputName = path.join(path.dirname(env.spec.filename), "items.csv")
+const outputName = path.join(path.dirname(env.files[0].filename), "items.csv")
 
 $`You are a helpful assistant that is an expert in filing expense reports.
 You have information from a receipt in RECEIPT and you need to put the data

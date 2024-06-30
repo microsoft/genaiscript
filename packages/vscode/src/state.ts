@@ -4,12 +4,9 @@ import {
     Project,
     Fragment,
     PromptScript,
-    concatArrays,
     parseProject,
     GenerationResult,
-    runTemplate,
     groupBy,
-    GenerationOptions,
     isCancelError,
     delay,
     CHANGE,
@@ -25,19 +22,17 @@ import {
     TOOL_ID,
     TOOL_NAME,
     RetrievalSearchResult,
-    AbortSignalCancellationToken,
-    GENAI_JS_REGEX,
     GENAI_JS_GLOB,
     fixPromptDefinitions,
     resolveModelConnectionInfo,
     AI_REQUESTS_CACHE,
+    errorMessage,
 } from "genaiscript-core"
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
 import { Utils } from "vscode-uri"
 import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
-import { configureLanguageModelAccess, pickLanguageModel } from "./lmaccess"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 
@@ -67,10 +62,7 @@ export interface AIRequestSnapshotKey {
         title: string
         hash: string
     }
-    fragment: {
-        fullId: string
-        hash: string
-    }
+    fragment: Fragment
     version: string
 }
 export interface AIRequestSnapshot {
@@ -84,6 +76,7 @@ export interface AIRequest {
     options: AIRequestOptions
     controller: AbortController
     trace: MarkdownTrace
+    runId?: string
     request?: Promise<GenerationResult>
     response?: Partial<GenerationResult>
     computing?: boolean
@@ -93,14 +86,14 @@ export interface AIRequest {
 }
 
 export function snapshotAIRequest(r: AIRequest): AIRequestSnapshot {
-    const { response, error, creationTime } = r
+    const { response, error, creationTime, trace } = r
     const { vars, ...responseWithoutVars } = response || {}
     const snapshot = structuredClone({
         creationTime,
         cacheTime: new Date().toISOString(),
         response: responseWithoutVars,
         error,
-        trace: r.trace.content,
+        trace: trace.content,
     })
     return snapshot
 }
@@ -245,7 +238,6 @@ temp/
         r: AIRequest
     ): Promise<AIRequestSnapshotKey> {
         const { options } = r
-        const prj = this._project
         const key = {
             template: {
                 id: options.template.id,
@@ -256,10 +248,7 @@ temp/
                     })
                 ),
             },
-            fragment: {
-                fullId: options.fragment.fullId,
-                hash: options.fragment.hash,
-            },
+            fragment: options.fragment,
             version: CORE_VERSION,
         }
         return key
@@ -271,12 +260,8 @@ temp/
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
         const cache = config.get("cache")
-        const maxCachedTemperature: number = config.get("maxCachedTemperature")
-        const maxCachedTopP: number = config.get("maxCachedTopP")
         const signal = controller.signal
-        const cancellationToken = new AbortSignalCancellationToken(signal)
         const trace = new MarkdownTrace()
-        if (!options.notebook) trace.heading(2, options.template.id)
 
         const r: AIRequest = {
             creationTime: new Date().toISOString(),
@@ -294,7 +279,6 @@ temp/
                 this.dispatchChange()
             }
         }
-        trace.addEventListener(CHANGE, reqChange)
         const partialCb = (progress: ChatCompletionsProgressReport) => {
             r.progress = progress
             if (r.response) {
@@ -305,7 +289,11 @@ temp/
             reqChange()
         }
         this.aiRequest = r
-        const { template, fragment } = options
+        trace.addEventListener(CHANGE, reqChange)
+        reqChange()
+
+        const { template, fragment, label } = options
+        const { files } = fragment || {}
         const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
@@ -313,7 +301,11 @@ temp/
             trace.renderErrors()
             return undefined
         }
-
+        const infoCb = (partialResponse: { text: string }) => {
+            r.response = partialResponse
+            reqChange()
+        }
+        /*
         const genOptions: GenerationOptions = {
             requestOptions: { signal },
             cancellationToken,
@@ -351,7 +343,7 @@ temp/
                       }
                     : undefined,
             model: info.model,
-        }
+        }       
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this, genOptions.model)
@@ -366,9 +358,25 @@ temp/
                 genOptions,
                 lmmodel
             )
-        } else if (connectionToken.type === "localai") await startLocalAI()
+        } else 
+        */
 
-        r.request = runTemplate(this.project, template, fragment, genOptions)
+        if (connectionToken.type === "localai") await startLocalAI()
+
+        const { runId, request } = await this.host.server.client.startScript(
+            template.id,
+            files,
+            {
+                signal,
+                trace,
+                infoCb,
+                partialCb,
+                label,
+                cache: cache && template.cache,
+            }
+        )
+        r.runId = runId
+        r.request = request
         if (!options.notebook && !hasOutputOrTraceOpened())
             vscode.commands.executeCommand("genaiscript.request.open.output")
         r.request
@@ -424,12 +432,6 @@ temp/
         return this._project
     }
 
-    get rootFragments() {
-        return this._project
-            ? concatArrays(...this._project.rootFiles.map((p) => p.fragments))
-            : []
-    }
-
     private async setProject(prj: Project) {
         this._project = prj
         await this.fixPromptDefinitions()
@@ -473,12 +475,10 @@ temp/
                 performance.mark(`save-docs`)
                 await saveAllTextDocuments()
                 performance.mark(`project-start`)
-                const gpspecFiles = await findFiles("**/*.gpspec.md")
                 performance.mark(`scan-tools`)
                 const scriptFiles = await this.findScripts()
                 performance.mark(`parse-project`)
                 const newProject = await parseProject({
-                    gpspecFiles,
                     scriptFiles,
                 })
                 await this.setProject(newProject)
@@ -495,59 +495,26 @@ temp/
         await this._parseWorkspacePromise
     }
 
-    async parseDirectory(uri: vscode.Uri, token?: vscode.CancellationToken) {
+    async parseDirectory(
+        uri: vscode.Uri,
+        token?: vscode.CancellationToken
+    ): Promise<Fragment> {
         const fspath = uri.fsPath
-        const specn = this.host.path.join(fspath, "dir.gpspec.md")
-        const files = (await listFiles(uri)).filter(
-            (uri) => !uri.fsPath.endsWith(".gpspec.md")
-        )
-        if (token?.isCancellationRequested) return undefined
+        const files = await listFiles(uri)
 
-        const spec = `# Specification
-
-${files
-    .map((uri) => this.host.path.relative(fspath, uri.fsPath))
-    .map((fn) => `-   [${fn}](./${fn})`)
-    .join("\n")}
-`
-        this.host.clearVirtualFiles()
-        this.host.setVirtualFile(specn, spec)
-
-        const gpspecFiles = [specn]
-        const scriptFiles = await this.findScripts()
-        if (token?.isCancellationRequested) return undefined
-
-        const newProject = await parseProject({
-            gpspecFiles,
-            scriptFiles,
-        })
-        return newProject
+        return <Fragment>{
+            files: files.map((fs) => fs.fsPath),
+        }
     }
 
     async parseDocument(
         document: vscode.Uri,
         token?: vscode.CancellationToken
-    ) {
+    ): Promise<Fragment> {
         const fspath = document.fsPath
-        const fn = Utils.basename(document)
-        const specn = fspath + ".gpspec.md"
-        this.host.clearVirtualFiles()
-        this.host.setVirtualFile(
-            specn,
-            `# Specification
-
-${!GENAI_JS_REGEX.test(fn) ? `-   [${fn}](./${fn})` : ""}
-`
-        )
-        const gpspecFiles = [specn]
-        const scriptFiles = await this.findScripts()
-        if (token?.isCancellationRequested) return undefined
-
-        const newProject = await parseProject({
-            gpspecFiles,
-            scriptFiles,
-        })
-        return newProject
+        return <Fragment>{
+            files: [fspath],
+        }
     }
 
     private setDiagnostics() {

@@ -49,7 +49,7 @@ export function createPromptContext(
     model: string
 ) {
     const { cancellationToken, infoCb } = options || {}
-    const env = Object.freeze(vars)
+    const env = structuredClone(vars)
     const parsers = createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
@@ -175,7 +175,7 @@ export function createPromptContext(
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
-    const promptHost: PromptHost = {
+    const promptHost: PromptHost = Object.freeze<PromptHost>({
         askUser: (question) =>
             host.askUser({
                 prompt: question,
@@ -191,13 +191,13 @@ export function createPromptContext(
             const res = await host.container({ ...(options || {}), trace })
             return res
         },
-    }
+    })
 
-    const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
+    const ctx: PromptContext & RunPromptContextNode = {
         ...createChatGenerationContext(options, trace),
         script: () => {},
         system: () => {},
-        env,
+        env: undefined, // set later
         path,
         fs: workspace,
         workspace,
@@ -342,7 +342,9 @@ export function createPromptContext(
                 file,
             }
         },
-    })
+    }
+    env.generator = ctx
+    ctx.env = Object.freeze(env)
     const appendPromptChild = (node: PromptNode) => {
         if (!ctx.node) throw new Error("Prompt closed")
         appendChild(ctx.node, node)
@@ -356,18 +358,14 @@ export interface GenerationOptions
         ModelOptions,
         ScriptRuntimeOptions {
     cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: {
-        text: string
-        label?: string
-        vars?: Partial<ExpansionVariables>
-    }) => void
+    infoCb?: (partialResponse: { text: string }) => void
     trace: MarkdownTrace
     maxCachedTemperature?: number
     maxCachedTopP?: number
     skipLLM?: boolean
     label?: string
     cliInfo?: {
-        spec: string
+        files: string[]
     }
     languageModel?: LanguageModel
     vars?: PromptParameters

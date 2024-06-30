@@ -26,6 +26,7 @@ const { stdout: diff } = await host.exec("git", [
     "docs/**",
     ":!**/package.json",
     ":!**/genaiscript.d.ts",
+    ":!**/jsconfig.json",
     ":!.github/*",
     ":!.vscode/*",
     ":!yarn.lock",

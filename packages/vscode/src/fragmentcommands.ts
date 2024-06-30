@@ -1,17 +1,19 @@
 import * as vscode from "vscode"
 import {
     Fragment,
-    GENAI_JS_REGEX,
+    GENAI_ANYJS_REGEX,
     NotSupportedError,
     PromptScript,
     assert,
     dotGenaiscriptPath,
+    errorMessage,
     groupBy,
     promptParameterTypeToJSONSchema,
     templateGroup,
 } from "genaiscript-core"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
+import { registerCommand } from "./commands"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -97,35 +99,28 @@ export function activateFragmentCommands(state: ExtensionState) {
     }
 
     const resolveSpec = async (frag: Fragment | string | vscode.Uri) => {
+        let fragment: Fragment
         // active text editor
         if (frag === undefined && vscode.window.activeTextEditor) {
             const document = vscode.window.activeTextEditor.document
-            if (document && document.uri.scheme === "file")
+            if (
+                document &&
+                document.uri.scheme === "file" &&
+                !GENAI_ANYJS_REGEX.test(document.fileName)
+            )
                 frag = document.uri.fsPath
         }
-
         if (frag instanceof vscode.Uri) frag = frag.fsPath
-
-        const { project } = state
-
-        let fragment: Fragment
-        if (typeof frag === "string" && !/\.gpspec\.md(:.*)?$/i.test(frag)) {
+        if (typeof frag === "string") {
             const fragUri = host.toUri(frag)
             if (await checkFileExists(fragUri)) {
-                const prj = await state.parseDocument(fragUri)
-                fragment = prj?.rootFiles?.[0].fragments?.[0]
+                fragment = await state.parseDocument(fragUri)
             } else if (await checkDirectoryExists(fragUri)) {
-                const prj = await state.parseDirectory(fragUri)
-                fragment = prj?.rootFiles?.[0].fragments?.[0]
+                fragment = await state.parseDirectory(fragUri)
             }
-        } else if (typeof frag === "string" && GENAI_JS_REGEX.test(frag)) {
-            const fragUri = host.toUri(frag)
-            const prj = await state.parseDocument(fragUri)
-            fragment = prj?.rootFiles?.[0].fragments?.[0]
         } else {
-            fragment = project.resolveFragment(frag)
+            fragment = frag
         }
-
         return fragment
     }
 
@@ -146,7 +141,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         if (
             fragment instanceof vscode.Uri &&
-            GENAI_JS_REGEX.test(fragment.path)
+            GENAI_ANYJS_REGEX.test(fragment.path)
         ) {
             template = state.project.templates.find(
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
@@ -154,21 +149,11 @@ export function activateFragmentCommands(state: ExtensionState) {
             assert(template !== undefined)
             fragment = undefined
         }
-
         fragment = await resolveSpec(fragment)
-        if (!fragment) {
-            vscode.window.showErrorMessage(
-                "GenAIScript - sorry, we could not find where to apply the tool. Please try to launch GenAIScript from the editor."
-            )
-            return
-        }
         if (!template) {
             template = await pickTemplate()
             if (!template) return
         }
-
-        if (!fragment) return
-        fragment = state.project.fragmentByFullId[fragment.fullId] ?? fragment
 
         const parameters = await showPromptParametersQuickPicks(template)
         if (parameters === undefined) return
@@ -188,7 +173,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let template: PromptScript
         let files: vscode.Uri[]
-        if (GENAI_JS_REGEX.test(file.path)) {
+        if (GENAI_ANYJS_REGEX.test(file.path)) {
             template = state.project.templates.find(
                 (p) => p.filename === file.fsPath
             )
@@ -219,37 +204,9 @@ export function activateFragmentCommands(state: ExtensionState) {
         )
     }
 
-    const fragmentNavigate = async (fragment: Fragment | string) => {
-        fragment = state.project.resolveFragment(fragment)
-        if (!fragment) return
-        const { file, startPos } = fragment
-        const uri = host.toUri(file.filename)
-        const editor = await vscode.window.showTextDocument(uri)
-        const pos = new vscode.Position(...startPos)
-        editor.selections = [new vscode.Selection(pos, pos)]
-        var range = new vscode.Range(pos, pos)
-        editor.revealRange(range)
-    }
-
-    const applyEdits = async () => state.applyEdits()
-
     subscriptions.push(
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.prompt",
-            fragmentPrompt
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.debug",
-            fragmentDebug
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.fragment.navigate",
-            fragmentNavigate
-        ),
-        vscode.commands.registerCommand(
-            "genaiscript.request.applyEdits",
-            applyEdits
-        )
+        registerCommand("genaiscript.fragment.prompt", fragmentPrompt),
+        registerCommand("genaiscript.fragment.debug", fragmentDebug),
     )
 }
 

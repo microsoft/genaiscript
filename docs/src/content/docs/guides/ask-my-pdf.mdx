@@ -38,7 +38,7 @@ The quick-start guide illustrates how to write a GenAIScript that takes input fr
 
 In this example, we will extract text from a pdf that describes the history of Lorem Ipsem.
 
-```js title="ask-my-pdf.genai.js" system=false
+```js title="ask-my-pdf.genai.mjs" system=false
 const src = def("PDFSOURCE", env.files, { endsWith: ".pdf" })
 $`You are a helpful assistant.
 Summarize the content of ${src} and critique the document.

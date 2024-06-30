@@ -69,7 +69,7 @@ To compile and package the Visual Studio Code extension, run the `package` scrip
 yarn package
 ```
 
-You will find the built package files, `genaiscript.vsix` and `genaiscript.insiders.vsix`,
+You will find the built package files, `genaiscript.vsix`,
 in the `packages/vscode` folder.
 
 ## Release

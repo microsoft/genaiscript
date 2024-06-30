@@ -12,16 +12,51 @@ import {
     ShellExecResponse,
     ContainerStartResponse,
     DOCKER_DEFAULT_IMAGE,
+    AbortSignalCancellationController,
+    MarkdownTrace,
+    TRACE_CHUNK,
+    TraceChunkEvent,
+    UNHANDLED_ERROR_CODE,
+    isCancelError,
+    USER_CANCELLED_ERROR_CODE,
+    PromptScriptProgressResponseEvent,
+    PromptScriptEndResponseEvent,
+    logVerbose,
+    errorMessage,
 } from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
+import { runScript } from "./run"
+import { isAccessor } from "typescript"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
     const wss = new WebSocketServer({ port })
 
+    const runs: Record<
+        string,
+        {
+            canceller: AbortSignalCancellationController
+            trace: MarkdownTrace
+            runner: Promise<void>
+        }
+    > = {}
+
+    const cancelAll = () => {
+        for (const [runId, run] of Object.entries(runs)) {
+            console.log(`abort run ${runId}`)
+            run.canceller.abort("closing")
+            delete runs[runId]
+        }
+    }
+
+    // cleanup runs
+    wss.on("close", () => {
+        cancelAll()
+    })
     wss.on("connection", function connection(ws) {
         console.log(`clients: connected (${wss.clients.size} clients)`)
+
         ws.on("error", console.error)
         ws.on("close", () =>
             console.log(`clients: closed (${wss.clients.size} clients)`)
@@ -97,6 +132,109 @@ export async function startServer(options: { port: string }) {
                             verbose: true,
                             promptfooVersion: PROMPTFOO_VERSION,
                         })
+                        break
+                    }
+                    case "script.start": {
+                        cancelAll()
+
+                        const { script, files = [], options = {}, runId } = data
+                        const canceller =
+                            new AbortSignalCancellationController()
+                        const trace = new MarkdownTrace()
+                        const send = (
+                            payload: Omit<
+                                PromptScriptProgressResponseEvent,
+                                "type" | "runId"
+                            >
+                        ) =>
+                            ws?.send(
+                                JSON.stringify(<
+                                    PromptScriptProgressResponseEvent
+                                >{
+                                    type: "script.progress",
+                                    runId,
+                                    ...payload,
+                                })
+                            )
+                        trace.addEventListener(TRACE_CHUNK, (ev) => {
+                            const tev = ev as TraceChunkEvent
+                            send({ trace: tev.chunk })
+                        })
+                        logVerbose(`run ${runId}: starting`)
+                        logVerbose(YAMLStringify({ script, files, options }))
+                        const runner = runScript(script, files, {
+                            ...options,
+                            trace,
+                            cancellationToken: canceller.token,
+                            infoCb: ({ text }) => {
+                                send({ progress: text })
+                            },
+                            partialCb: ({
+                                responseChunk,
+                                responseSoFar,
+                                tokensSoFar,
+                            }) => {
+                                send({
+                                    response: responseSoFar,
+                                    responseChunk,
+                                    tokens: tokensSoFar,
+                                })
+                            },
+                        })
+                            .then(({ exitCode, result }) => {
+                                delete runs[runId]
+                                logVerbose(
+                                    `\nrun ${runId}: completed with ${exitCode}`
+                                )
+                                ws?.send(
+                                    JSON.stringify(<
+                                        PromptScriptEndResponseEvent
+                                    >{
+                                        type: "script.end",
+                                        runId,
+                                        exitCode,
+                                        result,
+                                    })
+                                )
+                            })
+                            .catch((e) => {
+                                if (canceller.controller.signal.aborted) return
+                                if (!isCancelError(e)) trace.error(e)
+                                logVerbose(
+                                    `\nrun ${runId}: failed with ${errorMessage(e)}`
+                                )
+                                ws?.send(
+                                    JSON.stringify(<
+                                        PromptScriptEndResponseEvent
+                                    >{
+                                        type: "script.end",
+                                        runId,
+                                        exitCode: isAccessor(e)
+                                            ? USER_CANCELLED_ERROR_CODE
+                                            : UNHANDLED_ERROR_CODE,
+                                    })
+                                )
+                            })
+                        runs[runId] = {
+                            runner,
+                            canceller,
+                            trace,
+                        }
+                        response = <ResponseStatus>{
+                            ok: true,
+                            status: 0,
+                            runId,
+                        }
+                        break
+                    }
+                    case "script.abort": {
+                        const { runId, reason } = data
+                        console.log(`abort run ${runId}`)
+                        const run = runs[runId]
+                        if (run) {
+                            delete runs[runId]
+                            run.canceller.abort(reason)
+                        }
                         break
                     }
                     case "shell.exec": {

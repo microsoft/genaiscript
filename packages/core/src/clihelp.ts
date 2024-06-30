@@ -11,6 +11,7 @@ export function generateCliArguments(
     command: "run" | "batch"
 ) {
     const { model, temperature, topP, seed, cliInfo } = options
+    const { files = [] } = cliInfo || {}
 
     const cli = [
         "npx",
@@ -18,7 +19,7 @@ export function generateCliArguments(
         `${NPM_CLI_PACKAGE}@^${CORE_VERSION}`,
         command,
         template.id,
-        `"${relativePath(host.projectFolder(), cliInfo.spec)}"`,
+        ...files.map((f) => `"${relativePath(host.projectFolder(), f)}"`),
         "--apply-edits",
     ]
     if (model) cli.push(`--model`, model)

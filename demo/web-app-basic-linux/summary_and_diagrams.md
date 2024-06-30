@@ -12,7 +12,7 @@ stateDiagram
     AppServicePlan --> WebApp
 ```
 
-```js title="foo.genai.js"
+```js title="foo.genai.mjs"
 $`Write a one sentence poem.`
 ```
 

@@ -12,7 +12,8 @@ def(
     env.files.filter((f) => !f.filename.endsWith(".xray")),
     { ignoreEmpty: true }
 )
-def("SPEC", env.spec)
+const spec = env.files.find((f) => f.filename.endsWith(".md"))
+def("SPEC", spec)
 
 $`You are an expert at programming in all known languages.
 For each FILE 'filename.<EXT>', generate the code structure in FILE 'filename.<EXT>.xray' 

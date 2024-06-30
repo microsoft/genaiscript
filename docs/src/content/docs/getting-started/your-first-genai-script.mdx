@@ -17,7 +17,7 @@ import { Steps } from "@astrojs/starlight/components"
 import { Content as CreateScript } from "../../../components/CreateScript.mdx"
 
 GenAIScript use stylized JavaScript with minimal syntax.
-They are stored as files (`genaisrc/*.genai.js`) in your project.
+They are stored as files (`genaisrc/*.genai.js` or `genaisrc/*.genai.mjs`) in your project.
 The execution of a genaiscript creates the prompt that will be sent to the LLM.
 
 <Steps>
@@ -36,7 +36,7 @@ The resulting file will be placed in the `genaisrc` folder in your project.
 -   genaisrc scripts are created here by default
     -   genaiscript.d.ts (TypeScript type definitions)
     -   jsconfig.json (TypeScript compiler configuration)
-    -   **proofreader.genai.js**
+    -   **proofreader.genai.mjs**
     -   …
 -   …
 
@@ -54,7 +54,7 @@ that gets sent to the LLM model.
 The ` $``...`` ` template string function formats and write the string to the prompt;
 which gets sent to the LLM.
 
-```js title="poem.genai.js" system=false assistant=true
+```js title="poem.genai.mjs" system=false assistant=true
 $`Write a one sentence poem.`
 ```
 
@@ -88,7 +88,7 @@ GenAIScript exposes the context through the `env` variable. The context is impli
 -   you can right click on or in a file and the `env.files` will contain only that file.
 -   you can run the script using the [command line interface](/genaiscript/reference/cli) and specify content of `env.files` in the CLI arguments.
 
-```js title="proofreader.genai.js" system=false assistant=false user=true
+```js title="proofreader.genai.mjs" system=false assistant=false user=true
 def("FILES", env.files)
 ```
 
@@ -126,7 +126,7 @@ For example, to denote a heading, you add a number sign before it (e.g., # Headi
 The `$` function is used to build the prompt text, it renders and writes the text to the prompt
 (`$` is a [template literal](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)).
 
-```js title="proofreader.genai.js"
+```js title="proofreader.genai.mjs"
 def("FILES", env.files)
 $`You are an expert technical writer and proofreader.
 Review the documents in FILE and report the 2 most important issues.`
@@ -184,7 +184,7 @@ These are the two most important issues that need to be addressed in the documen
 You can add a call to the `script` function to provides metadata about the script
 and the model. The metadata is used to display the script in the UI and configure the LLM model.
 
-```js title="proofreader.genai.js"
+```js title="proofreader.genai.mjs"
 // the metadata
 script({
     // user interface

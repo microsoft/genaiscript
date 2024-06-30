@@ -2,12 +2,8 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import {
     details,
-    fenceMD,
     Fragment,
-    indent,
     MARKDOWN_MIME_TYPE,
-    stringToPos,
-    TextFile,
     TOOL_NAME,
     renderMessagesToMarkdown,
     YAMLStringify,
@@ -18,11 +14,12 @@ import {
     frontmatterTryParse,
     YAMLTryParse,
     arrayify,
-    FileReference,
     parseKeyValuePairs,
     parseBoolean,
 } from "genaiscript-core"
 import { Utils } from "vscode-uri"
+import { register } from "tsx/cjs/api"
+import { registerCommand } from "./commands"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts
@@ -134,24 +131,8 @@ function activateNotebookExecutor(state: ExtensionState) {
                     id: "notebook-cell-" + cell.index,
                     jsSource,
                 }
-                const id = "notebook-cell-" + cell.index
                 const fragment: Fragment = {
-                    id: id,
-                    text: "",
-                    references: arrayify(files).map(
-                        (f) => <FileReference>{ filename: f }
-                    ),
-                    fullId: id,
-                    title: "",
-                    hash: "",
-                    file: new TextFile(
-                        project,
-                        "notebook.cell." + cell.index + ".txt",
-                        "text/plain",
-                        ""
-                    ),
-                    startPos: [0, 0],
-                    endPos: stringToPos(""),
+                    files: arrayify(files),
                 }
                 const parameters = { ...heap, ...vars }
                 await state.requestAI({
@@ -164,6 +145,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
 
+                const trace = state.aiRequest?.trace
                 const {
                     error,
                     text,
@@ -174,7 +156,6 @@ function activateNotebookExecutor(state: ExtensionState) {
                     fences,
                     frames,
                     schemas,
-                    trace,
                     messages,
                     status,
                 } = res
@@ -228,7 +209,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                                         YAMLStringify(clean(output)),
                                         "yaml"
                                     )
-                                ) + */ details("trace", trace),
+                                ) + */ details("trace", trace.content),
                                 MARKDOWN_MIME_TYPE
                             ),
                         ]),
@@ -343,7 +324,7 @@ function activateNotebookSerializer(state: ExtensionState) {
     )
 
     subscriptions.push(
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.notebook.create",
             async (uri?: vscode.Uri) => {
                 uri = uri || Utils.joinPath(context.extensionUri, "tutorial.md")

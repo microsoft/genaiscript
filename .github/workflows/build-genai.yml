@@ -39,10 +39,7 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run test within scripts
-              run: yarn test:scripts --out-summary ./summary.txt --test-delay 10
-            - name: Append summary.txt to $GITHUB_STEP_SUMMARY
-              run: |
-                  cat packages/sample/summary.txt >> $GITHUB_STEP_SUMMARY
+              run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
             - name: Add comment to PR
               uses: actions/github-script@v5
               if: github.event_name == 'pull_request'

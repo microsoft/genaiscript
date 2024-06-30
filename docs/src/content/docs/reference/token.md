@@ -53,21 +53,3 @@ npx genaiscript scripts model [script]
 ```
 
 where [script] can be a script id or a file path.
-
-## Visual Studio Code Language Models (**Insiders only**)
-
-Visual Studio provides access to registered language models, including models
-provided through the GitHub Copilot subscription. See [configuration](/genaiscript/getting-started/configuration) for more information.
-
-### Limitations
-
--   This feature is not still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the **Insiders** editor.
--   Functions and Images are not supported.
--   The model configuration, temperature, max tokens, may not be available depending on the language model provider.
-
-:::caution
-
-Requires running the Visual Studio Code Insiders edition and
-installing the **genaiscript.insiders.vsix** extension.
-
-:::

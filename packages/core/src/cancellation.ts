@@ -22,6 +22,23 @@ export class AbortSignalCancellationToken implements CancellationToken {
     }
 }
 
+export class AbortSignalCancellationController {
+    readonly controller: AbortController
+    readonly token: AbortSignalCancellationToken
+    constructor() {
+        this.controller = new AbortController()
+        this.token = new AbortSignalCancellationToken(this.controller.signal)
+    }
+
+    abort(reason?: any) {
+        this.controller.abort(reason)
+    }
+}
+
 export function checkCancelled(token: CancellationToken) {
     if (token?.isCancellationRequested) throw new CancelError("user cancelled")
+}
+
+export interface CancellationOptions {
+    cancellationToken?: CancellationToken
 }

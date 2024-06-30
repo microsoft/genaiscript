@@ -539,9 +539,9 @@ interface ChatParticipant {
  */
 interface ExpansionVariables {
     /**
-     * Description of the context as markdown; typically the content of a .gpspec.md file.
+     * Directory where the prompt is executed
      */
-    spec: WorkspaceFile
+    dir: string
 
     /**
      * List of linked files parsed in context
@@ -559,9 +559,14 @@ interface ExpansionVariables {
     vars: PromptParameters
 
     /**
-     * List of secrets used by the prompt, must be registred in `genaiscript`.
+     * List of secrets used by the prompt, must be registered in `genaiscript`.
      */
     secrets?: Record<string, string>
+
+    /**
+     * Root prompt generation context
+     */
+    generator: ChatGenerationContext
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>

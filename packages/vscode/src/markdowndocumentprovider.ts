@@ -19,10 +19,11 @@ import {
     getChatCompletionCache,
     prettifyMarkdown,
     renderFencedVariables,
-    GENAI_JS_REGEX,
+    GENAI_ANYJS_REGEX,
     TRACE_NODE_PREFIX,
     renderTraceTree,
 } from "genaiscript-core"
+import { registerCommand } from "./commands"
 
 const SCHEME = "genaiscript"
 
@@ -116,7 +117,7 @@ ${prettifyMarkdown(md)}
         if (uri.path.startsWith(BUILTIN_PREFIX)) {
             const id = uri.path
                 .slice(BUILTIN_PREFIX.length)
-                .replace(GENAI_JS_REGEX, "")
+                .replace(GENAI_ANYJS_REGEX, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""
@@ -131,7 +132,7 @@ ${prettifyMarkdown(md)}
         Request \`${sha}\` not found in cache.
         `
 
-        return val?.trace || val?.response?.trace
+        return val?.trace
     }
 }
 
@@ -204,20 +205,17 @@ export function activateMarkdownTextDocumentContentProvider(
     const provider = new MarkdownTextDocumentContentProvider(state)
     subscriptions.push(
         vscode.workspace.registerTextDocumentContentProvider(SCHEME, provider),
-        vscode.commands.registerCommand(
-            "genaiscript.request.open",
-            async (id: string) => {
-                const uri = infoUri(id || REQUEST_TRACE_FILENAME)
-                await showMarkdownPreview(uri)
-            }
-        ),
-        vscode.commands.registerCommand("genaiscript.request.open.trace", () =>
+        registerCommand("genaiscript.request.open", async (id: string) => {
+            const uri = infoUri(id || REQUEST_TRACE_FILENAME)
+            await showMarkdownPreview(uri)
+        }),
+        registerCommand("genaiscript.request.open.trace", () =>
             vscode.commands.executeCommand(
                 "genaiscript.request.open",
                 REQUEST_TRACE_FILENAME
             )
         ),
-        vscode.commands.registerCommand("genaiscript.request.open.output", () =>
+        registerCommand("genaiscript.request.open.output", () =>
             vscode.commands.executeCommand(
                 "genaiscript.request.open",
                 REQUEST_OUTPUT_FILENAME

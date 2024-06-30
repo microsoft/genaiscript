@@ -46,5 +46,5 @@ Think step by step and for each annotation explain your result.
 - do NOT cross-reference annotations, assume they are all independent
 - read the full source code of the files if you need more context
 - only report issues about code in GIT_DIFF
-- do NOT report issues for the following code: missing_coma, missing_comment, missing_blank_line
+- do NOT report issues for the following code: missing_coma, missing_comment, missing_blank_line, missing_dependency
 `

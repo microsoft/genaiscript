@@ -17,8 +17,7 @@ import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
-import { runScript } from "./run"
-import { batchScript } from "./batch"
+import { runScriptWithExitCode } from "./run"
 import {
     retrievalClear,
     retrievalFuzz,
@@ -153,48 +152,7 @@ export async function cli() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
-        .action(runScript)
-
-    program
-        .command("batch")
-        .description("Run a tool on a batch of specs")
-        .arguments("<script> [files...]")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .option(
-            "-egi, --exclude-git-ignore",
-            "exclude files that are ignore through the .gitignore file in the workspace root"
-        )
-        .option(
-            "-o, --out <folder>",
-            "output folder. Extra markdown fields for output and trace will also be generated"
-        )
-        .option("-rmo, --remove-out", "remove output folder if it exists")
-        .option("-os, --out-summary <file>", "append output summary in file")
-        .option("-r, --retry <number>", "number of retries", "8")
-        .option(
-            "-rd, --retry-delay <number>",
-            "minimum delay between retries",
-            "15000"
-        )
-        .option(
-            "-md, --max-delay <number>",
-            "maximum delay between retries",
-            "180000"
-        )
-        .option("-l, --label <string>", "label for the run")
-        .option("-t, --temperature <number>", "temperature for the run")
-        .option("-tp, --top-p <number>", "top-p for the run")
-        .option("-m, --model <string>", "model for the run")
-        .option("-mt, --max-tokens <number>", "maximum tokens for the run")
-        .option("-se, --seed <number>", "seed for the run")
-        .option("--no-cache", "disable LLM result cache")
-        .option("-cn, --cache-name <name>", "custom cache file name")
-        .option("-ae, --apply-edits", "apply file edits")
-        .option(
-            "--vars <string...>",
-            "variables, as name=value, stored in env.vars"
-        )
-        .action(batchScript)
+        .action(runScriptWithExitCode)
 
     const test = program.command("test")
 

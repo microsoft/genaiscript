@@ -21,11 +21,11 @@ to merge the new front matter with the existing front matter.
 ## Batching over all files
 
 Once the script has been tuned on a few files, you can automate using
-the [CLI](/genaiscript/reference/cli). The CLI has a **batch** mode that applies a LLM generation
-on each file and a **--apply-edits** flag to apply the changes to the file.
+the [CLI](/genaiscript/reference/cli). The CLI has a **--apply-edits** flag to apply the changes to the file.
 
-```bash
-genaiscript batch frontmatter src/**/*.md --apply-edits
+```sh
+for file in src/**/*.md; do
+  npx --yes genaiscript run frontmatter "$file" --apply-edits
 ```
 
 You can run this command in your CI/CD pipeline to keep your SEO front matter up to date.
@@ -38,7 +38,7 @@ Add this command to your `package.json` to make it easier to run again.
 {
   ...
   "scripts": {
-    "genai:frontmatter": "genaiscript batch frontmatter src/**/*.md --apply-edits",
+    "genai:frontmatter": "for file in \"src/**/*.md\"; do\ngenaiscript run frontmatter \"$file\" --apply-edits\ndone",
   }
 }
 ```

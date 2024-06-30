@@ -1,4 +1,6 @@
 script({
+    files: "src/cities.md",
+    tests: {},
     responseSchema: {
         type: "object",
         required: ["cities"],

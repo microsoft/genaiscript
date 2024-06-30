@@ -1,5 +1,5 @@
 import { Project, PromptScript } from "./ast"
-import { BUILTIN_PREFIX, GENAI_JS_REGEX } from "./constants"
+import { BUILTIN_PREFIX, GENAI_ANYJS_REGEX } from "./constants"
 import { errorMessage } from "./error"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
@@ -196,14 +196,6 @@ export function parsePromptScriptMeta(jsSource: string) {
     return meta
 }
 
-export function staticVars(): Omit<ExpansionVariables, "template"> {
-    return {
-        spec: { filename: "spec.gpspec.md", content: "" } as WorkspaceFile,
-        files: [] as WorkspaceFile[],
-        vars: {} as Record<string, string>,
-    }
-}
-
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
@@ -213,7 +205,7 @@ async function parsePromptTemplateCore(
     const r = {
         id: templateIdFromFileName(filename),
         title: humanize(
-            host.path.basename(filename).replace(GENAI_JS_REGEX, "")
+            host.path.basename(filename).replace(GENAI_ANYJS_REGEX, "")
         ),
         text: "<nothing yet>",
         jsSource: content,

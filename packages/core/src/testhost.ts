@@ -7,7 +7,6 @@ import {
     ModelService,
     LanguageModelConfiguration,
     ParseService,
-    ReadFileOptions,
     RetrievalService,
     ServerManager,
     UTF8Decoder,
@@ -71,10 +70,7 @@ export class TestHost implements Host {
     log(level: LogLevel, msg: string): void {
         throw new Error("Method not implemented.")
     }
-    async readFile(
-        name: string,
-        options?: ReadFileOptions
-    ): Promise<Uint8Array> {
+    async readFile(name: string): Promise<Uint8Array> {
         return new Uint8Array(await readFile(resolve(name)))
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
@@ -84,15 +80,6 @@ export class TestHost implements Host {
         throw new Error("Method not implemented.")
     }
     findFiles(glob: string, options?: {}): Promise<string[]> {
-        throw new Error("Method not implemented.")
-    }
-    clearVirtualFiles(): void {
-        throw new Error("Method not implemented.")
-    }
-    setVirtualFile(name: string, content: string): void {
-        throw new Error("Method not implemented.")
-    }
-    isVirtualFile(name: string): boolean {
         throw new Error("Method not implemented.")
     }
     createDirectory(name: string): Promise<void> {

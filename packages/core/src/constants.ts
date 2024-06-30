@@ -1,7 +1,9 @@
 export const CHANGE = "change"
+export const TRACE_CHUNK = "traceChunk"
 export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 100
+
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
 export const AZURE_OPENAI_API_VERSION = "2024-02-01"
@@ -16,15 +18,14 @@ export const GENAI_SRC = "genaisrc"
 export const GENAI_JS_EXT = ".genai.js"
 export const GENAI_MJS_EXT = ".genai.mjs"
 export const GENAI_JS_GLOB = "**/*.genai.*js"
-export const GENAI_JS_REGEX = /\.genai\.m?js$/i
-export const GPSPEC_REGEX = /\.gpspec\.md$/i
+export const GENAI_ANYJS_REGEX = /\.genai\.m?js$/i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
 export const XLSX_REGEX = /\.xlsx$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
 export const MDX_REGEX = /\.mdx$/i
-export const GPSPEC_GLOB = "**/*.gpspec.md"
+export const MJS_REGEX = /\.mjs$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
 export const CLIENT_RECONNECT_DELAY = 2000

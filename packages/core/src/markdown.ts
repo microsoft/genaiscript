@@ -1,4 +1,5 @@
 import { convertAnnotationsToMarkdown } from "./annotations"
+import { randomHex } from "./crypto"
 import { trimNewlines } from "./util"
 
 export function prettifyMarkdown(md: string) {
@@ -34,14 +35,14 @@ ${body}
 }
 
 export interface ItemNode {
-    id: string
+    id?: string
     type: "item"
     label: string
     value: string
 }
 
 export interface DetailsNode {
-    id: string
+    id?: string
     type: "details"
     label: string
     content: TraceNode[]
@@ -55,10 +56,9 @@ export interface TraceTree {
 }
 
 export function parseTraceTree(text: string): TraceTree {
-    let nextId = 1
     const nodes: Record<string, TraceNode> = {}
     const stack: DetailsNode[] = [
-        { type: "details", id: "" + nextId++, label: "root", content: [] },
+        { type: "details", label: "root", content: [] },
     ]
     const lines = (text || "").split("\n")
     for (let i = 0; i < lines.length; ++i) {
@@ -67,7 +67,7 @@ export function parseTraceTree(text: string): TraceTree {
             const parent = stack.at(-1)
             const current: DetailsNode = {
                 type: "details",
-                id: "" + nextId++,
+                id: randomHex(6),
                 label: "",
                 content: [],
             }
@@ -105,7 +105,7 @@ export function parseTraceTree(text: string): TraceTree {
             const current = stack.at(-1)
             current.content.push({
                 type: "item",
-                id: "" + nextId++,
+                id: randomHex(6),
                 label: item[1],
                 value: item[2],
             })

@@ -9,50 +9,12 @@ keywords: imports, modules, .mjs, GenAI scripts, JavaScript
 import { Steps } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 
-By default, the scripts cannot import modules (they are evaled) and are expected to execute the code directly.
+Scripts using the `.mjs` extension can use static or dynamic imports as any other module file.
+You can rename any `.genai.js` file to `.genai.mjs` to enable module imports.
 
-You can add support for imports by following these steps.
+## Module Imports
 
-## Converting to a module
-
-<Steps>
-
-<ol>
-
-<li>
-
-Rename the `.genai.js` file
-to [module file](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#aside_%E2%80%94_.mjs_versus_.js) `.genai.mjs`.
-
-<FileTree>
-
--   genaisrc/
-    -   **poem.genai.mjs** // .js -> .mjs
-
-</FileTree>
-
-</li>
-
-<li>
-
-Wrap the script code in a function and make it the default export. You can leave `script` in the main scope.
-
-```js title="poem.genai.mjs" "export default async function() {" "}"
-script(...)
-export default async function() {
-    $`Write a poem.`
-}
-```
-
-</li>
-
-</ol>
-
-</Steps>
-
-## Imports
-
-Once the file is converted, you can use static or dynamic imports as any other module file.
+You can import module installed in your project.
 
 ```js
 import { parse } from "ini"
@@ -65,5 +27,44 @@ export default async function () {
     // dynamic import
     const { stringify } = await import("ini")
     console.log(stringify(res))
+}
+```
+
+## File imports
+
+You can also import other local files.
+
+```js title="summarizer.mjs"
+export function summarize(files) {
+    def("FILE", files)
+    $`Summarize each file. Be concise.`
+}
+```
+
+```js title="summarize.genai.mjs"
+import { summarize } from "./summarizer.mjs"
+summarize(env.generator, env.files)
+```
+
+## `env.generator`
+
+The `env.generator` references the root prompt generator context, the top level `$`, `def` functions... It can be used to create function that can be used with those function or also with `runPrompt`.
+
+```js title="summarizer.mjs" "_"
+export function summarize(_, files) {
+    _.def("FILE", files)
+    _.$`Summarize each file. Be concise.`
+}
+```
+
+## Default function export
+
+If you set a function as the default export, GenAIScript will call it.
+The function can be async.
+
+```js title="poem.genai.mjs" "export default async function() {" "}"
+script(...)
+export default async function() {
+    $`Write a poem.`
 }
 ```

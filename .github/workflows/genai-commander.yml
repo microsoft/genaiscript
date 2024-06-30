@@ -62,6 +62,12 @@ jobs:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
                   OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: start ollama
+              if: contains(github.event.comment.body, '/genai-test')
+              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+            - name: run test within scripts
+              if: contains(github.event.comment.body, '/genai-test')
+              run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
             - name: Archive genai results
               if: always()
               uses: actions/upload-artifact@v4

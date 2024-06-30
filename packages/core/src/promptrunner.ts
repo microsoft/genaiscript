@@ -1,8 +1,7 @@
 import { executeChatSession } from "./chat"
-import { Fragment, Project, PromptScript } from "./ast"
+import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
 import { arrayify, assert, logVerbose, relativePath } from "./util"
-import { staticVars } from "./template"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
@@ -19,20 +18,23 @@ import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
+export interface Fragment {
+    files: string[]
+}
+
 async function resolveExpansionVars(
+    project: Project,
     trace: MarkdownTrace,
     template: PromptScript,
     frag: Fragment,
     vars: Record<string, string>
 ) {
-    const { file } = frag
-    const project = file.project
     const root = host.projectFolder()
 
     const files: WorkspaceFile[] = []
     const fr = frag
     const templateFiles = arrayify(template.files)
-    const referenceFiles = fr.references.map(({ filename }) => filename)
+    const referenceFiles = fr.files.slice(0)
     const filenames = await expandFiles(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
@@ -55,11 +57,7 @@ async function resolveExpansionVars(
         } else trace.error(`secret \`${secret}\` not found`)
     }
     const res: Partial<ExpansionVariables> = {
-        ...staticVars(),
-        spec: {
-            filename: relativePath(host.projectFolder(), file.filename),
-            content: file.content,
-        },
+        dir: ".",
         files,
         template: {
             id: template.id,
@@ -89,6 +87,7 @@ export async function runTemplate(
         if (cliInfo) traceCliArgs(trace, template, options)
 
         const vars = await resolveExpansionVars(
+            prj,
             trace,
             template,
             fragment,
@@ -112,7 +111,6 @@ export async function runTemplate(
         } = await expandTemplate(
             prj,
             template,
-            fragment,
             options,
             vars as ExpansionVariables,
             trace
@@ -126,7 +124,6 @@ export async function runTemplate(
                 statusText,
                 messages,
                 vars,
-                trace: trace.content,
                 text: "",
                 edits: [],
                 annotations: [],
@@ -146,7 +143,6 @@ export async function runTemplate(
                 status: "cancelled",
                 messages,
                 vars,
-                trace: trace.content,
                 text: undefined,
                 edits: [],
                 annotations: [],
@@ -172,22 +168,13 @@ export async function runTemplate(
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
-        const links: string[] = []
-        const fp = fragment.file.filename
-        const fragn = /^.\//.test(fp)
-            ? host.resolvePath(projFolder, fragment.file.filename)
-            : fp
-        const ff = host.resolvePath(fp, "..")
-        const refs = fragment.references
         const getFileEdit = async (fn: string) => {
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
                 let before: string = null
                 let after: string = undefined
-                if (await fileExists(fn, { virtual: false }))
-                    before = await readText(fn)
-                else if (await fileExists(fn, { virtual: true }))
-                    after = await readText(fn)
+                if (await fileExists(fn)) before = await readText(fn)
+                else if (await fileExists(fn)) after = await readText(fn)
                 fileEdit = fileEdits[fn] = { before, after }
             }
             return fileEdit
@@ -231,12 +218,6 @@ export async function runTemplate(
         let { text, annotations } = output
         if (json !== undefined) {
             trace.detailsFenced("📩 json (parsed)", json, "json")
-            const fn = fragment.file.filename.replace(
-                /\.gpspec\.md$/i,
-                "." + template.id + ".json"
-            )
-            const fileEdit = await getFileEdit(fn)
-            fileEdit.after = text
         } else {
             if (text) trace.detailsFenced(`🔠 output`, text, `markdown`)
             for (const fence of fences.filter(
@@ -250,9 +231,6 @@ export async function runTemplate(
                     const fn = /^[^\/]/.test(n)
                         ? host.resolvePath(projFolder, n)
                         : n
-                    const ffn = relativePath(ff, fn)
-                    const curr = refs.find((r) => r.filename === fn)?.filename
-
                     const fileEdit = await getFileEdit(fn)
                     if (kw === "file") {
                         if (fileMerges.length) {
@@ -294,8 +272,6 @@ export async function runTemplate(
                             }
                         }
                     }
-                    if (!curr && fragn !== fn)
-                        links.push(`-   [${ffn}](${ffn})`)
                 } else if (/^changelog$/i.test(name)) {
                     changelogs.push(val)
                     const cls = parseChangeLogs(val)
@@ -304,18 +280,11 @@ export async function runTemplate(
                         const fn = /^[^\/]/.test(filename)
                             ? host.resolvePath(projFolder, filename)
                             : filename
-                        const ffn = relativePath(ff, fn)
-                        const curr = refs.find(
-                            (r) => r.filename === fn
-                        )?.filename
-
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = applyChangeLog(
                             fileEdit.after || fileEdit.before || "",
                             changelog
                         )
-                        if (!curr && fragn !== fn)
-                            links.push(`-   [${ffn}](${ffn})`)
                     }
                 }
             }
@@ -434,7 +403,6 @@ export async function runTemplate(
             annotations,
             changelogs,
             fileEdits,
-            trace: trace.content,
             text,
             version,
             fences,
@@ -443,11 +411,6 @@ export async function runTemplate(
             schemas,
             json,
         }
-        options?.infoCb?.({
-            label: res.label,
-            vars: res.vars,
-            text: undefined,
-        })
         return res
     } finally {
         await host.removeContainers()

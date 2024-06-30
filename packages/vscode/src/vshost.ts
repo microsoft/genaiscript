@@ -3,7 +3,6 @@ import {
     Host,
     LogLevel,
     LanguageModelConfiguration,
-    ReadFileOptions,
     createFileSystem,
     parseTokenFromEnv,
     setHost,
@@ -34,7 +33,6 @@ import { AzureManager } from "./azuremanager"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
-    virtualFiles: Record<string, Uint8Array> = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
     readonly workspace = createFileSystem()
@@ -131,16 +129,6 @@ export class VSCodeHost extends EventTarget implements Host {
     get context() {
         return this.state.context
     }
-    clearVirtualFiles(): void {
-        this.virtualFiles = {}
-    }
-    setVirtualFile(name: string, content: string) {
-        this.virtualFiles = {}
-        this.virtualFiles[name] = this.createUTF8Encoder().encode(content)
-    }
-    isVirtualFile(name: string) {
-        return !!this.virtualFiles[name]
-    }
     dispose() {
         setHost(undefined)
     }
@@ -195,23 +183,13 @@ export class VSCodeHost extends EventTarget implements Host {
                 break
         }
     }
-    async readFile(
-        name: string,
-        options?: ReadFileOptions
-    ): Promise<Uint8Array> {
+    async readFile(name: string): Promise<Uint8Array> {
         const uri = this.toProjectFileUri(name)
-        const v = this.virtualFiles[uri.fsPath]
-        if (options?.virtual) {
-            if (!v) throw new Error("virtual file not found")
-            return v // alway return virtual files
-        } else if (options?.virtual !== false && !!v) return v // optional return virtual files
-
         const buffer = await vscode.workspace.fs.readFile(uri)
         return new Uint8Array(buffer)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         const uri = this.toProjectFileUri(name)
-        delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.writeFile(uri, content)
     }
     private toProjectFileUri(name: string) {
@@ -230,7 +208,6 @@ export class VSCodeHost extends EventTarget implements Host {
 
     async deleteFile(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)
-        delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.delete(uri)
     }
     async findFiles(

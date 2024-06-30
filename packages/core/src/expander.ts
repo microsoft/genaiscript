@@ -1,9 +1,13 @@
-import { Fragment, Project, PromptScript } from "./ast"
+import { Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
-import { estimateTokens } from "./tokens"
-import { MAX_TOOL_CALLS, MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
+import {
+    MAX_TOOL_CALLS,
+    MJS_REGEX,
+    MODEL_PROVIDER_AICI,
+    SYSTEM_FENCE,
+} from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { GenerationOptions, createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
@@ -18,10 +22,6 @@ import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { host } from "./host"
-
-const defaultTopP: number = undefined
-const defaultSeed: number = undefined
-const defaultMaxTokens: number = undefined
 
 export interface GenerationResult extends GenerationOutput {
     /**
@@ -48,11 +48,6 @@ export interface GenerationResult extends GenerationOutput {
      * ChangeLog sections
      */
     changelogs: string[]
-
-    /**
-     * MD-formatted trace.
-     */
-    trace: string
 
     /**
      * Error message if any
@@ -116,11 +111,9 @@ async function callExpander(
     }
 
     try {
-        if (/^export\s+default\s+/m.test(r.jsSource)) {
-            if (!/\.mjs$/i.test(r.filename))
-                throw new Error("export default requires .mjs file")
-            await importPrompt(ctx, r, { logCb })
-        } else {
+        if (MJS_REGEX.test(r.filename))
+            await importPrompt(ctx, r, { logCb, trace })
+        else {
             await evalPrompt(ctx, r, {
                 sourceMaps: true,
                 logCb,
@@ -252,7 +245,6 @@ export function resolveSystems(prj: Project, template: PromptScript) {
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,
-    fragment: Fragment,
     options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
@@ -273,27 +265,19 @@ export async function expandTemplate(
         template.temperature ??
         host.defaultModelOptions.temperature
     const topP =
-        options.topP ??
-        normalizeFloat(env.vars["top_p"]) ??
-        template.topP ??
-        defaultTopP
+        options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const max_tokens =
         options.maxTokens ??
         normalizeInt(env.vars["maxTokens"]) ??
         normalizeInt(env.vars["max_tokens"]) ??
-        template.maxTokens ??
-        defaultMaxTokens
+        template.maxTokens
     const maxToolCalls =
         options.maxToolCalls ??
         normalizeInt(env.vars["maxToolCalls"]) ??
         normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
         MAX_TOOL_CALLS
-    let seed =
-        options.seed ??
-        normalizeInt(env.vars["seed"]) ??
-        template.seed ??
-        defaultSeed
+    let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
 
     trace.startDetails("💾 script")
@@ -319,10 +303,7 @@ export async function expandTemplate(
     const chatParticipants = prompt.chatParticipants
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.text) {
-        trace.itemValue(`tokens`, estimateTokens(model, expanded))
-        trace.fence(prompt.text, "markdown")
-    }
+    if (prompt.text) trace.detailsFenced(`📝 prompt`, prompt.text, "markdown")
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
@@ -347,12 +328,12 @@ export async function expandTemplate(
             return { status: "cancelled", statusText: "user cancelled" }
 
         let systemTemplate = systems[i]
-        let system = fragment.file.project.getTemplate(systemTemplate)
+        let system = prj.getTemplate(systemTemplate)
         if (!system) {
             if (systemTemplate) trace.error(`\`${systemTemplate}\` not found\n`)
             if (i > 0) continue
             systemTemplate = "system"
-            system = fragment.file.project.getTemplate(systemTemplate)
+            system = prj.getTemplate(systemTemplate)
             assert(!!system)
         }
 

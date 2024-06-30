@@ -49,40 +49,6 @@ Options:
   -h, --help                                 display help for command
 ```
 
-## `batch`
-
-```
-Usage: genaiscript batch [options] <script> [files...]
-
-Run a tool on a batch of specs
-
-Options:
-  -ef, --excluded-files <string...>  excluded files
-  -egi, --exclude-git-ignore         exclude files that are ignore through the
-                                     .gitignore file in the workspace root
-  -o, --out <folder>                 output folder. Extra markdown fields for
-                                     output and trace will also be generated
-  -rmo, --remove-out                 remove output folder if it exists
-  -os, --out-summary <file>          append output summary in file
-  -r, --retry <number>               number of retries (default: "8")
-  -rd, --retry-delay <number>        minimum delay between retries (default:
-                                     "15000")
-  -md, --max-delay <number>          maximum delay between retries (default:
-                                     "180000")
-  -l, --label <string>               label for the run
-  -t, --temperature <number>         temperature for the run
-  -tp, --top-p <number>              top-p for the run
-  -m, --model <string>               model for the run
-  -mt, --max-tokens <number>         maximum tokens for the run
-  -se, --seed <number>               seed for the run
-  --no-cache                         disable LLM result cache
-  -cn, --cache-name <name>           custom cache file name
-  -ae, --apply-edits                 apply file edits
-  --vars <string...>                 variables, as name=value, stored in
-                                     env.vars
-  -h, --help                         display help for command
-```
-
 ## `test`
 
 ```
@@ -119,7 +85,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.65.2
+  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.67.0
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
