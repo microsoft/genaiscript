@@ -48,7 +48,7 @@ export async function importPrompt(
             parentURL,
             tsconfig: false,
             onImport: (file: string) => {
-                trace?.itemValue("imported", file)
+                trace?.itemValue("📦 imported", file)
             },
         })
         const main = module.default
