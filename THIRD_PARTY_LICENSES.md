@@ -23055,7 +23055,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.814
+ - electron-to-chromium@1.4.815
 
 This package contains the following license and notice below:
 
@@ -26454,7 +26454,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - path2d@0.2.0
+ - path2d@0.2.1
 
 This package contains the following license and notice below:
 
@@ -29349,7 +29349,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.15.9
+ - tsx@4.16.0
 
 This package contains the following license and notice below:
 
@@ -30290,7 +30290,7 @@ The following npm packages may be included in this product:
  - wrap-ansi@7.0.0
  - wrap-ansi@8.1.0
  - yocto-queue@0.1.0
- - yocto-queue@1.1.0
+ - yocto-queue@1.1.1
 
 These packages each contain the following license and notice below:
 
@@ -35479,7 +35479,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - postcss@8.4.38
+ - postcss@8.4.39
 
 This package contains the following license and notice below:
 
