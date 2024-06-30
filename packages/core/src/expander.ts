@@ -2,9 +2,16 @@ import { Project, PromptScript } from "./ast"
 import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
-import { MAX_TOOL_CALLS, MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
+import { estimateTokens } from "./tokens"
+import {
+    MAX_TOOL_CALLS,
+    MODEL_PROVIDER_AICI,
+    MODULE_JS_REGEX,
+    SYSTEM_FENCE,
+} from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { GenerationOptions, createPromptContext } from "./promptcontext"
+import { evalPrompt } from "./evalprompt"
 import { AICIRequest, renderAICI } from "./aici"
 import {
     ChatCompletionAssistantMessageParam,
@@ -109,7 +116,14 @@ async function callExpander(
     }
 
     try {
-        await importPrompt(ctx, r, { logCb, trace })
+        if (MODULE_JS_REGEX.test(r.filename))
+            await importPrompt(ctx, r, { logCb, trace })
+        else {
+            await evalPrompt(ctx, r, {
+                sourceMaps: true,
+                logCb,
+            })
+        }
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {
@@ -302,7 +316,12 @@ export async function expandTemplate(
     const chatParticipants = prompt.chatParticipants
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.text) trace.detailsFenced(`📝 prompt`, prompt.text, "markdown")
+    if (prompt.text)
+        trace.detailsFenced(
+            `📝 prompt`,
+            prompt.text,
+            "markdown"
+        )
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
