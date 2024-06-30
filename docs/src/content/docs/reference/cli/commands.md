@@ -85,7 +85,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.65.2
+  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.67.0
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
