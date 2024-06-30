@@ -9,7 +9,8 @@ export function registerCommand(
         try {
             await command(...args)
         } catch (e) {
-            vscode.window.showErrorMessage(TOOL_NAME + "- " + errorMessage(e))
+            console.debug(e)
+            vscode.window.showErrorMessage(TOOL_NAME + " - " + errorMessage(e))
         }
     })
 }

@@ -1,5 +1,3 @@
-import * as ini from "ini"
-
 script({
     files: "src/penguins.csv",
     tests: {},
@@ -11,11 +9,10 @@ def("DATA", env.files, { sliceHead: 3 })
 def("DATA", env.files, { sliceTail: 3 })
 
 const csv = env.files[0].content
-const inirows = ini.parse(csv)
 const rows = CSV.parse(csv)
 const prows = parsers.CSV(csv)
-if (JSON.stringify(rows) !== JSON.stringify(prows)) throw new Error("csv error")
-if (JSON.stringify(rows) !== JSON.stringify(inirows)) throw new Error("csv error")
+if (JSON.stringify(rows) !== JSON.stringify(prows))
+    throw new Error("csv error 1")
 
 const srows = CSV.parse(
     `A|1
@@ -31,6 +28,6 @@ if (
         { name: "B", value: 2 },
     ])
 )
-    throw new Error("csv error")
+    throw new Error("csv error 3")
 
 $`Describe the data in DATA.`
