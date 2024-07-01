@@ -17,6 +17,7 @@ const { stdout: diff } = await host.exec("git", [
     ":!.github/*",
     ":!.vscode/*",
     ":!yarn.lock",
+    ":!THIRD_PARTY_LICENSES.md",
 ])
 
 def("GIT_DIFF", diff, {

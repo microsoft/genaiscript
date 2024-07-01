@@ -7,8 +7,6 @@ import {
     parseTokenFromEnv,
     setHost,
     ParseService,
-    createBundledParsers,
-    AskUserOptions,
     TraceOptions,
     arrayify,
     resolveLanguageModel,
@@ -46,9 +44,8 @@ export class VSCodeHost extends EventTarget implements Host {
     constructor(readonly state: ExtensionState) {
         super()
         setHost(this)
-        const isElectron = vscode.env.uiKind === vscode.UIKind.Desktop
         this.server = new TerminalServerManager(state)
-        this.parser = isElectron ? this.server.parser : createBundledParsers()
+        this.parser = this.server.parser
         this.state.context.subscriptions.push(this)
     }
 
@@ -294,15 +291,6 @@ export class VSCodeHost extends EventTarget implements Host {
     ): Promise<LanguageModel> {
         const model = resolveLanguageModel(options, configuration)
         return model
-    }
-
-    async askUser(options: AskUserOptions) {
-        const res = vscode.window.showInputBox({
-            ...options,
-            title: `GenAIScript ask user`,
-            ignoreFocusOut: true,
-        })
-        return res
     }
 
     // executes a process

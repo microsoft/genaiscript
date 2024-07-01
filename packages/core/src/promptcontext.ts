@@ -176,10 +176,6 @@ export function createPromptContext(
     }
 
     const promptHost: PromptHost = Object.freeze<PromptHost>({
-        askUser: (question) =>
-            host.askUser({
-                prompt: question,
-            }),
         exec: async (command, args, options) => {
             const res = await host.exec(undefined, command, args, {
                 cwd: options?.cwd,

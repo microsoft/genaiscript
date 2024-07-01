@@ -1503,7 +1503,6 @@ interface ContainerOptions {
 }
 
 interface PromptHost extends ShellHost {
-    askUser(question: string): Promise<string>
     container(options?: ContainerOptions): Promise<ContainerHost>
 }
 
