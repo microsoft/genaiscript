@@ -29,7 +29,8 @@
         "treesitter",
         "typecheck",
         "vsix",
-        "xpai"
+        "xpai",
+        "xenova"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "on",
     "cSpell.language": "en,en-US",

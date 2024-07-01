@@ -1,0 +1,9 @@
+version: "0.2"
+ignorePaths:
+  - yarn.lock
+dictionaryDefinitions: []
+dictionaries: []
+words:
+  - testhost
+ignoreWords: []
+import: []
