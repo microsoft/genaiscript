@@ -39,9 +39,9 @@ export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
-        logVerbose(`compiling ${folder}`)
-        const files = await readdir(folder)
-        if (files.some((f) => f.endsWith(GENAI_JS_EXT))) {
+        const { dirname, js, ts } = folder
+        logVerbose(`compiling ${dirname}`)
+        if (js) {
             const res = await host.exec(
                 undefined,
                 "npx",
@@ -51,15 +51,15 @@ export async function compileScript() {
                     `typescript@${TYPESCRIPT_VERSION}`,
                     "tsc",
                     "--project",
-                    host.path.resolve(folder, "jsconfig.json"),
+                    host.path.resolve(dirname, "jsconfig.json"),
                 ],
                 {
-                    cwd: folder,
+                    cwd: dirname,
                 }
             )
             logVerbose(res.output)
         }
-        if (files.some((f) => GENAI_ANYTS_REGEX.test(f))) {
+        if (ts) {
             const res = await host.exec(
                 undefined,
                 "npx",
@@ -69,10 +69,10 @@ export async function compileScript() {
                     `typescript@${TYPESCRIPT_VERSION}`,
                     "tsc",
                     "--project",
-                    host.path.resolve(folder, "tsconfig.json"),
+                    host.path.resolve(dirname, "tsconfig.json"),
                 ],
                 {
-                    cwd: folder,
+                    cwd: dirname,
                 }
             )
             logVerbose(res.output)
