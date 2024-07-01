@@ -1,5 +1,7 @@
 script({
     title: "summary of summary - gp35",
+    model: "openai:gpt-3.5-turbo",
+    files: ["src/rag/*"],
     tests: {
         files: ["src/rag/*"],
         keywords: ["markdown", "lorem", "microsoft"],

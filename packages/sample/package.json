@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.35.2",
+  "version": "1.42.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -13,5 +13,8 @@
     "run:script": "node ../cli/built/genaiscript.cjs run",
     "test:scripts": "node ../cli/built/genaiscript.cjs test -rmo -tp tnrllmproxy.azurewebsites.net",
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
+  },
+  "devDependencies": {
+    "@tidyjs/tidy": "^2.5.2"
   }
 }

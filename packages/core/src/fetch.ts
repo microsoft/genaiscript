@@ -7,7 +7,7 @@ import {
     FETCH_RETRY_MAX_DELAY_DEFAULT,
 } from "./constants"
 import { errorMessage } from "./error"
-import { toStringList } from "./util"
+import { logVerbose, toStringList } from "./util"
 
 export async function createFetch(
     options?: {
@@ -24,6 +24,9 @@ export async function createFetch(
         retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
         maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
     } = options || {}
+
+    if (!retryOn?.length) return crossFetch
+
     const fetchRetry = await wrapFetch(crossFetch, {
         retryOn,
         retries,
@@ -33,16 +36,28 @@ export async function createFetch(
                 // fatal
                 return undefined
             const message = errorMessage(error)
+            const status = statusToMessage(response)
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
-            trace?.resultItem(
-                false,
-                toStringList(
-                    message,
-                    `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`
-                )
+            const msg = toStringList(
+                `retry #${attempt + 1} in ${Math.floor(delay) / 1000}s`,
+                message,
+                status
             )
+            logVerbose(msg)
+            trace?.resultItem(false, msg)
             return delay
         },
     })
     return fetchRetry
+}
+
+export function statusToMessage(res?: {
+    status?: number
+    statusText?: string
+}) {
+    const { status, statusText } = res || {}
+    return toStringList(
+        typeof status === "number" ? status + "" : undefined,
+        statusText
+    )
 }

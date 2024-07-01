@@ -39,11 +39,6 @@ for the LLM call, allows arbitrary JavaScript code execution, packages
 the prompt input for the LLM, calls the LLM, and unpacks that LLM output
 based on the directions given in the prompt.
 
-**GPSpec** An optional markdown file(s) used to establish the calling
-context for the GenAIScript. A GPSpec can be as simple as a list of
-arguments and as complex as a collection of markdown documents in a
-repository.
-
 **GPVM**: A runtime system that given a GenAIScript and an optional
 GPSpec, executes the GenAIScript, which involves integrating the context
 into a prompt, calling the specified LLM, and extracting content from

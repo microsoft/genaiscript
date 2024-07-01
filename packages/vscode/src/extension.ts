@@ -7,10 +7,13 @@ import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
 import { activatePromptCommands, commandButtons } from "./promptcommands"
-import { activateOpenAIRequestTreeDataProvider } from "./openairequesttree"
+import { activateLLMRequestTreeDataProvider } from "./llmrequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
 import { activateModelCompletionProvider } from "./modelcompletionprovider"
+import { activateDocsNotebook } from "./docsnotebook"
+import { activateTraceTreeDataProvider } from "./tracetree"
+import { registerCommand } from "./commands"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -19,13 +22,14 @@ export async function activate(context: ExtensionContext) {
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
     activateAIRequestTreeDataProvider(state)
-    activateOpenAIRequestTreeDataProvider(state)
+    activateLLMRequestTreeDataProvider(state)
+    activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateModelCompletionProvider(state)
-    // activateChatParticipant(state)
+    activateDocsNotebook(state)
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.request.abort",
             async () => {
                 await state.cancelAiRequest()
@@ -34,7 +38,7 @@ export async function activate(context: ExtensionContext) {
                 )
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.request.status",
             async () => {
                 const cmds = commandButtons(state)
@@ -50,7 +54,7 @@ export async function activate(context: ExtensionContext) {
                 }
             }
         ),
-        vscode.commands.registerCommand(
+        registerCommand(
             "genaiscript.openIssueReporter",
             async () => {
                 const issueBody: string[] = [
@@ -72,10 +76,10 @@ export async function activate(context: ExtensionContext) {
                         context.extension?.packageJSON?.version || "?"
                     }`
                 )
-                if (state.aiRequest?.response) {
-                    issueBody.push(`## Request`)
+                if (state.aiRequest?.trace) {
+                    issueBody.push(`## Trace`)
                     issueBody.push("`````")
-                    issueBody.push(state.aiRequest.response.trace)
+                    issueBody.push(state.aiRequest?.trace?.content)
                     issueBody.push("`````")
                 }
                 await vscode.commands.executeCommand(

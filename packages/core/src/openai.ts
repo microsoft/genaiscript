@@ -1,9 +1,10 @@
-import { logError, logVerbose, normalizeInt, trimTrailingSlash } from "./util"
+import { normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
+    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
@@ -24,16 +25,21 @@ import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 
 function getConfigHeaders(cfg: LanguageModelConfiguration) {
-    return {
+    const res = {
         // openai
-        authorization:
-            cfg.token && (cfg.type === "openai" || cfg.type === "localai")
-                ? `Bearer ${cfg.token}`
-                : undefined,
+        authorization: /^Bearer /.test(cfg.token)
+            ? cfg.token
+            : cfg.token && (cfg.type === "openai" || cfg.type === "localai")
+              ? `Bearer ${cfg.token}`
+              : undefined,
         // azure
-        "api-key": cfg.token && cfg.type === "azure" ? cfg.token : undefined,
+        "api-key":
+            cfg.token && !/^Bearer /.test(cfg.token) && cfg.type === "azure"
+                ? cfg.token
+                : undefined,
         "user-agent": TOOL_ID,
     }
+    return res
 }
 
 export const OpenAIChatCompletion: ChatCompletionHandler = async (
@@ -63,7 +69,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const caching =
         useCache === true || // always use cache
         (useCache !== false && // never use cache
-            seed === undefined && // seed is not cacheable (let the LLM make the run determinsistic)
+            seed === undefined && // seed is not cacheable (let the LLM make the run deterministic)
             !tools?.length && // assume tools are non-deterministic by default
             (isNaN(temperature) ||
                 isNaN(maxCachedTemperature) ||
@@ -124,12 +130,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
 
     trace.detailsFenced(
         `✉️ fetch`,
-        `curl ${url} \\
+        `curl -X POST ${url} \\
 -H "Content-Type: application/json" \\
 ${Object.entries(cfg.curlHeaders || {})
     .map(([k, v]) => `-H "${k}: ${v}" \\`)
     .join("\n")}
--d '${JSON.stringify(postReq, null, 2)}' 
+-d '${JSON.stringify(postReq).replace(/'/g, "'\\''")}' 
 `,
         "bash"
     )
@@ -168,7 +174,7 @@ ${Object.entries(cfg.curlHeaders || {})
         )
     }
 
-    trace.content += "\n\n"
+    trace.appendContent("\n\n")
 
     let done = false
     let finishReason: ChatCompletionResponse["finishReason"] = undefined
@@ -191,7 +197,7 @@ ${Object.entries(cfg.curlHeaders || {})
     }
     if (signal?.aborted) finishReason = "cancel"
 
-    trace.content += "\n\n"
+    trace.appendContent("\n\n")
     trace.itemValue(`finish reason`, finishReason)
     if (done && finishReason === "stop")
         await cache.set(cachedKey, { text: chatResp, finishReason }, { trace })
@@ -221,9 +227,11 @@ ${Object.entries(cfg.curlHeaders || {})
                     numTokens += estimateTokens(model, delta.content)
                     chatResp += delta.content
                     if (delta.content)
-                        trace.content += delta.content.includes("`")
-                            ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
-                            : `\`${delta.content.replace(/\n/g, " ")}\` `
+                        trace.appendContent(
+                            delta.content.includes("`")
+                                ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
+                                : `\`${delta.content.replace(/\n/g, " ")}\` `
+                        )
                 } else if (Array.isArray(delta.tool_calls)) {
                     const { tool_calls } = delta
                     for (const call of tool_calls) {

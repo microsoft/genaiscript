@@ -1,4 +1,13 @@
-import { dirname, extname, basename, join, normalize, relative, resolve } from "path"
+import {
+    dirname,
+    extname,
+    basename,
+    join,
+    normalize,
+    relative,
+    resolve,
+    isAbsolute,
+} from "node:path"
 
 export function createNodePath(): Path {
     return <Path>Object.freeze({
@@ -8,6 +17,7 @@ export function createNodePath(): Path {
         join,
         normalize,
         relative,
-        resolve
+        resolve,
+        isAbsolute,
     })
 }

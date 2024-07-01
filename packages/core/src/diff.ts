@@ -1,4 +1,5 @@
 import { assert } from "./util"
+import parseDiff from "parse-diff"
 
 export interface Chunk {
     state: "existing" | "deleted" | "added"
@@ -7,7 +8,8 @@ export interface Chunk {
 }
 
 /**
- * The LLMD diff format is a simple format that can be used to represent changes. It is not precise:
+ * The LLMD diff format is a simple format that can be used to represent changes.
+ * It is not precise:
  * - indentation may be lost
  * - some code may be not regenerated
  */
@@ -237,4 +239,44 @@ export function applyLLMPatch(source: string, chunks: Chunk[]): string {
     }
 
     return lines.filter((l) => l !== undefined).join("\n")
+}
+
+export function llmifyDiff(diff: string) {
+    if (!diff) return diff
+
+    let parsed: parseDiff.File[]
+    try {
+        parsed = parseDiff(diff)
+    } catch (e) {
+        return undefined // probably not a diff
+    }
+
+    for (const file of parsed) {
+        for (const chunk of file.chunks) {
+            let currentLineNumber = chunk.newStart
+            for (const change of chunk.changes) {
+                if (change.type === "del") continue
+                ;(change as any).line = currentLineNumber
+                currentLineNumber++
+            }
+        }
+    }
+
+    // Convert back to unified diff format
+    let result = ""
+    for (const file of parsed) {
+        result += `--- ${file.from}\n+++ ${file.to}\n`
+        for (const chunk of file.chunks) {
+            result += `${chunk.content}\n`
+            for (const change of chunk.changes) {
+                const ln =
+                    (change as any).line !== undefined
+                        ? `[${(change as any).line}] `
+                        : ""
+                result += `${ln}${change.content}\n`
+            }
+        }
+    }
+
+    return result
 }

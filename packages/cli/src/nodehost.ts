@@ -1,12 +1,17 @@
 import dotenv from "dotenv"
 import prompts from "prompts"
 import {
+    AZURE_OPENAI_TOKEN_SCOPES,
+    AbortSignalOptions,
     AskUserOptions,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
     Host,
+    LanguageModel,
     LanguageModelConfiguration,
     LogLevel,
+    MODEL_PROVIDER_AZURE,
     ModelService,
-    ReadFileOptions,
     RetrievalService,
     SHELL_EXEC_TIMEOUT,
     ServerManager,
@@ -15,8 +20,12 @@ import {
     UTF8Encoder,
     createBundledParsers,
     createFileSystem,
+    filterGitIgnore,
+    parseDefaultsFromEnv,
     parseTokenFromEnv,
+    resolveLanguageModel,
     setHost,
+    unique,
 } from "genaiscript-core"
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "node:fs/promises"
@@ -29,6 +38,7 @@ import { join } from "node:path"
 import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
+import { DefaultAzureCredential, AccessToken } from "@azure/identity"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -41,7 +51,6 @@ class NodeServerManager implements ServerManager {
 
 export class NodeHost implements Host {
     userState: any = {}
-    virtualFiles: Record<string, Uint8Array> = {}
     retrieval: RetrievalService
     models: ModelService
     readonly path = createNodePath()
@@ -49,6 +58,10 @@ export class NodeHost implements Host {
     readonly workspace = createFileSystem()
     readonly parser = createBundledParsers()
     readonly docker = new DockerManager()
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     constructor() {
         const srv = new LlamaIndexRetrievalService(this)
@@ -56,7 +69,7 @@ export class NodeHost implements Host {
         this.models = srv
     }
 
-    static install(dotEnvPath: string) {
+    static async install(dotEnvPath: string) {
         dotEnvPath = dotEnvPath || resolve(".env")
         if (existsSync(dotEnvPath)) {
             const res = dotenv.config({
@@ -68,6 +81,7 @@ export class NodeHost implements Host {
         }
         const h = new NodeHost()
         setHost(h)
+        await h.parseDefaults()
         return h
     }
 
@@ -75,22 +89,44 @@ export class NodeHost implements Host {
         return process.env[name]
     }
 
+    private async parseDefaults() {
+        await parseDefaultsFromEnv(process.env)
+    }
+
+    private _azureToken: AccessToken
     async getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        return await parseTokenFromEnv(process.env, modelId)
+        const { signal, token: askToken } = options || {}
+        await this.parseDefaults()
+        const tok = await parseTokenFromEnv(process.env, modelId)
+        if (
+            askToken &&
+            tok &&
+            !tok.token &&
+            tok.provider === MODEL_PROVIDER_AZURE
+        ) {
+            if (!this._azureToken) {
+                this._azureToken = await new DefaultAzureCredential().getToken(
+                    AZURE_OPENAI_TOKEN_SCOPES.slice(),
+                    { abortSignal: signal }
+                )
+            }
+            if (!this._azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + this._azureToken.token
+        }
+        return tok
     }
 
-    clearVirtualFiles(): void {
-        this.virtualFiles = {}
-    }
-
-    setVirtualFile(name: string, content: string) {
-        this.virtualFiles[resolve(name)] =
-            this.createUTF8Encoder().encode(content)
-    }
-    isVirtualFile(name: string) {
-        return !!this.virtualFiles[name]
+    async resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel> {
+        return resolveLanguageModel(options, configuration)
     }
 
     log(level: LogLevel, msg: string): void {
@@ -118,13 +154,13 @@ export class NodeHost implements Host {
         return new TextEncoder()
     }
     projectFolder(): string {
-        return resolve(".")
+        return this.path.resolve(".")
     }
     installFolder(): string {
         return this.projectFolder()
     }
     resolvePath(...segments: string[]) {
-        return resolve(...segments)
+        return this.path.resolve(...segments)
     }
     async askUser(options: AskUserOptions) {
         const res = await prompts({
@@ -134,20 +170,10 @@ export class NodeHost implements Host {
         })
         return res?.value
     }
-    async readFile(
-        name: string,
-        options?: ReadFileOptions
-    ): Promise<Uint8Array> {
+    async readFile(name: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i
         if (wksrx.test(name))
             name = join(this.projectFolder(), name.replace(wksrx, ""))
-
-        // virtual file handler
-        const v = this.virtualFiles[resolve(name)]
-        if (options?.virtual) {
-            if (!v) throw new Error("virtual file not found")
-            return v // alway return virtual files
-        } else if (options?.virtual !== false && !!v) return v // optional return virtual files
 
         // read file
         const res = await readFile(name)
@@ -155,22 +181,25 @@ export class NodeHost implements Host {
     }
     async findFiles(
         path: string | string[],
-        ignore?: string | string[]
+        options: {
+            ignore?: string | string[]
+            applyGitIgnore?: boolean
+        }
     ): Promise<string[]> {
-        const files = await glob(path, {
+        const { ignore, applyGitIgnore } = options || {}
+        let files = await glob(path, {
             nodir: true,
             windowsPathsNoEscape: true,
             ignore,
         })
-        return files
+        if (applyGitIgnore) files = await filterGitIgnore(files)
+        return unique(files)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         await ensureDir(dirname(name))
-        delete this.virtualFiles[resolve(name)]
         await writeFile(name, content)
     }
     async deleteFile(name: string) {
-        delete this.virtualFiles[resolve(name)]
         await unlink(name)
     }
     async createDirectory(name: string): Promise<void> {

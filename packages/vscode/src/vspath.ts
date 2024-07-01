@@ -6,6 +6,7 @@ import {
     normalize,
     relative,
     resolve,
+    isAbsolute,
 } from "path"
 
 export function createVSPath(): Path {
@@ -17,5 +18,6 @@ export function createVSPath(): Path {
         normalize,
         relative,
         resolve,
+        isAbsolute,
     })
 }

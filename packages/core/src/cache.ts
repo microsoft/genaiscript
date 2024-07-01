@@ -7,17 +7,17 @@ import { CORE_VERSION } from "./version"
 
 export type CacheEntry<K, V> = { sha: string; key: K; val: V }
 
-export class Cache<K, V> extends EventTarget {
+export class JSONLineCache<K, V> extends EventTarget {
     private _entries: Record<string, CacheEntry<K, V>>
     private constructor(public readonly name: string) {
         super()
     }
 
-    static byName<K, V>(name: string): Cache<K, V> {
+    static byName<K, V>(name: string): JSONLineCache<K, V> {
         name = name.replace(/[^a-z0-9_]/gi, "_")
         const key = "cacheKV." + name
         if (host.userState[key]) return host.userState[key]
-        const r = new Cache<K, V>(name)
+        const r = new JSONLineCache<K, V>(name)
         host.userState[key] = r
         return r
     }

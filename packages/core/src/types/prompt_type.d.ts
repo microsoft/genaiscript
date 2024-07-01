@@ -5,7 +5,7 @@
 /**
  * Console functions
  */
-declare var console: PromptConsole
+declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.
@@ -117,6 +117,21 @@ declare var YAML: YAML
 declare var INI: INI
 
 /**
+ * CSV parsing and stringifying.
+ */
+declare var CSV: CSV
+
+/**
+ * XML parsing and stringifying.
+ */
+declare var XML: XML
+
+/**
+ * JSONL parsing and stringifying.
+ */
+declare var JSONL: JSONL
+
+/**
  * AICI operations
  */
 declare var AICI: AICI
@@ -178,8 +193,8 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: string | RunPromptGenerator,
-    options?: RunPromptOptions
+    generator: string | PromptGenerator,
+    options?: PromptGeneratorOptions
 ): Promise<RunPromptResult>
 
 /**
@@ -187,6 +202,12 @@ declare function runPrompt(
  * @param fn
  */
 declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
+
+/**
+ * Registers a chat participant
+ * @param participant
+ */
+declare function defChatParticipant(participant: ChatParticipantHandler, options?: ChatParticipantOptions): void
 
 /**
  * @deprecated Use `defOutputProcessor` instead.

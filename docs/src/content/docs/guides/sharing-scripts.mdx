@@ -1,5 +1,7 @@
 ---
 title: Sharing scripts
+description: Learn how to share GenAIScript scripts across projects using Git repositories, submodules, and GitHub Gists.
+keywords: sharing scripts, git submodules, GitHub Gists, script management, code collaboration
 ---
 import { FileTree } from "@astrojs/starlight/components"
 
@@ -18,7 +20,7 @@ If you store your scripts in a git repository, you can use git submodules to sha
 
 - shared-scripts/ git repository `https://.../shared-scripts`
   - genaisrc/
-    - my-script.genai.js
+    - my-script.genai.mjs
     - ...
 
 </FileTree>
@@ -37,7 +39,7 @@ git submodule update --init --recursive
   - ...
   - shared-scripts/ git submodule https://github.com/.../shared-scripts
     - genaisrc/
-      - my-script.genai.js
+      - my-script.genai.mjs
     ...
 
 </FileTree>

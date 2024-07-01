@@ -1,10 +1,8 @@
 import {
-    CHANGE,
     dotEnvTryParse,
     Host,
     LogLevel,
     LanguageModelConfiguration,
-    ReadFileOptions,
     createFileSystem,
     parseTokenFromEnv,
     setHost,
@@ -13,6 +11,16 @@ import {
     AskUserOptions,
     TraceOptions,
     arrayify,
+    resolveLanguageModel,
+    LanguageModel,
+    MODEL_PROVIDER_AZURE,
+    AbortSignalOptions,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    parseDefaultsFromEnv,
+    fileExists,
+    filterGitIgnore,
+    unique,
 } from "genaiscript-core"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
@@ -21,14 +29,19 @@ import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
+import { AzureManager } from "./azuremanager"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
-    virtualFiles: Record<string, Uint8Array> = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
     readonly workspace = createFileSystem()
     readonly parser: ParseService
+    private _azure: AzureManager
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -38,6 +51,13 @@ export class VSCodeHost extends EventTarget implements Host {
         this.parser = isElectron ? this.server.parser : createBundledParsers()
         this.state.context.subscriptions.push(this)
     }
+
+    async activate() {
+        const dotenv = await readFileText(this.projectUri, ".env")
+        const env = dotEnvTryParse(dotenv) ?? {}
+        await parseDefaultsFromEnv(env)
+    }
+
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
@@ -46,7 +66,7 @@ export class VSCodeHost extends EventTarget implements Host {
         const containerId = res.id
         const hostPath = res.hostPath
         const containerPath = res.containerPath
-        return {
+        return <ContainerHost>{
             id: containerId,
             disablePurge: res.disablePurge,
             hostPath,
@@ -65,6 +85,19 @@ export class VSCodeHost extends EventTarget implements Host {
                 )
                 return await readFileText(this.projectUri, fn)
             },
+            copyTo: async (from, to) => {
+                const prj = this.projectUri
+                const files = await this.findFiles(from)
+                for (const file of files) {
+                    const source = Utils.joinPath(prj, file)
+                    const target = vscode.Uri.file(
+                        this.path.join(hostPath, to, file)
+                    )
+                    await vscode.workspace.fs.copy(source, target, {
+                        overwrite: true,
+                    })
+                }
+            },
             exec: async (command, args, options) => {
                 const r = await this.server.client.exec(
                     containerId,
@@ -80,6 +113,11 @@ export class VSCodeHost extends EventTarget implements Host {
         if (this.server.started) await this.server.client.containerRemove()
     }
 
+    get azure() {
+        if (!this._azure) this._azure = new AzureManager(this.state)
+        return this._azure
+    }
+
     get retrieval() {
         return this.server.retrieval
     }
@@ -90,16 +128,6 @@ export class VSCodeHost extends EventTarget implements Host {
 
     get context() {
         return this.state.context
-    }
-    clearVirtualFiles(): void {
-        this.virtualFiles = {}
-    }
-    setVirtualFile(name: string, content: string) {
-        this.virtualFiles = {}
-        this.virtualFiles[name] = this.createUTF8Encoder().encode(content)
-    }
-    isVirtualFile(name: string) {
-        return !!this.virtualFiles[name]
     }
     dispose() {
         setHost(undefined)
@@ -123,9 +151,19 @@ export class VSCodeHost extends EventTarget implements Host {
     resolvePath(...segments: string[]): string {
         if (segments.length === 0) return "."
         const s0 = segments.shift()
-        let r = Uri.file(s0)
-        if (segments.length) r = Uri.joinPath(r, ...segments)
+        let r = vscode.Uri.file(s0)
+        if (segments.length) r = Utils.resolvePath(r, ...segments)
         return r.fsPath
+    }
+
+    toUri(filenameOrUrl: string): vscode.Uri {
+        const folder = this.projectUri
+        if (!filenameOrUrl) return folder
+        if (/^[a-z][a-z0-9+\-.]*:\/\//.test(filenameOrUrl))
+            return vscode.Uri.parse(filenameOrUrl, true)
+        if (this.path.isAbsolute(filenameOrUrl))
+            return vscode.Uri.file(filenameOrUrl)
+        else return Utils.resolvePath(folder, filenameOrUrl)
     }
 
     log(level: LogLevel, msg: string): void {
@@ -145,23 +183,13 @@ export class VSCodeHost extends EventTarget implements Host {
                 break
         }
     }
-    async readFile(
-        name: string,
-        options?: ReadFileOptions
-    ): Promise<Uint8Array> {
+    async readFile(name: string): Promise<Uint8Array> {
         const uri = this.toProjectFileUri(name)
-        const v = this.virtualFiles[uri.fsPath]
-        if (options?.virtual) {
-            if (!v) throw new Error("virtual file not found")
-            return v // alway return virtual files
-        } else if (options?.virtual !== false && !!v) return v // optional return virtual files
-
         const buffer = await vscode.workspace.fs.readFile(uri)
         return new Uint8Array(buffer)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
         const uri = this.toProjectFileUri(name)
-        delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.writeFile(uri, content)
     }
     private toProjectFileUri(name: string) {
@@ -180,15 +208,18 @@ export class VSCodeHost extends EventTarget implements Host {
 
     async deleteFile(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)
-        delete this.virtualFiles[uri.fsPath]
         await vscode.workspace.fs.delete(uri)
     }
     async findFiles(
         pattern: string | string[],
-        ignore?: string | string[]
+        options?: {
+            ignore?: string | string[]
+            applyGitIgnore?: boolean
+        }
     ): Promise<string[]> {
+        const { applyGitIgnore } = options || {} // always applied?
         pattern = arrayify(pattern)
-        ignore = arrayify(ignore)
+        const ignore = arrayify(options?.ignore)
 
         const uris = new Set<string>()
         for (const pat of pattern) {
@@ -197,13 +228,18 @@ export class VSCodeHost extends EventTarget implements Host {
                 (u) => uris.add(u)
             )
         }
-        for(const pat of ignore) {
+        for (const pat of ignore) {
             const res = await vscode.workspace.findFiles(pat)
             res.map((u) => vscode.workspace.asRelativePath(u, false)).forEach(
                 (u) => uris.delete(u)
             )
         }
-        return Array.from(uris.values())
+
+        let files = Array.from(uris.values())
+        if (applyGitIgnore && (await fileExists(".gitignore"))) {
+            files = await filterGitIgnore(files)
+        }
+        return unique(files)
     }
     async createDirectory(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)
@@ -225,16 +261,39 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async getLanguageModelConfiguration(
-        modelId: string
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
+        const { signal, token: askToken } = options || {}
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
+        await parseDefaultsFromEnv(env)
         const tok = await parseTokenFromEnv(env, modelId)
+        if (
+            askToken &&
+            tok &&
+            !tok.token &&
+            tok.provider === MODEL_PROVIDER_AZURE
+        ) {
+            const azureToken = await this.azure.getOpenAIToken()
+            if (!azureToken) throw new Error("Azure token not available")
+            tok.token = "Bearer " + azureToken
+            tok.curlHeaders = {
+                Authorization: "Bearer ***",
+            }
+        }
         return tok
     }
 
-    async setSecretToken(tok: LanguageModelConfiguration): Promise<void> {
-        this.dispatchEvent(new Event(CHANGE))
+    async resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel> {
+        const model = resolveLanguageModel(options, configuration)
+        return model
     }
 
     async askUser(options: AskUserOptions) {
@@ -252,7 +311,7 @@ export class VSCodeHost extends EventTarget implements Host {
         command: string,
         args: string[],
         options: ShellOptions
-    ): Promise<Partial<ShellOutput>> {
+    ): Promise<ShellOutput> {
         const res = await this.server.client.exec(
             containerId,
             command,

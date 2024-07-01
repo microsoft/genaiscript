@@ -17,8 +17,9 @@ on:
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
-permissions:
-    pull-requests: write
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 jobs:
     tests:
         runs-on: ubuntu-latest
@@ -39,6 +40,6 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:phi3 --out ./temp -prc ollama
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: yarn test:summarize --model ollama:phi3 --out ./temp
+            - name: test summarize-links-phi3
+              run: yarn test:scripts summarize-link --models ollama:phi3 --out ./temp

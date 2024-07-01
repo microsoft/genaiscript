@@ -27,7 +27,7 @@ export async function resolveFileContent(
     const { trace } = options || {}
     const { filename } = file
     if (file.content) return file
-
+    if (!filename) return file
     if (HTTPS_REGEX.test(filename)) {
         let url = filename
         let adapter: UrlAdapter = undefined

@@ -6,14 +6,15 @@ import {
     DOCKER_VOLUMES_DIR,
     TraceOptions,
     dotGenaiscriptPath,
+    errorMessage,
     host,
     installImport,
     logError,
+    randomHex,
 } from "genaiscript-core"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
-import { randomBytes } from "node:crypto"
-import { readFile, writeFile } from "fs/promises"
+import { copyFile, readFile, writeFile } from "fs/promises"
 import { DOCKERODE_VERSION } from "./version"
 
 type DockerodeType = import("dockerode")
@@ -24,7 +25,7 @@ async function tryImportDockerode(options?: TraceOptions) {
         const m = await import("dockerode")
         return m
     } catch (e) {
-        trace?.error(`llamaindex not found, installing ${DOCKERODE_VERSION}...`)
+        trace?.error(`dockerode not found, installing ${DOCKERODE_VERSION}...`)
         await installImport("dockerode", DOCKERODE_VERSION, trace)
         const m = await import("dockerode")
         return m
@@ -101,7 +102,7 @@ export class DockerManager {
         }
     }
 
-    async container(id: string) {
+    async container(id: string): Promise<ContainerHost> {
         const c = this.containers.find((c) => c.id === id)
         return c
     }
@@ -125,7 +126,7 @@ export class DockerManager {
                 dotGenaiscriptPath(
                     DOCKER_VOLUMES_DIR,
                     image.replace(/:/g, "_"),
-                    randomBytes(16).toString("hex")
+                    randomHex(16)
                 )
             )
             await ensureDir(hostPath)
@@ -159,9 +160,18 @@ export class DockerManager {
             trace?.itemValue(`id`, container.id)
             trace?.itemValue(`host path`, hostPath)
             trace?.itemValue(`container path`, containerPath)
+            const inspection = await container.inspect()
+            trace?.itemValue(`container state`, inspection.State?.Status)
 
-            const exec: ShellHost["exec"] = async (command, args, options) => {
-                const { cwd = containerPath, label } = options || {}
+            const exec: ShellHost["exec"] = async (
+                command,
+                args,
+                options
+            ): Promise<ShellOutput> => {
+                const { cwd: userCwd, label } = options || {}
+                const cwd = userCwd
+                    ? host.path.join(containerPath, userCwd)
+                    : containerPath
                 try {
                     trace?.startDetails(
                         `📦 ▶️ container exec ${label || command}`
@@ -169,6 +179,19 @@ export class DockerManager {
                     trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
                     trace?.item(`\`${command}\` ${args.join(" ")}`)
+
+                    let inspection = await container.inspect()
+                    trace?.itemValue(
+                        `container state`,
+                        inspection.State?.Status
+                    )
+                    if (inspection.State?.Paused) {
+                        trace?.log(`unpausing container`)
+                        await container.unpause()
+                    } else if (!inspection.State?.Running) {
+                        trace?.log(`restarting container`)
+                        await container.restart()
+                    }
 
                     const exec = await container.exec({
                         Cmd: [command, ...args],
@@ -188,19 +211,27 @@ export class DockerManager {
                     const inspect = await exec.inspect()
                     const exitCode = inspect.ExitCode
 
-                    const sres = {
+                    const sres: ShellOutput = {
                         exitCode,
                         stdout: stdout.toString(),
                         stderr: stderr.toString(),
+                        failed: exitCode !== 0,
                     }
                     trace?.resultItem(
                         exitCode === 0,
                         `exit code: ${sres.exitCode}`
                     )
-                    if (sres.stdout) trace?.detailsFenced(`output`, sres.stdout)
-                    if (sres.stderr) trace?.detailsFenced(`error`, sres.stderr)
+                    if (sres.stdout) trace?.detailsFenced(`stdout`, sres.stdout)
+                    if (sres.stderr) trace?.detailsFenced(`stderr`, sres.stderr)
 
                     return sres
+                } catch (e) {
+                    trace?.error(`${command} failed`, e)
+                    return {
+                        exitCode: -1,
+                        failed: true,
+                        stderr: errorMessage(e),
+                    }
                 } finally {
                     trace?.endDetails()
                 }
@@ -217,6 +248,16 @@ export class DockerManager {
                 return await readFile(hostFilename, { encoding: "utf8" })
             }
 
+            const copyTo = async (from: string | string[], to: string) => {
+                const files = await host.findFiles(from)
+                for (const file of files) {
+                    const source = host.path.resolve(file)
+                    const target = host.path.resolve(hostPath, to, file)
+                    await ensureDir(host.path.dirname(target))
+                    await copyFile(source, target)
+                }
+            }
+
             const c = <ContainerHost>{
                 id: container.id,
                 disablePurge: !!options.disablePurge,
@@ -225,6 +266,7 @@ export class DockerManager {
                 exec,
                 writeText,
                 readText,
+                copyTo,
             }
             this.containers.push(c)
             await container.start()

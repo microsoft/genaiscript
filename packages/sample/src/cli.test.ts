@@ -12,6 +12,7 @@ describe("run", async () => {
     const flags = `--prompt`
     await test("slides greeter", async () => {
         const res = await $`node ${cli} ${cmd} slides src/greeter.ts ${flags}`
+        console.log("---\n" + res.stdout + "\n---")
         const resj = JSON.parse(res.stdout)
         assert(Array.isArray(resj))
         assert(
@@ -35,7 +36,7 @@ describe("scripts", async () => {
         const res = await $`node ${cli} ${cmd}`
         assert(
             res.stdout.includes(
-                "system.json, JSON system prompt, system, builtin, system"
+                "system.files, File generation, system, builtin, system"
             )
         )
     })

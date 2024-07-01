@@ -1,9 +1,16 @@
 export const CHANGE = "change"
+export const TRACE_CHUNK = "traceChunk"
 export const MAX_CACHED_TEMPERATURE = 0.5
 export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 100
-//https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
-export const AZURE_OPENAI_API_VERSION = "2023-09-01-preview"
+
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
+// https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
+export const AZURE_OPENAI_API_VERSION = "2024-02-01"
+export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
+    "https://cognitiveservices.azure.com/.default",
+    "offline_access",
+])
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
@@ -11,25 +18,25 @@ export const GENAI_SRC = "genaisrc"
 export const GENAI_JS_EXT = ".genai.js"
 export const GENAI_MJS_EXT = ".genai.mjs"
 export const GENAI_JS_GLOB = "**/*.genai.*js"
-export const GENAI_JS_REGEX = /\.genai\.m?js$/i
-export const GPSPEC_REGEX = /\.gpspec\.md$/i
+export const GENAI_ANYJS_REGEX = /\.genai\.m?js$/i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
 export const XLSX_REGEX = /\.xlsx$/i
 export const DOCX_REGEX = /\.docx$/i
 export const PDF_REGEX = /\.pdf$/i
-export const GPSPEC_GLOB = "**/*.gpspec.md"
+export const MDX_REGEX = /\.mdx$/i
+export const MJS_REGEX = /\.mjs$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
 export const CLIENT_RECONNECT_DELAY = 2000
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
-export const DEFAULT_MODEL = "gpt-4"
-export const DEFAULT_TEMPERATURE = 0.2 // 0.0-2.0, defaults to 1.0
+export const DEFAULT_MODEL = "openai:gpt-4"
+export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
-export const CACHE_LLMREQUEST_PREFIX = "cache.llm.request/"
-export const CACHE_AIREQUEST_PREFIX = "cache.ai.request/"
-export const TOKENS_STATUS_BAR_DEBOUNCE_TIME = 800
+export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"
+export const CACHE_AIREQUEST_PREFIX = "genaiscript/cache/ai/"
+export const TRACE_NODE_PREFIX = "genaiscript/trace/"
 export const EXTENSION_ID = "genaiscript.genaiscript-vscode"
 export const CHAT_PARTICIPANT_ID = TOOL_ID
 export const BING_SEARCH_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
@@ -39,7 +46,7 @@ export const RETRIEVAL_DEFAULT_INDEX = "default"
 export const RETRIEVAL_DEFAULT_LLM_MODEL = "gpt-35-turbo"
 export const RETRIEVAL_DEFAULT_EMBED_MODEL = "text-embedding-ada-002"
 export const RETRIEVAL_DEFAULT_TEMPERATURE = 0
-export const SYSTEM_FENCE = "---"
+export const SYSTEM_FENCE = "\n"
 export const MAX_DATA_REPAIRS = 1
 export const NPM_CLI_PACKAGE = "genaiscript"
 export const AICI_CONTROLLER = "gh:microsoft/aici/jsctrl"
@@ -138,7 +145,7 @@ export const MODEL_PROVIDERS = Object.freeze([
     },
 ])
 
-export const NEW_SCRIPT_TEMPLATE = `// use def to emit LLM variables 
+export const NEW_SCRIPT_TEMPLATE = `// use def to define context 
 // https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def
 def("FILE", env.files)
 
@@ -158,6 +165,8 @@ export const XLSX_MIME_TYPE =
 export const JSON_MIME_TYPE = "application/json"
 export const JSON_SCHEMA_MIME_TYPE = "application/schema+json"
 export const JAVASCRIPT_MIME_TYPE = "application/javascript"
+export const MARKDOWN_MIME_TYPE = "text/markdown"
+export const YAML_MIME_TYPE = "application/yaml"
 
 export const JSON_META_SCHEMA_URI =
     "https://json-schema.org/draft/2020-12/schema"
@@ -170,4 +179,9 @@ export const DOCKER_CONTAINER_VOLUME = "/app"
 export const CLI_RUN_FILES_FOLDER = "files"
 
 export const GITHUB_API_VERSION = "2022-11-28"
-export const GITHUB_COMMENT_ID_NONE = "none"
+export const GITHUB_TOKEN = "GITHUB_TOKEN"
+
+export const AI_REQUESTS_CACHE = "airequests"
+export const CHAT_CACHE = "chatv2"
+export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
+export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5

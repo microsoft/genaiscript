@@ -6,7 +6,7 @@ script({
 })
 defImages(env.files)
 
-const outputName = path.join(path.dirname(env.spec.filename), "card.csv")
+const outputName = path.join(path.dirname(env.files[0].filename), "card.csv")
 
 $`You are a helpful assistant.  You are given an image of a business 
 card.  Extract the following information in ${outputName}:

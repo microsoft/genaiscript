@@ -3,10 +3,10 @@ title: Run
 description: Learn how to execute genai scripts on files with streaming output to stdout, including usage of glob patterns, environment variables, and output options.
 sidebar:
     order: 1
-keywords: CLI tool execution, genai script running, stdout streaming, file globbing, environment configuration
+keywords: CLI tool execution, genai script running, stdout streaming, file globing, environment configuration
 ---
 
-Runs a genai script on a file and streams the LLM output to stdout.
+Runs a script on files and streams the LLM output to stdout or a folder from the workspace root.
 
 ```bash
 npx genaiscript run <script> "<files...>"
@@ -14,7 +14,7 @@ npx genaiscript run <script> "<files...>"
 
 where `<script>` is the id or file path of the tool to run, and `[spec]` is the name of the spec file to run it on.
 
-If `spec` is not a `.gpspec.md` file, a wrapper spec is generated on the fly. In this case, spec can also be a [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) patterns.
+Files can also include [glob](<https://en.wikipedia.org/wiki/Glob_(programming)>) pattern.
 
 ```sh
 npx genaiscript run code-annotator "src/*.ts"
@@ -36,22 +36,30 @@ See [configuration](/genaiscript/getting-started/configuration).
 
 Excludes the specified files from the file set.
 
-```sh
-npx genaiscript run <script> <spec> --excluded-files <excluded-files...>
+```sh "--excluded-files <excluded-files...>"
+npx genaiscript run <script> <files> --excluded-files <excluded-files...>
+```
+
+### --exclude-git-ignore
+
+Exclude files ignored by the `.gitignore` file at the workspace root.
+
+```sh "--exclude-git-ignore"
+npx genaiscript run <script> <files> --exclude-git-ignore
 ```
 
 ### --out <file|directory>
 
 Saves the results in a JSON file, along with markdown files of the output and the trace.
 
-```sh
-npx genaiscript run <script> <spec> --out output/results.json
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out out/res.json
 ```
 
 If `file` does not end with `.json`, the path is treated as a directory path.
 
-```sh
-npx genaiscript run <script> <spec> --out output
+```sh "--out tmp"
+npx genaiscript run <script> <files> --out tmp
 ```
 
 ### --json
@@ -66,12 +74,12 @@ Output the entire response as YAML to the stdout.
 
 Populate values in the `env.vars` map that can be used when running the prompt.
 
-### --out-trace <file>
+### --out-trace &lt;file&gt;
 
 Save the markdown trace to the specified file.
 
 ```sh
-npx genaiscript run <script> <spec> --out-trace <file>
+npx genaiscript run <script> <files> --out-trace &lt;file&gt;
 ```
 
 In a GitHub Actions workflow, you can use this feature to save the trace as a step summary (`GITHUB_STEP_SUMMARY`):
@@ -79,54 +87,54 @@ In a GitHub Actions workflow, you can use this feature to save the trace as a st
 ```yaml
 - name: Run GenAIScript tool on spec
   run: |
-      genaiscript run <script> <spec> --out-trace $GITHUB_STEP_SUMMARY
+      genaiscript run <script> <files> --out-trace $GITHUB_STEP_SUMMARY
 ```
 
-### --out-annotations <file>
+### --out-annotations &lt;file&gt;
 
 Emit annotations in the specified file as a JSON array, JSON Lines, [SARIF](https://sarifweb.azurewebsites.net/) or a CSV file if the file ends with `.csv`.
 
 ```sh
-npx genaiscript run <script> <spec> --out-annotations diags.csv
+npx genaiscript run <script> <files> --out-annotations diags.csv
 ```
 
 Use JSON lines (`.jsonl`) to aggregate annotations from multiple runs in a single file.
 
 ```sh
-npx genaiscript run <script> <spec> --out-annotations diags.jsonl
+npx genaiscript run <script> <files> --out-annotations diags.jsonl
 ```
 
-### --out-data <file>
+### --out-data &lt;file&gt;
 
 Emits parsed data as JSON, YAML or JSONL. If a JSON schema is specified
 and availabe, the JSON validation result is also stored.
 
 ```sh
-npx genaiscript run <script> <spec> --out-data data.jsonl
+npx genaiscript run <script> <files> --out-data data.jsonl
 ```
 
-### --out-changelogs <file>
+### --out-changelogs &lt;file&gt;
 
 Emit changelogs in the specified file as text.
 
 ```sh
-npx genaiscript run <script> <spec> --out-changelogs changelogs.txt
+npx genaiscript run <script> <files> --out-changelogs changelogs.txt
 ```
 
 ### --prompt
 
 Skips the LLM invocation and only prints the expanded system and user chat messages.
 
-### --retry <number>
+### --retry &lt;number&gt;
 
 Specifies the number of retries when the LLM invocations fails with throttling (429).
 Default is 3.
 
-### --retry-delay <number>
+### --retry-delay &lt;number&gt;
 
 Minimum delay between retries in milliseconds.
 
-### --label <label>
+### --label &lt;label&gt;
 
 Adds a run label that will be used in generating the trace title.
 
@@ -135,15 +143,15 @@ Adds a run label that will be used in generating the trace title.
 Enables LLM caching in JSONL file under `.genaiscript/tmp/openai.genaiscript.cjsonl`. Caching is enabled by default in VSCode
 but not for the CLI.
 
-### --temperature <number>
+### --temperature &lt;number&gt;
 
 Overrides the LLM run temperature.
 
-### --top-p <number>
+### --top-p &lt;number&gt;
 
 Overrides the LLM run `top_p` value.
 
-### --model <string>
+### --model &lt;string&gt;
 
 Overrides the LLM model identifier.
 

@@ -1,0 +1,39 @@
+name: genai pull request docs commit review
+on:
+    pull_request:
+        paths:
+            - docs/**/*.md
+            - docs/**/*.mdx
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 10
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: compile
+              run: yarn compile
+            - name: git stuff
+              run: git fetch origin && git pull origin main:main
+            - name: genaiscript pr-review-commit
+              run: node packages/cli/built/genaiscript.cjs run pr-docs-review-commit --out ./temp/genai/pr-docs-review-commit -prr --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_COMMIT_SHA: ${{ github.event.pull_request.head.sha}}
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
+            - name: Archive genai results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: genai-results
+                  path: ./temp/genai/**

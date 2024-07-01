@@ -126,7 +126,7 @@ export function validateJSONWithSchema(
         const validate = ajv.compile(schema)
         const valid = validate(object)
         if (!valid) {
-            trace?.error(`schema validation failed`)
+            trace?.warn(`schema validation failed`)
             trace?.fence(validate.errors)
             trace?.fence(schema, "json")
             return {
@@ -137,7 +137,7 @@ export function validateJSONWithSchema(
         }
         return { schema, valid: true }
     } catch (e) {
-        trace?.error("schema validation failed", e)
+        trace?.warn("schema validation failed")
         return { schema, valid: false, error: errorMessage(e) }
     }
 }

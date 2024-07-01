@@ -7,9 +7,10 @@ keywords: script templates, AI prompts, prompt expansion, OpenAI integration, te
 ---
 import { FileTree } from "@astrojs/starlight/components"
 
-GenAIScript are JavaScript files named as `*.genai.js` with a prompt creation engine designed by LLM prompting.
+GenAIScript are JavaScript files named as `*.genai.mjs` 
+with a prompt creation engine designed by LLM prompting.
 
-```js title="shorten.genai.js"
+```js title="shorten.genai.mjs"
 script({
     title: "Shorten", // displayed in UI and Copilot Chat
     // also displayed but grayed out:
@@ -26,19 +27,20 @@ $`Shorten ${file}. Limit changes to minimum.`
 
 ## Script files
 
--   GenAIScript will detect any file matching `*.genai.js` in your workspace.
--   GenAIScript files can be placed anywhere in your workspace; but the extension will place them in a `genaisrc` folder
-    by default.
+-   GenAIScript will detect any file matching `*.genai.mjs` in your workspace.
+-   GenAIScript files can be placed anywhere in your workspace; 
+    but the extension will place them in a `genaisrc` folder by default.
+-   `.genai.mjs` use module JavaScript syntax and support imports. (`.genai.js` are eval-ed and do not support imports).
 
 <FileTree>
 
 - /genaisrc
   - jsconfig.json     // TypeScript compiler configuration
   - genaiscript.d.ts  // TypeScript definitions 
-  - myscript.genai.js // your script!
+  - myscript.genai.mjs // your script!
   - ...
 
 </FileTree>
 
--   `system.*.genai.js` are considered [system prompt templates](/genaiscript/reference/scripts/system)
+-   `system.*.genai.mjs` are considered [system prompt templates](/genaiscript/reference/scripts/system)
     and are unlisted by default.

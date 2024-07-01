@@ -20,7 +20,7 @@ import {
     PromptScriptTestResult,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
-    GENAI_JS_REGEX,
+    GENAI_ANYJS_REGEX,
     JSON5TryParse,
     normalizeInt,
     delay,
@@ -35,7 +35,7 @@ import { PROMPTFOO_VERSION } from "./version"
 
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)
-    if (Object.keys(values).length)
+    if (Object.keys(values).length > 1)
         return {
             model: values["m"],
             temperature: normalizeFloat(values["t"]),
@@ -105,7 +105,7 @@ export async function runPromptScriptTests(
     for (const script of scripts) {
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
-            : script.filename.replace(GENAI_JS_REGEX, ".promptfoo.yaml")
+            : script.filename.replace(GENAI_ANYJS_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const testProvider =
             options?.testProvider || (await resolveTestProvider(scripts[0]))

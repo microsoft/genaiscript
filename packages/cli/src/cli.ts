@@ -10,7 +10,6 @@ import {
     UNHANDLED_ERROR_CODE,
     errorMessage,
     dotGenaiscriptPath,
-    GITHUB_COMMENT_ID_NONE,
 } from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
@@ -18,8 +17,7 @@ import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
-import { runScript } from "./run"
-import { batchScript } from "./batch"
+import { runScriptWithExitCode } from "./run"
 import {
     retrievalClear,
     retrievalFuzz,
@@ -67,8 +65,8 @@ export async function cli() {
     }
 
     let nodeHost: NodeHost
-    program.hook("preAction", (cmd) => {
-        nodeHost = NodeHost.install(cmd.opts().env)
+    program.hook("preAction", async (cmd) => {
+        nodeHost = await NodeHost.install(cmd.opts().env)
     })
     program
         .name(TOOL_ID)
@@ -82,10 +80,14 @@ export async function cli() {
     program.on("option:quiet", () => setQuiet(true))
 
     program
-        .command("run")
+        .command("run", { isDefault: true })
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
+        .option(
+            "-egi, --exclude-git-ignore",
+            "exclude files that are ignore through the .gitignore file in the workspace root"
+        )
         .option(
             "-o, --out <string>",
             "output folder. Extra markdown fields for output and trace will also be generated"
@@ -102,12 +104,16 @@ export async function cli() {
         )
         .option("-ocl, --out-changelog <string>", "output file for changelogs")
         .option(
-            "-prc, --pull-request-comment <string>",
-            "create comment on a pull request."
+            "-prc, --pull-request-comment [string]",
+            "create comment on a pull request with a unique id (defaults to script id)"
         )
         .option(
-            "-prd, --pull-request-description <string>",
-            "upsert comment on a pull request description."
+            "-prd, --pull-request-description [string]",
+            "create comment on a pull request description with a unique id (defaults to script id)"
+        )
+        .option(
+            "-prr, --pull-request-reviews",
+            "create pull request reviews from annotations"
         )
         .option("-j, --json", "emit full JSON response to output")
         .option("-y, --yaml", "emit full YAML response to output")
@@ -132,6 +138,7 @@ export async function cli() {
         .option("-tp, --top-p <number>", "top-p for the run")
         .option("-m, --model <string>", "model for the run")
         .option("-mt, --max-tokens <number>", "maximum tokens for the run")
+        .option("-mdr, --max-data-repairs <number>", "maximum data repairs")
         .option(
             "-mtc, --max-tool-calls <number>",
             "maximum tool calls for the run"
@@ -145,44 +152,7 @@ export async function cli() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
-        .action(runScript)
-
-    program
-        .command("batch")
-        .description("Run a tool on a batch of specs")
-        .arguments("<script> [files...]")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .option(
-            "-o, --out <folder>",
-            "output folder. Extra markdown fields for output and trace will also be generated"
-        )
-        .option("-rmo, --remove-out", "remove output folder if it exists")
-        .option("-os, --out-summary <file>", "append output summary in file")
-        .option("-r, --retry <number>", "number of retries", "8")
-        .option(
-            "-rd, --retry-delay <number>",
-            "minimum delay between retries",
-            "15000"
-        )
-        .option(
-            "-md, --max-delay <number>",
-            "maximum delay between retries",
-            "180000"
-        )
-        .option("-l, --label <string>", "label for the run")
-        .option("-t, --temperature <number>", "temperature for the run")
-        .option("-tp, --top-p <number>", "top-p for the run")
-        .option("-m, --model <string>", "model for the run")
-        .option("-mt, --max-tokens <number>", "maximum tokens for the run")
-        .option("-se, --seed <number>", "seed for the run")
-        .option("--no-cache", "disable LLM result cache")
-        .option("-cn, --cache-name <name>", "custom cache file name")
-        .option("-ae, --apply-edits", "apply file edits")
-        .option(
-            "--vars <string...>",
-            "variables, as name=value, stored in env.vars"
-        )
-        .action(batchScript)
+        .action(runScriptWithExitCode)
 
     const test = program.command("test")
 
@@ -205,7 +175,7 @@ export async function cli() {
         .option("-v, --verbose", "verbose output")
         .option(
             "-pv, --promptfoo-version [version]",
-            `propmtfoo version, default is ${PROMPTFOO_VERSION}`
+            `promptfoo version, default is ${PROMPTFOO_VERSION}`
         )
         .option("-os, --out-summary <file>", "append output summary in file")
         .action(scriptsTest)

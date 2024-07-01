@@ -10,7 +10,7 @@ import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 
 The GenAIScript CLI **`genaiscript`** runs GenAIScript scripts
-outside of Visual Studio.
+outside of Visual Studio and in your [automation](/genaiscript/getting-starting/automating-scripts).
 
 ```sh
 npx --yes genaiscript ...
@@ -18,23 +18,15 @@ npx --yes genaiscript ...
 
 where `--yes` skips the confirmation prompt to install the package.
 
-## Installation
+## Prerequisites
 
 The CLI is a Node.JS package hosted on [npm](https://www.npmjs.com/package/genaiscript).
 
-<Steps>
+- Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (Node.JS includes npm and npx).
 
-<ol>
+## Installation
 
-<li>
-
-Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (Node.JS includes npm and npx).
-
-</li>
-
-<li>
-
-Install locally as a `devDependency` in your project.
+- Install locally as a `devDependency` in your project.
 
 <Tabs>
   <TabItem label="npm" icon="seti:npm">
@@ -53,17 +45,11 @@ yarn add -D genaiscript
   </TabItem>
 </Tabs>
 
-or install it globally.
+- Install it globally.
 
 ```sh "-g"
 npm install -g genaiscript
 ```
-
-</li>
-
-</ol>
-
-</Steps>
 
 :::tip
 
@@ -83,7 +69,7 @@ v10.5.0
 
 ## No Installation (`npx`)
 
-Make sure to install **Node.JS** as described in step 1 above.
+> `npx` is installed with **Node.JS**.
 
 Using [npx](https://docs.npmjs.com/cli/v10/commands/npx),
 you can run the cli without any prior installation steps.
@@ -106,6 +92,13 @@ You can also lock this call to a particular version.
 npx --yes genaiscript@^1.16.0 ...
 ```
 
+## Configuration
+
+The CLI will load the [secrets](/genaiscript/getting-started/configuration) from the environment variables or a `./.env` file.
+
+You can override the default `.env` file name by adding the `--env myother.env` file.
+
+
 ## Create a new script
 
 Creates a new script file in the `genaisrc` folder.
@@ -122,21 +115,16 @@ Runs the TypeScript compiler to find errors in the scripts.
 npx genaiscript scripts compile
 ```
 
-## [Run a script](/genaiscript/reference/cli/run)
+## Run a script
 
-Runs a genai script on file and streams the LLM output to stdout.
+[Run a script](/genaiscript/reference/cli/run) on file 
+and streams the LLM output to stdout. **Run from the workspace root**.
 
 ```sh
 npx genaiscript run <script> [files...]
 ```
 
 where `<script>` is the id or file path of the tool to run, and `[files...]` is the name of the spec file to run it on.
-
-## [Secrets](/genaiscript/getting-started/configuration)
-
-The CLI will load the secrets from the environment variables or a `./.env` file.
-
-You can override the default `.env` file name by adding the `--env myother.env` file.
 
 ### Listing model configuration
 

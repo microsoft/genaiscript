@@ -1,28 +1,27 @@
 import OpenAI from "openai"
-import { Cache } from "./cache"
+import { JSONLineCache } from "./cache"
 import { MarkdownTrace } from "./trace"
-import { PromptImage } from "./promptdom"
+import { PromptImage, renderPromptNode } from "./promptdom"
 import { AICIRequest } from "./aici"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./promptcontext"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
-import {
-    extractFenced,
-    findFirstDataFence,
-    renderFencedVariables,
-} from "./fence"
+import { extractFenced, findFirstDataFence } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
-import dedent from "ts-dedent"
-import {
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
-    MAX_DATA_REPAIRS,
-    MAX_TOOL_CALLS,
-} from "./constants"
+import { CHAT_CACHE, MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
-import { isCancelError, serializeError } from "./error"
+import { errorMessage, isCancelError, serializeError } from "./error"
+import { details, fenceMD } from "./markdown"
+import { YAMLStringify } from "./yaml"
+import { estimateChatTokens } from "./tokens"
+import { createChatTurnGenerationContext } from "./runpromptcontext"
+import { dedent } from "./indent"
+
+export type ChatCompletionContentPartText = OpenAI.Chat.Completions.ChatCompletionContentPartText
+
+export type ChatCompletionContentPart = OpenAI.Chat.Completions.ChatCompletionContentPart
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -87,7 +86,7 @@ export type ChatCompletationRequestCacheValue = {
     finishReason: ChatCompletionResponse["finishReason"]
 }
 
-export type ChatCompletationRequestCache = Cache<
+export type ChatCompletationRequestCache = JSONLineCache<
     ChatCompletionRequestCacheKey,
     ChatCompletationRequestCacheValue
 >
@@ -95,10 +94,10 @@ export type ChatCompletationRequestCache = Cache<
 export function getChatCompletionCache(
     name?: string
 ): ChatCompletationRequestCache {
-    return Cache.byName<
+    return JSONLineCache.byName<
         ChatCompletionRequestCacheKey,
         ChatCompletationRequestCacheValue
-    >(name || "chatv2")
+    >(name || CHAT_CACHE)
 }
 
 export interface ChatCompletionsProgressReport {
@@ -108,7 +107,7 @@ export interface ChatCompletionsProgressReport {
 }
 
 export interface ChatCompletionsOptions {
-    partialCb?: (progres: ChatCompletionsProgressReport) => void
+    partialCb?: (progress: ChatCompletionsProgressReport) => void
     requestOptions?: Partial<RequestInit>
     maxCachedTemperature?: number
     maxCachedTopP?: number
@@ -186,7 +185,9 @@ export interface LanguageModelInfo {
     url?: string
 }
 
-export type ListModelsFunction = (cfg: LanguageModelConfiguration) => Promise<LanguageModelInfo[]>
+export type ListModelsFunction = (
+    cfg: LanguageModelConfiguration
+) => Promise<LanguageModelInfo[]>
 
 export interface LanguageModel {
     id: string
@@ -197,7 +198,7 @@ export interface LanguageModel {
 async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ChatFunctionCallback[],
+    functions: ToolCallback[],
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
@@ -229,22 +230,31 @@ async function runToolCalls(
             const fd = functions.find((f) => f.definition.name === call.name)
             if (!fd) throw new Error(`tool ${call.name} not found`)
 
-            const context: ChatFunctionCallContext = {
+            const context: ToolCallContext = {
                 trace,
             }
 
-            let output = await fd.fn({ context, ...callArgs })
+            const output = await fd.fn({ context, ...callArgs })
             if (output === undefined || output === null)
-                throw new Error(`output is undefined`)
-            if (typeof output === "string") output = { content: output }
+                throw new Error(`tool ${call.name} output is undefined`)
+            let toolContent: string = undefined
+            let toolEdits: Edits[] = undefined
+            if (typeof output === "string") toolContent = output
+            else if (
+                typeof output === "object" &&
+                (output as ShellOutput).exitCode !== undefined
+            ) {
+                toolContent = YAMLStringify(output)
+            } else {
+                toolContent = (output as ToolCallContent)?.content
+                toolEdits = (output as ToolCallContent)?.edits
+            }
 
-            const { content, edits: functionEdits } = output
-
-            if (content) trace.fence(content, "markdown")
-            if (functionEdits?.length) {
-                trace.fence(functionEdits)
+            if (toolContent) trace.fence(toolContent, "markdown")
+            if (toolEdits?.length) {
+                trace.fence(toolEdits)
                 edits.push(
-                    ...functionEdits.map((e) => {
+                    ...toolEdits.map((e) => {
                         const { filename, ...rest } = e
                         const n = e.filename
                         const fn = /^[^\/]/.test(n)
@@ -257,7 +267,7 @@ async function runToolCalls(
 
             messages.push({
                 role: "tool",
-                content,
+                content: toolContent,
                 tool_call_id: call.id,
             })
         } catch (e) {
@@ -276,46 +286,69 @@ async function applyRepairs(
     schemas: Record<string, JSONSchema>,
     options: GenerationOptions
 ) {
-    const { trace, responseSchema } = options
-    // perform repair
+    const {
+        stats,
+        trace,
+        responseSchema,
+        maxDataRepairs = MAX_DATA_REPAIRS,
+        infoCb,
+    } = options
     const lastMessage = messages[messages.length - 1]
     if (lastMessage.role !== "assistant") return false
 
     const fences = extractFenced(lastMessage.content)
     validateFencesWithSchema(fences, schemas, { trace })
-    const invalids = fences
-        .map((f) => f.validation)
-        .filter((f) => f?.valid === false)
+    const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
         const value = JSON5TryParse(lastMessage.content)
         const res = validateJSONWithSchema(value, responseSchema, { trace })
-        if (!res.valid) invalids.push(res)
+        if (!res.valid)
+            invalids.push({
+                label: "",
+                content: lastMessage.content,
+                validation: res,
+            })
     }
 
-    if (invalids.length) {
-        trace.startDetails("🔧 repair")
-        const repair = invalids.map((f) => f.error).join("\n\n")
-        trace.fence(repair, "txt")
-        messages.push({
-            role: "user",
-            content: [
-                {
-                    type: "text",
-                    text: dedent`FORMATING_ISSUES:
-                        \`\`\`
-                        ${repair}
-                        \`\`\`
-                                            
-                        Repair the FORMATING_ISSUES. THIS IS IMPORTANT.`,
-                },
-            ],
-        })
-        trace.endDetails()
-        return true
+    // nothing to repair
+    if (!invalids.length) return false
+    // too many attempts
+    if (stats.repairs >= maxDataRepairs) {
+        trace.error(`maximum number of repairs (${maxDataRepairs}) reached`)
+        return false
     }
 
-    return false
+    infoCb?.({ text: "appending data repair instructions" })
+    // let's get to work
+    trace.startDetails("🔧 data repairs")
+    const repair = invalids
+        .map(
+            (f) =>
+                `data: ${f.label || ""}
+schema: ${f.args?.schema || ""},
+error: ${f.validation.error}`
+        )
+        .join("\n\n")
+    const repairMsg = dedent`DATA_FORMAT_ISSUES:
+\`\`\`
+${repair}
+\`\`\`
+                            
+Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
+    trace.fence(repairMsg, "markdown")
+    messages.push({
+        role: "user",
+        content: [
+            {
+                type: "text",
+                text: repairMsg,
+            },
+        ],
+    })
+    trace.endDetails()
+    stats.repairs++
+    return true
 }
 
 function assistantText(messages: ChatCompletionMessageParam[]) {
@@ -357,7 +390,9 @@ function structurifyChatSession(
                     trace,
                 })
                 if (!res.valid) {
-                    trace.error("response schema validation failed", res.error)
+                    trace?.warn(
+                        `response schema validation failed, ${errorMessage(res.error)}`
+                    )
                 }
             }
         } catch (e) {
@@ -371,10 +406,8 @@ function structurifyChatSession(
     const frames: DataFrame[] = []
 
     // validate schemas in fences
-    if (fences?.length) {
+    if (fences?.length)
         frames.push(...validateFencesWithSchema(fences, schemas, { trace }))
-        trace.details("📩 code regions", renderFencedVariables(fences))
-    }
 
     return {
         text,
@@ -392,13 +425,19 @@ function structurifyChatSession(
 async function processChatMessage(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ChatFunctionCallback[],
+    functions: ToolCallback[],
+    chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
     options: GenerationOptions
 ): Promise<RunPromptResult> {
-    const { stats, maxToolCalls = MAX_TOOL_CALLS, trace } = options
-    const maxRepairs = MAX_DATA_REPAIRS
+    const {
+        stats,
+        maxToolCalls = MAX_TOOL_CALLS,
+        trace,
+        cancellationToken,
+        maxDataRepairs = MAX_DATA_REPAIRS,
+    } = options
 
     if (resp.text)
         messages.push({
@@ -417,15 +456,55 @@ async function processChatMessage(
         return undefined // keep working
     }
     // apply repairs if necessary
-    else if (await applyRepairs(messages, schemas, options)) {
-        stats.repairs++
-        if (stats.repairs > maxRepairs)
-            throw new Error(`maximum number of repairs (${maxRepairs}) reached`)
+    if (await applyRepairs(messages, schemas, options)) {
         return undefined // keep working
-    } else
-        return structurifyChatSession(messages, schemas, genVars, options, {
-            resp,
-        })
+    }
+
+    if (chatParticipants?.length) {
+        let needsNewTurn = false
+        for (const participant of chatParticipants) {
+            try {
+                const { generator, options: participantOptions } =
+                    participant || {}
+                const { label } = participantOptions || {}
+                trace.startDetails(`🙋 participant ${label || ""}`)
+
+                const ctx = createChatTurnGenerationContext(options, trace)
+                await generator(ctx, structuredClone(messages))
+                const node = ctx.node
+                checkCancelled(cancellationToken)
+                // expand template
+                const { errors, prompt } = await renderPromptNode(
+                    options.model,
+                    node,
+                    {
+                        trace,
+                    }
+                )
+                if (prompt?.trim().length) {
+                    trace.detailsFenced(`💬 message`, prompt, "markdown")
+                    messages.push({ role: "user", content: prompt })
+                    needsNewTurn = true
+                } else trace.item("no message")
+                if (errors?.length) {
+                    for (const error of errors) trace.error(undefined, error)
+                    needsNewTurn = false
+                    break
+                }
+            } catch (e) {
+                trace.error(`participant error`, e)
+                needsNewTurn = false
+                break
+            } finally {
+                trace?.endDetails()
+            }
+        }
+        if (needsNewTurn) return undefined
+    }
+
+    return structurifyChatSession(messages, schemas, genVars, options, {
+        resp,
+    })
 }
 
 export function mergeGenerationOptions(
@@ -435,8 +514,12 @@ export function mergeGenerationOptions(
     return {
         ...options,
         ...(runOptions || {}),
-        model: runOptions?.model ?? options?.model ?? DEFAULT_MODEL,
-        temperature: runOptions?.temperature ?? DEFAULT_TEMPERATURE,
+        model:
+            runOptions?.model ??
+            options?.model ??
+            host.defaultModelOptions.model,
+        temperature:
+            runOptions?.temperature ?? host.defaultModelOptions.temperature,
     }
 }
 
@@ -444,25 +527,29 @@ export async function executeChatSession(
     connectionToken: LanguageModelConfiguration,
     cancellationToken: CancellationToken,
     messages: ChatCompletionMessageParam[],
-    functions: ChatFunctionCallback[],
+    vars: Partial<ExpansionVariables>,
+    toolDefinitions: ToolCallback[],
     schemas: Record<string, JSONSchema>,
     completer: ChatCompletionHandler,
+    chatParticipants: ChatParticipant[],
     genOptions: GenerationOptions
 ) {
     const {
         trace,
-        model = DEFAULT_MODEL,
-        temperature = DEFAULT_TEMPERATURE,
+        model = host.defaultModelOptions.model,
+        temperature = host.defaultModelOptions.temperature,
         topP,
         maxTokens,
         seed,
         cacheName,
         responseType,
         responseSchema,
+        stats,
+        infoCb,
     } = genOptions
 
-    const tools: ChatCompletionTool[] = functions?.length
-        ? functions.map((f) => ({
+    const tools: ChatCompletionTool[] = toolDefinitions?.length
+        ? toolDefinitions.map((f) => ({
               type: "function",
               function: f.definition as any,
           }))
@@ -480,8 +567,15 @@ export async function executeChatSession(
 
         let genVars: Record<string, string>
         while (true) {
-            trace.detailsFenced(`💬 messages`, messages, "yaml")
-            trace.startDetails(`📤 llm request (${messages.length} messages)`)
+            stats.turns++
+            infoCb?.({
+                text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
+            })
+            trace.details(
+                `💬 messages (${messages.length})`,
+                renderMessagesToMarkdown(messages)
+            )
+            trace.startDetails(`📤 llm request`)
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
@@ -508,7 +602,8 @@ export async function executeChatSession(
                 const output = await processChatMessage(
                     resp,
                     messages,
-                    functions,
+                    toolDefinitions,
+                    chatParticipants,
                     schemas,
                     genVars,
                     genOptions
@@ -529,4 +624,104 @@ export async function executeChatSession(
     } finally {
         trace.endDetails()
     }
+}
+
+function renderToolArguments(args: string) {
+    const js = JSON5TryParse(args)
+    if (js) return fenceMD(YAMLStringify(js), "yaml")
+    else return fenceMD(args, "json")
+}
+
+export function renderMessagesToMarkdown(
+    messages: ChatCompletionMessageParam[],
+    options?: {
+        system?: boolean
+        user?: boolean
+        assistant?: boolean
+    }
+) {
+    const {
+        system = undefined,
+        user = undefined,
+        assistant = true,
+    } = options || {}
+    const res: string[] = []
+    messages
+        ?.filter((msg) => {
+            switch (msg.role) {
+                case "system":
+                    return system !== false
+                case "user":
+                    return user !== false
+                case "assistant":
+                    return assistant !== false
+                default:
+                    return true
+            }
+        })
+        ?.forEach((msg) => {
+            const { role } = msg
+            switch (role) {
+                case "system":
+                    res.push(
+                        details(
+                            "📙 system",
+                            fenceMD(msg.content, "markdown"),
+                            false
+                        )
+                    )
+                    break
+                case "user":
+                    let content: string
+                    if (typeof msg.content === "string")
+                        content = fenceMD(msg.content, "markdown")
+                    else if (Array.isArray(msg.content))
+                        for (const part of msg.content) {
+                            if (part.type === "text")
+                                content = fenceMD(part.text, "markdown")
+                            else if (part.type === "image_url")
+                                content = `![image](${part.image_url.url})`
+                            else content = fenceMD(YAMLStringify(part), "yaml")
+                        }
+                    else content = fenceMD(YAMLStringify(msg), "yaml")
+                    res.push(details(`👤 user`, content, user === true))
+                    break
+                case "assistant":
+                    res.push(
+                        details(
+                            `🤖 assistant ${msg.name ? msg.name : ""}`,
+                            [
+                                fenceMD(msg.content, "markdown"),
+                                ...(msg.tool_calls?.map((tc) =>
+                                    details(
+                                        `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
+                                        renderToolArguments(
+                                            tc.function.arguments
+                                        )
+                                    )
+                                ) || []),
+                            ]
+                                .filter((s) => !!s)
+                                .join("\n\n"),
+                            assistant === true
+                        )
+                    )
+                    break
+                case "aici":
+                    res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
+                    break
+                case "tool":
+                    res.push(
+                        details(
+                            `🛠️ tool output <code>${msg.tool_call_id}</code>`,
+                            fenceMD(msg.content, "json")
+                        )
+                    )
+                    break
+                default:
+                    res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
+                    break
+            }
+        })
+    return res.filter((s) => s !== undefined).join("\n")
 }

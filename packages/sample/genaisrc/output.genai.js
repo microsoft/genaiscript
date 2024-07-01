@@ -2,7 +2,7 @@ script({
     title: "custom output",
     system: [],
 })
-const output = env.spec.filename + ".txt"
+const output = env.files[0].filename + ".txt"
 def("FILE", env.files)
 $`Summarize all the files. Respond as raw text.`
 

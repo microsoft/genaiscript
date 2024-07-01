@@ -1,6 +1,7 @@
 import { assert } from "console"
 import { host } from "./host"
-import { logError } from "./util"
+import { logError, logVerbose } from "./util"
+import { TraceOptions } from "./trace"
 
 function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -15,32 +16,46 @@ export async function importPrompt(
     r: PromptScript,
     options?: {
         logCb?: (msg: string) => void
-    }
+    } & TraceOptions
 ) {
     const { filename } = r
     if (!filename) throw new Error("filename is required")
+    const { trace } = options || {}
 
     const oldGlb: any = {}
     const glb: any = resolveGlobal()
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
-            assert(!glb[field])
+            assert(
+                field === "console" || !glb[field],
+                `overriding global field ${field}`
+            )
             oldGlb[field] = glb[field]
             glb[field] = (ctx0 as any)[field]
         }
 
-        const modulePath = filename.startsWith("/")
+        const modulePath = host.path.isAbsolute(filename)
             ? filename
             : host.path.join(host.projectFolder(), filename)
-        const module = await import(modulePath)
+        const parentURL =
+            import.meta.url ??
+            new URL(__filename ?? host.projectFolder(), "file://").href
+
+        trace?.itemValue(`import`, `${modulePath}, parent: ${parentURL}`)
+        const { tsImport } = await import("tsx/esm/api")
+        const module = await tsImport(modulePath, {
+            parentURL,
+            tsconfig: false,
+            onImport: (file: string) => {
+                trace?.itemValue("📦 imported", file)
+            },
+        })
         const main = module.default
-        if (!main) throw new Error("default import function missing")
-        if (typeof main !== "function")
-            throw new Error("default export must be a function")
-        await main(ctx0)
+        if (typeof main === "function") await main(ctx0)
     } catch (err) {
         logError(err)
+        trace?.error(err)
         throw err
     } finally {
         // restore global context

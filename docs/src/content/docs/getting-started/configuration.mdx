@@ -5,18 +5,19 @@ keywords: LLM setup, API configuration, environment variables, secure authorizat
 sidebar:
     order: 2
 ---
-import { FileTree } from '@astrojs/starlight/components';
-import { Steps } from '@astrojs/starlight/components';
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+import { FileTree } from "@astrojs/starlight/components"
+import { Steps } from "@astrojs/starlight/components"
+import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
 
-import insidersSrc from '../../../assets/vscode-insiders.png'
-import insidersAlt from '../../../assets/vscode-insiders.png.txt?raw'
+import insidersSrc from "../../../assets/vscode-insiders.png"
+import insidersAlt from "../../../assets/vscode-insiders.png.txt?raw"
 
-import selectLLMSrc from '../../../assets/vscode-select-llm.png'
-import selectLLMAlt from '../../../assets/vscode-select-llm.png.txt?raw'
+import selectLLMSrc from "../../../assets/vscode-select-llm.png"
+import selectLLMAlt from "../../../assets/vscode-select-llm.png.txt?raw"
 
-You will need to configure the LLM connection and authorizion secrets. 
+You will need to configure the LLM connection and authorizion secrets.
 
 :::tip
 If you do not have access to an LLM, you can use a [local model](#local-models) for inferencing.
@@ -30,7 +31,7 @@ and the `model-name` is provider specific.
 
 ```js 'model: "openai:gpt-4"'
 script({
-    model: "openai:gpt-4",    
+    model: "openai:gpt-4",
 })
 ```
 
@@ -62,8 +63,9 @@ Create a `.env` file in the root of your project.
 
 <FileTree>
 
--  .gitignore
--  **.env**
+-   .gitignore
+-   **.env**
+
 </FileTree>
 
 </li>
@@ -81,14 +83,14 @@ Update the `.env` file with the configuration information (see below).
 :::caution[Do Not Commit Secrets]
 
 The `.env` file should never be commited to your source control!
-If the `.gitignore` file is properly configured, 
+If the `.gitignore` file is properly configured,
 the `.env` file will appear grayed out in Visual Studio Code.
 
 :::
 
 ## OpenAI
 
-This provider, `openai`, is the default provider. 
+This provider, `openai`, is the default provider.
 It uses the `OPENAI_API_...` environment variables.
 
 <Steps>
@@ -96,7 +98,8 @@ It uses the `OPENAI_API_...` environment variables.
 <ol>
 
 <li>
-Create a new secret key from the [OpenAI API Keys portal](https://platform.openai.com/api-keys).
+    Create a new secret key from the [OpenAI API Keys
+    portal](https://platform.openai.com/api-keys).
 </li>
 
 <li>
@@ -106,15 +109,16 @@ Update the `.env` file with the secret key.
 ```txt title=".env"
 OPENAI_API_KEY=sk_...
 ```
+
 </li>
 
 <li>
 
 Set the `model` field in `script` to the model you want to use.
 
-```js 'model: "openai:gpt-4"'
+```js 'model: "openai:gpt-4o"'
 script({
-    model: "openai:gpt-4",
+    model: "openai:gpt-4o",
     ...
 })
 ```
@@ -125,11 +129,24 @@ script({
 
 </Steps>
 
-## Azure OpenAI ([reference](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions)) 
 
+:::tip[Default Model Configuration]
+
+Use `GENAISCRIPT_DEFAULT_MODEL` in your `.env` file to set the default model.
+
+```txt
+GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
+```
+
+:::
+
+## Azure OpenAI
 <a id="azure" href=""></a>
 
-The Azure OpenAI provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+The  [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
+
+### Managed Identity (Entra ID)
 
 <Steps>
 
@@ -137,13 +154,82 @@ The Azure OpenAI provider, `azure` uses the `AZURE_OPENAI_...` environment varia
 
 <li>
 
-Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to the **Keys and Endpoint** tab.
+Open your [Azure OpenAI resource](https://portal.azure.com) 
+
+</li>
+<li> 
+
+Navigate to **Access Control**, then **View My Access**. Make sure your
+user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
+If you get a `401` error, it's typically here that you will fix it.
+
+</li>
+<li>
+Navigate to **Resource Management**, then **Keys and Endpoint**.
+</li>
+<li>
+
+Update the `.env` file with the endpoint.
+
+```txt title=".env"
+AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
+```
+
+:::note
+
+Make sure to remove any `AZURE_API_KEY`, `AZURE_OPENAI_API_KEY` entries from `.env` file.
+
+:::
 
 </li>
 
 <li>
 
-Make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
+Navigate to **deployments** and make sure that you have your LLM deployed and copy the `deployment-id`, you will need it in the script.
+
+</li>
+
+<li>
+
+Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
+
+```js 'model: "azure:deployment-id"'
+script({
+    model: "azure:deployment-id",
+    ...
+})
+```
+
+</li>
+</ol>
+
+</Steps>
+
+#### Visual Studio Code
+
+Visual Studio Code will ask you to allow using the **Microsoft** account
+and then will open a browser where you can choose the user or service principal.
+
+- If you are getting `401` errors after a while, try signing out in the user menu (lower left in Visual Studio Code) and back in.
+
+#### CLI
+
+Login with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli)
+then use the [cli](/genaiscript/reference/cli) as usual.
+
+```sh
+az login
+```
+
+### API Key
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open your [Azure OpenAI resource](https://portal.azure.com) and navigate to **Resource Management**, then **Keys and Endpoint**.
 
 </li>
 
@@ -152,9 +238,17 @@ Make sure that you have your LLM deployed and copy the `deployment-id`, you will
 Update the `.env` file with the secret key (**Key 1** or **Key 2**) and the endpoint.
 
 ```txt title=".env"
-AZURE_API_KEY=...
-AZURE_OPENAI_ENDPOINT=https://....openai.azure.com
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
 ```
+
+</li>
+
+<li>
+
+Open Azure AI Studio, select **Deployments**
+and make sure that you have your LLM deployed and copy the `deployment-id`,
+you will need it in the script.
 
 </li>
 
@@ -182,8 +276,8 @@ or in a container.
 
 ### LocalAI
 
-[LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible 
-with OpenAI API specifications for local inferencing. It uses free Open Source models 
+[LocalAI](https://localai.io/) act as a drop-in replacement REST API that’s compatible
+with OpenAI API specifications for local inferencing. It uses free Open Source models
 and it runs on CPUs.
 
 LocalAI acts as an OpenAI replacement, you can see the [model name mapping](https://localai.io/basics/container/#all-in-one-images)
@@ -212,7 +306,6 @@ OPENAI_API_TYPE=localai
 </ol>
 
 </Steps>
-
 
 ### Ollama
 
@@ -262,7 +355,7 @@ The provider is `llamafile` and the model name is ignored.
 
 ### Jan, LMStudio, LLaMA.cpp
 
-[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/), 
+[Jan](https://jan.ai/), [LMStudio](https://lmstudio.ai/),
 [LLaMA.cpp](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)
 also allow running models locally or interfacing with other LLM vendors.
 
@@ -284,12 +377,11 @@ OPENAI_API_BASE=http://localhost:...
 
 </Steps>
 
-
 ### Model specific environment variables
 
 You can provide different environment variables
 for each named model by using the `PROVIDER_MODEL_API_...` prefix or `PROVIDER_API_...` prefix.
-The model name is capitalized and 
+The model name is capitalized and
 all non-alphanumeric characters are converted to `_`.
 
 This allows to have various sources of LLM computations
@@ -300,98 +392,6 @@ model running locally, while keeping the default `openai` model connection infor
 OLLAMA_PHI3_API_BASE=http://localhost:11434/v1
 ```
 
-## VSCode Copilot Insiders
-
-Visual Studio Code **Insiders** provides an 
-**experimental support** to use your Copilot subscription 
-to access a LLM inside of Visual Studio Code.
-
-:::caution[Limitations]
-
--   **This features requires a GitHub Copilot subscription.**
--   **This feature is still a [proposed api](https://github.com/microsoft/vscode/blob/main/src/vscode-dts/vscode.proposed.languageModels.d.ts) and requires the Insiders editor.**
--   The API changes daily and may not be stable.
--   Functions and Images are not supported.
--   The model configuration, temperature, max tokens, may not be available depending on the language model provider.
--   Some scripts may fail or behave differently due to internal alignment prompts from Copilot.
-
-:::
-
-<Steps>
-
-<ol>
-
-<li>
-
-Install [Visual Studio Code **Insiders**](https://code.visualstudio.com/insiders/). 
-It can be installed side-by-side with the stable version of Visual Studio Code.
-
-</li>
-
-<li>
-
-Open your project in Visual Studio Code Insiders (green icon).
-
-<Image src={insidersSrc} alt={insidersAlt} />
-
-</li>
-
-<li>
-
-Download **genaiscript.insiders.vsix** from the [releases page](https://github.com/microsoft/genaiscript/releases/latest)
-to your project folder.
-
-<FileTree>
-
-- ...
-- **genaiscript.insiders.vsix**
-
-</FileTree>
-
-</li>
-
-<li>
-
-Right click on **genaiscript.insiders.vsix** and select **Install from VSIX**.
-
-</li>
-
-<li>
-
-Add a `.vscode-insiders/argv.json` file to enables loading the proposed APIs for the GenAIScript extension.
-
-```json title=".vscode-insiders/argv.json"
-{
-    "enable-proposed-api": ["genaiscript.genaiscript-vscode"]
-}
-```
-
-</li>
-
-<li>
-
-Restart Visual Studio Code Insiders to enable the extension.
-
-</li>
-
-<li>
-
-When you try to run a script, you will be prompted to authorize the Copilot subscription.
-After authorizing access, you will see a quick pick dialog to select one of the installed Language Model.
-
-<Image src={selectLLMSrc} alt={selectLLMAlt} />
-
-Note that this dialog is not used once you have a populated `.env` file.
-
-</li>
-
-</ol>
-
-</Steps>
-
-If you are using the Insiders build, make sure to update the **genaiscript.insiders.vsix** regularly
-by repeating the steps above. The daily builds of Insiders may contain breaking chagnes that require new builds
-of our extension.
 
 ## Next steps
 

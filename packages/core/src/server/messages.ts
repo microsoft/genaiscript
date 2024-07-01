@@ -1,3 +1,4 @@
+import { GenerationResult } from "../expander"
 import {
     ParsePdfResponse,
     ResponseStatus,
@@ -63,11 +64,83 @@ export interface PromptScriptTestRun extends RequestMessage {
 
 export interface PromptScriptTestResult extends ResponseStatus {
     script: string
-    value?: any /** OutputFile */
+    value?: { evalId: string } /** OutputFile */
 }
 
 export interface PromptScriptTestRunResponse extends ResponseStatus {
     value?: PromptScriptTestResult[]
+}
+
+export interface PromptScriptRunOptions {
+    excludedFiles: string[]
+    excludeGitIgnore: boolean
+    out: string
+    retry: string
+    retryDelay: string
+    maxDelay: string
+    json: boolean
+    yaml: boolean
+    prompt: boolean
+    outTrace: string
+    outAnnotations: string
+    outChangelogs: string
+    pullRequestComment: string | boolean
+    pullRequestDescription: string | boolean
+    pullRequestReviews: boolean
+    outData: string
+    label: string
+    temperature: string
+    topP: string
+    seed: string
+    maxTokens: string
+    maxToolCalls: string
+    maxDataRepairs: string
+    model: string
+    csvSeparator: string
+    cache: boolean
+    cacheName: string
+    applyEdits: boolean
+    failOnErrors: boolean
+    removeOut: boolean
+    vars: string[]
+}
+
+export interface PromptScriptStart extends RequestMessage {
+    type: "script.start"
+    runId: string
+    script: string
+    files?: string[]
+    options: Partial<PromptScriptRunOptions>
+}
+
+export interface PromptScriptStartResponse extends ResponseStatus {
+    runId: string
+}
+
+export interface PromptScriptEndResponseEvent {
+    type: "script.end"
+    runId: string
+    exitCode: number
+    result: GenerationResult
+}
+
+export interface PromptScriptAbort extends RequestMessage {
+    type: "script.abort"
+    reason: string
+    runId: string
+}
+
+export interface PromptScriptProgressResponseEvent {
+    type: "script.progress"
+    runId: string
+
+    trace?: string
+
+    progress?: string
+
+    tokens?: number
+    response?: string
+    responseChunk?: string
 }
 
 export interface ShellExecResponse extends ResponseStatus {
@@ -112,3 +185,9 @@ export type RequestMessages =
     | ShellExec
     | ContainerStart
     | ContainerRemove
+    | PromptScriptStart
+    | PromptScriptAbort
+
+export type ResponseEvents =
+    | PromptScriptProgressResponseEvent
+    | PromptScriptEndResponseEvent

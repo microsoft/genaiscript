@@ -1,9 +1,14 @@
 ---
 title: Data Schemas
 sidebar:
-    order: 6
-description: Learn how to define and use data schemas for structured output in JSON/YAML with LLM, including validation and repair techniques.
-keywords: data schemas, JSON schema, YAML validation, LLM structured output, schema repair
+  order: 6
+description: Learn how to define and use data schemas for structured output in
+  JSON/YAML with LLM, including validation and repair techniques.
+keywords: data schemas, JSON schema, YAML validation, LLM structured output,
+  schema repair
+genaiscript:
+  model: openai:gpt-3.5-turbo
+
 ---
 import { Card } from '@astrojs/starlight/components';
 
@@ -18,7 +23,7 @@ specific data format later on.
 
 Use `defSchema` to define a JSON/YAML schema for the prompt output.
 
-```javascript
+```js user=true
 const schema = defSchema("CITY_SCHEMA", {
     type: "array",
     description: "A list of cities with population and elevation information.",
@@ -34,15 +39,75 @@ const schema = defSchema("CITY_SCHEMA", {
     }
 })
 
-$`Generate ... using JSON compliant with ${schema}.`
+$`Generate data using JSON compliant with ${schema}.`
 ```
+
+{/* genaiscript output start */}
+
+<details open>
+<summary>👤 user</summary>
+
+
+````markdown wrap
+CITY_SCHEMA:
+```typescript-schema
+// A list of cities with population and elevation information.
+type CITY_SCHEMA = Array<{
+    // The name of the city.
+    name: string,
+    // The population of the city.
+    population: number,
+    // The URL of the city's Wikipedia page.
+    url: string,
+  }>
+```
+Generate data using JSON compliant with CITY_SCHEMA.
+````
+
+
+</details>
+
+
+<details open>
+<summary>🤖 assistant</summary>
+
+
+````markdown wrap
+File ./data.json:
+```json schema=CITY_SCHEMA
+[
+  {
+    "name": "New York",
+    "population": 8398748,
+    "url": "https://en.wikipedia.org/wiki/New_York_City"
+  },
+  {
+    "name": "Los Angeles",
+    "population": 3990456,
+    "url": "https://en.wikipedia.org/wiki/Los_Angeles"
+  },
+  {
+    "name": "Chicago",
+    "population": 2705994,
+    "url": "https://en.wikipedia.org/wiki/Chicago"
+  }
+]
+```
+````
+
+
+</details>
+
+{/* genaiscript output end */}
+
+
 
 ### Prompt encoding
 
 Following the ["All You Need Is Types" approach](https://microsoft.github.io/TypeChat/docs/introduction/)
 from TypeChat, the schema is converted TypeScript types before being injected in the LLM prompt.
 
-```typescript
+```ts
 // A list of cities with population and elevation information.
 type CITY_SCHEMA = Array<{
     // The name of the city.
@@ -56,7 +121,7 @@ type CITY_SCHEMA = Array<{
 
 You can change this behavior by using the `{ format: "json" }` option.
 
-```javascript
+```js
 const schema = defSchema("CITY_SCHEMA", {...}, { format: "json" })
 ```
 
@@ -102,7 +167,7 @@ in the output folder as well.
 ```
 -   prompt (rendered as typescript):
 
-```typescript
+```ts
 // A list of cities with population and elevation information.
 type CITY_SCHEMA = Array<{
     // The name of the city.

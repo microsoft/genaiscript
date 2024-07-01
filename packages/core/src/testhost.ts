@@ -7,14 +7,16 @@ import {
     ModelService,
     LanguageModelConfiguration,
     ParseService,
-    ReadFileOptions,
     RetrievalService,
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
 } from "./host"
-import { resolve } from "path"
+import { resolve } from "node:path"
 import { TraceOptions } from "./trace"
+import { LanguageModel } from "./chat"
+import { resolveLanguageModel } from "./models"
+import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 
 export class TestHost implements Host {
     userState: any
@@ -24,6 +26,10 @@ export class TestHost implements Host {
     server: ServerManager
     path: Path
     workspace: WorkspaceFileSystem
+    readonly defaultModelOptions = {
+        model: DEFAULT_MODEL,
+        temperature: DEFAULT_TEMPERATURE,
+    }
 
     static install() {
         setHost(new TestHost())
@@ -47,16 +53,24 @@ export class TestHost implements Host {
     readSecret(name: string): Promise<string> {
         throw new Error("Method not implemented.")
     }
-    getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration> {
+    getLanguageModelConfiguration(
+        modelId: string
+    ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
+    }
+    async resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel> {
+        return resolveLanguageModel(options, configuration)
     }
     log(level: LogLevel, msg: string): void {
         throw new Error("Method not implemented.")
     }
-    async readFile(
-        name: string,
-        options?: ReadFileOptions
-    ): Promise<Uint8Array> {
+    async readFile(name: string): Promise<Uint8Array> {
         return new Uint8Array(await readFile(resolve(name)))
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {
@@ -65,16 +79,7 @@ export class TestHost implements Host {
     deleteFile(name: string): Promise<void> {
         throw new Error("Method not implemented.")
     }
-    findFiles(glob: string): Promise<string[]> {
-        throw new Error("Method not implemented.")
-    }
-    clearVirtualFiles(): void {
-        throw new Error("Method not implemented.")
-    }
-    setVirtualFile(name: string, content: string): void {
-        throw new Error("Method not implemented.")
-    }
-    isVirtualFile(name: string): boolean {
+    findFiles(glob: string, options?: {}): Promise<string[]> {
         throw new Error("Method not implemented.")
     }
     createDirectory(name: string): Promise<void> {
@@ -91,7 +96,7 @@ export class TestHost implements Host {
         command: string,
         args: string[],
         options: ShellOptions
-    ): Promise<Partial<ShellOutput>> {
+    ): Promise<ShellOutput> {
         throw new Error("Method not implemented.")
     }
     container(

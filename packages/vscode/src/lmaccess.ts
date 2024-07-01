@@ -109,7 +109,7 @@ export async function pickLanguageModel(
     else {
         await updateConnectionConfiguration(res.provider, res.apiType)
         const doc = await vscode.workspace.openTextDocument(
-            vscode.Uri.joinPath(state.host.projectUri, ".env")
+            state.host.toUri("./.env")
         )
         await vscode.window.showTextDocument(doc)
         return undefined
@@ -195,7 +195,7 @@ export async function configureLanguageModelAccess(
             )
 
             let text = ""
-            for await (const fragment of request.stream) {
+            for await (const fragment of request.text) {
                 text += fragment
                 partialCb?.({
                     responseSoFar: text,

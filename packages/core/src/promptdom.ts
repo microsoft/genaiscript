@@ -7,9 +7,7 @@ import { MarkdownTrace, TraceOptions } from "./trace"
 import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
-import { fenceMD } from "./markdown"
 import { parseModelIdentifier } from "./models"
-import dedent from "ts-dedent"
 import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
@@ -17,6 +15,8 @@ import {
 } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
+import { inspect } from "./logging"
+import { dedent } from "./indent"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -29,6 +29,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "stringTemplate"
         | "assistant"
         | "def"
+        | "chatParticipant"
         | undefined
     children?: PromptNode[]
     error?: unknown
@@ -98,6 +99,12 @@ export interface PromptOutputProcessorNode extends PromptNode {
     fn: PromptOutputProcessorHandler
 }
 
+export interface PromptChatParticipantNode extends PromptNode {
+    type: "chatParticipant"
+    participant: ChatParticipant
+    options?: ChatParticipantOptions
+}
+
 export function createTextNode(
     value: Awaitable<string>,
     options?: ContextExpansionOptions
@@ -129,9 +136,9 @@ function renderDefNode(def: PromptDefNode): string {
         language === "markdown" || language === "mdx"
             ? MARKDOWN_PROMPT_FENCE
             : PROMPT_FENCE
-    const norm = (s: string) => {
+    const norm = (s: string, lang: string) => {
         s = (s || "").replace(/\n*$/, "")
-        if (s && lineNumbers) s = addLineNumbers(s)
+        if (s && lineNumbers) s = addLineNumbers(s, lang)
         if (s) s += "\n"
         return s
     }
@@ -149,7 +156,7 @@ function renderDefNode(def: PromptDefNode): string {
             dfence = ""
         }
     }
-    body = norm(body)
+    body = norm(body, dtype)
     while (dfence && body.includes(dfence)) {
         dfence += "`"
     }
@@ -227,6 +234,12 @@ export function createOutputProcessor(
     return { type: "outputProcessor", fn }
 }
 
+export function createChatParticipant(
+    participant: ChatParticipant
+): PromptChatParticipantNode {
+    return { type: "chatParticipant", participant }
+}
+
 export function createDefDataNode(
     name: string,
     data: object | object[],
@@ -251,8 +264,15 @@ export function createDefDataNode(
         lang = "yaml"
     }
 
-    const value = `${name}:
-    ${lang ? fenceMD(text, lang) : text}`
+    const value = lang
+        ? `${name}:
+\`\`\`${lang}
+${trimNewlines(text)}
+\`\`\`
+`
+        : `${name}:
+${trimNewlines(text)}
+`
     // TODO maxTokens does not work well with data
     return createTextNode(value, { priority })
 }
@@ -277,6 +297,7 @@ export interface PromptNodeVisitor {
     stringTemplate?: (node: PromptStringTemplateNode) => Awaitable<void>
     outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void>
     assistant?: (node: PromptAssistantNode) => Awaitable<void>
+    chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>
 }
 
 export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
@@ -309,6 +330,9 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "assistant":
             await visitor.assistant?.(node as PromptAssistantNode)
             break
+        case "chatParticipant":
+            await visitor.chatParticipant?.(node as PromptChatParticipantNode)
+            break
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && node.children) {
@@ -325,9 +349,10 @@ export interface PromptNodeRender {
     images: PromptImage[]
     errors: unknown[]
     schemas: Record<string, JSONSchema>
-    functions: ChatFunctionCallback[]
+    functions: ToolCallback[]
     fileMerges: FileMergeHandler[]
     outputProcessors: PromptOutputProcessorHandler[]
+    chatParticipants: ChatParticipant[]
     messages: ChatCompletionMessageParam[]
 }
 
@@ -373,7 +398,17 @@ async function resolvePromptNode(
             try {
                 const resolvedArgs: any[] = []
                 for (const arg of args) {
-                    const resolvedArg = await arg
+                    let resolvedArg = await arg
+                    if (typeof resolvedArg === "function")
+                        resolvedArg = resolvedArg()
+                    // render objects
+                    if (
+                        typeof resolvedArg === "object" ||
+                        Array.isArray(resolvedArg)
+                    )
+                        resolvedArg = inspect(resolvedArg, {
+                            maxDepth: 3,
+                        })
                     resolvedArgs.push(resolvedArg ?? "")
                 }
                 const value = dedent(strings, ...resolvedArgs)
@@ -461,14 +496,17 @@ async function tracePromptNode(
     await visitNode(root, {
         node: (n) => {
             const error = errorMessage(n.error)
-            const title = toStringList(
+            let title = toStringList(
                 n.type || `🌳 prompt tree ${options?.label || ""}`,
-                n.priority ? `#${n.priority}` : undefined,
+                n.priority ? `#${n.priority}` : undefined
+            )
+            const value = toStringList(
                 n.tokens
                     ? `${n.tokens}${n.maxTokens ? `/${n.maxTokens}` : ""}t`
                     : undefined,
                 error
             )
+            if (value.length > 0) title += `: ${value}`
             if (n.children?.length)
                 trace.startDetails(title, n.error ? false : undefined)
             else trace.resultItem(!n.error, title)
@@ -498,9 +536,10 @@ export async function renderPromptNode(
     const images: PromptImage[] = []
     const errors: unknown[] = []
     const schemas: Record<string, JSONSchema> = {}
-    const functions: ChatFunctionCallback[] = []
+    const functions: ToolCallback[] = []
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
+    const chatParticipants: ChatParticipant[] = []
 
     await visitNode(node, {
         text: async (n) => {
@@ -589,7 +628,14 @@ ${trimNewlines(schemaText)}
         },
         outputProcessor: (n) => {
             outputProcessors.push(n.fn)
-            trace.itemValue(`output processor`, n.fn)
+            trace.itemValue(`output processor`, n.fn.name)
+        },
+        chatParticipant: (n) => {
+            chatParticipants.push(n.participant)
+            trace.itemValue(
+                `chat participant`,
+                n.participant.options?.label || n.participant.generator.name
+            )
         },
     })
 
@@ -609,6 +655,7 @@ ${trimNewlines(schemaText)}
         functions,
         fileMerges,
         outputProcessors,
+        chatParticipants,
         errors,
         messages,
     }

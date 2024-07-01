@@ -1,5 +1,6 @@
-import { DEFAULT_MODEL, HTTPS_REGEX } from "./constants"
+import { HTTPS_REGEX } from "./constants"
 import { arrayify } from "./util"
+import { host } from "./host"
 
 function cleanUndefined(obj: Record<string, any>) {
     return obj
@@ -34,22 +35,30 @@ export function generatePromptFooConfiguration(
     const res = {
         description: [title, description].filter((s) => s).join("\n"),
         prompts: [id],
-        providers: models.map(({ model, temperature, topP }) => ({
-            id: provider,
-            label: [
-                model || DEFAULT_MODEL,
-                temperature !== undefined ? `t=${temperature}` : undefined,
-                topP !== undefined ? `p=${topP}` : undefined,
-            ]
-                .filter((v) => v !== undefined)
-                .join(":"),
-            config: {
-                model: model || DEFAULT_MODEL,
-                temperature,
+        providers: models
+            .map(({ model, temperature, topP }) => ({
+                model: model ?? host.defaultModelOptions.model,
+                temperature: !isNaN(temperature)
+                    ? temperature
+                    : host.defaultModelOptions.temperature,
                 top_p: topP,
-                cli,
-            },
-        })),
+            }))
+            .map(({ model, temperature, top_p }) => ({
+                id: provider,
+                label: [
+                    model,
+                    `t=${temperature}`,
+                    top_p !== undefined ? `p=${top_p}` : undefined,
+                ]
+                    .filter((v) => v !== undefined)
+                    .join(":"),
+                config: {
+                    model,
+                    temperature,
+                    top_p,
+                    cli,
+                },
+            })),
         defaultTest: testProvider
             ? {
                   options: {

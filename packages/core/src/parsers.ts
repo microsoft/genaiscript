@@ -20,6 +20,7 @@ import { validateJSONWithSchema } from "./schema"
 import { XLSXTryParse } from "./xlsx"
 import { host } from "./host"
 import { unzip } from "./zip"
+import { JSONLTryParse } from "./jsonl"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -29,6 +30,7 @@ export function createParsers(options: {
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
+        JSONL: (text) => JSONLTryParse(filenameOrFileToContent(text)),
         YAML: (text, options) =>
             YAMLTryParse(filenameOrFileToContent(text), options?.defaultValue),
         XML: (text, options) => {
@@ -42,7 +44,7 @@ export function createParsers(options: {
         TOML: (text, options) =>
             TOMLTryParse(filenameOrFileToContent(text), options),
         frontmatter: (text, options) =>
-            frontmatterTryParse(filenameOrFileToContent(text), options),
+            frontmatterTryParse(filenameOrFileToContent(text), options)?.value,
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         XLSX: async (file, options) =>

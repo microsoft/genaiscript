@@ -1,16 +1,21 @@
 ---
 title: Tool Agent
 sidebar:
-    order: 7
-description: Learn how to define a built-in agent using functions for decision-making and reasoning in arithmetic operations.
-keywords: tool agent, arithmetic agent, function declaration, script parameters, system.math
+  order: 7
+description: Learn how to define a built-in agent using functions for
+  decision-making and reasoning in arithmetic operations.
+keywords: tool agent, arithmetic agent, function declaration, script parameters,
+  system.math
+genaiscript:
+  model: openai:gpt-3.5-turbo
+
 ---
 
 import { Code } from "@astrojs/starlight/components"
 import mathAgentSrc from "../../../../../packages/sample/genaisrc/math-agent.genai.js?raw"
 import mathAgentSystemSrc from "../../../../../packages/sample/genaisrc/math-agent-system.genai.js?raw"
 
-Using [functions (tools)](/genaiscript/reference/functions),
+Using [tools (formerly functions)](/genaiscript/reference/scripts/tools),
 you can define a built-in agent that can take decisions
 and reasoning based on the tools provided to it.
 
@@ -27,7 +32,7 @@ is required.
 ```js "defTool"
 defTool(
     "sum",
-    "Use this function to sum two numbers",
+    "Sum two numbers",
     {
         type: "object",
         properties: {
@@ -72,20 +77,122 @@ $`Answer the following arithmetic question:
 `
 ```
 
-Putting it all together, we define another function to divide two numbers
+Putting it all together, we define another tool to divide two numbers
 and inline an arithmetic question.
 
-<Code title="math-agent.genai.js" code={mathAgentSrc} wrap={true} lang="js" />
+```js wrap
+script({
+    title: "math-agent",
+    model: "openai:gpt-35-turbo",
+    description: "A port of https://ts.llamaindex.ai/examples/agent",
+    parameters: {
+        "question": {
+            type: "string",
+            default: "How much is 11 + 4? then divide by 3?"
+        },
+    },
+    tests: {
+        description: "Testing the default prompt",
+        keywords: "5"
+    }
+})
+
+defTool("sum", "Use this function to sum two numbers", {
+    type: "object",
+    properties: {
+        a: {
+            type: "number",
+            description: "The first number",
+        },
+        b: {
+            type: "number",
+            description: "The second number",
+        },
+    },
+    required: ["a", "b"],
+}, ({ a, b }) => `${a + b}`)
+
+defTool("divide", "Use this function to divide two numbers", {
+    type: "object",
+    properties: {
+        a: {
+            type: "number",
+            description: "The first number",
+        },
+        b: {
+            type: "number",
+            description: "The second number",
+        },
+    },
+    required: ["a", "b"],
+}, ({ a, b }) => `${a / b}`)
+
+$`Answer the following arithmetic question: 
+
+    ${env.vars.question}
+`
+```
+
+{/* genaiscript output start */}
+
+<details>
+<summary>👤 user</summary>
+
+
+```markdown wrap
+Answer the following arithmetic question: 
+
+How much is 11 + 4? then divide by 3?
+```
+
+
+</details>
+
+
+<details open>
+<summary>🤖 assistant </summary>
+
+-  📠 tool call `divide({"a":15,"b":3})` (`call_9p0oWdWpT6vGyxzwq2vJXHrq`)
+
+</details>
+
+
+<details>
+<summary>🛠️ tool <code>call_9p0oWdWpT6vGyxzwq2vJXHrq</code></summary>
+
+
+```json wrap
+5
+```
+
+
+</details>
+
+
+<details open>
+<summary>🤖 assistant </summary>
+
+
+```markdown wrap
+The result of (11 + 4) divided by 3 is 5.
+```
+
+
+</details>
+
+{/* genaiscript output end */}
+
+
 
 ## Using `system.math`
 
 The system prompt [system.math](/genaiscript/reference/scripts/system#systemmath)
-wraps the `parsers.math` expression parser and evaluator and exposes it as a function.
+wraps the `parsers.math` expression parser and evaluator and exposes it as a tool.
 
-This simplifies the agent script as we do not have to define functions anymore.
+This simplifies the agent script as we do not have to define tools anymore.
 
 <Code
-    title="math-agent.genai.js"
+    title="math-agent.genai.mjs"
     code={mathAgentSystemSrc}
     wrap={true}
     lang="js"

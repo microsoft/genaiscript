@@ -1,12 +1,10 @@
-import { host } from "./host"
-
 const GITHUB_ANNOTATIONS_RX =
-    /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*::(?<message>.*)$/gim
+    /^::(?<severity>notice|warning|error)\s*file=(?<file>[^,]+),\s*line=(?<line>\d+),\s*endLine=(?<endLine>\d+)\s*(,\s*code=(?<code>[^,:]+)?\s*)?::(?<message>.*)$/gim
 // ##vso[task.logissue type=warning;sourcepath=consoleap
 // https://learn.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash#example-log-a-warning-about-a-specific-place-in-a-file
 // ##vso[task.logissue type=warning;sourcepath=consoleapp/main.cs;linenumber=1;columnnumber=1;code=100;]Found something that could be a problem.
 const AZURE_DEVOPS_ANNOTATIONS_RX =
-    /^##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)[^\]]*\](?<message>.*)$/gim
+    /^##vso\[task.logissue\s+type=(?<severity>error|warning);sourcepath=(?<file>);linenumber=(?<line>\d+)(;code=(?<code>\d+);)?[^\]]*\](?<message>.*)$/gim
 
 /**
  * Matches ::(notice|warning|error) file=<filename>,line=<start line>::<message>
@@ -19,47 +17,44 @@ export function parseAnnotations(text: string): Diagnostic[] {
         ["warning"]: "warning",
         ["error"]: "error",
     }
-    const annotations: Diagnostic[] = []
-    const projectFolder = host.projectFolder()
-    text?.replace(
+    const annotations: Record<string, Diagnostic> = {}
+    text.replace(
         GITHUB_ANNOTATIONS_RX,
-        (_, severity, file, line, endLine, message) => {
-            const filename = /^[^\/]/.test(file)
-                ? host.resolvePath(projectFolder, file)
-                : file
+        (_, severity, file, line, endLine, __, code, message) => {
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
-                filename,
+                filename: file,
                 range: [
                     [parseInt(line) - 1, 0],
                     [parseInt(endLine) - 1, Number.MAX_VALUE],
                 ],
                 message,
+                code,
             }
-            annotations.push(annotation)
+            const key = JSON.stringify(annotation)
+            annotations[key] = annotation
             return ""
         }
     )
     text?.replace(
         AZURE_DEVOPS_ANNOTATIONS_RX,
-        (_, severity, file, line, message) => {
-            const filename = /^[^\/]/.test(file)
-                ? host.resolvePath(projectFolder, file)
-                : file
+        (_, severity, file, line, __, code, message) => {
             const annotation: Diagnostic = {
                 severity: sevMap[severity] || severity,
-                filename,
+                filename: file,
                 range: [
                     [parseInt(line) - 1, 0],
                     [parseInt(line) - 1, Number.MAX_VALUE],
                 ],
                 message,
+                code,
             }
-            annotations.push(annotation)
+            const key = JSON.stringify(annotation)
+            annotations[key] = annotation
             return ""
         }
     )
-    return annotations
+    return Object.values(annotations)
 }
 
 export function convertDiagnosticToGitHubActionCommand(d: Diagnostic) {
@@ -87,17 +82,17 @@ export function convertAnnotationsToMarkdown(text: string): string {
     return text
         ?.replace(
             GITHUB_ANNOTATIONS_RX,
-            (_, severity, file, line, endLine, message) => `> [!${
+            (_, severity, file, line, endLine, __, code, message) => `> [!${
                 severities[severity] || severity
             }]
-> ${message} (${file}#L${line})
+> ${message} (${file}#L${line} ${code || ""})
 `
         )
         ?.replace(
             AZURE_DEVOPS_ANNOTATIONS_RX,
-            (_, severity, file, line, message) => {
+            (_, severity, file, line, __, code, message) => {
                 return `> [!${severities[severity] || severity}] ${message}
-> ${message} (${file}#L${line})
+> ${message} (${file}#L${line} ${code || ""})
 `
             }
         )

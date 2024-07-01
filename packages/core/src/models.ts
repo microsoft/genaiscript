@@ -1,9 +1,8 @@
+import assert from "assert"
 import { AICIModel } from "./aici"
 import { LanguageModel } from "./chat"
 import {
-    DEFAULT_MODEL,
     MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
@@ -12,28 +11,32 @@ import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
 import { OllamaModel } from "./ollama"
 import { OpenAIModel } from "./openai"
-import { TraceOptions } from "./trace"
+import { AbortSignalOptions, TraceOptions } from "./trace"
 
-export function resolveLanguageModel(options: {
-    model?: string
-    languageModel?: LanguageModel
-}): LanguageModel {
-    if (options.languageModel) return options.languageModel
-    const { provider } = parseModelIdentifier(options.model)
+export function resolveLanguageModel(
+    options: {
+        model?: string
+        languageModel?: LanguageModel
+    },
+    configuration: LanguageModelConfiguration
+): LanguageModel {
+    const { model, languageModel } = options || {}
+    if (languageModel) return languageModel
+
+    const { provider } = parseModelIdentifier(model)
     if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
     if (provider === MODEL_PROVIDER_AICI) return AICIModel
-    if (provider === MODEL_PROVIDER_AZURE) return OpenAIModel
-    //MODEL_PROVIDER_LITELLM
     return OpenAIModel
 }
 
 /**
  * model
  * provider:model
- * provider:model:size where modelId model:size
+ * provider:model:tag where modelId model:tag
  */
 export function parseModelIdentifier(id: string) {
-    id = (id ?? DEFAULT_MODEL).replace("-35-", "-3.5-")
+    assert(!!id)
+    id = id.replace("-35-", "-3.5-")
     const parts = id.split(":")
     if (parts.length >= 3)
         return {
@@ -58,18 +61,26 @@ export interface ModelConnectionInfo
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { model?: string; token?: boolean } & TraceOptions
-): Promise<{ info: ModelConnectionInfo; token?: LanguageModelConfiguration }> {
-    const { trace } = options || {}
-    const model = options.model ?? conn.model ?? DEFAULT_MODEL
+    options?: { model?: string; token?: boolean } & TraceOptions &
+        AbortSignalOptions
+): Promise<{
+    info: ModelConnectionInfo
+    configuration?: LanguageModelConfiguration
+}> {
+    const { trace, token: askToken, signal } = options || {}
+    const model = options.model ?? conn.model ?? host.defaultModelOptions.model
     try {
         trace?.startDetails(`⚙️ configuration`)
         trace?.itemValue(`model`, model)
-        const secret = await host.getLanguageModelConfiguration(model)
-        if (!secret) {
+        const configuration = await host.getLanguageModelConfiguration(model, {
+            token: askToken,
+            signal,
+            trace,
+        })
+        if (!configuration) {
             return { info: { ...conn, model } }
         } else {
-            const { token: theToken, ...rest } = secret
+            const { token: theToken, ...rest } = configuration
             trace?.itemValue(`base`, rest.base)
             trace?.itemValue(`type`, rest.type)
             trace?.itemValue(`version`, rest.version)
@@ -81,7 +92,7 @@ export async function resolveModelConnectionInfo(
                     model,
                     token: theToken ? (options?.token ? theToken : "***") : "",
                 },
-                token: secret,
+                configuration,
             }
         }
     } catch (e) {

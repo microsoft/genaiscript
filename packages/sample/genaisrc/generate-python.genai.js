@@ -2,7 +2,7 @@ script({
     title: "Generate python code",
     description: "Given a task, generate python code.",
     group: "hello world",
-    system: ["system", "system.files", "system.changelog"]
+    system: ["system", "system.files", "system.changelog"],
 })
 
 def(
@@ -11,7 +11,7 @@ def(
         (f) => f.filename.endsWith(".py") && !f.filename.startsWith("test_")
     )
 )
-def("TASK", env.spec)
+def("TASK", env.files, { endsWith: ".md" })
 
 $`Generate python code for the task in TASK. Save code in CODE.`
 $`If the CODE is already present, ensure that CODE matches the

@@ -1,4 +1,5 @@
-import { GENAISCRIPT_FOLDER } from "./constants"
+import path from "path"
+import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
 import { serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
@@ -40,6 +41,14 @@ export function toStringList(...token: string[]) {
     return md
 }
 
+export function parseBoolean(s: string) {
+    return /^\s*(y|yes|true|ok)\s*$/i.test(s)
+        ? true
+        : /^\s*(n|no|false|ok)\s*$/i.test(s)
+          ? false
+          : undefined
+}
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",
@@ -47,48 +56,11 @@ export function assert(
     debugData?: any
 ) {
     if (!cond) {
-        if (debugData) console.error(`assertion failed ${msg}`, debugData)
+        if (debugData) console.error(msg || `assertion failed`, debugData)
         // eslint-disable-next-line no-debugger
         debugger
         throw new Error(msg)
     }
-}
-
-export function throttle(handler: () => void, delay: number): () => void {
-    let enableCall = true
-    return function () {
-        if (!enableCall) return
-        enableCall = false
-        handler()
-        setTimeout(() => (enableCall = true), delay)
-    }
-}
-
-export function arrayShuffle<T>(a: T[]): T[] {
-    for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[a[i], a[j]] = [a[j], a[i]]
-    }
-    return a
-}
-
-export function range(end: number): number[] {
-    return Array(end)
-        .fill(0)
-        .map((_, i) => i)
-}
-
-export function toggleBit(data: Uint8Array, bitindex: number) {
-    data[bitindex >> 3] ^= 1 << (bitindex & 7)
-}
-
-export function getBit(data: Uint8Array, bitindex: number) {
-    return !!(data[bitindex >> 3] & (1 << (bitindex & 7)))
-}
-
-export function setBit(data: Uint8Array, bitindex: number, on: boolean) {
-    if (on) data[bitindex >> 3] |= 1 << (bitindex & 7)
-    else data[bitindex >> 3] &= ~(1 << (bitindex & 7))
 }
 
 export function concatBuffers(...chunks: Uint8Array[]) {
@@ -183,12 +155,14 @@ export function dotGenaiscriptPath(...segments: string[]) {
     )
 }
 
-export function relativePath(root: string, path: string) {
-    if (path.startsWith(root)) {
-        path = path.slice(root.length)
-        return path.replace(/^[\/\\]+/, "")
+export function relativePath(root: string, fn: string) {
+    // ignore empty path or urls
+    if (!fn || HTTPS_REGEX.test(fn)) return fn
+    const afn = host.path.resolve(fn)
+    if (afn.startsWith(root)) {
+        return afn.slice(root.length).replace(/^[\/\\]+/, "")
     }
-    return path
+    return fn
 }
 
 export function logInfo(msg: string) {
@@ -205,8 +179,9 @@ export function logWarn(msg: string) {
 
 export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
-    if (message) host.log(LogLevel.Error, message )
-    host.log(LogLevel.Info, YAMLStringify(e))
+    if (message) host.log(LogLevel.Error, message)
+    const se = YAMLStringify(e)
+    if (se !== "{}") host.log(LogLevel.Info, se)
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {

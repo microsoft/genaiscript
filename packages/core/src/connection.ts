@@ -1,5 +1,6 @@
 import {
     AZURE_OPENAI_API_VERSION,
+    DEFAULT_TEMPERATURE,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
     DOCS_CONFIGURATION_LITELLM_URL,
@@ -19,16 +20,26 @@ import {
     OLLAMA_API_BASE,
     OPENAI_API_BASE,
 } from "./constants"
-import { fileExists, readText, writeText } from "./fs"
-import { APIType, LanguageModelConfiguration } from "./host"
+import { fileExists, readText, tryReadText, writeText } from "./fs"
+import { APIType, host, LanguageModelConfiguration } from "./host"
+import { dedent } from "./indent"
 import { parseModelIdentifier } from "./models"
-import { trimTrailingSlash } from "./util"
+import { normalizeFloat, trimTrailingSlash } from "./util"
+
+export async function parseDefaultsFromEnv(env: Record<string, string>) {
+    if (env.GENAISCRIPT_DEFAULT_MODEL)
+        host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
+    const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
+    if (!isNaN(t)) host.defaultModelOptions.temperature = t
+}
 
 export async function parseTokenFromEnv(
     env: Record<string, string>,
     modelId: string
 ): Promise<LanguageModelConfiguration> {
-    const { provider, model, tag } = parseModelIdentifier(modelId)
+    const { provider, model, tag } = parseModelIdentifier(
+        modelId ?? host.defaultModelOptions.model
+    )
 
     if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {
@@ -77,46 +88,30 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (
-        provider === MODEL_PROVIDER_OPENAI ||
-        provider === MODEL_PROVIDER_AZURE
-    ) {
-        if (
-            env.AZURE_OPENAI_API_KEY ||
-            env.AZURE_API_KEY ||
-            env.AZURE_OPENAI_ENDPOINT
-        ) {
-            const token =
-                env.AZURE_OPENAI_API_KEY ||
-                env.AZURE_API_KEY ||
-                env.OPENAI_API_KEY
-            const tokenVar = env.AZURE_OPENAI_API_KEY
-                ? "AZURE_OPENAI_API_KEY"
-                : env.AZURE_API_KEY
-                  ? "AZURE_API_KEY"
-                  : "OPENAI_API_KEY"
-            let base = trimTrailingSlash(
-                env.AZURE_OPENAI_ENDPOINT ||
-                    env.AZURE_OPENAI_API_BASE ||
-                    env.AZURE_API_BASE ||
-                    env.AZURE_OPENAI_API_ENDPOINT
-            )
-            const version =
-                env.AZURE_OPENAI_API_VERSION ||
-                env.AZURE_API_VERSION ||
-                env.OPENAI_API_VERSION
+    if (provider === MODEL_PROVIDER_AZURE) {
+        const tokenVar = env.AZURE_OPENAI_API_KEY
+            ? "AZURE_OPENAI_API_KEY"
+            : env.AZURE_API_KEY
+        const token = env[tokenVar]
+        let base = trimTrailingSlash(
+            env.AZURE_OPENAI_ENDPOINT ||
+                env.AZURE_OPENAI_API_BASE ||
+                env.AZURE_API_BASE ||
+                env.AZURE_OPENAI_API_ENDPOINT
+        )
+        if (token || base) {
             if (!base)
                 throw new Error(
                     "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
                 )
             if (!URL.canParse(base))
-                throw new Error("OPENAI_API_BASE must be a valid URL")
-
+                throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
+            const version =
+                env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
             if (version && version !== AZURE_OPENAI_API_VERSION)
                 throw new Error(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
-            if (!token) throw new Error("AZURE_OPENAI_API_KEY missing")
             if (!base.endsWith("/openai/deployments"))
                 base += "/openai/deployments"
             return {
@@ -124,11 +119,13 @@ export async function parseTokenFromEnv(
                 base,
                 token,
                 type: "azure",
-                source: "env: AZURE_...",
+                source: token ? "env: AZURE_..." : "env: AZURE_... + Entra ID",
                 version,
-                curlHeaders: {
-                    "api-key": `$${tokenVar}`,
-                },
+                curlHeaders: tokenVar
+                    ? {
+                          "api-key": `$${tokenVar}`,
+                      }
+                    : undefined,
             }
         }
     }
@@ -201,51 +198,83 @@ export async function parseTokenFromEnv(
     return undefined
 }
 
-export function dotEnvTemplate(provider: string, apiType: APIType) {
+function dotEnvTemplate(
+    provider: string,
+    apiType: APIType
+): { config: string; model: string } {
     if (provider === MODEL_PROVIDER_OLLAMA)
-        return `
+        return {
+            config: `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
+# use "${MODEL_PROVIDER_OLLAMA}:<model>" or "${MODEL_PROVIDER_OLLAMA}:<model>:<tag>" in script({ model: ... })
 # OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
-`
+`,
+            model: `${MODEL_PROVIDER_OLLAMA}:phi3`,
+        }
 
     if (provider === MODEL_PROVIDER_LLAMAFILE)
-        return `
+        return {
+            config: `
 ## llamafile ${DOCS_CONFIGURATION_LLAMAFILE_URL}
+# use "${MODEL_PROVIDER_LLAMAFILE}" in script({ model: ... })
 # There is no configuration for llamafile
-`
+`,
+            model: MODEL_PROVIDER_LLAMAFILE,
+        }
 
     if (provider === MODEL_PROVIDER_LITELLM)
-        return `
+        return {
+            config: `
 ## LiteLLM ${DOCS_CONFIGURATION_LITELLM_URL}
+# use "${MODEL_PROVIDER_LITELLM}" in script({ model: ... })
 # LITELLM_API_BASE="<custom api base>" # uses ${LITELLM_API_BASE} by default
-`
+`,
+            model: MODEL_PROVIDER_LITELLM,
+        }
 
     if (provider === MODEL_PROVIDER_AICI)
-        return `
+        return {
+            config: `
 ## AICI ${DOCS_CONFIGURATION_AICI_URL}
+# use "${MODEL_PROVIDER_AICI}:<model>" in script({ model: ... })
 AICI_API_BASE="<custom api base>"
-`
+`,
+            model: `${MODEL_PROVIDER_AICI}:mixtral`,
+        }
 
     if (apiType === "azure" || provider === MODEL_PROVIDER_AZURE)
-        return `
+        return {
+            config: `
 ## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
+# use "${MODEL_PROVIDER_AZURE}:<deployment>" in script({ model: ... })
 AZURE_OPENAI_ENDPOINT="<your api endpoint>"
-AZURE_OPENAI_API_KEY="<your token>"
-`
+# Uses managed identity by default, or set:
+# AZURE_OPENAI_API_KEY="<your token>"
+`,
+            model: `${MODEL_PROVIDER_AZURE}:deployment`,
+        }
 
     if (apiType === "localai")
-        return `
+        return {
+            config: `
 ## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
+# use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
 OPENAI_API_TYPE="localai"
 # OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
 # OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
-`
+`,
+            model: `${MODEL_PROVIDER_OPENAI}:gpt-3.5-turbo`,
+        }
 
-    return `
+    return {
+        config: `
 ## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
+# use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
 OPENAI_API_KEY="<your token>"
 # OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
-`
+`,
+        model: `${MODEL_PROVIDER_OPENAI}:gpt-4o`,
+    }
 }
 
 export async function updateConnectionConfiguration(
@@ -262,7 +291,20 @@ export async function updateConnectionConfiguration(
     }
 
     // update .env
-    let src = dotEnvTemplate(provider, apiType)
-    if (await fileExists(".env")) src = (await readText(".env")) + "\n" + src
+    const { config, model } = dotEnvTemplate(provider, apiType)
+    let src = config
+    const current = await tryReadText(".env")
+    if (current) {
+        if (!current.includes("GENAISCRIPT_DEFAULT_MODEL"))
+            src =
+                dedent`
+
+                    ### GenAISCript defaults
+                    GENAISCRIPT_DEFAULT_MODEL="${model}"
+                    # GENAISCRIPT_DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE}
+                    
+                    ` + src
+        src = current + "\n" + src
+    }
     await writeText(".env", src)
 }

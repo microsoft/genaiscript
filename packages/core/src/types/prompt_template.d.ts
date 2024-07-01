@@ -1,4 +1,4 @@
-interface PromptConsole {
+interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
     debug(...data: any[]): void
@@ -12,6 +12,10 @@ interface Diagnostic {
     range: CharRange
     severity: DiagnosticSeverity
     message: string
+    /**
+     * error or warning code
+     */
+    code?: string
 }
 
 type Awaitable<T> = T | PromiseLike<T>
@@ -106,13 +110,12 @@ interface ModelConnectionOptions {
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
      */
     model?:
-        | "gpt-4"
-        | "gpt-4-32k"
-        | "gpt-3.5-turbo"
+        | "openai:gpt-4"
+        | "openai:gpt-4-32k"
+        | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
-        | "aici:mixtral"
         | string
 }
 
@@ -124,6 +127,17 @@ interface ModelOptions extends ModelConnectionOptions {
      * @default 0.2
      */
     temperature?: number
+
+    /**
+     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
+     * specify an output schema.
+     */
+    responseType?: PromptTemplateResponseType
+
+    /**
+     * JSON object schema for the output. Enables the `JSON` output mode.
+     */
+    responseSchema?: JSONSchemaObject
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
@@ -144,6 +158,11 @@ interface ModelOptions extends ModelConnectionOptions {
     maxToolCalls?: number
 
     /**
+     * Maximum number of data repairs to attempt.
+     */
+    maxDataRepairs?: number
+
+    /**
      * A deterministic integer seed to use for the model.
      */
     seed?: number
@@ -161,20 +180,15 @@ interface ModelOptions extends ModelConnectionOptions {
 }
 
 interface ScriptRuntimeOptions {
+    /**
+     * List of system script ids used by the prompt.
+     */
     system?: SystemPromptId[]
 
+    /**
+     * List of tools used by the prompt.
+     */
     tools?: SystemToolId[]
-
-    /**
-     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
-     * specify an output schema.
-     */
-    responseType?: PromptTemplateResponseType
-
-    /**
-     * JSON object schema for the output. Enables the `JSON` output mode.
-     */
-    responseSchema?: JSONSchemaObject
 
     /**
      * Secrets required by the prompt
@@ -276,7 +290,7 @@ interface PromptTest {
      */
     keywords?: string | string[]
     /**
-     * List of keywords that should not be contained in the LLM output. 
+     * List of keywords that should not be contained in the LLM output.
      */
     forbidden?: string | string[]
     /**
@@ -297,7 +311,7 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
     parameters?: PromptParametersSchema
 
     /**
-     * A file path or list of file paths or globs. 
+     * A file path or list of file paths or globs.
      * The content of these files will be by the files selected in the UI by the user or the cli arguments.
      */
     files?: string | string[]
@@ -345,7 +359,7 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface ChatFunctionDefinition {
+interface ToolDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -370,7 +384,7 @@ interface ChatFunctionDefinition {
     parameters?: JSONSchema
 }
 
-interface ChatFunctionCallTrace {
+interface ToolCallTrace {
     log(message: string): void
     item(message: string): void
     tip(message: string): void
@@ -424,25 +438,25 @@ interface CreateFileEdit extends FileEdit {
 
 type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
 
-interface ChatFunctionCallContent {
+interface ToolCallContent {
     type?: "content"
     content: string
     edits?: Edits[]
 }
 
-type ChatFunctionCallOutput = string | ChatFunctionCallContent
+type ToolCallOutput = string | ToolCallContent | ShellOutput
 
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
-     * If the file is text, also return the content.
+     * Ignore `.env` files and apply `.gitignore` if present.
      * @param glob
      */
     findFiles(
         glob: string,
         options?: {
             /**
-             * Set to false to read text content by default
+             * Set to false to skip read text content. True by default
              */
             readText?: boolean
         }
@@ -461,15 +475,29 @@ interface WorkspaceFileSystem {
     writeText(path: string, content: string): Promise<void>
 }
 
-interface ChatFunctionCallContext {
-    trace: ChatFunctionCallTrace
+interface ToolCallContext {
+    trace: ToolCallTrace
 }
 
-interface ChatFunctionCallback {
-    definition: ChatFunctionDefinition
+interface ToolCallback {
+    definition: ToolDefinition
     fn: (
-        args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+        args: { context: ToolCallContext } & Record<string, any>
+    ) => ToolCallOutput | Promise<ToolCallOutput>
+}
+
+type ChatParticipantHandler = (
+    context: ChatTurnGenerationContext,
+    messages: ChatCompletionMessageParam[]
+) => Awaitable<void>
+
+interface ChatParticipantOptions {
+    label?: string
+}
+
+interface ChatParticipant {
+    generator: ChatParticipantHandler
+    options: ChatParticipantOptions
 }
 
 /**
@@ -477,9 +505,9 @@ interface ChatFunctionCallback {
  */
 interface ExpansionVariables {
     /**
-     * Description of the context as markdown; typically the content of a .gpspec.md file.
+     * Directory where the prompt is executed
      */
-    spec: WorkspaceFile
+    dir: string
 
     /**
      * List of linked files parsed in context
@@ -497,9 +525,14 @@ interface ExpansionVariables {
     vars: PromptParameters
 
     /**
-     * List of secrets used by the prompt, must be registred in `genaiscript`.
+     * List of secrets used by the prompt, must be registered in `genaiscript`.
      */
     secrets?: Record<string, string>
+
+    /**
+     * Root prompt generation context
+     */
+    generator: ChatGenerationContext
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
@@ -714,6 +747,12 @@ interface Path {
      * @param pathSegments
      */
     resolve(...pathSegments: string[]): string
+
+    /**
+     * Determines whether the path is an absolute path.
+     * @param path
+     */
+    isAbsolute(path: string): boolean
 }
 
 interface Fenced {
@@ -772,6 +811,13 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
+
+    /**
+     * Parses text or file as a JSONL payload. Empty lines are ignore, and JSON5 is used for parsing.
+     * @param content
+     */
+    JSONL(content: string | WorkspaceFile): any[] | undefined
+
     /**
      * Parses text as a YAML paylaod
      */
@@ -990,6 +1036,19 @@ interface XML {
     parse(text: string): any
 }
 
+interface JSONL {
+    /**
+     * Parses a JSONL string to an array of objects
+     * @param text
+     */
+    parse(text: string): any[]
+    /**
+     * Converts objects to JSONL format
+     * @param objs
+     */
+    stringify(objs: any[]): string
+}
+
 interface INI {
     /**
      * Parses a .ini file
@@ -1023,7 +1082,7 @@ interface CSV {
      * @param csv
      * @param options
      */
-    mardownify(csv: object[], options?: { headers?: string[] }): string
+    markdownify(csv: object[], options?: { headers?: string[] }): string
 }
 
 interface HighlightOptions {
@@ -1176,12 +1235,15 @@ interface DefDataOptions
 }
 
 interface DefSchemaOptions {
+    /**
+     * Output format in the prompt.
+     */
     format?: "typescript" | "json" | "yaml"
 }
 
 type ChatFunctionHandler = (
-    args: { context: ChatFunctionCallContext } & Record<string, any>
-) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+    args: { context: ToolCallContext } & Record<string, any>
+) => ToolCallOutput | Promise<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -1190,17 +1252,16 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
 
-interface RunPromptOptions extends ModelOptions {
+interface PromptGeneratorOptions extends ModelOptions {
     /**
      * Label for trace
      */
     label?: string
 }
 
-// keep in sync with prompt_type.d.ts
-interface RunPromptContext {
+interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
@@ -1210,22 +1271,26 @@ interface RunPromptContext {
         data: object[] | object,
         options?: DefDataOptions
     ): string
+    console: PromptGenerationConsole
+}
+
+interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    runPrompt(
-        generator: string | RunPromptGenerator,
-        options?: RunPromptOptions
-    ): Promise<RunPromptResult>
+    defImages(files: StringLike, options?: DefImagesOptions): void
     defTool(
         name: string,
         description: string,
         parameters: PromptParametersSchema | JSONSchema,
         fn: ChatFunctionHandler
     ): void
-    console: PromptConsole
+    defChatParticipant(
+        participant: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ): void
 }
 
 interface GenerationOutput {
@@ -1405,7 +1470,7 @@ interface ShellHost {
         command: string,
         args: string[],
         options?: ShellOptions
-    ): Promise<Partial<ShellOutput>>
+    ): Promise<ShellOutput>
 }
 
 interface ContainerOptions {
@@ -1464,7 +1529,7 @@ interface ContainerHost extends ShellHost {
     containerPath: string
 
     /**
-     * Writes a file as text to the file system
+     * Writes a file as text to the container file system
      * @param path
      * @param content
      */
@@ -1475,14 +1540,24 @@ interface ContainerHost extends ShellHost {
      * @param path
      */
     readText(path: string): Promise<string>
+
+    /**
+     * Copies a set of files into the container
+     * @param fromHost glob matching files
+     * @param toContainer directory in the container
+     */
+    copyTo(fromHost: string | string[], toContainer: string): Promise<void>
 }
 
-interface PromptContext extends RunPromptContext {
+interface PromptContext extends ChatGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    defImages(files: StringLike, options?: DefImagesOptions): void
     defFileMerge(fn: FileMergeHandler): void
     defOutputProcessor(fn: PromptOutputProcessorHandler): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
@@ -1501,6 +1576,7 @@ interface PromptContext extends RunPromptContext {
     workspace: WorkspaceFileSystem
     YAML: YAML
     XML: XML
+    JSONL: JSONL
     CSV: CSV
     INI: INI
     AICI: AICI

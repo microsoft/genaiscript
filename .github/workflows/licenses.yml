@@ -1,0 +1,34 @@
+name: refresh 3rd party licenses
+
+on:
+    workflow_dispatch:
+    push:
+        branches: [main]
+        paths:
+            - "yarn.lock"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+          actions: read
+          contents: write
+          pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 0
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - run: yarn gen:licenses
+            - uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                  file_pattern: "THIRD_PARTY_LICENSES.md"
+                  commit_message: "3rd party license update"
+                  commit_user_name: "genaiscript"

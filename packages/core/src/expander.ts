@@ -1,12 +1,10 @@
-import { Fragment, Project, PromptScript } from "./ast"
-import { assert, normalizeFloat, normalizeInt } from "./util"
+import { Project, PromptScript } from "./ast"
+import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
-import { estimateTokens } from "./tokens"
 import {
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
     MAX_TOOL_CALLS,
+    MJS_REGEX,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -23,10 +21,7 @@ import {
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
-
-const defaultTopP: number = undefined
-const defaultSeed: number = undefined
-const defaultMaxTokens: number = undefined
+import { host } from "./host"
 
 export interface GenerationResult extends GenerationOutput {
     /**
@@ -53,11 +48,6 @@ export interface GenerationResult extends GenerationOutput {
      * ChangeLog sections
      */
     changelogs: string[]
-
-    /**
-     * MD-formatted trace.
-     */
-    trace: string
 
     /**
      * Error message if any
@@ -88,6 +78,7 @@ export interface GenerationResult extends GenerationOutput {
 export interface GenerationStats {
     toolCalls: number
     repairs: number
+    turns: number
 }
 
 export type GenerationStatus = "success" | "error" | "cancelled" | undefined
@@ -98,7 +89,8 @@ async function callExpander(
     trace: MarkdownTrace,
     options: GenerationOptions
 ) {
-    const { provider, model } = parseModelIdentifier(r.model)
+    assert(!!options.model)
+    const { provider, model } = parseModelIdentifier(r.model ?? options.model)
     const ctx = createPromptContext(vars, trace, options, model)
 
     let status: GenerationStatus = undefined
@@ -108,9 +100,10 @@ async function callExpander(
     let assistantText = ""
     let images: PromptImage[] = []
     let schemas: Record<string, JSONSchema> = {}
-    let functions: ChatFunctionCallback[] = []
+    let functions: ToolCallback[] = []
     let fileMerges: FileMergeHandler[] = []
     let outputProcessors: PromptOutputProcessorHandler[] = []
+    let chatParticipants: ChatParticipant[] = []
     let aici: AICIRequest
 
     const logCb = (msg: any) => {
@@ -118,11 +111,9 @@ async function callExpander(
     }
 
     try {
-        if (/^export\s+default\s+/m.test(r.jsSource)) {
-            if (!/\.mjs$/i.test(r.filename))
-                throw new Error("export default requires .mjs file")
-            await importPrompt(ctx, r, { logCb })
-        } else {
+        if (MJS_REGEX.test(r.filename))
+            await importPrompt(ctx, r, { logCb, trace })
+        else {
             await evalPrompt(ctx, r, {
                 sourceMaps: true,
                 logCb,
@@ -139,6 +130,7 @@ async function callExpander(
                 functions: fns,
                 fileMerges: fms,
                 outputProcessors: ops,
+                chatParticipants: cps,
             } = await renderPromptNode(model, node, { trace })
             text = prompt
             assistantText = assistantPrompt
@@ -147,6 +139,7 @@ async function callExpander(
             functions = fns
             fileMerges = fms
             outputProcessors = ops
+            chatParticipants = cps
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
                 status = "error"
@@ -182,6 +175,7 @@ async function callExpander(
         functions,
         fileMerges,
         outputProcessors,
+        chatParticipants,
         aici,
     }
 }
@@ -214,20 +208,16 @@ function traceEnv(
 }
 
 function resolveTool(prj: Project, tool: string) {
+    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}('|"|\`)`)
     const system = prj.templates.find(
-        (t) => t.isSystem && t.jsSource.includes(`defTool("${tool}"`)
+        (t) => t.isSystem && toolsRx.test(t.jsSource)
     )
     return system.id
 }
 
 export function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
-    const systems = Array.from(
-        new Set([
-            ...(template.system ?? []),
-            ...(template.tools ?? []).map((tool) => resolveTool(prj, tool)),
-        ])
-    ).filter((s) => s)
+    const systems = Array.from(template.system ?? []).slice(0)
 
     if (template.system === undefined) {
         const useSchema = /defschema/i.test(jsSource)
@@ -245,19 +235,22 @@ export function resolveSystems(prj: Project, template: PromptScript) {
         if (useSchema) systems.push("system.schema")
         if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
     }
-    return systems
+
+    if (template.tools?.length)
+        template.tools.forEach((tool) => systems.push(resolveTool(prj, tool)))
+
+    return unique(systems.filter((s) => !!s))
 }
 
 export async function expandTemplate(
     prj: Project,
     template: PromptScript,
-    fragment: Fragment,
     options: GenerationOptions,
     env: ExpansionVariables,
     trace: MarkdownTrace
 ) {
     const model = options.model
-    assert(model !== undefined)
+    assert(!!model)
     const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
@@ -270,27 +263,21 @@ export async function expandTemplate(
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
-        DEFAULT_TEMPERATURE
+        host.defaultModelOptions.temperature
     const topP =
-        options.topP ??
-        normalizeFloat(env.vars["top_p"]) ??
-        template.topP ??
-        defaultTopP
+        options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const max_tokens =
         options.maxTokens ??
         normalizeInt(env.vars["maxTokens"]) ??
-        template.maxTokens ??
-        defaultMaxTokens
+        normalizeInt(env.vars["max_tokens"]) ??
+        template.maxTokens
     const maxToolCalls =
         options.maxToolCalls ??
         normalizeInt(env.vars["maxToolCalls"]) ??
+        normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
         MAX_TOOL_CALLS
-    let seed =
-        options.seed ??
-        normalizeInt(env.vars["seed"]) ??
-        template.seed ??
-        defaultSeed
+    let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
 
     trace.startDetails("💾 script")
@@ -313,12 +300,10 @@ export async function expandTemplate(
     const functions = prompt.functions
     const fileMerges = prompt.fileMerges
     const outputProcessors = prompt.outputProcessors
+    const chatParticipants = prompt.chatParticipants
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
-    if (prompt.text) {
-        trace.itemValue(`tokens`, estimateTokens(model, expanded))
-        trace.fence(prompt.text, "markdown")
-    }
+    if (prompt.text) trace.detailsFenced(`📝 prompt`, prompt.text, "markdown")
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
@@ -343,12 +328,12 @@ export async function expandTemplate(
             return { status: "cancelled", statusText: "user cancelled" }
 
         let systemTemplate = systems[i]
-        let system = fragment.file.project.getTemplate(systemTemplate)
+        let system = prj.getTemplate(systemTemplate)
         if (!system) {
             if (systemTemplate) trace.error(`\`${systemTemplate}\` not found\n`)
             if (i > 0) continue
             systemTemplate = "system"
-            system = fragment.file.project.getTemplate(systemTemplate)
+            system = prj.getTemplate(systemTemplate)
             assert(!!system)
         }
 
@@ -361,12 +346,10 @@ export async function expandTemplate(
         if (sysr.functions) functions.push(...sysr.functions)
         if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
         if (sysr.outputProcessors) outputProcessors.push(...outputProcessors)
+        if (sysr.chatParticipants) chatParticipants.push(...chatParticipants)
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (sysr.text) {
             systemMessage.content += SYSTEM_FENCE + "\n" + sysr.text + "\n"
-            trace.item(
-                `tokens: ${estimateTokens(model || template.model || DEFAULT_MODEL, sysr.text)}`
-            )
             trace.fence(sysr.text, "markdown")
         }
         if (sysr.aici) {
@@ -434,5 +417,6 @@ ${schemaTs}
         responseSchema,
         fileMerges,
         outputProcessors,
+        chatParticipants,
     }
 }

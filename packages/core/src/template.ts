@@ -1,5 +1,5 @@
 import { Project, PromptScript } from "./ast"
-import { BUILTIN_PREFIX, GENAI_JS_REGEX } from "./constants"
+import { BUILTIN_PREFIX, GENAI_ANYJS_REGEX } from "./constants"
 import { errorMessage } from "./error"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
@@ -115,7 +115,7 @@ class Checker<T extends PromptLike> {
         if (this.skip(k)) return
         if (k && !validateSchema(k))
             this.verror("expecting valid JSON schema here")
-        return 
+        return
     }
 
     checkObjectArray(k: any) {
@@ -182,10 +182,10 @@ class Checker<T extends PromptLike> {
     }
 }
 
-async function parseMeta(r: PromptScript) {
+export function parsePromptScriptMeta(jsSource: string) {
     // shortcut
     const m = /\b(?<kind>system|script)\(\s*(?<meta>\{.*?\})\s*\)/s.exec(
-        r.jsSource
+        jsSource
     )
     const meta: PromptArgs = JSON5TryParse(m?.groups?.meta) ?? {}
     if (m?.groups?.kind === "system") {
@@ -196,14 +196,6 @@ async function parseMeta(r: PromptScript) {
     return meta
 }
 
-export function staticVars(): Omit<ExpansionVariables, "template"> {
-    return {
-        spec: { filename: "spec.gpspec.md", content: "" } as WorkspaceFile,
-        files: [] as WorkspaceFile[],
-        vars: {} as Record<string, string>,
-    }
-}
-
 async function parsePromptTemplateCore(
     filename: string,
     content: string,
@@ -212,14 +204,16 @@ async function parsePromptTemplateCore(
 ) {
     const r = {
         id: templateIdFromFileName(filename),
-        title: humanize(host.path.basename(filename).replace(GENAI_JS_REGEX, '')),
+        title: humanize(
+            host.path.basename(filename).replace(GENAI_ANYJS_REGEX, "")
+        ),
         text: "<nothing yet>",
         jsSource: content,
     } as PromptScript
     if (!filename.startsWith(BUILTIN_PREFIX)) r.filename = filename
 
     try {
-        const meta = await parseMeta(r)
+        const meta = parsePromptScriptMeta(r.jsSource)
         const checker = new Checker<PromptScript>(
             r,
             filename,
@@ -243,7 +237,7 @@ async function parsePromptTemplateCore(
     }
 }
 
-export async function parsePromptTemplate(
+export async function parsePromptScript(
     filename: string,
     content: string,
     prj: Project
@@ -274,6 +268,7 @@ export async function parsePromptTemplate(
 
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")
+            c.checkStringArray("tools")
         })
 
         const r = c.template

@@ -1,6 +1,7 @@
 import { CancellationToken } from "./cancellation"
+import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -34,10 +35,6 @@ export interface LanguageModelConfiguration {
     source?: string
     aici?: boolean
     version?: string
-}
-
-export interface ReadFileOptions {
-    virtual?: boolean
 }
 
 export interface RetrievalClientOptions {
@@ -138,19 +135,32 @@ export interface Host {
 
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
-    getLanguageModelConfiguration(modelId: string): Promise<LanguageModelConfiguration | undefined>
+    defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
+    getLanguageModelConfiguration(
+        modelId: string,
+        options?: { token?: boolean } & AbortSignalOptions & TraceOptions
+    ): Promise<LanguageModelConfiguration | undefined>
+    resolveLanguageModel(
+        options: {
+            model?: string
+            languageModel?: LanguageModel
+        },
+        configuration: LanguageModelConfiguration
+    ): Promise<LanguageModel>
 
     log(level: LogLevel, msg: string): void
 
     // fs
-    readFile(name: string, options?: ReadFileOptions): Promise<Uint8Array>
+    readFile(name: string): Promise<Uint8Array>
     writeFile(name: string, content: Uint8Array): Promise<void>
     deleteFile(name: string): Promise<void>
-    findFiles(pattern: string | string[], ignore?: string | string[]): Promise<string[]>
-
-    clearVirtualFiles(): void
-    setVirtualFile(name: string, content: string): void
-    isVirtualFile(name: string): boolean
+    findFiles(
+        pattern: string | string[],
+        options?: {
+            ignore?: string | string[]
+            applyGitIgnore?: boolean
+        }
+    ): Promise<string[]>
 
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
@@ -168,7 +178,7 @@ export interface Host {
         command: string,
         args: string[],
         options: ShellOptions & TraceOptions
-    ): Promise<Partial<ShellOutput>>
+    ): Promise<ShellOutput>
 
     /**
      * Starts a container to execute sandboxed code

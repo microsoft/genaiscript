@@ -1,13 +1,12 @@
 import {
     CHANGE,
-    DEFAULT_MODEL,
     EMOJI_FAIL,
     EMOJI_SUCCESS,
     EMOJI_UNDEFINED,
     TOOL_ID,
-    TRACE_FILE_PREVIEW_MAX_LENGTH,
+    TRACE_CHUNK,
 } from "./constants"
-import { fenceMD } from "./markdown"
+import { fenceMD, parseTraceTree, TraceTree } from "./markdown"
 import { stringify as yamlStringify } from "yaml"
 import { YAMLStringify } from "./yaml"
 import { errorMessage, serializeError } from "./error"
@@ -16,13 +15,17 @@ import { host } from "./host"
 import { ellipse, renderWithPrecision, toStringList } from "./util"
 import { estimateTokens } from "./tokens"
 
-export class MarkdownTrace
-    extends EventTarget
-    implements ChatFunctionCallTrace
-{
+export class TraceChunkEvent extends Event {
+    constructor(readonly chunk: string) {
+        super(TRACE_CHUNK)
+    }
+}
+
+export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     readonly errors: { message: string; error: SerializedError }[] = []
     private detailsDepth = 0
     private _content: string = ""
+    private _tree: TraceTree
 
     constructor() {
         super()
@@ -33,35 +36,39 @@ export class MarkdownTrace
         if (!this.disableChangeDispatch) this.dispatchEvent(new Event(CHANGE))
     }
 
+    get tree() {
+        if (!this._tree) this._tree = parseTraceTree(this._content)
+        return this._tree
+    }
+
     get content() {
         return this._content
     }
 
-    set content(value: string) {
-        if (this._content !== value) {
-            this._content = value
+    appendContent(value: string) {
+        if (value !== undefined && value !== null && value !== "") {
+            this._content = this._content + value
+            this._tree = undefined
             this.dispatchChange()
+            this.dispatchEvent(new TraceChunkEvent(value))
         }
     }
 
     startDetails(title: string, success?: boolean) {
         this.detailsDepth++
         title = title?.trim() || ""
-        this.content += `\n\n<details id="${title.replace(
-            /\s+/g,
-            "-"
-        )}" class="${TOOL_ID}">
+        this.appendContent(`\n\n<details class="${TOOL_ID}">
 <summary>
 ${this.toResultIcon(success, "")}${title}
 </summary>
 
-`
+`)
     }
 
     endDetails() {
         if (this.detailsDepth > 0) {
             this.detailsDepth--
-            this.content += `\n</details>\n\n`
+            this.appendContent(`\n</details>\n\n`)
         }
     }
 
@@ -79,8 +86,8 @@ ${this.toResultIcon(success, "")}${title}
         this.disableChange(() => {
             this.startDetails(title)
             if (body) {
-                if (typeof body === "string") this.content += body
-                else this.content += yamlStringify(body)
+                if (typeof body === "string") this.appendContent(body)
+                else this.appendContent(yamlStringify(body))
             }
             this.endDetails()
         })
@@ -95,7 +102,7 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     item(message: string) {
-        this.content += `-   ${message}\n`
+        this.appendContent(`-   ${message}\n`)
     }
 
     itemValue(name: string, value: any, unit?: string) {
@@ -114,15 +121,15 @@ ${this.toResultIcon(success, "")}${title}
     }
 
     log(message: string) {
-        this.content += "\n> " + (message ?? "") + "\n"
+        this.appendContent("\n> " + (message ?? "") + "\n")
     }
 
     startFence(language: string) {
-        this.content += `\n\`\`\`\`${language}\n`
+        this.appendContent(`\n\`\`\`\`${language}\n`)
     }
 
     endFence() {
-        this.content += "\n````\n"
+        this.appendContent("\n````\n")
     }
 
     fence(message: string | unknown, contentType?: string) {
@@ -137,23 +144,23 @@ ${this.toResultIcon(success, "")}${title}
                 contentType = "yaml"
             }
         } else res = message
-        this.content += fenceMD(res, contentType)
+        this.appendContent(fenceMD(res, contentType))
     }
 
     append(trace: MarkdownTrace) {
-        this.content += "\n" + trace.content
+        this.appendContent("\n" + trace.content)
     }
 
     tip(message: string) {
-        this.content += `> ${message}\n`
+        this.appendContent(`> ${message}\n`)
     }
 
     heading(level: number, message: string) {
-        this.content += `${"#".repeat(level)} ${message}\n\n`
+        this.appendContent(`${"#".repeat(level)} ${message}\n\n`)
     }
 
     image(url: string, caption?: string) {
-        this.content += `\n![${caption || url}](${url})\n`
+        this.appendContent(`\n![${caption || url}](${url})\n`)
     }
 
     private toResultIcon(value: boolean, missing: string) {
@@ -184,8 +191,14 @@ ${this.toResultIcon(success, "")}${title}
         const errors = this.errors || []
         if (errors.length) {
             this.disableChange(() => {
-                this.heading(3, "Errors")
-                errors.forEach((e) => this.renderError(e, { details: true }))
+                try {
+                    this.startDetails(`${EMOJI_FAIL} Errors`)
+                    errors.forEach((e) =>
+                        this.renderError(e, { details: true })
+                    )
+                } finally {
+                    this.endDetails()
+                }
             })
         }
     }
@@ -201,30 +214,34 @@ ${this.toResultIcon(success, "")}${title}
         const emsg = errorMessage(error)
         const msg = message || emsg
         this.disableChange(() => {
-            this.caution(msg)
+            this.item(msg)
             if (options.details && error?.stack) {
-                this.content += `> \`\`\`\`\`\`\`markdown`
-                this.content += error.stack
-                    .split(/\n/g)
-                    .map((line) => `\n> ${line}`)
-                this.content += `\n> \`\`\`\`\`\`\`\n`
+                this.appendContent(`> \`\`\`\`\`\`\`markdown`)
+                this.appendContent(
+                    error.stack
+                        .split(/\n/g)
+                        .map((line) => `> ${line}`)
+                        .join("\n")
+                )
+
+                this.appendContent(`\n> \`\`\`\`\`\`\`\n`)
             }
         })
     }
 
     warn(msg: string) {
-        this.content += `\n> [!WARNING]
-> ${msg}\n`
+        this.appendContent(`\n> [!WARNING]
+> ${msg}\n`)
     }
 
     caution(msg: string) {
-        this.content += `\n> [!CAUTION]
-> ${msg}\n`
+        this.appendContent(`\n> [!CAUTION]
+> ${msg}\n`)
     }
 
     note(msg: string) {
-        this.content += `\n> [!NOTE]
-> ${msg}\n`
+        this.appendContent(`\n> [!NOTE]
+> ${msg}\n`)
     }
 
     files(
@@ -238,8 +255,8 @@ ${this.toResultIcon(success, "")}${title}
         }
     ) {
         const {
-            model = DEFAULT_MODEL,
-            maxLength = TRACE_FILE_PREVIEW_MAX_LENGTH,
+            model = host.defaultModelOptions.model,
+            maxLength = host.defaultModelOptions.temperature,
             title,
             skipIfEmpty,
             secrets = {},
@@ -292,4 +309,8 @@ ${this.toResultIcon(success, "")}${title}
 
 export interface TraceOptions {
     trace?: MarkdownTrace
+}
+
+export interface AbortSignalOptions {
+    signal?: AbortSignal
 }

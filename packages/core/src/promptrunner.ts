@@ -1,40 +1,40 @@
 import { executeChatSession } from "./chat"
-import { Fragment, Project, PromptScript } from "./ast"
+import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
-import { arrayify, assert, logVerbose, relativePath, unique } from "./util"
-import { staticVars } from "./template"
+import { arrayify, assert, logVerbose, relativePath } from "./util"
 import { host } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
-import { expandFiles, fileExists, readText, tryReadText } from "./fs"
+import { expandFiles, fileExists, readText } from "./fs"
 import { CSVToMarkdown } from "./csv"
 import { GenerationOptions } from "./promptcontext"
 import { traceCliArgs } from "./clihelp"
 import { GenerationResult, expandTemplate } from "./expander"
-import { resolveLanguageModel, resolveModelConnectionInfo } from "./models"
+import { resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
-import { createFetch } from "./fetch"
-import { unquote } from "./fence"
-import { HTTPS_REGEX } from "./constants"
+import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 
+export interface Fragment {
+    files: string[]
+}
+
 async function resolveExpansionVars(
+    project: Project,
     trace: MarkdownTrace,
     template: PromptScript,
     frag: Fragment,
     vars: Record<string, string>
 ) {
-    const { file } = frag
-    const project = file.project
     const root = host.projectFolder()
 
     const files: WorkspaceFile[] = []
     const fr = frag
     const templateFiles = arrayify(template.files)
-    const referenceFiles = fr.references.map(({ filename }) => filename)
+    const referenceFiles = fr.files.slice(0)
     const filenames = await expandFiles(
         referenceFiles?.length ? referenceFiles : templateFiles
     )
@@ -57,11 +57,7 @@ async function resolveExpansionVars(
         } else trace.error(`secret \`${secret}\` not found`)
     }
     const res: Partial<ExpansionVariables> = {
-        ...staticVars(),
-        spec: {
-            filename: relativePath(host.projectFolder(), file.filename),
-            content: file.content,
-        },
+        dir: ".",
         files,
         template: {
             id: template.id,
@@ -83,16 +79,15 @@ export async function runTemplate(
     assert(fragment !== undefined)
     assert(options !== undefined)
     assert(options.trace !== undefined)
-    const { skipLLM, label, cliInfo, trace } = options
-    const cancellationToken = options?.cancellationToken
+    const { skipLLM, label, cliInfo, trace, cancellationToken, model } = options
     const version = CORE_VERSION
-    const model = options.model
     assert(model !== undefined)
 
     try {
         if (cliInfo) traceCliArgs(trace, template, options)
 
         const vars = await resolveExpansionVars(
+            prj,
             trace,
             template,
             fragment,
@@ -104,6 +99,7 @@ export async function runTemplate(
             functions,
             fileMerges,
             outputProcessors,
+            chatParticipants,
             status,
             statusText,
             temperature,
@@ -115,7 +111,6 @@ export async function runTemplate(
         } = await expandTemplate(
             prj,
             template,
-            fragment,
             options,
             vars as ExpansionVariables,
             trace
@@ -129,7 +124,6 @@ export async function runTemplate(
                 statusText,
                 messages,
                 vars,
-                trace: trace.content,
                 text: "",
                 edits: [],
                 annotations: [],
@@ -149,7 +143,6 @@ export async function runTemplate(
                 status: "cancelled",
                 messages,
                 vars,
-                trace: trace.content,
                 text: undefined,
                 edits: [],
                 annotations: [],
@@ -171,61 +164,47 @@ export async function runTemplate(
             topP: topP,
             seed: seed,
         }
-        const updateStatus = (text?: string) => {
-            options.infoCb?.({
-                vars,
-                text,
-                label,
-            })
-        }
-
         const fileEdits: Record<string, { before: string; after: string }> = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
-        const links: string[] = []
-        const fp = fragment.file.filename
-        const fragn = /^.\//.test(fp)
-            ? host.resolvePath(projFolder, fragment.file.filename)
-            : fp
-        const ff = host.resolvePath(fp, "..")
-        const refs = fragment.references
         const getFileEdit = async (fn: string) => {
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
                 let before: string = null
                 let after: string = undefined
-                if (await fileExists(fn, { virtual: false }))
-                    before = await readText(fn)
-                else if (await fileExists(fn, { virtual: true }))
-                    after = await readText(fn)
+                if (await fileExists(fn)) before = await readText(fn)
+                else if (await fileExists(fn)) after = await readText(fn)
                 fileEdit = fileEdits[fn] = { before, after }
             }
             return fileEdit
         }
 
-        updateStatus(`prompting model ${model}`)
         const connection = await resolveModelConnectionInfo(
             { model },
             { trace, token: true }
         )
         if (connection.info.error)
             throw new Error(errorMessage(connection.info.error))
-        if (!connection.token)
+        if (!connection.configuration)
             throw new RequestError(
                 403,
                 "LLM configuration missing",
                 connection.info
             )
-
-        const { completer } = resolveLanguageModel(genOptions)
+        const { completer } = await host.resolveLanguageModel(
+            genOptions,
+            connection.configuration
+        )
         const output = await executeChatSession(
-            connection.token,
+            connection.configuration,
             cancellationToken,
             messages,
+            vars,
             functions,
             schemas,
             completer,
+            chatParticipants,
             genOptions
         )
         const {
@@ -239,12 +218,6 @@ export async function runTemplate(
         let { text, annotations } = output
         if (json !== undefined) {
             trace.detailsFenced("📩 json (parsed)", json, "json")
-            const fn = fragment.file.filename.replace(
-                /\.gpspec\.md$/i,
-                "." + template.id + ".json"
-            )
-            const fileEdit = await getFileEdit(fn)
-            fileEdit.after = text
         } else {
             if (text) trace.detailsFenced(`🔠 output`, text, `markdown`)
             for (const fence of fences.filter(
@@ -258,9 +231,6 @@ export async function runTemplate(
                     const fn = /^[^\/]/.test(n)
                         ? host.resolvePath(projFolder, n)
                         : n
-                    const ffn = relativePath(ff, fn)
-                    const curr = refs.find((r) => r.filename === fn)?.filename
-
                     const fileEdit = await getFileEdit(fn)
                     if (kw === "file") {
                         if (fileMerges.length) {
@@ -302,8 +272,6 @@ export async function runTemplate(
                             }
                         }
                     }
-                    if (!curr && fragn !== fn)
-                        links.push(`-   [${ffn}](${ffn})`)
                 } else if (/^changelog$/i.test(name)) {
                     changelogs.push(val)
                     const cls = parseChangeLogs(val)
@@ -312,18 +280,11 @@ export async function runTemplate(
                         const fn = /^[^\/]/.test(filename)
                             ? host.resolvePath(projFolder, filename)
                             : filename
-                        const ffn = relativePath(ff, fn)
-                        const curr = refs.find(
-                            (r) => r.filename === fn
-                        )?.filename
-
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = applyChangeLog(
                             fileEdit.after || fileEdit.before || "",
                             changelog
                         )
-                        if (!curr && fragn !== fn)
-                            links.push(`-   [${ffn}](${ffn})`)
                     }
                 }
             }
@@ -395,6 +356,8 @@ export async function runTemplate(
             })
 
         // reporting
+        if (fences?.length)
+            trace.details("📩 code regions", renderFencedVariables(fences))
         if (edits.length)
             trace.details(
                 "✏️ edits",
@@ -405,9 +368,24 @@ export async function runTemplate(
         if (annotations?.length)
             trace.details(
                 "⚠️ annotations",
-                CSVToMarkdown(annotations, {
-                    headers: ["severity", "filename", "line", "message"],
-                })
+                CSVToMarkdown(
+                    annotations.map((a) => ({
+                        ...a,
+                        line: a.range?.[0]?.[0],
+                        endLine: a.range?.[1]?.[0] || "",
+                        code: a.code || "",
+                    })),
+                    {
+                        headers: [
+                            "severity",
+                            "filename",
+                            "line",
+                            "endLine",
+                            "code",
+                            "message",
+                        ],
+                    }
+                )
             )
 
         trace.renderErrors()
@@ -425,7 +403,6 @@ export async function runTemplate(
             annotations,
             changelogs,
             fileEdits,
-            trace: trace.content,
             text,
             version,
             fences,
@@ -434,11 +411,6 @@ export async function runTemplate(
             schemas,
             json,
         }
-        options?.infoCb?.({
-            label: res.label,
-            vars: res.vars,
-            text: undefined,
-        })
         return res
     } finally {
         await host.removeContainers()

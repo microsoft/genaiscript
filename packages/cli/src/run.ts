@@ -5,13 +5,11 @@ import {
     host,
     isJSONLFilename,
     logVerbose,
-    readText,
     runTemplate,
     writeText,
     normalizeInt,
     normalizeFloat,
-    GENAI_JS_REGEX,
-    GPSPEC_REGEX,
+    GENAI_ANYJS_REGEX,
     FILES_NOT_FOUND_ERROR_CODE,
     appendJSONL,
     RUNTIME_ERROR_CODE,
@@ -32,54 +30,48 @@ import {
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
     parseGHTokenFromEnv,
+    githubUpdatePullRequestDescription,
+    githubCreatePullRequestReviews,
     githubCreateIssueComment,
-    prettifyMarkdown,
-    GITHUB_COMMENT_ID_NONE,
-    githubUpsetPullRequest,
+    PromptScriptRunOptions,
+    TraceOptions,
+    CancellationOptions,
+    Fragment,
+    ChatCompletionsProgressReport,
 } from "genaiscript-core"
 import { capitalize } from "inflection"
-import { basename, resolve, join, relative } from "node:path"
+import { resolve, join, relative } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
 
-export async function runScript(
-    tool: string,
-    specs: string[],
-    options: {
-        excludedFiles: string[]
-        out: string
-        retry: string
-        retryDelay: string
-        maxDelay: string
-        json: boolean
-        yaml: boolean
-        prompt: boolean
-        outTrace: string
-        outAnnotations: string
-        outChangelogs: string
-        pullRequestComment: string
-        pullRequestDescription: string
-        outData: string
-        label: string
-        temperature: string
-        topP: string
-        seed: string
-        maxTokens: string
-        maxToolCalls: string
-        model: string
-        csvSeparator: string
-        cache: boolean
-        cacheName: string
-        applyEdits: boolean
-        failOnErrors: boolean
-        removeOut: boolean
-        vars: string[]
-    }
+export async function runScriptWithExitCode(
+    scriptId: string,
+    files: string[],
+    options: Partial<PromptScriptRunOptions> &
+        TraceOptions &
+        CancellationOptions
 ) {
+    const { exitCode } = await runScript(scriptId, files, options)
+    process.exit(exitCode)
+}
+
+export async function runScript(
+    scriptId: string,
+    files: string[],
+    options: Partial<PromptScriptRunOptions> &
+        TraceOptions &
+        CancellationOptions & {
+            infoCb?: (partialResponse: { text: string }) => void
+            partialCb?: (progress: ChatCompletionsProgressReport) => void
+        }
+): Promise<{ exitCode: number; result?: GenerationResult }> {
+    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    let result: GenerationResult
     const excludedFiles = options.excludedFiles
+    const excludeGitIgnore = !!options.excludeGitIgnore
     const out = options.out
     const stream = !options.json && !options.yaml && !out
     const skipLLM = !!options.prompt
@@ -92,6 +84,7 @@ export async function runScript(
     const outChangelogs = options.outChangelogs
     const pullRequestComment = options.pullRequestComment
     const pullRequestDescription = options.pullRequestDescription
+    const pullRequestReviews = options.pullRequestReviews
     const outData = options.outData
     const label = options.label
     const temperature = normalizeFloat(options.temperature)
@@ -99,11 +92,13 @@ export async function runScript(
     const seed = normalizeFloat(options.seed)
     const maxTokens = normalizeInt(options.maxTokens)
     const maxToolCalls = normalizeInt(options.maxToolCalls)
+    const maxDataRepairs = normalizeInt(options.maxDataRepairs)
     const cache = !!options.cache
     const applyEdits = !!options.applyEdits
     const csvSeparator = options.csvSeparator || "\t"
     const removeOut = options.removeOut
     const cacheName = options.cacheName
+    const cancellationToken = options.cancellationToken
 
     const spinner =
         !stream && !isQuiet
@@ -112,38 +107,28 @@ export async function runScript(
     const fail = (msg: string, exitCode: number) => {
         if (spinner) spinner.fail(msg)
         else logVerbose(msg)
-        process.exit(exitCode)
+        return { exitCode, result }
     }
 
-    let spec: string
-    let specContent: string
     const toolFiles: string[] = []
+    const resolvedFiles = new Set<string>()
 
-    let md: string
-    const files = new Set<string>()
+    if (GENAI_ANYJS_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
-    if (GENAI_JS_REGEX.test(tool)) toolFiles.push(tool)
-
-    if (!specs?.length) {
-        specContent = "\n"
-        spec = "stdin.gpspec.md"
-    } else if (specs.length === 1 && GPSPEC_REGEX.test(specs[0])) {
-        spec = specs[0]
-    } else {
-        for (const arg of specs) {
-            if (HTTPS_REGEX.test(arg)) files.add(arg)
-            else {
-                const ffs = await host.findFiles(arg)
-                if (!ffs.length)
-                    fail(`no files matching ${arg}`, FILES_NOT_FOUND_ERROR_CODE)
-
-                for (const file of ffs) {
-                    if (GPSPEC_REGEX.test(file)) {
-                        md = (md || "") + (await readText(file)) + "\n"
-                    } else {
-                        files.add(file)
-                    }
-                }
+    for (const arg of files) {
+        if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
+        else {
+            const ffs = await host.findFiles(arg, {
+                applyGitIgnore: excludeGitIgnore,
+            })
+            if (!ffs.length) {
+                return fail(
+                    `no files matching ${arg}`,
+                    FILES_NOT_FOUND_ERROR_CODE
+                )
+            }
+            for (const file of ffs) {
+                resolvedFiles.add(filePathOrUrlToWorkspaceFile(file))
             }
         }
     }
@@ -151,49 +136,29 @@ export async function runScript(
     if (excludedFiles?.length) {
         for (const arg of excludedFiles) {
             const ffs = await host.findFiles(arg)
-            for (const f of ffs) files.delete(f)
+            for (const f of ffs)
+                resolvedFiles.delete(filePathOrUrlToWorkspaceFile(f))
         }
     }
 
-    if (md || files.size) {
-        spec = "cli.gpspec.md"
-        specContent = `${md || "# Specification"}
-
-${Array.from(files)
-    .map((f) => `-   [${basename(f)}](${filePathOrUrlToWorkspaceFile(f)})`)
-    .join("\n")}
-`
-    }
-
-    if (!spec) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
-
-    if (specContent !== undefined) host.setVirtualFile(spec, specContent)
-
     const prj = await buildProject({
         toolFiles,
-        specFiles: [spec],
     })
     const script = prj.templates.find(
         (t) =>
-            t.id === tool ||
+            t.id === scriptId ||
             (t.filename &&
-                GENAI_JS_REGEX.test(tool) &&
-                resolve(t.filename) === resolve(tool))
+                GENAI_ANYJS_REGEX.test(scriptId) &&
+                resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`tool ${tool} not found`)
-    const gpspec = prj.rootFiles.find(
-        (f) => resolve(f.filename) === resolve(spec)
-    )
-    if (!gpspec) throw new Error(`spec ${spec} not found`)
-    const fragment = gpspec.fragments[0]
-    if (!fragment) fail(`genai spec not found`, FILES_NOT_FOUND_ERROR_CODE)
-
+    if (!script) throw new Error(`tool ${scriptId} not found`)
+    const fragment: Fragment = {
+        files: Array.from(resolvedFiles),
+    }
     const vars = parseKeyValuePairs(options.vars)
     let tokens = 0
-    let res: GenerationResult
     try {
-        const trace = new MarkdownTrace()
-        trace.heading(2, options.label || script.id)
+        if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
             model: options.model,
@@ -201,19 +166,23 @@ ${Array.from(files)
         if (info.error) {
             trace.error(undefined, info.error)
             logError(info.error)
-            process.exit(CONFIGURATION_ERROR_CODE)
+            return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
-        res = await runTemplate(prj, script, fragment, {
-            infoCb: ({ text }) => {
+        result = await runTemplate(prj, script, fragment, {
+            infoCb: (args) => {
+                const { text } = args
                 if (text) {
                     if (spinner) spinner.start(text)
                     else if (!isQuiet) logVerbose(text)
+                    infoCb?.(args)
                 }
             },
-            partialCb: ({ responseChunk, tokensSoFar }) => {
+            partialCb: (args) => {
+                const { responseChunk, tokensSoFar } = args
                 tokens = tokensSoFar
                 if (stream && responseChunk) process.stdout.write(responseChunk)
                 if (spinner) spinner.report({ count: tokens })
+                partialCb?.(args)
             },
             skipLLM,
             label,
@@ -222,64 +191,71 @@ ${Array.from(files)
             temperature,
             topP,
             seed,
+            cancellationToken,
             maxTokens,
             maxToolCalls,
+            maxDataRepairs,
             model: info.model,
             retry,
             retryDelay,
             maxDelay,
             vars,
             trace,
+            cliInfo: {
+                files,
+            },
             stats: {
                 toolCalls: 0,
                 repairs: 0,
+                turns: 0,
             },
         })
     } catch (err) {
         if (spinner) spinner.fail()
-        if (isCancelError(err)) process.exit(USER_CANCELLED_ERROR_CODE)
+        if (isCancelError(err))
+            return fail("user cancelled", USER_CANCELLED_ERROR_CODE)
         logError(err)
-        process.exit(RUNTIME_ERROR_CODE)
+        return fail("runtime error", RUNTIME_ERROR_CODE)
     }
 
     if (spinner) {
-        if (res.status !== "success")
-            spinner.fail(`${spinner.text}, ${res.statusText}`)
+        if (result.status !== "success")
+            spinner.fail(`${spinner.text}, ${result.statusText}`)
         else spinner.succeed()
-    } else if (res.status !== "success")
-        logVerbose(res.statusText ?? res.status)
+    } else if (result.status !== "success")
+        logVerbose(result.statusText ?? result.status)
 
-    if (outTrace && res.trace) await writeText(outTrace, res.trace)
-    if (outAnnotations && res.annotations?.length) {
+    if (outTrace) await writeText(outTrace, trace.content)
+    if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
-            await appendJSONL(outAnnotations, res.annotations)
+            await appendJSONL(outAnnotations, result.annotations)
         else
             await writeText(
                 outAnnotations,
                 CSV_REGEX.test(outAnnotations)
-                    ? diagnosticsToCSV(res.annotations, csvSeparator)
+                    ? diagnosticsToCSV(result.annotations, csvSeparator)
                     : /\.ya?ml$/i.test(outAnnotations)
-                      ? YAMLStringify(res.annotations)
+                      ? YAMLStringify(result.annotations)
                       : /\.sarif$/i.test(outAnnotations)
-                        ? convertDiagnosticsToSARIF(script, res.annotations)
-                        : JSON.stringify(res.annotations, null, 2)
+                        ? convertDiagnosticsToSARIF(script, result.annotations)
+                        : JSON.stringify(result.annotations, null, 2)
             )
     }
-    if (outChangelogs && res.changelogs?.length)
-        await writeText(outChangelogs, res.changelogs.join("\n"))
-    if (outData && res.frames?.length)
-        if (isJSONLFilename(outData)) await appendJSONL(outData, res.frames)
-        else await writeText(outData, JSON.stringify(res.frames, null, 2))
+    if (outChangelogs && result.changelogs?.length)
+        await writeText(outChangelogs, result.changelogs.join("\n"))
+    if (outData && result.frames?.length)
+        if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames)
+        else await writeText(outData, JSON.stringify(result.frames, null, 2))
 
     if (
         applyEdits &&
-        res.status === "success" &&
-        Object.keys(res.fileEdits || {}).length
+        result.status === "success" &&
+        Object.keys(result.fileEdits || {}).length
     )
-        await writeFileEdits(res)
+        await writeFileEdits(result)
 
-    const promptjson = res.messages?.length
-        ? JSON.stringify(res.messages, null, 2)
+    const promptjson = result.messages?.length
+        ? JSON.stringify(result.messages, null, 2)
         : undefined
     if (out) {
         if (removeOut) await emptyDir(out)
@@ -293,29 +269,24 @@ ${Array.from(files)
         const outputjson = mkfn(".output.json")
         const outputyaml = mkfn(".output.yaml")
         const tracef = mkfn(".trace.md")
-        const annotationf = res.annotations?.length
+        const annotationf = result.annotations?.length
             ? mkfn(".annotations.csv")
             : undefined
-        const sariff = res.annotations?.length ? mkfn(".sarif") : undefined
-        const specf = specContent ? mkfn(".gpspec.md") : undefined
-        const changelogf = res.changelogs?.length
+        const sariff = result.annotations?.length ? mkfn(".sarif") : undefined
+        const changelogf = result.changelogs?.length
             ? mkfn(".changelog.txt")
             : undefined
-        await writeText(jsonf, JSON.stringify(res, null, 2))
-        await writeText(yamlf, YAMLStringify(res))
+        await writeText(jsonf, JSON.stringify(result, null, 2))
+        await writeText(yamlf, YAMLStringify(result))
         if (promptjson) await writeText(promptf, promptjson)
-        if (res.json) {
-            await writeText(outputjson, JSON.stringify(res.json, null, 2))
-            await writeText(outputyaml, YAMLStringify(res.json))
+        if (result.json) {
+            await writeText(outputjson, JSON.stringify(result.json, null, 2))
+            await writeText(outputyaml, YAMLStringify(result.json))
         }
-        if (res.text) await writeText(outputf, res.text)
-        if (res.trace) await writeText(tracef, res.trace)
-        if (specf) {
-            const spect = await readText(spec)
-            await writeText(specf, spect)
-        }
-        if (res.schemas) {
-            for (const [sname, schema] of Object.entries(res.schemas)) {
+        if (result.text) await writeText(outputf, result.text)
+        if (trace) await writeText(tracef, trace.content)
+        if (result.schemas) {
+            for (const [sname, schema] of Object.entries(result.schemas)) {
                 await writeText(
                     join(out, `${sname.toLocaleLowerCase()}.schema.ts`),
                     JSONSchemaStringifyToTypeScript(schema, {
@@ -333,7 +304,7 @@ ${Array.from(files)
             await writeText(
                 annotationf,
                 `severity, filename, start, end, message\n` +
-                    res.annotations
+                    result.annotations
                         .map(
                             ({ severity, filename, range, message }) =>
                                 `${severity}, ${filename}, ${range[0][0]}, ${range[1][0]}, ${message} `
@@ -344,11 +315,13 @@ ${Array.from(files)
         if (sariff)
             await writeText(
                 sariff,
-                convertDiagnosticsToSARIF(script, res.annotations)
+                convertDiagnosticsToSARIF(script, result.annotations)
             )
-        if (changelogf && res.changelogs?.length)
-            await writeText(changelogf, res.changelogs.join("\n"))
-        for (const [filename, edits] of Object.entries(res.fileEdits || {})) {
+        if (changelogf && result.changelogs?.length)
+            await writeText(changelogf, result.changelogs.join("\n"))
+        for (const [filename, edits] of Object.entries(
+            result.fileEdits || {}
+        )) {
             const rel = relative(process.cwd(), filename)
             const isAbsolutePath = resolve(rel) === rel
             if (!isAbsolutePath)
@@ -358,67 +331,59 @@ ${Array.from(files)
                 )
         }
     } else {
-        if (options.json) console.log(JSON.stringify(res, null, 2))
-        if (options.yaml) console.log(YAMLStringify(res))
+        if (options.json) console.log(JSON.stringify(result, null, 2))
+        if (options.yaml) console.log(YAMLStringify(result))
         if (options.prompt && promptjson) {
             console.log(promptjson)
         }
     }
 
-    if (pullRequestComment && res.text) {
+    if (pullRequestReviews && result.annotations?.length) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            const ghres = await githubCreateIssueComment(
+            await githubCreatePullRequestReviews(
+                script,
                 info,
-                prettifyMarkdown(
-                    `${res.text}\n\n> generated by genaiscript ${script.id}.`
-                ),
-                pullRequestComment
-            )
-            if (!ghres.created) {
-                logError(
-                    `pull request ${info.repository}/pull/${info.issue} comment failed ${ghres.statusText}`
-                )
-                process.exit(CONFIGURATION_ERROR_CODE)
-            }
-            logVerbose(
-                `pull request ${info.repository}/pull/${info.issue} comment created at ${ghres.html_url}`
+                result.annotations
             )
         }
     }
 
-    if (pullRequestDescription && res.text) {
+    if (pullRequestComment && result.text) {
         const info = parseGHTokenFromEnv(process.env)
         if (info.repository && info.issue) {
-            const ghres = await githubUpsetPullRequest(
+            await githubCreateIssueComment(
+                script,
                 info,
-                prettifyMarkdown(
-                    `${res.text}\n\n> generated by genaiscript ${script.id}.`
-                ),
-                pullRequestDescription
+                result.text,
+                typeof pullRequestComment === "string"
+                    ? pullRequestComment
+                    : script.id
             )
-            if (!ghres.updated) {
-                logError(
-                    `pull request ${info.repository}/pull/${info.issue} update failed ${ghres.statusText}`
-                )
-                process.exit(CONFIGURATION_ERROR_CODE)
-            }
-            logVerbose(
-                `pull request ${info.repository}/pull/${info.issue} updated`
+        }
+    }
+
+    if (pullRequestDescription && result.text) {
+        const info = parseGHTokenFromEnv(process.env)
+        if (info.repository && info.issue) {
+            await githubUpdatePullRequestDescription(
+                script,
+                info,
+                result.text,
+                typeof pullRequestDescription === "string"
+                    ? pullRequestDescription
+                    : script.id
             )
         }
     }
     // final fail
-    if (res.error) {
-        logVerbose(errorMessage(res.error))
-        process.exit(RUNTIME_ERROR_CODE)
-    }
+    if (result.error)
+        return fail(errorMessage(result.error), RUNTIME_ERROR_CODE)
 
-    if (failOnErrors && res.annotations?.some((a) => a.severity === "error")) {
-        logVerbose(`error annotations found, exiting with error code`)
-        process.exit(ANNOTATION_ERROR_CODE)
-    }
+    if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
+        return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
     spinner?.stop()
     process.stderr.write("\n")
+    return { exitCode: 0, result }
 }

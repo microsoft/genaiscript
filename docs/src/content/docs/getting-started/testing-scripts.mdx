@@ -7,8 +7,6 @@ keywords: testing, scripts, validation, GenAIScript CLI, automation
 ---
 
 import { Image } from "astro:assets"
-import providerSrc from "../../../../../packages/core/src/genaiscript-api-provider.mjs?raw"
-import { Code } from "@astrojs/starlight/components"
 import testExplorerSrc from "../../../assets/vscode-test-explorer.png"
 import testExplorerAlt from "../../../assets/vscode-test-explorer.png.txt?raw"
 
@@ -19,7 +17,7 @@ to validate the output of the script.
 
 The tests are added as an array of objects in the `tests` key of the `script` function.
 
-```js title="proofreader.genai.js" wrap
+```js title="proofreader.genai.mjs" wrap
 scripts({
   ...,
   tests: {
@@ -54,3 +52,7 @@ Currently, promptfoo treats the script source as the prompt text. Therefore, one
 that also rely on the input text, such as `answer_relevance`.
 
 -   Read more about [tests](/genaiscript/reference/scripts/tests) in the reference.
+
+## Next steps
+
+[Automate](/genaiscript/getting-started/automating-scripts) script execution using the command line interface ([CLI](/genaiscript/reference/cli)).

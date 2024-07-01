@@ -1,4 +1,10 @@
-import { ChatCompletionsOptions, LanguageModel } from "./chat"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionsOptions,
+    executeChatSession,
+    LanguageModel,
+    mergeGenerationOptions,
+} from "./chat"
 import { HTMLEscape, arrayify, logVerbose } from "./util"
 import { host } from "./host"
 import { MarkdownTrace } from "./trace"
@@ -10,23 +16,27 @@ import {
     PromptNode,
     appendChild,
     createFileMergeNode,
-    createImageNode,
     createOutputProcessor,
+    createTextNode,
+    renderPromptNode,
 } from "./promptdom"
 import { bingSearch } from "./websearch"
-import { CancellationToken } from "./cancellation"
+import { CancellationToken, checkCancelled } from "./cancellation"
 import {
     RunPromptContextNode,
-    createRunPromptContext,
+    createChatGenerationContext,
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
-import { CancelError } from "./error"
+import { CancelError, isCancelError, serializeError } from "./error"
 import { createFetch } from "./fetch"
-import { resolveFileDataUri } from "./file"
 import { XMLParse } from "./xml"
 import { GenerationStats } from "./expander"
 import { fuzzSearch } from "./fuzzsearch"
+import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
+import { renderAICI } from "./aici"
+import { MODEL_PROVIDER_AICI } from "./constants"
+import { JSONLStringify, JSONLTryParse } from "./jsonl"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -38,16 +48,8 @@ export function createPromptContext(
     options: GenerationOptions,
     model: string
 ) {
-    const env = new Proxy(vars, {
-        get: (target: any, prop, recv) => {
-            const v = target[prop]
-            if (v === undefined) {
-                trace.error(`\`env.${String(prop)}\` not defined`)
-                return ""
-            }
-            return v
-        },
-    })
+    const { cancellationToken, infoCb } = options || {}
+    const env = structuredClone(vars)
     const parsers = createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
@@ -55,7 +57,7 @@ export function createPromptContext(
     })
     const CSV = Object.freeze<CSV>({
         parse: CSVParse,
-        mardownify: CSVToMarkdown,
+        markdownify: CSVToMarkdown,
     })
     const INI = Object.freeze<INI>({
         parse: INIParse,
@@ -63,6 +65,10 @@ export function createPromptContext(
     })
     const XML = Object.freeze<XML>({
         parse: XMLParse,
+    })
+    const JSONL = Object.freeze<JSONL>({
+        parse: JSONLTryParse,
+        stringify: JSONLStringify,
     })
     const AICI = Object.freeze<AICI>({
         gen: (options: AICIGenOptions) => {
@@ -165,34 +171,11 @@ export function createPromptContext(
         },
     }
 
-    const defImages = (files: StringLike, defOptions?: DefImagesOptions) => {
-        const { detail } = defOptions || {}
-        if (Array.isArray(files))
-            files.forEach((file) => defImages(file, defOptions))
-        else if (typeof files === "string")
-            appendPromptChild(createImageNode({ url: files, detail }))
-        else {
-            const file: WorkspaceFile = files
-            appendPromptChild(
-                createImageNode(
-                    (async () => {
-                        const url = await resolveFileDataUri(file, { trace })
-                        return {
-                            url,
-                            filename: file.filename,
-                            detail,
-                        }
-                    })()
-                )
-            )
-        }
-    }
-
     const defOutputProcessor = (fn: PromptOutputProcessorHandler) => {
         if (fn) appendPromptChild(createOutputProcessor(fn))
     }
 
-    const promptHost: PromptHost = {
+    const promptHost: PromptHost = Object.freeze<PromptHost>({
         askUser: (question) =>
             host.askUser({
                 prompt: question,
@@ -208,13 +191,13 @@ export function createPromptContext(
             const res = await host.container({ ...(options || {}), trace })
             return res
         },
-    }
+    })
 
-    const ctx = Object.freeze<PromptContext & RunPromptContextNode>({
-        ...createRunPromptContext(options, env, trace),
+    const ctx: PromptContext & RunPromptContextNode = {
+        ...createChatGenerationContext(options, trace),
         script: () => {},
         system: () => {},
-        env,
+        env: undefined, // set later
         path,
         fs: workspace,
         workspace,
@@ -224,15 +207,102 @@ export function createPromptContext(
         INI,
         AICI,
         XML,
+        JSONL,
         retrieval,
         host: promptHost,
-        defImages,
         defOutputProcessor,
         defFileMerge: (fn) => {
             appendPromptChild(createFileMergeNode(fn))
         },
         cancel: (reason?: string) => {
             throw new CancelError(reason || "user cancelled")
+        },
+        runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
+            try {
+                const { label } = runOptions || {}
+                trace.startDetails(`🎁 run prompt ${label || ""}`)
+                infoCb?.({ text: `run prompt ${label || ""}` })
+
+                const genOptions = mergeGenerationOptions(options, runOptions)
+                const ctx = createChatGenerationContext(genOptions, trace)
+                if (typeof generator === "string")
+                    ctx.node.children.push(createTextNode(generator))
+                else await generator(ctx)
+                const node = ctx.node
+
+                checkCancelled(cancellationToken)
+
+                let messages: ChatCompletionMessageParam[] = []
+                let tools: ToolCallback[] = undefined
+                let schemas: Record<string, JSONSchema> = undefined
+                let chatParticipants: ChatParticipant[] = undefined
+                // expand template
+                const { provider } = parseModelIdentifier(genOptions.model)
+                if (provider === MODEL_PROVIDER_AICI) {
+                    const { aici } = await renderAICI("prompt", node)
+                    // todo: output processor?
+                    messages.push(aici)
+                } else {
+                    const {
+                        errors,
+                        schemas: scs,
+                        functions: fns,
+                        messages: msgs,
+                        chatParticipants: cps,
+                    } = await renderPromptNode(genOptions.model, node, {
+                        trace,
+                    })
+
+                    schemas = scs
+                    tools = fns
+                    chatParticipants = cps
+                    messages.push(...msgs)
+
+                    if (errors?.length)
+                        throw new Error("errors while running prompt")
+                }
+
+                const connection = await resolveModelConnectionInfo(
+                    genOptions,
+                    { trace, token: true }
+                )
+                if (!connection.configuration)
+                    throw new Error("model connection error " + connection.info)
+                const { completer } = await host.resolveLanguageModel(
+                    genOptions,
+                    connection.configuration
+                )
+                if (!completer)
+                    throw new Error(
+                        "model driver not found for " + connection.info
+                    )
+                const resp = await executeChatSession(
+                    connection.configuration,
+                    cancellationToken,
+                    messages,
+                    vars,
+                    tools,
+                    schemas,
+                    completer,
+                    chatParticipants,
+                    genOptions
+                )
+                const { json, text } = resp
+                if (resp.json)
+                    trace.detailsFenced("📩 json (parsed)", json, "json")
+                else if (text)
+                    trace.detailsFenced(`🔠 output`, text, `markdown`)
+                return resp
+            } catch (e) {
+                trace.error(e)
+                return {
+                    text: undefined,
+                    finishReason: isCancelError(e) ? "cancel" : "fail",
+                    error: serializeError(e),
+                }
+            } finally {
+                trace.endDetails()
+            }
         },
         fetchText: async (urlOrFile, fetchOptions) => {
             if (typeof urlOrFile === "string") {
@@ -272,7 +342,9 @@ export function createPromptContext(
                 file,
             }
         },
-    })
+    }
+    env.generator = ctx
+    ctx.env = Object.freeze(env)
     const appendPromptChild = (node: PromptNode) => {
         if (!ctx.node) throw new Error("Prompt closed")
         appendChild(ctx.node, node)
@@ -286,18 +358,14 @@ export interface GenerationOptions
         ModelOptions,
         ScriptRuntimeOptions {
     cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: {
-        text: string
-        label?: string
-        vars?: Partial<ExpansionVariables>
-    }) => void
+    infoCb?: (partialResponse: { text: string }) => void
     trace: MarkdownTrace
     maxCachedTemperature?: number
     maxCachedTopP?: number
     skipLLM?: boolean
     label?: string
     cliInfo?: {
-        spec: string
+        files: string[]
     }
     languageModel?: LanguageModel
     vars?: PromptParameters

@@ -4,11 +4,15 @@ script({
     description: "Given a task and code, generate tests",
     group: "hello world",
     system: ["system", "system.explanations", "system.files", "system.python"],
-    temperature: 0
+    temperature: 0,
 })
 
-def("TESTS", env.files.filter((f) => /^test_*\.py$/.test(f.filename)))
-def("TASK", env.spec)
+const spec = env.files.find((f) => f.filename.endsWith(".md"))
+def(
+    "TESTS",
+    env.files.filter((f) => /^test_*\.py$/.test(f.filename))
+)
+def("TASK", spec)
 def(
     "CODE",
     env.files.filter(
