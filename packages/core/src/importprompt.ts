@@ -1,6 +1,6 @@
 import { assert } from "console"
 import { host } from "./host"
-import { logError, logVerbose } from "./util"
+import { logError } from "./util"
 import { TraceOptions } from "./trace"
 
 function resolveGlobal(): any {
@@ -24,6 +24,7 @@ export async function importPrompt(
 
     const oldGlb: any = {}
     const glb: any = resolveGlobal()
+    let unregister: () => void = undefined
     try {
         // override global context
         for (const field of Object.keys(ctx0)) {
@@ -43,17 +44,21 @@ export async function importPrompt(
             new URL(__filename ?? host.projectFolder(), "file://").href
 
         trace?.itemValue(`import`, `${modulePath}, parent: ${parentURL}`)
-        const { tsImport } = await import("tsx/esm/api")
+        const onImport = (file: string) => {
+            trace?.itemValue("📦 import", file)
+        }
+        const { tsImport, register } = await import("tsx/esm/api")
+        unregister = register({ onImport })
         const module = await tsImport(modulePath, {
             parentURL,
-            tsconfig: false,
-            onImport: (file: string) => {
-                trace?.itemValue("📦 imported", file)
-            },
+            //tsconfig: false,
+            onImport,
         })
         const main = module.default
         if (typeof main === "function") await main(ctx0)
+        unregister?.()
     } catch (err) {
+        unregister?.()
         logError(err)
         trace?.error(err)
         throw err

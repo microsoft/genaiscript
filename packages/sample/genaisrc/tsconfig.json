@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
         "lib": ["ES2022"],
-        "target": "ES2022",
-        "module": "ES2022",
+        "target": "ES2023",
+        "module": "NodeNext",
         "moduleDetection": "force",
+        "moduleResolution": "nodenext",
         "checkJs": true,
         "allowJs": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true
     },
     "include": ["*.js", "*.mjs", "*.ts", "*.mts", "./genaiscript.d.ts"]
 }

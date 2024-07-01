@@ -12,9 +12,11 @@ function f(x: number) {}
 const x: number = 123 // typescript syntax
 
 import { summarize } from "./summarizer.mjs"
+const { summarize: summarizeTs } = await import("./summarizer-ts.mts")
 
 $`You are an export at analyzing data.`
 
 export default async function () {
     summarize(env.generator, env.files)
+    summarizeTs(env.generator, env.files)
 }
