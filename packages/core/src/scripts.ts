@@ -38,7 +38,8 @@ export async function fixPromptDefinitions(project: Project) {
     const folders = project.folders()
     for (const folder of folders) {
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
-            if (project && defName === "genaiscript.d.ts") {
+            // patch genaiscript
+            if (defName === "genaiscript.d.ts") {
                 const systems = project.templates.filter((t) => t.isSystem)
                 const tools = systems
                     .map(({ jsSource }) => scanTools(jsSource))

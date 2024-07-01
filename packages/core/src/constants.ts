@@ -19,6 +19,7 @@ export const GENAI_JS_EXT = ".genai.js"
 export const GENAI_MJS_EXT = ".genai.mjs"
 export const GENAI_ANYJS_GLOB = "**/*.genai.{js,mjs,ts,mts}"
 export const GENAI_ANYJS_REGEX = /\.genai\.(js|mjs|ts|mts)$/i
+export const GENAI_ANYTS_REGEX = /\.genai\.(ts|mts)$/i
 export const HTTPS_REGEX = /^https:\/\//i
 export const CSV_REGEX = /\.(t|c)sv$/i
 export const XLSX_REGEX = /\.xlsx$/i
