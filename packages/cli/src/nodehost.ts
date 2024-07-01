@@ -3,7 +3,6 @@ import prompts from "prompts"
 import {
     AZURE_OPENAI_TOKEN_SCOPES,
     AbortSignalOptions,
-    AskUserOptions,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     Host,
@@ -161,14 +160,6 @@ export class NodeHost implements Host {
     }
     resolvePath(...segments: string[]) {
         return this.path.resolve(...segments)
-    }
-    async askUser(options: AskUserOptions) {
-        const res = await prompts({
-            type: "text",
-            name: "value",
-            message: options.prompt,
-        })
-        return res?.value
     }
     async readFile(name: string): Promise<Uint8Array> {
         const wksrx = /^workspace:\/\//i

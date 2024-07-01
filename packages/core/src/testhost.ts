@@ -2,7 +2,6 @@ import { readFile, writeFile } from "fs/promises"
 import {
     setHost,
     Host,
-    AskUserOptions,
     LogLevel,
     ModelService,
     LanguageModelConfiguration,
@@ -86,9 +85,6 @@ export class TestHost implements Host {
         throw new Error("Method not implemented.")
     }
     deleteDirectory(name: string): Promise<void> {
-        throw new Error("Method not implemented.")
-    }
-    askUser(options: AskUserOptions): Promise<string> {
         throw new Error("Method not implemented.")
     }
     exec(
