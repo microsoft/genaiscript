@@ -37,8 +37,6 @@ export const eolPosition = 0x3fffffff
 export const eofPosition: CharPosition = [0x3fffffff, 0]
 
 export class Project {
-    readonly rootFiles: TextFile[] = []
-    readonly allFiles: TextFile[] = []
     readonly templates: PromptScript[] = []
     readonly diagnostics: Diagnostic[] = []
 
@@ -57,25 +55,5 @@ export class Project {
 
     getTemplate(id: string) {
         return this.templates.find((t) => t.id == id)
-    }
-
-    resolve(filename: string) {
-        return this.allFiles.find((file) => filename === file.filename)
-    }
-}
-
-export class TextFile {
-    constructor(
-        public readonly project: Project,
-        public readonly filename: string,
-        public readonly mime: string,
-        public readonly content: string
-    ) {}
-
-    relativeName() {
-        const prj = host.projectFolder()
-        if (this.filename.startsWith(prj))
-            return this.filename.slice(prj.length).replace(/^[\/\\]*/, "")
-        return this.filename
     }
 }

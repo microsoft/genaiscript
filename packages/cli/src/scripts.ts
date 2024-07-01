@@ -3,7 +3,7 @@ import {
     copyPrompt,
     createScript as coreCreateScript,
     fixPromptDefinitions,
-    GENAI_JS_GLOB,
+    GENAI_ANYJS_GLOB,
     host,
     logVerbose,
 } from "genaiscript-core"
@@ -37,7 +37,7 @@ export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
-        logVerbose(`compiling ${host.path.join(folder, GENAI_JS_GLOB)}`)
+        logVerbose(`compiling ${host.path.join(folder, GENAI_ANYJS_GLOB)}`)
         const res = await host.exec(
             undefined,
             "npx",

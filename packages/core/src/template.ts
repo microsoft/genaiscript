@@ -7,7 +7,7 @@ import { humanize } from "inflection"
 import { validateSchema } from "./schema"
 function templateIdFromFileName(filename: string) {
     return filename
-        .replace(/\.(mjs|ts|js)$/i, "")
+        .replace(/\.(mjs|ts|js|mts)$/i, "")
         .replace(/\.genai$/i, "")
         .replace(/.*[\/\\]/, "")
 }

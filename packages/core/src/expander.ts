@@ -3,8 +3,8 @@ import { assert, normalizeFloat, normalizeInt, unique } from "./util"
 import { MarkdownTrace } from "./trace"
 import { errorMessage, isCancelError } from "./error"
 import {
+    JS_REGEX,
     MAX_TOOL_CALLS,
-    MJS_REGEX,
     MODEL_PROVIDER_AICI,
     SYSTEM_FENCE,
 } from "./constants"
@@ -111,7 +111,7 @@ async function callExpander(
     }
 
     try {
-        if (MJS_REGEX.test(r.filename))
+        if (r.filename && !JS_REGEX.test(r.filename))
             await importPrompt(ctx, r, { logCb, trace })
         else {
             await evalPrompt(ctx, r, {
@@ -294,7 +294,6 @@ export async function expandTemplate(
 
     const prompt = await callExpander(template, env, trace, options)
 
-    const expanded = prompt.text
     const images = prompt.images
     const schemas = prompt.schemas
     const functions = prompt.functions
