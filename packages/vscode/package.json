@@ -66,9 +66,9 @@
                 "description": "Use GenAIScript to create LLM-powered scripts.",
                 "steps": [
                     {
-                        "id": "genaiscript.tutorial.start",
+                        "id": "genaiscript.tutirla.node",
                         "title": "Install Node.JS LTS",
-                        "description": "GenAIScript requires Node.JS LTS to run. You can download it from the [Node.JS website](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).",
+                        "description": "GenAIScript requires Node.JS LTS to run. Install with [nvm](https://github.com/nvm-sh/nvm) (Linux, MaxOS), [nvm-windows](https://github.com/creationix/nvm) (Windows).",
                         "media": {
                             "image": "media/tutorial-start.png",
                             "altText": ""
