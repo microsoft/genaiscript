@@ -35,6 +35,7 @@ import { Utils } from "vscode-uri"
 import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
+import { pickLanguageModel } from "./lmaccess"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -343,25 +344,25 @@ temp/
                       }
                     : undefined,
             model: info.model,
-        }       
+        }     
+            */
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel(this, genOptions.model)
+            const lmmodel = await pickLanguageModel(this, info.model)
             if (!lmmodel) {
                 trace.error("no model provider selected")
                 return undefined
             }
-
+            /*
             await configureLanguageModelAccess(
                 this.context,
                 options,
                 genOptions,
                 lmmodel
             )
-        } else 
-        */
-
-        if (connectionToken.type === "localai") await startLocalAI()
+                */
+        }
+        if (connectionToken?.type === "localai") await startLocalAI()
 
         const { runId, request } = await this.host.server.client.startScript(
             template.id,
