@@ -2,6 +2,7 @@ import { assert } from "console"
 import { host } from "./host"
 import { logError } from "./util"
 import { TraceOptions } from "./trace"
+import { pathToFileURL } from "url"
 
 function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -36,15 +37,14 @@ export async function importPrompt(
             glb[field] = (ctx0 as any)[field]
         }
 
-        const modulePath = new URL(
+        const modulePath = pathToFileURL(
             host.path.isAbsolute(filename)
                 ? filename
-                : host.path.join(host.projectFolder(), filename),
-            "file://"
-        ).href
+                : host.path.join(host.projectFolder(), filename)
+        ).toString()
         const parentURL =
             import.meta.url ??
-            new URL(__filename ?? host.projectFolder(), "file://").href
+            pathToFileURL(__filename ?? host.projectFolder()).toString()
 
         trace?.itemValue(`import`, `${modulePath}, parent: ${parentURL}`)
         const onImport = (file: string) => {
