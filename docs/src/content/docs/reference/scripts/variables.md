@@ -11,6 +11,9 @@ The `env.vars` object contains a set of variable values. You can use these varia
 ```javascript
 // grab locale from variable or default to en-US
 const locale = env.vars.locale || "en-US"
+// conditionally modify prompt
+if (env.vars.explain)
+    $`Explain your reasoning`
 ```
 
 ### Script parameters
