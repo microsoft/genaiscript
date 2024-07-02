@@ -36,9 +36,12 @@ export async function importPrompt(
             glb[field] = (ctx0 as any)[field]
         }
 
-        const modulePath = host.path.isAbsolute(filename)
-            ? filename
-            : host.path.join(host.projectFolder(), filename)
+        const modulePath = new URL(
+            host.path.isAbsolute(filename)
+                ? filename
+                : host.path.join(host.projectFolder(), filename),
+            "file://"
+        ).href
         const parentURL =
             import.meta.url ??
             new URL(__filename ?? host.projectFolder(), "file://").href
