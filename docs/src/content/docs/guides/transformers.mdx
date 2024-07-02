@@ -1,0 +1,45 @@
+---
+title: Using transformers.js 
+sidebar:
+  order: 10
+---
+
+Hugging Face [Transformer.js](https://huggingface.co/docs/transformers.js/index)
+let's you run local model directly from your browser or a Node.JS process.
+We can freely use this library from a GenAIScript.
+
+##  Installing transformer.js
+
+You will need to [install](https://huggingface.co/docs/transformers.js/installation)
+the package locally to reference it in your script.
+
+```sh
+npm install -D @xenova/transformers
+```
+
+## Importing transformers
+
+The [summarization pipeline](https://huggingface.co/docs/transformers.js/api/pipelines#pipelinessummarizationpipeline)
+specializes in summarizing text. You typically want to allocate a pipeline once
+and reuse it over the lifetime of the script.
+
+```js
+import { pipeline } from "@xenova/transformers"
+const summarizer = await pipeline("summarization")
+```
+
+## Using transformers
+
+The `summarizer` object is a locally running model that we can use to summarize each file.
+
+```js "await summarizer(file.content)"
+for (const file of env.files) {
+    const [summary] = await summarizer(file.content)
+    // @ts-ignore
+    def("FILE", { filename: file.filename, content: summary.summary_text })
+}
+```
+
+## To be continued...
+
+There's a ton of other transformers that you could also use in your scripts. Happy modeling.
