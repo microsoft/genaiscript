@@ -68,7 +68,7 @@
                     {
                         "id": "genaiscript.tutirla.node",
                         "title": "Install Node.JS LTS",
-                        "description": "GenAIScript requires Node.JS LTS to run. Install with [nvm](https://github.com/nvm-sh/nvm) (Linux, MaxOS), [nvm-windows](https://github.com/creationix/nvm) (Windows).",
+                        "description": "GenAIScript requires Node.JS LTS to run. [Read more...](https://microsoft.github.io/genaiscript/getting-started/installation/)",
                         "media": {
                             "image": "media/tutorial-start.png",
                             "altText": ""
