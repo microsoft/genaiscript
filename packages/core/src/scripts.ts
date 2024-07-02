@@ -37,8 +37,10 @@ function scanTools(v: string) {
 export async function fixPromptDefinitions(project: Project) {
     const folders = project.folders()
     for (const folder of folders) {
+        const { dirname, ts, js } = folder
         for (let [defName, defContent] of Object.entries(promptDefinitions)) {
-            if (project && defName === "genaiscript.d.ts") {
+            // patch genaiscript
+            if (defName === "genaiscript.d.ts") {
                 const systems = project.templates.filter((t) => t.isSystem)
                 const tools = systems
                     .map(({ jsSource }) => scanTools(jsSource))
@@ -81,9 +83,12 @@ ${tools.map((s) => `* - \`${s.name}\`: ${s.description}`).join("\n")}
                     )
             }
 
-            const current = await tryReadText(host.path.join(folder, defName))
+            if (defName === "tsconfig.json" && !ts) continue
+            if (defName === "jsconfig.json" && !js) continue
+
+            const current = await tryReadText(host.path.join(dirname, defName))
             if (current !== defContent) {
-                const fn = host.path.join(folder, defName)
+                const fn = host.path.join(dirname, defName)
                 logVerbose(`updating ${fn}`)
                 await writeText(fn, defContent)
             }

@@ -22,7 +22,7 @@ import {
     TOOL_ID,
     TOOL_NAME,
     RetrievalSearchResult,
-    GENAI_JS_GLOB,
+    GENAI_ANYJS_GLOB,
     fixPromptDefinitions,
     resolveModelConnectionInfo,
     AI_REQUESTS_CACHE,
@@ -462,7 +462,7 @@ temp/
     }
 
     async findScripts() {
-        const scriptFiles = await findFiles(GENAI_JS_GLOB)
+        const scriptFiles = await findFiles(GENAI_ANYJS_GLOB)
         return scriptFiles
     }
 

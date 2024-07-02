@@ -1,10 +1,10 @@
-import { GENAI_JS_GLOB, host, parseProject } from "genaiscript-core"
+import { GENAI_ANYJS_GLOB, host, parseProject } from "genaiscript-core"
 
 export async function buildProject(options?: {
     toolFiles?: string[]
     toolsPath?: string
 }) {
-    const { toolFiles, toolsPath = GENAI_JS_GLOB } = options || {}
+    const { toolFiles, toolsPath = GENAI_ANYJS_GLOB } = options || {}
 
     const scriptFiles = toolFiles?.length
         ? toolFiles

@@ -27,10 +27,12 @@ $`Shorten ${file}. Limit changes to minimum.`
 
 ## Script files
 
--   GenAIScript will detect any file matching `*.genai.mjs` in your workspace.
+-   GenAIScript will detect any file matching `*.genai.mjs`, `*.genai.js`, `*.genai.mts` in your workspace.
 -   GenAIScript files can be placed anywhere in your workspace; 
     but the extension will place them in a `genaisrc` folder by default.
--   `.genai.mjs` use module JavaScript syntax and support imports. (`.genai.js` are eval-ed and do not support imports).
+-   `.genai.mjs` use module JavaScript syntax and support imports. 
+-   `.genai.js` are eval-ed and do not support imports.
+-   `.genai.mts` are TypeScript module files and support imports, including dynamic imports of other TypeScript files.
 
 <FileTree>
 

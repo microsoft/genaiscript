@@ -1,5 +1,6 @@
 /// <reference path="./types/prompt_template.d.ts" />
 
+import { GENAI_ANYTS_REGEX } from "./constants"
 import { host } from "./host"
 
 type PromptScript = globalThis.PromptScript
@@ -37,45 +38,28 @@ export const eolPosition = 0x3fffffff
 export const eofPosition: CharPosition = [0x3fffffff, 0]
 
 export class Project {
-    readonly rootFiles: TextFile[] = []
-    readonly allFiles: TextFile[] = []
     readonly templates: PromptScript[] = []
     readonly diagnostics: Diagnostic[] = []
 
     _finalizers: (() => void)[] = []
 
     folders() {
-        const res: string[] = Array.from(
-            new Set(
-                Object.values(this.templates)
-                    .filter((t) => t.filename)
-                    .map((t) => host.path.dirname(t.filename))
-            )
-        )
-        return res
+        const folders: Record<
+            string,
+            { dirname: string; js?: boolean; ts?: boolean }
+        > = {}
+        for (const t of Object.values(this.templates).filter(
+            (t) => t.filename
+        )) {
+            const dirname = host.path.dirname(t.filename)
+            const folder = folders[dirname] || (folders[dirname] = { dirname })
+            folder.js = folder.js || !GENAI_ANYTS_REGEX.test(t.filename)
+            folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename)
+        }
+        return Object.values(folders)
     }
 
     getTemplate(id: string) {
         return this.templates.find((t) => t.id == id)
-    }
-
-    resolve(filename: string) {
-        return this.allFiles.find((file) => filename === file.filename)
-    }
-}
-
-export class TextFile {
-    constructor(
-        public readonly project: Project,
-        public readonly filename: string,
-        public readonly mime: string,
-        public readonly content: string
-    ) {}
-
-    relativeName() {
-        const prj = host.projectFolder()
-        if (this.filename.startsWith(prj))
-            return this.filename.slice(prj.length).replace(/^[\/\\]*/, "")
-        return this.filename
     }
 }

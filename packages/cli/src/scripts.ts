@@ -3,11 +3,13 @@ import {
     copyPrompt,
     createScript as coreCreateScript,
     fixPromptDefinitions,
-    GENAI_JS_GLOB,
+    GENAI_ANYTS_REGEX,
+    GENAI_JS_EXT,
     host,
     logVerbose,
 } from "genaiscript-core"
 import { TYPESCRIPT_VERSION } from "./version"
+import { readdir } from "node:fs/promises"
 
 export async function listScripts() {
     const prj = await buildProject()
@@ -37,22 +39,43 @@ export async function compileScript() {
     const project = await buildProject()
     await fixPromptDefinitions(project)
     for (const folder of project.folders()) {
-        logVerbose(`compiling ${host.path.join(folder, GENAI_JS_GLOB)}`)
-        const res = await host.exec(
-            undefined,
-            "npx",
-            [
-                "--yes",
-                "--package",
-                `typescript@${TYPESCRIPT_VERSION}`,
-                "tsc",
-                "--project",
-                host.path.resolve(folder, "jsconfig.json"),
-            ],
-            {
-                cwd: folder,
-            }
-        )
-        logVerbose(res.output)
+        const { dirname, js, ts } = folder
+        logVerbose(`compiling ${dirname}`)
+        if (js) {
+            const res = await host.exec(
+                undefined,
+                "npx",
+                [
+                    "--yes",
+                    "--package",
+                    `typescript@${TYPESCRIPT_VERSION}`,
+                    "tsc",
+                    "--project",
+                    host.path.resolve(dirname, "jsconfig.json"),
+                ],
+                {
+                    cwd: dirname,
+                }
+            )
+            logVerbose(res.output)
+        }
+        if (ts) {
+            const res = await host.exec(
+                undefined,
+                "npx",
+                [
+                    "--yes",
+                    "--package",
+                    `typescript@${TYPESCRIPT_VERSION}`,
+                    "tsc",
+                    "--project",
+                    host.path.resolve(dirname, "tsconfig.json"),
+                ],
+                {
+                    cwd: dirname,
+                }
+            )
+            logVerbose(res.output)
+        }
     }
 }

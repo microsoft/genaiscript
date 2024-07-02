@@ -14,7 +14,7 @@ You can rename any `.genai.js` file to `.genai.mjs` to enable module imports.
 
 ## Module Imports
 
-You can import module installed in your project.
+You can import node packages installed in your project.
 
 ```js
 import { parse } from "ini"
@@ -28,9 +28,9 @@ const { stringify } = await import("ini")
 console.log(stringify(res))
 ```
 
-## File imports
+## JavaScript imports
 
-You can also import other local files.
+You can also import other local **JavaScript** files (using static or dynamic imports).
 
 ```js title="summarizer.mjs"
 export function summarize(files) {
@@ -41,6 +41,27 @@ export function summarize(files) {
 
 ```js title="summarize.genai.mjs"
 import { summarize } from "./summarizer.mjs"
+summarize(env.generator, env.files)
+```
+
+```js title="summarize.genai.mjs"
+const { summarize } = await import("./summarizer.mjs")
+summarize(env.generator, env.files)
+```
+
+## TypeScript imports
+
+TypeScript (`.mts`) files can be imported using **dynamic** import only.
+
+```js title="summarizer.mts"
+export function summarize(files: string[]) {
+    def("FILE", files)
+    $`Summarize each file. Be concise.`
+}
+```
+
+```js title="summarize.genai.mts"
+const { summarize } = await import("./summarizer.mts")
 summarize(env.generator, env.files)
 ```
 
