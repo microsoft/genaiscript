@@ -27,7 +27,6 @@ import {
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
 import { runScript } from "./run"
-import { isAccessor } from "typescript"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -209,7 +208,7 @@ export async function startServer(options: { port: string }) {
                                     >{
                                         type: "script.end",
                                         runId,
-                                        exitCode: isAccessor(e)
+                                        exitCode: isCancelError(e)
                                             ? USER_CANCELLED_ERROR_CODE
                                             : UNHANDLED_ERROR_CODE,
                                     })
