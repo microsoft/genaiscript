@@ -1,5 +1,5 @@
 import { ChatCompletionsProgressReport } from "../chat"
-import { CLIENT_RECONNECT_DELAY } from "../constants"
+import { CLIENT_RECONNECT_DELAY, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../expander"
@@ -40,6 +40,7 @@ import {
 } from "./messages"
 
 export class WebSocketClient
+    extends EventTarget
     implements RetrievalService, ParseService, ModelService
 {
     private awaiters: Record<
@@ -50,6 +51,7 @@ export class WebSocketClient
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
+    reconnectAttempts = 0
 
     private runs: Record<
         string,
@@ -67,7 +69,9 @@ export class WebSocketClient
         }
     > = {}
 
-    constructor(readonly url: string) {}
+    constructor(readonly url: string) {
+        super()
+    }
 
     private installPolyfill() {
         if (typeof WebSocket === "undefined") {
@@ -87,6 +91,8 @@ export class WebSocketClient
     }
 
     private reconnect() {
+        this.reconnectAttempts++
+        this.dispatchEvent(new Event(RECONNECT))
         this._ws = undefined
         clearTimeout(this._reconnectTimeout)
         this._reconnectTimeout = setTimeout(() => {
@@ -100,6 +106,8 @@ export class WebSocketClient
 
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener("open", () => {
+            // clear counter
+            this.reconnectAttempts = 0
             // flush cached messages
             let m: string
             while (
@@ -186,18 +194,25 @@ export class WebSocketClient
     }
 
     stop() {
+        this.reconnectAttempts = 0
         if (this._reconnectTimeout) {
             clearTimeout(this._reconnectTimeout)
             this._reconnectTimeout = undefined
         }
         if (this._ws) {
-            this._ws.close()
+            const ws = this._ws
             this._ws = undefined
+            if (ws.readyState !== WebSocket.CLOSED)
+                try {
+                    ws.close()
+                } finally {
+                }
         }
         this.cancel()
     }
 
     cancel(reason?: string) {
+        this.reconnectAttempts = 0
         this._pendingMessages = []
         const cancellers = Object.values(this.awaiters)
         this.awaiters = {}

@@ -2,6 +2,7 @@ import {
     ICON_LOGO_NAME,
     ModelService,
     ParseService,
+    RECONNECT,
     RetrievalService,
     SERVER_PORT,
     ServerManager,
@@ -32,13 +33,21 @@ export class TerminalServerManager implements ServerManager {
             })
         )
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
+        this.client.addEventListener(RECONNECT, () => {
+            // server process died somehow
+            if (this.client.reconnectAttempts > 5) {
+                this.closeTerminal()
+                this.start()
+            }
+        })
     }
 
     async start() {
         if (this._terminal) return
 
+        this.client.reconnectAttempts = 0
         this._terminal = vscode.window.createTerminal({
-            name: `${TOOL_NAME} Server`,
+            name: TOOL_NAME,
             cwd: host.projectFolder(),
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
@@ -65,8 +74,13 @@ export class TerminalServerManager implements ServerManager {
 
     async close() {
         this.client?.kill()
-        this._terminal?.dispose()
+        this.closeTerminal()
+    }
+
+    private closeTerminal() {
+        const t = this._terminal
         this._terminal = undefined
+        t?.dispose()
     }
 
     dispose(): any {
