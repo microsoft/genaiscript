@@ -2,7 +2,7 @@ import { assert } from "console"
 import { host } from "./host"
 import { logError } from "./util"
 import { TraceOptions } from "./trace"
-import { pathToFileURL } from "url"
+import { fileURLToPath, pathToFileURL } from "url"
 
 function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -46,16 +46,14 @@ export async function importPrompt(
             import.meta.url ??
             pathToFileURL(__filename ?? host.projectFolder()).toString()
 
-        trace?.itemValue(`import`, `${modulePath}, parent: ${parentURL}`)
         const onImport = (file: string) => {
-            trace?.itemValue("📦 import", file)
+            //trace?.itemValue("📦 import", fileURLToPath(file))
         }
+        onImport(modulePath)
         const { tsImport, register } = await import("tsx/esm/api")
         unregister = register({ onImport })
         const module = await tsImport(modulePath, {
             parentURL,
-            //tsconfig: false,
-            onImport,
         })
         const main = module.default
         if (typeof main === "function") await main(ctx0)
