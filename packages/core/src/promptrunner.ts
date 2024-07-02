@@ -1,4 +1,4 @@
-import { executeChatSession } from "./chat"
+import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
 import { arrayify, assert, logVerbose, relativePath } from "./util"
@@ -207,6 +207,7 @@ export async function runTemplate(
             chatParticipants,
             genOptions
         )
+        tracePromptResult(trace, output)
         const {
             json,
             fences,
@@ -216,10 +217,7 @@ export async function runTemplate(
             finishReason,
         } = output
         let { text, annotations } = output
-        if (json !== undefined) {
-            trace.detailsFenced("📩 json (parsed)", json, "json")
-        } else {
-            if (text) trace.detailsFenced(`🔠 output`, text, `markdown`)
+        if (json === undefined) {
             for (const fence of fences.filter(
                 ({ validation }) => validation?.valid !== false
             )) {

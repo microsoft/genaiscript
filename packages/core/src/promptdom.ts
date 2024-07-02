@@ -34,6 +34,10 @@ export interface PromptNode extends ContextExpansionOptions {
     children?: PromptNode[]
     error?: unknown
     tokens?: number
+    /**
+     * Rendered markdown preview of the node
+     */
+    preview?: string
 }
 
 export interface PromptTextNode extends PromptNode {
@@ -52,7 +56,7 @@ export interface PromptDefNode extends PromptNode, DefOptions {
 export interface PromptAssistantNode extends PromptNode {
     type: "assistant"
     value: Awaitable<string>
-    resolve?: string
+    resolved?: string
 }
 
 export interface PromptStringTemplateNode extends PromptNode {
@@ -368,7 +372,7 @@ async function resolvePromptNode(
         text: async (n) => {
             try {
                 const value = await n.value
-                n.resolved = value
+                n.resolved = n.preview = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
                 n.error = e
@@ -379,6 +383,7 @@ async function resolvePromptNode(
                 const value = await n.value
                 n.resolved = value
                 const rendered = renderDefNode(n)
+                n.preview = rendered
                 n.tokens = estimateTokens(model, rendered)
             } catch (e) {
                 n.error = e
@@ -387,7 +392,7 @@ async function resolvePromptNode(
         assistant: async (n) => {
             try {
                 const value = await n.value
-                n.resolve = value
+                n.resolved = n.preview = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
                 n.error = e
@@ -412,7 +417,7 @@ async function resolvePromptNode(
                     resolvedArgs.push(resolvedArg ?? "")
                 }
                 const value = dedent(strings, ...resolvedArgs)
-                n.resolved = value
+                n.resolved = n.preview = value
                 n.tokens = estimateTokens(model, value)
             } catch (e) {
                 n.error = e
@@ -422,6 +427,7 @@ async function resolvePromptNode(
             try {
                 const v = await n.value
                 n.resolved = v
+                n.preview = `![${v.filename ?? "image"}](${v.url})`
             } catch (e) {
                 n.error = e
             }
@@ -507,12 +513,13 @@ async function tracePromptNode(
                 error
             )
             if (value.length > 0) title += `: ${value}`
-            if (n.children?.length)
+            if (n.children?.length || n.preview) {
                 trace.startDetails(title, n.error ? false : undefined)
-            else trace.resultItem(!n.error, title)
+                if (n.preview) trace.fence(n.preview, "markdown")
+            } else trace.resultItem(!n.error, title)
         },
         afterNode: (n) => {
-            if (n.children?.length) trace.endDetails()
+            if (n.children?.length || n.preview) trace.endDetails()
         },
     })
 }
@@ -554,7 +561,7 @@ export async function renderPromptNode(
         },
         assistant: async (n) => {
             if (n.error) errors.push(n.error)
-            const value = await n.resolve
+            const value = await n.resolved
             if (value != undefined) assistantPrompt += value + "\n"
         },
         stringTemplate: async (n) => {

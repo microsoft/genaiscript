@@ -19,9 +19,11 @@ import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 
-export type ChatCompletionContentPartText = OpenAI.Chat.Completions.ChatCompletionContentPartText
+export type ChatCompletionContentPartText =
+    OpenAI.Chat.Completions.ChatCompletionContentPartText
 
-export type ChatCompletionContentPart = OpenAI.Chat.Completions.ChatCompletionContentPart
+export type ChatCompletionContentPart =
+    OpenAI.Chat.Completions.ChatCompletionContentPart
 
 export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
 
@@ -436,7 +438,6 @@ async function processChatMessage(
         maxToolCalls = MAX_TOOL_CALLS,
         trace,
         cancellationToken,
-        maxDataRepairs = MAX_DATA_REPAIRS,
     } = options
 
     if (resp.text)
@@ -533,7 +534,7 @@ export async function executeChatSession(
     completer: ChatCompletionHandler,
     chatParticipants: ChatParticipant[],
     genOptions: GenerationOptions
-) {
+): Promise<RunPromptResult> {
     const {
         trace,
         model = host.defaultModelOptions.model,
@@ -575,30 +576,37 @@ export async function executeChatSession(
                 `💬 messages (${messages.length})`,
                 renderMessagesToMarkdown(messages)
             )
-            trace.startDetails(`📤 llm request`)
+
+            // make request
             let resp: ChatCompletionResponse
             try {
                 checkCancelled(cancellationToken)
-                resp = await completer(
-                    {
-                        model,
-                        temperature: temperature,
-                        top_p: topP,
-                        max_tokens: maxTokens,
-                        seed,
-                        stream: true,
-                        messages,
-                        tools,
-                        response_format: responseType
-                            ? { type: responseType }
-                            : undefined,
-                    },
-                    connectionToken,
-                    genOptions,
-                    trace
-                )
-                if (resp.variables)
-                    genVars = { ...(genVars || {}), ...resp.variables }
+                try {
+                    trace.startDetails(`📤 llm request`)
+                    resp = await completer(
+                        {
+                            model,
+                            temperature: temperature,
+                            top_p: topP,
+                            max_tokens: maxTokens,
+                            seed,
+                            stream: true,
+                            messages,
+                            tools,
+                            response_format: responseType
+                                ? { type: responseType }
+                                : undefined,
+                        },
+                        connectionToken,
+                        genOptions,
+                        trace
+                    )
+                    if (resp.variables)
+                        genVars = { ...(genVars || {}), ...resp.variables }
+                } finally {
+                    trace.endDetails()
+                }
+
                 const output = await processChatMessage(
                     resp,
                     messages,
@@ -617,13 +625,17 @@ export async function executeChatSession(
                     genOptions,
                     { resp, err }
                 )
-            } finally {
-                trace.endDetails()
             }
         }
     } finally {
         trace.endDetails()
     }
+}
+
+export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
+    const { json, text } = resp
+    trace.detailsFenced(`🔠 output`, text, `markdown`)
+    if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
 }
 
 function renderToolArguments(args: string) {

@@ -4,6 +4,7 @@ import {
     executeChatSession,
     LanguageModel,
     mergeGenerationOptions,
+    tracePromptResult,
 } from "./chat"
 import { HTMLEscape, arrayify, logVerbose } from "./util"
 import { host } from "./host"
@@ -283,11 +284,7 @@ export function createPromptContext(
                     chatParticipants,
                     genOptions
                 )
-                const { json, text } = resp
-                if (resp.json)
-                    trace.detailsFenced("📩 json (parsed)", json, "json")
-                else if (text)
-                    trace.detailsFenced(`🔠 output`, text, `markdown`)
+                tracePromptResult(trace, resp)
                 return resp
             } catch (e) {
                 trace.error(e)
