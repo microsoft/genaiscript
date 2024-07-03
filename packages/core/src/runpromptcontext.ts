@@ -6,6 +6,7 @@ import {
     createChatParticipant,
     createDefDataNode,
     createDefNode,
+    createFileOutput,
     createFunctionNode,
     createImageNode,
     createSchemaNode,
@@ -177,12 +178,21 @@ export function createChatGenerationContext(
             appendChild(node, createChatParticipant({ generator, options }))
     }
 
+    const defFileOutput = (
+        nameOrPattern: string,
+        options?: FileOutputOptions
+    ): void => {
+        if (nameOrPattern)
+            appendChild(node, createFileOutput({ nameOrPattern, options }))
+    }
+
     const ctx = <RunPromptContextNode>{
         ...turnCtx,
         defTool,
         defSchema,
         defImages,
         defChatParticipant,
+        defFileOutput,
     }
 
     return ctx

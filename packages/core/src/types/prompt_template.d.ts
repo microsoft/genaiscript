@@ -1261,6 +1261,18 @@ interface PromptGeneratorOptions extends ModelOptions {
     label?: string
 }
 
+interface FileOutputOptions {
+    /**
+     * Schema identifier to validate the generated file
+     */
+    schema?: string
+}
+
+interface FileOutput {
+    nameOrPattern: string
+    options?: FileOutputOptions
+}
+
 interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
@@ -1291,6 +1303,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ): void
+    defFileOutput(nameOrPattern: string, options?: FileOutputOptions): void
 }
 
 interface GenerationOutput {
