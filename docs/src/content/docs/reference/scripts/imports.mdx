@@ -39,10 +39,14 @@ export function summarize(files) {
 }
 ```
 
+- static import (`import ... from ...`)
+
 ```js title="summarize.genai.mjs"
 import { summarize } from "./summarizer.mjs"
 summarize(env.generator, env.files)
 ```
+
+- dynamic import (`async import(...)`)
 
 ```js title="summarize.genai.mjs"
 const { summarize } = await import("./summarizer.mjs")
@@ -59,6 +63,8 @@ export function summarize(files: string[]) {
     $`Summarize each file. Be concise.`
 }
 ```
+
+- dynamic import (`async import(...)`)
 
 ```js title="summarize.genai.mts"
 const { summarize } = await import("./summarizer.mts")
