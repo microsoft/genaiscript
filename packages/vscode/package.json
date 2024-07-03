@@ -41,7 +41,7 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:**/*.genai.{mjs,js}",
+        "workspaceContains:**/*.genai.{js,mjs,mts}",
         "onNotebook:genaiscript"
     ],
     "main": "./built/extension.js",
@@ -166,12 +166,12 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.m?js$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@1"
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.m?js$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@2"
                 }
             ],
@@ -231,7 +231,7 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.m?js$/)",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts)$/)",
                     "group": "genaiscript@1"
                 }
             ]

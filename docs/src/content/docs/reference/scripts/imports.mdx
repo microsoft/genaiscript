@@ -41,21 +41,21 @@ export function summarize(files) {
 
 - static import (`import ... from ...`)
 
-```js title="summarize.genai.mjs"
+```js
 import { summarize } from "./summarizer.mjs"
 summarize(env.generator, env.files)
 ```
 
 - dynamic import (`async import(...)`)
 
-```js title="summarize.genai.mjs"
+```js
 const { summarize } = await import("./summarizer.mjs")
 summarize(env.generator, env.files)
 ```
 
 ## TypeScript imports
 
-TypeScript (`.mts`) files can be imported using **dynamic** import only.
+[TypeScript module files](/genaiscript/reference/scripts/typescript) (`.mts`) can be imported using **dynamic** import only.
 
 ```js title="summarizer.mts"
 export function summarize(files: string[]) {
@@ -66,7 +66,7 @@ export function summarize(files: string[]) {
 
 - dynamic import (`async import(...)`)
 
-```js title="summarize.genai.mts"
+```js
 const { summarize } = await import("./summarizer.mts")
 summarize(env.generator, env.files)
 ```
@@ -75,7 +75,7 @@ summarize(env.generator, env.files)
 
 The `env.generator` references the root prompt generator context, the top level `$`, `def` functions... It can be used to create function that can be used with those function or also with `runPrompt`.
 
-```js title="summarizer.mjs" "_"
+```js "_"
 export function summarize(_, files) {
     _.def("FILE", files)
     _.$`Summarize each file. Be concise.`
