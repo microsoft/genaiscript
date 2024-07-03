@@ -104,6 +104,7 @@ async function callExpander(
     let fileMerges: FileMergeHandler[] = []
     let outputProcessors: PromptOutputProcessorHandler[] = []
     let chatParticipants: ChatParticipant[] = []
+    let fileOutputs: FileOutput[] = []
     let aici: AICIRequest
 
     const logCb = (msg: any) => {
@@ -131,6 +132,7 @@ async function callExpander(
                 fileMerges: fms,
                 outputProcessors: ops,
                 chatParticipants: cps,
+                fileOutputs: fos,
             } = await renderPromptNode(model, node, { trace })
             text = prompt
             assistantText = assistantPrompt
@@ -140,6 +142,7 @@ async function callExpander(
             fileMerges = fms
             outputProcessors = ops
             chatParticipants = cps
+            fileOutputs = fos
             if (errors?.length) {
                 for (const error of errors) trace.error(``, error)
                 status = "error"
@@ -176,6 +179,7 @@ async function callExpander(
         fileMerges,
         outputProcessors,
         chatParticipants,
+        fileOutputs,
         aici,
     }
 }
@@ -300,6 +304,7 @@ export async function expandTemplate(
     const fileMerges = prompt.fileMerges
     const outputProcessors = prompt.outputProcessors
     const chatParticipants = prompt.chatParticipants
+    const fileOutputs = prompt.fileOutputs
 
     if (prompt.logs?.length) trace.details("📝 console.log", prompt.logs)
     if (prompt.text) trace.detailsFenced(`📝 prompt`, prompt.text, "markdown")
@@ -344,8 +349,11 @@ export async function expandTemplate(
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
         if (sysr.functions) functions.push(...sysr.functions)
         if (sysr.fileMerges) fileMerges.push(...sysr.fileMerges)
-        if (sysr.outputProcessors) outputProcessors.push(...outputProcessors)
-        if (sysr.chatParticipants) chatParticipants.push(...chatParticipants)
+        if (sysr.outputProcessors)
+            outputProcessors.push(...sysr.outputProcessors)
+        if (sysr.chatParticipants)
+            chatParticipants.push(...sysr.chatParticipants)
+        if (sysr.fileOutputs) fileOutputs.push(...sysr.fileOutputs)
         if (sysr.logs?.length) trace.details("📝 console.log", sysr.logs)
         if (sysr.text) {
             systemMessage.content += SYSTEM_FENCE + "\n" + sysr.text + "\n"
@@ -417,5 +425,6 @@ ${schemaTs}
         fileMerges,
         outputProcessors,
         chatParticipants,
+        fileOutputs,
     }
 }

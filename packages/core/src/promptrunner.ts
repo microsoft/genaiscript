@@ -100,6 +100,7 @@ export async function runTemplate(
             fileMerges,
             outputProcessors,
             chatParticipants,
+            fileOutputs,
             status,
             statusText,
             temperature,
