@@ -1269,7 +1269,7 @@ interface FileOutputOptions {
 }
 
 interface FileOutput {
-    nameOrPattern: string
+    glob: string
     options?: FileOutputOptions
 }
 
@@ -1303,7 +1303,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ): void
-    defFileOutput(nameOrPattern: string, options?: FileOutputOptions): void
+    defFileOutput(glob: string, options?: FileOutputOptions): void
 }
 
 interface GenerationOutput {

@@ -661,7 +661,7 @@ ${trimNewlines(schemaText)}
         },
         fileOutput: (n) => {
             fileOutputs.push(n.output)
-            trace.itemValue(`file output`, n.output.nameOrPattern)
+            trace.itemValue(`file output`, n.output.glob)
         },
     })
 

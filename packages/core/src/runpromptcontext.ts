@@ -1,4 +1,3 @@
-import { minimatch } from "minimatch"
 import {
     PromptNode,
     appendChild,
@@ -15,11 +14,11 @@ import {
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./promptcontext"
-import { CancelError } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
+import { isGlobMatch } from "./glob"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -71,10 +70,7 @@ export function createChatTurnGenerationContext(
                 const { glob, endsWith } = defOptions || {}
                 const filename = body.filename
                 if (glob && filename) {
-                    const match = minimatch(filename, glob, {
-                        windowsPathsNoEscape: true,
-                    })
-                    if (!match) return undefined
+                    if (!isGlobMatch(filename, glob)) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
                 appendChild(node, createDefNode(name, body, doptions))
@@ -179,11 +175,11 @@ export function createChatGenerationContext(
     }
 
     const defFileOutput = (
-        nameOrPattern: string,
+        glob: string,
         options?: FileOutputOptions
     ): void => {
-        if (nameOrPattern)
-            appendChild(node, createFileOutput({ nameOrPattern, options }))
+        if (glob)
+            appendChild(node, createFileOutput({ glob, options }))
     }
 
     const ctx = <RunPromptContextNode>{

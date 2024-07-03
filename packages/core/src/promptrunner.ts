@@ -17,6 +17,7 @@ import { RequestError, errorMessage } from "./error"
 import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
+import { isGlobMatch } from "./glob"
 
 export interface Fragment {
     files: string[]
@@ -165,7 +166,17 @@ export async function runTemplate(
             topP: topP,
             seed: seed,
         }
-        const fileEdits: Record<string, { before: string; after: string }> = {}
+        const fileEdits: Record<
+            string,
+            {
+                before: string
+                after: string
+                /**
+                 * Can be written without user confirmation
+                 */
+                validated?: boolean
+            }
+        > = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
@@ -315,9 +326,9 @@ export async function runTemplate(
 
                     if (files)
                         for (const [n, content] of Object.entries(files)) {
-                            const fn = /^[^\/]/.test(n)
-                                ? host.resolvePath(projFolder, n)
-                                : n
+                            const fn = host.path.isAbsolute(n)
+                                ? n
+                                : host.resolvePath(projFolder, n)
                             trace.detailsFenced(`📁 file ${fn}`, content)
                             const fileEdit = await getFileEdit(fn)
                             fileEdit.after = content
@@ -328,6 +339,17 @@ export async function runTemplate(
                 trace.error(`output processor failed`, e)
             } finally {
                 trace.endDetails()
+            }
+        }
+
+        // apply file outputs
+        for (const fileEditName of Object.keys(fileEdits)) {
+            for (const fileOutput of fileOutputs) {
+                const { glob } = fileOutput
+                if (isGlobMatch(fileEditName, glob)) {
+                    const fe = fileEdits[fileEditName]
+                    fe.validated = true
+                }
             }
         }
 

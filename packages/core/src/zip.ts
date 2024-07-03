@@ -1,8 +1,8 @@
 import { unzipSync } from "fflate"
-import { minimatch } from "minimatch"
 import { lookupMime } from "./mime"
 import { isBinaryMimeType } from "./parser"
 import { host } from "./host"
+import { isGlobMatch } from "./glob"
 
 export async function unzip(
     data: Uint8Array,
@@ -11,10 +11,7 @@ export async function unzip(
     const { glob } = options || {}
     const res = unzipSync(data, {
         filter: (file: { name: string; originalSize: number }) => {
-            if (glob)
-                return minimatch(file.name, glob, {
-                    windowsPathsNoEscape: true,
-                })
+            if (glob) return isGlobMatch(file.name, glob)
             return true
         },
     })
