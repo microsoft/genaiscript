@@ -410,6 +410,7 @@ interface FileEdit {
     type: string
     filename: string
     label?: string
+    validated?: boolean
 }
 
 interface ReplaceEdit extends FileEdit {

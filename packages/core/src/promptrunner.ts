@@ -356,7 +356,7 @@ export async function runTemplate(
         // convert file edits into edits
         Object.entries(fileEdits)
             .filter(([, { before, after }]) => before !== after) // ignore unchanged files
-            .forEach(([fn, { before, after }]) => {
+            .forEach(([fn, { before, after, validated }]) => {
                 if (before) {
                     edits.push({
                         label: `Update ${fn}`,
@@ -364,6 +364,7 @@ export async function runTemplate(
                         type: "replace",
                         range: [[0, 0], stringToPos(after)],
                         text: after,
+                        validated,
                     })
                 } else {
                     edits.push({
@@ -372,6 +373,7 @@ export async function runTemplate(
                         type: "createfile",
                         text: after,
                         overwrite: true,
+                        validated,
                     })
                 }
             })
@@ -383,7 +385,7 @@ export async function runTemplate(
             trace.details(
                 "✏️ edits",
                 CSVToMarkdown(edits, {
-                    headers: ["type", "filename", "message"],
+                    headers: ["type", "filename", "message", "validated"],
                 })
             )
         if (annotations?.length)
