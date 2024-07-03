@@ -665,6 +665,16 @@ ${trimNewlines(schemaText)}
         },
     })
 
+    if (fileOutputs.length > 0) {
+        prompt += `## File generation rules
+
+When generating files, follow the following rules which are formatted as "glob: description":
+
+${fileOutputs.map((fo) => `-  ${fo.glob}: ${fo.description}`)}
+
+`
+    }
+
     const messages: ChatCompletionMessageParam[] = [
         toChatCompletionUserMessage(prompt, images),
     ]

@@ -1304,6 +1304,7 @@ interface FileOutputOptions {
 
 interface FileOutput {
     glob: string
+    description: string
     options?: FileOutputOptions
 }
 
@@ -1337,7 +1338,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ): void
-    defFileOutput(glob: string, options?: FileOutputOptions): void
+    defFileOutput(glob: string, description: string, options?: FileOutputOptions): void
 }
 
 interface GenerationOutput {
@@ -1693,6 +1694,7 @@ declare function def(
  */
 declare function defFileOutput(
     glob: string,
+    description: string,
     options?: FileOutputOptions
 )
 

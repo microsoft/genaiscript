@@ -62,6 +62,7 @@ declare function def(
  */
 declare function defFileOutput(
     glob: string,
+    description: string,
     options?: FileOutputOptions
 )
 
