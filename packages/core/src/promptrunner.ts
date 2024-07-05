@@ -181,6 +181,7 @@ export async function runTemplate(
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
         const getFileEdit = async (fn: string) => {
+            fn = relativePath(projFolder, fn)
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
                 let before: string = null
@@ -343,14 +344,19 @@ export async function runTemplate(
         }
 
         // apply file outputs
-        for (const fileEditName of Object.keys(fileEdits)) {
-            for (const fileOutput of fileOutputs) {
-                const { pattern } = fileOutput
-                if (isGlobMatch(fileEditName, pattern)) {
-                    const fe = fileEdits[fileEditName]
-                    fe.validated = true
+        if (fileOutputs?.length) {
+            trace.startDetails("🗂 file outputs")
+            for (const fileEditName of Object.keys(fileEdits)) {
+                for (const fileOutput of fileOutputs) {
+                    const { pattern } = fileOutput
+                    if (isGlobMatch(fileEditName, pattern)) {
+                        trace.item(`${pattern} validated ${fileEditName}`)
+                        const fe = fileEdits[fileEditName]
+                        fe.validated = true
+                    }
                 }
             }
+            trace.endDetails()
         }
 
         // convert file edits into edits
