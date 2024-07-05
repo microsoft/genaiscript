@@ -247,12 +247,8 @@ export async function runScript(
         if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames)
         else await writeText(outData, JSON.stringify(result.frames, null, 2))
 
-    if (
-        applyEdits &&
-        result.status === "success" &&
-        Object.keys(result.fileEdits || {}).length
-    )
-        await writeFileEdits(result)
+    if (result.status === "success" && result.fileEdits)
+        await writeFileEdits(result, applyEdits)
 
     const promptjson = result.messages?.length
         ? JSON.stringify(result.messages, null, 2)

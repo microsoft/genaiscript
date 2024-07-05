@@ -181,28 +181,16 @@ temp/
     async applyEdits() {
         const req = this.aiRequest
         if (!req) return
-        const edits = req.response?.edits
+        const edits = req.response?.edits?.filter(({ validated }) => !validated)
         if (!edits?.length) return
 
         req.editsApplied = null
         this.dispatchChange()
 
-        // validated edits
-        const validated = edits.filter((e) => e.validated)
-        const needsValidation = edits.filter((e) => !e.validated)
-        if (validated.length) {
-            await applyEdits(this, edits, {
-                needsConfirmation: false,
-            })
-            req.editsApplied = true
-        }
-
-        if (needsValidation.length) {
-            const applied = await applyEdits(this, edits, {
-                needsConfirmation: true,
-            })
-            req.editsApplied = applied
-        }
+        const applied = await applyEdits(this, edits, {
+            needsConfirmation: true,
+        })
+        req.editsApplied = applied
         if (req !== this.aiRequest) return
         if (req.editsApplied) saveAllTextDocuments()
         this.dispatchChange()

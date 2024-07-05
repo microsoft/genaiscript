@@ -661,7 +661,7 @@ ${trimNewlines(schemaText)}
         },
         fileOutput: (n) => {
             fileOutputs.push(n.output)
-            trace.itemValue(`file output`, n.output.glob)
+            trace.itemValue(`file output`, n.output.pattern)
         },
     })
 
@@ -671,7 +671,7 @@ ${trimNewlines(schemaText)}
 
 When generating files, follow the following rules which are formatted as "glob: description":
 
-${fileOutputs.map((fo) => `${fo.glob}: ${fo.description}`)}
+${fileOutputs.map((fo) => `${fo.pattern}: ${fo.description}`)}
 
 `
     }

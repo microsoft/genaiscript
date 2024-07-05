@@ -175,12 +175,15 @@ export function createChatGenerationContext(
     }
 
     const defFileOutput = (
-        glob: string,
+        pattern: string,
         description: string,
         options?: FileOutputOptions
     ): void => {
-        if (glob)
-            appendChild(node, createFileOutput({ glob, description, options }))
+        if (pattern)
+            appendChild(
+                node,
+                createFileOutput({ pattern, description, options })
+            )
     }
 
     const ctx = <RunPromptContextNode>{

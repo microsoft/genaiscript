@@ -345,8 +345,8 @@ export async function runTemplate(
         // apply file outputs
         for (const fileEditName of Object.keys(fileEdits)) {
             for (const fileOutput of fileOutputs) {
-                const { glob } = fileOutput
-                if (isGlobMatch(fileEditName, glob)) {
+                const { pattern } = fileOutput
+                if (isGlobMatch(fileEditName, pattern)) {
                     const fe = fileEdits[fileEditName]
                     fe.validated = true
                 }

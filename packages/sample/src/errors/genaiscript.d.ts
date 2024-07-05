@@ -1339,7 +1339,11 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
     ): void
-    defFileOutput(glob: string, description: string, options?: FileOutputOptions): void
+    defFileOutput(
+        glob: string,
+        description: string,
+        options?: FileOutputOptions
+    ): void
 }
 
 interface GenerationOutput {
@@ -1361,7 +1365,10 @@ interface GenerationOutput {
     /**
      * A map of file updates
      */
-    fileEdits: Record<string, { before: string; after: string }>
+    fileEdits: Record<
+        string,
+        { before: string; after: string; validated?: boolean }
+    >
 
     /**
      * Generated variables, typically from AICI.gen
