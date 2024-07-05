@@ -1333,7 +1333,7 @@ interface GenerationOutput {
      */
     fileEdits: Record<
         string,
-        { before: string; after: string; validated?: boolean }
+        { before: string; after: string; validation?: JSONSchemaValidation }
     >
 
     /**

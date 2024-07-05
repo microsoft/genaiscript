@@ -11,6 +11,15 @@ script({
 })
 
 def("FILE", env.files)
+defSchema("KEYWORDS", {
+    type: "array",
+    items: {
+        type: "string",
+    },
+})
 defFileOutput("src/rag/*.summary.md", "The summary of the file")
+defFileOutput("src/rag/*.keywords.json", "An array of keywords in the file", {
+    schema: "KEYWORDS",
+})
 
-$`Summarize each FILE with one paragraph.`
+$`Summarize each FILE with one paragraph and extract keywords.`

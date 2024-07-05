@@ -18,6 +18,8 @@ import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
 import { isGlobMatch } from "./glob"
+import { validateJSONWithSchema } from "./schema"
+import { YAMLParse } from "./yaml"
 
 export interface Fragment {
     files: string[]
@@ -174,7 +176,7 @@ export async function runTemplate(
                 /**
                  * Can be written without user confirmation
                  */
-                validated?: boolean
+                validation?: JSONSchemaValidation
             }
         > = {}
         const changelogs: string[] = []
@@ -347,12 +349,49 @@ export async function runTemplate(
         if (fileOutputs?.length) {
             trace.startDetails("🗂 file outputs")
             for (const fileEditName of Object.keys(fileEdits)) {
+                const fe = fileEdits[fileEditName]
                 for (const fileOutput of fileOutputs) {
-                    const { pattern } = fileOutput
+                    const { pattern, options } = fileOutput
                     if (isGlobMatch(fileEditName, pattern)) {
-                        trace.item(`${pattern} validated ${fileEditName}`)
-                        const fe = fileEdits[fileEditName]
-                        fe.validated = true
+                        try {
+                            trace.startDetails(`📁 ${fileEditName}`)
+                            trace.itemValue(`pattern`, pattern)
+                            const { schema: schemaId } = options || {}
+                            if (/\.(json|yaml)$/i.test(fileEditName)) {
+                                const { after } = fileEdits[fileEditName]
+                                const data = /\.json$/i.test(fileEditName)
+                                    ? JSON.parse(after)
+                                    : YAMLParse(after)
+                                trace.detailsFenced("📝 data", data)
+                                if (schemaId) {
+                                    const schema = schemas[schemaId]
+                                    if (!schema)
+                                        fe.validation = {
+                                            valid: false,
+                                            error: `schema ${schemaId} not found`,
+                                        }
+                                    else
+                                        fe.validation = validateJSONWithSchema(
+                                            data,
+                                            schema,
+                                            {
+                                                trace,
+                                            }
+                                        )
+                                }
+                            } else {
+                                fe.validation = { valid: true }
+                            }
+                        } catch (e) {
+                            trace.error(errorMessage(e))
+                            fe.validation = {
+                                valid: false,
+                                error: errorMessage(e),
+                            }
+                        } finally {
+                            trace.endDetails()
+                        }
+                        break
                     }
                 }
             }
@@ -362,7 +401,7 @@ export async function runTemplate(
         // convert file edits into edits
         Object.entries(fileEdits)
             .filter(([, { before, after }]) => before !== after) // ignore unchanged files
-            .forEach(([fn, { before, after, validated }]) => {
+            .forEach(([fn, { before, after, validation }]) => {
                 if (before) {
                     edits.push({
                         label: `Update ${fn}`,
@@ -370,7 +409,7 @@ export async function runTemplate(
                         type: "replace",
                         range: [[0, 0], stringToPos(after)],
                         text: after,
-                        validated,
+                        validated: validation?.valid,
                     })
                 } else {
                     edits.push({
@@ -379,7 +418,7 @@ export async function runTemplate(
                         type: "createfile",
                         text: after,
                         overwrite: true,
-                        validated,
+                        validated: validation?.valid,
                     })
                 }
             })
