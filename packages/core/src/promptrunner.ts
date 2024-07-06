@@ -168,17 +168,7 @@ export async function runTemplate(
             topP: topP,
             seed: seed,
         }
-        const fileEdits: Record<
-            string,
-            {
-                before: string
-                after: string
-                /**
-                 * Can be written without user confirmation
-                 */
-                validation?: JSONSchemaValidation
-            }
-        > = {}
+        const fileEdits: Record<string, FileUpdate> = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
@@ -190,7 +180,7 @@ export async function runTemplate(
                 let after: string = undefined
                 if (await fileExists(fn)) before = await readText(fn)
                 else if (await fileExists(fn)) after = await readText(fn)
-                fileEdit = fileEdits[fn] = { before, after }
+                fileEdit = fileEdits[fn] = <FileUpdate>{ before, after }
             }
             return fileEdit
         }
@@ -346,64 +336,14 @@ export async function runTemplate(
         }
 
         // apply file outputs
-        if (fileOutputs?.length) {
-            trace.startDetails("🗂 file outputs")
-            for (const fileEditName of Object.keys(fileEdits)) {
-                const fe = fileEdits[fileEditName]
-                for (const fileOutput of fileOutputs) {
-                    const { pattern, options } = fileOutput
-                    if (isGlobMatch(fileEditName, pattern)) {
-                        try {
-                            trace.startDetails(`📁 ${fileEditName}`)
-                            trace.itemValue(`pattern`, pattern)
-                            const { schema: schemaId } = options || {}
-                            if (/\.(json|yaml)$/i.test(fileEditName)) {
-                                const { after } = fileEdits[fileEditName]
-                                const data = /\.json$/i.test(fileEditName)
-                                    ? JSON.parse(after)
-                                    : YAMLParse(after)
-                                trace.detailsFenced("📝 data", data)
-                                if (schemaId) {
-                                    const schema = schemas[schemaId]
-                                    if (!schema)
-                                        fe.validation = {
-                                            valid: false,
-                                            error: `schema ${schemaId} not found`,
-                                        }
-                                    else
-                                        fe.validation = validateJSONWithSchema(
-                                            data,
-                                            schema,
-                                            {
-                                                trace,
-                                            }
-                                        )
-                                }
-                            } else {
-                                fe.validation = { valid: true }
-                            }
-                        } catch (e) {
-                            trace.error(errorMessage(e))
-                            fe.validation = {
-                                valid: false,
-                                error: errorMessage(e),
-                            }
-                        } finally {
-                            trace.endDetails()
-                        }
-                        break
-                    }
-                }
-            }
-            trace.endDetails()
-        }
+        validateFileOutputs(fileOutputs, trace, fileEdits, schemas)
 
         // convert file edits into edits
         Object.entries(fileEdits)
             .filter(([, { before, after }]) => before !== after) // ignore unchanged files
             .forEach(([fn, { before, after, validation }]) => {
                 if (before) {
-                    edits.push({
+                    edits.push(<ReplaceEdit>{
                         label: `Update ${fn}`,
                         filename: fn,
                         type: "replace",
@@ -482,5 +422,64 @@ export async function runTemplate(
         return res
     } finally {
         await host.removeContainers()
+    }
+}
+
+function validateFileOutputs(
+    fileOutputs: FileOutput[],
+    trace: MarkdownTrace,
+    fileEdits: Record<string, FileUpdate>,
+    schemas: Record<string, JSONSchema>
+) {
+    if (fileOutputs?.length) {
+        trace.startDetails("🗂 file outputs")
+        for (const fileEditName of Object.keys(fileEdits)) {
+            const fe = fileEdits[fileEditName]
+            for (const fileOutput of fileOutputs) {
+                const { pattern, options } = fileOutput
+                if (isGlobMatch(fileEditName, pattern)) {
+                    try {
+                        trace.startDetails(`📁 ${fileEditName}`)
+                        trace.itemValue(`pattern`, pattern)
+                        const { schema: schemaId } = options || {}
+                        if (/\.(json|yaml)$/i.test(fileEditName)) {
+                            const { after } = fileEdits[fileEditName]
+                            const data = /\.json$/i.test(fileEditName)
+                                ? JSON.parse(after)
+                                : YAMLParse(after)
+                            trace.detailsFenced("📝 data", data)
+                            if (schemaId) {
+                                const schema = schemas[schemaId]
+                                if (!schema)
+                                    fe.validation = {
+                                        valid: false,
+                                        error: `schema ${schemaId} not found`,
+                                    }
+                                else
+                                    fe.validation = validateJSONWithSchema(
+                                        data,
+                                        schema,
+                                        {
+                                            trace,
+                                        }
+                                    )
+                            }
+                        } else {
+                            fe.validation = { valid: true }
+                        }
+                    } catch (e) {
+                        trace.error(errorMessage(e))
+                        fe.validation = {
+                            valid: false,
+                            error: errorMessage(e),
+                        }
+                    } finally {
+                        trace.endDetails()
+                    }
+                    break
+                }
+            }
+        }
+        trace.endDetails()
     }
 }

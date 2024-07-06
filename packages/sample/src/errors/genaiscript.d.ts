@@ -1322,6 +1322,12 @@ interface ChatTurnGenerationContext {
     console: PromptGenerationConsole
 }
 
+interface FileUpdate {
+    before: string
+    after: string
+    validation?: JSONSchemaValidation
+}
+
 interface ChatGenerationContext extends ChatTurnGenerationContext {
     defSchema(
         name: string,
@@ -1365,10 +1371,7 @@ interface GenerationOutput {
     /**
      * A map of file updates
      */
-    fileEdits: Record<
-        string,
-        { before: string; after: string; validation?: JSONSchemaValidation }
-    >
+    fileEdits: Record<string, FileUpdate>
 
     /**
      * Generated variables, typically from AICI.gen
