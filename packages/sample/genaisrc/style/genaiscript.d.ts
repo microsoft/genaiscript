@@ -1811,7 +1811,7 @@ declare function defSchema(
     name: string,
     schema: JSONSchema,
     options?: DefSchemaOptions
-): void
+): string
 
 /**
  * Adds images to the prompt
@@ -1858,7 +1858,10 @@ declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
  * Registers a chat participant
  * @param participant
  */
-declare function defChatParticipant(participant: ChatParticipantHandler, options?: ChatParticipantOptions): void
+declare function defChatParticipant(
+    participant: ChatParticipantHandler,
+    options?: ChatParticipantOptions
+): void
 
 /**
  * @deprecated Use `defOutputProcessor` instead.

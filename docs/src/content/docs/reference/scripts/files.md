@@ -22,6 +22,16 @@ function and add additional filters to the files.
 def("PDFS", env.files, { endsWith: ".pdf" })
 ```
 
+## file output
+
+Use [defFileOutput](/genaiscript/reference/scrips/file-output) to specify allow file output paths and the description
+of the purpose of those files.
+
+```js
+defFileOutput("src/*.md", "Product documentation in markdown format")
+```
+
+
 ## `workspace`
 
 The `workspace` object gives access to file system of the workspace.
