@@ -389,10 +389,6 @@
         "web-tree-sitter": "^0.22.6"
     },
     "optionalDependencies": {
-        "genaiscript": "*",
-        "genaiscript-core": "*"
-    },
-    "enabledApiProposals": [
-        "languageModels"
-    ]
+        "genaiscript": "*"
+    }
 }

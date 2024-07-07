@@ -57,7 +57,6 @@
     "execa": "^9.3.0",
     "file-type": "^19.0.0",
     "fs-extra": "^11.2.0",
-    "genaiscript-core": "*",
     "get-stdin": "^9.0.0",
     "glob": "^10.4.2",
     "mammoth": "^1.8.0",
