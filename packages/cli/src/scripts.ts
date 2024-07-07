@@ -1,15 +1,12 @@
 import { buildProject } from "./build"
-import {
-    copyPrompt,
-    createScript as coreCreateScript,
-    fixPromptDefinitions,
-    GENAI_ANYTS_REGEX,
-    GENAI_JS_EXT,
-    host,
-    logVerbose,
-} from "genaiscript-core"
 import { TYPESCRIPT_VERSION } from "./version"
-import { readdir } from "node:fs/promises"
+import { copyPrompt } from "../../core/src/copy"
+import {
+    fixPromptDefinitions,
+    createScript as coreCreateScript,
+} from "../../core/src/scripts"
+import { logVerbose } from "../../core/src/util"
+import { host } from "../../core/src/host"
 
 export async function listScripts() {
     const prj = await buildProject()

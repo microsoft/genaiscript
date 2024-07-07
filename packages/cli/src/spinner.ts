@@ -1,5 +1,5 @@
 import ora, { Ora } from "ora"
-import { Progress } from "genaiscript-core"
+import { Progress } from "../../core/src/progress"
 
 export class ProgressSpinner extends Progress {
     constructor(readonly spinner: Ora) {
@@ -30,7 +30,7 @@ export class ProgressSpinner extends Progress {
     }
 
     stop() {
-        this.spinner.stop()    
+        this.spinner.stop()
         super.stop()
     }
 

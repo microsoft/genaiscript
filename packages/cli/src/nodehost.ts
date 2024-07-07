@@ -1,31 +1,5 @@
 import dotenv from "dotenv"
-import prompts from "prompts"
-import {
-    AZURE_OPENAI_TOKEN_SCOPES,
-    AbortSignalOptions,
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
-    Host,
-    LanguageModel,
-    LanguageModelConfiguration,
-    LogLevel,
-    MODEL_PROVIDER_AZURE,
-    ModelService,
-    RetrievalService,
-    SHELL_EXEC_TIMEOUT,
-    ServerManager,
-    TraceOptions,
-    UTF8Decoder,
-    UTF8Encoder,
-    createBundledParsers,
-    createFileSystem,
-    filterGitIgnore,
-    parseDefaultsFromEnv,
-    parseTokenFromEnv,
-    resolveLanguageModel,
-    setHost,
-    unique,
-} from "genaiscript-core"
+
 import { TextDecoder, TextEncoder } from "util"
 import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
@@ -38,6 +12,31 @@ import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
 import { DefaultAzureCredential, AccessToken } from "@azure/identity"
+import { LanguageModel } from "../../core/src/chat"
+import {
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    MODEL_PROVIDER_AZURE,
+    AZURE_OPENAI_TOKEN_SCOPES,
+    SHELL_EXEC_TIMEOUT,
+} from "../../core/src/constants"
+import { createFileSystem, filterGitIgnore } from "../../core/src/fs"
+import {
+    ServerManager,
+    Host,
+    RetrievalService,
+    ModelService,
+    setHost,
+    LanguageModelConfiguration,
+    LogLevel,
+    UTF8Decoder,
+    UTF8Encoder,
+} from "../../core/src/host"
+import { resolveLanguageModel } from "../../core/src/models"
+import { createBundledParsers } from "../../core/src/pdf"
+import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
+import { unique } from "../../core/src/util"
+import { parseGHTokenFromEnv } from "../../core/src/github"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {

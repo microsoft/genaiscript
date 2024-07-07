@@ -1,10 +1,10 @@
+import { host } from "../../core/src/host"
 import {
-    CORE_VERSION,
     ModelConnectionInfo,
-    YAMLStringify,
-    host,
     resolveModelConnectionInfo,
-} from "genaiscript-core"
+} from "../../core/src/models"
+import { CORE_VERSION } from "../../core/src/version"
+import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
 
 export async function systemInfo() {

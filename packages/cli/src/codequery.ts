@@ -1,4 +1,4 @@
-import { YAMLStringify, treeSitterQuery } from "genaiscript-core"
+import { treeSitterQuery } from "../../core/src/treesitter"
 
 export async function codeQuery(file: string, query: string) {
     const res = await treeSitterQuery(

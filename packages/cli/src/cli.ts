@@ -1,16 +1,3 @@
-import {
-    RequestError,
-    CORE_VERSION,
-    isRequestError,
-    TOOL_ID,
-    TOOL_NAME,
-    GITHUB_REPO,
-    SERVER_PORT,
-    RUNTIME_ERROR_CODE,
-    UNHANDLED_ERROR_CODE,
-    errorMessage,
-    dotGenaiscriptPath,
-} from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
@@ -40,6 +27,20 @@ import { scriptTestsView, scriptsTest } from "./test"
 import { emptyDir } from "fs-extra"
 import { join } from "path"
 import "node:console"
+import {
+    UNHANDLED_ERROR_CODE,
+    RUNTIME_ERROR_CODE,
+    TOOL_ID,
+    TOOL_NAME,
+    SERVER_PORT,
+} from "../../core/src/constants"
+import {
+    errorMessage,
+    isRequestError,
+    RequestError,
+} from "../../core/src/error"
+import { dotGenaiscriptPath } from "../../core/src/util"
+import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
 
 async function cacheClear(name: string) {
     let dir = dotGenaiscriptPath("cache")

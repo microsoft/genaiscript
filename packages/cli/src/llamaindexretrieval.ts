@@ -1,40 +1,41 @@
-import {
-    Host,
-    LLAMAINDEX_MIN_SCORE,
-    LLAMAINDEX_SIMILARITY_TOPK,
-    MarkdownTrace,
-    PromiseType,
-    RETRIEVAL_DEFAULT_INDEX,
-    ResponseStatus,
-    RetrievalSearchOptions,
-    RetrievalSearchResponse,
-    RetrievalService,
-    RetrievalUpsertOptions,
-    dotGenaiscriptPath,
-    installImport,
-    lookupMime,
-    createFetch,
-    RETRIEVAL_PERSIST_DIR,
-    parseModelIdentifier,
-    RETRIEVAL_DEFAULT_LLM_MODEL,
-    RETRIEVAL_DEFAULT_EMBED_MODEL,
-    RETRIEVAL_DEFAULT_TEMPERATURE,
-    ModelService,
-    MODEL_PROVIDER_OLLAMA,
-    TOOL_ID,
-    tryReadJSON,
-    writeJSON,
-    JAVASCRIPT_MIME_TYPE,
-    JSON_MIME_TYPE,
-    PDF_MIME_TYPE,
-    DOCX_MIME_TYPE,
-    JSON_SCHEMA_MIME_TYPE,
-    assert,
-} from "genaiscript-core"
 import { type BaseReader } from "llamaindex"
 import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
+import assert from "assert"
+import { writeJSON } from "fs-extra"
+import {
+    JAVASCRIPT_MIME_TYPE,
+    JSON_MIME_TYPE,
+    JSON_SCHEMA_MIME_TYPE,
+    PDF_MIME_TYPE,
+    DOCX_MIME_TYPE,
+    RETRIEVAL_PERSIST_DIR,
+    RETRIEVAL_DEFAULT_INDEX,
+    MODEL_PROVIDER_OLLAMA,
+    TOOL_ID,
+    RETRIEVAL_DEFAULT_LLM_MODEL,
+    RETRIEVAL_DEFAULT_EMBED_MODEL,
+    RETRIEVAL_DEFAULT_TEMPERATURE,
+    LLAMAINDEX_SIMILARITY_TOPK,
+    LLAMAINDEX_MIN_SCORE,
+} from "../../core/src/constants"
+import { createFetch } from "../../core/src/fetch"
+import { tryReadJSON } from "../../core/src/fs"
+import {
+    RetrievalService,
+    ModelService,
+    Host,
+    ResponseStatus,
+    RetrievalUpsertOptions,
+    RetrievalSearchOptions,
+    RetrievalSearchResponse,
+} from "../../core/src/host"
+import { installImport, PromiseType } from "../../core/src/import"
+import { lookupMime } from "../../core/src/mime"
+import { parseModelIdentifier } from "../../core/src/models"
+import { MarkdownTrace } from "../../core/src/trace"
+import { dotGenaiscriptPath } from "../../core/src/util"
 
 class BlobFileSystem implements GenericFileSystem {
     constructor(
@@ -190,7 +191,7 @@ export class LlamaIndexRetrievalService
             OpenAIEmbedding,
             Ollama,
             OpenAI,
-            OllamaEmbedding
+            OllamaEmbedding,
         } = this.module
         const { provider: llmProvider, model: llmModel } =
             parseModelIdentifier(llmModel_)

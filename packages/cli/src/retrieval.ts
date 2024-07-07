@@ -1,13 +1,12 @@
+import { expandFiles } from "../../core/src/fs"
+import { fuzzSearch } from "../../core/src/fuzzsearch"
 import {
-    YAMLStringify,
     upsertVector,
-    vectorSearch,
     clearVectorIndex,
-    normalizeInt,
-    expandFiles,
-    normalizeFloat,
-    fuzzSearch,
-} from "genaiscript-core"
+    vectorSearch,
+} from "../../core/src/retrieval"
+import { normalizeFloat, normalizeInt } from "../../core/src/util"
+import { YAMLStringify } from "../../core/src/yaml"
 import { createProgressSpinner } from "./spinner"
 
 export async function retrievalIndex(

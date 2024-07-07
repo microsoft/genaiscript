@@ -1,4 +1,3 @@
-import { SARIFF_RULEID_PREFIX, SARIFF_BUILDER_URL, SARIFF_BUILDER_TOOL_DRIVER_NAME, CORE_VERSION } from "genaiscript-core"
 import {
     SarifBuilder,
     SarifRunBuilder,
@@ -6,6 +5,12 @@ import {
     SarifRuleBuilder,
 } from "node-sarif-builder"
 import { relative } from "node:path"
+import {
+    SARIFF_BUILDER_TOOL_DRIVER_NAME,
+    SARIFF_BUILDER_URL,
+    SARIFF_RULEID_PREFIX,
+} from "../../core/src/constants"
+import { CORE_VERSION } from "../../core/src/version"
 
 export function isSARIFFilename(f: string) {
     return /\.sarif$/i.test(f)

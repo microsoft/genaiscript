@@ -1,32 +1,26 @@
 import { WebSocketServer } from "ws"
-import {
-    RequestMessages,
-    ResponseStatus,
-    SERVER_PORT,
-    host,
-    YAMLStringify,
-    logError,
-    CORE_VERSION,
-    ServerResponse,
-    serializeError,
-    ShellExecResponse,
-    ContainerStartResponse,
-    DOCKER_DEFAULT_IMAGE,
-    AbortSignalCancellationController,
-    MarkdownTrace,
-    TRACE_CHUNK,
-    TraceChunkEvent,
-    UNHANDLED_ERROR_CODE,
-    isCancelError,
-    USER_CANCELLED_ERROR_CODE,
-    PromptScriptProgressResponseEvent,
-    PromptScriptEndResponseEvent,
-    logVerbose,
-    errorMessage,
-} from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
 import { runScript } from "./run"
+import { ServerResponse } from "http"
+import { AbortSignalCancellationController } from "../../core/src/cancellation"
+import {
+    SERVER_PORT,
+    TRACE_CHUNK,
+    USER_CANCELLED_ERROR_CODE,
+    UNHANDLED_ERROR_CODE,
+    DOCKER_DEFAULT_IMAGE,
+} from "../../core/src/constants"
+import {
+    isCancelError,
+    errorMessage,
+    serializeError,
+} from "../../core/src/error"
+import { ResponseStatus, host } from "../../core/src/host"
+import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
+import { logVerbose, logError } from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
+import { YAMLStringify } from "../../core/src/yaml"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT

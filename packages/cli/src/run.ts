@@ -1,44 +1,3 @@
-import {
-    GenerationResult,
-    YAMLStringify,
-    diagnosticsToCSV,
-    host,
-    isJSONLFilename,
-    logVerbose,
-    runTemplate,
-    writeText,
-    normalizeInt,
-    normalizeFloat,
-    GENAI_ANYJS_REGEX,
-    FILES_NOT_FOUND_ERROR_CODE,
-    appendJSONL,
-    RUNTIME_ERROR_CODE,
-    ANNOTATION_ERROR_CODE,
-    writeFileEdits,
-    logError,
-    isCancelError,
-    USER_CANCELLED_ERROR_CODE,
-    errorMessage,
-    MarkdownTrace,
-    HTTPS_REGEX,
-    resolveModelConnectionInfo,
-    CONFIGURATION_ERROR_CODE,
-    parseKeyValuePairs,
-    JSONSchemaStringifyToTypeScript,
-    filePathOrUrlToWorkspaceFile,
-    JSONSchemaStringify,
-    CSV_REGEX,
-    CLI_RUN_FILES_FOLDER,
-    parseGHTokenFromEnv,
-    githubUpdatePullRequestDescription,
-    githubCreatePullRequestReviews,
-    githubCreateIssueComment,
-    PromptScriptRunOptions,
-    TraceOptions,
-    CancellationOptions,
-    Fragment,
-    ChatCompletionsProgressReport,
-} from "genaiscript-core"
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
 import { isQuiet } from "./log"
@@ -46,6 +5,48 @@ import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
+import { diagnosticsToCSV } from "../../core/src/ast"
+import { CancellationOptions } from "../../core/src/cancellation"
+import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { Fragment, runTemplate } from "../../core/src/promptrunner"
+import {
+    githubCreateIssueComment,
+    githubCreatePullRequestReviews,
+    githubUpdatePullRequestDescription,
+    parseGHTokenFromEnv,
+} from "../../core/src/github"
+import {
+    GENAI_ANYJS_REGEX,
+    HTTPS_REGEX,
+    FILES_NOT_FOUND_ERROR_CODE,
+    CONFIGURATION_ERROR_CODE,
+    USER_CANCELLED_ERROR_CODE,
+    RUNTIME_ERROR_CODE,
+    CSV_REGEX,
+    CLI_RUN_FILES_FOLDER,
+    ANNOTATION_ERROR_CODE,
+} from "../../core/src/constants"
+import { isCancelError, errorMessage } from "../../core/src/error"
+import { GenerationResult } from "../../core/src/expander"
+import { parseKeyValuePairs } from "../../core/src/fence"
+import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
+import { host } from "../../core/src/host"
+import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
+import { resolveModelConnectionInfo } from "../../core/src/models"
+import {
+    JSONSchemaStringifyToTypeScript,
+    JSONSchemaStringify,
+} from "../../core/src/schema"
+import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
+import {
+    normalizeFloat,
+    normalizeInt,
+    logVerbose,
+    logError,
+} from "../../core/src/util"
+import { YAMLStringify } from "../../core/src/yaml"
+import { PromptScriptRunOptions } from "../../core/src/server/messages"
+import { writeFileEdits } from "../../core/src/edits"
 
 export async function runScriptWithExitCode(
     scriptId: string,
