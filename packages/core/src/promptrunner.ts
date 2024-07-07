@@ -17,6 +17,9 @@ import { RequestError, errorMessage } from "./error"
 import { renderFencedVariables, unquote } from "./fence"
 import { parsePromptParameters } from "./parameters"
 import { resolveFileContent } from "./file"
+import { isGlobMatch } from "./glob"
+import { validateJSONWithSchema } from "./schema"
+import { YAMLParse } from "./yaml"
 
 export interface Fragment {
     files: string[]
@@ -100,6 +103,7 @@ export async function runTemplate(
             fileMerges,
             outputProcessors,
             chatParticipants,
+            fileOutputs,
             status,
             statusText,
             temperature,
@@ -164,18 +168,19 @@ export async function runTemplate(
             topP: topP,
             seed: seed,
         }
-        const fileEdits: Record<string, { before: string; after: string }> = {}
+        const fileEdits: Record<string, FileUpdate> = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
         const projFolder = host.projectFolder()
         const getFileEdit = async (fn: string) => {
+            fn = relativePath(projFolder, fn)
             let fileEdit = fileEdits[fn]
             if (!fileEdit) {
                 let before: string = null
                 let after: string = undefined
                 if (await fileExists(fn)) before = await readText(fn)
                 else if (await fileExists(fn)) after = await readText(fn)
-                fileEdit = fileEdits[fn] = { before, after }
+                fileEdit = fileEdits[fn] = <FileUpdate>{ before, after }
             }
             return fileEdit
         }
@@ -314,9 +319,9 @@ export async function runTemplate(
 
                     if (files)
                         for (const [n, content] of Object.entries(files)) {
-                            const fn = /^[^\/]/.test(n)
-                                ? host.resolvePath(projFolder, n)
-                                : n
+                            const fn = host.path.isAbsolute(n)
+                                ? n
+                                : host.resolvePath(projFolder, n)
                             trace.detailsFenced(`📁 file ${fn}`, content)
                             const fileEdit = await getFileEdit(fn)
                             fileEdit.after = content
@@ -330,17 +335,21 @@ export async function runTemplate(
             }
         }
 
+        // apply file outputs
+        validateFileOutputs(fileOutputs, trace, fileEdits, schemas)
+
         // convert file edits into edits
         Object.entries(fileEdits)
             .filter(([, { before, after }]) => before !== after) // ignore unchanged files
-            .forEach(([fn, { before, after }]) => {
+            .forEach(([fn, { before, after, validation }]) => {
                 if (before) {
-                    edits.push({
+                    edits.push(<ReplaceEdit>{
                         label: `Update ${fn}`,
                         filename: fn,
                         type: "replace",
                         range: [[0, 0], stringToPos(after)],
                         text: after,
+                        validated: validation?.valid,
                     })
                 } else {
                     edits.push({
@@ -349,6 +358,7 @@ export async function runTemplate(
                         type: "createfile",
                         text: after,
                         overwrite: true,
+                        validated: validation?.valid,
                     })
                 }
             })
@@ -360,7 +370,7 @@ export async function runTemplate(
             trace.details(
                 "✏️ edits",
                 CSVToMarkdown(edits, {
-                    headers: ["type", "filename", "message"],
+                    headers: ["type", "filename", "message", "validated"],
                 })
             )
         if (annotations?.length)
@@ -412,5 +422,64 @@ export async function runTemplate(
         return res
     } finally {
         await host.removeContainers()
+    }
+}
+
+function validateFileOutputs(
+    fileOutputs: FileOutput[],
+    trace: MarkdownTrace,
+    fileEdits: Record<string, FileUpdate>,
+    schemas: Record<string, JSONSchema>
+) {
+    if (fileOutputs?.length) {
+        trace.startDetails("🗂 file outputs")
+        for (const fileEditName of Object.keys(fileEdits)) {
+            const fe = fileEdits[fileEditName]
+            for (const fileOutput of fileOutputs) {
+                const { pattern, options } = fileOutput
+                if (isGlobMatch(fileEditName, pattern)) {
+                    try {
+                        trace.startDetails(`📁 ${fileEditName}`)
+                        trace.itemValue(`pattern`, pattern)
+                        const { schema: schemaId } = options || {}
+                        if (/\.(json|yaml)$/i.test(fileEditName)) {
+                            const { after } = fileEdits[fileEditName]
+                            const data = /\.json$/i.test(fileEditName)
+                                ? JSON.parse(after)
+                                : YAMLParse(after)
+                            trace.detailsFenced("📝 data", data)
+                            if (schemaId) {
+                                const schema = schemas[schemaId]
+                                if (!schema)
+                                    fe.validation = {
+                                        valid: false,
+                                        error: `schema ${schemaId} not found`,
+                                    }
+                                else
+                                    fe.validation = validateJSONWithSchema(
+                                        data,
+                                        schema,
+                                        {
+                                            trace,
+                                        }
+                                    )
+                            }
+                        } else {
+                            fe.validation = { valid: true }
+                        }
+                    } catch (e) {
+                        trace.error(errorMessage(e))
+                        fe.validation = {
+                            valid: false,
+                            error: errorMessage(e),
+                        }
+                    } finally {
+                        trace.endDetails()
+                    }
+                    break
+                }
+            }
+        }
+        trace.endDetails()
     }
 }

@@ -410,6 +410,7 @@ interface FileEdit {
     type: string
     filename: string
     label?: string
+    validated?: boolean
 }
 
 interface ReplaceEdit extends FileEdit {
@@ -1261,6 +1262,19 @@ interface PromptGeneratorOptions extends ModelOptions {
     label?: string
 }
 
+interface FileOutputOptions {
+    /**
+     * Schema identifier to validate the generated file
+     */
+    schema?: string
+}
+
+interface FileOutput {
+    pattern: string
+    description: string
+    options?: FileOutputOptions
+}
+
 interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
@@ -1272,6 +1286,12 @@ interface ChatTurnGenerationContext {
         options?: DefDataOptions
     ): string
     console: PromptGenerationConsole
+}
+
+interface FileUpdate {
+    before: string
+    after: string
+    validation?: JSONSchemaValidation
 }
 
 interface ChatGenerationContext extends ChatTurnGenerationContext {
@@ -1290,6 +1310,11 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     defChatParticipant(
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
+    ): void
+    defFileOutput(
+        pattern: string,
+        description: string,
+        options?: FileOutputOptions
     ): void
 }
 
@@ -1312,7 +1337,7 @@ interface GenerationOutput {
     /**
      * A map of file updates
      */
-    fileEdits: Record<string, { before: string; after: string }>
+    fileEdits: Record<string, FileUpdate>
 
     /**
      * Generated variables, typically from AICI.gen
