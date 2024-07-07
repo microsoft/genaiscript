@@ -14,6 +14,10 @@ import { DockerManager } from "./docker"
 import { DefaultAzureCredential, AccessToken } from "@azure/identity"
 import { LanguageModel } from "../../core/src/chat"
 import {
+    parseDefaultsFromEnv,
+    parseTokenFromEnv,
+} from "../../core/src/connection"
+import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     MODEL_PROVIDER_AZURE,
@@ -36,7 +40,6 @@ import { resolveLanguageModel } from "../../core/src/models"
 import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { unique } from "../../core/src/util"
-import { parseGHTokenFromEnv } from "../../core/src/github"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {

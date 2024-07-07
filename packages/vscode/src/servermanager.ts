@@ -1,18 +1,20 @@
-import {
-    ICON_LOGO_NAME,
-    ModelService,
-    ParseService,
-    RECONNECT,
-    RetrievalService,
-    SERVER_PORT,
-    ServerManager,
-    TOOL_NAME,
-    WebSocketClient,
-    host,
-    logError,
-} from "genaiscript-core"
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
+import {
+    SERVER_PORT,
+    RECONNECT,
+    TOOL_NAME,
+    ICON_LOGO_NAME,
+} from "../../core/src/constants"
+import {
+    ServerManager,
+    host,
+    RetrievalService,
+    ParseService,
+    ModelService,
+} from "../../core/src/host"
+import { logError } from "../../core/src/util"
+import { WebSocketClient } from "../../core/src/server/client"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal

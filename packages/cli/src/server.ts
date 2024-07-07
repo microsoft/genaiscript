@@ -2,7 +2,6 @@ import { WebSocketServer } from "ws"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
 import { runScript } from "./run"
-import { ServerResponse } from "http"
 import { AbortSignalCancellationController } from "../../core/src/cancellation"
 import {
     SERVER_PORT,
@@ -16,11 +15,18 @@ import {
     errorMessage,
     serializeError,
 } from "../../core/src/error"
-import { ResponseStatus, host } from "../../core/src/host"
+import { ResponseStatus, ServerResponse, host } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { logVerbose, logError } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
+import {
+    RequestMessages,
+    PromptScriptProgressResponseEvent,
+    PromptScriptEndResponseEvent,
+    ContainerStartResponse,
+    ShellExecResponse,
+} from "../../core/src/server/messages"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT

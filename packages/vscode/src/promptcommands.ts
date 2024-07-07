@@ -1,9 +1,10 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { PromptScript, copyPrompt, createScript } from "genaiscript-core"
 import { builtinPromptUri } from "./markdowndocumentprovider"
 import { templatesToQuickPickItems } from "./fragmentcommands"
 import { registerCommand } from "./commands"
+import { createScript } from "../../core/src/scripts"
+import { copyPrompt } from "../../core/src/copy"
 
 export function activatePromptCommands(state: ExtensionState) {
     const { context, host } = state

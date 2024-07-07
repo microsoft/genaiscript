@@ -1,33 +1,5 @@
 import * as vscode from "vscode"
-import {
-    ChatCompletionsProgressReport,
-    Project,
-    Fragment,
-    PromptScript,
-    parseProject,
-    GenerationResult,
-    groupBy,
-    isCancelError,
-    delay,
-    CHANGE,
-    JSONLineCache,
-    logInfo,
-    logMeasure,
-    parseAnnotations,
-    MarkdownTrace,
-    CORE_VERSION,
-    sha256string,
-    dotGenaiscriptPath,
-    CLI_JS,
-    TOOL_ID,
-    TOOL_NAME,
-    RetrievalSearchResult,
-    GENAI_ANYJS_GLOB,
-    fixPromptDefinitions,
-    resolveModelConnectionInfo,
-    AI_REQUESTS_CACHE,
-    errorMessage,
-} from "genaiscript-core"
+
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
@@ -36,6 +8,35 @@ import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { pickLanguageModel } from "./lmaccess"
+import { parseAnnotations } from "../../core/src/annotations"
+import { Project } from "../../core/src/ast"
+import { JSONLineCache } from "../../core/src/cache"
+import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { fixPromptDefinitions } from "../../core/src/scripts"
+import { logMeasure } from "../../core/src/perf"
+import {
+    TOOL_NAME,
+    CHANGE,
+    AI_REQUESTS_CACHE,
+    CLI_JS,
+    TOOL_ID,
+    GENAI_ANYJS_GLOB,
+} from "../../core/src/constants"
+import { isCancelError } from "../../core/src/error"
+import { GenerationResult } from "../../core/src/expander"
+import { resolveModelConnectionInfo } from "../../core/src/models"
+import { parseProject } from "../../core/src/parser"
+import { Fragment } from "../../core/src/promptrunner"
+import { RetrievalSearchResult } from "../../core/src/retrieval"
+import { MarkdownTrace } from "../../core/src/trace"
+import {
+    dotGenaiscriptPath,
+    sha256string,
+    delay,
+    logInfo,
+    groupBy,
+} from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"

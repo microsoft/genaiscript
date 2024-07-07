@@ -1,13 +1,8 @@
 import * as vscode from "vscode" // Import the 'vscode' module
-
 import { ExtensionState } from "./state"
-import {
-    GENAI_ANYJS_GLOB,
-    LanguageModelInfo,
-    MODEL_PROVIDERS,
-    logError,
-    logVerbose,
-} from "genaiscript-core"
+import { LanguageModelInfo } from "../../core/src/chat"
+import { MODEL_PROVIDERS, GENAI_ANYJS_GLOB } from "../../core/src/constants"
+import { logVerbose, logError } from "../../core/src/util"
 
 export async function activateModelCompletionProvider(state: ExtensionState) {
     const { context } = state

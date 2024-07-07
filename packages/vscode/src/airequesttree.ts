@@ -4,10 +4,10 @@ import {
     AIRequestSnapshotKey,
     ExtensionState,
 } from "./state"
-import { CACHE_AIREQUEST_PREFIX, CHANGE, CacheEntry } from "genaiscript-core"
-import { JSONLineCache } from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
 import { toMarkdownString } from "./markdown"
+import { CacheEntry, JSONLineCache } from "../../core/src/cache"
+import { CHANGE, CACHE_AIREQUEST_PREFIX } from "../../core/src/constants"
 
 type AIRequestTreeNode = CacheEntry<AIRequestSnapshotKey, AIRequestSnapshot>
 

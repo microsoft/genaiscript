@@ -2,7 +2,6 @@ import * as vscode from "vscode"
 import { ExtensionContext } from "vscode"
 import { ExtensionState } from "./state"
 import { activateStatusBar } from "./statusbar"
-import { EXTENSION_ID, TOOL_NAME } from "genaiscript-core"
 import { activateFragmentCommands } from "./fragmentcommands"
 import { activateMarkdownTextDocumentContentProvider } from "./markdowndocumentprovider"
 import { activatePrompTreeDataProvider } from "./prompttree"
@@ -14,6 +13,7 @@ import { activateModelCompletionProvider } from "./modelcompletionprovider"
 import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
 import { registerCommand } from "./commands"
+import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -29,68 +29,57 @@ export async function activate(context: ExtensionContext) {
     activateDocsNotebook(state)
 
     context.subscriptions.push(
-        registerCommand(
-            "genaiscript.request.abort",
-            async () => {
-                await state.cancelAiRequest()
+        registerCommand("genaiscript.request.abort", async () => {
+            await state.cancelAiRequest()
+            await vscode.window.showInformationMessage(
+                `${TOOL_NAME} - request aborted.`
+            )
+        }),
+        registerCommand("genaiscript.request.status", async () => {
+            const cmds = commandButtons(state)
+            if (!cmds.length)
                 await vscode.window.showInformationMessage(
-                    `${TOOL_NAME} - request aborted.`
+                    `${TOOL_NAME} - no request.`
                 )
+            else {
+                const res = await vscode.window.showQuickPick(cmds, {
+                    canPickMany: false,
+                })
+                if (res) vscode.commands.executeCommand(res.cmd)
             }
-        ),
-        registerCommand(
-            "genaiscript.request.status",
-            async () => {
-                const cmds = commandButtons(state)
-                if (!cmds.length)
-                    await vscode.window.showInformationMessage(
-                        `${TOOL_NAME} - no request.`
-                    )
-                else {
-                    const res = await vscode.window.showQuickPick(cmds, {
-                        canPickMany: false,
-                    })
-                    if (res) vscode.commands.executeCommand(res.cmd)
+        }),
+        registerCommand("genaiscript.openIssueReporter", async () => {
+            const issueBody: string[] = [
+                `## Describe the issue`,
+                `A clear and concise description of what the bug is.`,
+                ``,
+                `## To Reproduce`,
+                `Steps to reproduce the behavior`,
+                ``,
+                `## Expected behavior`,
+                `A clear and concise description of what you expected to happen.`,
+                ``,
+                `## Environment`,
+                ``,
+            ]
+            issueBody.push(`vscode: ${vscode.version}`)
+            issueBody.push(
+                `extension: ${context.extension?.packageJSON?.version || "?"}`
+            )
+            if (state.aiRequest?.trace) {
+                issueBody.push(`## Trace`)
+                issueBody.push("`````")
+                issueBody.push(state.aiRequest?.trace?.content)
+                issueBody.push("`````")
+            }
+            await vscode.commands.executeCommand(
+                "workbench.action.openIssueReporter",
+                {
+                    extensionId: EXTENSION_ID,
+                    issueBody: issueBody.join("\n"),
                 }
-            }
-        ),
-        registerCommand(
-            "genaiscript.openIssueReporter",
-            async () => {
-                const issueBody: string[] = [
-                    `## Describe the issue`,
-                    `A clear and concise description of what the bug is.`,
-                    ``,
-                    `## To Reproduce`,
-                    `Steps to reproduce the behavior`,
-                    ``,
-                    `## Expected behavior`,
-                    `A clear and concise description of what you expected to happen.`,
-                    ``,
-                    `## Environment`,
-                    ``,
-                ]
-                issueBody.push(`vscode: ${vscode.version}`)
-                issueBody.push(
-                    `extension: ${
-                        context.extension?.packageJSON?.version || "?"
-                    }`
-                )
-                if (state.aiRequest?.trace) {
-                    issueBody.push(`## Trace`)
-                    issueBody.push("`````")
-                    issueBody.push(state.aiRequest?.trace?.content)
-                    issueBody.push("`````")
-                }
-                await vscode.commands.executeCommand(
-                    "workbench.action.openIssueReporter",
-                    {
-                        extensionId: EXTENSION_ID,
-                        issueBody: issueBody.join("\n"),
-                    }
-                )
-            }
-        )
+            )
+        })
     )
 
     await state.activate()

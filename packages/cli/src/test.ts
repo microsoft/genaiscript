@@ -30,6 +30,12 @@ import {
     delay,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
+import {
+    PromptScriptTestRunOptions,
+    PromptScriptTestRunResponse,
+    PromptScriptTestResult,
+} from "../../core/src/server/messages"
+import { generatePromptFooConfiguration } from "../../core/src/test"
 
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)

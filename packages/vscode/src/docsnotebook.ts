@@ -1,25 +1,22 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import {
-    details,
-    Fragment,
-    MARKDOWN_MIME_TYPE,
-    TOOL_NAME,
-    renderMessagesToMarkdown,
-    YAMLStringify,
-    parsePromptScriptMeta,
-    EMOJI_FAIL,
-    errorMessage,
-    MDX_REGEX,
-    frontmatterTryParse,
-    YAMLTryParse,
-    arrayify,
-    parseKeyValuePairs,
-    parseBoolean,
-} from "genaiscript-core"
 import { Utils } from "vscode-uri"
-import { register } from "tsx/cjs/api"
 import { registerCommand } from "./commands"
+import { renderMessagesToMarkdown } from "../../core/src/chat"
+import {
+    TOOL_NAME,
+    MDX_REGEX,
+    EMOJI_FAIL,
+    MARKDOWN_MIME_TYPE,
+} from "../../core/src/constants"
+import { errorMessage } from "../../core/src/error"
+import { parseKeyValuePairs } from "../../core/src/fence"
+import { frontmatterTryParse } from "../../core/src/frontmatter"
+import { details } from "../../core/src/markdown"
+import { parsePromptScriptMeta } from "../../core/src/template"
+import { arrayify, parseBoolean } from "../../core/src/util"
+import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
+import { Fragment } from "../../core/src/promptrunner"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts

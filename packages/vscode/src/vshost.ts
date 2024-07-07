@@ -1,33 +1,37 @@
-import {
-    dotEnvTryParse,
-    Host,
-    LogLevel,
-    LanguageModelConfiguration,
-    createFileSystem,
-    parseTokenFromEnv,
-    setHost,
-    ParseService,
-    TraceOptions,
-    arrayify,
-    resolveLanguageModel,
-    LanguageModel,
-    MODEL_PROVIDER_AZURE,
-    AbortSignalOptions,
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
-    parseDefaultsFromEnv,
-    fileExists,
-    filterGitIgnore,
-    unique,
-} from "genaiscript-core"
-import { Uri } from "vscode"
-import { ExtensionState } from "./state"
-import { Utils } from "vscode-uri"
-import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 import { AzureManager } from "./azuremanager"
+import { Uri } from "vscode"
+import { ExtensionState } from "./state"
+import { Utils } from "vscode-uri"
+import { readFileText, writeFile } from "./fs"
+import { LanguageModel } from "../../core/src/chat"
+import {
+    parseDefaultsFromEnv,
+    parseTokenFromEnv,
+} from "../../core/src/connection"
+import {
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    MODEL_PROVIDER_AZURE,
+} from "../../core/src/constants"
+import { dotEnvTryParse } from "../../core/src/dotenv"
+import {
+    createFileSystem,
+    fileExists,
+    filterGitIgnore,
+} from "../../core/src/fs"
+import {
+    Host,
+    ParseService,
+    setHost,
+    LanguageModelConfiguration,
+    LogLevel,
+} from "../../core/src/host"
+import { resolveLanguageModel } from "../../core/src/models"
+import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
+import { arrayify, unique } from "../../core/src/util"
 
 export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}

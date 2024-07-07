@@ -1,19 +1,13 @@
 import * as vscode from "vscode"
-import {
-    Fragment,
-    GENAI_ANYJS_REGEX,
-    NotSupportedError,
-    PromptScript,
-    assert,
-    dotGenaiscriptPath,
-    errorMessage,
-    groupBy,
-    promptParameterTypeToJSONSchema,
-    templateGroup,
-} from "genaiscript-core"
 import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import { registerCommand } from "./commands"
+import { templateGroup } from "../../core/src/ast"
+import { GENAI_ANYJS_REGEX } from "../../core/src/constants"
+import { NotSupportedError } from "../../core/src/error"
+import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
+import { Fragment } from "../../core/src/promptrunner"
+import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -206,7 +200,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
     subscriptions.push(
         registerCommand("genaiscript.fragment.prompt", fragmentPrompt),
-        registerCommand("genaiscript.fragment.debug", fragmentDebug),
+        registerCommand("genaiscript.fragment.debug", fragmentDebug)
     )
 }
 

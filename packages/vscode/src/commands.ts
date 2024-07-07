@@ -1,5 +1,6 @@
-import { errorMessage, TOOL_NAME } from "genaiscript-core"
 import * as vscode from "vscode"
+import { TOOL_NAME } from "../../core/src/constants"
+import { errorMessage } from "../../core/src/error"
 
 export function registerCommand(
     id: string,

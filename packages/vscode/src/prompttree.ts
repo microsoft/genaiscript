@@ -1,11 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import {
-    CHANGE,
-    PromptScript,
-    groupBy,
-    templateGroup,
-} from "genaiscript-core"
+import { CHANGE } from "../../core/src/constants"
+import { groupBy } from "../../core/src/util"
+import { templateGroup } from "../../core/src/ast"
 
 type PromptTreeNode = string | PromptScript
 

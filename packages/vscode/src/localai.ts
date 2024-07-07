@@ -1,6 +1,6 @@
-import { ICON_LOGO_NAME } from "genaiscript-core"
 import * as vscode from "vscode"
 import { openUrlInTab } from "./browser"
+import { ICON_LOGO_NAME } from "../../core/src/constants"
 
 export async function startLocalAI() {
     const name = "LocalAI"

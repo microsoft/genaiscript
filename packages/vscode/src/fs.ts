@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
-import { JSON5TryParse } from "genaiscript-core"
 import { Utils } from "vscode-uri"
+import { JSON5TryParse } from "../../core/src/json5"
 
 export async function findFiles(pattern: string) {
     return (await vscode.workspace.findFiles(pattern)).map((f) => f.fsPath)

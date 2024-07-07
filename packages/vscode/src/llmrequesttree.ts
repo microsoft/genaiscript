@@ -1,15 +1,14 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import {
-    CHANGE,
-    CacheEntry,
-    CreateChatCompletionRequest,
-    CACHE_LLMREQUEST_PREFIX,
-    getChatCompletionCache,
-    ChatCompletationRequestCache,
-    ChatCompletationRequestCacheValue,
-} from "genaiscript-core"
 import { infoUri } from "./markdowndocumentprovider"
+import { CacheEntry } from "../../core/src/cache"
+import {
+    CreateChatCompletionRequest,
+    ChatCompletationRequestCacheValue,
+    ChatCompletationRequestCache,
+    getChatCompletionCache,
+} from "../../core/src/chat"
+import { CHANGE, CACHE_LLMREQUEST_PREFIX } from "../../core/src/constants"
 
 type LLMRequestTreeNode = CacheEntry<
     CreateChatCompletionRequest,
