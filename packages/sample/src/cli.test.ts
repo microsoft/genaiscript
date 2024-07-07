@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { CLI_JS } from "genaiscript-core"
+import { CLI_JS } from "../../core/src/constants"
 
 const cli = `../cli/built/${CLI_JS}`
 
