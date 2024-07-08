@@ -20,3 +20,4 @@ yarn-error.log
 test.sh
 esbuild.meta.json
 esbuild.treemap.html
+esbuild.network.html
