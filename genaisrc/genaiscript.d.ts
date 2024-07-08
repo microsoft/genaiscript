@@ -496,6 +496,14 @@ interface WorkspaceFileSystem {
             readText?: boolean
         }
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Performs a grep search over the files in the workspace
+     * @param query 
+     * @param globs 
+     */
+    grep(query: string, globs: string | string[]): Promise<WorkspaceFile[]>
+
     /**
      * Reads the content of a file as text
      * @param path

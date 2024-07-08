@@ -38,6 +38,7 @@ import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
+import { grepSearch } from "./grep"
 
 function stringLikeToFileName(f: string | WorkspaceFile) {
     return typeof f === "string" ? f : f?.filename
@@ -93,6 +94,16 @@ export function createPromptContext(
                 secrets: env.secrets,
             })
             return res
+        },
+        grep: async (q, globs) => {
+            try {
+                trace.startDetails(`🌐 grep <code>${HTMLEscape(q)}</code>`)
+                const files = await grepSearch(q, arrayify(globs), { trace })
+                trace.files(files, { model, secrets: env.secrets })
+                return files
+            } finally {
+                trace.endDetails()
+            }
         },
     }
 
@@ -185,7 +196,10 @@ export function createPromptContext(
             return res
         },
         container: async (options) => {
-            const res = await runtimeHost.container({ ...(options || {}), trace })
+            const res = await runtimeHost.container({
+                ...(options || {}),
+                trace,
+            })
             return res
         },
     })

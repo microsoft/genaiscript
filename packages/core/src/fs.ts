@@ -55,8 +55,8 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
-export function createFileSystem(): WorkspaceFileSystem {
-    const fs: WorkspaceFileSystem = {
+export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
+    const fs: Omit<WorkspaceFileSystem, "grep"> = {
         findFiles: async (glob, options) => {
             const { readText } = options || {}
             const names = (

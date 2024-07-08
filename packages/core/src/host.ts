@@ -156,7 +156,7 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
-    workspace: WorkspaceFileSystem
+    workspace: Omit<WorkspaceFileSystem, "grep">
 
     // executes a process
     exec(
