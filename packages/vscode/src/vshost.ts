@@ -5,7 +5,7 @@ import { AzureManager } from "./azuremanager"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { readFileText, writeFile } from "./fs"
+import { readFileText } from "./fs"
 import { LanguageModel } from "../../core/src/chat"
 import {
     parseDefaultsFromEnv,
@@ -18,7 +18,6 @@ import {
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
-    createFileSystem,
     fileExists,
     filterGitIgnore,
 } from "../../core/src/fs"
@@ -37,7 +36,6 @@ export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly workspace = createFileSystem()
     readonly parser: ParseService
     private _azure: AzureManager
     readonly defaultModelOptions = {

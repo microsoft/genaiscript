@@ -114,7 +114,6 @@ export interface Host {
     models: ModelService
     server: ServerManager
     path: Path
-    workspace: WorkspaceFileSystem
 
     createUTF8Decoder(): UTF8Decoder
     createUTF8Encoder(): UTF8Encoder
@@ -157,6 +156,7 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    workspace: WorkspaceFileSystem
 
     // executes a process
     exec(
