@@ -245,6 +245,9 @@ export class NodeHost implements RuntimeHost {
                     cwd,
                     preferLocal: true,
                     stripFinalNewline: true,
+                    stdin: ["inherit"],
+                    stdout: ["pipe"],
+                    stderr: ["pipe"],
                 }
             )
             trace?.itemValue(`exit code`, `${exitCode}`)
