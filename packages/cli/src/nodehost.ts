@@ -35,6 +35,8 @@ import {
     LogLevel,
     UTF8Decoder,
     UTF8Encoder,
+    RuntimeHost,
+    setRuntimeHost,
 } from "../../core/src/host"
 import { resolveLanguageModel } from "../../core/src/models"
 import { createBundledParsers } from "../../core/src/pdf"
@@ -50,7 +52,7 @@ class NodeServerManager implements ServerManager {
     }
 }
 
-export class NodeHost implements Host {
+export class NodeHost implements RuntimeHost {
     userState: any = {}
     retrieval: RetrievalService
     models: ModelService
@@ -81,7 +83,7 @@ export class NodeHost implements Host {
             if (res.error) throw res.error
         }
         const h = new NodeHost()
-        setHost(h)
+        setRuntimeHost(h)
         await h.parseDefaults()
         return h
     }

@@ -7,7 +7,7 @@ import {
     tracePromptResult,
 } from "./chat"
 import { HTMLEscape, arrayify, logVerbose } from "./util"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
@@ -81,12 +81,12 @@ export function createPromptContext(
             }
         },
     })
-    const path = host.path
+    const path = runtimeHost.path
     const workspace: WorkspaceFileSystem = {
-        readText: (f) => host.workspace.readText(f),
-        writeText: (f, c) => host.workspace.writeText(f, c),
+        readText: (f) => runtimeHost.workspace.readText(f),
+        writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         findFiles: async (pattern, options) => {
-            const res = await host.workspace.findFiles(pattern, options)
+            const res = await runtimeHost.workspace.findFiles(pattern, options)
             trace.files(res, {
                 title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
                 maxLength: -1,
@@ -178,14 +178,14 @@ export function createPromptContext(
 
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         exec: async (command, args, options) => {
-            const res = await host.exec(undefined, command, args, {
+            const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,
             })
             return res
         },
         container: async (options) => {
-            const res = await host.container({ ...(options || {}), trace })
+            const res = await runtimeHost.container({ ...(options || {}), trace })
             return res
         },
     })
@@ -265,7 +265,7 @@ export function createPromptContext(
                 )
                 if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = await host.resolveLanguageModel(
+                const { completer } = await runtimeHost.resolveLanguageModel(
                     genOptions,
                     connection.configuration
                 )

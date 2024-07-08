@@ -15,7 +15,11 @@ import {
     errorMessage,
     serializeError,
 } from "../../core/src/error"
-import { ResponseStatus, ServerResponse, host } from "../../core/src/host"
+import {
+    ResponseStatus,
+    ServerResponse,
+    runtimeHost,
+} from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { logVerbose, logError } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
@@ -24,7 +28,6 @@ import {
     RequestMessages,
     PromptScriptProgressResponseEvent,
     PromptScriptEndResponseEvent,
-    ContainerStartResponse,
     ShellExecResponse,
 } from "../../core/src/server/messages"
 
@@ -85,20 +88,22 @@ export async function startServer(options: { port: string }) {
                     }
                     case "models.pull": {
                         console.log(`models: pull ${data.model}`)
-                        response = await host.models.pullModel(data.model)
+                        response = await runtimeHost.models.pullModel(
+                            data.model
+                        )
                         break
                     }
                     case "retrieval.vectorClear":
                         console.log(`retrieval: clear`)
-                        await host.retrieval.init()
-                        response = await host.retrieval.vectorClear(
+                        await runtimeHost.retrieval.init()
+                        response = await runtimeHost.retrieval.vectorClear(
                             data.options
                         )
                         break
                     case "retrieval.vectorUpsert": {
                         console.log(`retrieval: upsert ${data.filename}`)
-                        await host.retrieval.init()
-                        response = await host.retrieval.vectorUpsert(
+                        await runtimeHost.retrieval.init()
+                        response = await runtimeHost.retrieval.vectorUpsert(
                             data.filename,
                             data.options
                         )
@@ -107,8 +112,8 @@ export async function startServer(options: { port: string }) {
                     case "retrieval.vectorSearch": {
                         console.log(`retrieval: search ${data.text}`)
                         console.debug(YAMLStringify(data.options))
-                        await host.retrieval.init()
-                        response = await host.retrieval.vectorSearch(
+                        await runtimeHost.retrieval.init()
+                        response = await runtimeHost.retrieval.vectorSearch(
                             data.text,
                             data.options
                         )
@@ -117,8 +122,10 @@ export async function startServer(options: { port: string }) {
                     }
                     case "parse.pdf": {
                         console.log(`parse: pdf ${data.filename}`)
-                        await host.parser.init()
-                        response = await host.parser.parsePdf(data.filename)
+                        await runtimeHost.parser.init()
+                        response = await runtimeHost.parser.parsePdf(
+                            data.filename
+                        )
                         break
                     }
                     case "tests.run": {
@@ -239,7 +246,7 @@ export async function startServer(options: { port: string }) {
                     case "shell.exec": {
                         console.log(`exec ${data.command}`)
                         const { command, args, options, containerId } = data
-                        const value = await host.exec(
+                        const value = await runtimeHost.exec(
                             containerId,
                             command,
                             args,
@@ -250,25 +257,6 @@ export async function startServer(options: { port: string }) {
                             ok: !value.failed,
                             status: value.exitCode,
                         }
-                        break
-                    }
-                    case "container.start": {
-                        console.log(
-                            `container: start ${data.options.image || DOCKER_DEFAULT_IMAGE}`
-                        )
-                        const container = await host.container(data.options)
-                        response = <ContainerStartResponse>{
-                            ok: true,
-                            id: container.id,
-                            hostPath: container.hostPath,
-                            containerPath: container.containerPath,
-                            disablePurge: container.disablePurge,
-                        }
-                        break
-                    }
-                    case "container.remove": {
-                        await host.removeContainers()
-                        response = { ok: true }
                         break
                     }
                     default:

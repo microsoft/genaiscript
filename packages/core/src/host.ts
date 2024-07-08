@@ -154,6 +154,9 @@ export interface Host {
     // This has mkdirp-semantics (parent directories are created and existing ignored)
     createDirectory(name: string): Promise<void>
     deleteDirectory(name: string): Promise<void>
+}
+
+export interface RuntimeHost extends Host {
 
     // executes a process
     exec(
@@ -170,13 +173,17 @@ export interface Host {
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
 
     /**
-     * Cleanup all temperorary containers.
+     * Cleanup all temporary containers.
      */
     removeContainers(): Promise<void>
 }
 
 export let host: Host
-
 export function setHost(h: Host) {
     host = h
+}
+export let runtimeHost: RuntimeHost
+export function setRuntimeHost(h: RuntimeHost) {
+    setHost(h)
+    runtimeHost = h
 }
