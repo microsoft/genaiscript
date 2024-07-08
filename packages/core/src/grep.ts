@@ -6,7 +6,7 @@ export async function grepSearch(
     query: string,
     globs: string[],
     options?: TraceOptions
-): Promise<WorkspaceFile[]> {
+): Promise<WorkspaceFileMatch[]> {
     const { rgPath } = await import("@vscode/ripgrep")
     const args: string[] = ["--json", query]
     for (const glob of globs) {
@@ -20,16 +20,18 @@ export async function grepSearch(
             path: {
                 text: string
             }
-            lines: { text: string; start: number; end: number }
+            lines: { text: string }
+            line_number: number
         }
     }[]
     const matches = resl
         .filter(({ type }) => type === "match")
         .map(
             ({ data }) =>
-                <WorkspaceFile>{
+                <WorkspaceFileMatch>{
                     filename: data.path.text,
                     content: data.lines.text,
+                    line: data.line_number,
                 }
         )
 
