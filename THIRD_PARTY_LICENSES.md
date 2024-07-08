@@ -67,7 +67,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - pdfjs-dist@4.3.136
+ - pdfjs-dist@4.4.168
 
 This package contains the following license and notice below:
 
@@ -1125,7 +1125,7 @@ DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/reset@0.61.0
+ - @unocss/reset@0.61.3
 
 This package contains the following license and notice below:
 
@@ -2615,7 +2615,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - @qdrant/js-client-rest@1.9.0
+ - @qdrant/js-client-rest@1.10.0
 
 This package contains the following license and notice below:
 
@@ -3035,7 +3035,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - openai@4.52.2
+ - openai@4.52.3
 
 This package contains the following license and notice below:
 
@@ -3878,7 +3878,7 @@ Apache License
 The following npm packages may be included in this product:
 
  - replicate@0.25.2
- - replicate@0.30.2
+ - replicate@0.31.1
 
 These packages each contain the following license and notice below:
 
@@ -4300,14 +4300,14 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/client-cognito-identity@3.606.0
- - @aws-sdk/client-sagemaker@3.606.0
- - @aws-sdk/client-sso-oidc@3.606.0
- - @aws-sdk/client-sso@3.598.0
- - @aws-sdk/client-sts@3.606.0
- - @aws-sdk/credential-provider-cognito-identity@3.606.0
- - @aws-sdk/util-user-agent-browser@3.598.0
- - @aws-sdk/util-user-agent-node@3.598.0
+ - @aws-sdk/client-cognito-identity@3.609.0
+ - @aws-sdk/client-sagemaker@3.609.0
+ - @aws-sdk/client-sso-oidc@3.609.0
+ - @aws-sdk/client-sso@3.609.0
+ - @aws-sdk/client-sts@3.609.0
+ - @aws-sdk/credential-provider-cognito-identity@3.609.0
+ - @aws-sdk/util-user-agent-browser@3.609.0
+ - @aws-sdk/util-user-agent-node@3.609.0
  - @smithy/eventstream-codec@1.1.0
  - @smithy/middleware-retry@3.0.7
  - @smithy/querystring-builder@3.0.3
@@ -4525,9 +4525,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-host-header@3.598.0
- - @aws-sdk/middleware-recursion-detection@3.598.0
- - @aws-sdk/middleware-user-agent@3.598.0
+ - @aws-sdk/middleware-host-header@3.609.0
+ - @aws-sdk/middleware-recursion-detection@3.609.0
+ - @aws-sdk/middleware-user-agent@3.609.0
  - @aws-sdk/protocol-http@3.374.0
  - @smithy/core@2.2.4
  - @smithy/invalid-dependency@3.0.3
@@ -5017,7 +5017,7 @@ The following npm packages may be included in this product:
  - @types/node-fetch@2.6.11
  - @types/node@17.0.45
  - @types/node@18.19.39
- - @types/node@20.14.9
+ - @types/node@20.14.10
  - @types/papaparse@5.3.14
  - @types/pg@8.11.6
  - @types/qs@6.9.15
@@ -5057,7 +5057,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.42.0
+ - genaiscript-vscode@1.42.5
 
 This package contains the following license and notice below:
 
@@ -7220,11 +7220,11 @@ The following npm packages may be included in this product:
  - mdast-util-mdxjs-esm@2.0.1
  - mdast-util-to-markdown@2.1.0
  - micromark-extension-directive@3.0.0
- - micromark-extension-gfm-autolink-literal@2.0.0
- - micromark-extension-gfm-strikethrough@2.0.0
- - micromark-extension-gfm-table@2.0.0
+ - micromark-extension-gfm-autolink-literal@2.1.0
+ - micromark-extension-gfm-strikethrough@2.1.0
+ - micromark-extension-gfm-table@2.1.0
  - micromark-extension-gfm-tagfilter@2.0.0
- - micromark-extension-gfm-task-list-item@2.0.1
+ - micromark-extension-gfm-task-list-item@2.1.0
  - micromark-extension-gfm@3.0.0
  - micromark-extension-mdx-jsx@3.0.0
  - micromark-extension-mdx-md@2.0.0
@@ -7378,7 +7378,7 @@ The following npm packages may be included in this product:
  - decode-named-character-reference@1.0.2
  - estree-util-visit@2.0.0
  - mdast-util-gfm-footnote@2.0.0
- - micromark-extension-gfm-footnote@2.0.0
+ - micromark-extension-gfm-footnote@2.1.0
  - unist-util-position-from-estree@2.0.0
 
 These packages each contain the following license and notice below:
@@ -7570,7 +7570,7 @@ software or this license, under any kind of legal claim.***
 
 The following npm package may be included in this product:
 
- - jackspeak@3.4.0
+ - jackspeak@3.4.1
 
 This package contains the following license and notice below:
 
@@ -13051,7 +13051,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 The following npm package may be included in this product:
 
- - vite@5.3.2
+ - vite@5.3.3
 
 This package contains the following license and notice below:
 
@@ -17275,15 +17275,15 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-env@3.598.0
- - @aws-sdk/credential-provider-ini@3.598.0
- - @aws-sdk/credential-provider-node@3.600.0
- - @aws-sdk/credential-providers@3.606.0
- - @aws-sdk/region-config-resolver@3.598.0
+ - @aws-sdk/credential-provider-env@3.609.0
+ - @aws-sdk/credential-provider-ini@3.609.0
+ - @aws-sdk/credential-provider-node@3.609.0
+ - @aws-sdk/credential-providers@3.609.0
+ - @aws-sdk/region-config-resolver@3.609.0
  - @aws-sdk/signature-v4@3.374.0
- - @aws-sdk/token-providers@3.598.0
- - @aws-sdk/types@3.598.0
- - @aws-sdk/util-endpoints@3.598.0
+ - @aws-sdk/token-providers@3.609.0
+ - @aws-sdk/types@3.609.0
+ - @aws-sdk/util-endpoints@3.609.0
  - @aws-sdk/util-locate-window@3.568.0
  - @aws-sdk/util-utf8-browser@3.259.0
  - @smithy/abort-controller@3.1.1
@@ -17526,9 +17526,9 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/credential-provider-process@3.598.0
- - @aws-sdk/credential-provider-sso@3.598.0
- - @aws-sdk/credential-provider-web-identity@3.598.0
+ - @aws-sdk/credential-provider-process@3.609.0
+ - @aws-sdk/credential-provider-sso@3.609.0
+ - @aws-sdk/credential-provider-web-identity@3.609.0
 
 These packages each contain the following license and notice below:
 
@@ -17738,7 +17738,7 @@ Apache License
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/middleware-logger@3.598.0
+ - @aws-sdk/middleware-logger@3.609.0
  - @smithy/node-config-provider@3.1.3
  - @smithy/util-config-provider@3.0.0
 
@@ -18575,7 +18575,7 @@ third-party archives.
 
 The following npm package may be included in this product:
 
- - typescript@5.5.2
+ - typescript@5.5.3
 
 This package contains the following license and notice below:
 
@@ -18639,9 +18639,9 @@ END OF TERMS AND CONDITIONS
 
 The following npm packages may be included in this product:
 
- - @aws-sdk/core@3.598.0
- - @aws-sdk/credential-provider-http@3.598.0
- - @googleapis/sheets@8.0.0
+ - @aws-sdk/core@3.609.0
+ - @aws-sdk/credential-provider-http@3.609.0
+ - @googleapis/sheets@9.0.0
  - @iconify-json/carbon@1.1.36
  - drizzle-orm@0.29.5
 
@@ -18653,7 +18653,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001639
+ - caniuse-lite@1.0.30001640
 
 This package contains the following license and notice below:
 
@@ -19501,7 +19501,7 @@ The following npm packages may be included in this product:
 
  - qs@6.11.0
  - qs@6.11.2
- - qs@6.12.1
+ - qs@6.12.2
 
 These packages each contain the following license and notice below:
 
@@ -19917,6 +19917,7 @@ The following npm packages may be included in this product:
 
  - bufferutil@4.0.8
  - ws@8.17.1
+ - ws@8.18.0
 
 These packages each contain the following license and notice below:
 
@@ -21641,7 +21642,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - strtok3@7.0.0
+ - strtok3@7.1.0
 
 This package contains the following license and notice below:
 
@@ -21867,7 +21868,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - promptfoo@0.67.0
+ - promptfoo@0.69.1
 
 This package contains the following license and notice below:
 
@@ -22870,7 +22871,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.4.815
+ - electron-to-chromium@1.4.818
 
 This package contains the following license and notice below:
 
@@ -23127,7 +23128,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @anthropic-ai/sdk@0.15.0
- - @anthropic-ai/sdk@0.24.2
+ - @anthropic-ai/sdk@0.24.3
 
 These packages each contain the following license and notice below:
 
@@ -23497,7 +23498,7 @@ DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - dompurify@3.1.5
+ - dompurify@3.1.6
 
 This package contains the following license and notice below:
 
@@ -25090,7 +25091,7 @@ Address all questions regarding this license to:
 
 The following npm package may be included in this product:
 
- - mathjs@13.0.1
+ - mathjs@13.0.2
 
 This package contains the following license and notice below:
 
@@ -25170,11 +25171,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.42.0
+ - docs@1.42.5
  - eastasianwidth@0.2.0
- - genaiscript-core@1.42.0
- - genaiscript-sample@1.42.0
- - genaiscript@1.42.0
+ - genaiscript-core-internal@1.42.5
+ - genaiscript-sample@1.42.5
+ - genaiscript@1.42.5
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
@@ -25486,7 +25487,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - acorn@8.12.0
+ - acorn@8.12.1
 
 This package contains the following license and notice below:
 
@@ -27251,7 +27252,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.9.2
+ - @azure/msal-node@2.10.0
 
 This package contains the following license and notice below:
 
@@ -27377,7 +27378,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @drauu/core@0.4.0
- - @slidev/cli@0.49.13
+ - @slidev/cli@0.49.16
  - @slidev/types@0.47.5
  - drauu@0.4.0
 
@@ -27409,9 +27410,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @slidev/client@0.49.13
- - @slidev/parser@0.49.13
- - @slidev/types@0.49.13
+ - @slidev/client@0.49.16
+ - @slidev/parser@0.49.16
+ - @slidev/types@0.49.16
 
 These packages each contain the following license and notice below:
 
@@ -27790,7 +27791,7 @@ The following npm packages may be included in this product:
  - @astrojs/prism@3.1.0
  - @astrojs/sitemap@3.1.6
  - @astrojs/telemetry@3.1.0
- - astro@4.11.3
+ - astro@4.11.5
 
 These packages each contain the following license and notice below:
 
@@ -27948,13 +27949,13 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @shikijs/core@1.10.0
- - @shikijs/markdown-it@1.10.0
- - @shikijs/monaco@1.10.0
- - @shikijs/transformers@1.10.0
- - @shikijs/twoslash@1.10.0
- - @shikijs/vitepress-twoslash@1.10.0
- - shiki@1.10.0
+ - @shikijs/core@1.10.3
+ - @shikijs/markdown-it@1.10.3
+ - @shikijs/monaco@1.10.3
+ - @shikijs/transformers@1.10.3
+ - @shikijs/twoslash@1.10.3
+ - @shikijs/vitepress-twoslash@1.10.3
+ - shiki@1.10.3
 
 These packages each contain the following license and notice below:
 
@@ -27985,7 +27986,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - vite-plugin-static-copy@1.0.5
+ - vite-plugin-static-copy@1.0.6
 
 This package contains the following license and notice below:
 
@@ -28046,27 +28047,27 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @unocss/astro@0.61.0
- - @unocss/config@0.61.0
- - @unocss/core@0.61.0
- - @unocss/extractor-arbitrary-variants@0.61.0
- - @unocss/extractor-mdc@0.61.0
- - @unocss/inspector@0.61.0
- - @unocss/postcss@0.61.0
- - @unocss/preset-attributify@0.61.0
- - @unocss/preset-icons@0.61.0
- - @unocss/preset-mini@0.61.0
- - @unocss/preset-uno@0.61.0
- - @unocss/preset-web-fonts@0.61.0
- - @unocss/preset-wind@0.61.0
- - @unocss/rule-utils@0.61.0
- - @unocss/scope@0.61.0
- - @unocss/transformer-attributify-jsx-babel@0.61.0
- - @unocss/transformer-attributify-jsx@0.61.0
- - @unocss/transformer-compile-class@0.61.0
- - @unocss/transformer-variant-group@0.61.0
- - @unocss/vite@0.61.0
- - unocss@0.61.0
+ - @unocss/astro@0.61.3
+ - @unocss/config@0.61.3
+ - @unocss/core@0.61.3
+ - @unocss/extractor-arbitrary-variants@0.61.3
+ - @unocss/extractor-mdc@0.61.3
+ - @unocss/inspector@0.61.3
+ - @unocss/postcss@0.61.3
+ - @unocss/preset-attributify@0.61.3
+ - @unocss/preset-icons@0.61.3
+ - @unocss/preset-mini@0.61.3
+ - @unocss/preset-uno@0.61.3
+ - @unocss/preset-web-fonts@0.61.3
+ - @unocss/preset-wind@0.61.3
+ - @unocss/rule-utils@0.61.3
+ - @unocss/scope@0.61.3
+ - @unocss/transformer-attributify-jsx-babel@0.61.3
+ - @unocss/transformer-attributify-jsx@0.61.3
+ - @unocss/transformer-compile-class@0.61.3
+ - @unocss/transformer-variant-group@0.61.3
+ - @unocss/vite@0.61.3
+ - unocss@0.61.3
  - vite-plugin-inspect@0.8.4
 
 These packages each contain the following license and notice below:
@@ -28097,7 +28098,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/cli@0.61.0
+ - @unocss/cli@0.61.3
 
 This package contains the following license and notice below:
 
@@ -28213,7 +28214,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/preset-typography@0.61.0
+ - @unocss/preset-typography@0.61.3
 
 This package contains the following license and notice below:
 
@@ -28245,14 +28246,14 @@ The following npm packages may be included in this product:
 
  - @volar/kit@2.2.5
  - @volar/language-core@2.2.5
- - @volar/language-core@2.4.0-alpha.5
+ - @volar/language-core@2.4.0-alpha.15
  - @volar/language-server@2.2.5
  - @volar/language-service@2.2.5
  - @volar/snapshot-document@2.2.5
  - @volar/source-map@2.2.5
- - @volar/source-map@2.4.0-alpha.5
+ - @volar/source-map@2.4.0-alpha.15
  - @volar/typescript@2.2.5
- - @vue/language-core@2.0.24
+ - @vue/language-core@2.0.26
  - typescript-auto-import-cache@0.3.3
 
 These packages each contain the following license and notice below:
@@ -28557,7 +28558,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/transformer-directives@0.61.0
+ - @unocss/transformer-directives@0.61.3
 
 This package contains the following license and notice below:
 
@@ -28587,7 +28588,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @unocss/preset-tagify@0.61.0
+ - @unocss/preset-tagify@0.61.3
 
 This package contains the following license and notice below:
 
@@ -29156,11 +29157,11 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @unhead/dom@1.9.14
- - @unhead/schema@1.9.14
- - @unhead/shared@1.9.14
- - @unhead/vue@1.9.14
- - unhead@1.9.14
+ - @unhead/dom@1.9.15
+ - @unhead/schema@1.9.15
+ - @unhead/shared@1.9.15
+ - @unhead/vue@1.9.15
+ - unhead@1.9.15
 
 These packages each contain the following license and notice below:
 
@@ -29190,7 +29191,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.16.0
+ - tsx@4.16.2
 
 This package contains the following license and notice below:
 
@@ -29368,8 +29369,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.17.0
- - @azure/msal-common@14.12.0
+ - @azure/msal-browser@3.18.0
+ - @azure/msal-common@14.13.0
 
 These packages each contain the following license and notice below:
 
@@ -29959,7 +29960,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - pathe@1.1.2
- - pkg-types@1.1.1
+ - pkg-types@1.1.3
 
 These packages each contain the following license and notice below:
 
@@ -30708,7 +30709,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - glob@10.4.2
+ - glob@10.4.3
 
 This package contains the following license and notice below:
 
@@ -30732,7 +30733,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - lru-cache@10.3.0
+ - lru-cache@10.4.0
  - lru-cache@7.18.3
 
 These packages each contain the following license and notice below:
@@ -31439,7 +31440,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - peek-readable@5.1.0
+ - peek-readable@5.1.1
 
 This package contains the following license and notice below:
 
@@ -31877,7 +31878,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - katex@0.16.10
+ - katex@0.16.11
 
 This package contains the following license and notice below:
 
@@ -33426,8 +33427,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @nuxt/kit@3.12.2
- - @nuxt/schema@3.12.2
+ - @nuxt/kit@3.12.3
+ - @nuxt/schema@3.12.3
 
 These packages each contain the following license and notice below:
 
@@ -33517,7 +33518,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - better-sqlite3@11.1.1
+ - better-sqlite3@11.1.2
 
 This package contains the following license and notice below:
 
@@ -33791,36 +33792,6 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - which-pm@2.0.0
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2017-present Zoltan Kochan <z@kochan.io>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - picomatch@2.3.1
 
 This package contains the following license and notice below:
@@ -33989,7 +33960,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - preferred-pm@3.1.3
+ - preferred-pm@3.1.4
 
 This package contains the following license and notice below:
 
@@ -35404,7 +35375,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - update-browserslist-db@1.0.16
+ - update-browserslist-db@1.1.0
 
 This package contains the following license and notice below:
 
