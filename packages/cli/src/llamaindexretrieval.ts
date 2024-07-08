@@ -3,7 +3,7 @@ import type { GenericFileSystem } from "@llamaindex/env"
 import { fileTypeFromBuffer } from "file-type"
 import { LLAMAINDEX_VERSION } from "./version"
 import assert from "assert"
-import { writeJSON } from "fs-extra"
+import { ensureDir, writeJSON } from "fs-extra"
 import {
     JAVASCRIPT_MIME_TYPE,
     JSON_MIME_TYPE,
@@ -250,6 +250,7 @@ export class LlamaIndexRetrievalService
             if (JSON.stringify(existing) !== JSON.stringify(current))
                 throw new Error("model configuration mismatch")
         } else {
+            await ensureDir(this.host.path.dirname(fn))
             await writeJSON(fn, { llmModel, embedModel, temperature })
         }
     }
