@@ -18,13 +18,15 @@
         "llm",
         "generative ai",
         "gpt4",
-        "chatgpt"
+        "chatgpt",
+        "ollama",
+        "llamacpp"
     ],
     "description": "A CLI for GenAIScript, a generative AI scripting framework.",
     "license": "MIT",
     "dependencies": {
         "@azure/identity": "^4.3.0",
-        "@vscode/ripgrep": "^1.15.9",
+        "@lvce-editor/ripgrep": "^1.2.0",
         "dockerode": "^4.0.2",
         "pdfjs-dist": "4.4.168",
         "promptfoo": "^0.69.1",
@@ -72,8 +74,8 @@
         "zx": "^8.1.4"
     },
     "scripts": {
-        "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@vscode/ripgrep && node ../../scripts/patch-cli.mjs",
-        "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@vscode/ripgrep",
+        "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep && node ../../scripts/patch-cli.mjs",
+        "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep",
         "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
         "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
         "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
