@@ -99,9 +99,11 @@ export function createPromptContext(
             const q = typeof query === "string" ? query : query.source
             try {
                 trace.startDetails(`🌐 grep <code>${HTMLEscape(q)}</code>`)
-                const files = await grepSearch(q, arrayify(globs), { trace })
+                const { files } = await grepSearch(q, arrayify(globs), {
+                    trace,
+                })
                 trace.files(files, { model, secrets: env.secrets })
-                return files
+                return { files }
             } finally {
                 trace.endDetails()
             }

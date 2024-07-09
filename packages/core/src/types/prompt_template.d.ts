@@ -359,10 +359,6 @@ interface WorkspaceFileWithScore extends WorkspaceFile {
     score?: number
 }
 
-interface WorkspaceFileMatch extends WorkspaceFile {
-    line: number
-}
-
 interface ToolDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
@@ -474,8 +470,8 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[]
-    ): Promise<WorkspaceFileMatch[]>
+        globs: string | string[],
+    ): Promise<{ files: WorkspaceFile[] }>
 
     /**
      * Reads the content of a file as text
