@@ -13,7 +13,7 @@ async function tryImportRipgrep(options?: TraceOptions) {
         return m
     } catch (e) {
         trace?.error(
-            `dockerode not found, installing ${RIPGREP_DIST_VERSION}...`
+            `@lvce-editor/ripgrep not found, installing ${RIPGREP_DIST_VERSION}...`
         )
         await installImport("@lvce-editor/ripgrep", RIPGREP_DIST_VERSION, trace)
         const m = await import("@lvce-editor/ripgrep")
