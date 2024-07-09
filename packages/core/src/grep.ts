@@ -9,14 +9,14 @@ import { RIPGREP_DIST_VERSION } from "./version"
 async function tryImportRipgrep(options?: TraceOptions) {
     const { trace } = options || {}
     try {
-        const m = await import("@vscode/ripgrep")
+        const m = await import("@lvce-editor/ripgrep")
         return m
     } catch (e) {
         trace?.error(
             `dockerode not found, installing ${RIPGREP_DIST_VERSION}...`
         )
-        await installImport("@vscode/ripgrep", RIPGREP_DIST_VERSION, trace)
-        const m = await import("@vscode/ripgrep")
+        await installImport("@lvce-editor/ripgrep", RIPGREP_DIST_VERSION, trace)
+        const m = await import("@lvce-editor/ripgrep")
         return m
     }
 }
