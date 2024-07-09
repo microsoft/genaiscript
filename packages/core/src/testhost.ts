@@ -10,6 +10,8 @@ import {
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
+    setRuntimeHost,
+    RuntimeHost,
 } from "./host"
 import { resolve } from "node:path"
 import { TraceOptions } from "./trace"
@@ -17,7 +19,7 @@ import { LanguageModel } from "./chat"
 import { resolveLanguageModel } from "./models"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 
-export class TestHost implements Host {
+export class TestHost implements RuntimeHost {
     userState: any
     parser: ParseService
     retrieval: RetrievalService
@@ -31,7 +33,7 @@ export class TestHost implements Host {
     }
 
     static install() {
-        setHost(new TestHost())
+        setRuntimeHost(new TestHost())
     }
 
     createUTF8Decoder(): UTF8Decoder {

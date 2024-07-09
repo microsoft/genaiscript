@@ -12,6 +12,7 @@
     "url": "https://github.com/microsoft/genaiscript"
   },
   "optionalDependencies": {
+    "@vscode/ripgrep": "^1.15.9",
     "pdfjs-dist": "4.4.168",
     "web-tree-sitter": "^0.22.2"
   },

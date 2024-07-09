@@ -30,9 +30,6 @@ import {
     PromptScriptTestRunResponse,
     ShellExecResponse,
     ShellExec,
-    ContainerStartResponse,
-    ContainerStart,
-    ContainerRemove,
     PromptScriptRunOptions,
     PromptScriptStart,
     PromptScriptAbort,
@@ -363,22 +360,6 @@ export class WebSocketClient
             options,
         })
         return res.response
-    }
-
-    async containerStart(
-        options: ContainerOptions
-    ): Promise<ContainerStartResponse> {
-        const res = await this.queue<ContainerStart>({
-            type: "container.start",
-            options,
-        })
-        return res.response
-    }
-
-    async containerRemove(): Promise<void> {
-        await this.queue<ContainerRemove>({
-            type: "container.remove",
-        })
     }
 
     kill(): void {

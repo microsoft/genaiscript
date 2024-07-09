@@ -2,7 +2,7 @@ import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
 import { arrayify, assert, logVerbose, relativePath } from "./util"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
 import { applyChangeLog, parseChangeLogs } from "./changelog"
@@ -32,7 +32,7 @@ async function resolveExpansionVars(
     frag: Fragment,
     vars: Record<string, string>
 ) {
-    const root = host.projectFolder()
+    const root = runtimeHost.projectFolder()
 
     const files: WorkspaceFile[] = []
     const fr = frag
@@ -53,7 +53,7 @@ async function resolveExpansionVars(
     const attrs = parsePromptParameters(project, template, vars)
     const secrets: Record<string, string> = {}
     for (const secret of template.secrets || []) {
-        const value = await host.readSecret(secret)
+        const value = await runtimeHost.readSecret(secret)
         if (value) {
             trace.item(`secret \`${secret}\` used`)
             secrets[secret] = value
@@ -171,7 +171,7 @@ export async function runTemplate(
         const fileEdits: Record<string, FileUpdate> = {}
         const changelogs: string[] = []
         const edits: Edits[] = []
-        const projFolder = host.projectFolder()
+        const projFolder = runtimeHost.projectFolder()
         const getFileEdit = async (fn: string) => {
             fn = relativePath(projFolder, fn)
             let fileEdit = fileEdits[fn]
@@ -197,7 +197,7 @@ export async function runTemplate(
                 "LLM configuration missing",
                 connection.info
             )
-        const { completer } = await host.resolveLanguageModel(
+        const { completer } = await runtimeHost.resolveLanguageModel(
             genOptions,
             connection.configuration
         )
@@ -232,7 +232,7 @@ export async function runTemplate(
                     const kw = pm[1].toLowerCase()
                     const n = unquote(name.slice(pm[0].length).trim())
                     const fn = /^[^\/]/.test(n)
-                        ? host.resolvePath(projFolder, n)
+                        ? runtimeHost.resolvePath(projFolder, n)
                         : n
                     const fileEdit = await getFileEdit(fn)
                     if (kw === "file") {
@@ -280,8 +280,8 @@ export async function runTemplate(
                     const cls = parseChangeLogs(val)
                     for (const changelog of cls) {
                         const { filename } = changelog
-                        const fn = /^[^\/]/.test(filename)
-                            ? host.resolvePath(projFolder, filename)
+                        const fn = /^[^\/]/.test(filename) // TODO
+                            ? runtimeHost.resolvePath(projFolder, filename)
                             : filename
                         const fileEdit = await getFileEdit(fn)
                         fileEdit.after = applyChangeLog(
@@ -319,9 +319,9 @@ export async function runTemplate(
 
                     if (files)
                         for (const [n, content] of Object.entries(files)) {
-                            const fn = host.path.isAbsolute(n)
+                            const fn = runtimeHost.path.isAbsolute(n)
                                 ? n
-                                : host.resolvePath(projFolder, n)
+                                : runtimeHost.resolvePath(projFolder, n)
                             trace.detailsFenced(`📁 file ${fn}`, content)
                             const fileEdit = await getFileEdit(fn)
                             fileEdit.after = content
@@ -421,7 +421,7 @@ export async function runTemplate(
         }
         return res
     } finally {
-        await host.removeContainers()
+        await runtimeHost.removeContainers()
     }
 }
 

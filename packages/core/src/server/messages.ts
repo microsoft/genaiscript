@@ -156,23 +156,6 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
-export interface ContainerStartResponse extends ResponseStatus {
-    id: string
-    disablePurge: boolean
-    hostPath: string
-    containerPath: string
-}
-
-export interface ContainerStart extends RequestMessage {
-    type: "container.start"
-    options: ContainerOptions
-    response?: ContainerStartResponse
-}
-
-export interface ContainerRemove extends RequestMessage {
-    type: "container.remove"
-}
-
 export type RequestMessages =
     | ServerKill
     | RetrievalVectorClear
@@ -183,8 +166,6 @@ export type RequestMessages =
     | PromptScriptTestRun
     | ModelsPull
     | ShellExec
-    | ContainerStart
-    | ContainerRemove
     | PromptScriptStart
     | PromptScriptAbort
 

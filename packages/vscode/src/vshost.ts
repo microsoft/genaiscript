@@ -5,7 +5,7 @@ import { AzureManager } from "./azuremanager"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { readFileText, writeFile } from "./fs"
+import { readFileText } from "./fs"
 import { LanguageModel } from "../../core/src/chat"
 import {
     parseDefaultsFromEnv,
@@ -18,7 +18,6 @@ import {
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
-    createFileSystem,
     fileExists,
     filterGitIgnore,
 } from "../../core/src/fs"
@@ -37,7 +36,6 @@ export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly workspace = createFileSystem()
     readonly parser: ParseService
     private _azure: AzureManager
     readonly defaultModelOptions = {
@@ -57,61 +55,6 @@ export class VSCodeHost extends EventTarget implements Host {
         const dotenv = await readFileText(this.projectUri, ".env")
         const env = dotEnvTryParse(dotenv) ?? {}
         await parseDefaultsFromEnv(env)
-    }
-
-    async container(
-        options: ContainerOptions & TraceOptions
-    ): Promise<ContainerHost> {
-        const { trace, ...rest } = options || {}
-        const res = await this.server.client.containerStart(rest)
-        const containerId = res.id
-        const hostPath = res.hostPath
-        const containerPath = res.containerPath
-        return <ContainerHost>{
-            id: containerId,
-            disablePurge: res.disablePurge,
-            hostPath,
-            containerPath,
-            writeText: async (filename, content) => {
-                const fn = vscode.workspace.asRelativePath(
-                    this.path.join(hostPath, filename),
-                    false
-                )
-                await writeFile(this.projectUri, fn, content)
-            },
-            readText: async (filename) => {
-                const fn = vscode.workspace.asRelativePath(
-                    this.path.join(hostPath, filename),
-                    false
-                )
-                return await readFileText(this.projectUri, fn)
-            },
-            copyTo: async (from, to) => {
-                const prj = this.projectUri
-                const files = await this.findFiles(from)
-                for (const file of files) {
-                    const source = Utils.joinPath(prj, file)
-                    const target = vscode.Uri.file(
-                        this.path.join(hostPath, to, file)
-                    )
-                    await vscode.workspace.fs.copy(source, target, {
-                        overwrite: true,
-                    })
-                }
-            },
-            exec: async (command, args, options) => {
-                const r = await this.server.client.exec(
-                    containerId,
-                    command,
-                    args,
-                    options
-                )
-                return r.value
-            },
-        }
-    }
-    async removeContainers(): Promise<void> {
-        if (this.server.started) await this.server.client.containerRemove()
     }
 
     get azure() {
