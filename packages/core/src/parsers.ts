@@ -21,6 +21,7 @@ import { XLSXTryParse } from "./xlsx"
 import { host } from "./host"
 import { unzip } from "./zip"
 import { JSONLTryParse } from "./jsonl"
+import { resolveFileContent } from "./file"
 
 export function createParsers(options: {
     trace: MarkdownTrace
@@ -89,8 +90,10 @@ export function createParsers(options: {
                 pages,
             }
         },
-        code: async (file, query) =>
-            await treeSitterQuery(file, query, { trace }),
+        code: async (file, query) => {
+            await resolveFileContent(file, { trace })
+            return await treeSitterQuery(file, query, { trace })
+        },
         math: (expression) => MathTryEvaluate(expression, { trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),

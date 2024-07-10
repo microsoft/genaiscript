@@ -13,11 +13,33 @@ import {
     setRuntimeHost,
     RuntimeHost,
 } from "./host"
-import { resolve } from "node:path"
 import { TraceOptions } from "./trace"
 import { LanguageModel } from "./chat"
 import { resolveLanguageModel } from "./models"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
+import {
+    dirname,
+    extname,
+    basename,
+    join,
+    normalize,
+    relative,
+    resolve,
+    isAbsolute,
+} from "node:path"
+
+export function createNodePath(): Path {
+    return <Path>Object.freeze({
+        dirname,
+        extname,
+        basename,
+        join,
+        normalize,
+        relative,
+        resolve,
+        isAbsolute,
+    })
+}
 
 export class TestHost implements RuntimeHost {
     dotEnvPath: string = undefined
@@ -26,7 +48,7 @@ export class TestHost implements RuntimeHost {
     retrieval: RetrievalService
     models: ModelService
     server: ServerManager
-    path: Path
+    path: Path = createNodePath()
     workspace: WorkspaceFileSystem
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
