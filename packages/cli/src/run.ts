@@ -361,6 +361,8 @@ export async function runScript(
                     ? pullRequestComment
                     : script.id
             )
+        } else {
+            logError("no pull request information found")
         }
     }
 
@@ -376,19 +378,22 @@ export async function runScript(
                     ? pullRequestDescription
                     : script.id
             )
-        }
-        // azure devops
-        const adoinfo = azureDevOpsParseEnv(process.env)
-        console.log(YAMLStringify(adoinfo))
-        if (adoinfo?.collectionUri) {
-            await azureDevOpsUpdatePullRequestDescription(
-                script,
-                adoinfo,
-                result.text,
-                typeof pullRequestDescription === "string"
-                    ? pullRequestDescription
-                    : script.id
-            )
+        } else {
+            // azure devops
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            console.log(YAMLStringify(adoinfo))
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsUpdatePullRequestDescription(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestDescription === "string"
+                        ? pullRequestDescription
+                        : script.id
+                )
+            } else {
+                logError("no pull request information found")
+            }
         }
     }
     // final fail
