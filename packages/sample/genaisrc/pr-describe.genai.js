@@ -5,9 +5,11 @@ script({
     title: "pr-describe",
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
+
+const defaultBranch = env.defaultBranch || "main"
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "main",
+    defaultBranch,
     "--",
     ":!**/genaiscript.d.ts",
     ":!**/jsconfig.json",

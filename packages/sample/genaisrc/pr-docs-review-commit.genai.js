@@ -7,9 +7,10 @@ script({
     tools: ["fs_find_files", "fs_read_file"],
 })
 
+const defaultBranch = env.defaultBranch || "main"
 const { stdout: diff } = await host.exec("git", [
     "diff",
-    "main",
+    defaultBranch,
     "--",
     "docs/**.md",
     "docs/**.mdx",
