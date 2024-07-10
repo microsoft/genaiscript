@@ -5,6 +5,7 @@ import {
     RECONNECT,
     TOOL_NAME,
     ICON_LOGO_NAME,
+    CLI_JS,
 } from "../../core/src/constants"
 import {
     ServerManager,
@@ -16,6 +17,7 @@ import {
 import { logError } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
+import { Utils } from "vscode-uri"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
@@ -55,7 +57,11 @@ export class TerminalServerManager implements ServerManager {
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        this._terminal.sendText(`npx --yes genaiscript@^${CORE_VERSION} serve`)
+        let cmd: string
+        const cliPath = await this.state.host.readSecret("GENAISCRIPT_CLI")
+        if (cliPath) cmd = `node "${cliPath}" serve`
+        else cmd = `npx --yes genaiscript@^${CORE_VERSION} serve`
+        this._terminal.sendText(cmd)
         this._terminal.show()
     }
 

@@ -5453,7 +5453,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.42.5
+ - genaiscript-vscode@1.43.0
 
 This package contains the following license and notice below:
 
@@ -25603,11 +25603,11 @@ The following npm packages may be included in this product:
  - de-indent@1.0.2
  - degenerator@5.0.1
  - dlv@1.1.3
- - docs@1.42.5
+ - docs@1.43.0
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.42.5
- - genaiscript-sample@1.42.5
- - genaiscript@1.42.5
+ - genaiscript-core-internal@1.43.0
+ - genaiscript-sample@1.43.0
+ - genaiscript@1.43.0
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
