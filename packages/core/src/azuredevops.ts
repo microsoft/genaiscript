@@ -19,6 +19,9 @@ export interface AzureDevOpsEnv {
 export function azureDevOpsParseEnv(
     env: Record<string, string>
 ): AzureDevOpsEnv {
+    const fork = env.SYSTEM_PULLREQUEST_ISFORK !== "False"
+    if (fork) return undefined
+
     const accessToken = env.SYSTEM_ACCESSTOKEN
     const collectionUri = env.SYSTEM_COLLECTIONURI // https://dev.azure.com/msresearch/
     const teamProject = env.SYSTEM_TEAMPROJECT
@@ -71,13 +74,20 @@ export async function azureDevOpsUpdatePullRequestDescription(
             Authorization: `Bearer ${accessToken}`,
         },
     })
-    const resGetJson = (await resGet.json()) as { description: string }
-    const description = mergeDescription(
-        commentTag,
-        resGetJson.description,
-        text
-    )
-
+    if (resGet.status !== 200) {
+        logError(`pull request search failed, ${resGet.statusText}`)
+        return
+    }
+    const resGetJson = (await resGet.json()) as {
+        pullRequestId: number
+        description: string
+    }[]
+    let { pullRequestId, description } = resGetJson?.[0] || {}
+    if (isNaN(pullRequestId)) {
+        logError(`pull request not found`)
+        return
+    }
+    description = mergeDescription(commentTag, description, text)
     const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}?api-version=${apiVersion}`
     const res = await fetch(url, {
         method: "PATCH",
@@ -87,10 +97,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
             Authorization: `Bearer ${accessToken}`,
         },
     })
-    const r = {
-        updated: res.status === 200,
-        statusText: res.statusText,
-    }
-    if (!r.updated) logError(`pull request update failed, ${r.statusText}`)
+    if (res.status !== 200)
+        logError(`pull request update failed, ${res.statusText}`)
     else logVerbose(`pull request updated`)
 }
