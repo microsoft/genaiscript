@@ -76,11 +76,13 @@ export async function azureDevOpsUpdatePullRequestDescription(
         return
     }
     const resGetJson = (await resGet.json()) as {
-        pullRequestId: number
-        description: string
-    }[]
+        value: {
+            pullRequestId: number
+            description: string
+        }[]
+    }
     console.log(YAMLStringify(resGetJson))
-    let { pullRequestId, description } = resGetJson?.[0] || {}
+    let { pullRequestId, description } = resGetJson?.value?.[0] || {}
     if (isNaN(pullRequestId)) {
         logError(`pull request not found`)
         return
