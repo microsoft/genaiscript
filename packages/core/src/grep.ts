@@ -22,13 +22,18 @@ async function tryImportRipgrep(options?: TraceOptions) {
 }
 
 export async function grepSearch(
-    query: string,
+    query: string | RegExp,
     globs: string[],
     options?: TraceOptions
 ): Promise<{ files: WorkspaceFile[] }> {
-    const { trace } = options || {}
     const { rgPath } = await tryImportRipgrep(options)
-    const args: string[] = ["--json", "--smart-case", query]
+    const args: string[] = ["--json", "--multiline", "--context", "3"]
+    if (typeof query === "string") {
+        args.push("--smart-case", query)
+    } else {
+        if (query.ignoreCase) args.push("--ignore-case")
+        args.push(query.source)
+    }
     for (const glob of globs) {
         args.push("-g")
         args.push(glob)
