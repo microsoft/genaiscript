@@ -171,7 +171,7 @@ export async function startServer(options: { port: string }) {
                                     ...payload,
                                 })
                             )
-                        trace.addEventListener(TRACE_CHUNK, (ev) => {
+                        trace.addEventListener(TRACE_CHUNK, (ev) =>{
                             const tev = ev as TraceChunkEvent
                             send({ trace: tev.chunk })
                         })

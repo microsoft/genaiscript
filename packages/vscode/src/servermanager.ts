@@ -5,6 +5,7 @@ import {
     RECONNECT,
     TOOL_NAME,
     ICON_LOGO_NAME,
+    CLIENT_RECONNECT_MAX_ATTEMPTS,
 } from "../../core/src/constants"
 import {
     ServerManager,
@@ -37,7 +38,7 @@ export class TerminalServerManager implements ServerManager {
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (this.client.reconnectAttempts > 5) {
+            if (this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS) {
                 this.closeTerminal()
                 this.start()
             }
