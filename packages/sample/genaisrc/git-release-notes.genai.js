@@ -1,4 +1,4 @@
-script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-32k" })
+script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-turbo" })
 
 const product = env.vars.product || "GenAIScript"
 
