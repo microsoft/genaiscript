@@ -2,6 +2,7 @@ import { createFetch } from "./fetch"
 import { generatedByFooter, mergeDescription } from "./github"
 import { prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, trimTrailingSlash } from "./util"
+import { YAMLStringify } from "./yaml"
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-6.0
 
@@ -60,12 +61,12 @@ export async function azureDevOpsUpdatePullRequestDescription(
     const fetch = await createFetch({ retryOn: [] })
 
     // query pull request
+    const Authorization = `Bearer ${accessToken}`
     const searchUrl = `${collectionUri}${teamProject}/_apis/git/pullrequests/?searchCriteria.repositoryId=${repositoryId}&searchCriteria.sourceRefName=${sourceBranch}&api-version=${apiVersion}`
     const resGet = await fetch(searchUrl, {
         method: "GET",
         headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization,
         },
     })
     if (resGet.status !== 200) {
@@ -78,6 +79,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
         pullRequestId: number
         description: string
     }[]
+    console.log(YAMLStringify(resGetJson))
     let { pullRequestId, description } = resGetJson?.[0] || {}
     if (isNaN(pullRequestId)) {
         logError(`pull request not found`)
@@ -90,7 +92,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
         body: JSON.stringify({ description }),
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization,
         },
     })
     if (res.status !== 200)
