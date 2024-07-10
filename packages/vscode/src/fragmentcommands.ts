@@ -179,21 +179,23 @@ export function activateFragmentCommands(state: ExtensionState) {
             template = await pickTemplate()
             files = [file]
         }
+        const cliPath = await state.host.readSecret("GENAISCRIPT_CLI")
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
             {
                 name: "GenAIScript",
-                program: state.cliJsPath,
+                program: cliPath ?? "npx",
                 request: "launch",
                 skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
                 type: "node",
                 args: [
+                    cliPath,
                     "run",
                     vscode.workspace.asRelativePath(template.filename),
                     ...files.map((file) =>
                         vscode.workspace.asRelativePath(file.fsPath)
                     ),
-                ],
+                ].filter((a) => a !== undefined),
             }
         )
     }

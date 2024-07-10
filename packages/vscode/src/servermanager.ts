@@ -6,6 +6,7 @@ import {
     TOOL_NAME,
     ICON_LOGO_NAME,
     CLI_JS,
+    NPM_CLI_PACKAGE,
 } from "../../core/src/constants"
 import {
     ServerManager,
@@ -60,7 +61,7 @@ export class TerminalServerManager implements ServerManager {
         let cmd: string
         const cliPath = await this.state.host.readSecret("GENAISCRIPT_CLI")
         if (cliPath) cmd = `node "${cliPath}" serve`
-        else cmd = `npx --yes genaiscript@^${CORE_VERSION} serve`
+        else cmd = `npx --yes ${NPM_CLI_PACKAGE}@^${CORE_VERSION} serve`
         this._terminal.sendText(cmd)
         this._terminal.show()
     }
