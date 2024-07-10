@@ -154,7 +154,7 @@ permissions:
     ...
 ```
 
-### --pull-request-description
+### --pull-request-description \[tag\]
 
 When running within a GitHub Action or Azure DevOps pipeline on a pull request,
 the CLI inserts the LLM output in the description of the pull request.
@@ -163,6 +163,8 @@ the CLI inserts the LLM output in the description of the pull request.
 npx genaiscript run ... -prd
 ```
 
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
+
 ### --pull-request-comment \[tag\];
 
 Upserts a comment on the pull request with the LLM output.
@@ -170,6 +172,8 @@ Upserts a comment on the pull request with the LLM output.
 ```sh
 npx genaiscript run ... -prc
 ```
+
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
 ## Read more
 
