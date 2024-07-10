@@ -19,3 +19,5 @@ script(...)
 - file search: grep, fuzz search, RAG, tree sitter queries, ...
 
 - Debugging Just Works™
+
+- LLM tools as JavaScript functions (Agents!)
