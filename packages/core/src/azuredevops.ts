@@ -1,17 +1,18 @@
 import { createFetch } from "./fetch"
 import { generatedByFooter, mergeDescription } from "./github"
 import { prettifyMarkdown } from "./markdown"
-import { logError, logVerbose } from "./util"
+import { logError, logVerbose, trimTrailingSlash } from "./util"
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-6.0
 
 export interface AzureDevOpsEnv {
     accessToken: string
     collectionUri: string
+    teamProject: string
     repositoryId: string
     apiVersion: string
-    pullRequestId: string
-    runUrl: string
+    sourceBranch: string
+    runUrl?: string
 }
 
 // https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=azure-devops&tabs=yaml
@@ -19,23 +20,24 @@ export function azureDevOpsParseEnv(
     env: Record<string, string>
 ): AzureDevOpsEnv {
     const accessToken = env.SYSTEM_ACCESSTOKEN
-    const collectionUri = env.SYSTEM_COLLECTIONURI
-    const repositoryId = env.BUILD_REPOSITORY_ID
-    const pullRequestId = env.SYSTEM_PULLREQUEST_PULLREQUESTID
-    const apiVersion = "6.0"
-    const runUrl = env.BUILD_BUILDURI
+    const collectionUri = env.SYSTEM_COLLECTIONURI // https://dev.azure.com/msresearch/
+    const teamProject = env.SYSTEM_TEAMPROJECT
+    const repositoryId = env.BUILD_REPOSITORY_NAME // build_repositoryid is a guid
+    const sourceBranch = env.BUILD_SOURCEBRANCH
+    const apiVersion = "7.1"
 
     return accessToken &&
         collectionUri &&
+        teamProject &&
         repositoryId &&
-        pullRequestId !== undefined
+        sourceBranch
         ? {
               accessToken,
               collectionUri,
+              teamProject,
               repositoryId,
               apiVersion,
-              pullRequestId,
-              runUrl,
+              sourceBranch,
           }
         : undefined
 }
@@ -49,17 +51,20 @@ export async function azureDevOpsUpdatePullRequestDescription(
     const {
         accessToken,
         collectionUri,
+        sourceBranch,
+        teamProject,
         repositoryId,
         apiVersion,
-        pullRequestId,
     } = info
-    const url = `${collectionUri}/${repositoryId}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}?api-version=${apiVersion}`
 
     text = prettifyMarkdown(text)
     text += generatedByFooter(script, info)
 
     const fetch = await createFetch({ retryOn: [] })
-    const resGet = await fetch(url, {
+
+    // query pull request
+    const searchUrl = `${collectionUri}${teamProject}/_apis/git/pullrequests/?searchCriteria.repositoryId=${repositoryId}&searchCriteria.sourceRefName=${sourceBranch}&api-version=${apiVersion}`
+    const resGet = await fetch(searchUrl, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -72,6 +77,8 @@ export async function azureDevOpsUpdatePullRequestDescription(
         resGetJson.description,
         text
     )
+
+    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}?api-version=${apiVersion}`
     const res = await fetch(url, {
         method: "PATCH",
         body: JSON.stringify({ description }),
