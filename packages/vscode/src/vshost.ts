@@ -14,13 +14,11 @@ import {
 import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
+    DOT_ENV_FILENAME,
     MODEL_PROVIDER_AZURE,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
-import {
-    fileExists,
-    filterGitIgnore,
-} from "../../core/src/fs"
+import { fileExists, filterGitIgnore } from "../../core/src/fs"
 import {
     Host,
     ParseService,
@@ -52,7 +50,7 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async activate() {
-        const dotenv = await readFileText(this.projectUri, ".env")
+        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
         const env = dotEnvTryParse(dotenv) ?? {}
         await parseDefaultsFromEnv(env)
     }
@@ -196,7 +194,7 @@ export class VSCodeHost extends EventTarget implements Host {
 
     async readSecret(name: string): Promise<string | undefined> {
         try {
-            const dotenv = await readFileText(this.projectUri, ".env")
+            const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
             const env = dotEnvTryParse(dotenv)
             return env?.[name]
         } catch (e) {
@@ -209,7 +207,7 @@ export class VSCodeHost extends EventTarget implements Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
-        const dotenv = await readFileText(this.projectUri, ".env")
+        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
         const env = dotEnvTryParse(dotenv) ?? {}
         await parseDefaultsFromEnv(env)
         const tok = await parseTokenFromEnv(env, modelId)

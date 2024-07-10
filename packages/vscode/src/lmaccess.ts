@@ -10,6 +10,7 @@ import {
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
+    DOT_ENV_FILENAME,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -51,7 +52,10 @@ async function generateLanguageModelConfiguration(
             kind: vscode.QuickPickItemKind.Separator,
             label: "Visual Studio Code Language Model",
         })
-    items.push({ kind: vscode.QuickPickItemKind.Separator, label: ".env" })
+    items.push({
+        kind: vscode.QuickPickItemKind.Separator,
+        label: DOT_ENV_FILENAME,
+    })
     items.push(
         {
             label: "OpenAI",

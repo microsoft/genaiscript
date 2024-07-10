@@ -8,6 +8,7 @@ import {
     DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
+    DOT_ENV_FILENAME,
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
@@ -283,17 +284,17 @@ export async function updateConnectionConfiguration(
 ): Promise<void> {
     // update .gitignore file
     if (!(await fileExists(".gitignore")))
-        await writeText(".gitignore", ".env\n")
+        await writeText(".gitignore", `${DOT_ENV_FILENAME}\n`)
     else {
         const content = await readText(".gitignore")
-        if (!content.includes(".env"))
-            await writeText(".gitignore", content + "\n.env\n")
+        if (!content.includes(DOT_ENV_FILENAME))
+            await writeText(".gitignore", content + `\n${DOT_ENV_FILENAME}\n`)
     }
 
     // update .env
     const { config, model } = dotEnvTemplate(provider, apiType)
     let src = config
-    const current = await tryReadText(".env")
+    const current = await tryReadText(DOT_ENV_FILENAME)
     if (current) {
         if (!current.includes("GENAISCRIPT_DEFAULT_MODEL"))
             src =
@@ -306,5 +307,5 @@ export async function updateConnectionConfiguration(
                     ` + src
         src = current + "\n" + src
     }
-    await writeText(".env", src)
+    await writeText(DOT_ENV_FILENAME, src)
 }

@@ -23,14 +23,13 @@ import {
     MODEL_PROVIDER_AZURE,
     AZURE_OPENAI_TOKEN_SCOPES,
     SHELL_EXEC_TIMEOUT,
+    DOT_ENV_FILENAME,
 } from "../../core/src/constants"
 import { createFileSystem, filterGitIgnore } from "../../core/src/fs"
 import {
     ServerManager,
-    Host,
     RetrievalService,
     ModelService,
-    setHost,
     LanguageModelConfiguration,
     LogLevel,
     UTF8Decoder,
@@ -73,7 +72,7 @@ export class NodeHost implements RuntimeHost {
     }
 
     static async install(dotEnvPath: string) {
-        dotEnvPath = dotEnvPath || resolve(".env")
+        dotEnvPath = dotEnvPath || resolve(DOT_ENV_FILENAME)
         if (existsSync(dotEnvPath)) {
             const res = dotenv.config({
                 path: dotEnvPath,

@@ -61,6 +61,7 @@ export const FETCH_RETRY_DEFAULT = 5
 export const FETCH_RETRY_DEFAULT_DEFAULT = 2000
 export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 export const EXEC_MAX_BUFFER = 64
+export const DOT_ENV_FILENAME = ".env"
 
 export const UNHANDLED_ERROR_CODE = -1
 export const ANNOTATION_ERROR_CODE = -2
