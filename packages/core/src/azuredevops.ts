@@ -4,8 +4,7 @@ import { prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, trimTrailingSlash } from "./util"
 import { YAMLStringify } from "./yaml"
 
-// https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-6.0
-
+// https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-7.1
 export interface AzureDevOpsEnv {
     fork: boolean
     accessToken: string
@@ -63,6 +62,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
     // query pull request
     const Authorization = `Bearer ${accessToken}`
     const searchUrl = `${collectionUri}${teamProject}/_apis/git/pullrequests/?searchCriteria.repositoryId=${repositoryId}&searchCriteria.sourceRefName=${sourceBranch}&api-version=${apiVersion}`
+    console.log(searchUrl)
     const resGet = await fetch(searchUrl, {
         method: "GET",
         headers: {
@@ -86,7 +86,8 @@ export async function azureDevOpsUpdatePullRequestDescription(
         return
     }
     description = mergeDescription(commentTag, description, text)
-    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}?api-version=${apiVersion}`
+    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullrequests/${pullRequestId}?api-version=${apiVersion}`
+    console.log(url)
     const res = await fetch(url, {
         method: "PATCH",
         body: JSON.stringify({ description }),
