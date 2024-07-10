@@ -62,7 +62,6 @@ export async function azureDevOpsUpdatePullRequestDescription(
     // query pull request
     const Authorization = `Bearer ${accessToken}`
     const searchUrl = `${collectionUri}${teamProject}/_apis/git/pullrequests/?searchCriteria.repositoryId=${repositoryId}&searchCriteria.sourceRefName=${sourceBranch}&api-version=${apiVersion}`
-    console.log(searchUrl)
     const resGet = await fetch(searchUrl, {
         method: "GET",
         headers: {
@@ -81,7 +80,6 @@ export async function azureDevOpsUpdatePullRequestDescription(
             description: string
         }[]
     }
-    console.log(YAMLStringify(resGetJson))
     let { pullRequestId, description } = resGetJson?.value?.[0] || {}
     if (isNaN(pullRequestId)) {
         logError(`pull request not found`)
@@ -89,7 +87,6 @@ export async function azureDevOpsUpdatePullRequestDescription(
     }
     description = mergeDescription(commentTag, description, text)
     const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullrequests/${pullRequestId}?api-version=${apiVersion}`
-    console.log(url)
     const res = await fetch(url, {
         method: "PATCH",
         body: JSON.stringify({ description }),

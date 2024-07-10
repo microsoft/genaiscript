@@ -369,7 +369,7 @@ export async function runScript(
     if (pullRequestDescription && result.text) {
         // github
         const ghinfo = githubParseEnv(process.env)
-        if (ghinfo.repository && ghinfo.issue) {
+        if (ghinfo?.repository && ghinfo?.issue) {
             await githubUpdatePullRequestDescription(
                 script,
                 ghinfo,
@@ -381,7 +381,6 @@ export async function runScript(
         } else {
             // azure devops
             const adoinfo = azureDevOpsParseEnv(process.env)
-            console.log(YAMLStringify(adoinfo))
             if (adoinfo?.collectionUri) {
                 await azureDevOpsUpdatePullRequestDescription(
                     script,
