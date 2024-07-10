@@ -32,6 +32,10 @@ export interface ServerVersion extends RequestMessage {
     version?: string
 }
 
+export interface ServerEnv extends RequestMessage {
+    type: "server.env"
+}
+
 export interface RetrievalVectorUpsert extends RequestMessage {
     type: "retrieval.vectorUpsert"
     filename: string
@@ -158,6 +162,8 @@ export interface ShellExec extends RequestMessage {
 
 export type RequestMessages =
     | ServerKill
+    | ServerVersion
+    | ServerEnv
     | RetrievalVectorClear
     | RetrievalVectorUpsert
     | RetrievalSearch

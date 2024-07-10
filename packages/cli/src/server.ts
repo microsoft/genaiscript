@@ -30,6 +30,7 @@ import {
     PromptScriptEndResponseEvent,
     ShellExecResponse,
 } from "../../core/src/server/messages"
+import { envInfo } from "./info"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -78,6 +79,14 @@ export async function startServer(options: { port: string }) {
                             platform: process.platform,
                             arch: process.arch,
                             pid: process.pid,
+                        }
+                        break
+                    }
+                    case "server.env": {
+                        console.log(`server: env`)
+                        envInfo(undefined)
+                        response = <ServerResponse>{
+                            ok: true,
                         }
                         break
                     }

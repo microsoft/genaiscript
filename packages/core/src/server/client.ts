@@ -34,6 +34,7 @@ import {
     PromptScriptStart,
     PromptScriptAbort,
     ResponseEvents,
+    ServerEnv,
 } from "./messages"
 
 export class WebSocketClient
@@ -226,6 +227,11 @@ export class WebSocketClient
             type: "models.pull",
             model,
         })
+        return res.response
+    }
+
+    async infoEnv(): Promise<ResponseStatus> {
+        const res = await this.queue<ServerEnv>({ type: "server.env" })
         return res.response
     }
 

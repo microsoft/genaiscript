@@ -344,6 +344,11 @@
                 "command": "genaiscript.openIssueReporter",
                 "title": "Report Issue...",
                 "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.info.env",
+                "title": "Configuration information...",
+                "category": "GenAIScript"
             }
         ]
     },

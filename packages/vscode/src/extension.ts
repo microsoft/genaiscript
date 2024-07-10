@@ -48,6 +48,9 @@ export async function activate(context: ExtensionContext) {
                 if (res) vscode.commands.executeCommand(res.cmd)
             }
         }),
+        registerCommand("genaiscript.info.env", async () => {
+            state.host.server.client.infoEnv()
+        }),
         registerCommand("genaiscript.openIssueReporter", async () => {
             const issueBody: string[] = [
                 `## Describe the issue`,
