@@ -1,17 +1,22 @@
-# Pull Request Reviewer
+# Example: Pull Request
 
-Build your own PR reviewer!
+Build your own PR description generator!
 
 - get branch history using `git`
+
+```js
+const { stdout: changes } = await host.exec("git", ["diff", "main"])
+def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000, })
+```
+
 - let LLM request additional files using tools (`system.fs_read_file`)
-- use instructions to tune the quality of the answers
 
 ```js
 script({ ..., system: ["system", "system.fs_find_files", "system.fs_read_file"],})
+```
+- use instructions to tune the quality of the answers
 
-const { stdout: changes } = await host.exec("git", ["diff", "main"])
-def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000, })
-
+```js
 $`You are an expert software developer and architect.
 ## Task
 - Describe a high level summary of the changes in GIT_DIFF in a way that a software engineer will understand.
@@ -20,10 +25,8 @@ $`You are an expert software developer and architect.
 ...`
 ```
 
-Let GenAISCript upsert a comment on your Pull Request (GitHub, Azure DevOps**)
+- update pull request description (GitHub, Azure DevOps**)
 
 ```sh
-genaiscript run pr-review --pull-request-comment
+genaiscript run pr-review --pull-request-description
 ```
-
-** soonish

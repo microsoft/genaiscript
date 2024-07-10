@@ -60,7 +60,8 @@ $`Translate the documentation in ORIGINAL to ${langName}.
 
 ## Automate with the CLI
 
-Scale the script using the CLI and google/zx.
+- Scale the script using the CLI and google/zx.
+- Validate with compilers, tests, ...
 
 ```js
 const langs = ["French", "German", ...]

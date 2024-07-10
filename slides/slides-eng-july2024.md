@@ -70,11 +70,11 @@ src: pages/image-alt-text.md
 ---
 
 ---
-src: pages/makecode-translations.md
+src: pages/pr-review.md
 ---
 
 ---
-src: pages/pr-review.md
+src: pages/makecode-translations.md
 ---
 
 ---
