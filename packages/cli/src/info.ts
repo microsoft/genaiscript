@@ -20,7 +20,7 @@ export async function systemInfo() {
 export async function envInfo(provider: string, options?: { token?: boolean }) {
     const { token } = options || {}
     const res: any = {}
-    if (host.dotEnvPath) res[".env"] = host.dotEnvPath
+    res[".env"] = host.dotEnvPath ?? ""
     res.providers = []
     const env = process.env
     for (const modelProvider of MODEL_PROVIDERS.filter(
