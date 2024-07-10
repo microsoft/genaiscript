@@ -1,24 +1,21 @@
 
 # JavaScript Runtime for GenAI
 
-- In process eval or `esm` import
+- **eval** (commonjs) or **esm** + TypeScript!
 ```js
 // poem.genai.js
 script(...)
 $`Write a poem.`
 ```
 ```js
-// poem.genai.mjs
+// poem.genai.mjs/ts
+import { parse } from "ini"
 script(...)
-export default async function() {
-    $`Write a poem.`
-}
+...
 ```
 
-- parsers for PDF, DOCX, HTML, JSON5, YAML, XML, CSV, tokenizers, tree-sitter, ...
+- parsers: PDF, DOCX, HTML, JSON5, YAML, XML, CSV, tokenizers, ...
 
-- virtual File system (vscode vs node.js vs web)
-
-- builtin RAG (work in progress**)
+- file search: grep, fuzz search, RAG, tree sitter queries, ...
 
 - Debugging Just Works™
