@@ -32,6 +32,7 @@ export const JS_REGEX = /\.js$/i
 export const TOOL_NAME = "GenAIScript"
 export const SERVER_PORT = 8003
 export const CLIENT_RECONNECT_DELAY = 2000
+export const CLIENT_RECONNECT_MAX_ATTEMPTS = 25
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
 export const DEFAULT_MODEL = "openai:gpt-4"
