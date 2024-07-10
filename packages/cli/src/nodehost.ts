@@ -221,7 +221,7 @@ export class NodeHost implements RuntimeHost {
             cwd,
             timeout = SHELL_EXEC_TIMEOUT,
             stdin: input,
-        } = options
+        } = options || {}
         try {
             trace?.startDetails(label || command)
 

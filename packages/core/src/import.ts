@@ -16,6 +16,7 @@ export async function installImport(
         : ["install", "--no-save", "--ignore-scripts", mod]
     const res = await runtimeHost.exec(undefined, command, args, {
         cwd,
+        trace
     })
     return res.exitCode === 0
 }

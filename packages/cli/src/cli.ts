@@ -41,6 +41,7 @@ import {
 } from "../../core/src/error"
 import { dotGenaiscriptPath } from "../../core/src/util"
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
+import { grep } from "./grep"
 
 async function cacheClear(name: string) {
     let dir = dotGenaiscriptPath("cache")
@@ -305,6 +306,11 @@ export async function cli() {
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
+
+    const workspace = program.command("workspace").description("Workspace tasks")
+    workspace.command("grep")
+        .arguments("<pattern> [files...]")
+        .action(grep)
 
     const info = program.command("info").description("Utility tasks")
     info.command("help")
