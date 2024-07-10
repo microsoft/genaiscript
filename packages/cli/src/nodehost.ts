@@ -244,7 +244,7 @@ export class NodeHost implements RuntimeHost {
                     cwd,
                     preferLocal: true,
                     stripFinalNewline: true,
-                    stdin: ["inherit"],
+                    stdin: input ? undefined : "ignore",
                     stdout: ["pipe"],
                     stderr: ["pipe"],
                 }

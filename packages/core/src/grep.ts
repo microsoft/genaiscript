@@ -28,7 +28,7 @@ export async function grepSearch(
 ): Promise<{ files: WorkspaceFile[] }> {
     const { trace } = options || {}
     const { rgPath } = await tryImportRipgrep(options)
-    const args: string[] = ["--json", query]
+    const args: string[] = ["--json", "--smart-case", query]
     for (const glob of globs) {
         args.push("-g")
         args.push(glob)
