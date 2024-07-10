@@ -26,11 +26,13 @@ If multiple files are specified, all files are included in `env.files`.
 npx genaiscript run <script> "src/*.bicep" "src/*.ts"
 ```
 
-### Credentials
+## Credentials
 
 The LLM connection configuration is read from environment variables or from a `.env` file in the workspace root directory.
 
 See [configuration](/genaiscript/getting-started/configuration).
+
+## Files
 
 ### --excluded-files <files...>
 
@@ -47,6 +49,12 @@ Exclude files ignored by the `.gitignore` file at the workspace root.
 ```sh "--exclude-git-ignore"
 npx genaiscript run <script> <files> --exclude-git-ignore
 ```
+
+## Output
+
+### --prompt
+
+Skips the LLM invocation and only prints the expanded system and user chat messages.
 
 ### --out <file|directory>
 
@@ -121,44 +129,52 @@ Emit changelogs in the specified file as text.
 npx genaiscript run <script> <files> --out-changelogs changelogs.txt
 ```
 
-### --prompt
+## Pull Requests
 
-Skips the LLM invocation and only prints the expanded system and user chat messages.
+The CLI can update pull request description and comments when running in a GitHub Action or Azure DevOps pipeline.
 
-### --retry &lt;number&gt;
+### GitHub Action configuration
 
-Specifies the number of retries when the LLM invocations fails with throttling (429).
-Default is 3.
+-   add the `pull-requests: write` permission to the workflow/step
 
-### --retry-delay &lt;number&gt;
+```yaml
+permissions:
+    pull-requests: write
+```
 
-Minimum delay between retries in milliseconds.
+### Azure DevOps configuration
 
-### --label &lt;label&gt;
+-   add `<your projectname> Build Service` as a collaborator to the repository
+-   pass secrets to scripts, including `System.AccessToken`
 
-Adds a run label that will be used in generating the trace title.
+```yaml
+- script: npx genaiscript ... -prd
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    ...
+```
 
-### --cache
+### --pull-request-description \[tag\]
 
-Enables LLM caching in JSONL file under `.genaiscript/tmp/openai.genaiscript.cjsonl`. Caching is enabled by default in VSCode
-but not for the CLI.
+When running within a GitHub Action or Azure DevOps pipeline on a pull request,
+the CLI inserts the LLM output in the description of the pull request.
 
-### --temperature &lt;number&gt;
+```sh
+npx genaiscript run ... -prd
+```
 
-Overrides the LLM run temperature.
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-### --top-p &lt;number&gt;
+### --pull-request-comment \[tag\];
 
-Overrides the LLM run `top_p` value.
+Upserts a comment on the pull request with the LLM output.
 
-### --model &lt;string&gt;
+```sh
+npx genaiscript run ... -prc
+```
 
-Overrides the LLM model identifier.
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-### --apply-edits
+## Read more
 
-Apply file modifications to the file system.
-
-### --source-map
-
-Generate a source map for the script sources to allow debugging.
+The full list of options is available in the [CLI reference](/genaiscript/reference/cli/commands#run).

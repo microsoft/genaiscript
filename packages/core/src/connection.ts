@@ -71,7 +71,7 @@ export async function parseTokenFromEnv(
                 )
             if (!token && !/^http:\/\//i.test(base))
                 // localhost typically requires no key
-                throw new Error("OPEN_API_KEY missing")
+                throw new Error("OPENAI_API_KEY missing")
             if (base && !URL.canParse(base))
                 throw new Error("OPENAI_API_BASE must be a valid URL")
             return {

@@ -13,7 +13,7 @@ import {
     githubCreateIssueComment,
     githubCreatePullRequestReviews,
     githubUpdatePullRequestDescription,
-    parseGHTokenFromEnv,
+    githubParseEnv,
 } from "../../core/src/github"
 import {
     GENAI_ANYJS_REGEX,
@@ -47,6 +47,10 @@ import {
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { writeFileEdits } from "../../core/src/edits"
+import {
+    azureDevOpsParseEnv,
+    azureDevOpsUpdatePullRequestDescription,
+} from "../../core/src/azuredevops"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -336,7 +340,7 @@ export async function runScript(
     }
 
     if (pullRequestReviews && result.annotations?.length) {
-        const info = parseGHTokenFromEnv(process.env)
+        const info = githubParseEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreatePullRequestReviews(
                 script,
@@ -347,7 +351,7 @@ export async function runScript(
     }
 
     if (pullRequestComment && result.text) {
-        const info = parseGHTokenFromEnv(process.env)
+        const info = githubParseEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
@@ -357,20 +361,38 @@ export async function runScript(
                     ? pullRequestComment
                     : script.id
             )
+        } else {
+            logError("no pull request information found")
         }
     }
 
     if (pullRequestDescription && result.text) {
-        const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.issue) {
+        // github
+        const ghinfo = githubParseEnv(process.env)
+        if (ghinfo?.repository && ghinfo?.issue) {
             await githubUpdatePullRequestDescription(
                 script,
-                info,
+                ghinfo,
                 result.text,
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
                     : script.id
             )
+        } else {
+            // azure devops
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsUpdatePullRequestDescription(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestDescription === "string"
+                        ? pullRequestDescription
+                        : script.id
+                )
+            } else {
+                logError("no pull request information found")
+            }
         }
     }
     // final fail
