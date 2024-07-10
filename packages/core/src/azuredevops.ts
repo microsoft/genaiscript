@@ -6,6 +6,7 @@ import { logError, logVerbose, trimTrailingSlash } from "./util"
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-6.0
 
 export interface AzureDevOpsEnv {
+    fork: boolean
     accessToken: string
     collectionUri: string
     teamProject: string
@@ -20,8 +21,6 @@ export function azureDevOpsParseEnv(
     env: Record<string, string>
 ): AzureDevOpsEnv {
     const fork = env.SYSTEM_PULLREQUEST_ISFORK !== "False"
-    if (fork) return undefined
-
     const accessToken = env.SYSTEM_ACCESSTOKEN
     const collectionUri = env.SYSTEM_COLLECTIONURI // https://dev.azure.com/msresearch/
     const teamProject = env.SYSTEM_TEAMPROJECT
@@ -29,20 +28,15 @@ export function azureDevOpsParseEnv(
     const sourceBranch = env.BUILD_SOURCEBRANCH
     const apiVersion = "7.1"
 
-    return accessToken &&
-        collectionUri &&
-        teamProject &&
-        repositoryId &&
-        sourceBranch
-        ? {
-              accessToken,
-              collectionUri,
-              teamProject,
-              repositoryId,
-              apiVersion,
-              sourceBranch,
-          }
-        : undefined
+    return {
+        fork,
+        accessToken,
+        collectionUri,
+        teamProject,
+        repositoryId,
+        apiVersion,
+        sourceBranch,
+    }
 }
 
 export async function azureDevOpsUpdatePullRequestDescription(

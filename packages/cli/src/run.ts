@@ -47,7 +47,10 @@ import {
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { writeFileEdits } from "../../core/src/edits"
-import { azureDevOpsParseEnv, azureDevOpsUpdatePullRequestDescription} from "../../core/src/azuredevops"
+import {
+    azureDevOpsParseEnv,
+    azureDevOpsUpdatePullRequestDescription,
+} from "../../core/src/azuredevops"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -375,8 +378,9 @@ export async function runScript(
             )
         }
         // azure devops
-        const adoinfo = azureDevOpsParseEnv(process.env)    
-        if (adoinfo) {
+        const adoinfo = azureDevOpsParseEnv(process.env)
+        console.log(YAMLStringify(adoinfo))
+        if (adoinfo?.collectionUri) {
             await azureDevOpsUpdatePullRequestDescription(
                 script,
                 adoinfo,
@@ -385,7 +389,6 @@ export async function runScript(
                     ? pullRequestDescription
                     : script.id
             )
-        
         }
     }
     // final fail
