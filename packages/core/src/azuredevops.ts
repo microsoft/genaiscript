@@ -69,7 +69,9 @@ export async function azureDevOpsUpdatePullRequestDescription(
         },
     })
     if (resGet.status !== 200) {
-        logError(`pull request search failed, ${resGet.statusText}`)
+        logError(
+            `pull request search failed, ${resGet.status}: ${resGet.statusText}`
+        )
         return
     }
     const resGetJson = (await resGet.json()) as {
@@ -92,6 +94,6 @@ export async function azureDevOpsUpdatePullRequestDescription(
         },
     })
     if (res.status !== 200)
-        logError(`pull request update failed, ${res.statusText}`)
+        logError(`pull request update failed, ${res.status}: ${res.statusText}`)
     else logVerbose(`pull request updated`)
 }
