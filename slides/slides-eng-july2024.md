@@ -66,6 +66,10 @@ src: pages/js-runtime.md
 ---
 
 ---
+src: pages/tools.md
+---
+
+---
 src: pages/image-alt-text.md
 ---
 
