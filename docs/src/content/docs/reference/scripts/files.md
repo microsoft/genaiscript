@@ -31,7 +31,6 @@ of the purpose of those files.
 defFileOutput("src/*.md", "Product documentation in markdown format")
 ```
 
-
 ## `workspace`
 
 The `workspace` object gives access to file system of the workspace.
@@ -42,7 +41,23 @@ Performs a search for files under the workspace. glob patterns are supported.
 
 ```ts
 const mds = await workspace.findFiles("**/*.md")
-defFile("DOCS", mds)
+def("DOCS", mds)
+```
+
+### `grep`
+
+Performs a regex 'grep' search for files under the workspace using [ripgrep](https://github.com/BurntSushi/ripgrep). The pattern can be a string or a regex.
+
+```ts
+const { files } = await workspace.grep("monkey", "**/*.md")
+def("FILE", files)
+```
+
+The pattern can also be a regex in which case sensitivy follows the regex option.
+
+```ts
+const { files } = await workspace.grep(/[a-z]+\d/i, "**/*.md")
+def("FILE", files)
 ```
 
 ### `readText`
