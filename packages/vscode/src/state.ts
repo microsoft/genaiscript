@@ -170,11 +170,6 @@ temp/
         )
     }
 
-    get cliJsPath() {
-        const res = Utils.joinPath(this.context.extensionUri, CLI_JS).fsPath
-        return res
-    }
-
     aiRequestCache() {
         return this._aiRequestCache
     }

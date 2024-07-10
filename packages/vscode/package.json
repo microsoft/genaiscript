@@ -387,14 +387,6 @@
         "websocket-polyfill": "0.0.3",
         "zx": "^8.1.4"
     },
-    "dependencies": {
-        "@azure/identity": "^4.3.0",
-        "mammoth": "^1.8.0",
-        "pdfjs-dist": "4.4.168",
-        "tree-sitter-wasms": "^0.1.11",
-        "tsx": "^4.16.2",
-        "web-tree-sitter": "^0.22.6"
-    },
     "optionalDependencies": {
         "genaiscript": "*"
     }
