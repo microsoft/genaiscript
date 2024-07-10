@@ -41,7 +41,6 @@ export async function parseTokenFromEnv(
     const { provider, model, tag } = parseModelIdentifier(
         modelId ?? host.defaultModelOptions.model
     )
-
     if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {
             const token = env.OPENAI_API_KEY ?? ""
@@ -60,7 +59,7 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
                 )
-            if (type === "azure")
+            if (type === "azure" && !base.endsWith("/openai/deployments"))
                 base = trimTrailingSlash(base) + "/openai/deployments"
             if (
                 type === "azure" &&
