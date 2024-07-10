@@ -1,3 +1,5 @@
+import { parseTokenFromEnv } from "../../core/src/connection"
+import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { host } from "../../core/src/host"
 import {
     ModelConnectionInfo,
@@ -13,6 +15,25 @@ export async function systemInfo() {
     console.log(`platform: ${process.platform}`)
     console.log(`arch: ${process.arch}`)
     console.log(`pid: ${process.pid}`)
+}
+
+export async function envInfo(provider: string, options?: { token?: boolean }) {
+    const { token } = options || {}
+    const res: any = {}
+    if (host.dotEnvPath) res[".env"] = host.dotEnvPath
+    res.providers = []
+    const env = process.env
+    for (const modelProvider of MODEL_PROVIDERS.filter(
+        (mp) => !provider || mp.id === provider
+    )) {
+        const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
+        if (conn) {
+            if (!token && conn.token)
+                conn.token = conn.token.slice(0, 5) + "***"
+            res.providers.push(conn)
+        }
+    }
+    console.log(YAMLStringify(res))
 }
 
 async function resolveScriptsConnectionInfo(

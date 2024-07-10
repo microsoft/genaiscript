@@ -22,10 +22,9 @@ import {
 } from "./parse"
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
-import { modelInfo, systemInfo } from "./info"
+import { envInfo, modelInfo, systemInfo } from "./info"
 import { scriptTestsView, scriptsTest } from "./test"
-import { emptyDir } from "fs-extra"
-import { join } from "path"
+import { cacheClear } from "./cache"
 import "node:console"
 import {
     UNHANDLED_ERROR_CODE,
@@ -39,16 +38,8 @@ import {
     isRequestError,
     RequestError,
 } from "../../core/src/error"
-import { dotGenaiscriptPath } from "../../core/src/util"
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
 import { grep } from "./grep"
-
-async function cacheClear(name: string) {
-    let dir = dotGenaiscriptPath("cache")
-    if (["tests"].includes(name)) dir = join(dir, name)
-    console.log(`removing ${dir}`)
-    await emptyDir(dir)
-}
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -307,10 +298,10 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
 
-    const workspace = program.command("workspace").description("Workspace tasks")
-    workspace.command("grep")
-        .arguments("<pattern> [files...]")
-        .action(grep)
+    const workspace = program
+        .command("workspace")
+        .description("Workspace tasks")
+    workspace.command("grep").arguments("<pattern> [files...]").action(grep)
 
     const info = program.command("info").description("Utility tasks")
     info.command("help")
@@ -319,6 +310,11 @@ export async function cli() {
     info.command("system")
         .description("Show system information")
         .action(systemInfo)
+    info.command("env")
+        .description("Show .env information")
+        .arguments("[provider]")
+        .option("-t, --token", "show token")
+        .action(envInfo)
 
     program.parse()
 }

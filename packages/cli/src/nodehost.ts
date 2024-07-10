@@ -52,6 +52,7 @@ class NodeServerManager implements ServerManager {
 }
 
 export class NodeHost implements RuntimeHost {
+    readonly dotEnvPath: string
     userState: any = {}
     retrieval: RetrievalService
     models: ModelService
@@ -65,15 +66,9 @@ export class NodeHost implements RuntimeHost {
         temperature: DEFAULT_TEMPERATURE,
     }
 
-    constructor() {
-        const srv = new LlamaIndexRetrievalService(this)
-        this.retrieval = srv
-        this.models = srv
-    }
-
-    static async install(dotEnvPath: string) {
-        dotEnvPath = dotEnvPath || resolve(DOT_ENV_FILENAME)
+    constructor(dotEnvPath: string) {
         if (existsSync(dotEnvPath)) {
+            this.dotEnvPath = dotEnvPath
             const res = dotenv.config({
                 path: dotEnvPath,
                 debug: !!process.env.DEBUG,
@@ -81,7 +76,14 @@ export class NodeHost implements RuntimeHost {
             })
             if (res.error) throw res.error
         }
-        const h = new NodeHost()
+        const srv = new LlamaIndexRetrievalService(this)
+        this.retrieval = srv
+        this.models = srv
+    }
+
+    static async install(dotEnvPath: string) {
+        dotEnvPath = dotEnvPath || resolve(DOT_ENV_FILENAME)
+        const h = new NodeHost(dotEnvPath)
         setRuntimeHost(h)
         await h.parseDefaults()
         return h

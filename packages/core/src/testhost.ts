@@ -20,6 +20,7 @@ import { resolveLanguageModel } from "./models"
 import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
 
 export class TestHost implements RuntimeHost {
+    dotEnvPath: string = undefined
     userState: any
     parser: ParseService
     retrieval: RetrievalService

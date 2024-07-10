@@ -49,6 +49,12 @@ describe("cli", async () => {
     test("system", async () => {
         await $`node ${cli} ${action} system`
     })
+    test("env", async () => {
+        await $`node ${cli} ${action} env`
+    })
+    test("env openai", async () => {
+        await $`node ${cli} ${action} env openai`
+    })
 })
 describe("parse", async () => {
     const cmd = "parse"

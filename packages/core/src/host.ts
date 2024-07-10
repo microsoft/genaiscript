@@ -107,6 +107,7 @@ export interface ServerManager {
 }
 
 export interface Host {
+    readonly dotEnvPath: string
     userState: any
 
     parser: ParseService

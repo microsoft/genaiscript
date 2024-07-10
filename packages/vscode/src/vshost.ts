@@ -31,6 +31,7 @@ import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, unique } from "../../core/src/util"
 
 export class VSCodeHost extends EventTarget implements Host {
+    dotEnvPath: string = DOT_ENV_FILENAME
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager

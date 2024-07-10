@@ -445,11 +445,12 @@ Usage: genaiscript info [options] [command]
 Utility tasks
 
 Options:
-  -h, --help  display help for command
+  -h, --help                display help for command
 
 Commands:
-  help        Show help for all commands
-  system      Show system information
+  help                      Show help for all commands
+  system                    Show system information
+  env [options] [provider]  Show .env information
 ```
 
 ### `info help`
@@ -472,4 +473,16 @@ Show system information
 
 Options:
   -h, --help  display help for command
+```
+
+### `info env`
+
+```
+Usage: genaiscript info env [options] [provider]
+
+Show .env information
+
+Options:
+  -t, --token  show token
+  -h, --help   display help for command
 ```
