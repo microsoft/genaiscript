@@ -18,6 +18,7 @@ import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
+import { traceLanguageModelConnection } from "./models"
 
 export type ChatCompletionContentPartText =
     OpenAI.Chat.Completions.ChatCompletionContentPartText
@@ -542,13 +543,12 @@ export async function executeChatSession(
         topP,
         maxTokens,
         seed,
-        cacheName,
         responseType,
-        responseSchema,
         stats,
         infoCb,
     } = genOptions
 
+    traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map((f) => ({
               type: "function",
@@ -557,15 +557,6 @@ export async function executeChatSession(
         : undefined
     trace.startDetails(`🧠 llm chat`)
     try {
-        trace.itemValue(`model`, model)
-        trace.itemValue(`temperature`, temperature)
-        trace.itemValue(`top_p`, topP)
-        trace.itemValue(`seed`, seed)
-        trace.itemValue(`cache name`, cacheName)
-        trace.itemValue(`response type`, responseType)
-        if (responseSchema)
-            trace.detailsFenced(`📦 response schema`, responseSchema, "json")
-
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
