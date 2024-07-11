@@ -34,6 +34,12 @@ See [configuration](/genaiscript/getting-started/configuration).
 
 ## Files
 
+`run` takes one or more [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns to match files in the workspace.
+
+```npx sh
+npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
+
 ### --excluded-files <files...>
 
 Excludes the specified files from the file set.
