@@ -20,15 +20,16 @@ def(
     { language: "python" }
 )
 def(
-    `File /path_to_file/file2.md`,
-    `What goes in\n/path_to_file/file2.md.`,
+    `File ./file2.md`,
+    `What goes in\n./file2.md.`,
     { language: "markdown" }
 )
 
-$`Make sure to use precisely \`\`\` to guard file code sections.`
-$`Make sure to use precisely \`\`\`\`\` to guard file markdown sections.`
-$`Use full path of filename in code section header.`
-if (folder !== ".") $`When generating new files, place files in folder "${folder}".`
-$`If a file does not have changes, do not regenerate.`
-$`Do NOT emit line numbers in file.`
-$`CSV files are inlined as markdown tables.`
+$`### Rules
+- Make sure to use precisely \`\`\` to guard file code sections.
+- Make sure to use precisely \`\`\`\`\` to guard file markdown sections.
+- Use full path of filename in code section header.`
+if (folder !== ".") $`- When generating new files, place files in folder "${folder}".`
+$`- If a file does not have changes, do not regenerate.
+- Do NOT emit line numbers in file.
+- CSV files are inlined as markdown tables.`
