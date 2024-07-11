@@ -43,10 +43,10 @@ This means that the annotations will automatically be extracted by GitHub if you
 
 ## Github Pull Request Review Comments
 
-Use the `--pull-request-review-comment` flag on the [cli](/genaiscript/reference/cli/run/) to add annotations as review comments on a pull request.
+Use the `--pull-request-reviews` (`-prr`) flag on the [cli run](/genaiscript/reference/cli/run/#pull-request-reviews) to add annotations as [review comments](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request#about-pull-request-comments) on a pull request.
 
 ```sh "cli"
-npx --yes genaiscript run ... --pull-request-review-comment
+npx --yes genaiscript run ... --pull-request-reviews
 ```
 
 ## Visual Studio Code Programs

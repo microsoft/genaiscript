@@ -133,7 +133,9 @@ npx genaiscript run <script> <files> --out-changelogs changelogs.txt
 
 The CLI can update pull request description and comments when running in a GitHub Action or Azure DevOps pipeline.
 
-### GitHub Action configuration
+### GitHub Action workflow configuration
+
+Update your workflow configuration to include the following:
 
 -   add the `pull-requests: write` permission to the workflow/step
 
@@ -142,22 +144,31 @@ permissions:
     pull-requests: write
 ```
 
+-  set the `GITHUB_TOKEN` secret in the `env` when running the cli
+
+```yaml
+    - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ... # LLM secrets
+```
+
 ### Azure DevOps configuration
 
--   add `<your projectname> Build Service` as a collaborator to the repository
+-   add `<your projectname> Build Service` in the **Collaborator** role to the repository
 -   pass secrets to scripts, including `System.AccessToken`
 
 ```yaml
-- script: npx genaiscript ... -prd
+- script: npx genaiscript run ... -prd
   env:
     SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-    ...
+    ... # LLM secrets
 ```
 
 ### --pull-request-description \[tag\]
 
 When running within a GitHub Action or Azure DevOps pipeline on a pull request,
-the CLI inserts the LLM output in the description of the pull request.
+the CLI inserts the LLM output in the description of the pull request ([example](https://github.com/microsoft/genaiscript/pull/564))
 
 ```sh
 npx genaiscript run ... -prd
@@ -167,13 +178,22 @@ The `tag` parameter is a unique id used to differentiate description generate by
 
 ### --pull-request-comment \[tag\];
 
-Upserts a comment on the pull request with the LLM output.
+Upserts a comment on the pull request with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
 
 ```sh
 npx genaiscript run ... -prc
 ```
 
 The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
+
+### --pull-request-reviews
+
+Create pull request review comments from each [annotations](/genaiscript/reference/scripts/annotations)
+([example](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
+
+```sh
+npx genaiscript run ... -prr
+```
 
 ## Read more
 
