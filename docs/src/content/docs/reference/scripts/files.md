@@ -24,7 +24,7 @@ def("PDFS", env.files, { endsWith: ".pdf" })
 
 ## file output
 
-Use [defFileOutput](/genaiscript/reference/scrips/file-output) to specify allow file output paths and the description
+Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allow file output paths and the description
 of the purpose of those files.
 
 ```js
