@@ -48,6 +48,7 @@ import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { writeFileEdits } from "../../core/src/edits"
 import {
+    azureDevOpsCreateIssueComment,
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
@@ -362,7 +363,17 @@ export async function runScript(
                     : script.id
             )
         } else {
-            logError("no pull request information found")
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsCreateIssueComment(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestComment === "string"
+                        ? pullRequestComment
+                        : script.id
+                )
+            } else logError("no pull request information found")
         }
     }
 

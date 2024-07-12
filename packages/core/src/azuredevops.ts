@@ -39,12 +39,7 @@ export function azureDevOpsParseEnv(
     }
 }
 
-export async function azureDevOpsUpdatePullRequestDescription(
-    script: PromptScript,
-    info: AzureDevOpsEnv,
-    text: string,
-    commentTag: string
-) {
+async function findPullRequest(info: AzureDevOpsEnv) {
     const {
         accessToken,
         collectionUri,
@@ -54,14 +49,10 @@ export async function azureDevOpsUpdatePullRequestDescription(
         apiVersion,
     } = info
 
-    text = prettifyMarkdown(text)
-    text += generatedByFooter(script, info)
-
-    const fetch = await createFetch({ retryOn: [] })
-
     // query pull request
     const Authorization = `Bearer ${accessToken}`
     const searchUrl = `${collectionUri}${teamProject}/_apis/git/pullrequests/?searchCriteria.repositoryId=${repositoryId}&searchCriteria.sourceRefName=${sourceBranch}&api-version=${apiVersion}`
+    const fetch = await createFetch({ retryOn: [] })
     const resGet = await fetch(searchUrl, {
         method: "GET",
         headers: {
@@ -72,7 +63,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
         logError(
             `pull request search failed, ${resGet.status}: ${resGet.statusText}`
         )
-        return
+        return undefined
     }
     const resGetJson = (await resGet.json()) as {
         value: {
@@ -80,22 +71,126 @@ export async function azureDevOpsUpdatePullRequestDescription(
             description: string
         }[]
     }
-    let { pullRequestId, description } = resGetJson?.value?.[0] || {}
-    if (isNaN(pullRequestId)) {
+    const pr = resGetJson?.value?.[0]
+    if (!pr) {
         logError(`pull request not found`)
-        return
+        return undefined
     }
+    return pr
+}
+
+export async function azureDevOpsUpdatePullRequestDescription(
+    script: PromptScript,
+    info: AzureDevOpsEnv,
+    text: string,
+    commentTag: string
+) {
+    const {
+        accessToken,
+        collectionUri,
+        teamProject,
+        repositoryId,
+        apiVersion,
+    } = info
+
+    // query pull request
+    const pr = await findPullRequest(info)
+    if (!pr) return
+    let { pullRequestId, description } = pr
+
+    text = prettifyMarkdown(text)
+    text += generatedByFooter(script, info)
     description = mergeDescription(commentTag, description, text)
+
     const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullrequests/${pullRequestId}?api-version=${apiVersion}`
+    const fetch = await createFetch({ retryOn: [] })
     const res = await fetch(url, {
         method: "PATCH",
         body: JSON.stringify({ description }),
         headers: {
             "Content-Type": "application/json",
-            Authorization,
+            Authorization: `Bearer ${accessToken}`,
         },
     })
     if (res.status !== 200)
         logError(`pull request update failed, ${res.status}: ${res.statusText}`)
     else logVerbose(`pull request updated`)
+}
+
+
+//
+export async function azureDevOpsCreateIssueComment(
+    script: PromptScript,
+    info: AzureDevOpsEnv,
+    body: string,
+    commentTag: string
+): Promise<{ created: boolean; statusText: string; html_url?: string }> {
+    const { apiUrl, repository, issue } = info
+
+    if (!issue) return { created: false, statusText: "missing issue number" }
+    const token = await host.readSecret(GITHUB_TOKEN)
+    if (!token) return { created: false, statusText: "missing github token" }
+
+    const fetch = await createFetch({ retryOn: [] })
+    const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
+
+    body += generatedByFooter(script, info)
+
+    if (commentTag) {
+        const tag = `<!-- genaiscript ${commentTag} -->`
+        body = `${body}\n\n${tag}\n\n`
+        // try to find the existing comment
+        const resListComments = await fetch(
+            `${url}?per_page=100&sort=updated`,
+            {
+                headers: {
+                    Accept: "application/vnd.github+json",
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                },
+            }
+        )
+        if (resListComments.status !== 200)
+            return { created: false, statusText: resListComments.statusText }
+        const comments = (await resListComments.json()) as {
+            id: string
+            body: string
+        }[]
+        const comment = comments.find((c) => c.body.includes(tag))
+        if (comment) {
+            const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
+            const resd = await fetch(delurl, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                },
+            })
+            if (!resd.ok)
+                logError(`issue comment delete failed, ` + resd.statusText)
+        }
+    }
+
+    const res = await fetch(url, {
+        method: "POST",
+        headers: {
+            Accept: "application/vnd.github+json",
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+        },
+        body: JSON.stringify({ body }),
+    })
+    const resp: { id: string; html_url: string } = await res.json()
+    const r = {
+        created: res.status === 201,
+        statusText: res.statusText,
+        html_url: resp.html_url,
+    }
+    if (!r.created)
+        logError(
+            `pull request ${issue} comment creation failed, ${r.statusText}`
+        )
+    else logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
+
+    return r
 }
