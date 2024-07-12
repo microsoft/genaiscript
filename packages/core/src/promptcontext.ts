@@ -11,8 +11,7 @@ import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { vectorSearch } from "./retrieval"
-import { filePathOrUrlToWorkspaceFile, readText } from "./fs"
+import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
@@ -40,6 +39,7 @@ import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
+import { vectorSearch } from "./vectorsearch"
 
 export function createPromptContext(
     vars: ExpansionVariables,
@@ -163,11 +163,10 @@ export function createPromptContext(
                     return []
                 }
 
-                // resolve contents
                 await resolveFileContents(files)
-
+                const res = await vectorSearch(q, files, searchOptions)
                 // search
-                trace.files(res, {
+                trace.files(res.files, {
                     model,
                     secrets: env.secrets,
                     skipIfEmpty: true,
