@@ -9,7 +9,7 @@ import {
     RetrievalClientOptions,
     RetrievalSearchOptions,
     RetrievalUpsertOptions,
-    host,
+    runtimeHost,
 } from "./host"
 import { lookupMime } from "./mime"
 
@@ -30,8 +30,8 @@ export async function clearVectorIndex(
     options?: RetrievalClientOptions & VectorSearchOptions
 ): Promise<void> {
     const { trace } = options || {}
-    await host.retrieval.init(trace)
-    await host.retrieval.vectorClear(options)
+    await runtimeHost.retrieval.init(trace)
+    await runtimeHost.retrieval.vectorClear(options)
 }
 
 export async function upsertVector(
@@ -41,7 +41,7 @@ export async function upsertVector(
     if (!fileOrUrls?.length) return
     const { progress, trace, token, ...rest } = options || {}
     const { llmModel, embedModel } = options || {}
-    const { retrieval, models } = host
+    const { retrieval, models } = runtimeHost
     await retrieval.init(trace)
     if (llmModel || embedModel) {
         progress?.start("pulling models")
@@ -79,8 +79,8 @@ export async function vectorSearch(
 ): Promise<RetrievalSearchResult> {
     const { trace, token, ...rest } = options || {}
     const files: WorkspaceFileWithScore[] = []
-    const retrieval = host.retrieval
-    await host.retrieval.init(trace)
+    const retrieval = runtimeHost.retrieval
+    await retrieval.init(trace)
     if (token?.isCancellationRequested) return { files, chunks: [] }
 
     const { results: chunks = [] } = await retrieval.vectorSearch(q, rest)

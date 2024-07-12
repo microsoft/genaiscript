@@ -4,14 +4,9 @@ import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../expander"
 import {
-    ModelService,
     ParsePdfResponse,
     ParseService,
     ResponseStatus,
-    RetrievalSearchOptions,
-    RetrievalSearchResponse,
-    RetrievalService,
-    RetrievalUpsertOptions,
     host,
 } from "../host"
 import { MarkdownTrace, TraceOptions } from "../trace"
@@ -20,13 +15,9 @@ import {
     ParsePdfMessage,
     RequestMessage,
     RequestMessages,
-    RetrievalVectorClear,
-    RetrievalSearch,
-    RetrievalVectorUpsert,
     ServerVersion,
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
-    ModelsPull,
     PromptScriptTestRunResponse,
     ShellExecResponse,
     ShellExec,
@@ -39,7 +30,7 @@ import {
 
 export class WebSocketClient
     extends EventTarget
-    implements RetrievalService, ParseService, ModelService
+    implements ParseService
 {
     private awaiters: Record<
         string,
@@ -222,44 +213,8 @@ export class WebSocketClient
         return res.version
     }
 
-    async pullModel(model: string): Promise<ResponseStatus> {
-        const res = await this.queue<ModelsPull>({
-            type: "models.pull",
-            model,
-        })
-        return res.response
-    }
-
     async infoEnv(): Promise<ResponseStatus> {
         const res = await this.queue<ServerEnv>({ type: "server.env" })
-        return res.response
-    }
-
-    async vectorClear(options: VectorSearchOptions): Promise<ResponseStatus> {
-        const res = await this.queue<RetrievalVectorClear>({
-            type: "retrieval.vectorClear",
-            options,
-        })
-        return res.response
-    }
-
-    async vectorSearch(
-        text: string,
-        options?: RetrievalSearchOptions
-    ): Promise<RetrievalSearchResponse> {
-        const res = await this.queue<RetrievalSearch>({
-            type: "retrieval.vectorSearch",
-            text,
-            options,
-        })
-        return res.response
-    }
-    async vectorUpsert(filename: string, options?: RetrievalUpsertOptions) {
-        const res = await this.queue<RetrievalVectorUpsert>({
-            type: "retrieval.vectorUpsert",
-            filename,
-            options,
-        })
         return res.response
     }
 

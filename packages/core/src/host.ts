@@ -111,8 +111,6 @@ export interface Host {
     userState: any
 
     parser: ParseService
-    retrieval: RetrievalService
-    models: ModelService
     server: ServerManager
     path: Path
 
@@ -157,6 +155,8 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    retrieval: RetrievalService
+    models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
 
     // executes a process

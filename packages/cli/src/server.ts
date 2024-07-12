@@ -95,40 +95,6 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
-                    case "models.pull": {
-                        console.log(`models: pull ${data.model}`)
-                        response = await runtimeHost.models.pullModel(
-                            data.model
-                        )
-                        break
-                    }
-                    case "retrieval.vectorClear":
-                        console.log(`retrieval: clear`)
-                        await runtimeHost.retrieval.init()
-                        response = await runtimeHost.retrieval.vectorClear(
-                            data.options
-                        )
-                        break
-                    case "retrieval.vectorUpsert": {
-                        console.log(`retrieval: upsert ${data.filename}`)
-                        await runtimeHost.retrieval.init()
-                        response = await runtimeHost.retrieval.vectorUpsert(
-                            data.filename,
-                            data.options
-                        )
-                        break
-                    }
-                    case "retrieval.vectorSearch": {
-                        console.log(`retrieval: search ${data.text}`)
-                        console.debug(YAMLStringify(data.options))
-                        await runtimeHost.retrieval.init()
-                        response = await runtimeHost.retrieval.vectorSearch(
-                            data.text,
-                            data.options
-                        )
-                        console.debug(YAMLStringify(response))
-                        break
-                    }
                     case "parse.pdf": {
                         console.log(`parse: pdf ${data.filename}`)
                         await runtimeHost.parser.init()
@@ -171,7 +137,7 @@ export async function startServer(options: { port: string }) {
                                     ...payload,
                                 })
                             )
-                        trace.addEventListener(TRACE_CHUNK, (ev) =>{
+                        trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             send({ trace: tev.chunk })
                         })
