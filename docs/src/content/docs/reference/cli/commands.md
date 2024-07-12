@@ -222,33 +222,11 @@ Options:
   -h, --help                           display help for command
 
 Commands:
-  index [options] <file...>            Index a set of documents
   search [options] <query> [files...]  Search using vector embeddings
                                        similarity
-  clear [options]                      Clear index to force re-indexing
   fuzz [options] <query> [files...]    Search using string distance
   code
   help [command]                       display help for command
-```
-
-### `retrieval index`
-
-```
-Usage: genaiscript retrieval index [options] <file...>
-
-Index a set of documents
-
-Arguments:
-  file                               Files to index
-
-Options:
-  -ef, --excluded-files <string...>  excluded files
-  -n, --name <string>                index name
-  -cs, --chunk-size <number>         chunk size
-  -co, --chunk-overlap <number>      chunk overlap
-  -m, --model <string>               model for embeddings
-  -t, --temperature <number>         LLM temperature
-  -h, --help                         display help for command
 ```
 
 ### `retrieval search`
@@ -263,18 +241,6 @@ Options:
   -tk, --top-k <number>              maximum number of results
   -n, --name <string>                index name
   -h, --help                         display help for command
-```
-
-### `retrieval clear`
-
-```
-Usage: genaiscript retrieval clear [options]
-
-Clear index to force re-indexing
-
-Options:
-  -n, --name <string>  index name
-  -h, --help           display help for command
 ```
 
 ### `retrieval fuzz`

@@ -11,8 +11,8 @@ import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsertVector, vectorSearch } from "./retrieval"
-import { readText } from "./fs"
+import { vectorSearch } from "./retrieval"
+import { filePathOrUrlToWorkspaceFile, readText } from "./fs"
 import {
     PromptNode,
     appendChild,
@@ -39,10 +39,7 @@ import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
-
-function stringLikeToFileName(f: string | WorkspaceFile) {
-    return typeof f === "string" ? f : f?.filename
-}
+import { resolveFileContents, toWorkspaceFile } from "./file"
 
 export function createPromptContext(
     vars: ExpansionVariables,
@@ -155,7 +152,7 @@ export function createPromptContext(
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
-            const files = arrayify(files_)
+            const files = arrayify(files_).map(toWorkspaceFile)
             searchOptions = searchOptions || {}
             try {
                 trace.startDetails(
@@ -164,23 +161,18 @@ export function createPromptContext(
                 if (!files?.length) {
                     trace.error("no files provided")
                     return []
-                } else {
-                    await upsertVector(files, { trace, ...searchOptions })
-                    const vres = await vectorSearch(q, {
-                        ...searchOptions,
-                        files: files.map(stringLikeToFileName),
-                    })
-                    const res: WorkspaceFileWithScore[] =
-                        searchOptions?.outputType === "chunk"
-                            ? vres.chunks
-                            : vres.files
-                    trace.files(res, {
-                        model,
-                        secrets: env.secrets,
-                        skipIfEmpty: true,
-                    })
-                    return res
                 }
+
+                // resolve contents
+                await resolveFileContents(files)
+
+                // search
+                trace.files(res, {
+                    model,
+                    secrets: env.secrets,
+                    skipIfEmpty: true,
+                })
+                return res
             } finally {
                 trace.endDetails()
             }

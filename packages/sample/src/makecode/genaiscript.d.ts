@@ -504,7 +504,7 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[],
+        globs: string | string[]
     ): Promise<{ files: WorkspaceFile[] }>
 
     /**
@@ -1140,24 +1140,14 @@ interface WebSearchResult {
 }
 
 interface VectorSearchOptions {
-    indexName?: string
-}
-
-interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
-    llmModel?: string
     /**
-     * Model used to generated models.
-     * ollama:nomic-embed-text ollama:all-minilm
+     * Maximum number of embeddings to use
      */
-    embedModel?:
-        | "text-embedding-ada-002"
-        | "ollama:mxbai-embed-large"
-        | "ollama:nomic-embed-text"
-        | "ollama:all-minilm"
-        | string
-    temperature?: number
-    chunkSize?: number
-    chunkOverlap?: number
+    topK?: number
+    /**
+     * Minimum similarity score
+     */
+    minScore?: number
 }
 
 interface FuzzSearchOptions {
@@ -1215,21 +1205,8 @@ interface Retrieval {
     vectorSearch(
         query: string,
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
-        options?: {
-            /**
-             * Maximum number of embeddings to use
-             */
-            topK?: number
-            /**
-             * Minimum similarity score
-             */
-            minScore?: number
-            /**
-             * Specifies the type of output. `chunk` returns individual chunks of the file, fill returns a reconstructed file from chunks.
-             */
-            outputType?: "file" | "chunk"
-        } & Omit<VectorSearchEmbeddingsOptions, "llmToken">
-    ): Promise<WorkspaceFile[]>
+        options?: VectorSearchOptions
+    ): Promise<{ files: WorkspaceFile[] }>
 
     /**
      * Performs a fuzzy search over the files

@@ -6,7 +6,6 @@ import {
     ModelService,
     LanguageModelConfiguration,
     ParseService,
-    RetrievalService,
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
@@ -45,7 +44,6 @@ export class TestHost implements RuntimeHost {
     dotEnvPath: string = undefined
     userState: any
     parser: ParseService
-    retrieval: RetrievalService
     models: ModelService
     server: ServerManager
     path: Path = createNodePath()

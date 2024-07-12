@@ -5,12 +5,7 @@ import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
 import { runScriptWithExitCode } from "./run"
-import {
-    retrievalClear,
-    retrievalFuzz,
-    retrievalIndex,
-    retrievalSearch,
-} from "./retrieval"
+import { retrievalFuzz, retrievalSearch } from "./retrieval"
 import { helpAll } from "./help"
 import {
     jsonl2json,
@@ -217,29 +212,12 @@ export async function cli() {
         .alias("retreival")
         .description("RAG support")
     retrieval
-        .command("index")
-        .description("Index a set of documents")
-        .argument("<file...>", "Files to index")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .option("-n, --name <string>", "index name")
-        .option("-cs, --chunk-size <number>", "chunk size")
-        .option("-co, --chunk-overlap <number>", "chunk overlap")
-        .option("-m, --model <string>", "model for embeddings")
-        .option("-t, --temperature <number>", "LLM temperature")
-        .action(retrievalIndex)
-    retrieval
         .command("search")
         .description("Search using vector embeddings similarity")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
-        .option("-n, --name <string>", "index name")
         .action(retrievalSearch)
-    retrieval
-        .command("clear")
-        .description("Clear index to force re-indexing")
-        .option("-n, --name <string>", "index name")
-        .action(retrievalClear)
     retrieval
         .command("fuzz")
         .description("Search using string distance")
