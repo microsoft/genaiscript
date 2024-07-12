@@ -239,7 +239,6 @@ Search using vector embeddings similarity
 Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of results
-  -n, --name <string>                index name
   -h, --help                         display help for command
 ```
 

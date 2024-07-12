@@ -5,10 +5,10 @@ export async function vectorSearch(
     files: WorkspaceFile[],
     vector: number[],
     options?: VectorSearchOptions
-): Promise<RetrievalSearchResponse> {
+) {
     const { topK, minScore } = options || {}
     const normv = normL2(vector)
-    if (normv === 0) return { ok: false, results: [] }
+    if (normv === 0) return []
 
     // split in chunks and index
     let results: {
@@ -30,7 +30,7 @@ export async function vectorSearch(
     if (!isNaN(topK)) results = results.slice(0, topK)
     if (!isNaN(minScore))
         results = results.filter((item) => item.distance >= minScore)
-    return { ok: true, results }
+    return results
 }
 
 function splitFile(file: WorkspaceFile) {

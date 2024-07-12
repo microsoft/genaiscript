@@ -1172,7 +1172,7 @@ interface Retrieval {
         query: string,
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
         options?: VectorSearchOptions
-    ): Promise<{ files: WorkspaceFile[] }>
+    ): Promise<WorkspaceFile[]>
 
     /**
      * Performs a fuzzy search over the files

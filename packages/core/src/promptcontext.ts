@@ -7,7 +7,7 @@ import {
     tracePromptResult,
 } from "./chat"
 import { HTMLEscape, arrayify, logVerbose } from "./util"
-import { runtimeHost } from "./host"
+import { RetrievalSearchResponse, runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
@@ -164,9 +164,10 @@ export function createPromptContext(
                 }
 
                 await resolveFileContents(files)
-                const res = await vectorSearch(q, files, searchOptions)
+                const results = await vectorSearch(q, files, searchOptions)
+                const res: WorkspaceFile[] = results.map(({ file }) => file)
                 // search
-                trace.files(res.files, {
+                trace.files(res, {
                     model,
                     secrets: env.secrets,
                     skipIfEmpty: true,
