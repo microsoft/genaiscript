@@ -63,15 +63,7 @@ export class TerminalServerManager implements ServerManager {
         return !!this._terminal
     }
 
-    get retrieval(): RetrievalService {
-        return this.client
-    }
-
     get parser(): ParseService {
-        return this.client
-    }
-
-    get models(): ModelService {
         return this.client
     }
 

@@ -17,16 +17,6 @@ export interface ServerKill extends RequestMessage {
     type: "server.kill"
 }
 
-export interface ModelsPull extends RequestMessage {
-    type: "models.pull"
-    model: string
-}
-
-export interface RetrievalVectorClear extends RequestMessage {
-    type: "retrieval.vectorClear"
-    options?: VectorSearchOptions
-}
-
 export interface ServerVersion extends RequestMessage {
     type: "server.version"
     version?: string
@@ -34,19 +24,6 @@ export interface ServerVersion extends RequestMessage {
 
 export interface ServerEnv extends RequestMessage {
     type: "server.env"
-}
-
-export interface RetrievalVectorUpsert extends RequestMessage {
-    type: "retrieval.vectorUpsert"
-    filename: string
-    options?: RetrievalVectorUpsertOptions
-}
-
-export interface RetrievalSearch extends RequestMessage {
-    type: "retrieval.vectorSearch"
-    text: string
-    options?: RetrievalSearchOptions
-    response?: RetrievalSearchResponse
 }
 
 export interface ParsePdfMessage extends RequestMessage {
@@ -164,13 +141,9 @@ export type RequestMessages =
     | ServerKill
     | ServerVersion
     | ServerEnv
-    | RetrievalVectorClear
-    | RetrievalVectorUpsert
-    | RetrievalSearch
     | ServerVersion
     | ParsePdfMessage
     | PromptScriptTestRun
-    | ModelsPull
     | ShellExec
     | PromptScriptStart
     | PromptScriptAbort
