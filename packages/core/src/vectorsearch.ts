@@ -1,54 +1,55 @@
-import { encode } from "gpt-tokenizer"
-import { RetrievalSearchResponse } from "./host"
+import { encode, decode } from "gpt-tokenizer"
+import { host, RetrievalSearchResponse } from "./host"
+import { EmbeddingsModel, EmbeddingsResponse, LocalDocumentIndex } from "vectra"
+import { arrayify, dotGenaiscriptPath } from "./util"
+import { randomHex } from "./crypto"
 
 export async function vectorSearch(
+    query: string,
     files: WorkspaceFile[],
-    vector: number[],
     options?: VectorSearchOptions
-) {
+): Promise<WorkspaceFile[]> {
     const { topK, minScore } = options || {}
-    const normv = normL2(vector)
-    if (normv === 0) return []
 
-    // split in chunks and index
-    let results: {
-        file: WorkspaceFile
-        chunk: { content: string }
-        vector: number[]
-        distance: number
-    }[] = []
+    const folderPath = dotGenaiscriptPath(`vectors/${randomHex(8).toString()}`)
+    await host.createDirectory(folderPath)
+    const tokenizer = { encode, decode }
+    const embeddings: EmbeddingsModel = {
+        maxTokens: 8000,
+        createEmbeddings: async (
+            inputs: string | string[]
+        ): Promise<EmbeddingsResponse> => ({
+            status: "success",
+            output: arrayify(inputs).map((input) => encode(input)),
+        }),
+    }
+    const index = new LocalDocumentIndex({
+        tokenizer,
+        folderPath,
+        embeddings,
+        chunkingConfig: {
+            chunkSize: 512,
+            chunkOverlap: 128,
+            tokenizer,
+        },
+    })
+    await index.createIndex({ version: 1, deleteIfExists: true })
+    await index.beginUpdate()
     for (const file of files) {
-        for (const chunk of splitFile(file)) {
-            const vectorc = encode(chunk.content)
-            const normc = normL2(vectorc)
-            const distance = dotProduct(vector, vectorc) / (normv * normc)
-            results.push({ file, chunk, vector: vectorc, distance })
-        }
+        const { filename, content } = file
+        await index.upsertDocument(filename, content)
     }
-    // sort by distance DESCENDING
-    results.sort((a, b) => b.distance - a.distance)
-    if (!isNaN(topK)) results = results.slice(0, topK)
-    if (!isNaN(minScore))
-        results = results.filter((item) => item.distance >= minScore)
-    return results
-}
-
-function splitFile(file: WorkspaceFile) {
-    return [{ content: file.content }]
-}
-
-function dotProduct(a: number[], b: number[]) {
-    let sum = 0
-    for (let i = 0; i < a.length; i++) {
-        sum += a[i] * b[i]
+    await index.endUpdate()
+    const res = await index.queryDocuments(query, { maxDocuments: topK })
+    const r: WorkspaceFile[] = []
+    for (const re of res) {
+        r.push(<WorkspaceFile>{
+            filename: re.uri,
+            content: (await re.renderAllSections(8000)).reduce(
+                (l, r) => l + r.text,
+                ""
+            ),
+        })
     }
-    return sum
-}
-
-function normL2(vector: number[]) {
-    let sum = 0
-    for (let i = 0; i < vector.length; i++) {
-        sum += vector[i] * vector[i]
-    }
-    return Math.sqrt(sum)
+    return r
 }

@@ -1,6 +1,7 @@
 import { expandFiles } from "../../core/src/fs"
 import { fuzzSearch } from "../../core/src/fuzzsearch"
-import { normalizeFloat, normalizeInt } from "../../core/src/util"
+import { normalizeInt } from "../../core/src/util"
+import { vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
 import { createProgressSpinner } from "./spinner"
 
@@ -18,8 +19,7 @@ export async function retrievalSearch(
     const progress = createProgressSpinner(
         `searching '${q}' in ${files.length} files`
     )
-    const res = await vectorSearch(q, {
-        files,
+    const res = await vectorSearch(files, q, {
         topK: normalizeInt(topK),
         indexName,
         progress,
