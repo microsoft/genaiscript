@@ -6,7 +6,7 @@ import {
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
-import { HTMLEscape, arrayify, logVerbose } from "./util"
+import { HTMLEscape, arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { RetrievalSearchResponse, runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
@@ -164,7 +164,11 @@ export function createPromptContext(
                 }
 
                 await resolveFileContents(files)
-                const res = await vectorSearch(q, files, searchOptions)
+                const folderPath = dotGenaiscriptPath("vectors", "default")
+                const res = await vectorSearch(q, files, {
+                    ...searchOptions,
+                    folderPath,
+                })
                 // search
                 trace.files(res, {
                     model,

@@ -1,24 +1,53 @@
 import { encode, decode } from "gpt-tokenizer"
-import type { EmbeddingsModel, EmbeddingsResponse } from "vectra"
-import { arrayify } from "./util"
+import type {
+    OSSEmbeddingsOptions,
+    AzureOpenAIEmbeddingsOptions,
+    OpenAIEmbeddingsOptions,
+} from "vectra"
+import { resolveModelConnectionInfo } from "./models"
+import {
+    DEFAULT_EMBEDDINGS_MODEL,
+    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_OPENAI,
+} from "./constants"
 
 export async function vectorSearch(
     query: string,
     files: WorkspaceFile[],
     options: VectorSearchOptions & { folderPath: string }
 ): Promise<WorkspaceFileWithScore[]> {
-    const { topK, folderPath, minScore = 0 } = options
-    const { LocalDocumentIndex } = await import("vectra/lib/LocalDocumentIndex")
+    const {
+        topK,
+        folderPath,
+        model = DEFAULT_EMBEDDINGS_MODEL,
+        minScore = 0,
+    } = options
+    const { LocalDocumentIndex, OpenAIEmbeddings } = await import("vectra")
+
     const tokenizer = { encode, decode }
-    const embeddings: EmbeddingsModel = {
-        maxTokens: 8000,
-        createEmbeddings: async (
-            inputs: string | string[]
-        ): Promise<EmbeddingsResponse> => ({
-            status: "success",
-            output: arrayify(inputs).map((input) => encode(input)),
-        }),
-    }
+    const { info, configuration } = await resolveModelConnectionInfo({
+        model,
+    })
+    if (info.error) throw new Error(info.error)
+    const embeddings = new OpenAIEmbeddings(
+        info.provider === MODEL_PROVIDER_AZURE
+            ? <AzureOpenAIEmbeddingsOptions>{
+                  azureApiKey: configuration.token,
+                  azureApiVersion: configuration.version,
+                  azureDeployment: configuration.model,
+                  azureEndpoint: configuration.base,
+              }
+            : info.provider === MODEL_PROVIDER_OPENAI
+              ? <OpenAIEmbeddingsOptions>{
+                    apiKey: configuration.token,
+                    endpoint: configuration.base,
+                    model: configuration.model,
+                }
+              : <OSSEmbeddingsOptions>{
+                    ossModel: configuration.model,
+                    ossEndpoint: configuration.base,
+                }
+    )
     const index = new LocalDocumentIndex({
         tokenizer,
         folderPath,

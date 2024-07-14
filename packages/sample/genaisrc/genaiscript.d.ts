@@ -1140,6 +1140,7 @@ interface WebSearchResult {
 }
 
 interface VectorSearchOptions {
+    model?: string
     /**
      * Maximum number of embeddings to use
      */

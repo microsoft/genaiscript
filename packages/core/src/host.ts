@@ -28,6 +28,7 @@ export type APIType = "openai" | "azure" | "localai"
 
 export interface LanguageModelConfiguration {
     provider: string
+    model: string
     base: string
     token: string
     curlHeaders?: Record<string, string>

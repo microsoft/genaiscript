@@ -36,6 +36,7 @@ export const CLIENT_RECONNECT_MAX_ATTEMPTS = 25
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
 export const DEFAULT_MODEL = "openai:gpt-4"
+export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
 export const CACHE_LLMREQUEST_PREFIX = "genaiscript/cache/llm/"

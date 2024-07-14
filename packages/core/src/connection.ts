@@ -76,6 +76,7 @@ export async function parseTokenFromEnv(
                 throw new Error("OPENAI_API_BASE must be a valid URL")
             return {
                 provider,
+                model,
                 base,
                 type,
                 token,
@@ -116,6 +117,7 @@ export async function parseTokenFromEnv(
                 base += "/openai/deployments"
             return {
                 provider,
+                model,
                 base,
                 token,
                 type: "azure",
@@ -151,6 +153,7 @@ export async function parseTokenFromEnv(
                 throw new Error(`${modelBase} must be a valid URL`)
             return {
                 provider,
+                model,
                 token,
                 base,
                 type,
@@ -168,6 +171,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OLLAMA) {
         return {
             provider,
+            model,
             base: OLLAMA_API_BASE,
             token: "ollama",
             type: "openai",
@@ -178,6 +182,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_LLAMAFILE) {
         return {
             provider,
+            model,
             base: LLAMAFILE_API_BASE,
             token: "llamafile",
             type: "openai",
@@ -188,6 +193,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_LITELLM) {
         return {
             provider,
+            model,
             base: LITELLM_API_BASE,
             token: "litellm",
             type: "openai",
