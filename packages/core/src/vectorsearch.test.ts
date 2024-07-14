@@ -22,8 +22,8 @@ describe("vectorsearch", () => {
             { filename: "hello.md", content: "hello world" },
             { filename: "other.md", content: "this is completely unrelated" },
         ]
-        const res = await vectorSearch("world", files, { folderPath })
-        console.log(JSON.stringify(res, null, 2))
+        const res = await vectorSearch("world", files, { folderPath, minScore: 0.5 })
+        console.log(JSON.stringify(res, null, 1))
         assert.strictEqual(res[0].filename, "hello.md")
     })
 })

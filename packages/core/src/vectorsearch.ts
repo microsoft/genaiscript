@@ -7,7 +7,7 @@ export async function vectorSearch(
     files: WorkspaceFile[],
     options: VectorSearchOptions & { folderPath: string }
 ): Promise<WorkspaceFileWithScore[]> {
-    const { topK, folderPath } = options
+    const { topK, folderPath, minScore = 0 } = options
     const { LocalDocumentIndex } = await import("vectra/lib/LocalDocumentIndex")
     const tokenizer = { encode, decode }
     const embeddings: EmbeddingsModel = {
@@ -35,15 +35,15 @@ export async function vectorSearch(
         await index.upsertDocument(filename, content)
     }
     const res = await index.queryDocuments(query, { maxDocuments: topK })
-    const r: WorkspaceFile[] = []
+    const r: WorkspaceFileWithScore[] = []
     for (const re of res) {
         r.push(<WorkspaceFileWithScore>{
             filename: re.uri,
             content: (await re.renderAllSections(8000))
                 .map((s) => s.text)
                 .join("\n...\n"),
-            score: re.score
+            score: re.score,
         })
     }
-    return r
+    return r.filter((_) => _.score >= minScore)
 }
