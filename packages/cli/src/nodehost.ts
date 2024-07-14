@@ -234,7 +234,6 @@ export class NodeHost implements RuntimeHost {
     async createDirectory(name: string): Promise<void> {
         await ensureDir(name)
     }
-
     async deleteDirectory(name: string): Promise<void> {
         await remove(name)
     }
