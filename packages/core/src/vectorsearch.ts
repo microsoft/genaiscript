@@ -45,10 +45,9 @@ export async function vectorSearch(
     for (const re of res) {
         r.push(<WorkspaceFile>{
             filename: re.uri,
-            content: (await re.renderAllSections(8000)).reduce(
-                (l, r) => l + r.text,
-                ""
-            ),
+            content: (await re.renderAllSections(8000))
+                .map((s) => s.text)
+                .join("\n...\n"),
         })
     }
     return r

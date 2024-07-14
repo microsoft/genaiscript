@@ -27,7 +27,6 @@ import { GenerationResult } from "../../core/src/expander"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
 import { Fragment } from "../../core/src/promptrunner"
-import { RetrievalSearchResult } from "../../core/src/retrieval"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
     dotGenaiscriptPath,
@@ -43,7 +42,6 @@ export const AI_REQUEST_CHANGE = "aiRequestChange"
 
 export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
 export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
-export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface AIRequestOptions {
     label: string
@@ -111,8 +109,6 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-
-    lastSearch: RetrievalSearchResult
 
     constructor(public readonly context: ExtensionContext) {
         super()

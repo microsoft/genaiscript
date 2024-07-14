@@ -4,7 +4,6 @@ import {
     ExtensionState,
     REQUEST_OUTPUT_FILENAME,
     REQUEST_TRACE_FILENAME,
-    SEARCH_OUTPUT_FILENAME,
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
 import { registerCommand } from "./commands"
@@ -91,11 +90,6 @@ ${prettifyMarkdown(md)}
             }
             case REQUEST_TRACE_FILENAME:
                 return wrap(aiRequest?.trace.content)
-            case SEARCH_OUTPUT_FILENAME:
-                return fenceMD(
-                    YAMLStringify(this.state.lastSearch || {}),
-                    "yaml"
-                )
         }
         if (uri.path.startsWith(TRACE_NODE_PREFIX)) {
             const id = uri.path

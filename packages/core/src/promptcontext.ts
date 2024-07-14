@@ -164,8 +164,7 @@ export function createPromptContext(
                 }
 
                 await resolveFileContents(files)
-                const results = await vectorSearch(q, files, searchOptions)
-                const res: WorkspaceFile[] = results.map(({ file }) => file)
+                const res = await vectorSearch(q, files, searchOptions)
                 // search
                 trace.files(res, {
                     model,
