@@ -164,7 +164,7 @@ export function createPromptContext(
                 }
 
                 await resolveFileContents(files)
-                const folderPath = dotGenaiscriptPath("vectors", "default")
+                const folderPath = dotGenaiscriptPath("vectors")
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
