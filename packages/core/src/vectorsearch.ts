@@ -1,15 +1,109 @@
 import { encode, decode } from "gpt-tokenizer"
-import type {
-    OSSEmbeddingsOptions,
-    AzureOpenAIEmbeddingsOptions,
-    OpenAIEmbeddingsOptions,
-} from "vectra"
 import { resolveModelConnectionInfo } from "./models"
 import {
+    AZURE_OPENAI_API_VERSION,
     DEFAULT_EMBEDDINGS_MODEL,
     MODEL_PROVIDER_AZURE,
-    MODEL_PROVIDER_OPENAI,
 } from "./constants"
+import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
+import { createFetch } from "./fetch"
+import { JSONLineCache } from "./cache"
+import { EmbeddingCreateResponse } from "./chat"
+import { LanguageModelConfiguration } from "./host"
+import { getConfigHeaders } from "./openai"
+import { dotGenaiscriptPath, trimTrailingSlash } from "./util"
+
+export interface EmbeddingsCacheKey {
+    base: string
+    provider: string
+    model: string
+    inputs: string | string[]
+}
+export type EmbeddingsCache = JSONLineCache<
+    EmbeddingsCacheKey,
+    EmbeddingsResponse
+>
+
+class OpenAIEmbeddings implements EmbeddingsModel {
+    readonly cache: JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
+    public constructor(
+        readonly info: ModelConnectionOptions,
+        readonly configuration: LanguageModelConfiguration
+    ) {
+        this.cache = JSONLineCache.byName<
+            EmbeddingsCacheKey,
+            EmbeddingsResponse
+        >(dotGenaiscriptPath("cache", "embeddings"))
+    }
+
+    maxTokens = 512
+
+    /**
+     * Creates embeddings for the given inputs using the OpenAI API.
+     * @param model Name of the model to use (or deployment for Azure).
+     * @param inputs Text inputs to create embeddings for.
+     * @returns A `EmbeddingsResponse` with a status and the generated embeddings or a message when an error occurs.
+     */
+    public async createEmbeddings(
+        inputs: string | string[]
+    ): Promise<EmbeddingsResponse> {
+        const { provider, base, model } = this.configuration
+
+        const cacheKey: EmbeddingsCacheKey = { inputs, model, provider, base }
+        const cached = await this.cache.get(cacheKey)
+        if (cached) return cached
+
+        const res = await this.uncachedCreateEmbeddings(inputs)
+        if (res.status === "success") this.cache.set(cacheKey, res)
+
+        return res
+    }
+    private async uncachedCreateEmbeddings(
+        inputs: string | string[]
+    ): Promise<EmbeddingsResponse> {
+        const { provider, base, model, type } = this.configuration
+
+        const body: { inputs: string | string[]; model?: string } = { inputs }
+        let url: string
+        const headers: Record<string, string> = getConfigHeaders(
+            this.configuration
+        )
+        headers["Content-Type"] = "application/json"
+        if (provider === MODEL_PROVIDER_AZURE || type === "azure") {
+            url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
+        } else {
+            url = `${base}/v1/embeddings`
+            body.model = model
+        }
+        const fetch = await createFetch({ retryOn: [429] })
+        const resp = await fetch(url, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(body),
+        })
+
+        // Process response
+        if (resp.status < 300) {
+            const data = (await resp.json()) as EmbeddingCreateResponse
+            return {
+                status: "success",
+                output: data.data
+                    .sort((a, b) => a.index - b.index)
+                    .map((item) => item.embedding),
+            }
+        } else if (resp.status == 429) {
+            return {
+                status: "rate_limited",
+                message: `The embeddings API returned a rate limit error.`,
+            }
+        } else {
+            return {
+                status: "error",
+                message: `The embeddings API returned an error status of ${resp.status}: ${resp.statusText}`,
+            }
+        }
+    }
+}
 
 export async function vectorSearch(
     query: string,
@@ -22,32 +116,14 @@ export async function vectorSearch(
         model = DEFAULT_EMBEDDINGS_MODEL,
         minScore = 0,
     } = options
-    const { LocalDocumentIndex, OpenAIEmbeddings } = await import("vectra")
+    const { LocalDocumentIndex } = await import("vectra/lib/LocalDocumentIndex")
 
     const tokenizer = { encode, decode }
     const { info, configuration } = await resolveModelConnectionInfo({
         model,
     })
     if (info.error) throw new Error(info.error)
-    const embeddings = new OpenAIEmbeddings(
-        info.provider === MODEL_PROVIDER_AZURE
-            ? <AzureOpenAIEmbeddingsOptions>{
-                  azureApiKey: configuration.token,
-                  azureApiVersion: configuration.version,
-                  azureDeployment: configuration.model,
-                  azureEndpoint: configuration.base,
-              }
-            : info.provider === MODEL_PROVIDER_OPENAI
-              ? <OpenAIEmbeddingsOptions>{
-                    apiKey: configuration.token,
-                    endpoint: configuration.base,
-                    model: configuration.model,
-                }
-              : <OSSEmbeddingsOptions>{
-                    ossModel: configuration.model,
-                    ossEndpoint: configuration.base,
-                }
-    )
+    const embeddings = new OpenAIEmbeddings(info, configuration)
     const index = new LocalDocumentIndex({
         tokenizer,
         folderPath,

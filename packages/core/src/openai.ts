@@ -24,7 +24,7 @@ import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 
-function getConfigHeaders(cfg: LanguageModelConfiguration) {
+export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     const res = {
         // openai
         authorization: /^Bearer /.test(cfg.token)

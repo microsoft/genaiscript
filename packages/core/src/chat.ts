@@ -58,6 +58,10 @@ export type ChatCompletionUserMessageParam =
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
 
+export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
+
+export type EmbeddingCreateResponse = OpenAI.Embeddings.CreateEmbeddingResponse
+
 export interface ChatCompletionToolCall {
     id: string
     name: string
