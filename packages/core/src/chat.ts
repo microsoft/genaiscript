@@ -515,7 +515,7 @@ async function processChatMessage(
 
 export function mergeGenerationOptions(
     options: GenerationOptions,
-    runOptions: ModelOptions
+    runOptions: ModelOptions & EmbeddingsModelOptions
 ): GenerationOptions {
     return {
         ...options,
@@ -526,6 +526,10 @@ export function mergeGenerationOptions(
             host.defaultModelOptions.model,
         temperature:
             runOptions?.temperature ?? host.defaultModelOptions.temperature,
+        embeddingsModel:
+            runOptions?.embeddingsModel ??
+            options?.embeddingsModel ??
+            host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
 }
 

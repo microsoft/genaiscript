@@ -32,6 +32,9 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
         host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) host.defaultModelOptions.temperature = t
+    if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
+        host.defaultEmbeddingsModelOptions.embeddingsModel =
+            env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL
 }
 
 export async function parseTokenFromEnv(

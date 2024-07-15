@@ -255,8 +255,8 @@ ${this.toResultIcon(success, "")}${title}
         }
     ) {
         const {
-            model = host.defaultModelOptions.model,
-            maxLength = host.defaultModelOptions.temperature,
+            model,
+            maxLength,
             title,
             skipIfEmpty,
             secrets = {},

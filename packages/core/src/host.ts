@@ -1,3 +1,4 @@
+import { Embeddings } from "openai/resources/embeddings.mjs"
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
@@ -113,6 +114,9 @@ export interface Host {
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
     defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
+    defaultEmbeddingsModelOptions: Required<
+        Pick<EmbeddingsModelOptions, "embeddingsModel">
+    >
     getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions

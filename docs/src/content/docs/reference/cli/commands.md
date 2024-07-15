@@ -41,6 +41,7 @@ Options:
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
+  -em, --embeddings-model <string>           embeddings model for the run
   --no-cache                                 disable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   --cs, --csv-separator <string>             csv separator (default: "\t")

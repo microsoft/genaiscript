@@ -6,6 +6,7 @@ import {
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
+import { host } from "./host"
 import { HTMLEscape, arrayify, dotGenaiscriptPath, logVerbose } from "./util"
 import { RetrievalSearchResponse, runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
@@ -164,11 +165,19 @@ export function createPromptContext(
                 }
 
                 await resolveFileContents(files)
-                const folderPath = dotGenaiscriptPath("vectors")
+                const embeddingsModel =
+                    searchOptions?.embeddingsModel ??
+                    options?.embeddingsModel ??
+                    host.defaultEmbeddingsModelOptions.embeddingsModel
+                const folderPath = dotGenaiscriptPath(
+                    "vectors",
+                    embeddingsModel
+                )
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
                     trace,
+                    embeddingsModel,
                 })
                 // search
                 trace.files(res, {
@@ -363,6 +372,7 @@ export function createPromptContext(
 export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
+        EmbeddingsModelOptions,
         ScriptRuntimeOptions {
     cancellationToken?: CancellationToken
     infoCb?: (partialResponse: { text: string }) => void

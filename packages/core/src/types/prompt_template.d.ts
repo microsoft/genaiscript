@@ -179,6 +179,15 @@ interface ModelOptions extends ModelConnectionOptions {
     cacheName?: string
 }
 
+interface EmbeddingsModelConnectionOptions {
+    /**
+     * LLM model to use for embeddings.
+     */
+    embeddingsModel?: "openai:text-embedding-ada-002" | string
+}
+
+interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
+
 interface ScriptRuntimeOptions {
     /**
      * List of system script ids used by the prompt.
@@ -299,7 +308,11 @@ interface PromptTest {
     asserts?: PromptAssertion | PromptAssertion[]
 }
 
-interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
+interface PromptScript
+    extends PromptLike,
+        ModelOptions,
+        EmbeddingsModelOptions,
+        ScriptRuntimeOptions {
     /**
      * Groups template in UI
      */
@@ -554,6 +567,7 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 type PromptSystemArgs = Omit<
     PromptArgs,
     | "model"
+    | "embeddingsModel"
     | "temperature"
     | "topP"
     | "maxTokens"
@@ -1105,8 +1119,7 @@ interface WebSearchResult {
     webPages: WorkspaceFile[]
 }
 
-interface VectorSearchOptions {
-    model?: string
+interface VectorSearchOptions extends EmbeddingsModelOptions {
     /**
      * Maximum number of embeddings to use
      */

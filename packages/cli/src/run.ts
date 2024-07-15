@@ -166,7 +166,7 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model: options.model,
+            model: options.model ?? host.defaultModelOptions.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)
@@ -201,6 +201,9 @@ export async function runScript(
             maxToolCalls,
             maxDataRepairs,
             model: info.model,
+            embeddingsModel:
+                options.embeddingsModel ??
+                host.defaultEmbeddingsModelOptions.embeddingsModel,
             retry,
             retryDelay,
             maxDelay,

@@ -132,6 +132,10 @@ export async function cli() {
             "maximum tool calls for the run"
         )
         .option("-se, --seed <number>", "seed for the run")
+        .option(
+            "-em, --embeddings-model <string>",
+            "embeddings model for the run"
+        )
         .option("--no-cache", "disable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")

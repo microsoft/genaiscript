@@ -13,9 +13,15 @@ export async function retrievalSearch(
         excludedFiles: string[]
         topK: string
         name: string
+        embeddingsModel: string
     }
 ) {
-    const { excludedFiles, name: indexName, topK } = options || {}
+    const {
+        excludedFiles,
+        name: indexName,
+        topK,
+        embeddingsModel,
+    } = options || {}
     const files = (await expandFiles(filesGlobs, excludedFiles)).map(
         (filename) => <WorkspaceFile>{ filename }
     )
@@ -24,6 +30,7 @@ export async function retrievalSearch(
     const res = await vectorSearch(q, files, {
         topK: normalizeInt(topK),
         folderPath,
+        embeddingsModel,
     })
     console.log(YAMLStringify(res))
 }

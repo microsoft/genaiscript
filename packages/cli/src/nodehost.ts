@@ -25,6 +25,7 @@ import {
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
     TOOL_ID,
+    DEFAULT_EMBEDDINGS_MODEL,
 } from "../../core/src/constants"
 import { createFileSystem, filterGitIgnore } from "../../core/src/fs"
 import {
@@ -99,6 +100,9 @@ export class NodeHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
+    }
+    readonly defaultEmbeddingsModelOptions = {
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL
     }
 
     constructor(dotEnvPath: string) {

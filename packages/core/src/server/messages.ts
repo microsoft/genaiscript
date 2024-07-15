@@ -71,6 +71,7 @@ export interface PromptScriptRunOptions {
     maxToolCalls: string
     maxDataRepairs: string
     model: string
+    embeddingsModel: string
     csvSeparator: string
     cache: boolean
     cacheName: string

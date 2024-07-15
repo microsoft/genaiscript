@@ -1,10 +1,7 @@
 import { encode, decode } from "gpt-tokenizer"
 import { resolveModelConnectionInfo } from "./models"
-import {
-    AZURE_OPENAI_API_VERSION,
-    DEFAULT_EMBEDDINGS_MODEL,
-    MODEL_PROVIDER_AZURE,
-} from "./constants"
+import { host } from "./host"
+import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_AZURE } from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
 import { JSONLineCache } from "./cache"
@@ -12,7 +9,7 @@ import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chat"
 import { LanguageModelConfiguration } from "./host"
 import { getConfigHeaders } from "./openai"
 import { dotGenaiscriptPath, trimTrailingSlash } from "./util"
-import { MarkdownTrace, TraceOptions } from "./trace"
+import { TraceOptions } from "./trace"
 
 export interface EmbeddingsCacheKey {
     base: string
@@ -117,20 +114,20 @@ export async function vectorSearch(
     const {
         topK,
         folderPath,
-        model = DEFAULT_EMBEDDINGS_MODEL,
+        embeddingsModel = host.defaultEmbeddingsModelOptions.embeddingsModel,
         minScore = 0,
         trace,
     } = options
 
     trace?.startDetails(`🔍 embeddings`)
     try {
-        trace?.itemValue(`model`, model)
+        trace?.itemValue(`model`, embeddingsModel)
         const { LocalDocumentIndex } = await import(
             "vectra/lib/LocalDocumentIndex"
         )
         const tokenizer = { encode, decode }
         const { info, configuration } = await resolveModelConnectionInfo({
-            model,
+            model: embeddingsModel,
         })
         if (info.error) throw new Error(info.error)
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
