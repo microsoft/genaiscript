@@ -122,8 +122,9 @@ export async function vectorSearch(
         trace,
     } = options
 
-    trace?.startDetails(`🔍 vector search`)
+    trace?.startDetails(`🔍 embeddings`)
     try {
+        trace?.itemValue(`model`, model)
         const { LocalDocumentIndex } = await import(
             "vectra/lib/LocalDocumentIndex"
         )
