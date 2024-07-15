@@ -1,6 +1,6 @@
 import crossFetch from "cross-fetch"
 import wrapFetch from "fetch-retry"
-import { TraceOptions } from "./trace"
+import { MarkdownTrace, TraceOptions } from "./trace"
 import {
     FETCH_RETRY_DEFAULT,
     FETCH_RETRY_DEFAULT_DEFAULT,
@@ -49,6 +49,23 @@ export async function createFetch(
         },
     })
     return fetchRetry
+}
+
+export function traceFetchPost(
+    trace: MarkdownTrace,
+    url: string,
+    headers: Record<string, string>,
+    body: any
+) {
+    const cmd = `curl -X POST ${url} \\
+-H  "Content-Type: application/json" \\
+${Object.entries(headers || {})
+    .map(([k, v]) => `-H "${k}: ${v}" \\`)
+    .join("\n")}
+-d '${JSON.stringify(body).replace(/'/g, "'\\''")}' 
+`
+    if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
+    else logVerbose(cmd)
 }
 
 export function statusToMessage(res?: {

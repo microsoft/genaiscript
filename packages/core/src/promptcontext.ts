@@ -168,6 +168,7 @@ export function createPromptContext(
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
+                    trace,
                 })
                 // search
                 trace.files(res, {

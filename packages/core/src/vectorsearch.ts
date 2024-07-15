@@ -6,12 +6,13 @@ import {
     MODEL_PROVIDER_AZURE,
 } from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
-import { createFetch } from "./fetch"
+import { createFetch, traceFetchPost } from "./fetch"
 import { JSONLineCache } from "./cache"
-import { EmbeddingCreateResponse } from "./chat"
+import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chat"
 import { LanguageModelConfiguration } from "./host"
 import { getConfigHeaders } from "./openai"
 import { dotGenaiscriptPath, trimTrailingSlash } from "./util"
+import { MarkdownTrace, TraceOptions } from "./trace"
 
 export interface EmbeddingsCacheKey {
     base: string
@@ -28,7 +29,8 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     readonly cache: JSONLineCache<EmbeddingsCacheKey, EmbeddingsResponse>
     public constructor(
         readonly info: ModelConnectionOptions,
-        readonly configuration: LanguageModelConfiguration
+        readonly configuration: LanguageModelConfiguration,
+        readonly trace?: MarkdownTrace
     ) {
         this.cache = JSONLineCache.byName<
             EmbeddingsCacheKey,
@@ -59,11 +61,11 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         return res
     }
     private async uncachedCreateEmbeddings(
-        inputs: string | string[]
+        input: string | string[]
     ): Promise<EmbeddingsResponse> {
         const { provider, base, model, type } = this.configuration
 
-        const body: { inputs: string | string[]; model?: string } = { inputs }
+        const body: EmbeddingCreateParams = { input, model }
         let url: string
         const headers: Record<string, string> = getConfigHeaders(
             this.configuration
@@ -71,9 +73,9 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         headers["Content-Type"] = "application/json"
         if (provider === MODEL_PROVIDER_AZURE || type === "azure") {
             url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
+            delete body.model
         } else {
             url = `${base}/v1/embeddings`
-            body.model = model
         }
         const fetch = await createFetch({ retryOn: [429] })
         const resp = await fetch(url, {
@@ -108,13 +110,14 @@ class OpenAIEmbeddings implements EmbeddingsModel {
 export async function vectorSearch(
     query: string,
     files: WorkspaceFile[],
-    options: VectorSearchOptions & { folderPath: string }
+    options: VectorSearchOptions & { folderPath: string } & TraceOptions
 ): Promise<WorkspaceFileWithScore[]> {
     const {
         topK,
         folderPath,
         model = DEFAULT_EMBEDDINGS_MODEL,
         minScore = 0,
+        trace,
     } = options
     const { LocalDocumentIndex } = await import("vectra/lib/LocalDocumentIndex")
 
@@ -123,7 +126,7 @@ export async function vectorSearch(
         model,
     })
     if (info.error) throw new Error(info.error)
-    const embeddings = new OpenAIEmbeddings(info, configuration)
+    const embeddings = new OpenAIEmbeddings(info, configuration, trace)
     const index = new LocalDocumentIndex({
         tokenizer,
         folderPath,

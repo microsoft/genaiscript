@@ -20,12 +20,12 @@ import {
     getChatCompletionCache,
 } from "./chat"
 import { RequestError, errorMessage } from "./error"
-import { createFetch } from "./fetch"
+import { createFetch, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
-    const res = {
+    const res: Record<string, string> = {
         // openai
         authorization: /^Bearer /.test(cfg.token)
             ? cfg.token
@@ -39,6 +39,7 @@ export function getConfigHeaders(cfg: LanguageModelConfiguration) {
                 : undefined,
         "user-agent": TOOL_ID,
     }
+    for (const [k, v] of Object.entries(res)) if (v === undefined) delete res[k]
     return res
 }
 
@@ -128,17 +129,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
     trace.dispatchChange()
 
-    trace.detailsFenced(
-        `✉️ fetch`,
-        `curl -X POST ${url} \\
--H "Content-Type: application/json" \\
-${Object.entries(cfg.curlHeaders || {})
-    .map(([k, v]) => `-H "${k}: ${v}" \\`)
-    .join("\n")}
--d '${JSON.stringify(postReq).replace(/'/g, "'\\''")}' 
-`,
-        "bash"
-    )
+    traceFetchPost(trace, url, cfg.curlHeaders, postReq)
     const body = JSON.stringify(postReq)
     let r: Response
     try {
