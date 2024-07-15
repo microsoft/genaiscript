@@ -30,7 +30,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
     public constructor(
         readonly info: ModelConnectionOptions,
         readonly configuration: LanguageModelConfiguration,
-        readonly trace?: MarkdownTrace
+        readonly options?: TraceOptions
     ) {
         this.cache = JSONLineCache.byName<
             EmbeddingsCacheKey,
@@ -64,7 +64,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         input: string | string[]
     ): Promise<EmbeddingsResponse> {
         const { provider, base, model, type } = this.configuration
-
+        const { trace } = this.options || {}
         const body: EmbeddingCreateParams = { input, model }
         let url: string
         const headers: Record<string, string> = getConfigHeaders(
@@ -78,11 +78,13 @@ class OpenAIEmbeddings implements EmbeddingsModel {
             url = `${base}/v1/embeddings`
         }
         const fetch = await createFetch({ retryOn: [429] })
+        if (trace) traceFetchPost(trace, url, headers, body)
         const resp = await fetch(url, {
             method: "POST",
             headers,
             body: JSON.stringify(body),
         })
+        trace?.itemValue(`response`, `${resp.status} ${resp.statusText}`)
 
         // Process response
         if (resp.status < 300) {
@@ -119,39 +121,46 @@ export async function vectorSearch(
         minScore = 0,
         trace,
     } = options
-    const { LocalDocumentIndex } = await import("vectra/lib/LocalDocumentIndex")
 
-    const tokenizer = { encode, decode }
-    const { info, configuration } = await resolveModelConnectionInfo({
-        model,
-    })
-    if (info.error) throw new Error(info.error)
-    const embeddings = new OpenAIEmbeddings(info, configuration, trace)
-    const index = new LocalDocumentIndex({
-        tokenizer,
-        folderPath,
-        embeddings,
-        chunkingConfig: {
-            chunkSize: 512,
-            chunkOverlap: 128,
-            tokenizer,
-        },
-    })
-    await index.createIndex({ version: 1, deleteIfExists: true })
-    for (const file of files) {
-        const { filename, content } = file
-        await index.upsertDocument(filename, content)
-    }
-    const res = await index.queryDocuments(query, { maxDocuments: topK })
-    const r: WorkspaceFileWithScore[] = []
-    for (const re of res) {
-        r.push(<WorkspaceFileWithScore>{
-            filename: re.uri,
-            content: (await re.renderAllSections(8000))
-                .map((s) => s.text)
-                .join("\n...\n"),
-            score: re.score,
+    trace?.startDetails(`🔍 vector search`)
+    try {
+        const { LocalDocumentIndex } = await import(
+            "vectra/lib/LocalDocumentIndex"
+        )
+        const tokenizer = { encode, decode }
+        const { info, configuration } = await resolveModelConnectionInfo({
+            model,
         })
+        if (info.error) throw new Error(info.error)
+        const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
+        const index = new LocalDocumentIndex({
+            tokenizer,
+            folderPath,
+            embeddings,
+            chunkingConfig: {
+                chunkSize: 512,
+                chunkOverlap: 128,
+                tokenizer,
+            },
+        })
+        await index.createIndex({ version: 1, deleteIfExists: true })
+        for (const file of files) {
+            const { filename, content } = file
+            await index.upsertDocument(filename, content)
+        }
+        const res = await index.queryDocuments(query, { maxDocuments: topK })
+        const r: WorkspaceFileWithScore[] = []
+        for (const re of res.filter((re) => re.score >= minScore)) {
+            r.push(<WorkspaceFileWithScore>{
+                filename: re.uri,
+                content: (await re.renderAllSections(8000))
+                    .map((s) => s.text)
+                    .join("\n...\n"),
+                score: re.score,
+            })
+        }
+        return r
+    } finally {
+        trace?.endDetails()
     }
-    return r.filter((_) => _.score >= minScore)
 }

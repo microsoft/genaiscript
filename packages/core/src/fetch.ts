@@ -55,11 +55,18 @@ export function traceFetchPost(
     trace: MarkdownTrace,
     url: string,
     headers: Record<string, string>,
-    body: any
+    body: any,
+    options?: { showAuthorization?: boolean }
 ) {
+    const { showAuthorization } = options || {}
+    headers = { ...(headers || {}) }
+    if (!showAuthorization)
+        Object.entries(headers)
+            .filter(([k]) => /^(authorization|api-key)$/i.test(k))
+            .forEach(([k]) => (headers[k] = "***"))
     const cmd = `curl -X POST ${url} \\
 -H  "Content-Type: application/json" \\
-${Object.entries(headers || {})
+${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}" \\`)
     .join("\n")}
 -d '${JSON.stringify(body).replace(/'/g, "'\\''")}' 
