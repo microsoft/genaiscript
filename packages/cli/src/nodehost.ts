@@ -57,6 +57,8 @@ class NodeServerManager implements ServerManager {
 }
 
 class ModelManager implements ModelService {
+    private pulled: string[] = []
+
     constructor(private readonly host: RuntimeHost) {}
     private async getModelToken(modelId: string) {
         const { provider } = parseModelIdentifier(modelId)
@@ -69,6 +71,8 @@ class ModelManager implements ModelService {
     async pullModel(modelid: string): Promise<ResponseStatus> {
         const { provider, model } = parseModelIdentifier(modelid)
         if (provider === MODEL_PROVIDER_OLLAMA) {
+            if (this.pulled.includes(modelid)) return { ok: true }
+
             const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",
@@ -81,6 +85,7 @@ class ModelManager implements ModelService {
             if (res.ok) {
                 const resp = await res.json()
             }
+            if (res.ok) this.pulled.push(modelid)
             return { ok: res.ok, status: res.status }
         }
 
