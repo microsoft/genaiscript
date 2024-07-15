@@ -68,8 +68,8 @@ class ModelManager implements ModelService {
 
     async pullModel(modelid: string): Promise<ResponseStatus> {
         const { provider, model } = parseModelIdentifier(modelid)
-        const conn = await this.getModelToken(modelid)
         if (provider === MODEL_PROVIDER_OLLAMA) {
+            const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",
                 headers: {
@@ -102,7 +102,7 @@ export class NodeHost implements RuntimeHost {
         temperature: DEFAULT_TEMPERATURE,
     }
     readonly defaultEmbeddingsModelOptions = {
-        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
 
     constructor(dotEnvPath: string) {

@@ -1,6 +1,6 @@
 import { encode, decode } from "gpt-tokenizer"
 import { resolveModelConnectionInfo } from "./models"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_AZURE } from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
@@ -114,7 +114,8 @@ export async function vectorSearch(
     const {
         topK,
         folderPath,
-        embeddingsModel = host.defaultEmbeddingsModelOptions.embeddingsModel,
+        embeddingsModel = runtimeHost.defaultEmbeddingsModelOptions
+            .embeddingsModel,
         minScore = 0,
         trace,
     } = options
@@ -130,6 +131,7 @@ export async function vectorSearch(
             model: embeddingsModel,
         })
         if (info.error) throw new Error(info.error)
+        await runtimeHost.models.pullModel(info.model)
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
         const index = new LocalDocumentIndex({
             tokenizer,

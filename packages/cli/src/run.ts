@@ -30,7 +30,7 @@ import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/expander"
 import { parseKeyValuePairs } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import {
@@ -173,6 +173,7 @@ export async function runScript(
             logError(info.error)
             return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
+        await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
             infoCb: (args) => {
                 const { text } = args
