@@ -1,11 +1,5 @@
 import { GenerationResult } from "../expander"
-import {
-    ParsePdfResponse,
-    ResponseStatus,
-    RetrievalSearchOptions,
-    RetrievalSearchResponse,
-    RetrievalUpsertOptions as RetrievalVectorUpsertOptions,
-} from "../host"
+import { ParsePdfResponse, ResponseStatus } from "../host"
 
 export interface RequestMessage {
     type: string
@@ -77,6 +71,7 @@ export interface PromptScriptRunOptions {
     maxToolCalls: string
     maxDataRepairs: string
     model: string
+    embeddingsModel: string
     csvSeparator: string
     cache: boolean
     cacheName: string

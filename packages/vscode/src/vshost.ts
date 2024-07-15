@@ -12,6 +12,7 @@ import {
     parseTokenFromEnv,
 } from "../../core/src/connection"
 import {
+    DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     DOT_ENV_FILENAME,
@@ -40,6 +41,9 @@ export class VSCodeHost extends EventTarget implements Host {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
+    }
+    readonly defaultEmbeddingsModelOptions = {
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
 
     constructor(readonly state: ExtensionState) {

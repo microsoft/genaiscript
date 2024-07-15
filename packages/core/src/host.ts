@@ -1,3 +1,4 @@
+import { Embeddings } from "openai/resources/embeddings.mjs"
 import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
@@ -28,6 +29,7 @@ export type APIType = "openai" | "azure" | "localai"
 
 export interface LanguageModelConfiguration {
     provider: string
+    model: string
     base: string
     token: string
     curlHeaders?: Record<string, string>
@@ -50,14 +52,8 @@ export interface ResponseStatus {
 }
 
 export interface RetrievalSearchOptions extends VectorSearchOptions {
-    files?: string[]
     topK?: number
     minScore?: number
-}
-
-export interface RetrievalUpsertOptions extends VectorSearchEmbeddingsOptions {
-    content?: string
-    mimeType?: string
 }
 
 export interface RetrievalSearchResponse extends ResponseStatus {
@@ -69,14 +65,9 @@ export interface ModelService {
 }
 
 export interface RetrievalService {
-    init(trace?: MarkdownTrace): Promise<void>
-    vectorClear(options?: VectorSearchOptions): Promise<ResponseStatus>
-    vectorUpsert(
-        filenameOrUrl: string,
-        options?: RetrievalUpsertOptions
-    ): Promise<ResponseStatus>
     vectorSearch(
         text: string,
+        files: WorkspaceFile[],
         options?: RetrievalSearchOptions
     ): Promise<RetrievalSearchResponse>
 }
@@ -123,6 +114,9 @@ export interface Host {
     // read a secret from the environment or a .env file
     readSecret(name: string): Promise<string | undefined>
     defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
+    defaultEmbeddingsModelOptions: Required<
+        Pick<EmbeddingsModelOptions, "embeddingsModel">
+    >
     getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -155,7 +149,6 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
-    retrieval: RetrievalService
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
 

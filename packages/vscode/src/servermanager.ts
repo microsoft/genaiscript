@@ -7,13 +7,7 @@ import {
     ICON_LOGO_NAME,
     CLIENT_RECONNECT_MAX_ATTEMPTS,
 } from "../../core/src/constants"
-import {
-    ServerManager,
-    host,
-    RetrievalService,
-    ParseService,
-    ModelService,
-} from "../../core/src/host"
+import { ServerManager, host, ParseService } from "../../core/src/host"
 import { logError } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 

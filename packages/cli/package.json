@@ -33,23 +33,19 @@
     "tree-sitter-wasms": "^0.1.11",
     "tsx": "^4.16.2",
     "typescript": "5.5.3",
+    "vectra": "^0.7.6",
     "web-tree-sitter": "^0.22.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
-  },
-  "optionalDependencies": {
-    "llamaindex": "0.1.21"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@llamaindex/env": "^0.0.5",
     "@types/dockerode": "^3.3.29",
     "@types/fs-extra": "^11.0.4",
     "@types/memorystream": "^0.3.4",
     "@types/node": "^20.14.9",
     "@types/papaparse": "^5.3.14",
-    "@types/pg": "^8.11.2",
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
     "@types/semver": "^7.5.8",
@@ -74,8 +70,8 @@
     "zx": "^8.1.4"
   },
   "scripts": {
-    "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep && node ../../scripts/patch-cli.mjs",
-    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep",
+    "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder && node ../../scripts/patch-cli.mjs",
+    "compile-debug": "esbuild src/main.ts --sourcemap --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder",
     "postcompile": "node built/genaiscript.cjs info help > ../../docs/src/content/docs/reference/cli/commands.md",
     "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
     "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",

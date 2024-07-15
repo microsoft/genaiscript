@@ -108,7 +108,8 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
-    const model = options.model ?? conn.model ?? host.defaultModelOptions.model
+    const hasModel = options?.model ?? conn.model
+    const model = options?.model ?? conn.model ?? host.defaultModelOptions.model
     try {
         const configuration = await host.getLanguageModelConfiguration(model, {
             token: askToken,
@@ -124,7 +125,7 @@ export async function resolveModelConnectionInfo(
                     ...conn,
                     ...rest,
                     model,
-                    token: theToken ? (options?.token ? theToken : "***") : "",
+                    token: theToken ? (hasModel ? theToken : "***") : "",
                 },
                 configuration,
             }
