@@ -52,8 +52,6 @@ export interface ResponseStatus {
 }
 
 export interface RetrievalSearchOptions extends VectorSearchOptions {
-    topK?: number
-    minScore?: number
 }
 
 export interface RetrievalSearchResponse extends ResponseStatus {

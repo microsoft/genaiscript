@@ -32,7 +32,7 @@ class OpenAIEmbeddings implements EmbeddingsModel {
         this.cache = JSONLineCache.byName<
             EmbeddingsCacheKey,
             EmbeddingsResponse
-        >(dotGenaiscriptPath("cache", "embeddings"))
+        >("embeddings")
     }
 
     maxTokens = 512

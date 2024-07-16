@@ -166,7 +166,7 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model: options.model ?? host.defaultModelOptions.model,
+            model: options.model ?? script.model ?? host.defaultModelOptions.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)

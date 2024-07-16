@@ -7,7 +7,13 @@ import {
     tracePromptResult,
 } from "./chat"
 import { host } from "./host"
-import { HTMLEscape, arrayify, dotGenaiscriptPath, logVerbose } from "./util"
+import {
+    HTMLEscape,
+    arrayify,
+    dotGenaiscriptPath,
+    logVerbose,
+    sha256string,
+} from "./util"
 import { RetrievalSearchResponse, runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
@@ -154,7 +160,7 @@ export function createPromptContext(
         },
         vectorSearch: async (q, files_, searchOptions) => {
             const files = arrayify(files_).map(toWorkspaceFile)
-            searchOptions = searchOptions || {}
+            searchOptions = { ...(searchOptions || {}) }
             try {
                 trace.startDetails(
                     `🔍 vector search <code>${HTMLEscape(q)}</code>`
@@ -165,19 +171,18 @@ export function createPromptContext(
                 }
 
                 await resolveFileContents(files)
-                const embeddingsModel =
+                searchOptions.embeddingsModel =
                     searchOptions?.embeddingsModel ??
                     options?.embeddingsModel ??
                     host.defaultEmbeddingsModelOptions.embeddingsModel
-                const folderPath = dotGenaiscriptPath(
-                    "vectors",
-                    embeddingsModel
+                const key = await sha256string(
+                    JSON.stringify({ files, searchOptions })
                 )
+                const folderPath = dotGenaiscriptPath("vectors", key)
                 const res = await vectorSearch(q, files, {
                     ...searchOptions,
                     folderPath,
                     trace,
-                    embeddingsModel,
                 })
                 // search
                 trace.files(res, {
