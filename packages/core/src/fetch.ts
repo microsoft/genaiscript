@@ -64,7 +64,7 @@ export function traceFetchPost(
         Object.entries(headers)
             .filter(([k]) => /^(authorization|api-key)$/i.test(k))
             .forEach(([k]) => (headers[k] = "***"))
-    const cmd = `curl -X POST ${url} \\
+    const cmd = `curl -X POST "${url}" \\
 -H  "Content-Type: application/json" \\
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}" \\`)
