@@ -159,15 +159,14 @@ export async function azureDevOpsCreateIssueComment(
                 comments: { content: string }[]
             }[]
         }
-        console.log(JSON.stringify(threads, null, 2))
         const openThreads =
             threads.value?.filter(
                 (c) =>
                     c.status === "active" &&
                     c.comments?.some((c) => c.content.includes(tag))
             ) || []
-        console.log(JSON.stringify(openThreads, null, 2))
         for (const thread of openThreads) {
+            logVerbose(`pull request closing old comment thread ${thread.id}`)
             await fetch(
                 `${urlThreads}/${thread.id}?api-version=${apiVersion}`,
                 {
