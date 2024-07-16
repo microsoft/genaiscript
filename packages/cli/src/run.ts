@@ -48,6 +48,7 @@ import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { writeFileEdits } from "../../core/src/edits"
 import {
+    azureDevOpsCreateIssueComment,
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
@@ -166,7 +167,8 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model: options.model ?? script.model ?? host.defaultModelOptions.model,
+            model:
+                options.model ?? script.model ?? host.defaultModelOptions.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)
@@ -336,8 +338,11 @@ export async function runScript(
                 )
         }
     } else {
-        if (options.json) console.log(JSON.stringify(result, null, 2))
-        if (options.yaml) console.log(YAMLStringify(result))
+        logVerbose("")
+        if (options.json && result !== undefined)
+            console.log(JSON.stringify(result, null, 2))
+        if (options.yaml && result !== undefined)
+            console.log(YAMLStringify(result))
         if (options.prompt && promptjson) {
             console.log(promptjson)
         }
@@ -366,7 +371,20 @@ export async function runScript(
                     : script.id
             )
         } else {
-            logError("no pull request information found")
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsCreateIssueComment(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestComment === "string"
+                        ? pullRequestComment
+                        : script.id
+                )
+            } else
+                logError(
+                    "pull request comment: no pull request information found"
+                )
         }
     }
 
@@ -395,7 +413,9 @@ export async function runScript(
                         : script.id
                 )
             } else {
-                logError("no pull request information found")
+                logError(
+                    "pull request review: no pull request information found"
+                )
             }
         }
     }
