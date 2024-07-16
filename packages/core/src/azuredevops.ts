@@ -199,5 +199,5 @@ export async function azureDevOpsCreateIssueComment(
     })
     if (res.status !== 200)
         logError(`pull request comment creation failed, ${res.statusText}`)
-    logVerbose(`pull request comment created}`)
+    logVerbose(`pull request comment created`)
 }

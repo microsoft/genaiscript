@@ -338,6 +338,7 @@ export async function runScript(
                 )
         }
     } else {
+        logVerbose("")
         if (options.json && result !== undefined)
             console.log(JSON.stringify(result, null, 2))
         if (options.yaml && result !== undefined)
