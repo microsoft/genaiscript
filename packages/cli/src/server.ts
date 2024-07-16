@@ -21,7 +21,7 @@ import {
     runtimeHost,
 } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
-import { logVerbose, logError } from "../../core/src/util"
+import { logVerbose, logError, assert } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
@@ -216,6 +216,11 @@ export async function startServer(options: { port: string }) {
                             delete runs[runId]
                             run.canceller.abort(reason)
                         }
+                        response = <ResponseStatus>{
+                            ok: true,
+                            status: 0,
+                            runId,
+                        }
                         break
                     }
                     case "shell.exec": {
@@ -240,6 +245,7 @@ export async function startServer(options: { port: string }) {
             } catch (e) {
                 response = { ok: false, error: serializeError(e) }
             } finally {
+                assert(!!response)
                 if (response.error) logError(response.error)
                 ws.send(JSON.stringify({ id, response }))
             }

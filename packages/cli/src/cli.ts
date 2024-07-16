@@ -32,13 +32,17 @@ import {
     errorMessage,
     isRequestError,
     RequestError,
+    serializeError,
 } from "../../core/src/error"
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
 import { grep } from "./grep"
+import { logVerbose } from "../../core/src/util"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
-        error(isQuiet ? err : errorMessage(err))
+        const se = serializeError(err)
+        error(errorMessage(se))
+        if (!isQuiet && se?.stack) logVerbose(se?.stack)
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status
             process.exit(exitCode)

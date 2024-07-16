@@ -108,6 +108,7 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
                 )
+            base = base.replace(/\/openai\/deployments.*$/g, "") + `/openai/deployments`
             if (!URL.canParse(base))
                 throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
             const version =
@@ -116,8 +117,6 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
                 )
-            if (!base.endsWith("/openai/deployments"))
-                base += "/openai/deployments"
             return {
                 provider,
                 model,
