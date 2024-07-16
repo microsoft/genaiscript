@@ -2,7 +2,6 @@ import { createFetch } from "./fetch"
 import { generatedByFooter, mergeDescription } from "./github"
 import { prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, trimTrailingSlash } from "./util"
-import { YAMLStringify } from "./yaml"
 
 // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-requests/update?view=azure-devops-rest-7.1
 export interface AzureDevOpsEnv {
@@ -117,26 +116,28 @@ export async function azureDevOpsUpdatePullRequestDescription(
     else logVerbose(`pull request updated`)
 }
 
-
-//
 export async function azureDevOpsCreateIssueComment(
     script: PromptScript,
     info: AzureDevOpsEnv,
     body: string,
     commentTag: string
-): Promise<{ created: boolean; statusText: string; html_url?: string }> {
-    const { apiUrl, repository, issue } = info
+) {
+    const {
+        apiVersion,
+        accessToken,
+        collectionUri,
+        teamProject,
+        repositoryId,
+    } = info
 
-    if (!issue) return { created: false, statusText: "missing issue number" }
-    const token = await host.readSecret(GITHUB_TOKEN)
-    if (!token) return { created: false, statusText: "missing github token" }
+    const { pullRequestId } = (await findPullRequest(info)) || {}
+    if (isNaN(pullRequestId)) return
 
     const fetch = await createFetch({ retryOn: [] })
-    const url = `${apiUrl}/repos/${repository}/issues/${issue}/comments`
-
     body += generatedByFooter(script, info)
 
     if (commentTag) {
+        /*
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
         // try to find the existing comment
@@ -169,28 +170,20 @@ export async function azureDevOpsCreateIssueComment(
             if (!resd.ok)
                 logError(`issue comment delete failed, ` + resd.statusText)
         }
+            */
     }
 
+    // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.1&tabs=HTTP
+    // POST https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/pullRequests/{pullRequestId}/threads?api-version=7.1-preview.1
+    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}/threads?api-version=${apiVersion}`
     const res = await fetch(url, {
         method: "POST",
         headers: {
             Accept: "application/vnd.github+json",
-            Authorization: `Bearer ${token}`,
-            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ body }),
     })
-    const resp: { id: string; html_url: string } = await res.json()
-    const r = {
-        created: res.status === 201,
-        statusText: res.statusText,
-        html_url: resp.html_url,
-    }
-    if (!r.created)
-        logError(
-            `pull request ${issue} comment creation failed, ${r.statusText}`
-        )
-    else logVerbose(`pull request ${issue} comment created at ${r.html_url}`)
-
-    return r
+    const resp = await res.json()
+    console.log(JSON.stringify(resp))
 }
