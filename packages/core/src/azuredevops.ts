@@ -136,6 +136,7 @@ export async function azureDevOpsCreateIssueComment(
     const fetch = await createFetch({ retryOn: [] })
     body += generatedByFooter(script, info)
 
+    const Authorization = `Bearer ${accessToken}`
     const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}/threads?api-version=${apiVersion}`
     if (commentTag) {
         const tag = `<!-- genaiscript ${commentTag} -->`
@@ -146,7 +147,7 @@ export async function azureDevOpsCreateIssueComment(
             method: "GET",
             headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${accessToken}`,
+                Authorization,
             },
         })
         if (resThreads.status !== 200) return
@@ -156,22 +157,23 @@ export async function azureDevOpsCreateIssueComment(
                 comments: { content: string }[]
             }[]
         }
+
         console.log(JSON.stringify({ threads }, null, 2))
-        /*
-        const comment = comments.data.find((c) => c.body.includes(tag))
-        if (comment) {
-            const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
-            const resd = await fetch(delurl, {
-                method: "DELETE",
+        const thread = threads.data.find((c) =>
+            c.comments?.some((c) => c.content.includes(tag))
+        )
+        if (thread) {
+            await fetch(url, {
+                method: "PATCH",
+                body: JSON.stringify({
+                    status: "closed",
+                }),
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
+                    "Content-Type": "application/json",
+                    Authorization,
                 },
             })
-            if (!resd.ok)
-                logError(`issue comment delete failed, ` + resd.statusText)
         }
-            */
     }
 
     // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.1&tabs=HTTP
@@ -180,7 +182,7 @@ export async function azureDevOpsCreateIssueComment(
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
+            Authorization,
         },
         body: JSON.stringify({
             status: "active",
