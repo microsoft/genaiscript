@@ -179,11 +179,18 @@ export async function azureDevOpsCreateIssueComment(
     const res = await fetch(url, {
         method: "POST",
         headers: {
-            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ body }),
+        body: JSON.stringify({
+            comments: [
+                {
+                    content: body,
+                    commentType: "text",
+                },
+            ],
+        }),
     })
     const resp = await res.json()
-    console.log(JSON.stringify(resp))
+    console.log(JSON.stringify({ resp, status: res.status }))
 }
