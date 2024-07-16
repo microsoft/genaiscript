@@ -136,28 +136,29 @@ export async function azureDevOpsCreateIssueComment(
     const fetch = await createFetch({ retryOn: [] })
     body += generatedByFooter(script, info)
 
+    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}/threads?api-version=${apiVersion}`
     if (commentTag) {
-        /*
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
-        // try to find the existing comment
-        const resListComments = await fetch(
-            `${url}?per_page=100&sort=updated`,
-            {
-                headers: {
-                    Accept: "application/vnd.github+json",
-                    Authorization: `Bearer ${token}`,
-                    "X-GitHub-Api-Version": GITHUB_API_VERSION,
-                },
-            }
-        )
-        if (resListComments.status !== 200)
-            return { created: false, statusText: resListComments.statusText }
+        // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/list?view=azure-devops-rest-7.1&tabs=HTTP
+        // GET https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/pullRequests/{pullRequestId}/threads?api-version=7.1-preview.1
+        const resListComments = await fetch(url, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${accessToken}`,
+            },
+        })
+        if (resListComments.status !== 200) return
         const comments = (await resListComments.json()) as {
-            id: string
-            body: string
-        }[]
-        const comment = comments.find((c) => c.body.includes(tag))
+            data: {
+                id: string
+                comments: { content: string }[]
+            }[]
+        }
+        console.log({ comments })
+        /*
+        const comment = comments.data.find((c) => c.body.includes(tag))
         if (comment) {
             const delurl = `${apiUrl}/repos/${repository}/issues/comments/${comment.id}`
             const resd = await fetch(delurl, {
@@ -175,7 +176,6 @@ export async function azureDevOpsCreateIssueComment(
 
     // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/create?view=azure-devops-rest-7.1&tabs=HTTP
     // POST https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/pullRequests/{pullRequestId}/threads?api-version=7.1-preview.1
-    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}/threads?api-version=${apiVersion}`
     const res = await fetch(url, {
         method: "POST",
         headers: {
