@@ -30,7 +30,7 @@ import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/expander"
 import { parseKeyValuePairs } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import {
@@ -167,13 +167,14 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model: options.model,
+            model: options.model ?? script.model ?? host.defaultModelOptions.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)
             logError(info.error)
             return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
+        await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
             infoCb: (args) => {
                 const { text } = args
@@ -202,6 +203,9 @@ export async function runScript(
             maxToolCalls,
             maxDataRepairs,
             model: info.model,
+            embeddingsModel:
+                options.embeddingsModel ??
+                host.defaultEmbeddingsModelOptions.embeddingsModel,
             retry,
             retryDelay,
             maxDelay,

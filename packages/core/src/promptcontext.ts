@@ -6,12 +6,18 @@ import {
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
-import { HTMLEscape, arrayify, logVerbose } from "./util"
-import { runtimeHost } from "./host"
+import { host } from "./host"
+import {
+    HTMLEscape,
+    arrayify,
+    dotGenaiscriptPath,
+    logVerbose,
+    sha256string,
+} from "./util"
+import { RetrievalSearchResponse, runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsertVector, vectorSearch } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -39,10 +45,8 @@ import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
-
-function stringLikeToFileName(f: string | WorkspaceFile) {
-    return typeof f === "string" ? f : f?.filename
-}
+import { resolveFileContents, toWorkspaceFile } from "./file"
+import { vectorSearch } from "./vectorsearch"
 
 export function createPromptContext(
     vars: ExpansionVariables,
@@ -85,6 +89,7 @@ export function createPromptContext(
     const path = runtimeHost.path
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
+        readJSON: (f) => runtimeHost.workspace.readJSON(f),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         findFiles: async (pattern, options) => {
             const res = await runtimeHost.workspace.findFiles(pattern, options)
@@ -155,8 +160,8 @@ export function createPromptContext(
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
-            const files = arrayify(files_)
-            searchOptions = searchOptions || {}
+            const files = arrayify(files_).map(toWorkspaceFile)
+            searchOptions = { ...(searchOptions || {}) }
             try {
                 trace.startDetails(
                     `🔍 vector search <code>${HTMLEscape(q)}</code>`
@@ -164,23 +169,29 @@ export function createPromptContext(
                 if (!files?.length) {
                     trace.error("no files provided")
                     return []
-                } else {
-                    await upsertVector(files, { trace, ...searchOptions })
-                    const vres = await vectorSearch(q, {
-                        ...searchOptions,
-                        files: files.map(stringLikeToFileName),
-                    })
-                    const res: WorkspaceFileWithScore[] =
-                        searchOptions?.outputType === "chunk"
-                            ? vres.chunks
-                            : vres.files
-                    trace.files(res, {
-                        model,
-                        secrets: env.secrets,
-                        skipIfEmpty: true,
-                    })
-                    return res
                 }
+
+                await resolveFileContents(files)
+                searchOptions.embeddingsModel =
+                    searchOptions?.embeddingsModel ??
+                    options?.embeddingsModel ??
+                    host.defaultEmbeddingsModelOptions.embeddingsModel
+                const key = await sha256string(
+                    JSON.stringify({ files, searchOptions })
+                )
+                const folderPath = dotGenaiscriptPath("vectors", key)
+                const res = await vectorSearch(q, files, {
+                    ...searchOptions,
+                    folderPath,
+                    trace,
+                })
+                // search
+                trace.files(res, {
+                    model,
+                    secrets: env.secrets,
+                    skipIfEmpty: true,
+                })
+                return res
             } finally {
                 trace.endDetails()
             }
@@ -367,6 +378,7 @@ export function createPromptContext(
 export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
+        EmbeddingsModelOptions,
         ScriptRuntimeOptions {
     cancellationToken?: CancellationToken
     infoCb?: (partialResponse: { text: string }) => void

@@ -8,7 +8,6 @@ import { glob } from "glob"
 import { debug, error, info, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
-import { LlamaIndexRetrievalService } from "./llamaindexretrieval"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
 import { DefaultAzureCredential, AccessToken } from "@azure/identity"
@@ -24,11 +23,13 @@ import {
     AZURE_OPENAI_TOKEN_SCOPES,
     SHELL_EXEC_TIMEOUT,
     DOT_ENV_FILENAME,
+    MODEL_PROVIDER_OLLAMA,
+    TOOL_ID,
+    DEFAULT_EMBEDDINGS_MODEL,
 } from "../../core/src/constants"
 import { createFileSystem, filterGitIgnore } from "../../core/src/fs"
 import {
     ServerManager,
-    RetrievalService,
     ModelService,
     LanguageModelConfiguration,
     LogLevel,
@@ -36,8 +37,12 @@ import {
     UTF8Encoder,
     RuntimeHost,
     setRuntimeHost,
+    ResponseStatus,
 } from "../../core/src/host"
-import { resolveLanguageModel } from "../../core/src/models"
+import {
+    parseModelIdentifier,
+    resolveLanguageModel,
+} from "../../core/src/models"
 import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { unique } from "../../core/src/util"
@@ -51,10 +56,46 @@ class NodeServerManager implements ServerManager {
     }
 }
 
+class ModelManager implements ModelService {
+    private pulled: string[] = []
+
+    constructor(private readonly host: RuntimeHost) {}
+    private async getModelToken(modelId: string) {
+        const { provider } = parseModelIdentifier(modelId)
+        const conn = await this.host.getLanguageModelConfiguration(modelId)
+        if (provider === MODEL_PROVIDER_OLLAMA)
+            conn.base = conn.base.replace(/\/v1$/i, "")
+        return conn
+    }
+
+    async pullModel(modelid: string): Promise<ResponseStatus> {
+        const { provider, model } = parseModelIdentifier(modelid)
+        if (provider === MODEL_PROVIDER_OLLAMA) {
+            if (this.pulled.includes(modelid)) return { ok: true }
+
+            const conn = await this.getModelToken(modelid)
+            const res = await fetch(`${conn.base}/api/pull`, {
+                method: "POST",
+                headers: {
+                    "user-agent": TOOL_ID,
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({ name: model, stream: false }, null, 2),
+            })
+            if (res.ok) {
+                const resp = await res.json()
+            }
+            if (res.ok) this.pulled.push(modelid)
+            return { ok: res.ok, status: res.status }
+        }
+
+        return { ok: true }
+    }
+}
+
 export class NodeHost implements RuntimeHost {
     readonly dotEnvPath: string
     userState: any = {}
-    retrieval: RetrievalService
     models: ModelService
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
@@ -64,6 +105,9 @@ export class NodeHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
+    }
+    readonly defaultEmbeddingsModelOptions = {
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
 
     constructor(dotEnvPath: string) {
@@ -76,9 +120,7 @@ export class NodeHost implements RuntimeHost {
             })
             if (res.error) throw res.error
         }
-        const srv = new LlamaIndexRetrievalService(this)
-        this.retrieval = srv
-        this.models = srv
+        this.models = new ModelManager(this)
     }
 
     static async install(dotEnvPath: string) {
@@ -201,7 +243,6 @@ export class NodeHost implements RuntimeHost {
     async createDirectory(name: string): Promise<void> {
         await ensureDir(name)
     }
-
     async deleteDirectory(name: string): Promise<void> {
         await remove(name)
     }

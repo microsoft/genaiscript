@@ -58,6 +58,10 @@ export type ChatCompletionUserMessageParam =
 export type ChatCompletionContentPartImage =
     OpenAI.Chat.Completions.ChatCompletionContentPartImage
 
+export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
+
+export type EmbeddingCreateResponse = OpenAI.Embeddings.CreateEmbeddingResponse
+
 export interface ChatCompletionToolCall {
     id: string
     name: string
@@ -511,7 +515,7 @@ async function processChatMessage(
 
 export function mergeGenerationOptions(
     options: GenerationOptions,
-    runOptions: ModelOptions
+    runOptions: ModelOptions & EmbeddingsModelOptions
 ): GenerationOptions {
     return {
         ...options,
@@ -522,6 +526,10 @@ export function mergeGenerationOptions(
             host.defaultModelOptions.model,
         temperature:
             runOptions?.temperature ?? host.defaultModelOptions.temperature,
+        embeddingsModel:
+            runOptions?.embeddingsModel ??
+            options?.embeddingsModel ??
+            host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
 }
 

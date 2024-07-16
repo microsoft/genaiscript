@@ -71,6 +71,14 @@ const content = file.content
 
 It will automatically convert PDFs and DOCX files to text.
 
+### `readJSON`
+
+Reads the content of a file as JSON (using a [JSON5](https://json5.org/) parser)
+
+```ts
+const data = await workspace.readJSON("data.json")
+```
+
 ### `writeText`
 
 Writes text to a file, relative to the workspace root.

@@ -12,6 +12,7 @@ import {
     parseTokenFromEnv,
 } from "../../core/src/connection"
 import {
+    DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     DOT_ENV_FILENAME,
@@ -41,6 +42,9 @@ export class VSCodeHost extends EventTarget implements Host {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
     }
+    readonly defaultEmbeddingsModelOptions = {
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
+    }
 
     constructor(readonly state: ExtensionState) {
         super()
@@ -59,14 +63,6 @@ export class VSCodeHost extends EventTarget implements Host {
     get azure() {
         if (!this._azure) this._azure = new AzureManager(this.state)
         return this._azure
-    }
-
-    get retrieval() {
-        return this.server.retrieval
-    }
-
-    get models() {
-        return this.server.models
     }
 
     get context() {
