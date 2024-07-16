@@ -159,7 +159,6 @@ export async function azureDevOpsCreateIssueComment(
             }[]
         }
 
-        console.log(JSON.stringify({ threads }, null, 2))
         const thread = threads.value?.find((c) =>
             c.comments?.some((c) => c.content.includes(tag))
         )
@@ -198,6 +197,7 @@ export async function azureDevOpsCreateIssueComment(
             ],
         }),
     })
-    const resp = await res.json()
-    console.log(JSON.stringify({ resp, status: res.status }))
+    if (res.status !== 200)
+        logError(`pull request comment creation failed, ${res.statusText}`)
+    logVerbose(`pull request comment created}`)
 }
