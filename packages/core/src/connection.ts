@@ -109,6 +109,7 @@ export async function parseTokenFromEnv(
                 env.AZURE_API_BASE ||
                 env.AZURE_OPENAI_API_ENDPOINT
         )
+        if (!token && !base) return undefined
         if (!token)
             throw new Error("AZURE_OPENAI_API_KEY or AZURE_API_KEY missing")
         if (token === PLACEHOLDER_API_KEY)
@@ -135,7 +136,9 @@ export async function parseTokenFromEnv(
             base,
             token,
             type: "azure",
-            source: token ? "env: AZURE_..." : "env: AZURE_... + Entra ID",
+            source: token
+                ? "env: AZURE_OPENAI_API_..."
+                : "env: AZURE_OPENAI_API_... + Entra ID",
             version,
             curlHeaders: tokenVar
                 ? {
