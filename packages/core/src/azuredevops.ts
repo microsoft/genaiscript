@@ -137,7 +137,8 @@ export async function azureDevOpsCreateIssueComment(
     body += generatedByFooter(script, info)
 
     const Authorization = `Bearer ${accessToken}`
-    const url = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}/threads?api-version=${apiVersion}`
+    const urlThreads = `${collectionUri}${teamProject}/_apis/git/repositories/${repositoryId}/pullRequests/${pullRequestId}/threads`
+    const url = `${urlThreads}?api-version=${apiVersion}`
     if (commentTag) {
         const tag = `<!-- genaiscript ${commentTag} -->`
         body = `${body}\n\n${tag}\n\n`
@@ -152,27 +153,30 @@ export async function azureDevOpsCreateIssueComment(
         })
         if (resThreads.status !== 200) return
         const threads = (await resThreads.json()) as {
-            data: {
+            value: {
                 id: string
                 comments: { content: string }[]
             }[]
         }
 
         console.log(JSON.stringify({ threads }, null, 2))
-        const thread = threads.data.find((c) =>
+        const thread = threads.value?.find((c) =>
             c.comments?.some((c) => c.content.includes(tag))
         )
         if (thread) {
-            await fetch(url, {
-                method: "PATCH",
-                body: JSON.stringify({
-                    status: "closed",
-                }),
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization,
-                },
-            })
+            await fetch(
+                `${urlThreads}/${thread.id}?api-version=${apiVersion}`,
+                {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        status: "closed",
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization,
+                    },
+                }
+            )
         }
     }
 
