@@ -198,10 +198,6 @@ temp/
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                if (!options.notebook)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.trace"
-                    )
                 return
             }
             const res = await req?.request
@@ -294,8 +290,7 @@ temp/
         const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
-            trace.error(info.error)
-            trace.renderErrors()
+            vscode.window.showErrorMessage(TOOL_NAME + " - " + info.error)
             return undefined
         }
         const infoCb = (partialResponse: { text: string }) => {
@@ -345,10 +340,7 @@ temp/
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this, info.model)
-            if (!lmmodel) {
-                trace.error("no model provider selected")
-                return undefined
-            }
+            if (!lmmodel) return undefined
             /*
             await configureLanguageModelAccess(
                 this.context,

@@ -185,3 +185,6 @@ export const AI_REQUESTS_CACHE = "airequests"
 export const CHAT_CACHE = "chatv2"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
 export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
+
+export const PLACEHOLDER_API_BASE = "<custom api base>"
+export const PLACEHOLDER_API_KEY = "<your token>"
