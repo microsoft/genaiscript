@@ -493,6 +493,12 @@ interface WorkspaceFileSystem {
     readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
 
     /**
+     * Reads the content of a file and parses to JSON, using the JSON5 parser.
+     * @param path 
+     */
+    readJSON(path: string | WorkspaceFile): Promise<any>
+
+    /**
      * Writes a file as text to the file system
      * @param path
      * @param content
