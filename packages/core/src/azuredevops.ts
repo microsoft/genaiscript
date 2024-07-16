@@ -155,14 +155,19 @@ export async function azureDevOpsCreateIssueComment(
         const threads = (await resThreads.json()) as {
             value: {
                 id: string
+                status: string
                 comments: { content: string }[]
             }[]
         }
-
-        const thread = threads.value?.find((c) =>
-            c.comments?.some((c) => c.content.includes(tag))
-        )
-        if (thread) {
+        console.log(JSON.stringify(threads, null, 2))
+        const openThreads =
+            threads.value?.filter(
+                (c) =>
+                    c.status === "active" &&
+                    c.comments?.some((c) => c.content.includes(tag))
+            ) || []
+        console.log(JSON.stringify(openThreads, null, 2))
+        for (const thread of openThreads) {
             await fetch(
                 `${urlThreads}/${thread.id}?api-version=${apiVersion}`,
                 {
