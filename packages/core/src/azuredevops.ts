@@ -142,21 +142,21 @@ export async function azureDevOpsCreateIssueComment(
         body = `${body}\n\n${tag}\n\n`
         // https://learn.microsoft.com/en-us/rest/api/azure/devops/git/pull-request-threads/list?view=azure-devops-rest-7.1&tabs=HTTP
         // GET https://dev.azure.com/{organization}/{project}/_apis/git/repositories/{repositoryId}/pullRequests/{pullRequestId}/threads?api-version=7.1-preview.1
-        const resListComments = await fetch(url, {
+        const resThreads = await fetch(url, {
             method: "GET",
             headers: {
                 Accept: "application/json",
                 Authorization: `Bearer ${accessToken}`,
             },
         })
-        if (resListComments.status !== 200) return
-        const comments = (await resListComments.json()) as {
+        if (resThreads.status !== 200) return
+        const threads = (await resThreads.json()) as {
             data: {
                 id: string
                 comments: { content: string }[]
             }[]
         }
-        console.log({ comments })
+        console.log(JSON.stringify({ threads }, null, 2))
         /*
         const comment = comments.data.find((c) => c.body.includes(tag))
         if (comment) {
@@ -183,6 +183,7 @@ export async function azureDevOpsCreateIssueComment(
             Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
+            status: "active",
             comments: [
                 {
                     content: body,
