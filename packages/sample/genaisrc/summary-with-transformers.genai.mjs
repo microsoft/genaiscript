@@ -1,5 +1,3 @@
-import { pipeline } from "@xenova/transformers"
-
 script({
     title: "summary of summary - transformers.js",
     model: "ollama:phi3",
@@ -11,15 +9,18 @@ script({
 })
 
 console.log("loading summarizer transformer")
+import { pipeline } from "@xenova/transformers"
 const summarizer = await pipeline("summarization")
 
 for (const file of env.files) {
     console.log(`summarizing ${file.filename}`)
     const [summary] = await summarizer(file.content)
+    // @ts-ignore
+    const { summary_text } = summary
     def("FILE", {
         filename: file.filename,
         // @ts-ignore
-        content: summary.summary_text,
+        content: summary_text,
     })
 }
 
