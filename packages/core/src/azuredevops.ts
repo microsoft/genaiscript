@@ -70,6 +70,7 @@ async function findPullRequest(info: AzureDevOpsEnv) {
             description: string
         }[]
     }
+    logVerbose(JSON.stringify(resGetJson, null, 2))
     const pr = resGetJson?.value?.[0]
     if (!pr) {
         logError(`pull request not found`)
@@ -111,6 +112,7 @@ export async function azureDevOpsUpdatePullRequestDescription(
             Authorization: `Bearer ${accessToken}`,
         },
     })
+
     if (res.status !== 200)
         logError(`pull request update failed, ${res.status}: ${res.statusText}`)
     else logVerbose(`pull request updated`)
