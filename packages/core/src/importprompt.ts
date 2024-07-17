@@ -47,13 +47,15 @@ export async function importPrompt(
             pathToFileURL(__filename ?? host.projectFolder()).toString()
 
         const onImport = (file: string) => {
-            //trace?.itemValue("📦 import", fileURLToPath(file))
+            // trace?.itemValue("📦 import", fileURLToPath(file))
         }
         onImport(modulePath)
         const { tsImport, register } = await import("tsx/esm/api")
         unregister = register({ onImport })
         const module = await tsImport(modulePath, {
             parentURL,
+            //tsconfig: false,
+            onImport,
         })
         const main = module.default
         if (typeof main === "function") await main(ctx0)

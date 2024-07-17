@@ -2,22 +2,26 @@ import { pipeline } from "@xenova/transformers"
 
 script({
     title: "summary of summary - transformers.js",
-    model: "openai:gpt-3.5-turbo",
-    files: ["src/rag/*"],
+    model: "ollama:phi3",
+    files: ["src/rag/markdown.md"],
     tests: {
-        files: ["src/rag/*"],
-        keywords: ["markdown", "lorem", "microsoft"],
+        files: ["src/rag/markdown.md"],
+        keywords: ["markdown"],
     },
 })
 
-// download summarizer model from huggingface
+console.log("loading summarizer transformer")
 const summarizer = await pipeline("summarization")
 
-// map each file to its summary
 for (const file of env.files) {
+    console.log(`summarizing ${file.filename}`)
     const [summary] = await summarizer(file.content)
-    // @ts-ignore
-    def("FILE", { filename: file.filename, content: summary.summary_text })
+    def("FILE", {
+        filename: file.filename,
+        // @ts-ignore
+        content: summary.summary_text,
+    })
 }
-// reduce all summaries to a single summary
-$`Summarize all the FILE.`
+
+console.log(`summarize all summaries`)
+$`Summarize all the contents in FILE.`
