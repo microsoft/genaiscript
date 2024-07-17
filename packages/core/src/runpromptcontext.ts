@@ -37,8 +37,8 @@ export function createChatTurnGenerationContext(
     const console = Object.freeze<PromptGenerationConsole>({
         log,
         debug: log,
-        warn: (args) => trace.warn(consoleLogFormat(...args)),
-        error: (args) => trace.error(consoleLogFormat(...args)),
+        warn: log,
+        error: log,
     })
 
     const ctx = <ChatTurnGenerationContext & { node: PromptNode }>{
