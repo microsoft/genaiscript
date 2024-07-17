@@ -33,7 +33,7 @@ const promptDefs = {
                 allowJs: true,
                 skipLibCheck: true,
             },
-            include: ["*.js", "*.mjs", "./genaiscript.d.ts"],
+            include: ["*.js", "./genaiscript.d.ts"],
         },
         null,
         4
