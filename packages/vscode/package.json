@@ -369,16 +369,16 @@
         "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
     },
     "devDependencies": {
-        "@types/mocha": "^10.0.6",
+        "@types/mocha": "^10.0.7",
         "@types/vscode": "^1.90.0",
         "@typescript-eslint/eslint-plugin": "^7.13.1",
         "@typescript-eslint/parser": "^7.13.1",
-        "@vscode/test-web": "^0.0.54",
-        "@vscode/vsce": "^2.27.0",
+        "@vscode/test-web": "^0.0.56",
+        "@vscode/vsce": "^2.30.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
-        "eslint": "^9.6.0",
-        "mocha": "^10.5.2",
+        "eslint": "^9.7.0",
+        "mocha": "^10.6.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
         "typescript": "5.5.3",
@@ -388,7 +388,7 @@
         "zx": "^8.1.4"
     },
     "dependencies": {
-        "@azure/identity": "^4.3.0",
+        "@azure/identity": "^4.4.0",
         "mammoth": "^1.8.0",
         "pdfjs-dist": "4.4.168",
         "tree-sitter-wasms": "^0.1.11",
