@@ -5,5 +5,5 @@
         "declarationDir": "../built/types",
         "outDir": "../built"
     },
-    "include": ["."]
+    "include": [".", "../../core/src/types/*.d.ts"]
 }

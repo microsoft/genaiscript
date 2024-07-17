@@ -4,26 +4,26 @@ import {
     ExtensionState,
     REQUEST_OUTPUT_FILENAME,
     REQUEST_TRACE_FILENAME,
-    SEARCH_OUTPUT_FILENAME,
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
-import {
-    GENAI_JS_EXT,
-    YAMLStringify,
-    BUILTIN_PREFIX,
-    CACHE_AIREQUEST_PREFIX,
-    CACHE_LLMREQUEST_PREFIX,
-    defaultPrompts,
-    extractFenced,
-    fenceMD,
-    getChatCompletionCache,
-    prettifyMarkdown,
-    renderFencedVariables,
-    GENAI_ANYJS_REGEX,
-    TRACE_NODE_PREFIX,
-    renderTraceTree,
-} from "genaiscript-core"
 import { registerCommand } from "./commands"
+import { getChatCompletionCache } from "../../core/src/chat"
+import {
+    TRACE_NODE_PREFIX,
+    CACHE_LLMREQUEST_PREFIX,
+    CACHE_AIREQUEST_PREFIX,
+    BUILTIN_PREFIX,
+    GENAI_ANYJS_REGEX,
+    GENAI_JS_EXT,
+} from "../../core/src/constants"
+import { defaultPrompts } from "../../core/src/default_prompts"
+import { extractFenced, renderFencedVariables } from "../../core/src/fence"
+import {
+    renderTraceTree,
+    prettifyMarkdown,
+    fenceMD,
+} from "../../core/src/markdown"
+import { YAMLStringify } from "../../core/src/yaml"
 
 const SCHEME = "genaiscript"
 
@@ -90,11 +90,6 @@ ${prettifyMarkdown(md)}
             }
             case REQUEST_TRACE_FILENAME:
                 return wrap(aiRequest?.trace.content)
-            case SEARCH_OUTPUT_FILENAME:
-                return fenceMD(
-                    YAMLStringify(this.state.lastSearch || {}),
-                    "yaml"
-                )
         }
         if (uri.path.startsWith(TRACE_NODE_PREFIX)) {
             const id = uri.path

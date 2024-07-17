@@ -1,30 +1,4 @@
-import { generatePromptFooConfiguration } from "genaiscript-core/src/test"
 import { buildProject } from "./build"
-import {
-    GENAISCRIPT_FOLDER,
-    PromptScriptTestRunOptions,
-    YAMLStringify,
-    arrayify,
-    host,
-    logInfo,
-    logVerbose,
-    normalizeFloat,
-    parseKeyValuePairs,
-    promptFooDriver,
-    serializeError,
-    PROMPTFOO_CONFIG_DIR,
-    PROMPTFOO_CACHE_PATH,
-    FILES_NOT_FOUND_ERROR_CODE,
-    MarkdownTrace,
-    PromptScriptTestRunResponse,
-    PromptScriptTestResult,
-    EMOJI_FAIL,
-    EMOJI_SUCCESS,
-    GENAI_ANYJS_REGEX,
-    JSON5TryParse,
-    normalizeInt,
-    delay,
-} from "genaiscript-core"
 
 import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
@@ -32,6 +6,36 @@ import { dirname, join, resolve } from "node:path"
 import { emptyDir, ensureDir, exists } from "fs-extra"
 import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
+import {
+    PROMPTFOO_CACHE_PATH,
+    PROMPTFOO_CONFIG_DIR,
+    FILES_NOT_FOUND_ERROR_CODE,
+    GENAISCRIPT_FOLDER,
+    GENAI_ANYJS_REGEX,
+    EMOJI_SUCCESS,
+    EMOJI_FAIL,
+} from "../../core/src/constants"
+import { promptFooDriver } from "../../core/src/default_prompts"
+import { serializeError } from "../../core/src/error"
+import { parseKeyValuePairs } from "../../core/src/fence"
+import { host } from "../../core/src/host"
+import { JSON5TryParse } from "../../core/src/json5"
+import { MarkdownTrace } from "../../core/src/trace"
+import {
+    normalizeFloat,
+    arrayify,
+    normalizeInt,
+    logInfo,
+    logVerbose,
+    delay,
+} from "../../core/src/util"
+import { YAMLStringify } from "../../core/src/yaml"
+import {
+    PromptScriptTestRunOptions,
+    PromptScriptTestRunResponse,
+    PromptScriptTestResult,
+} from "../../core/src/server/messages"
+import { generatePromptFooConfiguration } from "../../core/src/test"
 
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)

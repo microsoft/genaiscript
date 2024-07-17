@@ -1,7 +1,6 @@
 import test, { beforeEach, describe } from "node:test"
 import { parseAnnotations } from "./annotations"
 import assert from "assert/strict"
-import { TestHost } from "./testhost"
 
 describe("annotations", () => {
     test("error", () => {

@@ -1,44 +1,49 @@
-import {
-    dotEnvTryParse,
-    Host,
-    LogLevel,
-    LanguageModelConfiguration,
-    createFileSystem,
-    parseTokenFromEnv,
-    setHost,
-    ParseService,
-    TraceOptions,
-    arrayify,
-    resolveLanguageModel,
-    LanguageModel,
-    MODEL_PROVIDER_AZURE,
-    AbortSignalOptions,
-    DEFAULT_MODEL,
-    DEFAULT_TEMPERATURE,
-    parseDefaultsFromEnv,
-    fileExists,
-    filterGitIgnore,
-    unique,
-} from "genaiscript-core"
-import { Uri } from "vscode"
-import { ExtensionState } from "./state"
-import { Utils } from "vscode-uri"
-import { readFileText, writeFile } from "./fs"
 import * as vscode from "vscode"
 import { createVSPath } from "./vspath"
 import { TerminalServerManager } from "./servermanager"
 import { AzureManager } from "./azuremanager"
+import { Uri } from "vscode"
+import { ExtensionState } from "./state"
+import { Utils } from "vscode-uri"
+import { readFileText } from "./fs"
+import { LanguageModel } from "../../core/src/chat"
+import {
+    parseDefaultsFromEnv,
+    parseTokenFromEnv,
+} from "../../core/src/connection"
+import {
+    DEFAULT_EMBEDDINGS_MODEL,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+    DOT_ENV_FILENAME,
+    MODEL_PROVIDER_AZURE,
+} from "../../core/src/constants"
+import { dotEnvTryParse } from "../../core/src/dotenv"
+import { fileExists, filterGitIgnore } from "../../core/src/fs"
+import {
+    Host,
+    ParseService,
+    setHost,
+    LanguageModelConfiguration,
+    LogLevel,
+} from "../../core/src/host"
+import { resolveLanguageModel } from "../../core/src/models"
+import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
+import { arrayify, unique } from "../../core/src/util"
 
 export class VSCodeHost extends EventTarget implements Host {
+    dotEnvPath: string = DOT_ENV_FILENAME
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly workspace = createFileSystem()
     readonly parser: ParseService
     private _azure: AzureManager
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
+    }
+    readonly defaultEmbeddingsModelOptions = {
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
 
     constructor(readonly state: ExtensionState) {
@@ -50,77 +55,14 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async activate() {
-        const dotenv = await readFileText(this.projectUri, ".env")
+        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
         const env = dotEnvTryParse(dotenv) ?? {}
         await parseDefaultsFromEnv(env)
-    }
-
-    async container(
-        options: ContainerOptions & TraceOptions
-    ): Promise<ContainerHost> {
-        const { trace, ...rest } = options || {}
-        const res = await this.server.client.containerStart(rest)
-        const containerId = res.id
-        const hostPath = res.hostPath
-        const containerPath = res.containerPath
-        return <ContainerHost>{
-            id: containerId,
-            disablePurge: res.disablePurge,
-            hostPath,
-            containerPath,
-            writeText: async (filename, content) => {
-                const fn = vscode.workspace.asRelativePath(
-                    this.path.join(hostPath, filename),
-                    false
-                )
-                await writeFile(this.projectUri, fn, content)
-            },
-            readText: async (filename) => {
-                const fn = vscode.workspace.asRelativePath(
-                    this.path.join(hostPath, filename),
-                    false
-                )
-                return await readFileText(this.projectUri, fn)
-            },
-            copyTo: async (from, to) => {
-                const prj = this.projectUri
-                const files = await this.findFiles(from)
-                for (const file of files) {
-                    const source = Utils.joinPath(prj, file)
-                    const target = vscode.Uri.file(
-                        this.path.join(hostPath, to, file)
-                    )
-                    await vscode.workspace.fs.copy(source, target, {
-                        overwrite: true,
-                    })
-                }
-            },
-            exec: async (command, args, options) => {
-                const r = await this.server.client.exec(
-                    containerId,
-                    command,
-                    args,
-                    options
-                )
-                return r.value
-            },
-        }
-    }
-    async removeContainers(): Promise<void> {
-        if (this.server.started) await this.server.client.containerRemove()
     }
 
     get azure() {
         if (!this._azure) this._azure = new AzureManager(this.state)
         return this._azure
-    }
-
-    get retrieval() {
-        return this.server.retrieval
-    }
-
-    get models() {
-        return this.server.models
     }
 
     get context() {
@@ -249,7 +191,7 @@ export class VSCodeHost extends EventTarget implements Host {
 
     async readSecret(name: string): Promise<string | undefined> {
         try {
-            const dotenv = await readFileText(this.projectUri, ".env")
+            const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
             const env = dotEnvTryParse(dotenv)
             return env?.[name]
         } catch (e) {
@@ -262,7 +204,7 @@ export class VSCodeHost extends EventTarget implements Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
-        const dotenv = await readFileText(this.projectUri, ".env")
+        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
         const env = dotEnvTryParse(dotenv) ?? {}
         await parseDefaultsFromEnv(env)
         const tok = await parseTokenFromEnv(env, modelId)

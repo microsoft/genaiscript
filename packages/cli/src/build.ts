@@ -1,4 +1,6 @@
-import { GENAI_ANYJS_GLOB, host, parseProject } from "genaiscript-core"
+import { GENAI_ANYJS_GLOB } from "../../core/src/constants"
+import { host } from "../../core/src/host"
+import { parseProject } from "../../core/src/parser"
 
 export async function buildProject(options?: {
     toolFiles?: string[]

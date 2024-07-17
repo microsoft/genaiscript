@@ -26,11 +26,19 @@ If multiple files are specified, all files are included in `env.files`.
 npx genaiscript run <script> "src/*.bicep" "src/*.ts"
 ```
 
-### Credentials
+## Credentials
 
 The LLM connection configuration is read from environment variables or from a `.env` file in the workspace root directory.
 
 See [configuration](/genaiscript/getting-started/configuration).
+
+## Files
+
+`run` takes one or more [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns to match files in the workspace.
+
+```npx sh
+npx genaiscript run <script> "**/*.md" "**/*.ts"
+```
 
 ### --excluded-files <files...>
 
@@ -47,6 +55,12 @@ Exclude files ignored by the `.gitignore` file at the workspace root.
 ```sh "--exclude-git-ignore"
 npx genaiscript run <script> <files> --exclude-git-ignore
 ```
+
+## Output
+
+### --prompt
+
+Skips the LLM invocation and only prints the expanded system and user chat messages.
 
 ### --out <file|directory>
 
@@ -121,44 +135,72 @@ Emit changelogs in the specified file as text.
 npx genaiscript run <script> <files> --out-changelogs changelogs.txt
 ```
 
-### --prompt
+## Pull Requests
 
-Skips the LLM invocation and only prints the expanded system and user chat messages.
+The CLI can update pull request description and comments when running in a GitHub Action or Azure DevOps pipeline.
 
-### --retry &lt;number&gt;
+### GitHub Action workflow configuration
 
-Specifies the number of retries when the LLM invocations fails with throttling (429).
-Default is 3.
+Update your workflow configuration to include the following:
 
-### --retry-delay &lt;number&gt;
+-   add the `pull-requests: write` permission to the workflow/step
 
-Minimum delay between retries in milliseconds.
+```yaml
+permissions:
+    pull-requests: write
+```
 
-### --label &lt;label&gt;
+-  set the `GITHUB_TOKEN` secret in the `env` when running the cli
 
-Adds a run label that will be used in generating the trace title.
+```yaml
+    - run: npx --yes genaiscript run ... -prc --out-trace $GITHUB_STEP_SUMMARY
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ... # LLM secrets
+```
 
-### --cache
+### Azure DevOps configuration
 
-Enables LLM caching in JSONL file under `.genaiscript/tmp/openai.genaiscript.cjsonl`. Caching is enabled by default in VSCode
-but not for the CLI.
+-   add `<your projectname> Build Service` in the **Collaborator** role to the repository
+-   pass secrets to scripts, including `System.AccessToken`
 
-### --temperature &lt;number&gt;
+```yaml
+- script: npx genaiscript run ... -prd
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    ... # LLM secrets
+```
 
-Overrides the LLM run temperature.
+### --pull-request-description \[tag\]
 
-### --top-p &lt;number&gt;
+When running within a GitHub Action or Azure DevOps pipeline on a pull request,
+the CLI inserts the LLM output in the description of the pull request ([example](https://github.com/microsoft/genaiscript/pull/564))
 
-Overrides the LLM run `top_p` value.
+```sh
+npx genaiscript run ... -prd
+```
 
-### --model &lt;string&gt;
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-Overrides the LLM model identifier.
+### --pull-request-comment \[tag\];
 
-### --apply-edits
+Upserts a comment on the pull request with the LLM output ([example](https://github.com/microsoft/genaiscript/pull/564#issuecomment-2200474305))
 
-Apply file modifications to the file system.
+```sh
+npx genaiscript run ... -prc
+```
 
-### --source-map
+The `tag` parameter is a unique id used to differentiate description generate by different runs. Default is the script id.
 
-Generate a source map for the script sources to allow debugging.
+### --pull-request-reviews
+
+Create pull request review comments from each [annotations](/genaiscript/reference/scripts/annotations)
+([example](https://github.com/microsoft/genaiscript/pull/564#pullrequestreview-2151692644)).
+
+```sh
+npx genaiscript run ... -prr
+```
+
+## Read more
+
+The full list of options is available in the [CLI reference](/genaiscript/reference/cli/commands#run).

@@ -179,6 +179,15 @@ interface ModelOptions extends ModelConnectionOptions {
     cacheName?: string
 }
 
+interface EmbeddingsModelConnectionOptions {
+    /**
+     * LLM model to use for embeddings.
+     */
+    embeddingsModel?: "openai:text-embedding-ada-002" | string
+}
+
+interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
+
 interface ScriptRuntimeOptions {
     /**
      * List of system script ids used by the prompt.
@@ -299,7 +308,11 @@ interface PromptTest {
     asserts?: PromptAssertion | PromptAssertion[]
 }
 
-interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
+interface PromptScript
+    extends PromptLike,
+        ModelOptions,
+        EmbeddingsModelOptions,
+        ScriptRuntimeOptions {
     /**
      * Groups template in UI
      */
@@ -410,6 +423,7 @@ interface FileEdit {
     type: string
     filename: string
     label?: string
+    validated?: boolean
 }
 
 interface ReplaceEdit extends FileEdit {
@@ -461,11 +475,28 @@ interface WorkspaceFileSystem {
             readText?: boolean
         }
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Performs a grep search over the files in the workspace
+     * @param query
+     * @param globs
+     */
+    grep(
+        query: string | RegExp,
+        globs: string | string[]
+    ): Promise<{ files: WorkspaceFile[] }>
+
     /**
      * Reads the content of a file as text
      * @param path
      */
     readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+
+    /**
+     * Reads the content of a file and parses to JSON, using the JSON5 parser.
+     * @param path 
+     */
+    readJSON(path: string | WorkspaceFile): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -542,6 +573,7 @@ type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 type PromptSystemArgs = Omit<
     PromptArgs,
     | "model"
+    | "embeddingsModel"
     | "temperature"
     | "topP"
     | "maxTokens"
@@ -1093,25 +1125,15 @@ interface WebSearchResult {
     webPages: WorkspaceFile[]
 }
 
-interface VectorSearchOptions {
-    indexName?: string
-}
-
-interface VectorSearchEmbeddingsOptions extends VectorSearchOptions {
-    llmModel?: string
+interface VectorSearchOptions extends EmbeddingsModelOptions {
     /**
-     * Model used to generated models.
-     * ollama:nomic-embed-text ollama:all-minilm
+     * Maximum number of embeddings to use
      */
-    embedModel?:
-        | "text-embedding-ada-002"
-        | "ollama:mxbai-embed-large"
-        | "ollama:nomic-embed-text"
-        | "ollama:all-minilm"
-        | string
-    temperature?: number
-    chunkSize?: number
-    chunkOverlap?: number
+    topK?: number
+    /**
+     * Minimum similarity score
+     */
+    minScore?: number
 }
 
 interface FuzzSearchOptions {
@@ -1169,20 +1191,7 @@ interface Retrieval {
     vectorSearch(
         query: string,
         files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
-        options?: {
-            /**
-             * Maximum number of embeddings to use
-             */
-            topK?: number
-            /**
-             * Minimum similarity score
-             */
-            minScore?: number
-            /**
-             * Specifies the type of output. `chunk` returns individual chunks of the file, fill returns a reconstructed file from chunks.
-             */
-            outputType?: "file" | "chunk"
-        } & Omit<VectorSearchEmbeddingsOptions, "llmToken">
+        options?: VectorSearchOptions
     ): Promise<WorkspaceFile[]>
 
     /**
@@ -1261,6 +1270,19 @@ interface PromptGeneratorOptions extends ModelOptions {
     label?: string
 }
 
+interface FileOutputOptions {
+    /**
+     * Schema identifier to validate the generated file
+     */
+    schema?: string
+}
+
+interface FileOutput {
+    pattern: string
+    description: string
+    options?: FileOutputOptions
+}
+
 interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
@@ -1272,6 +1294,12 @@ interface ChatTurnGenerationContext {
         options?: DefDataOptions
     ): string
     console: PromptGenerationConsole
+}
+
+interface FileUpdate {
+    before: string
+    after: string
+    validation?: JSONSchemaValidation
 }
 
 interface ChatGenerationContext extends ChatTurnGenerationContext {
@@ -1290,6 +1318,11 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     defChatParticipant(
         participant: ChatParticipantHandler,
         options?: ChatParticipantOptions
+    ): void
+    defFileOutput(
+        pattern: string,
+        description: string,
+        options?: FileOutputOptions
     ): void
 }
 
@@ -1312,7 +1345,7 @@ interface GenerationOutput {
     /**
      * A map of file updates
      */
-    fileEdits: Record<string, { before: string; after: string }>
+    fileEdits: Record<string, FileUpdate>
 
     /**
      * Generated variables, typically from AICI.gen

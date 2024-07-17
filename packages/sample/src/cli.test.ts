@@ -1,6 +1,6 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { CLI_JS } from "genaiscript-core"
+import { CLI_JS } from "../../core/src/constants"
 
 const cli = `../cli/built/${CLI_JS}`
 
@@ -48,6 +48,12 @@ describe("cli", async () => {
     })
     test("system", async () => {
         await $`node ${cli} ${action} system`
+    })
+    test("env", async () => {
+        await $`node ${cli} ${action} env`
+    })
+    test("env openai", async () => {
+        await $`node ${cli} ${action} env openai`
     })
 })
 describe("parse", async () => {
@@ -98,11 +104,35 @@ describe("parse", async () => {
 
 describe("retrieval", () => {
     const cmd = "retrieval"
-    test("fuzz markdown", async () => {
+    describe("fuzz", () => {
         const action = "fuzz"
-        const res =
-            await $`node ${cli} ${cmd} ${action} markdown src/rag/*`.nothrow()
-        assert(res.stdout.includes("markdown.md"))
-        assert(!res.exitCode)
+        test("markdown", async () => {
+            const res =
+                await $`node ${cli} ${cmd} ${action} markdown src/rag/*`.nothrow()
+            assert(res.stdout.includes("markdown.md"))
+            assert(!res.exitCode)
+        })
+    })
+})
+
+describe("workspace", () => {
+    const cmd = "workspace"
+    describe("grep", () => {
+        const action = "grep"
+        test("markdown", async () => {
+            console.log(`grep markdown`)
+            const res =
+                await $`node ${cli} ${cmd} ${action} markdown "src/rag/*"`.nothrow()
+            console.log(`grep done`)
+            assert(res.stdout.includes("markdown.md"))
+            assert(!res.exitCode)
+        })
+        test("mark[d](o)wn", async () => {
+            console.log(`grep mark[d](o)wn`)
+            const res =
+                await $`node ${cli} ${cmd} ${action} "mark[d](o)wn" "src/rag/*"`.nothrow()
+            assert(res.stdout.includes("markdown.md"))
+            assert(!res.exitCode)
+        })
     })
 })

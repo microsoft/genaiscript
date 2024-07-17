@@ -1,15 +1,12 @@
 import { buildProject } from "./build"
-import {
-    copyPrompt,
-    createScript as coreCreateScript,
-    fixPromptDefinitions,
-    GENAI_ANYTS_REGEX,
-    GENAI_JS_EXT,
-    host,
-    logVerbose,
-} from "genaiscript-core"
 import { TYPESCRIPT_VERSION } from "./version"
-import { readdir } from "node:fs/promises"
+import { copyPrompt } from "../../core/src/copy"
+import {
+    fixPromptDefinitions,
+    createScript as coreCreateScript,
+} from "../../core/src/scripts"
+import { logVerbose } from "../../core/src/util"
+import { runtimeHost } from "../../core/src/host"
 
 export async function listScripts() {
     const prj = await buildProject()
@@ -42,7 +39,7 @@ export async function compileScript() {
         const { dirname, js, ts } = folder
         logVerbose(`compiling ${dirname}`)
         if (js) {
-            const res = await host.exec(
+            const res = await runtimeHost.exec(
                 undefined,
                 "npx",
                 [
@@ -51,7 +48,7 @@ export async function compileScript() {
                     `typescript@${TYPESCRIPT_VERSION}`,
                     "tsc",
                     "--project",
-                    host.path.resolve(dirname, "jsconfig.json"),
+                    runtimeHost.path.resolve(dirname, "jsconfig.json"),
                 ],
                 {
                     cwd: dirname,
@@ -60,7 +57,7 @@ export async function compileScript() {
             logVerbose(res.output)
         }
         if (ts) {
-            const res = await host.exec(
+            const res = await runtimeHost.exec(
                 undefined,
                 "npx",
                 [
@@ -69,7 +66,7 @@ export async function compileScript() {
                     `typescript@${TYPESCRIPT_VERSION}`,
                     "tsc",
                     "--project",
-                    host.path.resolve(dirname, "tsconfig.json"),
+                    runtimeHost.path.resolve(dirname, "tsconfig.json"),
                 ],
                 {
                     cwd: dirname,

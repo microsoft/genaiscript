@@ -1,27 +1,26 @@
-import TreeSitter from "web-tree-sitter"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { host } from "./host"
 import { resolveFileContent } from "./file"
 import { treeSitterWasms } from "./default_prompts"
 import { NotSupportedError } from "./error"
-
-const EXT_MAP: Record<string, string> = {
-    js: "javascript",
-    mjs: "javascript",
-    cjs: "javascript",
-    cs: "c_sharp",
-    sh: "bash",
-    py: "python",
-    rs: "rust",
-    rb: "ruby",
-    ts: "typescript",
-    tsx: "tsx",
-    tla: "tlaplus",
-    yml: "yaml",
-}
+import type Parser from "web-tree-sitter"
 
 async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
     const ext = host.path.extname(filename).slice(1).toLowerCase()
+    const EXT_MAP: Record<string, string> = {
+        js: "javascript",
+        mjs: "javascript",
+        cjs: "javascript",
+        cs: "c_sharp",
+        sh: "bash",
+        py: "python",
+        rs: "rust",
+        rb: "ruby",
+        ts: "typescript",
+        tsx: "tsx",
+        tla: "tlaplus",
+        yml: "yaml",
+    }
     const language = EXT_MAP[ext] || ext
 
     if (!treeSitterWasms.includes(language))
@@ -32,30 +31,7 @@ async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
 }
 
 let _initPromise: Promise<void>
-async function init() {
-    if (!_initPromise)
-        _initPromise = TreeSitter.init({
-            locateFile(scriptName: string, scriptDirectory: string) {
-                const p = require.resolve("web-tree-sitter")
-                const url = host.path.join(host.path.dirname(p), scriptName)
-                return url
-            },
-        })
-    await _initPromise
-}
-const _parsers: Record<string, Promise<TreeSitter>> = {}
-function createParser(wasmPath: string): Promise<TreeSitter> {
-    if (!_parsers[wasmPath]) {
-        _parsers[wasmPath] = TreeSitter.Language.load(wasmPath).then(
-            (languageWasm) => {
-                const parser = new TreeSitter()
-                parser.setLanguage(languageWasm)
-                return parser
-            }
-        )
-    }
-    return _parsers[wasmPath]
-}
+const _parsers: Record<string, Promise<any>> = {}
 
 export async function treeSitterQuery(
     file: WorkspaceFile,
@@ -65,9 +41,9 @@ export async function treeSitterQuery(
     const { filename } = file
     const { trace } = options || {}
 
-    await resolveFileContent(file, options)
     if (!file.content) return undefined
 
+    const TreeSitter = (await import("web-tree-sitter")).default
     try {
         trace?.startDetails("💻 code query")
         trace?.itemValue(`file`, file.filename)
@@ -93,5 +69,31 @@ export async function treeSitterQuery(
         return res
     } finally {
         trace?.endDetails()
+    }
+
+    async function init() {
+        if (!_initPromise)
+            _initPromise = TreeSitter.init({
+                locateFile(scriptName: string, scriptDirectory: string) {
+                    const p = require.resolve("web-tree-sitter")
+                    const url = host.path.join(host.path.dirname(p), scriptName)
+                    return url
+                },
+            })
+        await _initPromise
+    }
+
+    function createParser(wasmPath: string): Promise<Parser> {
+        if (!_parsers[wasmPath]) {
+            const v = TreeSitter.Language.load(wasmPath).then(
+                (languageWasm) => {
+                    const parser = new TreeSitter()
+                    parser.setLanguage(languageWasm)
+                    return parser
+                }
+            )
+            _parsers[wasmPath] = v
+        }
+        return _parsers[wasmPath]
     }
 }

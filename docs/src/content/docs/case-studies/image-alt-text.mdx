@@ -39,15 +39,20 @@ const file = env.files[0]
 defImages(file)
 ```
 
-Then we give a task to the LLM to generate a good alt text and save in a file.
+Then we give a task to the LLM to generate a good alt text.
 
 ```js title="image-alt-text.genai.js" wrap
 ...
 $`You are an expert in assistive technology. You will analyze each image
-and generate a description alt text for the image.
+and generate a description alt text for the image.`
+```
 
-Save the alt text in a file called "${file.filename + ".txt"}".
-`
+finally, we use [defFileOutput](/genaiscript/reference/scripts/file-ouput) to define
+a file output route.
+
+```js title="image-alt-text.genai.js" wrap
+...
+defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
 ```
 
 ## Usage in Astro
@@ -71,22 +76,21 @@ The `debugger.png` image shows the screenshot of a debugging session and the gen
 
 ## Automation
 
-Using the [batch](/genaiscript/reference/cli/batch) command, we can apply the script to all images in the docs
-in a single command.
+Using the [run](/genaiscript/reference/cli/run) command, we can apply the script to each image in the docs.
 
 ```sh
 for file in assets/**.png; do
-  npx --yes genaiscript run image-alt-text "$file" --apply-edits
+  npx --yes genaiscript run image-alt-text "$file"
 ```
 
 To avoid regenerating the alt text, we also detect if a file exists in the script and cancel accordingly.
 
-```js title="image-alt-text.genai.js" wrap
-...
-// skip if alt-text file already exists
-const txt = await workspace.readText(file.filename + ".txt")
-if (txt.content)
-    cancel("Alt text file already exists")
+```sh title="image-alt-text.genai.js" wrap
+for file in assets/**.png; do
+  if [ ! -f "$file" ]; then
+    npx --yes genaiscript run image-alt-text "$file"
+  fi
+done
 ```
 
 ## Full source

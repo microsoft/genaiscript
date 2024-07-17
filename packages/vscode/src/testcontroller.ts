@@ -1,19 +1,18 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
+import { PROMPTFOO_VERSION } from "../../cli/src/version"
 import {
+    TOOL_ID,
     CHANGE,
-    EMOJI_FAIL,
     EMOJI_SUCCESS,
-    ICON_LOGO_NAME,
+    EMOJI_FAIL,
+    PROMPTFOO_REMOTE_API_PORT,
     PROMPTFOO_CACHE_PATH,
     PROMPTFOO_CONFIG_DIR,
-    PROMPTFOO_REMOTE_API_PORT,
-    TOOL_ID,
-    arrayify,
-    errorMessage,
-} from "genaiscript-core"
-import { PROMPTFOO_VERSION } from "../../cli/src/version"
-import { openUrlInTab } from "./browser"
+    ICON_LOGO_NAME,
+} from "../../core/src/constants"
+import { errorMessage } from "../../core/src/error"
+import { arrayify } from "../../core/src/util"
 
 export async function activateTestController(state: ExtensionState) {
     const { context, host } = state

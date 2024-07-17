@@ -1,32 +1,36 @@
 import { WebSocketServer } from "ws"
-import {
-    RequestMessages,
-    ResponseStatus,
-    SERVER_PORT,
-    host,
-    YAMLStringify,
-    logError,
-    CORE_VERSION,
-    ServerResponse,
-    serializeError,
-    ShellExecResponse,
-    ContainerStartResponse,
-    DOCKER_DEFAULT_IMAGE,
-    AbortSignalCancellationController,
-    MarkdownTrace,
-    TRACE_CHUNK,
-    TraceChunkEvent,
-    UNHANDLED_ERROR_CODE,
-    isCancelError,
-    USER_CANCELLED_ERROR_CODE,
-    PromptScriptProgressResponseEvent,
-    PromptScriptEndResponseEvent,
-    logVerbose,
-    errorMessage,
-} from "genaiscript-core"
 import { runPromptScriptTests } from "./test"
 import { PROMPTFOO_VERSION } from "./version"
 import { runScript } from "./run"
+import { AbortSignalCancellationController } from "../../core/src/cancellation"
+import {
+    SERVER_PORT,
+    TRACE_CHUNK,
+    USER_CANCELLED_ERROR_CODE,
+    UNHANDLED_ERROR_CODE,
+    DOCKER_DEFAULT_IMAGE,
+} from "../../core/src/constants"
+import {
+    isCancelError,
+    errorMessage,
+    serializeError,
+} from "../../core/src/error"
+import {
+    ResponseStatus,
+    ServerResponse,
+    runtimeHost,
+} from "../../core/src/host"
+import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
+import { logVerbose, logError, assert } from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
+import { YAMLStringify } from "../../core/src/yaml"
+import {
+    RequestMessages,
+    PromptScriptProgressResponseEvent,
+    PromptScriptEndResponseEvent,
+    ShellExecResponse,
+} from "../../core/src/server/messages"
+import { envInfo } from "./info"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -78,47 +82,25 @@ export async function startServer(options: { port: string }) {
                         }
                         break
                     }
+                    case "server.env": {
+                        console.log(`server: env`)
+                        envInfo(undefined)
+                        response = <ServerResponse>{
+                            ok: true,
+                        }
+                        break
+                    }
                     case "server.kill": {
                         console.log(`server: kill`)
                         process.exit(0)
                         break
                     }
-                    case "models.pull": {
-                        console.log(`models: pull ${data.model}`)
-                        response = await host.models.pullModel(data.model)
-                        break
-                    }
-                    case "retrieval.vectorClear":
-                        console.log(`retrieval: clear`)
-                        await host.retrieval.init()
-                        response = await host.retrieval.vectorClear(
-                            data.options
-                        )
-                        break
-                    case "retrieval.vectorUpsert": {
-                        console.log(`retrieval: upsert ${data.filename}`)
-                        await host.retrieval.init()
-                        response = await host.retrieval.vectorUpsert(
-                            data.filename,
-                            data.options
-                        )
-                        break
-                    }
-                    case "retrieval.vectorSearch": {
-                        console.log(`retrieval: search ${data.text}`)
-                        console.debug(YAMLStringify(data.options))
-                        await host.retrieval.init()
-                        response = await host.retrieval.vectorSearch(
-                            data.text,
-                            data.options
-                        )
-                        console.debug(YAMLStringify(response))
-                        break
-                    }
                     case "parse.pdf": {
                         console.log(`parse: pdf ${data.filename}`)
-                        await host.parser.init()
-                        response = await host.parser.parsePdf(data.filename)
+                        await runtimeHost.parser.init()
+                        response = await runtimeHost.parser.parsePdf(
+                            data.filename
+                        )
                         break
                     }
                     case "tests.run": {
@@ -234,12 +216,17 @@ export async function startServer(options: { port: string }) {
                             delete runs[runId]
                             run.canceller.abort(reason)
                         }
+                        response = <ResponseStatus>{
+                            ok: true,
+                            status: 0,
+                            runId,
+                        }
                         break
                     }
                     case "shell.exec": {
                         console.log(`exec ${data.command}`)
                         const { command, args, options, containerId } = data
-                        const value = await host.exec(
+                        const value = await runtimeHost.exec(
                             containerId,
                             command,
                             args,
@@ -252,31 +239,13 @@ export async function startServer(options: { port: string }) {
                         }
                         break
                     }
-                    case "container.start": {
-                        console.log(
-                            `container: start ${data.options.image || DOCKER_DEFAULT_IMAGE}`
-                        )
-                        const container = await host.container(data.options)
-                        response = <ContainerStartResponse>{
-                            ok: true,
-                            id: container.id,
-                            hostPath: container.hostPath,
-                            containerPath: container.containerPath,
-                            disablePurge: container.disablePurge,
-                        }
-                        break
-                    }
-                    case "container.remove": {
-                        await host.removeContainers()
-                        response = { ok: true }
-                        break
-                    }
                     default:
                         throw new Error(`unknown message type ${type}`)
                 }
             } catch (e) {
                 response = { ok: false, error: serializeError(e) }
             } finally {
+                assert(!!response)
                 if (response.error) logError(response.error)
                 ws.send(JSON.stringify({ id, response }))
             }

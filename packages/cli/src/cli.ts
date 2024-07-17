@@ -1,16 +1,3 @@
-import {
-    RequestError,
-    CORE_VERSION,
-    isRequestError,
-    TOOL_ID,
-    TOOL_NAME,
-    GITHUB_REPO,
-    SERVER_PORT,
-    RUNTIME_ERROR_CODE,
-    UNHANDLED_ERROR_CODE,
-    errorMessage,
-    dotGenaiscriptPath,
-} from "genaiscript-core"
 import { NodeHost } from "./nodehost"
 import { program } from "commander"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
@@ -18,12 +5,7 @@ import { startServer } from "./server"
 import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
 import { runScriptWithExitCode } from "./run"
-import {
-    retrievalClear,
-    retrievalFuzz,
-    retrievalIndex,
-    retrievalSearch,
-} from "./retrieval"
+import { retrievalFuzz, retrievalSearch } from "./retrieval"
 import { helpAll } from "./help"
 import {
     jsonl2json,
@@ -35,22 +17,32 @@ import {
 } from "./parse"
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
-import { modelInfo, systemInfo } from "./info"
+import { envInfo, modelInfo, systemInfo } from "./info"
 import { scriptTestsView, scriptsTest } from "./test"
-import { emptyDir } from "fs-extra"
-import { join } from "path"
+import { cacheClear } from "./cache"
 import "node:console"
-
-async function cacheClear(name: string) {
-    let dir = dotGenaiscriptPath("cache")
-    if (["tests"].includes(name)) dir = join(dir, name)
-    console.log(`removing ${dir}`)
-    await emptyDir(dir)
-}
+import {
+    UNHANDLED_ERROR_CODE,
+    RUNTIME_ERROR_CODE,
+    TOOL_ID,
+    TOOL_NAME,
+    SERVER_PORT,
+} from "../../core/src/constants"
+import {
+    errorMessage,
+    isRequestError,
+    RequestError,
+    serializeError,
+} from "../../core/src/error"
+import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
+import { grep } from "./grep"
+import { logVerbose } from "../../core/src/util"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
-        error(isQuiet ? err : errorMessage(err))
+        const se = serializeError(err)
+        error(errorMessage(se))
+        if (!isQuiet && se?.stack) logVerbose(se?.stack)
         if (isRequestError(err)) {
             const exitCode = (err as RequestError).status
             process.exit(exitCode)
@@ -144,6 +136,10 @@ export async function cli() {
             "maximum tool calls for the run"
         )
         .option("-se, --seed <number>", "seed for the run")
+        .option(
+            "-em, --embeddings-model <string>",
+            "embeddings model for the run"
+        )
         .option("--no-cache", "disable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("--cs, --csv-separator <string>", "csv separator", "\t")
@@ -224,29 +220,12 @@ export async function cli() {
         .alias("retreival")
         .description("RAG support")
     retrieval
-        .command("index")
-        .description("Index a set of documents")
-        .argument("<file...>", "Files to index")
-        .option("-ef, --excluded-files <string...>", "excluded files")
-        .option("-n, --name <string>", "index name")
-        .option("-cs, --chunk-size <number>", "chunk size")
-        .option("-co, --chunk-overlap <number>", "chunk overlap")
-        .option("-m, --model <string>", "model for embeddings")
-        .option("-t, --temperature <number>", "LLM temperature")
-        .action(retrievalIndex)
-    retrieval
         .command("search")
         .description("Search using vector embeddings similarity")
         .arguments("<query> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
-        .option("-n, --name <string>", "index name")
         .action(retrievalSearch)
-    retrieval
-        .command("clear")
-        .description("Clear index to force re-indexing")
-        .option("-n, --name <string>", "index name")
-        .action(retrievalClear)
     retrieval
         .command("fuzz")
         .description("Search using string distance")
@@ -305,6 +284,11 @@ export async function cli() {
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
 
+    const workspace = program
+        .command("workspace")
+        .description("Workspace tasks")
+    workspace.command("grep").arguments("<pattern> [files...]").action(grep)
+
     const info = program.command("info").description("Utility tasks")
     info.command("help")
         .description("Show help for all commands")
@@ -312,6 +296,11 @@ export async function cli() {
     info.command("system")
         .description("Show system information")
         .action(systemInfo)
+    info.command("env")
+        .description("Show .env information")
+        .arguments("[provider]")
+        .option("-t, --token", "show token")
+        .action(envInfo)
 
     program.parse()
 }

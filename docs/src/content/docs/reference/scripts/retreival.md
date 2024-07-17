@@ -6,18 +6,11 @@ description: Learn how to use GenAIScript's retrieval utilities for content sear
 keywords: RAG, content retrieval, search augmentation, indexing, web search
 ---
 
-GenAIScript provides various utilities to retreive content and augment the prompt. This technique is typically referred as **RAG** (Retrieval-Augmentation-Generation) in the literature. GenAIScript uses [llamaindex-ts](https://ts.llamaindex.ai/api/classes/VectorIndexRetriever) which supports many vector database vendors.
-
-## Fuzz Search
-
-The `retrieve.fuzzSearch` performs a "traditional" fuzzy search to find the most similar documents to the prompt.
-
-```js
-const { files } = await retrieval.fuzzSearch("cat dog", env.files)
-```
+GenAIScript provides various utilities to retrieve content and augment the prompt. This technique is typically referred as **RAG** (Retrieval-Augmentation-Generation) in the literature.
 
 ## Vector Search
 
+GenAIScript provides tiny vector database based on [vectra](https://www.npmjs.com/package/vectra).
 The `retrieve.vectorSearch` performs a embeddings search to find the most similar documents to the prompt.
 
 ```js
@@ -27,25 +20,13 @@ def("RAG", files)
 
 The `files` variable contains a list of files, with concatenated fragments, that are most similar to the prompt. The `fragments` variable contains a list of fragments from the files that are most similar to the prompt.
 
-### Indexing
+## Fuzz Search
 
-By default, the retrieval uses [OpenAI text-embedding-ada-002](https://ts.llamaindex.ai/modules/embeddings/) embeddings. The first search might be slow as the files get indexed for the first time.
+The `retrieve.fuzzSearch` performs a "traditional" fuzzy search to find the most similar documents to the prompt.
 
-You can index your project using the [CLI](/genaiscript/reference/cli).
-
-```sh
-genaiscript retreive index "src/**"
+```js
+const files = await retrieval.fuzzSearch("cat dog", env.files)
 ```
-
-:::tip
-
-You can simulate an indexing command in Visual Studio Code by right-clicking on a folder and selecting **Retrieval** > **Index**. Once indexed, you can test search using **Retrieval** > **Search**.
-
-:::
-
-### Indexing configuration
-
-You can control the chunk size, overlap and model used for index files. You can also create multiple indexes using the `indexName` option.
 
 ## Web Search
 

@@ -1,5 +1,6 @@
 import { convertAnnotationsToMarkdown } from "./annotations"
 import { randomHex } from "./crypto"
+import { extractFenced } from "./fence"
 import { trimNewlines } from "./util"
 
 export function prettifyMarkdown(md: string) {
@@ -126,8 +127,13 @@ export function parseTraceTree(text: string): TraceTree {
 
 export function renderTraceTree(node: TraceNode): string {
     if (!node) return ""
-    if (typeof node === "string") return node
-    else if (node.type === "item") return `- ${node.label}: ${node.value}`
+    if (typeof node === "string") {
+        if (/^\s*\`\`\`markdown/.test(node) && /\`\`\`\s*$/.test(node)) {
+            const fences = extractFenced(node)
+            if (fences?.length === 1) return fences[0].content
+        }
+        return node
+    } else if (node.type === "item") return `- ${node.label}: ${node.value}`
     else if (node.type === "details")
         return details(node.label, node.content.map(renderTraceTree).join("\n"))
     else return ""

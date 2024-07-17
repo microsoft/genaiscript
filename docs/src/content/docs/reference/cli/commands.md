@@ -41,6 +41,7 @@ Options:
   -mdr, --max-data-repairs <number>          maximum data repairs
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
+  -em, --embeddings-model <string>           embeddings model for the run
   --no-cache                                 disable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   --cs, --csv-separator <string>             csv separator (default: "\t")
@@ -85,7 +86,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.67.0
+  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.72.0
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
@@ -222,33 +223,11 @@ Options:
   -h, --help                           display help for command
 
 Commands:
-  index [options] <file...>            Index a set of documents
   search [options] <query> [files...]  Search using vector embeddings
                                        similarity
-  clear [options]                      Clear index to force re-indexing
   fuzz [options] <query> [files...]    Search using string distance
   code
   help [command]                       display help for command
-```
-
-### `retrieval index`
-
-```
-Usage: genaiscript retrieval index [options] <file...>
-
-Index a set of documents
-
-Arguments:
-  file                               Files to index
-
-Options:
-  -ef, --excluded-files <string...>  excluded files
-  -n, --name <string>                index name
-  -cs, --chunk-size <number>         chunk size
-  -co, --chunk-overlap <number>      chunk overlap
-  -m, --model <string>               model for embeddings
-  -t, --temperature <number>         LLM temperature
-  -h, --help                         display help for command
 ```
 
 ### `retrieval search`
@@ -261,20 +240,7 @@ Search using vector embeddings similarity
 Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of results
-  -n, --name <string>                index name
   -h, --help                         display help for command
-```
-
-### `retrieval clear`
-
-```
-Usage: genaiscript retrieval clear [options]
-
-Clear index to force re-indexing
-
-Options:
-  -n, --name <string>  index name
-  -h, --help           display help for command
 ```
 
 ### `retrieval fuzz`
@@ -413,6 +379,30 @@ Options:
   -h, --help  display help for command
 ```
 
+## `workspace`
+
+```
+Usage: genaiscript workspace [options] [command]
+
+Workspace tasks
+
+Options:
+  -h, --help                 display help for command
+
+Commands:
+  grep <pattern> [files...]
+  help [command]             display help for command
+```
+
+### `workspace grep`
+
+```
+Usage: genaiscript workspace grep [options] <pattern> [files...]
+
+Options:
+  -h, --help  display help for command
+```
+
 ## `info`
 
 ```
@@ -421,11 +411,12 @@ Usage: genaiscript info [options] [command]
 Utility tasks
 
 Options:
-  -h, --help  display help for command
+  -h, --help                display help for command
 
 Commands:
-  help        Show help for all commands
-  system      Show system information
+  help                      Show help for all commands
+  system                    Show system information
+  env [options] [provider]  Show .env information
 ```
 
 ### `info help`
@@ -448,4 +439,16 @@ Show system information
 
 Options:
   -h, --help  display help for command
+```
+
+### `info env`
+
+```
+Usage: genaiscript info env [options] [provider]
+
+Show .env information
+
+Options:
+  -t, --token  show token
+  -h, --help   display help for command
 ```

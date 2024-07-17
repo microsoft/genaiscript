@@ -1,33 +1,5 @@
 import * as vscode from "vscode"
-import {
-    ChatCompletionsProgressReport,
-    Project,
-    Fragment,
-    PromptScript,
-    parseProject,
-    GenerationResult,
-    groupBy,
-    isCancelError,
-    delay,
-    CHANGE,
-    JSONLineCache,
-    logInfo,
-    logMeasure,
-    parseAnnotations,
-    MarkdownTrace,
-    CORE_VERSION,
-    sha256string,
-    dotGenaiscriptPath,
-    CLI_JS,
-    TOOL_ID,
-    TOOL_NAME,
-    RetrievalSearchResult,
-    GENAI_ANYJS_GLOB,
-    fixPromptDefinitions,
-    resolveModelConnectionInfo,
-    AI_REQUESTS_CACHE,
-    errorMessage,
-} from "genaiscript-core"
+
 import { ExtensionContext } from "vscode"
 import { VSCodeHost } from "./vshost"
 import { applyEdits, toRange } from "./edit"
@@ -36,13 +8,40 @@ import { findFiles, listFiles, saveAllTextDocuments, writeFile } from "./fs"
 import { startLocalAI } from "./localai"
 import { hasOutputOrTraceOpened } from "./markdowndocumentprovider"
 import { pickLanguageModel } from "./lmaccess"
+import { parseAnnotations } from "../../core/src/annotations"
+import { Project } from "../../core/src/ast"
+import { JSONLineCache } from "../../core/src/cache"
+import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { fixPromptDefinitions } from "../../core/src/scripts"
+import { logMeasure } from "../../core/src/perf"
+import {
+    TOOL_NAME,
+    CHANGE,
+    AI_REQUESTS_CACHE,
+    CLI_JS,
+    TOOL_ID,
+    GENAI_ANYJS_GLOB,
+} from "../../core/src/constants"
+import { isCancelError } from "../../core/src/error"
+import { GenerationResult } from "../../core/src/expander"
+import { resolveModelConnectionInfo } from "../../core/src/models"
+import { parseProject } from "../../core/src/parser"
+import { Fragment } from "../../core/src/promptrunner"
+import { MarkdownTrace } from "../../core/src/trace"
+import {
+    dotGenaiscriptPath,
+    sha256string,
+    delay,
+    logInfo,
+    groupBy,
+} from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
 export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
 export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
-export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface AIRequestOptions {
     label: string
@@ -110,8 +109,6 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-
-    lastSearch: RetrievalSearchResult
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -181,8 +178,8 @@ temp/
     async applyEdits() {
         const req = this.aiRequest
         if (!req) return
-        const edits = req.response?.edits
-        if (!edits) return
+        const edits = req.response?.edits?.filter(({ validated }) => !validated)
+        if (!edits?.length) return
 
         req.editsApplied = null
         this.dispatchChange()
@@ -190,7 +187,6 @@ temp/
         const applied = await applyEdits(this, edits, {
             needsConfirmation: true,
         })
-
         req.editsApplied = applied
         if (req !== this.aiRequest) return
         if (req.editsApplied) saveAllTextDocuments()
@@ -202,10 +198,6 @@ temp/
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                if (!options.notebook)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.trace"
-                    )
                 return
             }
             const res = await req?.request
@@ -298,8 +290,7 @@ temp/
         const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
-            trace.error(info.error)
-            trace.renderErrors()
+            vscode.window.showErrorMessage(TOOL_NAME + " - " + info.error)
             return undefined
         }
         const infoCb = (partialResponse: { text: string }) => {
@@ -349,10 +340,7 @@ temp/
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this, info.model)
-            if (!lmmodel) {
-                trace.error("no model provider selected")
-                return undefined
-            }
+            if (!lmmodel) return undefined
             /*
             await configureLanguageModelAccess(
                 this.context,

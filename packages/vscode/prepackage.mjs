@@ -9,7 +9,8 @@ for (const m of [
     "tsx",
     "esbuild",
     "get-tsconfig",
-    "resolve-pkg-maps"
+    "resolve-pkg-maps",
+    "gpt-3-encoder"
 ]) {
     await fs.copy(`../../node_modules/${m}`, `./node_modules/${m}`, {
         recursive: true,

@@ -2,6 +2,7 @@ import { DOT_ENV_REGEX, HTTPS_REGEX } from "./constants"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
 import { host } from "./host"
+import { JSON5parse } from "./json5"
 import { logVerbose, unique, utf8Decode, utf8Encode } from "./util"
 import ignorer from "ignore"
 
@@ -55,8 +56,8 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
-export function createFileSystem(): WorkspaceFileSystem {
-    const fs: WorkspaceFileSystem = {
+export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
+    const fs: Omit<WorkspaceFileSystem, "grep"> = {
         findFiles: async (glob, options) => {
             const { readText } = options || {}
             const names = (
@@ -104,6 +105,11 @@ export function createFileSystem(): WorkspaceFileSystem {
                 )
             }
             return file
+        },
+        readJSON: async (f: string | WorkspaceFile) => {
+            const file = await fs.readText(f)
+            const res = JSON5parse(file.content)
+            return res
         },
     }
     ;(fs as any).readFile = readText

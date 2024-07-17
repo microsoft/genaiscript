@@ -1,21 +1,20 @@
 import MemoryStream from "memorystream"
-import {
-    CORE_VERSION,
-    DOCKER_CONTAINER_VOLUME,
-    DOCKER_DEFAULT_IMAGE,
-    DOCKER_VOLUMES_DIR,
-    TraceOptions,
-    dotGenaiscriptPath,
-    errorMessage,
-    host,
-    installImport,
-    logError,
-    randomHex,
-} from "genaiscript-core"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
 import { copyFile, readFile, writeFile } from "fs/promises"
 import { DOCKERODE_VERSION } from "./version"
+import {
+    DOCKER_DEFAULT_IMAGE,
+    DOCKER_VOLUMES_DIR,
+    DOCKER_CONTAINER_VOLUME,
+} from "../../core/src/constants"
+import { randomHex } from "../../core/src/crypto"
+import { errorMessage } from "../../core/src/error"
+import { host } from "../../core/src/host"
+import { installImport } from "../../core/src/import"
+import { TraceOptions } from "../../core/src/trace"
+import { logError, dotGenaiscriptPath } from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
 
 type DockerodeType = import("dockerode")
 

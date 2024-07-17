@@ -31,7 +31,7 @@ const strings = JSON.parse(content)
 
 // find the existing translation and remove existing translations
 const trfn = path.join(dir, langCode, path.basename(filename))
-const translated = parsers.JSON5(await workspace.readText(trfn))
+const translated = await workspace.readJSON(trfn)
 if (translated)
     for (const k of Object.keys(strings)) if (translated[k]) delete strings[k]
 
@@ -113,8 +113,8 @@ defFileMerge((filename, label, before, generated) => {
     // parse out kv
     const news = generated
         .split(/\n/g)
-        .map(line => /^([^=]+)=(.+)$/.exec(line))
-        .filter(m => !!m)
+        .map((line) => /^([^=]+)=(.+)$/.exec(line))
+        .filter((m) => !!m)
         .reduce((o, m) => {
             const [, key, value] = m
             // assign

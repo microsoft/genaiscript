@@ -1,6 +1,7 @@
+import { AZURE_OPENAI_TOKEN_SCOPES } from "../../core/src/constants"
+import { errorMessage } from "../../core/src/error"
 import { ExtensionState } from "./state"
 import * as vscode from "vscode"
-import { AZURE_OPENAI_TOKEN_SCOPES, errorMessage } from "genaiscript-core"
 
 export class AzureManager {
     private _session: vscode.AuthenticationSession

@@ -30,6 +30,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "assistant"
         | "def"
         | "chatParticipant"
+        | "fileOutput"
         | undefined
     children?: PromptNode[]
     error?: unknown
@@ -107,6 +108,11 @@ export interface PromptChatParticipantNode extends PromptNode {
     type: "chatParticipant"
     participant: ChatParticipant
     options?: ChatParticipantOptions
+}
+
+export interface FileOutputNode extends PromptNode {
+    type: "fileOutput"
+    output: FileOutput
 }
 
 export function createTextNode(
@@ -244,6 +250,10 @@ export function createChatParticipant(
     return { type: "chatParticipant", participant }
 }
 
+export function createFileOutput(output: FileOutput): FileOutputNode {
+    return { type: "fileOutput", output }
+}
+
 export function createDefDataNode(
     name: string,
     data: object | object[],
@@ -302,6 +312,7 @@ export interface PromptNodeVisitor {
     outputProcessor?: (node: PromptOutputProcessorNode) => Awaitable<void>
     assistant?: (node: PromptAssistantNode) => Awaitable<void>
     chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>
+    fileOutput?: (node: FileOutputNode) => Awaitable<void>
 }
 
 export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
@@ -337,6 +348,8 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
         case "chatParticipant":
             await visitor.chatParticipant?.(node as PromptChatParticipantNode)
             break
+        case "fileOutput":
+            await visitor.fileOutput?.(node as FileOutputNode)
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && node.children) {
@@ -358,6 +371,7 @@ export interface PromptNodeRender {
     outputProcessors: PromptOutputProcessorHandler[]
     chatParticipants: ChatParticipant[]
     messages: ChatCompletionMessageParam[]
+    fileOutputs: FileOutput[]
 }
 
 async function resolvePromptNode(
@@ -547,6 +561,7 @@ export async function renderPromptNode(
     const fileMerges: FileMergeHandler[] = []
     const outputProcessors: PromptOutputProcessorHandler[] = []
     const chatParticipants: ChatParticipant[] = []
+    const fileOutputs: FileOutput[] = []
 
     await visitNode(node, {
         text: async (n) => {
@@ -644,7 +659,22 @@ ${trimNewlines(schemaText)}
                 n.participant.options?.label || n.participant.generator.name
             )
         },
+        fileOutput: (n) => {
+            fileOutputs.push(n.output)
+            trace.itemValue(`file output`, n.output.pattern)
+        },
     })
+
+    if (fileOutputs.length > 0) {
+        prompt += `
+## File generation rules
+
+When generating files, follow the following rules which are formatted as "glob: description":
+
+${fileOutputs.map((fo) => `${fo.pattern}: ${fo.description}`)}
+
+`
+    }
 
     const messages: ChatCompletionMessageParam[] = [
         toChatCompletionUserMessage(prompt, images),
@@ -665,6 +695,7 @@ ${trimNewlines(schemaText)}
         chatParticipants,
         errors,
         messages,
+        fileOutputs,
     }
     return res
 }

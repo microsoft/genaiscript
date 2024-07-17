@@ -1,4 +1,3 @@
-import { minimatch } from "minimatch"
 import {
     PromptNode,
     appendChild,
@@ -6,6 +5,7 @@ import {
     createChatParticipant,
     createDefDataNode,
     createDefNode,
+    createFileOutput,
     createFunctionNode,
     createImageNode,
     createSchemaNode,
@@ -14,11 +14,11 @@ import {
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./promptcontext"
-import { CancelError } from "./error"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
+import { isGlobMatch } from "./glob"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -70,10 +70,7 @@ export function createChatTurnGenerationContext(
                 const { glob, endsWith } = defOptions || {}
                 const filename = body.filename
                 if (glob && filename) {
-                    const match = minimatch(filename, glob, {
-                        windowsPathsNoEscape: true,
-                    })
-                    if (!match) return undefined
+                    if (!isGlobMatch(filename, glob)) return undefined
                 }
                 if (endsWith && !filename.endsWith(endsWith)) return undefined
                 appendChild(node, createDefNode(name, body, doptions))
@@ -177,12 +174,25 @@ export function createChatGenerationContext(
             appendChild(node, createChatParticipant({ generator, options }))
     }
 
+    const defFileOutput = (
+        pattern: string,
+        description: string,
+        options?: FileOutputOptions
+    ): void => {
+        if (pattern)
+            appendChild(
+                node,
+                createFileOutput({ pattern, description, options })
+            )
+    }
+
     const ctx = <RunPromptContextNode>{
         ...turnCtx,
         defTool,
         defSchema,
         defImages,
         defChatParticipant,
+        defFileOutput,
     }
 
     return ctx

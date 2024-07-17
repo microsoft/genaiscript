@@ -1,44 +1,3 @@
-import {
-    GenerationResult,
-    YAMLStringify,
-    diagnosticsToCSV,
-    host,
-    isJSONLFilename,
-    logVerbose,
-    runTemplate,
-    writeText,
-    normalizeInt,
-    normalizeFloat,
-    GENAI_ANYJS_REGEX,
-    FILES_NOT_FOUND_ERROR_CODE,
-    appendJSONL,
-    RUNTIME_ERROR_CODE,
-    ANNOTATION_ERROR_CODE,
-    writeFileEdits,
-    logError,
-    isCancelError,
-    USER_CANCELLED_ERROR_CODE,
-    errorMessage,
-    MarkdownTrace,
-    HTTPS_REGEX,
-    resolveModelConnectionInfo,
-    CONFIGURATION_ERROR_CODE,
-    parseKeyValuePairs,
-    JSONSchemaStringifyToTypeScript,
-    filePathOrUrlToWorkspaceFile,
-    JSONSchemaStringify,
-    CSV_REGEX,
-    CLI_RUN_FILES_FOLDER,
-    parseGHTokenFromEnv,
-    githubUpdatePullRequestDescription,
-    githubCreatePullRequestReviews,
-    githubCreateIssueComment,
-    PromptScriptRunOptions,
-    TraceOptions,
-    CancellationOptions,
-    Fragment,
-    ChatCompletionsProgressReport,
-} from "genaiscript-core"
 import { capitalize } from "inflection"
 import { resolve, join, relative } from "node:path"
 import { isQuiet } from "./log"
@@ -46,6 +5,53 @@ import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
+import { diagnosticsToCSV } from "../../core/src/ast"
+import { CancellationOptions } from "../../core/src/cancellation"
+import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { Fragment, runTemplate } from "../../core/src/promptrunner"
+import {
+    githubCreateIssueComment,
+    githubCreatePullRequestReviews,
+    githubUpdatePullRequestDescription,
+    githubParseEnv,
+} from "../../core/src/github"
+import {
+    GENAI_ANYJS_REGEX,
+    HTTPS_REGEX,
+    FILES_NOT_FOUND_ERROR_CODE,
+    CONFIGURATION_ERROR_CODE,
+    USER_CANCELLED_ERROR_CODE,
+    RUNTIME_ERROR_CODE,
+    CSV_REGEX,
+    CLI_RUN_FILES_FOLDER,
+    ANNOTATION_ERROR_CODE,
+} from "../../core/src/constants"
+import { isCancelError, errorMessage } from "../../core/src/error"
+import { GenerationResult } from "../../core/src/expander"
+import { parseKeyValuePairs } from "../../core/src/fence"
+import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
+import { host, runtimeHost } from "../../core/src/host"
+import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
+import { resolveModelConnectionInfo } from "../../core/src/models"
+import {
+    JSONSchemaStringifyToTypeScript,
+    JSONSchemaStringify,
+} from "../../core/src/schema"
+import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
+import {
+    normalizeFloat,
+    normalizeInt,
+    logVerbose,
+    logError,
+} from "../../core/src/util"
+import { YAMLStringify } from "../../core/src/yaml"
+import { PromptScriptRunOptions } from "../../core/src/server/messages"
+import { writeFileEdits } from "../../core/src/edits"
+import {
+    azureDevOpsCreateIssueComment,
+    azureDevOpsParseEnv,
+    azureDevOpsUpdatePullRequestDescription,
+} from "../../core/src/azuredevops"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -161,13 +167,15 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model: options.model,
+            model:
+                options.model ?? script.model ?? host.defaultModelOptions.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)
             logError(info.error)
             return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
+        await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
             infoCb: (args) => {
                 const { text } = args
@@ -196,6 +204,9 @@ export async function runScript(
             maxToolCalls,
             maxDataRepairs,
             model: info.model,
+            embeddingsModel:
+                options.embeddingsModel ??
+                host.defaultEmbeddingsModelOptions.embeddingsModel,
             retry,
             retryDelay,
             maxDelay,
@@ -247,12 +258,8 @@ export async function runScript(
         if (isJSONLFilename(outData)) await appendJSONL(outData, result.frames)
         else await writeText(outData, JSON.stringify(result.frames, null, 2))
 
-    if (
-        applyEdits &&
-        result.status === "success" &&
-        Object.keys(result.fileEdits || {}).length
-    )
-        await writeFileEdits(result)
+    if (result.status === "success" && result.fileEdits)
+        await writeFileEdits(result, applyEdits)
 
     const promptjson = result.messages?.length
         ? JSON.stringify(result.messages, null, 2)
@@ -331,15 +338,18 @@ export async function runScript(
                 )
         }
     } else {
-        if (options.json) console.log(JSON.stringify(result, null, 2))
-        if (options.yaml) console.log(YAMLStringify(result))
+        logVerbose("")
+        if (options.json && result !== undefined)
+            console.log(JSON.stringify(result, null, 2))
+        if (options.yaml && result !== undefined)
+            console.log(YAMLStringify(result))
         if (options.prompt && promptjson) {
             console.log(promptjson)
         }
     }
 
     if (pullRequestReviews && result.annotations?.length) {
-        const info = parseGHTokenFromEnv(process.env)
+        const info = githubParseEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreatePullRequestReviews(
                 script,
@@ -350,7 +360,7 @@ export async function runScript(
     }
 
     if (pullRequestComment && result.text) {
-        const info = parseGHTokenFromEnv(process.env)
+        const info = githubParseEnv(process.env)
         if (info.repository && info.issue) {
             await githubCreateIssueComment(
                 script,
@@ -360,20 +370,53 @@ export async function runScript(
                     ? pullRequestComment
                     : script.id
             )
+        } else {
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsCreateIssueComment(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestComment === "string"
+                        ? pullRequestComment
+                        : script.id
+                )
+            } else
+                logError(
+                    "pull request comment: no pull request information found"
+                )
         }
     }
 
     if (pullRequestDescription && result.text) {
-        const info = parseGHTokenFromEnv(process.env)
-        if (info.repository && info.issue) {
+        // github
+        const ghinfo = githubParseEnv(process.env)
+        if (ghinfo?.repository && ghinfo?.issue) {
             await githubUpdatePullRequestDescription(
                 script,
-                info,
+                ghinfo,
                 result.text,
                 typeof pullRequestDescription === "string"
                     ? pullRequestDescription
                     : script.id
             )
+        } else {
+            // azure devops
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsUpdatePullRequestDescription(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestDescription === "string"
+                        ? pullRequestDescription
+                        : script.id
+                )
+            } else {
+                logError(
+                    "pull request review: no pull request information found"
+                )
+            }
         }
     }
     // final fail

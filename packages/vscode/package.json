@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.42.3",
+    "version": "1.44.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.90.0"
@@ -41,7 +41,7 @@
         "publish": false
     },
     "activationEvents": [
-        "workspaceContains:**/*.genai.{mjs,js}",
+        "workspaceContains:**/*.genai.{js,mjs,mts}",
         "onNotebook:genaiscript"
     ],
     "main": "./built/extension.js",
@@ -166,12 +166,12 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.m?js$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@1"
                 },
                 {
                     "command": "genaiscript.fragment.debug",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.m?js$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts)$/",
                     "group": "genaiscript@2"
                 }
             ],
@@ -231,7 +231,7 @@
             "explorer/context": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.m?js$/)",
+                    "when": "explorerViewletVisible && !inDebugMode && !(resourceFilename =~ /\\.genai\\.(js|mjs|mts)$/)",
                     "group": "genaiscript@1"
                 }
             ]
@@ -344,6 +344,11 @@
                 "command": "genaiscript.openIssueReporter",
                 "title": "Report Issue...",
                 "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.info.env",
+                "title": "Configuration information...",
+                "category": "GenAIScript"
             }
         ]
     },
@@ -351,8 +356,10 @@
         "vscode:update-dts": "npx @vscode/dts dev && mv vscode.*.d.ts src/",
         "vscode:prepublish": "yarn run compile",
         "compile:icons": "node updatefonts.mjs",
-        "compile:extension": "esbuild src/extension.ts --sourcemap --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:vscode --external:pdfjs-dist --external:llamaindex --external:web-tree-sitter --external:tree-sitter-wasms",
+        "compile:extension": "esbuild src/extension.ts --sourcemap --metafile=./esbuild.meta.json --bundle --format=cjs --platform=node --target=node20 --outfile=built/extension.js --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:vscode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:@lvce-editor/ripgrep --external:gpt-3-encoder",
         "compile": "yarn compile:icons && yarn compile:extension",
+        "vis:treemap": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.treemap.html",
+        "vis:network": "npx --yes esbuild-visualizer --metadata esbuild.meta.json --filename esbuild.network.html --template network",
         "lint": "eslint src --ext ts",
         "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ../sample",
         "typecheck": "tsc -p .",
@@ -362,37 +369,33 @@
         "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
     },
     "devDependencies": {
-        "@types/mocha": "^10.0.6",
+        "@types/mocha": "^10.0.7",
         "@types/vscode": "^1.90.0",
         "@typescript-eslint/eslint-plugin": "^7.13.1",
         "@typescript-eslint/parser": "^7.13.1",
-        "@vscode/test-web": "^0.0.54",
-        "@vscode/vsce": "^2.27.0",
+        "@vscode/test-web": "^0.0.56",
+        "@vscode/vsce": "^2.30.0",
         "assert": "^2.1.0",
         "dotenv": "^16.4.5",
-        "eslint": "^9.6.0",
-        "mocha": "^10.5.2",
+        "eslint": "^9.7.0",
+        "mocha": "^10.6.0",
         "process": "^0.11.10",
         "ts-loader": "^9.5.1",
-        "typescript": "5.5.2",
+        "typescript": "5.5.3",
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
-        "zx": "^8.1.3"
+        "zx": "^8.1.4"
     },
     "dependencies": {
-        "@azure/identity": "^4.3.0",
+        "@azure/identity": "^4.4.0",
         "mammoth": "^1.8.0",
-        "pdfjs-dist": "4.3.136",
+        "pdfjs-dist": "4.4.168",
         "tree-sitter-wasms": "^0.1.11",
-        "tsx": "^4.16.0",
+        "tsx": "^4.16.2",
         "web-tree-sitter": "^0.22.6"
     },
     "optionalDependencies": {
-        "genaiscript": "*",
-        "genaiscript-core": "*"
-    },
-    "enabledApiProposals": [
-        "languageModels"
-    ]
+        "genaiscript": "*"
+    }
 }

@@ -1,22 +1,23 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
 import { AIRequestOptions, ExtensionState } from "./state"
-import {
-    LanguageModel,
-    GenerationOptions,
-    estimateTokens,
-    logVerbose,
-    APIType,
-    MODEL_PROVIDER_OPENAI,
-    MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_AICI,
-    updateConnectionConfiguration,
-    MODEL_PROVIDER_AZURE,
-    parseModelIdentifier,
-    MODEL_PROVIDER_LITELLM,
-    MODEL_PROVIDER_LLAMAFILE,
-} from "genaiscript-core"
 import { isApiProposalEnabled } from "./proposals"
+import { LanguageModel } from "../../core/src/chat"
+import {
+    MODEL_PROVIDER_OLLAMA,
+    MODEL_PROVIDER_LLAMAFILE,
+    MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_LITELLM,
+    MODEL_PROVIDER_OPENAI,
+    DOT_ENV_FILENAME,
+} from "../../core/src/constants"
+import { APIType } from "../../core/src/host"
+import { parseModelIdentifier } from "../../core/src/models"
+import { GenerationOptions } from "../../core/src/promptcontext"
+import { estimateTokens } from "../../core/src/tokens"
+import { logVerbose } from "../../core/src/util"
+import { updateConnectionConfiguration } from "../../core/src/connection"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -51,7 +52,10 @@ async function generateLanguageModelConfiguration(
             kind: vscode.QuickPickItemKind.Separator,
             label: "Visual Studio Code Language Model",
         })
-    items.push({ kind: vscode.QuickPickItemKind.Separator, label: ".env" })
+    items.push({
+        kind: vscode.QuickPickItemKind.Separator,
+        label: DOT_ENV_FILENAME,
+    })
     items.push(
         {
             label: "OpenAI",

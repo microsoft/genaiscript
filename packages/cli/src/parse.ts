@@ -1,20 +1,15 @@
-import {
-    DOCXTryParse,
-    YAMLStringify,
-    expandFiles,
-    extractFenced,
-    isJSONLFilename,
-    readJSONL,
-    writeText,
-    parsePdf,
-    HTMLToText,
-    estimateTokens,
-    readText,
-} from "genaiscript-core"
 import { createProgressSpinner } from "./spinner"
 import replaceExt from "replace-ext"
 import getStdin from "get-stdin"
 import { readFile } from "node:fs/promises"
+import { DOCXTryParse } from "../../core/src/docx"
+import { extractFenced } from "../../core/src/fence"
+import { expandFiles, writeText, readText } from "../../core/src/fs"
+import { HTMLToText } from "../../core/src/html"
+import { isJSONLFilename, readJSONL } from "../../core/src/jsonl"
+import { parsePdf } from "../../core/src/pdf"
+import { estimateTokens } from "../../core/src/tokens"
+import { YAMLStringify } from "../../core/src/yaml"
 
 export async function parseFence(language: string) {
     const stdin = await getStdin()

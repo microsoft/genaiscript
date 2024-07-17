@@ -1,18 +1,15 @@
-import {
-    ICON_LOGO_NAME,
-    ModelService,
-    ParseService,
-    RECONNECT,
-    RetrievalService,
-    SERVER_PORT,
-    ServerManager,
-    TOOL_NAME,
-    WebSocketClient,
-    host,
-    logError,
-} from "genaiscript-core"
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
+import {
+    SERVER_PORT,
+    RECONNECT,
+    TOOL_NAME,
+    ICON_LOGO_NAME,
+    CLIENT_RECONNECT_MAX_ATTEMPTS,
+} from "../../core/src/constants"
+import { ServerManager, host, ParseService } from "../../core/src/host"
+import { logError } from "../../core/src/util"
+import { WebSocketClient } from "../../core/src/server/client"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
@@ -35,7 +32,7 @@ export class TerminalServerManager implements ServerManager {
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (this.client.reconnectAttempts > 5) {
+            if (this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS) {
                 this.closeTerminal()
                 this.start()
             }
@@ -60,15 +57,7 @@ export class TerminalServerManager implements ServerManager {
         return !!this._terminal
     }
 
-    get retrieval(): RetrievalService {
-        return this.client
-    }
-
     get parser(): ParseService {
-        return this.client
-    }
-
-    get models(): ModelService {
         return this.client
     }
 

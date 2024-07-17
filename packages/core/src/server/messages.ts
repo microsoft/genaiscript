@@ -1,11 +1,5 @@
 import { GenerationResult } from "../expander"
-import {
-    ParsePdfResponse,
-    ResponseStatus,
-    RetrievalSearchOptions,
-    RetrievalSearchResponse,
-    RetrievalUpsertOptions as RetrievalVectorUpsertOptions,
-} from "../host"
+import { ParsePdfResponse, ResponseStatus } from "../host"
 
 export interface RequestMessage {
     type: string
@@ -17,32 +11,13 @@ export interface ServerKill extends RequestMessage {
     type: "server.kill"
 }
 
-export interface ModelsPull extends RequestMessage {
-    type: "models.pull"
-    model: string
-}
-
-export interface RetrievalVectorClear extends RequestMessage {
-    type: "retrieval.vectorClear"
-    options?: VectorSearchOptions
-}
-
 export interface ServerVersion extends RequestMessage {
     type: "server.version"
     version?: string
 }
 
-export interface RetrievalVectorUpsert extends RequestMessage {
-    type: "retrieval.vectorUpsert"
-    filename: string
-    options?: RetrievalVectorUpsertOptions
-}
-
-export interface RetrievalSearch extends RequestMessage {
-    type: "retrieval.vectorSearch"
-    text: string
-    options?: RetrievalSearchOptions
-    response?: RetrievalSearchResponse
+export interface ServerEnv extends RequestMessage {
+    type: "server.env"
 }
 
 export interface ParsePdfMessage extends RequestMessage {
@@ -96,6 +71,7 @@ export interface PromptScriptRunOptions {
     maxToolCalls: string
     maxDataRepairs: string
     model: string
+    embeddingsModel: string
     csvSeparator: string
     cache: boolean
     cacheName: string
@@ -156,35 +132,14 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
-export interface ContainerStartResponse extends ResponseStatus {
-    id: string
-    disablePurge: boolean
-    hostPath: string
-    containerPath: string
-}
-
-export interface ContainerStart extends RequestMessage {
-    type: "container.start"
-    options: ContainerOptions
-    response?: ContainerStartResponse
-}
-
-export interface ContainerRemove extends RequestMessage {
-    type: "container.remove"
-}
-
 export type RequestMessages =
     | ServerKill
-    | RetrievalVectorClear
-    | RetrievalVectorUpsert
-    | RetrievalSearch
+    | ServerVersion
+    | ServerEnv
     | ServerVersion
     | ParsePdfMessage
     | PromptScriptTestRun
-    | ModelsPull
     | ShellExec
-    | ContainerStart
-    | ContainerRemove
     | PromptScriptStart
     | PromptScriptAbort
 

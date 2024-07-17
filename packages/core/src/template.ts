@@ -250,6 +250,8 @@ export async function parsePromptScript(
             c.checkString("responseType")
             c.checkJSONSchema("responseSchema")
 
+            c.checkString("embeddingsModel")
+
             c.checkBool("unlisted")
 
             c.checkNat("maxTokens")

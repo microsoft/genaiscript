@@ -1,10 +1,13 @@
+import { parseTokenFromEnv } from "../../core/src/connection"
+import { MODEL_PROVIDERS } from "../../core/src/constants"
+import { errorMessage } from "../../core/src/error"
+import { host } from "../../core/src/host"
 import {
-    CORE_VERSION,
     ModelConnectionInfo,
-    YAMLStringify,
-    host,
     resolveModelConnectionInfo,
-} from "genaiscript-core"
+} from "../../core/src/models"
+import { CORE_VERSION } from "../../core/src/version"
+import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
 
 export async function systemInfo() {
@@ -13,6 +16,32 @@ export async function systemInfo() {
     console.log(`platform: ${process.platform}`)
     console.log(`arch: ${process.arch}`)
     console.log(`pid: ${process.pid}`)
+}
+
+export async function envInfo(provider: string, options?: { token?: boolean }) {
+    const { token } = options || {}
+    const res: any = {}
+    res[".env"] = host.dotEnvPath ?? ""
+    res.providers = []
+    const env = process.env
+    for (const modelProvider of MODEL_PROVIDERS.filter(
+        (mp) => !provider || mp.id === provider
+    )) {
+        try {
+            const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
+            if (conn) {
+                if (!token && conn.token)
+                    conn.token = "***"
+                res.providers.push(conn)
+            }
+        } catch (e) {
+            res.providers.push({
+                provider: modelProvider.id,
+                error: errorMessage(e),
+            })
+        }
+    }
+    console.log(YAMLStringify(res))
 }
 
 async function resolveScriptsConnectionInfo(

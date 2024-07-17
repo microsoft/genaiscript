@@ -75,9 +75,10 @@ GenAIScript brings essential LLM prompt tooling into a cohesive scripting enviro
 
 <CardGrid>
 
-<Card title="Stylized Javascript" icon="seti:javascript">
+<Card title="Stylized JavaScript" icon="seti:javascript">
 
-Build prompts programmatically using [JavaScript](/genaiscript/reference/scripts/).
+Build prompts programmatically using [JavaScript](/genaiscript/reference/scripts/)
+or [TypeScript](/genaiscript/reference/scripts/typescript).
 
 ```js wrap
 def("FILE", env.files, { endsWith: ".pdf" })
@@ -184,6 +185,18 @@ The quick brown fox jumps over the lazy dog.
 
 </Card>
 
+<Card title="File search" icon="document">
+
+Grep or fuzz search [files](/genaiscript/referen/script/files)
+
+```js wrap
+const { files } = await workspace.grep(
+    /[a-z][a-z0-9]+/, 
+    "**/*.md")
+```
+
+</Card>
+
 <Card title="RAG built-in" icon="magnifier">
 
 [Vector search](/genaiscript/reference/scripts/vector-search/).
@@ -206,7 +219,7 @@ script({ ..., model: "ollama:phi3" })
 
 </Card>
 
-<Card title="Code Interpreter" icon="seti:python">
+<Card title="Containerized Code Interpreter" icon="seti:python">
 
 Run code in Docker [containers](/genaiscript/reference/scripts/containers).
 

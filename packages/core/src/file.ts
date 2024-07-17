@@ -70,6 +70,18 @@ export async function resolveFileContent(
     return file
 }
 
+export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
+    return typeof fileOrFilename === "string"
+        ? { filename: fileOrFilename }
+        : fileOrFilename
+}
+
+export async function resolveFileContents(files: WorkspaceFile[]) {
+    for(const file of files) {
+        await resolveFileContent(file)
+    }
+}
+
 export async function renderFileContent(
     file: WorkspaceFile,
     options: TraceOptions & DataFilter

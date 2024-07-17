@@ -6,12 +6,18 @@ import {
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
-import { HTMLEscape, arrayify, logVerbose } from "./util"
 import { host } from "./host"
+import {
+    HTMLEscape,
+    arrayify,
+    dotGenaiscriptPath,
+    logVerbose,
+    sha256string,
+} from "./util"
+import { RetrievalSearchResponse, runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsertVector, vectorSearch } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -38,10 +44,9 @@ import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
-
-function stringLikeToFileName(f: string | WorkspaceFile) {
-    return typeof f === "string" ? f : f?.filename
-}
+import { grepSearch } from "./grep"
+import { resolveFileContents, toWorkspaceFile } from "./file"
+import { vectorSearch } from "./vectorsearch"
 
 export function createPromptContext(
     vars: ExpansionVariables,
@@ -81,18 +86,33 @@ export function createPromptContext(
             }
         },
     })
-    const path = host.path
+    const path = runtimeHost.path
     const workspace: WorkspaceFileSystem = {
-        readText: (f) => host.workspace.readText(f),
-        writeText: (f, c) => host.workspace.writeText(f, c),
+        readText: (f) => runtimeHost.workspace.readText(f),
+        readJSON: (f) => runtimeHost.workspace.readJSON(f),
+        writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         findFiles: async (pattern, options) => {
-            const res = await host.workspace.findFiles(pattern, options)
+            const res = await runtimeHost.workspace.findFiles(pattern, options)
             trace.files(res, {
                 title: `🗃 find files <code>${HTMLEscape(pattern)}</code>`,
                 maxLength: -1,
                 secrets: env.secrets,
             })
             return res
+        },
+        grep: async (query, globs) => {
+            trace.startDetails(
+                `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
+            )
+            try {
+                const { files } = await grepSearch(query, arrayify(globs), {
+                    trace,
+                })
+                trace.files(files, { model, secrets: env.secrets })
+                return { files }
+            } finally {
+                trace.endDetails()
+            }
         },
     }
 
@@ -140,8 +160,8 @@ export function createPromptContext(
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
-            const files = arrayify(files_)
-            searchOptions = searchOptions || {}
+            const files = arrayify(files_).map(toWorkspaceFile)
+            searchOptions = { ...(searchOptions || {}) }
             try {
                 trace.startDetails(
                     `🔍 vector search <code>${HTMLEscape(q)}</code>`
@@ -149,23 +169,29 @@ export function createPromptContext(
                 if (!files?.length) {
                     trace.error("no files provided")
                     return []
-                } else {
-                    await upsertVector(files, { trace, ...searchOptions })
-                    const vres = await vectorSearch(q, {
-                        ...searchOptions,
-                        files: files.map(stringLikeToFileName),
-                    })
-                    const res: WorkspaceFileWithScore[] =
-                        searchOptions?.outputType === "chunk"
-                            ? vres.chunks
-                            : vres.files
-                    trace.files(res, {
-                        model,
-                        secrets: env.secrets,
-                        skipIfEmpty: true,
-                    })
-                    return res
                 }
+
+                await resolveFileContents(files)
+                searchOptions.embeddingsModel =
+                    searchOptions?.embeddingsModel ??
+                    options?.embeddingsModel ??
+                    host.defaultEmbeddingsModelOptions.embeddingsModel
+                const key = await sha256string(
+                    JSON.stringify({ files, searchOptions })
+                )
+                const folderPath = dotGenaiscriptPath("vectors", key)
+                const res = await vectorSearch(q, files, {
+                    ...searchOptions,
+                    folderPath,
+                    trace,
+                })
+                // search
+                trace.files(res, {
+                    model,
+                    secrets: env.secrets,
+                    skipIfEmpty: true,
+                })
+                return res
             } finally {
                 trace.endDetails()
             }
@@ -178,14 +204,17 @@ export function createPromptContext(
 
     const promptHost: PromptHost = Object.freeze<PromptHost>({
         exec: async (command, args, options) => {
-            const res = await host.exec(undefined, command, args, {
+            const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,
             })
             return res
         },
         container: async (options) => {
-            const res = await host.container({ ...(options || {}), trace })
+            const res = await runtimeHost.container({
+                ...(options || {}),
+                trace,
+            })
             return res
         },
     })
@@ -265,7 +294,7 @@ export function createPromptContext(
                 )
                 if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = await host.resolveLanguageModel(
+                const { completer } = await runtimeHost.resolveLanguageModel(
                     genOptions,
                     connection.configuration
                 )
@@ -349,6 +378,7 @@ export function createPromptContext(
 export interface GenerationOptions
     extends ChatCompletionsOptions,
         ModelOptions,
+        EmbeddingsModelOptions,
         ScriptRuntimeOptions {
     cancellationToken?: CancellationToken
     infoCb?: (partialResponse: { text: string }) => void
