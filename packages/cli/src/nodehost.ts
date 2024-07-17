@@ -45,7 +45,7 @@ import {
 } from "../../core/src/models"
 import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
-import { unique } from "../../core/src/util"
+import { logVerbose, unique } from "../../core/src/util"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -73,6 +73,7 @@ class ModelManager implements ModelService {
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
+            logVerbose(`ollama: pulling ${modelid}...`)
             const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",

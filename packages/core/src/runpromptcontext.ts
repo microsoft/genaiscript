@@ -19,6 +19,7 @@ import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
+import { logVerbose } from "./util"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -28,7 +29,10 @@ export function createChatTurnGenerationContext(
 
     const log = (...args: any[]) => {
         const line = consoleLogFormat(...args)
-        if (line) trace.log(line)
+        if (line) {
+            trace.log(line)
+            logVerbose(line)
+        }
     }
     const console = Object.freeze<PromptGenerationConsole>({
         log,
