@@ -13,7 +13,6 @@ import { errorMessage, serializeError } from "./error"
 import prettyBytes from "pretty-bytes"
 import { host } from "./host"
 import { ellipse, renderWithPrecision, toStringList } from "./util"
-import { estimateTokens } from "./tokens"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {
@@ -27,7 +26,14 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     private _content: string = ""
     private _tree: TraceTree
 
-    constructor() {
+    constructor(
+        readonly options?: {
+            estimateTokens?: (
+                text: string,
+                options?: { model?: string }
+            ) => number
+        }
+    ) {
         super()
     }
 
@@ -273,9 +279,10 @@ ${this.toResultIcon(success, "")}${title}
                     const score = !isNaN(file.score)
                         ? `score: ${renderWithPrecision(file.score || 0, 2)}`
                         : undefined
-                    const tokens = model
-                        ? `${estimateTokens(model, content)} t`
-                        : undefined
+                    const tokens =
+                        model && this.options?.estimateTokens
+                            ? `${this.options?.estimateTokens(content, { model })} t`
+                            : undefined
                     const suffix = toStringList(tokens, size, score)
                     if (maxLength > 0) {
                         let preview = ellipse(content, maxLength).replace(

@@ -8,14 +8,15 @@ import { assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { parseModelIdentifier } from "./models"
-import {
-    toChatCompletionUserMessage,
-} from "./chat"
+import { toChatCompletionUserMessage } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { inspect } from "./logging"
 import { dedent } from "./indent"
-import { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam } from "./chattypes"
+import {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+} from "./chattypes"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -386,7 +387,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(model, value)
+                n.tokens = estimateTokens(value, { model })
             } catch (e) {
                 n.error = e
             }
@@ -397,7 +398,7 @@ async function resolvePromptNode(
                 n.resolved = value
                 const rendered = renderDefNode(n)
                 n.preview = rendered
-                n.tokens = estimateTokens(model, rendered)
+                n.tokens = estimateTokens(rendered, { model })
             } catch (e) {
                 n.error = e
             }
@@ -406,7 +407,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(model, value)
+                n.tokens = estimateTokens(value, { model })
             } catch (e) {
                 n.error = e
             }
@@ -431,7 +432,7 @@ async function resolvePromptNode(
                 }
                 const value = dedent(strings, ...resolvedArgs)
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(model, value)
+                n.tokens = estimateTokens(value, { model })
             } catch (e) {
                 n.error = e
             }
@@ -474,7 +475,7 @@ async function truncatePromptNode(
                 Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
             )
             n.resolved = value
-            n.tokens = estimateTokens(model, value)
+            n.tokens = estimateTokens(value, { model })
             truncated = true
         }
     }
@@ -490,7 +491,7 @@ async function truncatePromptNode(
                 0,
                 Math.floor((n.maxTokens * n.resolved.content.length) / n.tokens)
             )
-            n.tokens = estimateTokens(model, n.resolved.content)
+            n.tokens = estimateTokens(n.resolved.content, { model })
             truncated = true
         }
     }
@@ -623,7 +624,7 @@ ${trimNewlines(schemaText)}
 \`\`\`
 `
             prompt += text
-            n.tokens = estimateTokens(model, text)
+            n.tokens = estimateTokens(text, { model })
             if (trace && format !== "json")
                 trace.detailsFenced(
                     `🧬 schema ${schemaName} as ${format}`,

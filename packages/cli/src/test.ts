@@ -36,6 +36,7 @@ import {
     PromptScriptTestResult,
 } from "../../core/src/server/messages"
 import { generatePromptFooConfiguration } from "../../core/src/test"
+import { estimateTokens } from "../../core/src/tokens"
 
 function parseModelSpec(m: string): ModelOptions {
     const values = parseKeyValuePairs(m)
@@ -221,7 +222,7 @@ export async function scriptsTest(
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)
-    const trace = new MarkdownTrace()
+    const trace = new MarkdownTrace({ estimateTokens })
     trace.log(
         `tests: ${value.filter((r) => r.ok).length} success, ${value.filter((r) => !r.ok).length} failed`
     )

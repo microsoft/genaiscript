@@ -66,7 +66,7 @@ export async function parseTokens(
     for (const file of files) {
         const content = await readText(file)
         if (content) {
-            const tokens = estimateTokens(model, content)
+            const tokens = estimateTokens(content, { model })
             progress.report({
                 message: `${file}, ${tokens}`,
             })

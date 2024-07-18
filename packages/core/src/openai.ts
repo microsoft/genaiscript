@@ -90,7 +90,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         (cachedKey ? await cache.get(cachedKey) : undefined) || {}
     if (cached !== undefined) {
         partialCb?.({
-            tokensSoFar: estimateTokens(model, cached),
+            tokensSoFar: estimateTokens(cached, { model }),
             responseSoFar: cached,
             responseChunk: cached,
         })
@@ -214,7 +214,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 const { finish_reason, delta } = choice
                 if (finish_reason) finishReason = finish_reason as any
                 if (typeof delta?.content == "string") {
-                    numTokens += estimateTokens(model, delta.content)
+                    numTokens += estimateTokens(delta.content, { model })
                     chatResp += delta.content
                     if (delta.content)
                         trace.appendContent(

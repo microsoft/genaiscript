@@ -7,7 +7,7 @@ import {
 import { encodeChat, encode } from "gpt-tokenizer"
 import { logVerbose } from "./util"
 
-export function estimateTokens(model: string, text: string) {
+export function estimateTokens(text: string, options?: { model?: string }) {
     if (!text?.length) return 0
     try {
         return encode(text).length

@@ -31,6 +31,7 @@ import {
     ShellExecResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
+import { estimateTokens } from "../../core/src/tokens"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -121,7 +122,7 @@ export async function startServer(options: { port: string }) {
                         const { script, files = [], options = {}, runId } = data
                         const canceller =
                             new AbortSignalCancellationController()
-                        const trace = new MarkdownTrace()
+                        const trace = new MarkdownTrace({ estimateTokens })
                         const send = (
                             payload: Omit<
                                 PromptScriptProgressResponseEvent,

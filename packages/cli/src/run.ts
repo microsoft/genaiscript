@@ -52,6 +52,7 @@ import {
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
+import { estimateTokens } from "../../core/src/tokens"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -74,7 +75,11 @@ export async function runScript(
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    const {
+        trace = new MarkdownTrace({ estimateTokens }),
+        infoCb,
+        partialCb,
+    } = options || {}
     let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore

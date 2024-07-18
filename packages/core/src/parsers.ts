@@ -55,7 +55,7 @@ export function createParsers(options: {
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
-        tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
+        tokens: (text) => estimateTokens(filenameOrFileToContent(text), { model}),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
         HTMLToText: (text, options) =>

@@ -6,6 +6,7 @@ import { XLSXParse } from "./xlsx"
 import { readFile } from "fs/promises"
 import { resolve } from "path"
 import { TestHost } from "./testhost"
+import { estimateTokens } from "./tokens"
 
 describe("parsers", () => {
     let trace: MarkdownTrace
@@ -13,7 +14,7 @@ describe("parsers", () => {
     let parsers: ReturnType<typeof createParsers>
 
     beforeEach(() => {
-        trace = new MarkdownTrace()
+        trace = new MarkdownTrace({ estimateTokens })
         model = "test model"
         parsers = createParsers({ trace, model })
         TestHost.install()
