@@ -3631,6 +3631,7 @@ The following npm packages may be included in this product:
  - @types/mdurl@2.0.0
  - @types/mdx@2.0.13
  - @types/ms@0.7.34
+ - @types/mute-stream@0.0.4
  - @types/nlcst@2.0.3
  - @types/node-fetch@2.6.11
  - @types/node@17.0.45
@@ -3648,6 +3649,36 @@ These packages each contain the following license and notice below:
 MIT License
 
     Copyright (c) Microsoft Corporation.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE
+
+-----------
+
+The following npm package may be included in this product:
+
+ - @types/wrap-ansi@3.0.0
+
+This package contains the following license and notice below:
+
+MIT License
+
+    Copyright (c) Microsoft Corporation. All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -5802,7 +5833,7 @@ The following npm packages may be included in this product:
  - mdast-util-mdx@3.0.0
  - mdast-util-mdxjs-esm@2.0.1
  - mdast-util-to-markdown@2.1.0
- - micromark-extension-directive@3.0.0
+ - micromark-extension-directive@3.0.1
  - micromark-extension-gfm-autolink-literal@2.1.0
  - micromark-extension-gfm-strikethrough@2.1.0
  - micromark-extension-gfm-table@2.1.0
@@ -17019,16 +17050,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - dingbat-to-unicode@1.0.1
-
-This package contains the following license and notice below:
-
-BSD-2-Clause
-
------------
-
-The following npm package may be included in this product:
-
  - mdn-data@2.0.30
 
 This package contains the following license and notice below:
@@ -17215,37 +17236,6 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
------------
-
-The following npm package may be included in this product:
-
- - underscore@1.13.6
-
-This package contains the following license and notice below:
-
-Copyright (c) 2009-2022 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
@@ -18179,40 +18169,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 -----------
 
-The following npm packages may be included in this product:
-
- - duck@0.1.12
- - lop@0.4.1
- - mammoth@1.8.0
- - option@0.2.4
-
-These packages each contain the following license and notice below:
-
-Copyright (c) 2013, Michael Williamson
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met: 
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution. 
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
------------
-
 The following npm package may be included in this product:
 
  - fd-slicer@1.1.0
@@ -18745,11 +18701,11 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cli-width@3.0.0
+ - cli-width@4.1.0
 
 This package contains the following license and notice below:
 
-Copyright (c) 2015, Ilya Radchenko <ilya@burstcreations.com>
+Copyright (c) 2015, Ilya Radchenko <knownasilya@gmail.com>
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -19128,13 +19084,26 @@ The complete list of contributors can be found at:
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
- - inquirer@8.2.6
+ - @inquirer/checkbox@2.4.0
+ - @inquirer/confirm@3.1.15
+ - @inquirer/core@9.0.3
+ - @inquirer/editor@2.1.15
+ - @inquirer/expand@2.1.15
+ - @inquirer/figures@1.0.4
+ - @inquirer/input@2.2.2
+ - @inquirer/number@1.0.3
+ - @inquirer/password@2.1.15
+ - @inquirer/prompts@5.2.0
+ - @inquirer/rawlist@2.1.15
+ - @inquirer/select@2.4.0
+ - @inquirer/type@1.5.0
+ - inquirer@10.0.3
 
-This package contains the following license and notice below:
+These packages each contain the following license and notice below:
 
-Copyright (c) 2022 Simon Boudrias
+Copyright (c) 2023 Simon Boudrias
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -19217,34 +19186,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------
 
-The following npm package may be included in this product:
-
- - promptfoo@0.72.0
-
-This package contains the following license and notice below:
-
-Copyright (c) Ian Webster 2023
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
 The following npm packages may be included in this product:
 
  - vscode-jsonrpc@8.2.0
@@ -19289,6 +19230,34 @@ INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
 LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
+
+-----------
+
+The following npm package may be included in this product:
+
+ - promptfoo@0.72.1
+
+This package contains the following license and notice below:
+
+Copyright (c) Promptfoo 2024
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 -----------
 
@@ -19341,33 +19310,6 @@ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
------------
-
-The following npm package may be included in this product:
-
- - clone@1.0.4
-
-This package contains the following license and notice below:
-
-Copyright © 2011-2015 Paul Vorbach <paul@vorba.ch>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the “Software”), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
@@ -20067,23 +20009,6 @@ THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @xmldom/xmldom@0.8.10
-
-This package contains the following license and notice below:
-
-Copyright 2019 - present Christopher J. Brody and other contributors, as listed in: https://github.com/xmldom/xmldom/graphs/contributors
-Copyright 2012 - 2017 @jindw <jindw@xidea.org> and other contributors, as listed in: https://github.com/jindw/xmldom/graphs/contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - rfdc@1.4.1
 
 This package contains the following license and notice below:
@@ -20438,12 +20363,11 @@ IN THE SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
  - lodash-es@4.17.21
- - lodash@4.17.21
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
 
@@ -24265,7 +24189,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @drauu/core@0.4.0
- - @slidev/cli@0.49.16
+ - @slidev/cli@0.49.17
  - @slidev/types@0.47.5
  - drauu@0.4.0
 
@@ -24297,9 +24221,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @slidev/client@0.49.16
- - @slidev/parser@0.49.16
- - @slidev/types@0.49.16
+ - @slidev/client@0.49.17
+ - @slidev/parser@0.49.17
+ - @slidev/types@0.49.17
 
 These packages each contain the following license and notice below:
 
@@ -24453,7 +24377,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/compiler@2.9.1
+ - @astrojs/compiler@2.9.2
 
 This package contains the following license and notice below:
 
@@ -24520,7 +24444,7 @@ The following npm packages may be included in this product:
  - @antfu/utils@0.7.10
  - local-pkg@0.5.0
  - unconfig@0.3.13
- - vite-plugin-remote-assets@0.4.1
+ - vite-plugin-remote-assets@0.5.0
  - vite-plugin-vue-server-ref@0.4.2
 
 These packages each contain the following license and notice below:
@@ -24618,7 +24542,7 @@ The following npm packages may be included in this product:
  - @astrojs/prism@3.1.0
  - @astrojs/sitemap@3.1.6
  - @astrojs/telemetry@3.1.0
- - astro@4.11.5
+ - astro@4.11.6
 
 These packages each contain the following license and notice below:
 
@@ -24895,7 +24819,7 @@ The following npm packages may be included in this product:
  - @unocss/transformer-variant-group@0.61.5
  - @unocss/vite@0.61.5
  - unocss@0.61.5
- - vite-plugin-inspect@0.8.4
+ - vite-plugin-inspect@0.8.5
 
 These packages each contain the following license and notice below:
 
@@ -25199,7 +25123,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - unimport@3.8.0
+ - unimport@3.9.0
 
 This package contains the following license and notice below:
 
@@ -25750,7 +25674,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/language-server@2.12.0
+ - @astrojs/language-server@2.12.1
 
 This package contains the following license and notice below:
 
@@ -25830,7 +25754,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - error-stack-parser-es@0.1.4
+ - error-stack-parser-es@0.1.5
 
 This package contains the following license and notice below:
 
@@ -26817,13 +26741,13 @@ The following npm packages may be included in this product:
  - ansi-escapes@4.3.2
  - ansi-regex@6.0.1
  - ansi-styles@6.2.1
- - boxen@7.1.1
+ - boxen@8.0.0
  - bundle-name@4.1.0
  - camelcase@6.3.0
- - camelcase@7.0.1
+ - camelcase@8.0.0
  - chalk@5.3.0
  - clean-stack@4.2.0
- - cli-boxes@3.0.0
+ - cli-boxes@4.0.0
  - cli-cursor@4.0.0
  - cli-spinners@2.9.2
  - crypto-random-string@4.0.0
@@ -26835,8 +26759,8 @@ The following npm packages may be included in this product:
  - execa@5.1.1
  - execa@8.0.1
  - execa@9.3.0
- - figures@3.2.0
  - figures@6.1.0
+ - find-up-simple@1.0.0
  - find-up@5.0.0
  - get-east-asian-width@1.2.0
  - get-stream@5.2.0
@@ -26861,12 +26785,10 @@ The following npm packages may be included in this product:
  - is-stream@2.0.1
  - is-stream@3.0.0
  - is-stream@4.0.1
- - is-unicode-supported@0.1.0
  - is-unicode-supported@1.3.0
  - is-unicode-supported@2.0.0
  - is-wsl@3.1.0
  - locate-path@6.0.0
- - log-symbols@4.1.0
  - log-symbols@6.0.0
  - lowercase-keys@3.0.0
  - markdown-extensions@2.0.0
@@ -26880,12 +26802,11 @@ The following npm packages may be included in this product:
  - onetime@6.0.0
  - open@10.1.0
  - open@8.4.2
- - ora@5.4.1
  - ora@8.0.1
  - p-cancelable@3.0.0
  - p-cancelable@4.0.1
  - p-limit@3.1.0
- - p-limit@5.0.0
+ - p-limit@6.1.0
  - p-locate@5.0.0
  - p-queue@8.0.1
  - p-timeout@6.1.2
@@ -26910,12 +26831,14 @@ The following npm packages may be included in this product:
  - type-fest@1.4.0
  - unicorn-magic@0.1.0
  - unique-string@3.0.0
- - widest-line@4.0.1
+ - widest-line@5.0.0
  - wrap-ansi@7.0.0
  - wrap-ansi@8.1.0
+ - wrap-ansi@9.0.0
  - xdg-basedir@5.1.0
  - yocto-queue@0.1.0
  - yocto-queue@1.1.1
+ - yoctocolors-cjs@2.1.2
  - yoctocolors@2.1.1
 
 These packages each contain the following license and notice below:
@@ -26995,7 +26918,6 @@ The following npm packages may be included in this product:
  - ansi-styles@4.3.0
  - chalk@2.4.2
  - chalk@4.1.2
- - cli-cursor@3.1.0
  - decompress-response@4.2.1
  - define-lazy-prop@2.0.0
  - find-up@4.1.0
@@ -27004,7 +26926,6 @@ The following npm packages may be included in this product:
  - has-flag@3.0.0
  - has-flag@4.0.0
  - is-fullwidth-code-point@3.0.0
- - is-interactive@1.0.0
  - is-wsl@2.2.0
  - locate-path@5.0.0
  - make-dir@3.1.0
@@ -27019,7 +26940,6 @@ The following npm packages may be included in this product:
  - pkg-dir@4.2.0
  - quick-lru@5.1.1
  - resolve-from@5.0.0
- - restore-cursor@3.1.0
  - shebang-regex@3.0.0
  - string-width@4.2.3
  - strip-ansi@6.0.1
@@ -27898,7 +27818,7 @@ The following npm packages may be included in this product:
  - lockfile@1.0.4
  - lru-cache@5.1.1
  - minimatch@3.1.2
- - mute-stream@0.0.8
+ - mute-stream@1.0.0
  - nopt@5.0.0
  - npmlog@5.0.1
  - once@1.4.0
@@ -28044,12 +27964,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
  - rc@1.2.8
- - through@2.3.8
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 The MIT License
 
@@ -28541,36 +28460,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - xmlbuilder@10.1.1
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2013 Ozgur Ozcitak
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - raw-body@2.5.2
 
 This package contains the following license and notice below:
@@ -28593,36 +28482,6 @@ all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
- - bluebird@3.4.7
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2013-2015 Petka Antonov
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
@@ -29025,7 +28884,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - run-async@2.4.1
+ - run-async@3.0.0
 
 This package contains the following license and notice below:
 
@@ -30479,7 +30338,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - which-pm@2.2.0
+ - which-pm@3.0.0
 
 This package contains the following license and notice below:
 
@@ -30707,36 +30566,6 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - preferred-pm@3.1.4
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2018-2022 Zoltan Kochan <z@kochan.io>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
  - web-tree-sitter@0.22.6
 
 This package contains the following license and notice below:
@@ -30765,18 +30594,48 @@ SOFTWARE.
 
 -----------
 
+The following npm package may be included in this product:
+
+ - preferred-pm@4.0.0
+
+This package contains the following license and notice below:
+
+The MIT License (MIT)
+
+Copyright (c) 2018-2024 Zoltan Kochan <z@kochan.io>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-----------
+
 The following npm packages may be included in this product:
 
- - @vue/compiler-core@3.4.31
- - @vue/compiler-dom@3.4.31
- - @vue/compiler-sfc@3.4.31
- - @vue/compiler-ssr@3.4.31
- - @vue/reactivity@3.4.31
- - @vue/runtime-core@3.4.31
- - @vue/runtime-dom@3.4.31
- - @vue/server-renderer@3.4.31
- - @vue/shared@3.4.31
- - vue@3.4.31
+ - @vue/compiler-core@3.4.32
+ - @vue/compiler-dom@3.4.32
+ - @vue/compiler-sfc@3.4.32
+ - @vue/compiler-ssr@3.4.32
+ - @vue/reactivity@3.4.32
+ - @vue/runtime-core@3.4.32
+ - @vue/runtime-dom@3.4.32
+ - @vue/server-renderer@3.4.32
+ - @vue/shared@3.4.32
+ - vue@3.4.32
 
 These packages each contain the following license and notice below:
 
@@ -31142,37 +31001,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
- - defaults@1.0.4
-
-This package contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2022 Sindre Sorhus
-Copyright (c) 2015 Elijah Insua
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 -----------
 
@@ -32466,44 +32294,6 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------------
-
-The following npm package may be included in this product:
-
- - wcwidth@1.0.1
-
-This package contains the following license and notice below:
-
-wcwidth.js: JavaScript Portng of Markus Kuhn's wcwidth() Implementation
-=======================================================================
-
-Copyright (C) 2012 by Jun Woong.
-
-This package is a JavaScript porting of `wcwidth()` implementation
-[by Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c).
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-
-THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
 
 -----------
 
