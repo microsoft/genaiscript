@@ -1,7 +1,5 @@
 import { readFile, writeFile } from "fs/promises"
 import {
-    setHost,
-    Host,
     LogLevel,
     ModelService,
     LanguageModelConfiguration,
@@ -14,7 +12,7 @@ import {
 } from "./host"
 import { TraceOptions } from "./trace"
 import { LanguageModel } from "./chat"
-import { resolveLanguageModel } from "./models"
+import { resolveLanguageModel } from "./lm"
 import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,

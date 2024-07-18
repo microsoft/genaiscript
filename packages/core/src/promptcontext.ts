@@ -37,7 +37,7 @@ import { createFetch } from "./fetch"
 import { XMLParse } from "./xml"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
+import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
@@ -45,6 +45,7 @@ import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
 import { ChatCompletionMessageParam } from "./chattypes"
+import { resolveModelConnectionInfo } from "./models"
 
 export function createPromptContext(
     vars: ExpansionVariables,

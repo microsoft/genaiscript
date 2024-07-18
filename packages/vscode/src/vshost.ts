@@ -27,7 +27,7 @@ import {
     LanguageModelConfiguration,
     LogLevel,
 } from "../../core/src/host"
-import { resolveLanguageModel } from "../../core/src/models"
+import { resolveLanguageModel } from "../../core/src/lm"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, unique } from "../../core/src/util"
 

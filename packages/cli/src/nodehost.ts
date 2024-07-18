@@ -13,7 +13,7 @@ import { DockerManager } from "./docker"
 import { DefaultAzureCredential, AccessToken } from "@azure/identity"
 import { LanguageModel } from "../../core/src/chat"
 import { createFileSystem } from "../../core/src/filesystem"
-import { filterGitIgnore} from "../../core/src/gitignore"
+import { filterGitIgnore } from "../../core/src/gitignore"
 import {
     parseDefaultsFromEnv,
     parseTokenFromEnv,
@@ -29,9 +29,7 @@ import {
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
 } from "../../core/src/constants"
-import {
-    tryReadText,
-} from "../../core/src/fs"
+import { tryReadText } from "../../core/src/fs"
 import {
     ServerManager,
     ModelService,
@@ -43,13 +41,11 @@ import {
     setRuntimeHost,
     ResponseStatus,
 } from "../../core/src/host"
-import {
-    parseModelIdentifier,
-    resolveLanguageModel,
-} from "../../core/src/models"
+import { resolveLanguageModel } from "../../core/src/lm"
 import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
+import { parseModelIdentifier } from "../../core/src/models"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
