@@ -65,7 +65,7 @@
   },
   "scripts": {
     "typecheck": "tsc -p src",
-    "prompts:bundle": "node bundleprompts.mjs",
+    "prompts:bundle": "node bundleprompts.js",
     "pretypecheck": "yarn prompts:bundle",
     "test": "node --import tsx --test src/**.test.ts"
   }
