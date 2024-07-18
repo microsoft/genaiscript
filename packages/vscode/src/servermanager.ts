@@ -62,11 +62,12 @@ export class TerminalServerManager implements ServerManager {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cliVersion = (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ?? CORE_VERSION
         const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
-        else
+        else {
+            const cliVersion = (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
             this._terminal.sendText(`npx --yes genaiscript@${cliVersion} serve`)
+        }
         this._terminal.show()
     }
 

@@ -3,12 +3,7 @@ import { CLIENT_RECONNECT_DELAY, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
-import {
-    ParsePdfResponse,
-    ParseService,
-    ResponseStatus,
-    host,
-} from "../host"
+import { ParsePdfResponse, ParseService, ResponseStatus, host } from "../host"
 import { MarkdownTrace, TraceOptions } from "../trace"
 import { assert, logError } from "../util"
 import {
@@ -28,10 +23,7 @@ import {
     ServerEnv,
 } from "./messages"
 
-export class WebSocketClient
-    extends EventTarget
-    implements ParseService
-{
+export class WebSocketClient extends EventTarget implements ParseService {
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -324,7 +316,10 @@ export class WebSocketClient
     }
 
     kill(): void {
-        if (this._ws?.readyState === WebSocket.OPEN)
+        if (
+            typeof WebSocket !== undefined &&
+            this._ws?.readyState === WebSocket.OPEN
+        )
             this._ws.send(
                 JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
             )

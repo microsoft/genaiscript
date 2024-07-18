@@ -188,7 +188,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         const config = vscode.workspace.getConfiguration(TOOL_ID)
         const cliVersion =
-            (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ?? CORE_VERSION
+            (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
         const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
 
         // TODO
