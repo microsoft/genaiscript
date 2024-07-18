@@ -3,7 +3,7 @@ import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import { registerCommand } from "./commands"
 import { templateGroup } from "../../core/src/ast"
-import { GENAI_ANYJS_REGEX } from "../../core/src/constants"
+import { GENAI_ANY_REGEX } from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/promptrunner"
@@ -100,7 +100,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (
                 document &&
                 document.uri.scheme === "file" &&
-                !GENAI_ANYJS_REGEX.test(document.fileName)
+                !GENAI_ANY_REGEX.test(document.fileName)
             )
                 frag = document.uri.fsPath
         }
@@ -135,7 +135,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         if (
             fragment instanceof vscode.Uri &&
-            GENAI_ANYJS_REGEX.test(fragment.path)
+            GENAI_ANY_REGEX.test(fragment.path)
         ) {
             template = state.project.templates.find(
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
@@ -167,7 +167,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let template: PromptScript
         let files: vscode.Uri[]
-        if (GENAI_ANYJS_REGEX.test(file.path)) {
+        if (GENAI_ANY_REGEX.test(file.path)) {
             template = state.project.templates.find(
                 (p) => p.filename === file.fsPath
             )
