@@ -18,7 +18,6 @@ import {
     TOOL_NAME,
     CHANGE,
     AI_REQUESTS_CACHE,
-    CLI_JS,
     TOOL_ID,
     GENAI_ANYJS_GLOB,
 } from "../../core/src/constants"
@@ -164,11 +163,6 @@ containers/
 temp/
 `
         )
-    }
-
-    get cliJsPath() {
-        const res = Utils.joinPath(this.context.extensionUri, CLI_JS).fsPath
-        return res
     }
 
     aiRequestCache() {
