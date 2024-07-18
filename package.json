@@ -70,7 +70,7 @@
             "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes"
         }
     },
-    "devDependencies": {
+    "dependencies": {
         "glob": "^11.0.0",
         "json5": "^2.2.3",
         "zx": "^8.1.4"
