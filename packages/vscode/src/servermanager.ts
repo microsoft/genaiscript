@@ -50,7 +50,7 @@ export class TerminalServerManager implements ServerManager {
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        this._terminal.sendText(`npx --yes genaiscript@${CORE_VERSION} server`)
+        this._terminal.sendText(`npx --yes genaiscript@${CORE_VERSION} serve`)
         //        this._terminal.sendText(`node "${this.state.cliJsPath}" serve`)
         this._terminal.show()
     }
