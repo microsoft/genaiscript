@@ -1,6 +1,4 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
-import json5 from "json5"
-const { parse } = json5
 
 const dir = "./src/genaisrc"
 const fp = "./src/default_prompts.ts"
@@ -109,6 +107,10 @@ export const promptFooDriver = ${JSON.stringify(promptFooDriver)}
 \n`
 
 writeFileSync(fp, text, "utf-8")
+
+/*
+import json5 from "json5"
+const { parse } = json5
 
 const markdown = `---
 title: System Prompts
@@ -236,3 +238,5 @@ ${functions.map(({ id, name, description }) => `<LinkCard title="${name}" descri
 `,
     "utf-8"
 )
+
+*/
