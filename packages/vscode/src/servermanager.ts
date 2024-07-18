@@ -7,6 +7,8 @@ import {
     ICON_LOGO_NAME,
     CLIENT_RECONNECT_MAX_ATTEMPTS,
     TOOL_ID,
+    VSCODE_CONFIG_CLI_VERSION,
+    VSCODE_CONFIG_CLI_PATH,
 } from "../../core/src/constants"
 import { ServerManager, host, ParseService } from "../../core/src/host"
 import { logError } from "../../core/src/util"
@@ -60,8 +62,8 @@ export class TerminalServerManager implements ServerManager {
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
         const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cliVersion = (config.get("cli.version") as string) ?? CORE_VERSION
-        const cliPath = config.get("cli.path") as string
+        const cliVersion = (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ?? CORE_VERSION
+        const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
         else
             this._terminal.sendText(`npx --yes genaiscript@${cliVersion} serve`)

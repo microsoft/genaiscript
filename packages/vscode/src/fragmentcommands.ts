@@ -3,11 +3,17 @@ import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import { registerCommand } from "./commands"
 import { templateGroup } from "../../core/src/ast"
-import { GENAI_ANYJS_REGEX } from "../../core/src/constants"
+import {
+    GENAI_ANYJS_REGEX,
+    TOOL_ID,
+    VSCODE_CONFIG_CLI_PATH,
+    VSCODE_CONFIG_CLI_VERSION,
+} from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/promptrunner"
 import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -179,11 +185,18 @@ export function activateFragmentCommands(state: ExtensionState) {
             template = await pickTemplate()
             files = [file]
         }
+
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const cliVersion =
+            (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ?? CORE_VERSION
+        const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
+
+        // TODO
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
             {
                 name: "GenAIScript",
-                program: state.cliJsPath,
+                program: cliPath,
                 request: "launch",
                 skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
                 type: "node",
