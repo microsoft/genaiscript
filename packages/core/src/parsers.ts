@@ -55,7 +55,8 @@ export function createParsers(options: {
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
-        tokens: (text) => estimateTokens(filenameOrFileToContent(text), { model}),
+        tokens: (text) =>
+            estimateTokens(filenameOrFileToContent(text), { model }),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
         HTMLToText: (text, options) =>
@@ -94,7 +95,8 @@ export function createParsers(options: {
             await resolveFileContent(file, { trace })
             return await treeSitterQuery(file, query, { trace })
         },
-        math: (expression) => MathTryEvaluate(expression, { trace }),
+        math: async (expression) =>
+            await MathTryEvaluate(expression, { trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),
     })
