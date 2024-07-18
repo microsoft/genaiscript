@@ -66,7 +66,7 @@ export class TerminalServerManager implements ServerManager {
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
         else {
             const cliVersion = (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
-            this._terminal.sendText(`npx --yes genaiscript@${cliVersion} serve`)
+            this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
         }
         this._terminal.show()
     }

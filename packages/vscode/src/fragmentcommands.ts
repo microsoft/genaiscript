@@ -6,6 +6,7 @@ import { templateGroup } from "../../core/src/ast"
 import {
     GENAI_ANY_REGEX,
     TOOL_ID,
+    TOOL_NAME,
     VSCODE_CONFIG_CLI_PATH,
     VSCODE_CONFIG_CLI_VERSION,
 } from "../../core/src/constants"
@@ -187,27 +188,38 @@ export function activateFragmentCommands(state: ExtensionState) {
         }
 
         const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const program = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        const args = [
+            "run",
+            vscode.workspace.asRelativePath(template.filename),
+            ...files.map((file) =>
+                vscode.workspace.asRelativePath(file.fsPath)
+            ),
+        ]
         const cliVersion =
             (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
-        const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        const configuration = program
+            ? <vscode.DebugConfiguration>{
+                  name: TOOL_NAME,
+                  program,
+                  request: "launch",
+                  skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
+                  type: "node",
+                  args,
+              }
+            : <vscode.DebugConfiguration>{
+                  name: TOOL_NAME,
+                  type: "node",
+                  request: "launch",
+                  runtimeExecutable: "npx",
+                  runtimeArgs: [`--yes`, `${TOOL_ID}@${cliVersion}`, ...args],
+                  console: "integratedTerminal",
+                  internalConsoleOptions: "neverOpen",
+              }
 
-        // TODO
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
-            {
-                name: "GenAIScript",
-                program: cliPath,
-                request: "launch",
-                skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
-                type: "node",
-                args: [
-                    "run",
-                    vscode.workspace.asRelativePath(template.filename),
-                    ...files.map((file) =>
-                        vscode.workspace.asRelativePath(file.fsPath)
-                    ),
-                ],
-            }
+            configuration
         )
     }
 
