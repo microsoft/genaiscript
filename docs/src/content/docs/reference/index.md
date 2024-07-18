@@ -10,3 +10,4 @@ GenAIScript is a scripting language that makes LLMs a first-class part of the sc
 
 -   [Scripts](./scripts) provide a domain-specific JavaScript framework to build LLM requests.
 -   [CLI](./cli) documents the command-line interface to automate GenAIScripts executions.
+-   [Visual Studio Code Extension](./vscode) provides a rich set of features to author, debug, and deploy GenAIScripts.
