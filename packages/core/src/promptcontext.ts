@@ -46,6 +46,7 @@ import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
 import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveModelConnectionInfo } from "./models"
+import { resolveLanguageModel } from "./lm"
 
 export function createPromptContext(
     vars: ExpansionVariables,
@@ -293,7 +294,7 @@ export function createPromptContext(
                 )
                 if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = await runtimeHost.resolveLanguageModel(
+                const { completer } = await resolveLanguageModel(
                     genOptions,
                     connection.configuration
                 )

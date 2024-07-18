@@ -21,6 +21,7 @@ import { isGlobMatch } from "./glob"
 import { validateJSONWithSchema } from "./schema"
 import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
+import { resolveLanguageModel } from "./lm"
 
 async function resolveExpansionVars(
     project: Project,
@@ -194,7 +195,7 @@ export async function runTemplate(
                 "LLM configuration missing",
                 connection.info
             )
-        const { completer } = await runtimeHost.resolveLanguageModel(
+        const { completer } = await resolveLanguageModel(
             genOptions,
             connection.configuration
         )

@@ -11,8 +11,6 @@ import {
     RuntimeHost,
 } from "./host"
 import { TraceOptions } from "./trace"
-import { LanguageModel } from "./chat"
-import { resolveLanguageModel } from "./lm"
 import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
@@ -84,15 +82,6 @@ export class TestHost implements RuntimeHost {
         modelId: string
     ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
-    }
-    async resolveLanguageModel(
-        options: {
-            model?: string
-            languageModel?: LanguageModel
-        },
-        configuration: LanguageModelConfiguration
-    ): Promise<LanguageModel> {
-        return resolveLanguageModel(options, configuration)
     }
     log(level: LogLevel, msg: string): void {
         throw new Error("Method not implemented.")

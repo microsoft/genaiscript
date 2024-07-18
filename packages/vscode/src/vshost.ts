@@ -7,7 +7,6 @@ import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
-import { LanguageModel } from "../../core/src/chat"
 import {
     parseDefaultsFromEnv,
     parseTokenFromEnv,
@@ -21,13 +20,12 @@ import {
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
-    Host,
     ParseService,
     setHost,
     LanguageModelConfiguration,
     LogLevel,
+    Host,
 } from "../../core/src/host"
-import { resolveLanguageModel } from "../../core/src/lm"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, unique } from "../../core/src/util"
 
@@ -223,17 +221,6 @@ export class VSCodeHost extends EventTarget implements Host {
             }
         }
         return tok
-    }
-
-    async resolveLanguageModel(
-        options: {
-            model?: string
-            languageModel?: LanguageModel
-        },
-        configuration: LanguageModelConfiguration
-    ): Promise<LanguageModel> {
-        const model = resolveLanguageModel(options, configuration)
-        return model
     }
 
     // executes a process

@@ -119,14 +119,6 @@ export interface Host {
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration | undefined>
-    resolveLanguageModel(
-        options: {
-            model?: string
-            languageModel?: LanguageModel
-        },
-        configuration: LanguageModelConfiguration
-    ): Promise<LanguageModel>
-
     log(level: LogLevel, msg: string): void
 
     // fs
