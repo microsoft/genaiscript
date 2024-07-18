@@ -8,16 +8,6 @@
             "packages/*",
             "docs",
             "slides"
-        ],
-        "nohoist": [
-            "dockerode",
-            "pdfjs-dist",
-            "mammoth",
-            "promptfoo",
-            "string-ansi",
-            "canvas",
-            "sharp",
-            "astro"
         ]
     },
     "scripts": {
