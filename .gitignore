@@ -18,6 +18,5 @@ applications/EdgePeeringAI
 docs/public/slides/
 yarn-error.log
 test.sh
-esbuild.meta.json
-esbuild.treemap.html
-esbuild.network.html
+esbuild.*.json
+esbuild.*.html

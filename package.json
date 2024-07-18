@@ -82,7 +82,6 @@
     },
     "devDependencies": {
         "glob": "^11.0.0",
-        "vitest": "^1.6.0",
         "zx": "^8.1.4"
     }
 }

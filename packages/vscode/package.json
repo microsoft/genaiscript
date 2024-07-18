@@ -362,9 +362,6 @@
     },
     "devDependencies": {
         "@types/vscode": "^1.90.0",
-        "@typescript-eslint/eslint-plugin": "^7.13.1",
-        "@typescript-eslint/parser": "^7.13.1",
-        "@vscode/test-web": "^0.0.56",
         "@vscode/vsce": "^2.30.0",
         "assert": "^2.1.0",
         "eslint": "^9.7.0",
