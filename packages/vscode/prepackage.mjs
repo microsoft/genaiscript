@@ -1,8 +1,5 @@
 import "zx/globals"
 
-// workaround yarn workspaces
-await fs.rmdir("./node_modules", { recursive: true })
-
 const pkg = await fs.readJSON("./package.json")
 pkg._enabledApiProposals = pkg.enabledApiProposals
 pkg.displayName = "GenAIScript"
