@@ -21,6 +21,7 @@ jobs:
                   node-version: "${{ matrix.node-version }}"
                   cache: yarn
             - run: yarn install --frozen-lockfile
+            - run: cd packages/core && yarn install json5
             - name: typecheck
               run: yarn typecheck
             - name: compile
