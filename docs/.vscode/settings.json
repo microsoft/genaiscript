@@ -2,5 +2,6 @@
     "cSpell.words": [
         "genaiscript",
         "openai"
-    ]
+    ],
+    "genaiscript.cli.path": "../packages/cli/built/genaiscript.cjs"
 }
