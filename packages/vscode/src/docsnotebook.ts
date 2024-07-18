@@ -16,7 +16,7 @@ import { details } from "../../core/src/markdown"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { arrayify, parseBoolean } from "../../core/src/util"
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
-import { Fragment } from "../../core/src/promptrunner"
+import { Fragment } from "../../core/src/generation"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts

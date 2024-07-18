@@ -9,9 +9,9 @@ import { applyChangeLog, parseChangeLogs } from "./changelog"
 import { CORE_VERSION } from "./version"
 import { expandFiles, fileExists, readText } from "./fs"
 import { CSVToMarkdown } from "./csv"
-import { GenerationOptions } from "./promptcontext"
+import { Fragment, GenerationOptions } from "./generation"
 import { traceCliArgs } from "./clihelp"
-import { GenerationResult, expandTemplate } from "./expander"
+import { GenerationResult } from "./generation"
 import { resolveModelConnectionInfo } from "./models"
 import { RequestError, errorMessage } from "./error"
 import { renderFencedVariables, unquote } from "./fence"
@@ -20,10 +20,7 @@ import { resolveFileContent } from "./file"
 import { isGlobMatch } from "./glob"
 import { validateJSONWithSchema } from "./schema"
 import { YAMLParse } from "./yaml"
-
-export interface Fragment {
-    files: string[]
-}
+import { expandTemplate } from "./expander"
 
 async function resolveExpansionVars(
     project: Project,

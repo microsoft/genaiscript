@@ -11,7 +11,7 @@ import {
 } from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
-import { Fragment } from "../../core/src/promptrunner"
+import { Fragment } from "../../core/src/generation"
 import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 

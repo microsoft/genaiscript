@@ -38,7 +38,7 @@ import { INIParse, INIStringify } from "./ini"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { createFetch } from "./fetch"
 import { XMLParse } from "./xml"
-import { GenerationStats } from "./expander"
+import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
 import { renderAICI } from "./aici"
@@ -373,24 +373,4 @@ export function createPromptContext(
     }
 
     return ctx
-}
-
-export interface GenerationOptions
-    extends ChatCompletionsOptions,
-        ModelOptions,
-        EmbeddingsModelOptions,
-        ScriptRuntimeOptions {
-    cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: { text: string }) => void
-    trace: MarkdownTrace
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    skipLLM?: boolean
-    label?: string
-    cliInfo?: {
-        files: string[]
-    }
-    languageModel?: LanguageModel
-    vars?: PromptParameters
-    stats: GenerationStats
 }

@@ -1,6 +1,6 @@
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
-import { resolveSystems } from "./expander"
+import { resolveSystems } from "./systems"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType

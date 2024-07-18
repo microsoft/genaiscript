@@ -1,4 +1,4 @@
-import { GenerationResult } from "../expander"
+import { GenerationResult } from "../generation"
 import { ParsePdfResponse, ResponseStatus } from "../host"
 
 export interface RequestMessage {

@@ -1,5 +1,5 @@
 import { NPM_CLI_PACKAGE } from "./constants"
-import { GenerationOptions } from "./promptcontext"
+import { GenerationOptions } from "./generation"
 import { MarkdownTrace } from "./trace"
 import { arrayify, relativePath } from "./util"
 import { CORE_VERSION } from "./version"

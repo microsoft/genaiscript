@@ -22,10 +22,8 @@ import {
     GENAI_ANYJS_GLOB,
 } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
-import { GenerationResult } from "../../core/src/expander"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
-import { Fragment } from "../../core/src/promptrunner"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
     dotGenaiscriptPath,
@@ -35,6 +33,7 @@ import {
     groupBy,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
+import { Fragment, GenerationResult } from "../../core/src/generation"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"

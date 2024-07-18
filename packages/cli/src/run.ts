@@ -27,7 +27,7 @@ import {
     ANNOTATION_ERROR_CODE,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
-import { GenerationResult } from "../../core/src/expander"
+import { GenerationResult } from "../../core/src/generation"
 import { parseKeyValuePairs } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
 import { host, runtimeHost } from "../../core/src/host"

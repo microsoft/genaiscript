@@ -2,7 +2,7 @@ import { ChatCompletionsProgressReport } from "../chat"
 import { CLIENT_RECONNECT_DELAY, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
-import { GenerationResult } from "../expander"
+import { GenerationResult } from "../generation"
 import {
     ParsePdfResponse,
     ParseService,

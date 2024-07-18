@@ -13,7 +13,7 @@ import {
     createTextNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import { GenerationOptions } from "./promptcontext"
+import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
