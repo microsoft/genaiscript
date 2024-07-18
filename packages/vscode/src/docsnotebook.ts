@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { registerCommand } from "./commands"
-import { renderMessagesToMarkdown } from "../../core/src/chat"
+import { renderMessagesToMarkdown } from "../../core/src/chatrender"
 import {
     TOOL_NAME,
     MDX_REGEX,

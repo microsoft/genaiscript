@@ -10,13 +10,21 @@ import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
-import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
-import { ChatCompletionContentPartImage, ChatCompletionMessageParam, ChatCompletionResponse, ChatCompletionsOptions, ChatCompletionTool, ChatCompletionUserMessageParam, CreateChatCompletionRequest } from "./chattypes"
+import {
+    ChatCompletionContentPartImage,
+    ChatCompletionMessageParam,
+    ChatCompletionResponse,
+    ChatCompletionsOptions,
+    ChatCompletionTool,
+    ChatCompletionUserMessageParam,
+    CreateChatCompletionRequest,
+} from "./chattypes"
+import { renderMessagesToMarkdown } from "./chatrender"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -277,7 +285,7 @@ function structurifyChatSession(
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
-        : resp?.finishReason ?? "fail"
+        : (resp?.finishReason ?? "fail")
     const error = serializeError(err)
 
     const fences = extractFenced(text)
@@ -301,7 +309,7 @@ function structurifyChatSession(
     } else {
         json = isJSONObjectOrArray(text)
             ? JSON5TryParse(text, undefined)
-            : undefined ?? findFirstDataFence(fences)
+            : (undefined ?? findFirstDataFence(fences))
     }
     const frames: DataFrame[] = []
 
@@ -528,104 +536,4 @@ export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
     const { json, text } = resp
     trace.detailsFenced(`🔠 output`, text, `markdown`)
     if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
-}
-
-function renderToolArguments(args: string) {
-    const js = JSON5TryParse(args)
-    if (js) return fenceMD(YAMLStringify(js), "yaml")
-    else return fenceMD(args, "json")
-}
-
-export function renderMessagesToMarkdown(
-    messages: ChatCompletionMessageParam[],
-    options?: {
-        system?: boolean
-        user?: boolean
-        assistant?: boolean
-    }
-) {
-    const {
-        system = undefined,
-        user = undefined,
-        assistant = true,
-    } = options || {}
-    const res: string[] = []
-    messages
-        ?.filter((msg) => {
-            switch (msg.role) {
-                case "system":
-                    return system !== false
-                case "user":
-                    return user !== false
-                case "assistant":
-                    return assistant !== false
-                default:
-                    return true
-            }
-        })
-        ?.forEach((msg) => {
-            const { role } = msg
-            switch (role) {
-                case "system":
-                    res.push(
-                        details(
-                            "📙 system",
-                            fenceMD(msg.content, "markdown"),
-                            false
-                        )
-                    )
-                    break
-                case "user":
-                    let content: string
-                    if (typeof msg.content === "string")
-                        content = fenceMD(msg.content, "markdown")
-                    else if (Array.isArray(msg.content))
-                        for (const part of msg.content) {
-                            if (part.type === "text")
-                                content = fenceMD(part.text, "markdown")
-                            else if (part.type === "image_url")
-                                content = `![image](${part.image_url.url})`
-                            else content = fenceMD(YAMLStringify(part), "yaml")
-                        }
-                    else content = fenceMD(YAMLStringify(msg), "yaml")
-                    res.push(details(`👤 user`, content, user === true))
-                    break
-                case "assistant":
-                    res.push(
-                        details(
-                            `🤖 assistant ${msg.name ? msg.name : ""}`,
-                            [
-                                fenceMD(msg.content, "markdown"),
-                                ...(msg.tool_calls?.map((tc) =>
-                                    details(
-                                        `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
-                                        renderToolArguments(
-                                            tc.function.arguments
-                                        )
-                                    )
-                                ) || []),
-                            ]
-                                .filter((s) => !!s)
-                                .join("\n\n"),
-                            assistant === true
-                        )
-                    )
-                    break
-                case "aici":
-                    res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
-                    break
-                case "tool":
-                    res.push(
-                        details(
-                            `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                            fenceMD(msg.content, "json")
-                        )
-                    )
-                    break
-                default:
-                    res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
-                    break
-            }
-        })
-    return res.filter((s) => s !== undefined).join("\n")
 }
