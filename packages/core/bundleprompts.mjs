@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync, writeFileSync } from "fs"
-import json5 from "json5"
+import json5 from "../../node_modules/json5/lib/index.js"
 const { parse } = json5
 
 const dir = "./src/genaisrc"
