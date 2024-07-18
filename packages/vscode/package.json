@@ -51,12 +51,6 @@
     "repository": {
         "url": "https://github.com/microsoft/genaiscript"
     },
-    "files": [
-        "./icon-light.svg",
-        "./icon-dark.svg",
-        "./tutorial.md",
-        "./media/**"
-    ],
     "contributes": {
         "walkthroughs": [
             {
