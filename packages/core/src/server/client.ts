@@ -317,7 +317,7 @@ export class WebSocketClient extends EventTarget implements ParseService {
 
     kill(): void {
         if (
-            typeof WebSocket !== undefined &&
+            typeof WebSocket !== "undefined" &&
             this._ws?.readyState === WebSocket.OPEN
         )
             this._ws.send(
