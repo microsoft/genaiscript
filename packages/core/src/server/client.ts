@@ -1,4 +1,4 @@
-import { ChatCompletionsProgressReport } from "../chat"
+import { ChatCompletionsProgressReport } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"

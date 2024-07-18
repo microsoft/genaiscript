@@ -1,10 +1,4 @@
-import {
-    ChatCompletionContentPartText,
-    ChatCompletionHandler,
-    ChatCompletionResponse,
-    LanguageModel,
-    LanguageModelInfo,
-} from "./chat"
+import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { PromptNode, visitNode } from "./promptdom"
 import { fromHex, logError, normalizeInt, utf8Decode } from "./util"
 import { AICI_CONTROLLER, TOOL_ID } from "./constants"
@@ -12,6 +6,11 @@ import { LanguageModelConfiguration, host } from "./host"
 import { NotSupportedError, RequestError } from "./error"
 import { createFetch } from "./fetch"
 import { parseModelIdentifier } from "./models"
+import {
+    AICIRequest,
+    ChatCompletionContentPartText,
+    ChatCompletionResponse,
+} from "./chattypes"
 
 function renderAICINode(node: AICINode) {
     const { name } = node
@@ -30,13 +29,6 @@ function renderAICINode(node: AICINode) {
 
 function escapeJavascriptString(s: string) {
     return s.replace(/`/g, "\\`")
-}
-
-export interface AICIRequest {
-    role: "aici"
-    content?: string
-    error?: unknown
-    functionName: string
 }
 
 export async function renderAICI(functionName: string, root: PromptNode) {

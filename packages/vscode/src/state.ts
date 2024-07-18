@@ -11,7 +11,7 @@ import { pickLanguageModel } from "./lmaccess"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project } from "../../core/src/ast"
 import { JSONLineCache } from "../../core/src/cache"
-import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
 import {

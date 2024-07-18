@@ -5,10 +5,10 @@ import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_AZURE } from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
 import { JSONLineCache } from "./cache"
-import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chat"
+import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./host"
 import { getConfigHeaders } from "./openai"
-import { dotGenaiscriptPath, trimTrailingSlash } from "./util"
+import { trimTrailingSlash } from "./util"
 import { TraceOptions } from "./trace"
 
 export interface EmbeddingsCacheKey {

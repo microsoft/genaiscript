@@ -1,5 +1,6 @@
 import { CancellationToken } from "./cancellation"
-import { ChatCompletionMessageParam, ChatCompletionsOptions, LanguageModel } from "./chat"
+import { LanguageModel } from "./chat"
+import { ChatCompletionMessageParam, ChatCompletionsOptions } from "./chattypes"
 import { MarkdownTrace } from "./trace"
 
 export interface Fragment {
@@ -65,7 +66,6 @@ export interface GenerationStats {
 }
 
 export type GenerationStatus = "success" | "error" | "cancelled" | undefined
-
 
 export interface GenerationOptions
     extends ChatCompletionsOptions,

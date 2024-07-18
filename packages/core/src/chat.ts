@@ -1,8 +1,5 @@
-import OpenAI from "openai"
-import { JSONLineCache } from "./cache"
 import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
-import { AICIRequest } from "./aici"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
@@ -10,7 +7,7 @@ import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
-import { CHAT_CACHE, MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
 import { details, fenceMD } from "./markdown"
@@ -19,111 +16,7 @@ import { estimateChatTokens } from "./tokens"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
-
-export type ChatCompletionContentPartText =
-    OpenAI.Chat.Completions.ChatCompletionContentPartText
-
-export type ChatCompletionContentPart =
-    OpenAI.Chat.Completions.ChatCompletionContentPart
-
-export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
-
-export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
-
-export type ChatCompletionSystemMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionSystemMessageParam
-
-export type ChatCompletionMessageParam =
-    | OpenAI.Chat.Completions.ChatCompletionMessageParam
-    | AICIRequest
-
-export type CreateChatCompletionRequest = Omit<
-    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
-    "messages"
-> & {
-    /**
-     * A list of messages comprising the conversation so far.
-     * [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
-     */
-    //  messages: Array<ChatCompletionMessageParam>;
-    messages: ChatCompletionMessageParam[]
-}
-
-export type ChatCompletionAssistantMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam
-
-export type ChatCompletionUserMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionUserMessageParam
-
-export type ChatCompletionContentPartImage =
-    OpenAI.Chat.Completions.ChatCompletionContentPartImage
-
-export type EmbeddingCreateParams = OpenAI.Embeddings.EmbeddingCreateParams
-
-export type EmbeddingCreateResponse = OpenAI.Embeddings.CreateEmbeddingResponse
-
-export interface ChatCompletionToolCall {
-    id: string
-    name: string
-    arguments?: string
-}
-
-export interface ChatCompletionResponse {
-    text?: string
-    cached?: boolean
-    variables?: Record<string, string>
-    toolCalls?: ChatCompletionToolCall[]
-    finishReason?:
-        | "stop"
-        | "length"
-        | "tool_calls"
-        | "content_filter"
-        | "cancel"
-        | "fail"
-}
-
-export const ModelError = OpenAI.APIError
-
-export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
-    ModelOptions &
-    Omit<LanguageModelConfiguration, "token" | "source">
-
-export type ChatCompletationRequestCacheValue = {
-    text: string
-    finishReason: ChatCompletionResponse["finishReason"]
-}
-
-export type ChatCompletationRequestCache = JSONLineCache<
-    ChatCompletionRequestCacheKey,
-    ChatCompletationRequestCacheValue
->
-
-export function getChatCompletionCache(
-    name?: string
-): ChatCompletationRequestCache {
-    return JSONLineCache.byName<
-        ChatCompletionRequestCacheKey,
-        ChatCompletationRequestCacheValue
-    >(name || CHAT_CACHE)
-}
-
-export interface ChatCompletionsProgressReport {
-    tokensSoFar: number
-    responseSoFar: string
-    responseChunk: string
-}
-
-export interface ChatCompletionsOptions {
-    partialCb?: (progress: ChatCompletionsProgressReport) => void
-    requestOptions?: Partial<RequestInit>
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    cache?: boolean
-    cacheName?: string
-    retry?: number
-    retryDelay?: number
-    maxDelay?: number
-}
+import { ChatCompletionContentPartImage, ChatCompletionMessageParam, ChatCompletionResponse, ChatCompletionsOptions, ChatCompletionTool, ChatCompletionUserMessageParam, CreateChatCompletionRequest } from "./chattypes"
 
 export function toChatCompletionUserMessage(
     expanded: string,

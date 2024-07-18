@@ -7,7 +7,7 @@ import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
-import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { runTemplate } from "../../core/src/promptrunner"
 import {
     githubCreateIssueComment,

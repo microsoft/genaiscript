@@ -4,25 +4,24 @@ import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
-    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
 import { estimateTokens } from "./tokens"
-import {
-    ChatCompletionChunk,
-    ChatCompletionHandler,
-    ChatCompletionRequestCacheKey,
-    ChatCompletionResponse,
-    ChatCompletionToolCall,
-    LanguageModel,
-    LanguageModelInfo,
-    getChatCompletionCache,
-} from "./chat"
+import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { RequestError, errorMessage } from "./error"
 import { createFetch, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
+import {
+    ChatCompletionRequestCacheKey,
+    getChatCompletionCache,
+} from "./chatcache"
+import {
+    ChatCompletionToolCall,
+    ChatCompletionResponse,
+    ChatCompletionChunk,
+} from "./chattypes"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     const res: Record<string, string> = {

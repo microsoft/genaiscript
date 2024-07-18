@@ -1,8 +1,5 @@
 import {
-    ChatCompletionMessageParam,
-    ChatCompletionsOptions,
     executeChatSession,
-    LanguageModel,
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
@@ -14,7 +11,7 @@ import {
     logVerbose,
     sha256string,
 } from "./util"
-import { RetrievalSearchResponse, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
@@ -28,7 +25,7 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { bingSearch } from "./websearch"
-import { CancellationToken, checkCancelled } from "./cancellation"
+import { checkCancelled } from "./cancellation"
 import {
     RunPromptContextNode,
     createChatGenerationContext,
@@ -47,6 +44,7 @@ import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
+import { ChatCompletionMessageParam } from "./chattypes"
 
 export function createPromptContext(
     vars: ExpansionVariables,

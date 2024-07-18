@@ -9,14 +9,13 @@ import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { parseModelIdentifier } from "./models"
 import {
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageParam,
     toChatCompletionUserMessage,
 } from "./chat"
 import { errorMessage } from "./error"
 import { tidyData } from "./tidy"
 import { inspect } from "./logging"
 import { dedent } from "./indent"
+import { ChatCompletionAssistantMessageParam, ChatCompletionMessageParam } from "./chattypes"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:

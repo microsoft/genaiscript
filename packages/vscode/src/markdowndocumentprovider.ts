@@ -7,7 +7,7 @@ import {
 } from "./state"
 import { showMarkdownPreview } from "./markdown"
 import { registerCommand } from "./commands"
-import { getChatCompletionCache } from "../../core/src/chat"
+import { getChatCompletionCache } from "../../core/src/chatcache"
 import {
     TRACE_NODE_PREFIX,
     CACHE_LLMREQUEST_PREFIX,
@@ -23,7 +23,6 @@ import {
     prettifyMarkdown,
     fenceMD,
 } from "../../core/src/markdown"
-import { YAMLStringify } from "../../core/src/yaml"
 
 const SCHEME = "genaiscript"
 

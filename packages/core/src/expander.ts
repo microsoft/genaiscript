@@ -11,19 +11,20 @@ import {
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
-import { AICIRequest, renderAICI } from "./aici"
-import {
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-    toChatCompletionUserMessage,
-} from "./chat"
+import { renderAICI } from "./aici"
+import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
+import {
+    AICIRequest,
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+} from "./chattypes"
 
 async function callExpander(
     r: PromptScript,
