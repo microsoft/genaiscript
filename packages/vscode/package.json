@@ -249,15 +249,13 @@
                         "default": true,
                         "description": "Enable or disables LLM request cache support."
                     },
-                    "genaiscript.maxCachedTemperature": {
-                        "type": "number",
-                        "default": 0.5,
-                        "description": "Maximum prompt temperature to be cached (default 0.5)."
+                    "genaiscript.cli.version": {
+                        "type": "string",
+                        "description": "GenAIScript CLI version to use. Default matches the extension version."
                     },
-                    "genaiscript.maxCachedTopP": {
-                        "type": "number",
-                        "default": 0.5,
-                        "description": "Maximum prompt top_p to be cached (default 0.5)."
+                    "genaiscript.cli.path": {
+                        "type": "string",
+                        "description": "Path to GenAIScript CLI. Default uses npx."
                     }
                 }
             }
