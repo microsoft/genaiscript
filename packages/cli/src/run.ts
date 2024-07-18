@@ -8,7 +8,7 @@ import { createProgressSpinner } from "./spinner"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chat"
-import { Fragment, runTemplate } from "../../core/src/promptrunner"
+import { runTemplate } from "../../core/src/promptrunner"
 import {
     githubCreateIssueComment,
     githubCreatePullRequestReviews,
@@ -27,7 +27,7 @@ import {
     ANNOTATION_ERROR_CODE,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
-import { GenerationResult } from "../../core/src/generation"
+import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parseKeyValuePairs } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
 import { host, runtimeHost } from "../../core/src/host"
