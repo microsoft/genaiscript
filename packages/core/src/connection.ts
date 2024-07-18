@@ -110,8 +110,8 @@ export async function parseTokenFromEnv(
                 env.AZURE_OPENAI_API_ENDPOINT
         )
         if (!token && !base) return undefined
-        if (!token)
-            throw new Error("AZURE_OPENAI_API_KEY or AZURE_API_KEY missing")
+        //if (!token)
+        //    throw new Error("AZURE_OPENAI_API_KEY or AZURE_API_KEY missing")
         if (token === PLACEHOLDER_API_KEY)
             throw new Error("AZURE_OPENAI_API_KEY not configured")
         if (!base)
