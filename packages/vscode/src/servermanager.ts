@@ -6,18 +6,24 @@ import {
     TOOL_NAME,
     ICON_LOGO_NAME,
     CLIENT_RECONNECT_MAX_ATTEMPTS,
+    TOOL_ID,
+    VSCODE_CONFIG_CLI_VERSION,
+    VSCODE_CONFIG_CLI_PATH,
 } from "../../core/src/constants"
 import { ServerManager, host, ParseService } from "../../core/src/host"
 import { logError } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
+import { CORE_VERSION } from "../../core/src/version"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
     readonly client: WebSocketClient
 
     constructor(readonly state: ExtensionState) {
-        state.context.subscriptions.push(this)
-        state.context.subscriptions.push(
+        const { context } = state
+        const { subscriptions } = context
+        subscriptions.push(this)
+        subscriptions.push(
             vscode.window.onDidCloseTerminal((e) => {
                 if (e === this._terminal) {
                     try {
@@ -29,6 +35,12 @@ export class TerminalServerManager implements ServerManager {
                 }
             })
         )
+        subscriptions.push(
+            vscode.workspace.onDidChangeConfiguration((e) => {
+                if (e.affectsConfiguration(TOOL_ID)) this.close()
+            })
+        )
+
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
@@ -49,7 +61,12 @@ export class TerminalServerManager implements ServerManager {
             isTransient: true,
             iconPath: new vscode.ThemeIcon(ICON_LOGO_NAME),
         })
-        this._terminal.sendText(`node "${this.state.cliJsPath}" serve`)
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const cliVersion = (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ?? CORE_VERSION
+        const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
+        else
+            this._terminal.sendText(`npx --yes genaiscript@${cliVersion} serve`)
         this._terminal.show()
     }
 

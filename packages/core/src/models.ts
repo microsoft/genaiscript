@@ -1,33 +1,8 @@
-import assert from "assert"
-import { AICIModel } from "./aici"
-import { LanguageModel } from "./chat"
-import {
-    MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_LLAMAFILE,
-    MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_OPENAI,
-} from "./constants"
+import { MODEL_PROVIDER_LLAMAFILE, MODEL_PROVIDER_OPENAI } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
-import { OllamaModel } from "./ollama"
-import { OpenAIModel } from "./openai"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
-
-export function resolveLanguageModel(
-    options: {
-        model?: string
-        languageModel?: LanguageModel
-    },
-    configuration: LanguageModelConfiguration
-): LanguageModel {
-    const { model, languageModel } = options || {}
-    if (languageModel) return languageModel
-
-    const { provider } = parseModelIdentifier(model)
-    if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
-    if (provider === MODEL_PROVIDER_AICI) return AICIModel
-    return OpenAIModel
-}
+import { assert } from "./util"
 
 /**
  * model

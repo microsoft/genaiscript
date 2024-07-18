@@ -5,8 +5,8 @@ import { AzureManager } from "./azuremanager"
 import { Uri } from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
-import { readFileText } from "./fs"
-import { LanguageModel } from "../../core/src/chat"
+import { checkFileExists, readFileText } from "./fs"
+import { filterGitIgnore } from "../../core/src/gitignore"
 import {
     parseDefaultsFromEnv,
     parseTokenFromEnv,
@@ -19,15 +19,13 @@ import {
     MODEL_PROVIDER_AZURE,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
-import { fileExists, filterGitIgnore } from "../../core/src/fs"
 import {
-    Host,
     ParseService,
     setHost,
     LanguageModelConfiguration,
     LogLevel,
+    Host,
 } from "../../core/src/host"
-import { resolveLanguageModel } from "../../core/src/models"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, unique } from "../../core/src/util"
 
@@ -175,8 +173,9 @@ export class VSCodeHost extends EventTarget implements Host {
         }
 
         let files = Array.from(uris.values())
-        if (applyGitIgnore && (await fileExists(".gitignore"))) {
-            files = await filterGitIgnore(files)
+        if (applyGitIgnore && (await checkFileExists(this.projectUri, ".gitignore"))) {
+            const gitignore = await readFileText(this.projectUri, ".gitignore")
+            files = await filterGitIgnore(gitignore, files)
         }
         return unique(files)
     }
@@ -222,17 +221,6 @@ export class VSCodeHost extends EventTarget implements Host {
             }
         }
         return tok
-    }
-
-    async resolveLanguageModel(
-        options: {
-            model?: string
-            languageModel?: LanguageModel
-        },
-        configuration: LanguageModelConfiguration
-    ): Promise<LanguageModel> {
-        const model = resolveLanguageModel(options, configuration)
-        return model
     }
 
     // executes a process

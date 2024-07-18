@@ -189,3 +189,6 @@ export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 
 export const PLACEHOLDER_API_BASE = "<custom api base>"
 export const PLACEHOLDER_API_KEY = "<your token>"
+
+export const VSCODE_CONFIG_CLI_VERSION = "cli.version"
+export const VSCODE_CONFIG_CLI_PATH = "cli.path"

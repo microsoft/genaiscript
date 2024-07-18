@@ -3,7 +3,7 @@ import {
     ChatCompletionContentPartText,
     ChatCompletionMessageParam,
     ChatCompletionTool,
-} from "./chat"
+} from "./chattypes"
 import { encodeChat, encode } from "gpt-tokenizer"
 import { logVerbose } from "./util"
 

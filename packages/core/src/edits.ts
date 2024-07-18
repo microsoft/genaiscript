@@ -1,4 +1,4 @@
-import { GenerationResult } from "./expander"
+import { GenerationResult } from "./generation"
 import { writeText } from "./fs"
 
 export async function writeFileEdits(

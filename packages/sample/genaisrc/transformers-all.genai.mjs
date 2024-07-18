@@ -122,6 +122,7 @@ const log = (res) => console.log(res)
         { progress_callback }
     )
     const output = await translator("जीवन एक चॉकलेट बॉक्स की तरह है।", {
+        // @ts-ignore
         src_lang: "hin_Deva", // Hindi
         tgt_lang: "fra_Latn", // French
     })

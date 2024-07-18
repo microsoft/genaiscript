@@ -9,79 +9,22 @@ import {
     SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
-import { GenerationOptions, createPromptContext } from "./promptcontext"
+import { createPromptContext } from "./promptcontext"
 import { evalPrompt } from "./evalprompt"
-import { AICIRequest, renderAICI } from "./aici"
-import {
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageParam,
-    ChatCompletionSystemMessageParam,
-    toChatCompletionUserMessage,
-} from "./chat"
+import { renderAICI } from "./aici"
+import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { host } from "./host"
-
-export interface GenerationResult extends GenerationOutput {
-    /**
-     * The env variables sent to the prompt
-     */
-    vars: Partial<ExpansionVariables>
-
-    /**
-     * Expanded prompt text
-     */
-    messages: ChatCompletionMessageParam[]
-
-    /**
-     * Zero or more edits to apply.
-     */
-    edits: Edits[]
-
-    /**
-     * Parsed source annotations
-     */
-    annotations: Diagnostic[]
-
-    /**
-     * ChangeLog sections
-     */
-    changelogs: string[]
-
-    /**
-     * Error message if any
-     */
-    error?: unknown
-
-    /**
-     * Run status
-     */
-    status: GenerationStatus
-
-    /**
-     * Status message if any
-     */
-    statusText?: string
-
-    /**
-     * Run label if provided
-     */
-    label?: string
-
-    /**
-     * GenAIScript version
-     */
-    version: string
-}
-
-export interface GenerationStats {
-    toolCalls: number
-    repairs: number
-    turns: number
-}
-
-export type GenerationStatus = "success" | "error" | "cancelled" | undefined
+import { resolveSystems } from "./systems"
+import { GenerationOptions, GenerationStatus } from "./generation"
+import {
+    AICIRequest,
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+} from "./chattypes"
 
 async function callExpander(
     r: PromptScript,
@@ -209,41 +152,6 @@ function traceEnv(
         trace.itemValue(`🔐 secrets`, secrets.join(", "))
     }
     trace.endDetails()
-}
-
-function resolveTool(prj: Project, tool: string) {
-    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}('|"|\`)`)
-    const system = prj.templates.find(
-        (t) => t.isSystem && toolsRx.test(t.jsSource)
-    )
-    return system.id
-}
-
-export function resolveSystems(prj: Project, template: PromptScript) {
-    const { jsSource } = template
-    const systems = Array.from(template.system ?? []).slice(0)
-
-    if (template.system === undefined) {
-        const useSchema = /defschema/i.test(jsSource)
-        if (!template.responseType) {
-            systems.push("system")
-            systems.push("system.explanations")
-        }
-        // select file expansion type
-        if (/diff/i.test(jsSource)) systems.push("system.diff")
-        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else {
-            systems.push("system.files")
-            if (useSchema) systems.push("system.files_schema")
-        }
-        if (useSchema) systems.push("system.schema")
-        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
-    }
-
-    if (template.tools?.length)
-        template.tools.forEach((tool) => systems.push(resolveTool(prj, tool)))
-
-    return unique(systems.filter((s) => !!s))
 }
 
 export async function expandTemplate(

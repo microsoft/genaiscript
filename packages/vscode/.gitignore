@@ -3,3 +3,4 @@ dist
 built
 *.vsix
 genaiscript.cjs
+esbuild.*.html

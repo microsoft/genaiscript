@@ -16,3 +16,5 @@ images/*
 prepackage.mjs
 postpackage.mjs
 updatefonts.mjs
+genaiscript.cjs
+esbuild.*

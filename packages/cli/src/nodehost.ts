@@ -11,7 +11,8 @@ import { join } from "node:path"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
 import { DefaultAzureCredential, AccessToken } from "@azure/identity"
-import { LanguageModel } from "../../core/src/chat"
+import { createFileSystem } from "../../core/src/filesystem"
+import { filterGitIgnore } from "../../core/src/gitignore"
 import {
     parseDefaultsFromEnv,
     parseTokenFromEnv,
@@ -27,7 +28,7 @@ import {
     TOOL_ID,
     DEFAULT_EMBEDDINGS_MODEL,
 } from "../../core/src/constants"
-import { createFileSystem, filterGitIgnore } from "../../core/src/fs"
+import { tryReadText } from "../../core/src/fs"
 import {
     ServerManager,
     ModelService,
@@ -39,13 +40,10 @@ import {
     setRuntimeHost,
     ResponseStatus,
 } from "../../core/src/host"
-import {
-    parseModelIdentifier,
-    resolveLanguageModel,
-} from "../../core/src/models"
 import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
+import { parseModelIdentifier } from "../../core/src/models"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -166,16 +164,6 @@ export class NodeHost implements RuntimeHost {
         return tok
     }
 
-    async resolveLanguageModel(
-        options: {
-            model?: string
-            languageModel?: LanguageModel
-        },
-        configuration: LanguageModelConfiguration
-    ): Promise<LanguageModel> {
-        return resolveLanguageModel(options, configuration)
-    }
-
     log(level: LogLevel, msg: string): void {
         if (msg === undefined) return
         switch (level) {
@@ -231,7 +219,10 @@ export class NodeHost implements RuntimeHost {
             windowsPathsNoEscape: true,
             ignore,
         })
-        if (applyGitIgnore) files = await filterGitIgnore(files)
+        if (applyGitIgnore) {
+            const gitignore = await tryReadText(".gitignore")
+            files = await filterGitIgnore(gitignore, files)
+        }
         return unique(files)
     }
     async writeFile(name: string, content: Uint8Array): Promise<void> {

@@ -9,7 +9,6 @@ import { activatePromptCommands, commandButtons } from "./promptcommands"
 import { activateLLMRequestTreeDataProvider } from "./llmrequesttree"
 import { activateAIRequestTreeDataProvider } from "./airequesttree"
 import { activateTestController } from "./testcontroller"
-import { activateModelCompletionProvider } from "./modelcompletionprovider"
 import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
 import { registerCommand } from "./commands"
@@ -25,7 +24,6 @@ export async function activate(context: ExtensionContext) {
     activateLLMRequestTreeDataProvider(state)
     activateTraceTreeDataProvider(state)
     activateStatusBar(state)
-    activateModelCompletionProvider(state)
     activateDocsNotebook(state)
 
     context.subscriptions.push(

@@ -1,8 +1,5 @@
 import {
-    ChatCompletionMessageParam,
-    ChatCompletionsOptions,
     executeChatSession,
-    LanguageModel,
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
@@ -14,7 +11,7 @@ import {
     logVerbose,
     sha256string,
 } from "./util"
-import { RetrievalSearchResponse, runtimeHost } from "./host"
+import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
@@ -28,7 +25,7 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { bingSearch } from "./websearch"
-import { CancellationToken, checkCancelled } from "./cancellation"
+import { checkCancelled } from "./cancellation"
 import {
     RunPromptContextNode,
     createChatGenerationContext,
@@ -38,15 +35,18 @@ import { INIParse, INIStringify } from "./ini"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { createFetch } from "./fetch"
 import { XMLParse } from "./xml"
-import { GenerationStats } from "./expander"
+import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
+import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
+import { ChatCompletionMessageParam } from "./chattypes"
+import { resolveModelConnectionInfo } from "./models"
+import { resolveLanguageModel } from "./lm"
 
 export function createPromptContext(
     vars: ExpansionVariables,
@@ -294,7 +294,7 @@ export function createPromptContext(
                 )
                 if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = await runtimeHost.resolveLanguageModel(
+                const { completer } = await resolveLanguageModel(
                     genOptions,
                     connection.configuration
                 )
@@ -373,24 +373,4 @@ export function createPromptContext(
     }
 
     return ctx
-}
-
-export interface GenerationOptions
-    extends ChatCompletionsOptions,
-        ModelOptions,
-        EmbeddingsModelOptions,
-        ScriptRuntimeOptions {
-    cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: { text: string }) => void
-    trace: MarkdownTrace
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    skipLLM?: boolean
-    label?: string
-    cliInfo?: {
-        files: string[]
-    }
-    languageModel?: LanguageModel
-    vars?: PromptParameters
-    stats: GenerationStats
 }
