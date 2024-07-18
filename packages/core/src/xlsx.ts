@@ -1,11 +1,11 @@
-import { read, utils } from "xlsx"
 import { logInfo } from "./util"
 
-export function XLSXParse(
+export async function XLSXParse(
     data: Uint8Array,
     options?: ParseXLSXOptions
-): WorkbookSheet[] {
+): Promise<WorkbookSheet[]> {
     const { sheet, ...rest } = options || {}
+    const { read, utils } = await import("xlsx")
     const workbook = read(data, { type: "array" })
     return workbook.SheetNames.filter((n) => !sheet || n === sheet).map(
         (name) => {
@@ -16,12 +16,12 @@ export function XLSXParse(
     )
 }
 
-export function XLSXTryParse(
+export async function XLSXTryParse(
     data: Uint8Array,
     options?: ParseXLSXOptions
-): WorkbookSheet[] {
+): Promise<WorkbookSheet[]> {
     try {
-        return XLSXParse(data, options)
+        return await XLSXParse(data, options)
     } catch (e) {
         logInfo(e)
         return []

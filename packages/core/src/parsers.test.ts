@@ -52,7 +52,7 @@ describe("parsers", () => {
     })
 
     test("XLSX", async () => {
-        const result = XLSXParse(
+        const result = await XLSXParse(
             await readFile(resolve("./src/parsers.test.xlsx"))
         )
         assert.deepStrictEqual(result, [

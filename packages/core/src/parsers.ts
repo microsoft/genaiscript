@@ -49,7 +49,7 @@ export function createParsers(options: {
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         XLSX: async (file, options) =>
-            XLSXTryParse(await host.readFile(file?.filename), options),
+            await XLSXTryParse(await host.readFile(file?.filename), options),
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),

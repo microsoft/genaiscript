@@ -59,7 +59,7 @@ export async function resolveFileContent(
         file.content = await DOCXTryParse(filename, options)
     } else if (XLSX_REGEX.test(filename)) {
         const bytes = await host.readFile(filename)
-        const sheets = XLSXParse(bytes)
+        const sheets = await XLSXParse(bytes)
         file.content = JSON.stringify(sheets, null, 2)
     } else {
         const mime = lookupMime(filename)
