@@ -16,7 +16,6 @@ import {
     githubParseEnv,
 } from "../../core/src/github"
 import {
-    GENAI_ANYJS_REGEX,
     HTTPS_REGEX,
     FILES_NOT_FOUND_ERROR_CODE,
     CONFIGURATION_ERROR_CODE,
@@ -25,6 +24,7 @@ import {
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
     ANNOTATION_ERROR_CODE,
+    GENAI_ANY_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { GenerationResult } from "../../core/src/expander"
@@ -119,7 +119,7 @@ export async function runScript(
     const toolFiles: string[] = []
     const resolvedFiles = new Set<string>()
 
-    if (GENAI_ANYJS_REGEX.test(scriptId)) toolFiles.push(scriptId)
+    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     for (const arg of files) {
         if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
@@ -154,7 +154,7 @@ export async function runScript(
         (t) =>
             t.id === scriptId ||
             (t.filename &&
-                GENAI_ANYJS_REGEX.test(scriptId) &&
+                GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) throw new Error(`tool ${scriptId} not found`)
