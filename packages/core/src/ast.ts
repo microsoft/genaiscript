@@ -1,6 +1,6 @@
 /// <reference path="./types/prompt_template.d.ts" />
 
-import { GENAI_ANYTS_REGEX } from "./constants"
+import { GENAI_ANYJS_REGEX, GENAI_ANYTS_REGEX } from "./constants"
 import { host } from "./host"
 
 type PromptScript = globalThis.PromptScript
@@ -53,7 +53,7 @@ export class Project {
         )) {
             const dirname = host.path.dirname(t.filename)
             const folder = folders[dirname] || (folders[dirname] = { dirname })
-            folder.js = folder.js || !GENAI_ANYTS_REGEX.test(t.filename)
+            folder.js = folder.js || GENAI_ANYJS_REGEX.test(t.filename)
             folder.ts = folder.ts || GENAI_ANYTS_REGEX.test(t.filename)
         }
         return Object.values(folders)

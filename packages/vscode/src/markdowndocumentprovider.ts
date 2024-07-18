@@ -13,7 +13,7 @@ import {
     CACHE_LLMREQUEST_PREFIX,
     CACHE_AIREQUEST_PREFIX,
     BUILTIN_PREFIX,
-    GENAI_ANYJS_REGEX,
+    GENAI_ANY_REGEX,
     GENAI_JS_EXT,
 } from "../../core/src/constants"
 import { defaultPrompts } from "../../core/src/default_prompts"
@@ -111,7 +111,7 @@ ${prettifyMarkdown(md)}
         if (uri.path.startsWith(BUILTIN_PREFIX)) {
             const id = uri.path
                 .slice(BUILTIN_PREFIX.length)
-                .replace(GENAI_ANYJS_REGEX, "")
+                .replace(GENAI_ANY_REGEX, "")
             return defaultPrompts[id] ?? `No such builtin prompt: ${id}`
         }
         return ""
