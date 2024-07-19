@@ -10,14 +10,7 @@
             "slides"
         ],
         "nohoist": [
-            "dockerode",
-            "pdfjs-dist",
-            "mammoth",
-            "promptfoo",
-            "string-ansi",
-            "canvas",
-            "sharp",
-            "astro"
+            "json5"
         ]
     },
     "scripts": {
@@ -80,7 +73,7 @@
             "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes"
         }
     },
-    "devDependencies": {
+    "dependencies": {
         "glob": "^11.0.0",
         "zx": "^8.1.4"
     }

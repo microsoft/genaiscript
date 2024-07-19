@@ -52,7 +52,7 @@ describe("parsers", () => {
     })
 
     test("XLSX", async () => {
-        const result = XLSXParse(
+        const result = await XLSXParse(
             await readFile(resolve("./src/parsers.test.xlsx"))
         )
         assert.deepStrictEqual(result, [
@@ -77,8 +77,8 @@ describe("parsers", () => {
         assert(!result.find((f) => f.filename === "loremipsum.pdf"))
     })
 
-    test("math", () => {
-        const res = parsers.math("1 + 3")
+    test("math", async () => {
+        const res = await parsers.math("1 + 3")
         assert.strictEqual(res, 4)
     })
 

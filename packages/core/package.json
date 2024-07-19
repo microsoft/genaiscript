@@ -60,12 +60,12 @@
     "tsx": "^4.16.2",
     "typescript": "5.5.3",
     "vectra": "^0.7.6",
-    "xlsx": "^0.18.5",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "yaml": "^2.4.5"
   },
   "scripts": {
     "typecheck": "tsc -p src",
-    "prompts:bundle": "node bundleprompts.mjs",
+    "prompts:bundle": "node bundleprompts.js",
     "pretypecheck": "yarn prompts:bundle",
     "test": "node --import tsx --test src/**.test.ts"
   }

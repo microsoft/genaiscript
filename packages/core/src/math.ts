@@ -1,13 +1,13 @@
-import { evaluate } from "mathjs"
 import { TraceOptions } from "./trace"
 
-export function MathTryEvaluate(
+export async function MathTryEvaluate(
     expr: string,
     options?: { defaultValue?: number } & TraceOptions
-): string | number | undefined {
+): Promise<string | number | undefined> {
     const { trace, defaultValue } = options || {}
     try {
         if (!expr) return defaultValue
+        const { evaluate } = await import("mathjs")
         const res = evaluate(expr)
         return res
     } catch (e) {

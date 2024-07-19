@@ -10,7 +10,6 @@ import { execa } from "execa"
 import { join } from "node:path"
 import { createNodePath } from "./nodepath"
 import { DockerManager } from "./docker"
-import { DefaultAzureCredential, AccessToken } from "@azure/identity"
 import { createFileSystem } from "../../core/src/filesystem"
 import { filterGitIgnore } from "../../core/src/gitignore"
 import {
@@ -44,6 +43,7 @@ import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
+import { createAzureToken } from "./azuretoken"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -138,7 +138,7 @@ export class NodeHost implements RuntimeHost {
         await parseDefaultsFromEnv(process.env)
     }
 
-    private _azureToken: AccessToken
+    private _azureToken: string
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -152,14 +152,10 @@ export class NodeHost implements RuntimeHost {
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            if (!this._azureToken) {
-                this._azureToken = await new DefaultAzureCredential().getToken(
-                    AZURE_OPENAI_TOKEN_SCOPES.slice(),
-                    { abortSignal: signal }
-                )
-            }
+            if (!this._azureToken)
+                this._azureToken = await createAzureToken(signal)
             if (!this._azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + this._azureToken.token
+            tok.token = "Bearer " + this._azureToken
         }
         return tok
     }
