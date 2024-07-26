@@ -7,21 +7,19 @@ interface Props {
 }
 const { directory } = Astro.props
 
-const pages = (await getCollection("docs", (entry) =>
-    entry.id.startsWith(directory + "/")
-)).filter(({ slug }) => slug !== directory)
+const pages = (
+    await getCollection("docs", (entry) => entry.id.startsWith(directory + "/"))
+).filter(({ slug }) => slug !== directory)
 ---
 
 <CardGrid
     >{
-        pages
-            
-            .map(({ data, slug }) => (
-                <LinkCard
-                    title={data.title}
-                    href={"/" + slug}
-                    description={data.description}
-                />
-            ))
+        pages.map(({ data, slug }) => (
+            <LinkCard
+                title={data.title}
+                href={"/" + slug}
+                description={data.description}
+            />
+        ))
     }</CardGrid
 >
