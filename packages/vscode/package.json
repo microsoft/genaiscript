@@ -362,11 +362,11 @@
     },
     "devDependencies": {
         "@types/vscode": "^1.90.0",
-        "@vscode/vsce": "^2.30.0",
+        "@vscode/vsce": "^2.31.1",
         "assert": "^2.1.0",
         "eslint": "^9.7.0",
         "process": "^0.11.10",
-        "typescript": "5.5.3",
+        "typescript": "5.5.4",
         "vscode-uri": "^3.0.8",
         "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
