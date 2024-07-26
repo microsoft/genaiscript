@@ -2,6 +2,8 @@
 title: User settings
 sidebar:
     order: 200
+description: Customize your VSCode experience with GenAIScript user settings for diagnostics, caching, and CLI configurations.
+keywords: VSCode settings, user preferences, CLI path, extension configuration, diagnostics toggle
 ---
 
 The following settings can be accessed through **Preferences: Open User Settings** command.

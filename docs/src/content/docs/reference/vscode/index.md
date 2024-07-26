@@ -2,6 +2,8 @@
 title: Overview
 sidebar:
     order: 2
+description: Discover the features of the GenAIScript VSCode extension for script authoring, debugging, and deployment.
+keywords: VSCode extension, script authoring, debugging, deployment, installation
 ---
 
 GenAIScript is supported by a [Visual Studio Code](https://code.visualstudio.com/) extension 
