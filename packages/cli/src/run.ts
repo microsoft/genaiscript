@@ -233,7 +233,7 @@ export async function runScript(
         logError(err)
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
-
+    if (!isQuiet) logVerbose("") // force new line
     if (spinner) {
         if (result.status !== "success")
             spinner.fail(`${spinner.text}, ${result.statusText}`)
