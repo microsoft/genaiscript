@@ -8,9 +8,6 @@
             "packages/*",
             "docs",
             "slides"
-        ],
-        "nohoist": [
-            "json5"
         ]
     },
     "scripts": {

@@ -1,5 +1,6 @@
 ---
 title: Commands
+description: List of all CLI commands
 sidebar:
   order: 100
 ---
@@ -86,7 +87,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.72.0
+  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.73.6
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```

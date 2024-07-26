@@ -3,6 +3,7 @@ import { Command, program } from "commander"
 export async function helpAll() {
     console.log(`---`)
     console.log(`title: Commands`)
+    console.log(`description: List of all CLI commands`)
     console.log(`sidebar:`)
     console.log(`  order: 100`)
     console.log(`---\n`)
