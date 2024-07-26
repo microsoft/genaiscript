@@ -1,5 +1,6 @@
 ---
 title: Commands
+description: List of all CLI commands
 sidebar:
   order: 100
 ---
