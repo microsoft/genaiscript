@@ -17,6 +17,7 @@ import {
     ChatCompletionAssistantMessageParam,
     ChatCompletionMessageParam,
 } from "./chattypes"
+import { resolveTokenEncoder } from "./encoders"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -378,6 +379,7 @@ async function resolvePromptNode(
     model: string,
     root: PromptNode
 ): Promise<{ errors: number }> {
+    const encoder = await resolveTokenEncoder(model)
     let err = 0
     await visitNode(root, {
         error: () => {
@@ -387,7 +389,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, { model })
+                n.tokens = estimateTokens(value, encoder)
             } catch (e) {
                 n.error = e
             }
@@ -398,7 +400,7 @@ async function resolvePromptNode(
                 n.resolved = value
                 const rendered = renderDefNode(n)
                 n.preview = rendered
-                n.tokens = estimateTokens(rendered, { model })
+                n.tokens = estimateTokens(rendered, encoder)
             } catch (e) {
                 n.error = e
             }
@@ -407,7 +409,7 @@ async function resolvePromptNode(
             try {
                 const value = await n.value
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, { model })
+                n.tokens = estimateTokens(value, encoder)
             } catch (e) {
                 n.error = e
             }
@@ -432,7 +434,7 @@ async function resolvePromptNode(
                 }
                 const value = dedent(strings, ...resolvedArgs)
                 n.resolved = n.preview = value
-                n.tokens = estimateTokens(value, { model })
+                n.tokens = estimateTokens(value, encoder)
             } catch (e) {
                 n.error = e
             }
@@ -456,6 +458,7 @@ async function truncatePromptNode(
     options?: TraceOptions
 ): Promise<boolean> {
     const { trace } = options || {}
+    const encoder = await resolveTokenEncoder(model)
     let truncated = false
 
     const cap = (n: {
@@ -475,7 +478,7 @@ async function truncatePromptNode(
                 Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
             )
             n.resolved = value
-            n.tokens = estimateTokens(value, { model })
+            n.tokens = estimateTokens(value, encoder)
             truncated = true
         }
     }
@@ -491,7 +494,7 @@ async function truncatePromptNode(
                 0,
                 Math.floor((n.maxTokens * n.resolved.content.length) / n.tokens)
             )
-            n.tokens = estimateTokens(n.resolved.content, { model })
+            n.tokens = estimateTokens(n.resolved.content, encoder)
             truncated = true
         }
     }
@@ -545,6 +548,7 @@ export async function renderPromptNode(
 ): Promise<PromptNodeRender> {
     const { trace } = options || {}
     const { model } = parseModelIdentifier(modelId)
+    const encoder = await resolveTokenEncoder(model)
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
@@ -624,7 +628,7 @@ ${trimNewlines(schemaText)}
 \`\`\`
 `
             prompt += text
-            n.tokens = estimateTokens(text, { model })
+            n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
                 trace.detailsFenced(
                     `🧬 schema ${schemaName} as ${format}`,

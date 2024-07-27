@@ -22,12 +22,14 @@ import { host } from "./host"
 import { unzip } from "./zip"
 import { JSONLTryParse } from "./jsonl"
 import { resolveFileContent } from "./file"
+import { resolveTokenEncoder } from "./encoders"
 
-export function createParsers(options: {
+export async function createParsers(options: {
     trace: MarkdownTrace
     model: string
-}): Parsers {
+}): Promise<Parsers> {
     const { trace, model } = options
+    const encoder = await resolveTokenEncoder(model)
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
@@ -56,7 +58,7 @@ export function createParsers(options: {
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
         tokens: (text) =>
-            estimateTokens(filenameOrFileToContent(text), { model }),
+            estimateTokens(filenameOrFileToContent(text), encoder),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
         HTMLToText: (text, options) =>

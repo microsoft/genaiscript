@@ -122,7 +122,7 @@ export async function startServer(options: { port: string }) {
                         const { script, files = [], options = {}, runId } = data
                         const canceller =
                             new AbortSignalCancellationController()
-                        const trace = new MarkdownTrace({ estimateTokens })
+                        const trace = new MarkdownTrace()
                         const send = (
                             payload: Omit<
                                 PromptScriptProgressResponseEvent,

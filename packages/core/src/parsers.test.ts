@@ -11,12 +11,12 @@ import { estimateTokens } from "./tokens"
 describe("parsers", () => {
     let trace: MarkdownTrace
     let model: string
-    let parsers: ReturnType<typeof createParsers>
+    let parsers: Awaited<ReturnType<typeof createParsers>>
 
-    beforeEach(() => {
-        trace = new MarkdownTrace({ estimateTokens })
+    beforeEach(async () => {
+        trace = new MarkdownTrace({})
         model = "test model"
-        parsers = createParsers({ trace, model })
+        parsers = await createParsers({ trace, model })
         TestHost.install()
     })
 
