@@ -135,7 +135,6 @@ export async function startServer(options: { port: string }) {
                             send({ trace: tev.chunk })
                         })
                         logVerbose(`run ${runId}: starting`)
-                        logVerbose(YAMLStringify({ script, files, options }))
                         const runner = runScript(script, files, {
                             ...options,
                             trace,
