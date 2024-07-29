@@ -25,6 +25,7 @@ import {
     resolve,
     isAbsolute,
 } from "node:path"
+import { LanguageModel } from "./chat"
 
 export function createNodePath(): Path {
     return <Path>Object.freeze({
@@ -81,6 +82,7 @@ export class TestHost implements RuntimeHost {
     ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
     }
+    clientLanguageModel?: LanguageModel
     log(level: LogLevel, msg: string): void {
         throw new Error("Method not implemented.")
     }

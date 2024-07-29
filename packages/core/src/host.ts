@@ -111,6 +111,7 @@ export interface Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration | undefined>
     log(level: LogLevel, msg: string): void
+    clientLanguageModel?: LanguageModel
 
     // fs
     readFile(name: string): Promise<Uint8Array>

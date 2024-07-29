@@ -94,6 +94,7 @@ export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
 export const MODEL_PROVIDER_LITELLM = "litellm"
 export const MODEL_PROVIDER_AICI = "aici"
+export const MODEL_PROVIDER_CLIENT = "client"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 

@@ -43,6 +43,7 @@ import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { createAzureToken } from "./azuretoken"
+import { LanguageModel } from "../../core/src/chat"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -135,6 +136,7 @@ export class NodeHost implements RuntimeHost {
     private async parseDefaults() {
         await parseDefaultsFromEnv(process.env)
     }
+    clientLanguageModel: LanguageModel
 
     private _azureToken: string
     async getLanguageModelConfiguration(
