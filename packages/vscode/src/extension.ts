@@ -13,6 +13,8 @@ import { activateDocsNotebook } from "./docsnotebook"
 import { activateTraceTreeDataProvider } from "./tracetree"
 import { registerCommand } from "./commands"
 import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
+import type MarkdownIt from "markdown-it"
+import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -85,4 +87,10 @@ export async function activate(context: ExtensionContext) {
 
     await state.activate()
     await activateTestController(state)
+
+    return {
+        extendMarkdownIt: (md: MarkdownIt) => {
+            return md.use(MarkdownItGitHubAlerts)
+        },
+    }
 }
