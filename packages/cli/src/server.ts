@@ -202,7 +202,7 @@ export async function startServer(options: { port: string }) {
                     }
                     case "script.abort": {
                         const { runId, reason } = data
-                        console.log(`abort run ${runId}`)
+                        console.log(`run ${runId}: abort`)
                         const run = runs[runId]
                         if (run) {
                             delete runs[runId]

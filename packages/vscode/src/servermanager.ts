@@ -3,6 +3,7 @@ import { ExtensionState } from "./state"
 import {
     SERVER_PORT,
     RECONNECT,
+    OPEN,
     TOOL_NAME,
     ICON_LOGO_NAME,
     CLIENT_RECONNECT_MAX_ATTEMPTS,
@@ -11,7 +12,7 @@ import {
     VSCODE_CONFIG_CLI_PATH,
 } from "../../core/src/constants"
 import { ServerManager, host } from "../../core/src/host"
-import { logError } from "../../core/src/util"
+import { logError, logVerbose } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 
@@ -42,9 +43,19 @@ export class TerminalServerManager implements ServerManager {
         )
 
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
+        this.client.addEventListener(OPEN, () => {
+            // client connected to a rogue server
+            if (!this._terminal) {
+                logVerbose("found rogue server, closing...")
+                this.client?.kill()
+            }
+        })
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (this.client.connectedOnce && this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS) {
+            if (
+                this.client.connectedOnce &&
+                this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS
+            ) {
                 this.closeTerminal()
                 this.start()
             }
@@ -65,7 +76,9 @@ export class TerminalServerManager implements ServerManager {
         const cliPath = config.get(VSCODE_CONFIG_CLI_PATH) as string
         if (cliPath) this._terminal.sendText(`node "${cliPath}" serve`)
         else {
-            const cliVersion = (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
+            const cliVersion =
+                (config.get(VSCODE_CONFIG_CLI_VERSION) as string) ||
+                CORE_VERSION
             this._terminal.sendText(`npx --yes ${TOOL_ID}@${cliVersion} serve`)
         }
         this._terminal.show()

@@ -1,5 +1,5 @@
 import { ChatCompletionsProgressReport } from "../chattypes"
-import { CLIENT_RECONNECT_DELAY, RECONNECT } from "../constants"
+import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
@@ -97,6 +97,7 @@ export class WebSocketClient extends EventTarget {
                 (m = this._pendingMessages.pop())
             )
                 this._ws.send(m)
+            this.dispatchEvent(new Event(OPEN))
         })
         this._ws.addEventListener("error", (ev) => {
             this.reconnect()
