@@ -183,7 +183,7 @@ export async function configureLanguageModelAccess(
                                 "tools not supported with copilot models"
                             )
                         default:
-                            throw new Error("uknown role")
+                            throw new Error("unknown role")
                     }
                 })
             const request = await chatModel.sendRequest(

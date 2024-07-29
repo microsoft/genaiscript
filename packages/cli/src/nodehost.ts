@@ -39,7 +39,6 @@ import {
     setRuntimeHost,
     ResponseStatus,
 } from "../../core/src/host"
-import { createBundledParsers } from "../../core/src/pdf"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -99,7 +98,6 @@ export class NodeHost implements RuntimeHost {
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
-    readonly parser = createBundledParsers()
     readonly docker = new DockerManager()
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,

@@ -1,3 +1,4 @@
+import { ChatCompletionMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
 import { ParsePdfResponse, ResponseStatus } from "../host"
 
@@ -18,12 +19,6 @@ export interface ServerVersion extends RequestMessage {
 
 export interface ServerEnv extends RequestMessage {
     type: "server.env"
-}
-
-export interface ParsePdfMessage extends RequestMessage {
-    type: "parse.pdf"
-    filename: string
-    response?: ParsePdfResponse
 }
 
 export interface PromptScriptTestRunOptions {
@@ -81,34 +76,30 @@ export interface PromptScriptRunOptions {
     vars: string[]
 }
 
-export interface PromptScriptStart extends RequestMessage {
-    type: "script.start"
+export interface RunEvent {
     runId: string
+}
+
+export interface PromptScriptStart extends RequestMessage, RunEvent {
+    type: "script.start"
     script: string
     files?: string[]
     options: Partial<PromptScriptRunOptions>
 }
 
-export interface PromptScriptStartResponse extends ResponseStatus {
-    runId: string
-}
-
-export interface PromptScriptEndResponseEvent {
+export interface PromptScriptEndResponseEvent extends RunEvent {
     type: "script.end"
-    runId: string
     exitCode: number
     result: GenerationResult
 }
 
-export interface PromptScriptAbort extends RequestMessage {
+export interface PromptScriptAbort extends RequestMessage, RunEvent {
     type: "script.abort"
     reason: string
-    runId: string
 }
 
-export interface PromptScriptProgressResponseEvent {
+export interface PromptScriptProgressResponseEvent extends RunEvent {
     type: "script.progress"
-    runId: string
 
     trace?: string
 
@@ -132,17 +123,29 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
+export interface ChatStart extends RequestMessage, RunEvent {
+    type: "chat.start"
+    messages: ChatCompletionMessageParam[]
+    model: string
+}
+
+export interface ChatChunk extends RequestMessage, RunEvent {
+    type: "chat.chunk"
+    chunk: string
+}
+
 export type RequestMessages =
     | ServerKill
     | ServerVersion
     | ServerEnv
     | ServerVersion
-    | ParsePdfMessage
     | PromptScriptTestRun
     | ShellExec
     | PromptScriptStart
     | PromptScriptAbort
+    | ChatChunk
 
 export type ResponseEvents =
     | PromptScriptProgressResponseEvent
     | PromptScriptEndResponseEvent
+    | ChatStart

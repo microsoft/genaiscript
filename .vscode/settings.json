@@ -16,6 +16,8 @@
         "gptool",
         "gptools",
         "gptoolsjs",
+        "LITELLM",
+        "LLAMAFILE",
         "llmify",
         "llmrequest",
         "localai",

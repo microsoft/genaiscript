@@ -96,14 +96,6 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
-                    case "parse.pdf": {
-                        console.log(`parse: pdf ${data.filename}`)
-                        await runtimeHost.parser.init()
-                        response = await runtimeHost.parser.parsePdf(
-                            data.filename
-                        )
-                        break
-                    }
                     case "tests.run": {
                         console.log(
                             `tests: run ${data.scripts?.join(", ") || "*"}`

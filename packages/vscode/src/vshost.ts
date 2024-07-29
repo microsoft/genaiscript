@@ -20,7 +20,6 @@ import {
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
-    ParseService,
     setHost,
     LanguageModelConfiguration,
     LogLevel,
@@ -34,7 +33,6 @@ export class VSCodeHost extends EventTarget implements Host {
     userState: any = {}
     readonly path = createVSPath()
     readonly server: TerminalServerManager
-    readonly parser: ParseService
     private _azure: AzureManager
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
@@ -48,7 +46,6 @@ export class VSCodeHost extends EventTarget implements Host {
         super()
         setHost(this)
         this.server = new TerminalServerManager(state)
-        this.parser = this.server.parser
         this.state.context.subscriptions.push(this)
     }
 

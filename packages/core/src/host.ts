@@ -74,14 +74,6 @@ export interface ParsePdfResponse extends ResponseStatus {
     pages?: string[]
 }
 
-export interface ParseService {
-    init(trace?: MarkdownTrace): Promise<void>
-    parsePdf(
-        filename: string,
-        options?: TraceOptions
-    ): Promise<ParsePdfResponse>
-}
-
 export interface ServerResponse extends ResponseStatus {
     version: string
     node: string
@@ -99,7 +91,6 @@ export interface Host {
     readonly dotEnvPath: string
     userState: any
 
-    parser: ParseService
     server: ServerManager
     path: Path
 
