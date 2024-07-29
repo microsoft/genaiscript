@@ -1,6 +1,17 @@
 {
-    "cSpell.words": [
-        "genaiscript",
-        "openai"
-    ]
+    "cSpell.words": ["genaiscript", "openai"],
+    "genaiscript.cli.path": "../packages/cli/built/genaiscript.cjs",
+    // https://hideoo.dev/notes/starlight-paste-images-with-visual-studio-code
+    // Enable pasting files into a Markdown editor to create Markdown links.
+    "markdown.editor.filePaste.enabled": "smart",
+    // Copy pasted media files into a Markdown editor to the workspace.
+    "markdown.editor.filePaste.copyIntoWorkspace": "mediaFiles",
+    // Enable dropping files into a Markdown editor to create Markdown links.
+    "markdown.editor.drop.enabled": "smart",
+    // Copy dropped media files into a Markdown editor to the workspace.
+    "markdown.editor.drop.copyIntoWorkspace": "mediaFiles",
+    // Copy pasted files in documentation pages to the `src/assets/` directory.
+    "markdown.copyFiles.destination": {
+        "/src/content/docs/**/*": "/src/assets/"
+    }
 }

@@ -1,6 +1,6 @@
 {
   "name": "genaiscript-sample",
-  "version": "1.43.1",
+  "version": "1.45.5",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
   "devDependencies": {
-    "@tidyjs/tidy": "^2.5.2"
+    "@tidyjs/tidy": "^2.5.2",
+    "@xenova/transformers": "^2.17.2"
   }
 }

@@ -1,17 +1,20 @@
 import {
-    ChatCompletionMessageParam,
-    ChatCompletionsOptions,
     executeChatSession,
-    LanguageModel,
     mergeGenerationOptions,
     tracePromptResult,
 } from "./chat"
-import { HTMLEscape, arrayify, logVerbose } from "./util"
+import { host } from "./host"
+import {
+    HTMLEscape,
+    arrayify,
+    dotGenaiscriptPath,
+    logVerbose,
+    sha256string,
+} from "./util"
 import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
-import { upsertVector, vectorSearch } from "./retrieval"
 import { readText } from "./fs"
 import {
     PromptNode,
@@ -22,7 +25,7 @@ import {
     renderPromptNode,
 } from "./promptdom"
 import { bingSearch } from "./websearch"
-import { CancellationToken, checkCancelled } from "./cancellation"
+import { checkCancelled } from "./cancellation"
 import {
     RunPromptContextNode,
     createChatGenerationContext,
@@ -32,19 +35,20 @@ import { INIParse, INIStringify } from "./ini"
 import { CancelError, isCancelError, serializeError } from "./error"
 import { createFetch } from "./fetch"
 import { XMLParse } from "./xml"
-import { GenerationStats } from "./expander"
+import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
-import { parseModelIdentifier, resolveModelConnectionInfo } from "./models"
+import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
 import { MODEL_PROVIDER_AICI } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
+import { resolveFileContents, toWorkspaceFile } from "./file"
+import { vectorSearch } from "./vectorsearch"
+import { ChatCompletionMessageParam } from "./chattypes"
+import { resolveModelConnectionInfo } from "./models"
+import { resolveLanguageModel } from "./lm"
 
-function stringLikeToFileName(f: string | WorkspaceFile) {
-    return typeof f === "string" ? f : f?.filename
-}
-
-export function createPromptContext(
+export async function createPromptContext(
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
@@ -52,7 +56,7 @@ export function createPromptContext(
 ) {
     const { cancellationToken, infoCb } = options || {}
     const env = structuredClone(vars)
-    const parsers = createParsers({ trace, model })
+    const parsers = await createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
         parse: YAMLParse,
@@ -85,6 +89,7 @@ export function createPromptContext(
     const path = runtimeHost.path
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
+        readJSON: (f) => runtimeHost.workspace.readJSON(f),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
         findFiles: async (pattern, options) => {
             const res = await runtimeHost.workspace.findFiles(pattern, options)
@@ -155,8 +160,8 @@ export function createPromptContext(
             }
         },
         vectorSearch: async (q, files_, searchOptions) => {
-            const files = arrayify(files_)
-            searchOptions = searchOptions || {}
+            const files = arrayify(files_).map(toWorkspaceFile)
+            searchOptions = { ...(searchOptions || {}) }
             try {
                 trace.startDetails(
                     `🔍 vector search <code>${HTMLEscape(q)}</code>`
@@ -164,23 +169,29 @@ export function createPromptContext(
                 if (!files?.length) {
                     trace.error("no files provided")
                     return []
-                } else {
-                    await upsertVector(files, { trace, ...searchOptions })
-                    const vres = await vectorSearch(q, {
-                        ...searchOptions,
-                        files: files.map(stringLikeToFileName),
-                    })
-                    const res: WorkspaceFileWithScore[] =
-                        searchOptions?.outputType === "chunk"
-                            ? vres.chunks
-                            : vres.files
-                    trace.files(res, {
-                        model,
-                        secrets: env.secrets,
-                        skipIfEmpty: true,
-                    })
-                    return res
                 }
+
+                await resolveFileContents(files)
+                searchOptions.embeddingsModel =
+                    searchOptions?.embeddingsModel ??
+                    options?.embeddingsModel ??
+                    host.defaultEmbeddingsModelOptions.embeddingsModel
+                const key = await sha256string(
+                    JSON.stringify({ files, searchOptions })
+                )
+                const folderPath = dotGenaiscriptPath("vectors", key)
+                const res = await vectorSearch(q, files, {
+                    ...searchOptions,
+                    folderPath,
+                    trace,
+                })
+                // search
+                trace.files(res, {
+                    model,
+                    secrets: env.secrets,
+                    skipIfEmpty: true,
+                })
+                return res
             } finally {
                 trace.endDetails()
             }
@@ -283,7 +294,7 @@ export function createPromptContext(
                 )
                 if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = await runtimeHost.resolveLanguageModel(
+                const { completer } = await resolveLanguageModel(
                     genOptions,
                     connection.configuration
                 )
@@ -362,23 +373,4 @@ export function createPromptContext(
     }
 
     return ctx
-}
-
-export interface GenerationOptions
-    extends ChatCompletionsOptions,
-        ModelOptions,
-        ScriptRuntimeOptions {
-    cancellationToken?: CancellationToken
-    infoCb?: (partialResponse: { text: string }) => void
-    trace: MarkdownTrace
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    skipLLM?: boolean
-    label?: string
-    cliInfo?: {
-        files: string[]
-    }
-    languageModel?: LanguageModel
-    vars?: PromptParameters
-    stats: GenerationStats
 }

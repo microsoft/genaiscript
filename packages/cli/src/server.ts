@@ -21,7 +21,7 @@ import {
     runtimeHost,
 } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
-import { logVerbose, logError } from "../../core/src/util"
+import { logVerbose, logError, assert } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
@@ -31,6 +31,7 @@ import {
     ShellExecResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
+import { estimateTokens } from "../../core/src/tokens"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -95,48 +96,6 @@ export async function startServer(options: { port: string }) {
                         process.exit(0)
                         break
                     }
-                    case "models.pull": {
-                        console.log(`models: pull ${data.model}`)
-                        response = await runtimeHost.models.pullModel(
-                            data.model
-                        )
-                        break
-                    }
-                    case "retrieval.vectorClear":
-                        console.log(`retrieval: clear`)
-                        await runtimeHost.retrieval.init()
-                        response = await runtimeHost.retrieval.vectorClear(
-                            data.options
-                        )
-                        break
-                    case "retrieval.vectorUpsert": {
-                        console.log(`retrieval: upsert ${data.filename}`)
-                        await runtimeHost.retrieval.init()
-                        response = await runtimeHost.retrieval.vectorUpsert(
-                            data.filename,
-                            data.options
-                        )
-                        break
-                    }
-                    case "retrieval.vectorSearch": {
-                        console.log(`retrieval: search ${data.text}`)
-                        console.debug(YAMLStringify(data.options))
-                        await runtimeHost.retrieval.init()
-                        response = await runtimeHost.retrieval.vectorSearch(
-                            data.text,
-                            data.options
-                        )
-                        console.debug(YAMLStringify(response))
-                        break
-                    }
-                    case "parse.pdf": {
-                        console.log(`parse: pdf ${data.filename}`)
-                        await runtimeHost.parser.init()
-                        response = await runtimeHost.parser.parsePdf(
-                            data.filename
-                        )
-                        break
-                    }
                     case "tests.run": {
                         console.log(
                             `tests: run ${data.scripts?.join(", ") || "*"}`
@@ -171,12 +130,11 @@ export async function startServer(options: { port: string }) {
                                     ...payload,
                                 })
                             )
-                        trace.addEventListener(TRACE_CHUNK, (ev) =>{
+                        trace.addEventListener(TRACE_CHUNK, (ev) => {
                             const tev = ev as TraceChunkEvent
                             send({ trace: tev.chunk })
                         })
                         logVerbose(`run ${runId}: starting`)
-                        logVerbose(YAMLStringify({ script, files, options }))
                         const runner = runScript(script, files, {
                             ...options,
                             trace,
@@ -244,11 +202,16 @@ export async function startServer(options: { port: string }) {
                     }
                     case "script.abort": {
                         const { runId, reason } = data
-                        console.log(`abort run ${runId}`)
+                        console.log(`run ${runId}: abort`)
                         const run = runs[runId]
                         if (run) {
                             delete runs[runId]
                             run.canceller.abort(reason)
+                        }
+                        response = <ResponseStatus>{
+                            ok: true,
+                            status: 0,
+                            runId,
                         }
                         break
                     }
@@ -274,6 +237,7 @@ export async function startServer(options: { port: string }) {
             } catch (e) {
                 response = { ok: false, error: serializeError(e) }
             } finally {
+                assert(!!response)
                 if (response.error) logError(response.error)
                 ws.send(JSON.stringify({ id, response }))
             }

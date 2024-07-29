@@ -4,28 +4,28 @@ import {
     AZURE_OPENAI_API_VERSION,
     MAX_CACHED_TEMPERATURE,
     MAX_CACHED_TOP_P,
-    MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
 import { estimateTokens } from "./tokens"
-import {
-    ChatCompletionChunk,
-    ChatCompletionHandler,
-    ChatCompletionRequestCacheKey,
-    ChatCompletionResponse,
-    ChatCompletionToolCall,
-    LanguageModel,
-    LanguageModelInfo,
-    getChatCompletionCache,
-} from "./chat"
+import { ChatCompletionHandler, LanguageModel, LanguageModelInfo } from "./chat"
 import { RequestError, errorMessage } from "./error"
-import { createFetch } from "./fetch"
+import { createFetch, traceFetchPost } from "./fetch"
 import { parseModelIdentifier } from "./models"
 import { JSON5TryParse } from "./json5"
+import {
+    ChatCompletionRequestCacheKey,
+    getChatCompletionCache,
+} from "./chatcache"
+import {
+    ChatCompletionToolCall,
+    ChatCompletionResponse,
+    ChatCompletionChunk,
+} from "./chattypes"
+import { resolveTokenEncoder } from "./encoders"
 
-function getConfigHeaders(cfg: LanguageModelConfiguration) {
-    const res = {
+export function getConfigHeaders(cfg: LanguageModelConfiguration) {
+    const res: Record<string, string> = {
         // openai
         authorization: /^Bearer /.test(cfg.token)
             ? cfg.token
@@ -39,6 +39,7 @@ function getConfigHeaders(cfg: LanguageModelConfiguration) {
                 : undefined,
         "user-agent": TOOL_ID,
     }
+    for (const [k, v] of Object.entries(res)) if (v === undefined) delete res[k]
     return res
 }
 
@@ -64,6 +65,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
+    const encoder = await resolveTokenEncoder(model)
 
     const cache = getChatCompletionCache(cacheName)
     const caching =
@@ -90,7 +92,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         (cachedKey ? await cache.get(cachedKey) : undefined) || {}
     if (cached !== undefined) {
         partialCb?.({
-            tokensSoFar: estimateTokens(model, cached),
+            tokensSoFar: estimateTokens(cached, encoder),
             responseSoFar: cached,
             responseChunk: cached,
         })
@@ -128,17 +130,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     })
     trace.dispatchChange()
 
-    trace.detailsFenced(
-        `✉️ fetch`,
-        `curl -X POST ${url} \\
--H "Content-Type: application/json" \\
-${Object.entries(cfg.curlHeaders || {})
-    .map(([k, v]) => `-H "${k}: ${v}" \\`)
-    .join("\n")}
--d '${JSON.stringify(postReq).replace(/'/g, "'\\''")}' 
-`,
-        "bash"
-    )
+    traceFetchPost(trace, url, cfg.curlHeaders, postReq)
     const body = JSON.stringify(postReq)
     let r: Response
     try {
@@ -224,7 +216,7 @@ ${Object.entries(cfg.curlHeaders || {})
                 const { finish_reason, delta } = choice
                 if (finish_reason) finishReason = finish_reason as any
                 if (typeof delta?.content == "string") {
-                    numTokens += estimateTokens(model, delta.content)
+                    numTokens += estimateTokens(delta.content, encoder)
                     chatResp += delta.content
                     if (delta.content)
                         trace.appendContent(

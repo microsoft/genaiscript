@@ -1,5 +1,6 @@
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
+import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
 import {
     ModelConnectionInfo,
@@ -26,11 +27,18 @@ export async function envInfo(provider: string, options?: { token?: boolean }) {
     for (const modelProvider of MODEL_PROVIDERS.filter(
         (mp) => !provider || mp.id === provider
     )) {
-        const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
-        if (conn) {
-            if (!token && conn.token)
-                conn.token = conn.token.slice(0, 5) + "***"
-            res.providers.push(conn)
+        try {
+            const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
+            if (conn) {
+                if (!token && conn.token)
+                    conn.token = "***"
+                res.providers.push(conn)
+            }
+        } catch (e) {
+            res.providers.push({
+                provider: modelProvider.id,
+                error: errorMessage(e),
+            })
         }
     }
     console.log(YAMLStringify(res))

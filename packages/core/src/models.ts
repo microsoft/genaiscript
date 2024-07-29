@@ -1,33 +1,8 @@
-import assert from "assert"
-import { AICIModel } from "./aici"
-import { LanguageModel } from "./chat"
-import {
-    MODEL_PROVIDER_AICI,
-    MODEL_PROVIDER_LLAMAFILE,
-    MODEL_PROVIDER_OLLAMA,
-    MODEL_PROVIDER_OPENAI,
-} from "./constants"
+import { MODEL_PROVIDER_LLAMAFILE, MODEL_PROVIDER_OPENAI } from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
-import { OllamaModel } from "./ollama"
-import { OpenAIModel } from "./openai"
-import { AbortSignalOptions, TraceOptions } from "./trace"
-
-export function resolveLanguageModel(
-    options: {
-        model?: string
-        languageModel?: LanguageModel
-    },
-    configuration: LanguageModelConfiguration
-): LanguageModel {
-    const { model, languageModel } = options || {}
-    if (languageModel) return languageModel
-
-    const { provider } = parseModelIdentifier(model)
-    if (provider === MODEL_PROVIDER_OLLAMA) return OllamaModel
-    if (provider === MODEL_PROVIDER_AICI) return AICIModel
-    return OpenAIModel
-}
+import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
+import { assert } from "./util"
 
 /**
  * model
@@ -59,6 +34,46 @@ export interface ModelConnectionInfo
     model: string
 }
 
+export function traceLanguageModelConnection(
+    trace: MarkdownTrace,
+    options: ModelOptions,
+    connectionToken: LanguageModelConfiguration
+) {
+    const {
+        model,
+        temperature,
+        topP,
+        maxTokens,
+        seed,
+        cacheName,
+        responseType,
+        responseSchema,
+    } = options
+    const { base, type, version, source, provider } = connectionToken
+    trace.startDetails(`⚙️ configuration`)
+    try {
+        trace.itemValue(`model`, model)
+        trace.itemValue(`temperature`, temperature)
+        trace.itemValue(`topP`, topP)
+        trace.itemValue(`maxTokens`, maxTokens)
+        trace.itemValue(`base`, base)
+        trace.itemValue(`type`, type)
+        trace.itemValue(`version`, version)
+        trace.itemValue(`source`, source)
+        trace.itemValue(`provider`, provider)
+        trace.itemValue(`model`, model)
+        trace.itemValue(`temperature`, temperature)
+        trace.itemValue(`top_p`, topP)
+        trace.itemValue(`seed`, seed)
+        trace.itemValue(`cache name`, cacheName)
+        trace.itemValue(`response type`, responseType)
+        if (responseSchema)
+            trace.detailsFenced(`📦 response schema`, responseSchema, "json")
+    } finally {
+        trace.endDetails()
+    }
+}
+
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
     options?: { model?: string; token?: boolean } & TraceOptions &
@@ -68,10 +83,9 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
-    const model = options.model ?? conn.model ?? host.defaultModelOptions.model
+    const hasModel = options?.model ?? conn.model
+    const model = options?.model ?? conn.model ?? host.defaultModelOptions.model
     try {
-        trace?.startDetails(`⚙️ configuration`)
-        trace?.itemValue(`model`, model)
         const configuration = await host.getLanguageModelConfiguration(model, {
             token: askToken,
             signal,
@@ -81,16 +95,12 @@ export async function resolveModelConnectionInfo(
             return { info: { ...conn, model } }
         } else {
             const { token: theToken, ...rest } = configuration
-            trace?.itemValue(`base`, rest.base)
-            trace?.itemValue(`type`, rest.type)
-            trace?.itemValue(`version`, rest.version)
-            trace?.itemValue(`source`, rest.source)
             return {
                 info: {
                     ...conn,
                     ...rest,
                     model,
-                    token: theToken ? (options?.token ? theToken : "***") : "",
+                    token: theToken ? (hasModel ? theToken : "***") : "",
                 },
                 configuration,
             }
@@ -104,7 +114,5 @@ export async function resolveModelConnectionInfo(
                 error: errorMessage(e),
             },
         }
-    } finally {
-        trace?.endDetails()
     }
 }

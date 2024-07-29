@@ -14,9 +14,7 @@ import {
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
-import { GenerationOptions } from "../../core/src/promptcontext"
-import { estimateTokens } from "../../core/src/tokens"
-import { logVerbose } from "../../core/src/util"
+import { GenerationOptions } from "../../core/src/generation"
 import { updateConnectionConfiguration } from "../../core/src/connection"
 
 async function generateLanguageModelConfiguration(
@@ -138,7 +136,6 @@ export async function configureLanguageModelAccess(
     genOptions: GenerationOptions,
     chatModelId: string
 ): Promise<void> {
-    logVerbose("using copilot llm")
     const { template } = options
     const { partialCb } = genOptions
 
@@ -204,7 +201,7 @@ export async function configureLanguageModelAccess(
                 partialCb?.({
                     responseSoFar: text,
                     responseChunk: fragment,
-                    tokensSoFar: estimateTokens(model, text),
+                    tokensSoFar: await chatModel.countTokens(text),
                 })
             }
             return { text }

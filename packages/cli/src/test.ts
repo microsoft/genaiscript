@@ -11,7 +11,7 @@ import {
     PROMPTFOO_CONFIG_DIR,
     FILES_NOT_FOUND_ERROR_CODE,
     GENAISCRIPT_FOLDER,
-    GENAI_ANYJS_REGEX,
+    GENAI_ANY_REGEX,
     EMOJI_SUCCESS,
     EMOJI_FAIL,
 } from "../../core/src/constants"
@@ -109,7 +109,7 @@ export async function runPromptScriptTests(
     for (const script of scripts) {
         const fn = out
             ? join(out, `${script.id}.promptfoo.yaml`)
-            : script.filename.replace(GENAI_ANYJS_REGEX, ".promptfoo.yaml")
+            : script.filename.replace(GENAI_ANY_REGEX, ".promptfoo.yaml")
         logInfo(`  ${fn}`)
         const testProvider =
             options?.testProvider || (await resolveTestProvider(scripts[0]))

@@ -7,8 +7,8 @@ import { buildProject } from "./build"
 import { createProgressSpinner } from "./spinner"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
-import { ChatCompletionsProgressReport } from "../../core/src/chat"
-import { Fragment, runTemplate } from "../../core/src/promptrunner"
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
+import { runTemplate } from "../../core/src/promptrunner"
 import {
     githubCreateIssueComment,
     githubCreatePullRequestReviews,
@@ -16,7 +16,6 @@ import {
     githubParseEnv,
 } from "../../core/src/github"
 import {
-    GENAI_ANYJS_REGEX,
     HTTPS_REGEX,
     FILES_NOT_FOUND_ERROR_CODE,
     CONFIGURATION_ERROR_CODE,
@@ -25,12 +24,13 @@ import {
     CSV_REGEX,
     CLI_RUN_FILES_FOLDER,
     ANNOTATION_ERROR_CODE,
+    GENAI_ANY_REGEX,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
-import { GenerationResult } from "../../core/src/expander"
+import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parseKeyValuePairs } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import {
@@ -48,9 +48,12 @@ import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
 import { writeFileEdits } from "../../core/src/edits"
 import {
+    azureDevOpsCreateIssueComment,
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
+import { estimateTokens } from "../../core/src/tokens"
+import { resolveTokenEncoder } from "../../core/src/encoders"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -73,7 +76,11 @@ export async function runScript(
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    const {
+        trace = new MarkdownTrace(),
+        infoCb,
+        partialCb,
+    } = options || {}
     let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
@@ -118,7 +125,7 @@ export async function runScript(
     const toolFiles: string[] = []
     const resolvedFiles = new Set<string>()
 
-    if (GENAI_ANYJS_REGEX.test(scriptId)) toolFiles.push(scriptId)
+    if (GENAI_ANY_REGEX.test(scriptId)) toolFiles.push(scriptId)
 
     for (const arg of files) {
         if (HTTPS_REGEX.test(arg)) resolvedFiles.add(arg)
@@ -153,7 +160,7 @@ export async function runScript(
         (t) =>
             t.id === scriptId ||
             (t.filename &&
-                GENAI_ANYJS_REGEX.test(scriptId) &&
+                GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
     if (!script) throw new Error(`tool ${scriptId} not found`)
@@ -166,13 +173,16 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model: options.model,
+            model:
+                options.model ?? script.model ?? host.defaultModelOptions.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)
             logError(info.error)
             return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
+        trace.options.encoder = await resolveTokenEncoder(info.model)
+        await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
             infoCb: (args) => {
                 const { text } = args
@@ -201,6 +211,9 @@ export async function runScript(
             maxToolCalls,
             maxDataRepairs,
             model: info.model,
+            embeddingsModel:
+                options.embeddingsModel ??
+                host.defaultEmbeddingsModelOptions.embeddingsModel,
             retry,
             retryDelay,
             maxDelay,
@@ -222,7 +235,7 @@ export async function runScript(
         logError(err)
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
-
+    if (!isQuiet) logVerbose("") // force new line
     if (spinner) {
         if (result.status !== "success")
             spinner.fail(`${spinner.text}, ${result.statusText}`)
@@ -332,8 +345,11 @@ export async function runScript(
                 )
         }
     } else {
-        if (options.json) console.log(JSON.stringify(result, null, 2))
-        if (options.yaml) console.log(YAMLStringify(result))
+        logVerbose("")
+        if (options.json && result !== undefined)
+            console.log(JSON.stringify(result, null, 2))
+        if (options.yaml && result !== undefined)
+            console.log(YAMLStringify(result))
         if (options.prompt && promptjson) {
             console.log(promptjson)
         }
@@ -362,7 +378,20 @@ export async function runScript(
                     : script.id
             )
         } else {
-            logError("no pull request information found")
+            const adoinfo = azureDevOpsParseEnv(process.env)
+            if (adoinfo?.collectionUri) {
+                await azureDevOpsCreateIssueComment(
+                    script,
+                    adoinfo,
+                    result.text,
+                    typeof pullRequestComment === "string"
+                        ? pullRequestComment
+                        : script.id
+                )
+            } else
+                logError(
+                    "pull request comment: no pull request information found"
+                )
         }
     }
 
@@ -391,7 +420,9 @@ export async function runScript(
                         : script.id
                 )
             } else {
-                logError("no pull request information found")
+                logError(
+                    "pull request review: no pull request information found"
+                )
             }
         }
     }

@@ -2,7 +2,7 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { Utils } from "vscode-uri"
 import { registerCommand } from "./commands"
-import { renderMessagesToMarkdown } from "../../core/src/chat"
+import { renderMessagesToMarkdown } from "../../core/src/chatrender"
 import {
     TOOL_NAME,
     MDX_REGEX,
@@ -16,7 +16,7 @@ import { details } from "../../core/src/markdown"
 import { parsePromptScriptMeta } from "../../core/src/template"
 import { arrayify, parseBoolean } from "../../core/src/util"
 import { YAMLTryParse, YAMLStringify } from "../../core/src/yaml"
-import { Fragment } from "../../core/src/promptrunner"
+import { Fragment } from "../../core/src/generation"
 
 // parser
 // https://raw.githubusercontent.com/microsoft/vscode-markdown-notebook/main/src/markdownParser.ts

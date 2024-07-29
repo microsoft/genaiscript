@@ -12,20 +12,19 @@ concurrent and distributed ones. **TLA+ does not come with a traditional linter 
     passMsg(net, from, oldMsg, to, newMsg) == [ net EXCEPT ![from] = BagRemove(@, oldMsg), ![to] = BagAdd(@, newMsg) ]
 ```
 
-```js
+````js
 def("TLA+", env.files.filter(f => f.filename.endsWith(".tla")), {lineNumbers: true})
 $`You are an expert at TLA+/TLAPLUS. Your task is to check if the prose comments and their TLA+ declarations and definitions are syntactically and semantically consistent!!!
 Explain any consistencies and inconsistencies you may find.  Report inconsistent and consistent pairs in a single ANNOTATION section.
 ## TLA+ Syntax Hints
-- A formula [A]_v is called a temporal formula, and is shorthand for the formula A \/ v' = v.  In other words, the formula is true if A is true or if the value of v remains unchanged.  Usually v is a tuple of the spec's variables.
-- The symbol \`#\` is alternative syntax used for inequality in TLA+; the other symbol is \`/=\".
-```
+- A formula [A]_v is called a temporal formula, ...`
+````
 
-```yaml
+````yaml
 - name: Run GenAIscript on the TLA+ specs that are added in this pull request.
   run: npx --yes genaiscript run tlAI-Linter.genai.js $(git diff --name-only HEAD^ | grep '.tla') -oa results.sarif
 - name: Upload SARIF file
   uses: github/codeql-action/upload-sarif@v3
   with:
     sarif_file: results.sarif
-```
+````

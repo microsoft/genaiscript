@@ -24,7 +24,7 @@ def("PDFS", env.files, { endsWith: ".pdf" })
 
 ## file output
 
-Use [defFileOutput](/genaiscript/reference/scrips/file-output) to specify allow file output paths and the description
+Use [defFileOutput](/genaiscript/reference/scripts/file-output) to specify allow file output paths and the description
 of the purpose of those files.
 
 ```js
@@ -70,6 +70,14 @@ const content = file.content
 ```
 
 It will automatically convert PDFs and DOCX files to text.
+
+### `readJSON`
+
+Reads the content of a file as JSON (using a [JSON5](https://json5.org/) parser)
+
+```ts
+const data = await workspace.readJSON("data.json")
+```
 
 ### `writeText`
 

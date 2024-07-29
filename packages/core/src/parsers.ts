@@ -22,12 +22,14 @@ import { host } from "./host"
 import { unzip } from "./zip"
 import { JSONLTryParse } from "./jsonl"
 import { resolveFileContent } from "./file"
+import { resolveTokenEncoder } from "./encoders"
 
-export function createParsers(options: {
+export async function createParsers(options: {
     trace: MarkdownTrace
     model: string
-}): Parsers {
+}): Promise<Parsers> {
     const { trace, model } = options
+    const encoder = await resolveTokenEncoder(model)
     return Object.freeze<Parsers>({
         JSON5: (text, options) =>
             JSON5TryParse(filenameOrFileToContent(text), options?.defaultValue),
@@ -49,13 +51,14 @@ export function createParsers(options: {
         CSV: (text, options) =>
             CSVTryParse(filenameOrFileToContent(text), options),
         XLSX: async (file, options) =>
-            XLSXTryParse(await host.readFile(file?.filename), options),
+            await XLSXTryParse(await host.readFile(file?.filename), options),
         dotEnv: (text) => dotEnvTryParse(filenameOrFileToContent(text)),
         INI: (text, options) =>
             INITryParse(filenameOrFileToContent(text), options?.defaultValue),
         unzip: async (file, options) =>
             await unzip(await host.readFile(file.filename), options),
-        tokens: (text) => estimateTokens(model, filenameOrFileToContent(text)),
+        tokens: (text) =>
+            estimateTokens(filenameOrFileToContent(text), encoder),
         fences: (text) => extractFenced(filenameOrFileToContent(text)),
         annotations: (text) => parseAnnotations(filenameOrFileToContent(text)),
         HTMLToText: (text, options) =>
@@ -94,7 +97,8 @@ export function createParsers(options: {
             await resolveFileContent(file, { trace })
             return await treeSitterQuery(file, query, { trace })
         },
-        math: (expression) => MathTryEvaluate(expression, { trace }),
+        math: async (expression) =>
+            await MathTryEvaluate(expression, { trace }),
         validateJSON: (schema, content) =>
             validateJSONWithSchema(content, schema, { trace }),
     })

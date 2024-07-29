@@ -11,23 +11,19 @@ import { pickLanguageModel } from "./lmaccess"
 import { parseAnnotations } from "../../core/src/annotations"
 import { Project } from "../../core/src/ast"
 import { JSONLineCache } from "../../core/src/cache"
-import { ChatCompletionsProgressReport } from "../../core/src/chat"
+import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
 import { fixPromptDefinitions } from "../../core/src/scripts"
 import { logMeasure } from "../../core/src/perf"
 import {
     TOOL_NAME,
     CHANGE,
     AI_REQUESTS_CACHE,
-    CLI_JS,
     TOOL_ID,
     GENAI_ANYJS_GLOB,
 } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
-import { GenerationResult } from "../../core/src/expander"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
-import { Fragment } from "../../core/src/promptrunner"
-import { RetrievalSearchResult } from "../../core/src/retrieval"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
     dotGenaiscriptPath,
@@ -37,13 +33,13 @@ import {
     groupBy,
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
+import { Fragment, GenerationResult } from "../../core/src/generation"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
 
 export const REQUEST_OUTPUT_FILENAME = "GenAIScript Output.md"
 export const REQUEST_TRACE_FILENAME = "GenAIScript Trace.md"
-export const SEARCH_OUTPUT_FILENAME = "GenAIScript Search.md"
 
 export interface AIRequestOptions {
     label: string
@@ -112,8 +108,6 @@ export class ExtensionState extends EventTarget {
     > = undefined
     readonly output: vscode.LogOutputChannel
 
-    lastSearch: RetrievalSearchResult
-
     constructor(public readonly context: ExtensionContext) {
         super()
         this.output = vscode.window.createOutputChannel(TOOL_NAME, {
@@ -170,11 +164,6 @@ temp/
         )
     }
 
-    get cliJsPath() {
-        const res = Utils.joinPath(this.context.extensionUri, CLI_JS).fsPath
-        return res
-    }
-
     aiRequestCache() {
         return this._aiRequestCache
     }
@@ -202,10 +191,6 @@ temp/
             const req = await this.startAIRequest(options)
             if (!req) {
                 await this.cancelAiRequest()
-                if (!options.notebook)
-                    vscode.commands.executeCommand(
-                        "genaiscript.request.open.trace"
-                    )
                 return
             }
             const res = await req?.request
@@ -298,8 +283,7 @@ temp/
         const { info, configuration: connectionToken } =
             await resolveModelConnectionInfo(template, { token: true })
         if (info.error) {
-            trace.error(info.error)
-            trace.renderErrors()
+            vscode.window.showErrorMessage(TOOL_NAME + " - " + info.error)
             return undefined
         }
         const infoCb = (partialResponse: { text: string }) => {
@@ -349,10 +333,7 @@ temp/
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
             const lmmodel = await pickLanguageModel(this, info.model)
-            if (!lmmodel) {
-                trace.error("no model provider selected")
-                return undefined
-            }
+            if (!lmmodel) return undefined
             /*
             await configureLanguageModelAccess(
                 this.context,

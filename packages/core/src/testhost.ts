@@ -1,12 +1,8 @@
 import { readFile, writeFile } from "fs/promises"
 import {
-    setHost,
-    Host,
     LogLevel,
     ModelService,
     LanguageModelConfiguration,
-    ParseService,
-    RetrievalService,
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
@@ -14,9 +10,11 @@ import {
     RuntimeHost,
 } from "./host"
 import { TraceOptions } from "./trace"
-import { LanguageModel } from "./chat"
-import { resolveLanguageModel } from "./models"
-import { DEFAULT_MODEL, DEFAULT_TEMPERATURE } from "./constants"
+import {
+    DEFAULT_EMBEDDINGS_MODEL,
+    DEFAULT_MODEL,
+    DEFAULT_TEMPERATURE,
+} from "./constants"
 import {
     dirname,
     extname,
@@ -44,8 +42,6 @@ export function createNodePath(): Path {
 export class TestHost implements RuntimeHost {
     dotEnvPath: string = undefined
     userState: any
-    parser: ParseService
-    retrieval: RetrievalService
     models: ModelService
     server: ServerManager
     path: Path = createNodePath()
@@ -53,6 +49,9 @@ export class TestHost implements RuntimeHost {
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
+    }
+    readonly defaultEmbeddingsModelOptions = {
+        embeddingsModel: DEFAULT_EMBEDDINGS_MODEL,
     }
 
     static install() {
@@ -81,15 +80,6 @@ export class TestHost implements RuntimeHost {
         modelId: string
     ): Promise<LanguageModelConfiguration> {
         throw new Error("Method not implemented.")
-    }
-    async resolveLanguageModel(
-        options: {
-            model?: string
-            languageModel?: LanguageModel
-        },
-        configuration: LanguageModelConfiguration
-    ): Promise<LanguageModel> {
-        return resolveLanguageModel(options, configuration)
     }
     log(level: LogLevel, msg: string): void {
         throw new Error("Method not implemented.")

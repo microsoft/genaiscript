@@ -59,7 +59,7 @@ export async function resolveFileContent(
         file.content = await DOCXTryParse(filename, options)
     } else if (XLSX_REGEX.test(filename)) {
         const bytes = await host.readFile(filename)
-        const sheets = XLSXParse(bytes)
+        const sheets = await XLSXParse(bytes)
         file.content = JSON.stringify(sheets, null, 2)
     } else {
         const mime = lookupMime(filename)
@@ -68,6 +68,18 @@ export async function resolveFileContent(
     }
 
     return file
+}
+
+export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
+    return typeof fileOrFilename === "string"
+        ? { filename: fileOrFilename }
+        : fileOrFilename
+}
+
+export async function resolveFileContents(files: WorkspaceFile[]) {
+    for(const file of files) {
+        await resolveFileContent(file)
+    }
 }
 
 export async function renderFileContent(

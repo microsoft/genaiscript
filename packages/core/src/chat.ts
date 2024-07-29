@@ -1,124 +1,30 @@
-import OpenAI from "openai"
-import { JSONLineCache } from "./cache"
 import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
-import { AICIRequest } from "./aici"
 import { LanguageModelConfiguration, host } from "./host"
-import { GenerationOptions } from "./promptcontext"
+import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
-import { CHAT_CACHE, MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
+import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
-import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
-import { estimateChatTokens } from "./tokens"
+import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
-
-export type ChatCompletionContentPartText =
-    OpenAI.Chat.Completions.ChatCompletionContentPartText
-
-export type ChatCompletionContentPart =
-    OpenAI.Chat.Completions.ChatCompletionContentPart
-
-export type ChatCompletionTool = OpenAI.Chat.Completions.ChatCompletionTool
-
-export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
-
-export type ChatCompletionSystemMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionSystemMessageParam
-
-export type ChatCompletionMessageParam =
-    | OpenAI.Chat.Completions.ChatCompletionMessageParam
-    | AICIRequest
-
-export type CreateChatCompletionRequest = Omit<
-    OpenAI.Chat.Completions.ChatCompletionCreateParamsStreaming,
-    "messages"
-> & {
-    /**
-     * A list of messages comprising the conversation so far.
-     * [Example Python code](https://cookbook.openai.com/examples/how_to_format_inputs_to_chatgpt_models).
-     */
-    //  messages: Array<ChatCompletionMessageParam>;
-    messages: ChatCompletionMessageParam[]
-}
-
-export type ChatCompletionAssistantMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionAssistantMessageParam
-
-export type ChatCompletionUserMessageParam =
-    OpenAI.Chat.Completions.ChatCompletionUserMessageParam
-
-export type ChatCompletionContentPartImage =
-    OpenAI.Chat.Completions.ChatCompletionContentPartImage
-
-export interface ChatCompletionToolCall {
-    id: string
-    name: string
-    arguments?: string
-}
-
-export interface ChatCompletionResponse {
-    text?: string
-    cached?: boolean
-    variables?: Record<string, string>
-    toolCalls?: ChatCompletionToolCall[]
-    finishReason?:
-        | "stop"
-        | "length"
-        | "tool_calls"
-        | "content_filter"
-        | "cancel"
-        | "fail"
-}
-
-export const ModelError = OpenAI.APIError
-
-export type ChatCompletionRequestCacheKey = CreateChatCompletionRequest &
-    ModelOptions &
-    Omit<LanguageModelConfiguration, "token" | "source">
-
-export type ChatCompletationRequestCacheValue = {
-    text: string
-    finishReason: ChatCompletionResponse["finishReason"]
-}
-
-export type ChatCompletationRequestCache = JSONLineCache<
-    ChatCompletionRequestCacheKey,
-    ChatCompletationRequestCacheValue
->
-
-export function getChatCompletionCache(
-    name?: string
-): ChatCompletationRequestCache {
-    return JSONLineCache.byName<
-        ChatCompletionRequestCacheKey,
-        ChatCompletationRequestCacheValue
-    >(name || CHAT_CACHE)
-}
-
-export interface ChatCompletionsProgressReport {
-    tokensSoFar: number
-    responseSoFar: string
-    responseChunk: string
-}
-
-export interface ChatCompletionsOptions {
-    partialCb?: (progress: ChatCompletionsProgressReport) => void
-    requestOptions?: Partial<RequestInit>
-    maxCachedTemperature?: number
-    maxCachedTopP?: number
-    cache?: boolean
-    cacheName?: string
-    retry?: number
-    retryDelay?: number
-    maxDelay?: number
-}
+import { traceLanguageModelConnection } from "./models"
+import {
+    ChatCompletionContentPartImage,
+    ChatCompletionMessageParam,
+    ChatCompletionResponse,
+    ChatCompletionsOptions,
+    ChatCompletionTool,
+    ChatCompletionUserMessageParam,
+    CreateChatCompletionRequest,
+} from "./chattypes"
+import { renderMessagesToMarkdown } from "./chatrender"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -379,7 +285,7 @@ function structurifyChatSession(
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
-        : resp?.finishReason ?? "fail"
+        : (resp?.finishReason ?? "fail")
     const error = serializeError(err)
 
     const fences = extractFenced(text)
@@ -403,7 +309,7 @@ function structurifyChatSession(
     } else {
         json = isJSONObjectOrArray(text)
             ? JSON5TryParse(text, undefined)
-            : undefined ?? findFirstDataFence(fences)
+            : (undefined ?? findFirstDataFence(fences))
     }
     const frames: DataFrame[] = []
 
@@ -510,7 +416,7 @@ async function processChatMessage(
 
 export function mergeGenerationOptions(
     options: GenerationOptions,
-    runOptions: ModelOptions
+    runOptions: ModelOptions & EmbeddingsModelOptions
 ): GenerationOptions {
     return {
         ...options,
@@ -521,6 +427,10 @@ export function mergeGenerationOptions(
             host.defaultModelOptions.model,
         temperature:
             runOptions?.temperature ?? host.defaultModelOptions.temperature,
+        embeddingsModel:
+            runOptions?.embeddingsModel ??
+            options?.embeddingsModel ??
+            host.defaultEmbeddingsModelOptions.embeddingsModel,
     }
 }
 
@@ -542,13 +452,12 @@ export async function executeChatSession(
         topP,
         maxTokens,
         seed,
-        cacheName,
         responseType,
-        responseSchema,
         stats,
         infoCb,
     } = genOptions
 
+    traceLanguageModelConnection(trace, genOptions, connectionToken)
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map((f) => ({
               type: "function",
@@ -557,15 +466,6 @@ export async function executeChatSession(
         : undefined
     trace.startDetails(`🧠 llm chat`)
     try {
-        trace.itemValue(`model`, model)
-        trace.itemValue(`temperature`, temperature)
-        trace.itemValue(`top_p`, topP)
-        trace.itemValue(`seed`, seed)
-        trace.itemValue(`cache name`, cacheName)
-        trace.itemValue(`response type`, responseType)
-        if (responseSchema)
-            trace.detailsFenced(`📦 response schema`, responseSchema, "json")
-
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
@@ -636,104 +536,4 @@ export function tracePromptResult(trace: MarkdownTrace, resp: RunPromptResult) {
     const { json, text } = resp
     trace.detailsFenced(`🔠 output`, text, `markdown`)
     if (resp.json) trace.detailsFenced("📩 JSON (parsed)", json, "json")
-}
-
-function renderToolArguments(args: string) {
-    const js = JSON5TryParse(args)
-    if (js) return fenceMD(YAMLStringify(js), "yaml")
-    else return fenceMD(args, "json")
-}
-
-export function renderMessagesToMarkdown(
-    messages: ChatCompletionMessageParam[],
-    options?: {
-        system?: boolean
-        user?: boolean
-        assistant?: boolean
-    }
-) {
-    const {
-        system = undefined,
-        user = undefined,
-        assistant = true,
-    } = options || {}
-    const res: string[] = []
-    messages
-        ?.filter((msg) => {
-            switch (msg.role) {
-                case "system":
-                    return system !== false
-                case "user":
-                    return user !== false
-                case "assistant":
-                    return assistant !== false
-                default:
-                    return true
-            }
-        })
-        ?.forEach((msg) => {
-            const { role } = msg
-            switch (role) {
-                case "system":
-                    res.push(
-                        details(
-                            "📙 system",
-                            fenceMD(msg.content, "markdown"),
-                            false
-                        )
-                    )
-                    break
-                case "user":
-                    let content: string
-                    if (typeof msg.content === "string")
-                        content = fenceMD(msg.content, "markdown")
-                    else if (Array.isArray(msg.content))
-                        for (const part of msg.content) {
-                            if (part.type === "text")
-                                content = fenceMD(part.text, "markdown")
-                            else if (part.type === "image_url")
-                                content = `![image](${part.image_url.url})`
-                            else content = fenceMD(YAMLStringify(part), "yaml")
-                        }
-                    else content = fenceMD(YAMLStringify(msg), "yaml")
-                    res.push(details(`👤 user`, content, user === true))
-                    break
-                case "assistant":
-                    res.push(
-                        details(
-                            `🤖 assistant ${msg.name ? msg.name : ""}`,
-                            [
-                                fenceMD(msg.content, "markdown"),
-                                ...(msg.tool_calls?.map((tc) =>
-                                    details(
-                                        `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
-                                        renderToolArguments(
-                                            tc.function.arguments
-                                        )
-                                    )
-                                ) || []),
-                            ]
-                                .filter((s) => !!s)
-                                .join("\n\n"),
-                            assistant === true
-                        )
-                    )
-                    break
-                case "aici":
-                    res.push(details(`AICI`, fenceMD(msg.content, "markdown")))
-                    break
-                case "tool":
-                    res.push(
-                        details(
-                            `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                            fenceMD(msg.content, "json")
-                        )
-                    )
-                    break
-                default:
-                    res.push(role, fenceMD(YAMLStringify(msg), "yaml"))
-                    break
-            }
-        })
-    return res.filter((s) => s !== undefined).join("\n")
 }

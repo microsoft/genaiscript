@@ -2,13 +2,13 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.43.1",
+  "version": "1.45.5",
   "license": "MIT",
   "scripts": {
     "dev": "astro dev --host",
     "start": "astro dev --host",
     "check": "astro check",
-    "build": "npx --yes astro@latest build",
+    "build": "npx --yes astro build",
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
     "preview": "astro preview",
     "astro": "astro",
@@ -18,10 +18,10 @@
     "genai:alt-text": "node scripts/image-alt-text.mjs"
   },
   "dependencies": {
-    "@astrojs/check": "^0.7.0",
-    "@astrojs/starlight": "^0.24.5",
-    "astro": "^4.11.5",
-    "typescript": "5.5.3"
+    "@astrojs/check": "^0.8.3",
+    "@astrojs/starlight": "^0.25.2",
+    "astro": "^4.12.2",
+    "typescript": "5.5.4"
   },
   "devDependencies": {
     "zx": "^8.1.4"

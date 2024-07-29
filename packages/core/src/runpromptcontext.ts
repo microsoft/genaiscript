@@ -13,12 +13,13 @@ import {
     createTextNode,
 } from "./promptdom"
 import { MarkdownTrace } from "./trace"
-import { GenerationOptions } from "./promptcontext"
+import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
+import { logVerbose } from "./util"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -28,13 +29,16 @@ export function createChatTurnGenerationContext(
 
     const log = (...args: any[]) => {
         const line = consoleLogFormat(...args)
-        if (line) trace.log(line)
+        if (line) {
+            trace.log(line)
+            logVerbose(line)
+        }
     }
     const console = Object.freeze<PromptGenerationConsole>({
         log,
         debug: log,
-        warn: (args) => trace.warn(consoleLogFormat(...args)),
-        error: (args) => trace.error(consoleLogFormat(...args)),
+        warn: log,
+        error: log,
     })
 
     const ctx = <ChatTurnGenerationContext & { node: PromptNode }>{

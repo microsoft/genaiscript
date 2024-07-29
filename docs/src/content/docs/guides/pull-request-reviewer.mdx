@@ -97,8 +97,10 @@ script({
 ## Step 2: Automation in Github Actions
 
 Add this step to your Github Actions workflow to automate the pull request review process.
+The `-prc` flag stands for [--pull-request-comment](/genaiscript/reference/cli/run#pull-request-comment)
+and takes care of upserting a comment in the pull request conversation.
 
-```yaml
+```yaml "-prc"
 permissions:
     pull-requests: write # permission to write a comment
 

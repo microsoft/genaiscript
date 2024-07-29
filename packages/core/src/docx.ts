@@ -1,7 +1,5 @@
 import { host } from "./host"
 import { TraceOptions } from "./trace"
-import { logError } from "./util"
-import { extractRawText } from "mammoth"
 
 /**
  * parses docx, require mammoth to be installed
@@ -15,6 +13,7 @@ export async function DOCXTryParse(
 ): Promise<string> {
     const { trace } = options || {}
     try {
+        const { extractRawText } = await import("mammoth")
         const path = !/^\//.test(file)
             ? host.path.join(host.projectFolder(), file)
             : file

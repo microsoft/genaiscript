@@ -3,5 +3,6 @@
         "frontmatter",
         "openai",
         "outputfilename"
-    ]
+    ],
+    "genaiscript.cli.path": "../cli/built/genaiscript.cjs"
 }

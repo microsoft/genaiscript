@@ -27,8 +27,13 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
     private _content: string = ""
     private _tree: TraceTree
 
-    constructor() {
+    constructor(
+        readonly options?: {
+            encoder?: TokenEncoder
+        }
+    ) {
         super()
+        this.options = options || {}
     }
 
     private disableChangeDispatch = 0
@@ -255,8 +260,8 @@ ${this.toResultIcon(success, "")}${title}
         }
     ) {
         const {
-            model = host.defaultModelOptions.model,
-            maxLength = host.defaultModelOptions.temperature,
+            model,
+            maxLength,
             title,
             skipIfEmpty,
             secrets = {},
@@ -273,9 +278,10 @@ ${this.toResultIcon(success, "")}${title}
                     const score = !isNaN(file.score)
                         ? `score: ${renderWithPrecision(file.score || 0, 2)}`
                         : undefined
-                    const tokens = model
-                        ? `${estimateTokens(model, content)} t`
-                        : undefined
+                    const tokens =
+                        model && this.options?.encoder
+                            ? `${estimateTokens(content, this.options.encoder)} t`
+                            : undefined
                     const suffix = toStringList(tokens, size, score)
                     if (maxLength > 0) {
                         let preview = ellipse(content, maxLength).replace(

@@ -6,16 +6,17 @@ import { XLSXParse } from "./xlsx"
 import { readFile } from "fs/promises"
 import { resolve } from "path"
 import { TestHost } from "./testhost"
+import { estimateTokens } from "./tokens"
 
 describe("parsers", () => {
     let trace: MarkdownTrace
     let model: string
-    let parsers: ReturnType<typeof createParsers>
+    let parsers: Awaited<ReturnType<typeof createParsers>>
 
-    beforeEach(() => {
-        trace = new MarkdownTrace()
+    beforeEach(async () => {
+        trace = new MarkdownTrace({})
         model = "test model"
-        parsers = createParsers({ trace, model })
+        parsers = await createParsers({ trace, model })
         TestHost.install()
     })
 
@@ -51,7 +52,7 @@ describe("parsers", () => {
     })
 
     test("XLSX", async () => {
-        const result = XLSXParse(
+        const result = await XLSXParse(
             await readFile(resolve("./src/parsers.test.xlsx"))
         )
         assert.deepStrictEqual(result, [
@@ -76,8 +77,8 @@ describe("parsers", () => {
         assert(!result.find((f) => f.filename === "loremipsum.pdf"))
     })
 
-    test("math", () => {
-        const res = parsers.math("1 + 3")
+    test("math", async () => {
+        const res = await parsers.math("1 + 3")
         assert.strictEqual(res, 4)
     })
 

@@ -210,7 +210,7 @@ const captures = await parsers.code(file, "(interface_declaration) @i")
 The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math expression.
 
 ```js
-const res = parsers.math("1 + 1")
+const res = await parsers.math("1 + 1")
 ```
 
 ## .env
@@ -270,14 +270,6 @@ for the current model. This is useful for estimating the number of prompts that 
 
 ```js
 const count = parsers.tokens("...")
-```
-
-## math
-
-The `parsers.math` function uses [mathjs](https://mathjs.org/) to parse a math expression.
-
-```js
-const res = parsers.math("1 + 1")
 ```
 
 ## validateJSON

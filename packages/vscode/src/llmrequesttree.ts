@@ -4,11 +4,9 @@ import { infoUri } from "./markdowndocumentprovider"
 import { CacheEntry } from "../../core/src/cache"
 import {
     CreateChatCompletionRequest,
-    ChatCompletationRequestCacheValue,
-    ChatCompletationRequestCache,
-    getChatCompletionCache,
-} from "../../core/src/chat"
+} from "../../core/src/chattypes"
 import { CHANGE, CACHE_LLMREQUEST_PREFIX } from "../../core/src/constants"
+import { ChatCompletationRequestCache, ChatCompletationRequestCacheValue, getChatCompletionCache } from "../../core/src/chatcache"
 
 type LLMRequestTreeNode = CacheEntry<
     CreateChatCompletionRequest,

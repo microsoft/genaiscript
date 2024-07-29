@@ -3,11 +3,18 @@ import { ExtensionState } from "./state"
 import { checkDirectoryExists, checkFileExists } from "./fs"
 import { registerCommand } from "./commands"
 import { templateGroup } from "../../core/src/ast"
-import { GENAI_ANYJS_REGEX } from "../../core/src/constants"
+import {
+    GENAI_ANY_REGEX,
+    TOOL_ID,
+    TOOL_NAME,
+    VSCODE_CONFIG_CLI_PATH,
+    VSCODE_CONFIG_CLI_VERSION,
+} from "../../core/src/constants"
 import { NotSupportedError } from "../../core/src/error"
 import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
-import { Fragment } from "../../core/src/promptrunner"
+import { Fragment } from "../../core/src/generation"
 import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
+import { CORE_VERSION } from "../../core/src/version"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -100,7 +107,7 @@ export function activateFragmentCommands(state: ExtensionState) {
             if (
                 document &&
                 document.uri.scheme === "file" &&
-                !GENAI_ANYJS_REGEX.test(document.fileName)
+                !GENAI_ANY_REGEX.test(document.fileName)
             )
                 frag = document.uri.fsPath
         }
@@ -135,7 +142,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         if (
             fragment instanceof vscode.Uri &&
-            GENAI_ANYJS_REGEX.test(fragment.path)
+            GENAI_ANY_REGEX.test(fragment.path)
         ) {
             template = state.project.templates.find(
                 (p) => p.filename === (fragment as vscode.Uri).fsPath
@@ -167,7 +174,7 @@ export function activateFragmentCommands(state: ExtensionState) {
 
         let template: PromptScript
         let files: vscode.Uri[]
-        if (GENAI_ANYJS_REGEX.test(file.path)) {
+        if (GENAI_ANY_REGEX.test(file.path)) {
             template = state.project.templates.find(
                 (p) => p.filename === file.fsPath
             )
@@ -179,22 +186,40 @@ export function activateFragmentCommands(state: ExtensionState) {
             template = await pickTemplate()
             files = [file]
         }
+
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const program = config.get(VSCODE_CONFIG_CLI_PATH) as string
+        const args = [
+            "run",
+            vscode.workspace.asRelativePath(template.filename),
+            ...files.map((file) =>
+                vscode.workspace.asRelativePath(file.fsPath)
+            ),
+        ]
+        const cliVersion =
+            (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
+        const configuration = program
+            ? <vscode.DebugConfiguration>{
+                  name: TOOL_NAME,
+                  program,
+                  request: "launch",
+                  skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
+                  type: "node",
+                  args,
+              }
+            : <vscode.DebugConfiguration>{
+                  name: TOOL_NAME,
+                  type: "node",
+                  request: "launch",
+                  runtimeExecutable: "npx",
+                  runtimeArgs: [`--yes`, `${TOOL_ID}@${cliVersion}`, ...args],
+                  console: "integratedTerminal",
+                  internalConsoleOptions: "neverOpen",
+              }
+
         await vscode.debug.startDebugging(
             vscode.workspace.workspaceFolders[0],
-            {
-                name: "GenAIScript",
-                program: state.cliJsPath,
-                request: "launch",
-                skipFiles: ["<node_internals>/**", dotGenaiscriptPath("**")],
-                type: "node",
-                args: [
-                    "run",
-                    vscode.workspace.asRelativePath(template.filename),
-                    ...files.map((file) =>
-                        vscode.workspace.asRelativePath(file.fsPath)
-                    ),
-                ],
-            }
+            configuration
         )
     }
 

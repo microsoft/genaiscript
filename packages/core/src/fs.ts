@@ -1,9 +1,6 @@
-import { DOT_ENV_REGEX, HTTPS_REGEX } from "./constants"
-import { NotSupportedError, errorMessage } from "./error"
-import { resolveFileContent } from "./file"
+import { HTTPS_REGEX } from "./constants"
 import { host } from "./host"
-import { logVerbose, unique, utf8Decode, utf8Encode } from "./util"
-import ignorer from "ignore"
+import { unique, utf8Decode, utf8Encode } from "./util"
 
 export async function readText(fn: string) {
     const curr = await host.readFile(fn)
@@ -55,61 +52,6 @@ export function filenameOrFileToContent(
         : fileOrContent?.content
 }
 
-export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
-    const fs: Omit<WorkspaceFileSystem, "grep"> = {
-        findFiles: async (glob, options) => {
-            const { readText } = options || {}
-            const names = (
-                await host.findFiles(glob, {
-                    ignore: ["**/.env"],
-                    applyGitIgnore: true,
-                })
-            ).filter((f) => !DOT_ENV_REGEX.test(f))
-            const files: WorkspaceFile[] = []
-            for (const name of names) {
-                const file =
-                    readText === false
-                        ? <WorkspaceFile>{
-                              filename: name,
-                              content: undefined,
-                          }
-                        : await fs.readText(name)
-                files.push(file)
-            }
-            return files
-        },
-        writeText: async (filename: string, c: string) => {
-            if (DOT_ENV_REGEX.test(filename))
-                throw new Error("writing .env not allowed")
-
-            await writeText(filename, c)
-        },
-        readText: async (f: string | WorkspaceFile) => {
-            if (f === undefined)
-                throw new NotSupportedError("missing file name")
-
-            const file: WorkspaceFile =
-                typeof f === "string"
-                    ? {
-                          filename: f,
-                          content: undefined,
-                      }
-                    : f
-            if (DOT_ENV_REGEX.test(file.filename)) return file
-            try {
-                await resolveFileContent(file)
-            } catch (e) {
-                logVerbose(
-                    `error reading file ${file.filename}: ${errorMessage(e)}`
-                )
-            }
-            return file
-        },
-    }
-    ;(fs as any).readFile = readText
-    return Object.freeze(fs)
-}
-
 export async function expandFiles(files: string[], excludedFiles?: string[]) {
     const urls = files
         .filter((f) => HTTPS_REGEX.test(f))
@@ -123,13 +65,4 @@ export async function expandFiles(files: string[], excludedFiles?: string[]) {
 
 export function filePathOrUrlToWorkspaceFile(f: string) {
     return HTTPS_REGEX.test(f) || host.path.resolve(f) === f ? f : `./${f}`
-}
-
-export async function filterGitIgnore(files: string[]) {
-    const gitignore = await tryReadText(".gitignore")
-    if (gitignore) {
-        const ig = ignorer().add(gitignore)
-        files = ig.filter(files)
-    }
-    return files
 }

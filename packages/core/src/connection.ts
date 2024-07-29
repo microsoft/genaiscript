@@ -20,6 +20,8 @@ import {
     MODEL_PROVIDER_OPENAI,
     OLLAMA_API_BASE,
     OPENAI_API_BASE,
+    PLACEHOLDER_API_BASE,
+    PLACEHOLDER_API_KEY,
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
 import { APIType, host, LanguageModelConfiguration } from "./host"
@@ -32,6 +34,9 @@ export async function parseDefaultsFromEnv(env: Record<string, string>) {
         host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
     if (!isNaN(t)) host.defaultModelOptions.temperature = t
+    if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
+        host.defaultEmbeddingsModelOptions.embeddingsModel =
+            env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL
 }
 
 export async function parseTokenFromEnv(
@@ -72,10 +77,15 @@ export async function parseTokenFromEnv(
             if (!token && !/^http:\/\//i.test(base))
                 // localhost typically requires no key
                 throw new Error("OPENAI_API_KEY missing")
+            if (token === PLACEHOLDER_API_KEY)
+                throw new Error("OPENAI_API_KEY not configured")
+            if (base === PLACEHOLDER_API_BASE)
+                throw new Error("OPENAI_API_BASE not configured")
             if (base && !URL.canParse(base))
                 throw new Error("OPENAI_API_BASE must be a valid URL")
             return {
                 provider,
+                model,
                 base,
                 type,
                 token,
@@ -99,34 +109,42 @@ export async function parseTokenFromEnv(
                 env.AZURE_API_BASE ||
                 env.AZURE_OPENAI_API_ENDPOINT
         )
-        if (token || base) {
-            if (!base)
-                throw new Error(
-                    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
-                )
-            if (!URL.canParse(base))
-                throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
-            const version =
-                env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
-            if (version && version !== AZURE_OPENAI_API_VERSION)
-                throw new Error(
-                    `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
-                )
-            if (!base.endsWith("/openai/deployments"))
-                base += "/openai/deployments"
-            return {
-                provider,
-                base,
-                token,
-                type: "azure",
-                source: token ? "env: AZURE_..." : "env: AZURE_... + Entra ID",
-                version,
-                curlHeaders: tokenVar
-                    ? {
-                          "api-key": `$${tokenVar}`,
-                      }
-                    : undefined,
-            }
+        if (!token && !base) return undefined
+        //if (!token)
+        //    throw new Error("AZURE_OPENAI_API_KEY or AZURE_API_KEY missing")
+        if (token === PLACEHOLDER_API_KEY)
+            throw new Error("AZURE_OPENAI_API_KEY not configured")
+        if (!base)
+            throw new Error(
+                "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_BASE or AZURE_API_BASE missing"
+            )
+        if (base === PLACEHOLDER_API_BASE)
+            throw new Error("AZURE_OPENAI_API_ENDPOINT not configured")
+        base =
+            base.replace(/\/openai\/deployments.*$/g, "") +
+            `/openai/deployments`
+        if (!URL.canParse(base))
+            throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
+        const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
+        if (version && version !== AZURE_OPENAI_API_VERSION)
+            throw new Error(
+                `AZURE_OPENAI_API_VERSION must be '${AZURE_OPENAI_API_VERSION}'`
+            )
+        return {
+            provider,
+            model,
+            base,
+            token,
+            type: "azure",
+            source: token
+                ? "env: AZURE_OPENAI_API_..."
+                : "env: AZURE_OPENAI_API_... + Entra ID",
+            version,
+            curlHeaders: tokenVar
+                ? {
+                      "api-key": `$${tokenVar}`,
+                  }
+                : undefined,
         }
     }
 
@@ -151,6 +169,7 @@ export async function parseTokenFromEnv(
                 throw new Error(`${modelBase} must be a valid URL`)
             return {
                 provider,
+                model,
                 token,
                 base,
                 type,
@@ -168,6 +187,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_OLLAMA) {
         return {
             provider,
+            model,
             base: OLLAMA_API_BASE,
             token: "ollama",
             type: "openai",
@@ -178,6 +198,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_LLAMAFILE) {
         return {
             provider,
+            model,
             base: LLAMAFILE_API_BASE,
             token: "llamafile",
             type: "openai",
@@ -188,6 +209,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_LITELLM) {
         return {
             provider,
+            model,
             base: LITELLM_API_BASE,
             token: "litellm",
             type: "openai",
@@ -207,7 +229,7 @@ function dotEnvTemplate(
             config: `
 ## Ollama ${DOCS_CONFIGURATION_OLLAMA_URL}
 # use "${MODEL_PROVIDER_OLLAMA}:<model>" or "${MODEL_PROVIDER_OLLAMA}:<model>:<tag>" in script({ model: ... })
-# OLLAMA_API_BASE="<custom api base>" # uses ${OLLAMA_API_BASE} by default
+# OLLAMA_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${OLLAMA_API_BASE} by default
 `,
             model: `${MODEL_PROVIDER_OLLAMA}:phi3`,
         }
@@ -227,7 +249,7 @@ function dotEnvTemplate(
             config: `
 ## LiteLLM ${DOCS_CONFIGURATION_LITELLM_URL}
 # use "${MODEL_PROVIDER_LITELLM}" in script({ model: ... })
-# LITELLM_API_BASE="<custom api base>" # uses ${LITELLM_API_BASE} by default
+# LITELLM_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${LITELLM_API_BASE} by default
 `,
             model: MODEL_PROVIDER_LITELLM,
         }
@@ -237,7 +259,7 @@ function dotEnvTemplate(
             config: `
 ## AICI ${DOCS_CONFIGURATION_AICI_URL}
 # use "${MODEL_PROVIDER_AICI}:<model>" in script({ model: ... })
-AICI_API_BASE="<custom api base>"
+AICI_API_BASE="${PLACEHOLDER_API_BASE}"
 `,
             model: `${MODEL_PROVIDER_AICI}:mixtral`,
         }
@@ -247,9 +269,9 @@ AICI_API_BASE="<custom api base>"
             config: `
 ## Azure OpenAI ${DOCS_CONFIGURATION_AZURE_OPENAI_URL}
 # use "${MODEL_PROVIDER_AZURE}:<deployment>" in script({ model: ... })
-AZURE_OPENAI_ENDPOINT="<your api endpoint>"
+AZURE_OPENAI_ENDPOINT="${PLACEHOLDER_API_BASE}"
 # Uses managed identity by default, or set:
-# AZURE_OPENAI_API_KEY="<your token>"
+# AZURE_OPENAI_API_KEY="${PLACEHOLDER_API_KEY}"
 `,
             model: `${MODEL_PROVIDER_AZURE}:deployment`,
         }
@@ -260,8 +282,8 @@ AZURE_OPENAI_ENDPOINT="<your api endpoint>"
 ## LocalAI ${DOCS_CONFIGURATION_LOCALAI_URL}
 # use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
 OPENAI_API_TYPE="localai"
-# OPENAI_API_KEY="<your token>" # use if you have an access token in the localai web ui
-# OPENAI_API_BASE="<api end point>" # uses ${LOCALAI_API_BASE} by default
+# OPENAI_API_KEY="${PLACEHOLDER_API_KEY}" # use if you have an access token in the localai web ui
+# OPENAI_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${LOCALAI_API_BASE} by default
 `,
             model: `${MODEL_PROVIDER_OPENAI}:gpt-3.5-turbo`,
         }
@@ -270,8 +292,8 @@ OPENAI_API_TYPE="localai"
         config: `
 ## OpenAI ${DOCS_CONFIGURATION_OPENAI_URL}
 # use "${MODEL_PROVIDER_OPENAI}:<model>" in script({ model: ... })
-OPENAI_API_KEY="<your token>"
-# OPENAI_API_BASE="<api end point>" # uses ${OPENAI_API_BASE} by default
+OPENAI_API_KEY="${PLACEHOLDER_API_KEY}"
+# OPENAI_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${OPENAI_API_BASE} by default
 `,
         model: `${MODEL_PROVIDER_OPENAI}:gpt-4o`,
     }
@@ -299,7 +321,7 @@ export async function updateConnectionConfiguration(
             src =
                 dedent`
 
-                    ### GenAISCript defaults
+                    ## GenAIScript defaults
                     GENAISCRIPT_DEFAULT_MODEL="${model}"
                     # GENAISCRIPT_DEFAULT_TEMPERATURE=${DEFAULT_TEMPERATURE}
                     

@@ -3,7 +3,7 @@ script({ system: ["system"], temperature: 0.5, model: "openai:gpt-4-turbo" })
 const product = env.vars.product || "GenAIScript"
 
 // find previous tag
-const pkg = JSON.parse((await workspace.readText("package.json")).content)
+const pkg = await workspace.readJSON("package.json")
 const { version } = pkg
 const { stdout: tag } = await host.exec("git", [
     "describe",

@@ -2,6 +2,8 @@
 title: TypeScript
 sidebar:
     order: 15
+description: Learn how to use TypeScript for better tooling and scalability in your GenAIScript projects.
+keywords: TypeScript, JavaScript, ESM, dynamic imports, type checking
 ---
 
 [TypeScript](https://www.typescriptlang.org/) is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale. GenAIScript scripts can be authored in TypeScript.

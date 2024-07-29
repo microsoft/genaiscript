@@ -70,7 +70,7 @@ class GenAIScriptApiProvider {
             let output
             try {
                 output = JSON.parse(outputText)
-                if (output.status === "error") 
+                if (output.status === "error")
                     error = output.statusText || error || "error"
             } catch (e) {
                 error = e?.message || "error parsing genaiscript json output"
@@ -80,8 +80,7 @@ class GenAIScriptApiProvider {
                 }
             }
 
-            if (error)
-                logger.error(error)
+            if (error) logger.error(error)
             return {
                 output,
                 error,

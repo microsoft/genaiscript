@@ -1,6 +1,7 @@
 script({
     title: "rag",
     model: "openai:gpt-3.5-turbo",
+    files: "src/rag/*",
     tests: {
         files: "src/rag/*",
         keywords: ["lorem", "markdown", "word"],

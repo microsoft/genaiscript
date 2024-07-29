@@ -1,32 +1,17 @@
-import { ChatCompletionsProgressReport } from "../chat"
-import { CLIENT_RECONNECT_DELAY, RECONNECT } from "../constants"
+import { ChatCompletionsProgressReport } from "../chattypes"
+import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
-import { GenerationResult } from "../expander"
-import {
-    ModelService,
-    ParsePdfResponse,
-    ParseService,
-    ResponseStatus,
-    RetrievalSearchOptions,
-    RetrievalSearchResponse,
-    RetrievalService,
-    RetrievalUpsertOptions,
-    host,
-} from "../host"
-import { MarkdownTrace, TraceOptions } from "../trace"
+import { GenerationResult } from "../generation"
+import { ResponseStatus, host } from "../host"
+import { MarkdownTrace } from "../trace"
 import { assert, logError } from "../util"
 import {
-    ParsePdfMessage,
     RequestMessage,
     RequestMessages,
-    RetrievalVectorClear,
-    RetrievalSearch,
-    RetrievalVectorUpsert,
     ServerVersion,
     PromptScriptTestRun,
     PromptScriptTestRunOptions,
-    ModelsPull,
     PromptScriptTestRunResponse,
     ShellExecResponse,
     ShellExec,
@@ -37,10 +22,7 @@ import {
     ServerEnv,
 } from "./messages"
 
-export class WebSocketClient
-    extends EventTarget
-    implements RetrievalService, ParseService, ModelService
-{
+export class WebSocketClient extends EventTarget {
     private awaiters: Record<
         string,
         { resolve: (data: any) => void; reject: (error: unknown) => void }
@@ -49,6 +31,7 @@ export class WebSocketClient
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
+    connectedOnce = false
     reconnectAttempts = 0
 
     private runs: Record<
@@ -105,6 +88,7 @@ export class WebSocketClient
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener("open", () => {
             // clear counter
+            this.connectedOnce = true
             this.reconnectAttempts = 0
             // flush cached messages
             let m: string
@@ -113,6 +97,7 @@ export class WebSocketClient
                 (m = this._pendingMessages.pop())
             )
                 this._ws.send(m)
+            this.dispatchEvent(new Event(OPEN))
         })
         this._ws.addEventListener("error", (ev) => {
             this.reconnect()
@@ -222,55 +207,8 @@ export class WebSocketClient
         return res.version
     }
 
-    async pullModel(model: string): Promise<ResponseStatus> {
-        const res = await this.queue<ModelsPull>({
-            type: "models.pull",
-            model,
-        })
-        return res.response
-    }
-
     async infoEnv(): Promise<ResponseStatus> {
         const res = await this.queue<ServerEnv>({ type: "server.env" })
-        return res.response
-    }
-
-    async vectorClear(options: VectorSearchOptions): Promise<ResponseStatus> {
-        const res = await this.queue<RetrievalVectorClear>({
-            type: "retrieval.vectorClear",
-            options,
-        })
-        return res.response
-    }
-
-    async vectorSearch(
-        text: string,
-        options?: RetrievalSearchOptions
-    ): Promise<RetrievalSearchResponse> {
-        const res = await this.queue<RetrievalSearch>({
-            type: "retrieval.vectorSearch",
-            text,
-            options,
-        })
-        return res.response
-    }
-    async vectorUpsert(filename: string, options?: RetrievalUpsertOptions) {
-        const res = await this.queue<RetrievalVectorUpsert>({
-            type: "retrieval.vectorUpsert",
-            filename,
-            options,
-        })
-        return res.response
-    }
-
-    async parsePdf(
-        filename: string,
-        options?: TraceOptions
-    ): Promise<ParsePdfResponse> {
-        const res = await this.queue<ParsePdfMessage>({
-            type: "parse.pdf",
-            filename,
-        })
         return res.response
     }
 
@@ -369,7 +307,10 @@ export class WebSocketClient
     }
 
     kill(): void {
-        if (this._ws?.readyState === WebSocket.OPEN)
+        if (
+            typeof WebSocket !== "undefined" &&
+            this._ws?.readyState === WebSocket.OPEN
+        )
             this._ws.send(
                 JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
             )
