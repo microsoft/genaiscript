@@ -132,6 +132,7 @@ export interface ChatStart extends RequestMessage, RunEvent {
 export interface ChatChunk extends RequestMessage, RunEvent {
     type: "chat.chunk"
     chunk: string
+    state: undefined | "finished"
 }
 
 export type RequestMessages =

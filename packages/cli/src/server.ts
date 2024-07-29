@@ -45,12 +45,24 @@ export async function startServer(options: { port: string }) {
             runner: Promise<void>
         }
     > = {}
+    const chats: Record<
+        string,
+        {
+            done: () => Promise<void>
+            chunk: (chunk: string) => Promise<void>
+        }
+    > = {}
 
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
             console.log(`abort run ${runId}`)
             run.canceller.abort("closing")
             delete runs[runId]
+        }
+        for (const [chatId, chat] of Object.entries(chats)) {
+            console.log(`abort chat ${chatId}`)
+            // TODO
+            delete chats[chatId]
         }
     }
 
@@ -94,6 +106,16 @@ export async function startServer(options: { port: string }) {
                     case "server.kill": {
                         console.log(`server: kill`)
                         process.exit(0)
+                        break
+                    }
+                    case "chat.chunk": {
+                        const chat = chats[data.runId]
+                        if (chat) {
+                            if (data.state !== undefined) {
+                                await chat.done()
+                                delete chats[data.runId]
+                            } else await chat.chunk(data.chunk)
+                        }
                         break
                     }
                     case "tests.run": {

@@ -20,7 +20,6 @@ import {
     PromptScriptAbort,
     ResponseEvents,
     ServerEnv,
-    RunEvent,
 } from "./messages"
 
 export class WebSocketClient extends EventTarget {
