@@ -25,7 +25,7 @@ export async function resolveFileContent(
     options?: TraceOptions
 ) {
     const { trace } = options || {}
-    const { filename } = file
+    const { filename, startLine, endLine } = file
     if (file.content) return file
     if (!filename) return file
     if (HTTPS_REGEX.test(filename)) {
@@ -67,6 +67,11 @@ export async function resolveFileContent(
         if (!isBinary) file.content = await readText(filename)
     }
 
+    if (file.content && (!isNaN(startLine) || !isNaN(endLine))) {
+        const lines = file.content.split(/\r?\n/g)
+        file.content = lines.slice(startLine, endLine).join("\n")
+    }
+
     return file
 }
 
@@ -77,7 +82,7 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
 }
 
 export async function resolveFileContents(files: WorkspaceFile[]) {
-    for(const file of files) {
+    for (const file of files) {
         await resolveFileContent(file)
     }
 }

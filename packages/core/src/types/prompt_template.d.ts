@@ -363,6 +363,15 @@ interface WorkspaceFile {
      * Content of the file.
      */
     content?: string
+
+    /**
+     * 0-based line index where the content starts
+     */
+    startLine?: number
+    /**
+     * 0-based line index where the content ends.
+     */
+    endLine?: number
 }
 
 interface WorkspaceFileWithScore extends WorkspaceFile {
