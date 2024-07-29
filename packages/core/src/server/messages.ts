@@ -158,6 +158,6 @@ export type RequestMessages =
     | PromptScriptAbort
     | ChatChunk
 
-export type ResponseEvents =
+export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent
     | PromptScriptEndResponseEvent

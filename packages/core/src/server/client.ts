@@ -18,7 +18,7 @@ import {
     PromptScriptRunOptions,
     PromptScriptStart,
     PromptScriptAbort,
-    ResponseEvents,
+    PromptScriptResponseEvents,
     ServerEnv,
 } from "./messages"
 
@@ -125,7 +125,7 @@ export class WebSocketClient extends EventTarget {
             }
 
             // handle run progress
-            const ev: ResponseEvents = data
+            const ev: PromptScriptResponseEvents = data
             const { runId, type } = ev
             const run = this.runs[runId]
             if (run) {
