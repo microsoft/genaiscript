@@ -32,6 +32,7 @@ export class WebSocketClient extends EventTarget implements ParseService {
     private _ws: WebSocket
     private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
+    connectedOnce = false
     reconnectAttempts = 0
 
     private runs: Record<
@@ -88,6 +89,7 @@ export class WebSocketClient extends EventTarget implements ParseService {
         this._ws = new WebSocket(this.url)
         this._ws.addEventListener("open", () => {
             // clear counter
+            this.connectedOnce = true
             this.reconnectAttempts = 0
             // flush cached messages
             let m: string

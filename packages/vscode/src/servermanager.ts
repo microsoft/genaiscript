@@ -44,7 +44,7 @@ export class TerminalServerManager implements ServerManager {
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
         this.client.addEventListener(RECONNECT, () => {
             // server process died somehow
-            if (this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS) {
+            if (this.client.connectedOnce && this.client.reconnectAttempts > CLIENT_RECONNECT_MAX_ATTEMPTS) {
                 this.closeTerminal()
                 this.start()
             }
