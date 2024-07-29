@@ -62,6 +62,10 @@ export async function startServer(options: { port: string }) {
             run.canceller.abort("closing")
             delete runs[runId]
         }
+        for (const [chatId, chat] of Object.entries(chats)) {
+            console.log(`abort chat ${chat}`)
+            delete chats[chatId]
+        }
     }
 
     const handleChunk = async (chunk: ChatChunk) => {
