@@ -32,6 +32,7 @@ import {
     ShellExecResponse,
     ChatStart,
     ChatChunk,
+    ChatCancel,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -64,6 +65,16 @@ export async function startServer(options: { port: string }) {
         }
         for (const [chatId, chat] of Object.entries(chats)) {
             console.log(`abort chat ${chat}`)
+            for (const ws of wss.clients) {
+                ws.send(
+                    JSON.stringify(<ChatCancel>{
+                        type: "chat.cancel",
+                        chatId,
+                    })
+                )
+                break
+            }
+
             delete chats[chatId]
         }
     }

@@ -134,6 +134,11 @@ export interface ChatStart {
     model: string
 }
 
+export interface ChatCancel {
+    type: "chat.cancel"
+    chatId: string
+}
+
 export interface ChatChunk extends RequestMessage {
     type: "chat.chunk"
     chatId: string
