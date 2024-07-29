@@ -54,6 +54,7 @@ export async function startServer(options: { port: string }) {
             runner: Promise<void>
         }
     > = {}
+    const chats: Record<string, (chunk: ChatChunk) => Promise<void>> = {}
 
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
@@ -63,7 +64,13 @@ export async function startServer(options: { port: string }) {
         }
     }
 
-    const handleChunk = async (chunk: ChatChunk) => {}
+    const handleChunk = async (chunk: ChatChunk) => {
+        const handler = chats[chunk.chatId]
+        if (handler) {
+            if (chunk.finishReason) delete chats[chunk.chatId]
+            await handler(chunk)
+        }
+    }
 
     host.clientLanguageModel = Object.freeze<LanguageModel>({
         id: MODEL_PROVIDER_CLIENT,
@@ -74,20 +81,41 @@ export async function startServer(options: { port: string }) {
             trace: MarkdownTrace
         ): Promise<ChatCompletionResponse> => {
             const { messages, model } = req
+            const { partialCb } = options
             if (!wss.clients.size) throw new Error("no llm clients connected")
 
-            // ask for LLM
             const chatId = randomHex(6)
-            const msg = JSON.stringify(<ChatStart>{
-                type: "chat.start",
-                chatId,
-                model,
-                messages,
-            })
-            for (const ws of wss.clients) ws.send(msg)
+            return new Promise<ChatCompletionResponse>((resolve, reject) => {
+                let responseSoFar: string = ""
+                let tokensSoFar: number = 0
+                let finishReason: ChatCompletionResponse["finishReason"]
 
-            // wait for response
-            return undefined
+                // add handler
+                chats[chatId] = async (chunk) => {
+                    responseSoFar += chunk.chunk ?? ""
+                    responseSoFar += chunk.tokens ?? 0
+                    partialCb?.({
+                        tokensSoFar,
+                        responseSoFar,
+                        responseChunk: chunk.chunk,
+                    })
+                    finishReason = chunk.finishReason as any
+                    if (finishReason)
+                        resolve({ text: responseSoFar, finishReason })
+                }
+
+                // ask for LLM
+                const msg = JSON.stringify(<ChatStart>{
+                    type: "chat.start",
+                    chatId,
+                    model,
+                    messages,
+                })
+                for (const ws of wss.clients) {
+                    ws.send(msg)
+                    break
+                }
+            })
         },
     })
 

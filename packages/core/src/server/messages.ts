@@ -1,6 +1,6 @@
 import { ChatCompletionAssistantMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
-import { ParsePdfResponse, ResponseStatus } from "../host"
+import { ResponseStatus } from "../host"
 
 export interface RequestMessage {
     type: string
@@ -139,6 +139,7 @@ export interface ChatChunk extends RequestMessage {
     chatId: string
     finishReason?: string
     chunk?: string
+    tokens?: number
 }
 
 export type RequestMessages =

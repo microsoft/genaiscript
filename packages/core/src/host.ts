@@ -70,10 +70,6 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export interface ParsePdfResponse extends ResponseStatus {
-    pages?: string[]
-}
-
 export interface ServerResponse extends ResponseStatus {
     version: string
     node: string
