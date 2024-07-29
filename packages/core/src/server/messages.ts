@@ -1,3 +1,4 @@
+import { ChatCompletionAssistantMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
 import { ParsePdfResponse, ResponseStatus } from "../host"
 
@@ -126,6 +127,20 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
+export interface ChatStart {
+    type: "chat.start"
+    chatId: string
+    messages: ChatCompletionAssistantMessageParam[]
+    model: string
+}
+
+export interface ChatChunk extends RequestMessage {
+    type: "chat.chunk"
+    chatId: string
+    finishReason?: string
+    chunk?: string
+}
+
 export type RequestMessages =
     | ServerKill
     | ServerVersion
@@ -135,6 +150,7 @@ export type RequestMessages =
     | ShellExec
     | PromptScriptStart
     | PromptScriptAbort
+    | ChatChunk
 
 export type ResponseEvents =
     | PromptScriptProgressResponseEvent
