@@ -7669,6 +7669,11 @@ markdown-it-footnote@^4.0.0:
   resolved "https://registry.yarnpkg.com/markdown-it-footnote/-/markdown-it-footnote-4.0.0.tgz#02ede0cb68a42d7e7774c3abdc72d77aaa24c531"
   integrity sha512-WYJ7urf+khJYl3DqofQpYfEYkZKbmXmwxQV8c8mO/hGIhgZ1wOe7R4HLFNwqx7TjILbnC98fuyeSsin19JdFcQ==
 
+markdown-it-github-alerts@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-github-alerts/-/markdown-it-github-alerts-0.3.0.tgz#acab7db57f4e204c8d1c987403c367738d7026b0"
+  integrity sha512-qyIuDyfdrVGHhY+E/44yMyNA3ZnayaT/KKT2VgkIz1nmrgiuPkdgPUh4YBZwgJ9VKEGJvGd82Ndrc4oGftrJWg==
+
 markdown-it-mdc@^0.2.5:
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/markdown-it-mdc/-/markdown-it-mdc-0.2.5.tgz#94ad523f828edb1249bb6c344b719435576a2aa1"

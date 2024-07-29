@@ -52,6 +52,7 @@
         "url": "https://github.com/microsoft/genaiscript"
     },
     "contributes": {
+        "markdown.markdownItPlugins": true,
         "walkthroughs": [
             {
                 "id": "genaiscript.tutorial",
@@ -365,6 +366,7 @@
         "@vscode/vsce": "^2.31.1",
         "assert": "^2.1.0",
         "eslint": "^9.7.0",
+        "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
         "typescript": "5.5.4",
         "vscode-uri": "^3.0.8",
