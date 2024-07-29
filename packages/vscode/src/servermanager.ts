@@ -10,7 +10,7 @@ import {
     VSCODE_CONFIG_CLI_VERSION,
     VSCODE_CONFIG_CLI_PATH,
 } from "../../core/src/constants"
-import { ServerManager, host, ParseService } from "../../core/src/host"
+import { ServerManager, host } from "../../core/src/host"
 import { logError } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
@@ -73,10 +73,6 @@ export class TerminalServerManager implements ServerManager {
 
     get started() {
         return !!this._terminal
-    }
-
-    get parser(): ParseService {
-        return this.client
     }
 
     async close() {

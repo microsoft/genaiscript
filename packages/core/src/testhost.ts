@@ -3,7 +3,6 @@ import {
     LogLevel,
     ModelService,
     LanguageModelConfiguration,
-    ParseService,
     ServerManager,
     UTF8Decoder,
     UTF8Encoder,
@@ -43,7 +42,6 @@ export function createNodePath(): Path {
 export class TestHost implements RuntimeHost {
     dotEnvPath: string = undefined
     userState: any
-    parser: ParseService
     models: ModelService
     server: ServerManager
     path: Path = createNodePath()

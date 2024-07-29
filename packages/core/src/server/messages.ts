@@ -20,12 +20,6 @@ export interface ServerEnv extends RequestMessage {
     type: "server.env"
 }
 
-export interface ParsePdfMessage extends RequestMessage {
-    type: "parse.pdf"
-    filename: string
-    response?: ParsePdfResponse
-}
-
 export interface PromptScriptTestRunOptions {
     testProvider?: string
     models?: string[]
@@ -137,7 +131,6 @@ export type RequestMessages =
     | ServerVersion
     | ServerEnv
     | ServerVersion
-    | ParsePdfMessage
     | PromptScriptTestRun
     | ShellExec
     | PromptScriptStart
