@@ -30,7 +30,7 @@
     "csv-parse": "^5.5.6",
     "dotenv": "^16.4.5",
     "esbuild": "^0.23.0",
-    "fast-xml-parser": "^4.4.0",
+    "fast-xml-parser": "^4.4.1",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
     "file-type": "^19.3.0",
