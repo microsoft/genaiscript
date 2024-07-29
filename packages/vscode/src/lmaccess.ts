@@ -120,11 +120,6 @@ export async function pickLanguageModel(
 
 export function isLanguageModelsAvailable(context: vscode.ExtensionContext) {
     return (
-        isApiProposalEnabled(
-            context,
-            "languageModels",
-            "github.copilot-chat"
-        ) &&
         typeof vscode.lm !== "undefined" &&
         typeof vscode.lm.selectChatModels !== "undefined"
     )
