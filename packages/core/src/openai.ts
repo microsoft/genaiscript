@@ -22,6 +22,7 @@ import {
     ChatCompletionResponse,
     ChatCompletionChunk,
 } from "./chattypes"
+import { resolveTokenEncoder } from "./encoders"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     const res: Record<string, string> = {
@@ -64,6 +65,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
+    const encoder = await resolveTokenEncoder(model)
 
     const cache = getChatCompletionCache(cacheName)
     const caching =
@@ -90,7 +92,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         (cachedKey ? await cache.get(cachedKey) : undefined) || {}
     if (cached !== undefined) {
         partialCb?.({
-            tokensSoFar: estimateTokens(cached, { model }),
+            tokensSoFar: estimateTokens(cached, encoder),
             responseSoFar: cached,
             responseChunk: cached,
         })
@@ -214,7 +216,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 const { finish_reason, delta } = choice
                 if (finish_reason) finishReason = finish_reason as any
                 if (typeof delta?.content == "string") {
-                    numTokens += estimateTokens(delta.content, { model })
+                    numTokens += estimateTokens(delta.content, encoder)
                     chatResp += delta.content
                     if (delta.content)
                         trace.appendContent(

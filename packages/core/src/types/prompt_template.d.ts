@@ -835,6 +835,8 @@ interface ParseZipOptions {
     glob?: string
 }
 
+type TokenEncoder = (text: string) => number[]
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload

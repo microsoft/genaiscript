@@ -48,7 +48,7 @@ import { ChatCompletionMessageParam } from "./chattypes"
 import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
 
-export function createPromptContext(
+export async function createPromptContext(
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
@@ -56,7 +56,7 @@ export function createPromptContext(
 ) {
     const { cancellationToken, infoCb } = options || {}
     const env = structuredClone(vars)
-    const parsers = createParsers({ trace, model })
+    const parsers = await createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
         parse: YAMLParse,

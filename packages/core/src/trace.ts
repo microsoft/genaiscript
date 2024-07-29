@@ -13,6 +13,7 @@ import { errorMessage, serializeError } from "./error"
 import prettyBytes from "pretty-bytes"
 import { host } from "./host"
 import { ellipse, renderWithPrecision, toStringList } from "./util"
+import { estimateTokens } from "./tokens"
 
 export class TraceChunkEvent extends Event {
     constructor(readonly chunk: string) {
@@ -28,13 +29,11 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
 
     constructor(
         readonly options?: {
-            estimateTokens?: (
-                text: string,
-                options?: { model?: string }
-            ) => number
+            encoder?: TokenEncoder
         }
     ) {
         super()
+        this.options = options || {}
     }
 
     private disableChangeDispatch = 0
@@ -280,8 +279,8 @@ ${this.toResultIcon(success, "")}${title}
                         ? `score: ${renderWithPrecision(file.score || 0, 2)}`
                         : undefined
                     const tokens =
-                        model && this.options?.estimateTokens
-                            ? `${this.options?.estimateTokens(content, { model })} t`
+                        model && this.options?.encoder
+                            ? `${estimateTokens(content, this.options.encoder)} t`
                             : undefined
                     const suffix = toStringList(tokens, size, score)
                     if (maxLength > 0) {

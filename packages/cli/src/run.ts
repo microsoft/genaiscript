@@ -53,6 +53,7 @@ import {
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
 import { estimateTokens } from "../../core/src/tokens"
+import { resolveTokenEncoder } from "../../core/src/encoders"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -76,7 +77,7 @@ export async function runScript(
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
     const {
-        trace = new MarkdownTrace({ estimateTokens }),
+        trace = new MarkdownTrace(),
         infoCb,
         partialCb,
     } = options || {}
@@ -180,6 +181,7 @@ export async function runScript(
             logError(info.error)
             return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
         }
+        trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
             infoCb: (args) => {

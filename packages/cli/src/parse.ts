@@ -10,6 +10,7 @@ import { isJSONLFilename, readJSONL } from "../../core/src/jsonl"
 import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
 import { YAMLStringify } from "../../core/src/yaml"
+import { resolveTokenEncoder } from "../../core/src/encoders"
 
 export async function parseFence(language: string) {
     const stdin = await getStdin()
@@ -59,6 +60,7 @@ export async function parseTokens(
     options: { excludedFiles: string[]; model: string }
 ) {
     const { model = "gpt4" } = options || {}
+    const encoder = await resolveTokenEncoder(model)
 
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
     const progress = createProgressSpinner(`parsing ${files.length} files`)
@@ -66,7 +68,7 @@ export async function parseTokens(
     for (const file of files) {
         const content = await readText(file)
         if (content) {
-            const tokens = estimateTokens(content, { model })
+            const tokens = estimateTokens(content, encoder)
             progress.report({
                 message: `${file}, ${tokens}`,
             })
