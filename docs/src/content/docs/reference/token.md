@@ -10,7 +10,7 @@ GenAIScript will try to find the connection token from various sources:
 
 -   a `.env` file in the root of your project (VSCode and CLI)
 -   environment variables, typically within your CI/CD environment (CLI only)
--   Visual Studio Language Models (VSCode only)
+-   Visual Studio Language Chat Models (VSCode only)
 
 ## .env file or process environment
 

@@ -34,7 +34,8 @@ async function generateLanguageModelConfiguration(
         return { provider }
     }
 
-    if (Object.keys(state.languageChatModels).length)
+    const languageChatModels = await state.languageChatModels()
+    if (Object.keys(languageChatModels).length)
         return { provider: MODEL_PROVIDER_CLIENT, model: "*" }
 
     const items: (vscode.QuickPickItem & {
@@ -46,8 +47,8 @@ async function generateLanguageModelConfiguration(
         const models = await vscode.lm.selectChatModels()
         if (models.length)
             items.push({
-                label: "Visual Studio Language Models",
-                detail: `Use a registered Language Model (e.g. GitHub Copilot).`,
+                label: "Visual Studio Language Chat Models",
+                detail: `Use a registered LLM such as GitHub Copilot.`,
                 model: "*",
                 provider: MODEL_PROVIDER_CLIENT,
             })
@@ -104,8 +105,8 @@ async function pickChatModel(
     model: string
 ): Promise<vscode.LanguageModelChat> {
     const chatModels = await vscode.lm.selectChatModels()
-
-    const chatModelId = state.languageChatModels[model]
+    const languageChatModels = await state.languageChatModels()
+    const chatModelId = languageChatModels[model]
     let chatModel = chatModelId && chatModels.find((m) => m.id === chatModelId)
     if (!chatModel) {
         const items: (vscode.QuickPickItem & {
@@ -117,10 +118,10 @@ async function pickChatModel(
             chatModel,
         }))
         const res = await vscode.window.showQuickPick(items, {
-            title: `Pick a Chat Model for ${model}`,
+            title: `Pick a Language Chat Model for ${model}`,
         })
         chatModel = res?.chatModel
-        if (chatModel) state.languageChatModels[model] = chatModel.id
+        if (chatModel) await state.updateLanguageChatModels(model, chatModel.id)
     }
     return chatModel
 }
