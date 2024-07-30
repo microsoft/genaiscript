@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode"
-import { AIRequestOptions, ExtensionState } from "./state"
-import { isApiProposalEnabled } from "./proposals"
-import { LanguageModel } from "../../core/src/chat"
+import { ExtensionState } from "./state"
 import {
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_LLAMAFILE,
