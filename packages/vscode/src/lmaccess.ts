@@ -34,7 +34,7 @@ async function generateLanguageModelConfiguration(
         return { provider }
     }
 
-    if (state.useLanguageModels)
+    if (Object.keys(state.languageChatModels).length)
         return { provider: MODEL_PROVIDER_CLIENT, model: "*" }
 
     const items: (vscode.QuickPickItem & {
@@ -93,28 +93,36 @@ async function generateLanguageModelConfiguration(
                 apiType?: APIType
             }
         >(items, {
-            title: `Pick a Language Model for ${modelId}`,
+            title: `Configure a Language Model for ${modelId}`,
         })
-
-    if (res.provider === MODEL_PROVIDER_CLIENT) state.useLanguageModels = true
 
     return res
 }
 
-async function pickChatModel(model: string): Promise<vscode.LanguageModelChat> {
+async function pickChatModel(
+    state: ExtensionState,
+    model: string
+): Promise<vscode.LanguageModelChat> {
     const chatModels = await vscode.lm.selectChatModels()
-    const items: (vscode.QuickPickItem & {
-        chatModel?: vscode.LanguageModelChat
-    })[] = chatModels.map((chatModel) => ({
-        label: chatModel.name,
-        description: `${chatModel.vendor} ${chatModel.family}`,
-        detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
-        chatModel,
-    }))
-    const res = await vscode.window.showQuickPick(items, {
-        title: `Pick a Chat Model for ${model}`,
-    })
-    return res?.chatModel
+
+    const chatModelId = state.languageChatModels[model]
+    let chatModel = chatModelId && chatModels.find((m) => m.id === chatModelId)
+    if (!chatModel) {
+        const items: (vscode.QuickPickItem & {
+            chatModel?: vscode.LanguageModelChat
+        })[] = chatModels.map((chatModel) => ({
+            label: chatModel.name,
+            description: `${chatModel.vendor} ${chatModel.family}`,
+            detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
+            chatModel,
+        }))
+        const res = await vscode.window.showQuickPick(items, {
+            title: `Pick a Chat Model for ${model}`,
+        })
+        chatModel = res?.chatModel
+        if (chatModel) state.languageChatModels[model] = chatModel.id
+    }
+    return chatModel
 }
 
 export async function pickLanguageModel(
@@ -178,34 +186,37 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
     return res
 }
 
-export const runChatModel: LanguageModelChatRequest = async (
-    req: ChatStart,
-    onChunk
-) => {
-    const token = new vscode.CancellationTokenSource().token
-    const { model, messages, modelOptions } = req
-    const chatModel = await pickChatModel(model)
-    if (!chatModel) throw new Error("No chat model selected.")
-    const chatMessages = messagesToChatMessages(messages)
-    const request = await chatModel.sendRequest(
-        chatMessages,
-        {
-            justification: `Run GenAIScript`,
-            modelOptions,
-        },
-        token
-    )
+export function createChatModelRunner(
+    state: ExtensionState
+): LanguageModelChatRequest {
+    if (!isLanguageModelsAvailable()) return undefined
 
-    let text = ""
-    for await (const fragment of request.text) {
-        text += fragment
+    return async (req: ChatStart, onChunk) => {
+        const token = new vscode.CancellationTokenSource().token
+        const { model, messages, modelOptions } = req
+        const chatModel = await pickChatModel(state, model)
+        if (!chatModel) throw new Error("No chat model selected.")
+        const chatMessages = messagesToChatMessages(messages)
+        const request = await chatModel.sendRequest(
+            chatMessages,
+            {
+                justification: `Run GenAIScript`,
+                modelOptions,
+            },
+            token
+        )
+
+        let text = ""
+        for await (const fragment of request.text) {
+            text += fragment
+            onChunk({
+                chunk: fragment,
+                tokens: await chatModel.countTokens(text),
+                finishReason: undefined,
+            })
+        }
         onChunk({
-            chunk: fragment,
-            tokens: await chatModel.countTokens(text),
-            finishReason: undefined,
+            finishReason: "stop",
         })
     }
-    onChunk({
-        finishReason: "stop",
-    })
 }

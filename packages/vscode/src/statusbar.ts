@@ -13,7 +13,7 @@ export function activateStatusBar(state: ExtensionState) {
     )
     statusBarItem.command = "genaiscript.request.status"
     const updateStatusBar = async () => {
-        const { parsing, aiRequest } = state
+        const { parsing, aiRequest, languageChatModels } = state
         const { computing, progress, options } = aiRequest || {}
         const { template, fragment } = options || {}
         const { tokensSoFar } = progress || {}
@@ -30,7 +30,10 @@ export function activateStatusBar(state: ExtensionState) {
                 fragment?.files?.[0],
                 template
                     ? `-  tool: ${template.title} (${template.id})`
-                    : undefined
+                    : undefined,
+                ...Object.entries(languageChatModels).map(
+                    ([m, c]) => `-  language chat model: ${m} -> ${c}`
+                )
             ),
             true
         )

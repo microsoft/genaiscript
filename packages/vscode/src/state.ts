@@ -107,7 +107,8 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-    useLanguageModels = false
+    // modelid -> vscode language mode id
+    languageChatModels: Record<string, string> = {}
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -128,13 +129,24 @@ export class ExtensionState extends EventTarget {
         >(AI_REQUESTS_CACHE)
 
         // clear errors when file edited (remove me?)
-        vscode.workspace.onDidChangeTextDocument(
-            (ev) => {
-                this._diagColl.set(ev.document.uri, [])
-            },
-            undefined,
-            subscriptions
+        subscriptions.push(
+            vscode.workspace.onDidChangeTextDocument(
+                (ev) => {
+                    this._diagColl.set(ev.document.uri, [])
+                },
+                undefined,
+                subscriptions
+            )
         )
+        if (
+            typeof vscode.lm !== "undefined" &&
+            typeof vscode.lm.onDidChangeChatModels === "function"
+        )
+            subscriptions.push(
+                vscode.lm.onDidChangeChatModels(
+                    () => (this.languageChatModels = {})
+                )
+            )
     }
 
     private async saveScripts() {
