@@ -294,10 +294,7 @@ export async function createPromptContext(
                 )
                 if (!connection.configuration)
                     throw new Error("model connection error " + connection.info)
-                const { completer } = await resolveLanguageModel(
-                    genOptions,
-                    connection.configuration
-                )
+                const { completer } = await resolveLanguageModel(connection.configuration.provider)
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info

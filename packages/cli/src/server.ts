@@ -313,6 +313,7 @@ export async function startServer(options: { port: string }) {
                     }
                     case "chat.chunk": {
                         await handleChunk(data)
+                        response = <ResponseStatus>{ ok: true }
                         break
                     }
                     default:

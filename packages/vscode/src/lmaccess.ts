@@ -10,7 +10,6 @@ import {
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
-    DOT_ENV_FILENAME,
     MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
@@ -128,10 +127,11 @@ export async function pickLanguageModel(
 }
 
 export function isLanguageModelsAvailable() {
-    return (
+    return false
+/*    return (
         typeof vscode.lm !== "undefined" &&
         typeof vscode.lm.selectChatModels !== "undefined"
-    )
+    )*/
 }
 
 function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
