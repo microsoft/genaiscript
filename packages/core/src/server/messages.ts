@@ -161,3 +161,5 @@ export type RequestMessages =
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent
     | PromptScriptEndResponseEvent
+
+export type ChatEvents = ChatStart | ChatCancel

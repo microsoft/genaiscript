@@ -20,6 +20,7 @@ import {
     PromptScriptAbort,
     PromptScriptResponseEvents,
     ServerEnv,
+    ChatEvents,
 } from "./messages"
 
 export class WebSocketClient extends EventTarget {
@@ -150,6 +151,15 @@ export class WebSocketClient extends EventTarget {
                             run.resolve(res)
                         }
                         break
+                    }
+                }
+            } else {
+                const cev: ChatEvents = data
+                const { chatId, type } = cev
+                switch(type {
+                    case "chat.start": {
+                        const { model, messages } = cev
+                        
                     }
                 }
             }
