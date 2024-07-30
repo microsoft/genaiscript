@@ -132,6 +132,9 @@ export interface ChatStart {
     chatId: string
     messages: ChatCompletionAssistantMessageParam[]
     model: string
+    modelOptions?: {
+        temperature?: number
+    }
 }
 
 export interface ChatCancel {

@@ -15,13 +15,12 @@ import {
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
-import { GenerationOptions } from "../../core/src/generation"
 import { updateConnectionConfiguration } from "../../core/src/connection"
+import { ChatCompletionMessageParam } from "../../core/src/chattypes"
+import { LanguageModelChatRequest } from "../../core/src/server/client"
+import { ChatStart } from "../../core/src/server/messages"
 
-async function generateLanguageModelConfiguration(
-    state: ExtensionState,
-    modelId: string
-) {
+async function generateLanguageModelConfiguration(modelId: string) {
     const { provider } = parseModelIdentifier(modelId)
     if (
         provider === MODEL_PROVIDER_OLLAMA ||
@@ -34,8 +33,7 @@ async function generateLanguageModelConfiguration(
     }
 
     let models: vscode.LanguageModelChat[] = []
-    if (isLanguageModelsAvailable(state.context))
-        models = await vscode.lm.selectChatModels()
+    if (isLanguageModelsAvailable()) models = await vscode.lm.selectChatModels()
     const items: (vscode.QuickPickItem & {
         model?: string
         provider?: string
@@ -102,11 +100,27 @@ async function generateLanguageModelConfiguration(
     return res
 }
 
+async function pickChatModel(model: string): Promise<vscode.LanguageModelChat> {
+    const chatModels = await vscode.lm.selectChatModels()
+    const items: (vscode.QuickPickItem & {
+        chatModel?: vscode.LanguageModelChat
+    })[] = chatModels.map((chatModel) => ({
+        label: chatModel.name,
+        description: `${chatModel.vendor} ${chatModel.family}`,
+        detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
+        chatModel,
+    }))
+    const res = await vscode.window.showQuickPick(items, {
+        title: `Pick a Chat Model for ${model}`,
+    })
+    return res?.chatModel
+}
+
 export async function pickLanguageModel(
     state: ExtensionState,
     modelId: string
 ) {
-    const res = await generateLanguageModelConfiguration(state, modelId)
+    const res = await generateLanguageModelConfiguration(modelId)
     if (res === undefined) return undefined
 
     if (res.model) return res.model
@@ -120,88 +134,77 @@ export async function pickLanguageModel(
     }
 }
 
-export function isLanguageModelsAvailable(context: vscode.ExtensionContext) {
+export function isLanguageModelsAvailable() {
     return (
         typeof vscode.lm !== "undefined" &&
         typeof vscode.lm.selectChatModels !== "undefined"
     )
 }
 
-export async function configureLanguageModelAccess(
-    context: vscode.ExtensionContext,
-    options: AIRequestOptions,
-    genOptions: GenerationOptions,
-    chatModelId: string
-): Promise<void> {
-    const { template } = options
-    const { partialCb } = genOptions
+function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
+    const res: vscode.LanguageModelChatMessage[] = messages.map((m) => {
+        switch (m.role) {
+            case "system":
+                return <vscode.LanguageModelChatMessage>{
+                    role: vscode.LanguageModelChatMessageRole.User,
+                    content: m.content,
+                }
+            case "user":
+                if (
+                    Array.isArray(m.content) &&
+                    m.content.some((c) => c.type === "image_url")
+                )
+                    throw new Error("Vision model not supported")
+                return <vscode.LanguageModelChatMessage>{
+                    role: vscode.LanguageModelChatMessageRole.User,
+                    content:
+                        typeof m.content === "string"
+                            ? m.content
+                            : m.content.map((c) => c).join("\n"),
+                }
+            case "assistant":
+                return <vscode.LanguageModelChatMessage>{
+                    role: vscode.LanguageModelChatMessageRole.Assistant,
+                    content: m.content,
+                }
+            case "function":
+            case "tool":
+                throw new Error("tools not supported with copilot models")
+            default:
+                throw new Error("uknown role")
+        }
+    })
+    return res
+}
 
-    const chatModel = (await vscode.lm.selectChatModels({ id: chatModelId }))[0]
-
-    genOptions.cache = false
-    genOptions.languageModel = Object.freeze<LanguageModel>({
-        id: "vscode",
-        completer: async (req, connection, chatOptions, trace) => {
-            const token = new vscode.CancellationTokenSource().token
-            const { model, temperature, top_p, seed, ...rest } = req
-
-            trace.itemValue(`script model`, model)
-            trace.itemValue(`language model`, chatModel)
-            const messages: vscode.LanguageModelChatMessage[] =
-                req.messages.map((m) => {
-                    switch (m.role) {
-                        case "system":
-                            return <vscode.LanguageModelChatMessage>{
-                                role: vscode.LanguageModelChatMessageRole.User,
-                                content: m.content,
-                            }
-                        case "user":
-                            if (
-                                Array.isArray(m.content) &&
-                                m.content.some((c) => c.type === "image_url")
-                            )
-                                throw new Error("Vision model not supported")
-                            return <vscode.LanguageModelChatMessage>{
-                                role: vscode.LanguageModelChatMessageRole.User,
-                                content:
-                                    typeof m.content === "string"
-                                        ? m.content
-                                        : m.content.map((c) => c).join("\n"),
-                            }
-                        case "assistant":
-                            return <vscode.LanguageModelChatMessage>{
-                                role: vscode.LanguageModelChatMessageRole
-                                    .Assistant,
-                                content: m.content,
-                            }
-                        case "function":
-                        case "tool":
-                            throw new Error(
-                                "tools not supported with copilot models"
-                            )
-                        default:
-                            throw new Error("uknown role")
-                    }
-                })
-            const request = await chatModel.sendRequest(
-                messages,
-                {
-                    justification: `Run GenAIScript ${template.title || template.id}`,
-                    modelOptions: { temperature, top_p, seed },
-                },
-                token
-            )
-
-            let text = ""
-            for await (const fragment of request.text) {
-                text += fragment
-                partialCb?.({
-                    responseSoFar: text,
-                    responseChunk: fragment,
-                    tokensSoFar: await chatModel.countTokens(text),
-                })
-            }
-            return { text }
+export const runChatModel: LanguageModelChatRequest = async (
+    req: ChatStart,
+    onChunk
+) => {
+    const token = new vscode.CancellationTokenSource().token
+    const { model, messages, modelOptions } = req
+    const chatModel = await pickChatModel(model)
+    if (!chatModel) throw new Error("No chat model selected.")
+    const chatMessages = messagesToChatMessages(messages)
+    const request = await chatModel.sendRequest(
+        chatMessages,
+        {
+            justification: `Run GenAIScript`,
+            modelOptions,
         },
+        token
+    )
+
+    let text = ""
+    for await (const fragment of request.text) {
+        text += fragment
+        onChunk({
+            chunk: fragment,
+            tokens: await chatModel.countTokens(text),
+            finishReason: undefined,
+        })
+    }
+    onChunk({
+        finishReason: "done",
     })
 }

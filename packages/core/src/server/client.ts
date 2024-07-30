@@ -1,4 +1,7 @@
-import { ChatCompletionsProgressReport } from "../chattypes"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionsProgressReport,
+} from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
@@ -21,7 +24,14 @@ import {
     PromptScriptResponseEvents,
     ServerEnv,
     ChatEvents,
+    ChatChunk,
+    ChatStart,
 } from "./messages"
+
+export type LanguageModelChatRequest = (
+    request: ChatStart,
+    onChunk: (param: Omit<ChatChunk, "id" | "type" | "chatId">) => void
+) => Promise<void>
 
 export class WebSocketClient extends EventTarget {
     private awaiters: Record<
@@ -34,6 +44,8 @@ export class WebSocketClient extends EventTarget {
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
     connectedOnce = false
     reconnectAttempts = 0
+
+    chatRequest: LanguageModelChatRequest
 
     private runs: Record<
         string,
@@ -156,11 +168,21 @@ export class WebSocketClient extends EventTarget {
             } else {
                 const cev: ChatEvents = data
                 const { chatId, type } = cev
-                switch(type) {
+                switch (type) {
                     case "chat.start": {
-                        const { model, messages } = cev
-                        
-                    }                    
+                        if (!this.chatRequest)
+                            throw new Error(
+                                "client language model not supported"
+                            )
+                        await this.chatRequest(cev, (chunk) => {
+                            this.queue<ChatChunk>({
+                                ...chunk,
+                                chatId,
+                                type: "chat.chunk",
+                            })
+                        })
+                        // done
+                    }
                 }
             }
         }))
