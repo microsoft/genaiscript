@@ -3398,7 +3398,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - replicate@0.31.1
+ - replicate@0.32.0
 
 This package contains the following license and notice below:
 
@@ -19570,7 +19570,7 @@ PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - promptfoo@0.73.6
+ - promptfoo@0.73.8
 
 This package contains the following license and notice below:
 
@@ -25847,7 +25847,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/starlight@0.25.2
+ - @astrojs/starlight@0.25.3
 
 This package contains the following license and notice below:
 
