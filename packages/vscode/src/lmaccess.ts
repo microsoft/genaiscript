@@ -19,7 +19,10 @@ import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 
-async function generateLanguageModelConfiguration(modelId: string) {
+async function generateLanguageModelConfiguration(
+    state: ExtensionState,
+    modelId: string
+) {
     const { provider } = parseModelIdentifier(modelId)
     if (
         provider === MODEL_PROVIDER_OLLAMA ||
@@ -30,6 +33,9 @@ async function generateLanguageModelConfiguration(modelId: string) {
     ) {
         return { provider }
     }
+
+    if (state.useLanguageModels)
+        return { provider: MODEL_PROVIDER_CLIENT, model: "*" }
 
     const items: (vscode.QuickPickItem & {
         model?: string
@@ -89,6 +95,9 @@ async function generateLanguageModelConfiguration(modelId: string) {
         >(items, {
             title: `Pick a Language Model for ${modelId}`,
         })
+
+    if (res.provider === MODEL_PROVIDER_CLIENT) state.useLanguageModels = true
+
     return res
 }
 
@@ -112,7 +121,7 @@ export async function pickLanguageModel(
     state: ExtensionState,
     modelId: string
 ) {
-    const res = await generateLanguageModelConfiguration(modelId)
+    const res = await generateLanguageModelConfiguration(state, modelId)
     if (res === undefined) return undefined
 
     if (res.model) return res.model

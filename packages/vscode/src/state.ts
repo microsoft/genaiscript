@@ -107,6 +107,7 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
+    useLanguageModels = false
 
     constructor(public readonly context: ExtensionContext) {
         super()
