@@ -127,11 +127,10 @@ export async function pickLanguageModel(
 }
 
 export function isLanguageModelsAvailable() {
-    return false
-/*    return (
+    return (
         typeof vscode.lm !== "undefined" &&
         typeof vscode.lm.selectChatModels !== "undefined"
-    )*/
+    )
 }
 
 function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
@@ -198,6 +197,6 @@ export const runChatModel: LanguageModelChatRequest = async (
         })
     }
     onChunk({
-        finishReason: "done",
+        finishReason: "stop",
     })
 }

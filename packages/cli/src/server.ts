@@ -99,24 +99,26 @@ export async function startServer(options: { port: string }) {
             const { partialCb } = options
             if (!wss.clients.size) throw new Error("no llm clients connected")
 
-            const chatId = randomHex(6)
             return new Promise<ChatCompletionResponse>((resolve, reject) => {
                 let responseSoFar: string = ""
                 let tokensSoFar: number = 0
                 let finishReason: ChatCompletionResponse["finishReason"]
 
                 // add handler
+                const chatId = randomHex(6)
                 chats[chatId] = async (chunk) => {
                     responseSoFar += chunk.chunk ?? ""
-                    responseSoFar += chunk.tokens ?? 0
+                    tokensSoFar += chunk.tokens ?? 0
                     partialCb?.({
                         tokensSoFar,
                         responseSoFar,
                         responseChunk: chunk.chunk,
                     })
                     finishReason = chunk.finishReason as any
-                    if (finishReason)
+                    if (finishReason) {
+                        delete chats[chatId]
                         resolve({ text: responseSoFar, finishReason })
+                    }
                 }
 
                 // ask for LLM
@@ -127,6 +129,7 @@ export async function startServer(options: { port: string }) {
                     messages,
                 })
                 for (const ws of wss.clients) {
+                    trace.log(`chat: sending request to client`)
                     ws.send(msg)
                     break
                 }

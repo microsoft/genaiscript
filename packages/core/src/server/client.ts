@@ -1,5 +1,4 @@
 import {
-    ChatCompletionMessageParam,
     ChatCompletionsProgressReport,
 } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
