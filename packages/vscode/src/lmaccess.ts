@@ -42,10 +42,10 @@ async function generateLanguageModelConfiguration(
         apiType?: APIType
     })[] = models.map((model) => ({
         label: model.name,
-        description: model.vendor,
-        detail: `Use the language model ${model} through your GitHub Copilot subscription.`,
+        description: `${model.vendor} ${model.family}`,
+        detail: `Visual Studio Language Model. ${model.version}, ${model.maxInputTokens}t.`,
         model: model.id,
-        provider: MODEL_PROVIDER_CLIENT
+        provider: MODEL_PROVIDER_CLIENT,
     }))
     if (items.length)
         items.unshift({
