@@ -11,6 +11,7 @@ import {
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
     DOT_ENV_FILENAME,
+    MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -44,6 +45,7 @@ async function generateLanguageModelConfiguration(
         description: model.vendor,
         detail: `Use the language model ${model} through your GitHub Copilot subscription.`,
         model: model.id,
+        provider: MODEL_PROVIDER_CLIENT
     }))
     if (items.length)
         items.unshift({

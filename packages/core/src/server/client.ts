@@ -156,11 +156,11 @@ export class WebSocketClient extends EventTarget {
             } else {
                 const cev: ChatEvents = data
                 const { chatId, type } = cev
-                switch(type {
+                switch(type) {
                     case "chat.start": {
                         const { model, messages } = cev
                         
-                    }
+                    }                    
                 }
             }
         }))
