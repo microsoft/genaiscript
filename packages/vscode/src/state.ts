@@ -294,14 +294,6 @@ temp/
             // we don't have a token so ask user if they want to use copilot
             const lm = await pickLanguageModel(this, info.model)
             if (!lm) return undefined
-            /*
-            await configureLanguageModelAccess(
-                this.context,
-                options,
-                genOptions,
-                lmmodel
-            )
-                */
         }
         if (connectionToken?.type === "localai") await startLocalAI()
 

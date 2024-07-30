@@ -82,7 +82,6 @@ export interface GenerationOptions
     cliInfo?: {
         files: string[]
     }
-    languageModel?: LanguageModel
     vars?: PromptParameters
     stats: GenerationStats
 }

@@ -20,7 +20,6 @@ import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     MODEL_PROVIDER_AZURE,
-    AZURE_OPENAI_TOKEN_SCOPES,
     SHELL_EXEC_TIMEOUT,
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
@@ -157,6 +156,15 @@ export class NodeHost implements RuntimeHost {
             if (!this._azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + this._azureToken
         }
+
+        if (!tok && this.clientLanguageModel) {
+            return <LanguageModelConfiguration>{
+                model: modelId,
+                provider: this.clientLanguageModel.id,
+                source: "client",
+            }
+        }
+
         return tok
     }
 

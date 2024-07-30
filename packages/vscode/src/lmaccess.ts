@@ -32,28 +32,21 @@ async function generateLanguageModelConfiguration(modelId: string) {
         return { provider }
     }
 
-    let models: vscode.LanguageModelChat[] = []
-    if (isLanguageModelsAvailable()) models = await vscode.lm.selectChatModels()
     const items: (vscode.QuickPickItem & {
         model?: string
         provider?: string
         apiType?: APIType
-    })[] = models.map((model) => ({
-        label: model.name,
-        description: `${model.vendor} ${model.family}`,
-        detail: `Visual Studio Language Model. ${model.version}, ${model.maxInputTokens}t.`,
-        model: model.id,
-        provider: MODEL_PROVIDER_CLIENT,
-    }))
-    if (items.length)
-        items.unshift({
-            kind: vscode.QuickPickItemKind.Separator,
-            label: "Visual Studio Code Language Model",
-        })
-    items.push({
-        kind: vscode.QuickPickItemKind.Separator,
-        label: DOT_ENV_FILENAME,
-    })
+    })[] = []
+    if (isLanguageModelsAvailable()) {
+        const models = await vscode.lm.selectChatModels()
+        if (models.length)
+            items.push({
+                label: "Visual Studio Language Models",
+                detail: `Use a registered Language Model (e.g. GitHub Copilot).`,
+                model: "*",
+                provider: MODEL_PROVIDER_CLIENT,
+            })
+    }
     items.push(
         {
             label: "OpenAI",
