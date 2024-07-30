@@ -6,6 +6,5 @@
     ],
     "genaiscript.cli.path": "../cli/built/genaiscript.cjs",
     "genaiscript.languageChatModels": {
-        "openai:gpt-4": "github.copilot-chat/3/gpt-4-0125-preview"
     }
 }
