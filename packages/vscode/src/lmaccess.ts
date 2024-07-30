@@ -195,7 +195,12 @@ export function createChatModelRunner(
         const token = new vscode.CancellationTokenSource().token
         const { model, messages, modelOptions } = req
         const chatModel = await pickChatModel(state, model)
-        if (!chatModel) throw new Error("No chat model selected.")
+        if (!chatModel) {
+            onChunk({
+                finishReason: "cancel",
+            })
+            return
+        }
         const chatMessages = messagesToChatMessages(messages)
         const request = await chatModel.sendRequest(
             chatMessages,
@@ -213,6 +218,7 @@ export function createChatModelRunner(
                 chunk: fragment,
                 tokens: await chatModel.countTokens(text),
                 finishReason: undefined,
+                model: chatModel.id,
             })
         }
         onChunk({

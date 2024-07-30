@@ -145,6 +145,7 @@ export interface ChatCancel {
 export interface ChatChunk extends RequestMessage {
     type: "chat.chunk"
     chatId: string
+    model?: string
     finishReason?: string
     chunk?: string
     tokens?: number

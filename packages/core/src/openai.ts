@@ -218,12 +218,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 if (typeof delta?.content == "string") {
                     numTokens += estimateTokens(delta.content, encoder)
                     chatResp += delta.content
-                    if (delta.content)
-                        trace.appendContent(
-                            delta.content.includes("`")
-                                ? `\`\`\` ${delta.content.replace(/\n/g, " ")} \`\`\` `
-                                : `\`${delta.content.replace(/\n/g, " ")}\` `
-                        )
+                    trace.appendToken(delta.content)
                 } else if (Array.isArray(delta.tool_calls)) {
                     const { tool_calls } = delta
                     for (const call of tool_calls) {

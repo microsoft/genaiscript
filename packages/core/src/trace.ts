@@ -59,6 +59,15 @@ export class MarkdownTrace extends EventTarget implements ToolCallTrace {
         }
     }
 
+    appendToken(content: string) {
+        if (!content) return
+        this.appendContent(
+            content.includes("`")
+                ? `\`\`\` ${content.replace(/\r?\n/g, " ")} \`\`\` `
+                : `\`${content.replace(/\r?\n/g, " ")}\` `
+        )
+    }
+
     startDetails(title: string, success?: boolean) {
         this.detailsDepth++
         title = title?.trim() || ""

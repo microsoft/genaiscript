@@ -107,6 +107,11 @@ export async function startServer(options: { port: string }) {
                 // add handler
                 const chatId = randomHex(6)
                 chats[chatId] = async (chunk) => {
+                    if (!responseSoFar) {
+                        trace.itemValue("model", chunk.model)
+                        trace.appendContent("\n\n")
+                    }
+                    trace.appendToken(chunk.chunk)
                     responseSoFar += chunk.chunk ?? ""
                     tokensSoFar += chunk.tokens ?? 0
                     partialCb?.({
@@ -116,6 +121,8 @@ export async function startServer(options: { port: string }) {
                     })
                     finishReason = chunk.finishReason as any
                     if (finishReason) {
+                        trace.appendContent("\n\n")
+                        trace.itemValue(`finish reason`, finishReason)
                         delete chats[chatId]
                         resolve({ text: responseSoFar, finishReason })
                     }
@@ -129,7 +136,6 @@ export async function startServer(options: { port: string }) {
                     messages,
                 })
                 for (const ws of wss.clients) {
-                    trace.log(`chat: sending request to client`)
                     ws.send(msg)
                     break
                 }
