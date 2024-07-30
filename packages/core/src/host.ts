@@ -70,10 +70,6 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export interface ParsePdfResponse extends ResponseStatus {
-    pages?: string[]
-}
-
 export interface ServerResponse extends ResponseStatus {
     version: string
     node: string
@@ -111,6 +107,7 @@ export interface Host {
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration | undefined>
     log(level: LogLevel, msg: string): void
+    clientLanguageModel?: LanguageModel
 
     // fs
     readFile(name: string): Promise<Uint8Array>

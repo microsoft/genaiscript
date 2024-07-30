@@ -107,6 +107,7 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
+    useLanguageModels = false
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -290,58 +291,10 @@ temp/
             r.response = partialResponse
             reqChange()
         }
-        /*
-        const genOptions: GenerationOptions = {
-            requestOptions: { signal },
-            cancellationToken,
-            partialCb,
-            trace,
-            infoCb: (data) => {
-                r.response = data
-                reqChange()
-            },
-            maxCachedTemperature,
-            maxCachedTopP,
-            vars: options.parameters,
-            cache: cache && template.cache,
-            stats: { toolCalls: 0, repairs: 0, turns: 0 },
-            cliInfo:
-                fragment && !options.notebook
-                    ? {
-                          spec:
-                              this.host.isVirtualFile(fragment.file.filename) &&
-                              this.host.path.basename(
-                                  fragment.file.filename
-                              ) === "dir.gpspec.md"
-                                  ? fragment.file.filename.replace(
-                                        /dir\.gpspec\.md$/i,
-                                        "**"
-                                    )
-                                  : this.host.isVirtualFile(
-                                          fragment.file.filename
-                                      )
-                                    ? fragment.file.filename.replace(
-                                          /\.gpspec\.md$/i,
-                                          ""
-                                      )
-                                    : fragment.file.filename,
-                      }
-                    : undefined,
-            model: info.model,
-        }     
-            */
         if (!connectionToken) {
             // we don't have a token so ask user if they want to use copilot
-            const lmmodel = await pickLanguageModel(this, info.model)
-            if (!lmmodel) return undefined
-            /*
-            await configureLanguageModelAccess(
-                this.context,
-                options,
-                genOptions,
-                lmmodel
-            )
-                */
+            const lm = await pickLanguageModel(this, info.model)
+            if (!lm) return undefined
         }
         if (connectionToken?.type === "localai") await startLocalAI()
 

@@ -196,8 +196,7 @@ export async function runTemplate(
                 connection.info
             )
         const { completer } = await resolveLanguageModel(
-            genOptions,
-            connection.configuration
+            connection.configuration.provider
         )
         const output = await executeChatSession(
             connection.configuration,

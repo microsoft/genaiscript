@@ -15,6 +15,7 @@ import { ServerManager, host } from "../../core/src/host"
 import { logError, logVerbose } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
+import { isLanguageModelsAvailable, runChatModel } from "./lmaccess"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
@@ -43,6 +44,7 @@ export class TerminalServerManager implements ServerManager {
         )
 
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
+        if (isLanguageModelsAvailable()) this.client.chatRequest = runChatModel
         this.client.addEventListener(OPEN, () => {
             // client connected to a rogue server
             if (!this._terminal) {

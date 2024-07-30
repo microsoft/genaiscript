@@ -8,7 +8,7 @@ import {
     TRACE_CHUNK,
     USER_CANCELLED_ERROR_CODE,
     UNHANDLED_ERROR_CODE,
-    DOCKER_DEFAULT_IMAGE,
+    MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
 import {
     isCancelError,
@@ -16,22 +16,32 @@ import {
     serializeError,
 } from "../../core/src/error"
 import {
+    LanguageModelConfiguration,
     ResponseStatus,
     ServerResponse,
+    host,
     runtimeHost,
 } from "../../core/src/host"
 import { MarkdownTrace, TraceChunkEvent } from "../../core/src/trace"
 import { logVerbose, logError, assert } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
-import { YAMLStringify } from "../../core/src/yaml"
 import {
     RequestMessages,
     PromptScriptProgressResponseEvent,
     PromptScriptEndResponseEvent,
     ShellExecResponse,
+    ChatStart,
+    ChatChunk,
+    ChatCancel,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
-import { estimateTokens } from "../../core/src/tokens"
+import { LanguageModel } from "../../core/src/chat"
+import {
+    ChatCompletionResponse,
+    ChatCompletionsOptions,
+    CreateChatCompletionRequest,
+} from "../../core/src/chattypes"
+import { randomHex } from "../../core/src/crypto"
 
 export async function startServer(options: { port: string }) {
     const port = parseInt(options.port) || SERVER_PORT
@@ -45,6 +55,7 @@ export async function startServer(options: { port: string }) {
             runner: Promise<void>
         }
     > = {}
+    const chats: Record<string, (chunk: ChatChunk) => Promise<void>> = {}
 
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
@@ -52,7 +63,79 @@ export async function startServer(options: { port: string }) {
             run.canceller.abort("closing")
             delete runs[runId]
         }
+        for (const [chatId, chat] of Object.entries(chats)) {
+            console.log(`abort chat ${chat}`)
+            for (const ws of wss.clients) {
+                ws.send(
+                    JSON.stringify(<ChatCancel>{
+                        type: "chat.cancel",
+                        chatId,
+                    })
+                )
+                break
+            }
+
+            delete chats[chatId]
+        }
     }
+
+    const handleChunk = async (chunk: ChatChunk) => {
+        const handler = chats[chunk.chatId]
+        if (handler) {
+            if (chunk.finishReason) delete chats[chunk.chatId]
+            await handler(chunk)
+        }
+    }
+
+    host.clientLanguageModel = Object.freeze<LanguageModel>({
+        id: MODEL_PROVIDER_CLIENT,
+        completer: async (
+            req: CreateChatCompletionRequest,
+            connection: LanguageModelConfiguration,
+            options: ChatCompletionsOptions,
+            trace: MarkdownTrace
+        ): Promise<ChatCompletionResponse> => {
+            const { messages, model } = req
+            const { partialCb } = options
+            if (!wss.clients.size) throw new Error("no llm clients connected")
+
+            return new Promise<ChatCompletionResponse>((resolve, reject) => {
+                let responseSoFar: string = ""
+                let tokensSoFar: number = 0
+                let finishReason: ChatCompletionResponse["finishReason"]
+
+                // add handler
+                const chatId = randomHex(6)
+                chats[chatId] = async (chunk) => {
+                    responseSoFar += chunk.chunk ?? ""
+                    tokensSoFar += chunk.tokens ?? 0
+                    partialCb?.({
+                        tokensSoFar,
+                        responseSoFar,
+                        responseChunk: chunk.chunk,
+                    })
+                    finishReason = chunk.finishReason as any
+                    if (finishReason) {
+                        delete chats[chatId]
+                        resolve({ text: responseSoFar, finishReason })
+                    }
+                }
+
+                // ask for LLM
+                const msg = JSON.stringify(<ChatStart>{
+                    type: "chat.start",
+                    chatId,
+                    model,
+                    messages,
+                })
+                for (const ws of wss.clients) {
+                    trace.log(`chat: sending request to client`)
+                    ws.send(msg)
+                    break
+                }
+            })
+        },
+    })
 
     // cleanup runs
     wss.on("close", () => {
@@ -229,6 +312,11 @@ export async function startServer(options: { port: string }) {
                             ok: !value.failed,
                             status: value.exitCode,
                         }
+                        break
+                    }
+                    case "chat.chunk": {
+                        await handleChunk(data)
+                        response = <ResponseStatus>{ ok: true }
                         break
                     }
                     default:

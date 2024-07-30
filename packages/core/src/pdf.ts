@@ -1,5 +1,5 @@
 import type { TextItem } from "pdfjs-dist/types/src/display/api"
-import { ParsePdfResponse, host } from "./host"
+import { host } from "./host"
 import { TraceOptions } from "./trace"
 import { installImport } from "./import"
 import { PDFJS_DIST_VERSION } from "./version"
@@ -63,7 +63,7 @@ async function PDFTryParse(
     fileOrUrl: string,
     content?: Uint8Array,
     options?: { disableCleanup?: boolean } & TraceOptions
-): Promise<ParsePdfResponse> {
+) {
     const { disableCleanup, trace } = options || {}
     try {
         const pdfjs = await tryImportPdfjs(options)

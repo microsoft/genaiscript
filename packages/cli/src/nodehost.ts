@@ -20,7 +20,6 @@ import {
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     MODEL_PROVIDER_AZURE,
-    AZURE_OPENAI_TOKEN_SCOPES,
     SHELL_EXEC_TIMEOUT,
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_OLLAMA,
@@ -43,6 +42,7 @@ import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { createAzureToken } from "./azuretoken"
+import { LanguageModel } from "../../core/src/chat"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -135,6 +135,7 @@ export class NodeHost implements RuntimeHost {
     private async parseDefaults() {
         await parseDefaultsFromEnv(process.env)
     }
+    clientLanguageModel: LanguageModel
 
     private _azureToken: string
     async getLanguageModelConfiguration(
@@ -155,6 +156,15 @@ export class NodeHost implements RuntimeHost {
             if (!this._azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + this._azureToken
         }
+        if (!tok && this.clientLanguageModel) {
+            logVerbose(`model: using client language model`)
+            return <LanguageModelConfiguration>{
+                model: modelId,
+                provider: this.clientLanguageModel.id,
+                source: "client",
+            }
+        }
+
         return tok
     }
 

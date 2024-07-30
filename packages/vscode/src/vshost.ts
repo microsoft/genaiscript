@@ -27,6 +27,7 @@ import {
 } from "../../core/src/host"
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, unique } from "../../core/src/util"
+import { LanguageModel } from "../../core/src/chat"
 
 export class VSCodeHost extends EventTarget implements Host {
     dotEnvPath: string = DOT_ENV_FILENAME
@@ -195,6 +196,7 @@ export class VSCodeHost extends EventTarget implements Host {
         }
     }
 
+    clientLanguageModel?: LanguageModel
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions

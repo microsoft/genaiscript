@@ -76,11 +76,7 @@ export async function runScript(
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const {
-        trace = new MarkdownTrace(),
-        infoCb,
-        partialCb,
-    } = options || {}
+    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
     let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
@@ -173,8 +169,7 @@ export async function runScript(
         if (options.label) trace.heading(2, options.label)
         const { info } = await resolveModelConnectionInfo(script, {
             trace,
-            model:
-                options.model ?? script.model ?? host.defaultModelOptions.model,
+            model: options.model,
         })
         if (info.error) {
             trace.error(undefined, info.error)

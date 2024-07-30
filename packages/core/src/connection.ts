@@ -14,6 +14,7 @@ import {
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
@@ -214,6 +215,15 @@ export async function parseTokenFromEnv(
             token: "litellm",
             type: "openai",
             source: "default",
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_CLIENT) {
+        return {
+            provider,
+            model,
+            base: undefined,
+            token: "client",
         }
     }
 
