@@ -125,7 +125,10 @@ export async function startServer(options: { port: string }) {
                         trace.appendContent("\n\n")
                         trace.itemValue(`finish reason`, finishReason)
                         delete chats[chatId]
-                        resolve({ text: responseSoFar, finishReason })
+                        if (chunk.error) {
+                            trace.error(undefined, chunk.error)
+                            reject(chunk.error)
+                        } else resolve({ text: responseSoFar, finishReason })
                     }
                 }
 

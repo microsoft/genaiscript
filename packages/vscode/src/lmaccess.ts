@@ -16,6 +16,7 @@ import { updateConnectionConfiguration } from "../../core/src/connection"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
+import { serializeError } from "../../core/src/error"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -191,37 +192,44 @@ export function createChatModelRunner(
     if (!isLanguageModelsAvailable()) return undefined
 
     return async (req: ChatStart, onChunk) => {
-        const token = new vscode.CancellationTokenSource().token
-        const { model, messages, modelOptions } = req
-        const chatModel = await pickChatModel(state, model)
-        if (!chatModel) {
-            onChunk({
-                finishReason: "cancel",
-            })
-            return
-        }
-        const chatMessages = messagesToChatMessages(messages)
-        const request = await chatModel.sendRequest(
-            chatMessages,
-            {
-                justification: `Run GenAIScript`,
-                modelOptions,
-            },
-            token
-        )
+        try {
+            const token = new vscode.CancellationTokenSource().token
+            const { model, messages, modelOptions } = req
+            const chatModel = await pickChatModel(state, model)
+            if (!chatModel) {
+                onChunk({
+                    finishReason: "cancel",
+                })
+                return
+            }
+            const chatMessages = messagesToChatMessages(messages)
+            const request = await chatModel.sendRequest(
+                chatMessages,
+                {
+                    justification: `Run GenAIScript`,
+                    modelOptions,
+                },
+                token
+            )
 
-        let text = ""
-        for await (const fragment of request.text) {
-            text += fragment
+            let text = ""
+            for await (const fragment of request.text) {
+                text += fragment
+                onChunk({
+                    chunk: fragment,
+                    tokens: await chatModel.countTokens(text),
+                    finishReason: undefined,
+                    model: chatModel.id,
+                })
+            }
             onChunk({
-                chunk: fragment,
-                tokens: await chatModel.countTokens(text),
-                finishReason: undefined,
-                model: chatModel.id,
+                finishReason: "stop",
+            })
+        } catch (e) {
+            onChunk({
+                finishReason: "fail",
+                error: serializeError(e),
             })
         }
-        onChunk({
-            finishReason: "stop",
-        })
     }
 }

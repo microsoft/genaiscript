@@ -149,6 +149,7 @@ export interface ChatChunk extends RequestMessage {
     finishReason?: string
     chunk?: string
     tokens?: number
+    error?: SerializedError
 }
 
 export type RequestMessages =
