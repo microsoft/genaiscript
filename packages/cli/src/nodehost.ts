@@ -157,7 +157,6 @@ export class NodeHost implements RuntimeHost {
             tok.token = "Bearer " + this._azureToken
         }
         if (!tok && this.clientLanguageModel) {
-            logVerbose(`model: using client language model`)
             return <LanguageModelConfiguration>{
                 model: modelId,
                 provider: this.clientLanguageModel.id,

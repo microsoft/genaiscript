@@ -1,1 +1,0 @@
-Icon of Visual Studio Code Insiders featuring a green folded ribbon-like shape forming a stylized letter 'V' on a white background, highlighted with a red rectangle indicating selection or focus.

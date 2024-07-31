@@ -39,7 +39,7 @@ export class TerminalServerManager implements ServerManager {
         )
         subscriptions.push(
             vscode.workspace.onDidChangeConfiguration((e) => {
-                if (e.affectsConfiguration(TOOL_ID)) this.close()
+                if (e.affectsConfiguration(TOOL_ID + ".cli")) this.close()
             })
         )
 

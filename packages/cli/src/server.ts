@@ -107,8 +107,9 @@ export async function startServer(options: { port: string }) {
                 // add handler
                 const chatId = randomHex(6)
                 chats[chatId] = async (chunk) => {
-                    if (!responseSoFar) {
-                        trace.itemValue("model", chunk.model)
+                    if (!responseSoFar && chunk.model) {
+                        logVerbose(`visual studio: chat model ${chunk.model}`)
+                        trace.itemValue("chat model", chunk.model)
                         trace.appendContent("\n\n")
                     }
                     trace.appendToken(chunk.chunk)

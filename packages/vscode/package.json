@@ -234,6 +234,10 @@
             {
                 "title": "GenAIScript",
                 "properties": {
+                    "genaiscript.languageChatModels": {
+                        "type": "object",
+                        "description": "Mapping from GenAIScript model (openai:gpt-4) to Visual Studio Code Language Chat Model (github...)"
+                    },
                     "genaiscript.diagnostics": {
                         "type": "boolean",
                         "default": false,

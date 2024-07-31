@@ -59,7 +59,7 @@
         "gen:licenses": "npx --yes generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
         "genai:technical": "cd docs && yarn genai:technical",
         "genai:frontmatter": "cd docs && yarn genai:frontmatter",
-        "genai:alt": "cd docs && yarn genai:alt",
+        "genai:alt": "cd docs && yarn genai:alt-text",
         "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen"
     },
     "release-it": {

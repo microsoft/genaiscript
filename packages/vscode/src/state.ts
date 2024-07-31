@@ -107,8 +107,6 @@ export class ExtensionState extends EventTarget {
         AIRequestSnapshot
     > = undefined
     readonly output: vscode.LogOutputChannel
-    // modelid -> vscode language mode id
-    languageChatModels: Record<string, string> = {}
 
     constructor(public readonly context: ExtensionContext) {
         super()
@@ -138,15 +136,26 @@ export class ExtensionState extends EventTarget {
                 subscriptions
             )
         )
-        if (
-            typeof vscode.lm !== "undefined" &&
-            typeof vscode.lm.onDidChangeChatModels === "function"
-        )
-            subscriptions.push(
-                vscode.lm.onDidChangeChatModels(
-                    () => (this.languageChatModels = {})
-                )
-            )
+    }
+
+    async updateLanguageChatModels(model: string, chatModel: string) {
+        const res = await this.languageChatModels()
+        if (res[model] !== chatModel) {
+            if (chatModel === undefined) delete res[model]
+            else res[model] = chatModel
+            const config = vscode.workspace.getConfiguration(TOOL_ID)
+            await config.update("languageChatModels", res)
+        }
+    }
+
+    async languageChatModels() {
+        const config = vscode.workspace.getConfiguration(TOOL_ID)
+        const res =
+            ((await config.get("languageChatModels")) as Record<
+                string,
+                string
+            >) || {}
+        return res
     }
 
     private async saveScripts() {

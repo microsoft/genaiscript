@@ -1,0 +1,1 @@
+Screenshot of a Visual Studio Code interface showing a dropdown menu with options to configure a language model for OpenAI's GPT-4, including an option for Visual Studio Language Chat Models and using a registered LLM such as GitHub Copilot.
