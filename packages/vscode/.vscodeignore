@@ -18,3 +18,8 @@ postpackage.mjs
 updatefonts.mjs
 genaiscript.cjs
 esbuild.*
+font/*
+built/*.woff2
+built/*.ttf
+built/*.extension
+built/*.symbol.svg

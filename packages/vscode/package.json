@@ -372,9 +372,9 @@
         "eslint": "^9.8.0",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
+        "svgtofont": "^5.0.2",
         "typescript": "5.5.4",
         "vscode-uri": "^3.0.8",
-        "webfont": "^11.2.26",
         "websocket-polyfill": "0.0.3",
         "zx": "^8.1.4"
     },
