@@ -141,9 +141,11 @@ export class ExtensionState extends EventTarget {
     async updateLanguageChatModels(model: string, chatModel: string) {
         const config = vscode.workspace.getConfiguration(TOOL_ID)
         const res = await this.languageChatModels()
-        if (chatModel === undefined) delete res[model]
-        else res[model] = chatModel
-        await config.update("languageChatModels", res)
+        if (res[model] !== chatModel) {
+            if (chatModel === undefined) delete res[model]
+            else res[model] = chatModel
+            await config.update("languageChatModels", res)
+        }
     }
 
     async languageChatModels() {
