@@ -1,1 +1,0 @@
-A screenshot of a Visual Studio Code interface with a dialog box titled 'Pick a Language Model'. The dialog box contains a search bar and a list of options including 'Configure .env file', 'Copilot: copilot-gpt-3.5-turbo', and 'Copilot: copilot-gpt-4'. The 'Configure .env file' option is highlighted.

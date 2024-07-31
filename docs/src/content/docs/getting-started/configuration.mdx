@@ -11,11 +11,11 @@ import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
 
-import insidersSrc from "../../../assets/vscode-insiders.png"
-import insidersAlt from "../../../assets/vscode-insiders.png.txt?raw"
+import lmSrc from "../../../assets/vscode-language-models.png"
+import lmAlt from "../../../assets/vscode-language-models.png.txt?raw"
 
-import selectLLMSrc from "../../../assets/vscode-select-llm.png"
-import selectLLMAlt from "../../../assets/vscode-select-llm.png.txt?raw"
+import lmSelectSrc from "../../../assets/vscode-language-models-select.png"
+import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?raw"
 
 You will need to configure the LLM connection and authorizion secrets.
 
@@ -286,9 +286,17 @@ There is no configuration needed as long as you have GitHub Copilot installed an
 <li>run your script</li>
 <li> 
 select the **Visual Studio Code Language Chat Models** option when configuring the model
+
+<Image src={lmSrc} alt={lmAlt} loading="lazy" />
+
+(This step is skipped if you already have mappings in your settings)
+
 </li>
 <li>
 select the best chat model that matches the one you have in your script
+
+<Image src={lmSelectSrc} alt={lmSelectAlt} loading="lazy" />
+
 </li>
 
 </ol>
