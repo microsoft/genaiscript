@@ -70,7 +70,7 @@ class ModelManager implements ModelService {
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
-            logVerbose(`ollama: pulling ${modelid}...`)
+            logVerbose(`ollama pull ${model}`)
             const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",

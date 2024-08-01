@@ -9,22 +9,27 @@ import { assert } from "./util"
  * provider:model
  * provider:model:tag where modelId model:tag
  */
-export function parseModelIdentifier(id: string) {
+export function parseModelIdentifier(id: string): {
+    provider: string
+    family: string
+    model: string
+    tag?: string
+} {
     assert(!!id)
     id = id.replace("-35-", "-3.5-")
     const parts = id.split(":")
     if (parts.length >= 3)
         return {
             provider: parts[0],
-            model: parts[1],
+            family: parts[1],
             tag: parts.slice(2).join(":"),
-            modelId: parts.slice(1).join(":"),
+            model: parts.slice(1).join(":"),
         }
     else if (parts.length === 2)
-        return { provider: parts[0], model: parts[1], modelId: parts[1] }
+        return { provider: parts[0], family: parts[1], model: parts[1] }
     else if (id === MODEL_PROVIDER_LLAMAFILE)
-        return { provider: MODEL_PROVIDER_LLAMAFILE, model: "*", modelId: id }
-    else return { provider: MODEL_PROVIDER_OPENAI, model: id, modelId: id }
+        return { provider: MODEL_PROVIDER_LLAMAFILE, family: "*", model: id }
+    else return { provider: MODEL_PROVIDER_OPENAI, family: id, model: id }
 }
 
 export interface ModelConnectionInfo
