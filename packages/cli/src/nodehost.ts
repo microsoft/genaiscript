@@ -5,7 +5,7 @@ import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
-import { debug, error, info, warn } from "./log"
+import { debug, error, info, isQuiet, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
 import { createNodePath } from "./nodepath"
@@ -70,7 +70,8 @@ class ModelManager implements ModelService {
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
-            logVerbose(`ollama pull ${model}`)
+            if (!isQuiet)
+                logVerbose(`ollama pull ${model}`)
             const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",
