@@ -25,10 +25,18 @@ describe("parseModelIdentifier", () => {
         assert(model === "phi3")
         assert(family === "phi3")
     })
+    test("ollama:gemma2:2b", () => {
+        const { provider, model, tag, family } =
+            parseModelIdentifier("ollama:gemma2:2b")
+        assert(provider === MODEL_PROVIDER_OLLAMA)
+        assert(model === "gemma2:2b")
+        assert(family === "gemma2")
+    })
     test("llamafile", () => {
-        const { provider, model } = parseModelIdentifier("llamafile")
+        const { provider, model, family } = parseModelIdentifier("llamafile")
         assert(provider === MODEL_PROVIDER_LLAMAFILE)
-        assert(model === "*")
+        assert(family === "*")
+        assert(model === "llamafile")
     })
     test("gpt4", () => {
         const { provider, model, family } = parseModelIdentifier("gpt4")
