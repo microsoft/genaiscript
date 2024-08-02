@@ -24,6 +24,8 @@ import {
     ChatChunk,
     ChatStart,
     ServerEnvResponse,
+    ClientRequeMessages,
+    ClientRequestMessages,
 } from "./messages"
 
 export type LanguageModelChatRequest = (
@@ -164,10 +166,19 @@ export class WebSocketClient extends EventTarget {
                     }
                 }
             } else {
-                const cev: ChatEvents = data
-                const { chatId, type } = cev
+                const cev: ClientRequestMessages = data
+                const { type } = cev
                 switch (type) {
+                    case "authentication.session": {
+                        const resp = await this.authenticationSession(cev.model)
+                        this.queue({
+                            ...resp,
+                            type: "authentication.session",
+                        })
+                        break
+                    }
                     case "chat.start": {
+                        const { chatId } = cev
                         if (!this.chatRequest)
                             throw new Error(
                                 "client language model not supported"

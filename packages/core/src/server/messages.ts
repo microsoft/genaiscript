@@ -159,6 +159,11 @@ export interface ChatChunk extends RequestMessage {
     error?: SerializedError
 }
 
+export interface AuthenticationSessionRequest {
+    type: "authentication.session"
+    model: string
+}
+
 export type RequestMessages =
     | ServerKill
     | ServerVersion
@@ -175,3 +180,5 @@ export type PromptScriptResponseEvents =
     | PromptScriptEndResponseEvent
 
 export type ChatEvents = ChatStart | ChatCancel
+
+export type ClientRequestMessages = ChatEvents | AuthenticationSessionRequest
