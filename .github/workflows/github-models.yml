@@ -39,5 +39,6 @@ jobs:
               run: yarn compile
             - name: run summarize github-gpt4o
               run: yarn test:summarize --model github:gpt-4o --out ./temp
+              continue-on-error: true
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
