@@ -89,6 +89,7 @@ export const EMOJI_FAIL = "❌"
 export const EMOJI_UNDEFINED = "?"
 
 export const MODEL_PROVIDER_OPENAI = "openai"
+export const MODEL_PROVIDER_GITHUB = "github"
 export const MODEL_PROVIDER_AZURE = "azure"
 export const MODEL_PROVIDER_OLLAMA = "ollama"
 export const MODEL_PROVIDER_LLAMAFILE = "llamafile"
@@ -98,12 +99,16 @@ export const MODEL_PROVIDER_CLIENT = "client"
 
 export const TRACE_FILE_PREVIEW_MAX_LENGTH = 240
 
+export const GITHUB_MODELS_BASE = "https://models.inference.ai.azure.com"
+
 export const DOCS_CONFIGURATION_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/"
 export const DOCS_CONFIGURATION_OPENAI_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#openai"
+export const DOCS_CONFIGURATION_GITHUB_URL =
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#github"
 export const DOCS_CONFIGURATION_AZURE_OPENAI_URL =
-    "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure-openai"
+    "https://microsoft.github.io/genaiscript/getting-started/configuration/#azure"
 export const DOCS_CONFIGURATION_OLLAMA_URL =
     "https://microsoft.github.io/genaiscript/getting-started/configuration/#ollama"
 export const DOCS_CONFIGURATION_LLAMAFILE_URL =
@@ -120,6 +125,11 @@ export const MODEL_PROVIDERS = Object.freeze([
         id: MODEL_PROVIDER_OPENAI,
         detail: "OpenAI or compatible",
         url: DOCS_CONFIGURATION_OPENAI_URL,
+    },
+    {
+        id: MODEL_PROVIDER_GITHUB,
+        detail: "GitHub Models",
+        url: DOCS_CONFIGURATION_GITHUB_URL,
     },
     {
         id: MODEL_PROVIDER_AZURE,

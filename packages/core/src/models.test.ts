@@ -3,6 +3,7 @@ import { parseModelIdentifier } from "./models"
 import assert from "node:assert"
 import {
     MODEL_PROVIDER_AICI,
+    MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
     MODEL_PROVIDER_OPENAI,
@@ -37,6 +38,12 @@ describe("parseModelIdentifier", () => {
         assert(provider === MODEL_PROVIDER_LLAMAFILE)
         assert(family === "*")
         assert(model === "llamafile")
+    })
+    test("github:gpt4", () => {
+        const { provider, model, family } = parseModelIdentifier("github:gpt4")
+        assert(provider === MODEL_PROVIDER_GITHUB)
+        assert(model === "gpt4")
+        assert(family === "gpt4")
     })
     test("gpt4", () => {
         const { provider, model, family } = parseModelIdentifier("gpt4")

@@ -9,6 +9,7 @@ import {
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -63,6 +64,11 @@ async function generateLanguageModelConfiguration(
             detail: `Use a Azure-hosted OpenAI subscription.`,
             provider: MODEL_PROVIDER_AZURE,
             apiType: "azure",
+        },
+        {
+            label: "GitHub Models",
+            detail: `Use a GitHub Models with a GitHub subscription.`,
+            provider: MODEL_PROVIDER_GITHUB,
         },
         {
             label: "LocalAI",
