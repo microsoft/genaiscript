@@ -34,7 +34,7 @@
     "pdfjs-dist": "4.5.136",
     "promptfoo": "^0.73.9",
     "tree-sitter-wasms": "^0.1.11",
-    "tsx": "^4.16.3",
+    "tsx": "^4.16.5",
     "typescript": "5.5.4",
     "vectra": "^0.7.6",
     "web-tree-sitter": "^0.22.2",
