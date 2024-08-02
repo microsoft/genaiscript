@@ -207,6 +207,17 @@ const { files } = await retrieval.vectorSearch("cats", "**/*.md")
 
 </Card>
 
+<Card title="GitHub Models and GitHub Copilot" icon="github">
+
+Run models through GitHub using [GitHub Models](/getting-started/configuration/#github-models)
+or [GitHub Copilot](/getting-started/configuration/#github-copilot-in-visual-studio-code).
+
+```js wrap
+script({ ..., model: "github:gpt-4o" })
+```
+
+</Card>
+
 <Card title="Local Models" icon="laptop">
 
 Run your scripts with [Open Source models](/genaiscript/getting-started/configuration/#local-models),
