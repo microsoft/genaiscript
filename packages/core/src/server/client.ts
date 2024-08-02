@@ -1,6 +1,4 @@
-import {
-    ChatCompletionsProgressReport,
-} from "../chattypes"
+import { ChatCompletionsProgressReport } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
@@ -25,6 +23,7 @@ import {
     ChatEvents,
     ChatChunk,
     ChatStart,
+    ServerEnvResponse,
 } from "./messages"
 
 export type LanguageModelChatRequest = (
@@ -238,9 +237,9 @@ export class WebSocketClient extends EventTarget {
         return res.version
     }
 
-    async infoEnv(): Promise<ResponseStatus> {
+    async infoEnv(): Promise<ServerEnvResponse> {
         const res = await this.queue<ServerEnv>({ type: "server.env" })
-        return res.response
+        return res.response as ServerEnvResponse
     }
 
     async startScript(

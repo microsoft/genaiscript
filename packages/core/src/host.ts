@@ -51,8 +51,7 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetrievalSearchOptions extends VectorSearchOptions {
-}
+export interface RetrievalSearchOptions extends VectorSearchOptions {}
 
 export interface RetrievalSearchResponse extends ResponseStatus {
     results: WorkspaceFileWithScore[]
@@ -70,7 +69,7 @@ export interface RetrievalService {
     ): Promise<RetrievalSearchResponse>
 }
 
-export interface ServerResponse extends ResponseStatus {
+export interface ServerVersionResponse extends ResponseStatus {
     version: string
     node: string
     platform: string
@@ -96,12 +95,6 @@ export interface Host {
     installFolder(): string
     resolvePath(...segments: string[]): string
 
-    // read a secret from the environment or a .env file
-    readSecret(name: string): Promise<string | undefined>
-    defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
-    defaultEmbeddingsModelOptions: Required<
-        Pick<EmbeddingsModelOptions, "embeddingsModel">
-    >
     getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -129,6 +122,13 @@ export interface Host {
 export interface RuntimeHost extends Host {
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
+
+    // read a secret from the environment or a .env file
+    readSecret(name: string): Promise<string | undefined>
+    defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
+    defaultEmbeddingsModelOptions: Required<
+        Pick<EmbeddingsModelOptions, "embeddingsModel">
+    >
 
     // executes a process
     exec(

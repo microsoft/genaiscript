@@ -1,6 +1,6 @@
 import { ChatCompletionAssistantMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
-import { ResponseStatus } from "../host"
+import { LanguageModelConfiguration, ResponseStatus } from "../host"
 
 export interface RequestMessage {
     type: string
@@ -19,6 +19,13 @@ export interface ServerVersion extends RequestMessage {
 
 export interface ServerEnv extends RequestMessage {
     type: "server.env"
+}
+
+export interface ServerEnvResponse extends ResponseStatus {
+    env: string
+    providers: (Omit<LanguageModelConfiguration, "token"> & {
+        error?: string
+    })[]
 }
 
 export interface PromptScriptTestRunOptions {

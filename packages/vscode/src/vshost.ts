@@ -8,7 +8,6 @@ import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
 import {
-    parseDefaultsFromEnv,
     parseTokenFromEnv,
 } from "../../core/src/connection"
 import {
@@ -51,9 +50,6 @@ export class VSCodeHost extends EventTarget implements Host {
     }
 
     async activate() {
-        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-        const env = dotEnvTryParse(dotenv) ?? {}
-        await parseDefaultsFromEnv(env)
     }
 
     get azure() {
@@ -186,25 +182,14 @@ export class VSCodeHost extends EventTarget implements Host {
         await vscode.workspace.fs.delete(uri, { recursive: true })
     }
 
-    async readSecret(name: string): Promise<string | undefined> {
-        try {
-            const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-            const env = dotEnvTryParse(dotenv)
-            return env?.[name]
-        } catch (e) {
-            return undefined
-        }
-    }
-
     clientLanguageModel?: LanguageModel
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
         const { signal, token: askToken } = options || {}
-        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-        const env = dotEnvTryParse(dotenv) ?? {}
-        await parseDefaultsFromEnv(env)
+        const res = await this.server.client.infoEnv()
+        // TODO
         const tok = await parseTokenFromEnv(env, modelId)
         if (
             askToken &&

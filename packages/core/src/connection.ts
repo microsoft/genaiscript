@@ -28,18 +28,18 @@ import {
     PLACEHOLDER_API_KEY,
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
-import { APIType, host, LanguageModelConfiguration } from "./host"
+import { APIType, host, LanguageModelConfiguration, runtimeHost } from "./host"
 import { dedent } from "./indent"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
 
 export async function parseDefaultsFromEnv(env: Record<string, string>) {
     if (env.GENAISCRIPT_DEFAULT_MODEL)
-        host.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
+        runtimeHost.defaultModelOptions.model = env.GENAISCRIPT_DEFAULT_MODEL
     const t = normalizeFloat(env.GENAISCRIPT_DEFAULT_TEMPERATURE)
-    if (!isNaN(t)) host.defaultModelOptions.temperature = t
+    if (!isNaN(t)) runtimeHost.defaultModelOptions.temperature = t
     if (env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL)
-        host.defaultEmbeddingsModelOptions.embeddingsModel =
+        runtimeHost.defaultEmbeddingsModelOptions.embeddingsModel =
             env.GENAISCRIPT_DEFAULT_EMBEDDINGS_MODEL
 }
 

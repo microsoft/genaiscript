@@ -18,7 +18,7 @@ import {
 import {
     LanguageModelConfiguration,
     ResponseStatus,
-    ServerResponse,
+    ServerVersionResponse,
     host,
     runtimeHost,
 } from "../../core/src/host"
@@ -33,8 +33,9 @@ import {
     ChatStart,
     ChatChunk,
     ChatCancel,
+    ServerEnvResponse,
 } from "../../core/src/server/messages"
-import { envInfo } from "./info"
+import { envInfo, resolveEnv } from "./info"
 import { LanguageModel } from "../../core/src/chat"
 import {
     ChatCompletionResponse,
@@ -166,7 +167,7 @@ export async function startServer(options: { port: string }) {
                 switch (type) {
                     case "server.version": {
                         console.log(`server: version ${CORE_VERSION}`)
-                        response = <ServerResponse>{
+                        response = <ServerVersionResponse>{
                             ok: true,
                             version: CORE_VERSION,
                             node: process.version,
@@ -178,9 +179,12 @@ export async function startServer(options: { port: string }) {
                     }
                     case "server.env": {
                         console.log(`server: env`)
-                        envInfo(undefined)
-                        response = <ServerResponse>{
+                        const info = await resolveEnv(undefined, {
+                            token: false,
+                        })
+                        response = <ServerEnvResponse>{
                             ok: true,
+                            ...info,
                         }
                         break
                     }

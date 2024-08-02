@@ -1,6 +1,6 @@
 import { BING_SEARCH_ENDPOINT } from "./constants"
 import { createFetch } from "./fetch"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { MarkdownTrace } from "./trace"
 
 function toURLSearchParams(o: any) {
@@ -47,7 +47,7 @@ export async function bingSearch(
     } = options || {}
     if (!q) return {}
 
-    const apiKey = await host.readSecret("BING_SEARCH_API_KEY")
+    const apiKey = await runtimeHost.readSecret("BING_SEARCH_API_KEY")
     if (!apiKey)
         throw new Error(
             "BING_SEARCH_API_KEY secret is required to use bing search. See https://microsoft.github.io/genaiscript/reference/scripts/web-search/#bing-web-search-configuration."

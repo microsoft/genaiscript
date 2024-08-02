@@ -6,6 +6,7 @@ import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
 } from "../../core/src/models"
+import { ServerEnvResponse } from "../../core/src/server/messages"
 import { CORE_VERSION } from "../../core/src/version"
 import { YAMLStringify } from "../../core/src/yaml"
 import { buildProject } from "./build"
@@ -19,10 +20,20 @@ export async function systemInfo() {
 }
 
 export async function envInfo(provider: string, options?: { token?: boolean }) {
+    const res = await resolveEnv(provider, options)
+    console.log(YAMLStringify(res))
+}
+
+export async function resolveEnv(
+    provider: string,
+    options?: { token?: boolean }
+): Promise<ServerEnvResponse> {
     const { token } = options || {}
-    const res: any = {}
-    res[".env"] = host.dotEnvPath ?? ""
-    res.providers = []
+    const res: ServerEnvResponse = {
+        ok: true,
+        env: host.dotEnvPath ?? "",
+        providers: [],
+    }
     const env = process.env
     for (const modelProvider of MODEL_PROVIDERS.filter(
         (mp) => !provider || mp.id === provider
@@ -30,18 +41,19 @@ export async function envInfo(provider: string, options?: { token?: boolean }) {
         try {
             const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
-                if (!token && conn.token)
-                    conn.token = "***"
+                if (!token && conn.token) conn.token = "***"
                 res.providers.push(conn)
             }
         } catch (e) {
             res.providers.push({
                 provider: modelProvider.id,
+                model: undefined,
+                base: undefined,
                 error: errorMessage(e),
             })
         }
     }
-    console.log(YAMLStringify(res))
+    return res
 }
 
 async function resolveScriptsConnectionInfo(
