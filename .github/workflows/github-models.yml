@@ -4,7 +4,7 @@ on:
     pull_request:
         paths:
             - yarn.lock
-            - ".github/workflows/ollama.yml"
+            - ".github/workflows/github-models.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
@@ -13,7 +13,7 @@ on:
             - main
         paths:
             - yarn.lock
-            - ".github/workflows/ollama.yml"
+            - ".github/workflows/github-models.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
@@ -39,3 +39,5 @@ jobs:
               run: yarn compile
             - name: run summarize github-gpt4o
               run: yarn test:summarize --model github:gpt-4o --out ./temp
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
