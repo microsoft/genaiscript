@@ -3,18 +3,21 @@ import {
     DEFAULT_TEMPERATURE,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    DOCS_CONFIGURATION_GITHUB_URL,
     DOCS_CONFIGURATION_LITELLM_URL,
     DOCS_CONFIGURATION_LLAMAFILE_URL,
     DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
     DOT_ENV_FILENAME,
+    GITHUB_MODELS_BASE,
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
@@ -96,6 +99,24 @@ export async function parseTokenFromEnv(
                     Authorization: `Bearer $OPENAI_API_KEY`,
                 },
             }
+        }
+    }
+
+    if (provider === MODEL_PROVIDER_GITHUB) {
+        const token = env.GITHUB_TOKEN
+        if (!token) throw new Error("GITHUB_TOKEN must be set")
+        const type = "openai"
+        const base = GITHUB_MODELS_BASE
+        return {
+            provider,
+            model,
+            base,
+            type,
+            token,
+            source: "env: GITHUB_TOKEN",
+            curlHeaders: {
+                Authorization: `Bearer $GITHUB_TOKEN`,
+            },
         }
     }
 
@@ -296,6 +317,16 @@ OPENAI_API_TYPE="localai"
 # OPENAI_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${LOCALAI_API_BASE} by default
 `,
             model: `${MODEL_PROVIDER_OPENAI}:gpt-3.5-turbo`,
+        }
+
+    if (provider === MODEL_PROVIDER_GITHUB)
+        return {
+            config: `
+    ## GitHub Models ${DOCS_CONFIGURATION_GITHUB_URL}
+    # use "${MODEL_PROVIDER_GITHUB}:<model>" in script({ model: ... })
+    GITHUB_TOKEN="${PLACEHOLDER_API_KEY}"
+    `,
+            model: `${MODEL_PROVIDER_GITHUB}:gpt-4o`,
         }
 
     return {

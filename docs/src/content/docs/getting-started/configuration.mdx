@@ -140,6 +140,51 @@ GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
 
 :::
 
+## GitHub Models
+<a id="github" href=""></a>
+
+The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
+This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
+depending on your subscription.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Open the [GitHub Marketplace](https://github.com/marketplace/models) and find the model you want to use.
+
+</li>
+
+<li>
+
+Click **Get Started** and follow the instructions to configure the github token, or start a codespace!
+
+</li>
+
+<li>
+
+Copy the model name from the Javascript/Python samples
+
+```js "Phi-3-mini-4k-instruct"
+const modelName = "Phi-3-mini-4k-instruct";
+```
+
+to configure your script.
+
+```js
+script({
+    model: "github:Phi-3-mini-4k-instruct"
+})
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
 ## Azure OpenAI
 <a id="azure" href=""></a>
 
@@ -269,7 +314,7 @@ script({
 
 </Steps>
 
-## GitHub Copilot Models
+## GitHub Copilot in Visual Studio Code
 
 If you have access to **GitHub Copilot in Visual Studio Code**, 
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
