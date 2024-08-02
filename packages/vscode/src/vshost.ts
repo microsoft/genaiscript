@@ -8,16 +8,11 @@ import { Utils } from "vscode-uri"
 import { checkFileExists, readFileText } from "./fs"
 import { filterGitIgnore } from "../../core/src/gitignore"
 import {
-    parseTokenFromEnv,
-} from "../../core/src/connection"
-import {
     DEFAULT_EMBEDDINGS_MODEL,
     DEFAULT_MODEL,
     DEFAULT_TEMPERATURE,
     DOT_ENV_FILENAME,
-    MODEL_PROVIDER_AZURE,
 } from "../../core/src/constants"
-import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
     setHost,
     LanguageModelConfiguration,
@@ -27,6 +22,7 @@ import {
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, unique } from "../../core/src/util"
 import { LanguageModel } from "../../core/src/chat"
+import { parseModelIdentifier } from "../../core/src/models"
 
 export class VSCodeHost extends EventTarget implements Host {
     dotEnvPath: string = DOT_ENV_FILENAME
@@ -49,8 +45,7 @@ export class VSCodeHost extends EventTarget implements Host {
         this.state.context.subscriptions.push(this)
     }
 
-    async activate() {
-    }
+    async activate() {}
 
     get azure() {
         if (!this._azure) this._azure = new AzureManager(this.state)
@@ -167,7 +162,10 @@ export class VSCodeHost extends EventTarget implements Host {
         }
 
         let files = Array.from(uris.values())
-        if (applyGitIgnore && (await checkFileExists(this.projectUri, ".gitignore"))) {
+        if (
+            applyGitIgnore &&
+            (await checkFileExists(this.projectUri, ".gitignore"))
+        ) {
             const gitignore = await readFileText(this.projectUri, ".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
@@ -187,9 +185,11 @@ export class VSCodeHost extends EventTarget implements Host {
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        const { signal, token: askToken } = options || {}
-        const res = await this.server.client.infoEnv()
-        // TODO
+        const { provider } = parseModelIdentifier(modelId)
+        const { error, ...tok } = (
+            await this.server.client.infoEnv()
+        ).providers.find((m) => m.provider === provider)
+        /*
         const tok = await parseTokenFromEnv(env, modelId)
         if (
             askToken &&
@@ -204,6 +204,7 @@ export class VSCodeHost extends EventTarget implements Host {
                 Authorization: "Bearer ***",
             }
         }
+        */
         return tok
     }
 

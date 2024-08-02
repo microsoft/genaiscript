@@ -23,7 +23,7 @@ export interface ServerEnv extends RequestMessage {
 
 export interface ServerEnvResponse extends ResponseStatus {
     env: string
-    providers: (Omit<LanguageModelConfiguration, "token"> & {
+    providers: (LanguageModelConfiguration & {
         error?: string
     })[]
 }
