@@ -1,6 +1,4 @@
-import {
-    ChatCompletionsProgressReport,
-} from "../chattypes"
+import { ChatCompletionsProgressReport } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
@@ -247,6 +245,7 @@ export class WebSocketClient extends EventTarget {
         script: string,
         files: string[],
         options: Partial<PromptScriptRunOptions> & {
+            jsSource?: string
             signal: AbortSignal
             trace: MarkdownTrace
             infoCb: (partialResponse: { text: string }) => void

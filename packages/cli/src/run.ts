@@ -107,6 +107,7 @@ export async function runScript(
     const removeOut = options.removeOut
     const cacheName = options.cacheName
     const cancellationToken = options.cancellationToken
+    const jsSource = options.jsSource
 
     const spinner =
         !stream && !isQuiet
@@ -152,6 +153,11 @@ export async function runScript(
     const prj = await buildProject({
         toolFiles,
     })
+    if (jsSource)
+        prj.templates.push({
+            id: scriptId,
+            jsSource,
+        })
     const script = prj.templates.find(
         (t) =>
             t.id === scriptId ||

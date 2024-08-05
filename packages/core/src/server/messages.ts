@@ -74,6 +74,7 @@ export interface PromptScriptRunOptions {
     failOnErrors: boolean
     removeOut: boolean
     vars: string[]
+    jsSource: string
 }
 
 export interface PromptScriptStart extends RequestMessage {

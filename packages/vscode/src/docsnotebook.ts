@@ -138,6 +138,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     parameters,
                     fragment,
                     notebook: true,
+                    jsSource,
                 })
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
