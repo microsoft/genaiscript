@@ -70,8 +70,7 @@ class ModelManager implements ModelService {
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
-            if (!isQuiet)
-                logVerbose(`ollama pull ${model}`)
+            if (!isQuiet) logVerbose(`ollama pull ${model}`)
             const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",
@@ -109,16 +108,20 @@ export class NodeHost implements RuntimeHost {
     }
 
     constructor(dotEnvPath: string) {
-        if (existsSync(dotEnvPath)) {
-            this.dotEnvPath = dotEnvPath
+        this.dotEnvPath = dotEnvPath
+        this.syncDotEnv()
+        this.models = new ModelManager(this)
+    }
+
+    private syncDotEnv() {
+        if (existsSync(this.dotEnvPath)) {
             const res = dotenv.config({
-                path: dotEnvPath,
+                path: this.dotEnvPath,
                 debug: !!process.env.DEBUG,
                 override: true,
             })
             if (res.error) throw res.error
         }
-        this.models = new ModelManager(this)
     }
 
     static async install(dotEnvPath: string) {
@@ -130,10 +133,12 @@ export class NodeHost implements RuntimeHost {
     }
 
     async readSecret(name: string): Promise<string | undefined> {
+        this.syncDotEnv()
         return process.env[name]
     }
 
     private async parseDefaults() {
+        this.syncDotEnv()
         await parseDefaultsFromEnv(process.env)
     }
     clientLanguageModel: LanguageModel

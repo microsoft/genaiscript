@@ -197,7 +197,7 @@ interface ScriptRuntimeOptions {
 * - `system`: Base system prompt
 * - `system.annotations`: Emits annotations compatible with GitHub Actions
 * - `system.changelog`: Generate changelog formatter edits
-* - `system.diagrams`: System.diagrams
+* - `system.diagrams`: Generate diagrams
 * - `system.diff`: Generates concise file diffs.
 * - `system.explanations`: Explain your answers
 * - `system.files`: File generation
