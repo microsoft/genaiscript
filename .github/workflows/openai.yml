@@ -37,7 +37,7 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: run summarize github-gpt4o
+            - name: run summarize openai:gpt-3.5-turbo
               run: yarn test:summarize --model openai:gpt-3.5-turbo --out ./temp
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
