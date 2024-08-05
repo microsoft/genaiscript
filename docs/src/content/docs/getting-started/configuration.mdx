@@ -20,7 +20,9 @@ import lmSelectAlt from "../../../assets/vscode-language-models-select.png.txt?r
 You will need to configure the LLM connection and authorizion secrets.
 
 :::tip
+
 If you do not have access to an LLM, you can use a [local model](#local-models) for inferencing.
+
 :::
 
 ## model selection
@@ -129,7 +131,6 @@ script({
 
 </Steps>
 
-
 :::tip[Default Model Configuration]
 
 Use `GENAISCRIPT_DEFAULT_MODEL` in your `.env` file to set the default model.
@@ -141,6 +142,7 @@ GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
 :::
 
 ## GitHub Models
+
 <a id="github" href=""></a>
 
 The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
@@ -168,14 +170,14 @@ Click **Get Started** and follow the instructions to configure the github token,
 Copy the model name from the Javascript/Python samples
 
 ```js "Phi-3-mini-4k-instruct"
-const modelName = "Phi-3-mini-4k-instruct";
+const modelName = "Phi-3-mini-4k-instruct"
 ```
 
 to configure your script.
 
 ```js
 script({
-    model: "github:Phi-3-mini-4k-instruct"
+    model: "github:Phi-3-mini-4k-instruct",
 })
 ```
 
@@ -185,10 +187,14 @@ script({
 
 </Steps>
 
+If you are already using `GITHUB_TOKEN` variable in your script and need a different one
+for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
+
 ## Azure OpenAI
+
 <a id="azure" href=""></a>
 
-The  [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
+The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
 You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
 
 ### Managed Identity (Entra ID)
@@ -199,10 +205,10 @@ You can use a managed identity (recommended) or a API key to authenticate with t
 
 <li>
 
-Open your [Azure OpenAI resource](https://portal.azure.com) 
+Open your [Azure OpenAI resource](https://portal.azure.com)
 
 </li>
-<li> 
+<li>
 
 Navigate to **Access Control**, then **View My Access**. Make sure your
 user or service principal has the **Cognitive Services OpenAI User/Contributor** role.
@@ -255,7 +261,7 @@ script({
 Visual Studio Code will ask you to allow using the **Microsoft** account
 and then will open a browser where you can choose the user or service principal.
 
-- If you are getting `401` errors after a while, try signing out in the user menu (lower left in Visual Studio Code) and back in.
+-   If you are getting `401` errors after a while, try signing out in the user menu (lower left in Visual Studio Code) and back in.
 
 #### CLI
 
@@ -316,10 +322,10 @@ script({
 
 ## GitHub Copilot in Visual Studio Code
 
-If you have access to **GitHub Copilot in Visual Studio Code**, 
+If you have access to **GitHub Copilot in Visual Studio Code**,
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
 
-This mode is useful to run your scripts without having a separate LLM provider or local LLMs. However, those models are  not available from the command line
+This mode is useful to run your scripts without having a separate LLM provider or local LLMs. However, those models are not available from the command line
 and have additional limitations and rate limiting defined by the GitHub Copilot platform.
 
 There is no configuration needed as long as you have GitHub Copilot installed and configured in Visual Studio Code.
