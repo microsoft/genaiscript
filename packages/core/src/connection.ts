@@ -103,7 +103,10 @@ export async function parseTokenFromEnv(
     }
 
     if (provider === MODEL_PROVIDER_GITHUB) {
-        const token = env.GITHUB_TOKEN
+        const tokenVar = env.GITHUB_MODELS_TOKEN
+            ? "GITHUB_MODELS_TOKEN"
+            : "GITHUB_TOKEN"
+        const token = env[tokenVar]
         // TODO: handle missing token
         // if (!token) throw new Error("GITHUB_TOKEN must be set")
         const type = "openai"
@@ -114,9 +117,9 @@ export async function parseTokenFromEnv(
             base,
             type,
             token,
-            source: "env: GITHUB_TOKEN",
+            source: `env: ${tokenVar}`,
             curlHeaders: {
-                Authorization: `Bearer $GITHUB_TOKEN`,
+                Authorization: `Bearer $${tokenVar}`,
             },
         }
     }
@@ -124,7 +127,7 @@ export async function parseTokenFromEnv(
     if (provider === MODEL_PROVIDER_AZURE) {
         const tokenVar = env.AZURE_OPENAI_API_KEY
             ? "AZURE_OPENAI_API_KEY"
-            : env.AZURE_API_KEY
+            : "AZURE_API_KEY"
         const token = env[tokenVar]
         let base = trimTrailingSlash(
             env.AZURE_OPENAI_ENDPOINT ||
@@ -325,7 +328,7 @@ OPENAI_API_TYPE="localai"
             config: `
     ## GitHub Models ${DOCS_CONFIGURATION_GITHUB_URL}
     # use "${MODEL_PROVIDER_GITHUB}:<model>" in script({ model: ... })
-    GITHUB_TOKEN="${PLACEHOLDER_API_KEY}"
+    # GITHUB_MODELS_TOKEN="${PLACEHOLDER_API_KEY}" # use a personal access token if not available
     `,
             model: `${MODEL_PROVIDER_GITHUB}:gpt-4o`,
         }
