@@ -21,6 +21,7 @@ export function resolveSystems(prj: Project, template: PromptScript) {
         if (useSchema) systems.push("system.schema")
         if (/annotation|warning|error/i.test(jsSource))
             systems.push("system.annotations")
+        if (/diagram|chart/i.test(jsSource)) systems.push("system.diagrams")
     }
 
     if (template.tools?.length)
