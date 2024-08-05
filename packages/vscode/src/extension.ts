@@ -15,6 +15,7 @@ import { registerCommand } from "./commands"
 import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
+import { activateComments } from "./comments"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -27,6 +28,7 @@ export async function activate(context: ExtensionContext) {
     activateTraceTreeDataProvider(state)
     activateStatusBar(state)
     activateDocsNotebook(state)
+    activateComments(state)
 
     context.subscriptions.push(
         registerCommand("genaiscript.request.abort", async () => {
