@@ -35,7 +35,7 @@ import {
     ChatCancel,
     ServerEnvResponse,
 } from "../../core/src/server/messages"
-import { envInfo, resolveEnv } from "./info"
+import { resolveEnv } from "./info"
 import { LanguageModel } from "../../core/src/chat"
 import {
     ChatCompletionResponse,

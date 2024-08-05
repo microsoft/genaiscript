@@ -16,7 +16,7 @@ import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
 import {
@@ -175,7 +175,7 @@ export async function expandTemplate(
         options.temperature ??
         normalizeFloat(env.vars["temperature"]) ??
         template.temperature ??
-        host.defaultModelOptions.temperature
+        runtimeHost.defaultModelOptions.temperature
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
     const max_tokens =

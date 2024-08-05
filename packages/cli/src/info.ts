@@ -1,7 +1,7 @@
 import { parseTokenFromEnv } from "../../core/src/connection"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { errorMessage } from "../../core/src/error"
-import { host } from "../../core/src/host"
+import { host, runtimeHost } from "../../core/src/host"
 import {
     ModelConnectionInfo,
     resolveModelConnectionInfo,
@@ -63,7 +63,7 @@ async function resolveScriptsConnectionInfo(
     const models: Record<string, ModelConnectionOptions> = {}
     for (const template of templates) {
         const conn: ModelConnectionOptions = {
-            model: template.model ?? host.defaultModelOptions.model,
+            model: template.model ?? runtimeHost.defaultModelOptions.model,
         }
         const key = JSON.stringify(conn)
         if (!models[key]) models[key] = conn

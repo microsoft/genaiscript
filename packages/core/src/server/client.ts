@@ -20,13 +20,12 @@ import {
     PromptScriptAbort,
     PromptScriptResponseEvents,
     ServerEnv,
-    ChatEvents,
     ChatChunk,
     ChatStart,
     ServerEnvResponse,
-    ClientRequeMessages,
     ClientRequestMessages,
 } from "./messages"
+import { MessageQueue } from "./rpc"
 
 export type LanguageModelChatRequest = (
     request: ChatStart,
@@ -34,13 +33,8 @@ export type LanguageModelChatRequest = (
 ) => Promise<void>
 
 export class WebSocketClient extends EventTarget {
-    private awaiters: Record<
-        string,
-        { resolve: (data: any) => void; reject: (error: unknown) => void }
-    > = {}
-    private _nextId = 1
+    private messages: MessageQueue
     private _ws: WebSocket
-    private _pendingMessages: string[] = []
     private _reconnectTimeout: ReturnType<typeof setTimeout> | undefined
     connectedOnce = false
     reconnectAttempts = 0
@@ -65,6 +59,10 @@ export class WebSocketClient extends EventTarget {
 
     constructor(readonly url: string) {
         super()
+        this.messages = new MessageQueue({
+            readyState: () => this._ws?.readyState,
+            send: (msg) => this._ws?.send(msg),
+        })
     }
 
     private installPolyfill() {
@@ -104,12 +102,7 @@ export class WebSocketClient extends EventTarget {
             this.connectedOnce = true
             this.reconnectAttempts = 0
             // flush cached messages
-            let m: string
-            while (
-                this._ws?.readyState === WebSocket.OPEN &&
-                (m = this._pendingMessages.pop())
-            )
-                this._ws.send(m)
+            this.messages.flush()
             this.dispatchEvent(new Event(OPEN))
         })
         this._ws.addEventListener("error", (ev) => {
@@ -127,15 +120,7 @@ export class WebSocketClient extends EventTarget {
             (event: MessageEvent<any>) => void
         >(async (event) => {
             const data = JSON.parse(event.data)
-            // handle responses
-            const req: RequestMessages = data
-            const { id } = req
-            const awaiter = this.awaiters[id]
-            if (awaiter) {
-                delete this.awaiters[id]
-                await awaiter.resolve(req)
-                return
-            }
+            if (this.messages.receive(data)) return
 
             // handle run progress
             const ev: PromptScriptResponseEvents = data
@@ -174,6 +159,7 @@ export class WebSocketClient extends EventTarget {
                         this.queue({
                             ...resp,
                             type: "authentication.session",
+                            id: cev.id,
                         })
                         break
                     }
@@ -197,24 +183,11 @@ export class WebSocketClient extends EventTarget {
         }))
     }
 
-    private queue<T extends RequestMessage>(msg: Omit<T, "id">): Promise<T> {
-        const id = this._nextId++ + ""
-        const mo: any = { ...msg, id }
-        // avoid pollution
-        delete mo.trace
-        if (mo.options) delete mo.options.trace
-        const m = JSON.stringify({ ...msg, id })
-
-        this.init()
-        return new Promise<T>((resolve, reject) => {
-            this.awaiters[id] = {
-                resolve: (data) => resolve(data),
-                reject,
-            }
-            if (this._ws?.readyState === WebSocket.OPEN) {
-                this._ws.send(m)
-            } else this._pendingMessages.push(m)
-        })
+    private async queue<T extends RequestMessage>(
+        msg: Omit<T, "id">
+    ): Promise<T> {
+        await this.init()
+        return this.messages.queue(msg)
     }
 
     stop() {
@@ -237,10 +210,7 @@ export class WebSocketClient extends EventTarget {
 
     cancel(reason?: string) {
         this.reconnectAttempts = 0
-        this._pendingMessages = []
-        const cancellers = Object.values(this.awaiters)
-        this.awaiters = {}
-        cancellers.forEach((a) => a.reject(reason || "cancelled"))
+        this.messages.cancel(reason)
     }
 
     async version(): Promise<string> {
@@ -353,7 +323,7 @@ export class WebSocketClient extends EventTarget {
             this._ws?.readyState === WebSocket.OPEN
         )
             this._ws.send(
-                JSON.stringify({ type: "server.kill", id: this._nextId++ + "" })
+                JSON.stringify({ type: "server.kill", id: randomHex(6) })
             )
         this.stop()
     }

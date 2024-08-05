@@ -134,7 +134,7 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
-export interface ChatStart {
+export interface ChatStart extends RequestMessage {
     type: "chat.start"
     chatId: string
     messages: ChatCompletionAssistantMessageParam[]
@@ -144,7 +144,7 @@ export interface ChatStart {
     }
 }
 
-export interface ChatCancel {
+export interface ChatCancel extends RequestMessage {
     type: "chat.cancel"
     chatId: string
 }
@@ -159,7 +159,7 @@ export interface ChatChunk extends RequestMessage {
     error?: SerializedError
 }
 
-export interface AuthenticationSessionRequest {
+export interface AuthenticationSessionRequest extends RequestMessage {
     type: "authentication.session"
     model: string
 }

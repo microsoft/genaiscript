@@ -1,6 +1,6 @@
 import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
 import { CancellationToken, checkCancelled } from "./cancellation"
@@ -424,13 +424,14 @@ export function mergeGenerationOptions(
         model:
             runOptions?.model ??
             options?.model ??
-            host.defaultModelOptions.model,
+            runtimeHost.defaultModelOptions.model,
         temperature:
-            runOptions?.temperature ?? host.defaultModelOptions.temperature,
+            runOptions?.temperature ??
+            runtimeHost.defaultModelOptions.temperature,
         embeddingsModel:
             runOptions?.embeddingsModel ??
             options?.embeddingsModel ??
-            host.defaultEmbeddingsModelOptions.embeddingsModel,
+            runtimeHost.defaultEmbeddingsModelOptions.embeddingsModel,
     }
 }
 
@@ -447,8 +448,8 @@ export async function executeChatSession(
 ): Promise<RunPromptResult> {
     const {
         trace,
-        model = host.defaultModelOptions.model,
-        temperature = host.defaultModelOptions.temperature,
+        model = runtimeHost.defaultModelOptions.model,
+        temperature = runtimeHost.defaultModelOptions.temperature,
         topP,
         maxTokens,
         seed,

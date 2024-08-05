@@ -28,7 +28,7 @@ import {
     PLACEHOLDER_API_KEY,
 } from "./constants"
 import { fileExists, readText, tryReadText, writeText } from "./fs"
-import { APIType, host, LanguageModelConfiguration, runtimeHost } from "./host"
+import { APIType, LanguageModelConfiguration, runtimeHost } from "./host"
 import { dedent } from "./indent"
 import { parseModelIdentifier } from "./models"
 import { normalizeFloat, trimTrailingSlash } from "./util"
@@ -48,7 +48,7 @@ export async function parseTokenFromEnv(
     modelId: string
 ): Promise<LanguageModelConfiguration> {
     const { provider, model, tag } = parseModelIdentifier(
-        modelId ?? host.defaultModelOptions.model
+        modelId ?? runtimeHost.defaultModelOptions.model
     )
     if (provider === MODEL_PROVIDER_OPENAI) {
         if (env.OPENAI_API_KEY || env.OPENAI_API_BASE || env.OPENAI_API_TYPE) {

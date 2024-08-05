@@ -1,6 +1,6 @@
 import { MODEL_PROVIDER_LLAMAFILE, MODEL_PROVIDER_OPENAI } from "./constants"
 import { errorMessage } from "./error"
-import { LanguageModelConfiguration, host } from "./host"
+import { LanguageModelConfiguration, host, runtimeHost } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 import { assert } from "./util"
 
@@ -86,7 +86,7 @@ export async function resolveModelConnectionInfo(
 }> {
     const { trace, token: askToken, signal } = options || {}
     const hasModel = options?.model ?? conn.model
-    const model = options?.model ?? conn.model ?? host.defaultModelOptions.model
+    const model = options?.model ?? conn.model ?? runtimeHost.defaultModelOptions.model
     try {
         const configuration = await host.getLanguageModelConfiguration(model, {
             token: askToken,

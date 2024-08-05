@@ -1,6 +1,6 @@
 import { HTTPS_REGEX } from "./constants"
 import { arrayify } from "./util"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 
 function cleanUndefined(obj: Record<string, any>) {
     return obj
@@ -37,10 +37,10 @@ export function generatePromptFooConfiguration(
         prompts: [id],
         providers: models
             .map(({ model, temperature, topP }) => ({
-                model: model ?? host.defaultModelOptions.model,
+                model: model ?? runtimeHost.defaultModelOptions.model,
                 temperature: !isNaN(temperature)
                     ? temperature
-                    : host.defaultModelOptions.temperature,
+                    : runtimeHost.defaultModelOptions.temperature,
                 top_p: topP,
             }))
             .map(({ model, temperature, top_p }) => ({
