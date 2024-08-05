@@ -32,6 +32,10 @@ export type LanguageModelChatRequest = (
     onChunk: (param: Omit<ChatChunk, "id" | "type" | "chatId">) => void
 ) => Promise<void>
 
+export type AuthenticationSessionRequest = (model: string) => Promise<{
+    token: string
+}>
+
 export class WebSocketClient extends EventTarget {
     private messages: MessageQueue
     private _ws: WebSocket
@@ -40,6 +44,7 @@ export class WebSocketClient extends EventTarget {
     reconnectAttempts = 0
 
     chatRequest: LanguageModelChatRequest
+    authenticationSessionRequest: AuthenticationSessionRequest
 
     private runs: Record<
         string,
@@ -155,11 +160,17 @@ export class WebSocketClient extends EventTarget {
                 const { type } = cev
                 switch (type) {
                     case "authentication.session": {
-                        const resp = await this.authenticationSession(cev.model)
+                        if (!this.chatRequest)
+                            throw new Error(
+                                "authentication session not supported"
+                            )
+                        const resp = await this.authenticationSessionRequest(
+                            cev.model
+                        )
                         this.queue({
+                            ...cev,
                             ...resp,
-                            type: "authentication.session",
-                            id: cev.id,
+                            type: "authentication.session",                            
                         })
                         break
                     }

@@ -38,13 +38,13 @@ export class MessageQueue extends EventTarget {
         }
     }
 
-    queue<T extends { id: string }>(msg: Omit<T, "id">): Promise<T> {
-        const id = this._nextId++ + ""
+    queue<T extends { id?: string }>(msg: T): Promise<T> {
+        const id = msg.id ?? this._nextId++ + ""
         const mo: any = { ...msg, id }
         // avoid pollution
         delete mo.trace
         if (mo.options) delete mo.options.trace
-        const m = JSON.stringify({ ...msg, id })
+        const m = JSON.stringify(mo)
 
         return new Promise<T>((resolve, reject) => {
             this.awaiters[id] = {
