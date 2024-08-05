@@ -42,6 +42,7 @@ Think step by step and for each annotation explain your result.
 - do NOT report common convention issues
 - do NOT report deleted code since you cannot review the entire codebase
 - do NOT report deleted imports
+- do NOT report missing types
 - use a friendly tone
 - use emojis
 - do NOT cross-reference annotations, assume they are all independent
