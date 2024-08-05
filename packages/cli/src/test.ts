@@ -4,7 +4,6 @@ import { readFile, writeFile, appendFile } from "node:fs/promises"
 import { execa } from "execa"
 import { dirname, join, resolve } from "node:path"
 import { emptyDir, ensureDir, exists } from "fs-extra"
-import type { OutputFile } from "promptfoo"
 import { PROMPTFOO_VERSION } from "./version"
 import {
     PROMPTFOO_CACHE_PATH,
@@ -175,7 +174,7 @@ export async function runPromptScriptTests(
             error = serializeError(e)
         }
         if (await exists(outJson))
-            value = JSON5TryParse(await readFile(outJson, "utf8")) as OutputFile
+            value = JSON5TryParse(await readFile(outJson, "utf8"))
 
         const ok = status === 0
         if (outSummary)

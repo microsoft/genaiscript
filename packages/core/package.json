@@ -14,10 +14,10 @@
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.2.0",
     "pdfjs-dist": "4.5.136",
-    "web-tree-sitter": "^0.22.2"
+    "web-tree-sitter": "^0.22.6"
   },
   "devDependencies": {
-    "@azure/identity": "^4.4.0",
+    "@azure/identity": "^4.4.1",
     "@tidyjs/tidy": "^2.5.2",
     "@types/html-escaper": "^3.0.2",
     "@types/html-to-text": "^9.0.4",
@@ -33,7 +33,7 @@
     "fast-xml-parser": "^4.4.1",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
-    "file-type": "^19.3.0",
+    "file-type": "^19.4.0",
     "gpt-tokenizer": "^2.2.1",
     "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",
@@ -49,7 +49,7 @@
     "mime-types": "^2.1.35",
     "minimatch": "^10.0.1",
     "minisearch": "^7.1.0",
-    "openai": "^4.53.2",
+    "openai": "^4.54.0",
     "parse-diff": "^0.11.1",
     "prettier": "^3.3.3",
     "pretty-bytes": "^6.1.1",
