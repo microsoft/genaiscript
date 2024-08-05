@@ -20206,7 +20206,6 @@ The following npm packages may be included in this product:
  - @babel/helper-module-imports@7.24.7
  - @babel/helper-module-transforms@7.25.2
  - @babel/helper-optimise-call-expression@7.24.7
- - @babel/helper-plugin-utils@7.22.5
  - @babel/helper-plugin-utils@7.24.8
  - @babel/helper-replace-supers@7.25.0
  - @babel/helper-simple-access@7.24.7

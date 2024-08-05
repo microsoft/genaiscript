@@ -14,7 +14,7 @@
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.2.0",
     "pdfjs-dist": "4.5.136",
-    "web-tree-sitter": "^0.22.6"
+    "web-tree-sitter": "^0.22.2"
   },
   "devDependencies": {
     "@azure/identity": "^4.4.1",
@@ -33,7 +33,7 @@
     "fast-xml-parser": "^4.4.1",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
-    "file-type": "^19.4.0",
+    "file-type": "^19.3.0",
     "gpt-tokenizer": "^2.2.1",
     "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",
