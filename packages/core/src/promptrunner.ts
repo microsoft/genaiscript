@@ -145,7 +145,7 @@ export async function runTemplate(
                 status: "cancelled",
                 messages,
                 vars,
-                text: undefined,
+                text: "",
                 edits: [],
                 annotations: [],
                 changelogs: [],

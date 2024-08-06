@@ -293,7 +293,7 @@ export async function createPromptContext(
                     { trace, token: true }
                 )
                 if (!connection.configuration)
-                    throw new Error("model connection error " + connection.info)
+                    throw new Error("model connection error " + connection.info?.model)
                 const { completer } = await resolveLanguageModel(
                     connection.configuration.provider
                 )
@@ -317,7 +317,7 @@ export async function createPromptContext(
             } catch (e) {
                 trace.error(e)
                 return {
-                    text: undefined,
+                    text: "",
                     finishReason: isCancelError(e) ? "cancel" : "fail",
                     error: serializeError(e),
                 }
