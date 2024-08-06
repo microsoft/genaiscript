@@ -38,6 +38,11 @@ export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
 export const DEFAULT_MODEL = "openai:gpt-4"
+export const DEFAULT_MODEL_CANDIDATES = [
+    "github:gpt-4o",
+    "openai:gpt-4o",
+    "azure:gpt-4o",
+]
 export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"

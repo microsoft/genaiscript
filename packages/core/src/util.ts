@@ -181,7 +181,7 @@ export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
     if (message) host.log(LogLevel.Error, message)
     const se = YAMLStringify(e)
-    if (se !== "{}") host.log(LogLevel.Info, se)
+    if (!/^\s*\{\}\s*$/) host.log(LogLevel.Info, se)
 }
 
 export function concatArrays<T>(...arrays: T[][]): T[] {
