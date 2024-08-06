@@ -293,7 +293,9 @@ export async function createPromptContext(
                     { trace, token: true }
                 )
                 if (!connection.configuration)
-                    throw new Error("model connection error " + connection.info?.model)
+                    throw new Error(
+                        "model connection error " + connection.info?.model
+                    )
                 const { completer } = await resolveLanguageModel(
                     connection.configuration.provider
                 )
@@ -337,7 +339,7 @@ export async function createPromptContext(
             let status = 404
             let text: string
             if (/^https?:\/\//i.test(url)) {
-                const fetch = await createFetch()
+                const fetch = await createFetch({ cancellationToken })
                 const resp = await fetch(url, fetchOptions)
                 ok = resp.ok
                 status = resp.status

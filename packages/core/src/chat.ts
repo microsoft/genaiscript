@@ -3,7 +3,7 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
-import { CancellationToken, checkCancelled } from "./cancellation"
+import { CancellationOptions, CancellationToken, checkCancelled } from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
 import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
@@ -83,7 +83,7 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: LanguageModelConfiguration,
-    options: ChatCompletionsOptions,
+    options: ChatCompletionsOptions & CancellationOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
 
