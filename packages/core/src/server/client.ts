@@ -191,7 +191,7 @@ export class WebSocketClient extends EventTarget {
         // avoid pollution
         delete mo.trace
         if (mo.options) delete mo.options.trace
-        const m = JSON.stringify({ ...msg, id })
+        const m = JSON.stringify(mo)
 
         this.init()
         return new Promise<T>((resolve, reject) => {

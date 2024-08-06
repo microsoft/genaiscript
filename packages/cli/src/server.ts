@@ -59,12 +59,12 @@ export async function startServer(options: { port: string }) {
 
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
-            console.log(`abort run ${runId}`)
+            logVerbose(`abort run ${runId}`)
             run.canceller.abort("closing")
             delete runs[runId]
         }
         for (const [chatId, chat] of Object.entries(chats)) {
-            console.log(`abort chat ${chat}`)
+            logVerbose(`abort chat ${chat}`)
             for (const ws of wss.clients) {
                 ws.send(
                     JSON.stringify(<ChatCancel>{
@@ -295,7 +295,7 @@ export async function startServer(options: { port: string }) {
                     }
                     case "script.abort": {
                         const { runId, reason } = data
-                        console.log(`run ${runId}: abort`)
+                        logVerbose(`run ${runId}: abort`)
                         const run = runs[runId]
                         if (run) {
                             delete runs[runId]
@@ -309,7 +309,7 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "shell.exec": {
-                        console.log(`exec ${data.command}`)
+                        logVerbose(`exec ${data.command}`)
                         const { command, args, options, containerId } = data
                         const value = await runtimeHost.exec(
                             containerId,
