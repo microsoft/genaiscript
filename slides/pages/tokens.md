@@ -1,4 +1,6 @@
-```mermaid
+### Where do I get LLM tokens?
+
+```mermaid {scale: 0.9}
 graph TD
     A[Do you have a large GPU?] -->|Yes| B[Local LLM]
     A -->|No| C[Is it for personal use?]

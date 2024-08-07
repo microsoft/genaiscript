@@ -20,7 +20,6 @@ $`Analyze ${file} and extract data to JSON using the ${schema} schema.`
 
 - **It Is Just JavaScript(TM)** (also TypeScript)
 - **`$...`** writes to the prompt, **`def`** defines a "variable" + various builtin parsers and utilities
-- Fast development loop in Visual Studio Code + Automation with Command Line
 
 </v-click>
 
@@ -36,5 +35,11 @@ type Data = string[]
 
 Analyze FILE and extract data to JSON using the DATA schema.
 ````
+
+</v-click>
+
+<v-click>
+
+- Fast development loop in Visual Studio Code + Automation with Command Line
 
 </v-click>

@@ -1,0 +1,1 @@
+Icon for genAI script view in Visual Studio Code, featuring the text 'gen AI' in white on a dark background with a red outline.
