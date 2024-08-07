@@ -194,11 +194,11 @@ export class VSCodeHost extends EventTarget implements Host {
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        const { signal, token: askToken } = options || {}
-        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-        const env = dotEnvTryParse(dotenv) ?? {}
-        await parseDefaultsFromEnv(env)
-        const tok = await parseTokenFromEnv(env, modelId)
+        const tok = await this.server.client.getLanguageModelConfiguration(
+            modelId,
+            options
+        )
+        const { token: askToken } = options || {}
         if (
             askToken &&
             tok &&
