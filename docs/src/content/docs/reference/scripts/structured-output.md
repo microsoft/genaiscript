@@ -4,7 +4,7 @@ sidebar:
     order: 12.1
 ---
 
-Structured output is a feature that allows you to generate structured data in JSON format with a [JSON schema](/genaiscript/reference/script/schemas). This is more strict than [JSON mode](/genaiscript/reference/scripts/json-mode) and is supported by `gpt-4o-mini`, `gpt-4o-2024-08-06` and [later models](https://platform.openai.com/docs/guides/structured-outputs/structured-outputs-vs-json-mode).
+Structured output is a feature that allows you to generate structured data in JSON format with a [JSON schema](/genaiscript/reference/scripts/schemas). This is more strict than [JSON mode](/genaiscript/reference/scripts/json-mode) and is supported by `gpt-4o-mini`, `gpt-4o-2024-08-06` and [later models](https://platform.openai.com/docs/guides/structured-outputs/structured-outputs-vs-json-mode).
 
 To enable this mode, set `responseType` to `json_schema`.
 
