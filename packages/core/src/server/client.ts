@@ -3,7 +3,7 @@ import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
-import { ResponseStatus, host } from "../host"
+import { LanguageModelConfiguration, ResponseStatus, host } from "../host"
 import { MarkdownTrace } from "../trace"
 import { assert, logError } from "../util"
 import {
@@ -23,6 +23,7 @@ import {
     ChatEvents,
     ChatChunk,
     ChatStart,
+    LanguageModelConfigurationRequest,
 } from "./messages"
 
 export type LanguageModelChatRequest = (
@@ -229,6 +230,18 @@ export class WebSocketClient extends EventTarget {
         const cancellers = Object.values(this.awaiters)
         this.awaiters = {}
         cancellers.forEach((a) => a.reject(reason || "cancelled"))
+    }
+
+    async getLanguageModelConfiguration(
+        modelId: string,
+        options?: { token?: boolean }
+    ): Promise<LanguageModelConfiguration | undefined> {
+        const res = await this.queue<LanguageModelConfigurationRequest>({
+            type: "model.configuration",
+            model: modelId,
+            token: options?.token,
+        })
+        return res.response?.ok ? res.response.info : undefined
     }
 
     async version(): Promise<string> {

@@ -33,6 +33,7 @@ import {
     ChatStart,
     ChatChunk,
     ChatCancel,
+    LanguageModelConfigurationResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -187,6 +188,19 @@ export async function startServer(options: { port: string }) {
                     case "server.kill": {
                         console.log(`server: kill`)
                         process.exit(0)
+                        break
+                    }
+                    case "model.configuration": {
+                        const { model, token } = data
+                        console.log(`model: lookup configuration ${model}`)
+                        const info = await host.getLanguageModelConfiguration(
+                            model,
+                            { token }
+                        )
+                        response = <LanguageModelConfigurationResponse>{
+                            ok: true,
+                            info,
+                        }
                         break
                     }
                     case "tests.run": {

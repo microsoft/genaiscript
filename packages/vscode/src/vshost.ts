@@ -171,7 +171,10 @@ export class VSCodeHost extends EventTarget implements Host {
         }
 
         let files = Array.from(uris.values())
-        if (applyGitIgnore && (await checkFileExists(this.projectUri, ".gitignore"))) {
+        if (
+            applyGitIgnore &&
+            (await checkFileExists(this.projectUri, ".gitignore"))
+        ) {
             const gitignore = await readFileText(this.projectUri, ".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
@@ -186,26 +189,16 @@ export class VSCodeHost extends EventTarget implements Host {
         await vscode.workspace.fs.delete(uri, { recursive: true })
     }
 
-    async readSecret(name: string): Promise<string | undefined> {
-        try {
-            const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-            const env = dotEnvTryParse(dotenv)
-            return env?.[name]
-        } catch (e) {
-            return undefined
-        }
-    }
-
     clientLanguageModel?: LanguageModel
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
     ): Promise<LanguageModelConfiguration> {
-        const { signal, token: askToken } = options || {}
-        const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-        const env = dotEnvTryParse(dotenv) ?? {}
-        await parseDefaultsFromEnv(env)
-        const tok = await parseTokenFromEnv(env, modelId)
+        const tok = await this.server.client.getLanguageModelConfiguration(
+            modelId,
+            options
+        )
+        const { token: askToken } = options || {}
         if (
             askToken &&
             tok &&
