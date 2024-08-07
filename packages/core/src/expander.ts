@@ -15,10 +15,7 @@ import { renderAICI } from "./aici"
 import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
-import {
-    JSONSchemaStringifyToTypeScript,
-    toStrictJSONSchema,
-} from "./schema"
+import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
@@ -284,7 +281,7 @@ export async function expandTemplate(
 
     const responseSchema: JSONSchema = template.responseSchema
     let responseType = template.responseType
-    if (responseSchema) {
+    if (responseSchema && responseType !== "json_schema") {
         responseType = "json_object"
         const typeName = "Output"
         const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {

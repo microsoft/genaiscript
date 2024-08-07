@@ -129,7 +129,7 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
-     * Specifies the type of output. Default is `markdown`.
+     * Specifies the type of output. Default is plain text.
      * - `json_object` enables JSON mode
      * - `json_schema` enables structured outputs
      * Use `responseSchema` to specify an output schema.
