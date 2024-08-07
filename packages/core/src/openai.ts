@@ -158,8 +158,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             body = await r.text()
         } catch (e) {}
-        const { error } = JSON5TryParse(body, {}) as { error: unknown }
-        if (error) trace.error(undefined, error)
+        const { error } = JSON5TryParse(body, {}) as { error: any }
+        if (error)
+            trace.error(undefined, <SerializedError>{
+                name: error.code,
+                code: error.status,
+                message: error.message,
+            })
         throw new RequestError(
             r.status,
             r.statusText,

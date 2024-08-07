@@ -216,7 +216,7 @@ export function normalizeString(s: string | number | boolean | object): string {
     if (typeof s === "string") return s
     else if (typeof s === "number") return s.toLocaleString()
     else if (typeof s === "boolean") return s ? "true" : "false"
-    else if (typeof s === "object") throw new Error("object not supported")
+    else if (typeof s === "object") return JSON.stringify(s)
     else return undefined
 }
 
@@ -226,7 +226,7 @@ export function normalizeFloat(s: string | number | boolean | object): number {
         return isNaN(f) ? undefined : f
     } else if (typeof s === "number") return s
     else if (typeof s === "boolean") return s ? 1 : 0
-    else if (typeof s === "object") throw new Error("object not supported")
+    else if (typeof s === "object") return 0
     else return undefined
 }
 
@@ -236,7 +236,7 @@ export function normalizeInt(s: string | number | boolean | object): number {
         return isNaN(f) ? undefined : f
     } else if (typeof s === "number") return s
     else if (typeof s === "boolean") return s ? 1 : 0
-    else if (typeof s === "object") throw new Error("object not supported")
+    else if (typeof s === "object") return 0
     else return undefined
 }
 
