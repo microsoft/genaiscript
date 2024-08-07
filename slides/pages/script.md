@@ -1,25 +1,22 @@
 
 # Generative AI Scripting
-Generate a LLM prompt by executing a JS script.
+Build your own LLM-powered tools.
 
 <v-click>
 
 ```js
-// define the context
-const file = def("FILE", env.files, { endsWith: ".pdf" })
-// define data structure
-const schema = defSchema("DATA", 
+const file = def("FILE", env.files, { endsWith: ".pdf" }) // context
+const schema = defSchema("DATA", // schema
     { type: "array", items: { type: "string" } })
-// assign the task
-$`Analyze ${file} and extract data to JSON using the ${schema} schema.`
+$`Analyze ${file} and extract data to JSON using the ${schema} schema.` // task
 ```
 
 </v-click>
 
 <v-click>
 
+- **`$...`** writes to the prompt, **`def`** defines a "variable", `defSchema` defines a schema
 - **It Is Just JavaScript(TM)** (also TypeScript)
-- **`$...`** writes to the prompt, **`def`** defines a "variable" + various builtin parsers and utilities
 
 </v-click>
 
@@ -29,7 +26,6 @@ $`Analyze ${file} and extract data to JSON using the ${schema} schema.`
 ````txt
 FILE lorem.pdf:
 Lorem Ipsum ...
-
 DATA:
 type Data = string[]
 
@@ -40,6 +36,8 @@ Analyze FILE and extract data to JSON using the DATA schema.
 
 <v-click>
 
-- Fast development loop in Visual Studio Code + Automation with Command Line
+- Builtin parsers (PDF, XML, ...), file extraction (save/edit), structured output
+- Fast dev loop in Visual Studio Code 
+- Automation with Command Line (GitHub Actions, Azure DevOps)
 
 </v-click>
