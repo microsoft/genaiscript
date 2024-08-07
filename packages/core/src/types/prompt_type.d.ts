@@ -76,7 +76,7 @@ declare function defFileOutput(
 declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 

@@ -3,10 +3,18 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
-import { CancellationOptions, CancellationToken, checkCancelled } from "./cancellation"
+import {
+    CancellationOptions,
+    CancellationToken,
+    checkCancelled,
+} from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
-import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
+import {
+    toStrictJSONSchema,
+    validateFencesWithSchema,
+    validateJSONWithSchema,
+} from "./schema"
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -16,11 +24,14 @@ import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
+    ChatCompletionSystemMessageParam,
     ChatCompletionTool,
+    ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -189,6 +200,21 @@ async function runToolCalls(
     return { edits }
 }
 
+export function renderMessageContent(
+    msg:
+        | ChatCompletionAssistantMessageParam
+        | ChatCompletionSystemMessageParam
+        | ChatCompletionToolMessageParam
+): string {
+    const content = msg.content
+    if (typeof content === "string") return content
+    else if (Array.isArray(content))
+        return content
+            .map((c) => (c.type === "text" ? c.text : c.refusal))
+            .join(` `)
+    return undefined
+}
+
 async function applyRepairs(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
@@ -202,19 +228,20 @@ async function applyRepairs(
         infoCb,
     } = options
     const lastMessage = messages[messages.length - 1]
-    if (lastMessage.role !== "assistant") return false
+    if (lastMessage.role !== "assistant" || lastMessage.refusal) return false
 
-    const fences = extractFenced(lastMessage.content)
+    const content = renderMessageContent(lastMessage)
+    const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
-        const value = JSON5TryParse(lastMessage.content)
+        const value = JSON5TryParse(content)
         const res = validateJSONWithSchema(value, responseSchema, { trace })
         if (!res.valid)
             invalids.push({
                 label: "",
-                content: lastMessage.content,
+                content,
                 validation: res,
             })
     }
@@ -290,7 +317,13 @@ function structurifyChatSession(
 
     const fences = extractFenced(text)
     let json: any
-    if (responseType === "json_object") {
+    if (responseType === "json_schema") {
+        try {
+            json = JSON.parse(text)
+        } catch (e) {
+            trace.error("response json_schema parsing failed", e)
+        }
+    } else if (responseType === "json_object") {
         try {
             json = JSON5parse(text, { repair: true })
             if (responseSchema) {
@@ -453,6 +486,7 @@ export async function executeChatSession(
         maxTokens,
         seed,
         responseType,
+        responseSchema,
         stats,
         infoCb,
     } = genOptions
@@ -493,9 +527,21 @@ export async function executeChatSession(
                             stream: true,
                             messages,
                             tools,
-                            response_format: responseType
-                                ? { type: responseType }
-                                : undefined,
+                            response_format:
+                                responseType === "json_object"
+                                    ? { type: responseType }
+                                    : responseType === "json_schema"
+                                      ? {
+                                            type: "json_schema",
+                                            json_schema: {
+                                                name: "result",
+                                                schema: toStrictJSONSchema(
+                                                    responseSchema
+                                                ),
+                                                strict: true,
+                                            },
+                                        }
+                                      : undefined,
                         },
                         connectionToken,
                         genOptions,
