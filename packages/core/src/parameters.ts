@@ -2,16 +2,27 @@ import { Project } from "./ast"
 import { NotSupportedError } from "./error"
 import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
+import { normalizeFloat, normalizeInt } from "./util"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
-): JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaObject {
+):
+    | JSONSchemaNumber
+    | JSONSchemaString
+    | JSONSchemaBoolean
+    | JSONSchemaObject
+    | JSONSchemaArray {
     if (typeof t === "string")
         return <JSONSchemaString>{ type: "string", default: t }
     else if (typeof t === "number")
         return <JSONSchemaNumber>{ type: "number", default: t }
     else if (typeof t === "boolean")
         return <JSONSchemaBoolean>{ type: "boolean", default: t }
+    else if (Array.isArray(t))
+        return <JSONSchemaArray>{
+            type: "array",
+            items: promptParameterTypeToJSONSchema(t[0]),
+        }
     else if (
         typeof t === "object" &&
         ["number", "integer", "string", "object"].includes((t as any).type)
@@ -52,6 +63,7 @@ export function promptParametersSchemaToJSONSchema(
         res.properties[k] = t
         if (
             t.type !== "object" &&
+            t.type !== "array" &&
             t.default !== undefined &&
             t.default !== null
         )
@@ -63,7 +75,7 @@ export function promptParametersSchemaToJSONSchema(
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,
-    optionsVars: Record<string, string>
+    optionsVars: Record<string, string | number | boolean | object>
 ): PromptParameters {
     const res: PromptParameters = {}
 
@@ -82,8 +94,12 @@ export function parsePromptParameters(
     // apply defaults
     for (const key in parameters || {}) {
         const t = promptParameterTypeToJSONSchema(parameters[key])
-        if (t.type !== "object")
-            if (t.default !== undefined) res[key] = t.default
+        if (
+            t.type !== "object" &&
+            t.type !== "array" &&
+            t.default !== undefined
+        )
+            res[key] = t.default
     }
 
     const vars = {
@@ -99,10 +115,10 @@ export function parsePromptParameters(
         }
 
         const t = promptParameterTypeToJSONSchema(p)
-        if (t?.type === "number") res[key] = parseFloat(vars[key])
-        else if (t?.type === "integer") res[key] = parseInt(vars[key])
+        if (t?.type === "number") res[key] = normalizeFloat(vars[key])
+        else if (t?.type === "integer") res[key] = normalizeInt(vars[key])
         else if (t?.type === "boolean")
-            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key])
+            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "")
         else if (t?.type === "string") res[key] = vars[key]
     }
     return Object.freeze(res)
