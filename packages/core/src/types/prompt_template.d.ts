@@ -559,7 +559,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars?: Record<string, string | boolean | number | object>
+    vars?: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.

@@ -499,7 +499,7 @@ defTool(
         const { filename } = args
         if (!filename) return ""
         const { content } = await workspace.readText(filename)
-        const model = env.vars["system.fs_read_summary.model"] || "gpt-35-turbo"
+        const model = (env.vars["system.fs_read_summary.model"] || "gpt-35-turbo") + ""
         const cacheName = `fs_read_summary_${model}`
         const summary = await runPrompt(
             (_) => {
