@@ -6,7 +6,7 @@ script({
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
 
-const defaultBranch = env.vars.defaultBranch || "main"
+const defaultBranch = (env.vars.defaultBranch || "main") + ""
 const { stdout: changes } = await host.exec("git", [
     "diff",
     defaultBranch,

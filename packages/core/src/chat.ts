@@ -24,18 +24,16 @@ import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
 import {
-    ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
-    ChatCompletionSystemMessageParam,
     ChatCompletionTool,
-    ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
 import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -222,7 +220,8 @@ async function applyRepairs(
 
     if (responseSchema) {
         const value = JSON5TryParse(content)
-        const res = validateJSONWithSchema(value, responseSchema, { trace })
+        const schema = promptParametersSchemaToJSONSchema(responseSchema)
+        const res = validateJSONWithSchema(value, schema, { trace })
         if (!res.valid)
             invalids.push({
                 label: "",
@@ -312,10 +311,13 @@ function structurifyChatSession(
         try {
             json = JSON5parse(text, { repair: true })
             if (responseSchema) {
-                const res = validateJSONWithSchema(json, responseSchema, {
+                const schema =
+                    promptParametersSchemaToJSONSchema(responseSchema)
+                const res = validateJSONWithSchema(json, schema, {
                     trace,
                 })
                 if (!res.valid) {
+                    trace.fence(schema, "json")
                     trace?.warn(
                         `response schema validation failed, ${errorMessage(res.error)}`
                     )

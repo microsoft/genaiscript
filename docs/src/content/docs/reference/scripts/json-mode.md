@@ -34,6 +34,15 @@ script({
 })
 ```
 
+You can also provide an example of object and GenAIScript will generate the schema for you.
+
+```js "responseSchema"
+script({
+    responseType: "json_object",
+    responseSchema: { characters: [{ name: "neo", age: 30 }] },
+})
+```
+
 ## Inline schemas
 
 You can also specify the [schema inline](/genaiscript/reference/scripts/schemas) in the script and use a mixed markdown/data that GenAIScript will parse.

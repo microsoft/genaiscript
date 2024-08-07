@@ -139,7 +139,7 @@ interface ModelOptions extends ModelConnectionOptions {
     /**
      * JSON object schema for the output. Enables the `JSON` output mode by default.
      */
-    responseSchema?: JSONSchemaObject
+    responseSchema?: PromptParametersSchema | JSONSchemaObject
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
@@ -251,11 +251,15 @@ type PromptParameterType =
     | string
     | number
     | boolean
+    | object
     | JSONSchemaNumber
     | JSONSchemaString
     | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean | any>
+type PromptParametersSchema = Record<
+    string,
+    PromptParameterType | PromptParameterType[]
+>
+type PromptParameters = Record<string, string | number | boolean | object>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
@@ -322,7 +326,7 @@ interface PromptTest {
     /**
      * Extra set of variables for this scenario
      */
-    vars?: PromptParameters
+    vars?: Record<string, string | boolean | number>
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -590,7 +594,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: PromptParameters
+    vars?: Record<string, string | boolean | number | object>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
