@@ -39,7 +39,7 @@ You can also provide an example of object and GenAIScript will generate the sche
 ```js "responseSchema"
 script({
     responseType: "json_object",
-    responseSchema: { name: "neo", age: 30 },
+    responseSchema: { characters: [{ name: "neo", age: 30 }] },
 })
 ```
 
