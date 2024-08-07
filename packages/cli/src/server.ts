@@ -193,13 +193,20 @@ export async function startServer(options: { port: string }) {
                     case "model.configuration": {
                         const { model, token } = data
                         console.log(`model: lookup configuration ${model}`)
-                        const info = await host.getLanguageModelConfiguration(
-                            model,
-                            { token }
-                        )
-                        response = <LanguageModelConfigurationResponse>{
-                            ok: true,
-                            info,
+                        try {
+                            const info =
+                                await host.getLanguageModelConfiguration(
+                                    model,
+                                    { token }
+                                )
+                            response = <LanguageModelConfigurationResponse>{
+                                ok: true,
+                                info,
+                            }
+                        } catch (e) {
+                            response = <LanguageModelConfigurationResponse>{
+                                ok: false,
+                            }
                         }
                         break
                     }
