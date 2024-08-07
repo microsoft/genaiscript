@@ -2,7 +2,7 @@
 layout: end
 ---
 
-![](https://microsoft.github.io/genaiscript/images/favicon.svg){.w-48.left}
+![](https://microsoft.github.io/genaiscript/images/favicon.svg){.w-48.m-auto}
 
 # GenAIScript
 

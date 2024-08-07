@@ -1,4 +1,4 @@
-# Activity 1: Your first script
+# Activity 1: Getting Started
 
 -   Use **GitHub Codespace** or Install **Node.js** [nodejs.org](https://nodejs.org/) / **Visual Studio Code** [aka.ms/vscode](https://aka.ms/vscode) / **GitHub Copilot** [aka.ms/githubcopilot](https://aka.ms/githubcopilot)
 

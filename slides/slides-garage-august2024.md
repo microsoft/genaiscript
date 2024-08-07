@@ -68,7 +68,7 @@ src: pages/vscode.md
 ---
 
 ---
-src: pages/activity-poem.md
+src: pages/activity-getting-started.md
 ---
 
 ---
