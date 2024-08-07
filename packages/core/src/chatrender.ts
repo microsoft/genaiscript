@@ -2,6 +2,7 @@ import { ChatCompletionMessageParam } from "./chattypes"
 import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
+import { renderMessageContent } from "./chat"
 
 export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
@@ -37,7 +38,7 @@ export function renderMessagesToMarkdown(
                     res.push(
                         details(
                             "📙 system",
-                            fenceMD(msg.content, "markdown"),
+                            fenceMD(renderMessageContent(msg), "markdown"),
                             false
                         )
                     )
@@ -62,7 +63,7 @@ export function renderMessagesToMarkdown(
                         details(
                             `🤖 assistant ${msg.name ? msg.name : ""}`,
                             [
-                                fenceMD(msg.content, "markdown"),
+                                fenceMD(renderMessageContent(msg), "markdown"),
                                 ...(msg.tool_calls?.map((tc) =>
                                     details(
                                         `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
@@ -85,7 +86,7 @@ export function renderMessagesToMarkdown(
                     res.push(
                         details(
                             `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                            fenceMD(msg.content, "json")
+                            fenceMD(renderMessageContent(msg), "json")
                         )
                     )
                     break
