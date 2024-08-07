@@ -171,7 +171,10 @@ export class VSCodeHost extends EventTarget implements Host {
         }
 
         let files = Array.from(uris.values())
-        if (applyGitIgnore && (await checkFileExists(this.projectUri, ".gitignore"))) {
+        if (
+            applyGitIgnore &&
+            (await checkFileExists(this.projectUri, ".gitignore"))
+        ) {
             const gitignore = await readFileText(this.projectUri, ".gitignore")
             files = await filterGitIgnore(gitignore, files)
         }
@@ -184,16 +187,6 @@ export class VSCodeHost extends EventTarget implements Host {
     async deleteDirectory(name: string): Promise<void> {
         const uri = this.toProjectFileUri(name)
         await vscode.workspace.fs.delete(uri, { recursive: true })
-    }
-
-    async readSecret(name: string): Promise<string | undefined> {
-        try {
-            const dotenv = await readFileText(this.projectUri, DOT_ENV_FILENAME)
-            const env = dotEnvTryParse(dotenv)
-            return env?.[name]
-        } catch (e) {
-            return undefined
-        }
     }
 
     clientLanguageModel?: LanguageModel

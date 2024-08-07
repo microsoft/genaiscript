@@ -128,6 +128,16 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
+export interface LanguageModelConfiguration extends RequestMessage {
+    type: "model.configuration",
+    model: string
+    token?: boolean
+    response?: LanguageModelConfigurationResponse
+}
+
+export interface LanguageModelConfigurationResponse extends ResponseStatus {
+}
+
 export interface ChatStart {
     type: "chat.start"
     chatId: string
@@ -163,6 +173,7 @@ export type RequestMessages =
     | PromptScriptStart
     | PromptScriptAbort
     | ChatChunk
+    | LanguageModelConfiguration
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent

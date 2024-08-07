@@ -97,7 +97,6 @@ export interface Host {
     resolvePath(...segments: string[]): string
 
     // read a secret from the environment or a .env file
-    readSecret(name: string): Promise<string | undefined>
     defaultModelOptions: Required<Pick<ModelOptions, "model" | "temperature">>
     defaultEmbeddingsModelOptions: Required<
         Pick<EmbeddingsModelOptions, "embeddingsModel">
@@ -130,6 +129,7 @@ export interface RuntimeHost extends Host {
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
 
+    readSecret(name: string): Promise<string | undefined>
     // executes a process
     exec(
         containerId: string,
