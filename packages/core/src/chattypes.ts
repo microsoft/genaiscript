@@ -20,6 +20,9 @@ export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
 export type ChatCompletionSystemMessageParam =
     OpenAI.Chat.Completions.ChatCompletionSystemMessageParam
 
+    export type ChatCompletionToolMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionToolMessageParam
+
 export type ChatCompletionMessageParam =
     | OpenAI.Chat.Completions.ChatCompletionMessageParam
     | AICIRequest

@@ -24,11 +24,14 @@ import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
 import { traceLanguageModelConnection } from "./models"
 import {
+    ChatCompletionAssistantMessageParam,
     ChatCompletionContentPartImage,
     ChatCompletionMessageParam,
     ChatCompletionResponse,
     ChatCompletionsOptions,
+    ChatCompletionSystemMessageParam,
     ChatCompletionTool,
+    ChatCompletionToolMessageParam,
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
@@ -197,6 +200,21 @@ async function runToolCalls(
     return { edits }
 }
 
+export function renderMessageContent(
+    msg:
+        | ChatCompletionAssistantMessageParam
+        | ChatCompletionSystemMessageParam
+        | ChatCompletionToolMessageParam
+): string {
+    const content = msg.content
+    if (typeof content === "string") return content
+    else if (Array.isArray(content))
+        return content
+            .map((c) => (c.type === "text" ? c.text : c.refusal))
+            .join(` `)
+    return undefined
+}
+
 async function applyRepairs(
     messages: ChatCompletionMessageParam[],
     schemas: Record<string, JSONSchema>,
@@ -210,19 +228,20 @@ async function applyRepairs(
         infoCb,
     } = options
     const lastMessage = messages[messages.length - 1]
-    if (lastMessage.role !== "assistant") return false
+    if (lastMessage.role !== "assistant" || lastMessage.refusal) return false
 
-    const fences = extractFenced(lastMessage.content)
+    const content = renderMessageContent(lastMessage)
+    const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
-        const value = JSON5TryParse(lastMessage.content)
+        const value = JSON5TryParse(content)
         const res = validateJSONWithSchema(value, responseSchema, { trace })
         if (!res.valid)
             invalids.push({
                 label: "",
-                content: lastMessage.content,
+                content,
                 validation: res,
             })
     }
