@@ -100,7 +100,7 @@ type PromptOutputProcessorHandler = (
     | undefined
     | Promise<undefined>
 
-type PromptTemplateResponseType = "json_object" | undefined
+type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
 interface ModelConnectionOptions {
     /**
@@ -129,13 +129,15 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
-     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
-     * specify an output schema.
+     * Specifies the type of output. Default is `markdown`.
+     * - `json_object` enables JSON mode
+     * - `json_schema` enables structured outputs
+     * Use `responseSchema` to specify an output schema.
      */
     responseType?: PromptTemplateResponseType
 
     /**
-     * JSON object schema for the output. Enables the `JSON` output mode.
+     * JSON object schema for the output. Enables the `JSON` output mode by default.
      */
     responseSchema?: JSONSchemaObject
 
@@ -1730,7 +1732,7 @@ declare function defFileOutput(
 declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 

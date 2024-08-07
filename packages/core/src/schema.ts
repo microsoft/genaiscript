@@ -204,3 +204,42 @@ export function JSONSchemaStringify(schema: JSONSchema) {
         2
     )
 }
+
+// https://platform.openai.com/docs/guides/structured-outputs/supported-schemas
+export function toStrictJSONSchema(schema: JSONSchema): any {
+    const clone = structuredClone(schema)
+    visit(clone)
+
+    function visit(node: JSONSchemaType): void {
+        const { type } = node
+        switch (type) {
+            case "object": {
+                if (node.additionalProperties)
+                    throw new Error("additionalProperties: true not supported")
+                node.additionalProperties = false
+                node.required = node.required || []
+                for (const key in node.properties) {
+                    // https://platform.openai.com/docs/guides/structured-outputs/all-fields-must-be-required
+                    const child = node.properties[key]
+                    visit(child)
+                    if (!node.required.includes(key)) {
+                        node.required.push(key)
+                        if (
+                            ["string", "number", "boolean", "integer"].includes(
+                                child.type
+                            )
+                        ) {
+                            child.type = [child.type, "null"] as any
+                        }
+                    }
+                }
+                break
+            }
+            case "array": {
+                visit(node.items)
+                break
+            }
+        }
+    }
+    return clone
+}

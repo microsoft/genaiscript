@@ -3,10 +3,18 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
-import { CancellationOptions, CancellationToken, checkCancelled } from "./cancellation"
+import {
+    CancellationOptions,
+    CancellationToken,
+    checkCancelled,
+} from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
-import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
+import {
+    toStrictJSONSchema,
+    validateFencesWithSchema,
+    validateJSONWithSchema,
+} from "./schema"
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -290,7 +298,13 @@ function structurifyChatSession(
 
     const fences = extractFenced(text)
     let json: any
-    if (responseType === "json_object") {
+    if (responseType === "json_schema") {
+        try {
+            json = JSON.parse(text)
+        } catch (e) {
+            trace.error("response json_schema parsing failed", e)
+        }
+    } else if (responseType === "json_object") {
         try {
             json = JSON5parse(text, { repair: true })
             if (responseSchema) {
@@ -453,6 +467,7 @@ export async function executeChatSession(
         maxTokens,
         seed,
         responseType,
+        responseSchema,
         stats,
         infoCb,
     } = genOptions
@@ -493,9 +508,21 @@ export async function executeChatSession(
                             stream: true,
                             messages,
                             tools,
-                            response_format: responseType
-                                ? { type: responseType }
-                                : undefined,
+                            response_format:
+                                responseType === "json_object"
+                                    ? { type: responseType }
+                                    : responseType === "json_schema"
+                                      ? {
+                                            type: "json_schema",
+                                            json_schema: {
+                                                name: "result",
+                                                schema: toStrictJSONSchema(
+                                                    responseSchema
+                                                ),
+                                                strict: true,
+                                            },
+                                        }
+                                      : undefined,
                         },
                         connectionToken,
                         genOptions,

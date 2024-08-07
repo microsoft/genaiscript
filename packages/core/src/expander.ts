@@ -15,7 +15,10 @@ import { renderAICI } from "./aici"
 import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
-import { JSONSchemaStringifyToTypeScript } from "./schema"
+import {
+    JSONSchemaStringifyToTypeScript,
+    toStrictJSONSchema,
+} from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
@@ -301,6 +304,11 @@ ${schemaTs}
             role: "system",
             content: `Answer using JSON.`,
         })
+    } else if (responseType === "json_schema") {
+        if (!responseSchema)
+            throw new Error(`responseSchema is required for json_schema`)
+        // try conversion
+        toStrictJSONSchema(responseSchema)
     }
     if (systemMessage.content) messages.unshift(systemMessage)
 
