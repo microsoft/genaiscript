@@ -243,7 +243,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_CLIENT) {
+    if (provider === MODEL_PROVIDER_CLIENT && host.clientLanguageModel) {
         return {
             provider,
             model,
