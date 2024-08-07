@@ -1,8 +1,27 @@
-import { ChatCompletionMessageParam } from "./chattypes"
+import {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+    ChatCompletionToolMessageParam,
+} from "./chattypes"
 import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
-import { renderMessageContent } from "./chat"
+
+export function renderMessageContent(
+    msg:
+        | ChatCompletionAssistantMessageParam
+        | ChatCompletionSystemMessageParam
+        | ChatCompletionToolMessageParam
+): string {
+    const content = msg.content
+    if (typeof content === "string") return content
+    else if (Array.isArray(content))
+        return content
+            .map((c) => (c.type === "text" ? c.text : c.refusal))
+            .join(` `)
+    return undefined
+}
 
 export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],

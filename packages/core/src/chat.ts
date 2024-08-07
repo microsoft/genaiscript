@@ -35,7 +35,7 @@ import {
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
-import { renderMessagesToMarkdown } from "./chatrender"
+import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -198,21 +198,6 @@ async function runToolCalls(
     }
 
     return { edits }
-}
-
-export function renderMessageContent(
-    msg:
-        | ChatCompletionAssistantMessageParam
-        | ChatCompletionSystemMessageParam
-        | ChatCompletionToolMessageParam
-): string {
-    const content = msg.content
-    if (typeof content === "string") return content
-    else if (Array.isArray(content))
-        return content
-            .map((c) => (c.type === "text" ? c.text : c.refusal))
-            .join(` `)
-    return undefined
 }
 
 async function applyRepairs(
