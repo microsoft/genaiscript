@@ -3,6 +3,7 @@ import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 export function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
@@ -206,9 +207,16 @@ export function JSONSchemaStringify(schema: JSONSchema) {
 }
 
 // https://platform.openai.com/docs/guides/structured-outputs/supported-schemas
-export function toStrictJSONSchema(schema: JSONSchema): any {
-    const clone = structuredClone(schema)
+export function toStrictJSONSchema(
+    schema: PromptParametersSchema | JSONSchema
+): any {
+    const clone: JSONSchema = structuredClone(
+        promptParametersSchemaToJSONSchema(schema)
+    )
     visit(clone)
+
+    if (clone.type !== "object")
+        throw new Error("top level schema must be object")
 
     function visit(node: JSONSchemaType): void {
         const { type } = node

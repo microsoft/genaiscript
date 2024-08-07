@@ -25,6 +25,7 @@ import {
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
 } from "./chattypes"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 async function callExpander(
     r: PromptScript,
@@ -279,7 +280,11 @@ export async function expandTemplate(
             return { status: sysr.status, statusText: sysr.statusText }
     }
 
-    const responseSchema: JSONSchema = template.responseSchema
+    const responseSchema = promptParametersSchemaToJSONSchema(
+        template.responseSchema
+    ) as JSONSchemaObject
+    if (responseSchema)
+        trace.detailsFenced("📜 response schema", responseSchema)
     let responseType = template.responseType
     if (responseSchema && responseType !== "json_schema") {
         responseType = "json_object"

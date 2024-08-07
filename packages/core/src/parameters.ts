@@ -1,25 +1,46 @@
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
+import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
-): JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean {
+): JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean | JSONSchemaObject {
     if (typeof t === "string")
         return <JSONSchemaString>{ type: "string", default: t }
     else if (typeof t === "number")
         return <JSONSchemaNumber>{ type: "number", default: t }
     else if (typeof t === "boolean")
         return <JSONSchemaBoolean>{ type: "boolean", default: t }
-    else if (typeof t === "object" && !!(t as any).type)
-        return t // TODO better filtering
+    else if (
+        typeof t === "object" &&
+        ["number", "integer", "string", "object"].includes((t as any).type)
+    )
+        return <
+            | JSONSchemaNumber
+            | JSONSchemaString
+            | JSONSchemaBoolean
+            | JSONSchemaObject
+        >t
+    // TODO better filtering
+    else if (typeof t === "object")
+        return <JSONSchemaObject>{
+            type: "object",
+            properties: Object.fromEntries(
+                Object.entries(t).map(([k, v]) => [
+                    k,
+                    promptParameterTypeToJSONSchema(v),
+                ])
+            ),
+        }
     else throw new NotSupportedError(`prompt type ${typeof t} not supported`)
 }
 
 export function promptParametersSchemaToJSONSchema(
-    parameters: PromptParametersSchema
+    parameters: PromptParametersSchema | JSONSchema
 ) {
     if (!parameters) return undefined
+    if (isJSONSchema(parameters)) return parameters as JSONSchema
 
     const res: JSONSchemaObject = {
         type: "object",
@@ -29,7 +50,12 @@ export function promptParametersSchemaToJSONSchema(
     for (const [k, v] of Object.entries(parameters)) {
         const t = promptParameterTypeToJSONSchema(v)
         res.properties[k] = t
-        if (t.default !== undefined && t.default !== null) res.required.push(k)
+        if (
+            t.type !== "object" &&
+            t.default !== undefined &&
+            t.default !== null
+        )
+            res.required.push(k)
     }
     return res
 }
@@ -56,7 +82,8 @@ export function parsePromptParameters(
     // apply defaults
     for (const key in parameters || {}) {
         const t = promptParameterTypeToJSONSchema(parameters[key])
-        if (t.default !== undefined) res[key] = t.default
+        if (t.type !== "object")
+            if (t.default !== undefined) res[key] = t.default
     }
 
     const vars = {
