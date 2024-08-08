@@ -34,7 +34,7 @@
     "fast-xml-parser": "^4.4.1",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
-    "file-type": "19.3.0",
+    "file-type": "19.1.1",
     "gpt-tokenizer": "^2.2.1",
     "html-escaper": "^3.0.3",
     "html-to-text": "^9.0.5",

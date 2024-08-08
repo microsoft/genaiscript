@@ -5699,12 +5699,12 @@ file-saver@^2.0.5:
   resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.5.tgz#d61cfe2ce059f414d899e9dd6d4107ee25670c38"
   integrity sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==
 
-file-type@19.3.0:
-  version "19.3.0"
-  resolved "https://registry.yarnpkg.com/file-type/-/file-type-19.3.0.tgz#7b5989c4af05e4b02c553f29a6acca0508e9ea9b"
-  integrity sha512-mROwiKLZf/Kwa/2Rol+OOZQn1eyTkPB3ZTwC0ExY6OLFCbgxHYZvBm7xI77NvfZFMKBsmuXfmLJnD4eEftEhrA==
+file-type@19.1.1:
+  version "19.1.1"
+  resolved "https://registry.yarnpkg.com/file-type/-/file-type-19.1.1.tgz#44ac8f2f1b0013266eb1cd800ca27da4e5c8ec0c"
+  integrity sha512-FF4rVPjylL7HkybFBpnBfcnpdi4MGNSFuk4s4VvTdt1wm9tVMdGmtBhvXyz+nh8565FJ5qDUMIPXR+WHLrfHew==
   dependencies:
-    strtok3 "^8.0.0"
+    strtok3 "^7.1.0"
     token-types "^6.0.0"
     uint8array-extras "^1.3.0"
 
@@ -11016,10 +11016,10 @@ strnum@^1.0.5:
   resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
   integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
 
-strtok3@^8.0.0:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/strtok3/-/strtok3-8.0.2.tgz#372835df079949f890e285f8268fcb661092ef09"
-  integrity sha512-WmXFNYhJZrcoQaFcetTInooiHWGzUC/bOF6X6mUKG+eX4Xjes0+78TGzqHNF/J2+PRPVgeF7pZgBHM8gZjW5Mg==
+strtok3@^7.1.0:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/strtok3/-/strtok3-7.1.1.tgz#f548fd9dc59d0a76d5567ff8c16be31221f29dfc"
+  integrity sha512-mKX8HA/cdBqMKUr0MMZAFssCkIGoZeSCMXgnt79yKxNFguMLVFgRe6wB+fsL0NmoHDbeyZXczy7vEPSoo3rkzg==
   dependencies:
     "@tokenizer/token" "^0.3.0"
     peek-readable "^5.1.3"
