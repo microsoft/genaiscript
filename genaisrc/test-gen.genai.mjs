@@ -25,11 +25,11 @@ generate a plan to test the source code in each file
 
 ## Step 2
 
-For each generate test, implement the TypeScript source code in a test file with suffix ".test.ts"
+For each generated test, implement the TypeScript source code in a test file with suffix ".test.ts"
 in the same folder as the source file.
 
-
-- use 'run_test' tool to execute the generated test code and fix the test code to make tests pass
+- always organize tests using 'describe' blocks
+- this is imporant, generate all the source code
 - use "describe", "test", "beforeEach" from the "node:test" test runner framework
 
 ${fence('import test, { beforeEach, describe } from "node:test"', { language: "js" })}
@@ -41,21 +41,27 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - if you need to create files, place them under a "temp" folder
 - use Partial<T> to declare a partial type of a type T
 - do NOT generate negative test cases
+
+## Step 3 
+
+Validate and fix test sources.
+
+Use 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
+
+- this is important.
 `
 
-const h = host
-const w = workspace
 defTool(
     "run_test",
     "run test code with node:test",
     {
-        filename: "name of the test file",
+        filename: "full path to the test file",
         source: "source of the test file",
     },
     async (args) => {
         const { filename, source } = args
         console.debug(`running test code ${filename}`)
-        await w.writeText(filename, source)
-        return h.exec(`node`, ["--import", "tsx", "--test", filename])
+        await workspace.writeText(filename, source)
+        return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }
 )

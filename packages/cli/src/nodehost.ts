@@ -43,6 +43,7 @@ import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { createAzureToken } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
+import { errorMessage } from "../../core/src/error"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -297,6 +298,14 @@ export class NodeHost implements RuntimeHost {
             if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
             if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
+        } catch (err) {
+            trace?.error("exec failed", error)
+            return {
+                stdout: "",
+                stderr: errorMessage(err),
+                exitCode: 1,
+                failed: true,
+            }
         } finally {
             trace?.endDetails()
         }
