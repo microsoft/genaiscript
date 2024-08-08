@@ -23,6 +23,23 @@ export async function importPrompt(
     if (!filename) throw new Error("filename is required")
     const { trace } = options || {}
 
+    const leakables = [
+        "host",
+        "workspace",
+        "path",
+        "parsers",
+        "env",
+        "retrieval",
+        "YAML",
+        "INI",
+        "CSV",
+        "XML",
+        "JSONL",
+        "AICI",
+        "fetchText",
+        "cancel",
+    ]
+
     const oldGlb: any = {}
     const glb: any = resolveGlobal()
     let unregister: () => void = undefined
@@ -68,6 +85,7 @@ export async function importPrompt(
     } finally {
         // restore global context
         for (const field of Object.keys(oldGlb)) {
+            if (leakables.includes(field)) continue
             const v = oldGlb[field]
             if (v === undefined) delete glb[field]
             else glb[field] = oldGlb[field]

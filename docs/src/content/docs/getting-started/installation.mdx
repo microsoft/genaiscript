@@ -23,16 +23,16 @@ GenAiScript is available as a [command line](#command-line) or a [Visual Studio 
 
 ## Node.JS
 
-GenAiScript requires [Node.JS](https://nodejs.org/) to run. 
+GenAiScript requires [Node.JS](https://nodejs.org/) to run.
 We recommend installing the LTS version using a [node version manager](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
 <Steps>
 
 <ol>
 
-<li> 
+<li>
 
-Install node version manager. 
+Install node version manager.
 
 On Linux, MacOS, install [nvm](https://github.com/creationix/nvm).
 On Windows, install [nvm-windows](https://github.com/coreybutler/nvm-windows).
@@ -56,6 +56,12 @@ Check installation
 
 ```sh
 node -v
+npx -v
+```
+
+```text
+v20.11.1
+10.5.0
 ```
 
 </li>
@@ -107,11 +113,28 @@ If successful, you will see the icon in the **Extensions** view.
 
 </li>
 
+<li>
+
+(Optional) Click on the ⚙️ gearwheel icon on the extension page and select **Add to Workspace Recommendations**.
+
+</li>
+
 </ol>
 
 </Steps>
 
-### Manual Installation
+To install a specific version of the extension, we recommend storing the `genaiscript.vsix`
+in your repository and using the manual installation steps.
+
+### Default Profile for Terminal
+
+GenAIScript launches a node server in the default terminal. If the default terminal is not configured
+or does not support node.js, you may need to update it in your user/workspace settings.
+
+-   Open command palette `Ctrl+Shift+P` and search for `Terminal: Select Default Profile`.
+-   Select the terminal profile like **Git Bash**
+
+### Manual Installation (Advanced)
 
 The latest development build of the extension is also available on through the GitHub releases. This allows access
 to bug fixes earlier than the marketplace release.

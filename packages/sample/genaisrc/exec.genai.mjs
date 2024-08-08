@@ -4,7 +4,6 @@ script({
         keywords: ["Python", "3."],
     },
 })
-const h = host
 const version = await host.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
@@ -14,7 +13,7 @@ defTool(
     {},
     async (_) => {
         console.debug(`determining python version`)
-        const version = await h.exec("python", ["--version"])
+        const version = await host.exec("python", ["--version"])
         return version.stdout?.replace(/^python\s/i, "") || "?"
     }
 )
