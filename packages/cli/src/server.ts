@@ -362,5 +362,5 @@ export async function startServer(options: { port: string }) {
             }
         })
     })
-    console.log(`GenAIScript server started on port ${port}`)
+    console.log(`GenAIScript server v${CORE_VERSION} started on port ${port}`)
 }
