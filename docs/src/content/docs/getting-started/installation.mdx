@@ -56,6 +56,12 @@ Check installation
 
 ```sh
 node -v
+npx -v
+```
+
+```text
+v20.11.1
+10.5.0
 ```
 
 </li>
@@ -111,7 +117,15 @@ If successful, you will see the icon in the **Extensions** view.
 
 </Steps>
 
-### Manual Installation
+### Default Profile for Terminal
+
+GenAIScript launches a node server in the default terminal. If the default terminal is not configured
+or does not support node.js, you may need to update it in your user/workspace settings.
+
+-   Open command palette `Ctrl+Shift+P` and search for `Terminal: Select Default Profile`.
+-   Select the terminal profile like **Git Bash**
+
+### Manual Installation (Advanced)
 
 The latest development build of the extension is also available on through the GitHub releases. This allows access
 to bug fixes earlier than the marketplace release.

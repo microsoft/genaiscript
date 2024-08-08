@@ -8,7 +8,7 @@ keywords: GenAIScript CLI, Node.js automation, AI scripting, command line interf
 
 import { Steps } from "@astrojs/starlight/components"
 import { Tabs, TabItem } from "@astrojs/starlight/components"
-import DirectoryLinks from '../../../../components/DirectoryLinks.astro';
+import DirectoryLinks from "../../../../components/DirectoryLinks.astro"
 
 The GenAIScript CLI **`genaiscript`** runs GenAIScript scripts
 outside of Visual Studio and in your [automation](/genaiscript/getting-starting/automating-scripts).
@@ -23,11 +23,11 @@ where `--yes` skips the confirmation prompt to install the package.
 
 The CLI is a Node.JS package hosted on [npm](https://www.npmjs.com/package/genaiscript).
 
-- Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (Node.JS includes npm and npx).
+-   Install [Node.JS LTS](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (Node.JS includes npm and npx).
 
 ## Installation
 
-- Install locally as a `devDependency` in your project.
+-   Install locally as a `devDependency` in your project.
 
 <Tabs>
   <TabItem label="npm" icon="seti:npm">
@@ -46,22 +46,22 @@ yarn add -D genaiscript
   </TabItem>
 </Tabs>
 
-- Install it globally.
+-   Install it globally.
 
 ```sh "-g"
 npm install -g genaiscript
 ```
 
-
-- Check that your node version is at least 20._ and npm 10._ by running this command.
+-   Check that your node version is at least 20._ and npm 10._ by running this command.
 
 ```sh
-node -v && npm -v
+node -v
+npx -v
 ```
 
-```sh
+```text
 v20.11.1
-v10.5.0
+10.5.0
 ```
 
 ## No Installation (`npx`)
@@ -77,13 +77,13 @@ system issues where the tool is not found in the path.
 npx genaiscript ...
 ```
 
-- Add `--yes` to skip the confirmation prompt, which is useful in a CI scenario.
+-   Add `--yes` to skip the confirmation prompt, which is useful in a CI scenario.
 
 ```sh "--yes"
 npx --yes genaiscript ...
 ```
 
-- Specify the version range to avoid unexpected behavior with cached installations of the CLI using npx.
+-   Specify the version range to avoid unexpected behavior with cached installations of the CLI using npx.
 
 ```sh "@^1.16.0"
 npx --yes genaiscript@^1.16.0 ...
@@ -94,7 +94,6 @@ npx --yes genaiscript@^1.16.0 ...
 The CLI will load the [secrets](/genaiscript/getting-started/configuration) from the environment variables or a `./.env` file.
 
 You can override the default `.env` file name by adding the `--env myother.env` file.
-
 
 ## Create a new script
 
@@ -114,7 +113,7 @@ npx genaiscript scripts compile
 
 ## Run a script
 
-[Run a script](/genaiscript/reference/cli/run) on file 
+[Run a script](/genaiscript/reference/cli/run) on file
 and streams the LLM output to stdout. **Run from the workspace root**.
 
 ```sh
@@ -132,8 +131,6 @@ npx genaiscript scripts model [script]
 ```
 
 where [script] can be a script id or a file path.
-
-
 
 ## Topics
 
