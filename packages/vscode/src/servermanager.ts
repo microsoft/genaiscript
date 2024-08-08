@@ -63,7 +63,7 @@ export class TerminalServerManager implements ServerManager {
                 )
                     vscode.window.showWarningMessage(
                         TOOL_ID +
-                            ` - genaiscript version (${v.version}) outdated, please update to v${CORE_VERSION}`
+                            ` - genaiscript cli version (${v.version}) outdated, please update to ${CORE_VERSION}`
                     )
             }
         })

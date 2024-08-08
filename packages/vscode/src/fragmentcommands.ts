@@ -15,6 +15,7 @@ import { promptParameterTypeToJSONSchema } from "../../core/src/parameters"
 import { Fragment } from "../../core/src/generation"
 import { assert, dotGenaiscriptPath, groupBy } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
+import { semverParse, semverSatisfies } from "../../core/src/semver"
 
 type TemplateQuickPickItem = {
     template?: PromptScript
@@ -198,6 +199,13 @@ export function activateFragmentCommands(state: ExtensionState) {
         ]
         const cliVersion =
             (config.get(VSCODE_CONFIG_CLI_VERSION) as string) || CORE_VERSION
+        const gv = semverParse(CORE_VERSION)
+        if (!semverSatisfies(cliVersion, ">=" + gv.major + "." + gv.minor))
+            vscode.window.showWarningMessage(
+                TOOL_ID +
+                    ` - genaiscript cli version (${cliVersion}) outdated, please update to ${CORE_VERSION}`
+            )
+
         const configuration = program
             ? <vscode.DebugConfiguration>{
                   name: TOOL_NAME,

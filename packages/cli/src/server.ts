@@ -153,11 +153,11 @@ export async function startServer(options: { port: string }) {
         cancelAll()
     })
     wss.on("connection", function connection(ws) {
-        console.log(`clients: connected (${wss.clients.size} clients)`)
+        logVerbose(`clients: connected (${wss.clients.size} clients)`)
 
         ws.on("error", console.error)
         ws.on("close", () =>
-            console.log(`clients: closed (${wss.clients.size} clients)`)
+            logVerbose(`clients: closed (${wss.clients.size} clients)`)
         )
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
@@ -166,7 +166,7 @@ export async function startServer(options: { port: string }) {
             try {
                 switch (type) {
                     case "server.version": {
-                        console.log(`server: version ${CORE_VERSION}`)
+                        logVerbose(`server: version ${CORE_VERSION}`)
                         response = <ServerResponse>{
                             ok: true,
                             version: CORE_VERSION,
@@ -178,7 +178,7 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "server.env": {
-                        console.log(`server: env`)
+                        logVerbose(`server: env`)
                         envInfo(undefined)
                         response = <ServerResponse>{
                             ok: true,
@@ -186,13 +186,13 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "server.kill": {
-                        console.log(`server: kill`)
+                        logVerbose(`server: kill`)
                         process.exit(0)
                         break
                     }
                     case "model.configuration": {
                         const { model, token } = data
-                        console.log(`model: lookup configuration ${model}`)
+                        logVerbose(`model: lookup configuration ${model}`)
                         try {
                             const info =
                                 await host.getLanguageModelConfiguration(
@@ -211,7 +211,7 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "tests.run": {
-                        console.log(
+                        logVerbose(
                             `tests: run ${data.scripts?.join(", ") || "*"}`
                         )
                         response = await runPromptScriptTests(data.scripts, {
