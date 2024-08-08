@@ -47,7 +47,7 @@ export async function importPrompt(
         // override global context
         for (const field of Object.keys(ctx0)) {
             assert(
-                field === "console" || !glb[field],
+                field === "console" || leakables.includes(field) || !glb[field],
                 `overriding global field ${field}`
             )
             oldGlb[field] = glb[field]
