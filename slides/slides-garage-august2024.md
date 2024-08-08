@@ -36,6 +36,10 @@ Peli de Halleux and Ben Zorn
 https://microsoft.github.io/genaiscript/
 
 ---
+src: pages/vision.md
+---
+
+---
 src: pages/script.md
 ---
 
@@ -89,10 +93,6 @@ src: pages/image-alt-text.md
 
 ---
 src: pages/makecode-translations.md
----
-
----
-src: pages/vision.md
 ---
 
 ---
