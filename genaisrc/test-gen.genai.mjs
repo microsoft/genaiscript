@@ -25,11 +25,11 @@ generate a plan to test the source code in each file
 
 ## Step 2
 
-For each generate test, implement the TypeScript source code in a test file with suffix ".genai.test.ts"
+For each generate test, implement the TypeScript source code in a test file with suffix ".test.ts"
 in the same folder as the source file.
 
 
-- use 'tsc' tool to validate the generated test code
+- use 'run_test' tool to execute the generated test code and fix the test code to make tests pass
 - use "describe", "test", "beforeEach" from the "node:test" test runner framework
 
 ${fence('import test, { beforeEach, describe } from "node:test"', { language: "js" })}
@@ -46,16 +46,16 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 const h = host
 const w = workspace
 defTool(
-    "tsc",
-    "compile the test code with the TypeScript compiler",
+    "run_test",
+    "run test code with node:test",
     {
         filename: "name of the test file",
         source: "source of the test file",
     },
     async (args) => {
         const { filename, source } = args
-        console.debug(`compiling test code ${filename}`)
+        console.debug(`running test code ${filename}`)
         await w.writeText(filename, source)
-        return h.exec(`tsc`, [filename])
+        return h.exec(`node`, ["--import", "tsx", "--test", filename])
     }
 )
