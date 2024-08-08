@@ -21,7 +21,7 @@ You will need to configure the LLM connection and authorizion secrets.
 
 :::tip
 
-If you do not have access to an LLM, you can use a [local model](#local-models) for inferencing.
+If you do not have access to an LLM, you can try [GitHub Models](#github), [GitHub Copilot Models](#github-copilot) or use a [local model](#local-models) for inferencing.
 
 :::
 
@@ -141,9 +141,7 @@ GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
 
 :::
 
-## GitHub Models
-
-<a id="github" href=""></a>
+## GitHub Models <a id="github" href=""></a>
 
 The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
 This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
@@ -190,9 +188,7 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
-## Azure OpenAI
-
-<a id="azure" href=""></a>
+## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
 You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
@@ -320,7 +316,7 @@ script({
 
 </Steps>
 
-## GitHub Copilot in Visual Studio Code
+## GitHub Copilot Models <a id="github-copilot" href=""></a>
 
 If you have access to **GitHub Copilot in Visual Studio Code**,
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
