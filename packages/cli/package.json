@@ -50,7 +50,6 @@
     "@types/papaparse": "^5.3.14",
     "@types/prompts": "^2.4.9",
     "@types/replace-ext": "^2.0.2",
-    "@types/semver": "^7.5.8",
     "@types/ws": "^8.5.12",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
@@ -67,7 +66,6 @@
     "promptfoo": "^0.75.2",
     "prompts": "^2.4.2",
     "replace-ext": "^2.0.0",
-    "semver": "^7.6.3",
     "zx": "^8.1.4"
   },
   "scripts": {
