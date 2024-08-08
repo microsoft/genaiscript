@@ -22,7 +22,7 @@ mdc: true
 layout: center
 ---
 
-![](https://microsoft.github.io/genaiscript/images/favicon.svg){ style="width: 12rem; margin:auto;" }
+![](https://microsoft.github.io/genaiscript/images/favicon.svg){.w-48.m-auto}
 
 # GenAIScript
 
@@ -36,15 +36,7 @@ Peli de Halleux and Ben Zorn
 https://microsoft.github.io/genaiscript/
 
 ---
-src: pages/vision.md
----
-
----
 src: pages/script.md
----
-
----
-src: pages/script-prompt.md
 ---
 
 ---
@@ -52,11 +44,35 @@ src: pages/tokens.md
 ---
 
 ---
+src: pages/demo.md
+---
+
+---
+src: pages/script-prompt.md
+---
+
+---
 src: pages/response-processing.md
 ---
 
 ---
+src: pages/pr-review.md
+---
+
+---
+src: pages/demo.md
+---
+
+---
 src: pages/vscode.md
+---
+
+---
+src: pages/activity-getting-started.md
+---
+
+---
+src: pages/end.md
 ---
 
 ---
@@ -72,17 +88,14 @@ src: pages/image-alt-text.md
 ---
 
 ---
-src: pages/pr-review.md
+src: pages/makecode-translations.md
 ---
 
 ---
-src: pages/makecode-translations.md
+src: pages/vision.md
 ---
 
 ---
 src: pages/system-scripts.md
 ---
 
----
-src: pages/end.md
----
