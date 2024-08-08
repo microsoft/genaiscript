@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.47.1",
+    "version": "1.48.2",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.90.0"
@@ -363,7 +363,7 @@
         "prepackage": "zx prepackage.mjs",
         "postpackage": "zx postpackage.mjs",
         "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
-        "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
+        "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest"
     },
     "devDependencies": {
         "@types/vscode": "^1.90.0",

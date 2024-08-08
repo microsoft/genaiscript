@@ -100,7 +100,7 @@ type PromptOutputProcessorHandler = (
     | undefined
     | Promise<undefined>
 
-type PromptTemplateResponseType = "json_object" | undefined
+type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
 interface ModelConnectionOptions {
     /**
@@ -129,15 +129,17 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
-     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
-     * specify an output schema.
+     * Specifies the type of output. Default is plain text.
+     * - `json_object` enables JSON mode
+     * - `json_schema` enables structured outputs
+     * Use `responseSchema` to specify an output schema.
      */
     responseType?: PromptTemplateResponseType
 
     /**
-     * JSON object schema for the output. Enables the `JSON` output mode.
+     * JSON object schema for the output. Enables the `JSON` output mode by default.
      */
-    responseSchema?: JSONSchemaObject
+    responseSchema?: PromptParametersSchema | JSONSchemaObject
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
@@ -249,11 +251,15 @@ type PromptParameterType =
     | string
     | number
     | boolean
+    | object
     | JSONSchemaNumber
     | JSONSchemaString
     | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean | any>
+type PromptParametersSchema = Record<
+    string,
+    PromptParameterType | PromptParameterType[]
+>
+type PromptParameters = Record<string, string | number | boolean | object>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
@@ -320,7 +326,7 @@ interface PromptTest {
     /**
      * Extra set of variables for this scenario
      */
-    vars?: PromptParameters
+    vars?: Record<string, string | boolean | number>
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -588,7 +594,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: PromptParameters
+    vars?: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
@@ -1730,7 +1736,7 @@ declare function defFileOutput(
 declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 

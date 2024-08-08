@@ -23,6 +23,7 @@ import {
     ChatCompletionChunk,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
+import { toSignal } from "./cancellation"
 
 export function getConfigHeaders(cfg: LanguageModelConfiguration) {
     const res: Record<string, string> = {
@@ -60,8 +61,8 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         retry,
         retryDelay,
         maxDelay,
+        cancellationToken,
     } = options
-    const { signal } = requestOptions || {}
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
@@ -127,6 +128,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         retries: retry,
         retryDelay,
         maxDelay,
+        cancellationToken,
     })
     trace.dispatchChange()
 
@@ -142,6 +144,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             },
             body,
             method: "POST",
+            signal: toSignal(cancellationToken),
             ...(rest || {}),
         })
     } catch (e) {
@@ -155,8 +158,13 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             body = await r.text()
         } catch (e) {}
-        const { error } = JSON5TryParse(body, {}) as { error: unknown }
-        if (error) trace.error(undefined, error)
+        const { error } = JSON5TryParse(body, {}) as { error: any }
+        if (error)
+            trace.error(undefined, <SerializedError>{
+                name: error.code,
+                code: error.status,
+                message: error.message,
+            })
         throw new RequestError(
             r.status,
             r.statusText,
@@ -176,18 +184,18 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const decoder = host.createUTF8Decoder()
     if (r.body.getReader) {
         const reader = r.body.getReader()
-        while (!signal?.aborted) {
+        while (!cancellationToken?.isCancellationRequested) {
             const { done, value } = await reader.read()
             if (done) break
             doChunk(value)
         }
     } else {
         for await (const value of r.body as any) {
-            if (signal?.aborted) break
+            if (cancellationToken?.isCancellationRequested) break
             doChunk(value)
         }
     }
-    if (signal?.aborted) finishReason = "cancel"
+    if (cancellationToken?.isCancellationRequested) finishReason = "cancel"
 
     trace.appendContent("\n\n")
     trace.itemValue(`finish reason`, finishReason)

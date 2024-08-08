@@ -107,8 +107,8 @@ export async function parseTokenFromEnv(
             ? "GITHUB_MODELS_TOKEN"
             : "GITHUB_TOKEN"
         const token = env[tokenVar]
-        // TODO: handle missing token
-        // if (!token) throw new Error("GITHUB_TOKEN must be set")
+        if (!token)
+            throw new Error("GITHUB_MODELS_TOKEN or GITHUB_TOKEN must be set")
         const type = "openai"
         const base = GITHUB_MODELS_BASE
         return {
@@ -243,7 +243,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_CLIENT) {
+    if (provider === MODEL_PROVIDER_CLIENT && host.clientLanguageModel) {
         return {
             provider,
             model,

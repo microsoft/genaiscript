@@ -22,6 +22,10 @@ export class AbortSignalCancellationToken implements CancellationToken {
     }
 }
 
+export function toSignal(token: CancellationToken) {
+    return (token as any)?.signal
+}
+
 export class AbortSignalCancellationController {
     readonly controller: AbortController
     readonly token: AbortSignalCancellationToken

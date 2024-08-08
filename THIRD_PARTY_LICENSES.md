@@ -3153,7 +3153,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.47.1
+ - genaiscript-vscode@1.48.1
 
 This package contains the following license and notice below:
 
@@ -10189,7 +10189,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 The following npm package may be included in this product:
 
- - vite@5.3.5
+ - vite@5.4.0
 
 This package contains the following license and notice below:
 
@@ -14667,7 +14667,7 @@ Apache-2.0
 
 The following npm package may be included in this product:
 
- - caniuse-lite@1.0.30001649
+ - caniuse-lite@1.0.30001650
 
 This package contains the following license and notice below:
 
@@ -16932,7 +16932,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - cytoscape@3.30.1
+ - cytoscape@3.30.2
 
 This package contains the following license and notice below:
 
@@ -17132,6 +17132,7 @@ The following npm packages may be included in this product:
  - domhandler@5.0.3
  - domutils@3.1.0
  - entities@4.5.0
+ - entities@5.0.0
  - nth-check@2.1.1
 
 These packages each contain the following license and notice below:
@@ -17860,7 +17861,7 @@ THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.5.4
+ - electron-to-chromium@1.5.5
 
 This package contains the following license and notice below:
 
@@ -19851,11 +19852,11 @@ The following npm packages may be included in this product:
  - dagre-d3-es@7.0.10
  - de-indent@1.0.2
  - dlv@1.1.3
- - docs@1.47.1
+ - docs@1.48.1
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.47.1
- - genaiscript-sample@1.47.1
- - genaiscript@1.47.1
+ - genaiscript-core-internal@1.48.1
+ - genaiscript-sample@1.48.1
+ - genaiscript@1.48.1
  - hast-util-is-body-ok-link@3.0.0
  - hast-util-to-string@3.0.0
  - html-whitespace-sensitive-tag-names@3.0.0
@@ -21461,7 +21462,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @drauu/core@0.4.0
- - @slidev/cli@0.49.23
+ - @slidev/cli@0.49.24
  - @slidev/types@0.47.5
  - drauu@0.4.0
 
@@ -21493,9 +21494,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @slidev/client@0.49.23
- - @slidev/parser@0.49.23
- - @slidev/types@0.49.23
+ - @slidev/client@0.49.24
+ - @slidev/parser@0.49.24
+ - @slidev/types@0.49.24
 
 These packages each contain the following license and notice below:
 
@@ -21525,7 +21526,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - unplugin-icons@0.19.1
+ - unplugin-icons@0.19.2
  - unplugin-vue-components@0.27.3
  - unplugin-vue-markdown@0.26.2
 
@@ -21649,7 +21650,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/compiler@2.10.1
+ - @astrojs/compiler@2.10.2
 
 This package contains the following license and notice below:
 
@@ -22147,8 +22148,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @floating-ui/core@1.6.5
- - @floating-ui/utils@0.2.5
+ - @floating-ui/core@1.6.7
+ - @floating-ui/utils@0.2.7
 
 These packages each contain the following license and notice below:
 
@@ -22245,7 +22246,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - unplugin@1.12.0
+ - unplugin@1.12.1
 
 This package contains the following license and notice below:
 
@@ -22398,7 +22399,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/check@0.9.1
+ - @astrojs/check@0.9.2
 
 This package contains the following license and notice below:
 
@@ -22645,7 +22646,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/starlight@0.25.3
+ - @astrojs/starlight@0.25.4
 
 This package contains the following license and notice below:
 
@@ -22826,7 +22827,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @astrojs/language-server@2.13.1
+ - @astrojs/language-server@2.13.2
 
 This package contains the following license and notice below:
 
@@ -24588,7 +24589,7 @@ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - foreground-child@3.2.1
+ - foreground-child@3.3.0
 
 This package contains the following license and notice below:
 
@@ -26688,16 +26689,16 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @vue/compiler-core@3.4.35
- - @vue/compiler-dom@3.4.35
- - @vue/compiler-sfc@3.4.35
- - @vue/compiler-ssr@3.4.35
- - @vue/reactivity@3.4.35
- - @vue/runtime-core@3.4.35
- - @vue/runtime-dom@3.4.35
- - @vue/server-renderer@3.4.35
- - @vue/shared@3.4.35
- - vue@3.4.35
+ - @vue/compiler-core@3.4.36
+ - @vue/compiler-dom@3.4.36
+ - @vue/compiler-sfc@3.4.36
+ - @vue/compiler-ssr@3.4.36
+ - @vue/reactivity@3.4.36
+ - @vue/runtime-core@3.4.36
+ - @vue/runtime-dom@3.4.36
+ - @vue/server-renderer@3.4.36
+ - @vue/shared@3.4.36
+ - vue@3.4.36
 
 These packages each contain the following license and notice below:
 
@@ -26757,7 +26758,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - vue-router@4.4.2
+ - vue-router@4.4.3
 
 This package contains the following license and notice below:
 
@@ -27068,7 +27069,7 @@ THE SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @lvce-editor/verror@1.3.0
+ - @lvce-editor/verror@1.4.0
 
 This package contains the following license and notice below:
 
@@ -27659,7 +27660,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 The following npm package may be included in this product:
 
- - postcss@8.4.40
+ - postcss@8.4.41
 
 This package contains the following license and notice below:
 

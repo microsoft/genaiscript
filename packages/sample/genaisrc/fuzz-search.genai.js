@@ -3,8 +3,7 @@ script({
     model: "gpt-3.5-turbo",
     tests: {},
 })
-
-const kw = env.vars.keyword || "defdata"
+const kw = (env.vars.keyword || "defdata") + ""
 const allFiles = await workspace.findFiles("**/*.genai.{js,mjs}")
 const files = await retrieval.fuzzSearch(kw, allFiles)
 def("FILE", files, { maxTokens: 1000 })

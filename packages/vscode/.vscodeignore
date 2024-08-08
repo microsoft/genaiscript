@@ -18,3 +18,4 @@ postpackage.mjs
 updatefonts.mjs
 genaiscript.cjs
 esbuild.*
+genaiscript.manifest

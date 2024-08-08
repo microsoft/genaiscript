@@ -231,11 +231,20 @@ export function createChatModelRunner(
             onChunk({
                 finishReason: "stop",
             })
-        } catch (e) {
-            onChunk({
-                finishReason: "fail",
-                error: serializeError(e),
-            })
+        } catch (err) {
+            if (err instanceof vscode.LanguageModelError) {
+                const offTopic =
+                    err.code === vscode.LanguageModelError.Blocked.name
+                onChunk({
+                    finishReason: offTopic ? "content_filter" : "fail",
+                    error: serializeError(err),
+                })
+            } else {
+                onChunk({
+                    finishReason: "fail",
+                    error: serializeError(err),
+                })
+            }
         }
     }
 }

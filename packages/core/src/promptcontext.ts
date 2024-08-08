@@ -293,8 +293,12 @@ export async function createPromptContext(
                     { trace, token: true }
                 )
                 if (!connection.configuration)
-                    throw new Error("model connection error " + connection.info)
-                const { completer } = await resolveLanguageModel(connection.configuration.provider)
+                    throw new Error(
+                        "model connection error " + connection.info?.model
+                    )
+                const { completer } = await resolveLanguageModel(
+                    connection.configuration.provider
+                )
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info
@@ -315,7 +319,7 @@ export async function createPromptContext(
             } catch (e) {
                 trace.error(e)
                 return {
-                    text: undefined,
+                    text: "",
                     finishReason: isCancelError(e) ? "cancel" : "fail",
                     error: serializeError(e),
                 }
@@ -335,7 +339,7 @@ export async function createPromptContext(
             let status = 404
             let text: string
             if (/^https?:\/\//i.test(url)) {
-                const fetch = await createFetch()
+                const fetch = await createFetch({ cancellationToken })
                 const resp = await fetch(url, fetchOptions)
                 ok = resp.ok
                 status = resp.status

@@ -72,10 +72,9 @@ export async function activate(context: ExtensionContext) {
                 `extension: ${context.extension?.packageJSON?.version || "?"}`
             )
             if (state.aiRequest?.trace) {
-                issueBody.push(`## Trace`)
-                issueBody.push("`````")
+                issueBody.push(`## Trace\n\n`)
                 issueBody.push(state.aiRequest?.trace?.content)
-                issueBody.push("`````")
+                issueBody.push(`\n\n`)
             }
             await vscode.commands.executeCommand(
                 "workbench.action.openIssueReporter",

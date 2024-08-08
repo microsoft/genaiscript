@@ -1,4 +1,8 @@
-import { MODEL_PROVIDER_LLAMAFILE, MODEL_PROVIDER_OPENAI } from "./constants"
+import {
+    DEFAULT_MODEL_CANDIDATES,
+    MODEL_PROVIDER_LLAMAFILE,
+    MODEL_PROVIDER_OPENAI,
+} from "./constants"
 import { errorMessage } from "./error"
 import { LanguageModelConfiguration, host } from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
@@ -85,35 +89,66 @@ export async function resolveModelConnectionInfo(
     configuration?: LanguageModelConfiguration
 }> {
     const { trace, token: askToken, signal } = options || {}
-    const hasModel = options?.model ?? conn.model
-    const model = options?.model ?? conn.model ?? host.defaultModelOptions.model
-    try {
-        const configuration = await host.getLanguageModelConfiguration(model, {
-            token: askToken,
-            signal,
-            trace,
-        })
-        if (!configuration) {
-            return { info: { ...conn, model } }
-        } else {
-            const { token: theToken, ...rest } = configuration
+
+    const resolveModel = async (
+        model: string,
+        withToken: boolean
+    ): Promise<{
+        info: ModelConnectionInfo
+        configuration?: LanguageModelConfiguration
+    }> => {
+        try {
+            const configuration = await host.getLanguageModelConfiguration(
+                model,
+                {
+                    token: askToken,
+                    signal,
+                    trace,
+                }
+            )
+            if (!configuration) {
+                return { info: { ...conn, model } }
+            } else {
+                const { token: theToken, ...rest } = configuration
+                return {
+                    info: {
+                        ...conn,
+                        ...rest,
+                        model,
+                        token: theToken ? (withToken ? theToken : "***") : "",
+                    },
+                    configuration,
+                }
+            }
+        } catch (e) {
+            trace?.error(undefined, e)
             return {
                 info: {
                     ...conn,
-                    ...rest,
                     model,
-                    token: theToken ? (hasModel ? theToken : "***") : "",
+                    error: errorMessage(e),
                 },
-                configuration,
             }
         }
-    } catch (e) {
-        trace?.error(undefined, e)
+    }
+
+    const m = options?.model ?? conn.model
+    if (m) {
+        return await resolveModel(m, true)
+    } else {
+        // go through various options
+        const candidates = new Set([
+            host.defaultModelOptions.model,
+            ...DEFAULT_MODEL_CANDIDATES,
+        ])
+        for (const candidate of candidates) {
+            const res = await resolveModel(candidate, true)
+            if (!res.info.error && res.info.token) return res
+        }
         return {
             info: {
-                ...conn,
-                model,
-                error: errorMessage(e),
+                model: "?",
+                error: "No model configured",
             },
         }
     }

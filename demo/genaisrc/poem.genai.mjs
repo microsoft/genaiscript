@@ -1,1 +1,0 @@
-$`Write a short poem.`

@@ -1,6 +1,6 @@
 import { ChatCompletionAssistantMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
-import { ResponseStatus } from "../host"
+import { LanguageModelConfiguration, ResponseStatus } from "../host"
 
 export interface RequestMessage {
     type: string
@@ -74,6 +74,7 @@ export interface PromptScriptRunOptions {
     failOnErrors: boolean
     removeOut: boolean
     vars: string[]
+    jsSource: string
 }
 
 export interface PromptScriptStart extends RequestMessage {
@@ -127,6 +128,17 @@ export interface ShellExec extends RequestMessage {
     response?: ShellExecResponse
 }
 
+export interface LanguageModelConfigurationRequest extends RequestMessage {
+    type: "model.configuration"
+    model: string
+    token?: boolean
+    response?: LanguageModelConfigurationResponse
+}
+
+export interface LanguageModelConfigurationResponse extends ResponseStatus {
+    info?: LanguageModelConfiguration
+}
+
 export interface ChatStart {
     type: "chat.start"
     chatId: string
@@ -154,7 +166,6 @@ export interface ChatChunk extends RequestMessage {
 
 export type RequestMessages =
     | ServerKill
-    | ServerVersion
     | ServerEnv
     | ServerVersion
     | PromptScriptTestRun
@@ -162,6 +173,7 @@ export type RequestMessages =
     | PromptScriptStart
     | PromptScriptAbort
     | ChatChunk
+    | LanguageModelConfigurationRequest
 
 export type PromptScriptResponseEvents =
     | PromptScriptProgressResponseEvent

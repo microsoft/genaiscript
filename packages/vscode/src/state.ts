@@ -47,6 +47,7 @@ export interface AIRequestOptions {
     fragment: Fragment
     parameters: PromptParameters
     notebook?: boolean
+    jsSource?: string
 }
 
 export class FragmentsEvent extends Event {
@@ -319,10 +320,12 @@ temp/
         }
         if (connectionToken?.type === "localai") await startLocalAI()
 
+        // todo: send js source
         const { runId, request } = await this.host.server.client.startScript(
             template.id,
             files,
             {
+                jsSource: options.jsSource,
                 signal,
                 trace,
                 infoCb,
