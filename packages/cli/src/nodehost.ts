@@ -299,7 +299,7 @@ export class NodeHost implements RuntimeHost {
             if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
         } catch (err) {
-            trace?.error("exec failed", error)
+            trace?.error("exec failed", err)
             return {
                 stdout: "",
                 stderr: errorMessage(err),
