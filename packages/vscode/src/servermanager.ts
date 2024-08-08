@@ -16,8 +16,7 @@ import { logError, logVerbose } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
-import { semverSatisfies } from "../../core/src/semver"
-import { YAMLStringify } from "../../core/src/yaml"
+import { semverParse, semverSatisfies } from "../../core/src/semver"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
@@ -55,11 +54,16 @@ export class TerminalServerManager implements ServerManager {
             } else {
                 // check version
                 const v = await this.client.version()
-                console.log(YAMLStringify(v))
-                if (!semverSatisfies(v.version, ">=" + CORE_VERSION))
+                const gv = semverParse(CORE_VERSION)
+                if (
+                    !semverSatisfies(
+                        v.version,
+                        ">=" + gv.major + "." + gv.minor
+                    )
+                )
                     vscode.window.showWarningMessage(
                         TOOL_ID +
-                            ` - genaiscript version (${v.version}) output, please update to ${CORE_VERSION}`
+                            ` - genaiscript version (${v.version}) outdated, please update to v${CORE_VERSION}`
                     )
             }
         })
