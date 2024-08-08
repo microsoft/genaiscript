@@ -1,5 +1,5 @@
 import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { dotGenaiscriptPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
 import { TraceOptions } from "./trace"
@@ -16,9 +16,9 @@ export class JSONLineCache<K, V> extends EventTarget {
     static byName<K, V>(name: string): JSONLineCache<K, V> {
         name = name.replace(/[^a-z0-9_]/gi, "_")
         const key = "cacheKV." + name
-        if (host.userState[key]) return host.userState[key]
+        if (runtimeHost.userState[key]) return runtimeHost.userState[key]
         const r = new JSONLineCache<K, V>(name)
-        host.userState[key] = r
+        runtimeHost.userState[key] = r
         return r
     }
 

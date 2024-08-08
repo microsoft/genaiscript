@@ -85,7 +85,6 @@ export interface ServerManager {
 
 export interface Host {
     readonly dotEnvPath: string
-    userState: any
 
     server: ServerManager
     path: Path
@@ -126,6 +125,7 @@ export interface Host {
 }
 
 export interface RuntimeHost extends Host {
+    userState: any
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
 
