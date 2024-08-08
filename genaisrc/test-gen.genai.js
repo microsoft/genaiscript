@@ -39,4 +39,5 @@ ${fence('import test, { beforeEach, describe } from "node:test"', "js")}
 - do not use mocks
 - if you need to create files, place them under a "temp" folder
 - use Partial<T> to declare a partial type of a type T
+- do NOT generate negative test cases
 `
