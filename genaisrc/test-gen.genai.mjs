@@ -29,9 +29,10 @@ For each generate test, implement the TypeScript source code in a test file with
 in the same folder as the source file.
 
 
+- use 'tsc' tool to validate the generated test code
 - use "describe", "test", "beforeEach" from the "node:test" test runner framework
 
-${fence('import test, { beforeEach, describe } from "node:test"', "js")}
+${fence('import test, { beforeEach, describe } from "node:test"', { language: "js" })}
 
 - use "assert" from node:assert/strict (default export)
 - the test title should describe the tested function
@@ -41,3 +42,20 @@ ${fence('import test, { beforeEach, describe } from "node:test"', "js")}
 - use Partial<T> to declare a partial type of a type T
 - do NOT generate negative test cases
 `
+
+const h = host
+const w = workspace
+defTool(
+    "tsc",
+    "compile the test code with the TypeScript compiler",
+    {
+        filename: "name of the test file",
+        source: "source of the test file",
+    },
+    async (args) => {
+        const { filename, source } = args
+        console.debug(`compiling test code ${filename}`)
+        await w.writeText(filename, source)
+        return h.exec(`tsc`, [filename])
+    }
+)

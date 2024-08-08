@@ -1,26 +1,26 @@
-import test, { beforeEach, describe } from "node:test"
 import { randomHex } from './crypto';
+import { describe, test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 
-describe('crypto.ts tests', () => {
-  describe('randomHex function', () => {
-    test('should return a string', () => {
-      const size = 10;
-      const hexString = randomHex(size);
-      assert.strictEqual(typeof hexString, 'string');
+describe('randomHex function', () => {
+    test('should generate a hex string of correct length for size 1', () => {
+        const size = 1;
+        const hexString = randomHex(size);
+        assert.strictEqual(hexString.length, size * 2);
+        assert.match(hexString, /^[a-fA-F0-9]+$/);
     });
 
-    test('should return a string of the correct length', () => {
-      const size = 10;
-      const expectedLength = size * 2; // Each byte is two hex characters
-      const hexString = randomHex(size);
-      assert.strictEqual(hexString.length, expectedLength);
+    test('should generate a hex string of correct length for size 16', () => {
+        const size = 16;
+        const hexString = randomHex(size);
+        assert.strictEqual(hexString.length, size * 2);
+        assert.match(hexString, /^[a-fA-F0-9]+$/);
     });
 
-    test('should only contain valid hexadecimal characters', () => {
-      const size = 10;
-      const hexString = randomHex(size);
-      assert.match(hexString, /^[a-f0-9]+$/i);
+    test('should generate a hex string of correct length for size 32', () => {
+        const size = 32;
+        const hexString = randomHex(size);
+        assert.strictEqual(hexString.length, size * 2);
+        assert.match(hexString, /^[a-fA-F0-9]+$/);
     });
-  });
 });
