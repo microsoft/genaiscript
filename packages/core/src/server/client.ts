@@ -3,7 +3,12 @@ import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
-import { LanguageModelConfiguration, ResponseStatus, host } from "../host"
+import {
+    LanguageModelConfiguration,
+    ResponseStatus,
+    ServerResponse,
+    host,
+} from "../host"
 import { MarkdownTrace } from "../trace"
 import { assert, logError } from "../util"
 import {
@@ -244,9 +249,9 @@ export class WebSocketClient extends EventTarget {
         return res.response?.ok ? res.response.info : undefined
     }
 
-    async version(): Promise<string> {
+    async version(): Promise<ServerResponse> {
         const res = await this.queue<ServerVersion>({ type: "server.version" })
-        return res.version
+        return res.response as ServerResponse
     }
 
     async infoEnv(): Promise<ResponseStatus> {

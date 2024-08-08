@@ -166,7 +166,6 @@ export interface ChatChunk extends RequestMessage {
 
 export type RequestMessages =
     | ServerKill
-    | ServerVersion
     | ServerEnv
     | ServerVersion
     | PromptScriptTestRun

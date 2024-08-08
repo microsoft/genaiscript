@@ -16,6 +16,8 @@ import { logError, logVerbose } from "../../core/src/util"
 import { WebSocketClient } from "../../core/src/server/client"
 import { CORE_VERSION } from "../../core/src/version"
 import { createChatModelRunner } from "./lmaccess"
+import { semverSatisfies } from "../../core/src/semver"
+import { YAMLStringify } from "../../core/src/yaml"
 
 export class TerminalServerManager implements ServerManager {
     private _terminal: vscode.Terminal
@@ -45,11 +47,20 @@ export class TerminalServerManager implements ServerManager {
 
         this.client = new WebSocketClient(`http://localhost:${SERVER_PORT}`)
         this.client.chatRequest = createChatModelRunner(this.state)
-        this.client.addEventListener(OPEN, () => {
+        this.client.addEventListener(OPEN, async () => {
             // client connected to a rogue server
             if (!this._terminal) {
                 logVerbose("found rogue server, closing...")
                 this.client?.kill()
+            } else {
+                // check version
+                const v = await this.client.version()
+                console.log(YAMLStringify(v))
+                if (!semverSatisfies(v.version, ">=" + CORE_VERSION))
+                    vscode.window.showWarningMessage(
+                        TOOL_ID +
+                            ` - genaiscript version (${v.version}) output, please update to ${CORE_VERSION}`
+                    )
             }
         })
         this.client.addEventListener(RECONNECT, () => {
