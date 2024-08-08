@@ -9,6 +9,7 @@ const file = def("FILE", env.files, { endsWith: ".pdf" }) // context
 const schema = defSchema("DATA", // schema
     { type: "array", items: { type: "string" } })
 $`Analyze ${file} and extract data to JSON using the ${schema} schema.` // task
+$`Save data to ${file}.json.` // output
 ```
 
 </v-click>

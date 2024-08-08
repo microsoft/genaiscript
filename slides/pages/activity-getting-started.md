@@ -1,6 +1,22 @@
-# Activity: Getting Started
+---
+layout: two-cols
+---
 
--   Use **GitHub Codespace** or Install **Node.js** [nodejs.org](https://nodejs.org/) / **Visual Studio Code** [aka.ms/vscode](https://aka.ms/vscode) / **GitHub Copilot** [aka.ms/githubcopilot](https://aka.ms/githubcopilot)
+# Hands on Lab
+
+### GitHub Codespace + GitHub Models
+
+-   Create/Login to [GitHub.com](https://github.com)
+
+-   Link GitHub account to Microsoft https://repos.opensource.microsoft.com/link
+
+-   Create/Open Repository on GitHub https://github.com/new (any owner)
+
+-   **Code** ➡️ **Create codespace on main**
+
+::right::
+
+### GenAIScript (from the Codespace)
 
 -   Install Extension ![Extensions icon](./vscode-extensions-view.png){.h-15.inline-block.rounded-md.m-1} ➡️ Search **genaiscript** ![Marketplace icon](./vscode-marketplace.png){.h-10.inline-block.rounded-md.m-1}
 
