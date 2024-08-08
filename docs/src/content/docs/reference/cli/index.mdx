@@ -52,21 +52,17 @@ yarn add -D genaiscript
 npm install -g genaiscript
 ```
 
-:::tip
 
-Check that your node version is at least 20._ and npm 10._ by running this command.
+- Check that your node version is at least 20._ and npm 10._ by running this command.
 
 ```sh
-node -v
-npm -v
+node -v && npm -v
 ```
 
-```bash
+```sh
 v20.11.1
 v10.5.0
 ```
-
-:::
 
 ## No Installation (`npx`)
 
@@ -81,13 +77,13 @@ system issues where the tool is not found in the path.
 npx genaiscript ...
 ```
 
-Add `--yes` to skip the confirmation prompt, which is useful in a CI scenario.
+- Add `--yes` to skip the confirmation prompt, which is useful in a CI scenario.
 
 ```sh "--yes"
 npx --yes genaiscript ...
 ```
 
-You can also lock this call to a particular version.
+- Specify the version range to avoid unexpected behavior with cached installations of the CLI using npx.
 
 ```sh "@^1.16.0"
 npx --yes genaiscript@^1.16.0 ...
