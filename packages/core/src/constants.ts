@@ -38,7 +38,11 @@ export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
 export const DEFAULT_MODEL = "openai:gpt-4o"
-export const DEFAULT_MODEL_CANDIDATES = ["azure:gpt-4o", "github:gpt-4o", "client:gpt-4"]
+export const DEFAULT_MODEL_CANDIDATES = [
+    "azure:gpt-4o",
+    "github:gpt-4o",
+    "client:gpt-4",
+]
 export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
@@ -159,16 +163,7 @@ export const MODEL_PROVIDERS = Object.freeze([
     },
 ])
 
-export const NEW_SCRIPT_TEMPLATE = `// use def to define context 
-// https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def
-def("FILE", env.files)
-
-// use $ to output formatted text to the prompt
-// https://microsoft.github.io/genaiscript/reference/scripts/prompt/
-$\`TELL THE LLM WHAT TO DO...\`
-
-// next, "Run GenAIScript"
-// https://microsoft.github.io/genaiscript/getting-started/running-scripts/
+export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
 
 export const PDF_MIME_TYPE = "application/pdf"

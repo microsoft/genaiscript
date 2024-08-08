@@ -16,9 +16,9 @@ export class JSONLineCache<K, V> extends EventTarget {
     static byName<K, V>(name: string): JSONLineCache<K, V> {
         name = name.replace(/[^a-z0-9_]/gi, "_")
         const key = "cacheKV." + name
-        if (runtimeHost.userState[key]) return runtimeHost.userState[key]
+        if (host.userState[key]) return host.userState[key]
         const r = new JSONLineCache<K, V>(name)
-        runtimeHost.userState[key] = r
+        host.userState[key] = r
         return r
     }
 

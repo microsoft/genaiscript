@@ -10,14 +10,19 @@ backgroundSize: 75%
 ### Scripting languages have had enormous impact
 - csh, bash, Perl, JavaScript, Python, etc. 
 
+<v-click>
+
 &nbsp;
-### Current languages **not AI aware**
-- They use AI via libraries, packages, etc.
+### GenAIScript, a LLM-first script
+- JavaScript-ish
+- Runtime for GenAI: PDF parsers, ...
+- Abstraction over low-level LLM REST APIs
+
+</v-click>
 
 <v-click>
 
 &nbsp;
-### In GenAIScript, LLM is first-class component
-- With the leverage of JavaScript
+### Goal: Build scripts using LLMs with high productivity
 
 </v-click>

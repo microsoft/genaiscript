@@ -1,4 +1,4 @@
-### Where do I get LLM tokens?
+### Prelude: Where do I get LLM tokens?
 
 ```mermaid {scale: 0.9}
 graph TD
