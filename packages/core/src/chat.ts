@@ -34,6 +34,7 @@ import {
 } from "./chattypes"
 import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { fenceMD } from "./markdown"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -161,11 +162,29 @@ async function runToolCalls(
                 typeof output === "object" &&
                 (output as ShellOutput).exitCode !== undefined
             ) {
-                toolContent = YAMLStringify(output)
+                const { stdout, stderr, exitCode } = output as ShellOutput
+                toolContent = `EXIT_CODE: ${exitCode}
+
+STDOUT:
+${stdout}
+
+STDERR:
+${stderr}`
+            } else if (
+                typeof output === "object" &&
+                (output as WorkspaceFile).filename &&
+                (output as WorkspaceFile).content
+            ) {
+                const { filename, content } = output as WorkspaceFile
+                toolContent = `FILENAME: ${filename}
+${fenceMD(content, " ")}
+`
             } else {
                 toolContent = (output as ToolCallContent)?.content
-                toolEdits = (output as ToolCallContent)?.edits
             }
+
+            if (typeof output === "object")
+                toolEdits = (output as ToolCallContent)?.edits
 
             if (toolContent) trace.fence(toolContent, "markdown")
             if (toolEdits?.length) {

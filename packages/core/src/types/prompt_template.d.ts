@@ -464,7 +464,7 @@ interface ToolCallContent {
     edits?: Edits[]
 }
 
-type ToolCallOutput = string | ToolCallContent | ShellOutput
+type ToolCallOutput = string | ToolCallContent | ShellOutput | WorkspaceFile
 
 interface WorkspaceFileSystem {
     /**
