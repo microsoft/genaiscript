@@ -10,6 +10,8 @@ layout: two-cols
 
 -   Link GitHub account to Microsoft https://repos.opensource.microsoft.com/link
 
+-   Check access to GitHub Models https://github.com/marketplace/models
+
 -   Create/Open Repository on GitHub https://github.com/new (any owner)
 
 -   **Code** ➡️ **Create codespace on main**

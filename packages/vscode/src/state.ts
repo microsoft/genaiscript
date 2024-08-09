@@ -177,9 +177,7 @@ export class ExtensionState extends EventTarget {
         await writeFile(
             dir,
             ".gitignore",
-            `# ignore local cli
-genaiscript.cjs
-cache/
+            `cache/
 retrieval/
 containers/
 temp/
