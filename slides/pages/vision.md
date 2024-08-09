@@ -12,17 +12,15 @@ backgroundSize: 75%
 
 <v-click>
 
-&nbsp;
 ### GenAIScript, a LLM-first script
-- JavaScript-ish
-- Runtime for GenAI: PDF parsers, ...
-- Abstraction over low-level LLM REST APIs
+- JavaScript, genai tools (PDF decoders, ...), prompt generation, output parsing
 
 </v-click>
 
 <v-click>
 
 &nbsp;
-### Goal: Build scripts using LLMs with high productivity
+### Goal: A new era of LLM-powered scripts
+
 
 </v-click>
