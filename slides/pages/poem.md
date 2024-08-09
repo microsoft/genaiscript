@@ -1,10 +1,11 @@
 # Poet-moji script
+Poem generator
 
-<v-click>
+<v-click at="4">
 
 ```js
-// poem.genai.mjs
-$`Write a poem using emojis. Save it to poem.txt.`
+// GenAIScript poem.genai.mjs
+$`Write a poem using emojis.`
 ```
 
 </v-click>
@@ -21,29 +22,17 @@ Write a poem using emojis.
 
 ````json
 // OpenAI API request
-{   "model": "gpt-4o",
-    "messages": [{ "role": "user", 
-        "content": "Write a poem using emojis"}] }
+{ "messages": [
+    { "role": "user", "content": "Write a poem using emojis"}, 
 ````
 
 </v-click>
-
 
 <v-click>
 
 ````text
 // OpenAI Text Response
-FILE: poem.txt
 🌅🌻🌞 🌳🍃🍂 🌙✨🌌 💤🌠🌙
 ````
-
-</v-click>
-
-<v-click>
-
-```js
-// poem.txt
-🌅🌻🌞 🌳🍃🍂 🌙✨🌌 💤🌠🌙
-```
 
 </v-click>

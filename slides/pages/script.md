@@ -2,7 +2,7 @@
 layout: two-cols-header
 ---
 
-# Anatomy of a Script
+# PDF analyzer
 
 Analyze a PDF file and extract data to schematized JSON file.
 
@@ -58,9 +58,8 @@ $`Format results as JSON using the ${schema} schema.`
 
 ```js
 // tools, agents
-defTool("read_file", "reads a file", ({ filename }) => {
-    return workspace.readText(filename)
-})
+defTool("read_file", "reads a file", async ({ filename }) =>
+    await workspace.readText(filename))
 ```
 
 </v-click>
@@ -82,6 +81,7 @@ Lorem ipsum...
 
 ````markdown
 Analyze FILE and extract data.
++ system.cot
 ````
 
 </v-click>
@@ -91,6 +91,7 @@ Analyze FILE and extract data.
 ````markdown
 
 Save data to '<file>.json' where <file> is the filename.
++ system.files
 ````
 
 </v-click>
@@ -101,6 +102,7 @@ Save data to '<file>.json' where <file> is the filename.
 
 SCHEMA:
 type DATA = Array<{ name: string; value: number }>
++ system.schemas
 ```
 
 </v-click>
@@ -117,15 +119,11 @@ Format results as JSON using the DATA schema.
 <v-click at="6">
 
 ```json
+// OpenAI tool
 { ..., "tools": [{
         "name": "read_file",
         "description": "reads a file",
-        "parameters": [{
-            "name": "filename"
-        }],
-        "returns": "string"
-    }], ...}
+        "parameters": {...},
 ```
-
 
 </v-click>
