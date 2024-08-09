@@ -11,6 +11,4 @@ flowchart TD
     G -->|No| K[😢]
     G -->|Yes| I([GitHub Copilot Chat Models])
     G -->|Yes| H([GitHub Models])
-    style I fill:#0e6119,stroke:#fff
-    style H fill:#0e6119,stroke:#fff,stroke-width:2px
 ```
