@@ -23,7 +23,7 @@ layout: two-cols
 -   Install Extension ![Extensions icon](./vscode-extensions-view.png){.h-15.inline-block.rounded-md.m-1} ➡️ Search **genaiscript** ![Marketplace icon](./vscode-marketplace.png){.h-10.inline-block.rounded-md.m-1}
 
 -   Press **F1** ➡️ `GenAIScript: Create new script...` <br/>
-    ![Create a new script](./vscode-create-new-script.png){.h-10.inline-block.rounded-md.m-1}
+    ![Create a new script](./vscode-create-new-script.png){.h-10.inline-block.rounded-md.m-1} (name it `poem`)
 -   Click on the ▶️ icon on the upper right of the editor
 -   Open GenAIScript view ![GenAIScript view](./vscode-genaiscript-view.png){.h-15.inline-block.rounded-md.m-1}
--   Edit, Run, and Repeat!
+-   Open Terminal (Ctrl+\`) ➡️ `npx genaiscript run poem`
