@@ -1,44 +1,131 @@
+---
+layout: two-cols-header
+---
 
-# Generative AI Scripting
-Build your own LLM-powered tools.
+# Anatomy of a Script
+
+Analyze a PDF file and extract data to schematized JSON file.
+
+::left::
+
 
 <v-click>
 
 ```js
-const file = def("FILE", env.files, { endsWith: ".pdf" }) // context
-const schema = defSchema("DATA", // schema
-    { type: "array", items: { type: "string" } })
-$`Analyze ${file} and extract data to JSON using the ${schema} schema.` // task
-$`Save data to ${file}.json.` // output
+// context
+const file = def("FILE", env.files, { endsWith: ".pdf" })
 ```
 
 </v-click>
 
 <v-click>
 
-- **`$...`** writes to the prompt, **`def`** defines a "variable", `defSchema` defines a schema
-- **It Is Just JavaScript(TM)** (also TypeScript)
+```js
+// task
+$`Analyze ${file} and extract data.`
+```
 
 </v-click>
 
+<v-click>
+
+```js
+// output
+$`Save data to '<file>.json' where <file> is the filename.`
+```
+
+</v-click>
 
 <v-click>
 
-````txt
-FILE lorem.pdf:
-Lorem Ipsum ...
-DATA:
-type Data = string[]
+```js
+// schemas
+const schema = defSchema("DATA", [{ name: "name", value: 1 }])
+```
 
-Analyze FILE and extract data to JSON using the DATA schema.
+</v-click>
+
+<v-click>
+
+```js
+// structured output
+$`Format results as JSON using the ${schema} schema.`
+```
+
+</v-click>
+
+<v-click>
+
+```js
+// tools, agents
+defTool("read_file", "reads a file", ({ filename }) => {
+    return workspace.readText(filename)
+})
+```
+
+</v-click>
+
+::right::
+
+# 
+
+<v-click at="1">
+
+````markdown
+FILE: "example.pdf"
+Lorem ipsum...
 ````
 
 </v-click>
 
-<v-click>
+<v-click at="2">
 
-- Builtin parsers (PDF, XML, ...), file extraction (save/edit), structured output
-- Fast dev loop in Visual Studio Code 
-- Automation with Command Line (GitHub Actions, Azure DevOps)
+````markdown
+Analyze FILE and extract data.
+````
+
+</v-click>
+
+<v-click at="3">
+
+````markdown
+
+Save data to '<file>.json' where <file> is the filename.
+````
+
+</v-click>
+
+<v-click at="4">
+
+```markdown
+
+SCHEMA:
+type DATA = Array<{ name: string; value: number }>
+```
+
+</v-click>
+
+<v-click at="5">
+
+```markdown
+Format results as JSON using the DATA schema.
+```
+
+
+</v-click>
+
+<v-click at="6">
+
+```json
+{ ..., "tools": [{
+        "name": "read_file",
+        "description": "reads a file",
+        "parameters": [{
+            "name": "filename"
+        }],
+        "returns": "string"
+    }], ...}
+```
+
 
 </v-click>
