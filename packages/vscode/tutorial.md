@@ -190,3 +190,14 @@ Markdown is a lightweight markup language for formatting plaintext documents, di
 </details>
 
 <!-- genaiscript output end -->
+
+## Tools
+
+You can register JavaScript functions as tools that the LLM will call as needed.
+
+```js
+defTool("divide", "Use this function to divide two numbers", { a: 1, b: 1 }, ({ a, b }) => `${a / b}`)
+
+$`Answer the following arithmetic question: 14 / 3`
+```
+

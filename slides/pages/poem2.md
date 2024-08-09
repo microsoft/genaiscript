@@ -6,7 +6,7 @@ Poem generator to a file.
 ```js
 // GenAIScript poem.genai.mjs
 $`Write a poem using emojis.
-  Save it to poem.txt.`
+  Save it to file poem.txt.`
 ```
 
 </v-click>
@@ -16,7 +16,7 @@ $`Write a poem using emojis.
 ````txt
 // prompt.txt
 Write a poem using emojis.
-Save it to poem.txt.
+Save it t file poem.txt.
 ````
 </v-click>
 
@@ -26,7 +26,7 @@ Save it to poem.txt.
 // OpenAI API request
 { "messages": [
     { "role": "system", "content": "Use this format for files..."}] },
-    { "role": "user", "content": "Write a poem using emojis. Save it to poem.txt."}, 
+    { "role": "user", "content": "Write a poem using emojis. Save it to file poem.txt."}, 
 ````
 
 </v-click>

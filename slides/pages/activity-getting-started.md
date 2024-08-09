@@ -26,4 +26,4 @@ layout: two-cols
     ![Create a new script](./vscode-create-new-script.png){.h-10.inline-block.rounded-md.m-1}
 -   Click on the ▶️ icon on the upper right of the editor
 -   Open GenAIScript view ![GenAIScript view](./vscode-genaiscript-view.png){.h-15.inline-block.rounded-md.m-1}
--   Start editing!
+-   Press **F1** ➡️ `GenAIScript: Create GenAIScript Markdown Notebook`
