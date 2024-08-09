@@ -122,11 +122,14 @@ async function pickChatModel(
             detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
             chatModel,
         }))
-        const res = await vscode.window.showQuickPick(items, {
-            title: `Pick a Language Chat Model for ${model}`,
-        })
-        chatModel = res?.chatModel
-        if (chatModel) await state.updateLanguageChatModels(model, chatModel.id)
+        if (items?.length) {
+            const res = await vscode.window.showQuickPick(items, {
+                title: `Pick a Language Chat Model for ${model}`,
+            })
+            chatModel = res?.chatModel
+            if (chatModel)
+                await state.updateLanguageChatModels(model, chatModel.id)
+        }
     }
     return chatModel
 }
