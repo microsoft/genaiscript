@@ -9,7 +9,7 @@ sidebar:
 import { Code } from '@astrojs/starlight/components';
 import { Content as BuiltinTools } from "../../../../components/BuiltinTools.mdx"
 import weatherScriptSource from "../../../../../../packages/sample/genaisrc/weather.genai.js?raw"
-import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.js?raw"
+import mathScriptSource from "../../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
 
 You can register **tools** (also known as **functions**) that the LLM may decide to call as part of assembling the answer.
 See [OpenAI functions](https://platform.openai.com/docs/guides/function-calling).
@@ -57,7 +57,7 @@ This example uses the `current_weather` tool to get the weather for Brussels.
 This example uses the [math expression evaluator](/genaiscript/reference/scripts/math) 
 to evaluate a math expression.
 
-<Code code={mathScriptSource} wrap={true} lang="js" title="math-agent.genai.js" />
+<Code code={mathScriptSource} wrap={true} lang="js" title="math-agent.genai.mjs" />
 
 ## Packaging as System scripts
 
