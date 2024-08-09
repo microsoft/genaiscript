@@ -147,14 +147,22 @@ The [GitHub Models](https://github.com/marketplace/models) provider, `github`, a
 This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
 depending on your subscription.
 
+**If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
+
 <Steps>
 
 <ol>
 
 <li>
 
-**If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
-Otherwise, update the `.env` file with the [GitHub personal access token](https://github.com/settings/tokens/new).
+Create a [GitHub personal access token](https://github.com/settings/tokens/new).
+The token should not have any scopes or permissions.
+
+</li>
+
+<li>
+
+Update the `.env` file with the token.
 
 ```txt title=".env"
 GITHUB_TOKEN=...
@@ -162,15 +170,19 @@ GITHUB_TOKEN=...
 
 </li>
 
+</ol>
+
+</Steps>
+
+To configure a specific module,
+
+<Steps>
+
+<ol>
+
 <li>
 
 Open the [GitHub Marketplace](https://github.com/marketplace/models) and find the model you want to use.
-
-</li>
-
-<li>
-
-Click **Get Started** and follow the instructions to configure the github token, or start a codespace!
 
 </li>
 
@@ -184,7 +196,7 @@ const modelName = "Phi-3-mini-4k-instruct"
 
 to configure your script.
 
-```js
+```js "Phi-3-mini-4k-instruct"
 script({
     model: "github:Phi-3-mini-4k-instruct",
 })
