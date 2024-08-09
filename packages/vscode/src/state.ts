@@ -183,6 +183,7 @@ cache/
 retrieval/
 containers/
 temp/
+tests/
 `
         )
     }
