@@ -51,6 +51,17 @@ defTool(
 )
 ```
 
+You can also simplify the parameter definition by provider an example object and the schema will be inferred._createMdxContent
+
+```js "{ a: 1, b: 2 }"
+defTool(
+    "sum",
+    "Sum two numbers",
+    { a: 1, b: 2 },
+    ({ a, b }) => `${a + b}`
+)
+```
+
 ## Parameters
 
 The arithmetic question can be declared as a [script parameter](/genaiscript/reference/scripts/variables) to be used in the agent script.
