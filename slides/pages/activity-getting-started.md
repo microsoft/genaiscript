@@ -6,7 +6,7 @@ layout: two-cols
 
 ### GitHub Codespace + GitHub Models
 
--   Create/Login to [GitHub.com](https://github.com)
+-   Login at [GitHub.com](https://github.com) (+ 2FA)
 
 -   Link GitHub account to Microsoft https://repos.opensource.microsoft.com/link
 
@@ -22,12 +22,6 @@ layout: two-cols
 
 -   Press **F1** ➡️ `GenAIScript: Create new script...` <br/>
     ![Create a new script](./vscode-create-new-script.png){.h-10.inline-block.rounded-md.m-1}
-
--   Update the code
-
-```js
-$`Write a poem in code.`
-```
-
 -   Click on the ▶️ icon on the upper right of the editor
 -   Open GenAIScript view ![GenAIScript view](./vscode-genaiscript-view.png){.h-15.inline-block.rounded-md.m-1}
+-   Start editing!
