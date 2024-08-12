@@ -1,23 +1,21 @@
 import "zx/globals"
-import webfont from "webfont"
-
-const svgs = ["./icon.svg"]
+import svgtofont from "svgtofont"
 
 async function generateFont() {
     try {
-        console.log(`build font for ${svgs}`)
-        const result = await webfont.webfont({
-            files: svgs,
-            formats: ["woff"],
+        console.log(`build font`)
+        await svgtofont({
+            src: path.resolve("./font"),
+            dist: path.resolve("./built"),
+            fontName: "genaiscript",
             startUnicode: 0xe000,
-            verbose: false,
-            normalize: true,
-            sort: false,
+            css: false,
+            website: null,
+            svgicons2svgfont: {
+                fontHeight: 1000,
+                normalize: true,
+            },
         })
-        fs.ensureDirSync("./built")
-        const dest = path.join("./built", "genaiscript.woff")
-        fs.writeFileSync(dest, result.woff, "binary")
-        console.log(`Font created at ${dest}`)
         process.exit(0)
     } catch (e) {
         console.error("Font creation failed.", e)
