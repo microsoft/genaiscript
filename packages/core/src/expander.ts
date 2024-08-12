@@ -220,7 +220,7 @@ export async function expandTemplate(
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (prompt.status !== "success")
+    if (prompt.status !== "success" || prompt.text === "")
         // cancelled
         return { status: prompt.status, statusText: prompt.statusText }
 
