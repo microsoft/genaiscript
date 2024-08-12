@@ -15,6 +15,7 @@ import { registerCommand } from "./commands"
 import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
+import { activateConnectionInfoTree } from "./connectioninfotree"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -22,6 +23,7 @@ export async function activate(context: ExtensionContext) {
     activateFragmentCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
+    activateConnectionInfoTree(state)
     activateAIRequestTreeDataProvider(state)
     activateLLMRequestTreeDataProvider(state)
     activateTraceTreeDataProvider(state)
