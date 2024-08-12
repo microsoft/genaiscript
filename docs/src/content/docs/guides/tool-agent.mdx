@@ -12,7 +12,7 @@ genaiscript:
 ---
 
 import { Code } from "@astrojs/starlight/components"
-import mathAgentSrc from "../../../../../packages/sample/genaisrc/math-agent.genai.js?raw"
+import mathAgentSrc from "../../../../../packages/sample/genaisrc/math-agent.genai.mjs?raw"
 import mathAgentSystemSrc from "../../../../../packages/sample/genaisrc/math-agent-system.genai.js?raw"
 
 Using [tools (formerly functions)](/genaiscript/reference/scripts/tools),
@@ -47,6 +47,17 @@ defTool(
         },
         required: ["a", "b"],
     },
+    ({ a, b }) => `${a + b}`
+)
+```
+
+You can also simplify the parameter definition by provider an example object and the schema will be inferred._createMdxContent
+
+```js "{ a: 1, b: 2 }"
+defTool(
+    "sum",
+    "Sum two numbers",
+    { a: 1, b: 2 },
     ({ a, b }) => `${a + b}`
 )
 ```

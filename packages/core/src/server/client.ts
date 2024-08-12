@@ -1,11 +1,14 @@
-import {
-    ChatCompletionsProgressReport,
-} from "../chattypes"
+import { ChatCompletionsProgressReport } from "../chattypes"
 import { CLIENT_RECONNECT_DELAY, OPEN, RECONNECT } from "../constants"
 import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
-import { ResponseStatus, host } from "../host"
+import {
+    LanguageModelConfiguration,
+    ResponseStatus,
+    ServerResponse,
+    host,
+} from "../host"
 import { MarkdownTrace } from "../trace"
 import { assert, logError } from "../util"
 import {
@@ -25,6 +28,7 @@ import {
     ChatEvents,
     ChatChunk,
     ChatStart,
+    LanguageModelConfigurationRequest,
 } from "./messages"
 
 export type LanguageModelChatRequest = (
@@ -193,7 +197,7 @@ export class WebSocketClient extends EventTarget {
         // avoid pollution
         delete mo.trace
         if (mo.options) delete mo.options.trace
-        const m = JSON.stringify({ ...msg, id })
+        const m = JSON.stringify(mo)
 
         this.init()
         return new Promise<T>((resolve, reject) => {
@@ -233,9 +237,21 @@ export class WebSocketClient extends EventTarget {
         cancellers.forEach((a) => a.reject(reason || "cancelled"))
     }
 
-    async version(): Promise<string> {
+    async getLanguageModelConfiguration(
+        modelId: string,
+        options?: { token?: boolean }
+    ): Promise<LanguageModelConfiguration | undefined> {
+        const res = await this.queue<LanguageModelConfigurationRequest>({
+            type: "model.configuration",
+            model: modelId,
+            token: options?.token,
+        })
+        return res.response?.ok ? res.response.info : undefined
+    }
+
+    async version(): Promise<ServerResponse> {
         const res = await this.queue<ServerVersion>({ type: "server.version" })
-        return res.version
+        return res.response as ServerResponse
     }
 
     async infoEnv(): Promise<ResponseStatus> {
@@ -247,6 +263,7 @@ export class WebSocketClient extends EventTarget {
         script: string,
         files: string[],
         options: Partial<PromptScriptRunOptions> & {
+            jsSource?: string
             signal: AbortSignal
             trace: MarkdownTrace
             infoCb: (partialResponse: { text: string }) => void

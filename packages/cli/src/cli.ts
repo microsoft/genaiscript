@@ -2,7 +2,6 @@ import { NodeHost } from "./nodehost"
 import { program } from "commander"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { startServer } from "./server"
-import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
 import { runScriptWithExitCode } from "./run"
 import { retrievalFuzz, retrievalSearch } from "./retrieval"
@@ -37,6 +36,7 @@ import {
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
 import { grep } from "./grep"
 import { logVerbose } from "../../core/src/util"
+import { semverSatisfies } from "../../core/src/semver"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {

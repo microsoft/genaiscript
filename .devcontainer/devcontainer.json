@@ -9,7 +9,6 @@
                 "dbaeumer.vscode-eslint",
                 "bierner.markdown-mermaid",
                 "yoavbls.pretty-ts-errors",
-                "kejun.markdown-alert",
                 "astro-build.astro-vscode",
                 "unifiedjs.vscode-mdx",
                 "streetsidesoftware.code-spell-checker",
@@ -18,8 +17,9 @@
         }
     },
     "features": {
+        "ghcr.io/ghcr.io/devcontainers/features/github-cli:1.0.13": {},
         "ghcr.io/devcontainers/features/docker-in-docker:2": {},
         "ghcr.io/devcontainers/features/azure-cli:1.2.5": {},
-        "ghcr.io/devcontainers/features/python:1.6.2": {}
+        "ghcr.io/devcontainers/features/python:1.6.3": {}
     }
 }

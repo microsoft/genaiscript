@@ -1,5 +1,5 @@
 import { appendJSONL, readJSONL, writeJSONL } from "./jsonl"
-import { host } from "./host"
+import { host, runtimeHost } from "./host"
 import { dotGenaiscriptPath, sha256string } from "./util"
 import { CHANGE } from "./constants"
 import { TraceOptions } from "./trace"

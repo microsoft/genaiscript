@@ -3,10 +3,18 @@ import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
 import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
-import { CancellationToken, checkCancelled } from "./cancellation"
+import {
+    CancellationOptions,
+    CancellationToken,
+    checkCancelled,
+} from "./cancellation"
 import { assert } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
-import { validateFencesWithSchema, validateJSONWithSchema } from "./schema"
+import {
+    toStrictJSONSchema,
+    validateFencesWithSchema,
+    validateJSONWithSchema,
+} from "./schema"
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
@@ -24,7 +32,9 @@ import {
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
-import { renderMessagesToMarkdown } from "./chatrender"
+import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { fenceMD } from "./markdown"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -83,7 +93,7 @@ function encodeMessagesForLlama(req: CreateChatCompletionRequest) {
 export type ChatCompletionHandler = (
     req: CreateChatCompletionRequest,
     connection: LanguageModelConfiguration,
-    options: ChatCompletionsOptions,
+    options: ChatCompletionsOptions & CancellationOptions,
     trace: MarkdownTrace
 ) => Promise<ChatCompletionResponse>
 
@@ -152,11 +162,29 @@ async function runToolCalls(
                 typeof output === "object" &&
                 (output as ShellOutput).exitCode !== undefined
             ) {
-                toolContent = YAMLStringify(output)
+                const { stdout, stderr, exitCode } = output as ShellOutput
+                toolContent = `EXIT_CODE: ${exitCode}
+
+STDOUT:
+${stdout}
+
+STDERR:
+${stderr}`
+            } else if (
+                typeof output === "object" &&
+                (output as WorkspaceFile).filename &&
+                (output as WorkspaceFile).content
+            ) {
+                const { filename, content } = output as WorkspaceFile
+                toolContent = `FILENAME: ${filename}
+${fenceMD(content, " ")}
+`
             } else {
                 toolContent = (output as ToolCallContent)?.content
-                toolEdits = (output as ToolCallContent)?.edits
             }
+
+            if (typeof output === "object")
+                toolEdits = (output as ToolCallContent)?.edits
 
             if (toolContent) trace.fence(toolContent, "markdown")
             if (toolEdits?.length) {
@@ -202,19 +230,21 @@ async function applyRepairs(
         infoCb,
     } = options
     const lastMessage = messages[messages.length - 1]
-    if (lastMessage.role !== "assistant") return false
+    if (lastMessage.role !== "assistant" || lastMessage.refusal) return false
 
-    const fences = extractFenced(lastMessage.content)
+    const content = renderMessageContent(lastMessage)
+    const fences = extractFenced(content)
     validateFencesWithSchema(fences, schemas, { trace })
     const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
-        const value = JSON5TryParse(lastMessage.content)
-        const res = validateJSONWithSchema(value, responseSchema, { trace })
+        const value = JSON5TryParse(content)
+        const schema = promptParametersSchemaToJSONSchema(responseSchema)
+        const res = validateJSONWithSchema(value, schema, { trace })
         if (!res.valid)
             invalids.push({
                 label: "",
-                content: lastMessage.content,
+                content,
                 validation: res,
             })
     }
@@ -290,14 +320,23 @@ function structurifyChatSession(
 
     const fences = extractFenced(text)
     let json: any
-    if (responseType === "json_object") {
+    if (responseType === "json_schema") {
+        try {
+            json = JSON.parse(text)
+        } catch (e) {
+            trace.error("response json_schema parsing failed", e)
+        }
+    } else if (responseType === "json_object") {
         try {
             json = JSON5parse(text, { repair: true })
             if (responseSchema) {
-                const res = validateJSONWithSchema(json, responseSchema, {
+                const schema =
+                    promptParametersSchemaToJSONSchema(responseSchema)
+                const res = validateJSONWithSchema(json, schema, {
                     trace,
                 })
                 if (!res.valid) {
+                    trace.fence(schema, "json")
                     trace?.warn(
                         `response schema validation failed, ${errorMessage(res.error)}`
                     )
@@ -453,6 +492,7 @@ export async function executeChatSession(
         maxTokens,
         seed,
         responseType,
+        responseSchema,
         stats,
         infoCb,
     } = genOptions
@@ -493,9 +533,21 @@ export async function executeChatSession(
                             stream: true,
                             messages,
                             tools,
-                            response_format: responseType
-                                ? { type: responseType }
-                                : undefined,
+                            response_format:
+                                responseType === "json_object"
+                                    ? { type: responseType }
+                                    : responseType === "json_schema"
+                                      ? {
+                                            type: "json_schema",
+                                            json_schema: {
+                                                name: "result",
+                                                schema: toStrictJSONSchema(
+                                                    responseSchema
+                                                ),
+                                                strict: true,
+                                            },
+                                        }
+                                      : undefined,
                         },
                         connectionToken,
                         genOptions,

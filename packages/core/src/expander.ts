@@ -15,7 +15,7 @@ import { renderAICI } from "./aici"
 import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
-import { JSONSchemaStringifyToTypeScript } from "./schema"
+import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
@@ -25,6 +25,7 @@ import {
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
 } from "./chattypes"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 async function callExpander(
     r: PromptScript,
@@ -279,9 +280,13 @@ export async function expandTemplate(
             return { status: sysr.status, statusText: sysr.statusText }
     }
 
-    const responseSchema: JSONSchema = template.responseSchema
+    const responseSchema = promptParametersSchemaToJSONSchema(
+        template.responseSchema
+    ) as JSONSchemaObject
+    if (responseSchema)
+        trace.detailsFenced("📜 response schema", responseSchema)
     let responseType = template.responseType
-    if (responseSchema) {
+    if (responseSchema && responseType !== "json_schema") {
         responseType = "json_object"
         const typeName = "Output"
         const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
@@ -301,6 +306,11 @@ ${schemaTs}
             role: "system",
             content: `Answer using JSON.`,
         })
+    } else if (responseType === "json_schema") {
+        if (!responseSchema)
+            throw new Error(`responseSchema is required for json_schema`)
+        // try conversion
+        toStrictJSONSchema(responseSchema)
     }
     if (systemMessage.content) messages.unshift(systemMessage)
 

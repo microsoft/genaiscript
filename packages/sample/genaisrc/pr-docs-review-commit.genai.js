@@ -7,7 +7,7 @@ script({
     tools: ["fs_find_files", "fs_read_file"],
 })
 
-const defaultBranch = env.vars.defaultBranch || "main"
+const defaultBranch = (env.vars.defaultBranch || "main") + ""
 const { stdout: diff } = await host.exec("git", [
     "diff",
     defaultBranch,
@@ -15,6 +15,7 @@ const { stdout: diff } = await host.exec("git", [
     "docs/**.md",
     "docs/**.mdx",
 ])
+const settings = await workspace.readJSON(".vscode/settings.json")
 
 def("GIT_DIFF", diff, {
     language: "diff",
@@ -34,4 +35,5 @@ Analyze the changes in GIT_DIFF in your mind and provide feedback on the documen
 - read the full source code of the files if you need more context
 - if your confidence in the feedback is low, ignore the feedback
 - only report major issues
+- ignore these words: ${settings["cSpell.words"].join(", ")}
 `

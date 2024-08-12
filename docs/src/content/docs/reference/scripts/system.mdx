@@ -195,6 +195,23 @@ ChangedCode@23-23:
 `````
 
 
+### `system.diagrams`
+
+Generate diagrams
+
+
+
+
+
+`````js wrap title="system.diagrams"
+system({
+    title: "Generate diagrams"
+})
+
+$`Use mermaid syntax if you need to generate state diagrams, class inheritance diagrams, relationships.`
+`````
+
+
 ### `system.diff`
 
 Generates concise file diffs.
@@ -482,7 +499,7 @@ defTool(
         const { filename } = args
         if (!filename) return ""
         const { content } = await workspace.readText(filename)
-        const model = env.vars["system.fs_read_summary.model"] || "gpt-35-turbo"
+        const model = (env.vars["system.fs_read_summary.model"] || "gpt-35-turbo") + ""
         const cacheName = `fs_read_summary_${model}`
         const summary = await runPrompt(
             (_) => {

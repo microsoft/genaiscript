@@ -1,6 +1,6 @@
 {
     "name": "genaiscript-workspace",
-    "version": "1.45.5",
+    "version": "1.48.5",
     "license": "MIT",
     "private": true,
     "workspaces": {
@@ -23,7 +23,7 @@
         "go": "cd packages/cli && yarn go",
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
-        "package": "cd packages/vscode && yarn package:insiders && yarn package",
+        "package": "cd packages/vscode && yarn package && yarn generate-manifest",
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
         "patch-versions": "npx --yes zx scripts/patch-version.mjs",

@@ -28,7 +28,7 @@ async function resolveExpansionVars(
     trace: MarkdownTrace,
     template: PromptScript,
     frag: Fragment,
-    vars: Record<string, string>
+    vars: Record<string, string | number | boolean | object>
 ) {
     const root = runtimeHost.projectFolder()
 
@@ -145,7 +145,7 @@ export async function runTemplate(
                 status: "cancelled",
                 messages,
                 vars,
-                text: undefined,
+                text: "",
                 edits: [],
                 annotations: [],
                 changelogs: [],

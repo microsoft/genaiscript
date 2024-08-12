@@ -3,18 +3,21 @@ import {
     DEFAULT_TEMPERATURE,
     DOCS_CONFIGURATION_AICI_URL,
     DOCS_CONFIGURATION_AZURE_OPENAI_URL,
+    DOCS_CONFIGURATION_GITHUB_URL,
     DOCS_CONFIGURATION_LITELLM_URL,
     DOCS_CONFIGURATION_LLAMAFILE_URL,
     DOCS_CONFIGURATION_LOCALAI_URL,
     DOCS_CONFIGURATION_OLLAMA_URL,
     DOCS_CONFIGURATION_OPENAI_URL,
     DOT_ENV_FILENAME,
+    GITHUB_MODELS_BASE,
     LITELLM_API_BASE,
     LLAMAFILE_API_BASE,
     LOCALAI_API_BASE,
     MODEL_PROVIDER_AICI,
     MODEL_PROVIDER_AZURE,
     MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB,
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_LLAMAFILE,
     MODEL_PROVIDER_OLLAMA,
@@ -65,8 +68,7 @@ export async function parseTokenFromEnv(
                 throw new Error(
                     "OPENAI_API_BASE must be set when type is 'azure'"
                 )
-            if (type === "azure" && !base.endsWith("/openai/deployments"))
-                base = trimTrailingSlash(base) + "/openai/deployments"
+            if (type === "azure") base = cleanAzureBase(base)
             if (
                 type === "azure" &&
                 version &&
@@ -99,10 +101,32 @@ export async function parseTokenFromEnv(
         }
     }
 
+    if (provider === MODEL_PROVIDER_GITHUB) {
+        const tokenVar = env.GITHUB_MODELS_TOKEN
+            ? "GITHUB_MODELS_TOKEN"
+            : "GITHUB_TOKEN"
+        const token = env[tokenVar]
+        if (!token)
+            throw new Error("GITHUB_MODELS_TOKEN or GITHUB_TOKEN must be set")
+        const type = "openai"
+        const base = GITHUB_MODELS_BASE
+        return {
+            provider,
+            model,
+            base,
+            type,
+            token,
+            source: `env: ${tokenVar}`,
+            curlHeaders: {
+                Authorization: `Bearer $${tokenVar}`,
+            },
+        }
+    }
+
     if (provider === MODEL_PROVIDER_AZURE) {
         const tokenVar = env.AZURE_OPENAI_API_KEY
             ? "AZURE_OPENAI_API_KEY"
-            : env.AZURE_API_KEY
+            : "AZURE_API_KEY"
         const token = env[tokenVar]
         let base = trimTrailingSlash(
             env.AZURE_OPENAI_ENDPOINT ||
@@ -121,9 +145,7 @@ export async function parseTokenFromEnv(
             )
         if (base === PLACEHOLDER_API_BASE)
             throw new Error("AZURE_OPENAI_API_ENDPOINT not configured")
-        base =
-            base.replace(/\/openai\/deployments.*$/g, "") +
-            `/openai/deployments`
+        base = cleanAzureBase(base)
         if (!URL.canParse(base))
             throw new Error("AZURE_OPENAI_ENDPOINT must be a valid URL")
         const version = env.AZURE_OPENAI_API_VERSION || env.AZURE_API_VERSION
@@ -218,7 +240,7 @@ export async function parseTokenFromEnv(
         }
     }
 
-    if (provider === MODEL_PROVIDER_CLIENT) {
+    if (provider === MODEL_PROVIDER_CLIENT && host.clientLanguageModel) {
         return {
             provider,
             model,
@@ -228,6 +250,14 @@ export async function parseTokenFromEnv(
     }
 
     return undefined
+
+    function cleanAzureBase(b: string) {
+        if (!b) return b
+        b =
+            trimTrailingSlash(b.replace(/\/openai\/deployments.*$/, "")) +
+            `/openai/deployments`
+        return b
+    }
 }
 
 function dotEnvTemplate(
@@ -296,6 +326,16 @@ OPENAI_API_TYPE="localai"
 # OPENAI_API_BASE="${PLACEHOLDER_API_BASE}" # uses ${LOCALAI_API_BASE} by default
 `,
             model: `${MODEL_PROVIDER_OPENAI}:gpt-3.5-turbo`,
+        }
+
+    if (provider === MODEL_PROVIDER_GITHUB)
+        return {
+            config: `
+    ## GitHub Models ${DOCS_CONFIGURATION_GITHUB_URL}
+    # use "${MODEL_PROVIDER_GITHUB}:<model>" in script({ model: ... })
+    # GITHUB_MODELS_TOKEN="${PLACEHOLDER_API_KEY}" # use a personal access token if not available
+    `,
+            model: `${MODEL_PROVIDER_GITHUB}:gpt-4o`,
         }
 
     return {

@@ -1,23 +1,19 @@
-
 # JavaScript Runtime for GenAI
 
-- **eval** (commonjs) or **esm** + TypeScript!
-```js
-// poem.genai.js
-script(...)
-$`Write a poem.`
-```
+-   **esm** + JavaScript/TypeScript
+
 ```js
 // poem.genai.mjs/ts
 import { parse } from "ini"
 script(...)
+$`Write a poem.`
 ...
 ```
 
-- parsers: PDF, DOCX, HTML, JSON5, YAML, XML, CSV, tokenizers, ...
+-   parsers: PDF, DOCX, HTML, JSON5, YAML, XML, CSV, tokenizers, ...
 
-- file search: grep, fuzz search, RAG, tree sitter queries, ...
+-   file search: grep, fuzz search, RAG, tree sitter queries, ...
 
-- Debugging Just Works™
+-   Debugging Just Works™
 
-- LLM tools as JavaScript functions (Agents!)
+-   LLM tools as JavaScript functions (Agents!)

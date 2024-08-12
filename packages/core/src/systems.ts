@@ -14,12 +14,14 @@ export function resolveSystems(prj: Project, template: PromptScript) {
         // select file expansion type
         if (/diff/i.test(jsSource)) systems.push("system.diff")
         else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else {
+        else if (/file/i.test(jsSource)) {
             systems.push("system.files")
             if (useSchema) systems.push("system.files_schema")
         }
         if (useSchema) systems.push("system.schema")
-        if (/annotations?/i.test(jsSource)) systems.push("system.annotations")
+        if (/annotation|warning|error/i.test(jsSource))
+            systems.push("system.annotations")
+        if (/diagram|chart/i.test(jsSource)) systems.push("system.diagrams")
     }
 
     if (template.tools?.length)

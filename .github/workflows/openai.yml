@@ -1,0 +1,45 @@
+name: openai smoke tests
+on:
+    workflow_dispatch:
+    pull_request:
+        paths:
+            - yarn.lock
+            - ".github/workflows/github-models.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
+    push:
+        branches:
+            - main
+        paths:
+            - yarn.lock
+            - ".github/workflows/github-models.yml"
+            - "packages/core/**/*"
+            - "packages/cli/**/*"
+            - "packages/samples/**/*"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}-github-models
+    cancel-in-progress: true
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 0
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: typecheck
+              run: yarn typecheck
+            - name: compile
+              run: yarn compile
+            - name: run summarize openai:gpt-3.5-turbo
+              run: yarn test:summarize --model openai:gpt-3.5-turbo --out ./temp
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}

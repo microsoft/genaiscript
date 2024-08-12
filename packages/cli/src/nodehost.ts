@@ -5,7 +5,7 @@ import { readFile, unlink, writeFile } from "node:fs/promises"
 import { ensureDir, existsSync, remove } from "fs-extra"
 import { resolve, dirname } from "node:path"
 import { glob } from "glob"
-import { debug, error, info, warn } from "./log"
+import { debug, error, info, isQuiet, warn } from "./log"
 import { execa } from "execa"
 import { join } from "node:path"
 import { createNodePath } from "./nodepath"
@@ -43,6 +43,7 @@ import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
 import { createAzureToken } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
+import { errorMessage } from "../../core/src/error"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -70,7 +71,7 @@ class ModelManager implements ModelService {
         if (provider === MODEL_PROVIDER_OLLAMA) {
             if (this.pulled.includes(modelid)) return { ok: true }
 
-            logVerbose(`ollama: pulling ${modelid}...`)
+            if (!isQuiet) logVerbose(`ollama pull ${model}`)
             const conn = await this.getModelToken(modelid)
             const res = await fetch(`${conn.base}/api/pull`, {
                 method: "POST",
@@ -108,16 +109,20 @@ export class NodeHost implements RuntimeHost {
     }
 
     constructor(dotEnvPath: string) {
-        if (existsSync(dotEnvPath)) {
-            this.dotEnvPath = dotEnvPath
+        this.dotEnvPath = dotEnvPath
+        this.syncDotEnv()
+        this.models = new ModelManager(this)
+    }
+
+    private syncDotEnv() {
+        if (existsSync(this.dotEnvPath)) {
             const res = dotenv.config({
-                path: dotEnvPath,
+                path: this.dotEnvPath,
                 debug: !!process.env.DEBUG,
                 override: true,
             })
             if (res.error) throw res.error
         }
-        this.models = new ModelManager(this)
     }
 
     static async install(dotEnvPath: string) {
@@ -129,10 +134,12 @@ export class NodeHost implements RuntimeHost {
     }
 
     async readSecret(name: string): Promise<string | undefined> {
+        this.syncDotEnv()
         return process.env[name]
     }
 
     private async parseDefaults() {
+        this.syncDotEnv()
         await parseDefaultsFromEnv(process.env)
     }
     clientLanguageModel: LanguageModel
@@ -291,6 +298,14 @@ export class NodeHost implements RuntimeHost {
             if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
             if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
+        } catch (err) {
+            trace?.error("exec failed", err)
+            return {
+                stdout: "",
+                stderr: errorMessage(err),
+                exitCode: 1,
+                failed: true,
+            }
         } finally {
             trace?.endDetails()
         }

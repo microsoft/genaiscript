@@ -2,7 +2,7 @@
   "name": "docs",
   "type": "module",
   "private": true,
-  "version": "1.45.5",
+  "version": "1.48.5",
   "license": "MIT",
   "scripts": {
     "dev": "astro dev --host",
@@ -18,9 +18,9 @@
     "genai:alt-text": "node scripts/image-alt-text.mjs"
   },
   "dependencies": {
-    "@astrojs/check": "^0.8.3",
+    "@astrojs/check": "^0.9.1",
     "@astrojs/starlight": "^0.25.3",
-    "astro": "^4.12.2",
+    "astro": "^4.13.1",
     "typescript": "5.5.4"
   },
   "devDependencies": {

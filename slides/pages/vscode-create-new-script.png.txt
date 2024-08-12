@@ -1,0 +1,1 @@
+Visual Studio Code command palette with the input field containing the text 'create' which has autocompleted suggestions below, the first being 'GenAIScript: Create new script...' highlighted in blue.

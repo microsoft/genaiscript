@@ -9,6 +9,7 @@ import {
     MODEL_PROVIDER_LITELLM,
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
+    MODEL_PROVIDER_GITHUB,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -16,6 +17,7 @@ import { updateConnectionConfiguration } from "../../core/src/connection"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
+import { serializeError } from "../../core/src/error"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -62,6 +64,11 @@ async function generateLanguageModelConfiguration(
             detail: `Use a Azure-hosted OpenAI subscription.`,
             provider: MODEL_PROVIDER_AZURE,
             apiType: "azure",
+        },
+        {
+            label: "GitHub Models",
+            detail: `Use a GitHub Models with a GitHub subscription.`,
+            provider: MODEL_PROVIDER_GITHUB,
         },
         {
             label: "LocalAI",
@@ -115,11 +122,14 @@ async function pickChatModel(
             detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
             chatModel,
         }))
-        const res = await vscode.window.showQuickPick(items, {
-            title: `Pick a Language Chat Model for ${model}`,
-        })
-        chatModel = res?.chatModel
-        if (chatModel) await state.updateLanguageChatModels(model, chatModel.id)
+        if (items?.length) {
+            const res = await vscode.window.showQuickPick(items, {
+                title: `Pick a Language Chat Model for ${model}`,
+            })
+            chatModel = res?.chatModel
+            if (chatModel)
+                await state.updateLanguageChatModels(model, chatModel.id)
+        }
     }
     return chatModel
 }
@@ -191,37 +201,53 @@ export function createChatModelRunner(
     if (!isLanguageModelsAvailable()) return undefined
 
     return async (req: ChatStart, onChunk) => {
-        const token = new vscode.CancellationTokenSource().token
-        const { model, messages, modelOptions } = req
-        const chatModel = await pickChatModel(state, model)
-        if (!chatModel) {
-            onChunk({
-                finishReason: "cancel",
-            })
-            return
-        }
-        const chatMessages = messagesToChatMessages(messages)
-        const request = await chatModel.sendRequest(
-            chatMessages,
-            {
-                justification: `Run GenAIScript`,
-                modelOptions,
-            },
-            token
-        )
+        try {
+            const token = new vscode.CancellationTokenSource().token
+            const { model, messages, modelOptions } = req
+            const chatModel = await pickChatModel(state, model)
+            if (!chatModel) {
+                onChunk({
+                    finishReason: "cancel",
+                })
+                return
+            }
+            const chatMessages = messagesToChatMessages(messages)
+            const request = await chatModel.sendRequest(
+                chatMessages,
+                {
+                    justification: `Run GenAIScript`,
+                    modelOptions,
+                },
+                token
+            )
 
-        let text = ""
-        for await (const fragment of request.text) {
-            text += fragment
+            let text = ""
+            for await (const fragment of request.text) {
+                text += fragment
+                onChunk({
+                    chunk: fragment,
+                    tokens: await chatModel.countTokens(text),
+                    finishReason: undefined,
+                    model: chatModel.id,
+                })
+            }
             onChunk({
-                chunk: fragment,
-                tokens: await chatModel.countTokens(text),
-                finishReason: undefined,
-                model: chatModel.id,
+                finishReason: "stop",
             })
+        } catch (err) {
+            if (err instanceof vscode.LanguageModelError) {
+                const offTopic =
+                    err.code === vscode.LanguageModelError.Blocked.name
+                onChunk({
+                    finishReason: offTopic ? "content_filter" : "fail",
+                    error: serializeError(err),
+                })
+            } else {
+                onChunk({
+                    finishReason: "fail",
+                    error: serializeError(err),
+                })
+            }
         }
-        onChunk({
-            finishReason: "stop",
-        })
     }
 }

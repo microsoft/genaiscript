@@ -33,6 +33,7 @@ import {
     ChatStart,
     ChatChunk,
     ChatCancel,
+    LanguageModelConfigurationResponse,
 } from "../../core/src/server/messages"
 import { envInfo } from "./info"
 import { LanguageModel } from "../../core/src/chat"
@@ -59,12 +60,12 @@ export async function startServer(options: { port: string }) {
 
     const cancelAll = () => {
         for (const [runId, run] of Object.entries(runs)) {
-            console.log(`abort run ${runId}`)
+            logVerbose(`abort run ${runId}`)
             run.canceller.abort("closing")
             delete runs[runId]
         }
         for (const [chatId, chat] of Object.entries(chats)) {
-            console.log(`abort chat ${chat}`)
+            logVerbose(`abort chat ${chat}`)
             for (const ws of wss.clients) {
                 ws.send(
                     JSON.stringify(<ChatCancel>{
@@ -125,7 +126,10 @@ export async function startServer(options: { port: string }) {
                         trace.appendContent("\n\n")
                         trace.itemValue(`finish reason`, finishReason)
                         delete chats[chatId]
-                        resolve({ text: responseSoFar, finishReason })
+                        if (chunk.error) {
+                            trace.error(undefined, chunk.error)
+                            reject(chunk.error)
+                        } else resolve({ text: responseSoFar, finishReason })
                     }
                 }
 
@@ -149,11 +153,11 @@ export async function startServer(options: { port: string }) {
         cancelAll()
     })
     wss.on("connection", function connection(ws) {
-        console.log(`clients: connected (${wss.clients.size} clients)`)
+        logVerbose(`clients: connected (${wss.clients.size} clients)`)
 
         ws.on("error", console.error)
         ws.on("close", () =>
-            console.log(`clients: closed (${wss.clients.size} clients)`)
+            logVerbose(`clients: closed (${wss.clients.size} clients)`)
         )
         ws.on("message", async (msg) => {
             const data = JSON.parse(msg.toString()) as RequestMessages
@@ -162,7 +166,7 @@ export async function startServer(options: { port: string }) {
             try {
                 switch (type) {
                     case "server.version": {
-                        console.log(`server: version ${CORE_VERSION}`)
+                        logVerbose(`server: version ${CORE_VERSION}`)
                         response = <ServerResponse>{
                             ok: true,
                             version: CORE_VERSION,
@@ -174,7 +178,7 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "server.env": {
-                        console.log(`server: env`)
+                        logVerbose(`server: env`)
                         envInfo(undefined)
                         response = <ServerResponse>{
                             ok: true,
@@ -182,12 +186,32 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "server.kill": {
-                        console.log(`server: kill`)
+                        logVerbose(`server: kill`)
                         process.exit(0)
                         break
                     }
+                    case "model.configuration": {
+                        const { model, token } = data
+                        logVerbose(`model: lookup configuration ${model}`)
+                        try {
+                            const info =
+                                await host.getLanguageModelConfiguration(
+                                    model,
+                                    { token }
+                                )
+                            response = <LanguageModelConfigurationResponse>{
+                                ok: true,
+                                info,
+                            }
+                        } catch (e) {
+                            response = <LanguageModelConfigurationResponse>{
+                                ok: false,
+                            }
+                        }
+                        break
+                    }
                     case "tests.run": {
-                        console.log(
+                        logVerbose(
                             `tests: run ${data.scripts?.join(", ") || "*"}`
                         )
                         response = await runPromptScriptTests(data.scripts, {
@@ -292,7 +316,7 @@ export async function startServer(options: { port: string }) {
                     }
                     case "script.abort": {
                         const { runId, reason } = data
-                        console.log(`run ${runId}: abort`)
+                        logVerbose(`run ${runId}: abort`)
                         const run = runs[runId]
                         if (run) {
                             delete runs[runId]
@@ -306,7 +330,7 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "shell.exec": {
-                        console.log(`exec ${data.command}`)
+                        logVerbose(`exec ${data.command}`)
                         const { command, args, options, containerId } = data
                         const value = await runtimeHost.exec(
                             containerId,
@@ -338,5 +362,5 @@ export async function startServer(options: { port: string }) {
             }
         })
     })
-    console.log(`GenAIScript server started on port ${port}`)
+    console.log(`GenAIScript server v${CORE_VERSION} started on port ${port}`)
 }

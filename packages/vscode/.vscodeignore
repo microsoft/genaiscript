@@ -23,3 +23,4 @@ built/*.woff2
 built/*.ttf
 built/*.extension
 built/*.symbol.svg
+genaiscript.manifest

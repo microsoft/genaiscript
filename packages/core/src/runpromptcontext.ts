@@ -122,14 +122,10 @@ export function createChatGenerationContext(
     const defTool: (
         name: string,
         description: string,
-        parameters: PromptParametersSchema | JSONSchema,
+        parameters: PromptParametersSchema | JSONSchemaObject,
         fn: ChatFunctionHandler
     ) => void = (name, description, parameters, fn) => {
-        const parameterSchema = isJSONSchema(parameters)
-            ? (parameters as JSONSchema)
-            : promptParametersSchemaToJSONSchema(
-                  parameters as PromptParametersSchema
-              )
+        const parameterSchema = promptParametersSchemaToJSONSchema(parameters)
         appendChild(
             node,
             createFunctionNode(name, description, parameterSchema, fn)

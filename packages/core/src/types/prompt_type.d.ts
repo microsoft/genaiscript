@@ -76,7 +76,7 @@ declare function defFileOutput(
 declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 
@@ -110,12 +110,6 @@ declare var retrieval: Retrieval
  * Access to the workspace file system.
  */
 declare var workspace: WorkspaceFileSystem
-
-/**
- * Access to the workspace file system.
- * @deprecated Use `workspace` instead.
- */
-declare var fs: WorkspaceFileSystem
 
 /**
  * YAML parsing and stringifying functions.
