@@ -1,3 +1,5 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -65,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = string
+type SystemPromptId = OptionsOrString<string>
 
-type SystemToolId = string
+type SystemToolId = OptionsOrString<string>
 
 type FileMergeHandler = (
     filename: string,
@@ -1587,6 +1589,11 @@ interface ContainerHost extends ShellHost {
      * @param toContainer directory in the container
      */
     copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {

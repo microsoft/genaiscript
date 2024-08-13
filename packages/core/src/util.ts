@@ -180,10 +180,10 @@ export function logWarn(msg: string) {
 export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
     if (message) host.log(LogLevel.Error, message)
+        console.debug(msg)
     const se = YAMLStringify(e)
     if (!/^\s*\{\}\s*$/) host.log(LogLevel.Info, se)
 }
-
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []
     return arrays[0].concat(...arrays.slice(1))

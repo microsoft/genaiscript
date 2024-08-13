@@ -2,13 +2,13 @@ import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
-import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
+import { JSON5parse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5"
 import {
     CancellationOptions,
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert } from "./util"
+import { assert, logError } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
 import {
     toStrictJSONSchema,
@@ -18,7 +18,6 @@ import {
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
-import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
@@ -141,10 +140,11 @@ async function runToolCalls(
         checkCancelled(cancellationToken)
         trace.startDetails(`📠 tool call ${call.name}`)
         try {
-            const callArgs: any = call.arguments
-                ? JSON5TryParse(call.arguments)
+            const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
+                ? JSONLLMTryParse(call.arguments)
                 : undefined
-            trace.itemValue(`args`, callArgs ?? call.arguments)
+            trace.fence(call.arguments, "json")
+            if (callArgs === undefined) trace.error("arguments failed to parse")
             const fd = functions.find((f) => f.definition.name === call.name)
             if (!fd) throw new Error(`tool ${call.name} not found`)
 
@@ -207,6 +207,7 @@ ${fenceMD(content, " ")}
                 tool_call_id: call.id,
             })
         } catch (e) {
+            logError(e)
             trace.error(`tool call ${call.id} error`, e)
             throw e
         } finally {
@@ -238,7 +239,7 @@ async function applyRepairs(
     const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
-        const value = JSON5TryParse(content)
+        const value = JSONLLMTryParse(content)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(value, schema, { trace })
         if (!res.valid)
@@ -347,7 +348,7 @@ function structurifyChatSession(
         }
     } else {
         json = isJSONObjectOrArray(text)
-            ? JSON5TryParse(text, undefined)
+            ? JSONLLMTryParse(text)
             : (undefined ?? findFirstDataFence(fences))
     }
     const frames: DataFrame[] = []
@@ -512,10 +513,11 @@ export async function executeChatSession(
             infoCb?.({
                 text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
             })
-            trace.details(
-                `💬 messages (${messages.length})`,
-                renderMessagesToMarkdown(messages)
-            )
+            if (messages)
+                trace.details(
+                    `💬 messages (${messages.length})`,
+                    renderMessagesToMarkdown(messages)
+                )
 
             // make request
             let resp: ChatCompletionResponse

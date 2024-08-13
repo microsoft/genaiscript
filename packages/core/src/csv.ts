@@ -27,7 +27,7 @@ export function CSVTryParse(
         delimiter?: string
         headers?: string[]
     } & TraceOptions
-): object[] {
+): object[] | undefined {
     const { trace } = options || {}
     try {
         return CSVParse(text, options)
@@ -51,8 +51,9 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
         ),
     ]
     const md = markdownTable(table, {
-        align: "left",
         stringLength: (str) => str.length,
+        padding: false,
+        alignDelimiters: false,
     })
     // improves LLM performance
     const mdcompact = md.replace(/[\t ]+/g, " ")

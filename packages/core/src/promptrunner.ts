@@ -119,7 +119,7 @@ export async function runTemplate(
         )
 
         // if the expansion failed, show the user the trace
-        if (status !== "success") {
+        if (status !== "success" || !messages.length) {
             trace.renderErrors()
             return <GenerationResult>{
                 status,

@@ -13,8 +13,10 @@ import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
 import { installImport } from "../../core/src/import"
 import { TraceOptions } from "../../core/src/trace"
-import { logError, dotGenaiscriptPath } from "../../core/src/util"
+import { logError, dotGenaiscriptPath, logVerbose } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
+import { YAMLStringify } from "../../core/src/yaml"
+import { isQuiet } from "./log"
 
 type DockerodeType = import("dockerode")
 
@@ -60,6 +62,30 @@ export class DockerManager {
             await remove(container.hostPath)
         }
         this.containers = []
+    }
+
+    async stopContainer(id: string) {
+        const c = await this._docker?.getContainer(id)
+        if (c) {
+            try {
+                await c.stop()
+            } catch {}
+            try {
+                await c.remove()
+            } catch (e) {
+                logError(e)
+            }
+        }
+        const i = this.containers.findIndex((c) => c.id === id)
+        if (i > -1) {
+            const container = this.containers[i]
+            try {
+                await remove(container.hostPath)
+            } catch (e) {
+                logError(e)
+            }
+            this.containers.splice(i, 1)
+        }
     }
 
     async checkImage(image: string) {
@@ -162,6 +188,10 @@ export class DockerManager {
             const inspection = await container.inspect()
             trace?.itemValue(`container state`, inspection.State?.Status)
 
+            const stop: () => Promise<void> = async () => {
+                await this.stopContainer(container.id)
+            }
+
             const exec: ShellHost["exec"] = async (
                 command,
                 args,
@@ -178,6 +208,10 @@ export class DockerManager {
                     trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
                     trace?.item(`\`${command}\` ${args.join(" ")}`)
+                    if (!isQuiet)
+                        logVerbose(
+                            `container exec: ${command} ${args.join(" ")}`
+                        )
 
                     let inspection = await container.inspect()
                     trace?.itemValue(
@@ -220,8 +254,14 @@ export class DockerManager {
                         exitCode === 0,
                         `exit code: ${sres.exitCode}`
                     )
-                    if (sres.stdout) trace?.detailsFenced(`stdout`, sres.stdout)
-                    if (sres.stderr) trace?.detailsFenced(`stderr`, sres.stderr)
+                    if (sres.stdout) {
+                        trace?.detailsFenced(`stdout`, sres.stdout, "txt")
+                        if (!isQuiet) logVerbose(sres.stdout)
+                    }
+                    if (sres.stderr) {
+                        trace?.detailsFenced(`stderr`, sres.stderr, "txt")
+                        if (!isQuiet) logVerbose(sres.stderr)
+                    }
 
                     return sres
                 } catch (e) {
@@ -239,7 +279,9 @@ export class DockerManager {
             const writeText = async (filename: string, content: string) => {
                 const hostFilename = host.path.resolve(hostPath, filename)
                 await ensureDir(host.path.dirname(hostFilename))
-                await writeFile(hostFilename, content, { encoding: "utf8" })
+                await writeFile(hostFilename, content ?? "", {
+                    encoding: "utf8",
+                })
             }
 
             const readText = async (filename: string, content: string) => {
@@ -262,6 +304,7 @@ export class DockerManager {
                 disablePurge: !!options.disablePurge,
                 hostPath,
                 containerPath,
+                stop,
                 exec,
                 writeText,
                 readText,
