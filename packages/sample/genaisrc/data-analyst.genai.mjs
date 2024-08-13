@@ -3,6 +3,6 @@ script({
     files: ["src/penguins.csv"],
 })
 
-const data = def("DATA", env.files, { sliceSample: 100 })
+const data = def("DATA", env.files, { sliceSample: 25 })
 
 $`Analyze ${data} with a detailed statistical analysis.`

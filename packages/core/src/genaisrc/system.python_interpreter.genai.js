@@ -6,7 +6,7 @@ const image = env.vars.pythonImage ?? "python:alpine"
 
 defTool(
     "python_interpreter",
-    "Executes python code in a docker container",
+    "Executes python code in a docker container. The process output is returned.",
     {
         type: "object",
         properties: {
@@ -27,8 +27,7 @@ defTool(
         try {
             if (requirements) {
                 await container.writeText("requirements.txt", requirements)
-                await container.exec("python", [
-                    "pip",
+                await container.exec("pip", [
                     "install",
                     "-r",
                     "requirements.txt",
