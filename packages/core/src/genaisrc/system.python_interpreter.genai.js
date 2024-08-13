@@ -15,7 +15,10 @@ defTool(
             requirements: {
                 type: "string",
                 description:
-                    "list of packages to install using pip. should be using the pip install format.",
+                    `list of packages and versions to install using pip. should be using the pip install format: 
+<package1>===<version1>
+<package2>===<version2>
+`
             },
             main: {
                 type: "string",
@@ -30,10 +33,9 @@ defTool(
         container = await host.container({ image, networkEnabled: true })
         if (requirements) {
             console.log(`installing: ` + requirements)
-            await container.writeText("requirements.txt", requirements)
+            await container.writeText("requirements.txt", requirements.replace(/[ ,]\s*/g, "\n"))
             await container.exec("pip", [
                 "install",
-                "--no-cache-dir",
                 "--root-user-action",
                 "ignore",
                 "-r",
