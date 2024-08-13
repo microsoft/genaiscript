@@ -34,7 +34,8 @@ defTool(
             await container.exec("pip", [
                 "install",
                 "--no-cache-dir",
-                "--root-user-action", "ignore",
+                "--root-user-action",
+                "ignore",
                 "-r",
                 "requirements.txt",
             ])
