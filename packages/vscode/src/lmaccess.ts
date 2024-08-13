@@ -13,7 +13,6 @@ import {
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
-import { updateConnectionConfiguration } from "../../core/src/connection"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
@@ -143,11 +142,11 @@ export async function pickLanguageModel(
 
     if (res.model) return res.model
     else {
-        await updateConnectionConfiguration(res.provider, res.apiType)
-        const doc = await vscode.workspace.openTextDocument(
-            state.host.toUri("./.env")
+        await vscode.commands.executeCommand(
+            "genaiscript.connection.configure",
+            res.provider,
+            res.apiType
         )
-        await vscode.window.showTextDocument(doc)
         return undefined
     }
 }

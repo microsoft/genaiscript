@@ -2,9 +2,11 @@ import * as vscode from "vscode"
 import { ExtensionState } from "./state"
 import { MODEL_PROVIDERS } from "../../core/src/constants"
 import { YAMLStringify } from "../../core/src/yaml"
+import { APIType } from "../../core/src/host"
 
 class ConnectionInfoTreeData {
     provider: string
+    apiType?: APIType
 }
 
 class ConnectionInfoTreeDataProvider
@@ -30,10 +32,24 @@ class ConnectionInfoTreeDataProvider
         const item = new vscode.TreeItem(element.provider)
         const res =
             await this.state.host.server.client.getLanguageModelConfiguration(
-                element.provider + ":*"
+                element.provider + ":*",
+                { token: false }
             )
-        item.description = "base"
-        item.tooltip = YAMLStringify(res)
+        if (res) {
+            item.description = res.base || "?"
+            item.tooltip = YAMLStringify(res)
+            item.command = <vscode.Command>{
+                command: "vscode.open",
+                arguments: [this.state.host.toUri("./.env")],
+            }
+        } else {
+            item.description = "not configured"
+            item.command = <vscode.Command>{
+                command: "genaiscript.connection.configure",
+                arguments: [element.provider, element.apiType],
+            }
+        }
+
         return item
     }
     getChildren(
