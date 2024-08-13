@@ -13,8 +13,10 @@ import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
 import { installImport } from "../../core/src/import"
 import { TraceOptions } from "../../core/src/trace"
-import { logError, dotGenaiscriptPath } from "../../core/src/util"
+import { logError, dotGenaiscriptPath, logVerbose } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
+import { YAMLStringify } from "../../core/src/yaml"
+import { isQuiet } from "./log"
 
 type DockerodeType = import("dockerode")
 
@@ -248,8 +250,14 @@ export class DockerManager {
                         exitCode === 0,
                         `exit code: ${sres.exitCode}`
                     )
-                    if (sres.stdout) trace?.detailsFenced(`stdout`, sres.stdout)
-                    if (sres.stderr) trace?.detailsFenced(`stderr`, sres.stderr)
+                    if (sres.stdout) {
+                        trace?.detailsFenced(`stdout`, sres.stdout)
+                        if (!isQuiet) logVerbose(sres.stdout)
+                    }
+                    if (sres.stderr) {
+                        trace?.detailsFenced(`stderr`, sres.stderr)
+                        if (!isQuiet) logVerbose(sres.stdout)
+                    }
 
                     return sres
                 } catch (e) {
@@ -267,7 +275,9 @@ export class DockerManager {
             const writeText = async (filename: string, content: string) => {
                 const hostFilename = host.path.resolve(hostPath, filename)
                 await ensureDir(host.path.dirname(hostFilename))
-                await writeFile(hostFilename, content, { encoding: "utf8" })
+                await writeFile(hostFilename, content ?? "", {
+                    encoding: "utf8",
+                })
             }
 
             const readText = async (filename: string, content: string) => {

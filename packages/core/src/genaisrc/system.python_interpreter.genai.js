@@ -4,6 +4,8 @@ system({
 
 const image = env.vars.pythonImage ?? "python:3"
 
+let container = null
+
 defTool(
     "python_interpreter",
     "Executes python code in a docker container. The process output is returned.",
@@ -21,25 +23,24 @@ defTool(
         },
         required: ["requirements", "main"],
     },
-    async ({ requirements, main }) => {
+    async (args) => {
+        const { requirements, main = "" } = args
         console.log(`python: running code...`)
-        const container = await host.container({ image })
-        try {
-            if (requirements) {
-                await container.writeText("requirements.txt", requirements)
-                await container.exec("pip", [
-                    "install",
-                    "--no-cache-dir",
-                    "-r",
-                    "requirements.txt",
-                ])
-            }
-
-            await container.writeText("main.py", main)
-            const res = await container.exec("python", ["main.py"])
-            return res
-        } finally {
-            await container.stop()
+        container = await host.container({ image })
+        if (requirements) {
+            console.log(`installing: ` + requirements.replace(/\n/g, ", "))
+            await container.writeText("requirements.txt", requirements)
+            await container.exec("pip", [
+                "install",
+                "--no-cache-dir",
+                "-r",
+                "requirements.txt",
+            ])
         }
+
+        console.log(`code: ` + main)
+        await container.writeText("main.py", main)
+        const res = await container.exec("python", ["main.py"])
+        return res
     }
 )

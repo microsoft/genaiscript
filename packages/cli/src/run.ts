@@ -4,7 +4,6 @@ import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
-import { createProgressSpinner } from "./spinner"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
@@ -109,13 +108,8 @@ export async function runScript(
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
 
-    const spinner =
-        !stream && !isQuiet
-            ? createProgressSpinner(`preparing tools in ${process.cwd()}`)
-            : undefined
     const fail = (msg: string, exitCode: number) => {
-        if (spinner) spinner.fail(msg)
-        else logVerbose(msg)
+        logVerbose(msg)
         return { exitCode, result }
     }
 
@@ -188,8 +182,7 @@ export async function runScript(
             infoCb: (args) => {
                 const { text } = args
                 if (text) {
-                    if (spinner) spinner.start(text)
-                    else if (!isQuiet) logVerbose(text)
+                    if (!isQuiet) logVerbose(text)
                     infoCb?.(args)
                 }
             },
@@ -197,7 +190,7 @@ export async function runScript(
                 const { responseChunk, tokensSoFar } = args
                 tokens = tokensSoFar
                 if (stream && responseChunk) process.stdout.write(responseChunk)
-                if (spinner) spinner.report({ count: tokens })
+                else if (!isQuiet) process.stderr.write(responseChunk)
                 partialCb?.(args)
             },
             skipLLM,
@@ -230,18 +223,13 @@ export async function runScript(
             },
         })
     } catch (err) {
-        if (spinner) spinner.fail()
         if (isCancelError(err))
             return fail("user cancelled", USER_CANCELLED_ERROR_CODE)
         logError(err)
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
     if (!isQuiet) logVerbose("") // force new line
-    if (spinner) {
-        if (result.status !== "success")
-            spinner.fail(`${spinner.text}, ${result.statusText}`)
-        else spinner.succeed()
-    } else if (result.status !== "success")
+    if (result.status !== "success")
         logVerbose(result.statusText ?? result.status)
 
     if (outTrace) await writeText(outTrace, trace.content)
@@ -434,7 +422,6 @@ export async function runScript(
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    spinner?.stop()
     process.stderr.write("\n")
     return { exitCode: 0, result }
 }
