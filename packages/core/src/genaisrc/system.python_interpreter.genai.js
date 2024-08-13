@@ -8,21 +8,21 @@ let container = null
 
 defTool(
     "python_interpreter",
-    "Executes python code in a docker container. The process output is returned. Use 'print' to output data.",
+    "Executes python 3 code in a docker container. The process output is returned. Use 'print' to output data.",
     {
         type: "object",
         properties: {
             requirements: {
                 type: "string",
                 description:
-                    `list of packages and versions to install using pip. should be using the pip install format: 
+                    `list of pip packages and versions to install using pip. should be using the pip install format: 
 <package1>===<version1>
 <package2>===<version2>
 `
             },
             main: {
                 type: "string",
-                description: "python source code to execute",
+                description: "python 3 source code to execute",
             },
         },
         required: ["requirements", "main"],
