@@ -41,4 +41,5 @@ If the changes look good, respond "LGTM :rocket:". If you have any concerns, pro
 - only report functional issues
 - Use emojis
 - If available, suggest code fixes and improvements using a diff format.
+- do not report about individual lines of code, summarize changes
 `
