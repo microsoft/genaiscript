@@ -596,18 +596,18 @@ Python Dockerized code execution
 
 
 
--  tool `python_interpreter`: Executes python code in a docker container
+-  tool `python_interpreter`: Executes python code in a docker container. The process output is returned.
 
 `````js wrap title="system.python_interpreter"
 system({
     title: "Python Dockerized code execution",
 })
 
-const image = env.vars.pythonImage ?? "python:alpine"
+const image = env.vars.pythonImage ?? "python"
 
 defTool(
     "python_interpreter",
-    "Executes python code in a docker container",
+    "Executes python code in a docker container. The process output is returned.",
     {
         type: "object",
         properties: {
@@ -628,9 +628,9 @@ defTool(
         try {
             if (requirements) {
                 await container.writeText("requirements.txt", requirements)
-                await container.exec("python", [
-                    "pip",
+                await container.exec("pip", [
                     "install",
+                    "--no-cache-dir",
                     "-r",
                     "requirements.txt",
                 ])

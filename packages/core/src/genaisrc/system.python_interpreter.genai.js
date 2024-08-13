@@ -2,7 +2,7 @@ system({
     title: "Python Dockerized code execution",
 })
 
-const image = env.vars.pythonImage ?? "python:alpine"
+const image = env.vars.pythonImage ?? "python"
 
 defTool(
     "python_interpreter",
