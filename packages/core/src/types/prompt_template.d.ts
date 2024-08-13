@@ -1587,6 +1587,11 @@ interface ContainerHost extends ShellHost {
      * @param toContainer directory in the container
      */
     copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {

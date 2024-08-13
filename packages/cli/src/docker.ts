@@ -62,6 +62,30 @@ export class DockerManager {
         this.containers = []
     }
 
+    async stopContainer(id: string) {
+        const c = await this._docker?.getContainer(id)
+        if (c) {
+            try {
+                await c.stop()
+            } catch {}
+            try {
+                await c.remove()
+            } catch (e) {
+                logError(e)
+            }
+        }
+        const i = this.containers.findIndex((c) => c.id === id)
+        if (i > -1) {
+            const container = this.containers[i]
+            try {
+                await remove(container.hostPath)
+            } catch (e) {
+                logError(e)
+            }
+            this.containers.splice(i, 1)
+        }
+    }
+
     async checkImage(image: string) {
         await this.init()
         try {
@@ -161,6 +185,10 @@ export class DockerManager {
             trace?.itemValue(`container path`, containerPath)
             const inspection = await container.inspect()
             trace?.itemValue(`container state`, inspection.State?.Status)
+
+            const stop: () => Promise<void> = async () => {
+                await this.stopContainer(container.id)
+            }
 
             const exec: ShellHost["exec"] = async (
                 command,
@@ -262,6 +290,7 @@ export class DockerManager {
                 disablePurge: !!options.disablePurge,
                 hostPath,
                 containerPath,
+                stop,
                 exec,
                 writeText,
                 readText,
