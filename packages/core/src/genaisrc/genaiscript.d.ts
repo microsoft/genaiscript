@@ -67,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.python_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot">
+type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot">
 
-type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "python_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
+type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
 
 type FileMergeHandler = (
     filename: string,
@@ -212,7 +212,7 @@ interface ScriptRuntimeOptions {
 * - `system.functions`: use functions
 * - `system.math`: Math expression evaluator
 * - `system.python`: Expert at generating and understanding Python code.
-* - `system.python_interpreter`: Python Dockerized code execution
+* - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
 * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
 * - `system.retrieval_vector_search`: Embeddings Vector Search
 * - `system.retrieval_web_search`: Web Search
@@ -233,7 +233,6 @@ interface ScriptRuntimeOptions {
 * - `fs_read_file`: Reads a file as text from the file system.
 * - `fs_read_summary`: Reads a summary of a file from the file system.
 * - `math_eval`: Evaluates a math expression
-* - `python_interpreter`: Executes python 3.12 code in a docker container. The process output is returned. Use 'print' to output data.
 * - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
 * - `retrieval_vector_search`: Search files using embeddings and similarity distance.
 * - `retrieval_web_search`: Search the web for a user query using Bing Search.
@@ -1631,6 +1630,11 @@ interface ContainerHost extends ShellHost {
      * Stops and cleans out the container
      */
     stop(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {

@@ -590,64 +590,57 @@ Emit type information compatible with PyLance.`
 `````
 
 
-### `system.python_interpreter`
+### `system.python_code_interpreter`
 
-Python Dockerized code execution
+Python Dockerized code execution for data analysis
 
 
 
--  tool `python_interpreter`: Executes python 3.12 code in a docker container. The process output is returned. Use 'print' to output data.
 
-`````js wrap title="system.python_interpreter"
+
+`````js wrap title="system.python_code_interpreter"
 system({
-    title: "Python Dockerized code execution",
+    title: "Python Dockerized code execution for data analysis",
 })
 
 const image = env.vars.pythonImage ?? "python:3.12"
+const packages = ["numpy", "pandas", "scipy"]
 
 let container = null
 
 defTool(
-    "python_interpreter",
-    "Executes python 3.12 code in a docker container. The process output is returned. Use 'print' to output data.",
+    "python_code_interpreter",
+    `Executes python 3.12 code for Data Analysis tasks in a docker container. 
+- The process output is returned. 
+- Do not generate visualizations.
+- The only packages available are ${packages.join(", ")}.
+- There is NO network connectivity. Do not attempt to install other packages or make web requests.`,
     {
         type: "object",
         properties: {
-            requirements: {
-                type: "string",
-                description: `list of pip packages to install using pip. should be using the pip install format: 
-<package1>
-<package2>
-`,
-            },
             main: {
                 type: "string",
                 description: "python 3.12 source code to execute",
             },
         },
-        required: ["requirements", "main"],
+        required: ["main"],
     },
     async (args) => {
-        const { requirements, main = "" } = args
-        console.log(`python: running code...`)
-        container = await host.container({ image, networkEnabled: true })
-        if (requirements) {
-            console.log(`installing: ` + requirements)
-            await container.writeText(
-                "requirements.txt",
-                requirements.replace(/[ ,]\s*/g, "\n")
-            )
+        const { main = "" } = args
+        console.log(`python code interpreter: ` + main)
+        if (!container) {
+            console.log(`python: preparing container...`)
+            container = await host.container({ image, networkEnabled: true })
             const res = await container.exec("pip", [
                 "install",
                 "--root-user-action",
                 "ignore",
-                "-r",
-                "requirements.txt",
+                ...packages,
             ])
             if (res.failed) throw new Error(`Failed to install requirements`)
+            await container.disconnect()
         }
 
-        console.log(`code: ` + main)
         await container.writeText("main.py", main)
         const res = await container.exec("python", ["main.py"])
         return res

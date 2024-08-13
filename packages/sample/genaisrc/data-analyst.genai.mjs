@@ -1,5 +1,6 @@
 script({
-    system: ["system", "system.python_interpreter"],
+    system: ["system"],
+    tools: ["python_code_interpreter"],
     files: ["src/penguins.csv"],
 })
 
