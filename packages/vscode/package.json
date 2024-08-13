@@ -123,6 +123,11 @@
                     "name": "Trace"
                 },
                 {
+                    "id": "genaiscript.connections",
+                    "name": "Connections",
+                    "visibility": "collapsed"
+                },
+                {
                     "id": "genaiscript.prompts",
                     "name": "Scripts",
                     "visibility": "collapsed"
@@ -344,6 +349,11 @@
             {
                 "command": "genaiscript.info.env",
                 "title": "Configuration information...",
+                "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.connection.configure",
+                "title": "Configure connection...",
                 "category": "GenAIScript"
             }
         ]

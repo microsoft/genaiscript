@@ -331,9 +331,9 @@ OPENAI_API_TYPE="localai"
     if (provider === MODEL_PROVIDER_GITHUB)
         return {
             config: `
-    ## GitHub Models ${DOCS_CONFIGURATION_GITHUB_URL}
-    # use "${MODEL_PROVIDER_GITHUB}:<model>" in script({ model: ... })
-    # GITHUB_MODELS_TOKEN="${PLACEHOLDER_API_KEY}" # use a personal access token if not available
+## GitHub Models ${DOCS_CONFIGURATION_GITHUB_URL}
+# use "${MODEL_PROVIDER_GITHUB}:<model>" in script({ model: ... })
+# GITHUB_MODELS_TOKEN="${PLACEHOLDER_API_KEY}" # use a personal access token if not available
     `,
             model: `${MODEL_PROVIDER_GITHUB}:gpt-4o`,
         }

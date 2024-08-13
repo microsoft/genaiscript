@@ -15,6 +15,9 @@ import { registerCommand } from "./commands"
 import { EXTENSION_ID, TOOL_NAME } from "../../core/src/constants"
 import type MarkdownIt from "markdown-it"
 import MarkdownItGitHubAlerts from "markdown-it-github-alerts"
+import { activateConnectionInfoTree } from "./connectioninfotree"
+import { updateConnectionConfiguration } from "../../core/src/connection"
+import { APIType } from "../../core/src/host"
 
 export async function activate(context: ExtensionContext) {
     const state = new ExtensionState(context)
@@ -22,6 +25,7 @@ export async function activate(context: ExtensionContext) {
     activateFragmentCommands(state)
     activateMarkdownTextDocumentContentProvider(state)
     activatePrompTreeDataProvider(state)
+    activateConnectionInfoTree(state)
     activateAIRequestTreeDataProvider(state)
     activateLLMRequestTreeDataProvider(state)
     activateTraceTreeDataProvider(state)
@@ -29,6 +33,16 @@ export async function activate(context: ExtensionContext) {
     activateDocsNotebook(state)
 
     context.subscriptions.push(
+        registerCommand(
+            "genaiscript.connection.configure",
+            async (provider?: string, apiType?: APIType) => {
+                await updateConnectionConfiguration(provider, apiType)
+                const doc = await vscode.workspace.openTextDocument(
+                    state.host.toUri("./.env")
+                )
+                await vscode.window.showTextDocument(doc)
+            }
+        ),
         registerCommand("genaiscript.request.abort", async () => {
             await state.cancelAiRequest()
             await vscode.window.showInformationMessage(

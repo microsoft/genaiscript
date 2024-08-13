@@ -152,6 +152,7 @@ export class NodeHost implements RuntimeHost {
         const { signal, token: askToken } = options || {}
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
+        if (!askToken && tok?.token) tok.token = "***"
         if (
             askToken &&
             tok &&
