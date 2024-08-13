@@ -225,7 +225,7 @@ export function createChatModelRunner(
                 text += fragment
                 onChunk({
                     chunk: fragment,
-                    tokens: await chatModel.countTokens(text),
+                    tokens: await chatModel.countTokens(fragment),
                     finishReason: undefined,
                     model: chatModel.id,
                 })
