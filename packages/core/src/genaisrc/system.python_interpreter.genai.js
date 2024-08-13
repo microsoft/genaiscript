@@ -8,13 +8,14 @@ let container = null
 
 defTool(
     "python_interpreter",
-    "Executes python code in a docker container. The process output is returned.",
+    "Executes python code in a docker container. The process output is returned. Use 'print' to output data.",
     {
         type: "object",
         properties: {
             requirements: {
                 type: "string",
-                description: "pip install requirements.txt file to install",
+                description:
+                    "list of packages to install using pip. should be using the pip install format.",
             },
             main: {
                 type: "string",
@@ -26,13 +27,14 @@ defTool(
     async (args) => {
         const { requirements, main = "" } = args
         console.log(`python: running code...`)
-        container = await host.container({ image })
+        container = await host.container({ image, networkEnabled: true })
         if (requirements) {
-            console.log(`installing: ` + requirements.replace(/\n/g, ", "))
+            console.log(`installing: ` + requirements)
             await container.writeText("requirements.txt", requirements)
             await container.exec("pip", [
                 "install",
                 "--no-cache-dir",
+                "--root-user-action", "ignore",
                 "-r",
                 "requirements.txt",
             ])

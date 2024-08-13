@@ -208,6 +208,10 @@ export class DockerManager {
                     trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
                     trace?.item(`\`${command}\` ${args.join(" ")}`)
+                    if (!isQuiet)
+                        logVerbose(
+                            `container exec: ${command} ${args.join(" ")}`
+                        )
 
                     let inspection = await container.inspect()
                     trace?.itemValue(
@@ -256,7 +260,7 @@ export class DockerManager {
                     }
                     if (sres.stderr) {
                         trace?.detailsFenced(`stderr`, sres.stderr)
-                        if (!isQuiet) logVerbose(sres.stdout)
+                        if (!isQuiet) logVerbose(sres.stderr)
                     }
 
                     return sres

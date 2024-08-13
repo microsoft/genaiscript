@@ -124,7 +124,7 @@ export async function runScript(
             const ffs = await host.findFiles(arg, {
                 applyGitIgnore: excludeGitIgnore,
             })
-            if (!ffs.length) {
+            if (!ffs?.length) {
                 return fail(
                     `no files matching ${arg}`,
                     FILES_NOT_FOUND_ERROR_CODE

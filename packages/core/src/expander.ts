@@ -164,6 +164,7 @@ export async function expandTemplate(
 ) {
     const model = options.model
     assert(!!model)
+    const messages: ChatCompletionMessageParam[] = []
     const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
@@ -189,7 +190,7 @@ export async function expandTemplate(
         normalizeInt(env.vars["maxToolCalls"]) ??
         normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
-        MAX_TOOL_CALLS
+        MAX_TOOL_CALLS        
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
 
@@ -222,23 +223,22 @@ export async function expandTemplate(
 
     if (prompt.status !== "success" || prompt.text === "")
         // cancelled
-        return { status: prompt.status, statusText: prompt.statusText }
+        return { status: prompt.status, statusText: prompt.statusText, messages }
 
     if (cancellationToken?.isCancellationRequested)
-        return { status: "cancelled", statusText: "user cancelled" }
+        return { status: "cancelled", statusText: "user cancelled", messages }
 
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
         content: "",
     }
-    const messages: ChatCompletionMessageParam[] = []
     if (prompt.text)
         messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
 
     for (let i = 0; i < systems.length; ++i) {
         if (cancellationToken?.isCancellationRequested)
-            return { status: "cancelled", statusText: "user cancelled" }
+            return { status: "cancelled", statusText: "user cancelled", messages }
 
         let systemTemplate = systems[i]
         let system = prj.getTemplate(systemTemplate)
@@ -277,7 +277,7 @@ export async function expandTemplate(
         trace.endDetails()
 
         if (sysr.status !== "success")
-            return { status: sysr.status, statusText: sysr.statusText }
+            return { status: sysr.status, statusText: sysr.statusText, messages }
     }
 
     const responseSchema = promptParametersSchemaToJSONSchema(

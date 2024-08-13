@@ -513,10 +513,11 @@ export async function executeChatSession(
             infoCb?.({
                 text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
             })
-            trace.details(
-                `💬 messages (${messages.length})`,
-                renderMessagesToMarkdown(messages)
-            )
+            if (messages)
+                trace.details(
+                    `💬 messages (${messages.length})`,
+                    renderMessagesToMarkdown(messages)
+                )
 
             // make request
             let resp: ChatCompletionResponse

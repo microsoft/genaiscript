@@ -8,4 +8,5 @@ const data = def("DATA", env.files, { sliceSample: 25 })
 $`Analyze ${data} with a detailed statistical analysis. 
 
 - Do not generate visualizations.
-- Do not return python code.`
+- Validate computations with code.
+`
