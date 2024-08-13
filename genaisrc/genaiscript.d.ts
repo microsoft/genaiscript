@@ -231,7 +231,7 @@ interface ScriptRuntimeOptions {
 * - `fs_read_file`: Reads a file as text from the file system.
 * - `fs_read_summary`: Reads a summary of a file from the file system.
 * - `math_eval`: Evaluates a math expression
-* - `python_interpreter`: Executes python code in a docker container. The process output is returned. Use 'print' to output data.
+* - `python_interpreter`: Executes python 3.12 code in a docker container. The process output is returned. Use 'print' to output data.
 * - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
 * - `retrieval_vector_search`: Search files using embeddings and similarity distance.
 * - `retrieval_web_search`: Search the web for a user query using Bing Search.
