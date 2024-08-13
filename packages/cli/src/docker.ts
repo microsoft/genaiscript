@@ -255,11 +255,11 @@ export class DockerManager {
                         `exit code: ${sres.exitCode}`
                     )
                     if (sres.stdout) {
-                        trace?.detailsFenced(`stdout`, sres.stdout)
+                        trace?.detailsFenced(`stdout`, sres.stdout, "txt")
                         if (!isQuiet) logVerbose(sres.stdout)
                     }
                     if (sres.stderr) {
-                        trace?.detailsFenced(`stderr`, sres.stderr)
+                        trace?.detailsFenced(`stderr`, sres.stderr, "txt")
                         if (!isQuiet) logVerbose(sres.stderr)
                     }
 
