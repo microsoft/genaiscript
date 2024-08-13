@@ -1,3 +1,5 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -65,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.python_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot"
+type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.python_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot">
 
-type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "python_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search"
+type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "python_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
 
 type FileMergeHandler = (
     filename: string,

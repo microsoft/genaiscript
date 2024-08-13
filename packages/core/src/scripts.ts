@@ -49,11 +49,11 @@ export async function fixPromptDefinitions(project: Project) {
                 // update the system prompt identifiers
                 defContent = defContent
                     .replace(
-                        "type SystemPromptId = string",
-                        `type SystemPromptId = ${systems
+                        "type SystemPromptId = OptionsOrString<string>",
+                        `type SystemPromptId = OptionsOrString<${systems
                             .sort((a, b) => a.id.localeCompare(b.id))
                             .map((s) => JSON.stringify(s.id))
-                            .join(" | ")}`
+                            .join(" | ")}>`
                     )
                     .replace(
                         "    system?: SystemPromptId[]",
@@ -67,11 +67,11 @@ ${systems.map((s) => `* - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
                 // update the tool prompt identifiers
                 defContent = defContent
                     .replace(
-                        "type SystemToolId = string",
-                        `type SystemToolId = ${tools
+                        "type SystemToolId = OptionsOrString<string>",
+                        `type SystemToolId = OptionsOrString<${tools
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map((s) => JSON.stringify(s.name))
-                            .join(" | ")}`
+                            .join(" | ")}>`
                     )
                     .replace(
                         "    tools?: SystemToolId[]",
