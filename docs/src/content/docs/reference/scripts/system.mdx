@@ -623,6 +623,7 @@ defTool(
         required: ["requirements", "main"],
     },
     async ({ requirements, main }) => {
+        console.log(`python: running code...`)
         const container = await host.container({ image })
         try {
             if (requirements) {
