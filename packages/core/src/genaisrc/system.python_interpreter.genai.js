@@ -29,6 +29,7 @@ defTool(
                 await container.writeText("requirements.txt", requirements)
                 await container.exec("pip", [
                     "install",
+                    "--no-cache-dir",
                     "-r",
                     "requirements.txt",
                 ])
