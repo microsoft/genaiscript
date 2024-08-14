@@ -33,16 +33,27 @@ const container = await host.container()
 
 By default, the container uses the [python:alpine](https://hub.docker.com/_/python/) image, which provides a minimal python environment. You can change the image using the `image` option.
 
-```js
-const container = await host.container({ image: "python:slim" })
+```js 'image: "python:3"'
+const container = await host.container({ image: "python:3" })
 ```
 
 ### Disable auto-purge
 
 By default, the container is removed when it is no longer needed. You can disable this behavior using the `disablePurge` option.
 
-```js
+```js "disablePurge"
 const container = await host.container({ disablePurge: true })
+```
+
+### Enable network
+
+By default, the container network is disabled and web requests won't work. This is the safest solution;
+if you need to install additional packages, it is recommended to create an image with all the necessary software enabled.
+
+You can enable network access using `networkEnabled`.
+
+```js
+const container = await host.container({ networkEnabled: true })
 ```
 
 ## Run a command
@@ -69,6 +80,14 @@ You can also copy files from the host to the container.
 ```js
 // src/* -> ./src/*
 await container.copyTo("src/**", ".")
+```
+
+## Disconnect network
+
+If you created the container with network enabled, you can disconnect the network to isolate the container.
+
+```js
+await container.disconnect()
 ```
 
 ## Using containers in tools
