@@ -6,8 +6,4 @@ script({
 
 const data = def("DATA", env.files, { sliceSample: 25 })
 
-$`Analyze ${data} with a detailed statistical analysis. 
-
-- Do not generate visualizations.
-- Validate computations with code.
-`
+$`Analyze ${data} with a detailed statistical analysis.`
