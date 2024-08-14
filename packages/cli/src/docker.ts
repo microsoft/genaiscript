@@ -302,11 +302,16 @@ export class DockerManager {
             const disconnect = async () => {
                 const networks = await this._docker.listNetworks()
                 for (const network of networks.filter(
-                    (n) => n.Name !== "bridge"
+                    ({ Name }) => Name === "bridge"
                 )) {
-                    console.log(`container: disconnect ${network.Name}`)
                     const n = await this._docker.getNetwork(network.Id)
-                    if (n) await n.disconnect({ Container: container.id })
+                    if (n) {
+                        const state = await n.inspect()
+                        if (state?.Containers?.[container.id]) {
+                            console.log(`container: disconnect ${network.Name}`)
+                            await n.disconnect({ Container: container.id })
+                        }
+                    }
                 }
             }
 

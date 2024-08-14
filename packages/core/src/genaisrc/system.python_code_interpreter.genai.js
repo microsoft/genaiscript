@@ -9,11 +9,7 @@ let container = null
 
 defTool(
     "python_code_interpreter",
-    `Executes python 3.12 code for Data Analysis tasks in a docker container. 
-- The process output is returned. 
-- Do not generate visualizations.
-- The only packages available are ${packages.join(", ")}.
-- There is NO network connectivity. Do not attempt to install other packages or make web requests.`,
+    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.",
     {
         type: "object",
         properties: {
@@ -30,7 +26,6 @@ defTool(
         if (!container) {
             console.log(`python: preparing container...`)
             container = await host.container({ image, networkEnabled: true })
-            await container.disconnect()
             const res = await container.exec("pip", [
                 "install",
                 "--root-user-action",

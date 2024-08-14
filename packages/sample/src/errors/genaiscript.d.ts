@@ -69,7 +69,7 @@ interface PromptLike extends PromptDefinition {
 
 type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot">
 
-type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
+type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "python_code_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
 
 type FileMergeHandler = (
     filename: string,
@@ -233,6 +233,7 @@ interface ScriptRuntimeOptions {
 * - `fs_read_file`: Reads a file as text from the file system.
 * - `fs_read_summary`: Reads a summary of a file from the file system.
 * - `math_eval`: Evaluates a math expression
+* - `python_code_interpreter`: Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.
 * - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
 * - `retrieval_vector_search`: Search files using embeddings and similarity distance.
 * - `retrieval_web_search`: Search the web for a user query using Bing Search.
