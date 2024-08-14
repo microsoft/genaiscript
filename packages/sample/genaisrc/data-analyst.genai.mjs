@@ -6,4 +6,4 @@ script({
 
 const data = def("DATA", env.files, { sliceSample: 25 })
 
-$`Analyze ${data} with a detailed statistical analysis.`
+$`Analyze ${data} with a detailed statistical analysis. Respond with markdown.`
