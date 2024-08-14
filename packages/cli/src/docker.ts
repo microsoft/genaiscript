@@ -308,7 +308,7 @@ export class DockerManager {
                     if (n) {
                         const state = await n.inspect()
                         if (state?.Containers?.[container.id]) {
-                            console.log(`container: disconnect ${network.Name}`)
+                            logVerbose(`container: disconnect ${network.Name}`)
                             await n.disconnect({ Container: container.id })
                         }
                     }
