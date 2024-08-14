@@ -1594,6 +1594,11 @@ interface ContainerHost extends ShellHost {
      * Stops and cleans out the container
      */
     stop(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {

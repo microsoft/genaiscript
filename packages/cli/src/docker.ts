@@ -299,6 +299,22 @@ export class DockerManager {
                 }
             }
 
+            const disconnect = async () => {
+                const networks = await this._docker.listNetworks()
+                for (const network of networks.filter(
+                    ({ Name }) => Name === "bridge"
+                )) {
+                    const n = await this._docker.getNetwork(network.Id)
+                    if (n) {
+                        const state = await n.inspect()
+                        if (state?.Containers?.[container.id]) {
+                            logVerbose(`container: disconnect ${network.Name}`)
+                            await n.disconnect({ Container: container.id })
+                        }
+                    }
+                }
+            }
+
             const c = <ContainerHost>{
                 id: container.id,
                 disablePurge: !!options.disablePurge,
@@ -309,6 +325,7 @@ export class DockerManager {
                 writeText,
                 readText,
                 copyTo,
+                disconnect,
             }
             this.containers.push(c)
             await container.start()
