@@ -23,13 +23,14 @@ const { stdout: diff } = await host.exec("git", [
     `${tag}..HEAD`,
     "--no-merges",
     "--",
-    "docs/**",
     ":!**/package.json",
     ":!**/genaiscript.d.ts",
     ":!**/jsconfig.json",
+    ":!docs/**",
     ":!.github/*",
     ":!.vscode/*",
     ":!yarn.lock",
+    ":!THIRD_PARTY_NOTICES.md",
 ])
 
 const commitsName = def("COMMITS", commits, { maxTokens: 4000 })
