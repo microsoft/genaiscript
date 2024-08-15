@@ -143,6 +143,7 @@ export async function runTemplate(
             trace.renderErrors()
             return <GenerationResult>{
                 status: "cancelled",
+                statusText: "LLM generation skipped",
                 messages,
                 vars,
                 text: "",

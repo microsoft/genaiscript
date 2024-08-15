@@ -17,6 +17,7 @@ import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
+import { logVerbose } from "../../core/src/util"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -205,8 +206,12 @@ export function createChatModelRunner(
             const { model, messages, modelOptions } = req
             const chatModel = await pickChatModel(state, model)
             if (!chatModel) {
+                logVerbose("no language chat model selected, cancelling")
                 onChunk({
-                    finishReason: "cancel",
+                    finishReason: "fail",
+                    error: serializeError(
+                        new Error("No language chat model selected")
+                    ),
                 })
                 return
             }
