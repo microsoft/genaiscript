@@ -8,7 +8,7 @@
     "dev": "astro dev --host",
     "start": "astro dev --host",
     "check": "astro check",
-    "build": "npx --yes astro build",
+    "build": "astro build",
     "build:asw": "rm -Rf distasw && mkdir distasw && touch distasw/index.html && mkdir distasw/genaiscript && cp -r dist/* distasw/genaiscript",
     "preview": "astro preview",
     "astro": "astro",
