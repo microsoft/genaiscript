@@ -230,7 +230,17 @@ script({ ..., model: "ollama:phi3" })
 
 </Card>
 
-<Card title="Containerized Code Interpreter" icon="seti:python">
+<Card title="Code Interpreter" icon="seti:python">
+
+Let the LLM run code in a sandboxed execution environment.
+
+```js wrap
+script({ tools: ["python_code_interpreter"]})
+```
+
+</Card>
+
+<Card title="Containers" icon="seti:docker">
 
 Run code in Docker [containers](/genaiscript/reference/scripts/containers).
 
@@ -263,7 +273,7 @@ $`Summarize all the summaries.`
 
 </Card>
 
-<Card title="Automate" icon="github">
+<Card title="Automate with CLI" icon="github">
 
 Automate using the [CLI](/genaiscript/reference/cli),
 integrate reports in your CI/CD pipeline.
@@ -272,7 +282,16 @@ integrate reports in your CI/CD pipeline.
 npx genaiscript run tlaplus-linter "*.tla"
 ```
 
-<Image src={sarifSrc} alt={sarifAlt} loading="lazy" />
+</Card>
+
+<Card title="Pull Request Reviews" icon="comment">
+
+Integrate into your [Pull Requests checks](/genaiscript/reference/cli/run/#pull-requests) through comments,
+reviews or description updates. Supports GitHub Actions and Azure DevOps pipelines.
+
+```bash frame="none" wrap "--pull-request-reviews"
+npx genaiscript ... --pull-request-reviews
+```
 
 </Card>
 
