@@ -189,8 +189,10 @@ export async function runScript(
             partialCb: (args) => {
                 const { responseChunk, tokensSoFar } = args
                 tokens = tokensSoFar
-                if (stream && responseChunk) process.stdout.write(responseChunk)
-                else if (!isQuiet) process.stderr.write(responseChunk)
+                if (responseChunk !== undefined) {
+                    if (stream) process.stdout.write(responseChunk)
+                    else if (!isQuiet) process.stderr.write(responseChunk)
+                }
                 partialCb?.(args)
             },
             skipLLM,
