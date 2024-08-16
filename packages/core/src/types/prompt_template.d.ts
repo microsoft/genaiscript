@@ -1283,6 +1283,11 @@ interface PromptGeneratorOptions extends ModelOptions {
      * Label for trace
      */
     label?: string
+
+    /**
+     * List of system prompts if any
+     */
+    system?: SystemPromptId[]
 }
 
 interface FileOutputOptions {

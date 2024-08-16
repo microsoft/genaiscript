@@ -25,6 +25,7 @@
         "millis",
         "ollama",
         "openai",
+        "promptdom",
         "promptfoo",
         "stringifying",
         "treesitter",
