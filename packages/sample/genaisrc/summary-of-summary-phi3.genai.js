@@ -1,8 +1,9 @@
 script({
-    model: "openai:gpt-4-32k",
+    model: "ollama:phi3",
     title: "summary of summary - phi3",
+    files: ["src/rag/*.md"], 
     tests: {
-        files: ["src/rag/*"],
+        files: ["src/rag/*.md"],
         keywords: ["markdown", "lorem", "microsoft"],
     }
 })
@@ -19,4 +20,4 @@ for (const file of env.files) {
     def("FILE", { ...file, content: text })
 }
 // use summary
-$`Summarize all the FILE.`
+$`Summarize FILE with short sentence.`

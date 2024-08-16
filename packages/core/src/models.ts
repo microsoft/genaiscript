@@ -101,7 +101,7 @@ export async function resolveModelConnectionInfo(
             const configuration = await host.getLanguageModelConfiguration(
                 model,
                 {
-                    token: askToken,
+                    token: withToken,
                     signal,
                     trace,
                 }

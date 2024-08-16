@@ -23,6 +23,7 @@
         "markdownify",
         "memorystream",
         "millis",
+        "nomic",
         "ollama",
         "openai",
         "promptdom",

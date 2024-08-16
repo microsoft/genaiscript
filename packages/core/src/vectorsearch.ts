@@ -8,7 +8,7 @@ import { JSONLineCache } from "./cache"
 import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./host"
 import { getConfigHeaders } from "./openai"
-import { trimTrailingSlash } from "./util"
+import { logVerbose, trimTrailingSlash } from "./util"
 import { TraceOptions } from "./trace"
 
 export interface EmbeddingsCacheKey {
@@ -72,10 +72,11 @@ class OpenAIEmbeddings implements EmbeddingsModel {
             url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
         } else {
-            url = `${base}/v1/embeddings`
+            url = `${base}/embeddings`
         }
         const fetch = await createFetch({ retryOn: [429] })
         if (trace) traceFetchPost(trace, url, headers, body)
+        logVerbose(`embedding ${model}`)
         const resp = await fetch(url, {
             method: "POST",
             headers,
