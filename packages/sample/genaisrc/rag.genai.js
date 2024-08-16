@@ -1,6 +1,6 @@
 script({
     title: "rag",
-    model: "openai:gpt-3.5-turbo",
+    model: "ollama:phi3",
     files: "src/rag/*",
     tests: {
         files: "src/rag/*",
@@ -8,7 +8,7 @@ script({
     },
 })
 
-$`You are a helpful assistant. Summarize the files in MARKDOWN, PDF, WORD and ALL.`
+$`Summarize MARKDOWN, PDF, WORD and ALL. Use one short sentence.`
 
 const embeddingsModel = env.vars.embeddingsModel || "ollama:nomic-embed-text"
 
