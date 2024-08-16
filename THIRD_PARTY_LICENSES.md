@@ -28192,12 +28192,11 @@ SOFTWARE.
 
 -----------
 
-The following npm packages may be included in this product:
+The following npm package may be included in this product:
 
  - @slidev/theme-default@0.25.0
- - @slidev/theme-seriph@0.25.0
 
-These packages each contain the following license and notice below:
+This package contains the following license and notice below:
 
 MIT License
 

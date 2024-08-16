@@ -12,9 +12,7 @@
   },
   "dependencies": {
     "@slidev/cli": "^0.49.25",
-    "@slidev/theme-default": "latest",
-    "@slidev/theme-seriph": "latest",
-    "vue": "^3.4.38"
+    "@slidev/theme-default": "latest"
   },
   "devDependencies": {
     "zx": "^8.1.4"

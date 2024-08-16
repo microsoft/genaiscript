@@ -42,6 +42,9 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "peerDependencies": {
+    "promptfoo": "0.78.0"
+  },
   "devDependencies": {
     "@types/dockerode": "^3.3.31",
     "@types/fs-extra": "^11.0.4",
@@ -62,8 +65,8 @@
     "openai": "^4.55.7",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
-    "promptfoo": "0.78.0",
     "replace-ext": "^2.0.0",
+    "ws": "^8.18.0",
     "zx": "^8.1.4"
   },
   "scripts": {
