@@ -213,7 +213,7 @@ interface ScriptRuntimeOptions {
 * - `system.explanations`: Explain your answers
 * - `system.files`: File generation
 * - `system.files_schema`: Apply JSON schemas to generated data.
-* - `system.fs_find_files`: File Find Files
+* - `system.fs_find_files`: File find files
 * - `system.fs_read_file`: File Read File
 * - `system.fs_read_summary`: File Read Summary
 * - `system.functions`: use functions
