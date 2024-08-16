@@ -123,3 +123,8 @@ export function parsePromptParameters(
     }
     return Object.freeze(res)
 }
+
+export function parametersToVars(parameters: PromptParameters): string[] {
+    if (!parameters) return undefined
+    return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)
+}
