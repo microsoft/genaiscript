@@ -20370,11 +20370,13 @@ limitations under the License.
 
 -----------
 
-The following npm package may be included in this product:
+The following npm packages may be included in this product:
 
- - sharp@0.33.4
+ - @img/sharp-linux-x64@0.33.5
+ - @img/sharp-linuxmusl-x64@0.33.5
+ - sharp@0.33.5
 
-This package contains the following license and notice below:
+These packages each contain the following license and notice below:
 
 Apache License
 Version 2.0, January 2004
@@ -23926,7 +23928,7 @@ THIS SOFTWARE.
 
 The following npm package may be included in this product:
 
- - electron-to-chromium@1.5.8
+ - electron-to-chromium@1.5.9
 
 This package contains the following license and notice below:
 
@@ -25859,6 +25861,17 @@ copy of the Program in return for a fee.
 
 -----------
 
+The following npm packages may be included in this product:
+
+ - @img/sharp-libvips-linux-x64@1.0.4
+ - @img/sharp-libvips-linuxmusl-x64@1.0.4
+
+These packages each contain the following license and notice below:
+
+LGPL-3.0-or-later
+
+-----------
+
 The following npm package may be included in this product:
 
  - dom-serializer@2.0.0
@@ -27634,7 +27647,7 @@ SOFTWARE.
 The following npm packages may be included in this product:
 
  - @drauu/core@0.4.0
- - @slidev/cli@0.49.25
+ - @slidev/cli@0.49.26
  - @slidev/types@0.47.5
  - drauu@0.4.0
 
@@ -27666,9 +27679,9 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @slidev/client@0.49.25
- - @slidev/parser@0.49.25
- - @slidev/types@0.49.25
+ - @slidev/client@0.49.26
+ - @slidev/parser@0.49.26
+ - @slidev/types@0.49.26
 
 These packages each contain the following license and notice below:
 
