@@ -17,6 +17,7 @@ import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
 import { readText } from "./fs"
 import {
+    PromptImage,
     PromptNode,
     appendChild,
     createFileMergeNode,
@@ -32,30 +33,42 @@ import {
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
-import { CancelError, isCancelError, serializeError } from "./error"
+import {
+    CancelError,
+    isCancelError,
+    NotSupportedError,
+    serializeError,
+} from "./error"
 import { createFetch } from "./fetch"
 import { XMLParse } from "./xml"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
-import { MODEL_PROVIDER_AICI } from "./constants"
+import { MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
-import { ChatCompletionMessageParam } from "./chattypes"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+} from "./chattypes"
 import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
+import { callExpander } from "./expander"
+import { Project } from "./ast"
 
 export async function createPromptContext(
+    prj: Project,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
     model: string
 ) {
     const { cancellationToken, infoCb } = options || {}
-    const env = structuredClone(vars)
+    const { generator, ...varsNoGenerator } = vars
+    const env = { generator, ...structuredClone(varsNoGenerator) }
     const parsers = await createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
@@ -246,7 +259,7 @@ export async function createPromptContext(
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
             try {
-                const { label } = runOptions || {}
+                const { label, system = [] } = runOptions || {}
                 trace.startDetails(`🎁 run prompt ${label || ""}`)
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
@@ -263,6 +276,7 @@ export async function createPromptContext(
                 let tools: ToolCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
                 let chatParticipants: ChatParticipant[] = undefined
+
                 // expand template
                 const { provider } = parseModelIdentifier(genOptions.model)
                 if (provider === MODEL_PROVIDER_AICI) {
@@ -289,10 +303,61 @@ export async function createPromptContext(
                         throw new Error("errors while running prompt")
                 }
 
+                const systemMessage: ChatCompletionSystemMessageParam = {
+                    role: "system",
+                    content: "",
+                }
+                for (const systemId of system) {
+                    checkCancelled(cancellationToken)
+
+                    const system = prj.getTemplate(systemId)
+                    if (!system)
+                        throw new Error(`system template ${systemId} not found`)
+                    trace.startDetails(`👾 ${system.id}`)
+                    const sysr = await callExpander(
+                        prj,
+                        system,
+                        env,
+                        trace,
+                        options
+                    )
+                    if (sysr.images?.length)
+                        throw new NotSupportedError("images")
+                    if (sysr.schemas) Object.assign(schemas, sysr.schemas)
+                    if (sysr.functions) tools.push(...sysr.functions)
+                    if (sysr.fileMerges?.length)
+                        throw new NotSupportedError("fileMerges")
+                    if (sysr.outputProcessors?.length)
+                        throw new NotSupportedError("outputProcessors")
+                    if (sysr.chatParticipants)
+                        chatParticipants.push(...sysr.chatParticipants)
+                    if (sysr.fileOutputs?.length)
+                        throw new NotSupportedError("fileOutputs")
+                    if (sysr.logs?.length)
+                        trace.details("📝 console.log", sysr.logs)
+                    if (sysr.text) {
+                        systemMessage.content +=
+                            SYSTEM_FENCE + "\n" + sysr.text + "\n"
+                        trace.fence(sysr.text, "markdown")
+                    }
+                    if (sysr.aici) {
+                        trace.fence(sysr.aici, "yaml")
+                        messages.push(sysr.aici)
+                    }
+                    trace.detailsFenced("js", system.jsSource, "js")
+                    trace.endDetails()
+                    if (sysr.status !== "success")
+                        throw new Error(
+                            `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
+                        )
+                }
+                if (systemMessage.content) messages.unshift(systemMessage)
+
                 const connection = await resolveModelConnectionInfo(
                     genOptions,
                     { trace, token: true }
                 )
+                checkCancelled(cancellationToken)
                 if (!connection.configuration)
                     throw new Error(
                         "model connection error " + connection.info?.model
@@ -300,6 +365,7 @@ export async function createPromptContext(
                 const { completer } = await resolveLanguageModel(
                     connection.configuration.provider
                 )
+                checkCancelled(cancellationToken)
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info

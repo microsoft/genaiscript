@@ -6,22 +6,24 @@ export function resolveSystems(prj: Project, template: PromptScript) {
     const systems = Array.from(template.system ?? []).slice(0)
 
     if (template.system === undefined) {
-        const useSchema = /defschema/i.test(jsSource)
+        const useSchema = /\Wdefschema\W/i.test(jsSource)
         if (!template.responseType) {
             systems.push("system")
             systems.push("system.explanations")
         }
         // select file expansion type
-        if (/diff/i.test(jsSource)) systems.push("system.diff")
-        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else if (/file/i.test(jsSource)) {
+        if (/\Wdiff\W/i.test(jsSource)) systems.push("system.diff")
+        else if (/\Wchangelog\W/i.test(jsSource))
+            systems.push("system.changelog")
+        else if (/\Wfile\W/i.test(jsSource)) {
             systems.push("system.files")
             if (useSchema) systems.push("system.files_schema")
         }
         if (useSchema) systems.push("system.schema")
-        if (/annotation|warning|error/i.test(jsSource))
+        if (/\W(annotation|warning|error)\W/i.test(jsSource))
             systems.push("system.annotations")
-        if (/diagram|chart/i.test(jsSource)) systems.push("system.diagrams")
+        if (/\W(diagram|chart)\W/i.test(jsSource))
+            systems.push("system.diagrams")
     }
 
     if (template.tools?.length)

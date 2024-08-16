@@ -15,7 +15,6 @@ import {
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
