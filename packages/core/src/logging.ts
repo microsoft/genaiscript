@@ -22,7 +22,7 @@ export interface InspectOptions {
 }
 
 export function inspect(obj: any, options?: InspectOptions) {
-    const { maxDepth = 3, maxLength = 2000, maxString = 60 } = options ?? {}
+    const { maxDepth = 5, maxLength = 2000, maxString = 60 } = options ?? {}
 
     return doInspect(obj, "", maxDepth)
 
