@@ -87,7 +87,7 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.75.2
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0
   -os, --out-summary <file>           append output summary in file
   -h, --help                          display help for command
 ```
@@ -292,10 +292,10 @@ Options:
   -h, --help                   display help for command
 
 Commands:
-  fence <language>             Extracts a code fenced regions of the given type
+  fence <language> <file>      Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
-  html-to-text [file]          Parse an HTML file into text
+  html-to-text <file>          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
                                query
   tokens [options] <files...>  Count tokens in a set of files
@@ -305,7 +305,7 @@ Commands:
 ### `parse fence`
 
 ```
-Usage: genaiscript parse fence [options] <language>
+Usage: genaiscript parse fence [options] <language> <file>
 
 Extracts a code fenced regions of the given type
 
@@ -338,7 +338,7 @@ Options:
 ### `parse html-to-text`
 
 ```
-Usage: genaiscript parse html-to-text [options] [file]
+Usage: genaiscript parse html-to-text [options] <file>
 
 Parse an HTML file into text
 

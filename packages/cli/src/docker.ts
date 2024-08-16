@@ -11,27 +11,12 @@ import {
 import { randomHex } from "../../core/src/crypto"
 import { errorMessage } from "../../core/src/error"
 import { host } from "../../core/src/host"
-import { installImport } from "../../core/src/import"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, dotGenaiscriptPath, logVerbose } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
-import { YAMLStringify } from "../../core/src/yaml"
 import { isQuiet } from "./log"
 
 type DockerodeType = import("dockerode")
-
-async function tryImportDockerode(options?: TraceOptions) {
-    const { trace } = options || {}
-    try {
-        const m = await import("dockerode")
-        return m
-    } catch (e) {
-        trace?.error(`dockerode not found, installing ${DOCKERODE_VERSION}...`)
-        await installImport("dockerode", DOCKERODE_VERSION, trace)
-        const m = await import("dockerode")
-        return m
-    }
-}
 
 export class DockerManager {
     private containers: ContainerHost[] = []
@@ -41,7 +26,7 @@ export class DockerManager {
 
     private async init(options?: TraceOptions) {
         if (this._docker) return
-        const Docker = (await tryImportDockerode(options)).default
+        const Docker = (await import("dockerode")).default
         this._docker = new Docker()
     }
 

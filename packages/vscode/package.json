@@ -376,10 +376,11 @@
         "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest"
     },
     "devDependencies": {
+        "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.90.0",
-        "@vscode/vsce": "^2.31.1",
+        "@vscode/vsce": "^3.0.0",
         "assert": "^2.1.0",
-        "eslint": "^9.8.0",
+        "eslint": "^9.9.0",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
         "typescript": "5.5.4",

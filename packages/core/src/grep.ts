@@ -3,30 +3,13 @@ import { runtimeHost } from "./host"
 import { JSONLTryParse } from "./jsonl"
 import { unique } from "./util"
 import { resolveFileContent } from "./file"
-import { installImport } from "./import"
-import { RIPGREP_DIST_VERSION } from "./version"
-
-async function tryImportRipgrep(options?: TraceOptions) {
-    const { trace } = options || {}
-    try {
-        const m = await import("@lvce-editor/ripgrep")
-        return m
-    } catch (e) {
-        trace?.error(
-            `@lvce-editor/ripgrep not found, installing ${RIPGREP_DIST_VERSION}...`
-        )
-        await installImport("@lvce-editor/ripgrep", RIPGREP_DIST_VERSION, trace)
-        const m = await import("@lvce-editor/ripgrep")
-        return m
-    }
-}
 
 export async function grepSearch(
     query: string | RegExp,
     globs: string[],
     options?: TraceOptions
 ): Promise<{ files: WorkspaceFile[] }> {
-    const { rgPath } = await tryImportRipgrep(options)
+    const { rgPath } = await import("@lvce-editor/ripgrep")
     const args: string[] = ["--json", "--multiline", "--context", "3"]
     if (typeof query === "string") {
         args.push("--smart-case", query)
