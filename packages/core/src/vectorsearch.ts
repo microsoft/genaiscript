@@ -1,7 +1,11 @@
 import { encode, decode } from "gpt-tokenizer"
 import { resolveModelConnectionInfo } from "./models"
-import { runtimeHost } from "./host"
-import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_AZURE } from "./constants"
+import { runtimeHost, host } from "./host"
+import {
+    AZURE_OPENAI_API_VERSION,
+    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
+    MODEL_PROVIDER_AZURE,
+} from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
 import { JSONLineCache } from "./cache"
@@ -128,9 +132,18 @@ export async function vectorSearch(
             "vectra/lib/LocalDocumentIndex"
         )
         const tokenizer = { encode, decode }
-        const { info, configuration } = await resolveModelConnectionInfo({
-            model: embeddingsModel,
-        })
+        const { info, configuration } = await resolveModelConnectionInfo(
+            {
+                model: embeddingsModel,
+            },
+            {
+                token: true,
+                candidates: [
+                    host.defaultEmbeddingsModelOptions.embeddingsModel,
+                    ...DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
+                ],
+            }
+        )
         if (info.error) throw new Error(info.error)
         if (!configuration)
             throw new Error("No configuration found for vector search")

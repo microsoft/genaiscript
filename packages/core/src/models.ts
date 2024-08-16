@@ -82,13 +82,25 @@ export function traceLanguageModelConnection(
 
 export async function resolveModelConnectionInfo(
     conn: ModelConnectionOptions,
-    options?: { model?: string; token?: boolean } & TraceOptions &
+    options?: {
+        model?: string
+        token?: boolean
+        candidates?: string[]
+    } & TraceOptions &
         AbortSignalOptions
 ): Promise<{
     info: ModelConnectionInfo
     configuration?: LanguageModelConfiguration
 }> {
-    const { trace, token: askToken, signal } = options || {}
+    const {
+        trace,
+        token: askToken,
+        signal,
+        candidates = [
+            host.defaultModelOptions.model,
+            ...DEFAULT_MODEL_CANDIDATES,
+        ],
+    } = options || {}
 
     const resolveModel = async (
         model: string,
@@ -136,12 +148,7 @@ export async function resolveModelConnectionInfo(
     if (m) {
         return await resolveModel(m, true)
     } else {
-        // go through various options
-        const candidates = new Set([
-            host.defaultModelOptions.model,
-            ...DEFAULT_MODEL_CANDIDATES,
-        ])
-        for (const candidate of candidates) {
+        for (const candidate of new Set(candidates || [])) {
             const res = await resolveModel(candidate, true)
             if (!res.info.error && res.info.token) return res
         }
