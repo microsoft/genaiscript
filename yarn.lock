@@ -6052,11 +6052,6 @@ get-port-please@^3.1.2:
   resolved "https://registry.yarnpkg.com/get-port-please/-/get-port-please-3.1.2.tgz#502795e56217128e4183025c89a48c71652f4e49"
   integrity sha512-Gxc29eLs1fbn6LQ4jSU4vXjlwyZhF5HsGuMAa7gqBP4Rw4yxxltyDUuF5MBclFzDTXO+ACchGQoeela4DSfzdQ==
 
-get-stdin@^9.0.0:
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/get-stdin/-/get-stdin-9.0.0.tgz#3983ff82e03d56f1b2ea0d3e60325f39d703a575"
-  integrity sha512-dVKBjfWisLAicarI2Sf+JuBE/DghV4UzNAVe9yhEJuzeREd3JhOTE9cUaJTeSa77fsbQUK3pcOpJfM59+VKZaA==
-
 get-stream@^5.1.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-5.2.0.tgz#4966a1795ee5ace65e706c4b7beb71257d6e22d3"
@@ -9245,9 +9240,9 @@ openai@^3.2.1:
     form-data "^4.0.0"
 
 openai@^4.54.0, openai@^4.55.7:
-  version "4.55.9"
-  resolved "https://registry.yarnpkg.com/openai/-/openai-4.55.9.tgz#ed11cbaacdc96a645e7740e0bdb8a1a28f8f6887"
-  integrity sha512-gO2BVMuGirwoftSXw6OnC6YvLK+1ZuUrAlDfWAyDbWUuXsJ+RGDAjA7ZCTocgAwSzDZNUYUr3SJ7siFaF5zquQ==
+  version "4.56.0"
+  resolved "https://registry.yarnpkg.com/openai/-/openai-4.56.0.tgz#07d3982544cabd5781127288a8dfcceb7319a4cf"
+  integrity sha512-zcag97+3bG890MNNa0DQD9dGmmTWL8unJdNkulZzWRXrl+QeD+YkBI4H58rJcwErxqGK6a0jVPZ4ReJjhDGcmw==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"
@@ -9823,10 +9818,10 @@ process@^0.11.10:
   resolved "https://registry.yarnpkg.com/process/-/process-0.11.10.tgz#7332300e840161bda3e69a1d1d91a7d4bc16f182"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
-promptfoo@^0.75.2:
-  version "0.75.2"
-  resolved "https://registry.yarnpkg.com/promptfoo/-/promptfoo-0.75.2.tgz#2e101a137aab16a5cfa71b9c9b476758ee17dc0f"
-  integrity sha512-NRqGbJZZu8P4CPFjBdsCg6l6tSO+dtiOIJCUGBLW6pZy9MfEQf9iphohy4Z8IfkgF1H8fXUJP8ZwLajunu/nUw==
+promptfoo@0.78.0:
+  version "0.78.0"
+  resolved "https://registry.yarnpkg.com/promptfoo/-/promptfoo-0.78.0.tgz#d4943c3cb852cca81c590a8214ee2286ae8fee6c"
+  integrity sha512-go8W8dNgpASdyjS5JNeN42vddvJopBdnuMCUEG8YkYA4MMVjla5YhhNAT2grZypiz01KVnMKaxMi8sRdXjaykw==
   dependencies:
     "@anthropic-ai/sdk" "^0.25.0"
     "@apidevtools/json-schema-ref-parser" "^11.7.0"

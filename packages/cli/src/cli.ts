@@ -249,7 +249,7 @@ export async function cli() {
         .alias("parsers")
         .description("Parse various outputs")
     parser
-        .command("fence <language>")
+        .command("fence <language> <file>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
 
@@ -264,7 +264,7 @@ export async function cli() {
         .action(parseDOCX)
 
     parser
-        .command("html-to-text [file]")
+        .command("html-to-text <file>")
         .description("Parse an HTML file into text")
         .action(parseHTMLToText)
 
