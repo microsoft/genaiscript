@@ -10,6 +10,7 @@ const resPoem = await runPrompt(_ => {
     label: "generate poem",
     system: ["system"]
 })
+if (resPoem.error) throw resPoem.error
 
 const resJSON = await runPrompt(_ => {
     _.$`generate 3 random numbers between 1 and 10 and respond in JSON`
@@ -18,6 +19,7 @@ const resJSON = await runPrompt(_ => {
     label: "generate json",
     responseType: "json_object",
 })
+if (resJSON.error) throw resJSON.error
 
 $`Is this poetry? Respond yes or no.`
 fence(resPoem.text)
