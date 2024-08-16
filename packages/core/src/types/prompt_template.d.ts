@@ -498,18 +498,18 @@ interface WorkspaceFileSystem {
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+    readText(path: string | Awaitable<WorkspaceFile>): Promise<WorkspaceFile>
 
     /**
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | WorkspaceFile): Promise<any>
+    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
      * Reads the content of a file and parses to XML, using the XML parser.
      */
-    readXML(path: string | WorkspaceFile): Promise<any>
+    readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -1276,7 +1276,7 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
 interface PromptGeneratorOptions extends ModelOptions {
     /**

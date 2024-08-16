@@ -36,7 +36,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
 
             await writeText(filename, c)
         },
-        readText: async (f: string | WorkspaceFile) => {
+        readText: async (f: string | Awaitable<WorkspaceFile>) => {
             if (f === undefined)
                 throw new NotSupportedError("missing file name")
 
@@ -46,7 +46,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
                           filename: f,
                           content: undefined,
                       }
-                    : f
+                    : await f
             if (DOT_ENV_REGEX.test(file.filename)) return file
             try {
                 await resolveFileContent(file)
@@ -57,12 +57,12 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             }
             return file
         },
-        readJSON: async (f: string | WorkspaceFile) => {
+        readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
             const res = JSON5parse(file.content)
             return res
         },
-        readXML: async (f: string | WorkspaceFile) => {
+        readXML: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
             const res = XMLParse(file.content)
             return res
