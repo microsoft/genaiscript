@@ -27,7 +27,8 @@ import {
 } from "./chattypes"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 
-async function callExpander(
+export async function callExpander(
+    prj: Project,
     r: PromptScript,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
@@ -35,7 +36,7 @@ async function callExpander(
 ) {
     assert(!!options.model)
     const { provider, model } = parseModelIdentifier(r.model ?? options.model)
-    const ctx = await createPromptContext(vars, trace, options, model)
+    const ctx = await createPromptContext(prj, vars, trace, options, model)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -190,7 +191,7 @@ export async function expandTemplate(
         normalizeInt(env.vars["maxToolCalls"]) ??
         normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
-        MAX_TOOL_CALLS        
+        MAX_TOOL_CALLS
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
 
@@ -206,7 +207,7 @@ export async function expandTemplate(
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
-    const prompt = await callExpander(template, env, trace, options)
+    const prompt = await callExpander(prj, template, env, trace, options)
 
     const images = prompt.images
     const schemas = prompt.schemas
@@ -223,7 +224,11 @@ export async function expandTemplate(
 
     if (prompt.status !== "success" || prompt.text === "")
         // cancelled
-        return { status: prompt.status, statusText: prompt.statusText, messages }
+        return {
+            status: prompt.status,
+            statusText: prompt.statusText,
+            messages,
+        }
 
     if (cancellationToken?.isCancellationRequested)
         return { status: "cancelled", statusText: "user cancelled", messages }
@@ -238,21 +243,17 @@ export async function expandTemplate(
 
     for (let i = 0; i < systems.length; ++i) {
         if (cancellationToken?.isCancellationRequested)
-            return { status: "cancelled", statusText: "user cancelled", messages }
+            return {
+                status: "cancelled",
+                statusText: "user cancelled",
+                messages,
+            }
 
-        let systemTemplate = systems[i]
-        let system = prj.getTemplate(systemTemplate)
-        if (!system) {
-            if (systemTemplate) trace.error(`\`${systemTemplate}\` not found\n`)
-            if (i > 0) continue
-            systemTemplate = "system"
-            system = prj.getTemplate(systemTemplate)
-            assert(!!system)
-        }
+        const system = prj.getTemplate(systems[i])
+        if (!system) throw new Error(`system template ${systems[i]} not found`)
 
-        trace.startDetails(`👾 ${systemTemplate}`)
-
-        const sysr = await callExpander(system, env, trace, options)
+        trace.startDetails(`👾 ${system.id}`)
+        const sysr = await callExpander(prj, system, env, trace, options)
 
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
@@ -272,12 +273,15 @@ export async function expandTemplate(
             trace.fence(sysr.aici, "yaml")
             messages.push(sysr.aici)
         }
-
         trace.detailsFenced("js", system.jsSource, "js")
         trace.endDetails()
 
         if (sysr.status !== "success")
-            return { status: sysr.status, statusText: sysr.statusText, messages }
+            return {
+                status: sysr.status,
+                statusText: sysr.statusText,
+                messages,
+            }
     }
 
     const responseSchema = promptParametersSchemaToJSONSchema(
