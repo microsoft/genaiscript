@@ -128,9 +128,12 @@ export async function vectorSearch(
             "vectra/lib/LocalDocumentIndex"
         )
         const tokenizer = { encode, decode }
-        const { info, configuration } = await resolveModelConnectionInfo({
-            model: embeddingsModel,
-        })
+        const { info, configuration } = await resolveModelConnectionInfo(
+            {
+                model: embeddingsModel,
+            },
+            { token: true }
+        )
         if (info.error) throw new Error(info.error)
         if (!configuration)
             throw new Error("No configuration found for vector search")
