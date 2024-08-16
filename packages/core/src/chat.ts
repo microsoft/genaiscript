@@ -8,7 +8,7 @@ import {
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert, logError } from "./util"
+import { assert, logError, logVerbose } from "./util"
 import { extractFenced, findFirstDataFence } from "./fence"
 import {
     toStrictJSONSchema,
@@ -558,6 +558,7 @@ export async function executeChatSession(
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
+                    logVerbose("")
                     trace.endDetails()
                 }
 
