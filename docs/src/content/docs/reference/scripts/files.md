@@ -79,6 +79,14 @@ Reads the content of a file as JSON (using a [JSON5](https://json5.org/) parser)
 const data = await workspace.readJSON("data.json")
 ```
 
+### `readXML`
+
+Reads the content of a file as XML.
+
+```ts
+const data = await workspace.readXML("data.xml")
+```
+
 ### `writeText`
 
 Writes text to a file, relative to the workspace root.

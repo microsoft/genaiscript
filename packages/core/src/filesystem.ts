@@ -5,6 +5,7 @@ import { readText, writeText } from "./fs"
 import { host } from "./host"
 import { JSON5parse } from "./json5"
 import { logVerbose } from "./util"
+import { XMLParse, XMLTryParse } from "./xml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs: Omit<WorkspaceFileSystem, "grep"> = {
@@ -59,6 +60,11 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
         readJSON: async (f: string | WorkspaceFile) => {
             const file = await fs.readText(f)
             const res = JSON5parse(file.content)
+            return res
+        },
+        readXML: async (f: string | WorkspaceFile) => {
+            const file = await fs.readText(f)
+            const res = XMLParse(file.content)
             return res
         },
     }
