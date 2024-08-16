@@ -10,6 +10,9 @@ stateDiagram
     system --> prompt
     note right of system: Teach LLM about micro-formats.
     prompt --> response : LLM (OpenAI Chat API)
+    prompt --> run_prompt
+    run_prompt --> prompt : LLM (OpenAI Chat API)
+    run_prompt: inner prompts
     response: response (text)
     files: files (workspace edits)
     data: data (JSON, YAML, CSV, ...)
