@@ -3,15 +3,25 @@ script({
     tests: {}
 })
 
-const res = await runPrompt(_ => {
+const resPoem = await runPrompt(_ => {
+    _.$`write haiku poem`
+}, {
+    model: "openai:gpt-3.5-turbo",
+    label: "generate poem",
+    system: ["system"]
+})
+
+const resJSON = await runPrompt(_ => {
     _.$`generate 3 random numbers between 1 and 10 and respond in JSON`
 }, {
     model: "openai:gpt-3.5-turbo",
-    label: "Is this JSON?",
+    label: "generate json",
     responseType: "json_object",
-    system: ["system", "system.zero_shot_cot"]
 })
 
-$`Is this JSON?
+$`Is this poetry? Respond yes or no.`
+fence(resPoem.text)
 
-${res.text}`
+$`Is this JSON? Respond yes or no.`
+fence(resJSON.text)
+
