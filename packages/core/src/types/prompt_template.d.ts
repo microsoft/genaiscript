@@ -208,7 +208,7 @@ interface ScriptRuntimeOptions {
     /**
      * List of tools used by the prompt.
      */
-    tools?: SystemToolId[]
+    tools?: SystemToolId | SystemToolId[]
 
     /**
      * Secrets required by the prompt
