@@ -98,7 +98,7 @@ export async function startServer(options: { port: string }) {
         ): Promise<ChatCompletionResponse> => {
             const { messages, model } = req
             const { partialCb } = options
-            if (!wss.clients.size) throw new Error("no llm clients connected")
+            if (!wss.clients?.size) throw new Error("no llm clients connected")
 
             return new Promise<ChatCompletionResponse>((resolve, reject) => {
                 let responseSoFar: string = ""
