@@ -62,7 +62,7 @@
     "glob": "^11.0.0",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.1.0",
-    "openai": "^4.55.7",
+    "openai": "^4.56.0",
     "ora": "^8.0.1",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",

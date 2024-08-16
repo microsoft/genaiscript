@@ -35,5 +35,7 @@ jobs:
               run: yarn test:samples
             - name: docs
               run: yarn build:docs
+            - name: slides
+              run: yarn build:slides
             - name: package vscode
               run: yarn package

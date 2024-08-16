@@ -377,7 +377,7 @@
     },
     "devDependencies": {
         "@types/vscode": "^1.90.0",
-        "@vscode/vsce": "^2.32.0",
+        "@vscode/vsce": "^3.0.0",
         "assert": "^2.1.0",
         "eslint": "^9.9.0",
         "markdown-it-github-alerts": "^0.3.0",
