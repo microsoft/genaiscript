@@ -67,7 +67,8 @@ export async function createPromptContext(
     model: string
 ) {
     const { cancellationToken, infoCb } = options || {}
-    const env = structuredClone(vars)
+    const { generator, ...varsNoGenerator } = vars
+    const env = { generator, ...structuredClone(varsNoGenerator) }
     const parsers = await createParsers({ trace, model })
     const YAML = Object.freeze<YAML>({
         stringify: YAMLStringify,
@@ -320,16 +321,17 @@ export async function createPromptContext(
                         trace,
                         options
                     )
-                    if (sysr.images) throw new NotSupportedError("images")
+                    if (sysr.images?.length)
+                        throw new NotSupportedError("images")
                     if (sysr.schemas) Object.assign(schemas, sysr.schemas)
                     if (sysr.functions) tools.push(...sysr.functions)
-                    if (sysr.fileMerges)
+                    if (sysr.fileMerges?.length)
                         throw new NotSupportedError("fileMerges")
-                    if (sysr.outputProcessors)
+                    if (sysr.outputProcessors?.length)
                         throw new NotSupportedError("outputProcessors")
                     if (sysr.chatParticipants)
                         chatParticipants.push(...sysr.chatParticipants)
-                    if (sysr.fileOutputs)
+                    if (sysr.fileOutputs?.length)
                         throw new NotSupportedError("fileOutputs")
                     if (sysr.logs?.length)
                         trace.details("📝 console.log", sysr.logs)
