@@ -1,5 +1,5 @@
 import { Project } from "./ast"
-import { unique } from "./util"
+import { arrayify, unique } from "./util"
 
 export function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
@@ -26,16 +26,19 @@ export function resolveSystems(prj: Project, template: PromptScript) {
             systems.push("system.diagrams")
     }
 
-    if (template.tools?.length)
-        template.tools.forEach((tool) => systems.push(resolveTool(prj, tool)))
+    if (template.tools) {
+        arrayify(template.tools).forEach((tool) =>
+            systems.push(...resolveTools(prj, tool))
+        )
+    }
 
     return unique(systems.filter((s) => !!s))
 }
 
-function resolveTool(prj: Project, tool: string) {
-    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}('|"|\`)`)
-    const system = prj.templates.find(
+function resolveTools(prj: Project, tool: string): string[] {
+    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}`)
+    const system = prj.templates.filter(
         (t) => t.isSystem && toolsRx.test(t.jsSource)
     )
-    return system.id
+    return system.map(({ id }) => id)
 }

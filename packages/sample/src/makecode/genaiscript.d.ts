@@ -234,18 +234,7 @@ interface ScriptRuntimeOptions {
     /**
      * List of tools used by the prompt.
      */
-/**
-* System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
-* - `fs_find_files`: Finds file matching a glob pattern.
-* - `fs_read_file`: Reads a file as text from the file system.
-* - `fs_read_summary`: Reads a summary of a file from the file system.
-* - `math_eval`: Evaluates a math expression
-* - `python_code_interpreter`: Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.
-* - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
-* - `retrieval_vector_search`: Search files using embeddings and similarity distance.
-* - `retrieval_web_search`: Search the web for a user query using Bing Search.
-**/
-    tools?: SystemToolId[]
+    tools?: SystemToolId | SystemToolId[]
 
     /**
      * Secrets required by the prompt
