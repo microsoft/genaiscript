@@ -20,7 +20,7 @@ jobs:
                       const permissions = await github.repos.getCollaboratorPermissionLevel({ owner, repo, username });
                       const userPermissions = permissions.data.user.permissions
                       // if (!userPermissions.triage) {
-                        await github.rest.actions.cancelWorkflowRun({ owner, repo, run_id: context.runId});                      
+                        await github.actions.cancelWorkflowRun({ owner, repo, run_id: context.runId});                      
                         throw `comment author '${username}' does not have 'triage' permissions`
                       //}
             - name: resolve pr sha
