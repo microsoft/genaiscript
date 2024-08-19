@@ -197,11 +197,6 @@ export async function expandTemplate(
 
     trace.startDetails("💾 script")
 
-    trace.itemValue(`temperature`, temperature)
-    trace.itemValue(`top_p`, topP)
-    trace.itemValue(`max tokens`, max_tokens)
-    trace.itemValue(`seed`, seed)
-
     traceEnv(model, trace, env)
 
     trace.startDetails("🧬 prompt")

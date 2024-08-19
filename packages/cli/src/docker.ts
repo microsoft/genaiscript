@@ -192,7 +192,7 @@ export class DockerManager {
                     )
                     trace?.itemValue(`container`, container.id)
                     trace?.itemValue(`cwd`, cwd)
-                    trace?.item(`\`${command}\` ${args.join(" ")}`)
+                    trace?.fence(`${command} ${args.join(" ")}`, "sh")
                     if (!isQuiet)
                         logVerbose(
                             `container exec: ${command} ${args.join(" ")}`

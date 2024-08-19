@@ -34,6 +34,7 @@ import {
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
+import { parametersToVars } from "../../core/src/parameters"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -331,6 +332,7 @@ tests/
                 partialCb,
                 label,
                 cache: cache && template.cache,
+                vars: parametersToVars(options.parameters),
             }
         )
         r.runId = runId
