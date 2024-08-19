@@ -52,6 +52,8 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
                         return s
                             .replace(/\s+$/, "")
                             .replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m)
+                            .replace(/</g, "lt;")
+                            .replace(/>/g, "gt;")
                             .replace(/\r?\n/g, "<br>")
                     })
                     .join("|")}|`
