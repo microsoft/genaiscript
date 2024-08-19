@@ -45,7 +45,6 @@
     "jsonrepair": "^3.8.0",
     "magic-string": "^0.30.11",
     "mammoth": "^1.8.0",
-    "markdown-table": "^3.0.3",
     "mathjs": "^13.0.3",
     "mime-types": "^2.1.35",
     "minimatch": "^10.0.1",
