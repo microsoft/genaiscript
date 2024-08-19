@@ -35,6 +35,9 @@ script({
 console.log(`string: ${env.vars.string} ${typeof env.vars.string}`)
 console.log(`number: ${env.vars.number} ${typeof env.vars.number}`)
 console.log(`boolean: ${env.vars.boolean} ${typeof env.vars.boolean}`)
+console.log(`stringSchema: ${env.vars.stringSchema} ${typeof env.vars.stringSchema}`)
+console.log(`numberSchema: ${env.vars.numberSchema} ${typeof env.vars.numberSchema}`)
+console.log(`booleanSchema: ${env.vars.booleanSchema} ${typeof env.vars.booleanSchema}`)
 
 if (env.vars["string"] !== "abc") throw new Error("string parameter not set")
 if (env.vars["number"] !== 123) throw new Error("number parameter not set")
@@ -45,7 +48,3 @@ if (env.vars["numberSchema"] !== 456)
     throw new Error("numberSchema parameter not set")
 if (env.vars["booleanSchema"] !== true)
     throw new Error("booleanSchema parameter not set")
-
-// use $ to output formatted text to the prompt
-$`You are a helpful assistant.
-`
