@@ -23,6 +23,8 @@ jobs:
                       username
                     });
                     console.log(`Permissions for ${username}:`, permissions.data);
+                    if (!permissions.data.user.permissions.triage)
+                      throw "comment author does not have triage permissions";
             - name: resolve pr sha
               id: sha
               uses: actions/github-script@v4
