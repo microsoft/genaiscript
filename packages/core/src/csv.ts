@@ -1,5 +1,4 @@
 import { parse } from "csv-parse/sync"
-import { markdownTable } from "markdown-table"
 import { TraceOptions } from "./trace"
 
 export function CSVParse(
@@ -41,21 +40,24 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
     if (!csv?.length) return ""
 
     const { headers = Object.keys(csv[0]) } = options || {}
-    const table: string[][] = [
-        headers,
-        ...csv.map((row) =>
-            headers.map((v) => {
-                const rv = (row as any)[v]
-                return rv === undefined ? "" : "" + rv
-            })
+    const res: string[] = [
+        `|${headers.join("|")}|`,
+        `|${headers.map(() => "-").join("|")}|`,
+        ...csv.map(
+            (row) =>
+                `|${headers
+                    .map((key) => {
+                        const v = (row as any)[key]
+                        const s = v === undefined || v === null ? "" : "" + v
+                        return s
+                            .replace(/\s+$/, "")
+                            .replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m)
+                            .replace(/</g, "lt;")
+                            .replace(/>/g, "gt;")
+                            .replace(/\r?\n/g, "<br>")
+                    })
+                    .join("|")}|`
         ),
     ]
-    const md = markdownTable(table, {
-        stringLength: (str) => str.length,
-        padding: false,
-        alignDelimiters: false,
-    })
-    // improves LLM performance
-    const mdcompact = md.replace(/[\t ]+/g, " ")
-    return mdcompact
+    return res.join("\n")
 }

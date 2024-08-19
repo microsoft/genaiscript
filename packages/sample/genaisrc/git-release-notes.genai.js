@@ -29,8 +29,8 @@ const { stdout: diff } = await host.exec("git", [
     ":!docs/**",
     ":!.github/*",
     ":!.vscode/*",
-    ":!yarn.lock",
-    ":!THIRD_PARTY_NOTICES.md",
+    ":!*yarn.lock",
+    ":!*THIRD_PARTY_NOTICES.md",
 ])
 
 const commitsName = def("COMMITS", commits, { maxTokens: 4000 })

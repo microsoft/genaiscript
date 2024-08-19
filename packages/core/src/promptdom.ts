@@ -161,7 +161,7 @@ function renderDefNode(def: PromptDefNode): string {
     const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
     let body = file.content
     if (/^(c|t)sv$/i.test(dtype)) {
-        const parsed = CSVTryParse(file.content)
+        const parsed = !/^\s*|/.test(file.content) && CSVTryParse(file.content)
         if (parsed) {
             body = CSVToMarkdown(parsed)
             dfence = ""

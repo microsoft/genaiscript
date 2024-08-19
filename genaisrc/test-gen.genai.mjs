@@ -5,15 +5,9 @@ script({
 })
 
 const code = def("CODE", env.files)
+const testFiles = env.files.map(({ filename }) => ({ filename: filename.replace(/\.ts$/, ".test.ts") }))
+const test = def("TEST", testFiles, { ignoreEmpty: true })
 
-// const { text: keywords } = await runPrompt(_ => {
-//     const file = _.def("FILE", env.files)
-//     _.$`You are an expert TypeScript developer.
-// Extract the list of exported functions and classes in ${file},
-// as a comma separate list of keywords. Be concise.`
-// }, { model: "gpt-3.5-turbo" })
-// const relevantTests = await retrieval.vectorSearch(keywords, testFiles)
-// const tests = def("TESTS", relevantTests)
 
 $`## Step 1
 
@@ -22,8 +16,11 @@ generate a plan to test the source code in each file
 
 - use input test files from packages/sample/src/rag/*
 - only generate tests for files in ${code}
+`
 
-## Step 2
+if (testFiles.length) $` - update the existing test files in ${test}. keep old tests if possible.`
+
+$`## Step 2
 
 For each generated test, implement the TypeScript source code in a test file with suffix ".test.ts"
 in the same folder as the source file.
@@ -41,6 +38,7 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 - if you need to create files, place them under a "temp" folder
 - use Partial<T> to declare a partial type of a type T
 - do NOT generate negative test cases
+- do NOT generate trace instance
 
 ## Step 3 
 
@@ -60,8 +58,9 @@ defTool(
     },
     async (args) => {
         const { filename, source } = args
+        if (source)
+            await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
-        await workspace.writeText(filename, source)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }
 )
