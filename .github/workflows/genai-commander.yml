@@ -11,6 +11,16 @@ jobs:
             contents: write
             pull-requests: write
         steps:
+            - name: List GitHub Token Permissions
+              uses: actions/github-script@v4
+              with:
+                  script: |
+                      const permissions = await github.request('GET /repos/{owner}/{repo}/collaborators/{username}/permission', {
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          username: context.actor
+                      });
+                      console.log('Permissions:', permissions.data);
             - name: resolve pr sha
               id: sha
               uses: actions/github-script@v4
