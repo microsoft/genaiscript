@@ -11,23 +11,21 @@ jobs:
             contents: write
             pull-requests: write
         steps:
-            - name: list comment author permissions
-              uses: actions/github-script@v4
+            - name: check comment author has triage permissions
+              uses: actions/github-script@v7
               with:
                   script: |
-                    const { owner, repo } = context.repo;
-                    const username = context.payload.comment.user.login;
-                    const permissions = await github.repos.getCollaboratorPermissionLevel({
-                      owner,
-                      repo,
-                      username
-                    });
-                    console.log(`Permissions for ${username}:`, permissions.data);
-                    if (!permissions.data.user.permissions.triage)
-                      throw "comment author does not have triage permissions";
+                      const { owner, repo } = context.repo;
+                      const username = context.payload.comment.user.login;
+                      const permissions = await github.repos.getCollaboratorPermissionLevel({ owner, repo, username });
+                      const userPermissions = permissions.data.user.permissions
+                      if (!userPermissions.triage) {
+                        await github.rest.actions.cancelWorkflowRun({ owner, repo, run_id: context.runId});                      
+                        throw `comment author '${username}' does not have 'triage' permissions`
+                      }
             - name: resolve pr sha
               id: sha
-              uses: actions/github-script@v4
+              uses: actions/github-script@v7
               with:
                   result-encoding: string
                   script: |
