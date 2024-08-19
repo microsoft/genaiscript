@@ -5176,8 +5176,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm packages may be included in this product:
 
- - undici-types@6.19.6
- - undici@6.19.7
+ - undici-types@6.19.8
+ - undici@6.19.8
 
 These packages each contain the following license and notice below:
 
@@ -5404,7 +5404,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - vectra@0.7.6
+ - vectra@0.9.0
 
 This package contains the following license and notice below:
 

@@ -19,8 +19,8 @@
     "genai:alt-text": "node scripts/image-alt-text.mjs"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.2",
-    "@astrojs/starlight": "^0.25.5",
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/starlight": "^0.26.1",
     "astro": "^4.14.2",
     "typescript": "5.5.4"
   },
