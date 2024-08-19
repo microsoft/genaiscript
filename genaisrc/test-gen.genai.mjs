@@ -18,7 +18,7 @@ generate a plan to test the source code in each file
 - only generate tests for files in ${code}
 `
 
-if (testFiles.length) $` - update the existing test files in ${test} using a diff format.`
+if (testFiles.length) $` - update the existing test files in ${test}. keep old tests if possible.`
 
 $`## Step 2
 
@@ -58,8 +58,9 @@ defTool(
     },
     async (args) => {
         const { filename, source } = args
+        if (source)
+            await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
-        await workspace.writeText(filename, source)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }
 )
