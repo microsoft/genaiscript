@@ -42,7 +42,7 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
     const { headers = Object.keys(csv[0]) } = options || {}
     const res: string[] = [
         `|${headers.join("|")}|`,
-        `|${headers.map(() => "---").join("|")}|`,
+        `|${headers.map(() => "-").join("|")}|`,
         ...csv.map(
             (row) =>
                 `|${headers
