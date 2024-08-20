@@ -16,16 +16,21 @@ defTool(
             },
             pattern: {
                 type: "string",
-                description: "Optional regular expression pattern to search for in the file content.",
-            }
+                description:
+                    "Optional regular expression pattern to search for in the file content.",
+            },
         },
         required: ["glob"],
     },
     async (args) => {
         const { glob, pattern } = args
         console.log(pattern ? `grep ${pattern} ${glob}` : `ls ${glob}`)
-        const res = pattern ? (await (workspace.grep(pattern, glob, { readText: false }))).files : await workspace.findFiles(glob, { readText: false })
+        const res = pattern
+            ? (await workspace.grep(pattern, glob, { readText: false })).files
+            : await workspace.findFiles(glob, { readText: false })
         if (!res?.length) return "No files found."
-        return res.map((f) => f.filename).join("\n")
+        const ress = res.map((f) => f.filename).join("\n")
+        console.log(ress)
+        return ress
     }
 )

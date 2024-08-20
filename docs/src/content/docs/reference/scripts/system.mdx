@@ -390,17 +390,22 @@ defTool(
             },
             pattern: {
                 type: "string",
-                description: "Optional regular expression pattern to search for in the file content.",
-            }
+                description:
+                    "Optional regular expression pattern to search for in the file content.",
+            },
         },
         required: ["glob"],
     },
     async (args) => {
         const { glob, pattern } = args
         console.log(pattern ? `grep ${pattern} ${glob}` : `ls ${glob}`)
-        const res = pattern ? (await (workspace.grep(pattern, glob, { readText: false }))).files : await workspace.findFiles(glob, { readText: false })
+        const res = pattern
+            ? (await workspace.grep(pattern, glob, { readText: false })).files
+            : await workspace.findFiles(glob, { readText: false })
         if (!res?.length) return "No files found."
-        return res.map((f) => f.filename).join("\n")
+        const ress = res.map((f) => f.filename).join("\n")
+        console.log(ress)
+        return ress
     }
 )
 
@@ -450,10 +455,11 @@ defTool(
         lineend = parseInt(lineend)
         let content
         try {
+            console.log(`cat ${filename}`)
             const res = await workspace.readText(filename)
             content = res.content ?? ""
         } catch (e) {
-            return ""
+            return undefined
         }
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
@@ -463,86 +469,6 @@ defTool(
     }
 )
 
-`````
-
-
-### `system.fs_read_summary`
-
-File Read Summary
-
-Function to summarize the content of a file.
-
--  tool `fs_read_summary`: Reads a summary of a file from the file system.
-
-`````js wrap title="system.fs_read_summary"
-system({
-    title: "File Read Summary",
-    description: "Function to summarize the content of a file.",
-    parameters: {
-        model: {
-            type: "string",
-            description: "LLM model to use",
-            default: "gpt-35-turbo",
-        },
-    },
-})
-
-defTool(
-    "fs_read_summary",
-    "Reads a summary of a file from the file system.",
-    {
-        type: "object",
-        properties: {
-            filename: {
-                type: "string",
-                description:
-                    "Path of the file to load, relative to the workspace.",
-            },
-        },
-        required: ["filename"],
-    },
-    async (args) => {
-        const { filename } = args
-        if (!filename) return ""
-        const { content } = await workspace.readText(filename)
-        const model = (env.vars["system.fs_read_summary.model"] || "gpt-35-turbo") + ""
-        const cacheName = `fs_read_summary_${model}`
-        const summary = await runPrompt(
-            (_) => {
-                const f = _.def(
-                    "FILE",
-                    { filename, content },
-                    { maxTokens: 12000 }
-                )
-                _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
-            },
-            {
-                model,
-                cache: true,
-                cacheName,
-            }
-        )
-        return summary.text
-    }
-)
-
-`````
-
-
-### `system.functions`
-
-use functions
-
-
-
-
-
-`````js wrap title="system.functions"
-system({
-    title: "use functions"
-})
-
-$`Use tools if possible.`
 `````
 
 
@@ -869,6 +795,24 @@ Technical Writer
 system({ title: "Technical Writer" });
 
 $`Also, you are an expert technical document writer.`;
+
+`````
+
+
+### `system.tools`
+
+Tools support
+
+
+
+
+
+`````js wrap title="system.tools"
+system({
+    title: "Tools support",
+})
+
+$`Use tools if possible. **Do NOT invent function names**. **Do NOT use function names starting with 'functions.'.`
 
 `````
 
