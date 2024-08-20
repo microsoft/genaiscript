@@ -1,3 +1,4 @@
+import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
@@ -66,6 +67,16 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             const file = await fs.readText(f)
             const res = XMLParse(file.content)
             return res
+        },
+        cache: async (name: string) => {
+            if (!name) throw new NotSupportedError("missing cache name")
+            const res = JSONLineCache.byName<any, any>(name)
+            return <WorkspaceFileCache<any, any>>{
+                get: async (key: any) => res.get(key),
+                set: async (key: any, val: any) => res.set(key, val),
+                values: async () =>
+                    res.entries().then((es) => es.map((e) => e.val)),
+            }
         },
     }
     ;(fs as any).readFile = readText

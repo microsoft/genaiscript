@@ -17,7 +17,6 @@ import { YAMLParse, YAMLStringify } from "./yaml"
 import { createParsers } from "./parsers"
 import { readText } from "./fs"
 import {
-    PromptImage,
     PromptNode,
     appendChild,
     createFileMergeNode,
@@ -105,6 +104,7 @@ export async function createPromptContext(
         readJSON: (f) => runtimeHost.workspace.readJSON(f),
         readXML: (f) => runtimeHost.workspace.readXML(f),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
             const res = await runtimeHost.workspace.findFiles(pattern, options)
             trace.files(res, {
