@@ -196,7 +196,7 @@ ${this.toResultIcon(success, "")}${title}
                 error: serializeError(error),
             }
             this.errors.push(err)
-            this.renderError(err, { details: false })
+            this.renderError(err, { details: true })
         })
     }
 
@@ -226,7 +226,7 @@ ${this.toResultIcon(success, "")}${title}
     ) {
         const { message, error } = e
         const emsg = errorMessage(error)
-        const msg = message || emsg
+        const msg = [message, emsg].filter((m) => m).join(", ")
         this.disableChange(() => {
             this.item(msg)
             if (options.details && error?.stack) {
