@@ -25,6 +25,7 @@
     "typescript": "5.5.4"
   },
   "devDependencies": {
+    "starlight-blog": "^0.12.0",
     "zx": "^8.1.4"
   }
 }

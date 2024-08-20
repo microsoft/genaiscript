@@ -4,14 +4,18 @@ script({
     parameters: {
         topic: {
             type: "string",
-            default: "how to write a genaiscript prompt that lints an Azure Bicep file",
+            default: "a gentle introduction to genaiscript with a few pointers to the docs",
             description: "The topic and goal of the article"
         }
     }
 })
 
 const { topic } = env.vars
-
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth() + 1).padStart(2, '0');
+const dd = String(today.getDate()).padStart(2, '0');
+const formattedDate = `${yyyy}-${mm}-${dd}`;
 def("TOPIC", topic)
 
 $`
@@ -26,19 +30,23 @@ The main purpose is to create a genaiscript prompt generation script.
 
 - use a clear and engaging tone
 - illustrate with code examples
+- title should be click-bait
 - do NOT generate cover_image
 - the script will be execute by GenAIScript CLI
 - the TypeScript API is defined in the file genaisrc/genaiscript.d.ts
-- save the generated markdown to a new file under the docs/src/content/blog folder
+- save the generated markdown to a new file under the docs/src/content/docs/blog folder.
 - generate a single file for the blog post, do NOT generate other files
 - examples of GenAIScript code are in folder packages/sample/src/**/*.genai.*js
 - do NOT explain how to install GenAIScript or the GenAIScript CLI
+- use emojis
+- add date in front matter as 'date: ${formattedDate}'
 
 # GenAISCript Documentation
 
 You can extract information from the following files:
 
 - the documentation: docs/src/content/docs/**/*.md*
+- the existing blog posts: docs/src/content/blog/**/*.md*
 - the online documentation: https://microsoft.github.io/genaiscript/
 
 `

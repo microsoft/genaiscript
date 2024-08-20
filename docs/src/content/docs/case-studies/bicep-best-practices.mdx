@@ -8,7 +8,7 @@ keywords: Azure Bicep, best practices, infrastructure as code, linter, deploymen
 import { Image } from 'astro:assets';
 import { Code } from '@astrojs/starlight/components';
 import bicepSource from "../../../../../packages/sample/src/bicep/web-app-basic-linux.bicep?raw"
-import scriptSource from "../../../../../packages/sample/genaisrc/bicep-best-practices.genai.js?raw"
+import scriptSource from "../../../../../packages/sample/genaisrc/bicep-best-practices.genai.mjs?raw"
 import src from './bicep-best-practices.png';
 import alt from "./bicep-best-practices.png.txt?raw"
 
@@ -32,7 +32,7 @@ sample template in the [bicep playground](https://azure.github.io/bicep/).
 The file is `linter` clean, but some improvements could be made with best practices.
 The following script will apply best practices to the Bicep file.
 
-<Code code={scriptSource} wrap={true} lang="js" title="bicep-best-practices.genai.js" />
+<Code code={scriptSource} wrap={true} lang="js" title="bicep-best-practices.genai.mjs" />
 
 - line numbers are added to the file content to help the LLM precisely locate the issues.
 

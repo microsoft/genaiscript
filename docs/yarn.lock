@@ -108,6 +108,14 @@
   dependencies:
     prismjs "^1.29.0"
 
+"@astrojs/rss@4.0.5":
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/@astrojs/rss/-/rss-4.0.5.tgz#226b563cb52e18f90678dc40008e92cc4071549f"
+  integrity sha512-IyJVL6z09AQtxbgLaAwebT3T5YKe4oTHDesqydJv1KLHw+zEzzMCFuuNsEyxjiqu7df9+DDCpDXLj/WRiEUXvw==
+  dependencies:
+    fast-xml-parser "^4.2.7"
+    kleur "^4.1.5"
+
 "@astrojs/sitemap@^3.1.6":
   version "3.1.6"
   resolved "https://registry.yarnpkg.com/@astrojs/sitemap/-/sitemap-3.1.6.tgz#32bba41b6512ee97ea42633593046b1a22658260"
@@ -1202,6 +1210,17 @@ astro-expressive-code@^0.35.6:
   dependencies:
     rehype-expressive-code "^0.35.6"
 
+astro-remote@0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/astro-remote/-/astro-remote-0.3.2.tgz#d1dabae93496638e75825a8485adcd68004ec9f6"
+  integrity sha512-Xwm6Y+ldQEnDB2l1WwVqeUs3QvUX8LtJWnovpXlf8xhpicPu159jXOhDbHZS9wilGO/+/nR67A1qskF8pDvdGQ==
+  dependencies:
+    entities "^4.5.0"
+    marked "^12.0.0"
+    marked-footnote "^1.2.2"
+    marked-smartypants "^1.1.6"
+    ultrahtml "^1.5.3"
+
 astro@^4.14.2:
   version "4.14.2"
   resolved "https://registry.yarnpkg.com/astro/-/astro-4.14.2.tgz#384e2bff8cb75449c9eb13effc5b1fbcd9074a99"
@@ -1627,7 +1646,7 @@ emoji-regex@^9.2.2:
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-9.2.2.tgz#840c8803b0d8047f4ff0cf963176b32d4ef3ed72"
   integrity sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==
 
-entities@^4.4.0:
+entities@^4.4.0, entities@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/entities/-/entities-4.5.0.tgz#5d268ea5e7113ec74c4d033b79ea5a35a488fb48"
   integrity sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==
@@ -1800,6 +1819,13 @@ fast-uri@^3.0.1:
   resolved "https://registry.yarnpkg.com/fast-uri/-/fast-uri-3.0.1.tgz#cddd2eecfc83a71c1be2cc2ef2061331be8a7134"
   integrity sha512-MWipKbbYiYI0UC7cl8m/i/IWTqfC8YXsqjzybjddLsFjStroQzsHXkc73JutMvBiXmOvapk+axIl79ig5t55Bw==
 
+fast-xml-parser@^4.2.7:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/fast-xml-parser/-/fast-xml-parser-4.4.1.tgz#86dbf3f18edf8739326447bcaac31b4ae7f6514f"
+  integrity sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw==
+  dependencies:
+    strnum "^1.0.5"
+
 fastq@^1.6.0:
   version "1.17.1"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.17.1.tgz#2a523f07a4e7b1e81a42b91b8bf2254107753b47"
@@ -1865,7 +1891,7 @@ get-stream@^8.0.1:
   resolved "https://registry.yarnpkg.com/get-stream/-/get-stream-8.0.1.tgz#def9dfd71742cd7754a7761ed43749a27d02eca2"
   integrity sha512-VaUJspBffn/LMCJVoMvSAdmscJyS1auj5Zulnn5UoYcY531UWmdwhRWkcGKnGU93m5HSXP9LP2usOryrBtQowA==
 
-github-slugger@^2.0.0:
+github-slugger@2.0.0, github-slugger@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/github-slugger/-/github-slugger-2.0.0.tgz#52cf2f9279a21eb6c59dd385b410f0c0adda8f1a"
   integrity sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw==
@@ -2412,6 +2438,28 @@ markdown-table@^3.0.0:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/markdown-table/-/markdown-table-3.0.3.tgz#e6331d30e493127e031dd385488b5bd326e4a6bd"
   integrity sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==
+
+marked-footnote@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/marked-footnote/-/marked-footnote-1.2.2.tgz#693404c3fbe93c70cb2afe4642803a65aaf9a4c7"
+  integrity sha512-TFBEHwHLSSedub7P6XHHs+dMMOnDeNV5+kFDo4trU//gDd8iM57lg9jr9NGwDifPwLllHwKmFcRNp5uYvO2Fnw==
+
+marked-plaintify@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/marked-plaintify/-/marked-plaintify-1.0.1.tgz#823a85ca2f9f9483c7e27743f5691d4f12db1e4a"
+  integrity sha512-KQhxtuVWf3Ij3YMiW4ArlgNOVmzOAlP0o/upsu2+h7Q4TCAwG4UvkYTteZF2sDDomXQnNSLmfyAhoR0gx2Orgw==
+
+marked-smartypants@^1.1.6:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/marked-smartypants/-/marked-smartypants-1.1.8.tgz#3cbe53ad2eefb6c46c208ca9a6a660e2817c734a"
+  integrity sha512-2n8oSjL2gSkH6M0dSdRIyLgqqky03iKQkdmoaylmIzwIhYTW204S7ry6zP2iqwSl0zSlJH2xmWgxlZ/4XB1CdQ==
+  dependencies:
+    smartypants "^0.2.2"
+
+marked@12.0.2, marked@^12.0.0:
+  version "12.0.2"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-12.0.2.tgz#b31578fe608b599944c69807b00f18edab84647e"
+  integrity sha512-qXUm7e/YKFoqFPYPa3Ukg9xlI5cyAtGmyEIzMfW//m6kXwCy2Ps9DYf5ioijFKQ8qyuscrHoY04iJGctu2Kg0Q==
 
 mdast-util-definitions@^6.0.0:
   version "6.0.0"
@@ -3677,6 +3725,11 @@ sitemap@^7.1.2:
     arg "^5.0.0"
     sax "^1.2.4"
 
+smartypants@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/smartypants/-/smartypants-0.2.2.tgz#ad7124d8eb9ab437906db1cd7bd7aaf49e5d9a42"
+  integrity sha512-TzobUYoEft/xBtb2voRPryAUIvYguG0V7Tt3de79I1WfXgCwelqVsGuZSnu3GFGRZhXR90AeEYIM+icuB/S06Q==
+
 source-map-js@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.0.tgz#16b809c162517b5b8c3e7dcd315a2a5c2612b2af"
@@ -3696,6 +3749,18 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
+
+starlight-blog@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/starlight-blog/-/starlight-blog-0.12.0.tgz#339546ae2dec2f7e86d7d12a8130e4eee3705134"
+  integrity sha512-SSNkBQIM6RrumGQQqOv76L5Lcefm6faU2+4armlgQh2zod24aOvuCGUcFi3F//DxOWvIx3WRb7X/VRqs3yNO8A==
+  dependencies:
+    "@astrojs/rss" "4.0.5"
+    astro-remote "0.3.2"
+    github-slugger "2.0.0"
+    marked "12.0.2"
+    marked-plaintify "1.0.1"
+    ultrahtml "1.5.3"
 
 stdin-discarder@^0.2.1:
   version "0.2.2"
@@ -3771,6 +3836,11 @@ strip-final-newline@^3.0.0:
   resolved "https://registry.yarnpkg.com/strip-final-newline/-/strip-final-newline-3.0.0.tgz#52894c313fbff318835280aed60ff71ebf12b8fd"
   integrity sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw==
 
+strnum@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/strnum/-/strnum-1.0.5.tgz#5c4e829fe15ad4ff0d20c3db5ac97b73c9b072db"
+  integrity sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==
+
 style-to-object@^0.4.0:
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/style-to-object/-/style-to-object-0.4.4.tgz#266e3dfd56391a7eefb7770423612d043c3f33ec"
@@ -3845,6 +3915,11 @@ typescript@5.5.4:
   version "5.5.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.5.4.tgz#d9852d6c82bad2d2eda4fd74a5762a8f5909e9ba"
   integrity sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==
+
+ultrahtml@1.5.3, ultrahtml@^1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/ultrahtml/-/ultrahtml-1.5.3.tgz#e7a903a4b28a0e49b71b0801b444050bb0a369c7"
+  integrity sha512-GykOvZwgDWZlTQMtp5jrD4BVL+gNn2NVlVafjcFUJ7taY20tqYdwdoWBFy6GBJsNTZe1GkGPkSl5knQAjtgceg==
 
 undici-types@~6.19.2:
   version "6.19.8"

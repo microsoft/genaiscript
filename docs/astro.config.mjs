@@ -1,5 +1,6 @@
 import { defineConfig, passthroughImageService } from "astro/config"
 import starlight from "@astrojs/starlight"
+import starlightBlog from "starlight-blog"
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,6 +16,7 @@ export default defineConfig({
             logo: {
                 src: "./src/assets/logo.svg",
             },
+            plugins: [starlightBlog()],
             components: {
                 Footer: "./src/components/Footer.astro",
             },
@@ -41,6 +43,10 @@ export default defineConfig({
                 {
                     label: "Reference",
                     autogenerate: { directory: "reference" },
+                },
+                {
+                    label: "Blog",
+                    link: "blog",
                 },
                 {
                     label: "FAQ",
