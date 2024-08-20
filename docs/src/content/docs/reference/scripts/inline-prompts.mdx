@@ -12,6 +12,9 @@ import summaryOfSummaryPhi3 from "../../../../../../packages/sample/genaisrc/sum
 
 The `runPrompt` function allows to build an inner LLM invocation. It returns the output of the prompt.
 
+You can pass a function to `runPrompt` that takes a single argument `_` which is the prompt builder.
+It defines the same helpers like `$`, `def`, but applies to the inner prompt.
+
 ```js
 const { text } = await runPrompt(_ => {
     // use def, $ and other helpers
