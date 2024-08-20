@@ -40,6 +40,7 @@ The main purpose is to create a genaiscript prompt generation script.
 - do NOT explain how to install GenAIScript or the GenAIScript CLI
 - use emojis
 - add date in front matter as 'date: ${formattedDate}'
+- add author in front matter as 'author: genaiscript'
 
 # GenAISCript Documentation
 

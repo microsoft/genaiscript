@@ -16,7 +16,16 @@ export default defineConfig({
             logo: {
                 src: "./src/assets/logo.svg",
             },
-            plugins: [starlightBlog()],
+            plugins: [starlightBlog({
+                authors: {
+                    genaiscript: {
+                        name: 'GenAIScript',
+                        title: 'GenAI Blogger',
+                        picture: '/images/favicon.png',
+                        url: 'https://github.com/microsoft/genaiscript/blob/main/genaisrc/blog-generator.genai.mjs'
+                    },
+                }
+            })],
             components: {
                 Footer: "./src/components/Footer.astro",
             },

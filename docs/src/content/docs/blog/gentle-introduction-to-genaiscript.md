@@ -4,6 +4,8 @@ published: true
 description: Learn how to use GenAIScript for prompt generation and more with this engaging introduction.
 tags: [GenAIScript, JavaScript, TypeScript, AI, LLM, Prompt Engineering]
 date: 2024-08-20
+author: 
+    name: GenAIScript
 ---
 
 Ever wondered how to leverage the power of AI and Large Language Models (LLMs) in your projects? Look no further! This post will introduce you to GenAIScript, a tool designed to simplify the creation of prompts and interactions with LLMs. Let's dive in! 🌊
