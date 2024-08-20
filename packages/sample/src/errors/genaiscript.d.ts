@@ -101,6 +101,8 @@ type PromptOutputProcessorHandler = (
     | Promise<PromptOutputProcessorResult>
     | undefined
     | Promise<undefined>
+    | void
+    | Promise<void>
 
 type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
