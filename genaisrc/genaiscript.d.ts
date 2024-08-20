@@ -67,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot">
+type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.math" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.tools" | "system.typescript" | "system.zero_shot_cot">
 
-type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "python_code_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
+type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "math_eval" | "python_code_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
 
 type FileMergeHandler = (
     filename: string,
@@ -215,8 +215,6 @@ interface ScriptRuntimeOptions {
 * - `system.files_schema`: Apply JSON schemas to generated data.
 * - `system.fs_find_files`: File find files
 * - `system.fs_read_file`: File Read File
-* - `system.fs_read_summary`: File Read Summary
-* - `system.functions`: use functions
 * - `system.math`: Math expression evaluator
 * - `system.python`: Expert at generating and understanding Python code.
 * - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
@@ -226,6 +224,7 @@ interface ScriptRuntimeOptions {
 * - `system.schema`: JSON Schema support
 * - `system.tasks`: Generates tasks
 * - `system.technical`: Technical Writer
+* - `system.tools`: Tools support
 * - `system.typescript`: Export TypeScript Developer
 * - `system.zero_shot_cot`: Zero-shot Chain Of Though
 **/

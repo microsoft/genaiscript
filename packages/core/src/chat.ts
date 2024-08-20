@@ -115,7 +115,7 @@ export interface LanguageModel {
 async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ToolCallback[],
+    tools: ToolCallback[],
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
@@ -138,6 +138,7 @@ async function runToolCalls(
     // call tool and run again
     for (const call of resp.toolCalls) {
         checkCancelled(cancellationToken)
+
         trace.startDetails(`📠 tool call ${call.name}`)
         try {
             const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
@@ -145,65 +146,104 @@ async function runToolCalls(
                 : undefined
             trace.fence(call.arguments, "json")
             if (callArgs === undefined) trace.error("arguments failed to parse")
-            const fd = functions.find((f) => f.definition.name === call.name)
-            if (!fd) throw new Error(`tool ${call.name} not found`)
 
-            const context: ToolCallContext = {
-                trace,
+            let todos: { tool: ToolCallback; args: any }[]
+            if (call.name === "multi_tool_use.parallel") {
+                // special undocumented openai hallucination, argument contains multiple tool calls
+                // {
+                //  "id": "call_D48fudXi4oBxQ2rNeHhpwIKh",
+                //  "name": "multi_tool_use.parallel",
+                //  "arguments": "{\"tool_uses\":[{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.md\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.mdx\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"../packages/sample/src/*.genai.{js,mjs}\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/assets/*.txt\"}}]}"
+                // }
+                const toolUses = callArgs.tool_uses as {
+                    recipient_name: string
+                    parameters: any
+                }[]
+                todos = toolUses.map((tu) => {
+                    const toolName = tu.recipient_name.replace(
+                        /^functions\./,
+                        ""
+                    )
+                    const tool = tools.find(
+                        (f) => f.definition.name === toolName
+                    )
+                    if (!tool) {
+                        logVerbose(JSON.stringify(tu, null, 2))
+                        throw new Error(`tool ${toolName} not found`)
+                    }
+                    return { tool, args: tu.parameters }
+                })
+            } else {
+                const tool = tools.find((f) => f.definition.name === call.name)
+                if (!tool) {
+                    logVerbose(JSON.stringify(call, null, 2))
+                    throw new Error(`tool ${call.name} not found`)
+                }
+                todos = [{ tool, args: callArgs }]
             }
 
-            const output = await fd.fn({ context, ...callArgs })
-            if (output === undefined || output === null)
-                throw new Error(`tool ${call.name} output is undefined`)
-            let toolContent: string = undefined
-            let toolEdits: Edits[] = undefined
-            if (typeof output === "string") toolContent = output
-            else if (
-                typeof output === "object" &&
-                (output as ShellOutput).exitCode !== undefined
-            ) {
-                const { stdout, stderr, exitCode } = output as ShellOutput
-                toolContent = `EXIT_CODE: ${exitCode}
+            const toolResult: string[] = []
+            for (const todo of todos) {
+                const { tool, args } = todo
+                const context: ToolCallContext = {
+                    trace,
+                }
+                const output = await tool.fn({ context, ...args })
+                if (output === undefined || output === null)
+                    throw new Error(
+                        `tool ${tool.definition.name} output is undefined`
+                    )
+                let toolContent: string = undefined
+                let toolEdits: Edits[] = undefined
+                if (typeof output === "string") toolContent = output
+                else if (
+                    typeof output === "object" &&
+                    (output as ShellOutput).exitCode !== undefined
+                ) {
+                    const { stdout, stderr, exitCode } = output as ShellOutput
+                    toolContent = `EXIT_CODE: ${exitCode}
 
 STDOUT:
-${stdout}
+${stdout || ""}
 
 STDERR:
-${stderr}`
-            } else if (
-                typeof output === "object" &&
-                (output as WorkspaceFile).filename &&
-                (output as WorkspaceFile).content
-            ) {
-                const { filename, content } = output as WorkspaceFile
-                toolContent = `FILENAME: ${filename}
+${stderr || ""}`
+                } else if (
+                    typeof output === "object" &&
+                    (output as WorkspaceFile).filename &&
+                    (output as WorkspaceFile).content
+                ) {
+                    const { filename, content } = output as WorkspaceFile
+                    toolContent = `FILENAME: ${filename}
 ${fenceMD(content, " ")}
 `
-            } else {
-                toolContent = (output as ToolCallContent)?.content
+                } else {
+                    toolContent = (output as ToolCallContent)?.content
+                }
+
+                if (typeof output === "object")
+                    toolEdits = (output as ToolCallContent)?.edits
+
+                if (toolContent) trace.fence(toolContent, "markdown")
+                if (toolEdits?.length) {
+                    trace.fence(toolEdits)
+                    edits.push(
+                        ...toolEdits.map((e) => {
+                            const { filename, ...rest } = e
+                            const n = e.filename
+                            const fn = /^[^\/]/.test(n)
+                                ? host.resolvePath(projFolder, n)
+                                : n
+                            return { filename: fn, ...rest }
+                        })
+                    )
+                }
+
+                toolResult.push(toolContent)
             }
-
-            if (typeof output === "object")
-                toolEdits = (output as ToolCallContent)?.edits
-
-            if (toolContent) trace.fence(toolContent, "markdown")
-            if (toolEdits?.length) {
-                trace.fence(toolEdits)
-                edits.push(
-                    ...toolEdits.map((e) => {
-                        const { filename, ...rest } = e
-                        const n = e.filename
-                        const fn = /^[^\/]/.test(n)
-                            ? host.resolvePath(projFolder, n)
-                            : n
-                        return { filename: fn, ...rest }
-                    })
-                )
-            }
-
             messages.push({
                 role: "tool",
-                content: toolContent,
+                content: toolResult.join("\n\n"),
                 tool_call_id: call.id,
             })
         } catch (e) {
@@ -373,7 +413,7 @@ function structurifyChatSession(
 async function processChatMessage(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ToolCallback[],
+    tools: ToolCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
@@ -394,7 +434,7 @@ async function processChatMessage(
 
     // execute tools as needed
     if (resp.toolCalls?.length) {
-        await runToolCalls(resp, messages, functions, options)
+        await runToolCalls(resp, messages, tools, options)
         stats.toolCalls += resp.toolCalls.length
         if (stats.toolCalls > maxToolCalls)
             throw new Error(

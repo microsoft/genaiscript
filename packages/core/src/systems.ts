@@ -27,6 +27,7 @@ export function resolveSystems(prj: Project, template: PromptScript) {
     }
 
     if (template.tools) {
+        systems.push("system.tools")
         arrayify(template.tools).forEach((tool) =>
             systems.push(...resolveTools(prj, tool))
         )
