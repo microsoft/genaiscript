@@ -144,9 +144,13 @@ async function runToolCalls(
                 ? JSONLLMTryParse(call.arguments)
                 : undefined
             trace.fence(call.arguments, "json")
-            if (callArgs === undefined) trace.error("arguments failed to parse")
+            if (callArgs === undefined)
+                trace.error("arguments failed to parse")
             const fd = functions.find((f) => f.definition.name === call.name)
-            if (!fd) throw new Error(`tool ${call.name} not found`)
+            if (!fd) {
+                logVerbose(JSON.stringify(call, null, 2))
+                throw new Error(`tool ${call.name} not found`)
+            }
 
             const context: ToolCallContext = {
                 trace,
