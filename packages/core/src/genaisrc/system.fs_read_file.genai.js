@@ -32,6 +32,7 @@ defTool(
         lineend = parseInt(lineend)
         let content
         try {
+            console.log(`cat ${filename}`)
             const res = await workspace.readText(filename)
             content = res.content ?? ""
         } catch (e) {
