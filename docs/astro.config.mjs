@@ -24,6 +24,12 @@ export default defineConfig({
                         picture: '/images/favicon.png',
                         url: 'https://github.com/microsoft/genaiscript/blob/main/genaisrc/blog-generator.genai.mjs'
                     },
+                    pelikhan: {
+                        name: 'Peli',
+                        title: 'GenAIScript developer',
+                        picture: 'https://avatars.githubusercontent.com/u/4175913?s=400&u=2aca7b068fa646da550c534145764d50f533561d&v=4',
+                        url: 'https://github.com/pelikhan'
+                    },
                 }
             })],
             components: {
