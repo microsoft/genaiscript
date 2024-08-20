@@ -20,11 +20,9 @@ export type ChatCompletationRequestCache = JSONLineCache<
     ChatCompletationRequestCacheValue
 >
 
-export function getChatCompletionCache(
-    name?: string
-): ChatCompletationRequestCache {
+export function getChatCompletionCache(): ChatCompletationRequestCache {
     return JSONLineCache.byName<
         ChatCompletionRequestCacheKey,
         ChatCompletationRequestCacheValue
-    >(name || CHAT_CACHE)
+    >(CHAT_CACHE)
 }

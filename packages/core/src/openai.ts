@@ -57,7 +57,6 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         maxCachedTemperature = MAX_CACHED_TEMPERATURE,
         maxCachedTopP = MAX_CACHED_TOP_P,
         cache: useCache,
-        cacheName,
         retry,
         retryDelay,
         maxDelay,
@@ -68,7 +67,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { model } = parseModelIdentifier(req.model)
     const encoder = await resolveTokenEncoder(model)
 
-    const cache = getChatCompletionCache(cacheName)
+    const cache = getChatCompletionCache()
     const caching =
         useCache === true || // always use cache
         (useCache !== false && // never use cache

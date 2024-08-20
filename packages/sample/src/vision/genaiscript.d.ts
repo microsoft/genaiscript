@@ -643,7 +643,7 @@ interface ExpansionVariables {
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation", "cacheName">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
