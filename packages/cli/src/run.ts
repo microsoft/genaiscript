@@ -1,5 +1,5 @@
 import { capitalize } from "inflection"
-import { resolve, join, relative } from "node:path"
+import { resolve, join, relative, dirname } from "node:path"
 import { isQuiet } from "./log"
 import { emptyDir, ensureDir } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
@@ -24,6 +24,7 @@ import {
     CLI_RUN_FILES_FOLDER,
     ANNOTATION_ERROR_CODE,
     GENAI_ANY_REGEX,
+    TRACE_CHUNK,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -36,7 +37,11 @@ import {
     JSONSchemaStringifyToTypeScript,
     JSONSchemaStringify,
 } from "../../core/src/schema"
-import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
+import {
+    TraceOptions,
+    MarkdownTrace,
+    TraceChunkEvent,
+} from "../../core/src/trace"
 import {
     normalizeFloat,
     normalizeInt,
@@ -51,8 +56,8 @@ import {
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
-import { estimateTokens } from "../../core/src/tokens"
 import { resolveTokenEncoder } from "../../core/src/encoders"
+import { appendFile, writeFile } from "fs/promises"
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -111,6 +116,37 @@ export async function runScript(
     const fail = (msg: string, exitCode: number) => {
         logVerbose(msg)
         return { exitCode, result }
+    }
+
+    if (out) {
+        if (removeOut) await emptyDir(out)
+        await ensureDir(out)
+    }
+    if (outTrace && trace) {
+        await ensureDir(dirname(outTrace))
+        await writeFile(outTrace, "", { encoding: "utf-8" })
+        trace.addEventListener(
+            TRACE_CHUNK,
+            async (ev) => {
+                const tev = ev as TraceChunkEvent
+                await appendFile(outTrace, tev.chunk, { encoding: "utf-8" })
+            },
+            false
+        )
+    }
+    if (out && trace) {
+        const ofn = join(out, "res.trace.md")
+        if (ofn !== outTrace) {
+            writeFile(ofn, "", { encoding: "utf-8" })
+            trace.addEventListener(
+                TRACE_CHUNK,
+                async (ev) => {
+                    const tev = ev as TraceChunkEvent
+                    await appendFile(ofn, tev.chunk, { encoding: "utf-8" })
+                },
+                false
+            )
+        }
     }
 
     const toolFiles: string[] = []
@@ -234,7 +270,6 @@ export async function runScript(
     if (result.status !== "success")
         logVerbose(result.statusText ?? result.status)
 
-    if (outTrace) await writeText(outTrace, trace.content)
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
             await appendJSONL(outAnnotations, result.annotations)
@@ -263,8 +298,6 @@ export async function runScript(
         ? JSON.stringify(result.messages, null, 2)
         : undefined
     if (out) {
-        if (removeOut) await emptyDir(out)
-        await ensureDir(out)
         const jsonf = join(out, `res.json`)
         const yamlf = join(out, `res.yaml`)
 
@@ -273,7 +306,6 @@ export async function runScript(
         const outputf = mkfn(".output.md")
         const outputjson = mkfn(".output.json")
         const outputyaml = mkfn(".output.yaml")
-        const tracef = mkfn(".trace.md")
         const annotationf = result.annotations?.length
             ? mkfn(".annotations.csv")
             : undefined
@@ -289,7 +321,6 @@ export async function runScript(
             await writeText(outputyaml, YAMLStringify(result.json))
         }
         if (result.text) await writeText(outputf, result.text)
-        if (trace) await writeText(tracef, trace.content)
         if (result.schemas) {
             for (const [sname, schema] of Object.entries(result.schemas)) {
                 await writeText(
