@@ -500,6 +500,25 @@ interface ToolCallContent {
 
 type ToolCallOutput = string | ToolCallContent | ShellOutput | WorkspaceFile
 
+interface WorkspaceFileCache<K, V> {
+    /**
+     * Gets the value associated with the key, or undefined if there is none.
+     * @param key
+     */
+    get(key: K): Promise<V | undefined>
+    /**
+     * Sets the value associated with the key.
+     * @param key
+     * @param value
+     */
+    set(key: K, value: V): Promise<void>
+
+    /**
+     * List the values in the cache.
+     */
+    values(): Promise<V[]>
+}
+
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
@@ -549,6 +568,15 @@ interface WorkspaceFileSystem {
      * @param content
      */
     writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Opens a key-value cache for the given cache name.
+     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
 }
 
 interface ToolCallContext {
@@ -1666,6 +1694,9 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    /**
+     * @deprecated Use `workspace` instead
+     */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
     YAML: YAML
