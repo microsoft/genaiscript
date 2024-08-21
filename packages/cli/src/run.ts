@@ -27,6 +27,7 @@ import {
     TRACE_CHUNK,
     UNRECOVERABLE_ERROR_CODES,
     SUCCESS_ERROR_CODE,
+    RUNS_DIR_NAME,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -88,9 +89,9 @@ export async function runScriptWithExitCode(
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
         let outTrace = options.outTrace
-        if (!outTrace)
+        if (!outTrace && outTrace !== "false")
             outTrace = dotGenaiscriptPath(
-                "runs",
+                RUNS_DIR_NAME,
                 `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
             )
         const res = await runScript(scriptId, files, { ...options, outTrace })
