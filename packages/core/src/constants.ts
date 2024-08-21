@@ -76,6 +76,7 @@ export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 export const EXEC_MAX_BUFFER = 64
 export const DOT_ENV_FILENAME = ".env"
 
+export const SUCCESS_ERROR_CODE = 0
 export const UNHANDLED_ERROR_CODE = -1
 export const ANNOTATION_ERROR_CODE = -2
 export const FILES_NOT_FOUND_ERROR_CODE = -3
@@ -84,6 +85,14 @@ export const RUNTIME_ERROR_CODE = -5
 export const CONNECTION_CONFIGURATION_ERROR_CODE = -6
 export const USER_CANCELLED_ERROR_CODE = -7
 export const CONFIGURATION_ERROR_CODE = -8
+
+export const UNRECOVERABLE_ERROR_CODES = Object.freeze([
+    0,
+    CONNECTION_CONFIGURATION_ERROR_CODE,
+    USER_CANCELLED_ERROR_CODE,
+    FILES_NOT_FOUND_ERROR_CODE,
+    ANNOTATION_ERROR_CODE,
+])
 
 export const DOT_ENV_REGEX = /\.env$/i
 export const PROMPT_FENCE = "```"
