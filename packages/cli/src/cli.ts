@@ -148,6 +148,7 @@ export async function cli() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
+        .option("-rr, --run-retry <number>", "number of retries for the entire run")
         .action(runScriptWithExitCode)
 
     const test = program.command("test")

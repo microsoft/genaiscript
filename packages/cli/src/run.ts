@@ -79,7 +79,14 @@ export async function runScriptWithExitCode(
         TraceOptions &
         CancellationOptions
 ) {
-    const { exitCode } = await runScript(scriptId, files, options)
+    const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
+    let exitCode = -1
+    for (let r = 0; r < runRetry; ++r) {
+        const res = await runScript(scriptId, files, options)
+        exitCode = res.exitCode
+        if (exitCode === 0) break
+        console.error(`run failed, retrying ${r + 1}/${runRetry}`)
+    }
     process.exit(exitCode)
 }
 

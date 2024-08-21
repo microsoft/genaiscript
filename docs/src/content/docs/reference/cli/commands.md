@@ -48,6 +48,7 @@ Options:
   -cs, --csv-separator <string>              csv separator (default: "\t")
   -ae, --apply-edits                         apply file edits
   --vars <namevalue...>                      variables, as name=value, stored in env.vars
+  -rr, --run-retry <number>                  number of retries for the entire run
   -h, --help                                 display help for command
 ```
 

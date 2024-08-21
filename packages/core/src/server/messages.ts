@@ -45,6 +45,7 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 export interface PromptScriptRunOptions {
     excludedFiles: string[]
     excludeGitIgnore: boolean
+    runRetry: string
     out: string
     retry: string
     retryDelay: string
