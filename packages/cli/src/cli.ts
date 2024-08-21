@@ -142,7 +142,7 @@ export async function cli() {
         )
         .option("--no-cache", "disable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
-        .option("--cs, --csv-separator <string>", "csv separator", "\t")
+        .option("-cs, --csv-separator <string>", "csv separator", "\t")
         .option("-ae, --apply-edits", "apply file edits")
         .option(
             "--vars <namevalue...>",
@@ -174,6 +174,10 @@ export async function cli() {
             `promptfoo version, default is ${PROMPTFOO_VERSION}`
         )
         .option("-os, --out-summary <file>", "append output summary in file")
+        .option(
+            "--groups <groups...>",
+            "groups to include or exclude. Use :! prefix to exclude"
+        )
         .action(scriptsTest)
 
     test.command("view")

@@ -27,6 +27,7 @@ import {
     logInfo,
     logVerbose,
     delay,
+    tagFilter,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
@@ -83,6 +84,7 @@ export async function runPromptScriptTests(
     const scripts = prj.templates
         .filter((t) => arrayify(t.tests)?.length)
         .filter((t) => !ids?.length || ids.includes(t.id))
+        .filter((t) => tagFilter(options?.groups, t.group))
     if (!scripts.length)
         return {
             ok: false,
@@ -217,6 +219,7 @@ export async function scriptsTest(
         promptfooVersion?: string
         outSummary?: string
         testDelay?: string
+        groups?: string[]
     }
 ) {
     const { status, value = [] } = await runPromptScriptTests(ids, options)

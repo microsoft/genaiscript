@@ -45,7 +45,7 @@ Options:
   -em, --embeddings-model <string>           embeddings model for the run
   --no-cache                                 disable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
-  --cs, --csv-separator <string>             csv separator (default: "\t")
+  -cs, --csv-separator <string>              csv separator (default: "\t")
   -ae, --apply-edits                         apply file edits
   --vars <namevalue...>                      variables, as name=value, stored in env.vars
   -h, --help                                 display help for command
@@ -89,6 +89,8 @@ Options:
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0
   -os, --out-summary <file>           append output summary in file
+  --groups <groups...>                groups to include or exclude. Use :!
+                                      prefix to exclude
   -h, --help                          display help for command
 ```
 

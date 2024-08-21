@@ -24,6 +24,7 @@ export interface ServerEnv extends RequestMessage {
 export interface PromptScriptTestRunOptions {
     testProvider?: string
     models?: string[]
+    groups?: string[]
 }
 
 export interface PromptScriptTestRun extends RequestMessage {
