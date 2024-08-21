@@ -57,6 +57,7 @@ The main purpose is to create a genaiscript prompt generation script.
 
 # Writing style and instructions
 
+- generate the blog post content, nothing else
 - save the generated markdown to a new file under the docs/src/content/docs/blog folder. THIS IS IMPORTANT
 - use a clear and engaging tone
 - illustrate with code examples
