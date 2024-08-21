@@ -59,6 +59,19 @@ import {
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import { appendFile, writeFile } from "fs/promises"
 
+async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
+    await ensureDir(dirname(filename))
+    await writeFile(filename, "", { encoding: "utf-8" })
+    trace.addEventListener(
+        TRACE_CHUNK,
+        async (ev) => {
+            const tev = ev as TraceChunkEvent
+            await appendFile(filename, tev.chunk, { encoding: "utf-8" })
+        },
+        false
+    )
+}
+
 export async function runScriptWithExitCode(
     scriptId: string,
     files: string[],
@@ -122,30 +135,11 @@ export async function runScript(
         if (removeOut) await emptyDir(out)
         await ensureDir(out)
     }
-    if (outTrace && trace) {
-        await ensureDir(dirname(outTrace))
-        await writeFile(outTrace, "", { encoding: "utf-8" })
-        trace.addEventListener(
-            TRACE_CHUNK,
-            async (ev) => {
-                const tev = ev as TraceChunkEvent
-                await appendFile(outTrace, tev.chunk, { encoding: "utf-8" })
-            },
-            false
-        )
-    }
+    if (outTrace && trace) await setupTraceWriting(trace, outTrace)
     if (out && trace) {
         const ofn = join(out, "res.trace.md")
         if (ofn !== outTrace) {
-            writeFile(ofn, "", { encoding: "utf-8" })
-            trace.addEventListener(
-                TRACE_CHUNK,
-                async (ev) => {
-                    const tev = ev as TraceChunkEvent
-                    await appendFile(ofn, tev.chunk, { encoding: "utf-8" })
-                },
-                false
-            )
+            await setupTraceWriting(trace, ofn)
         }
     }
 
