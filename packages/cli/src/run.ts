@@ -1,7 +1,7 @@
 import { capitalize } from "inflection"
 import { resolve, join, relative, dirname } from "node:path"
 import { isQuiet } from "./log"
-import { emptyDir, ensureDir } from "fs-extra"
+import { emptyDir, ensureDir, appendFileSync } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
 import { diagnosticsToCSV } from "../../core/src/ast"
@@ -62,7 +62,7 @@ import {
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
 import { resolveTokenEncoder } from "../../core/src/encoders"
-import { appendFile, writeFile } from "fs/promises"
+import { writeFile } from "fs/promises"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     logVerbose(`writing trace to ${filename}`)
@@ -70,9 +70,9 @@ async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
     await writeFile(filename, "", { encoding: "utf-8" })
     trace.addEventListener(
         TRACE_CHUNK,
-        async (ev) => {
+        (ev) => {
             const tev = ev as TraceChunkEvent
-            await appendFile(filename, tev.chunk, { encoding: "utf-8" })
+            appendFileSync(filename, tev.chunk, { encoding: "utf-8" })
         },
         false
     )
@@ -163,7 +163,7 @@ export async function runScript(
         if (removeOut) await emptyDir(out)
         await ensureDir(out)
     }
-    if (outTrace && /^false$/i.test(outTrace) && trace)
+    if (outTrace && !/^false$/i.test(outTrace) && trace)
         await setupTraceWriting(trace, outTrace)
     if (out && trace) {
         const ofn = join(out, "res.trace.md")

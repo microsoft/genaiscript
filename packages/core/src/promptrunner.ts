@@ -1,7 +1,7 @@
 import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
-import { arrayify, assert, logVerbose, relativePath } from "./util"
+import { arrayify, assert, logError, logVerbose, relativePath } from "./util"
 import { runtimeHost } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
@@ -327,6 +327,7 @@ export async function runTemplate(
                     if (oannotations) annotations = oannotations.slice(0)
                 }
             } catch (e) {
+                logError(e)
                 trace.error(`output processor failed`, e)
             } finally {
                 trace.endDetails()

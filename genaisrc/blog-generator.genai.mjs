@@ -5,20 +5,21 @@ script({
     parameters: {
         theme: {
             type: "string",
-            description: "The theme of the blog post"
+            description: "The theme of the blog post",
         },
         topic: {
             type: "string",
-            description: "The topic and goal of the article"
-        }
-    }
+            description: "The topic and goal of the article",
+        },
+    },
 })
 let { topic, theme } = env.vars
 
 if (!topic) {
     // step 1 generate a topic
-    const res = await runPrompt(_ => {
-        _.$`You are a blog writer expert on GenAIScript (https://microsoft.github.io/genaiscript).
+    const res = await runPrompt(
+        (_) => {
+            _.$`You are a blog writer expert on GenAIScript (https://microsoft.github.io/genaiscript).
 # Task
 
 Generate a blog post topic on the topic of writing and using a GenAIScript script.
@@ -34,17 +35,27 @@ Use these files to help you generate a topic for the blog post.
 - the existing blog posts: docs/src/content/docs/blog/*.md*
 - the online documentation: https://microsoft.github.io/genaiscript/
 `
-    }, { model: "openai:gpt-4o", system: ["system.tools", "system.fs_find_files", "system.fs_read_file"] })
+        },
+        {
+            model: "openai:gpt-4o",
+            temperature: 1,
+            system: [
+                "system.tools",
+                "system.fs_find_files",
+                "system.fs_read_file",
+            ],
+        }
+    )
     if (res.error) throw res.error
     topic = res.text
 }
 
 // generate a blog post
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth() + 1).padStart(2, '0');
-const dd = String(today.getDate()).padStart(2, '0');
-const formattedDate = `${yyyy}-${mm}-${dd}`;
+const today = new Date()
+const yyyy = today.getFullYear()
+const mm = String(today.getMonth() + 1).padStart(2, "0")
+const dd = String(today.getDate()).padStart(2, "0")
+const formattedDate = `${yyyy}-${mm}-${dd}`
 def("TOPIC", topic)
 
 $`
@@ -87,3 +98,14 @@ You can extract information from the following files:
 `
 
 defFileOutput("docs/src/content/docs/blog/*.md", "The generated blog post")
+defOutputProcessor(output => {
+    if (!Object.keys(output.fileEdits || {}).length) {
+        const fence = output.fences.find(f => f.language === "markdown")
+        if (fence) {
+            const files = {
+                [`docs/src/content/docs/blog/unnamed-${formattedDate}.md`]: fence.content
+            }
+            return { files }
+        }
+    }
+})
