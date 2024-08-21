@@ -8,6 +8,6 @@ script({
     },
 })
 
-def("FILE", env.files, { maxTokens: 40 })
+def("FILE", env.files, { maxTokens: 80 })
 
-$`Extract keywords for the contents of FILE.`
+$`Extract 5 keywords for the contents of FILE.`

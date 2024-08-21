@@ -1,6 +1,7 @@
 script({
     title: "Describe objects in each image",
     model: "gpt-3.5-turbo",
+    group: "vision",
     maxTokens: 4000,
     system: [],
     tests: {

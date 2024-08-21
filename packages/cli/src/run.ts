@@ -25,6 +25,8 @@ import {
     ANNOTATION_ERROR_CODE,
     GENAI_ANY_REGEX,
     TRACE_CHUNK,
+    UNRECOVERABLE_ERROR_CODES,
+    SUCCESS_ERROR_CODE,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -47,6 +49,7 @@ import {
     normalizeInt,
     logVerbose,
     logError,
+    delay,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -79,7 +82,23 @@ export async function runScriptWithExitCode(
         TraceOptions &
         CancellationOptions
 ) {
-    const { exitCode } = await runScript(scriptId, files, options)
+    const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
+    let exitCode = -1
+    for (let r = 0; r < runRetry; ++r) {
+        const res = await runScript(scriptId, files, options)
+        exitCode = res.exitCode
+        if (
+            exitCode === SUCCESS_ERROR_CODE ||
+            UNRECOVERABLE_ERROR_CODES.includes(exitCode)
+        )
+            break
+
+        const delayMs = 2000 * Math.pow(2, r)
+        console.error(
+            `error: run failed with ${exitCode}, retry #${r + 1}/${runRetry} in ${delayMs}ms`
+        )
+        await delay(delayMs)
+    }
     process.exit(exitCode)
 }
 

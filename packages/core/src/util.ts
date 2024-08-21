@@ -180,9 +180,9 @@ export function logWarn(msg: string) {
 export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
     if (message) host.log(LogLevel.Error, message)
-        console.debug(msg)
+    console.debug(msg)
     const se = YAMLStringify(e)
-    if (!/^\s*\{\}\s*$/) host.log(LogLevel.Info, se)
+    if (!/^\s*\{\s*\}\s*$/) host.log(LogLevel.Info, se)
 }
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []
@@ -285,3 +285,18 @@ export function renderWithPrecision(
 }
 
 export const HTMLEscape = HTMLEscape_
+
+export function tagFilter(tags: string[], tag: string) {
+    if (!tags?.length || !tag) return true
+    const ltag = tag.toLocaleLowerCase()
+    let inclusive = false
+    for (const t of tags) {
+        const lt = t.toLocaleLowerCase()
+        const exclude = lt.startsWith(":!")
+        if (!exclude) inclusive = true
+
+        if (exclude && ltag.startsWith(lt.slice(2))) return false
+        else if (ltag.startsWith(t)) return true
+    }
+    return !inclusive
+}

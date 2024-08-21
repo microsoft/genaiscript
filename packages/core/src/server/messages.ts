@@ -24,6 +24,7 @@ export interface ServerEnv extends RequestMessage {
 export interface PromptScriptTestRunOptions {
     testProvider?: string
     models?: string[]
+    groups?: string[]
 }
 
 export interface PromptScriptTestRun extends RequestMessage {
@@ -44,6 +45,7 @@ export interface PromptScriptTestRunResponse extends ResponseStatus {
 export interface PromptScriptRunOptions {
     excludedFiles: string[]
     excludeGitIgnore: boolean
+    runRetry: string
     out: string
     retry: string
     retryDelay: string
