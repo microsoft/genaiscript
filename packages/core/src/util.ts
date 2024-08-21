@@ -289,10 +289,14 @@ export const HTMLEscape = HTMLEscape_
 export function tagFilter(tags: string[], tag: string) {
     if (!tags?.length || !tag) return true
     const ltag = tag.toLocaleLowerCase()
+    let inclusive = false
     for (const t of tags) {
         const lt = t.toLocaleLowerCase()
-        if (lt.startsWith(":!") && ltag.startsWith(lt.slice(2))) return false
+        const exclude = lt.startsWith(":!")
+        if (!exclude) inclusive = true
+
+        if (exclude && ltag.startsWith(lt.slice(2))) return false
         else if (ltag.startsWith(t)) return true
     }
-    return false
+    return !inclusive
 }

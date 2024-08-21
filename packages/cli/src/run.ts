@@ -89,7 +89,9 @@ export async function runScriptWithExitCode(
         if (UNRECOVERABLE_ERROR_CODES.includes(exitCode)) break
 
         const delayMs = 2000 * Math.pow(2, r)
-        console.error(`run failed, retry #${r + 1}/${runRetry} in ${delayMs}ms`)
+        console.error(
+            `error: run failed with ${exitCode}, retry #${r + 1}/${runRetry} in ${delayMs}ms`
+        )
         await delay(delayMs)
     }
     process.exit(exitCode)
