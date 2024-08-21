@@ -31,7 +31,7 @@ import {
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
-import { parseKeyValuePairs } from "../../core/src/fence"
+import { parseKeyValuePair } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
 import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
@@ -222,7 +222,10 @@ export async function runScript(
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = parseKeyValuePairs(options.vars)
+    const vars = options.vars?.reduce(
+        (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
+        {}
+    )
     let tokens = 0
     try {
         if (options.label) trace.heading(2, options.label)

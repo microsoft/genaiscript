@@ -21,6 +21,11 @@ export function unquote(s: string) {
     return s
 }
 
+export function parseKeyValuePair(text: string): Record<string, string> {
+    const m = text.split(/[=:]/)
+    return m.length === 2 ? { [m[0]]: unquote(m[1]) } : {}
+}
+
 export function parseKeyValuePairs(text: string | string[]) {
     const res: Record<string, string> = {}
     const chunks = arrayify(text)
