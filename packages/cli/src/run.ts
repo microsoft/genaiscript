@@ -26,6 +26,7 @@ import {
     GENAI_ANY_REGEX,
     TRACE_CHUNK,
     UNRECOVERABLE_ERROR_CODES,
+    SUCCESS_ERROR_CODE,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -86,7 +87,11 @@ export async function runScriptWithExitCode(
     for (let r = 0; r < runRetry; ++r) {
         const res = await runScript(scriptId, files, options)
         exitCode = res.exitCode
-        if (UNRECOVERABLE_ERROR_CODES.includes(exitCode)) break
+        if (
+            exitCode === SUCCESS_ERROR_CODE ||
+            UNRECOVERABLE_ERROR_CODES.includes(exitCode)
+        )
+            break
 
         const delayMs = 2000 * Math.pow(2, r)
         console.error(
