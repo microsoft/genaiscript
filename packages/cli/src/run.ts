@@ -89,7 +89,7 @@ export async function runScriptWithExitCode(
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
         let outTrace = options.outTrace
-        if (!outTrace && outTrace !== "false")
+        if (!outTrace)
             outTrace = dotGenaiscriptPath(
                 RUNS_DIR_NAME,
                 `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
@@ -163,7 +163,8 @@ export async function runScript(
         if (removeOut) await emptyDir(out)
         await ensureDir(out)
     }
-    if (outTrace && trace) await setupTraceWriting(trace, outTrace)
+    if (outTrace && /^false$/i.test(outTrace) && trace)
+        await setupTraceWriting(trace, outTrace)
     if (out && trace) {
         const ofn = join(out, "res.trace.md")
         if (ofn !== outTrace) {
