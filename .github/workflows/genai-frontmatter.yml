@@ -26,7 +26,7 @@ jobs:
             - name: compile
               run: yarn compile
             - name: front matter
-              run: yarn genai:frontmatter
+              run: yarn genai:frontmatter --out-trace $GITHUB_STEP_SUMMARY
               env:
                   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
                   OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
