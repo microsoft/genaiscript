@@ -50,6 +50,7 @@ import {
     logVerbose,
     logError,
     delay,
+    dotGenaiscriptPath,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -63,6 +64,7 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { appendFile, writeFile } from "fs/promises"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
+    logVerbose(`writing trace to ${filename}`)
     await ensureDir(dirname(filename))
     await writeFile(filename, "", { encoding: "utf-8" })
     trace.addEventListener(
@@ -85,7 +87,13 @@ export async function runScriptWithExitCode(
     const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
     let exitCode = -1
     for (let r = 0; r < runRetry; ++r) {
-        const res = await runScript(scriptId, files, options)
+        let outTrace = options.outTrace
+        if (!outTrace)
+            outTrace = dotGenaiscriptPath(
+                "runs",
+                `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
+            )
+        const res = await runScript(scriptId, files, { ...options, outTrace })
         exitCode = res.exitCode
         if (
             exitCode === SUCCESS_ERROR_CODE ||
