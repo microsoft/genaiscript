@@ -178,7 +178,8 @@ export class ExtensionState extends EventTarget {
         await writeFile(
             dir,
             ".gitignore",
-            `cache/
+            `runs/
+cache/
 retrieval/
 containers/
 temp/

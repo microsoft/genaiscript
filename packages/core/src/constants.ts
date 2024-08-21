@@ -107,6 +107,8 @@ export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
 export const PROMPTFOO_REMOTE_API_PORT = 15500
 
+export const RUNS_DIR_NAME = "runs"
+
 export const EMOJI_SUCCESS = "✅"
 export const EMOJI_FAIL = "❌"
 export const EMOJI_UNDEFINED = "?"

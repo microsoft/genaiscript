@@ -1,6 +1,6 @@
 script({
     title: "rag",
-    model: "ollama:phi3",
+    model: "openai:gpt-3.5-turbo",
     files: "src/rag/*",
     tests: {
         files: "src/rag/*",

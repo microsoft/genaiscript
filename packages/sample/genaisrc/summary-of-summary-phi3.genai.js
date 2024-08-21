@@ -1,5 +1,5 @@
 script({
-    model: "ollama:phi3",
+    model: "openai:gpt-3.5-turbo",
     title: "summary of summary - phi3",
     files: ["src/rag/*.md"],
     tests: {
