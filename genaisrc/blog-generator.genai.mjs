@@ -1,16 +1,45 @@
 script({
     description: "Generate a blog post for Dev.to from the documentation",
+    model: "openai:gpt-4o",
     tools: ["fs"],
     parameters: {
+        theme: {
+            type: "string",
+            description: "The theme of the blog post"
+        },
         topic: {
             type: "string",
-            default: "a gentle introduction to genaiscript with a few pointers to the docs",
             description: "The topic and goal of the article"
         }
     }
 })
+let { topic, theme } = env.vars
 
-const { topic } = env.vars
+if (!topic) {
+    // step 1 generate a topic
+    const res = await runPrompt(_ => {
+        _.$`You are a blog writer expert on GenAIScript (https://microsoft.github.io/genaiscript).
+# Task
+
+Generate a blog post topic on the topic of writing and using a GenAIScript script.
+
+${theme ? `- The theme of the blog post is ${theme}.` : ""}
+- Avoid repeating a topic already covered in the blog
+
+# Information
+
+Use these files to help you generate a topic for the blog post.
+
+- the documentation: docs/src/content/docs/**/*.md*
+- the existing blog posts: docs/src/content/docs/blog/*.md*
+- the online documentation: https://microsoft.github.io/genaiscript/
+`
+    }, { model: "openai:gpt-4o", system: ["system.tools", "system.fs_find_files", "system.fs_read_file"] })
+    if (res.error) throw res.error
+    topic = res.text
+}
+
+// generate a blog post
 const today = new Date();
 const yyyy = today.getFullYear();
 const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -28,26 +57,32 @@ The main purpose is to create a genaiscript prompt generation script.
 
 # Writing style and instructions
 
+- save the generated markdown to a new file under the docs/src/content/docs/blog folder. THIS IS IMPORTANT
 - use a clear and engaging tone
 - illustrate with code examples
 - title should be click-bait
 - do NOT generate cover_image
 - the script will be execute by GenAIScript CLI
 - the TypeScript API is defined in the file genaisrc/genaiscript.d.ts
-- save the generated markdown to a new file under the docs/src/content/docs/blog folder.
 - generate a single file for the blog post, do NOT generate other files
 - examples of GenAIScript code are in folder packages/sample/src/**/*.genai.*js
 - do NOT explain how to install GenAIScript or the GenAIScript CLI
 - use emojis
 - add date in front matter as 'date: ${formattedDate}'
-- add author in front matter as 'author: genaiscript'
+- add authors in front matter as 'authors: genaiscript'
+- do NOT generate <details> or <summary> tags
+- add "draft: true" in the front matter
+- add tags in frontmatter
+- do NOT use : in title
 
 # GenAISCript Documentation
 
 You can extract information from the following files:
 
 - the documentation: docs/src/content/docs/**/*.md*
-- the existing blog posts: docs/src/content/blog/**/*.md*
+- the existing blog posts: docs/src/content/docs/blog/*.md*
 - the online documentation: https://microsoft.github.io/genaiscript/
 
 `
+
+defFileOutput("docs/src/content/docs/blog/*.md", "The generated blog post")
