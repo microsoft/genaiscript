@@ -14,6 +14,8 @@ export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
     "offline_access",
 ])
+export const AZURE_OPENAI_TOKEN_EXPIRATION = 4 * 3600_000 // 4h
+
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"

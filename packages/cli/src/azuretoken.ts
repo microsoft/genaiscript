@@ -1,4 +1,7 @@
-import { AZURE_OPENAI_TOKEN_SCOPES } from "../../core/src/constants"
+import {
+    AZURE_OPENAI_TOKEN_EXPIRATION,
+    AZURE_OPENAI_TOKEN_SCOPES,
+} from "../../core/src/constants"
 
 export interface AuthenticationToken {
     token: string
@@ -15,6 +18,8 @@ export async function createAzureToken(
     )
     return {
         token: azureToken.token,
-        expiresOnTimestamp: azureToken.expiresOnTimestamp,
+        expiresOnTimestamp:
+            azureToken.expiresOnTimestamp ??
+            Date.now() + AZURE_OPENAI_TOKEN_EXPIRATION,
     }
 }
