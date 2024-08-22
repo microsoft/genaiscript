@@ -143,7 +143,7 @@ export function renderTraceTree(node: TraceNode): string {
 export function mergeFrontmatter(
     text: string,
     newFrontmatter: any,
-    options?: { format: "yaml" | "json" | "toml" }
+    options?: { format: "yaml" | "json" }
 ): string {
     const { frontmatter, content } = splitMarkdown(text, options)
     const updatedFrontmatter = { ...frontmatter, ...newFrontmatter }
