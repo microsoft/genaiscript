@@ -25,7 +25,7 @@ The goal is to create a script that detects when the `description` field in the 
 
 ## The script
 
-GenAIScript is meant to run on files and provides a special variable `env.files` that contains the list of files to be analyzed. You can use this variable to include the files in the context using the [def](/genaiscript/scripts/content) function. We limit each file to 2000 tokens to avoid exploding the content on large files.
+GenAIScript is meant to run on files and provides a special variable `env.files` that contains the list of files to be analyzed. You can use this variable to include the files in the context using the [def](/genaiscript/reference/scripts/context) function. We limit each file to 2000 tokens to avoid exploding the content on large files.
 
 ```js title="detect-outdated-descriptions.genai.js"
 // Define the file to be analyzed
