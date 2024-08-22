@@ -34,6 +34,7 @@
         "sysr",
         "treesitter",
         "typecheck",
+        "unfence",
         "vsix",
         "xpai"
     ],

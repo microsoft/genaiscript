@@ -317,6 +317,10 @@ type PromptAssertion = {
 
 interface PromptTest {
     /**
+     * Short name of the test
+     */
+    name?: string
+    /**
      * Description of the test.
      */
     description?: string
@@ -654,6 +658,7 @@ type PromptSystemArgs = Omit<
     | "maxTokens"
     | "seed"
     | "tests"
+    | "responseLanguage"
     | "responseType"
     | "responseSchema"
     | "files"

@@ -323,6 +323,7 @@ export async function runTemplate(
                             trace.detailsFenced(`📁 file ${fn}`, content)
                             const fileEdit = await getFileEdit(fn)
                             fileEdit.after = content
+                            fileEdit.validation = { valid: true }
                         }
                     if (oannotations) annotations = oannotations.slice(0)
                 }
