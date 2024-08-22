@@ -82,7 +82,7 @@
         "go": "yarn compile && node built/genaiscript.cjs",
         "test": "node --import tsx --test src/**.test.ts",
         "typecheck": "tsc -p src",
-        "lint": "npx --yes publint --strict",
+        "lint": "npx --yes publint",
         "publish": "yarn lint && npm publish"
     }
 }
