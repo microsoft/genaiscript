@@ -1,6 +1,6 @@
 import { JSON5TryParse } from "./json5"
 import { TOMLTryParse } from "./toml"
-import { YAMLTryParse } from "./yaml"
+import { YAMLTryParse, YAMLStringify } from "./yaml"
 
 export function frontmatterTryParse(
     text: string,
@@ -33,4 +33,35 @@ export function frontmatterTryParse(
             break
     }
     return res !== undefined ? { end: end + 1, value: res } : undefined
+}
+
+export function splitMarkdown(
+    text: string,
+    options?: { format: "yaml" | "json" | "toml" }
+): { frontmatter: any; content: string } {
+    const { value: frontmatter, end } = frontmatterTryParse(text, options) || {}
+    const content = end ? text.split(/\r?\n/g).slice(end).join("\n") : text
+    return { frontmatter, content }
+}
+
+export function updateFrontmatter(
+    text: string,
+    newFrontmatter: any,
+    options?: { format: "yaml" | "json" | "toml" }
+): string {
+    const { format = "yaml" } = options || {}
+    const { content } = splitMarkdown(text, options)
+    let fm: string
+    switch (format) {
+        case "json":
+            fm = JSON.stringify(newFrontmatter, null, 2)
+            break
+        case "toml":
+            fm = TOMLTryParse(newFrontmatter)
+            break
+        default:
+            fm = YAMLStringify(newFrontmatter)
+            break
+    }
+    return `---\n${fm}\n---\n${content}`
 }
