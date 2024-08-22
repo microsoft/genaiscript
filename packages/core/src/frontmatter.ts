@@ -47,7 +47,7 @@ export function splitMarkdown(
 export function updateFrontmatter(
     text: string,
     newFrontmatter: any,
-    options?: { format: "yaml" | "json" | "toml" }
+    options?: { format: "yaml" | "json" }
 ): string {
     const { format = "yaml" } = options || {}
     const { content } = splitMarkdown(text, options)
@@ -56,12 +56,11 @@ export function updateFrontmatter(
         case "json":
             fm = JSON.stringify(newFrontmatter, null, 2)
             break
-        case "toml":
-            fm = TOMLTryParse(newFrontmatter)
-            break
-        default:
+        case "yaml":
             fm = YAMLStringify(newFrontmatter)
             break
+        default:
+            throw new Error(`Unsupported format: ${format}`)
     }
     return `---\n${fm}\n---\n${content}`
 }

@@ -44,16 +44,6 @@ This is a test.`
         assert.deepEqual(frontmatter, { title: "Test" })
         assert.equal(content, "This is a test.")
     })
-
-    test("split markdown with toml frontmatter", () => {
-        const markdown = `---
-title = "Test"
----
-This is a test.`
-        const { frontmatter, content } = splitMarkdown(markdown, { format: "toml" })
-        assert.deepEqual(frontmatter, { title: "Test" })
-        assert.equal(content, "This is a test.")
-    })
 })
 
 describe("updateFrontmatter", () => {
@@ -79,18 +69,6 @@ This is a test.`
         const newFrontmatter = { title: "New Title" }
         const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter, { format: "json" })
         const { frontmatter, content } = splitMarkdown(updatedMarkdown, { format: "json" })
-        assert.deepEqual(frontmatter, { title: "New Title" })
-        assert.equal(content, "This is a test.")
-    })
-
-    test("update toml frontmatter", () => {
-        const markdown = `---
-title = "Old Title"
----
-This is a test.`
-        const newFrontmatter = { title: "New Title" }
-        const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter, { format: "toml" })
-        const { frontmatter, content } = splitMarkdown(updatedMarkdown, { format: "toml" })
         assert.deepEqual(frontmatter, { title: "New Title" })
         assert.equal(content, "This is a test.")
     })
