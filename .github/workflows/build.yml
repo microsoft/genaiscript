@@ -23,6 +23,8 @@ jobs:
             - run: yarn install --frozen-lockfile --prefer-offline
             - name: typecheck
               run: yarn typecheck
+            - name: lint
+              run: yarn lint
             - name: compile
               run: yarn compile
             - name: package vscode

@@ -72,7 +72,7 @@ The main purpose is to create a genaiscript prompt generation script.
 - save the generated markdown to a new file under the docs/src/content/docs/blog folder. THIS IS IMPORTANT
 - use a clear and engaging tone
 - illustrate with code examples
-- title should be click-bait
+- title should be click-bait, use quotes (") around title
 - do NOT generate cover_image
 - the script will be execute by GenAIScript CLI
 - the TypeScript API is defined in the file genaisrc/genaiscript.d.ts
@@ -85,7 +85,6 @@ The main purpose is to create a genaiscript prompt generation script.
 - do NOT generate <details> or <summary> tags
 - add "draft: true" in the front matter
 - add tags in frontmatter
-- do NOT use : in title
 
 # GenAISCript Documentation
 
@@ -98,12 +97,13 @@ You can extract information from the following files:
 `
 
 defFileOutput("docs/src/content/docs/blog/*.md", "The generated blog post")
-defOutputProcessor(output => {
+defOutputProcessor((output) => {
     if (!Object.keys(output.fileEdits || {}).length) {
-        const fence = output.fences.find(f => f.language === "markdown")
+        const fence = output.fences.find((f) => f.language === "markdown")
         if (fence) {
             const files = {
-                [`docs/src/content/docs/blog/unnamed-${formattedDate}.md`]: fence.content
+                [`docs/src/content/docs/blog/unnamed-${formattedDate}.md`]:
+                    fence.content,
             }
             return { files }
         }
