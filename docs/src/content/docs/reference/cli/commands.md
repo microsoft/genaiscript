@@ -120,7 +120,7 @@ Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
   fix                       fix all definition files
-  compile                   Compile all script in workspace
+  compile <folders...>      Compile all script in workspace
   model [options] [script]  List model connection information for scripts
   help [command]            display help for command
 ```
@@ -164,9 +164,12 @@ Options:
 ### `scripts compile`
 
 ```
-Usage: genaiscript scripts compile [options]
+Usage: genaiscript scripts compile [options] <folders...>
 
 Compile all script in workspace
+
+Arguments:
+  folders     Pattern to match files
 
 Options:
   -h, --help  display help for command

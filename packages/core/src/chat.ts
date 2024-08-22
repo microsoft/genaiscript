@@ -9,7 +9,7 @@ import {
     checkCancelled,
 } from "./cancellation"
 import { assert, logError, logVerbose } from "./util"
-import { extractFenced, findFirstDataFence } from "./fence"
+import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
     validateFencesWithSchema,
@@ -330,13 +330,21 @@ Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
     return true
 }
 
-function assistantText(messages: ChatCompletionMessageParam[]) {
+function assistantText(
+    messages: ChatCompletionMessageParam[],
+    responseType?: PromptTemplateResponseType
+) {
     let text = ""
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i]
         if (msg.role !== "assistant") break
         text = msg.content + text
     }
+
+    if (responseType === undefined) {
+        text = unfence(text, "(markdown|md)")
+    }
+
     return text
 }
 
@@ -352,7 +360,7 @@ function structurifyChatSession(
 ): RunPromptResult {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages)
+    const text = assistantText(messages, responseType)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"

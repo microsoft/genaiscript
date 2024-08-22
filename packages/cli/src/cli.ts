@@ -205,6 +205,7 @@ export async function cli() {
     scripts
         .command("compile")
         .description("Compile all script in workspace")
+        .argument("<folders...>", "Pattern to match files")
         .action(compileScript)
     scripts
         .command("model")
