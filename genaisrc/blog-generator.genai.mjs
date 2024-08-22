@@ -26,6 +26,7 @@ Generate a blog post topic on the topic of writing and using a GenAIScript scrip
 
 ${theme ? `- The theme of the blog post is ${theme}.` : ""}
 - Avoid repeating a topic already covered in the blog
+- do not generate outline, just the topic
 
 # Information
 
@@ -85,6 +86,7 @@ The main purpose is to create a genaiscript prompt generation script.
 - do NOT generate <details> or <summary> tags
 - add "draft: true" in the front matter
 - add tags in frontmatter
+- do not repeat topic
 
 # GenAISCript Documentation
 
