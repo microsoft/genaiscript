@@ -173,7 +173,8 @@ defOutputProcessor((output) => {
     const fm = parsers.frontmatter(md)
     const fn =
         `docs/src/content/docs/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
-    const sn = fn.replace(/\.md$/, ".genai.mjs")
+    const sn =
+        `packages/sample/genaisrc/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.genai.mjs`.toLocaleLowerCase()
     return {
         files: {
             [fn]: md,
