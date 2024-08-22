@@ -148,7 +148,10 @@ export async function cli() {
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
         )
-        .option("-rr, --run-retry <number>", "number of retries for the entire run")
+        .option(
+            "-rr, --run-retry <number>",
+            "number of retries for the entire run"
+        )
         .action(runScriptWithExitCode)
 
     const test = program.command("test")
@@ -205,7 +208,7 @@ export async function cli() {
     scripts
         .command("compile")
         .description("Compile all script in workspace")
-        .argument("<folders...>", "Pattern to match files")
+        .argument("[folders...]", "Pattern to match files")
         .action(compileScript)
     scripts
         .command("model")
