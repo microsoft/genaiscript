@@ -89,7 +89,7 @@ let snippet
         
         - Generate a GenAISCript source code that implements the idea described in TOPIC.
         - Validate syntax and checking with genaiscript_typecheck.
-        - Respond with the JavaScript source code. Do NOT fence code in markdown.
+        - Respond ONLY with the JavaScript source code. Do NOT fence code in markdown. Do not add text around code.
         
         # Information
         
