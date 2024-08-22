@@ -40,7 +40,7 @@ for (const file of mds) {
                 canonical_url: file.filename
                     .replace(
                         "docs/src/content/docs/",
-                        "https://microsoft.github.io/genaisrc/"
+                        "https://microsoft.github.io/genaiscript/"
                     )
                     .replace(/\.mdx?$/, "")
                     .replace(/\/index$/, ""),
