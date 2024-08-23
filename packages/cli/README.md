@@ -6,7 +6,7 @@ Scripting environment with convinient tooling for file ingestion, prompt develop
 // define the context
 def("FILE", env.files, { endsWith: ".pdf" })
 // define the data
-const chema = defSchema("DATA", 
+const schema = defSchema("DATA", 
   { type: "array", items: { type: "string" } })
 // define the task
 $`Analyze FILE and
