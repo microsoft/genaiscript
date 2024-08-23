@@ -1,4 +1,4 @@
-name: build genai tests
+name: genai tests
 
 on:
     workflow_dispatch:
