@@ -4,6 +4,12 @@ on:
     workflow_dispatch:
     schedule:
         - cron: "0 7 * * *"
+    push:
+        branches: [main]
+        paths:
+            - "packages/core/**"
+            - "packages/sample/**"
+            - "packages/cli/**"
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -33,4 +39,6 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run test within scripts
-              run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
+              run: node packages/cli/built/genaiscript.cjs run test-commit --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
+            - name: run test within core
+              run: xargs -a temp/commit-tests.txt node packages/cli/built/genaiscript.cjs tests run --out-summary $GITHUB_STEP_SUMMARY --test-delay 10

@@ -669,13 +669,14 @@ ${trimNewlines(schemaText)}
         },
     })
 
-    if (fileOutputs.length > 0) {
+    const fods = fileOutputs?.filter((f) => !!f.description)
+    if (fods?.length > 0) {
         prompt += `
 ## File generation rules
 
 When generating files, use the following rules which are formatted as "file glob: description":
 
-${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
+${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
 
 `
     }
