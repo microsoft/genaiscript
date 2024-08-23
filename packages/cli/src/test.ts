@@ -28,6 +28,7 @@ import {
     logVerbose,
     delay,
     tagFilter,
+    toStringList,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import {
@@ -80,11 +81,7 @@ export async function runPromptScriptTests(
         testDelay?: string
     }
 ): Promise<PromptScriptTestRunResponse> {
-    const prj = await buildProject()
-    const scripts = prj.templates
-        .filter((t) => arrayify(t.tests)?.length)
-        .filter((t) => !ids?.length || ids.includes(t.id))
-        .filter((t) => tagFilter(options?.groups, t.group))
+    const scripts = await listTests({ ids, ...(options || {}) })
     if (!scripts.length)
         return {
             ok: false,
@@ -207,6 +204,16 @@ export async function runPromptScriptTests(
     }
 }
 
+async function listTests(options: { ids?: string[]; groups?: string[] }) {
+    const { ids, groups } = options || {}
+    const prj = await buildProject()
+    const scripts = prj.templates
+        .filter((t) => arrayify(t.tests)?.length)
+        .filter((t) => !ids?.length || ids.includes(t.id))
+        .filter((t) => tagFilter(groups, t.group))
+    return scripts
+}
+
 export async function scriptsTest(
     ids: string[],
     options: PromptScriptTestRunOptions & {
@@ -230,6 +237,11 @@ export async function scriptsTest(
     for (const result of value) trace.resultItem(result.ok, result.script)
     console.log(trace.content)
     process.exit(status)
+}
+
+export async function scriptTestList(options: {}) {
+    const scripts = await listTests(options)
+    console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"))
 }
 
 export async function scriptTestsView(options: { promptfooVersion?: string }) {

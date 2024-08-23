@@ -1392,7 +1392,7 @@ interface FileOutputOptions {
 
 interface FileOutput {
     pattern: string
-    description: string
+    description?: string
     options?: FileOutputOptions
 }
 
@@ -1434,7 +1434,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): void
     defFileOutput(
         pattern: string,
-        description: string,
+        description?: string,
         options?: FileOutputOptions
     ): void
 }
@@ -1806,7 +1806,7 @@ declare function def(
  */
 declare function defFileOutput(
     pattern: string,
-    description: string,
+    description?: string,
     options?: FileOutputOptions
 ): void
 
