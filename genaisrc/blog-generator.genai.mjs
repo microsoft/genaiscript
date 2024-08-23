@@ -141,7 +141,7 @@ Respond with the markdown content of the blog post.
 - generate the blog post content, nothing else
 - use a clear and engaging tone
 - explain each line of code separately, link to the documentation if possible
-- title should be click-bait, use quotes (") around title
+- title should be click-bait, use quotes (") around title. add title in frontmatter.
 - do NOT generate cover_image
 - the script will be execute by GenAIScript CLI
 - the TypeScript API is defined in the file genaisrc/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
@@ -171,6 +171,7 @@ defOutputProcessor((output) => {
         md = md.replace(/\`\`\`markdown\n/g, "").replace(/\`\`\`\n?$/g, "")
     }
     const fm = parsers.frontmatter(md)
+    if (!fm) throw new Error("No frontmatter found")
     const fn =
         `docs/src/content/docs/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
     const sn =
