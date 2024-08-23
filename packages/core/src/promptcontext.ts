@@ -74,42 +74,6 @@ export async function createPromptContext(
     const { generator, ...varsNoGenerator } = vars
     const env = { generator, ...structuredClone(varsNoGenerator) }
     const parsers = await createParsers({ trace, model })
-    const YAML = Object.freeze<YAML>({
-        stringify: YAMLStringify,
-        parse: YAMLParse,
-    })
-    const CSV = Object.freeze<CSV>({
-        parse: CSVParse,
-        markdownify: CSVToMarkdown,
-    })
-    const INI = Object.freeze<INI>({
-        parse: INIParse,
-        stringify: INIStringify,
-    })
-    const XML = Object.freeze<XML>({
-        parse: XMLParse,
-    })
-    const MD = Object.freeze<MD>({
-        frontmatter: (text, format) =>
-            frontmatterTryParse(text, { format })?.value ?? {},
-        content: (text) => splitMarkdown(text)?.content,
-        updateFrontmatter: (text, frontmatter, format): string =>
-            updateFrontmatter(text, frontmatter, { format }),
-    })
-    const JSONL = Object.freeze<JSONL>({
-        parse: JSONLTryParse,
-        stringify: JSONLStringify,
-    })
-    const AICI = Object.freeze<AICI>({
-        gen: (options: AICIGenOptions) => {
-            // validate options
-            return {
-                type: "aici",
-                name: "gen",
-                options,
-            }
-        },
-    })
     const path = runtimeHost.path
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
@@ -254,13 +218,6 @@ export async function createPromptContext(
         fs: workspace,
         workspace,
         parsers,
-        YAML,
-        CSV,
-        INI,
-        AICI,
-        XML,
-        MD,
-        JSONL,
         retrieval,
         host: promptHost,
         defOutputProcessor,

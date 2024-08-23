@@ -1457,7 +1457,7 @@ The following npm packages may be included in this product:
  - @types/fs-extra@11.0.4
  - @types/http-cache-semantics@4.0.4
  - @types/jsonfile@6.1.4
- - @types/node@22.4.1
+ - @types/node@22.5.0
  - @types/yauzl@2.10.3
 
 These packages each contain the following license and notice below:
@@ -1488,7 +1488,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.50.1
+ - genaiscript-vscode@1.50.3
 
 This package contains the following license and notice below:
 
@@ -2012,7 +2012,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.7.4
+ - axios@1.7.5
 
 This package contains the following license and notice below:
 
@@ -3264,7 +3264,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The following npm package may be included in this product:
 
- - tslib@2.6.3
+ - tslib@2.7.0
 
 This package contains the following license and notice below:
 
@@ -4455,9 +4455,9 @@ The following npm packages may be included in this product:
  - agent-base@6.0.2
  - canvas@2.11.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.50.1
- - genaiscript-sample@1.50.1
- - genaiscript@1.50.1
+ - genaiscript-core-internal@1.50.3
+ - genaiscript-sample@1.50.3
+ - genaiscript@1.50.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -4535,7 +4535,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @babel/runtime@7.25.0
+ - @babel/runtime@7.25.4
 
 This package contains the following license and notice below:
 

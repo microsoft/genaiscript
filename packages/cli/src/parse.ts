@@ -10,6 +10,7 @@ import { parsePdf } from "../../core/src/pdf"
 import { estimateTokens } from "../../core/src/tokens"
 import { YAMLStringify } from "../../core/src/yaml"
 import { resolveTokenEncoder } from "../../core/src/encoders"
+import { DEFAULT_MODEL } from "../../core/src/constants"
 
 export async function parseFence(language: string, file: string) {
     const res = await parsePdf(file)
@@ -56,7 +57,7 @@ export async function parseTokens(
     filesGlobs: string[],
     options: { excludedFiles: string[]; model: string }
 ) {
-    const { model = "gpt4" } = options || {}
+    const { model = DEFAULT_MODEL } = options || {}
     const encoder = await resolveTokenEncoder(model)
 
     const files = await expandFiles(filesGlobs, options?.excludedFiles)

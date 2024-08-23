@@ -1708,12 +1708,5 @@ interface PromptContext extends ChatGenerationContext {
      */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
-    YAML: YAML
-    XML: XML
-    JSONL: JSONL
-    CSV: CSV
-    INI: INI
-    AICI: AICI
-    MD: MD
     host: PromptHost
 }
