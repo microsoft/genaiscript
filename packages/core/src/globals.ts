@@ -1,4 +1,3 @@
-import { glob } from "glob"
 import { YAMLParse, YAMLStringify } from "./yaml"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
