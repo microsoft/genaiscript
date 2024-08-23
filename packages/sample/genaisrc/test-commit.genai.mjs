@@ -40,7 +40,7 @@ def(
         .split(/\n/g)
         .map((test) => test.split(/,\s*/)[1])
         .map((filename) => ({ filename })),
-    { language: "txt", maxTokens: 20000 }
+    { language: "txt", maxTokens: 2000 }
 )
 
 $`You are an expert TypeScript software developer and architect.
