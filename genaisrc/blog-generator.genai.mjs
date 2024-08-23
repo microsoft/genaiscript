@@ -95,7 +95,7 @@ let snippet
         
         Use these files to help you generate a topic for the blog post.
  
-        - the code will be executed in node.js by the GenAIScript CLI
+        - the code will be executed in node.js v20 by the GenAIScript CLI
         - the genaiscript type definition: genaiscript/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
         - the genaiscript samples: packages/sample/src/*.genai.*
         - the documentation: docs/src/content/docs/**/*.md*
