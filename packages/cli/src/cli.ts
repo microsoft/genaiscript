@@ -17,7 +17,7 @@ import {
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { envInfo, modelInfo, systemInfo } from "./info"
-import { scriptTestsView, scriptsTest } from "./test"
+import { scriptTestList, scriptTestsView, scriptsTest } from "./test"
 import { cacheClear } from "./cache"
 import "node:console"
 import {
@@ -72,7 +72,7 @@ export async function cli() {
     program.on("option:quiet", () => setQuiet(true))
 
     program
-        .command("run", { isDefault: true })
+        .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
@@ -183,6 +183,10 @@ export async function cli() {
             "groups to include or exclude. Use :! prefix to exclude"
         )
         .action(scriptsTest)
+
+    test.command("list")
+        .description("List available tests in workspace")
+        .action(scriptTestList)
 
     test.command("view")
         .description("Launch test viewer")

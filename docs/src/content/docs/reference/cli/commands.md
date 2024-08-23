@@ -62,6 +62,7 @@ Options:
 
 Commands:
   run [options] [script...]  Runs the tests for scripts
+  list                       List available tests in workspace
   view                       Launch test viewer
   help [command]             display help for command
 ```
@@ -93,6 +94,17 @@ Options:
   --groups <groups...>                groups to include or exclude. Use :!
                                       prefix to exclude
   -h, --help                          display help for command
+```
+
+### `test list`
+
+```
+Usage: genaiscript test list [options]
+
+List available tests in workspace
+
+Options:
+  -h, --help  display help for command
 ```
 
 ### `test view`
