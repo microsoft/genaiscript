@@ -1,6 +1,11 @@
 import { describe, test } from "node:test"
 import assert from "node:assert/strict"
-import { frontmatterTryParse, splitMarkdown, updateFrontmatter } from "./frontmatter"
+import {
+    frontmatterTryParse,
+    splitMarkdown,
+    updateFrontmatter,
+} from "./frontmatter"
+import { YAMLTryParse } from "./yaml"
 
 describe("replace frontmatter", () => {
     test("only", () => {
@@ -29,7 +34,7 @@ title: Test
 ---
 This is a test.`
         const { frontmatter, content } = splitMarkdown(markdown)
-        assert.deepEqual(frontmatter, { title: "Test" })
+        assert.deepEqual(YAMLTryParse(frontmatter), { title: "Test" })
         assert.equal(content, "This is a test.")
     })
 
@@ -40,8 +45,8 @@ This is a test.`
 }
 ---
 This is a test.`
-        const { frontmatter, content } = splitMarkdown(markdown, { format: "json" })
-        assert.deepEqual(frontmatter, { title: "Test" })
+        const { frontmatter, content } = splitMarkdown(markdown)
+        assert.deepEqual(JSON.parse(frontmatter), { title: "Test" })
         assert.equal(content, "This is a test.")
     })
 })
@@ -55,7 +60,7 @@ This is a test.`
         const newFrontmatter = { title: "New Title" }
         const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter)
         const { frontmatter, content } = splitMarkdown(updatedMarkdown)
-        assert.deepEqual(frontmatter, { title: "New Title" })
+        assert.deepEqual(YAMLTryParse(frontmatter), { title: "New Title" })
         assert.equal(content, "This is a test.")
     })
 
@@ -67,9 +72,11 @@ This is a test.`
 ---
 This is a test.`
         const newFrontmatter = { title: "New Title" }
-        const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter, { format: "json" })
-        const { frontmatter, content } = splitMarkdown(updatedMarkdown, { format: "json" })
-        assert.deepEqual(frontmatter, { title: "New Title" })
+        const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter, {
+            format: "json",
+        })
+        const { frontmatter, content } = splitMarkdown(updatedMarkdown)
+        assert.deepEqual(JSON.parse(frontmatter), { title: "New Title" })
         assert.equal(content, "This is a test.")
     })
 })

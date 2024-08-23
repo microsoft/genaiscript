@@ -57,6 +57,11 @@ import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
 import { callExpander } from "./expander"
 import { Project } from "./ast"
+import {
+    frontmatterTryParse,
+    splitMarkdown,
+    updateFrontmatter,
+} from "./frontmatter"
 
 export async function createPromptContext(
     prj: Project,
@@ -83,6 +88,13 @@ export async function createPromptContext(
     })
     const XML = Object.freeze<XML>({
         parse: XMLParse,
+    })
+    const MD = Object.freeze<MD>({
+        frontmatter: (text, format) =>
+            frontmatterTryParse(text, { format })?.value ?? {},
+        content: (text) => splitMarkdown(text)?.content,
+        updateFrontmatter: (text, frontmatter, format): string =>
+            updateFrontmatter(text, frontmatter, { format }),
     })
     const JSONL = Object.freeze<JSONL>({
         parse: JSONLTryParse,
@@ -247,6 +259,7 @@ export async function createPromptContext(
         INI,
         AICI,
         XML,
+        MD,
         JSONL,
         retrieval,
         host: promptHost,

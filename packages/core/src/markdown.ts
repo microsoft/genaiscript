@@ -2,7 +2,6 @@ import { convertAnnotationsToMarkdown } from "./annotations"
 import { randomHex } from "./crypto"
 import { extractFenced } from "./fence"
 import { trimNewlines } from "./util"
-import { splitMarkdown, updateFrontmatter } from "./frontmatter"
 
 export function prettifyMarkdown(md: string) {
     let res = md
@@ -138,14 +137,4 @@ export function renderTraceTree(node: TraceNode): string {
     else if (node.type === "details")
         return details(node.label, node.content.map(renderTraceTree).join("\n"))
     else return ""
-}
-
-export function mergeFrontmatter(
-    text: string,
-    newFrontmatter: any,
-    options?: { format: "yaml" | "json" }
-): string {
-    const { frontmatter, content } = splitMarkdown(text, options)
-    const updatedFrontmatter = { ...frontmatter, ...newFrontmatter }
-    return updateFrontmatter(text, updatedFrontmatter, options)
 }

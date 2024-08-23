@@ -1150,6 +1150,31 @@ interface XML {
     parse(text: string): any
 }
 
+interface MD {
+    /**
+     * Parses front matter from markdown
+     * @param text
+     */
+    frontmatter(text: string, format?: "yaml" | "json" | "toml"): any
+
+    /**
+     * Removes the front matter from the markdown text
+     */
+    content(text: string): string
+
+    /**
+     * Merges frontmatter with the existing text
+     * @param text
+     * @param frontmatter
+     * @param format
+     */
+    updateFrontmatter(
+        text: string,
+        frontmatter: any,
+        format?: "yaml" | "json"
+    ): string
+}
+
 interface JSONL {
     /**
      * Parses a JSONL string to an array of objects
@@ -1712,6 +1737,7 @@ interface PromptContext extends ChatGenerationContext {
     CSV: CSV
     INI: INI
     AICI: AICI
+    MD: MD
     host: PromptHost
 }
 
@@ -1847,6 +1873,11 @@ declare var CSV: CSV
  * XML parsing and stringifying.
  */
 declare var XML: XML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
 
 /**
  * JSONL parsing and stringifying.

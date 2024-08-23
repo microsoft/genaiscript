@@ -5,43 +5,44 @@ import { YAMLTryParse, YAMLStringify } from "./yaml"
 export function frontmatterTryParse(
     text: string,
     options?: { format: "yaml" | "json" | "toml" }
-): { end: number; value: any } {
-    if (!text) return undefined
-
+): { text: string; value: any; endLine?: number } | undefined {
     const { format = "yaml" } = options || {}
+    const { frontmatter, endLine } = splitMarkdown(text)
+    if (!frontmatter) return undefined
 
+    let res: any
+    switch (format) {
+        case "json":
+            res = JSON5TryParse(frontmatter)
+            break
+        case "toml":
+            res = TOMLTryParse(frontmatter)
+            break
+        default:
+            res = YAMLTryParse(frontmatter)
+            break
+    }
+    return { text: frontmatter, value: res, endLine }
+}
+
+export function splitMarkdown(text: string): {
+    frontmatter?: string
+    endLine?: number
+    content: string
+} {
+    if (!text) return { content: text }
     const lines = text.split(/\r?\n/g)
     const delimiter = "---"
-    if (lines[0] !== delimiter) return undefined
+    if (lines[0] !== delimiter) return { content: text }
     let end = 1
     while (end < lines.length) {
         if (lines[end] === delimiter) break
         end++
     }
-    if (end >= lines.length) return undefined
-    const fm = lines.slice(1, end).join("\n")
-    let res: any
-    switch (format) {
-        case "json":
-            res = JSON5TryParse(fm)
-            break
-        case "toml":
-            res = TOMLTryParse(fm)
-            break
-        default:
-            res = YAMLTryParse(fm)
-            break
-    }
-    return res !== undefined ? { end: end + 1, value: res } : undefined
-}
-
-export function splitMarkdown(
-    text: string,
-    options?: { format: "yaml" | "json" | "toml" }
-): { frontmatter: any; content: string } {
-    const { value: frontmatter, end } = frontmatterTryParse(text, options) || {}
-    const content = end ? text.split(/\r?\n/g).slice(end).join("\n") : text
-    return { frontmatter, content }
+    if (end >= lines.length) return { content: text }
+    const frontmatter = lines.slice(1, end).join("\n")
+    const content = lines.slice(end + 1).join("\n")
+    return { frontmatter, content, endLine: end }
 }
 
 export function updateFrontmatter(
@@ -49,8 +50,8 @@ export function updateFrontmatter(
     newFrontmatter: any,
     options?: { format: "yaml" | "json" }
 ): string {
+    const { content = "" } = splitMarkdown(text)
     const { format = "yaml" } = options || {}
-    const { content } = splitMarkdown(text, options)
     let fm: string
     switch (format) {
         case "json":
