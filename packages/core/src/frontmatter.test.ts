@@ -55,9 +55,10 @@ describe("updateFrontmatter", () => {
     test("update yaml frontmatter", () => {
         const markdown = `---
 title: Old Title
+foo: bar
 ---
 This is a test.`
-        const newFrontmatter = { title: "New Title" }
+        const newFrontmatter: any = { title: "New Title", foo: null }
         const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter)
         const { frontmatter, content } = splitMarkdown(updatedMarkdown)
         assert.deepEqual(YAMLTryParse(frontmatter), { title: "New Title" })
@@ -67,11 +68,12 @@ This is a test.`
     test("update json frontmatter", () => {
         const markdown = `---
 {
-  "title": "Old Title"
+  "title": "Old Title",
+"foo": "bar"
 }
 ---
 This is a test.`
-        const newFrontmatter = { title: "New Title" }
+        const newFrontmatter: any = { title: "New Title", foo: null }
         const updatedMarkdown = updateFrontmatter(markdown, newFrontmatter, {
             format: "json",
         })

@@ -1155,7 +1155,7 @@ interface MD {
      * Parses front matter from markdown
      * @param text
      */
-    frontmatter(text: string, format?: "yaml" | "json" | "toml"): any
+    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
 
     /**
      * Removes the front matter from the markdown text
