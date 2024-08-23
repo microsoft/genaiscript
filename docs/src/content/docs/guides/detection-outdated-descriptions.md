@@ -1,7 +1,9 @@
 ---
-title: " Detection of Outdated Descriptions"
+title: Detection of Outdated Descriptions
 sidebar:
     order: 7
+description: Automate the detection of outdated descriptions in markdown documentation to maintain accuracy and consistency.
+keywords: outdated descriptions, documentation automation, markdown, frontmatter, GenAIScript
 ---
 
 Developer documentation typically includes a description in each file. This descriptions can become outdated, leading to confusion and incorrect information. To prevent this, you can automate the detection of outdated descriptions in your documentation using GenAIScript.

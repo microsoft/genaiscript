@@ -673,9 +673,9 @@ ${trimNewlines(schemaText)}
         prompt += `
 ## File generation rules
 
-When generating files, follow the following rules which are formatted as "glob: description":
+When generating files, use the following rules which are formatted as "file glob: description":
 
-${fileOutputs.map((fo) => `${fo.pattern}: ${fo.description}`)}
+${fileOutputs.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
 
 `
     }
