@@ -2,15 +2,8 @@ import { assert } from "console"
 import { host } from "./host"
 import { logError } from "./util"
 import { TraceOptions } from "./trace"
-import { fileURLToPath, pathToFileURL } from "url"
-
-function resolveGlobal(): any {
-    if (typeof window !== "undefined")
-        return window // Browser environment
-    else if (typeof self !== "undefined") return self
-    else if (typeof global !== "undefined") return global // Node.js environment
-    throw new Error("Could not find global")
-}
+import { pathToFileURL } from "url"
+import { resolveGlobal } from "./globals"
 
 export async function importPrompt(
     ctx0: PromptContext,
@@ -30,13 +23,6 @@ export async function importPrompt(
         "parsers",
         "env",
         "retrieval",
-        "YAML",
-        "INI",
-        "CSV",
-        "XML",
-        "MD",
-        "JSONL",
-        "AICI",
         "fetchText",
         "cancel",
     ]
