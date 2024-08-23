@@ -41,4 +41,4 @@ jobs:
             - name: select llm tests to run
               run: node packages/cli/built/genaiscript.cjs run test-commit --out-trace $GITHUB_STEP_SUMMARY
             - name: run llm tests
-              run: xargs -a temp/commit-tests.txt node packages/cli/built/genaiscript.cjs test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
+              run: xargs -r -a temp/commit-tests.txt node packages/cli/built/genaiscript.cjs test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
