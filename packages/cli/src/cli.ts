@@ -187,6 +187,10 @@ export async function cli() {
     test.command("list")
         .description("List available tests in workspace")
         .action(scriptTestList)
+        .option(
+            "--groups <groups...>",
+            "groups to include or exclude. Use :! prefix to exclude"
+        )
 
     test.command("view")
         .description("Launch test viewer")

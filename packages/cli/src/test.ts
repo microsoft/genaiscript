@@ -239,7 +239,7 @@ export async function scriptsTest(
     process.exit(status)
 }
 
-export async function scriptTestList(options: {}) {
+export async function scriptTestList(options: { groups?: string[] }) {
     const scripts = await listTests(options)
     console.log(scripts.map((s) => toStringList(s.id, s.filename)).join("\n"))
 }

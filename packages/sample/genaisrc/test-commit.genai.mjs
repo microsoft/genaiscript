@@ -25,9 +25,15 @@ const { stdout: tests } = await host.exec("node", [
     "packages/cli/built/genaiscript.cjs",
     "test",
     "list",
+    "--groups",
+    ":!vision",
 ])
 
-def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000, ignoreEmpty: true })
+def("GIT_DIFF", changes, {
+    language: "diff",
+    maxTokens: 20000,
+    ignoreEmpty: true,
+})
 def(
     "TESTS",
     tests
