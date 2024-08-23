@@ -39,7 +39,7 @@ Use these files to help you generate a topic for the blog post.
 `
         },
         {
-            label: "generate theme",
+            label: "generate topic",
             temperature: 1,
             system: [
                 "system.tools",
