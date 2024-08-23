@@ -111,11 +111,13 @@ interface ModelConnectionOptions {
      * Which LLM model to use.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
+     * @example gpt-4
      */
     model?:
         | "openai:gpt-4"
-        | "openai:gpt-4-32k"
+        | "openai:gpt-4-turbo"
+        | "openai:gpt-4o"
+        | "openai:gpt-4o-mini"
         | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"

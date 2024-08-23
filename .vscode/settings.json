@@ -24,6 +24,7 @@
         "markdownify",
         "memorystream",
         "millis",
+        "mixtral",
         "nomic",
         "ollama",
         "openai",
