@@ -27,7 +27,7 @@ const { stdout: tests } = await host.exec("node", [
     "list",
 ])
 
-def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
+def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000, ignoreEmpty: true })
 def(
     "TESTS",
     tests
