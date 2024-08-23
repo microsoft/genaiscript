@@ -42,8 +42,7 @@ jobs:
               working-directory: packages/sample
               run: mkdir -p temp && touch temp/commit-tests.txt
             - name: select llm tests to run
-              working-directory: packages/sample
-              run: node ../cli/built/genaiscript.cjs run test-commit --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run test-commit --out-trace $GITHUB_STEP_SUMMARY
             - name: run llm tests
               working-directory: packages/sample
               run: xargs -r -a temp/commit-tests.txt node ../cli/built/genaiscript.cjs test --out-summary $GITHUB_STEP_SUMMARY --test-delay 10

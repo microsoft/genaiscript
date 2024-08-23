@@ -66,10 +66,10 @@ Avoid duplicates.
 # Task 4
 
 Report the selected tests as a line-separated list of filenames 
-in file "temp/commit-tests.txt".
+in file "packages/sample/temp/commit-tests.txt".
 Remove the .genai.js extension.
 
-    File temp/commit-tests.txt:
+    File packages/sample/temp/commit-tests.txt:
     \`\`\`text
     test filename 1
     test filename 2
@@ -78,4 +78,4 @@ Remove the .genai.js extension.
 
 `
 
-defFileOutput("temp/commit-tests.txt")
+defFileOutput("packages/sample/temp/commit-tests.txt")
