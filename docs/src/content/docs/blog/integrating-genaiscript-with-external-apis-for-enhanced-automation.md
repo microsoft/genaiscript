@@ -1,9 +1,10 @@
 ---
-title: "Integrating GenAIScript with External APIs for Enhanced Automation"
+title: Integrating GenAIScript with External APIs for Enhanced Automation
 date: 2024-08-23
 authors: genaiscript
-tags: [GenAIScript, API Integration, Automation, JavaScript, AI]
+tags: [API Integration, Automation, JavaScript, AI, Workflow Optimization]
 draft: true
+description: Master the integration of GenAIScript with external APIs to automate workflows, handle data dynamically, and improve efficiency.
 ---
 
 ## "Integrating GenAIScript with External APIs for Enhanced Automation"

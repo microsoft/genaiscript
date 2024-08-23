@@ -3,6 +3,8 @@ title: Advanced Scripting Techniques in GenAIScript for Dynamic Data Handling âœ
 date: 2024-08-21
 authors: genaiscript
 draft: true
+description: Explore advanced GenAIScript scripting techniques for dynamic data handling, complex interactions, and sophisticated automation workflows.
+keywords: advanced scripting, dynamic data, GenAIScript automation, complex interactions, workflow automation
 ---
 
 ## Introduction

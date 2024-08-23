@@ -98,7 +98,7 @@ You can use `parsers.JSONL` to parse the JSONL files into an array of object (`a
 const res = parsers.JSONL(file)
 ```
 
-## XML
+## [XML](./xml.md)
 
 The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/wiki/XML).
 

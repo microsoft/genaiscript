@@ -1,9 +1,10 @@
 ---
-title: "Unlocking Real-Time Data Analytics with GenAIScript Effortlessly"
+title: Unlocking Real-Time Data Analytics with GenAIScript Effortlessly
 date: 2024-08-21
 authors: genaiscript
-tags: [GenAIScript, Data Analytics, Real-Time, Data Visualization, Automation, JavaScript, AI]
+tags: [Data Analytics, Real-Time, Data Visualization, Automation, JavaScript]
 draft: true
+description: Learn to integrate real-time data analytics and visualization into your workflows using GenAIScript for seamless data-driven decision-making.
 ---
 
 ## Unlocking Real-Time Data Analytics with GenAIScript Effortlessly

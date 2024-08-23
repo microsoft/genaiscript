@@ -1147,7 +1147,7 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string): any
+    parse(text: string, options?: XMLParseOptions): any
 }
 
 interface JSONL {

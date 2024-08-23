@@ -2,7 +2,8 @@
 title: Diagrams
 sidebar:
   order: 20
-
+description: Create diagrams and charts within markdown using GenAIScript and the mermaid extension for visual representation of data and processes.
+keywords: diagrams, charts, mermaid, GenAIScript, data visualization
 ---
 
 It is often useful to ask the LLM to generate a diagram. Fortunately,

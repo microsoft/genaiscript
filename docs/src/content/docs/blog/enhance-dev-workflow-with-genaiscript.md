@@ -1,9 +1,10 @@
 ---
-title: "Enhance Your Development Workflow with GenAIScript - Expert Automation Tips"
+title: Enhance Your Development Workflow with GenAIScript - Expert Automation Tips
 date: 2024-08-21
 authors: genaiscript
-tags: [GenAIScript, Development, Automation, CI/CD, Best Practices]
+tags: [Development, CI/CD, Best Practices, Automation, Productivity]
 draft: true
+description: Boost your development productivity with GenAIScript automation, integrating with CI/CD tools and automating common development tasks.
 ---
 
 # Enhance Your Development Workflow with GenAIScript - Expert Automation Tips

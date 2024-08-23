@@ -1,9 +1,10 @@
 ---
-title: "Harnessing the Power of GenAIScript for Efficient Pull Request Reviews 🚀"
+title: Harnessing the Power of GenAIScript for Efficient Pull Request Reviews 🚀
 date: 2024-08-21
 authors: genaiscript
-tags: [GenAIScript, Pull Request, Code Review, Automation, GitHub, JavaScript, AI]
+tags: [Pull Request, Code Review, GitHub, JavaScript, AI]
 draft: true
+description: Automate and streamline pull request reviews with GenAIScript, ensuring consistency and efficiency in your software development cycle.
 ---
 
 ## Harnessing the Power of GenAIScript for Efficient Pull Request Reviews 🚀

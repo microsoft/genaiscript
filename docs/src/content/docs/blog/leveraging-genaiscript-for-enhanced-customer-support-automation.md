@@ -2,8 +2,9 @@
 title: Leveraging GenAIScript for Enhanced Customer Support Automation
 date: 2024-08-21
 authors: genaiscript
-tags: [GenAIScript, Customer Support, Automation, CRM, JavaScript, AI]
+tags: [Customer Support, CRM, Automation, JavaScript, AI]
 draft: true
+description: Enhance customer support efficiency with GenAIScript automation, streamlining workflows and improving customer satisfaction.
 ---
 
 ## Leveraging GenAIScript for Enhanced Customer Support Automation
