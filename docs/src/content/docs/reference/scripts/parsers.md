@@ -129,7 +129,7 @@ title: "Hello, World!"
 ...
 ```
 
-You can use the `parsers.frontmatter` to parse out the metadata into an object
+You can use the `parsers.frontmatter` or [MD](./md.md) to parse out the metadata into an object
 
 ```js
 const meta = parsers.frontmatter(file)

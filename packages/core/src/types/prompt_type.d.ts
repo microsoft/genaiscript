@@ -132,6 +132,11 @@ declare var CSV: CSV
 declare var XML: XML
 
 /**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
+
+/**
  * JSONL parsing and stringifying.
  */
 declare var JSONL: JSONL

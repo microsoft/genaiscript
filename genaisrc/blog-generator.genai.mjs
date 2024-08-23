@@ -170,8 +170,15 @@ defOutputProcessor((output) => {
     if (/\`\`\`markdown\n/.test(md)) {
         md = md.replace(/\`\`\`markdown\n/g, "").replace(/\`\`\`\n?$/g, "")
     }
-    const fm = parsers.frontmatter(md)
+    const fm = MD.frontmatter(md)
     if (!fm) throw new Error("No frontmatter found")
+
+    md = MD.updateFrontmatter(md, {
+        draft: true,
+        date: formattedDate,
+        authors: "genaiscript",
+    })
+
     const fn =
         `docs/src/content/docs/blog/drafts/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
     const sn =

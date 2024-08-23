@@ -34,6 +34,7 @@ export async function importPrompt(
         "INI",
         "CSV",
         "XML",
+        "MD",
         "JSONL",
         "AICI",
         "fetchText",
