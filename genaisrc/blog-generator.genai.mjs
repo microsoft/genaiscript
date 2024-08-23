@@ -2,7 +2,7 @@ script({
     description: "Generate a blog post for Dev.to from the documentation",
     model: "openai:gpt-4o",
     system: [],
-    tools: ["fs"],
+    tools: ["fs", "md"],
     parameters: {
         theme: {
             type: "string",
@@ -33,7 +33,7 @@ ${theme ? `- The theme of the blog post is ${theme}.` : ""}
 
 Use these files to help you generate a topic for the blog post.
 
-- the documentation: docs/src/content/docs/**/*.md*
+- the documentation is in markdown and has frontmatter: docs/src/content/docs/**/*.md*
 - the existing blog posts: docs/src/content/docs/blog/*.md*
 - the online documentation: https://microsoft.github.io/genaiscript/
 `
@@ -98,7 +98,7 @@ let snippet
         - the code will be executed in node.js v20 by the GenAIScript CLI
         - the genaiscript type definition: genaiscript/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
         - the genaiscript samples: packages/sample/src/*.genai.*
-        - the documentation: docs/src/content/docs/**/*.md*
+        - the documentation is in markdown and has frontmatter: docs/src/content/docs/**/*.md*
         - the online documentation: https://microsoft.github.io/genaiscript/
         `
         },
@@ -160,7 +160,7 @@ Respond with the markdown content of the blog post.
 
 You can extract information from the following files:
 
-- the documentation: docs/src/content/docs/**/*.md*
+- the documentation is in markdown and has frontmatter: docs/src/content/docs/**/*.md*
 - the existing blog posts: docs/src/content/docs/blog/*.md*
 - the online documentation: https://microsoft.github.io/genaiscript/
 
@@ -173,7 +173,7 @@ defOutputProcessor((output) => {
     const fm = parsers.frontmatter(md)
     if (!fm) throw new Error("No frontmatter found")
     const fn =
-        `docs/src/content/docs/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
+        `docs/src/content/docs/blog/drafts/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.md`.toLocaleLowerCase()
     const sn =
         `packages/sample/genaisrc/blog/${fm.title.replace(/[^a-z0-9]+/gi, "-")}.genai.mjs`.toLocaleLowerCase()
     return {
