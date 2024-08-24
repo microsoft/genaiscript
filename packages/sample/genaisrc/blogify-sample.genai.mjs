@@ -36,7 +36,7 @@ $`Create a blog post that explains the GenAIScript source code in FILE.
 - do not repeat topic
 - set frontmatter date to ${formattedDate}
 - avoid "genaiscript" in file title
-- when inline large string in "$\`", you can ellipse the end of the string with "..." if it is too long
+- when inlining a large string in "$\`" with more than 10 lines, you can ellipse the end of the string with "..." if it is too long
 - frontmatter tag should be an array
 - do NOT repeat page title in markdown content
 - save generate text to blog post drafts folder
