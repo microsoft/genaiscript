@@ -5,6 +5,18 @@ script({
 def("README", { filename: "README.md" })
 def("FEATURES", { filename: "docs/src/content/docs/index.mdx" })
 
+const res = await fetch(
+    `https://api.github.com/repos/microsoft/genaiscript/releases`
+)
+const releases: { name: string; body: string; draft: boolean }[] =
+    (await res.json()) as any
+defData(
+    "RELEASES",
+    releases
+        .filter(({ draft }) => !draft)
+        .map(({ name, body }) => ({ name, body: body.slice(0, 1000) }))
+)
+
 $`You are an expert open source maintainer.
 
 # Task 1
@@ -18,6 +30,7 @@ Update the README file of the project
 - Enhance the content to make it attractive to users.
 - Follow best practices for README files in open source projects.
 - Document features listed in FEATURES file.
+- The latest project releases are in RELEASES file.
 - inline snippets from samples and documentation to illustrate features. link to documentation
 - Do NOT MODIFY the "Contributing" and "Trademarks" sections. THIS IS VERY VERY IMPORTANT.
 - Do NOT generate any legal guideline.
