@@ -6,8 +6,6 @@ tags: ["GenAIScript", "README", "Open Source", "Maintenance"]
 canonical_url: https://microsoft.github.io/genaiscript/blog/README-maintenance
 ---
 
-## Introduction
-
 In the world of open source, a well-maintained `README` file acts as the front door to your project. It's often the first thing potential users and contributors see, and as such, it should be both informative and inviting. Today, we're diving into the GenAIScript that helps keep the `README` of the [GenAI project](https://github.com/microsoft/genaiscript) as fresh as a daisy! 🌼 Check out the actual [script file](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/readme-updater.genai.mts) for the details.
 
 > This blog post was co-authored with a [script](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/blogify-sample.genai.mts).

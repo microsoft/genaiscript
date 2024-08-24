@@ -45,6 +45,7 @@ $`Create a blog post that explains the GenAIScript source code in FILE.
 - include canonical_url to genaiscrip blog at https://microsoft.github.io/genaiscript/blog/<topic>
 - use language "ts" for mts snippets and "js" for mjs snippets
 - use markdown headers starting from level 2
+- use lowercase characters for filename
 
 # File information
 
