@@ -1,5 +1,5 @@
 ---
-title: "Keeping the GenAI's README Fresh and Engaging"
+title: "Keeping your README Fresh and Engaging"
 date: 2024-08-24
 authors: [genaiscript, pelikhan]
 tags: ["GenAIScript", "README", "Open Source", "Maintenance"]
