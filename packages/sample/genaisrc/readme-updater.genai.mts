@@ -1,4 +1,5 @@
 script({
+    description: "Maintenance script for the README that imports information from the documentation and samples to make it more attractive to users.",
     tools: ["fs"],
 })
 

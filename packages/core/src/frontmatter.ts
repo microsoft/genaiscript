@@ -1,4 +1,3 @@
-import { objectFromMap } from "pdfjs-dist/types/src/shared/util"
 import { JSON5TryParse } from "./json5"
 import { TOMLTryParse } from "./toml"
 import { YAMLTryParse, YAMLStringify } from "./yaml"
