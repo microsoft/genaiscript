@@ -10,6 +10,8 @@
 
 GenAIScript is a powerful scripting environment tailored for building and managing Large Language Model (LLM) prompts with ease. Whether you are a developer, data scientist, or researcher, GenAIScript provides the tools you need to create, debug, and share scripts efficiently.
 
+> 🤖 This readme is maintained by the [readme-updater](https://github.com/microsoft/genaiscript/blob/main/packages/sample/genaisrc/readme-updater.genai.mts) script.
+
 ## 🚀 Quickstart Guide
 
 Get started quickly by installing the [Visual Studio Code Extension](https://microsoft.github.io/genaiscript/getting-started/installation/) or using the [command line](https://microsoft.github.io/genaiscript/getting-started/installation).
