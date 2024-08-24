@@ -54,7 +54,7 @@ Finally, we specify that the output of this script will be an updated `README.md
 To execute this maintenance script, you'll need the GenAIScript CLI. If you haven't installed it yet, head over to the [official documentation](https://microsoft.github.io/genaiscript/) for installation instructions. Once you have the CLI ready, run the following command in your terminal:
 
 ```shell
-genaiscript run readme-updater.genai.mts
+genaiscript run readme-updater
 ```
 
 This command will kick off the script and apply the enhancements to your `README` file, ensuring it's up-to-date and user-friendly.

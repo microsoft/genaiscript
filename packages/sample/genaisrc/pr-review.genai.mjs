@@ -3,7 +3,7 @@ script({
     files: [],
     title: "pull request review",
     system: ["system", "system.typescript"],
-    tools: ["fs_find_files", "fs_read_file"],
+    tools: ["fs"],
 })
 
 const defaultBranch = (env.vars.defaultBranch || "main") + ""

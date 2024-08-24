@@ -45,11 +45,14 @@ $`Create a blog post that explains the GenAIScript source code in FILE.
 - include canonical_url to genaiscrip blog at https://microsoft.github.io/genaiscript/blog/<topic>
 - use language "ts" for mts snippets and "js" for mjs snippets
 - use markdown headers starting from level 2
-- use lowercase characters for filename
+- use lowercase characters, dashes for filenames
+- when invoking the CLI, prefer using the script filename instead of the full path
 
 # File information
 
-- documentation: docs/src/content/docs/**/*.md*
+- guides: docs/src/content/docs/guides/*.md*
+- getting started: docs/src/content/docs/getting-started/*.md*
+- reference documentation: docs/src/content/docs/reference/*.md*
 - type definition: genaisrc/genaiscript.d.ts
 - samples: packages/sample/genaisrc/*.genai.*s
 - online documentation: https://microsoft.github.io/genaiscript/ . The routing is docs/src/content/docs/**/<route>.md* becomes https://microsoft.github.io/genaiscript/<route>.
