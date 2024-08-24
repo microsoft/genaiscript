@@ -227,6 +227,7 @@ system({
 })
 
 $`The DIFF format should be used to generate diff changes on files: 
+
 - added lines MUST start with +
 - deleted lines MUST start with -
 - deleted lines MUST exist in the original file (do not invent deleted lines)
@@ -238,6 +239,7 @@ $`The DIFF format should be used to generate diff changes on files:
 - only generate diff for files that have changes
 - only emit a couple unmodified lines before and after the changes
 - keep the diffs AS SMALL AS POSSIBLE
+- when reading files, ask for line numbers
 
 
 - do NOT generate diff for files that have no changes
@@ -471,22 +473,26 @@ defTool(
                 description:
                     "Path of the file to load, relative to the workspace.",
             },
-            linestart: {
+            line_start: {
                 type: "integer",
                 description: "Line number (1-based) to start reading from.",
             },
-            lineend: {
+            line_end: {
                 type: "integer",
                 description: "Line number (1-based) to end reading at.",
             },
+            line_numbers: {
+                type: "boolean",
+                description: "Whether to include line numbers in the output.",
+            }
         },
         required: ["filename"],
     },
     async (args) => {
-        let { filename, linestart, lineend } = args
+        let { filename, line_start, line_end, line_numbers } = args
         if (!filename) return ""
-        linestart = parseInt(linestart) - 1
-        lineend = parseInt(lineend)
+        line_start = parseInt(line_start) - 1
+        line_end = parseInt(line_end)
         let content
         try {
             console.log(`cat ${filename}`)
@@ -495,9 +501,15 @@ defTool(
         } catch (e) {
             return undefined
         }
-        if (!isNaN(linestart) && !isNaN(lineend)) {
+        if (line_numbers) {
             const lines = content.split("\n")
-            content = lines.slice(linestart, lineend).join("\n")
+            content = lines
+                .map((line, i) => `[${i + 1}] ${line}`)
+                .join("\n")
+        }
+        if (!isNaN(line_start) && !isNaN(line_end)) {
+            const lines = content.split("\n")
+            content = lines.slice(line_start, line_end).join("\n")
         }
         return content
     }

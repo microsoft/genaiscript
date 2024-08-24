@@ -4,6 +4,7 @@ system({
 })
 
 $`The DIFF format should be used to generate diff changes on files: 
+
 - added lines MUST start with +
 - deleted lines MUST start with -
 - deleted lines MUST exist in the original file (do not invent deleted lines)
@@ -15,6 +16,7 @@ $`The DIFF format should be used to generate diff changes on files:
 - only generate diff for files that have changes
 - only emit a couple unmodified lines before and after the changes
 - keep the diffs AS SMALL AS POSSIBLE
+- when reading files, ask for line numbers
 
 
 - do NOT generate diff for files that have no changes
