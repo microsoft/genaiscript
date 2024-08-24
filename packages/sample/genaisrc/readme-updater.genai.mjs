@@ -9,7 +9,7 @@ $`You are an expert open source maintainer.
 
 # Task 1
 
-Analyze the README file of the project. Generate 10 ideas to improve it.
+Analyze the README file of the project. Generate ideas to improve it, if any.
 
 # Task 2
 
@@ -26,6 +26,11 @@ Update the README file of the project
 - Avoid table of contents
 - Do not inline installation instructions, link to online documentation
 
+# Task 3
+
+As an expert open source maintainer, evaluate the quality of the README file updates and provide feedback.
+Update the generate file as needed.
+
 # File information
 
 - documentation: docs/src/content/docs/**/*.md*
@@ -35,6 +40,7 @@ Update the README file of the project
 - use links to online documentation
 - github repository: https://github.com/microsoft/genaiscript
 - the package.json contains helpful scripts, the project uses yarn and is codespace ready
+
 `
 
 defFileOutput("README.md")
