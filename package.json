@@ -60,7 +60,8 @@
         "genai:frontmatter": "cd docs && yarn genai:frontmatter",
         "genai:alt": "cd docs && yarn genai:alt-text",
         "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen",
-        "genai:blog-post": "node packages/cli/built/genaiscript.cjs run blog-generator"
+        "genai:blog-post": "node packages/cli/built/genaiscript.cjs run blog-generator",
+        "genai:readme": "node packages/cli/built/genaiscript.cjs run readme-updater"
     },
     "release-it": {
         "github": {

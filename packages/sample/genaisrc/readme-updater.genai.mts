@@ -10,7 +10,7 @@ $`You are an expert open source maintainer.
 
 # Task 1
 
-Analyze the README file of the project. Generate ideas to improve it, if any.
+Analyze the README file of the project using GitHub Flavored Markdown (GFM). Generate ideas to improve it, if any.
 
 # Task 2
 
@@ -26,11 +26,6 @@ Update the README file of the project
 - do not make changes if not necessary
 - Avoid table of contents
 - Do not inline installation instructions, link to online documentation
-
-# Task 3
-
-As an expert open source maintainer, evaluate the quality of the README file updates and provide feedback.
-Update the generate file as needed.
 
 # File information
 
