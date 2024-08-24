@@ -1,6 +1,6 @@
 script({
     title: "summarize-files-function",
-    system: ["system", "system.fs_read_summary"],
+    tools: ["fs"],
     model: "openai:gpt-3.5-turbo",
     tests: {
         files: ["src/rag/*"],

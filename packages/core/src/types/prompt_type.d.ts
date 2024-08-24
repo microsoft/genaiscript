@@ -62,7 +62,7 @@ declare function def(
  */
 declare function defFileOutput(
     pattern: string,
-    description: string,
+    description?: string,
     options?: FileOutputOptions
 ): void
 
@@ -76,7 +76,7 @@ declare function defFileOutput(
 declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 
@@ -112,12 +112,6 @@ declare var retrieval: Retrieval
 declare var workspace: WorkspaceFileSystem
 
 /**
- * Access to the workspace file system.
- * @deprecated Use `workspace` instead.
- */
-declare var fs: WorkspaceFileSystem
-
-/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -136,6 +130,11 @@ declare var CSV: CSV
  * XML parsing and stringifying.
  */
 declare var XML: XML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
 
 /**
  * JSONL parsing and stringifying.

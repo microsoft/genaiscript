@@ -5,7 +5,7 @@ import {
     GITHUB_TOKEN,
 } from "./constants"
 import { createFetch } from "./fetch"
-import { host } from "./host"
+import { runtimeHost } from "./host"
 import { link, prettifyMarkdown } from "./markdown"
 import { logError, logVerbose, normalizeInt } from "./util"
 
@@ -70,7 +70,7 @@ export async function githubUpdatePullRequestDescription(
     assert(commentTag)
 
     if (!issue) return { updated: false, statusText: "missing issue number" }
-    const token = await host.readSecret(GITHUB_TOKEN)
+    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
     if (!token) return { updated: false, statusText: "missing github token" }
 
     text = prettifyMarkdown(text)
@@ -169,7 +169,7 @@ export async function githubCreateIssueComment(
     const { apiUrl, repository, issue } = info
 
     if (!issue) return { created: false, statusText: "missing issue number" }
-    const token = await host.readSecret(GITHUB_TOKEN)
+    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
     if (!token) return { created: false, statusText: "missing github token" }
 
     const fetch = await createFetch({ retryOn: [] })
@@ -313,7 +313,7 @@ export async function githubCreatePullRequestReviews(
         logError("missing commit sha")
         return false
     }
-    const token = await host.readSecret(GITHUB_TOKEN)
+    const token = await runtimeHost.readSecret(GITHUB_TOKEN)
     if (!token) {
         logError("missing github token")
         return false

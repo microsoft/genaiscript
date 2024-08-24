@@ -41,6 +41,7 @@ class GenAIScriptApiProvider {
 
             args.push("run", prompt)
             if (files) args.push(...files)
+            args.push("--run-retry", 2)
             if (testVars && typeof testVars === "object") {
                 args.push("--vars")
                 for (const [key, value] of Object.entries(testVars)) {

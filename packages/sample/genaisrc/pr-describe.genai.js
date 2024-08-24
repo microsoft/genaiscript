@@ -6,18 +6,19 @@ script({
     system: ["system", "system.fs_find_files", "system.fs_read_file"],
 })
 
-const defaultBranch = env.vars.defaultBranch || "main"
+const defaultBranch = (env.vars.defaultBranch || "main") + ""
 const { stdout: changes } = await host.exec("git", [
     "diff",
     defaultBranch,
     "--",
+    ".",
     ":!**/genaiscript.d.ts",
-    ":!**/jsconfig.json",
+    ":!**/*sconfig.json",
     ":!genaisrc/*",
     ":!.github/*",
     ":!.vscode/*",
-    ":!yarn.lock",
-    ":!THIRD_PARTY_LICENSES.md",
+    ":!*yarn.lock",
+    ":!*THIRD_PARTY_LICENSES.md",
 ])
 
 def("GIT_DIFF", changes, {

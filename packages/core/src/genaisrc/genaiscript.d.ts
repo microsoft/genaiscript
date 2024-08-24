@@ -1,3 +1,5 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -65,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot"
+type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.math" | "system.md_frontmatter" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.tools" | "system.typescript" | "system.zero_shot_cot">
 
-type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search"
+type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "math_eval" | "md_read_frontmatter" | "python_code_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
 
 type FileMergeHandler = (
     filename: string,
@@ -99,19 +101,23 @@ type PromptOutputProcessorHandler = (
     | Promise<PromptOutputProcessorResult>
     | undefined
     | Promise<undefined>
+    | void
+    | Promise<void>
 
-type PromptTemplateResponseType = "json_object" | undefined
+type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
 interface ModelConnectionOptions {
     /**
      * Which LLM model to use.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
+     * @example gpt-4
      */
     model?:
         | "openai:gpt-4"
-        | "openai:gpt-4-32k"
+        | "openai:gpt-4-turbo"
+        | "openai:gpt-4o"
+        | "openai:gpt-4o-mini"
         | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
@@ -129,15 +135,17 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
-     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
-     * specify an output schema.
+     * Specifies the type of output. Default is plain text.
+     * - `json_object` enables JSON mode
+     * - `json_schema` enables structured outputs
+     * Use `responseSchema` to specify an output schema.
      */
     responseType?: PromptTemplateResponseType
 
     /**
-     * JSON object schema for the output. Enables the `JSON` output mode.
+     * JSON object schema for the output. Enables the `JSON` output mode by default.
      */
-    responseSchema?: JSONSchemaObject
+    responseSchema?: PromptParametersSchema | JSONSchemaObject
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
@@ -183,7 +191,14 @@ interface EmbeddingsModelConnectionOptions {
     /**
      * LLM model to use for embeddings.
      */
-    embeddingsModel?: "openai:text-embedding-ada-002" | string
+    embeddingsModel?: OptionsOrString<
+        "openai:text-embedding-3-small",
+        "openai:text-embedding-3-large",
+        "openai:text-embedding-ada-002",
+        "github:text-embedding-3-small",
+        "github:text-embedding-3-large",
+        "ollama:nomic-embed-text"
+    >
 }
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
@@ -202,18 +217,19 @@ interface ScriptRuntimeOptions {
 * - `system.explanations`: Explain your answers
 * - `system.files`: File generation
 * - `system.files_schema`: Apply JSON schemas to generated data.
-* - `system.fs_find_files`: File Find Files
+* - `system.fs_find_files`: File find files
 * - `system.fs_read_file`: File Read File
-* - `system.fs_read_summary`: File Read Summary
-* - `system.functions`: use functions
 * - `system.math`: Math expression evaluator
+* - `system.md_frontmatter`: Frontmatter reader
 * - `system.python`: Expert at generating and understanding Python code.
+* - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
 * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
 * - `system.retrieval_vector_search`: Embeddings Vector Search
 * - `system.retrieval_web_search`: Web Search
 * - `system.schema`: JSON Schema support
 * - `system.tasks`: Generates tasks
 * - `system.technical`: Technical Writer
+* - `system.tools`: Tools support
 * - `system.typescript`: Export TypeScript Developer
 * - `system.zero_shot_cot`: Zero-shot Chain Of Though
 **/
@@ -222,17 +238,7 @@ interface ScriptRuntimeOptions {
     /**
      * List of tools used by the prompt.
      */
-/**
-* System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
-* - `fs_find_files`: Finds file matching a glob pattern.
-* - `fs_read_file`: Reads a file as text from the file system.
-* - `fs_read_summary`: Reads a summary of a file from the file system.
-* - `math_eval`: Evaluates a math expression
-* - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
-* - `retrieval_vector_search`: Search files using embeddings and similarity distance.
-* - `retrieval_web_search`: Search the web for a user query using Bing Search.
-**/
-    tools?: SystemToolId[]
+    tools?: SystemToolId | SystemToolId[]
 
     /**
      * Secrets required by the prompt
@@ -249,11 +255,15 @@ type PromptParameterType =
     | string
     | number
     | boolean
+    | object
     | JSONSchemaNumber
     | JSONSchemaString
     | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean | any>
+type PromptParametersSchema = Record<
+    string,
+    PromptParameterType | PromptParameterType[]
+>
+type PromptParameters = Record<string, string | number | boolean | object>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
@@ -310,6 +320,10 @@ type PromptAssertion = {
 
 interface PromptTest {
     /**
+     * Short name of the test
+     */
+    name?: string
+    /**
      * Description of the test.
      */
     description?: string
@@ -320,7 +334,7 @@ interface PromptTest {
     /**
      * Extra set of variables for this scenario
      */
-    vars?: PromptParameters
+    vars?: Record<string, string | boolean | number>
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -493,7 +507,26 @@ interface ToolCallContent {
     edits?: Edits[]
 }
 
-type ToolCallOutput = string | ToolCallContent | ShellOutput
+type ToolCallOutput = string | ToolCallContent | ShellOutput | WorkspaceFile
+
+interface WorkspaceFileCache<K, V> {
+    /**
+     * Gets the value associated with the key, or undefined if there is none.
+     * @param key
+     */
+    get(key: K): Promise<V | undefined>
+    /**
+     * Sets the value associated with the key.
+     * @param key
+     * @param value
+     */
+    set(key: K, value: V): Promise<void>
+
+    /**
+     * List the values in the cache.
+     */
+    values(): Promise<V[]>
+}
 
 interface WorkspaceFileSystem {
     /**
@@ -525,13 +558,18 @@ interface WorkspaceFileSystem {
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+    readText(path: string | Awaitable<WorkspaceFile>): Promise<WorkspaceFile>
 
     /**
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | WorkspaceFile): Promise<any>
+    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Reads the content of a file and parses to XML, using the XML parser.
+     */
+    readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -539,6 +577,15 @@ interface WorkspaceFileSystem {
      * @param content
      */
     writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Opens a key-value cache for the given cache name.
+     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
 }
 
 interface ToolCallContext {
@@ -588,7 +635,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: PromptParameters
+    vars?: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
@@ -614,6 +661,7 @@ type PromptSystemArgs = Omit<
     | "maxTokens"
     | "seed"
     | "tests"
+    | "responseLanguage"
     | "responseType"
     | "responseSchema"
     | "files"
@@ -1102,7 +1150,32 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string): any
+    parse(text: string, options?: XMLParseOptions): any
+}
+
+interface MD {
+    /**
+     * Parses front matter from markdown
+     * @param text
+     */
+    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+
+    /**
+     * Removes the front matter from the markdown text
+     */
+    content(text: string): string
+
+    /**
+     * Merges frontmatter with the existing text
+     * @param text
+     * @param frontmatter
+     * @param format
+     */
+    updateFrontmatter(
+        text: string,
+        frontmatter: any,
+        format?: "yaml" | "json"
+    ): string
 }
 
 interface JSONL {
@@ -1298,13 +1371,18 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
 interface PromptGeneratorOptions extends ModelOptions {
     /**
      * Label for trace
      */
     label?: string
+
+    /**
+     * List of system prompts if any
+     */
+    system?: SystemPromptId[]
 }
 
 interface FileOutputOptions {
@@ -1316,7 +1394,7 @@ interface FileOutputOptions {
 
 interface FileOutput {
     pattern: string
-    description: string
+    description?: string
     options?: FileOutputOptions
 }
 
@@ -1358,7 +1436,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): void
     defFileOutput(
         pattern: string,
-        description: string,
+        description?: string,
         options?: FileOutputOptions
     ): void
 }
@@ -1616,6 +1694,16 @@ interface ContainerHost extends ShellHost {
      * @param toContainer directory in the container
      */
     copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {
@@ -1641,14 +1729,11 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    /**
+     * @deprecated Use `workspace` instead
+     */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
-    YAML: YAML
-    XML: XML
-    JSONL: JSONL
-    CSV: CSV
-    INI: INI
-    AICI: AICI
     host: PromptHost
 }
 
@@ -1716,7 +1801,7 @@ declare function def(
  */
 declare function defFileOutput(
     pattern: string,
-    description: string,
+    description?: string,
     options?: FileOutputOptions
 ): void
 
@@ -1730,7 +1815,7 @@ declare function defFileOutput(
 declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 
@@ -1766,12 +1851,6 @@ declare var retrieval: Retrieval
 declare var workspace: WorkspaceFileSystem
 
 /**
- * Access to the workspace file system.
- * @deprecated Use `workspace` instead.
- */
-declare var fs: WorkspaceFileSystem
-
-/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -1790,6 +1869,11 @@ declare var CSV: CSV
  * XML parsing and stringifying.
  */
 declare var XML: XML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
 
 /**
  * JSONL parsing and stringifying.

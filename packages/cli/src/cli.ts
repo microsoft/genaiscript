@@ -2,7 +2,6 @@ import { NodeHost } from "./nodehost"
 import { program } from "commander"
 import { error, isQuiet, setConsoleColors, setQuiet } from "./log"
 import { startServer } from "./server"
-import { satisfies as semverSatisfies } from "semver"
 import { NODE_MIN_VERSION, PROMPTFOO_VERSION } from "./version"
 import { runScriptWithExitCode } from "./run"
 import { retrievalFuzz, retrievalSearch } from "./retrieval"
@@ -18,7 +17,7 @@ import {
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
 import { envInfo, modelInfo, systemInfo } from "./info"
-import { scriptTestsView, scriptsTest } from "./test"
+import { scriptTestList, scriptTestsView, scriptsTest } from "./test"
 import { cacheClear } from "./cache"
 import "node:console"
 import {
@@ -37,6 +36,7 @@ import {
 import { CORE_VERSION, GITHUB_REPO } from "../../core/src/version"
 import { grep } from "./grep"
 import { logVerbose } from "../../core/src/util"
+import { semverSatisfies } from "../../core/src/semver"
 
 export async function cli() {
     process.on("uncaughtException", (err) => {
@@ -72,7 +72,7 @@ export async function cli() {
     program.on("option:quiet", () => setQuiet(true))
 
     program
-        .command("run", { isDefault: true })
+        .command("run")
         .description("Runs a GenAIScript against files.")
         .arguments("<script> [files...]")
         .option("-ef, --excluded-files <string...>", "excluded files")
@@ -142,11 +142,15 @@ export async function cli() {
         )
         .option("--no-cache", "disable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
-        .option("--cs, --csv-separator <string>", "csv separator", "\t")
+        .option("-cs, --csv-separator <string>", "csv separator", "\t")
         .option("-ae, --apply-edits", "apply file edits")
         .option(
             "--vars <namevalue...>",
             "variables, as name=value, stored in env.vars"
+        )
+        .option(
+            "-rr, --run-retry <number>",
+            "number of retries for the entire run"
         )
         .action(runScriptWithExitCode)
 
@@ -174,7 +178,19 @@ export async function cli() {
             `promptfoo version, default is ${PROMPTFOO_VERSION}`
         )
         .option("-os, --out-summary <file>", "append output summary in file")
+        .option(
+            "--groups <groups...>",
+            "groups to include or exclude. Use :! prefix to exclude"
+        )
         .action(scriptsTest)
+
+    test.command("list")
+        .description("List available tests in workspace")
+        .action(scriptTestList)
+        .option(
+            "--groups <groups...>",
+            "groups to include or exclude. Use :! prefix to exclude"
+        )
 
     test.command("view")
         .description("Launch test viewer")
@@ -200,6 +216,7 @@ export async function cli() {
     scripts
         .command("compile")
         .description("Compile all script in workspace")
+        .argument("[folders...]", "Pattern to match files")
         .action(compileScript)
     scripts
         .command("model")
@@ -249,7 +266,7 @@ export async function cli() {
         .alias("parsers")
         .description("Parse various outputs")
     parser
-        .command("fence <language>")
+        .command("fence <language> <file>")
         .description("Extracts a code fenced regions of the given type")
         .action(parseFence)
 
@@ -264,7 +281,7 @@ export async function cli() {
         .action(parseDOCX)
 
     parser
-        .command("html-to-text [file]")
+        .command("html-to-text <file>")
         .description("Parse an HTML file into text")
         .action(parseHTMLToText)
 

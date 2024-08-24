@@ -40,6 +40,6 @@ jobs:
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:phi3 --out ./temp
-            - name: test summarize-links-phi3
-              run: yarn test:scripts summarize-link --models ollama:phi3 --out ./temp
+              run: yarn test:summarize --model ollama:phi3 --out ./temp/summarize-ollama-phi3
+            - name: run vector-search
+              run: yarn run:script vector-search --model ollama:phi3 --out ./temp/rag

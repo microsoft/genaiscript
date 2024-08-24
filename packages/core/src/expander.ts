@@ -15,7 +15,7 @@ import { renderAICI } from "./aici"
 import { toChatCompletionUserMessage } from "./chat"
 import { importPrompt } from "./importprompt"
 import { parseModelIdentifier } from "./models"
-import { JSONSchemaStringifyToTypeScript } from "./schema"
+import { JSONSchemaStringifyToTypeScript, toStrictJSONSchema } from "./schema"
 import { host } from "./host"
 import { resolveSystems } from "./systems"
 import { GenerationOptions, GenerationStatus } from "./generation"
@@ -25,8 +25,10 @@ import {
     ChatCompletionMessageParam,
     ChatCompletionSystemMessageParam,
 } from "./chattypes"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
-async function callExpander(
+export async function callExpander(
+    prj: Project,
     r: PromptScript,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
@@ -34,7 +36,7 @@ async function callExpander(
 ) {
     assert(!!options.model)
     const { provider, model } = parseModelIdentifier(r.model ?? options.model)
-    const ctx = await createPromptContext(vars, trace, options, model)
+    const ctx = await createPromptContext(prj, vars, trace, options, model)
 
     let status: GenerationStatus = undefined
     let statusText: string = undefined
@@ -163,6 +165,7 @@ export async function expandTemplate(
 ) {
     const model = options.model
     assert(!!model)
+    const messages: ChatCompletionMessageParam[] = []
     const cancellationToken = options.cancellationToken
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
@@ -194,17 +197,12 @@ export async function expandTemplate(
 
     trace.startDetails("💾 script")
 
-    trace.itemValue(`temperature`, temperature)
-    trace.itemValue(`top_p`, topP)
-    trace.itemValue(`max tokens`, max_tokens)
-    trace.itemValue(`seed`, seed)
-
     traceEnv(model, trace, env)
 
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
-    const prompt = await callExpander(template, env, trace, options)
+    const prompt = await callExpander(prj, template, env, trace, options)
 
     const images = prompt.images
     const schemas = prompt.schemas
@@ -219,39 +217,38 @@ export async function expandTemplate(
     if (prompt.aici) trace.fence(prompt.aici, "yaml")
     trace.endDetails()
 
-    if (prompt.status !== "success")
+    if (prompt.status !== "success" || prompt.text === "")
         // cancelled
-        return { status: prompt.status, statusText: prompt.statusText }
+        return {
+            status: prompt.status,
+            statusText: prompt.statusText,
+            messages,
+        }
 
     if (cancellationToken?.isCancellationRequested)
-        return { status: "cancelled", statusText: "user cancelled" }
+        return { status: "cancelled", statusText: "user cancelled", messages }
 
     const systemMessage: ChatCompletionSystemMessageParam = {
         role: "system",
         content: "",
     }
-    const messages: ChatCompletionMessageParam[] = []
     if (prompt.text)
         messages.push(toChatCompletionUserMessage(prompt.text, prompt.images))
     if (prompt.aici) messages.push(prompt.aici)
 
     for (let i = 0; i < systems.length; ++i) {
         if (cancellationToken?.isCancellationRequested)
-            return { status: "cancelled", statusText: "user cancelled" }
+            return {
+                status: "cancelled",
+                statusText: "user cancelled",
+                messages,
+            }
 
-        let systemTemplate = systems[i]
-        let system = prj.getTemplate(systemTemplate)
-        if (!system) {
-            if (systemTemplate) trace.error(`\`${systemTemplate}\` not found\n`)
-            if (i > 0) continue
-            systemTemplate = "system"
-            system = prj.getTemplate(systemTemplate)
-            assert(!!system)
-        }
+        const system = prj.getTemplate(systems[i])
+        if (!system) throw new Error(`system template ${systems[i]} not found`)
 
-        trace.startDetails(`👾 ${systemTemplate}`)
-
-        const sysr = await callExpander(system, env, trace, options)
+        trace.startDetails(`👾 ${system.id}`)
+        const sysr = await callExpander(prj, system, env, trace, options)
 
         if (sysr.images) images.push(...sysr.images)
         if (sysr.schemas) Object.assign(schemas, sysr.schemas)
@@ -271,17 +268,24 @@ export async function expandTemplate(
             trace.fence(sysr.aici, "yaml")
             messages.push(sysr.aici)
         }
-
         trace.detailsFenced("js", system.jsSource, "js")
         trace.endDetails()
 
         if (sysr.status !== "success")
-            return { status: sysr.status, statusText: sysr.statusText }
+            return {
+                status: sysr.status,
+                statusText: sysr.statusText,
+                messages,
+            }
     }
 
-    const responseSchema: JSONSchema = template.responseSchema
+    const responseSchema = promptParametersSchemaToJSONSchema(
+        template.responseSchema
+    ) as JSONSchemaObject
+    if (responseSchema)
+        trace.detailsFenced("📜 response schema", responseSchema)
     let responseType = template.responseType
-    if (responseSchema) {
+    if (responseSchema && responseType !== "json_schema") {
         responseType = "json_object"
         const typeName = "Output"
         const schemaTs = JSONSchemaStringifyToTypeScript(responseSchema, {
@@ -301,6 +305,11 @@ ${schemaTs}
             role: "system",
             content: `Answer using JSON.`,
         })
+    } else if (responseType === "json_schema") {
+        if (!responseSchema)
+            throw new Error(`responseSchema is required for json_schema`)
+        // try conversion
+        toStrictJSONSchema(responseSchema)
     }
     if (systemMessage.content) messages.unshift(systemMessage)
 

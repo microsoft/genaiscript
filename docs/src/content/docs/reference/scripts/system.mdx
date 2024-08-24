@@ -365,21 +365,21 @@ def(`File ${folder}/data.json`, `...`, {
 
 ### `system.fs_find_files`
 
-File Find Files
+File find files
 
-Functions to list files.
+Find files with glob and content regex.
 
--  tool `fs_find_files`: Finds file matching a glob pattern.
+-  tool `fs_find_files`: Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content.
 
 `````js wrap title="system.fs_find_files"
 system({
-    title: "File Find Files",
-    description: "Functions to list files.",
+    title: "File find files",
+    description: "Find files with glob and content regex.",
 })
 
 defTool(
     "fs_find_files",
-    "Finds file matching a glob pattern.",
+    "Finds file matching a glob pattern. Use pattern to specify a regular expression to search for in the file content.",
     {
         type: "object",
         properties: {
@@ -388,13 +388,58 @@ defTool(
                 description:
                     "Search path in glob format, including the relative path from the project root folder.",
             },
+            pattern: {
+                type: "string",
+                description:
+                    "Optional regular expression pattern to search for in the file content.",
+            },
+            frontmatter: {
+                type: "boolean",
+                description:
+                    "If true, parse frontmatter in markdown files and return as YAML.",
+            },
         },
         required: ["glob"],
     },
     async (args) => {
-        const { glob } = args
-        const res = await workspace.findFiles(glob, { readText: false })
-        return res.map((f) => f.filename).join("\n")
+        const { glob, pattern, frontmatter } = args
+        console.log(
+            `ls ${glob} ${pattern ? `| grep ${pattern}` : ""} ${frontmatter ? "--frontmatter" : ""}`
+        )
+        const res = pattern
+            ? (await workspace.grep(pattern, glob, { readText: false })).files
+            : await workspace.findFiles(glob, { readText: false })
+        if (!res?.length) return "No files found."
+
+        if (frontmatter) {
+            const files = []
+            for (const { filename } of res) {
+                const file = {
+                    filename,
+                }
+                files.push(file)
+                if (/\.mdx?$/i.test(filename)) {
+                    try {
+                        const content = await workspace.readText(filename)
+                        const fm = await parsers.frontmatter(content)
+                        if (fm) file.frontmatter = fm
+                    } catch (e) {}
+                }
+            }
+            const preview = files
+                .map((f) =>
+                    [f.filename, f.frontmatter?.title]
+                        .filter((p) => !!p)
+                        .join(", ")
+                )
+                .join("\n")
+            console.log(preview)
+            return YAML.stringify(files)
+        } else {
+            const filenames = res.map((f) => f.filename).join("\n")
+            console.log(filenames)
+            return filenames
+        }
     }
 )
 
@@ -444,10 +489,11 @@ defTool(
         lineend = parseInt(lineend)
         let content
         try {
+            console.log(`cat ${filename}`)
             const res = await workspace.readText(filename)
             content = res.content ?? ""
         } catch (e) {
-            return ""
+            return undefined
         }
         if (!isNaN(linestart) && !isNaN(lineend)) {
             const lines = content.split("\n")
@@ -457,86 +503,6 @@ defTool(
     }
 )
 
-`````
-
-
-### `system.fs_read_summary`
-
-File Read Summary
-
-Function to summarize the content of a file.
-
--  tool `fs_read_summary`: Reads a summary of a file from the file system.
-
-`````js wrap title="system.fs_read_summary"
-system({
-    title: "File Read Summary",
-    description: "Function to summarize the content of a file.",
-    parameters: {
-        model: {
-            type: "string",
-            description: "LLM model to use",
-            default: "gpt-35-turbo",
-        },
-    },
-})
-
-defTool(
-    "fs_read_summary",
-    "Reads a summary of a file from the file system.",
-    {
-        type: "object",
-        properties: {
-            filename: {
-                type: "string",
-                description:
-                    "Path of the file to load, relative to the workspace.",
-            },
-        },
-        required: ["filename"],
-    },
-    async (args) => {
-        const { filename } = args
-        if (!filename) return ""
-        const { content } = await workspace.readText(filename)
-        const model = env.vars["system.fs_read_summary.model"] || "gpt-35-turbo"
-        const cacheName = `fs_read_summary_${model}`
-        const summary = await runPrompt(
-            (_) => {
-                const f = _.def(
-                    "FILE",
-                    { filename, content },
-                    { maxTokens: 12000 }
-                )
-                _.$`Summarize the content of ${f}. Keep it brief: generate a single sentence title and one paragraph description.`
-            },
-            {
-                model,
-                cache: true,
-                cacheName,
-            }
-        )
-        return summary.text
-    }
-)
-
-`````
-
-
-### `system.functions`
-
-use functions
-
-
-
-
-
-`````js wrap title="system.functions"
-system({
-    title: "use functions"
-})
-
-$`Use tools if possible.`
 `````
 
 
@@ -570,6 +536,48 @@ defTool("math_eval", "Evaluates a math expression", {
 `````
 
 
+### `system.md_frontmatter`
+
+Frontmatter reader
+
+Register tool that reads the frontmatter of a markdown file.
+
+-  tool `md_read_frontmatter`: Reads the frontmatter of a markdown or MDX file.
+
+`````js wrap title="system.md_frontmatter"
+system({
+    title: "Frontmatter reader",
+    description: "Register tool that reads the frontmatter of a markdown file.",
+})
+
+defTool(
+    "md_read_frontmatter",
+    "Reads the frontmatter of a markdown or MDX file.",
+    {
+        type: "object",
+        properties: {
+            filename: {
+                type: "string",
+                description:
+                    "Path of the markdown (.md) or MDX (.mdx) file to load, relative to the workspace.",
+            },
+        },
+        required: ["filename"],
+    },
+    async ({ filename }) => {
+        try {
+            console.log(`cat ${filename} | frontmatter`)
+            const res = await workspace.readText(filename)
+            return parsers.frontmatter(res.content)
+        } catch (e) {
+            return undefined
+        }
+    }
+)
+
+`````
+
+
 ### `system.python`
 
 Expert at generating and understanding Python code.
@@ -586,6 +594,62 @@ system({
 $`Also, you are an expert coder in Python. 
 You create code that is PEP8 compliant. 
 Emit type information compatible with PyLance.`
+
+`````
+
+
+### `system.python_code_interpreter`
+
+Python Dockerized code execution for data analysis
+
+
+
+-  tool `python_code_interpreter`: Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.
+
+`````js wrap title="system.python_code_interpreter"
+system({
+    title: "Python Dockerized code execution for data analysis",
+})
+
+const image = env.vars.pythonImage ?? "python:3.12"
+const packages = ["numpy", "pandas", "scipy"]
+
+let container = null
+
+defTool(
+    "python_code_interpreter",
+    "Executes python 3.12 code for Data Analysis tasks in a docker container. The process output is returned. Do not generate visualizations. The only packages available are numpy, pandas, scipy. There is NO network connectivity. Do not attempt to install other packages or make web requests.",
+    {
+        type: "object",
+        properties: {
+            main: {
+                type: "string",
+                description: "python 3.12 source code to execute",
+            },
+        },
+        required: ["main"],
+    },
+    async (args) => {
+        const { main = "" } = args
+        console.log(`python code interpreter: ` + main)
+        if (!container) {
+            console.log(`python: preparing container...`)
+            container = await host.container({ image, networkEnabled: true })
+            const res = await container.exec("pip", [
+                "install",
+                "--root-user-action",
+                "ignore",
+                ...packages,
+            ])
+            if (res.failed) throw new Error(`Failed to install requirements`)
+            await container.disconnect()
+        }
+
+        await container.writeText("main.py", main)
+        const res = await container.exec("python", ["main.py"])
+        return res
+    }
+)
 
 `````
 
@@ -654,6 +718,8 @@ system({
         "Function to do a search using embeddings vector similarity distance.",
 })
 
+const embeddingsModel = env.var.embeddingsModel || undefined
+
 defTool(
     "retrieval_vector_search",
     "Search files using embeddings and similarity distance.",
@@ -681,7 +747,7 @@ defTool(
         const res = await retrieval.vectorSearch(
             q,
             files.map((filename) => ({ filename }))
-        )
+            , { embeddingsModel })
         return YAML.stringify(res.map(({ filename }) => filename))
     }
 )
@@ -805,6 +871,24 @@ Technical Writer
 system({ title: "Technical Writer" });
 
 $`Also, you are an expert technical document writer.`;
+
+`````
+
+
+### `system.tools`
+
+Tools support
+
+
+
+
+
+`````js wrap title="system.tools"
+system({
+    title: "Tools support",
+})
+
+$`Use tools if possible. **Do NOT invent function names**. **Do NOT use function names starting with 'functions.'.`
 
 `````
 

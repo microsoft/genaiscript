@@ -1,3 +1,5 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -65,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = string
+type SystemPromptId = OptionsOrString<string>
 
-type SystemToolId = string
+type SystemToolId = OptionsOrString<string>
 
 type FileMergeHandler = (
     filename: string,
@@ -99,19 +101,23 @@ type PromptOutputProcessorHandler = (
     | Promise<PromptOutputProcessorResult>
     | undefined
     | Promise<undefined>
+    | void
+    | Promise<void>
 
-type PromptTemplateResponseType = "json_object" | undefined
+type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
 interface ModelConnectionOptions {
     /**
      * Which LLM model to use.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
+     * @example gpt-4
      */
     model?:
         | "openai:gpt-4"
-        | "openai:gpt-4-32k"
+        | "openai:gpt-4-turbo"
+        | "openai:gpt-4o"
+        | "openai:gpt-4o-mini"
         | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
@@ -129,15 +135,17 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
-     * Specifies the type of output. Default is `markdown`. Use `responseSchema` to
-     * specify an output schema.
+     * Specifies the type of output. Default is plain text.
+     * - `json_object` enables JSON mode
+     * - `json_schema` enables structured outputs
+     * Use `responseSchema` to specify an output schema.
      */
     responseType?: PromptTemplateResponseType
 
     /**
-     * JSON object schema for the output. Enables the `JSON` output mode.
+     * JSON object schema for the output. Enables the `JSON` output mode by default.
      */
-    responseSchema?: JSONSchemaObject
+    responseSchema?: PromptParametersSchema | JSONSchemaObject
 
     /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
@@ -183,7 +191,14 @@ interface EmbeddingsModelConnectionOptions {
     /**
      * LLM model to use for embeddings.
      */
-    embeddingsModel?: "openai:text-embedding-ada-002" | string
+    embeddingsModel?: OptionsOrString<
+        "openai:text-embedding-3-small",
+        "openai:text-embedding-3-large",
+        "openai:text-embedding-ada-002",
+        "github:text-embedding-3-small",
+        "github:text-embedding-3-large",
+        "ollama:nomic-embed-text"
+    >
 }
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
@@ -197,7 +212,7 @@ interface ScriptRuntimeOptions {
     /**
      * List of tools used by the prompt.
      */
-    tools?: SystemToolId[]
+    tools?: SystemToolId | SystemToolId[]
 
     /**
      * Secrets required by the prompt
@@ -214,11 +229,15 @@ type PromptParameterType =
     | string
     | number
     | boolean
+    | object
     | JSONSchemaNumber
     | JSONSchemaString
     | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean | any>
+type PromptParametersSchema = Record<
+    string,
+    PromptParameterType | PromptParameterType[]
+>
+type PromptParameters = Record<string, string | number | boolean | object>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
@@ -275,6 +294,10 @@ type PromptAssertion = {
 
 interface PromptTest {
     /**
+     * Short name of the test
+     */
+    name?: string
+    /**
      * Description of the test.
      */
     description?: string
@@ -285,7 +308,7 @@ interface PromptTest {
     /**
      * Extra set of variables for this scenario
      */
-    vars?: PromptParameters
+    vars?: Record<string, string | boolean | number>
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -458,7 +481,26 @@ interface ToolCallContent {
     edits?: Edits[]
 }
 
-type ToolCallOutput = string | ToolCallContent | ShellOutput
+type ToolCallOutput = string | ToolCallContent | ShellOutput | WorkspaceFile
+
+interface WorkspaceFileCache<K, V> {
+    /**
+     * Gets the value associated with the key, or undefined if there is none.
+     * @param key
+     */
+    get(key: K): Promise<V | undefined>
+    /**
+     * Sets the value associated with the key.
+     * @param key
+     * @param value
+     */
+    set(key: K, value: V): Promise<void>
+
+    /**
+     * List the values in the cache.
+     */
+    values(): Promise<V[]>
+}
 
 interface WorkspaceFileSystem {
     /**
@@ -490,13 +532,18 @@ interface WorkspaceFileSystem {
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+    readText(path: string | Awaitable<WorkspaceFile>): Promise<WorkspaceFile>
 
     /**
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | WorkspaceFile): Promise<any>
+    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Reads the content of a file and parses to XML, using the XML parser.
+     */
+    readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -504,6 +551,15 @@ interface WorkspaceFileSystem {
      * @param content
      */
     writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Opens a key-value cache for the given cache name.
+     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
 }
 
 interface ToolCallContext {
@@ -553,7 +609,7 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: PromptParameters
+    vars?: Record<string, string | boolean | number | object | any>
 
     /**
      * List of secrets used by the prompt, must be registered in `genaiscript`.
@@ -579,6 +635,7 @@ type PromptSystemArgs = Omit<
     | "maxTokens"
     | "seed"
     | "tests"
+    | "responseLanguage"
     | "responseType"
     | "responseSchema"
     | "files"
@@ -1067,7 +1124,32 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string): any
+    parse(text: string, options?: XMLParseOptions): any
+}
+
+interface MD {
+    /**
+     * Parses front matter from markdown
+     * @param text
+     */
+    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+
+    /**
+     * Removes the front matter from the markdown text
+     */
+    content(text: string): string
+
+    /**
+     * Merges frontmatter with the existing text
+     * @param text
+     * @param frontmatter
+     * @param format
+     */
+    updateFrontmatter(
+        text: string,
+        frontmatter: any,
+        format?: "yaml" | "json"
+    ): string
 }
 
 interface JSONL {
@@ -1263,13 +1345,18 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
 interface PromptGeneratorOptions extends ModelOptions {
     /**
      * Label for trace
      */
     label?: string
+
+    /**
+     * List of system prompts if any
+     */
+    system?: SystemPromptId[]
 }
 
 interface FileOutputOptions {
@@ -1281,7 +1368,7 @@ interface FileOutputOptions {
 
 interface FileOutput {
     pattern: string
-    description: string
+    description?: string
     options?: FileOutputOptions
 }
 
@@ -1323,7 +1410,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): void
     defFileOutput(
         pattern: string,
-        description: string,
+        description?: string,
         options?: FileOutputOptions
     ): void
 }
@@ -1581,6 +1668,16 @@ interface ContainerHost extends ShellHost {
      * @param toContainer directory in the container
      */
     copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {
@@ -1606,13 +1703,10 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    /**
+     * @deprecated Use `workspace` instead
+     */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
-    YAML: YAML
-    XML: XML
-    JSONL: JSONL
-    CSV: CSV
-    INI: INI
-    AICI: AICI
     host: PromptHost
 }

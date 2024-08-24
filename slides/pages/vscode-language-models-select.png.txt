@@ -1,0 +1,1 @@
+A dropdown menu titled 'Pick a Language Chat Model for openai:gpt-4' with several options including 'GPT 3.5 Turbo', 'GPT 4', 'GPT 4 Turbo (2024-01-25 Preview)', and 'GPT 4o (2024-05-13)', with 'GPT 3.5 Turbo' currently highlighted.

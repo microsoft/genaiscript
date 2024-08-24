@@ -45,9 +45,10 @@ Options:
   -em, --embeddings-model <string>           embeddings model for the run
   --no-cache                                 disable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
-  --cs, --csv-separator <string>             csv separator (default: "\t")
+  -cs, --csv-separator <string>              csv separator (default: "\t")
   -ae, --apply-edits                         apply file edits
   --vars <namevalue...>                      variables, as name=value, stored in env.vars
+  -rr, --run-retry <number>                  number of retries for the entire run
   -h, --help                                 display help for command
 ```
 
@@ -61,6 +62,7 @@ Options:
 
 Commands:
   run [options] [script...]  Runs the tests for scripts
+  list [options]             List available tests in workspace
   view                       Launch test viewer
   help [command]             display help for command
 ```
@@ -87,9 +89,23 @@ Options:
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
   -v, --verbose                       verbose output
-  -pv, --promptfoo-version [version]  promptfoo version, default is ^0.75.0
+  -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0
   -os, --out-summary <file>           append output summary in file
+  --groups <groups...>                groups to include or exclude. Use :!
+                                      prefix to exclude
   -h, --help                          display help for command
+```
+
+### `test list`
+
+```
+Usage: genaiscript test list [options]
+
+List available tests in workspace
+
+Options:
+  --groups <groups...>  groups to include or exclude. Use :! prefix to exclude
+  -h, --help            display help for command
 ```
 
 ### `test view`
@@ -117,7 +133,7 @@ Commands:
   list                      List all available scripts in workspace
   create <name>             Create a new script
   fix                       fix all definition files
-  compile                   Compile all script in workspace
+  compile [folders...]      Compile all script in workspace
   model [options] [script]  List model connection information for scripts
   help [command]            display help for command
 ```
@@ -161,9 +177,12 @@ Options:
 ### `scripts compile`
 
 ```
-Usage: genaiscript scripts compile [options]
+Usage: genaiscript scripts compile [options] [folders...]
 
 Compile all script in workspace
+
+Arguments:
+  folders     Pattern to match files
 
 Options:
   -h, --help  display help for command
@@ -292,10 +311,10 @@ Options:
   -h, --help                   display help for command
 
 Commands:
-  fence <language>             Extracts a code fenced regions of the given type
+  fence <language> <file>      Extracts a code fenced regions of the given type
   pdf <file>                   Parse a PDF into text
   docx <file>                  Parse a DOCX into texts
-  html-to-text [file]          Parse an HTML file into text
+  html-to-text <file>          Parse an HTML file into text
   code <file> [query]          Parse code using tree sitter and executes a
                                query
   tokens [options] <files...>  Count tokens in a set of files
@@ -305,7 +324,7 @@ Commands:
 ### `parse fence`
 
 ```
-Usage: genaiscript parse fence [options] <language>
+Usage: genaiscript parse fence [options] <language> <file>
 
 Extracts a code fenced regions of the given type
 
@@ -338,7 +357,7 @@ Options:
 ### `parse html-to-text`
 
 ```
-Usage: genaiscript parse html-to-text [options] [file]
+Usage: genaiscript parse html-to-text [options] <file>
 
 Parse an HTML file into text
 

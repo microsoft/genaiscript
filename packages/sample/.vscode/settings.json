@@ -1,11 +1,12 @@
 {
     "cSpell.words": [
         "frontmatter",
+        "genaiscript",
         "openai",
         "outputfilename"
     ],
     "genaiscript.cli.path": "../cli/built/genaiscript.cjs",
     "genaiscript.languageChatModels": {
-        "openai:gpt-4": "github.copilot-chat/4/gpt-4o-2024-05-13"
+        "client:gpt-4": "github.copilot-chat/2/gpt-4"
     }
 }

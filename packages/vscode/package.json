@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.47.1",
+    "version": "1.50.3",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.90.0"
@@ -121,6 +121,11 @@
                 {
                     "id": "genaiscript.trace",
                     "name": "Trace"
+                },
+                {
+                    "id": "genaiscript.connections",
+                    "name": "Connections",
+                    "visibility": "collapsed"
                 },
                 {
                     "id": "genaiscript.prompts",
@@ -345,6 +350,11 @@
                 "command": "genaiscript.info.env",
                 "title": "Configuration information...",
                 "category": "GenAIScript"
+            },
+            {
+                "command": "genaiscript.connection.configure",
+                "title": "Configure connection...",
+                "category": "GenAIScript"
             }
         ]
     },
@@ -363,13 +373,14 @@
         "prepackage": "zx prepackage.mjs",
         "postpackage": "zx postpackage.mjs",
         "package": "vsce package --dependencies --out genaiscript.vsix --yarn",
-        "package:insiders": "vsce package --dependencies --out genaiscript.insiders.vsix --yarn"
+        "generate-manifest": "vsce generate-manifest -i genaiscript.vsix -o genaiscript.manifest"
     },
     "devDependencies": {
+        "@types/markdown-it": "^14.1.2",
         "@types/vscode": "^1.90.0",
-        "@vscode/vsce": "^2.31.1",
+        "@vscode/vsce": "^3.0.0",
         "assert": "^2.1.0",
-        "eslint": "^9.8.0",
+        "eslint": "^9.9.0",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
         "typescript": "5.5.4",

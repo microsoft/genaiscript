@@ -1,7 +1,9 @@
 ---
 title: Diagrams
 sidebar:
-    order: 20
+  order: 20
+description: Create diagrams and charts within markdown using GenAIScript and the mermaid extension for visual representation of data and processes.
+keywords: diagrams, charts, mermaid, GenAIScript, data visualization
 ---
 
 It is often useful to ask the LLM to generate a diagram. Fortunately,
@@ -15,6 +17,39 @@ to create diagrams and charts.
 ```js
 $`Generate a diagram of a merge.`
 ```
+
+<!-- genaiscript output start -->
+
+<details>
+<summary>👤 user</summary>
+
+
+```markdown wrap
+Generate a diagram of a merge.
+```
+
+
+</details>
+
+
+<details open>
+<summary>🤖 assistant </summary>
+
+
+````markdown wrap
+```mermaid
+graph LR
+    A[Master] --> B((Merge Point))
+    C[Feature Branch] --> B
+```
+````
+
+
+</details>
+
+<!-- genaiscript output end -->
+
+
 
 The generated markdown will look like this:
 

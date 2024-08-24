@@ -1,25 +1,58 @@
 import { Project } from "./ast"
 import { NotSupportedError } from "./error"
+import { isJSONSchema } from "./schema"
 import { resolveSystems } from "./systems"
+import { normalizeFloat, normalizeInt } from "./util"
 
 export function promptParameterTypeToJSONSchema(
     t: PromptParameterType
-): JSONSchemaNumber | JSONSchemaString | JSONSchemaBoolean {
+):
+    | JSONSchemaNumber
+    | JSONSchemaString
+    | JSONSchemaBoolean
+    | JSONSchemaObject
+    | JSONSchemaArray {
     if (typeof t === "string")
         return <JSONSchemaString>{ type: "string", default: t }
     else if (typeof t === "number")
         return <JSONSchemaNumber>{ type: "number", default: t }
     else if (typeof t === "boolean")
         return <JSONSchemaBoolean>{ type: "boolean", default: t }
-    else if (typeof t === "object" && !!(t as any).type)
-        return t // TODO better filtering
+    else if (Array.isArray(t))
+        return <JSONSchemaArray>{
+            type: "array",
+            items: promptParameterTypeToJSONSchema(t[0]),
+        }
+    else if (
+        typeof t === "object" &&
+        ["number", "integer", "string", "boolean", "object"].includes(
+            (t as any).type
+        )
+    ) {
+        return <
+            | JSONSchemaNumber
+            | JSONSchemaString
+            | JSONSchemaBoolean
+            | JSONSchemaObject
+        >t
+    } else if (typeof t === "object")
+        return <JSONSchemaObject>{
+            type: "object",
+            properties: Object.fromEntries(
+                Object.entries(t).map(([k, v]) => [
+                    k,
+                    promptParameterTypeToJSONSchema(v),
+                ])
+            ),
+        }
     else throw new NotSupportedError(`prompt type ${typeof t} not supported`)
 }
 
 export function promptParametersSchemaToJSONSchema(
-    parameters: PromptParametersSchema
+    parameters: PromptParametersSchema | JSONSchema
 ) {
     if (!parameters) return undefined
+    if (isJSONSchema(parameters)) return parameters as JSONSchema
 
     const res: JSONSchemaObject = {
         type: "object",
@@ -29,7 +62,13 @@ export function promptParametersSchemaToJSONSchema(
     for (const [k, v] of Object.entries(parameters)) {
         const t = promptParameterTypeToJSONSchema(v)
         res.properties[k] = t
-        if (t.default !== undefined && t.default !== null) res.required.push(k)
+        if (
+            t.type !== "object" &&
+            t.type !== "array" &&
+            t.default !== undefined &&
+            t.default !== null
+        )
+            res.required.push(k)
     }
     return res
 }
@@ -37,7 +76,7 @@ export function promptParametersSchemaToJSONSchema(
 export function parsePromptParameters(
     prj: Project,
     script: PromptScript,
-    optionsVars: Record<string, string>
+    optionsVars: Record<string, string | number | boolean | object>
 ): PromptParameters {
     const res: PromptParameters = {}
 
@@ -56,7 +95,12 @@ export function parsePromptParameters(
     // apply defaults
     for (const key in parameters || {}) {
         const t = promptParameterTypeToJSONSchema(parameters[key])
-        if (t.default !== undefined) res[key] = t.default
+        if (
+            t.type !== "object" &&
+            t.type !== "array" &&
+            t.default !== undefined
+        )
+            res[key] = t.default
     }
 
     const vars = {
@@ -72,11 +116,16 @@ export function parsePromptParameters(
         }
 
         const t = promptParameterTypeToJSONSchema(p)
-        if (t?.type === "number") res[key] = parseFloat(vars[key])
-        else if (t?.type === "integer") res[key] = parseInt(vars[key])
+        if (t?.type === "number") res[key] = normalizeFloat(vars[key])
+        else if (t?.type === "integer") res[key] = normalizeInt(vars[key])
         else if (t?.type === "boolean")
-            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key])
+            res[key] = /^\s*(y|yes|true|ok)\s*$/i.test(vars[key] + "")
         else if (t?.type === "string") res[key] = vars[key]
     }
     return Object.freeze(res)
+}
+
+export function parametersToVars(parameters: PromptParameters): string[] {
+    if (!parameters) return undefined
+    return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)
 }

@@ -161,7 +161,7 @@ function renderDefNode(def: PromptDefNode): string {
     const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
     let body = file.content
     if (/^(c|t)sv$/i.test(dtype)) {
-        const parsed = CSVTryParse(file.content)
+        const parsed = !/^\s*|/.test(file.content) && CSVTryParse(file.content)
         if (parsed) {
             body = CSVToMarkdown(parsed)
             dfence = ""
@@ -669,13 +669,14 @@ ${trimNewlines(schemaText)}
         },
     })
 
-    if (fileOutputs.length > 0) {
+    const fods = fileOutputs?.filter((f) => !!f.description)
+    if (fods?.length > 0) {
         prompt += `
 ## File generation rules
 
-When generating files, follow the following rules which are formatted as "glob: description":
+When generating files, use the following rules which are formatted as "file glob: description":
 
-${fileOutputs.map((fo) => `${fo.pattern}: ${fo.description}`)}
+${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
 
 `
     }

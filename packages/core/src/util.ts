@@ -180,10 +180,10 @@ export function logWarn(msg: string) {
 export function logError(msg: string | Error | SerializedError) {
     const { message, ...e } = serializeError(msg)
     if (message) host.log(LogLevel.Error, message)
+    console.debug(msg)
     const se = YAMLStringify(e)
-    if (se !== "{}") host.log(LogLevel.Info, se)
+    if (!/^\s*\{\s*\}\s*$/) host.log(LogLevel.Info, se)
 }
-
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []
     return arrays[0].concat(...arrays.slice(1))
@@ -212,28 +212,31 @@ export function groupBy<T>(
     return r
 }
 
-export function normalizeString(s: string | number | boolean): string {
+export function normalizeString(s: string | number | boolean | object): string {
     if (typeof s === "string") return s
     else if (typeof s === "number") return s.toLocaleString()
     else if (typeof s === "boolean") return s ? "true" : "false"
+    else if (typeof s === "object") return JSON.stringify(s)
     else return undefined
 }
 
-export function normalizeFloat(s: string | number | boolean): number {
+export function normalizeFloat(s: string | number | boolean | object): number {
     if (typeof s === "string") {
         const f = parseFloat(s)
         return isNaN(f) ? undefined : f
     } else if (typeof s === "number") return s
     else if (typeof s === "boolean") return s ? 1 : 0
+    else if (typeof s === "object") return 0
     else return undefined
 }
 
-export function normalizeInt(s: string | number | boolean): number {
+export function normalizeInt(s: string | number | boolean | object): number {
     if (typeof s === "string") {
         const f = parseInt(s)
         return isNaN(f) ? undefined : f
     } else if (typeof s === "number") return s
     else if (typeof s === "boolean") return s ? 1 : 0
+    else if (typeof s === "object") return 0
     else return undefined
 }
 
@@ -282,3 +285,18 @@ export function renderWithPrecision(
 }
 
 export const HTMLEscape = HTMLEscape_
+
+export function tagFilter(tags: string[], tag: string) {
+    if (!tags?.length || !tag) return true
+    const ltag = tag.toLocaleLowerCase()
+    let inclusive = false
+    for (const t of tags) {
+        const lt = t.toLocaleLowerCase()
+        const exclude = lt.startsWith(":!")
+        if (!exclude) inclusive = true
+
+        if (exclude && ltag.startsWith(lt.slice(2))) return false
+        else if (ltag.startsWith(t)) return true
+    }
+    return !inclusive
+}

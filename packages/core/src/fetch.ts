@@ -8,6 +8,7 @@ import {
 } from "./constants"
 import { errorMessage } from "./error"
 import { logVerbose, toStringList } from "./util"
+import { CancellationToken, checkCancelled } from "./cancellation"
 
 export async function createFetch(
     options?: {
@@ -15,6 +16,7 @@ export async function createFetch(
         retries?: number
         retryDelay?: number
         maxDelay?: number
+        cancellationToken?: CancellationToken
     } & TraceOptions
 ) {
     const {
@@ -23,6 +25,7 @@ export async function createFetch(
         trace,
         retryDelay = FETCH_RETRY_DEFAULT_DEFAULT,
         maxDelay = FETCH_RETRY_MAX_DELAY_DEFAULT,
+        cancellationToken,
     } = options || {}
 
     if (!retryOn?.length) return crossFetch
@@ -35,6 +38,8 @@ export async function createFetch(
             if (code === "ECONNRESET" || code === "ENOTFOUND")
                 // fatal
                 return undefined
+
+            checkCancelled(cancellationToken)
             const message = errorMessage(error)
             const status = statusToMessage(response)
             const delay = Math.min(maxDelay, Math.pow(2, attempt) * retryDelay)
@@ -69,7 +74,7 @@ export function traceFetchPost(
 ${Object.entries(headers)
     .map(([k, v]) => `-H "${k}: ${v}" \\`)
     .join("\n")}
--d '${JSON.stringify(body).replace(/'/g, "'\\''")}' 
+-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''").replace(/\r?\n/g, "\n \\")}' 
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)

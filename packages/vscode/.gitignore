@@ -4,3 +4,5 @@ built
 *.vsix
 genaiscript.cjs
 esbuild.*.html
+genaiscript.vsix
+genaiscript.manifest

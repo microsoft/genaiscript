@@ -24,7 +24,7 @@ export async function createScript(name: string) {
     const t = coreCreateScript(name)
     const pr = await copyPrompt(t, { fork: false, name })
     console.log(`created script at ${pr}`)
-    await compileScript()
+    await compileScript([])
 }
 
 export async function fixScripts() {
@@ -32,10 +32,17 @@ export async function fixScripts() {
     await fixPromptDefinitions(project)
 }
 
-export async function compileScript() {
+export async function compileScript(folders: string[]) {
     const project = await buildProject()
     await fixPromptDefinitions(project)
-    for (const folder of project.folders()) {
+    const scriptFolders = project.folders()
+    const foldersToCompile = (
+        folders?.length ? folders : project.folders().map((f) => f.dirname)
+    )
+        .map((f) => scriptFolders.find((sf) => sf.dirname === f))
+        .filter((f) => f)
+
+    for (const folder of foldersToCompile) {
         const { dirname, js, ts } = folder
         logVerbose(`compiling ${dirname}`)
         if (js) {

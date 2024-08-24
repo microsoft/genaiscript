@@ -52,3 +52,13 @@ export function JSON5TryParse<T = unknown>(
         repair: true,
     })
 }
+
+const startRx = /^\s*\`\`\`json\s/
+const endRx = /\`\`\`\s*$/
+export function JSONLLMTryParse(s: string): any {
+    if (s === undefined || s === null) return s
+    if (startRx.test(s) && endRx.test(s))
+        s = s.replace(startRx, "").replace(endRx, "")
+    return JSON5TryParse(s)
+}
+

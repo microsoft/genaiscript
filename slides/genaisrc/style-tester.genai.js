@@ -1,6 +1,11 @@
 script({
     title: "style-tester",
-    system: ["system", "system.annotations", "system.functions", "system.fs_read_file"],
+    system: [
+        "system",
+        "system.annotations",
+        "system.tools",
+        "system.fs_read_file",
+    ],
 })
 const slides = def("SLIDES", env.files, { endsWith: ".md" })
 $`You are an expert at creating Techinal presentation using markdown/MDX

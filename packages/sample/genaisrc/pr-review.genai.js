@@ -6,7 +6,7 @@ script({
     tools: ["fs_find_files", "fs_read_file"],
 })
 
-const defaultBranch = env.vars.defaultBranch || "main"
+const defaultBranch = (env.vars.defaultBranch || "main") + ""
 const { stdout: diff } = await host.exec("git", [
     "diff",
     defaultBranch,
@@ -17,8 +17,8 @@ const { stdout: diff } = await host.exec("git", [
     ":!genaisrc/*",
     ":!.github/*",
     ":!.vscode/*",
-    ":!yarn.lock",
-    ":!THIRD_PARTY_LICENSES.md",
+    ":!*yarn.lock",
+    ":!*THIRD_PARTY_LICENSES.md",
 ])
 
 def("GIT_DIFF", diff, {
@@ -41,4 +41,5 @@ If the changes look good, respond "LGTM :rocket:". If you have any concerns, pro
 - only report functional issues
 - Use emojis
 - If available, suggest code fixes and improvements using a diff format.
+- do not report about individual lines of code, summarize changes
 `

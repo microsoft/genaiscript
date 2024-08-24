@@ -1,7 +1,27 @@
-import { ChatCompletionMessageParam } from "./chattypes"
+import {
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+    ChatCompletionToolMessageParam,
+} from "./chattypes"
 import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
+
+export function renderMessageContent(
+    msg:
+        | ChatCompletionAssistantMessageParam
+        | ChatCompletionSystemMessageParam
+        | ChatCompletionToolMessageParam
+): string {
+    const content = msg.content
+    if (typeof content === "string") return content
+    else if (Array.isArray(content))
+        return content
+            .map((c) => (c.type === "text" ? c.text : c.refusal))
+            .join(` `)
+    return undefined
+}
 
 export function renderMessagesToMarkdown(
     messages: ChatCompletionMessageParam[],
@@ -37,7 +57,7 @@ export function renderMessagesToMarkdown(
                     res.push(
                         details(
                             "📙 system",
-                            fenceMD(msg.content, "markdown"),
+                            fenceMD(renderMessageContent(msg), "markdown"),
                             false
                         )
                     )
@@ -62,7 +82,7 @@ export function renderMessagesToMarkdown(
                         details(
                             `🤖 assistant ${msg.name ? msg.name : ""}`,
                             [
-                                fenceMD(msg.content, "markdown"),
+                                fenceMD(renderMessageContent(msg), "markdown"),
                                 ...(msg.tool_calls?.map((tc) =>
                                     details(
                                         `📠 tool call <code>${tc.function.name}</code> (<code>${tc.id}</code>)`,
@@ -85,7 +105,7 @@ export function renderMessagesToMarkdown(
                     res.push(
                         details(
                             `🛠️ tool output <code>${msg.tool_call_id}</code>`,
-                            fenceMD(msg.content, "json")
+                            fenceMD(renderMessageContent(msg), "json")
                         )
                     )
                     break

@@ -3,6 +3,7 @@ import { MarkdownTrace } from "./trace"
 import Ajv from "ajv"
 import { YAMLParse } from "./yaml"
 import { errorMessage } from "./error"
+import { promptParametersSchemaToJSONSchema } from "./parameters"
 
 export function isJSONSchema(obj: any) {
     if (typeof obj === "object" && obj.type === "object") return true
@@ -203,4 +204,50 @@ export function JSONSchemaStringify(schema: JSONSchema) {
         null,
         2
     )
+}
+
+// https://platform.openai.com/docs/guides/structured-outputs/supported-schemas
+export function toStrictJSONSchema(
+    schema: PromptParametersSchema | JSONSchema
+): any {
+    const clone: JSONSchema = structuredClone(
+        promptParametersSchemaToJSONSchema(schema)
+    )
+    visit(clone)
+
+    if (clone.type !== "object")
+        throw new Error("top level schema must be object")
+
+    function visit(node: JSONSchemaType): void {
+        const { type } = node
+        switch (type) {
+            case "object": {
+                if (node.additionalProperties)
+                    throw new Error("additionalProperties: true not supported")
+                node.additionalProperties = false
+                node.required = node.required || []
+                for (const key in node.properties) {
+                    // https://platform.openai.com/docs/guides/structured-outputs/all-fields-must-be-required
+                    const child = node.properties[key]
+                    visit(child)
+                    if (!node.required.includes(key)) {
+                        node.required.push(key)
+                        if (
+                            ["string", "number", "boolean", "integer"].includes(
+                                child.type
+                            )
+                        ) {
+                            child.type = [child.type, "null"] as any
+                        }
+                    }
+                }
+                break
+            }
+            case "array": {
+                visit(node.items)
+                break
+            }
+        }
+    }
+    return clone
 }

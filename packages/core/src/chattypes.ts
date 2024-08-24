@@ -20,6 +20,9 @@ export type ChatCompletionChunk = OpenAI.Chat.Completions.ChatCompletionChunk
 export type ChatCompletionSystemMessageParam =
     OpenAI.Chat.Completions.ChatCompletionSystemMessageParam
 
+export type ChatCompletionToolMessageParam =
+    OpenAI.Chat.Completions.ChatCompletionToolMessageParam
+
 export type ChatCompletionMessageParam =
     | OpenAI.Chat.Completions.ChatCompletionMessageParam
     | AICIRequest
@@ -79,7 +82,7 @@ export interface ChatCompletionsProgressReport {
 
 export interface ChatCompletionsOptions {
     partialCb?: (progress: ChatCompletionsProgressReport) => void
-    requestOptions?: Partial<RequestInit>
+    requestOptions?: Partial<Omit<RequestInit, "signal">>
     maxCachedTemperature?: number
     maxCachedTopP?: number
     cache?: boolean

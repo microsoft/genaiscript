@@ -15,6 +15,13 @@ export function XMLTryParse(
 }
 
 export function XMLParse(text: string, options?: XMLParseOptions) {
-    const parser = new XMLParser(options)
+    const parser = new XMLParser({
+        ignoreAttributes: false,
+        attributeNamePrefix: "@_",
+        allowBooleanAttributes: true,
+        ignoreDeclaration: true,
+        parseAttributeValue: true,
+        ...(options || {}),
+    })
     return parser.parse(text)
 }

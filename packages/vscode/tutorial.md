@@ -1,11 +1,13 @@
 ---
-title: GenAIScript Tutorial
+title: Tutorial Notebook
+sidebar:
+  order: 100
 genaiscript:
-    files: "*.md"
-    model: openai:gpt-3.5-turbo
+  files: "*.md"
+
 ---
 
-This Notebook is a GenAISCript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block.
+This Notebook is a GenAISCript tutorial. It is a Markdown document where each JavaScript code section is a runnable GenAIScript. You can execute each code block individually and see the results in the output section below the code block. To open this notebook in Visual Studio Code, press **F1** and run **GenAIScript: Create GenAIScript Markdown Notebook**.
 
 Follow the steps in [configuration](https://microsoft.github.io/genaiscript/getting-started/configuration) to set up your environment and LLM access.
 
@@ -14,7 +16,7 @@ Follow the steps in [configuration](https://microsoft.github.io/genaiscript/gett
 
 GenAIScript lets you write prompts as a JavaScript program. GenAIScript runs your program; generate chat messages; then handles the remaining interaction with the LLM API.
 
-### `$`
+### Write to prompt `$`
 
 Let's start with a simple hello world program.
 
@@ -43,6 +45,7 @@ Say "hello!" in emojis
 </details>
 
 <!-- genaiscript output end -->
+
 
 The `$` function formats the strings and write them to the user message. This user message is added to the chat messages and sent to the LLM API. Under the snippet, you can review both the **user** message (that our program generated) and the **assistant** (LLM) response.
 
@@ -85,6 +88,7 @@ $`Respond with a markdown list`
 </details>
 
 <!-- genaiscript output end -->
+
 
 To recap, the GenAIScript runs and generates a user messages; that gets sent to the LLM. You can review the user message (and others) in the trace.
 
@@ -136,6 +140,7 @@ Markdown is a lightweight markup language for formatting plain text, using synta
 </details>
 
 <!-- genaiscript output end -->
+
 
 In GenAIScript, the [`env.files`](https://microsoft.github.io/genaiscript/reference/scripts/context/#environment-env) variable contains the [list of files in context](https://microsoft.github.io/genaiscript/reference/script/files), which can be determined by a user selection in the UI, CLI arguments, or pre-configured like in this script. You can change the files in `env.files` by editing the `files` field in the front matter at the start of the document.
 
@@ -190,3 +195,34 @@ Markdown is a lightweight markup language for formatting plaintext documents, di
 </details>
 
 <!-- genaiscript output end -->
+
+
+## Tools
+
+You can register JavaScript functions as tools that the LLM will call as needed.
+
+```js
+// requires openai, azure openai or github models
+defTool("fetch", "Download text from a URL", { url: "https://...", }, ({ url }) => fetchText(url))
+
+$`Summarize https://raw.githubusercontent.com/microsoft/genaiscript/main/README.md in 1 sentence.`
+```
+
+## Sub-prompt
+
+You can run nested LLMs to execute tasks on other, smaller models.
+
+```js
+// summarize each files individually
+for (const file of env.files) {
+    const { text } = await runPrompt(
+        (_) => {
+            _.def("FILE", file)
+            _.$`Summarize the FILE.`
+        },
+    )
+    def("FILE", { ...file, content: text })
+}
+// summarize all summaries
+$`Summarize FILE.`
+```

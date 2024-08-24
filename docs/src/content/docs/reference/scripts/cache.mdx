@@ -68,3 +68,17 @@ npx genaiscript run .... --cache-name summary
         -   summary.jsonl
 
 </FileTree>
+
+## Programmatic cache
+
+You can instantiate a custom cache object to manage the cache programmatically.
+
+```js
+const cache = await workspace.cache("summary")
+// write entries
+await cache.set("file.txt", "...")
+// read entries
+const content = await cache.get("file.txt")
+// list entries
+const entries = await cache.values()
+```

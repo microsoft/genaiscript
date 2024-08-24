@@ -1,15 +1,9 @@
-name: build genai tests
+name: genai tests
 
 on:
     workflow_dispatch:
     schedule:
         - cron: "0 7 * * *"
-    push:
-        branches: [main]
-        paths:
-            - "packages/core/**"
-            - "packages/sample/**"
-            - "packages/cli/**"
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
@@ -40,17 +34,3 @@ jobs:
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
             - name: run test within scripts
               run: yarn test:scripts --out-summary $GITHUB_STEP_SUMMARY --test-delay 10
-            - name: Add comment to PR
-              uses: actions/github-script@v5
-              if: github.event_name == 'pull_request'
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
-                  script: |
-                      import { readFile } from 'fs/promises';
-                      const comment = await readFile('packages/sample/summary.txt', 'utf8');
-                      await github.rest.issues.createComment({
-                        issue_number: context.issue.number,
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        body: comment
-                      })

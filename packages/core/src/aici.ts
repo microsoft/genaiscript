@@ -143,8 +143,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     trace
 ) => {
     const { messages, response_format, tools } = req
-    const { requestOptions, partialCb } = options
-    const { signal } = requestOptions || {}
+    const { requestOptions, partialCb, cancellationToken } = options
     const { headers, ...rest } = requestOptions || {}
 
     if (tools?.length) throw new NotSupportedError("AICI: tools not supported")
@@ -258,14 +257,14 @@ const AICIChatCompletion: ChatCompletionHandler = async (
         trace.startFence("txt")
         if (r.body.getReader) {
             const reader = r.body.getReader()
-            while (!signal?.aborted) {
+            while (!cancellationToken?.isCancellationRequested) {
                 const { done, value } = await reader.read()
                 if (done) break
                 doChunk(value)
             }
         } else {
             for await (const value of r.body as any) {
-                if (signal?.aborted) break
+                if (cancellationToken?.isCancellationRequested) break
                 doChunk(value)
             }
         }

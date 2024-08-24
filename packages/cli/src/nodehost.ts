@@ -41,8 +41,9 @@ import {
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
-import { createAzureToken } from "./azuretoken"
+import { AuthenticationToken, createAzureToken } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
+import { errorMessage } from "../../core/src/error"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -143,7 +144,7 @@ export class NodeHost implements RuntimeHost {
     }
     clientLanguageModel: LanguageModel
 
-    private _azureToken: string
+    private _azureToken: AuthenticationToken
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -151,16 +152,20 @@ export class NodeHost implements RuntimeHost {
         const { signal, token: askToken } = options || {}
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
+        if (!askToken && tok?.token) tok.token = "***"
         if (
             askToken &&
             tok &&
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            if (!this._azureToken)
+            if (
+                !this._azureToken ||
+                this._azureToken.expiresOnTimestamp >= Date.now()
+            )
                 this._azureToken = await createAzureToken(signal)
             if (!this._azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + this._azureToken
+            tok.token = "Bearer " + this._azureToken.token
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
@@ -297,6 +302,14 @@ export class NodeHost implements RuntimeHost {
             if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
             if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
+        } catch (err) {
+            trace?.error("exec failed", err)
+            return {
+                stdout: "",
+                stderr: errorMessage(err),
+                exitCode: 1,
+                failed: true,
+            }
         } finally {
             trace?.endDetails()
         }

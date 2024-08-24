@@ -66,6 +66,10 @@ src: pages/response-processing.md
 ---
 
 ---
+src: pages/script-pipeline.md
+---
+
+---
 src: pages/vscode.md
 ---
 

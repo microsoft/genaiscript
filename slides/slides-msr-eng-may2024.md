@@ -22,7 +22,7 @@ mdc: true
 layout: center
 ---
 
-![](https://microsoft.github.io/genaiscript/images/favicon.svg){ style="width: 12rem; margin:auto;" }
+![](https://microsoft.github.io/genaiscript/images/favicon.svg){.w-48.m-auto}
 
 # GenAIScript
 

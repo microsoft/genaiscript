@@ -1,39 +1,45 @@
 import { Project } from "./ast"
-import { unique } from "./util"
+import { arrayify, unique } from "./util"
 
 export function resolveSystems(prj: Project, template: PromptScript) {
     const { jsSource } = template
     const systems = Array.from(template.system ?? []).slice(0)
 
     if (template.system === undefined) {
-        const useSchema = /defschema/i.test(jsSource)
+        const useSchema = /\Wdefschema\W/i.test(jsSource)
         if (!template.responseType) {
             systems.push("system")
             systems.push("system.explanations")
         }
         // select file expansion type
-        if (/diff/i.test(jsSource)) systems.push("system.diff")
-        else if (/changelog/i.test(jsSource)) systems.push("system.changelog")
-        else if (/file/i.test(jsSource)) {
+        if (/\Wdiff\W/i.test(jsSource)) systems.push("system.diff")
+        else if (/\Wchangelog\W/i.test(jsSource))
+            systems.push("system.changelog")
+        else if (/\Wfile\W/i.test(jsSource)) {
             systems.push("system.files")
             if (useSchema) systems.push("system.files_schema")
         }
         if (useSchema) systems.push("system.schema")
-        if (/annotation|warning|error/i.test(jsSource))
+        if (/\W(annotation|warning|error)\W/i.test(jsSource))
             systems.push("system.annotations")
-        if (/diagram|chart/i.test(jsSource)) systems.push("system.diagrams")
+        if (/\W(diagram|chart)\W/i.test(jsSource))
+            systems.push("system.diagrams")
     }
 
-    if (template.tools?.length)
-        template.tools.forEach((tool) => systems.push(resolveTool(prj, tool)))
+    if (template.tools) {
+        systems.push("system.tools")
+        arrayify(template.tools).forEach((tool) =>
+            systems.push(...resolveTools(prj, tool))
+        )
+    }
 
     return unique(systems.filter((s) => !!s))
 }
 
-function resolveTool(prj: Project, tool: string) {
-    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}('|"|\`)`)
-    const system = prj.templates.find(
+function resolveTools(prj: Project, tool: string): string[] {
+    const toolsRx = new RegExp(`defTool\\s*\\(\\s*('|"|\`)${tool}`)
+    const system = prj.templates.filter(
         (t) => t.isSystem && toolsRx.test(t.jsSource)
     )
-    return system.id
+    return system.map(({ id }) => id)
 }

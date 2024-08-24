@@ -1,7 +1,7 @@
 import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
-import { arrayify, assert, logVerbose, relativePath } from "./util"
+import { arrayify, assert, logError, logVerbose, relativePath } from "./util"
 import { runtimeHost } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
@@ -28,7 +28,7 @@ async function resolveExpansionVars(
     trace: MarkdownTrace,
     template: PromptScript,
     frag: Fragment,
-    vars: Record<string, string>
+    vars: Record<string, string | number | boolean | object>
 ) {
     const root = runtimeHost.projectFolder()
 
@@ -119,7 +119,8 @@ export async function runTemplate(
         )
 
         // if the expansion failed, show the user the trace
-        if (status !== "success") {
+        // or no message generated
+        if (status !== "success" || !messages.length) {
             trace.renderErrors()
             return <GenerationResult>{
                 status,
@@ -143,9 +144,10 @@ export async function runTemplate(
             trace.renderErrors()
             return <GenerationResult>{
                 status: "cancelled",
+                statusText: "LLM generation skipped",
                 messages,
                 vars,
-                text: undefined,
+                text: "",
                 edits: [],
                 annotations: [],
                 changelogs: [],
@@ -322,10 +324,12 @@ export async function runTemplate(
                             trace.detailsFenced(`📁 file ${fn}`, content)
                             const fileEdit = await getFileEdit(fn)
                             fileEdit.after = content
+                            fileEdit.validation = { valid: true }
                         }
                     if (oannotations) annotations = oannotations.slice(0)
                 }
             } catch (e) {
+                logError(e)
                 trace.error(`output processor failed`, e)
             } finally {
                 trace.endDetails()

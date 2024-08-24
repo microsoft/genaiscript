@@ -138,6 +138,7 @@ function activateNotebookExecutor(state: ExtensionState) {
                     parameters,
                     fragment,
                     notebook: true,
+                    jsSource,
                 })
                 const res = state.aiRequest?.response
                 if (!res) throw new Error("No GenAI result")
@@ -384,7 +385,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     // eat frontmatter
     const frontmatter = frontmatterTryParse(content)
     if (frontmatter) {
-        i = frontmatter.end
+        i = frontmatter.endLine
         cells.push({
             language: "yaml",
             content: YAMLStringify(frontmatter.value),

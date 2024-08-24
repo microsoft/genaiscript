@@ -21,10 +21,10 @@ keywords: AI, script generation, performance, best practices, limitations
     The specific installation steps are documented here: [Installation](/genaiscript/getting-started/installation)
 
 -   **Do I need to install Node.JS?**
-    Some features like the Command Line or vector databases use Node.JS. To install it, follow the [installation instructions](/genaiscript/reference/cli/).
+    Yes. To install it, follow the [installation instructions](/genaiscript/reference/cli/).
 
 -   **Can I use GenAIScript in IDEs other than VS Code?**
-    Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts.
+    Currently, GenAIScript is integrated with VS Code, but it can be written in any IDE. The VS Code extension, however, provides additional support for creating and debugging scripts. Although not thoroughly tested, you can use GenAIScript in VS Code variants like Cursor.
 
 -   **What are foundation models and LLMs in the context of GenAIScript?**
     Foundation models and LLMs (Large Language Models) are AI models that GenAIScript can interact with to perform tasks like generating text or processing information.
