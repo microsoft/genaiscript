@@ -1,8 +1,16 @@
 ---
 title: Markdown
 sidebar:
-    order: 9.2
-keywords: markdown, mdx, frontmatter
+  order: 9.2
+keywords:
+  - markdown
+  - mdx
+  - frontmatter
+  - parsing
+  - documentation
+description: Enhance your markdown capabilities with MD class helpers for
+  parsing and managing frontmatter efficiently.
+
 ---
 
 The `MD` class contains several helpers to work with [Markdown](https://www.markdownguide.org/cheat-sheet/) and [frontmatter text](https://jekyllrb.com/docs/front-matter/).
