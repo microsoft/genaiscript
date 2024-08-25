@@ -1,22 +1,5 @@
 script({
-    title: "SEO front matter",
-    description:
-        "Update or generate SEO-optimized front matter for a markdown file.",
-    group: "docs",
-    system: ["system", "system.files"],
-    maxTokens: 2000,
-    temperature: 0.4,
     model: "openai:gpt-4",
-    tests: [
-        {
-            files: "src/content/docs/refeference/scripts/aici.md",
-            rubrics: [
-                "is a generated front matter",
-                "The generated frontmatter is SEO optimized.",
-            ],
-            keywords: "aici",
-        },
-    ],
 })
 
 // force refreshing all files
@@ -33,10 +16,11 @@ const files = env.files
     )
 if (!files.length) cancel("no files to process")
 
+// insert markdown files in context
 def("FILE", files)
 
-$`
-You are a search engine optimization expert at creating front matter for markdown document.
+// prompt to generate front matter for markdown files
+$`You are a search engine optimization expert at creating front matter for markdown document.
 
 For each FILE, re-generate the front matter content as the new file content.
 

@@ -17,14 +17,14 @@ defFileOutput("docs/src/content/docs/blog/drafts/*.md", "generated blog posts")
 
 $`Create a blog post that explains the GenAIScript source code in FILE.
 
-- the title should be the intention of the script using simple words, keep it short, mention genai, wrap in quotes
+- the title should be the intention of the script  as if the user wrote it, use simple words, keep it short, mention genai, wrap in quotes
 - tell the motivation for the script.  Add a link to the script file using a GitHub URL.
-- explain the script code line by line as if you were writing the script from scratch and telling a story.
+- explain the script code line by line as if you were writing the script from scratch. Assume the reader is a beginner. Show the code being explained.
 - add a section that explains how to run the script with the genaiscript cli. Do not explain how to install the cli, link to the documentation instead.
 
 # Format
 
-- use a friendly technical blog tone, see https://dev.to/p/editor_guide
+- use a technical blog tone, see https://dev.to/p/editor_guide
 - Do not use <details> tag
 - link to the github source URL if possible
 - use a clear and engaging tone
@@ -36,17 +36,16 @@ $`Create a blog post that explains the GenAIScript source code in FILE.
 - do not repeat topic
 - set frontmatter date to ${formattedDate}
 - avoid "genaiscript" in file title
-- when inlining a large string in "$\`" with more than 10 lines, you can ellipse the end of the string with "..." if it is too long
 - frontmatter tag should be an array
 - do NOT repeat page title in markdown content
 - save generate text to blog post drafts folder
 - ignore existing blog posts
 - avoid using "delve"
-- include canonical_url to genaiscrip blog at https://microsoft.github.io/genaiscript/blog/<topic>
+- include canonical_url to genaiscript blog at https://microsoft.github.io/genaiscript/blog/<topic>
 - use language "ts" for mts snippets and "js" for mjs snippets
 - use markdown headers starting from level 2
 - use lowercase characters, dashes for filenames
-- when invoking the CLI, prefer using the script filename instead of the full path
+- when invoking the CLI, prefer using the script filename instead of the full path : "genaiscript run <filename_without_genai_extension>"
 
 # File information
 
