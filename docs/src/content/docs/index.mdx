@@ -230,6 +230,25 @@ script({ ..., model: "ollama:phi3" })
 
 </Card>
 
+<Card title="LLM Tools" icon="setting">
+
+Register JavaScript functions as [LLM tools](/genaiscript/reference/scripts/tools/)
+```js wrap
+defTool("weather", "live weahter", 
+    { city: "Paris" }, // schema 
+    async ({ city }) => // callback 
+        { ... "sunny" }
+)
+```
+or use built-in [@agentic tools](/genaiscript/guides/agentic-tools/)
+```js wrap
+import { WeatherClient } 
+    from "@agentic/weather"
+defTool(new WeatherClient())
+```
+
+</Card>
+
 <Card title="Code Interpreter" icon="seti:python">
 
 Let the LLM run code in a sandboxed execution environment.
