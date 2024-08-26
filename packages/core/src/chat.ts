@@ -165,7 +165,7 @@ async function runToolCalls(
                         ""
                     )
                     const tool = tools.find(
-                        (f) => f.definition.name === toolName
+                        (f) => f.spec.name === toolName
                     )
                     if (!tool) {
                         logVerbose(JSON.stringify(tu, null, 2))
@@ -174,7 +174,7 @@ async function runToolCalls(
                     return { tool, args: tu.parameters }
                 })
             } else {
-                const tool = tools.find((f) => f.definition.name === call.name)
+                const tool = tools.find((f) => f.spec.name === call.name)
                 if (!tool) {
                     logVerbose(JSON.stringify(call, null, 2))
                     throw new Error(`tool ${call.name} not found`)
@@ -188,10 +188,10 @@ async function runToolCalls(
                 const context: ToolCallContext = {
                     trace,
                 }
-                const output = await tool.fn({ context, ...args })
+                const output = await tool.impl({ context, ...args })
                 if (output === undefined || output === null)
                     throw new Error(
-                        `tool ${tool.definition.name} output is undefined`
+                        `tool ${tool.spec.name} output is undefined`
                     )
                 let toolContent: string = undefined
                 let toolEdits: Edits[] = undefined
@@ -550,7 +550,7 @@ export async function executeChatSession(
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map((f) => ({
               type: "function",
-              function: f.definition as any,
+              function: f.spec as any,
           }))
         : undefined
     trace.startDetails(`🧠 llm chat`)

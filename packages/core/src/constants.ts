@@ -40,7 +40,7 @@ export const CLIENT_RECONNECT_DELAY = 3000
 export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
-export const DEFAULT_MODEL = "openai:gpt-4o"
+export const DEFAULT_MODEL = "openai:gpt-4"
 export const DEFAULT_MODEL_CANDIDATES = [
     "azure:gpt-4o",
     "openai:gpt-4o",

@@ -73,6 +73,7 @@ declare function defFileOutput(
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
+declare function defTool(tool: ToolCallback): void
 declare function defTool(
     name: string,
     description: string,

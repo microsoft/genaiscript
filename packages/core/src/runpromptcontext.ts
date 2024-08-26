@@ -119,16 +119,32 @@ export function createChatGenerationContext(
     const node = turnCtx.node
 
     const defTool: (
-        name: string,
+        name: string | ToolCallback,
         description: string,
         parameters: PromptParametersSchema | JSONSchemaObject,
         fn: ChatFunctionHandler
     ) => void = (name, description, parameters, fn) => {
-        const parameterSchema = promptParametersSchemaToJSONSchema(parameters)
-        appendChild(
-            node,
-            createFunctionNode(name, description, parameterSchema, fn)
-        )
+        if (name === undefined || name === null)
+            throw new Error("tool name is missing")
+
+        if (typeof name === "string") {
+            const parameterSchema =
+                promptParametersSchemaToJSONSchema(parameters)
+            appendChild(
+                node,
+                createFunctionNode(name, description, parameterSchema, fn)
+            )
+        } else {
+            appendChild(
+                node,
+                createFunctionNode(
+                    name.spec.name,
+                    name.spec.description,
+                    name.spec.parameters,
+                    name.impl
+                )
+            )
+        }
     }
 
     const defSchema = (
