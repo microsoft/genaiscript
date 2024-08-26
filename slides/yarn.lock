@@ -923,7 +923,7 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/merge-streams/-/merge-streams-2.3.0.tgz#719df7fb41766bc143369eaa0dd56d8dc87c9958"
   integrity sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==
 
-"@slidev/cli@^0.49.27":
+"@slidev/cli@^0.49.28":
   version "0.49.28"
   resolved "https://registry.yarnpkg.com/@slidev/cli/-/cli-0.49.28.tgz#2e81e3b194e5532eea0eb9be3e401e437386c404"
   integrity sha512-IPD6WrYRyYdGO93wZJEGBLOnVG80IWhREQViignfXZ23XsP+FNuM2CUzpMngFHIwYk700z6ojFauK62O+miBaA==
