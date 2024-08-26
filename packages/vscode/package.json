@@ -377,10 +377,10 @@
     },
     "devDependencies": {
         "@types/markdown-it": "^14.1.2",
-        "@types/vscode": "^1.90.0",
+        "@types/vscode": "^1.92.0",
         "@vscode/vsce": "^3.0.0",
         "assert": "^2.1.0",
-        "eslint": "^9.9.0",
+        "eslint": "^9.9.1",
         "markdown-it-github-alerts": "^0.3.0",
         "process": "^0.11.10",
         "typescript": "5.5.4",

@@ -4391,7 +4391,7 @@ THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - mathjs@13.0.3
+ - mathjs@13.1.0
 
 This package contains the following license and notice below:
 
@@ -5079,7 +5079,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - tsx@4.17.0
+ - tsx@4.18.0
 
 This package contains the following license and notice below:
 

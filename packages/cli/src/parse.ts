@@ -1,4 +1,3 @@
-import { createProgressSpinner } from "./spinner"
 import replaceExt from "replace-ext"
 import { readFile } from "node:fs/promises"
 import { DOCXTryParse } from "../../core/src/docx"
@@ -38,19 +37,16 @@ export async function parseHTMLToText(file: string) {
 }
 
 export async function jsonl2json(files: string[]) {
-    const spinner = createProgressSpinner(`converting...`)
     for (const file of await expandFiles(files)) {
-        spinner.report({ message: file })
         if (!isJSONLFilename(file)) {
-            spinner.report({ succeeded: false })
+            console.log(`skipping ${file}`)
             continue
         }
         const objs = await readJSONL(file)
         const out = replaceExt(file, ".json")
         await writeText(out, JSON.stringify(objs, null, 2))
-        spinner.report({ succeeded: true })
+        console.log(`${file} -> ${out}`)
     }
-    spinner.stop()
 }
 
 export async function parseTokens(
@@ -61,18 +57,15 @@ export async function parseTokens(
     const encoder = await resolveTokenEncoder(model)
 
     const files = await expandFiles(filesGlobs, options?.excludedFiles)
-    const progress = createProgressSpinner(`parsing ${files.length} files`)
+    console.log(`parsing ${files.length} files`)
     let text = ""
     for (const file of files) {
         const content = await readText(file)
         if (content) {
             const tokens = estimateTokens(content, encoder)
-            progress.report({
-                message: `${file}, ${tokens}`,
-            })
+            console.log(`${file}, ${tokens}`)
             text += `${file}, ${tokens}\n`
         }
     }
-    progress.stop()
     console.log(text)
 }
