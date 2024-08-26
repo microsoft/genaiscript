@@ -10,7 +10,7 @@
     "version": "1.50.3",
     "icon": "icon.png",
     "engines": {
-        "vscode": "^1.90.0"
+        "vscode": "^1.92.0"
     },
     "keywords": [
         "javascript",
