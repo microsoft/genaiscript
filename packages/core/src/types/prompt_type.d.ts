@@ -68,12 +68,14 @@ declare function defFileOutput(
 
 /**
  * Declares a tool that can be called from the prompt.
+ * @param tool Agentic tool function.
  * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
  * @param description A description of what the function does, used by the model to choose when and how to call the function.
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
 declare function defTool(tool: ToolCallback): void
+declare function defTool(tool: AgenticToolCallback): void
 declare function defTool(
     name: string,
     description: string,

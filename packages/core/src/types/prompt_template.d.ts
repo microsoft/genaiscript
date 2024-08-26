@@ -579,6 +579,12 @@ interface ToolCallback {
     ) => Awaitable<ToolCallOutput>
 }
 
+type AgenticToolCallback = Omit<ToolCallback, 'spec'> & {
+    spec: Omit<ToolDefinition, 'parameters'> & {
+        parameters: Record<string, any>
+    }
+};
+
 type ChatParticipantHandler = (
     context: ChatTurnGenerationContext,
     messages: ChatCompletionMessageParam[]
@@ -1405,6 +1411,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): string
     defImages(files: StringLike, options?: DefImagesOptions): void
     defTool(tool: ToolCallback): void
+    defTool(tool: AgenticToolCallback): void
     defTool(
         name: string,
         description: string,

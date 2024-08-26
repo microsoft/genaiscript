@@ -14,8 +14,7 @@ script({
     },
 })
 
-// todo fix agentic specs
-defTool(calculator as any)
+defTool(calculator)
 
 $`Answer the following arithmetic question: 
 
