@@ -62,7 +62,7 @@ export function updateFrontmatter(
     for (const [key, value] of Object.entries(newFrontmatter ?? {})) {
         if (value === null) {
             delete frontmatter[key]
-        } else {
+        } else if (value !== undefined) {
             frontmatter[key] = value
         }
     }

@@ -432,7 +432,7 @@ function validateFileOutputs(
     fileEdits: Record<string, FileUpdate>,
     schemas: Record<string, JSONSchema>
 ) {
-    if (fileOutputs?.length) {
+    if (fileOutputs?.length && Object.keys(fileEdits || {}).length) {
         trace.startDetails("🗂 file outputs")
         for (const fileEditName of Object.keys(fileEdits)) {
             const fe = fileEdits[fileEditName]
