@@ -15,6 +15,8 @@
     "test:scripts:view": "node ../cli/built/genaiscript.cjs test view"
   },
   "devDependencies": {
+    "@agentic/calculator": "^7.0.0",
+    "@agentic/core": "^7.0.0",
     "@tidyjs/tidy": "^2.5.2",
     "@xenova/transformers": "^2.17.2",
     "vectorstore": "^0.0.4",

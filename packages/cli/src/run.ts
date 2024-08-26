@@ -218,7 +218,7 @@ export async function runScript(
                 GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`tool ${scriptId} not found`)
+    if (!script) throw new Error(`script ${scriptId} not found`)
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }

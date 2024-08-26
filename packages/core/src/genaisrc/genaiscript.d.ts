@@ -507,7 +507,13 @@ interface ToolCallContent {
     edits?: Edits[]
 }
 
-type ToolCallOutput = string | ToolCallContent | ShellOutput | WorkspaceFile
+type ToolCallOutput =
+    | string
+    | number
+    | boolean
+    | ToolCallContent
+    | ShellOutput
+    | WorkspaceFile
 
 interface WorkspaceFileCache<K, V> {
     /**
@@ -593,10 +599,10 @@ interface ToolCallContext {
 }
 
 interface ToolCallback {
-    definition: ToolDefinition
-    fn: (
+    spec: ToolDefinition
+    impl: (
         args: { context: ToolCallContext } & Record<string, any>
-    ) => ToolCallOutput | Promise<ToolCallOutput>
+    ) => Awaitable<ToolCallOutput>
 }
 
 type ChatParticipantHandler = (
@@ -1362,7 +1368,7 @@ interface DefSchemaOptions {
 
 type ChatFunctionHandler = (
     args: { context: ToolCallContext } & Record<string, any>
-) => ToolCallOutput | Promise<ToolCallOutput>
+) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -1424,6 +1430,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(files: StringLike, options?: DefImagesOptions): void
+    defTool(tool: ToolCallback): void
     defTool(
         name: string,
         description: string,
@@ -1812,6 +1819,7 @@ declare function defFileOutput(
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
+declare function defTool(tool: ToolCallback): void
 declare function defTool(
     name: string,
     description: string,

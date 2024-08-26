@@ -92,7 +92,7 @@ export interface PromptFunctionNode extends PromptNode {
     name: string
     description: string
     parameters: JSONSchema
-    fn: ChatFunctionHandler
+    impl: ChatFunctionHandler
 }
 
 export interface PromptFileMergeNode extends PromptNode {
@@ -224,13 +224,13 @@ export function createFunctionNode(
     name: string,
     description: string,
     parameters: JSONSchema,
-    fn: ChatFunctionHandler
+    impl: ChatFunctionHandler
 ): PromptFunctionNode {
     assert(!!name)
     assert(!!description)
     assert(parameters !== undefined)
-    assert(fn !== undefined)
-    return { type: "function", name, description, parameters, fn }
+    assert(impl !== undefined)
+    return { type: "function", name, description, parameters, impl }
 }
 
 export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
@@ -637,10 +637,10 @@ ${trimNewlines(schemaText)}
                 )
         },
         function: (n) => {
-            const { name, description, parameters, fn } = n
+            const { name, description, parameters, impl: fn } = n
             functions.push({
-                definition: { name, description, parameters },
-                fn,
+                spec: { name, description, parameters },
+                impl: fn,
             })
             trace.detailsFenced(
                 `🛠️ tool ${name}`,
