@@ -17,6 +17,7 @@
   "keywords": [
     "genai",
     "ai",
+    "agentic",
     "cli",
     "prompt",
     "llm",
@@ -24,7 +25,8 @@
     "gpt4",
     "chatgpt",
     "ollama",
-    "llamacpp"
+    "llamacpp",
+    "chatgpt"
   ],
   "description": "A CLI for GenAIScript, a generative AI scripting framework.",
   "license": "MIT",
