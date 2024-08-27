@@ -29,13 +29,7 @@ Next, we check if there are any staged changes in the Git repository:
 let { stdout } = await host.exec("git", ["diff", "--cached"])
 ```
 
-If no changes are staged:
-
-```ts
-if (!stdout) {
-```
-
-We ask the user if they want to stage all changes. If the user confirms, we stage all changes. Otherwise, we bail out.
+If no changes are staged, we ask the user if they want to stage all changes. If the user confirms, we stage all changes. Otherwise, we bail out.
 
 ```ts
     const stage = await confirm({
@@ -47,7 +41,6 @@ We ask the user if they want to stage all changes. If the user confirms, we stag
         stdout = (await host.exec("git", ["diff", "--cached"])).stdout
     }
     if (!stdout) cancel("no staged changes")
-}
 ```
 
 We generate an initial commit message using the staged changes:
