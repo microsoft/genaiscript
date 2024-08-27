@@ -1,6 +1,5 @@
 script({
-    model: "openai:gpt-4-turbo",
-    maxTokens: 30000,
+    model: "openai:gpt-4",
     temperature: 0,
     files: [],
     title: "pull request commit review",
@@ -41,7 +40,7 @@ def(
         .split(/\n/g)
         .map((test) => test.split(/,\s*/)[1])
         .map((filename) => ({ filename })),
-    { language: "txt", maxTokens: 2000 }
+    { language: "txt", maxTokens: 1000 }
 )
 
 $`You are an expert TypeScript software developer and architect.
