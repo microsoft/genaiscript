@@ -3,9 +3,14 @@ title: Support for Agentic tools
 description: "Agentic’s standard library of TypeScript AI tools are optimized for both TS-usage as well as LLM-based usage, which is really important for testing and debugging."
 date: 2024-08-27
 authors: pelikhan
-cover: 
+cover:
     alt: Agentic project logo
     image: ./support-for-agentic-tools.png
+tags:
+    - JavaScript
+    - Ecosystem
+    - Integration
+    - Tool Integration
 ---
 
 [Agentic](https://agentic.so/) is a standard library of TypeScript AI tools are optimized for both TS-usage as well as LLM-based usage, which is really important for testing and debugging.
