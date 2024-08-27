@@ -10,7 +10,6 @@ jobs:
               uses: azure/login@v2
               with:
                   creds: ${{ secrets.AZURE_CREDENTIALS }}
-                  enable-AzPSSession: true
 
             - name: Azure CLI script
               uses: azure/cli@v2
