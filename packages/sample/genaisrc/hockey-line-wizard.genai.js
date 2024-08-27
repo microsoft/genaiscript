@@ -1,5 +1,5 @@
 script({
-    model: "gpt-4",
+    model: "openai:gpt-4",
     title: "hockey-line-wizard",
     temperature: 0.01,
     system: ["system", "system.tools", "system.zero_shot_cot"],

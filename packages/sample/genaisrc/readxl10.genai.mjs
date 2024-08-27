@@ -1,6 +1,6 @@
 script({
     title: "readxl10",
-    model: "gpt-4-32k",
+    model: "openai:gpt-4-32k",
     group: "spreadsheets",
     system: ["system"],
 })

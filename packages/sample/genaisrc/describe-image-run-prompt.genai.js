@@ -1,6 +1,6 @@
 script({
     title: "Describe objects in each image",
-    model: "gpt-3.5-turbo",
+    model: "openai:gpt-3.5-turbo",
     group: "vision",
     maxTokens: 4000,
     system: [],
@@ -17,7 +17,7 @@ for (const file of env.files) {
             _.defImages(file, { detail: "low" })
         },
         {
-            model: "gpt-4-turbo-v",
+            model: "openai:gpt-4-turbo-v",
             maxTokens: 4000,
         }
     )

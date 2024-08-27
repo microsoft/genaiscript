@@ -6,7 +6,7 @@ script({
     system: ["system", "system.files"],
     maxTokens: 2000,
     temperature: 0,
-    model: "gpt-4",
+    model: "openai:gpt-4",
 })
 
 defFileMerge(function frontmatter(fn, label, before, generated) {

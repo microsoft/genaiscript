@@ -1,6 +1,6 @@
 script({
     title: "Code XRay",
-    model: "gpt-4-32k",
+    model: "openai:gpt-4-32k",
     maxTokens: 16000,
     group: "samples",
     description:
