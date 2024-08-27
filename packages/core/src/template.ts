@@ -271,6 +271,9 @@ export async function parsePromptScript(
             c.checkBool("lineNumbers")
             c.checkObjectOrObjectArray("tests")
             c.checkStringArray("tools")
+
+            c.checkBool("cache")
+            c.checkString("cacheName")
         })
 
         const r = c.template
