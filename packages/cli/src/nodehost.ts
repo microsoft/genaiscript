@@ -287,7 +287,7 @@ export class NodeHost implements RuntimeHost {
 
             const quoteify = (a: string) => (/\s/.test(a) ? `"${a}"` : a)
             logVerbose(
-                `exec ${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
+                `${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
             )
             trace?.itemValue(`cwd`, cwd)
             trace?.item(`${command} ${args.map(quoteify).join(" ")}`)
