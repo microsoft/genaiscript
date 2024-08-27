@@ -195,6 +195,11 @@ async function runToolCalls(
                 let toolEdits: Edits[] = undefined
                 if (typeof output === "string") toolContent = output
                 else if (
+                    typeof output === "number" ||
+                    typeof output === "boolean"
+                )
+                    toolContent = "" + output
+                else if (
                     typeof output === "object" &&
                     (output as ShellOutput).exitCode !== undefined
                 ) {
