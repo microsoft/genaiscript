@@ -6,6 +6,9 @@ date: 2024-08-20
 authors: 
     - genaiscript
     - pelikhan
+cover:
+    alt: Screenshot of GenAIScript in the VS Code marketplace
+    image: ./gentle-introduction-to-genaiscript.png
 ---
 
 Ever wondered how to leverage the power of AI and Large Language Models (LLMs) in your projects? Look no further! 
