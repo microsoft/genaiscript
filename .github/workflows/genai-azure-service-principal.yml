@@ -26,4 +26,4 @@ jobs:
             - name: run script with azure deployment
               run: node packages/cli/built/genaiscript.cjs run poem --model azure:gpt-4-turbo --out-trace $GITHUB_STEP_SUMMARY
               env:
-                  AZURE_OPENAI_END_POINT: ${{ secrets.AZURE_OPENAI_END_POINT }}
+                  AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
