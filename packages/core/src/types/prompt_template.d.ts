@@ -1599,7 +1599,6 @@ interface ShellOptions {
 interface ShellOutput {
     stdout?: string
     stderr?: string
-    output?: string
     exitCode: number
     failed: boolean
 }

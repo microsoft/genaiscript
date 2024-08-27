@@ -5,8 +5,9 @@ import {
     fixPromptDefinitions,
     createScript as coreCreateScript,
 } from "../../core/src/scripts"
-import { logVerbose } from "../../core/src/util"
+import { logError, logInfo, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
+import { RUNTIME_ERROR_CODE } from "../../core/src/constants"
 
 export async function listScripts() {
     const prj = await buildProject()
@@ -42,10 +43,11 @@ export async function compileScript(folders: string[]) {
         .map((f) => scriptFolders.find((sf) => sf.dirname === f))
         .filter((f) => f)
 
+    let errors = 0
     for (const folder of foldersToCompile) {
         const { dirname, js, ts } = folder
-        logVerbose(`compiling ${dirname}`)
         if (js) {
+            logInfo(`compiling ${dirname}/*.js`)
             const res = await runtimeHost.exec(
                 undefined,
                 "npx",
@@ -61,9 +63,12 @@ export async function compileScript(folders: string[]) {
                     cwd: dirname,
                 }
             )
-            logVerbose(res.output)
+            if (res.stderr) logInfo(res.stderr)
+            if (res.stdout) logVerbose(res.stdout)
+            if (res.exitCode) errors++
         }
         if (ts) {
+            logInfo(`compiling ${dirname}/*.{mjs,.mts}`)
             const res = await runtimeHost.exec(
                 undefined,
                 "npx",
@@ -79,7 +84,11 @@ export async function compileScript(folders: string[]) {
                     cwd: dirname,
                 }
             )
-            logVerbose(res.output)
+            if (res.stderr) logInfo(res.stderr)
+            if (res.stdout) logVerbose(res.stdout)
+            if (res.exitCode) errors++
         }
     }
+
+    if (errors) process.exit(RUNTIME_ERROR_CODE)
 }
