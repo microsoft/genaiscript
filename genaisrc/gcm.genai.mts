@@ -1,7 +1,5 @@
 import { select, input, confirm } from "@inquirer/prompts"
 
-const model = env.vars.model || "openai:gpt-4"
-
 // Check for staged changes and stage all changes if none are staged
 let { stdout } = await host.exec("git", ["diff", "--cached"])
 if (!stdout) {
@@ -33,7 +31,7 @@ git diff --cached
 Please generate a concise, one-line commit message for these changes.
 - do NOT add quotes`
             },
-            { model, cache: false, temperature: 0.8 }
+            { cache: false, temperature: 0.8 }
         )
     ).text
 
