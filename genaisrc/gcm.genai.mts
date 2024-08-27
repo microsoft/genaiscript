@@ -9,7 +9,15 @@ if (!stdout) {
     })
     if (stage) {
         await host.exec("git", ["add", "."])
-        stdout = (await host.exec("git", ["diff", "--cached"])).stdout
+        stdout = (
+            await host.exec("git", [
+                "diff",
+                "--cached",
+                "--",
+                ".",
+                ":!**/genaiscript.d.ts",
+            ])
+        ).stdout
     }
     if (!stdout) cancel("no staged changes")
 }
