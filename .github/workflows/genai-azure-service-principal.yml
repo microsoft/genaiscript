@@ -24,4 +24,6 @@ jobs:
             - name: compile
               run: yarn compile
             - name: run script with azure deployment
-              run: node packages/cli/built/genaiscript.cjs run poem --model azure:gpt-4 --out-trace $GITHUB_STEP_SUMMARY
+              run: node packages/cli/built/genaiscript.cjs run poem --model azure:gpt-4-turbo --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  AZURE_OPENAI_END_POINT: ${{ secrets.AZURE_OPENAI_END_POINT }}
