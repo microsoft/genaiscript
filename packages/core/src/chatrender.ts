@@ -8,6 +8,17 @@ import { JSON5TryParse } from "./json5"
 import { details, fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
 
+export function renderShellOutput(output: ShellOutput) {
+    const { exitCode, stdout, stderr } = output
+    return [
+        `EXIT_CODE: ${exitCode}`,
+        stdout ? `STDOUT:${fenceMD(stdout, "text")}` : undefined,
+        stderr ? `STDERR:${fenceMD(stderr, "text")}` : undefined,
+    ]
+        .filter((s) => s)
+        .join("\n\n")
+}
+
 export function renderMessageContent(
     msg:
         | ChatCompletionAssistantMessageParam

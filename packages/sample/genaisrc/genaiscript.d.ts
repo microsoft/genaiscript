@@ -1418,7 +1418,11 @@ interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): string
+    def(
+        name: string,
+        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
+        options?: DefOptions
+    ): string
     defData(
         name: string,
         data: object[] | object,
@@ -1440,7 +1444,9 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(files: StringLike, options?: DefImagesOptions): void
-    defTool(tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback): void
+    defTool(
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+    ): void
     defTool(
         name: string,
         description: string,
@@ -1806,7 +1812,7 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: StringLike,
+    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
     options?: DefOptions
 ): string
 

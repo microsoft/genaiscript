@@ -19,6 +19,7 @@ import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
 import { logVerbose } from "./util"
+import { renderShellOutput } from "./chatrender"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -69,14 +70,6 @@ export function createChatTurnGenerationContext(
                 if (body.length === 0 && !doptions.ignoreEmpty)
                     throw new Error(`def ${name} is empty`)
                 body.forEach((f) => ctx.def(name, f, defOptions))
-            } else if (typeof body === "object" && body.filename) {
-                const { glob, endsWith } = defOptions || {}
-                const filename = body.filename
-                if (glob && filename) {
-                    if (!isGlobMatch(filename, glob)) return undefined
-                }
-                if (endsWith && !filename.endsWith(endsWith)) return undefined
-                appendChild(node, createDefNode(name, body, doptions))
             } else if (typeof body === "string") {
                 if (body.trim() === "" && !doptions.ignoreEmpty)
                     throw new Error(`def ${name} is empty`)
@@ -86,6 +79,33 @@ export function createChatTurnGenerationContext(
                         name,
                         { filename: "", content: body },
                         doptions
+                    )
+                )
+            } else if (
+                typeof body === "object" &&
+                (body as WorkspaceFile).filename
+            ) {
+                const file = body as WorkspaceFile
+                const { glob, endsWith } = defOptions || {}
+                const { filename } = file
+                if (glob && filename) {
+                    if (!isGlobMatch(filename, glob)) return undefined
+                }
+                if (endsWith && !filename.endsWith(endsWith)) return undefined
+                appendChild(node, createDefNode(name, file, doptions))
+            } else if (
+                typeof body === "object" &&
+                (body as ShellOutput).exitCode !== undefined
+            ) {
+                appendChild(
+                    node,
+                    createDefNode(
+                        name,
+                        {
+                            filename: "",
+                            content: renderShellOutput(body as ShellOutput),
+                        },
+                        { ...doptions, lineNumbers: false }
                     )
                 )
             }
