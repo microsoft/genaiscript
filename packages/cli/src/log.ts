@@ -1,18 +1,19 @@
 import { stdout } from "node:process"
 import console from "node:console"
+import { CONSOLE_COLOR_DEBUG, CONSOLE_COLOR_WARNING, CONSOLE_COLOR_ERROR } from "../../core/src/constants"
 
 export const info = console.error
 
 export function debug(...args: any[]) {
-    if (!isQuiet) console.error(...wrapArgs(34, args))
+    if (!isQuiet) console.error(...wrapArgs(CONSOLE_COLOR_DEBUG, args))
 }
 
 export function warn(...args: any[]) {
-    console.error(...wrapArgs(95, args))
+    console.error(...wrapArgs(CONSOLE_COLOR_WARNING, args))
 }
 
 export function error(...args: any[]) {
-    console.error(...wrapArgs(91, args))
+    console.error(...wrapArgs(CONSOLE_COLOR_ERROR, args))
 }
 
 export let consoleColors = !!stdout.isTTY

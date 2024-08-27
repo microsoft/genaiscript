@@ -69,6 +69,6 @@ Please generate a concise, one-line commit message for these changes.
     }
     // Regenerate message
     if (choice === "commit" && message) {
-        await host.exec("git", ["commit", "-m", message])
+        console.log((await host.exec("git", ["commit", "-m", message])).stdout)
     }
 } while (choice !== "commit")

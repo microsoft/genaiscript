@@ -1,6 +1,6 @@
 import { capitalize } from "inflection"
 import { resolve, join, relative, dirname } from "node:path"
-import { isQuiet } from "./log"
+import { isQuiet, wrapColor } from "./log"
 import { emptyDir, ensureDir, appendFileSync } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
@@ -28,6 +28,7 @@ import {
     UNRECOVERABLE_ERROR_CODES,
     SUCCESS_ERROR_CODE,
     RUNS_DIR_NAME,
+    CONSOLE_COLOR_DEBUG,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -254,9 +255,15 @@ export async function runScript(
                 tokens = tokensSoFar
                 if (responseChunk !== undefined) {
                     if (stream) {
-                        const stream = inner ? process.stderr : process.stdout
-                        stream.write(responseChunk)
-                    } else if (!isQuiet) process.stderr.write(responseChunk)
+                        if (!inner) process.stdout.write(responseChunk)
+                        else
+                            process.stderr.write(
+                                wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
+                            )
+                    } else if (!isQuiet)
+                        process.stderr.write(
+                            wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
+                        )
                 }
                 partialCb?.(args)
             },
