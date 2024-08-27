@@ -531,7 +531,13 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[]
+        globs: string | string[],
+        options?: {
+            /**
+             * Set to false to skip read text content. True by default
+             */
+            readText?: boolean
+        }
     ): Promise<{ files: WorkspaceFile[] }>
 
     /**
@@ -1392,7 +1398,11 @@ interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): string
+    def(
+        name: string,
+        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
+        options?: DefOptions
+    ): string
     defData(
         name: string,
         data: object[] | object,
@@ -1414,7 +1424,9 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(files: StringLike, options?: DefImagesOptions): void
-    defTool(tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback): void
+    defTool(
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+    ): void
     defTool(
         name: string,
         description: string,
@@ -1599,7 +1611,6 @@ interface ShellOptions {
 interface ShellOutput {
     stdout?: string
     stderr?: string
-    output?: string
     exitCode: number
     failed: boolean
 }

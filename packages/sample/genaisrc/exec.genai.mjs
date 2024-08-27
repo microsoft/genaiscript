@@ -7,6 +7,7 @@ script({
 const version = await host.exec("python", ["--version"])
 if (!/^python \d/i.test(version.stdout))
     throw new Error("python --version failed")
+def("VERSION", version)
 defTool(
     "python_version",
     "determines the version of python on this system",

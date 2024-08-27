@@ -31,7 +31,11 @@ import {
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
-import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
+import {
+    renderMessageContent,
+    renderMessagesToMarkdown,
+    renderShellOutput,
+} from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD } from "./markdown"
 import { YAMLStringify } from "./yaml"
@@ -204,14 +208,7 @@ async function runToolCalls(
                     typeof output === "object" &&
                     (output as ShellOutput).exitCode !== undefined
                 ) {
-                    const { stdout, stderr, exitCode } = output as ShellOutput
-                    toolContent = `EXIT_CODE: ${exitCode}
-
-STDOUT:
-${stdout || ""}
-
-STDERR:
-${stderr || ""}`
+                    toolContent = renderShellOutput(output as ShellOutput)
                 } else if (
                     typeof output === "object" &&
                     (output as WorkspaceFile).filename &&

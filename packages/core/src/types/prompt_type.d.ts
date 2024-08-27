@@ -51,7 +51,7 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: StringLike,
+    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
     options?: DefOptions
 ): string
 

@@ -7,7 +7,7 @@ import { resolveFileContent } from "./file"
 export async function grepSearch(
     query: string | RegExp,
     globs: string[],
-    options?: TraceOptions
+    options?: TraceOptions & { readText?: boolean }
 ): Promise<{ files: WorkspaceFile[] }> {
     const { rgPath } = await import("@lvce-editor/ripgrep")
     const args: string[] = ["--json", "--multiline", "--context", "3"]
@@ -37,6 +37,7 @@ export async function grepSearch(
             .filter(({ type }) => type === "match")
             .map(({ data }) => data.path.text)
     ).map((filename) => <WorkspaceFile>{ filename })
-    for (const file of files) await resolveFileContent(file)
+    if (options?.readText !== false)
+        for (const file of files) await resolveFileContent(file)
     return { files }
 }
