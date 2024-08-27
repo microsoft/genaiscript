@@ -22,6 +22,7 @@ jobs:
             OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             AZURE_OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
             AZURE_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+            WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
         steps:
             - uses: actions/checkout@v4
               with:
