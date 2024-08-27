@@ -162,8 +162,10 @@ export class NodeHost implements RuntimeHost {
             if (
                 !this._azureToken ||
                 this._azureToken.expiresOnTimestamp >= Date.now()
-            )
+            ) {
+                logVerbose("fetching azure token")
                 this._azureToken = await createAzureToken(signal)
+            }
             if (!this._azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + this._azureToken.token
         }
