@@ -137,7 +137,19 @@ in the zipped artifact.
           genairesults/**
 ```
 
-### Azure OpenAI with Service Principal
+### Azure OpenAI with a Service Principal
+
+The official documentation of the [azure login action](https://github.com/Azure/login?tab=readme-ov-file#azure-login-action)
+contains detailled steps on configure Azure resource access from GitHub Actions.
+
+:::note
+
+The [login with OpenID Connect (OIDC)](https://github.com/Azure/login?tab=readme-ov-file#login-with-openid-connect-oidc-recommended) is the recommended solution
+in the Azure documentation pages.
+
+The steps below show how to configure the Azure login action to access the OpenAI resource **using a Service Principal client secret**.
+
+:::
 
 <Steps>
 
