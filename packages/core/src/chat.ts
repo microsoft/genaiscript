@@ -34,6 +34,7 @@ import {
 import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD } from "./markdown"
+import { YAMLStringify } from "./yaml"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -221,7 +222,7 @@ ${stderr || ""}`
 ${fenceMD(content, " ")}
 `
                 } else {
-                    toolContent = YAML.stringify(output)
+                    toolContent = YAMLStringify(output)
                 }
 
                 if (typeof output === "object")
