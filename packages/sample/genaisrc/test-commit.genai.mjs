@@ -1,5 +1,6 @@
 script({
-    model: "openai:gpt-4",
+    model: "openai:gpt-4-turbo",
+    maxTokens: 30000,
     temperature: 0,
     files: [],
     title: "pull request commit review",
