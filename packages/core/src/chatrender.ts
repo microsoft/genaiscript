@@ -11,7 +11,7 @@ import { YAMLStringify } from "./yaml"
 export function renderShellOutput(output: ShellOutput) {
     const { exitCode, stdout, stderr } = output
     return [
-        `EXIT_CODE: ${exitCode}`,
+        exitCode !== 0 ? `EXIT_CODE: ${exitCode}` : undefined,
         stdout ? `STDOUT:${fenceMD(stdout, "text")}` : undefined,
         stderr ? `STDERR:${fenceMD(stderr, "text")}` : undefined,
     ]

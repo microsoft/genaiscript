@@ -1,28 +1,26 @@
 import { select, input, confirm } from "@inquirer/prompts"
 
 // Check for staged changes and stage all changes if none are staged
-let { stdout } = await host.exec("git", ["diff", "--cached"])
-if (!stdout) {
+let diff = await host.exec("git", ["diff", "--cached"])
+if (!diff.stdout) {
     const stage = await confirm({
         message: "No staged changes. Stage all changes?",
         default: true,
     })
     if (stage) {
         await host.exec("git", ["add", "."])
-        stdout = (
-            await host.exec("git", [
-                "diff",
-                "--cached",
-                "--",
-                ".",
-                ":!**/genaiscript.d.ts",
-            ])
-        ).stdout
+        diff = await host.exec("git", [
+            "diff",
+            "--cached",
+            "--",
+            ".",
+            ":!**/genaiscript.d.ts",
+        ])
     }
-    if (!stdout) cancel("no staged changes")
+    if (!diff.stdout) cancel("no staged changes")
 }
 
-console.log(stdout)
+console.log(diff.stdout)
 
 let choice
 let message
@@ -31,7 +29,7 @@ do {
     message = (
         await runPrompt(
             (_) => {
-                _.def("GIT_DIFF", stdout, { maxTokens: 20000 })
+                _.def("GIT_DIFF", diff, { maxTokens: 20000 })
                 _.$`GIT_DIFF is a diff of all staged changes, coming from the command:
 \`\`\`
 git diff --cached
