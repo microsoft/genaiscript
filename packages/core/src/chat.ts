@@ -199,7 +199,7 @@ async function runToolCalls(
                     typeof output === "number" ||
                     typeof output === "boolean"
                 )
-                    toolContent = "" + output
+                    toolContent = String(output)
                 else if (
                     typeof output === "object" &&
                     (output as ShellOutput).exitCode !== undefined

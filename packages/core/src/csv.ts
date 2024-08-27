@@ -48,7 +48,7 @@ export function CSVToMarkdown(csv: object[], options?: { headers?: string[] }) {
                 `|${headers
                     .map((key) => {
                         const v = (row as any)[key]
-                        const s = v === undefined || v === null ? "" : "" + v
+                        const s = v === undefined || v === null ? "" : String(v)
                         return s
                             .replace(/\s+$/, "")
                             .replace(/[\\`*_{}[\]()#+\-.!]/g, (m) => "\\" + m)
