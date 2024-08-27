@@ -1,1 +1,1 @@
-$`Write a short poem in code.`
+$`Write a short poem.`

@@ -2,10 +2,15 @@ import {
     AZURE_OPENAI_TOKEN_EXPIRATION,
     AZURE_OPENAI_TOKEN_SCOPES,
 } from "../../core/src/constants"
+import { logVerbose } from "../../core/src/util"
 
 export interface AuthenticationToken {
     token: string
     expiresOnTimestamp: number
+}
+
+export function isAzureTokenExpired(token: AuthenticationToken) {
+    return !token || token.expiresOnTimestamp < Date.now() - 5_000 // avoid data races
 }
 
 export async function createAzureToken(
@@ -16,10 +21,14 @@ export async function createAzureToken(
         AZURE_OPENAI_TOKEN_SCOPES.slice(),
         { abortSignal: signal }
     )
-    return {
+    const res = {
         token: azureToken.token,
-        expiresOnTimestamp:
-            azureToken.expiresOnTimestamp ??
-            Date.now() + AZURE_OPENAI_TOKEN_EXPIRATION,
+        expiresOnTimestamp: azureToken.expiresOnTimestamp
+            ? azureToken.expiresOnTimestamp
+            : Date.now() + AZURE_OPENAI_TOKEN_EXPIRATION,
     }
+    logVerbose(
+        `azure token expires at ${new Date(res.expiresOnTimestamp).toLocaleString()}`
+    )
+    return res
 }
