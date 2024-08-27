@@ -78,6 +78,7 @@ export interface ChatCompletionsProgressReport {
     tokensSoFar: number
     responseSoFar: string
     responseChunk: string
+    inner: boolean
 }
 
 export interface ChatCompletionsOptions {
@@ -90,4 +91,5 @@ export interface ChatCompletionsOptions {
     retry?: number
     retryDelay?: number
     maxDelay?: number
+    inner: boolean
 }

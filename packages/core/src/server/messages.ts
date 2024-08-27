@@ -115,6 +115,7 @@ export interface PromptScriptProgressResponseEvent {
     tokens?: number
     response?: string
     responseChunk?: string
+    inner?: boolean
 }
 
 export interface ShellExecResponse extends ResponseStatus {

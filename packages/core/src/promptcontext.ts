@@ -234,6 +234,7 @@ export async function createPromptContext(
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
+                genOptions.inner = true
                 const ctx = createChatGenerationContext(genOptions, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
@@ -289,7 +290,7 @@ export async function createPromptContext(
                         system,
                         env,
                         trace,
-                        options
+                        genOptions
                     )
                     if (sysr.images?.length)
                         throw new NotSupportedError("images")

@@ -72,6 +72,7 @@ export interface GenerationOptions
         ModelOptions,
         EmbeddingsModelOptions,
         ScriptRuntimeOptions {
+    inner: boolean
     cancellationToken?: CancellationToken
     infoCb?: (partialResponse: { text: string }) => void
     trace: MarkdownTrace

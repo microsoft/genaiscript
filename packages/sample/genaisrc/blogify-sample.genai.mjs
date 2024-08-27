@@ -20,6 +20,7 @@ $`Create a blog post that explains the GenAIScript source code in FILE.
 - the title should be the intention of the script  as if the user wrote it, use simple words, keep it short, mention genai, wrap in quotes
 - tell the motivation for the script.  Add a link to the script file using a GitHub URL.
 - explain the script code line by line as if you were writing the script from scratch. Assume the reader is a beginner. Show the code being explained. Also explain prompts ($\`...\` line by line)
+- explain all the code, don't skip any line. this is important
 - add a section that explains how to run the script with the genaiscript cli. Do not explain how to install the cli, link to the documentation instead.
 
 # Format

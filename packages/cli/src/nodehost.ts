@@ -280,8 +280,12 @@ export class NodeHost implements RuntimeHost {
             if (command === "python" && process.platform !== "win32")
                 command = "python3"
 
+            const quoteify = (a: string) => (/\s/.test(a) ? `"${a}"` : a)
+            logVerbose(
+                `exec ${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
+            )
             trace?.itemValue(`cwd`, cwd)
-            trace?.item(`\`${command}\` ${args.join(" ")}`)
+            trace?.item(`${command} ${args.map(quoteify).join(" ")}`)
 
             const { stdout, stderr, exitCode, failed } = await execa(
                 command,

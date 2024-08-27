@@ -143,7 +143,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
     trace
 ) => {
     const { messages, response_format, tools } = req
-    const { requestOptions, partialCb, cancellationToken } = options
+    const { requestOptions, partialCb, cancellationToken, inner } = options
     const { headers, ...rest } = requestOptions || {}
 
     if (tools?.length) throw new NotSupportedError("AICI: tools not supported")
@@ -342,6 +342,7 @@ const AICIChatCompletion: ChatCompletionHandler = async (
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
                 responseChunk: progress,
+                inner,
             })
         }
         pref = chunk
