@@ -61,7 +61,8 @@ Report each test, the score and the reason for the score.
 # Task 3
 
 Select the most impacted 8 tests.
-Avoid duplicates.
+- Avoid duplicates.
+- If no tests are impacted, select the 8 tests at random.
 
 # Task 4
 
