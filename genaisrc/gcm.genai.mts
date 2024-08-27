@@ -74,5 +74,8 @@ Please generate a concise, one-line commit message for these changes.
     // Regenerate message
     if (choice === "commit" && message) {
         console.log((await host.exec("git", ["commit", "-m", message])).stdout)
+        if (await confirm({ message: "Push changes?", default: true }))
+            console.log((await host.exec("git", ["push"])).stdout)
+        break
     }
 } while (choice !== "commit")
