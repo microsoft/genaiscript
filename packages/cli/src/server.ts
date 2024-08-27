@@ -331,11 +331,17 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "shell.exec": {
-                        const { command, args = [], options, containerId } = data
+                        const {
+                            command,
+                            args = [],
+                            options,
+                            containerId,
+                        } = data
+                        const { cwd } = options || {}
                         const quoteify = (a: string) =>
                             /\s/.test(a) ? `"${a}"` : a
                         logVerbose(
-                            `>${quoteify(command)} ${args.map(quoteify).join(" ")}`
+                            `${cwd ?? ""}>${quoteify(command)} ${args.map(quoteify).join(" ")}`
                         )
                         const value = await runtimeHost.exec(
                             containerId,
