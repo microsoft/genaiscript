@@ -6,6 +6,7 @@ description: Learn how to automate your scripts using the GenAIScript CLI for ef
 keywords: automation, CLI, batch processing, CI/CD integration, script execution
 ---
 
+import { Steps } from "@astrojs/starlight/components"
 import { FileTree } from "@astrojs/starlight/components"
 import { Image } from "astro:assets"
 import { Code } from "@astrojs/starlight/components"
@@ -60,7 +61,7 @@ Refer to [Security and Trust](/genaiscript/reference/security-and-trust) for mor
 platform that allows you to automate your build, test, and deployment pipeline.
 This section explains how to integrate your GenAIScript in GitHub Actions workflows and pull requests.
 
-### Authentication
+### Configure secrets and variables
 
 Configure the [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 and [variables](https://docs.github.com/en/actions/learn-github-actions/variables)
@@ -76,13 +77,13 @@ Use the [cli](/genaiscript/reference/cli/run/) to run the script in a GitHub Act
 -   use the `--out <path>` flag to store the results in a directory so that you can upload them as an artifact.
 
 ```yaml
-    - run: npx --yes genaiscript run <script> <...files> --out genairesults
-        env:
-            # variables
-            OPENAI_API_TYPE: ${{ env.OPENAI_API_TYPE }}
-            OPENAI_API_BASE: ${{ env.OPENAI_API_BASE }}
-            # secret, redacted
-            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+- run: npx --yes genaiscript run <script> <...files> --out genairesults
+  env:
+      # variables
+      OPENAI_API_TYPE: ${{ env.OPENAI_API_TYPE }}
+      OPENAI_API_BASE: ${{ env.OPENAI_API_BASE }}
+      # secret, redacted
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
 
 ### Add the trace to the action summary
@@ -135,6 +136,80 @@ in the zipped artifact.
       path: |
           genairesults/**
 ```
+
+### Azure OpenAI with Service Principal
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create a Service Principal following [connect from azure secret](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret#prerequisites) guide.
+
+</li>
+<li>
+
+Assign any role to the service principal (e.g. **Reader**) in your Azure subscription. You need this to login.
+
+</li>
+<li>
+
+Assign the role **Cognitive Services OpenAI User** to the service principal. You need this so that the service principal can access the OpenAI resource.
+
+</li>
+
+<li>
+
+Configure the [AZURE_CREDENTIALS](https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure-secret#create-a-github-secret-for-the-service-principal)
+secret in your GitHub repository with the service principal credentials.
+
+```json
+{
+    "clientId": "<Client ID>",
+    "clientSecret": "<Client Secret>",
+    "subscriptionId": "<Subscription ID>",
+    "tenantId": "<Tenant ID>"
+}
+```
+
+</li>
+
+<li>
+
+Configure the `AZURE_OPENAI_API_ENDPOINT` in your repository GitHub Action variables.
+
+</li>
+
+<li>
+
+Add the following step in your workflow to your GitHub action to login to Azure.
+
+```yaml title="genai.yml"
+- name: Azure Login action
+  uses: azure/login@v2
+  with:
+      creds: ${{ secrets.AZURE_CREDENTIALS }}
+```
+
+</li>
+
+<li>
+
+Update each step that invokes the [cli](/genaiscript/reference/cli) to include the `AZURE_OPENAI_API_ENDPOINT` variable.
+
+```yaml
+- name: run genai script
+  run: npx --yes genaiscript run ...
+  env:
+      AZURE_OPENAI_API_ENDPOINT: ${{ env.AZURE_OPENAI_API_ENDPOINT }}
+```
+
+</li>
+
+</ol>
+
+</Steps>
 
 ## GitHub Pull request
 

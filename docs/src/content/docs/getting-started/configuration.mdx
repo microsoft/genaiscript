@@ -214,7 +214,8 @@ for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
-You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service. 
+You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
 
 ### Managed Identity (Entra ID)
 
@@ -271,6 +272,13 @@ script({
 ```
 
 </li>
+
+<li>
+
+Open a terminal and login to Azure. See Visual Studio or CLI instructions below.
+
+</li>
+
 </ol>
 
 </Steps>
@@ -279,8 +287,6 @@ script({
 
 Visual Studio Code will ask you to allow using the **Microsoft** account
 and then will open a browser where you can choose the user or service principal.
-
--   If you are getting `401` errors after a while, try signing out in the user menu (lower left in Visual Studio Code) and back in.
 
 #### CLI
 
@@ -316,22 +322,7 @@ AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
 
 <li>
 
-Open Azure AI Studio, select **Deployments**
-and make sure that you have your LLM deployed and copy the `deployment-id`,
-you will need it in the script.
-
-</li>
-
-<li>
-
-Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
-
-```js 'model: "azure:deployment-id"'
-script({
-    model: "azure:deployment-id",
-    ...
-})
-```
+The rest of the steps are the same: Find the deployment name and use it in your script, `model: "azure:deployment-id"`.
 
 </li>
 
