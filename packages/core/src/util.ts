@@ -1,6 +1,6 @@
 import path from "path"
 import { GENAISCRIPT_FOLDER, HTTPS_REGEX } from "./constants"
-import { serializeError } from "./error"
+import { isCancelError, serializeError } from "./error"
 import { LogLevel, host } from "./host"
 import { YAMLStringify } from "./yaml"
 import { escape as HTMLEscape_ } from "html-escaper"
@@ -178,11 +178,18 @@ export function logWarn(msg: string) {
 }
 
 export function logError(msg: string | Error | SerializedError) {
-    const { message, ...e } = serializeError(msg)
-    if (message) host.log(LogLevel.Error, message)
-    console.debug(msg)
-    const se = YAMLStringify(e)
-    if (!/^\s*\{\s*\}\s*$/) host.log(LogLevel.Info, se)
+    const err = serializeError(msg)
+    const { message, name, stack, ...e } = err
+    if (isCancelError(err)) {
+        host.log(LogLevel.Info, message || "cancelled")
+    } else {
+        host.log(LogLevel.Error, message ?? name ?? "error")
+    }
+    if (stack) host.log(LogLevel.Verbose, stack)
+    if (Object.keys(e).length) {
+        const se = YAMLStringify(e)
+        if (!/^\s*\{\s*\}\s*$/) host.log(LogLevel.Verbose, se)
+    }
 }
 export function concatArrays<T>(...arrays: T[][]): T[] {
     if (arrays.length == 0) return []

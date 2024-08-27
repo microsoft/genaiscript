@@ -27,9 +27,10 @@ do {
 \`\`\`
 git diff --cached
 \`\`\`
-Please generate a concise, one-line commit message for these changes.`
+Please generate a concise, one-line commit message for these changes.
+- do NOT add quotes`
             },
-            { model }
+            { model, cache: false, temperature: 0.8 }
         )
     ).text
     choice = await select({
@@ -56,7 +57,6 @@ Please generate a concise, one-line commit message for these changes.`
     if (choice === "edit") {
         message = await input({
             message: "Edit commit message",
-            default: message,
             required: true,
         })
         choice = "commit"
