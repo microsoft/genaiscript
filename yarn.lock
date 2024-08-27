@@ -30,6 +30,13 @@
     zod-to-json-schema "^3.23.2"
     zod-validation-error "^3.3.0"
 
+"@agentic/weather@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@agentic/weather/-/weather-7.0.0.tgz#b5459adfa066678804b7be38f71a92aaf080e0f8"
+  integrity sha512-o5QgHQaUGiflk5KEjXSGhdpiMOtwztldrBKaXfZe5J5k+DpM7W+GylrcKLzClqaV7RKTVBhSUjXM/UjJsobDiQ==
+  dependencies:
+    ky "^1.5.0"
+
 "@azure/abort-controller@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.1.0.tgz#788ee78457a55af8a1ad342acb182383d2119249"

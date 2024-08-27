@@ -605,11 +605,15 @@ interface ToolCallback {
     ) => Awaitable<ToolCallOutput>
 }
 
-type AgenticToolCallback = Omit<ToolCallback, 'spec'> & {
-    spec: Omit<ToolDefinition, 'parameters'> & {
+type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
+    spec: Omit<ToolDefinition, "parameters"> & {
         parameters: Record<string, any>
     }
-};
+}
+
+interface AgenticToolProviderCallback {
+    functions: Iterable<AgenticToolCallback>
+}
 
 type ChatParticipantHandler = (
     context: ChatTurnGenerationContext,
@@ -1436,8 +1440,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         options?: DefSchemaOptions
     ): string
     defImages(files: StringLike, options?: DefImagesOptions): void
-    defTool(tool: ToolCallback): void
-    defTool(tool: AgenticToolCallback): void
+    defTool(tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback): void
     defTool(
         name: string,
         description: string,
@@ -1827,8 +1830,9 @@ declare function defFileOutput(
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
-declare function defTool(tool: ToolCallback): void
-declare function defTool(tool: AgenticToolCallback): void
+declare function defTool(
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+): void
 declare function defTool(
     name: string,
     description: string,

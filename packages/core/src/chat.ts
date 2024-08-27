@@ -34,6 +34,7 @@ import {
 import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { fenceMD } from "./markdown"
+import { YAMLStringify } from "./yaml"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -164,9 +165,7 @@ async function runToolCalls(
                         /^functions\./,
                         ""
                     )
-                    const tool = tools.find(
-                        (f) => f.spec.name === toolName
-                    )
+                    const tool = tools.find((f) => f.spec.name === toolName)
                     if (!tool) {
                         logVerbose(JSON.stringify(tu, null, 2))
                         throw new Error(`tool ${toolName} not found`)
@@ -197,6 +196,11 @@ async function runToolCalls(
                 let toolEdits: Edits[] = undefined
                 if (typeof output === "string") toolContent = output
                 else if (
+                    typeof output === "number" ||
+                    typeof output === "boolean"
+                )
+                    toolContent = String(output)
+                else if (
                     typeof output === "object" &&
                     (output as ShellOutput).exitCode !== undefined
                 ) {
@@ -218,7 +222,7 @@ ${stderr || ""}`
 ${fenceMD(content, " ")}
 `
                 } else {
-                    toolContent = (output as ToolCallContent)?.content
+                    toolContent = YAMLStringify(output)
                 }
 
                 if (typeof output === "object")
@@ -554,6 +558,7 @@ export async function executeChatSession(
           }))
         : undefined
     trace.startDetails(`🧠 llm chat`)
+    if (tools?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
         let genVars: Record<string, string>
         while (true) {
