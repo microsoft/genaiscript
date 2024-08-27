@@ -138,10 +138,7 @@ export function createChatGenerationContext(
                 node,
                 createFunctionNode(name, description, parameterSchema, fn)
             )
-        } else if (
-            typeof name === "object" &&
-            (name as ToolCallback | AgenticToolCallback).impl
-        ) {
+        } else if ((name as ToolCallback | AgenticToolCallback).impl) {
             const tool = name as ToolCallback | AgenticToolCallback
             appendChild(
                 node,
@@ -152,11 +149,8 @@ export function createChatGenerationContext(
                     tool.impl
                 )
             )
-        } else if (
-            typeof name === "object" &&
-            (name as AgenticToolProviderCallback).functions
-        ) {
-            const tools = (name as AgenticToolProviderCallback).functions()
+        } else if ((name as AgenticToolProviderCallback).functions) {
+            const tools = (name as AgenticToolProviderCallback).functions
             for (const tool of tools)
                 appendChild(
                     node,

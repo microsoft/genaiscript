@@ -586,7 +586,7 @@ type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
 }
 
 interface AgenticToolProviderCallback {
-    functions(): Iterable<AgenticToolCallback>
+    functions: Iterable<AgenticToolCallback>
 }
 
 type ChatParticipantHandler = (

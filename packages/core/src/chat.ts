@@ -164,9 +164,7 @@ async function runToolCalls(
                         /^functions\./,
                         ""
                     )
-                    const tool = tools.find(
-                        (f) => f.spec.name === toolName
-                    )
+                    const tool = tools.find((f) => f.spec.name === toolName)
                     if (!tool) {
                         logVerbose(JSON.stringify(tu, null, 2))
                         throw new Error(`tool ${toolName} not found`)
@@ -218,7 +216,7 @@ ${stderr || ""}`
 ${fenceMD(content, " ")}
 `
                 } else {
-                    toolContent = (output as ToolCallContent)?.content
+                    toolContent = YAML.stringify(output)
                 }
 
                 if (typeof output === "object")
@@ -554,6 +552,7 @@ export async function executeChatSession(
           }))
         : undefined
     trace.startDetails(`🧠 llm chat`)
+    if (tools?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
         let genVars: Record<string, string>
         while (true) {
