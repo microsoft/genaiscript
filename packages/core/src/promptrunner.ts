@@ -185,6 +185,7 @@ export async function runTemplate(
             return fileEdit
         }
 
+        trace.itemValue("🧠 model", model ?? "??")
         const connection = await resolveModelConnectionInfo(
             { model },
             { trace, token: true }

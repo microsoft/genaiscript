@@ -41,7 +41,11 @@ import {
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
-import { AuthenticationToken, createAzureToken } from "./azuretoken"
+import {
+    AuthenticationToken,
+    createAzureToken,
+    isAzureTokenExpired,
+} from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage } from "../../core/src/error"
 
@@ -159,11 +163,10 @@ export class NodeHost implements RuntimeHost {
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            if (
-                !this._azureToken ||
-                this._azureToken.expiresOnTimestamp >= Date.now()
-            ) {
-                logVerbose("fetching azure token")
+            if (isAzureTokenExpired(this._azureToken)) {
+                logVerbose(
+                    `fetching azure token (${this._azureToken?.expiresOnTimestamp >= Date.now() ? `expired ${new Date(this._azureToken.expiresOnTimestamp).toLocaleString()}` : "not available"})`
+                )
                 this._azureToken = await createAzureToken(signal)
             }
             if (!this._azureToken) throw new Error("Azure token not available")
