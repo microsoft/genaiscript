@@ -7,7 +7,7 @@ let { stdout } = await host.exec("git", ["diff", "--cached"])
 if (!stdout) {
     const stage = await confirm({
         message: "No staged changes. Stage all changes?",
-        default: false,
+        default: true,
     })
     if (stage) {
         await host.exec("git", ["add", "."])
