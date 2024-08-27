@@ -531,7 +531,13 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[]
+        globs: string | string[],
+        options?: {
+            /**
+             * Set to false to skip read text content. True by default
+             */
+            readText?: boolean
+        }
     ): Promise<{ files: WorkspaceFile[] }>
 
     /**

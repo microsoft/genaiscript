@@ -4,7 +4,7 @@ system({
         "Function to do a search using embeddings vector similarity distance.",
 })
 
-const embeddingsModel = env.var.embeddingsModel || undefined
+const embeddingsModel = env.vars.embeddingsModel || undefined
 
 defTool(
     "retrieval_vector_search",
