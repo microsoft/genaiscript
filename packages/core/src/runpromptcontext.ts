@@ -119,7 +119,11 @@ export function createChatGenerationContext(
     const node = turnCtx.node
 
     const defTool: (
-        name: string | ToolCallback,
+        name:
+            | string
+            | ToolCallback
+            | AgenticToolCallback
+            | AgenticToolProviderCallback,
         description: string,
         parameters: PromptParametersSchema | JSONSchemaObject,
         fn: ChatFunctionHandler
@@ -134,16 +138,35 @@ export function createChatGenerationContext(
                 node,
                 createFunctionNode(name, description, parameterSchema, fn)
             )
-        } else {
+        } else if (
+            typeof name === "object" &&
+            (name as ToolCallback | AgenticToolCallback).impl
+        ) {
+            const tool = name as ToolCallback | AgenticToolCallback
             appendChild(
                 node,
                 createFunctionNode(
-                    name.spec.name,
-                    name.spec.description,
-                    name.spec.parameters,
-                    name.impl
+                    tool.spec.name,
+                    tool.spec.description,
+                    tool.spec.parameters as any,
+                    tool.impl
                 )
             )
+        } else if (
+            typeof name === "object" &&
+            (name as AgenticToolProviderCallback).functions
+        ) {
+            const tools = (name as AgenticToolProviderCallback).functions()
+            for (const tool of tools)
+                appendChild(
+                    node,
+                    createFunctionNode(
+                        tool.spec.name,
+                        tool.spec.description,
+                        tool.spec.parameters as any,
+                        tool.impl
+                    )
+                )
         }
     }
 
