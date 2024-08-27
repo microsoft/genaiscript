@@ -62,6 +62,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         retryDelay,
         maxDelay,
         cancellationToken,
+        inner,
     } = options
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
@@ -96,6 +97,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             tokensSoFar: estimateTokens(cached, encoder),
             responseSoFar: cached,
             responseChunk: cached,
+            inner,
         })
         trace.itemValue(`cache hit`, await cache.getKeySHA(cachedKey))
         return { text: cached, finishReason: cachedFinishReason, cached: true }
@@ -261,6 +263,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
                 responseChunk: progress,
+                inner
             })
         }
         pref = chunk

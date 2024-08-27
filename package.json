@@ -63,7 +63,8 @@
         "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen",
         "genai:blog-post": "node packages/cli/built/genaiscript.cjs run blog-generator",
         "genai:readme": "node packages/cli/built/genaiscript.cjs run readme-updater",
-        "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample --no-cache"
+        "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample --no-cache",
+        "genai:gcm": "node packages/cli/built/genaiscript.cjs run gcm"
     },
     "release-it": {
         "github": {

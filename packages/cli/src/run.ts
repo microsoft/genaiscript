@@ -241,6 +241,7 @@ export async function runScript(
         trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
+            inner: false,
             infoCb: (args) => {
                 const { text } = args
                 if (text) {
@@ -249,11 +250,13 @@ export async function runScript(
                 }
             },
             partialCb: (args) => {
-                const { responseChunk, tokensSoFar } = args
+                const { responseChunk, tokensSoFar, inner } = args
                 tokens = tokensSoFar
                 if (responseChunk !== undefined) {
-                    if (stream) process.stdout.write(responseChunk)
-                    else if (!isQuiet) process.stderr.write(responseChunk)
+                    if (stream) {
+                        const stream = inner ? process.stderr : process.stdout
+                        stream.write(responseChunk)
+                    } else if (!isQuiet) process.stderr.write(responseChunk)
                 }
                 partialCb?.(args)
             },

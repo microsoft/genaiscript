@@ -154,6 +154,7 @@ export class WebSocketClient extends EventTarget {
                                 responseChunk: ev.responseChunk,
                                 responseSoFar: ev.response,
                                 tokensSoFar: ev.tokens,
+                                inner: ev.inner,
                             })
                         break
                     }
