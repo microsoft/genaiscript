@@ -10,7 +10,7 @@ export interface AuthenticationToken {
 }
 
 export function isAzureTokenExpired(token: AuthenticationToken) {
-    return !token || token.expiresOnTimestamp < Date.now() + 5_000 // avoid data races
+    return !token || token.expiresOnTimestamp < Date.now() - 5_000 // avoid data races
 }
 
 export async function createAzureToken(
