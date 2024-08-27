@@ -5,9 +5,9 @@ sidebar:
     order: 15
 ---
 
-In the world of software development, making consistent and informative commit messages is crucial but often overlooked. 
-This task can become tedious, especially when you are in the flow of coding. 
-To help with this, we've crafted a [script tailored to automate generating Git commit messages](](https://github.com/microsoft/genaiscript/blob/main/genaisrc/gcm.genai.mts)), 
+In the world of software development, making consistent and informative commit messages is crucial but often overlooked.
+This task can become tedious, especially when you are in the flow of coding.
+To help with this, we've crafted a [script tailored to automate generating Git commit messages](<](https://github.com/microsoft/genaiscript/blob/main/genaisrc/gcm.genai.mts)>),
 ensuring they are meaningful and save you time.
 
 The script acts as a regular node.js automation script and uses [runPrompt](/genaiscript/reference/scripts/inner-prompts)
@@ -69,7 +69,7 @@ Please generate a concise, one-line commit message for these changes.
 ).text
 ```
 
-The prompt configuration above indicates that the message should be concise, 
+The prompt configuration above indicates that the message should be concise,
 related to the "git diff --cached" output, and should not include quotes.
 
 User chooses how to proceed with the generated message:
@@ -87,21 +87,21 @@ User chooses how to proceed with the generated message:
 Options are given to edit or regenerate the message. If the user chooses to edit the message, we ask them to input a new message:
 
 ```ts
-    if (choice === "edit") {
-        message = await input({
-            message: "Edit commit message",
-            required: true,
-        })
-        choice = "commit"
-    }
+if (choice === "edit") {
+    message = await input({
+        message: "Edit commit message",
+        required: true,
+    })
+    choice = "commit"
+}
 ```
 
 If the user chooses to commit the message, we commit the changes:
 
 ```ts
-    if (choice === "commit" && message) {
-        console.log((await host.exec("git", ["commit", "-m", message])).stdout)
-    }
+if (choice === "commit" && message) {
+    console.log((await host.exec("git", ["commit", "-m", message])).stdout)
+}
 ```
 
 ## 🚀 **Running the Script**
@@ -145,3 +145,7 @@ Then you can run the script using:
 ```bash
 npm run gcm
 ```
+
+## Acknowledgements
+
+This script was inspired from Karpathy's [commit message generator](https://gist.github.com/karpathy/1dd0294ef9567971c1e4348a90d69285).
