@@ -77,7 +77,7 @@ In this case, the calculator tool does not require any secret but most do.
 
 Import the tool function and register it with `defTool`.
 
-```js ""defTool(calculator)"
+```js "defTool(calculator)"
 import { calculator } from "@agentic/calculator"
 defTool(calculator)
 
@@ -103,3 +103,46 @@ await runPrompt((_) => {
 
 That's it! The agentic function have all the necessary metadata
 to register the function with the LLM and execute it.
+
+## Weather example
+
+The [weather tool](https://agentic.so/tools/weather)
+uses the [https://www.weatherapi.com/](https://www.weatherapi.com/) APIs.
+
+<Steps>
+
+<ol>
+
+<li>
+
+Install the `@agentic/weather` package.
+
+```sh
+npm install @agentic/core @agentic/weather
+```
+
+</li>
+
+<li>
+
+Configure the `WEATHER_API_KEY` environment variables in your `.env` file.
+
+</li>
+
+<li>
+
+Import the client type, create an instance and register it with `defTool`.
+
+```js
+import { WeatherClient } from "@agentic/weather"
+const weather = new WeatherClient()
+defTool(weather)
+
+$`...`
+```
+
+</li>
+
+</ol>
+
+</Steps>
