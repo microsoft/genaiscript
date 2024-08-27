@@ -2,16 +2,18 @@ import { select, input, confirm } from "@inquirer/prompts"
 
 const model = env.vars.model || "openai:gpt-4"
 
+// Check for staged changes and stage all changes if none are staged
 let { stdout } = await host.exec("git", ["diff", "--cached"])
 if (!stdout) {
     const stage = await confirm({
         message: "No staged changes. Stage all changes?",
         default: false,
     })
-    if (stage) await host.exec("git", ["add", "."])
-    else cancel("no staged changes")
-
-    stdout = (await host.exec("git", ["diff", "--cached"])).stdout
+    if (stage) {
+        await host.exec("git", ["add", "."])
+        stdout = (await host.exec("git", ["diff", "--cached"])).stdout
+    }
+    if (!stdout) cancel("no staged changes")
 }
 
 console.log(stdout)
@@ -19,6 +21,7 @@ console.log(stdout)
 let choice
 let message
 do {
+    // Generate commit message
     message = (
         await runPrompt(
             (_) => {
@@ -33,6 +36,8 @@ Please generate a concise, one-line commit message for these changes.
             { model, cache: false, temperature: 0.8 }
         )
     ).text
+
+    // Prompt user for commit message
     choice = await select({
         message,
         choices: [
@@ -54,6 +59,7 @@ Please generate a concise, one-line commit message for these changes.
         ],
     })
 
+    // Handle user choice
     if (choice === "edit") {
         message = await input({
             message: "Edit commit message",
@@ -61,6 +67,7 @@ Please generate a concise, one-line commit message for these changes.
         })
         choice = "commit"
     }
+    // Regenerate message
     if (choice === "commit" && message) {
         await host.exec("git", ["commit", "-m", message])
     }
