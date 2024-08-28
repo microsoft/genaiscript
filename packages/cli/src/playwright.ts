@@ -1,7 +1,6 @@
 import type { Browser, BrowserContext, Page } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
-import { HTMLToMarkdown } from "../../core/src/html"
 
 type PlaywrightModule = typeof import("playwright")
 
