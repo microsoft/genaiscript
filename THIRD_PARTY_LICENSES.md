@@ -1459,6 +1459,7 @@ The following npm packages may be included in this product:
  - @types/jsonfile@6.1.4
  - @types/mute-stream@0.0.4
  - @types/node@22.5.0
+ - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
 These packages each contain the following license and notice below:
@@ -1519,7 +1520,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.51.2
+ - genaiscript-vscode@1.51.3
 
 This package contains the following license and notice below:
 
@@ -4581,9 +4582,9 @@ The following npm packages may be included in this product:
  - agent-base@6.0.2
  - canvas@2.11.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.51.2
- - genaiscript-sample@1.51.2
- - genaiscript@1.51.2
+ - genaiscript-core-internal@1.51.3
+ - genaiscript-sample@1.51.3
+ - genaiscript@1.51.3
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
@@ -5691,6 +5692,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 """
+
+-----------
+
+The following npm packages may be included in this product:
+
+ - playwright-core@1.46.1
+ - playwright@1.46.1
+
+These packages each contain the following license and notice below:
+
+Playwright
+Copyright (c) Microsoft Corporation
+
+This software contains code derived from the Puppeteer project (https://github.com/puppeteer/puppeteer),
+available under the Apache 2.0 license (https://github.com/puppeteer/puppeteer/blob/master/LICENSE).
 
 -----------
 
