@@ -6,8 +6,6 @@ import { PLAYWRIGHT_VERSION } from "./version"
 import { ellipseUri } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
 
-type PlaywrightModule = typeof import("playwright")
-
 export class BrowserManager {
     private _browsers: Browser[] = []
     private _pages: Page[] = []
@@ -21,7 +19,6 @@ export class BrowserManager {
     }
 
     private async installDependencies(vendor: string) {
-        // npx playwright install --with-deps chromium
         const res = await runtimeHost.exec(
             undefined,
             "npx",
@@ -40,10 +37,11 @@ export class BrowserManager {
 
     private async launchBrowser(options?: BrowserOptions): Promise<Browser> {
         const { browser = PLAYWRIGHT_DEFAULT_BROWSER, ...rest } = options || {}
-        const playwright = await this.init()
         try {
+            const playwright = await this.init()
             return playwright[browser].launch()
         } catch {
+            const playwright = await this.init()
             await this.installDependencies(browser)
             return await playwright[browser].launch()
         }

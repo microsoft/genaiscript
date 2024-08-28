@@ -26,6 +26,19 @@ but you can also do it manually using the following command:
 npx playwright install --with-deps chromium
 ```
 
+If you see this error message, you might have to install the dependencies manually.
+
+```text
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     yarn playwright install                                             ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+```
+
 ## `host.browse`
 
 This function launches a new browser instance and optionally navigates to the page.
