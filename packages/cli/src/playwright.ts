@@ -39,11 +39,11 @@ export class BrowserManager {
         const { browser = PLAYWRIGHT_DEFAULT_BROWSER, ...rest } = options || {}
         try {
             const playwright = await this.init()
-            return playwright[browser].launch()
+            return playwright[browser].launch(rest)
         } catch {
-            const playwright = await this.init()
             await this.installDependencies(browser)
-            return await playwright[browser].launch()
+            const playwright = await this.init()
+            return await playwright[browser].launch(rest)
         }
     }
 
