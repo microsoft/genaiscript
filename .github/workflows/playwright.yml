@@ -1,24 +1,22 @@
-name: ollama smoke tests
+name: playwright smoke tests
 on:
     workflow_dispatch:
     pull_request:
         paths:
             - yarn.lock
-            - ".github/workflows/ollama.yml"
+            - ".github/workflows/playwright.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
     push:
         branches:
             - main
         paths:
             - yarn.lock
-            - ".github/workflows/ollama.yml"
+            - ".github/workflows/playwright.yml"
             - "packages/core/**/*"
             - "packages/cli/**/*"
-            - "packages/samples/**/*"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}-ollama
+    group: ${{ github.workflow }}-${{ github.ref }}-playwright
     cancel-in-progress: true
 jobs:
     tests:
@@ -37,9 +35,9 @@ jobs:
               run: yarn typecheck
             - name: compile
               run: yarn compile
-            - name: download ollama docker
-              run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-            - name: run summarize-ollama-phi3
-              run: yarn test:summarize --model ollama:phi3 --out ./temp/summarize-ollama-phi3
-            - name: run vector-search
-              run: yarn run:script vector-search --model ollama:phi3 --out ./temp/rag
+            - name: run browse-text
+              run: yarn run:script browse-text --out ./temp/browse-text
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  OPENAI_API_TYPE: ${{ secrets.OPENAI_API_TYPE }}
+                  OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}

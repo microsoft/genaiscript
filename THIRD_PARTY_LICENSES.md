@@ -1458,7 +1458,7 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/jsonfile@6.1.4
  - @types/mute-stream@0.0.4
- - @types/node@22.5.0
+ - @types/node@22.5.1
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1551,7 +1551,7 @@ MIT License
 The following npm packages may be included in this product:
 
  - type-fest@2.19.0
- - type-fest@4.25.0
+ - type-fest@4.26.0
 
 These packages each contain the following license and notice below:
 

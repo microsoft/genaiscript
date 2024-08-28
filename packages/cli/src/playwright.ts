@@ -1,32 +1,55 @@
-import type { Browser, BrowserContext, Page } from "playwright"
+import type { Browser, Page } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
-
-type PlaywrightModule = typeof import("playwright")
+import { runtimeHost } from "../../core/src/host"
+import { PLAYWRIGHT_VERSION } from "./version"
+import { ellipseUri } from "../../core/src/url"
+import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
+import { log } from "node:console"
 
 export class BrowserManager {
-    private _playwright: PlaywrightModule
     private _browsers: Browser[] = []
     private _pages: Page[] = []
 
     constructor() {}
 
     private async init() {
-        if (this._playwright) return
         const p = await import("playwright")
         if (!p) throw new Error("playwright installation not completed")
-        this._playwright = p
+        return p
     }
 
-    private async launchBrowser(options?: {}) {
-        await this.init()
-        const browser = await this._playwright.chromium.launch()
-        return browser
+    private async installDependencies(vendor: string) {
+        const res = await runtimeHost.exec(
+            undefined,
+            "npx",
+            [
+                `playwright@${PLAYWRIGHT_VERSION}`,
+                "install",
+                "--with-deps",
+                vendor,
+            ],
+            {
+                label: `installing playwright ${vendor}`,
+            }
+        )
+        if (res.exitCode) throw new Error("playwright installation failed")
+    }
+
+    private async launchBrowser(options?: BrowserOptions): Promise<Browser> {
+        const { browser = PLAYWRIGHT_DEFAULT_BROWSER, ...rest } = options || {}
+        try {
+            const playwright = await this.init()
+            return await playwright[browser].launch(rest)
+        } catch {
+            logVerbose("trying to install playwright...")
+            await this.installDependencies(browser)
+            const playwright = await this.init()
+            return await playwright[browser].launch(rest)
+        }
     }
 
     async stopAndRemove() {
-        if (!this._playwright) return
-
         const browsers = this._browsers.slice(0)
         const pages = this._pages.slice(0)
 
@@ -61,8 +84,9 @@ export class BrowserManager {
     ): Promise<BrowserPage> {
         const { trace, incognito, ...rest } = options || {}
 
-        logVerbose(`browsing`)
+        logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
+        logVerbose(`navigating...`)
         let page: BrowserPage
         if (incognito) {
             const context = await browser.newContext(rest)
@@ -71,6 +95,7 @@ export class BrowserManager {
             page = await browser.newPage(rest)
         }
         if (url) await page.goto(url)
+        logVerbose(`page ready`)
         return page
     }
 }
