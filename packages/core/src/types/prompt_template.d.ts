@@ -1028,6 +1028,13 @@ interface Parsers {
     ): string
 
     /**
+     * Convert HTML to markdown
+     * @param content html string or file
+     * @param options
+     */
+    HTMLToMarkdown(content: string | WorkspaceFile): string
+
+    /**
      * Extracts the contents of a zip archive file
      * @param file
      * @param options
@@ -1423,7 +1430,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    defImages(files: StringLike | Buffer | Blob, options?: DefImagesOptions): void
+    defImages(
+        files: StringLike | Buffer | Blob,
+        options?: DefImagesOptions
+    ): void
     defTool(
         tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
     ): void
@@ -1717,16 +1727,15 @@ interface BrowseResponse {
  */
 interface BrowserPage {
     /**
+     * Returns the page's title.
+     * @link https://playwright.dev/docs/api/class-page#page-title
+     */
+    title(): Promise<string>
+    /**
      * Current page url
      * @link https://playwright.dev/docs/api/class-page#page-url
      */
     url(): string
-
-    /**
-     * Returns the buffer of the captured screenshot
-     * @link https://playwright.dev/docs/api/class-page#page-screenshot
-     */
-    screenshot(options?: TimeoutOptions): Promise<Buffer>
 
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the first non-redirect response.
@@ -1742,10 +1751,21 @@ interface BrowserPage {
     ): Promise<null | BrowseResponse>
 
     /**
+     * Returns the buffer of the captured screenshot
+     * @link https://playwright.dev/docs/api/class-page#page-screenshot
+     */
+    screenshot(options?: TimeoutOptions): Promise<Buffer>
+
+    /**
      * Gets the full HTML contents of the page, including the doctype.
      * @link https://playwright.dev/docs/api/class-page#page-content
      */
     content(): Promise<string>
+
+    /**
+     * Gets the full HTML content as markdown
+     */
+    markdown(): Promise<string>
 
     /**
      * The method returns an element locator that can be used to perform actions on this page / frame.

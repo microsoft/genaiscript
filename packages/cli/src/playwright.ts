@@ -1,6 +1,7 @@
 import type { Browser, BrowserContext, Page } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
+import { HTMLToMarkdown } from "../../core/src/html"
 
 type PlaywrightModule = typeof import("playwright")
 
@@ -63,13 +64,19 @@ export class BrowserManager {
 
         logVerbose(`browsing`)
         const browser = await this.launchBrowser(options)
-        let page: BrowserPage
+        let playwritePage: Omit<BrowserPage, "markdown">
         if (incognito) {
             const context = await browser.newContext(rest)
-            page = await context.newPage()
+            playwritePage = await context.newPage()
         } else {
-            page = await browser.newPage(rest)
+            playwritePage = await browser.newPage(rest)
         }
+
+        // extend object
+        const page: BrowserPage = playwritePage as BrowserPage
+        page.markdown = async () =>
+            HTMLToMarkdown(await playwritePage.content())
+
         if (url) await page.goto(url)
         return page
     }

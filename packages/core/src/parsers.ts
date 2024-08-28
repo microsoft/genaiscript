@@ -14,7 +14,7 @@ import { INITryParse } from "./ini"
 import { XMLTryParse } from "./xml"
 import { treeSitterQuery } from "./treesitter"
 import { parsePdf } from "./pdf"
-import { HTMLToText } from "./html"
+import { HTMLToMarkdown, HTMLToText } from "./html"
 import { MathTryEvaluate } from "./math"
 import { validateJSONWithSchema } from "./schema"
 import { XLSXTryParse } from "./xlsx"
@@ -64,6 +64,10 @@ export async function createParsers(options: {
         HTMLToText: (text, options) =>
             HTMLToText(filenameOrFileToContent(text), {
                 ...(options || {}),
+                trace,
+            }),
+        HTMLToMarkdown: (text) =>
+            HTMLToMarkdown(filenameOrFileToContent(text), {
                 trace,
             }),
         DOCX: async (file) => {

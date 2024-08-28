@@ -69,5 +69,9 @@
     "prompts:bundle": "node bundleprompts.js",
     "pretypecheck": "yarn prompts:bundle",
     "test": "node --import tsx --test src/**.test.ts"
+  },
+  "dependencies": {
+    "@types/turndown": "^5.0.5",
+    "turndown": "^7.2.0"
   }
 }
