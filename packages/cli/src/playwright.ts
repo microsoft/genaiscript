@@ -1,8 +1,9 @@
-import type { Browser, BrowserContext, Page } from "playwright"
+import type { Browser, Page } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
 import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
+import { ellipseUri } from "../../core/src/url"
 
 type PlaywrightModule = typeof import("playwright")
 
@@ -14,35 +15,36 @@ export class BrowserManager {
     constructor() {}
 
     private async init() {
-        if (this._playwright) return
-        try {
-            const p = await import("playwright")
-            if (!p) throw new Error("playwright installation not completed")
-            this._playwright = p
-        } catch (e) {
-            const res = await runtimeHost.exec(
-                undefined,
-                "npx",
-                [
-                    `playwright@${PLAYWRIGHT_VERSION}`,
-                    "install-deps",
-                    "chromium",
-                ],
-                {
-                    label: "installing playwright dependencies",
-                }
-            )
-            if (res.exitCode) throw new Error("playwright installation failed")
+        if (!this._playwright) {
             const p = await import("playwright")
             if (!p) throw new Error("playwright installation not completed")
             this._playwright = p
         }
+        return this._playwright
+    }
+
+    private async installDependencies() {
+        const res = await runtimeHost.exec(
+            undefined,
+            "npx",
+            [`playwright@${PLAYWRIGHT_VERSION}`, "install-deps", "chromium"],
+            {
+                label: "installing playwright dependencies",
+            }
+        )
+        if (res.exitCode) throw new Error("playwright installation failed")
     }
 
     private async launchBrowser(options?: {}) {
-        await this.init()
-        const browser = await this._playwright.chromium.launch()
-        return browser
+        const playwright = await this.init()
+        try {
+            const browser = await playwright.chromium.launch()
+            return browser
+        } catch {
+            await this.installDependencies()
+            const browser = await playwright.chromium.launch()
+            return browser
+        }
     }
 
     async stopAndRemove() {
@@ -82,7 +84,7 @@ export class BrowserManager {
     ): Promise<BrowserPage> {
         const { trace, incognito, ...rest } = options || {}
 
-        logVerbose(`browsing`)
+        logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
         let page: BrowserPage
         if (incognito) {
