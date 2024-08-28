@@ -17,7 +17,15 @@ def("DATA", csv)
 $`Analyze DATA.`
 ```
 
-# `host.browse`
+## Installation
+
+You will need to install Playright locally before using the `browse` function.
+
+```bash
+npx playwright install-deps chromium
+```
+
+## `host.browse`
 
 This function launches a new browser instance and optionally navigates to the page.
 

@@ -1,3 +1,6 @@
+script({
+    group: "browser",
+})
 const page = await host.browse(
     "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"
 )
