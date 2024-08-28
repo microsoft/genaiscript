@@ -1815,11 +1815,24 @@ interface BrowserPage {
 }
 
 interface ShellHost {
+    /**
+     * Executes a shell command
+     * @param command
+     * @param args
+     * @param options
+     */
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+    /**
+     * Starts a headless browser and navigates to the page.
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browse).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browse
+     * @param url
+     * @param options
+     */
     browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage>
 }
 
