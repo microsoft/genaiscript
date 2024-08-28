@@ -7,7 +7,7 @@
     },
     "displayName": "GenAIScript Insiders",
     "description": "Generative AI Scripting.",
-    "version": "1.51.3",
+    "version": "1.52.0",
     "icon": "icon.png",
     "engines": {
         "vscode": "^1.92.0"
