@@ -1664,7 +1664,15 @@ interface ShellOutput {
     failed: boolean
 }
 
-interface BrowseSessionOptions {
+interface BrowserOptions {
+    /**
+     * Browser engine for this page. Defaults to chromium
+     *
+     */
+    browser?: "chromium" | "firefox" | "webkit"
+}
+
+interface BrowseSessionOptions extends BrowserOptions {
     /**
      * Creates a new context for the browser session
      */

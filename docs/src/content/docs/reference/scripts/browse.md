@@ -19,10 +19,11 @@ $`Analyze DATA.`
 
 ## Installation
 
-You will need to install Playright locally before using the `browse` function.
+Playwright needs to [install the browsers and dependencies](https://playwright.dev/docs/browsers#install-system-dependencies) before execution. GenAIScript will automatically try to install them if it fails to load the browser;
+but you can also do it manually using the following command:
 
 ```bash
-npx playwright install-deps chromium
+npx playwright install --with-deps chromium
 ```
 
 ## `host.browse`
