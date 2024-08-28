@@ -5,6 +5,7 @@ import { runtimeHost } from "../../core/src/host"
 import { PLAYWRIGHT_VERSION } from "./version"
 import { ellipseUri } from "../../core/src/url"
 import { PLAYWRIGHT_DEFAULT_BROWSER } from "../../core/src/constants"
+import { log } from "node:console"
 
 export class BrowserManager {
     private _browsers: Browser[] = []
@@ -41,6 +42,7 @@ export class BrowserManager {
             const playwright = await this.init()
             return playwright[browser].launch(rest)
         } catch {
+            logVerbose("trying to install playwright...")
             await this.installDependencies(browser)
             const playwright = await this.init()
             return await playwright[browser].launch(rest)
@@ -84,6 +86,7 @@ export class BrowserManager {
 
         logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
+        logVerbose(`navigating...`)
         let page: BrowserPage
         if (incognito) {
             const context = await browser.newContext(rest)
@@ -92,6 +95,7 @@ export class BrowserManager {
             page = await browser.newPage(rest)
         }
         if (url) await page.goto(url)
+        logVerbose(`page ready`)
         return page
     }
 }
