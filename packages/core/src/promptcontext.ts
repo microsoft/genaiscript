@@ -62,6 +62,7 @@ import {
     splitMarkdown,
     updateFrontmatter,
 } from "./frontmatter"
+import { url } from "node:inspector"
 
 export async function createPromptContext(
     prj: Project,
@@ -198,6 +199,13 @@ export async function createPromptContext(
             const res = await runtimeHost.exec(undefined, command, args, {
                 cwd: options?.cwd,
                 trace,
+            })
+            return res
+        },
+        browse: async (url, options) => {
+            const res = await runtimeHost.browse(url, {
+                trace,
+                ...(options || {}),
             })
             return res
         },

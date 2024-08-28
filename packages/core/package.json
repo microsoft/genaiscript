@@ -27,6 +27,7 @@
     "@types/node": "^20.14.12",
     "@types/semver": "^7.5.8",
     "ajv": "^8.17.1",
+    "auto-playwright": "^1.16.0",
     "cross-fetch": "^4.0.0",
     "csv-parse": "^5.5.6",
     "dotenv": "^16.4.5",
@@ -53,6 +54,7 @@
     "parse-diff": "^0.11.1",
     "prettier": "^3.3.3",
     "pretty-bytes": "^6.1.1",
+    "sanitize-html": "^2.13.0",
     "semver": "^7.6.3",
     "serialize-error": "^11.0.3",
     "toml": "^3.0.0",
@@ -69,5 +71,9 @@
     "prompts:bundle": "node bundleprompts.js",
     "pretypecheck": "yarn prompts:bundle",
     "test": "node --import tsx --test src/**.test.ts"
+  },
+  "dependencies": {
+    "@types/turndown": "^5.0.5",
+    "turndown": "^7.2.0"
   }
 }

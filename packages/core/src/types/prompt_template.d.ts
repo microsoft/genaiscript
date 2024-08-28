@@ -1028,6 +1028,13 @@ interface Parsers {
     ): string
 
     /**
+     * Convert HTML to markdown
+     * @param content html string or file
+     * @param options
+     */
+    HTMLToMarkdown(content: string | WorkspaceFile): string
+
+    /**
      * Extracts the contents of a zip archive file
      * @param file
      * @param options
@@ -1147,6 +1154,19 @@ interface XML {
      * @param text
      */
     parse(text: string, options?: XMLParseOptions): any
+}
+
+interface HTML {
+    /**
+     * Converts HTML markup to plain text
+     * @param html
+     */
+    convertToText(html: string): string
+    /**
+     * Converts HMTL markup to markdown
+     * @param html
+     */
+    convertToMarkdown(html: string): string
 }
 
 interface MD {
@@ -1423,7 +1443,10 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    defImages(files: StringLike, options?: DefImagesOptions): void
+    defImages(
+        files: StringLike | Buffer | Blob,
+        options?: DefImagesOptions
+    ): void
     defTool(
         tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
     ): void
@@ -1615,12 +1638,176 @@ interface ShellOutput {
     failed: boolean
 }
 
+interface BrowseSessionOptions {
+    /**
+     * Creates a new context for the browser session
+     */
+    incognito?: boolean
+
+    /**
+     * Base url to use for relative urls
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-base-url
+     */
+    baseUrl?: string
+
+    /**
+     * Toggles bypassing page's Content-Security-Policy. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-bypass-csp
+     */
+    bypassCSP?: boolean
+
+    /**
+     * Whether to ignore HTTPS errors when sending network requests. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-ignore-https-errors
+     */
+    ignoreHTTPSErrors?: boolean
+
+    /**
+     * Whether or not to enable JavaScript in the context. Defaults to true.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-java-script-enabled
+     */
+    javaScriptEnabled?: boolean
+}
+
+interface TimeoutOptions {
+    /**
+     * Maximum time in milliseconds. Default to no timeout
+     */
+    timeout?: number
+}
+
+/**
+ * A Locator instance
+ * @link https://playwright.dev/docs/api/class-locator
+ */
+interface BrowserLocator {
+    /**
+     * Set a value to the input field.
+     * @param value
+     * @link https://playwright.dev/docs/api/class-locator#locator-fill
+     */
+    fill(value: string, options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Returns the element.innerText.
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-text
+     */
+    innerText(options?: TimeoutOptions): Promise<string>
+
+    /**
+     *
+     */
+    innerHTML(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the value for the matching <input> or <textarea> or <select> element.
+     * @link https://playwright.dev/docs/api/class-locator#locator-input-value
+     */
+    inputValue(): Promise<string>
+}
+
+/**
+ * Playwrite Response instance
+ * @link https://playwright.dev/docs/api/class-response
+ */
+interface BrowseResponse {
+    /**
+     * Contains a boolean stating whether the response was successful (status in the range 200-299) or not.
+     * @link https://playwright.dev/docs/api/class-response#response-ok
+     */
+    ok(): boolean
+    /**
+     * Contains the status code of the response (e.g., 200 for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status
+     */
+    status(): number
+    /**
+     * Contains the status text of the response (e.g. usually an "OK" for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status-text
+     */
+    statusText(): string
+
+    /**
+     * Contains the URL of the response.
+     * @link https://playwright.dev/docs/api/class-response#response-url
+     */
+    url(): string
+}
+
+/**
+ * A playwright Page instance
+ * @link https://playwright.dev/docs/api/class-page
+ */
+interface BrowserPage {
+    /**
+     * Returns the page's title.
+     * @link https://playwright.dev/docs/api/class-page#page-title
+     */
+    title(): Promise<string>
+    /**
+     * Current page url
+     * @link https://playwright.dev/docs/api/class-page#page-url
+     */
+    url(): string
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the first non-redirect response.
+     * @link https://playwright.dev/docs/api/class-page#page-goto
+     * @param url
+     * @param options
+     */
+    goto(
+        url: string,
+        options?: {
+            waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit"
+        } & TimeoutOptions
+    ): Promise<null | BrowseResponse>
+
+    /**
+     * Returns the buffer of the captured screenshot
+     * @link https://playwright.dev/docs/api/class-page#page-screenshot
+     */
+    screenshot(options?: TimeoutOptions): Promise<Buffer>
+
+    /**
+     * Gets the full HTML contents of the page, including the doctype.
+     * @link https://playwright.dev/docs/api/class-page#page-content
+     */
+    content(): Promise<string>
+
+    /**
+     * The method returns an element locator that can be used to perform actions on this page / frame.
+     * @param selector A selector to use when resolving DOM element.
+     * @link https://playwright.dev/docs/locators
+     */
+    locator(selector: string): BrowserLocator
+
+    /**
+     * Closes the browser page, context and other resources
+     */
+    close(): Promise<void>
+}
+
 interface ShellHost {
+    /**
+     * Executes a shell command
+     * @param command
+     * @param args
+     * @param options
+     */
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+    /**
+     * Starts a headless browser and navigates to the page.
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browse).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browse
+     * @param url
+     * @param options
+     */
+    browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage>
 }
 
 interface ContainerOptions {

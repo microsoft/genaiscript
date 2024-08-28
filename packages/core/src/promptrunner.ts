@@ -424,6 +424,7 @@ export async function runTemplate(
         return res
     } finally {
         await runtimeHost.removeContainers()
+        await runtimeHost.removeBrowsers()
     }
 }
 

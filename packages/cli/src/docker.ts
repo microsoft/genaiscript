@@ -2,7 +2,6 @@ import MemoryStream from "memorystream"
 import { finished } from "stream/promises"
 import { ensureDir, remove } from "fs-extra"
 import { copyFile, readFile, writeFile } from "fs/promises"
-import { DOCKERODE_VERSION } from "./version"
 import {
     DOCKER_DEFAULT_IMAGE,
     DOCKER_VOLUMES_DIR,

@@ -48,6 +48,7 @@ import {
 } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage } from "../../core/src/error"
+import { BrowserManager } from "./playwright"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -103,7 +104,8 @@ export class NodeHost implements RuntimeHost {
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
-    readonly docker = new DockerManager()
+    readonly containers = new DockerManager()
+    readonly browsers = new BrowserManager()
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
@@ -258,6 +260,13 @@ export class NodeHost implements RuntimeHost {
         await remove(name)
     }
 
+    async browse(
+        url: string,
+        options?: BrowseSessionOptions & TraceOptions
+    ): Promise<BrowserPage> {
+        return this.browsers.browse(url, options)
+    }
+
     async exec(
         containerId: string,
         command: string,
@@ -265,7 +274,7 @@ export class NodeHost implements RuntimeHost {
         options: ShellOptions & TraceOptions
     ) {
         if (containerId) {
-            const container = await this.docker.container(containerId)
+            const container = await this.containers.container(containerId)
             return await container.exec(command, args, options)
         }
 
@@ -331,10 +340,14 @@ export class NodeHost implements RuntimeHost {
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        return await this.docker.startContainer(options)
+        return await this.containers.startContainer(options)
     }
 
     async removeContainers(): Promise<void> {
-        await this.docker.stopAndRemove()
+        await this.containers.stopAndRemove()
+    }
+
+    async removeBrowsers(): Promise<void> {
+        await this.browsers.stopAndRemove()
     }
 }
