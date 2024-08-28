@@ -16,7 +16,7 @@ on:
             - "packages/core/**/*"
             - "packages/cli/**/*"
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}-${{ github.ref }}-playwright
     cancel-in-progress: true
 jobs:
     tests:
