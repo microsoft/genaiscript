@@ -49,8 +49,8 @@ using the ${schema} schema.`
         Extension](/genaiscript/getting-started/installation/) to get started.
     </Card>
     <Card title="Configure your LLMs" icon="setting">
-        Configure the [secrets](/genaiscript/getting-started/configuration) to access your
-        LLMs.
+        Configure the [secrets](/genaiscript/getting-started/configuration) to
+        access your LLMs.
     </Card>
     <Card title="Write your first script" icon="pencil">
         Follow [Getting
@@ -190,9 +190,19 @@ The quick brown fox jumps over the lazy dog.
 Grep or fuzz search [files](/genaiscript/referen/script/files)
 
 ```js wrap
-const { files } = await workspace.grep(
-    /[a-z][a-z0-9]+/, 
-    "**/*.md")
+const { files } = await workspace.grep(/[a-z][a-z0-9]+/, "**/*.md")
+```
+
+</Card>
+
+<Card title="Browser automation" icon="document">
+
+Browse and scrape the web with [Playwright](/genaiscript/reference/scripts/browse).
+
+```js
+const page = await host.browse("https://...")
+const table = await page.locator("table[...]").innerHTML()
+def("TABLE", HTML.convertToMarkdown(table))
 ```
 
 </Card>
@@ -233,17 +243,19 @@ script({ ..., model: "ollama:phi3" })
 <Card title="LLM Tools" icon="setting">
 
 Register JavaScript functions as [LLM tools](/genaiscript/reference/scripts/tools/)
+
 ```js wrap
-defTool("weather", "live weahter", 
-    { city: "Paris" }, // schema 
-    async ({ city }) => // callback 
+defTool("weather", "live weahter",
+    { city: "Paris" }, // schema
+    async ({ city }) => // callback
         { ... "sunny" }
 )
 ```
+
 or use built-in [@agentic tools](/genaiscript/guides/agentic-tools/)
+
 ```js wrap
-import { WeatherClient } 
-    from "@agentic/weather"
+import { WeatherClient } from "@agentic/weather"
 defTool(new WeatherClient())
 ```
 
@@ -254,7 +266,7 @@ defTool(new WeatherClient())
 Let the LLM run code in a sandboxed execution environment.
 
 ```js wrap
-script({ tools: ["python_code_interpreter"]})
+script({ tools: ["python_code_interpreter"] })
 ```
 
 </Card>

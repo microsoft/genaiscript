@@ -8,6 +8,7 @@ import {
     updateFrontmatter,
 } from "./frontmatter"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
+import { HTMLToMarkdown, HTMLToText } from "./html"
 
 export function resolveGlobal(): any {
     if (typeof window !== "undefined")
@@ -55,5 +56,9 @@ export function installGlobals() {
                 options,
             }
         },
+    })
+    glb.HTML = Object.freeze<HTML>({
+        convertToMarkdown: HTMLToMarkdown,
+        convertToText: HTMLToText,
     })
 }

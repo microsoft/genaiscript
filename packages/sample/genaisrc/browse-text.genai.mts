@@ -1,6 +1,7 @@
 const page = await host.browse(
-    "https://raw.githubusercontent.com/microsoft/genaiscript/main/packages/sample/src/penguins.csv"
+    "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"
 )
-const csv = await page.content()
+const table = page.locator('table[data-testid="csv-table"]')
+const csv = HTML.convertToMarkdown(await table.innerHTML())
 def("DATA", csv)
 $`Analyze DATA.`

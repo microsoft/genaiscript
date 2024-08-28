@@ -1156,6 +1156,19 @@ interface XML {
     parse(text: string, options?: XMLParseOptions): any
 }
 
+interface HTML {
+    /**
+     * Converts HTML markup to plain text
+     * @param html
+     */
+    convertToText(html: string): string
+    /**
+     * Converts HMTL markup to markdown
+     * @param html
+     */
+    convertToMarkdown(html: string): string
+}
+
 interface MD {
     /**
      * Parses front matter from markdown
@@ -1761,11 +1774,6 @@ interface BrowserPage {
      * @link https://playwright.dev/docs/api/class-page#page-content
      */
     content(): Promise<string>
-
-    /**
-     * Gets the full HTML content as markdown
-     */
-    markdown(): Promise<string>
 
     /**
      * The method returns an element locator that can be used to perform actions on this page / frame.

@@ -136,6 +136,11 @@ declare var CSV: CSV
 declare var XML: XML
 
 /**
+ * HTML parsing
+ */
+declare var HTML: HTML
+
+/**
  * Markdown and frontmatter parsing.
  */
 declare var MD: MD

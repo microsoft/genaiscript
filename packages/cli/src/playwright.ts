@@ -64,19 +64,13 @@ export class BrowserManager {
 
         logVerbose(`browsing`)
         const browser = await this.launchBrowser(options)
-        let playwritePage: Omit<BrowserPage, "markdown">
+        let page: BrowserPage
         if (incognito) {
             const context = await browser.newContext(rest)
-            playwritePage = await context.newPage()
+            page = await context.newPage()
         } else {
-            playwritePage = await browser.newPage(rest)
+            page = await browser.newPage(rest)
         }
-
-        // extend object
-        const page: BrowserPage = playwritePage as BrowserPage
-        page.markdown = async () =>
-            HTMLToMarkdown(await playwritePage.content())
-
         if (url) await page.goto(url)
         return page
     }
