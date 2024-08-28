@@ -18,7 +18,7 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
-import { logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
 
 export function createChatTurnGenerationContext(
@@ -200,7 +200,21 @@ export function createChatGenerationContext(
             files.forEach((file) => defImages(file, defOptions))
         else if (typeof files === "string")
             appendChild(node, createImageNode({ url: files, detail }))
-        else {
+        else if (files instanceof Buffer) {
+            const buffer: Buffer = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const url = await buffer.toString("base64url")
+                        return {
+                            url,
+                            detail,
+                        }
+                    })()
+                )
+            )
+        } else {
             const file: WorkspaceFile = files
             appendChild(
                 node,

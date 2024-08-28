@@ -1449,7 +1449,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    defImages(files: StringLike, options?: DefImagesOptions): void
+    defImages(files: StringLike | Buffer | Blob, options?: DefImagesOptions): void
     defTool(
         tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
     ): void
@@ -1742,6 +1742,18 @@ interface BrowseResponse {
  * @link https://playwright.dev/docs/api/class-page
  */
 interface BrowserPage {
+    /**
+     * Current page url
+     * @link https://playwright.dev/docs/api/class-page#page-url
+     */
+    url(): string
+
+    /**
+     * Returns the buffer of the captured screenshot
+     * @link https://playwright.dev/docs/api/class-page#page-screenshot
+     */
+    screenshot(options?: TimeoutOptions): Promise<Buffer>
+
     /**
      * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the first non-redirect response.
      * @link https://playwright.dev/docs/api/class-page#page-goto
@@ -2082,7 +2094,10 @@ declare function defSchema(
  * @param files
  * @param options
  */
-declare function defImages(files: StringLike, options?: DefImagesOptions): void
+declare function defImages(
+    files: StringLike | Buffer | Blob,
+    options?: DefImagesOptions
+): void
 
 /**
  * Renders a table or object in the prompt

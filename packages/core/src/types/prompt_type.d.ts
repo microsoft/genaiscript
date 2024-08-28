@@ -181,7 +181,10 @@ declare function defSchema(
  * @param files
  * @param options
  */
-declare function defImages(files: StringLike, options?: DefImagesOptions): void
+declare function defImages(
+    files: StringLike | Buffer | Blob,
+    options?: DefImagesOptions
+): void
 
 /**
  * Renders a table or object in the prompt

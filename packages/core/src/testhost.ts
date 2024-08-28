@@ -121,4 +121,5 @@ export class TestHost implements RuntimeHost {
         throw new Error("Method not implemented.")
     }
     async removeContainers(): Promise<void> {}
+    async removeBrowsers(): Promise<void> {}
 }

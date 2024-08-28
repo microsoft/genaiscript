@@ -157,6 +157,11 @@ export interface RuntimeHost extends Host {
      * Cleanup all temporary containers.
      */
     removeContainers(): Promise<void>
+
+    /**
+     * Cleanup all temporary browsers.
+     */
+    removeBrowsers(): Promise<void>
 }
 
 export let host: Host
