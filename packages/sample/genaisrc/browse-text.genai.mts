@@ -1,5 +1,7 @@
 script({
+    model: "gpt-3.5-turbo",
     group: "browser",
+    tests: {},
 })
 const page = await host.browse(
     "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"

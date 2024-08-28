@@ -39,6 +39,8 @@ jobs:
               run: yarn compile
             - name: download ollama docker
               run: docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+            - name: run browse-text
+              run: yarn run:script browse-text --model ollama:phi3 --out ./temp/browse-text
             - name: run summarize-ollama-phi3
               run: yarn test:summarize --model ollama:phi3 --out ./temp/summarize-ollama-phi3
             - name: run vector-search

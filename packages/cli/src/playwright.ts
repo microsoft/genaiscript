@@ -1,6 +1,8 @@
 import type { Browser, BrowserContext, Page } from "playwright"
 import { TraceOptions } from "../../core/src/trace"
 import { logError, logVerbose } from "../../core/src/util"
+import { runtimeHost } from "../../core/src/host"
+import { PLAYWRIGHT_VERSION } from "./version"
 
 type PlaywrightModule = typeof import("playwright")
 
@@ -13,9 +15,28 @@ export class BrowserManager {
 
     private async init() {
         if (this._playwright) return
-        const p = await import("playwright")
-        if (!p) throw new Error("playwright installation not completed")
-        this._playwright = p
+        try {
+            const p = await import("playwright")
+            if (!p) throw new Error("playwright installation not completed")
+            this._playwright = p
+        } catch (e) {
+            const res = await runtimeHost.exec(
+                undefined,
+                "npx",
+                [
+                    `playwright@${PLAYWRIGHT_VERSION}`,
+                    "install-deps",
+                    "chromium",
+                ],
+                {
+                    label: "installing playwright dependencies",
+                }
+            )
+            if (res.exitCode) throw new Error("playwright installation failed")
+            const p = await import("playwright")
+            if (!p) throw new Error("playwright installation not completed")
+            this._playwright = p
+        }
     }
 
     private async launchBrowser(options?: {}) {
