@@ -77,6 +77,9 @@ export class TestHost implements RuntimeHost {
     readSecret(name: string): Promise<string> {
         throw new Error("Method not implemented.")
     }
+    browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage> {
+        throw new Error("Method not implemented.")
+    }
     getLanguageModelConfiguration(
         modelId: string
     ): Promise<LanguageModelConfiguration> {

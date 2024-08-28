@@ -51,8 +51,7 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetrievalSearchOptions extends VectorSearchOptions {
-}
+export interface RetrievalSearchOptions extends VectorSearchOptions {}
 
 export interface RetrievalSearchResponse extends ResponseStatus {
     results: WorkspaceFileWithScore[]
@@ -143,6 +142,16 @@ export interface RuntimeHost extends Host {
      * @param options
      */
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
+
+    /**
+     * Launches a browser page
+     * @param url
+     * @param options
+     */
+    browse(
+        url: string,
+        options?: BrowseSessionOptions & TraceOptions
+    ): Promise<BrowserPage>
 
     /**
      * Cleanup all temporary containers.
