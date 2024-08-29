@@ -1742,6 +1742,24 @@ interface TimeoutOptions {
  */
 interface BrowserLocator {
     /**
+     * Click an element
+     * @link https://playwright.dev/docs/api/class-locator#locator-click
+     */
+    click(
+        options?: { button: "left" | "right" | "middle" } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Returns when element specified by locator satisfies the state option.
+     * @link https://playwright.dev/docs/api/class-locator#locator-wait-for
+     */
+    waitFor(
+        options?: {
+            state: "attached" | "detached" | "visible" | "hidden"
+        } & TimeoutOptions
+    ): Promise<void>
+
+    /**
      * Set a value to the input field.
      * @param value
      * @link https://playwright.dev/docs/api/class-locator#locator-fill
@@ -1771,7 +1789,7 @@ interface BrowserLocator {
      * Returns the value for the matching <input> or <textarea> or <select> element.
      * @link https://playwright.dev/docs/api/class-locator#locator-input-value
      */
-    inputValue(): Promise<string>
+    inputValue(options?: TimeoutOptions): Promise<string>
 
     /**
      * Get the attribute value
@@ -1785,11 +1803,23 @@ interface BrowserLocator {
      * Clears the input field.
      * @link https://playwright.dev/docs/api/class-locator#locator-clear
      */
-    clear(): Promise<void>
+    clear(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Take a screenshot of the element matching the locator.
+     * @link https://playwright.dev/docs/api/class-locator#locator-screenshot
+     */
+    screenshot(options?: TimeoutOptions): Promise<Buffer>
+
+    /**
+     * This method waits for actionability checks, then tries to scroll element into view, unless it is completely visible as defined by IntersectionObserver's ratio.
+     * @link https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed
+     */
+    scrollIntoViewIfNeeded(options?: TimeoutOptions): Promise<void>
 }
 
 /**
- * Playwrite Response instance
+ * Playwright Response instance
  * @link https://playwright.dev/docs/api/class-response
  */
 interface BrowseResponse {
