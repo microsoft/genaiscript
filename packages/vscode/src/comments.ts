@@ -1,8 +1,8 @@
 import * as vscode from "vscode"
 import { ExtensionState } from "./state"
-import { COMMENTS_CACHE, TOOL_ID, TOOL_NAME } from "../../core/src/constants"
-import { JSONLineCache } from "../../core/src/cache"
+import { TOOL_ID, TOOL_NAME } from "../../core/src/constants"
 import { toRange } from "./edit"
+import { commentsCache } from "../../core/src/comments"
 
 export interface CommentKey {}
 
@@ -34,18 +34,18 @@ export function activateComments(state: ExtensionState) {
         `${TOOL_NAME} comments`
     )
     subscriptions.push(controller)
-    const cache = JSONLineCache.byName<CommentKey, CommentValue>(COMMENTS_CACHE)
+    const cache = commentsCache()
 
     vscode.workspace.onDidChangeWorkspaceFolders(async () => {
         const entries = await cache.entries()
         for (const { val } of entries) {
-            const { uri, range, comments, label, resolved } = val
+            const { filename, line, comments, label, resolved } = val
             const thread = controller.createCommentThread(
-                vscode.Uri.parse(uri),
-                toRange(range),
+                state.host.toUri(filename),
+                toRange([line, line]),
                 comments.map(commentToVSCodeComment)
             )
-            thread.label = val.label
+            thread.label = label
             thread.canReply = true
             thread.state = resolved
                 ? vscode.CommentThreadState.Resolved

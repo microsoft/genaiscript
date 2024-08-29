@@ -22,6 +22,7 @@ import { validateJSONWithSchema } from "./schema"
 import { YAMLParse } from "./yaml"
 import { expandTemplate } from "./expander"
 import { resolveLanguageModel } from "./lm"
+import { commentsCache, commentsForSource } from "./comments"
 
 async function resolveExpansionVars(
     project: Project,
@@ -57,6 +58,7 @@ async function resolveExpansionVars(
             secrets[secret] = value
         } else trace.error(`secret \`${secret}\` not found`)
     }
+    const comments = await commentsForSource(template.id)
     const res: Partial<ExpansionVariables> = {
         dir: ".",
         files,
@@ -67,6 +69,7 @@ async function resolveExpansionVars(
         },
         vars: attrs,
         secrets,
+        comments,
     }
     return res
 }

@@ -641,6 +641,18 @@ interface ChatParticipant {
 }
 
 /**
+ * A comment thread
+ */
+interface CommentThread {
+    filename: string
+    source: string
+    line: number
+    comments: Comment[]
+    label?: string
+    resolved?: boolean
+}
+
+/**
  * A comment
  */
 interface Comment {
@@ -724,9 +736,9 @@ interface ExpansionVariables {
     generator: ChatGenerationContext
 
     /**
-     * Comments generated in the context of this prompt
+     * Comment threads generated in the context of this prompt
      */
-    comments: Comment[]
+    comments: CommentThread[]
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
