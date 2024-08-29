@@ -18,6 +18,13 @@ const { stdout: changes } = await host.exec("git", [
     "HEAD",
     "--",
     "**.ts",
+    ":!**/genaiscript.d.ts",
+    ":!**/jsconfig.json",
+    ":!genaisrc/*",
+    ":!.github/*",
+    ":!.vscode/*",
+    ":!*yarn.lock",
+    ":!*THIRD_PARTY_LICENSES.md",
 ])
 
 // list of tests
