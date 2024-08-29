@@ -12,11 +12,13 @@ script({
     ],
 })
 
+const commit = env.vars.commit || "HEAD"
+
 // diff latest commit
 const { stdout: changes } = await host.exec("git", [
     "diff",
-    "HEAD^",
-    "HEAD",
+    `${commit}^`,
+    commit,
     "--",
     "**.ts",
 ])
