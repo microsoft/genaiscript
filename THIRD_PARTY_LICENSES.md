@@ -1520,7 +1520,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.51.3
+ - genaiscript-vscode@1.52.0
 
 This package contains the following license and notice below:
 
@@ -4582,9 +4582,9 @@ The following npm packages may be included in this product:
  - agent-base@6.0.2
  - canvas@2.11.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.51.3
- - genaiscript-sample@1.51.3
- - genaiscript@1.51.3
+ - genaiscript-core-internal@1.52.0
+ - genaiscript-sample@1.52.0
+ - genaiscript@1.52.0
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1
