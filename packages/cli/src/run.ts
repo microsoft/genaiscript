@@ -303,7 +303,7 @@ export async function runScript(
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
     if (!isQuiet) logVerbose("") // force new line
-    if (result.status !== "success")
+    if (result.status !== "success" && result.status !== "cancelled")
         logVerbose(result.statusText ?? result.status)
 
     if (outAnnotations && result.annotations?.length) {
@@ -485,7 +485,7 @@ export async function runScript(
         }
     }
     // final fail
-    if (result.error)
+    if (result.error && !isCancelError(result.error))
         return fail(errorMessage(result.error), RUNTIME_ERROR_CODE)
 
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))

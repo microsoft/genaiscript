@@ -182,9 +182,9 @@ export function logError(msg: string | Error | SerializedError) {
     const { message, name, stack, ...e } = err
     if (isCancelError(err)) {
         host.log(LogLevel.Info, message || "cancelled")
-    } else {
-        host.log(LogLevel.Error, message ?? name ?? "error")
+        return
     }
+    host.log(LogLevel.Error, message ?? name ?? "error")
     if (stack) host.log(LogLevel.Verbose, stack)
     if (Object.keys(e).length) {
         const se = YAMLStringify(e)
