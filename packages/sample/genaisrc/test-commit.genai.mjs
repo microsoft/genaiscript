@@ -27,6 +27,8 @@ const { stdout: changes } = await host.exec("git", [
     ":!*THIRD_PARTY_LICENSES.md",
 ])
 
+if (!changes) cancel("No changes in the latest commit.")
+
 // list of tests
 const { stdout: tests } = await host.exec("node", [
     "packages/cli/built/genaiscript.cjs",
@@ -40,6 +42,7 @@ def("GIT_DIFF", changes, {
     language: "diff",
     maxTokens: 20000,
     ignoreEmpty: true,
+    lineNumbers: false,
 })
 def(
     "TESTS",
@@ -47,7 +50,7 @@ def(
         .split(/\n/g)
         .map((test) => test.split(/,\s*/)[1])
         .map((filename) => ({ filename })),
-    { language: "txt", maxTokens: 1000 }
+    { language: "txt", maxTokens: 1000, lineNumbers: false }
 )
 
 $`You are an expert TypeScript software developer and architect.
