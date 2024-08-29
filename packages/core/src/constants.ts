@@ -2,8 +2,6 @@ export const CHANGE = "change"
 export const TRACE_CHUNK = "traceChunk"
 export const RECONNECT = "reconnect"
 export const OPEN = "open"
-export const MAX_CACHED_TEMPERATURE = 0.5
-export const MAX_CACHED_TOP_P = 0.5
 export const MAX_TOOL_CALLS = 10000
 
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
@@ -211,7 +209,7 @@ export const GITHUB_API_VERSION = "2022-11-28"
 export const GITHUB_TOKEN = "GITHUB_TOKEN"
 
 export const AI_REQUESTS_CACHE = "airequests"
-export const CHAT_CACHE = "chatv2"
+export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
 export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 

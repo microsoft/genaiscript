@@ -1,7 +1,6 @@
 script({
     model: "openai:gpt-3.5-turbo",
-    cache: true,
-    cacheName: "gpt-cache",
+    cache: "gpt-cache",
     tests: [{}, {}], // run twice to trigger caching
 })
 

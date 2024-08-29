@@ -5,7 +5,7 @@ script({
     tests: {
         files: ["src/rag/*.md"],
         keywords: ["markdown", "lorem", "microsoft"],
-    }
+    },
 })
 
 // summarize each files individually
@@ -15,7 +15,7 @@ for (const file of env.files) {
             _.def("FILE", file)
             _.$`Extract keywords for the contents of FILE.`
         },
-        { model: "ollama:phi3", cacheName: "summary_phi3" }
+        { model: "ollama:phi3", cache: "summary_phi3" }
     )
     def("FILE", { ...file, content: text })
 }

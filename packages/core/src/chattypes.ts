@@ -86,7 +86,7 @@ export interface ChatCompletionsOptions {
     requestOptions?: Partial<Omit<RequestInit, "signal">>
     maxCachedTemperature?: number
     maxCachedTopP?: number
-    cache?: boolean
+    cache?: boolean | string
     cacheName?: string
     retry?: number
     retryDelay?: number

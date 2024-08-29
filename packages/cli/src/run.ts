@@ -104,10 +104,12 @@ export async function runScriptWithExitCode(
             break
 
         const delayMs = 2000 * Math.pow(2, r)
-        console.error(
-            `error: run failed with ${exitCode}, retry #${r + 1}/${runRetry} in ${delayMs}ms`
-        )
-        await delay(delayMs)
+        if (runRetry > 1) {
+            console.error(
+                `error: run failed with ${exitCode}, retry #${r + 1}/${runRetry} in ${delayMs}ms`
+            )
+            await delay(delayMs)
+        }
     }
     process.exit(exitCode)
 }
@@ -156,7 +158,7 @@ export async function runScript(
     const jsSource = options.jsSource
 
     const fail = (msg: string, exitCode: number) => {
-        logVerbose(msg)
+        logError(msg)
         return { exitCode, result }
     }
 
@@ -303,9 +305,6 @@ export async function runScript(
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
     if (!isQuiet) logVerbose("") // force new line
-    if (result.status !== "success" && result.status !== "cancelled")
-        logVerbose(result.statusText ?? result.status)
-
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
             await appendJSONL(outAnnotations, result.annotations)
@@ -485,8 +484,10 @@ export async function runScript(
         }
     }
     // final fail
-    if (result.error && !isCancelError(result.error))
-        return fail(errorMessage(result.error), RUNTIME_ERROR_CODE)
+    if (result.status !== "success" && result.status !== "cancelled") {
+        const msg = errorMessage(result.error) ?? result.statusText
+        return fail(msg, RUNTIME_ERROR_CODE)
+    }
 
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
