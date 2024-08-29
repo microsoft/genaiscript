@@ -149,7 +149,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             body = await r.text()
         } catch (e) {}
-        const { error } = JSON5TryParse(body, {}) as { error: any }
+        const { error, message } = JSON5TryParse(body, {}) as {
+            error: any
+            message: string
+        }
+        if (message) trace.error(message)
         if (error)
             trace.error(undefined, <SerializedError>{
                 name: error.code,
@@ -158,7 +162,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             })
         throw new RequestError(
             r.status,
-            r.statusText,
+            message ?? error?.message ?? r.statusText,
             error,
             body,
             normalizeInt(r.headers.get("retry-after"))
