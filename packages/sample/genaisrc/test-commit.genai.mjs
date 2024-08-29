@@ -60,7 +60,8 @@ $`You are an expert TypeScript software developer and architect.
 
 # Task 1
 
-Review the code changes in GIT_DIFF and summarize the changes. Keep it short.
+Review the code changes in GIT_DIFF and summarize the changes. 
+Keep it short.
 
 # Task 2
 
@@ -68,6 +69,8 @@ For each test in TESTS, assign a validation score between
     - low: The test is not impacted by the changes in GIT_DIFF.
     - medium: The test may be impacted by the changes in GIT_DIFF.
     - high: The test is most likely impacted by the changes in GIT_DIFF.
+
+Use the fs_read_file to read the test code.
 
 Report each test, the score and the reason for the score.
 
