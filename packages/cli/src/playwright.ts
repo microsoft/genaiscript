@@ -86,7 +86,6 @@ export class BrowserManager {
 
         logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
-        logVerbose(`navigating...`)
         let page: Page
         if (incognito) {
             const context = await browser.newContext(rest)
@@ -96,7 +95,6 @@ export class BrowserManager {
         }
         if (timeout !== undefined) page.setDefaultTimeout(timeout)
         if (url) await page.goto(url)
-        logVerbose(`page ready`)
         return page
     }
 }

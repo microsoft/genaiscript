@@ -255,7 +255,7 @@ export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output }
 }
 
-export function createDefDataNode(
+export function createDefData(
     name: string,
     data: object | object[],
     options?: DefDataOptions
