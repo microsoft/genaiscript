@@ -23,6 +23,7 @@ if (!diff.stdout) {
 console.log(diff.stdout)
 
 let choice
+let message
 do {
     // Generate commit message
     const res = await runPrompt(
