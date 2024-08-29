@@ -3,6 +3,7 @@ script({
     temperature: 0,
     files: [],
     title: "pull request commit review",
+    tools: "fs",
     system: [
         "system",
         "system.files",
@@ -44,13 +45,15 @@ def("GIT_DIFF", changes, {
     ignoreEmpty: true,
     lineNumbers: false,
 })
+
 def(
     "TESTS",
     tests
         .split(/\n/g)
         .map((test) => test.split(/,\s*/)[1])
-        .map((filename) => ({ filename })),
-    { language: "txt", maxTokens: 1000, lineNumbers: false }
+        .map((filename) => filename)
+        .join("\n"),
+    { language: "txt", lineNumbers: false }
 )
 
 $`You are an expert TypeScript software developer and architect.

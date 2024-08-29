@@ -3,3 +3,7 @@ import { cli } from "./cli"
 
 installGlobals()
 cli()
+
+/**
+ * DUMMY CHANGE
+ */
