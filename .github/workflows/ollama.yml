@@ -8,15 +8,6 @@ on:
             - "packages/core/**/*"
             - "packages/cli/**/*"
             - "packages/samples/**/*"
-    push:
-        branches:
-            - main
-        paths:
-            - yarn.lock
-            - ".github/workflows/ollama.yml"
-            - "packages/core/**/*"
-            - "packages/cli/**/*"
-            - "packages/samples/**/*"
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}-ollama
     cancel-in-progress: true
