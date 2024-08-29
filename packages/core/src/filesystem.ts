@@ -1,3 +1,4 @@
+import { JSONLineCache } from "./cache"
 import { DOT_ENV_REGEX } from "./constants"
 import { NotSupportedError, errorMessage } from "./error"
 import { resolveFileContent } from "./file"
@@ -5,6 +6,7 @@ import { readText, writeText } from "./fs"
 import { host } from "./host"
 import { JSON5parse } from "./json5"
 import { logVerbose } from "./util"
+import { XMLParse, XMLTryParse } from "./xml"
 
 export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
     const fs: Omit<WorkspaceFileSystem, "grep"> = {
@@ -35,7 +37,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
 
             await writeText(filename, c)
         },
-        readText: async (f: string | WorkspaceFile) => {
+        readText: async (f: string | Awaitable<WorkspaceFile>) => {
             if (f === undefined)
                 throw new NotSupportedError("missing file name")
 
@@ -45,7 +47,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
                           filename: f,
                           content: undefined,
                       }
-                    : f
+                    : await f
             if (DOT_ENV_REGEX.test(file.filename)) return file
             try {
                 await resolveFileContent(file)
@@ -56,10 +58,26 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             }
             return file
         },
-        readJSON: async (f: string | WorkspaceFile) => {
+        readJSON: async (f: string | Awaitable<WorkspaceFile>) => {
             const file = await fs.readText(f)
             const res = JSON5parse(file.content)
             return res
+        },
+        readXML: async (f: string | Awaitable<WorkspaceFile>) => {
+            const file = await fs.readText(f)
+            const res = XMLParse(file.content)
+            return res
+        },
+        cache: async (name: string) => {
+            if (!name) throw new NotSupportedError("missing cache name")
+            const res = JSONLineCache.byName<any, any>(name)
+            return <WorkspaceFileCache<any, any>>{
+                get: async (key: any) => res.get(key),
+                set: async (key: any, val: any) => res.set(key, val),
+                keys: async () => res.keys(),
+                values: async () =>
+                    res.entries().then((es) => es.map((e) => e.val)),
+            }
         },
     }
     ;(fs as any).readFile = readText

@@ -14,32 +14,43 @@ defTool(
                 description:
                     "Path of the file to load, relative to the workspace.",
             },
-            linestart: {
+            line_start: {
                 type: "integer",
                 description: "Line number (1-based) to start reading from.",
             },
-            lineend: {
+            line_end: {
                 type: "integer",
                 description: "Line number (1-based) to end reading at.",
             },
+            line_numbers: {
+                type: "boolean",
+                description: "Whether to include line numbers in the output.",
+            }
         },
         required: ["filename"],
     },
     async (args) => {
-        let { filename, linestart, lineend } = args
+        let { filename, line_start, line_end, line_numbers } = args
         if (!filename) return ""
-        linestart = parseInt(linestart) - 1
-        lineend = parseInt(lineend)
+        line_start = parseInt(line_start) - 1
+        line_end = parseInt(line_end)
         let content
         try {
+            console.log(`cat ${filename}`)
             const res = await workspace.readText(filename)
             content = res.content ?? ""
         } catch (e) {
-            return ""
+            return undefined
         }
-        if (!isNaN(linestart) && !isNaN(lineend)) {
+        if (line_numbers) {
             const lines = content.split("\n")
-            content = lines.slice(linestart, lineend).join("\n")
+            content = lines
+                .map((line, i) => `[${i + 1}] ${line}`)
+                .join("\n")
+        }
+        if (!isNaN(line_start) && !isNaN(line_end)) {
+            const lines = content.split("\n")
+            content = lines.slice(line_start, line_end).join("\n")
         }
         return content
     }

@@ -61,6 +61,15 @@ yarn slides [slides file name]
 
 Learn more about Slidev on [documentations](https://sli.dev/). For diagrams, leverage [mermaid](https://sli.dev/guide/syntax#diagrams) or use draw.io, tldraw.
 
+## GenAI Script
+
+- Commit with aut-generated message
+
+```sh
+yarn gcm
+```
+
+
 ## Packaging
 
 To compile and package the Visual Studio Code extension, run the `package` script.

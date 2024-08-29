@@ -15,7 +15,7 @@ for (const file of env.files) {
             _.def("FILE", file)
             _.$`Summarize FILE. Be concise.`
         },
-        { model: "gpt-3.5-turbo", cacheName: "summary_gpt35" }
+        { model: "gpt-3.5-turbo", cache: "summary_gpt35" }
     )
     // save the summary in the main prompt
     def("FILE", { filename: file.filename, content: text })

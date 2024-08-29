@@ -13,5 +13,8 @@
     // Copy pasted files in documentation pages to the `src/assets/` directory.
     "markdown.copyFiles.destination": {
         "/src/content/docs/**/*": "/src/assets/"
+    },
+    "genaiscript.languageChatModels": {
+        "client:gpt-4": "github.copilot-chat/2/gpt-4"
     }
 }

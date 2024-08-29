@@ -2,6 +2,8 @@
 title: Structured Output
 sidebar:
     order: 12.1
+description: Utilize structured output in GenAIScript to generate JSON data with schema validation for precise and reliable data structuring.
+keywords: structured output, JSON schema, GenAIScript, data validation, reliable data
 ---
 
 Structured output is a feature that allows you to generate structured data in JSON format with a [JSON schema](/genaiscript/reference/scripts/schemas). This is more strict than [JSON mode](/genaiscript/reference/scripts/json-mode) and is supported by `gpt-4o-mini`, `gpt-4o-2024-08-06` and [later models](https://platform.openai.com/docs/guides/structured-outputs/structured-outputs-vs-json-mode).

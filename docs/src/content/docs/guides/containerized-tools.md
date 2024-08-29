@@ -40,9 +40,7 @@ The LLM engine will invoke the tool to validate the syntax of the generated code
 script({
     model: "openai:gpt-3.5-turbo",
 })
-const container = await host.container({
-    image: "gcc",
-})
+let container = undefined
 let sourceIndex = 0
 defTool(
     "gcc",
@@ -52,6 +50,12 @@ defTool(
     },
     async (args) => {
         const { source } = args
+
+        if (!container) // lazy allocation of container
+            container = await host.container({
+                image: "gcc",
+            })
+
         const fn = `tmp/${sourceIndex++}/main.c`
         await container.writeText(fn, source)
         const res = await container.exec("gcc", [fn])

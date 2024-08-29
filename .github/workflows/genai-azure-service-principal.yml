@@ -1,0 +1,29 @@
+name: az login with service principal
+on:
+    workflow_dispatch:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Azure Login action
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+            - uses: actions/checkout@v4
+              with:
+                  submodules: "recursive"
+                  fetch-depth: 0
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: yarn
+            - run: yarn install --frozen-lockfile
+            - name: typecheck
+              run: yarn typecheck
+            - name: compile
+              run: yarn compile
+            - name: run script with azure deployment
+              run: node packages/cli/built/genaiscript.cjs run poem --model azure:gpt-4-turbo --out-trace $GITHUB_STEP_SUMMARY
+              env:
+                  AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}

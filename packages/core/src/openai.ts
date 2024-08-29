@@ -2,8 +2,6 @@ import { normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
-    MAX_CACHED_TEMPERATURE,
-    MAX_CACHED_TOP_P,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
@@ -50,36 +48,28 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     options,
     trace
 ) => {
-    const { temperature, top_p, seed, tools } = req
     const {
         requestOptions,
         partialCb,
-        maxCachedTemperature = MAX_CACHED_TEMPERATURE,
-        maxCachedTopP = MAX_CACHED_TOP_P,
-        cache: useCache,
+        cache: cacheOrName,
         cacheName,
         retry,
         retryDelay,
         maxDelay,
         cancellationToken,
+        inner,
     } = options
     const { headers, ...rest } = requestOptions || {}
     const { token, source, ...cfgNoToken } = cfg
     const { model } = parseModelIdentifier(req.model)
     const encoder = await resolveTokenEncoder(model)
 
-    const cache = getChatCompletionCache(cacheName)
-    const caching =
-        useCache === true || // always use cache
-        (useCache !== false && // never use cache
-            seed === undefined && // seed is not cacheable (let the LLM make the run deterministic)
-            !tools?.length && // assume tools are non-deterministic by default
-            (isNaN(temperature) ||
-                isNaN(maxCachedTemperature) ||
-                temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
-            (isNaN(top_p) || isNaN(maxCachedTopP) || top_p < maxCachedTopP))
-    trace.itemValue(`caching`, caching)
-    const cachedKey = caching
+    const cache = getChatCompletionCache(
+        typeof cacheOrName === "string" ? cacheOrName : cacheName
+    )
+    trace.itemValue(`caching`, !!cache)
+    trace.itemValue(`cache`, cache?.name)
+    const cachedKey = !!cacheOrName
         ? <ChatCompletionRequestCacheKey>{
               ...req,
               ...cfgNoToken,
@@ -96,6 +86,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             tokensSoFar: estimateTokens(cached, encoder),
             responseSoFar: cached,
             responseChunk: cached,
+            inner,
         })
         trace.itemValue(`cache hit`, await cache.getKeySHA(cachedKey))
         return { text: cached, finishReason: cachedFinishReason, cached: true }
@@ -158,7 +149,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
         try {
             body = await r.text()
         } catch (e) {}
-        const { error } = JSON5TryParse(body, {}) as { error: any }
+        const { error, message } = JSON5TryParse(body, {}) as {
+            error: any
+            message: string
+        }
+        if (message) trace.error(message)
         if (error)
             trace.error(undefined, <SerializedError>{
                 name: error.code,
@@ -167,7 +162,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             })
         throw new RequestError(
             r.status,
-            r.statusText,
+            message ?? error?.message ?? r.statusText,
             error,
             body,
             normalizeInt(r.headers.get("retry-after"))
@@ -261,6 +256,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
                 responseChunk: progress,
+                inner,
             })
         }
         pref = chunk

@@ -98,12 +98,23 @@ You can use `parsers.JSONL` to parse the JSONL files into an array of object (`a
 const res = parsers.JSONL(file)
 ```
 
-## XML
+## [XML](./xml.md)
 
 The `parsers.XML` function parses for the [XML format](https://en.wikipedia.org/wiki/XML).
 
 ```js
-const res = parsers.XML("<xml></xml>")
+const res = parsers.XML('<xml attr="1"><child /></xml>')
+```
+
+Attribute names are prepended with "@_".
+
+```json
+{
+    "xml": {
+        "@_attr": "1",
+        "child": {}
+    }
+}
 ```
 
 ## front matter
@@ -118,7 +129,7 @@ title: "Hello, World!"
 ...
 ```
 
-You can use the `parsers.frontmatter` to parse out the metadata into an object
+You can use the `parsers.frontmatter` or [MD](./md.md) to parse out the metadata into an object
 
 ```js
 const meta = parsers.frontmatter(file)

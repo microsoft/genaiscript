@@ -1,10 +1,9 @@
 import { capitalize } from "inflection"
-import { resolve, join, relative } from "node:path"
-import { isQuiet } from "./log"
-import { emptyDir, ensureDir } from "fs-extra"
+import { resolve, join, relative, dirname } from "node:path"
+import { isQuiet, wrapColor } from "./log"
+import { emptyDir, ensureDir, appendFileSync } from "fs-extra"
 import { convertDiagnosticsToSARIF } from "./sarif"
 import { buildProject } from "./build"
-import { createProgressSpinner } from "./spinner"
 import { diagnosticsToCSV } from "../../core/src/ast"
 import { CancellationOptions } from "../../core/src/cancellation"
 import { ChatCompletionsProgressReport } from "../../core/src/chattypes"
@@ -25,10 +24,15 @@ import {
     CLI_RUN_FILES_FOLDER,
     ANNOTATION_ERROR_CODE,
     GENAI_ANY_REGEX,
+    TRACE_CHUNK,
+    UNRECOVERABLE_ERROR_CODES,
+    SUCCESS_ERROR_CODE,
+    RUNS_DIR_NAME,
+    CONSOLE_COLOR_DEBUG,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
-import { parseKeyValuePairs } from "../../core/src/fence"
+import { parseKeyValuePair } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
 import { host, runtimeHost } from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
@@ -37,12 +41,18 @@ import {
     JSONSchemaStringifyToTypeScript,
     JSONSchemaStringify,
 } from "../../core/src/schema"
-import { TraceOptions, MarkdownTrace } from "../../core/src/trace"
+import {
+    TraceOptions,
+    MarkdownTrace,
+    TraceChunkEvent,
+} from "../../core/src/trace"
 import {
     normalizeFloat,
     normalizeInt,
     logVerbose,
     logError,
+    delay,
+    dotGenaiscriptPath,
 } from "../../core/src/util"
 import { YAMLStringify } from "../../core/src/yaml"
 import { PromptScriptRunOptions } from "../../core/src/server/messages"
@@ -52,8 +62,22 @@ import {
     azureDevOpsParseEnv,
     azureDevOpsUpdatePullRequestDescription,
 } from "../../core/src/azuredevops"
-import { estimateTokens } from "../../core/src/tokens"
 import { resolveTokenEncoder } from "../../core/src/encoders"
+import { writeFile } from "fs/promises"
+
+async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
+    logVerbose(`trace: ${filename}`)
+    await ensureDir(dirname(filename))
+    await writeFile(filename, "", { encoding: "utf-8" })
+    trace.addEventListener(
+        TRACE_CHUNK,
+        (ev) => {
+            const tev = ev as TraceChunkEvent
+            appendFileSync(filename, tev.chunk, { encoding: "utf-8" })
+        },
+        false
+    )
+}
 
 export async function runScriptWithExitCode(
     scriptId: string,
@@ -62,7 +86,31 @@ export async function runScriptWithExitCode(
         TraceOptions &
         CancellationOptions
 ) {
-    const { exitCode } = await runScript(scriptId, files, options)
+    const runRetry = Math.max(1, normalizeInt(options.runRetry) || 1)
+    let exitCode = -1
+    for (let r = 0; r < runRetry; ++r) {
+        let outTrace = options.outTrace
+        if (!outTrace)
+            outTrace = dotGenaiscriptPath(
+                RUNS_DIR_NAME,
+                `${new Date().toISOString().replace(/[:.]/g, "-")}.trace.md`
+            )
+        const res = await runScript(scriptId, files, { ...options, outTrace })
+        exitCode = res.exitCode
+        if (
+            exitCode === SUCCESS_ERROR_CODE ||
+            UNRECOVERABLE_ERROR_CODES.includes(exitCode)
+        )
+            break
+
+        const delayMs = 2000 * Math.pow(2, r)
+        if (runRetry > 1) {
+            console.error(
+                `error: run failed with ${exitCode}, retry #${r + 1}/${runRetry} in ${delayMs}ms`
+            )
+            await delay(delayMs)
+        }
+    }
     process.exit(exitCode)
 }
 
@@ -109,14 +157,22 @@ export async function runScript(
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
 
-    const spinner =
-        !stream && !isQuiet
-            ? createProgressSpinner(`preparing tools in ${process.cwd()}`)
-            : undefined
     const fail = (msg: string, exitCode: number) => {
-        if (spinner) spinner.fail(msg)
-        else logVerbose(msg)
+        logError(msg)
         return { exitCode, result }
+    }
+
+    if (out) {
+        if (removeOut) await emptyDir(out)
+        await ensureDir(out)
+    }
+    if (outTrace && !/^false$/i.test(outTrace) && trace)
+        await setupTraceWriting(trace, outTrace)
+    if (out && trace) {
+        const ofn = join(out, "res.trace.md")
+        if (ofn !== outTrace) {
+            await setupTraceWriting(trace, ofn)
+        }
     }
 
     const toolFiles: string[] = []
@@ -130,7 +186,7 @@ export async function runScript(
             const ffs = await host.findFiles(arg, {
                 applyGitIgnore: excludeGitIgnore,
             })
-            if (!ffs.length) {
+            if (!ffs?.length) {
                 return fail(
                     `no files matching ${arg}`,
                     FILES_NOT_FOUND_ERROR_CODE
@@ -165,11 +221,14 @@ export async function runScript(
                 GENAI_ANY_REGEX.test(scriptId) &&
                 resolve(t.filename) === resolve(scriptId))
     )
-    if (!script) throw new Error(`tool ${scriptId} not found`)
+    if (!script) throw new Error(`script ${scriptId} not found`)
     const fragment: Fragment = {
         files: Array.from(resolvedFiles),
     }
-    const vars = parseKeyValuePairs(options.vars)
+    const vars = options.vars?.reduce(
+        (acc, v) => ({ ...acc, ...parseKeyValuePair(v) }),
+        {}
+    )
     let tokens = 0
     try {
         if (options.label) trace.heading(2, options.label)
@@ -185,19 +244,29 @@ export async function runScript(
         trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
         result = await runTemplate(prj, script, fragment, {
+            inner: false,
             infoCb: (args) => {
                 const { text } = args
                 if (text) {
-                    if (spinner) spinner.start(text)
-                    else if (!isQuiet) logVerbose(text)
+                    if (!isQuiet) logVerbose(text)
                     infoCb?.(args)
                 }
             },
             partialCb: (args) => {
-                const { responseChunk, tokensSoFar } = args
+                const { responseChunk, tokensSoFar, inner } = args
                 tokens = tokensSoFar
-                if (stream && responseChunk) process.stdout.write(responseChunk)
-                if (spinner) spinner.report({ count: tokens })
+                if (responseChunk !== undefined) {
+                    if (stream) {
+                        if (!inner) process.stdout.write(responseChunk)
+                        else
+                            process.stderr.write(
+                                wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
+                            )
+                    } else if (!isQuiet)
+                        process.stderr.write(
+                            wrapColor(CONSOLE_COLOR_DEBUG, responseChunk)
+                        )
+                }
                 partialCb?.(args)
             },
             skipLLM,
@@ -230,21 +299,12 @@ export async function runScript(
             },
         })
     } catch (err) {
-        if (spinner) spinner.fail()
         if (isCancelError(err))
             return fail("user cancelled", USER_CANCELLED_ERROR_CODE)
         logError(err)
         return fail("runtime error", RUNTIME_ERROR_CODE)
     }
     if (!isQuiet) logVerbose("") // force new line
-    if (spinner) {
-        if (result.status !== "success")
-            spinner.fail(`${spinner.text}, ${result.statusText}`)
-        else spinner.succeed()
-    } else if (result.status !== "success")
-        logVerbose(result.statusText ?? result.status)
-
-    if (outTrace) await writeText(outTrace, trace.content)
     if (outAnnotations && result.annotations?.length) {
         if (isJSONLFilename(outAnnotations))
             await appendJSONL(outAnnotations, result.annotations)
@@ -273,8 +333,6 @@ export async function runScript(
         ? JSON.stringify(result.messages, null, 2)
         : undefined
     if (out) {
-        if (removeOut) await emptyDir(out)
-        await ensureDir(out)
         const jsonf = join(out, `res.json`)
         const yamlf = join(out, `res.yaml`)
 
@@ -283,7 +341,6 @@ export async function runScript(
         const outputf = mkfn(".output.md")
         const outputjson = mkfn(".output.json")
         const outputyaml = mkfn(".output.yaml")
-        const tracef = mkfn(".trace.md")
         const annotationf = result.annotations?.length
             ? mkfn(".annotations.csv")
             : undefined
@@ -299,7 +356,6 @@ export async function runScript(
             await writeText(outputyaml, YAMLStringify(result.json))
         }
         if (result.text) await writeText(outputf, result.text)
-        if (trace) await writeText(tracef, trace.content)
         if (result.schemas) {
             for (const [sname, schema] of Object.entries(result.schemas)) {
                 await writeText(
@@ -428,13 +484,14 @@ export async function runScript(
         }
     }
     // final fail
-    if (result.error)
-        return fail(errorMessage(result.error), RUNTIME_ERROR_CODE)
+    if (result.status !== "success" && result.status !== "cancelled") {
+        const msg = errorMessage(result.error) ?? result.statusText
+        return fail(msg, RUNTIME_ERROR_CODE)
+    }
 
     if (failOnErrors && result.annotations?.some((a) => a.severity === "error"))
         return fail("error annotations found", ANNOTATION_ERROR_CODE)
 
-    spinner?.stop()
     process.stderr.write("\n")
     return { exitCode: 0, result }
 }

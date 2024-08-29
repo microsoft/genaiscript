@@ -32,65 +32,56 @@ import {
 } from "./runpromptcontext"
 import { CSVParse, CSVToMarkdown } from "./csv"
 import { INIParse, INIStringify } from "./ini"
-import { CancelError, isCancelError, serializeError } from "./error"
+import {
+    CancelError,
+    isCancelError,
+    NotSupportedError,
+    serializeError,
+} from "./error"
 import { createFetch } from "./fetch"
 import { XMLParse } from "./xml"
 import { GenerationOptions } from "./generation"
 import { fuzzSearch } from "./fuzzsearch"
 import { parseModelIdentifier } from "./models"
 import { renderAICI } from "./aici"
-import { MODEL_PROVIDER_AICI } from "./constants"
+import { MODEL_PROVIDER_AICI, SYSTEM_FENCE } from "./constants"
 import { JSONLStringify, JSONLTryParse } from "./jsonl"
 import { grepSearch } from "./grep"
 import { resolveFileContents, toWorkspaceFile } from "./file"
 import { vectorSearch } from "./vectorsearch"
-import { ChatCompletionMessageParam } from "./chattypes"
+import {
+    ChatCompletionMessageParam,
+    ChatCompletionSystemMessageParam,
+} from "./chattypes"
 import { resolveModelConnectionInfo } from "./models"
 import { resolveLanguageModel } from "./lm"
+import { callExpander } from "./expander"
+import { Project } from "./ast"
+import {
+    frontmatterTryParse,
+    splitMarkdown,
+    updateFrontmatter,
+} from "./frontmatter"
+import { url } from "node:inspector"
 
 export async function createPromptContext(
+    prj: Project,
     vars: ExpansionVariables,
     trace: MarkdownTrace,
     options: GenerationOptions,
     model: string
 ) {
     const { cancellationToken, infoCb } = options || {}
-    const env = structuredClone(vars)
+    const { generator, ...varsNoGenerator } = vars
+    const env = { generator, ...structuredClone(varsNoGenerator) }
     const parsers = await createParsers({ trace, model })
-    const YAML = Object.freeze<YAML>({
-        stringify: YAMLStringify,
-        parse: YAMLParse,
-    })
-    const CSV = Object.freeze<CSV>({
-        parse: CSVParse,
-        markdownify: CSVToMarkdown,
-    })
-    const INI = Object.freeze<INI>({
-        parse: INIParse,
-        stringify: INIStringify,
-    })
-    const XML = Object.freeze<XML>({
-        parse: XMLParse,
-    })
-    const JSONL = Object.freeze<JSONL>({
-        parse: JSONLTryParse,
-        stringify: JSONLStringify,
-    })
-    const AICI = Object.freeze<AICI>({
-        gen: (options: AICIGenOptions) => {
-            // validate options
-            return {
-                type: "aici",
-                name: "gen",
-                options,
-            }
-        },
-    })
     const path = runtimeHost.path
     const workspace: WorkspaceFileSystem = {
         readText: (f) => runtimeHost.workspace.readText(f),
         readJSON: (f) => runtimeHost.workspace.readJSON(f),
+        readXML: (f) => runtimeHost.workspace.readXML(f),
         writeText: (f, c) => runtimeHost.workspace.writeText(f, c),
+        cache: (n) => runtimeHost.workspace.cache(n),
         findFiles: async (pattern, options) => {
             const res = await runtimeHost.workspace.findFiles(pattern, options)
             trace.files(res, {
@@ -100,13 +91,14 @@ export async function createPromptContext(
             })
             return res
         },
-        grep: async (query, globs) => {
+        grep: async (query, globs, options) => {
             trace.startDetails(
                 `🌐 grep <code>${HTMLEscape(typeof query === "string" ? query : query.source)}</code>`
             )
             try {
                 const { files } = await grepSearch(query, arrayify(globs), {
                     trace,
+                    ...options,
                 })
                 trace.files(files, { model, secrets: env.secrets })
                 return { files }
@@ -210,6 +202,13 @@ export async function createPromptContext(
             })
             return res
         },
+        browse: async (url, options) => {
+            const res = await runtimeHost.browse(url, {
+                trace,
+                ...(options || {}),
+            })
+            return res
+        },
         container: async (options) => {
             const res = await runtimeHost.container({
                 ...(options || {}),
@@ -228,12 +227,6 @@ export async function createPromptContext(
         fs: workspace,
         workspace,
         parsers,
-        YAML,
-        CSV,
-        INI,
-        AICI,
-        XML,
-        JSONL,
         retrieval,
         host: promptHost,
         defOutputProcessor,
@@ -245,11 +238,12 @@ export async function createPromptContext(
         },
         runPrompt: async (generator, runOptions): Promise<RunPromptResult> => {
             try {
-                const { label } = runOptions || {}
+                const { label, system = [] } = runOptions || {}
                 trace.startDetails(`🎁 run prompt ${label || ""}`)
                 infoCb?.({ text: `run prompt ${label || ""}` })
 
                 const genOptions = mergeGenerationOptions(options, runOptions)
+                genOptions.inner = true
                 const ctx = createChatGenerationContext(genOptions, trace)
                 if (typeof generator === "string")
                     ctx.node.children.push(createTextNode(generator))
@@ -262,6 +256,7 @@ export async function createPromptContext(
                 let tools: ToolCallback[] = undefined
                 let schemas: Record<string, JSONSchema> = undefined
                 let chatParticipants: ChatParticipant[] = undefined
+
                 // expand template
                 const { provider } = parseModelIdentifier(genOptions.model)
                 if (provider === MODEL_PROVIDER_AICI) {
@@ -288,10 +283,61 @@ export async function createPromptContext(
                         throw new Error("errors while running prompt")
                 }
 
+                const systemMessage: ChatCompletionSystemMessageParam = {
+                    role: "system",
+                    content: "",
+                }
+                for (const systemId of system) {
+                    checkCancelled(cancellationToken)
+
+                    const system = prj.getTemplate(systemId)
+                    if (!system)
+                        throw new Error(`system template ${systemId} not found`)
+                    trace.startDetails(`👾 ${system.id}`)
+                    const sysr = await callExpander(
+                        prj,
+                        system,
+                        env,
+                        trace,
+                        genOptions
+                    )
+                    if (sysr.images?.length)
+                        throw new NotSupportedError("images")
+                    if (sysr.schemas) Object.assign(schemas, sysr.schemas)
+                    if (sysr.functions) tools.push(...sysr.functions)
+                    if (sysr.fileMerges?.length)
+                        throw new NotSupportedError("fileMerges")
+                    if (sysr.outputProcessors?.length)
+                        throw new NotSupportedError("outputProcessors")
+                    if (sysr.chatParticipants)
+                        chatParticipants.push(...sysr.chatParticipants)
+                    if (sysr.fileOutputs?.length)
+                        throw new NotSupportedError("fileOutputs")
+                    if (sysr.logs?.length)
+                        trace.details("📝 console.log", sysr.logs)
+                    if (sysr.text) {
+                        systemMessage.content +=
+                            SYSTEM_FENCE + "\n" + sysr.text + "\n"
+                        trace.fence(sysr.text, "markdown")
+                    }
+                    if (sysr.aici) {
+                        trace.fence(sysr.aici, "yaml")
+                        messages.push(sysr.aici)
+                    }
+                    trace.detailsFenced("js", system.jsSource, "js")
+                    trace.endDetails()
+                    if (sysr.status !== "success")
+                        throw new Error(
+                            `system ${system.id} failed ${sysr.status} ${sysr.statusText}`
+                        )
+                }
+                if (systemMessage.content) messages.unshift(systemMessage)
+
                 const connection = await resolveModelConnectionInfo(
                     genOptions,
                     { trace, token: true }
                 )
+                checkCancelled(cancellationToken)
                 if (!connection.configuration)
                     throw new Error(
                         "model connection error " + connection.info?.model
@@ -299,6 +345,7 @@ export async function createPromptContext(
                 const { completer } = await resolveLanguageModel(
                     connection.configuration.provider
                 )
+                checkCancelled(cancellationToken)
                 if (!completer)
                     throw new Error(
                         "model driver not found for " + connection.info

@@ -51,7 +51,7 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: StringLike,
+    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
     options?: DefOptions
 ): string
 
@@ -62,17 +62,21 @@ declare function def(
  */
 declare function defFileOutput(
     pattern: string,
-    description: string,
+    description?: string,
     options?: FileOutputOptions
 ): void
 
 /**
  * Declares a tool that can be called from the prompt.
+ * @param tool Agentic tool function.
  * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
  * @param description A description of what the function does, used by the model to choose when and how to call the function.
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
+declare function defTool(
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+): void
 declare function defTool(
     name: string,
     description: string,
@@ -112,12 +116,6 @@ declare var retrieval: Retrieval
 declare var workspace: WorkspaceFileSystem
 
 /**
- * Access to the workspace file system.
- * @deprecated Use `workspace` instead.
- */
-declare var fs: WorkspaceFileSystem
-
-/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -136,6 +134,16 @@ declare var CSV: CSV
  * XML parsing and stringifying.
  */
 declare var XML: XML
+
+/**
+ * HTML parsing
+ */
+declare var HTML: HTML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
 
 /**
  * JSONL parsing and stringifying.
@@ -178,7 +186,10 @@ declare function defSchema(
  * @param files
  * @param options
  */
-declare function defImages(files: StringLike, options?: DefImagesOptions): void
+declare function defImages(
+    files: StringLike | Buffer | Blob,
+    options?: DefImagesOptions
+): void
 
 /**
  * Renders a table or object in the prompt

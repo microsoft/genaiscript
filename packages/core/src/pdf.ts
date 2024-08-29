@@ -1,8 +1,6 @@
 import type { TextItem } from "pdfjs-dist/types/src/display/api"
 import { host } from "./host"
 import { TraceOptions } from "./trace"
-import { installImport } from "./import"
-import { PDFJS_DIST_VERSION } from "./version"
 import os from "os"
 import { serializeError } from "./error"
 
@@ -13,27 +11,13 @@ declare global {
 
 async function tryImportPdfjs(options?: TraceOptions) {
     const { trace } = options || {}
-    try {
-        installPromiseWithResolversShim()
-        const pdfjs = await import("pdfjs-dist")
-        let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
-        if (os.platform() === "win32")
-            workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
-        pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
-        return pdfjs
-    } catch (e) {
-        trace?.error(
-            `pdfjs-dist not found, installing ${PDFJS_DIST_VERSION}...`,
-            e
-        )
-        await installImport("pdfjs-dist", PDFJS_DIST_VERSION, trace)
-        const pdfjs = await import("pdfjs-dist")
-        let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
-        if (os.platform() === "win32")
-            workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
-        pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
-        return pdfjs
-    }
+    installPromiseWithResolversShim()
+    const pdfjs = await import("pdfjs-dist")
+    let workerSrc = require.resolve("pdfjs-dist/build/pdf.worker.min.mjs")
+    if (os.platform() === "win32")
+        workerSrc = "file://" + workerSrc.replace(/\\/g, "/")
+    pdfjs.GlobalWorkerOptions.workerSrc = workerSrc
+    return pdfjs
 }
 
 function installPromiseWithResolversShim() {

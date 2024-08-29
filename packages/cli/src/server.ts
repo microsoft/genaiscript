@@ -97,8 +97,8 @@ export async function startServer(options: { port: string }) {
             trace: MarkdownTrace
         ): Promise<ChatCompletionResponse> => {
             const { messages, model } = req
-            const { partialCb } = options
-            if (!wss.clients.size) throw new Error("no llm clients connected")
+            const { partialCb, inner } = options
+            if (!wss.clients?.size) throw new Error("no llm clients connected")
 
             return new Promise<ChatCompletionResponse>((resolve, reject) => {
                 let responseSoFar: string = ""
@@ -120,6 +120,7 @@ export async function startServer(options: { port: string }) {
                         tokensSoFar,
                         responseSoFar,
                         responseChunk: chunk.chunk,
+                        inner,
                     })
                     finishReason = chunk.finishReason as any
                     if (finishReason) {
@@ -330,8 +331,18 @@ export async function startServer(options: { port: string }) {
                         break
                     }
                     case "shell.exec": {
-                        logVerbose(`exec ${data.command}`)
-                        const { command, args, options, containerId } = data
+                        const {
+                            command,
+                            args = [],
+                            options,
+                            containerId,
+                        } = data
+                        const { cwd } = options || {}
+                        const quoteify = (a: string) =>
+                            /\s/.test(a) ? `"${a}"` : a
+                        logVerbose(
+                            `${cwd ?? ""}>${quoteify(command)} ${args.map(quoteify).join(" ")}`
+                        )
                         const value = await runtimeHost.exec(
                             containerId,
                             command,

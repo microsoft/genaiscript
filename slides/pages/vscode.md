@@ -5,7 +5,7 @@
 - Run: command from file/folder/editor
 - Debugger: set breakpoint and press `F5`!
 - Trace: observe every step of the pipeline
-- Authentication: from `.env` file or environment
+- Authentication: from `.env` file or environment, Azure Entra
 
 ## Command Line
 

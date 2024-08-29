@@ -2,17 +2,18 @@ export const CHANGE = "change"
 export const TRACE_CHUNK = "traceChunk"
 export const RECONNECT = "reconnect"
 export const OPEN = "open"
-export const MAX_CACHED_TEMPERATURE = 0.5
-export const MAX_CACHED_TOP_P = 0.5
-export const MAX_TOOL_CALLS = 100
+export const MAX_TOOL_CALLS = 10000
 
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference
 // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/AzureOpenAI/inference/stable/2024-02-01/inference.yaml
-export const AZURE_OPENAI_API_VERSION = "2024-02-01"
+// https://learn.microsoft.com/en-us/azure/ai-services/openai/api-version-deprecation
+export const AZURE_OPENAI_API_VERSION = "2024-06-01"
 export const AZURE_OPENAI_TOKEN_SCOPES = Object.freeze([
     "https://cognitiveservices.azure.com/.default",
     "offline_access",
 ])
+export const AZURE_OPENAI_TOKEN_EXPIRATION = 59 * 60_000 // 59 minutes
+
 export const TOOL_ID = "genaiscript"
 export const GENAISCRIPT_FOLDER = "." + TOOL_ID
 export const CLI_JS = TOOL_ID + ".cjs"
@@ -37,8 +38,19 @@ export const CLIENT_RECONNECT_DELAY = 3000
 export const CLIENT_RECONNECT_MAX_ATTEMPTS = 20
 export const RETRIEVAL_PERSIST_DIR = "retrieval"
 export const HIGHLIGHT_LENGTH = 4000
-export const DEFAULT_MODEL = "openai:gpt-4o"
-export const DEFAULT_MODEL_CANDIDATES = ["azure:gpt-4o", "github:gpt-4o", "client:gpt-4"]
+export const DEFAULT_MODEL = "openai:gpt-4-turbo"
+export const DEFAULT_MODEL_CANDIDATES = [
+    "azure:gpt-4-turbo",
+    DEFAULT_MODEL,
+    "github:gpt-4o",
+    "client:gpt-4",
+]
+export const DEFAULT_EMBEDDINGS_MODEL_CANDIDATES = [
+    "azure:text-embedding-3-small",
+    "openai:text-embedding-3-small",
+    "github:text-embedding-3-small",
+    "client:text-embedding-3-small",
+]
 export const DEFAULT_EMBEDDINGS_MODEL = "openai:text-embedding-ada-002"
 export const DEFAULT_TEMPERATURE = 0.8
 export const BUILTIN_PREFIX = "_builtin/"
@@ -62,6 +74,7 @@ export const FETCH_RETRY_MAX_DELAY_DEFAULT = 120000
 export const EXEC_MAX_BUFFER = 64
 export const DOT_ENV_FILENAME = ".env"
 
+export const SUCCESS_ERROR_CODE = 0
 export const UNHANDLED_ERROR_CODE = -1
 export const ANNOTATION_ERROR_CODE = -2
 export const FILES_NOT_FOUND_ERROR_CODE = -3
@@ -70,6 +83,13 @@ export const RUNTIME_ERROR_CODE = -5
 export const CONNECTION_CONFIGURATION_ERROR_CODE = -6
 export const USER_CANCELLED_ERROR_CODE = -7
 export const CONFIGURATION_ERROR_CODE = -8
+
+export const UNRECOVERABLE_ERROR_CODES = Object.freeze([
+    CONNECTION_CONFIGURATION_ERROR_CODE,
+    USER_CANCELLED_ERROR_CODE,
+    FILES_NOT_FOUND_ERROR_CODE,
+    ANNOTATION_ERROR_CODE,
+])
 
 export const DOT_ENV_REGEX = /\.env$/i
 export const PROMPT_FENCE = "```"
@@ -84,6 +104,8 @@ export const LITELLM_API_BASE = "http://localhost:4000"
 export const PROMPTFOO_CACHE_PATH = ".genaiscript/cache/tests"
 export const PROMPTFOO_CONFIG_DIR = ".genaiscript/config/tests"
 export const PROMPTFOO_REMOTE_API_PORT = 15500
+
+export const RUNS_DIR_NAME = "runs"
 
 export const EMOJI_SUCCESS = "✅"
 export const EMOJI_FAIL = "❌"
@@ -159,16 +181,7 @@ export const MODEL_PROVIDERS = Object.freeze([
     },
 ])
 
-export const NEW_SCRIPT_TEMPLATE = `// use def to define context 
-// https://microsoft.github.io/genaiscript/reference/scripts/context/#definition-def
-def("FILE", env.files)
-
-// use $ to output formatted text to the prompt
-// https://microsoft.github.io/genaiscript/reference/scripts/prompt/
-$\`TELL THE LLM WHAT TO DO...\`
-
-// next, "Run GenAIScript"
-// https://microsoft.github.io/genaiscript/getting-started/running-scripts/
+export const NEW_SCRIPT_TEMPLATE = `$\`Write a short poem in code.\`
 `
 
 export const PDF_MIME_TYPE = "application/pdf"
@@ -196,7 +209,7 @@ export const GITHUB_API_VERSION = "2022-11-28"
 export const GITHUB_TOKEN = "GITHUB_TOKEN"
 
 export const AI_REQUESTS_CACHE = "airequests"
-export const CHAT_CACHE = "chatv2"
+export const CHAT_CACHE = "chat"
 export const GITHUB_PULL_REQUEST_REVIEWS_CACHE = "prr"
 export const GITHUB_PULLREQUEST_REVIEW_COMMENT_LINE_DISTANCE = 5
 
@@ -205,3 +218,10 @@ export const PLACEHOLDER_API_KEY = "<your token>"
 
 export const VSCODE_CONFIG_CLI_VERSION = "cli.version"
 export const VSCODE_CONFIG_CLI_PATH = "cli.path"
+
+export const CONSOLE_COLOR_INFO = 97
+export const CONSOLE_COLOR_DEBUG = 34
+export const CONSOLE_COLOR_WARNING = 95
+export const CONSOLE_COLOR_ERROR = 91
+
+export const PLAYWRIGHT_DEFAULT_BROWSER = "chromium"

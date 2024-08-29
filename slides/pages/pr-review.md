@@ -2,6 +2,8 @@
 
 Build your own PR description generator!
 
+<v-click>
+
 -   get branch history using `git`
 
 ```js
@@ -9,11 +11,9 @@ const { stdout: changes } = await host.exec("git", ["diff", "main"])
 def("GIT_DIFF", changes, { language: "diff", maxTokens: 20000 })
 ```
 
--   let LLM read files using tools (`fs_read_file`)
+</v-click>
 
-```js
-script({ ..., system: ["system", "system.fs_find_files", "system.fs_read_file"],})
-```
+<v-click>
 
 -   use instructions to tune the quality of the answers
 
@@ -26,8 +26,25 @@ $`You are an expert software developer and architect.
 ...`
 ```
 
+</v-click>
+
+<v-click>
+
+-   extend LLM with tools to read files (`fs_read_file`)
+
+```js
+script({ ..., tools: ["fs_read_file"],})
+```
+
+</v-click>
+
+
+<v-click>
+
 -   update pull request description (GitHub Actions, Azure DevOps)
 
 ```sh
 genaiscript run pr-review --pull-request-description
 ```
+
+</v-click>

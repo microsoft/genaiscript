@@ -385,7 +385,7 @@ function parseMarkdown(content: string): RawNotebookCell[] {
     // eat frontmatter
     const frontmatter = frontmatterTryParse(content)
     if (frontmatter) {
-        i = frontmatter.end
+        i = frontmatter.endLine
         cells.push({
             language: "yaml",
             content: YAMLStringify(frontmatter.value),

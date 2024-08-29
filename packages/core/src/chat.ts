@@ -2,14 +2,14 @@ import { MarkdownTrace } from "./trace"
 import { PromptImage, renderPromptNode } from "./promptdom"
 import { LanguageModelConfiguration, host } from "./host"
 import { GenerationOptions } from "./generation"
-import { JSON5TryParse, JSON5parse, isJSONObjectOrArray } from "./json5"
+import { JSON5parse, JSONLLMTryParse, isJSONObjectOrArray } from "./json5"
 import {
     CancellationOptions,
     CancellationToken,
     checkCancelled,
 } from "./cancellation"
-import { assert } from "./util"
-import { extractFenced, findFirstDataFence } from "./fence"
+import { assert, logError, logVerbose } from "./util"
+import { extractFenced, findFirstDataFence, unfence } from "./fence"
 import {
     toStrictJSONSchema,
     validateFencesWithSchema,
@@ -18,7 +18,6 @@ import {
 import { MAX_DATA_REPAIRS, MAX_TOOL_CALLS } from "./constants"
 import { parseAnnotations } from "./annotations"
 import { errorMessage, isCancelError, serializeError } from "./error"
-import { YAMLStringify } from "./yaml"
 import { estimateChatTokens } from "./chatencoder"
 import { createChatTurnGenerationContext } from "./runpromptcontext"
 import { dedent } from "./indent"
@@ -32,8 +31,14 @@ import {
     ChatCompletionUserMessageParam,
     CreateChatCompletionRequest,
 } from "./chattypes"
-import { renderMessageContent, renderMessagesToMarkdown } from "./chatrender"
+import {
+    renderMessageContent,
+    renderMessagesToMarkdown,
+    renderShellOutput,
+} from "./chatrender"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
+import { fenceMD } from "./markdown"
+import { YAMLStringify } from "./yaml"
 
 export function toChatCompletionUserMessage(
     expanded: string,
@@ -115,7 +120,7 @@ export interface LanguageModel {
 async function runToolCalls(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ToolCallback[],
+    tools: ToolCallback[],
     options: GenerationOptions
 ) {
     const projFolder = host.projectFolder()
@@ -138,56 +143,112 @@ async function runToolCalls(
     // call tool and run again
     for (const call of resp.toolCalls) {
         checkCancelled(cancellationToken)
+
         trace.startDetails(`📠 tool call ${call.name}`)
         try {
-            const callArgs: any = call.arguments
-                ? JSON5TryParse(call.arguments)
+            const callArgs: any = call.arguments // sometimes wrapped in \`\`\`json ...
+                ? JSONLLMTryParse(call.arguments)
                 : undefined
-            trace.itemValue(`args`, callArgs ?? call.arguments)
-            const fd = functions.find((f) => f.definition.name === call.name)
-            if (!fd) throw new Error(`tool ${call.name} not found`)
+            trace.fence(call.arguments, "json")
+            if (callArgs === undefined) trace.error("arguments failed to parse")
 
-            const context: ToolCallContext = {
-                trace,
-            }
-
-            const output = await fd.fn({ context, ...callArgs })
-            if (output === undefined || output === null)
-                throw new Error(`tool ${call.name} output is undefined`)
-            let toolContent: string = undefined
-            let toolEdits: Edits[] = undefined
-            if (typeof output === "string") toolContent = output
-            else if (
-                typeof output === "object" &&
-                (output as ShellOutput).exitCode !== undefined
-            ) {
-                toolContent = YAMLStringify(output)
+            let todos: { tool: ToolCallback; args: any }[]
+            if (call.name === "multi_tool_use.parallel") {
+                // special undocumented openai hallucination, argument contains multiple tool calls
+                // {
+                //  "id": "call_D48fudXi4oBxQ2rNeHhpwIKh",
+                //  "name": "multi_tool_use.parallel",
+                //  "arguments": "{\"tool_uses\":[{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.md\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/content/docs/**/*.mdx\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"../packages/sample/src/*.genai.{js,mjs}\"}},{\"recipient_name\":\"functions.fs_find_files\",\"parameters\":{\"glob\":\"src/assets/*.txt\"}}]}"
+                // }
+                const toolUses = callArgs.tool_uses as {
+                    recipient_name: string
+                    parameters: any
+                }[]
+                todos = toolUses.map((tu) => {
+                    const toolName = tu.recipient_name.replace(
+                        /^functions\./,
+                        ""
+                    )
+                    const tool = tools.find((f) => f.spec.name === toolName)
+                    if (!tool) {
+                        logVerbose(JSON.stringify(tu, null, 2))
+                        throw new Error(`tool ${toolName} not found`)
+                    }
+                    return { tool, args: tu.parameters }
+                })
             } else {
-                toolContent = (output as ToolCallContent)?.content
-                toolEdits = (output as ToolCallContent)?.edits
+                const tool = tools.find((f) => f.spec.name === call.name)
+                if (!tool) {
+                    logVerbose(JSON.stringify(call, null, 2))
+                    throw new Error(`tool ${call.name} not found`)
+                }
+                todos = [{ tool, args: callArgs }]
             }
 
-            if (toolContent) trace.fence(toolContent, "markdown")
-            if (toolEdits?.length) {
-                trace.fence(toolEdits)
-                edits.push(
-                    ...toolEdits.map((e) => {
-                        const { filename, ...rest } = e
-                        const n = e.filename
-                        const fn = /^[^\/]/.test(n)
-                            ? host.resolvePath(projFolder, n)
-                            : n
-                        return { filename: fn, ...rest }
-                    })
+            const toolResult: string[] = []
+            for (const todo of todos) {
+                const { tool, args } = todo
+                const context: ToolCallContext = {
+                    trace,
+                }
+                const output = await tool.impl({ context, ...args })
+                if (output === undefined || output === null)
+                    throw new Error(
+                        `tool ${tool.spec.name} output is undefined`
+                    )
+                let toolContent: string = undefined
+                let toolEdits: Edits[] = undefined
+                if (typeof output === "string") toolContent = output
+                else if (
+                    typeof output === "number" ||
+                    typeof output === "boolean"
                 )
-            }
+                    toolContent = String(output)
+                else if (
+                    typeof output === "object" &&
+                    (output as ShellOutput).exitCode !== undefined
+                ) {
+                    toolContent = renderShellOutput(output as ShellOutput)
+                } else if (
+                    typeof output === "object" &&
+                    (output as WorkspaceFile).filename &&
+                    (output as WorkspaceFile).content
+                ) {
+                    const { filename, content } = output as WorkspaceFile
+                    toolContent = `FILENAME: ${filename}
+${fenceMD(content, " ")}
+`
+                } else {
+                    toolContent = YAMLStringify(output)
+                }
 
+                if (typeof output === "object")
+                    toolEdits = (output as ToolCallContent)?.edits
+
+                if (toolContent) trace.fence(toolContent, "markdown")
+                if (toolEdits?.length) {
+                    trace.fence(toolEdits)
+                    edits.push(
+                        ...toolEdits.map((e) => {
+                            const { filename, ...rest } = e
+                            const n = e.filename
+                            const fn = /^[^\/]/.test(n)
+                                ? host.resolvePath(projFolder, n)
+                                : n
+                            return { filename: fn, ...rest }
+                        })
+                    )
+                }
+
+                toolResult.push(toolContent)
+            }
             messages.push({
                 role: "tool",
-                content: toolContent,
+                content: toolResult.join("\n\n"),
                 tool_call_id: call.id,
             })
         } catch (e) {
+            logError(e)
             trace.error(`tool call ${call.id} error`, e)
             throw e
         } finally {
@@ -219,7 +280,7 @@ async function applyRepairs(
     const invalids = fences.filter((f) => f?.validation?.valid === false)
 
     if (responseSchema) {
-        const value = JSON5TryParse(content)
+        const value = JSONLLMTryParse(content)
         const schema = promptParametersSchemaToJSONSchema(responseSchema)
         const res = validateJSONWithSchema(value, schema, { trace })
         if (!res.valid)
@@ -270,13 +331,21 @@ Repair the DATA_FORMAT_ISSUES. THIS IS IMPORTANT.`
     return true
 }
 
-function assistantText(messages: ChatCompletionMessageParam[]) {
+function assistantText(
+    messages: ChatCompletionMessageParam[],
+    responseType?: PromptTemplateResponseType
+) {
     let text = ""
     for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i]
         if (msg.role !== "assistant") break
         text = msg.content + text
     }
+
+    if (responseType === undefined) {
+        text = unfence(text, "(markdown|md)")
+    }
+
     return text
 }
 
@@ -292,7 +361,7 @@ function structurifyChatSession(
 ): RunPromptResult {
     const { trace, responseType, responseSchema } = options
     const { resp, err } = others || {}
-    const text = assistantText(messages)
+    const text = assistantText(messages, responseType)
     const annotations = parseAnnotations(text)
     const finishReason = isCancelError(err)
         ? "cancel"
@@ -328,7 +397,7 @@ function structurifyChatSession(
         }
     } else {
         json = isJSONObjectOrArray(text)
-            ? JSON5TryParse(text, undefined)
+            ? JSONLLMTryParse(text)
             : (undefined ?? findFirstDataFence(fences))
     }
     const frames: DataFrame[] = []
@@ -353,7 +422,7 @@ function structurifyChatSession(
 async function processChatMessage(
     resp: ChatCompletionResponse,
     messages: ChatCompletionMessageParam[],
-    functions: ToolCallback[],
+    tools: ToolCallback[],
     chatParticipants: ChatParticipant[],
     schemas: Record<string, JSONSchema>,
     genVars: Record<string, string>,
@@ -374,7 +443,7 @@ async function processChatMessage(
 
     // execute tools as needed
     if (resp.toolCalls?.length) {
-        await runToolCalls(resp, messages, functions, options)
+        await runToolCalls(resp, messages, tools, options)
         stats.toolCalls += resp.toolCalls.length
         if (stats.toolCalls > maxToolCalls)
             throw new Error(
@@ -482,10 +551,11 @@ export async function executeChatSession(
     const tools: ChatCompletionTool[] = toolDefinitions?.length
         ? toolDefinitions.map((f) => ({
               type: "function",
-              function: f.definition as any,
+              function: f.spec as any,
           }))
         : undefined
     trace.startDetails(`🧠 llm chat`)
+    if (tools?.length) trace.detailsFenced(`🛠️ tools`, tools, "yaml")
     try {
         let genVars: Record<string, string>
         while (true) {
@@ -493,10 +563,11 @@ export async function executeChatSession(
             infoCb?.({
                 text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
             })
-            trace.details(
-                `💬 messages (${messages.length})`,
-                renderMessagesToMarkdown(messages)
-            )
+            if (messages)
+                trace.details(
+                    `💬 messages (${messages.length})`,
+                    renderMessagesToMarkdown(messages)
+                )
 
             // make request
             let resp: ChatCompletionResponse
@@ -537,6 +608,7 @@ export async function executeChatSession(
                     if (resp.variables)
                         genVars = { ...(genVars || {}), ...resp.variables }
                 } finally {
+                    logVerbose("")
                     trace.endDetails()
                 }
 

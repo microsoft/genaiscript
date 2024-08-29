@@ -1,6 +1,6 @@
 script({
     description: "Given an image of business card, extract the details to a csv file",
-    group: "image tools",
+    group: "vision",
     model: "gpt-4-turbo-v",
     maxTokens: 4000,
 })

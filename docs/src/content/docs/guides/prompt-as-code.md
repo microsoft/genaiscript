@@ -18,7 +18,7 @@ To follow this tutorial in Visual Studio Code,
 1. Follow the steps in [installation](/genaiscript/getting-started/installation) and
 [configuration](/genaiscript/getting-started/configuration) to set up your environment.
 
-2. Open the command palette (Ctrl+Shift+P) and run the `GenAIScript: Open Markdown Notebook` command.
+2. Open the command palette (Ctrl+Shift+P) and run the `GenAIScript: Create GenAIScript Markdown Notebook` command.
 
 :::
 

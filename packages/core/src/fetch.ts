@@ -38,7 +38,7 @@ export async function createFetch(
             if (code === "ECONNRESET" || code === "ENOTFOUND")
                 // fatal
                 return undefined
-            
+
             checkCancelled(cancellationToken)
             const message = errorMessage(error)
             const status = statusToMessage(response)
@@ -68,13 +68,18 @@ export function traceFetchPost(
     if (!showAuthorization)
         Object.entries(headers)
             .filter(([k]) => /^(authorization|api-key)$/i.test(k))
-            .forEach(([k]) => (headers[k] = "***"))
-    const cmd = `curl -X POST "${url}" \\
+            .forEach(
+                ([k]) =>
+                    (headers[k] = /Bearer /i.test(headers[k])
+                        ? "Bearer ***"
+                        : "***")
+            )
+    const cmd = `curl ${url} \\
 -H  "Content-Type: application/json" \\
 ${Object.entries(headers)
-    .map(([k, v]) => `-H "${k}: ${v}" \\`)
-    .join("\n")}
--d '${JSON.stringify(body).replace(/'/g, "'\\''")}' 
+    .map(([k, v]) => `-H "${k}: ${v}"`)
+    .join("\\\n")} \\
+-d '${JSON.stringify(body, null, 2).replace(/'/g, "'\\''")}' 
 `
     if (trace) trace.detailsFenced(`✉️ fetch`, cmd, "bash")
     else logVerbose(cmd)

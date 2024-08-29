@@ -92,7 +92,7 @@ export interface PromptFunctionNode extends PromptNode {
     name: string
     description: string
     parameters: JSONSchema
-    fn: ChatFunctionHandler
+    impl: ChatFunctionHandler
 }
 
 export interface PromptFileMergeNode extends PromptNode {
@@ -161,7 +161,7 @@ function renderDefNode(def: PromptDefNode): string {
     const dtype = language || /\.([^\.]+)$/i.exec(file.filename)?.[1] || ""
     let body = file.content
     if (/^(c|t)sv$/i.test(dtype)) {
-        const parsed = CSVTryParse(file.content)
+        const parsed = !/^\s*|/.test(file.content) && CSVTryParse(file.content)
         if (parsed) {
             body = CSVToMarkdown(parsed)
             dfence = ""
@@ -224,13 +224,13 @@ export function createFunctionNode(
     name: string,
     description: string,
     parameters: JSONSchema,
-    fn: ChatFunctionHandler
+    impl: ChatFunctionHandler
 ): PromptFunctionNode {
     assert(!!name)
     assert(!!description)
     assert(parameters !== undefined)
-    assert(fn !== undefined)
-    return { type: "function", name, description, parameters, fn }
+    assert(impl !== undefined)
+    return { type: "function", name, description, parameters, impl }
 }
 
 export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
@@ -255,14 +255,36 @@ export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output }
 }
 
-export function createDefDataNode(
+function haveSameKeysAndSimpleValues(data: object[]): boolean {
+    if (data.length === 0) return true
+    const headers = Object.entries(data[0])
+    return data.slice(1).every((obj) => {
+        const keys = Object.entries(obj)
+        return (
+            headers.length === keys.length &&
+            headers.every(
+                (h, i) =>
+                    keys[i][0] === h[0] &&
+                    /^(string|number|boolean|null|undefined)$/.test(typeof keys[i][1])
+            )
+        )
+    })
+}
+
+export function createDefData(
     name: string,
     data: object | object[],
     options?: DefDataOptions
 ) {
     if (data === undefined) return undefined
     let { format, headers, priority } = options || {}
-    if (!format && headers && Array.isArray(data)) format = "csv"
+    if (
+        !format &&
+        Array.isArray(data) &&
+        data.length &&
+        (headers?.length || haveSameKeysAndSimpleValues(data))
+    )
+        format = "csv"
     else if (!format) format = "yaml"
 
     if (Array.isArray(data)) data = tidyData(data as object[], options)
@@ -637,10 +659,10 @@ ${trimNewlines(schemaText)}
                 )
         },
         function: (n) => {
-            const { name, description, parameters, fn } = n
+            const { name, description, parameters, impl: fn } = n
             functions.push({
-                definition: { name, description, parameters },
-                fn,
+                spec: { name, description, parameters },
+                impl: fn,
             })
             trace.detailsFenced(
                 `🛠️ tool ${name}`,
@@ -669,13 +691,14 @@ ${trimNewlines(schemaText)}
         },
     })
 
-    if (fileOutputs.length > 0) {
+    const fods = fileOutputs?.filter((f) => !!f.description)
+    if (fods?.length > 0) {
         prompt += `
 ## File generation rules
 
-When generating files, follow the following rules which are formatted as "glob: description":
+When generating files, use the following rules which are formatted as "file glob: description":
 
-${fileOutputs.map((fo) => `${fo.pattern}: ${fo.description}`)}
+${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
 
 `
     }

@@ -21,7 +21,7 @@ You will need to configure the LLM connection and authorizion secrets.
 
 :::tip
 
-If you do not have access to an LLM, you can use a [local model](#local-models) for inferencing.
+If you do not have access to an LLM, you can try [GitHub Models](#github), [GitHub Copilot Models](#github-copilot) or use a [local model](#local-models) for inferencing.
 
 :::
 
@@ -141,13 +141,40 @@ GENAISCRIPT_DEFAULT_MODEL=openai:gpt-4o
 
 :::
 
-## GitHub Models
-
-<a id="github" href=""></a>
+## GitHub Models <a id="github" href=""></a>
 
 The [GitHub Models](https://github.com/marketplace/models) provider, `github`, allows running models through the GitHub Marketplace.
 This provider is useful for prototyping and subject to [rate limits](https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits)
 depending on your subscription.
+
+**If you are running from a [GitHub Codespace](https://github.com/features/codespaces), the token is already configured for you.**
+
+<Steps>
+
+<ol>
+
+<li>
+
+Create a [GitHub personal access token](https://github.com/settings/tokens/new).
+The token should not have any scopes or permissions.
+
+</li>
+
+<li>
+
+Update the `.env` file with the token.
+
+```txt title=".env"
+GITHUB_TOKEN=...
+```
+
+</li>
+
+</ol>
+
+</Steps>
+
+To configure a specific model,
 
 <Steps>
 
@@ -161,12 +188,6 @@ Open the [GitHub Marketplace](https://github.com/marketplace/models) and find th
 
 <li>
 
-Click **Get Started** and follow the instructions to configure the github token, or start a codespace!
-
-</li>
-
-<li>
-
 Copy the model name from the Javascript/Python samples
 
 ```js "Phi-3-mini-4k-instruct"
@@ -175,7 +196,7 @@ const modelName = "Phi-3-mini-4k-instruct"
 
 to configure your script.
 
-```js
+```js "Phi-3-mini-4k-instruct"
 script({
     model: "github:Phi-3-mini-4k-instruct",
 })
@@ -190,12 +211,11 @@ script({
 If you are already using `GITHUB_TOKEN` variable in your script and need a different one
 for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 
-## Azure OpenAI
-
-<a id="azure" href=""></a>
+## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
-You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service. 
+You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
 
 ### Managed Identity (Entra ID)
 
@@ -252,6 +272,13 @@ script({
 ```
 
 </li>
+
+<li>
+
+Open a terminal and login to Azure. See Visual Studio or CLI instructions below.
+
+</li>
+
 </ol>
 
 </Steps>
@@ -260,8 +287,6 @@ script({
 
 Visual Studio Code will ask you to allow using the **Microsoft** account
 and then will open a browser where you can choose the user or service principal.
-
--   If you are getting `401` errors after a while, try signing out in the user menu (lower left in Visual Studio Code) and back in.
 
 #### CLI
 
@@ -297,22 +322,7 @@ AZURE_OPENAI_API_ENDPOINT=https://....openai.azure.com
 
 <li>
 
-Open Azure AI Studio, select **Deployments**
-and make sure that you have your LLM deployed and copy the `deployment-id`,
-you will need it in the script.
-
-</li>
-
-<li>
-
-Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
-
-```js 'model: "azure:deployment-id"'
-script({
-    model: "azure:deployment-id",
-    ...
-})
-```
+The rest of the steps are the same: Find the deployment name and use it in your script, `model: "azure:deployment-id"`.
 
 </li>
 
@@ -320,9 +330,9 @@ script({
 
 </Steps>
 
-## GitHub Copilot in Visual Studio Code
+## GitHub Copilot Chat Models <a id="github-copilot" href=""></a>
 
-If you have access to **GitHub Copilot in Visual Studio Code**,
+If you have access to **GitHub Copilot Chat in Visual Studio Code**,
 GenAIScript will be able to leverage those [language models](https://code.visualstudio.com/api/extension-guides/language-model) as well.
 
 This mode is useful to run your scripts without having a separate LLM provider or local LLMs. However, those models are not available from the command line
@@ -333,6 +343,12 @@ There is no configuration needed as long as you have GitHub Copilot installed an
 <Steps>
 
 <ol>
+
+<li>
+
+Install [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (emphasis on **Chat**)
+
+</li>
 
 <li>run your script</li>
 <li> 

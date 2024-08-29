@@ -76,7 +76,7 @@ The IntelliSense provided by `genaiscript.g.ts` will assist in discovering the l
 ```js
 script({
     ...,
-    model: "gpt-4-32k",
+    model: "openai:gpt-4o",
 })
 ```
 

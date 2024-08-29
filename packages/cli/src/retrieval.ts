@@ -4,7 +4,6 @@ import { fuzzSearch } from "../../core/src/fuzzsearch"
 import { dotGenaiscriptPath, normalizeInt } from "../../core/src/util"
 import { vectorSearch } from "../../core/src/vectorsearch"
 import { YAMLStringify } from "../../core/src/yaml"
-import { createProgressSpinner } from "./spinner"
 
 export async function retrievalSearch(
     q: string,
@@ -47,14 +46,11 @@ export async function retrievalFuzz(
     if (!filesGlobs?.length) filesGlobs = ["**"]
     if (!excludedFiles?.length) excludedFiles = ["**/node_modules/**"]
     const files = await expandFiles(filesGlobs, excludedFiles)
-    const progress = createProgressSpinner(
-        `searching '${q}' in ${files.length} files`
-    )
+    console.log(`searching '${q}' in ${files.length} files`)
     const res = await fuzzSearch(
         q,
         files.map((filename) => ({ filename })),
         { topK: normalizeInt(topK) }
     )
-    progress.stop()
     console.log(YAMLStringify(res))
 }

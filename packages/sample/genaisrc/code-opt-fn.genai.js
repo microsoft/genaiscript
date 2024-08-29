@@ -4,7 +4,7 @@ script({
         "Optimize code to run faster, modified from https://twitter.com/mattshumer_/status/1719403205950349588.",
     maxTokens: 2000,
     group: "samples",
-    system: ["system.functions"],
+    system: ["system.tools"],
 })
 
 defTool("check_syntax", "Checks code for syntax errors", {

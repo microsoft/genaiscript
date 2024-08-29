@@ -43,7 +43,28 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system.annotations" | "system.explanations" | "system.typescript" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.files" | "system.changelog" | "system.diff" | "system.tasks" | "system.schema" | "system.json" | "system" | "system.math" | "system.technical" | "system.web_search" | "system.files_schema" | "system.python" | "system.summary" | "system.zero_shot_cot" | "system.functions"
+type SystemPromptId =
+    | "system.annotations"
+    | "system.explanations"
+    | "system.typescript"
+    | "system.fs_find_files"
+    | "system.fs_read_file"
+    | "system.fs_read_summary"
+    | "system.files"
+    | "system.changelog"
+    | "system.diff"
+    | "system.tasks"
+    | "system.schema"
+    | "system.json"
+    | "system"
+    | "system.math"
+    | "system.technical"
+    | "system.web_search"
+    | "system.files_schema"
+    | "system.python"
+    | "system.summary"
+    | "system.zero_shot_cot"
+    | "system.functions"
 
 type FileMergeHandler = (
     filename: string,
@@ -104,13 +125,13 @@ interface ModelConnectionOptions {
      * @example gpt-4 gpt-4-32k gpt-3.5-turbo
      */
     model?:
+        | "gpt-4-turbo"
         | "gpt-4"
         | "gpt-4-32k"
         | "gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
-        | "aici:mixtral"
         | string
 }
 
@@ -1207,8 +1228,6 @@ interface PromptContext extends RunPromptContext {
     INI: INI
     AICI: AICI
 }
-
-
 
 // keep in sync with PromptContext!
 

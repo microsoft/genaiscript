@@ -1,5 +1,6 @@
 import { defineConfig, passthroughImageService } from "astro/config"
 import starlight from "@astrojs/starlight"
+import starlightBlog from "starlight-blog"
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,6 +16,22 @@ export default defineConfig({
             logo: {
                 src: "./src/assets/logo.svg",
             },
+            plugins: [starlightBlog({
+                authors: {
+                    genaiscript: {
+                        name: 'GenAIScript',
+                        title: 'GenAI Blogger',
+                        picture: '/images/favicon.png',
+                        url: 'https://github.com/microsoft/genaiscript/blob/main/genaisrc/blog-generator.genai.mjs'
+                    },
+                    pelikhan: {
+                        name: 'Peli',
+                        title: 'GenAIScript developer',
+                        picture: 'https://avatars.githubusercontent.com/u/4175913?s=400&u=2aca7b068fa646da550c534145764d50f533561d&v=4',
+                        url: 'https://github.com/pelikhan'
+                    },
+                }
+            })],
             components: {
                 Footer: "./src/components/Footer.astro",
             },
@@ -41,6 +58,10 @@ export default defineConfig({
                 {
                     label: "Reference",
                     autogenerate: { directory: "reference" },
+                },
+                {
+                    label: "Blog",
+                    link: "blog",
                 },
                 {
                     label: "FAQ",

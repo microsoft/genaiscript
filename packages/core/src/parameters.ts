@@ -25,16 +25,17 @@ export function promptParameterTypeToJSONSchema(
         }
     else if (
         typeof t === "object" &&
-        ["number", "integer", "string", "object"].includes((t as any).type)
-    )
+        ["number", "integer", "string", "boolean", "object"].includes(
+            (t as any).type
+        )
+    ) {
         return <
             | JSONSchemaNumber
             | JSONSchemaString
             | JSONSchemaBoolean
             | JSONSchemaObject
         >t
-    // TODO better filtering
-    else if (typeof t === "object")
+    } else if (typeof t === "object")
         return <JSONSchemaObject>{
             type: "object",
             properties: Object.fromEntries(
@@ -122,4 +123,9 @@ export function parsePromptParameters(
         else if (t?.type === "string") res[key] = vars[key]
     }
     return Object.freeze(res)
+}
+
+export function parametersToVars(parameters: PromptParameters): string[] {
+    if (!parameters) return undefined
+    return Object.keys(parameters).map((k) => `${k}=${parameters[k]}`)
 }

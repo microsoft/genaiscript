@@ -34,6 +34,7 @@ import {
 } from "../../core/src/util"
 import { CORE_VERSION } from "../../core/src/version"
 import { Fragment, GenerationResult } from "../../core/src/generation"
+import { parametersToVars } from "../../core/src/parameters"
 
 export const FRAGMENTS_CHANGE = "fragmentsChange"
 export const AI_REQUEST_CHANGE = "aiRequestChange"
@@ -177,12 +178,12 @@ export class ExtensionState extends EventTarget {
         await writeFile(
             dir,
             ".gitignore",
-            `# ignore local cli
-genaiscript.cjs
+            `runs/
 cache/
 retrieval/
 containers/
 temp/
+tests/
 `
         )
     }
@@ -268,7 +269,7 @@ temp/
     ): Promise<AIRequest> {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cache = config.get("cache")
+        const cache = config.get("cache") as boolean
         const signal = controller.signal
         const trace = new MarkdownTrace()
 
@@ -331,7 +332,8 @@ temp/
                 infoCb,
                 partialCb,
                 label,
-                cache: cache && template.cache,
+                cache: cache ? template.cache : undefined,
+                vars: parametersToVars(options.parameters),
             }
         )
         r.runId = runId

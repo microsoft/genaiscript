@@ -1,3 +1,5 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
 interface PromptGenerationConsole {
     log(...data: any[]): void
     warn(...data: any[]): void
@@ -65,9 +67,9 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = "system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.fs_read_summary" | "system.functions" | "system.math" | "system.python" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.typescript" | "system.zero_shot_cot"
+type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.math" | "system.md_frontmatter" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.tools" | "system.typescript" | "system.zero_shot_cot">
 
-type SystemToolId = "fs_find_files" | "fs_read_file" | "fs_read_summary" | "math_eval" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search"
+type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "math_eval" | "md_read_frontmatter" | "python_code_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
 
 type FileMergeHandler = (
     filename: string,
@@ -99,6 +101,8 @@ type PromptOutputProcessorHandler = (
     | Promise<PromptOutputProcessorResult>
     | undefined
     | Promise<undefined>
+    | void
+    | Promise<void>
 
 type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
@@ -107,11 +111,13 @@ interface ModelConnectionOptions {
      * Which LLM model to use.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo ollama:phi3 ollama:llama3 ollama:mixtral aici:mixtral
+     * @example gpt-4
      */
     model?:
         | "openai:gpt-4"
-        | "openai:gpt-4-32k"
+        | "openai:gpt-4-turbo"
+        | "openai:gpt-4o"
+        | "openai:gpt-4o-mini"
         | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
@@ -170,13 +176,13 @@ interface ModelOptions extends ModelConnectionOptions {
     seed?: number
 
     /**
-     * If true, the prompt will be cached. If false, the LLM chat is never cached.
-     * Leave empty to use the default behavior.
+     * By default, LLM queries are not cached. If true, the LLM request will be cached. Use a string to override the default cache name
      */
-    cache?: boolean
+    cache?: boolean | string
 
     /**
      * Custom cache name. If not set, the default cache is used.
+     * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
 }
@@ -185,7 +191,14 @@ interface EmbeddingsModelConnectionOptions {
     /**
      * LLM model to use for embeddings.
      */
-    embeddingsModel?: "openai:text-embedding-ada-002" | string
+    embeddingsModel?: OptionsOrString<
+        "openai:text-embedding-3-small",
+        "openai:text-embedding-3-large",
+        "openai:text-embedding-ada-002",
+        "github:text-embedding-3-small",
+        "github:text-embedding-3-large",
+        "ollama:nomic-embed-text"
+    >
 }
 
 interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
@@ -204,18 +217,19 @@ interface ScriptRuntimeOptions {
 * - `system.explanations`: Explain your answers
 * - `system.files`: File generation
 * - `system.files_schema`: Apply JSON schemas to generated data.
-* - `system.fs_find_files`: File Find Files
+* - `system.fs_find_files`: File find files
 * - `system.fs_read_file`: File Read File
-* - `system.fs_read_summary`: File Read Summary
-* - `system.functions`: use functions
 * - `system.math`: Math expression evaluator
+* - `system.md_frontmatter`: Frontmatter reader
 * - `system.python`: Expert at generating and understanding Python code.
+* - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
 * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
 * - `system.retrieval_vector_search`: Embeddings Vector Search
 * - `system.retrieval_web_search`: Web Search
 * - `system.schema`: JSON Schema support
 * - `system.tasks`: Generates tasks
 * - `system.technical`: Technical Writer
+* - `system.tools`: Tools support
 * - `system.typescript`: Export TypeScript Developer
 * - `system.zero_shot_cot`: Zero-shot Chain Of Though
 **/
@@ -224,17 +238,7 @@ interface ScriptRuntimeOptions {
     /**
      * List of tools used by the prompt.
      */
-/**
-* System tool identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/tools/))
-* - `fs_find_files`: Finds file matching a glob pattern.
-* - `fs_read_file`: Reads a file as text from the file system.
-* - `fs_read_summary`: Reads a summary of a file from the file system.
-* - `math_eval`: Evaluates a math expression
-* - `retrieval_fuzz_search`: Search for keywords using the full text of files and a fuzzy distance.
-* - `retrieval_vector_search`: Search files using embeddings and similarity distance.
-* - `retrieval_web_search`: Search the web for a user query using Bing Search.
-**/
-    tools?: SystemToolId[]
+    tools?: SystemToolId | SystemToolId[]
 
     /**
      * Secrets required by the prompt
@@ -315,6 +319,10 @@ type PromptAssertion = {
 )
 
 interface PromptTest {
+    /**
+     * Short name of the test
+     */
+    name?: string
     /**
      * Description of the test.
      */
@@ -499,7 +507,37 @@ interface ToolCallContent {
     edits?: Edits[]
 }
 
-type ToolCallOutput = string | ToolCallContent | ShellOutput
+type ToolCallOutput =
+    | string
+    | number
+    | boolean
+    | ToolCallContent
+    | ShellOutput
+    | WorkspaceFile
+
+interface WorkspaceFileCache<K, V> {
+    /**
+     * Gets the value associated with the key, or undefined if there is none.
+     * @param key
+     */
+    get(key: K): Promise<V | undefined>
+    /**
+     * Sets the value associated with the key.
+     * @param key
+     * @param value
+     */
+    set(key: K, value: V): Promise<void>
+
+    /**
+     * List of keys
+     */
+    keys(): Promise<K[]>
+
+    /**
+     * List the values in the cache.
+     */
+    values(): Promise<V[]>
+}
 
 interface WorkspaceFileSystem {
     /**
@@ -524,20 +562,31 @@ interface WorkspaceFileSystem {
      */
     grep(
         query: string | RegExp,
-        globs: string | string[]
+        globs: string | string[],
+        options?: {
+            /**
+             * Set to false to skip read text content. True by default
+             */
+            readText?: boolean
+        }
     ): Promise<{ files: WorkspaceFile[] }>
 
     /**
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+    readText(path: string | Awaitable<WorkspaceFile>): Promise<WorkspaceFile>
 
     /**
      * Reads the content of a file and parses to JSON, using the JSON5 parser.
      * @param path
      */
-    readJSON(path: string | WorkspaceFile): Promise<any>
+    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Reads the content of a file and parses to XML, using the XML parser.
+     */
+    readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
 
     /**
      * Writes a file as text to the file system
@@ -545,6 +594,15 @@ interface WorkspaceFileSystem {
      * @param content
      */
     writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Opens a key-value cache for the given cache name.
+     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
 }
 
 interface ToolCallContext {
@@ -552,10 +610,20 @@ interface ToolCallContext {
 }
 
 interface ToolCallback {
-    definition: ToolDefinition
-    fn: (
+    spec: ToolDefinition
+    impl: (
         args: { context: ToolCallContext } & Record<string, any>
-    ) => ToolCallOutput | Promise<ToolCallOutput>
+    ) => Awaitable<ToolCallOutput>
+}
+
+type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
+    spec: Omit<ToolDefinition, "parameters"> & {
+        parameters: Record<string, any>
+    }
+}
+
+interface AgenticToolProviderCallback {
+    functions: Iterable<AgenticToolCallback>
 }
 
 type ChatParticipantHandler = (
@@ -620,6 +688,7 @@ type PromptSystemArgs = Omit<
     | "maxTokens"
     | "seed"
     | "tests"
+    | "responseLanguage"
     | "responseType"
     | "responseSchema"
     | "files"
@@ -990,6 +1059,13 @@ interface Parsers {
     ): string
 
     /**
+     * Convert HTML to markdown
+     * @param content html string or file
+     * @param options
+     */
+    HTMLToMarkdown(content: string | WorkspaceFile): string
+
+    /**
      * Extracts the contents of a zip archive file
      * @param file
      * @param options
@@ -1108,7 +1184,71 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string): any
+    parse(text: string, options?: XMLParseOptions): any
+}
+
+interface HTMLTableToJSONOptions {
+    useFirstRowForHeadings?: boolean
+    headers?: HeaderRows
+    stripHtmlFromHeadings?: boolean
+    stripHtmlFromCells?: boolean
+    stripHtml?: boolean | null
+    forceIndexAsNumber?: boolean
+    countDuplicateHeadings?: boolean
+    ignoreColumns?: number[] | null
+    onlyColumns?: number[] | null
+    ignoreHiddenRows?: boolean
+    id?: string[] | null
+    headings?: string[] | null
+    containsClasses?: string[] | null
+    limitrows?: number | null
+}
+
+interface HTML {
+    /**
+     * Converts all HTML tables to JSON.
+     * @param html
+     * @param options
+     */
+    convertTablesToJSON(
+        html: string,
+        options?: HTMLTableToJSONOptions
+    ): object[][]
+    /**
+     * Converts HTML markup to plain text
+     * @param html
+     */
+    convertToText(html: string): string
+    /**
+     * Converts HTML markup to markdown
+     * @param html
+     */
+    convertToMarkdown(html: string): string
+}
+
+interface MD {
+    /**
+     * Parses front matter from markdown
+     * @param text
+     */
+    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+
+    /**
+     * Removes the front matter from the markdown text
+     */
+    content(text: string): string
+
+    /**
+     * Merges frontmatter with the existing text
+     * @param text
+     * @param frontmatter
+     * @param format
+     */
+    updateFrontmatter(
+        text: string,
+        frontmatter: any,
+        format?: "yaml" | "json"
+    ): string
 }
 
 interface JSONL {
@@ -1295,7 +1435,7 @@ interface DefSchemaOptions {
 
 type ChatFunctionHandler = (
     args: { context: ToolCallContext } & Record<string, any>
-) => ToolCallOutput | Promise<ToolCallOutput>
+) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -1304,13 +1444,18 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
 interface PromptGeneratorOptions extends ModelOptions {
     /**
      * Label for trace
      */
     label?: string
+
+    /**
+     * List of system prompts if any
+     */
+    system?: SystemPromptId[]
 }
 
 interface FileOutputOptions {
@@ -1322,7 +1467,7 @@ interface FileOutputOptions {
 
 interface FileOutput {
     pattern: string
-    description: string
+    description?: string
     options?: FileOutputOptions
 }
 
@@ -1330,7 +1475,11 @@ interface ChatTurnGenerationContext {
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): string
+    def(
+        name: string,
+        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
+        options?: DefOptions
+    ): string
     defData(
         name: string,
         data: object[] | object,
@@ -1351,7 +1500,13 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
         schema: JSONSchema,
         options?: DefSchemaOptions
     ): string
-    defImages(files: StringLike, options?: DefImagesOptions): void
+    defImages(
+        files: StringLike | Buffer | Blob,
+        options?: DefImagesOptions
+    ): void
+    defTool(
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+    ): void
     defTool(
         name: string,
         description: string,
@@ -1364,7 +1519,7 @@ interface ChatGenerationContext extends ChatTurnGenerationContext {
     ): void
     defFileOutput(
         pattern: string,
-        description: string,
+        description?: string,
         options?: FileOutputOptions
     ): void
 }
@@ -1536,17 +1691,240 @@ interface ShellOptions {
 interface ShellOutput {
     stdout?: string
     stderr?: string
-    output?: string
     exitCode: number
     failed: boolean
 }
 
+interface BrowserOptions {
+    /**
+     * Browser engine for this page. Defaults to chromium
+     *
+     */
+    browser?: "chromium" | "firefox" | "webkit"
+}
+
+interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
+    /**
+     * Creates a new context for the browser session
+     */
+    incognito?: boolean
+
+    /**
+     * Base url to use for relative urls
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-base-url
+     */
+    baseUrl?: string
+
+    /**
+     * Toggles bypassing page's Content-Security-Policy. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-bypass-csp
+     */
+    bypassCSP?: boolean
+
+    /**
+     * Whether to ignore HTTPS errors when sending network requests. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-ignore-https-errors
+     */
+    ignoreHTTPSErrors?: boolean
+
+    /**
+     * Whether or not to enable JavaScript in the context. Defaults to true.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-java-script-enabled
+     */
+    javaScriptEnabled?: boolean
+}
+
+interface TimeoutOptions {
+    /**
+     * Maximum time in milliseconds. Default to no timeout
+     */
+    timeout?: number
+}
+
+/**
+ * A Locator instance
+ * @link https://playwright.dev/docs/api/class-locator
+ */
+interface BrowserLocator {
+    /**
+     * Click an element
+     * @link https://playwright.dev/docs/api/class-locator#locator-click
+     */
+    click(
+        options?: { button: "left" | "right" | "middle" } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Returns when element specified by locator satisfies the state option.
+     * @link https://playwright.dev/docs/api/class-locator#locator-wait-for
+     */
+    waitFor(
+        options?: {
+            state: "attached" | "detached" | "visible" | "hidden"
+        } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Set a value to the input field.
+     * @param value
+     * @link https://playwright.dev/docs/api/class-locator#locator-fill
+     */
+    fill(value: string, options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Returns the element.innerText.
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-text
+     */
+    innerText(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the element.innerHTML
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-html
+     */
+    innerHTML(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the element.textContent
+     * @link https://playwright.dev/docs/api/class-locator#locator-text-content
+     * @param options
+     */
+    textContent(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the value for the matching <input> or <textarea> or <select> element.
+     * @link https://playwright.dev/docs/api/class-locator#locator-input-value
+     */
+    inputValue(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Get the attribute value
+     * @param name
+     * @param options
+     * @link https://playwright.dev/docs/api/class-locator#locator-get-attribute
+     */
+    getAttribute(name: string, options?: TimeoutOptions): Promise<null | string>
+
+    /**
+     * Clears the input field.
+     * @link https://playwright.dev/docs/api/class-locator#locator-clear
+     */
+    clear(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Take a screenshot of the element matching the locator.
+     * @link https://playwright.dev/docs/api/class-locator#locator-screenshot
+     */
+    screenshot(options?: TimeoutOptions): Promise<Buffer>
+
+    /**
+     * This method waits for actionability checks, then tries to scroll element into view, unless it is completely visible as defined by IntersectionObserver's ratio.
+     * @link https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed
+     */
+    scrollIntoViewIfNeeded(options?: TimeoutOptions): Promise<void>
+}
+
+/**
+ * Playwright Response instance
+ * @link https://playwright.dev/docs/api/class-response
+ */
+interface BrowseResponse {
+    /**
+     * Contains a boolean stating whether the response was successful (status in the range 200-299) or not.
+     * @link https://playwright.dev/docs/api/class-response#response-ok
+     */
+    ok(): boolean
+    /**
+     * Contains the status code of the response (e.g., 200 for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status
+     */
+    status(): number
+    /**
+     * Contains the status text of the response (e.g. usually an "OK" for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status-text
+     */
+    statusText(): string
+
+    /**
+     * Contains the URL of the response.
+     * @link https://playwright.dev/docs/api/class-response#response-url
+     */
+    url(): string
+}
+
+/**
+ * A playwright Page instance
+ * @link https://playwright.dev/docs/api/class-page
+ */
+interface BrowserPage {
+    /**
+     * Returns the page's title.
+     * @link https://playwright.dev/docs/api/class-page#page-title
+     */
+    title(): Promise<string>
+    /**
+     * Current page url
+     * @link https://playwright.dev/docs/api/class-page#page-url
+     */
+    url(): string
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the first non-redirect response.
+     * @link https://playwright.dev/docs/api/class-page#page-goto
+     * @param url
+     * @param options
+     */
+    goto(
+        url: string,
+        options?: {
+            waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit"
+        } & TimeoutOptions
+    ): Promise<null | BrowseResponse>
+
+    /**
+     * Returns the buffer of the captured screenshot
+     * @link https://playwright.dev/docs/api/class-page#page-screenshot
+     */
+    screenshot(options?: TimeoutOptions): Promise<Buffer>
+
+    /**
+     * Gets the full HTML contents of the page, including the doctype.
+     * @link https://playwright.dev/docs/api/class-page#page-content
+     */
+    content(): Promise<string>
+
+    /**
+     * The method returns an element locator that can be used to perform actions on this page / frame.
+     * @param selector A selector to use when resolving DOM element.
+     * @link https://playwright.dev/docs/locators
+     */
+    locator(selector: string): BrowserLocator
+
+    /**
+     * Closes the browser page, context and other resources
+     */
+    close(): Promise<void>
+}
+
 interface ShellHost {
+    /**
+     * Executes a shell command
+     * @param command
+     * @param args
+     * @param options
+     */
     exec(
         command: string,
         args: string[],
         options?: ShellOptions
     ): Promise<ShellOutput>
+    /**
+     * Starts a headless browser and navigates to the page.
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browse).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browse
+     * @param url
+     * @param options
+     */
+    browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage>
 }
 
 interface ContainerOptions {
@@ -1622,6 +2000,16 @@ interface ContainerHost extends ShellHost {
      * @param toContainer directory in the container
      */
     copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
 }
 
 interface PromptContext extends ChatGenerationContext {
@@ -1647,14 +2035,11 @@ interface PromptContext extends ChatGenerationContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    /**
+     * @deprecated Use `workspace` instead
+     */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
-    YAML: YAML
-    XML: XML
-    JSONL: JSONL
-    CSV: CSV
-    INI: INI
-    AICI: AICI
     host: PromptHost
 }
 
@@ -1711,7 +2096,7 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: StringLike,
+    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput,
     options?: DefOptions
 ): string
 
@@ -1722,17 +2107,21 @@ declare function def(
  */
 declare function defFileOutput(
     pattern: string,
-    description: string,
+    description?: string,
     options?: FileOutputOptions
 ): void
 
 /**
  * Declares a tool that can be called from the prompt.
+ * @param tool Agentic tool function.
  * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
  * @param description A description of what the function does, used by the model to choose when and how to call the function.
  * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
+declare function defTool(
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+): void
 declare function defTool(
     name: string,
     description: string,
@@ -1772,12 +2161,6 @@ declare var retrieval: Retrieval
 declare var workspace: WorkspaceFileSystem
 
 /**
- * Access to the workspace file system.
- * @deprecated Use `workspace` instead.
- */
-declare var fs: WorkspaceFileSystem
-
-/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -1796,6 +2179,16 @@ declare var CSV: CSV
  * XML parsing and stringifying.
  */
 declare var XML: XML
+
+/**
+ * HTML parsing
+ */
+declare var HTML: HTML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
 
 /**
  * JSONL parsing and stringifying.
@@ -1838,7 +2231,10 @@ declare function defSchema(
  * @param files
  * @param options
  */
-declare function defImages(files: StringLike, options?: DefImagesOptions): void
+declare function defImages(
+    files: StringLike | Buffer | Blob,
+    options?: DefImagesOptions
+): void
 
 /**
  * Renders a table or object in the prompt

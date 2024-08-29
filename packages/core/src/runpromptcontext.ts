@@ -3,7 +3,7 @@ import {
     appendChild,
     createAssistantNode,
     createChatParticipant,
-    createDefDataNode,
+    createDefData,
     createDefNode,
     createFileOutput,
     createFunctionNode,
@@ -15,11 +15,11 @@ import {
 import { MarkdownTrace } from "./trace"
 import { GenerationOptions } from "./generation"
 import { promptParametersSchemaToJSONSchema } from "./parameters"
-import { isJSONSchema } from "./schema"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
-import { logVerbose } from "./util"
+import { arrayify, logVerbose } from "./util"
+import { renderShellOutput } from "./chatrender"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -70,14 +70,6 @@ export function createChatTurnGenerationContext(
                 if (body.length === 0 && !doptions.ignoreEmpty)
                     throw new Error(`def ${name} is empty`)
                 body.forEach((f) => ctx.def(name, f, defOptions))
-            } else if (typeof body === "object" && body.filename) {
-                const { glob, endsWith } = defOptions || {}
-                const filename = body.filename
-                if (glob && filename) {
-                    if (!isGlobMatch(filename, glob)) return undefined
-                }
-                if (endsWith && !filename.endsWith(endsWith)) return undefined
-                appendChild(node, createDefNode(name, body, doptions))
             } else if (typeof body === "string") {
                 if (body.trim() === "" && !doptions.ignoreEmpty)
                     throw new Error(`def ${name} is empty`)
@@ -89,13 +81,40 @@ export function createChatTurnGenerationContext(
                         doptions
                     )
                 )
+            } else if (
+                typeof body === "object" &&
+                (body as WorkspaceFile).filename
+            ) {
+                const file = body as WorkspaceFile
+                const { glob, endsWith } = defOptions || {}
+                const { filename } = file
+                if (glob && filename) {
+                    if (!isGlobMatch(filename, glob)) return undefined
+                }
+                if (endsWith && !filename.endsWith(endsWith)) return undefined
+                appendChild(node, createDefNode(name, file, doptions))
+            } else if (
+                typeof body === "object" &&
+                (body as ShellOutput).exitCode !== undefined
+            ) {
+                appendChild(
+                    node,
+                    createDefNode(
+                        name,
+                        {
+                            filename: "",
+                            content: renderShellOutput(body as ShellOutput),
+                        },
+                        { ...doptions, lineNumbers: false }
+                    )
+                )
             }
 
             // TODO: support clause
             return name
         },
         defData: (name, data, defOptions) => {
-            appendChild(node, createDefDataNode(name, data, defOptions))
+            appendChild(node, createDefData(name, data, defOptions))
             return name
         },
         fence(body, options?: DefOptions) {
@@ -120,16 +139,49 @@ export function createChatGenerationContext(
     const node = turnCtx.node
 
     const defTool: (
-        name: string,
+        name:
+            | string
+            | ToolCallback
+            | AgenticToolCallback
+            | AgenticToolProviderCallback,
         description: string,
         parameters: PromptParametersSchema | JSONSchemaObject,
         fn: ChatFunctionHandler
     ) => void = (name, description, parameters, fn) => {
-        const parameterSchema = promptParametersSchemaToJSONSchema(parameters)
-        appendChild(
-            node,
-            createFunctionNode(name, description, parameterSchema, fn)
-        )
+        if (name === undefined || name === null)
+            throw new Error("tool name is missing")
+
+        if (typeof name === "string") {
+            const parameterSchema =
+                promptParametersSchemaToJSONSchema(parameters)
+            appendChild(
+                node,
+                createFunctionNode(name, description, parameterSchema, fn)
+            )
+        } else if ((name as ToolCallback | AgenticToolCallback).impl) {
+            const tool = name as ToolCallback | AgenticToolCallback
+            appendChild(
+                node,
+                createFunctionNode(
+                    tool.spec.name,
+                    tool.spec.description,
+                    tool.spec.parameters as any,
+                    tool.impl
+                )
+            )
+        } else if ((name as AgenticToolProviderCallback).functions) {
+            const tools = (name as AgenticToolProviderCallback).functions
+            for (const tool of tools)
+                appendChild(
+                    node,
+                    createFunctionNode(
+                        tool.spec.name,
+                        tool.spec.description,
+                        tool.spec.parameters as any,
+                        tool.impl
+                    )
+                )
+        }
     }
 
     const defSchema = (
@@ -148,7 +200,21 @@ export function createChatGenerationContext(
             files.forEach((file) => defImages(file, defOptions))
         else if (typeof files === "string")
             appendChild(node, createImageNode({ url: files, detail }))
-        else {
+        else if (files instanceof Buffer) {
+            const buffer: Buffer = files
+            appendChild(
+                node,
+                createImageNode(
+                    (async () => {
+                        const url = await buffer.toString("base64url")
+                        return {
+                            url,
+                            detail,
+                        }
+                    })()
+                )
+            )
+        } else {
             const file: WorkspaceFile = files
             appendChild(
                 node,

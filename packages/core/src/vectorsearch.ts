@@ -1,14 +1,18 @@
 import { encode, decode } from "gpt-tokenizer"
 import { resolveModelConnectionInfo } from "./models"
-import { runtimeHost } from "./host"
-import { AZURE_OPENAI_API_VERSION, MODEL_PROVIDER_AZURE } from "./constants"
+import { runtimeHost, host } from "./host"
+import {
+    AZURE_OPENAI_API_VERSION,
+    DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
+    MODEL_PROVIDER_AZURE,
+} from "./constants"
 import type { EmbeddingsModel, EmbeddingsResponse } from "vectra/lib/types"
 import { createFetch, traceFetchPost } from "./fetch"
 import { JSONLineCache } from "./cache"
 import { EmbeddingCreateParams, EmbeddingCreateResponse } from "./chattypes"
 import { LanguageModelConfiguration } from "./host"
 import { getConfigHeaders } from "./openai"
-import { trimTrailingSlash } from "./util"
+import { logVerbose, trimTrailingSlash } from "./util"
 import { TraceOptions } from "./trace"
 
 export interface EmbeddingsCacheKey {
@@ -72,10 +76,11 @@ class OpenAIEmbeddings implements EmbeddingsModel {
             url = `${trimTrailingSlash(base)}/${model.replace(/\./g, "")}/embeddings?api-version=${AZURE_OPENAI_API_VERSION}`
             delete body.model
         } else {
-            url = `${base}/v1/embeddings`
+            url = `${base}/embeddings`
         }
         const fetch = await createFetch({ retryOn: [429] })
         if (trace) traceFetchPost(trace, url, headers, body)
+        logVerbose(`embedding ${model}`)
         const resp = await fetch(url, {
             method: "POST",
             headers,
@@ -127,10 +132,21 @@ export async function vectorSearch(
             "vectra/lib/LocalDocumentIndex"
         )
         const tokenizer = { encode, decode }
-        const { info, configuration } = await resolveModelConnectionInfo({
-            model: embeddingsModel,
-        })
+        const { info, configuration } = await resolveModelConnectionInfo(
+            {
+                model: embeddingsModel,
+            },
+            {
+                token: true,
+                candidates: [
+                    host.defaultEmbeddingsModelOptions.embeddingsModel,
+                    ...DEFAULT_EMBEDDINGS_MODEL_CANDIDATES,
+                ],
+            }
+        )
         if (info.error) throw new Error(info.error)
+        if (!configuration)
+            throw new Error("No configuration found for vector search")
         await runtimeHost.models.pullModel(info.model)
         const embeddings = new OpenAIEmbeddings(info, configuration, { trace })
         const index = new LocalDocumentIndex({

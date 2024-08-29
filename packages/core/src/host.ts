@@ -51,8 +51,7 @@ export interface ResponseStatus {
     status?: number
 }
 
-export interface RetrievalSearchOptions extends VectorSearchOptions {
-}
+export interface RetrievalSearchOptions extends VectorSearchOptions {}
 
 export interface RetrievalSearchResponse extends ResponseStatus {
     results: WorkspaceFileWithScore[]
@@ -85,8 +84,8 @@ export interface ServerManager {
 
 export interface Host {
     readonly dotEnvPath: string
-    userState: any
 
+    userState: any
     server: ServerManager
     path: Path
 
@@ -145,9 +144,24 @@ export interface RuntimeHost extends Host {
     container(options: ContainerOptions & TraceOptions): Promise<ContainerHost>
 
     /**
+     * Launches a browser page
+     * @param url
+     * @param options
+     */
+    browse(
+        url: string,
+        options?: BrowseSessionOptions & TraceOptions
+    ): Promise<BrowserPage>
+
+    /**
      * Cleanup all temporary containers.
      */
     removeContainers(): Promise<void>
+
+    /**
+     * Cleanup all temporary browsers.
+     */
+    removeBrowsers(): Promise<void>
 }
 
 export let host: Host

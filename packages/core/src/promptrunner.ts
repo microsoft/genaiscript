@@ -1,7 +1,7 @@
 import { executeChatSession, tracePromptResult } from "./chat"
 import { Project, PromptScript } from "./ast"
 import { stringToPos } from "./parser"
-import { arrayify, assert, logVerbose, relativePath } from "./util"
+import { arrayify, assert, logError, logVerbose, relativePath } from "./util"
 import { runtimeHost } from "./host"
 import { applyLLMDiff, applyLLMPatch, parseLLMDiffs } from "./diff"
 import { MarkdownTrace } from "./trace"
@@ -85,6 +85,7 @@ export async function runTemplate(
     assert(model !== undefined)
 
     try {
+        trace.heading(3, `🧠 running ${template.id} with model ${model ?? ""}`)
         if (cliInfo) traceCliArgs(trace, template, options)
 
         const vars = await resolveExpansionVars(
@@ -119,7 +120,8 @@ export async function runTemplate(
         )
 
         // if the expansion failed, show the user the trace
-        if (status !== "success") {
+        // or no message generated
+        if (status !== "success" || !messages.length) {
             trace.renderErrors()
             return <GenerationResult>{
                 status,
@@ -143,6 +145,7 @@ export async function runTemplate(
             trace.renderErrors()
             return <GenerationResult>{
                 status: "cancelled",
+                statusText: "LLM generation skipped",
                 messages,
                 vars,
                 text: "",
@@ -322,10 +325,12 @@ export async function runTemplate(
                             trace.detailsFenced(`📁 file ${fn}`, content)
                             const fileEdit = await getFileEdit(fn)
                             fileEdit.after = content
+                            fileEdit.validation = { valid: true }
                         }
                     if (oannotations) annotations = oannotations.slice(0)
                 }
             } catch (e) {
+                logError(e)
                 trace.error(`output processor failed`, e)
             } finally {
                 trace.endDetails()
@@ -419,6 +424,7 @@ export async function runTemplate(
         return res
     } finally {
         await runtimeHost.removeContainers()
+        await runtimeHost.removeBrowsers()
     }
 }
 
@@ -428,7 +434,7 @@ function validateFileOutputs(
     fileEdits: Record<string, FileUpdate>,
     schemas: Record<string, JSONSchema>
 ) {
-    if (fileOutputs?.length) {
+    if (fileOutputs?.length && Object.keys(fileEdits || {}).length) {
         trace.startDetails("🗂 file outputs")
         for (const fileEditName of Object.keys(fileEdits)) {
             const fe = fileEdits[fileEditName]

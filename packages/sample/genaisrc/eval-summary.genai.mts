@@ -104,7 +104,7 @@ Evaluation Form (scores ONLY):
 `
         },
         {
-            model: "gpt-4",
+            model: "openai:gpt-4",
             temperature: 0,
             maxTokens: 10,
             topP: 1,

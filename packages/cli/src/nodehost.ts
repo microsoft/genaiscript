@@ -41,8 +41,14 @@ import {
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
-import { createAzureToken } from "./azuretoken"
+import {
+    AuthenticationToken,
+    createAzureToken,
+    isAzureTokenExpired,
+} from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
+import { errorMessage } from "../../core/src/error"
+import { BrowserManager } from "./playwright"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -98,7 +104,8 @@ export class NodeHost implements RuntimeHost {
     readonly path = createNodePath()
     readonly server = new NodeServerManager()
     readonly workspace = createFileSystem()
-    readonly docker = new DockerManager()
+    readonly containers = new DockerManager()
+    readonly browsers = new BrowserManager()
     readonly defaultModelOptions = {
         model: DEFAULT_MODEL,
         temperature: DEFAULT_TEMPERATURE,
@@ -143,7 +150,7 @@ export class NodeHost implements RuntimeHost {
     }
     clientLanguageModel: LanguageModel
 
-    private _azureToken: string
+    private _azureToken: AuthenticationToken
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -151,16 +158,21 @@ export class NodeHost implements RuntimeHost {
         const { signal, token: askToken } = options || {}
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
+        if (!askToken && tok?.token) tok.token = "***"
         if (
             askToken &&
             tok &&
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            if (!this._azureToken)
+            if (isAzureTokenExpired(this._azureToken)) {
+                logVerbose(
+                    `fetching azure token (${this._azureToken?.expiresOnTimestamp >= Date.now() ? `expired ${new Date(this._azureToken.expiresOnTimestamp).toLocaleString()}` : "not available"})`
+                )
                 this._azureToken = await createAzureToken(signal)
+            }
             if (!this._azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + this._azureToken
+            tok.token = "Bearer " + this._azureToken.token
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
@@ -248,6 +260,13 @@ export class NodeHost implements RuntimeHost {
         await remove(name)
     }
 
+    async browse(
+        url: string,
+        options?: BrowseSessionOptions & TraceOptions
+    ): Promise<BrowserPage> {
+        return this.browsers.browse(url, options)
+    }
+
     async exec(
         containerId: string,
         command: string,
@@ -255,7 +274,7 @@ export class NodeHost implements RuntimeHost {
         options: ShellOptions & TraceOptions
     ) {
         if (containerId) {
-            const container = await this.docker.container(containerId)
+            const container = await this.containers.container(containerId)
             return await container.exec(command, args, options)
         }
 
@@ -275,8 +294,12 @@ export class NodeHost implements RuntimeHost {
             if (command === "python" && process.platform !== "win32")
                 command = "python3"
 
+            const quoteify = (a: string) => (/\s/.test(a) ? `"${a}"` : a)
+            logVerbose(
+                `${cwd ? `${cwd}> ` : ""}${quoteify(command)} ${args.map(quoteify).join(" ")}`
+            )
             trace?.itemValue(`cwd`, cwd)
-            trace?.item(`\`${command}\` ${args.join(" ")}`)
+            trace?.item(`${command} ${args.map(quoteify).join(" ")}`)
 
             const { stdout, stderr, exitCode, failed } = await execa(
                 command,
@@ -297,6 +320,14 @@ export class NodeHost implements RuntimeHost {
             if (stdout) trace?.detailsFenced(`📩 stdout`, stdout)
             if (stderr) trace?.detailsFenced(`📩 stderr`, stderr)
             return { stdout, stderr, exitCode, failed }
+        } catch (err) {
+            trace?.error("exec failed", err)
+            return {
+                stdout: "",
+                stderr: errorMessage(err),
+                exitCode: 1,
+                failed: true,
+            }
         } finally {
             trace?.endDetails()
         }
@@ -309,10 +340,14 @@ export class NodeHost implements RuntimeHost {
     async container(
         options: ContainerOptions & TraceOptions
     ): Promise<ContainerHost> {
-        return await this.docker.startContainer(options)
+        return await this.containers.startContainer(options)
     }
 
     async removeContainers(): Promise<void> {
-        await this.docker.stopAndRemove()
+        await this.containers.stopAndRemove()
+    }
+
+    async removeBrowsers(): Promise<void> {
+        await this.browsers.stopAndRemove()
     }
 }

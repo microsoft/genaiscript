@@ -1,13 +1,11 @@
 {
     "name": "genaiscript-workspace",
-    "version": "1.48.2",
+    "version": "1.52.0",
     "license": "MIT",
     "private": true,
     "workspaces": {
         "packages": [
-            "packages/*",
-            "docs",
-            "slides"
+            "packages/*"
         ]
     },
     "scripts": {
@@ -15,7 +13,7 @@
         "setup": "git submodule update --init --recursive",
         "setup:az": "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
         "setup:bicep": "az bicep upgrade",
-        "install:force": "rm yarn.lock && yarn install && yarn gen:licenses",
+        "install:force": "rm yarn.lock && yarn install && yarn --cwd docs install:force && yarn --cwd slides install:force && yarn gen:licenses",
         "compile-ext": "yarn --cwd packages/core run prompts:bundle && yarn --cwd packages/vscode run compile",
         "compile-cli": "yarn --cwd packages/cli run compile",
         "compile": "yarn compile-ext && yarn compile-cli && yarn test:fix",
@@ -23,9 +21,11 @@
         "go": "cd packages/cli && yarn go",
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
-        "package": "cd packages/vscode && yarn package && yarn generate-manifest",
+        "lint": "yarn --cwd packages/cli run lint",
+        "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
+        "release:npm": "cd packages/cli && npm publish",
         "patch-versions": "npx --yes zx scripts/patch-version.mjs",
         "commit-versions": "git add packages/**/package.json && git add docs/package.json && git add slides/package.json && git commit -m '[skip ci] updated version numbers' && git push",
         "release": "yarn typecheck && yarn compile && yarn package && yarn release:draft && yarn patch-versions && yarn compile && yarn package && yarn release:vsix && yarn commit-versions",
@@ -54,13 +54,18 @@
         "serve": "node packages/cli/built/genaiscript.cjs serve",
         "docs": "cd docs && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
-        "build:slides": "yarn --cwd slides build",
-        "build:docs": "yarn build:slides && yarn --cwd docs build && yarn --cwd docs build:asw",
+        "build:slides": "yarn --cwd slides install --frozen-lockfile --prefer-offline && yarn --cwd slides build",
+        "build:docs": "yarn --cwd docs install --frozen-lockfile --prefer-offline && yarn --cwd docs build && yarn --cwd docs build:asw",
         "gen:licenses": "npx --yes generate-license-file --input ./package.json --output ./THIRD_PARTY_LICENSES.md --overwrite",
         "genai:technical": "cd docs && yarn genai:technical",
         "genai:frontmatter": "cd docs && yarn genai:frontmatter",
         "genai:alt": "cd docs && yarn genai:alt-text",
-        "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen"
+        "genai:test": "node packages/cli/built/genaiscript.cjs run test-gen",
+        "genai:blog-post": "node packages/cli/built/genaiscript.cjs run blog-generator",
+        "genai:readme": "node packages/cli/built/genaiscript.cjs run readme-updater",
+        "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample --no-cache",
+        "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify --no-cache",
+        "gcm": "node packages/cli/built/genaiscript.cjs run gcm"
     },
     "release-it": {
         "github": {
@@ -71,6 +76,7 @@
         }
     },
     "dependencies": {
+        "@inquirer/prompts": "^5.3.8",
         "glob": "^11.0.0",
         "zx": "^8.1.4"
     }

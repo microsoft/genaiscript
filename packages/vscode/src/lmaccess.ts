@@ -13,11 +13,11 @@ import {
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
-import { updateConnectionConfiguration } from "../../core/src/connection"
 import { ChatCompletionMessageParam } from "../../core/src/chattypes"
 import { LanguageModelChatRequest } from "../../core/src/server/client"
 import { ChatStart } from "../../core/src/server/messages"
 import { serializeError } from "../../core/src/error"
+import { logVerbose } from "../../core/src/util"
 
 async function generateLanguageModelConfiguration(
     state: ExtensionState,
@@ -122,11 +122,14 @@ async function pickChatModel(
             detail: `${chatModel.version}, ${chatModel.maxInputTokens}t.`,
             chatModel,
         }))
-        const res = await vscode.window.showQuickPick(items, {
-            title: `Pick a Language Chat Model for ${model}`,
-        })
-        chatModel = res?.chatModel
-        if (chatModel) await state.updateLanguageChatModels(model, chatModel.id)
+        if (items?.length) {
+            const res = await vscode.window.showQuickPick(items, {
+                title: `Pick a Language Chat Model for ${model}`,
+            })
+            chatModel = res?.chatModel
+            if (chatModel)
+                await state.updateLanguageChatModels(model, chatModel.id)
+        }
     }
     return chatModel
 }
@@ -140,11 +143,11 @@ export async function pickLanguageModel(
 
     if (res.model) return res.model
     else {
-        await updateConnectionConfiguration(res.provider, res.apiType)
-        const doc = await vscode.workspace.openTextDocument(
-            state.host.toUri("./.env")
+        await vscode.commands.executeCommand(
+            "genaiscript.connection.configure",
+            res.provider,
+            res.apiType
         )
-        await vscode.window.showTextDocument(doc)
         return undefined
     }
 }
@@ -203,8 +206,12 @@ export function createChatModelRunner(
             const { model, messages, modelOptions } = req
             const chatModel = await pickChatModel(state, model)
             if (!chatModel) {
+                logVerbose("no language chat model selected, cancelling")
                 onChunk({
-                    finishReason: "cancel",
+                    finishReason: "fail",
+                    error: serializeError(
+                        new Error("No language chat model selected")
+                    ),
                 })
                 return
             }
@@ -223,7 +230,7 @@ export function createChatModelRunner(
                 text += fragment
                 onChunk({
                     chunk: fragment,
-                    tokens: await chatModel.countTokens(text),
+                    tokens: await chatModel.countTokens(fragment),
                     finishReason: undefined,
                     model: chatModel.id,
                 })
