@@ -85,6 +85,7 @@ export async function runTemplate(
     assert(model !== undefined)
 
     try {
+        trace.itemValue("🧠 model", model ?? "??")
         if (cliInfo) traceCliArgs(trace, template, options)
 
         const vars = await resolveExpansionVars(
@@ -185,7 +186,6 @@ export async function runTemplate(
             return fileEdit
         }
 
-        trace.itemValue("🧠 model", model ?? "??")
         const connection = await resolveModelConnectionInfo(
             { model },
             { trace, token: true }
