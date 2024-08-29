@@ -7,8 +7,7 @@ const page = await host.browse(
 )
 const table = page.locator('table[data-testid="csv-table"]')
 const html = await table.innerHTML()
-console.log(`HTML:` + html)
-const csv = HTML.convertToText(html)
-console.log(`TEXT: ` + csv)
-def("DATA", csv)
-$`Analyze DATA.`
+const csv = HTML.convertTablesToJSON("<table>" + html + "</table>")[0]
+csv.forEach((row) => delete row[Object.keys(row)[0]]) // remove the first column
+defData("DATA", csv, { format: "csv" })
+$`Analyze DATA and provide a statistical summary.`

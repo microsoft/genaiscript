@@ -3,7 +3,7 @@ import {
     appendChild,
     createAssistantNode,
     createChatParticipant,
-    createDefDataNode,
+    createDefData,
     createDefNode,
     createFileOutput,
     createFunctionNode,
@@ -114,7 +114,7 @@ export function createChatTurnGenerationContext(
             return name
         },
         defData: (name, data, defOptions) => {
-            appendChild(node, createDefDataNode(name, data, defOptions))
+            appendChild(node, createDefData(name, data, defOptions))
             return name
         },
         fence(body, options?: DefOptions) {

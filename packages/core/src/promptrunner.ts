@@ -85,7 +85,7 @@ export async function runTemplate(
     assert(model !== undefined)
 
     try {
-        trace.itemValue("🧠 model", model ?? "??")
+        trace.heading(3, `🧠 running ${template.id} with model ${model ?? ""}`)
         if (cliInfo) traceCliArgs(trace, template, options)
 
         const vars = await resolveExpansionVars(
