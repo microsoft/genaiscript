@@ -16,14 +16,15 @@ You are an expert at the GenAIScript project and also a social media expert.
 
 Generate social media announcements for the documentation page or blog post in DOC.
 
-- generate a twitter post for Twitter/X
-- generate a linkedin post for LinkedIn/X
+- generate a Twitter/X post
+- generate a LinkedIn post
 
 ## Instructions
 
+- make sure to adjust the tone for each social platform
 - add link to the documentation page
 - use emojis
-- add hashtags
+- add hashtags, all lowercase
 - don't be excited
 - don't announce blog posts, mention content
 
