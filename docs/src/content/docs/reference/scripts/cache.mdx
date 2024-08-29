@@ -77,8 +77,10 @@ You can instantiate a custom cache object to manage the cache programmatically.
 const cache = await workspace.cache("summary")
 // write entries
 await cache.set("file.txt", "...")
-// read entries
+// read value
 const content = await cache.get("file.txt")
-// list entries
-const entries = await cache.values()
+// list keys
+const keys = await cache.keys()
+// list values
+const values = await cache.values()
 ```
