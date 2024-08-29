@@ -23,7 +23,6 @@ if (!diff.stdout) {
 console.log(diff.stdout)
 
 let choice
-let message
 do {
     // Generate commit message
     const res = await runPrompt(
@@ -41,7 +40,7 @@ Please generate a concise, one-line commit message for these changes.
 
     if (res.error) throw res.error
 
-    const message = res.text
+    message = res.text
     if (!message) {
         console.log("No message generated, did you.")
         break
