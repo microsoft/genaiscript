@@ -57,6 +57,7 @@
     "sanitize-html": "^2.13.0",
     "semver": "^7.6.3",
     "serialize-error": "^11.0.3",
+    "tabletojson": "^4.1.4",
     "toml": "^3.0.0",
     "tree-sitter-wasms": "^0.1.11",
     "ts-dedent": "^2.2.0",

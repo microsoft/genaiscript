@@ -1158,12 +1158,18 @@ interface XML {
 
 interface HTML {
     /**
+     * Converts an HTML table to JSON
+     * @param html
+     * @param options
+     */
+    convertTableToJSON(html: string, options?: {}): object[][]
+    /**
      * Converts HTML markup to plain text
      * @param html
      */
     convertToText(html: string): string
     /**
-     * Converts HMTL markup to markdown
+     * Converts HTML markup to markdown
      * @param html
      */
     convertToMarkdown(html: string): string
