@@ -74,6 +74,7 @@ export function createFileSystem(): Omit<WorkspaceFileSystem, "grep"> {
             return <WorkspaceFileCache<any, any>>{
                 get: async (key: any) => res.get(key),
                 set: async (key: any, val: any) => res.set(key, val),
+                keys: async () => res.keys(),
                 values: async () =>
                     res.entries().then((es) => es.map((e) => e.val)),
             }
