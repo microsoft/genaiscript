@@ -70,7 +70,7 @@ export interface PromptScriptRunOptions {
     model: string
     embeddingsModel: string
     csvSeparator: string
-    cache: boolean
+    cache: boolean | string
     cacheName: string
     applyEdits: boolean
     failOnErrors: boolean

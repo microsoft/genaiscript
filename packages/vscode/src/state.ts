@@ -269,7 +269,7 @@ tests/
     ): Promise<AIRequest> {
         const controller = new AbortController()
         const config = vscode.workspace.getConfiguration(TOOL_ID)
-        const cache = config.get("cache")
+        const cache = config.get("cache") as boolean
         const signal = controller.signal
         const trace = new MarkdownTrace()
 
@@ -332,7 +332,7 @@ tests/
                 infoCb,
                 partialCb,
                 label,
-                cache: cache && template.cache,
+                cache: cache ? template.cache : undefined,
                 vars: parametersToVars(options.parameters),
             }
         )
