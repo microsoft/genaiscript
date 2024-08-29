@@ -1711,7 +1711,7 @@ interface BrowserLocator {
     /**
      * Returns the element.textContent
      * @link https://playwright.dev/docs/api/class-locator#locator-text-content
-     * @param options 
+     * @param options
      */
     textContent(options?: TimeoutOptions): Promise<string>
 
@@ -1720,6 +1720,20 @@ interface BrowserLocator {
      * @link https://playwright.dev/docs/api/class-locator#locator-input-value
      */
     inputValue(): Promise<string>
+
+    /**
+     * Get the attribute value
+     * @param name
+     * @param options
+     * @link https://playwright.dev/docs/api/class-locator#locator-get-attribute
+     */
+    getAttribute(name: string, options?: TimeoutOptions): Promise<null | string>
+
+    /**
+     * Clears the input field.
+     * @link https://playwright.dev/docs/api/class-locator#locator-clear
+     */
+    clear(): Promise<void>
 }
 
 /**
