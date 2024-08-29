@@ -66,7 +66,7 @@ import { resolveTokenEncoder } from "../../core/src/encoders"
 import { writeFile } from "fs/promises"
 
 async function setupTraceWriting(trace: MarkdownTrace, filename: string) {
-    logVerbose(`writing trace to ${filename}`)
+    logVerbose(`trace: ${filename}`)
     await ensureDir(dirname(filename))
     await writeFile(filename, "", { encoding: "utf-8" })
     trace.addEventListener(
