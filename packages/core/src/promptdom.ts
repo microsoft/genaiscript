@@ -255,6 +255,22 @@ export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output }
 }
 
+function haveSameKeysAndSimpleValues(data: object[]): boolean {
+    if (data.length === 0) return true
+    const headers = Object.entries(data[0])
+    return data.slice(1).every((obj) => {
+        const keys = Object.entries(obj)
+        return (
+            headers.length === keys.length &&
+            headers.every(
+                (h, i) =>
+                    keys[i][0] === h[0] &&
+                    /^(string|number|boolean|null|undefined)$/.test(typeof keys[i][1])
+            )
+        )
+    })
+}
+
 export function createDefData(
     name: string,
     data: object | object[],
@@ -262,7 +278,13 @@ export function createDefData(
 ) {
     if (data === undefined) return undefined
     let { format, headers, priority } = options || {}
-    if (!format && headers && Array.isArray(data)) format = "csv"
+    if (
+        !format &&
+        Array.isArray(data) &&
+        data.length &&
+        (headers?.length || haveSameKeysAndSimpleValues(data))
+    )
+        format = "csv"
     else if (!format) format = "yaml"
 
     if (Array.isArray(data)) data = tidyData(data as object[], options)
