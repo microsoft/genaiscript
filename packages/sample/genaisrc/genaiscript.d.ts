@@ -176,13 +176,13 @@ interface ModelOptions extends ModelConnectionOptions {
     seed?: number
 
     /**
-     * If true, the prompt will be cached. If false, the LLM chat is never cached.
-     * Leave empty to use the default behavior.
+     * By default, LLM queries are not cached. If true, the LLM request will be cached. Use a string to override the default cache name
      */
-    cache?: boolean
+    cache?: boolean | string
 
     /**
      * Custom cache name. If not set, the default cache is used.
+     * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
 }

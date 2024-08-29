@@ -2,8 +2,6 @@ import { normalizeInt, trimTrailingSlash } from "./util"
 import { LanguageModelConfiguration, host } from "./host"
 import {
     AZURE_OPENAI_API_VERSION,
-    MAX_CACHED_TEMPERATURE,
-    MAX_CACHED_TOP_P,
     MODEL_PROVIDER_OPENAI,
     TOOL_ID,
 } from "./constants"
@@ -50,13 +48,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     options,
     trace
 ) => {
-    const { temperature, top_p, seed, tools } = req
     const {
         requestOptions,
         partialCb,
-        maxCachedTemperature = MAX_CACHED_TEMPERATURE,
-        maxCachedTopP = MAX_CACHED_TOP_P,
-        cache: useCache,
+        cache: cacheOrName,
         cacheName,
         retry,
         retryDelay,
@@ -69,18 +64,12 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { model } = parseModelIdentifier(req.model)
     const encoder = await resolveTokenEncoder(model)
 
-    const cache = getChatCompletionCache(cacheName)
-    const caching =
-        useCache === true || // always use cache
-        (useCache !== false && // never use cache
-            seed === undefined && // seed is not cacheable (let the LLM make the run deterministic)
-            !tools?.length && // assume tools are non-deterministic by default
-            (isNaN(temperature) ||
-                isNaN(maxCachedTemperature) ||
-                temperature < maxCachedTemperature) && // high temperature is not cacheable (it's too random)
-            (isNaN(top_p) || isNaN(maxCachedTopP) || top_p < maxCachedTopP))
-    trace.itemValue(`caching`, caching)
-    const cachedKey = caching
+    const cache = getChatCompletionCache(
+        typeof cacheOrName === "string" ? cacheOrName : cacheName
+    )
+    trace.itemValue(`caching`, !!cache)
+    trace.itemValue(`cache`, cache?.name)
+    const cachedKey = !!cacheOrName
         ? <ChatCompletionRequestCacheKey>{
               ...req,
               ...cfgNoToken,
@@ -263,7 +252,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
                 responseSoFar: chatResp,
                 tokensSoFar: numTokens,
                 responseChunk: progress,
-                inner
+                inner,
             })
         }
         pref = chunk
