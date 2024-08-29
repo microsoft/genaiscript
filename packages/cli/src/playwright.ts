@@ -82,18 +82,19 @@ export class BrowserManager {
         url: string,
         options?: BrowseSessionOptions & TraceOptions
     ): Promise<BrowserPage> {
-        const { trace, incognito, ...rest } = options || {}
+        const { trace, incognito, timeout, ...rest } = options || {}
 
         logVerbose(`browsing ${ellipseUri(url)}`)
         const browser = await this.launchBrowser(options)
         logVerbose(`navigating...`)
-        let page: BrowserPage
+        let page: Page
         if (incognito) {
             const context = await browser.newContext(rest)
             page = await context.newPage()
         } else {
             page = await browser.newPage(rest)
         }
+        if (timeout !== undefined) page.setDefaultTimeout(timeout)
         if (url) await page.goto(url)
         logVerbose(`page ready`)
         return page
