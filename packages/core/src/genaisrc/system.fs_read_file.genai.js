@@ -5,7 +5,7 @@ system({
 
 defTool(
     "fs_read_file",
-    "Reads a file as text from the file system.",
+    "Reads a file as text from the file system. Returns undefined if the file does not exist.",
     {
         type: "object",
         properties: {

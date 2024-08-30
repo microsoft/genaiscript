@@ -1,6 +1,6 @@
 script({
     description: "Generate a blog post for Dev.to from the documentation",
-    model: "openai:gpt-4o",
+    model: "openai:gpt-4-turbo",
     system: [],
     tools: ["fs", "md"],
     parameters: {
@@ -96,7 +96,7 @@ let snippet
         Use these files to help you generate a topic for the blog post.
  
         - the code will be executed in node.js v20 by the GenAIScript CLI
-        - the genaiscript type definition: genaiscript/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
+        - the genaiscript type definition: genaisrc/genaiscript.d.ts. Assume that all globals are ambient. Do not import or require genaiscript module.
         - the genaiscript samples: packages/sample/src/*.genai.*
         - the documentation is in markdown and has frontmatter: docs/src/content/docs/**/*.md*
         - the online documentation: https://microsoft.github.io/genaiscript/
