@@ -54,7 +54,7 @@ class GenAIScriptApiProvider {
             if (temperature !== undefined)
                 args.push("--temperature", temperature)
             if (top_p !== undefined) args.push("--top_p", top_p)
-            if (cache === false) args.push("--no-cache")
+            if (cache === true) args.push("--cache")
 
             const cmd = args
                 .map((a) =>

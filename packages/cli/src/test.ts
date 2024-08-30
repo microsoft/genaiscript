@@ -150,7 +150,7 @@ export async function runPromptScriptTests(
             "1",
             "--no-progress-bar",
         ]
-        if (!options.cache) args.push("--no-cache")
+        if (options.cache) args.push("--cache")
         if (options.verbose) args.push("--verbose")
         args.push("--output", outJson)
         logVerbose(`  ${cmd} ${args.join(" ")}`)
