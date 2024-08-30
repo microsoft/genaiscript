@@ -179,7 +179,7 @@ export function logWarn(msg: string) {
 
 export function logError(msg: string | Error | SerializedError) {
     const err = serializeError(msg)
-    const { message, name, stack, ...e } = err
+    const { message, name, stack, ...e } = err || {}
     if (isCancelError(err)) {
         host.log(LogLevel.Info, message || "cancelled")
         return

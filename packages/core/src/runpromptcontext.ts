@@ -18,8 +18,9 @@ import { promptParametersSchemaToJSONSchema } from "./parameters"
 import { consoleLogFormat } from "./logging"
 import { resolveFileDataUri } from "./file"
 import { isGlobMatch } from "./glob"
-import { arrayify, logVerbose } from "./util"
+import { logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
+import { fileTypeFromBuffer } from "file-type"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -206,7 +207,9 @@ export function createChatGenerationContext(
                 node,
                 createImageNode(
                     (async () => {
-                        const url = await buffer.toString("base64url")
+                        const mime = await fileTypeFromBuffer(buffer)
+                        const b64 = await buffer.toString("base64")
+                        const url = `data:${mime.mime};base64,${b64}`
                         return {
                             url,
                             detail,

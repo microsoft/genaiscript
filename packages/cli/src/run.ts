@@ -485,7 +485,7 @@ export async function runScript(
     }
     // final fail
     if (result.status !== "success" && result.status !== "cancelled") {
-        const msg = errorMessage(result.error) ?? result.statusText
+        const msg = errorMessage(result.error) ?? result.statusText ?? result.finishReason
         return fail(msg, RUNTIME_ERROR_CODE)
     }
 

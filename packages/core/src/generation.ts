@@ -49,6 +49,11 @@ export interface GenerationResult extends GenerationOutput {
     statusText?: string
 
     /**
+     * LLM completion status
+     */
+    finishReason?: string
+
+    /**
      * Run label if provided
      */
     label?: string

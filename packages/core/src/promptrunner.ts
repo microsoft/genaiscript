@@ -406,6 +406,7 @@ export async function runTemplate(
                     : finishReason === "stop"
                       ? "success"
                       : "error",
+            finishReason,
             error,
             messages,
             vars,
@@ -420,6 +421,9 @@ export async function runTemplate(
             genVars,
             schemas,
             json,
+        }
+        if (res.status === "error" && !res.statusText && res.finishReason) {
+            res.statusText = `LLM finish reason: ${res.finishReason}`
         }
         return res
     } finally {

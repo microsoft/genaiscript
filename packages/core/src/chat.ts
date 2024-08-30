@@ -560,8 +560,9 @@ export async function executeChatSession(
         let genVars: Record<string, string>
         while (true) {
             stats.turns++
+            const tokens = estimateChatTokens(model, messages)
             infoCb?.({
-                text: `prompting ${model} (~${estimateChatTokens(model, messages)} tokens)`,
+                text: `prompting ${model} (~${tokens ?? "?"} tokens)`,
             })
             if (messages)
                 trace.details(
