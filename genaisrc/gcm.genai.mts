@@ -26,20 +26,26 @@ let choice
 let message
 do {
     // Generate commit message
-    message = (
-        await runPrompt(
-            (_) => {
-                _.def("GIT_DIFF", diff, { maxTokens: 20000 })
-                _.$`GIT_DIFF is a diff of all staged changes, coming from the command:
+    const res = await runPrompt(
+        (_) => {
+            _.def("GIT_DIFF", diff, { maxTokens: 20000 })
+            _.$`GIT_DIFF is a diff of all staged changes, coming from the command:
 \`\`\`
 git diff --cached
 \`\`\`
 Please generate a concise, one-line commit message for these changes.
 - do NOT add quotes`
-            },
-            { cache: false, temperature: 0.8 }
-        )
-    ).text
+        },
+        { cache: false, temperature: 0.8 }
+    )
+
+    if (res.error) throw res.error
+
+    message = res.text
+    if (!message) {
+        console.log("No message generated, did you.")
+        break
+    }
 
     // Prompt user for commit message
     choice = await select({
