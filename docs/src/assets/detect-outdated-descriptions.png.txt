@@ -1,0 +1,1 @@
+A screenshot of a code editor with an open document titled 'Containers' that includes a warning about outdated descriptions in the documentation, with a focus on a section about Docker and container technology.
