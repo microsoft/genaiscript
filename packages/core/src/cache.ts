@@ -13,12 +13,16 @@ export class JSONLineCache<K, V> extends EventTarget {
         super()
     }
 
-    static byName<K, V>(name: string): JSONLineCache<K, V> {
+    static byName<K, V>(
+        name: string,
+        options?: { snapshot?: boolean }
+    ): JSONLineCache<K, V> {
+        const { snapshot } = options || {}
         name = name.replace(/[^a-z0-9_]/gi, "_")
         const key = "cacheKV." + name
-        if (host.userState[key]) return host.userState[key]
+        if (!snapshot && host.userState[key]) return host.userState[key]
         const r = new JSONLineCache<K, V>(name)
-        host.userState[key] = r
+        if (!snapshot) host.userState[key] = r
         return r
     }
 

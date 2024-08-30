@@ -34,9 +34,10 @@ export function activateComments(state: ExtensionState) {
         `${TOOL_NAME} comments`
     )
     subscriptions.push(controller)
-    const cache = commentsCache()
+    const threads: vscode.CommentThread[] = []
 
     vscode.workspace.onDidChangeWorkspaceFolders(async () => {
+        const cache = commentsCache({ snapshot: true })
         const entries = await cache.entries()
         for (const { val } of entries) {
             const { filename, line, comments, label, resolved } = val
@@ -45,6 +46,8 @@ export function activateComments(state: ExtensionState) {
                 toRange([line, line]),
                 comments.map(commentToVSCodeComment)
             )
+            subscriptions.push(thread)
+            threads.push(thread)
             thread.label = label
             thread.canReply = true
             thread.state = resolved

@@ -7,9 +7,10 @@ export interface CommentKey {
     source: string
 }
 
-export function commentsCache() {
+export function commentsCache(options?: { snapshot?: boolean }) {
     const cache = JSONLineCache.byName<CommentKey, CommentThread>(
-        COMMENTS_CACHE
+        COMMENTS_CACHE,
+        options
     )
     return cache
 }
