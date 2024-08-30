@@ -49,6 +49,7 @@ import {
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
+import { shellConfirm, shellInput, shellSelect } from "./input"
 
 class NodeServerManager implements ServerManager {
     async start(): Promise<void> {
@@ -349,5 +350,30 @@ export class NodeHost implements RuntimeHost {
 
     async removeBrowsers(): Promise<void> {
         await this.browsers.stopAndRemove()
+    }
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(message: string, options: string[]): Promise<string> {
+        return shellSelect(message, options)
+    }
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string): Promise<string> {
+        return shellInput(message)
+    }
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string): Promise<boolean> {
+        return shellConfirm(message)
     }
 }

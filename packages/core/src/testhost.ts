@@ -122,4 +122,13 @@ export class TestHost implements RuntimeHost {
     }
     async removeContainers(): Promise<void> {}
     async removeBrowsers(): Promise<void> {}
+    select(message: string, options: string[]): Promise<string> {
+        throw new Error("Method not implemented.")
+    }
+    input(message: string): Promise<string> {
+        throw new Error("Method not implemented.")
+    }
+    confirm(message: string): Promise<boolean> {
+        throw new Error("Method not implemented.")
+    }
 }
