@@ -70,11 +70,11 @@
     "glob": "^11.0.0",
     "memorystream": "^0.3.1",
     "node-sarif-builder": "^3.2.0",
-    "openai": "^4.56.1",
+    "openai": "^4.57.0",
     "pretty-bytes": "^6.1.1",
     "replace-ext": "^2.0.0",
     "ws": "^8.18.0",
-    "zx": "^8.1.4"
+    "zx": "^8.1.5"
   },
   "scripts": {
     "compile": "esbuild src/main.ts --metafile=./esbuild.meta.json --bundle --platform=node --target=node20 --outfile=built/genaiscript.cjs --external:tsx --external:esbuild --external:get-tsconfig --external:resolve-pkg-maps --external:dockerode --external:pdfjs-dist --external:web-tree-sitter --external:tree-sitter-wasms --external:promptfoo --external:typescript --external:@lvce-editor/ripgrep --external:gpt-3-encoder --external:mammoth --external:xlsx --external:mathjs --external:@azure/identity --external:gpt-tokenizer --external:playwright --external:@inquirer/prompts && node ../../scripts/patch-cli.mjs",

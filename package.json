@@ -79,6 +79,6 @@
     "dependencies": {
         "@inquirer/prompts": "^5.3.8",
         "glob": "^11.0.0",
-        "zx": "^8.1.4"
+        "zx": "^8.1.5"
     }
 }
