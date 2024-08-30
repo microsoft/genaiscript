@@ -1,24 +1,26 @@
-script({
-    model: "openai:gpt-4",
-})
+const url =
+    env.vars.url ||
+    "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"
 
 // open a webpage with data
-const page = await host.browse(
-    "https://github.com/microsoft/genaiscript/blob/main/packages/sample/src/penguins.csv"
-)
-console.log(`page loaded`)
+const page = await host.browse(url)
 // locate the HTML table with data
-const table = page.locator("table[data-testid='csv-table']")
-
+const table = page.locator("table[data-testid='csv-table'] tbody")
 // take a screenshot
-const screenshot = await table.screenshot({ type: "jpeg", quality: 40 })
+const screenshot = await table.screenshot({ style:`
+    table, th, td, tr {
+        border: 1px solid black !important;
+        background: white !important;
+        color: black !important;
+    }
+`})
 console.log(`screenshot ${screenshot.length / 1e3} kb`)
 
 // extract the table data from the screenshot
 const { error, fences } = await runPrompt(
     async (_) => {
         _.defImages(screenshot)
-        _.$`Extract the data in the image as a CSV table.`
+        _.$`Extract the data in the request image. Format the output as a CSV table. If you cannot find text in the image, return 'no data'.`
     },
     { model: "openai:gpt-4o" }
 )

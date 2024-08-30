@@ -1745,6 +1745,7 @@ interface ScreenshotOptions extends TimeoutOptions {
     quality?: number
     scale?: "css" | "device"
     type?: "png" | "jpeg"
+    style?: string
 }
 
 interface PageScreenshotOptions extends ScreenshotOptions {
