@@ -252,7 +252,6 @@ export async function cli() {
         .option("-ef, --excluded-files <string...>", "excluded files")
         .option("-tk, --top-k <number>", "maximum number of results")
         .action(retrievalFuzz)
-    retrieval.command("code")
 
     program
         .command("serve")

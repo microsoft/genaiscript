@@ -248,7 +248,6 @@ Commands:
   search [options] <query> [files...]  Search using vector embeddings
                                        similarity
   fuzz [options] <query> [files...]    Search using string distance
-  code
   help [command]                       display help for command
 ```
 
@@ -276,15 +275,6 @@ Options:
   -ef, --excluded-files <string...>  excluded files
   -tk, --top-k <number>              maximum number of results
   -h, --help                         display help for command
-```
-
-### `retrieval code`
-
-```
-Usage: genaiscript retrieval code [options]
-
-Options:
-  -h, --help  display help for command
 ```
 
 ## `serve`
