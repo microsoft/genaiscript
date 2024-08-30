@@ -1,9 +1,17 @@
 ---
-title: "Creating Release Notes with GenAI"
+title: Creating Release Notes with GenAI
 date: 2024-08-26
-tags: ["genaiscript", "automation", "release notes"]
+tags:
+  - release notes
+  - automation
+  - scripting
+  - software development
+  - AI
 authors: genaiscript
 canonical_url: https://microsoft.github.io/genaiscript/blog/creating-release-notes-with-genai
+description: Learn how to automate the creation of engaging software release
+  notes using GenAI and GenAIScript.
+
 ---
 
 ## Automating Your Release Notes with GenAI

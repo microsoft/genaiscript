@@ -1,7 +1,15 @@
 ---
-title: Browse
+title: Browser Automation
 sidebar:
     order: 30
+description: Discover how GenAIScript integrates with Playwright for web
+    scraping and browser automation tasks.
+tags:
+    - GenAIScript
+    - Playwright
+    - web scraping
+    - automation
+    - browser
 ---
 
 GenAIScript provides a simplified API to interact with a headless browser using [Playwright](https://playwright.dev/) .
@@ -41,7 +49,7 @@ If you see this error message, you might have to install the dependencies manual
 
 ## `host.browse`
 
-This function launches a new browser instance and optionally navigates to the page.
+This function launches a new browser instance and optionally navigates to the page. The page are automatically closed when the script ends.
 
 ```js
 const page = await host.browse(url)
@@ -52,6 +60,47 @@ You can configure a number of options for the browser instance:
 ```js
 const page = await host.browse(url, { incognito: true })
 ```
+
+## Locators
+
+You can select elements on the page using the `page.get...` or `page.locator` method.
+
+```js
+// select by Aria roles
+const button = page.getByRole("button")
+// select by test-id
+const table = page.getByTestId("csv-table")
+```
+
+## Element contents
+
+You can access `innerHTML`, `innerText`, `value` and `textContent` of an element.
+
+```js
+const table = page.getByTestId("csv-table")
+const html = table.innerHTML() // without the outer <table> tags!
+const text = table.innerText()
+const value = page.getByRole("input").value()
+```
+
+You can use the parsers in [HTML](/genaiscript/reference/scripts/html) to convert the HTML to Markdown.
+
+```js
+const md = HTML.convertToMarkdown(html)
+const text = HTML.convertToText(html)
+const tables = HTML.convertTablesToJSON(html)
+```
+
+## Screenshot
+
+You can take a screenshot of the current page or a locator and use it with vision-enabled LLM (like `gpt-4o`) using `defImages`.
+
+```js
+const screenshot = await page.screenshot() // returns a node.js Buffer
+defImages(screenshot)
+```
+
+## Interacting with Elements
 
 ## (Advanced) Native Playwright APIs
 

@@ -11,7 +11,13 @@ script({
 
 defFileMerge(function frontmatter(fn, label, before, generated) {
     if (!/\.mdx?$/i.test(fn)) return undefined
-    const updated = MD.updateFrontmatter(before, YAML.parse(generated))
+    const after = YAML.parse(generated)
+    if (after.tag && !Array.isArray(after.tag)) delete after.tag
+    const updated = MD.updateFrontmatter(before, {
+        title: after.title,
+        description: after.description,
+        keywords: after.keywords,
+    })
     return updated
 })
 
