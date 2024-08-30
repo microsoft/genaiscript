@@ -34,13 +34,16 @@ async function resolveLanguage(filename: string, trace?: MarkdownTrace) {
 let _initPromise: Promise<void>
 const _parsers: Record<string, Promise<any>> = {}
 
-export function serializeSyntaxNode(filename: string, node: SyntaxNode) {
+export function serializeSyntaxNode(filename: string, node: SyntaxNode): any {
     return {
         type: node.type,
         text: node.text,
         filename,
         start: node.startPosition.row,
         end: node.endPosition.row,
+        children: node.children.map((child) =>
+            serializeSyntaxNode(filename, child)
+        ),
     }
 }
 
