@@ -188,7 +188,7 @@ Apache License
 
 The following npm package may be included in this product:
 
- - zx@8.1.4
+ - zx@8.1.5
 
 This package contains the following license and notice below:
 
@@ -4662,7 +4662,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @babel/runtime@7.25.4
+ - @babel/runtime@7.25.6
 
 This package contains the following license and notice below:
 
@@ -5025,7 +5025,7 @@ SOFTWARE.
 
 The following npm package may be included in this product:
 
- - @azure/msal-node@2.13.0
+ - @azure/msal-node@2.13.1
 
 This package contains the following license and notice below:
 
@@ -5236,7 +5236,7 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - get-tsconfig@4.7.6
+ - get-tsconfig@4.8.0
  - resolve-pkg-maps@1.0.0
 
 These packages each contain the following license and notice below:
@@ -5285,7 +5285,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 The following npm package may be included in this product:
 
- - escalade@3.1.2
+ - escalade@3.2.0
 
 This package contains the following license and notice below:
 
@@ -5334,8 +5334,8 @@ SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @azure/msal-browser@3.21.0
- - @azure/msal-common@14.14.1
+ - @azure/msal-browser@3.22.0
+ - @azure/msal-common@14.14.2
 
 These packages each contain the following license and notice below:
 
