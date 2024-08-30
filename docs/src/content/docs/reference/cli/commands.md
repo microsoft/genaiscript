@@ -87,7 +87,7 @@ Options:
   --cli <string>                      override path to the cli
   -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
-  -cache                              enable LLM result cache
+  --cache                             enable LLM result cache
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0
   -os, --out-summary <file>           append output summary in file

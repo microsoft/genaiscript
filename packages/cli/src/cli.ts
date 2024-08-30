@@ -171,7 +171,7 @@ export async function cli() {
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
         .option("-td, --test-delay <string>", "delay between tests in seconds")
-        .option("-cache", "enable LLM result cache")
+        .option("--cache", "enable LLM result cache")
         .option("-v, --verbose", "verbose output")
         .option(
             "-pv, --promptfoo-version [version]",
