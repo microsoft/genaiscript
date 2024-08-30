@@ -73,7 +73,7 @@
             "release": true,
             "releaseName": "v${version}",
             "draft": true,
-            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes"
+            "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache releases"
         }
     },
     "dependencies": {
