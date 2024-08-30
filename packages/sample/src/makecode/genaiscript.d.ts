@@ -1741,6 +1741,23 @@ interface TimeoutOptions {
     timeout?: number
 }
 
+interface ScreenshotOptions extends TimeoutOptions {
+    quality?: number
+    scale?: "css" | "device"
+    type?: "png" | "jpeg"
+}
+
+interface PageScreenshotOptions extends ScreenshotOptions {
+    fullPage?: boolean
+    omitBackground?: boolean
+    clip?: {
+        x: number
+        y: number
+        width: number
+        height: number
+    }
+}
+
 /**
  * A Locator instance
  * @link https://playwright.dev/docs/api/class-locator
@@ -1814,7 +1831,7 @@ interface BrowserLocator {
      * Take a screenshot of the element matching the locator.
      * @link https://playwright.dev/docs/api/class-locator#locator-screenshot
      */
-    screenshot(options?: TimeoutOptions): Promise<Buffer>
+    screenshot(options?: ScreenshotOptions): Promise<Buffer>
 
     /**
      * This method waits for actionability checks, then tries to scroll element into view, unless it is completely visible as defined by IntersectionObserver's ratio.
@@ -1884,7 +1901,7 @@ interface BrowserPage {
      * Returns the buffer of the captured screenshot
      * @link https://playwright.dev/docs/api/class-page#page-screenshot
      */
-    screenshot(options?: TimeoutOptions): Promise<Buffer>
+    screenshot(options?: PageScreenshotOptions): Promise<Buffer>
 
     /**
      * Gets the full HTML contents of the page, including the doctype.
