@@ -64,12 +64,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     const { model } = parseModelIdentifier(req.model)
     const encoder = await resolveTokenEncoder(model)
 
-    const cache = getChatCompletionCache(
+    const cache = !!cacheOrName || !!cacheName
+    const cacheStore = getChatCompletionCache(
         typeof cacheOrName === "string" ? cacheOrName : cacheName
     )
-    trace.itemValue(`caching`, !!cache)
-    trace.itemValue(`cache`, cache?.name)
-    const cachedKey = !!cacheOrName
+    const cachedKey = cache
         ? <ChatCompletionRequestCacheKey>{
               ...req,
               ...cfgNoToken,
@@ -79,8 +78,10 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
               max_tokens: req.max_tokens,
           }
         : undefined
+    trace.itemValue(`caching`, cache)
+    trace.itemValue(`cache`, cacheStore?.name)
     const { text: cached, finishReason: cachedFinishReason } =
-        (cachedKey ? await cache.get(cachedKey) : undefined) || {}
+        (await cacheStore.get(cachedKey)) || {}
     if (cached !== undefined) {
         partialCb?.({
             tokensSoFar: estimateTokens(cached, encoder),
@@ -88,7 +89,7 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
             responseChunk: cached,
             inner,
         })
-        trace.itemValue(`cache hit`, await cache.getKeySHA(cachedKey))
+        trace.itemValue(`cache hit`, await cacheStore.getKeySHA(cachedKey))
         return { text: cached, finishReason: cachedFinishReason, cached: true }
     }
 
@@ -195,7 +196,11 @@ export const OpenAIChatCompletion: ChatCompletionHandler = async (
     trace.appendContent("\n\n")
     trace.itemValue(`finish reason`, finishReason)
     if (done && finishReason === "stop")
-        await cache.set(cachedKey, { text: chatResp, finishReason }, { trace })
+        await cacheStore.set(
+            cachedKey,
+            { text: chatResp, finishReason },
+            { trace }
+        )
 
     return { text: chatResp, toolCalls, finishReason }
 

@@ -43,7 +43,6 @@ Options:
   -mtc, --max-tool-calls <number>            maximum tool calls for the run
   -se, --seed <number>                       seed for the run
   -em, --embeddings-model <string>           embeddings model for the run
-  --no-cache                                 disable LLM result cache
   --cache                                    enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   -cs, --csv-separator <string>              csv separator (default: "\t")
@@ -88,7 +87,6 @@ Options:
   --cli <string>                      override path to the cli
   -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
-  --no-cache                          disable LLM result cache
   --cache                             enable LLM result cache
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0

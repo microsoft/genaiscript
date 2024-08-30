@@ -140,7 +140,6 @@ export async function cli() {
             "-em, --embeddings-model <string>",
             "embeddings model for the run"
         )
-        .option("--no-cache", "disable LLM result cache")
         .option("--cache", "enable LLM result cache")
         .option("-cn, --cache-name <name>", "custom cache file name")
         .option("-cs, --csv-separator <string>", "csv separator", "\t")
@@ -172,7 +171,6 @@ export async function cli() {
         .option("--cli <string>", "override path to the cli")
         .option("-tp, --test-provider <string>", "test provider")
         .option("-td, --test-delay <string>", "delay between tests in seconds")
-        .option("--no-cache", "disable LLM result cache")
         .option("--cache", "enable LLM result cache")
         .option("-v, --verbose", "verbose output")
         .option(

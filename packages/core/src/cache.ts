@@ -61,6 +61,7 @@ export class JSONLineCache<K, V> extends EventTarget {
         return this._entries[sha]
     }
     async get(key: K): Promise<V> {
+        if (key === undefined) return undefined
         await this.initialize()
         const sha = await keySHA(key)
         return this._entries[sha]?.val
