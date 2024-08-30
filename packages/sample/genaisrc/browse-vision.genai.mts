@@ -5,22 +5,24 @@ const url =
 // open a webpage with data
 const page = await host.browse(url)
 // locate the HTML table with data
-const table = page.locator("table[data-testid='csv-table'] tbody")
+const table = page.getByTestId("csv-table")
 // take a screenshot
-const screenshot = await table.screenshot({ style:`
+const screenshot = await table.screenshot({
+    style: `
     table, th, td, tr {
         border: 1px solid black !important;
         background: white !important;
         color: black !important;
     }
-`})
+`,
+})
 console.log(`screenshot ${screenshot.length / 1e3} kb`)
 
 // extract the table data from the screenshot
 const { error, fences } = await runPrompt(
     async (_) => {
         _.defImages(screenshot)
-        _.$`Extract the data in the request image. Format the output as a CSV table. If you cannot find text in the image, return 'no data'.`
+        _.$`Extract the text in the request image. Format the output as a CSV table. If you cannot find text in the image, return 'no data'.`
     },
     { model: "openai:gpt-4o" }
 )

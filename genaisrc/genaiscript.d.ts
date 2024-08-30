@@ -1759,11 +1759,135 @@ interface PageScreenshotOptions extends ScreenshotOptions {
     }
 }
 
+interface BrowserLocatorSelector {
+    /**
+     * Allows locating elements by their ARIA role, ARIA attributes and accessible name.
+     * @param role
+     * @param options
+     */
+    getByRole(
+        role:
+            | "alert"
+            | "alertdialog"
+            | "application"
+            | "article"
+            | "banner"
+            | "blockquote"
+            | "button"
+            | "caption"
+            | "cell"
+            | "checkbox"
+            | "code"
+            | "columnheader"
+            | "combobox"
+            | "complementary"
+            | "contentinfo"
+            | "definition"
+            | "deletion"
+            | "dialog"
+            | "directory"
+            | "document"
+            | "emphasis"
+            | "feed"
+            | "figure"
+            | "form"
+            | "generic"
+            | "grid"
+            | "gridcell"
+            | "group"
+            | "heading"
+            | "img"
+            | "insertion"
+            | "link"
+            | "list"
+            | "listbox"
+            | "listitem"
+            | "log"
+            | "main"
+            | "marquee"
+            | "math"
+            | "meter"
+            | "menu"
+            | "menubar"
+            | "menuitem"
+            | "menuitemcheckbox"
+            | "menuitemradio"
+            | "navigation"
+            | "none"
+            | "note"
+            | "option"
+            | "paragraph"
+            | "presentation"
+            | "progressbar"
+            | "radio"
+            | "radiogroup"
+            | "region"
+            | "row"
+            | "rowgroup"
+            | "rowheader"
+            | "scrollbar"
+            | "search"
+            | "searchbox"
+            | "separator"
+            | "slider"
+            | "spinbutton"
+            | "status"
+            | "strong"
+            | "subscript"
+            | "superscript"
+            | "switch"
+            | "tab"
+            | "table"
+            | "tablist"
+            | "tabpanel"
+            | "term"
+            | "textbox"
+            | "time"
+            | "timer"
+            | "toolbar"
+            | "tooltip"
+            | "tree"
+            | "treegrid"
+            | "treeitem",
+        options?: {
+            checked?: boolean
+            disabled?: boolean
+            exact?: boolean
+            expanded?: boolean
+            name?: string
+            selected?: boolean
+        } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating input elements by the text of the associated <label> or aria-labelledby element, or by the aria-label attribute.
+     * @param name
+     * @param options
+     */
+    getByLabel(
+        name: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating elements that contain given text.
+     * @param text
+     * @param options
+     */
+    getByText(
+        text: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /** Locate element by the test id. */
+    getByTestId(testId: string, options?: TimeoutOptions): Locator
+}
+
 /**
  * A Locator instance
  * @link https://playwright.dev/docs/api/class-locator
  */
-interface BrowserLocator {
+interface BrowserLocator extends BrowserLocatorSelector {
     /**
      * Click an element
      * @link https://playwright.dev/docs/api/class-locator#locator-click
@@ -1839,6 +1963,19 @@ interface BrowserLocator {
      * @link https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed
      */
     scrollIntoViewIfNeeded(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * This method narrows existing locator according to the options, for example filters by text. It can be chained to filter multiple times.
+     * @param options
+     */
+    filter(
+        options: {
+            has?: BrowserLocator
+            hasNot?: BrowserLocator
+            hasNotText?: string | RegExp
+            hasText?: string | RegExp
+        } & TimeoutOptions
+    ): Locator
 }
 
 /**
@@ -1873,7 +2010,7 @@ interface BrowseResponse {
  * A playwright Page instance
  * @link https://playwright.dev/docs/api/class-page
  */
-interface BrowserPage {
+interface BrowserPage extends BrowserLocatorSelector {
     /**
      * Returns the page's title.
      * @link https://playwright.dev/docs/api/class-page#page-title
