@@ -1,10 +1,7 @@
-import { select, input, confirm } from "@inquirer/prompts"
-
 // Check for staged changes and stage all changes if none are staged
 let diff = await host.exec("git", ["diff", "--cached"])
 if (!diff.stdout) {
-    const stage = await confirm({
-        message: "No staged changes. Stage all changes?",
+    const stage = await host.confirm("No staged changes. Stage all changes?", {
         default: true,
     })
     if (stage) {
@@ -48,31 +45,24 @@ Please generate a concise, one-line commit message for these changes.
     }
 
     // Prompt user for commit message
-    choice = await select({
-        message,
-        choices: [
-            {
-                name: "commit",
-                value: "commit",
-                description: "accept message and commit",
-            },
-            {
-                name: "edit",
-                value: "edit",
-                description: "edit message and commit",
-            },
-            {
-                name: "regenerate",
-                value: "regenerate",
-                description: "regenerate message",
-            },
-        ],
-    })
+    choice = await host.select(message, [
+        {
+            value: "commit",
+            description: "accept message and commit",
+        },
+        {
+            value: "edit",
+            description: "edit message and commit",
+        },
+        {
+            value: "regenerate",
+            description: "regenerate message",
+        },
+    ])
 
     // Handle user choice
     if (choice === "edit") {
-        message = await input({
-            message: "Edit commit message",
+        message = await host.input("Edit commit message", {
             required: true,
         })
         choice = "commit"

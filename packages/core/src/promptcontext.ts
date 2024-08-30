@@ -216,6 +216,10 @@ export async function createPromptContext(
             })
             return res
         },
+        select: async (message, options) =>
+            await runtimeHost.select(message, options),
+        input: async (message) => await runtimeHost.input(message),
+        confirm: async (message) => await runtimeHost.confirm(message),
     })
 
     const ctx: PromptContext & RunPromptContextNode = {

@@ -162,6 +162,25 @@ export interface RuntimeHost extends Host {
      * Cleanup all temporary browsers.
      */
     removeBrowsers(): Promise<void>
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(message: string, options: string[]): Promise<string>
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string): Promise<string>
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string): Promise<boolean>
 }
 
 export let host: Host
