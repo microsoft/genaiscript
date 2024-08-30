@@ -44,6 +44,7 @@ Options:
   -se, --seed <number>                       seed for the run
   -em, --embeddings-model <string>           embeddings model for the run
   --no-cache                                 disable LLM result cache
+  --cache                                    enable LLM result cache
   -cn, --cache-name <name>                   custom cache file name
   -cs, --csv-separator <string>              csv separator (default: "\t")
   -ae, --apply-edits                         apply file edits
@@ -88,6 +89,7 @@ Options:
   -tp, --test-provider <string>       test provider
   -td, --test-delay <string>          delay between tests in seconds
   --no-cache                          disable LLM result cache
+  --cache                             enable LLM result cache
   -v, --verbose                       verbose output
   -pv, --promptfoo-version [version]  promptfoo version, default is 0.78.0
   -os, --out-summary <file>           append output summary in file

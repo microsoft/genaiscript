@@ -32,15 +32,15 @@ let { stdout } = await host.exec("git", ["diff", "--cached"])
 If no changes are staged, we ask the user if they want to stage all changes. If the user confirms, we stage all changes. Otherwise, we bail out.
 
 ```ts
-    const stage = await confirm({
-        message: "No staged changes. Stage all changes?",
-        default: true,
-    })
-    if (stage) {
-        await host.exec("git", ["add", "."])
-        stdout = (await host.exec("git", ["diff", "--cached"])).stdout
-    }
-    if (!stdout) cancel("no staged changes")
+const stage = await confirm({
+    message: "No staged changes. Stage all changes?",
+    default: true,
+})
+if (stage) {
+    await host.exec("git", ["add", "."])
+    stdout = (await host.exec("git", ["diff", "--cached"])).stdout
+}
+if (!stdout) cancel("no staged changes")
 ```
 
 We generate an initial commit message using the staged changes:
@@ -109,12 +109,6 @@ Since it uses the [@inquirer/prompts](https://www.npmjs.com/package/@inquirer/pr
 
 ```bash
 npm install --save-dev @inquirer/prompts
-```
-
-If you are using [npx](https://docs.npmjs.com/cli/v10/commands/npx),
-
-```bash
-npx -p @inquirer/prompts -p genaiscript  -- genaiscript run gcm
 ```
 
 This command will run the script, and guide you through the process of generating and committing a Git message using AI, making your commits more informative and consistent.
