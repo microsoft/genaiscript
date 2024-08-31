@@ -116,7 +116,7 @@ let snippet
     snippet =
         fences.find(
             ({ language }) => language === "js" || language === "javascript"
-        )?.content ?? text
+        ) ?? text
 }
 
 // generate a blog post
