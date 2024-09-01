@@ -109,6 +109,16 @@ export function createChatTurnGenerationContext(
                         { ...doptions, lineNumbers: false }
                     )
                 )
+            } else if (typeof body === "object" && (body as Fenced).content) {
+                const fenced = body as Fenced
+                appendChild(
+                    node,
+                    createDefNode(
+                        name,
+                        { filename: "", content: (body as Fenced).content },
+                        { language: fenced.language, ...(doptions || {}) }
+                    )
+                )
             }
 
             // TODO: support clause

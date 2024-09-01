@@ -53,7 +53,7 @@ Use these files to help you generate a topic for the blog post.
 }
 
 // generate a working code snippet from topic
-let snippet
+let snippet: string | Fenced
 {
     const { text, fences, error } = await runPrompt(
         (_) => {
@@ -116,7 +116,7 @@ let snippet
     snippet =
         fences.find(
             ({ language }) => language === "js" || language === "javascript"
-        )?.content ?? text
+        ) ?? text
 }
 
 // generate a blog post
@@ -186,7 +186,7 @@ defOutputProcessor((output) => {
     return {
         files: {
             [fn]: md,
-            [sn]: snippet,
+            [sn]: typeof snippet === "string" ? snippet : snippet?.content,
         },
     }
 })
