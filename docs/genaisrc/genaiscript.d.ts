@@ -2091,8 +2091,8 @@ interface ShellHost {
 
     /**
      * Starts a headless browser and navigates to the page.
-     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browse).
-     * @link https://microsoft.github.io/genaiscript/reference/scripts/browse
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browser).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browser
      * @param url
      * @param options
      */
