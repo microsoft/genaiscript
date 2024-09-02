@@ -32,6 +32,7 @@ export interface PromptNode extends ContextExpansionOptions {
         | "def"
         | "chatParticipant"
         | "fileOutput"
+        | "importTemplate"
         | undefined
     children?: PromptNode[]
     error?: unknown
@@ -66,6 +67,14 @@ export interface PromptStringTemplateNode extends PromptNode {
     strings: TemplateStringsArray
     args: any[]
     resolved?: string
+}
+
+export interface PromptImportTemplate extends PromptNode {
+    type: "importTemplate"
+    files: string | string[]
+    args?: Record<string, string | number | boolean>
+    options?: ImportTemplateOptions
+    resolved?: Record<string, string>
 }
 
 export interface PromptImage {
@@ -233,7 +242,7 @@ export function createFunctionNode(
     return { type: "function", name, description, parameters, impl }
 }
 
-export function createFileMergeNode(fn: FileMergeHandler): PromptFileMergeNode {
+export function createFileMerge(fn: FileMergeHandler): PromptFileMergeNode {
     assert(fn !== undefined)
     return { type: "fileMerge", fn }
 }
@@ -255,6 +264,15 @@ export function createFileOutput(output: FileOutput): FileOutputNode {
     return { type: "fileOutput", output }
 }
 
+export function createImportTemplate(
+    files: string | string[],
+    args?: Record<string, string | number | boolean>,
+    options?: ImportTemplateOptions
+): PromptImportTemplate {
+    assert(!!files)
+    return { type: "importTemplate", files, args, options }
+}
+
 function haveSameKeysAndSimpleValues(data: object[]): boolean {
     if (data.length === 0) return true
     const headers = Object.entries(data[0])
@@ -265,7 +283,9 @@ function haveSameKeysAndSimpleValues(data: object[]): boolean {
             headers.every(
                 (h, i) =>
                     keys[i][0] === h[0] &&
-                    /^(string|number|boolean|null|undefined)$/.test(typeof keys[i][1])
+                    /^(string|number|boolean|null|undefined)$/.test(
+                        typeof keys[i][1]
+                    )
             )
         )
     })
@@ -336,6 +356,7 @@ export interface PromptNodeVisitor {
     assistant?: (node: PromptAssistantNode) => Awaitable<void>
     chatParticipant?: (node: PromptChatParticipantNode) => Awaitable<void>
     fileOutput?: (node: FileOutputNode) => Awaitable<void>
+    importTemplate?: (node: PromptImportTemplate) => Awaitable<void>
 }
 
 export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
@@ -373,6 +394,10 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
             break
         case "fileOutput":
             await visitor.fileOutput?.(node as FileOutputNode)
+            break
+        case "importTemplate":
+            await visitor.importTemplate?.(node as PromptImportTemplate)
+            break
     }
     if (node.error) visitor.error?.(node)
     if (!node.error && node.children) {
@@ -457,6 +482,14 @@ async function resolvePromptNode(
                 const value = dedent(strings, ...resolvedArgs)
                 n.resolved = n.preview = value
                 n.tokens = estimateTokens(value, encoder)
+            } catch (e) {
+                n.error = e
+            }
+        },
+        importTemplate: async (n) => {
+            try {
+                const { files, args, options } = n
+                // TODO
             } catch (e) {
                 n.error = e
             }
@@ -621,6 +654,24 @@ export async function renderPromptNode(
                     )
                     trace.image(value.url, value.filename)
                     trace.endDetails()
+                }
+            }
+        },
+        importTemplate: async (n) => {
+            if (n.error) errors.push(n.error)
+            const value = n.resolved
+            if (value.resolved) {
+                for (const [filename, content] of Object.entries(
+                    value.resolved
+                )) {
+                    prompt += content
+                    prompt += "\n"
+                    if (trace)
+                        trace.detailsFenced(
+                            `📦 import template ${filename}`,
+                            content,
+                            "markdown"
+                        )
                 }
             }
         },

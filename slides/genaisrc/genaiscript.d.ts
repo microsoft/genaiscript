@@ -1471,7 +1471,14 @@ interface FileOutput {
     options?: FileOutputOptions
 }
 
+interface ImportTemplateOptions {}
+
 interface ChatTurnGenerationContext {
+    importTemplate(
+        files: string | string[],
+        arguments?: Record<string, string | number | boolean>,
+        options?: ImportTemplateOptions
+    ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
@@ -2257,6 +2264,17 @@ declare function script(options: PromptArgs): void
  * Equivalent of script() for system prompts.
  */
 declare function system(options: PromptSystemArgs): void
+
+/**
+ * Imports template prompt file and expands arguments in it.
+ * @param files
+ * @param arguments
+ */
+declare function importTemplate(
+    files: string | string[],
+    arguments?: Record<string, string | number | boolean>,
+    options?: ImportTemplateOptions
+): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
