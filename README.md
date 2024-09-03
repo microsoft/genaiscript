@@ -4,7 +4,7 @@
 
 🚀 **JavaScript-ish environment with convenient tooling for file ingestion, prompt development, and structured data extraction.**
 
-**Read the online documentation at [microsoft.github.io/genaiscript](https://microsoft.github.io/genaiscript/)**
+**Read the ONLINE DOCUMENTATION at [microsoft.github.io/genaiscript](https://microsoft.github.io/genaiscript/)**
 
 ## 🌟 Introduction
 
