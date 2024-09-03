@@ -51,7 +51,7 @@
     "node": ">=20.0.0"
   },
   "peerDependencies": {
-    "promptfoo": "0.78.0"
+    "promptfoo": "0.82.0"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.31",
