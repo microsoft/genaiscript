@@ -677,10 +677,8 @@ export async function renderPromptNode(
         importTemplate: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value.resolved) {
-                for (const [filename, content] of Object.entries(
-                    value.resolved
-                )) {
+            if (value) {
+                for (const [filename, content] of Object.entries(value)) {
                     prompt += content
                     prompt += "\n"
                     if (trace)
