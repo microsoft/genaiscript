@@ -19,7 +19,7 @@ import {
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
 import { expandFiles } from "./fs"
-import { interpolateVariables } from "./markdown"
+import { interpolateVariables } from "./mustache"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:

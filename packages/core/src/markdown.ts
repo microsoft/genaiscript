@@ -138,15 +138,3 @@ export function renderTraceTree(node: TraceNode): string {
         return details(node.label, node.content.map(renderTraceTree).join("\n"))
     else return ""
 }
-
-export async function interpolateVariables(
-    md: string,
-    data: Record<string, any>
-): Promise<string> {
-    if (!md || !data) return md
-    return md.replace(/{{([^}]+)}}/g, (_, key) => {
-        let d = data[key] ?? ""
-        if (typeof d === "function") d = d()
-        return d
-    })
-}
