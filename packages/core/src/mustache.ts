@@ -1,4 +1,5 @@
 import { splitMarkdown } from "./frontmatter"
+import Mustache from "mustache"
 
 export async function interpolateVariables(
     md: string,
@@ -11,13 +12,12 @@ export async function interpolateVariables(
 
     // remove prompty roles
     // https://github.com/microsoft/prompty/blob/main/runtime/prompty/prompty/parsers.py#L113C21-L113C77
-    content = content.replace(/^\s*(system|user):\s*$/mgi, "\n")
+    content = content.replace(/^\s*(system|user):\s*$/gim, "\n")
 
-    // expand mustache like, 1 deep variables
-    return content.replace(/{{([^}]+)}}/g, (_, key) => {
-        let d = data[key] ?? ""
-        if (typeof d === "function") d = d()
-        if (typeof d === "object") d = JSON.stringify(d)
-        return String(d)
-    })
+    // remove xml tags
+    // https://humanloop.com/docs/prompt-file-format
+
+    content = Mustache.render(content, data ?? {})
+
+    return content
 }
