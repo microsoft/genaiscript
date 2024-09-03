@@ -4,7 +4,7 @@ import { addLineNumbers } from "./liner"
 import { JSONSchemaStringifyToTypeScript } from "./schema"
 import { estimateTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
-import { assert, toStringList, trimNewlines } from "./util"
+import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
 import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
 import { parseModelIdentifier } from "./models"
@@ -18,6 +18,8 @@ import {
     ChatCompletionMessageParam,
 } from "./chattypes"
 import { resolveTokenEncoder } from "./encoders"
+import { expandFiles } from "./fs"
+import { interpolateVariables } from "./markdown"
 
 export interface PromptNode extends ContextExpansionOptions {
     type?:
@@ -488,8 +490,23 @@ async function resolvePromptNode(
         },
         importTemplate: async (n) => {
             try {
+                n.resolved = {}
                 const { files, args, options } = n
-                // TODO
+                const fs = await (
+                    await expandFiles(arrayify(files))
+                ).map((filename) => <WorkspaceFile>{ filename })
+                for (const f of fs) {
+                    await resolveFileContent(f, options)
+                    n.resolved[f.filename] = await interpolateVariables(
+                        f.content,
+                        args
+                    )
+                }
+                n.preview = inspect(n.resolved, { maxDepth: 3 })
+                n.tokens = estimateTokens(
+                    Object.values(n.resolved).join("\n"),
+                    encoder
+                )
             } catch (e) {
                 n.error = e
             }
