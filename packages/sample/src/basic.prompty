@@ -21,3 +21,5 @@ As the assistant, you answer questions briefly, succinctly.
 
 user:
 {{question}}
+
+{{hint}}
