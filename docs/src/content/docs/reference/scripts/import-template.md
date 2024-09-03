@@ -1,7 +1,12 @@
 ---
 title: Import Template
 sidebar:
-    order: 50
+  order: 50
+description: Learn how to import prompt templates into GenAIScript using
+  `importTemplate` with support for mustache variable interpolation and file
+  globs.
+keywords: importTemplate, prompts, mustache, variable interpolation, file globs
+
 ---
 
 Various LLM tools allow to store prompts in text or markdown files.
