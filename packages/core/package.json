@@ -13,7 +13,7 @@
   },
   "optionalDependencies": {
     "@lvce-editor/ripgrep": "^1.2.0",
-    "pdfjs-dist": "4.5.136",
+    "pdfjs-dist": "4.6.82",
     "web-tree-sitter": "0.22.2"
   },
   "devDependencies": {
@@ -24,6 +24,7 @@
     "@types/inflection": "^1.13.2",
     "@types/ini": "^4.1.1",
     "@types/mime-types": "^2.1.4",
+    "@types/mustache": "^4.2.5",
     "@types/node": "^20.14.12",
     "@types/semver": "^7.5.8",
     "ajv": "^8.17.1",
@@ -31,7 +32,7 @@
     "csv-parse": "^5.5.6",
     "dotenv": "^16.4.5",
     "esbuild": "^0.23.1",
-    "fast-xml-parser": "^4.4.1",
+    "fast-xml-parser": "^4.5.0",
     "fetch-retry": "^6.0.0",
     "fflate": "^0.8.2",
     "file-type": "19.1.1",
@@ -49,7 +50,8 @@
     "mime-types": "^2.1.35",
     "minimatch": "^10.0.1",
     "minisearch": "^7.1.0",
-    "openai": "^4.57.0",
+    "mustache": "^4.2.0",
+    "openai": "^4.57.1",
     "parse-diff": "^0.11.1",
     "prettier": "^3.3.3",
     "pretty-bytes": "^6.1.1",

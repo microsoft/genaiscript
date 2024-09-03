@@ -3,7 +3,7 @@ https://www.npmjs.com/package/generate-license-file
 
 The following npm package may be included in this product:
 
- - pdfjs-dist@4.5.136
+ - pdfjs-dist@4.6.82
 
 This package contains the following license and notice below:
 
@@ -1458,7 +1458,7 @@ The following npm packages may be included in this product:
  - @types/http-cache-semantics@4.0.4
  - @types/jsonfile@6.1.4
  - @types/mute-stream@0.0.4
- - @types/node@22.5.1
+ - @types/node@22.5.2
  - @types/turndown@5.0.5
  - @types/yauzl@2.10.3
 
@@ -1520,7 +1520,7 @@ MIT License
 
 The following npm package may be included in this product:
 
- - genaiscript-vscode@1.52.0
+ - genaiscript-vscode@1.53.1
 
 This package contains the following license and notice below:
 
@@ -2044,7 +2044,7 @@ software or this license, under any kind of legal claim._**
 
 The following npm package may be included in this product:
 
- - axios@1.7.5
+ - axios@1.7.7
 
 This package contains the following license and notice below:
 
@@ -2921,7 +2921,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 The following npm packages may be included in this product:
 
  - duck@0.1.12
- - lop@0.4.1
+ - lop@0.4.2
  - mammoth@1.8.0
  - option@0.2.4
 
@@ -3320,20 +3320,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - @inquirer/checkbox@2.4.7
- - @inquirer/confirm@3.1.22
- - @inquirer/core@9.0.10
- - @inquirer/editor@2.1.22
- - @inquirer/expand@2.1.22
+ - @inquirer/checkbox@2.5.0
+ - @inquirer/confirm@3.2.0
+ - @inquirer/core@9.1.0
+ - @inquirer/editor@2.2.0
+ - @inquirer/expand@2.2.0
  - @inquirer/figures@1.0.5
- - @inquirer/input@2.2.9
- - @inquirer/number@1.0.10
- - @inquirer/password@2.1.22
- - @inquirer/prompts@5.3.8
- - @inquirer/rawlist@2.2.4
- - @inquirer/search@1.0.7
- - @inquirer/select@2.4.7
- - @inquirer/type@1.5.2
+ - @inquirer/input@2.3.0
+ - @inquirer/number@1.1.0
+ - @inquirer/password@2.2.0
+ - @inquirer/prompts@5.4.0
+ - @inquirer/rawlist@2.3.0
+ - @inquirer/search@1.1.0
+ - @inquirer/select@2.5.0
+ - @inquirer/type@1.5.3
 
 These packages each contain the following license and notice below:
 
@@ -4582,9 +4582,9 @@ The following npm packages may be included in this product:
  - agent-base@6.0.2
  - canvas@2.11.2
  - eastasianwidth@0.2.0
- - genaiscript-core-internal@1.52.0
- - genaiscript-sample@1.52.0
- - genaiscript@1.52.0
+ - genaiscript-core-internal@1.53.1
+ - genaiscript-sample@1.53.1
+ - genaiscript@1.53.1
  - https-proxy-agent@5.0.1
  - isarray@1.0.0
  - javascript-natural-sort@0.7.1

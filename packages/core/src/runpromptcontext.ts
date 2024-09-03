@@ -8,6 +8,7 @@ import {
     createFileOutput,
     createFunctionNode,
     createImageNode,
+    createImportTemplate,
     createSchemaNode,
     createStringTemplateNode,
     createTextNode,
@@ -130,6 +131,10 @@ export function createChatTurnGenerationContext(
         },
         fence(body, options?: DefOptions) {
             ctx.def("", body, options)
+            return undefined
+        },
+        importTemplate: (template, data, options) => {
+            appendChild(node, createImportTemplate(template, data, options))
             return undefined
         },
         console,

@@ -19,7 +19,7 @@ import { readText } from "./fs"
 import {
     PromptNode,
     appendChild,
-    createFileMergeNode,
+    createFileMerge,
     createOutputProcessor,
     createTextNode,
     renderPromptNode,
@@ -235,7 +235,7 @@ export async function createPromptContext(
         host: promptHost,
         defOutputProcessor,
         defFileMerge: (fn) => {
-            appendPromptChild(createFileMergeNode(fn))
+            appendPromptChild(createFileMerge(fn))
         },
         cancel: (reason?: string) => {
             throw new CancelError(reason || "user cancelled")
