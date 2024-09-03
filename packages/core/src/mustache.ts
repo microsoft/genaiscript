@@ -1,6 +1,12 @@
 import { splitMarkdown } from "./frontmatter"
 import Mustache from "mustache"
 
+/**
+ * Applies mustache to the content of a markdown file.
+ * @param md
+ * @param data
+ * @returns
+ */
 export async function interpolateVariables(
     md: string,
     data: Record<string, any>
