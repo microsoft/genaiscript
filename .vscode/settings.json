@@ -6,6 +6,7 @@
         "arrayify",
         "bitindex",
         "demux",
+        "devcontainers",
         "dockerode",
         "doptions",
         "Entra",
