@@ -73,6 +73,10 @@ describe("parse", async () => {
     test("tokens", async () => {
         await $`node ${cli} ${cmd} tokens "src/**" -ef "**/*.pdf"`
     })
+    test("prompty", async () => {
+        const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
+        assert(!res.exitCode)
+    })
     describe("code", async () => {
         const action = "code"
         test("greeter.ts query", async () => {
@@ -112,14 +116,6 @@ describe("retrieval", () => {
             assert(res.stdout.includes("markdown.md"))
             assert(!res.exitCode)
         })
-    })
-})
-
-describe("prompty", () => {
-    const cmd = "prompty"
-    test("src", async () => {
-        const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
-        assert(!res.exitCode)
     })
 })
 
