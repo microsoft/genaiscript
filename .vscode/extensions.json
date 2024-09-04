@@ -9,6 +9,7 @@
         "github.copilot-chat",
         "tldraw-org.tldraw-vscode",
         "bierner.emojisense",
-        "github.vscode-pull-request-github"
+        "github.vscode-pull-request-github",
+        "ms-toolsai.prompty"
     ]
 }
