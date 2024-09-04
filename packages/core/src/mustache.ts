@@ -18,7 +18,7 @@ export async function interpolateVariables(
 
     // remove prompty roles
     // https://github.com/microsoft/prompty/blob/main/runtime/prompty/prompty/parsers.py#L113C21-L113C77
-    content = content.replace(/^\s*(system|user):\s*$/gim, "\n")
+    content = content.replace(/^\s*(system|user|assistant)\s*:\s*$/gim, "\n")
 
     // remove xml tags
     // https://humanloop.com/docs/prompt-file-format
