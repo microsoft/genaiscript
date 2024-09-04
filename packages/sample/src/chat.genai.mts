@@ -13,6 +13,8 @@ script({
             type: "string",
         },
     },
+    temperature: 0.2,
+    maxTokens: 128,
 })
 
 $`You are an AI agent for the Contoso Outdoors products retailer. As the agent, you answer questions briefly, succinctly, 

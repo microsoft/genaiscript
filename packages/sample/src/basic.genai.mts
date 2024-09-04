@@ -8,6 +8,8 @@ script({
             default: "Who is the most famous person in the world?",
         },
     },
+    temperature: 0.2,
+    maxTokens: 128,
 })
 
 $`You are an AI assistant who helps people find information.
