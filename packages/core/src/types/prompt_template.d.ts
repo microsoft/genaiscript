@@ -1450,7 +1450,9 @@ interface ImportTemplateOptions {}
 interface ChatTurnGenerationContext {
     importTemplate(
         files: string | string[],
-        arguments?: Record<string | number | boolean | (() => string | number | boolean)>,
+        arguments?: Record<
+            string | number | boolean | (() => string | number | boolean)
+        >,
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void

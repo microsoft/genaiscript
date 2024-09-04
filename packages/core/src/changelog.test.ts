@@ -121,10 +121,9 @@ ChangedCode@85-88:
 [86]     policies. Refer to the [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-security-and-analysis-settings-for-your-repository#granting-access-to-security-alerts) for further assistance.
 [87] -   Your organization may impose restrictions on the execution of GitHub Actions for Pull Requests.
 [88]     Consult the [GitHub Documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#about-github-actions-permissions-for-your-repository) for additional guidance.
-        `  
+        `
         const res = parseChangeLogs(source)
         assert.equal(res.length, 1)
         assert.equal(res[0].changes.length, 6)
     })
-  
 })

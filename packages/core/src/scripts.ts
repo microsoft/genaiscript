@@ -53,7 +53,7 @@ export async function fixPromptDefinitions(project: Project) {
                         `type SystemPromptId = OptionsOrString<${systems
                             .sort((a, b) => a.id.localeCompare(b.id))
                             .map((s) => JSON.stringify(s.id))
-                            .join(" | ")}>`
+                            .join("\n    | ")}>`
                     )
                     .replace(
                         "    system?: SystemPromptId[]",
@@ -71,7 +71,7 @@ ${systems.map((s) => `* - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
                         `type SystemToolId = OptionsOrString<${tools
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map((s) => JSON.stringify(s.name))
-                            .join(" | ")}>`
+                            .join("\n    | ")}>`
                     )
                     .replace(
                         "    tools?: SystemToolId[]",

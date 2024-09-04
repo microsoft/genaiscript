@@ -22,6 +22,7 @@
         "token": "cd packages/sample && yarn token",
         "typecheck": "yarn --cwd packages/core run typecheck && yarn --cwd packages/vscode run typecheck && yarn --cwd packages/cli run typecheck",
         "lint": "yarn --cwd packages/cli run lint",
+        "pretty": "prettier **.ts --write",
         "package": "cd packages/vscode && yarn package",
         "release:draft": "npx --yes release-it",
         "release:vsix": "npx --yes release-it --no-increment --no-git --github.release --github.update --github.assets=packages/vscode/genaiscript.vsix --no-github.draft",
@@ -80,5 +81,8 @@
         "@inquirer/prompts": "^5.4.0",
         "glob": "^11.0.0",
         "zx": "^8.1.5"
+    },
+    "devDependencies": {
+        "prettier": "^3.3.3"
     }
 }

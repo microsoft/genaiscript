@@ -8,4 +8,3 @@ export function TOMLTryParse(text: string, options?: { defaultValue?: any }) {
         return options?.defaultValue
     }
 }
-

@@ -77,7 +77,7 @@ export function toWorkspaceFile(fileOrFilename: string | WorkspaceFile) {
 }
 
 export async function resolveFileContents(files: WorkspaceFile[]) {
-    for(const file of files) {
+    for (const file of files) {
         await resolveFileContent(file)
     }
 }
