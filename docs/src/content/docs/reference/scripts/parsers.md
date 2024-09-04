@@ -290,3 +290,11 @@ The `parsers.validateJSON` function validates a JSON string against a schema.
 ```js
 const validation = parsers.validateJSON(schema, json)
 ```
+
+## mustache
+
+Runs the [mustache](https://mustache.github.io/) template engine in the string and arguments.
+
+```js
+const rendered = parsers.mustache("Today is {{date}}.", { date: new Date() })
+```

@@ -67,9 +67,42 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId = OptionsOrString<"system" | "system.annotations" | "system.changelog" | "system.diagrams" | "system.diff" | "system.explanations" | "system.files" | "system.files_schema" | "system.fs_find_files" | "system.fs_read_file" | "system.math" | "system.md_frontmatter" | "system.python" | "system.python_code_interpreter" | "system.retrieval_fuzz_search" | "system.retrieval_vector_search" | "system.retrieval_web_search" | "system.schema" | "system.tasks" | "system.technical" | "system.tools" | "system.typescript" | "system.zero_shot_cot">
+type SystemPromptId = OptionsOrString<
+    | "system"
+    | "system.annotations"
+    | "system.changelog"
+    | "system.diagrams"
+    | "system.diff"
+    | "system.explanations"
+    | "system.files"
+    | "system.files_schema"
+    | "system.fs_find_files"
+    | "system.fs_read_file"
+    | "system.math"
+    | "system.md_frontmatter"
+    | "system.python"
+    | "system.python_code_interpreter"
+    | "system.retrieval_fuzz_search"
+    | "system.retrieval_vector_search"
+    | "system.retrieval_web_search"
+    | "system.schema"
+    | "system.tasks"
+    | "system.technical"
+    | "system.tools"
+    | "system.typescript"
+    | "system.zero_shot_cot"
+>
 
-type SystemToolId = OptionsOrString<"fs_find_files" | "fs_read_file" | "math_eval" | "md_read_frontmatter" | "python_code_interpreter" | "retrieval_fuzz_search" | "retrieval_vector_search" | "retrieval_web_search">
+type SystemToolId = OptionsOrString<
+    | "fs_find_files"
+    | "fs_read_file"
+    | "math_eval"
+    | "md_read_frontmatter"
+    | "python_code_interpreter"
+    | "retrieval_fuzz_search"
+    | "retrieval_vector_search"
+    | "retrieval_web_search"
+>
 
 type FileMergeHandler = (
     filename: string,
@@ -207,32 +240,32 @@ interface ScriptRuntimeOptions {
     /**
      * List of system script ids used by the prompt.
      */
-/**
-* System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
-* - `system`: Base system prompt
-* - `system.annotations`: Emits annotations compatible with GitHub Actions
-* - `system.changelog`: Generate changelog formatter edits
-* - `system.diagrams`: Generate diagrams
-* - `system.diff`: Generates concise file diffs.
-* - `system.explanations`: Explain your answers
-* - `system.files`: File generation
-* - `system.files_schema`: Apply JSON schemas to generated data.
-* - `system.fs_find_files`: File find files
-* - `system.fs_read_file`: File Read File
-* - `system.math`: Math expression evaluator
-* - `system.md_frontmatter`: Frontmatter reader
-* - `system.python`: Expert at generating and understanding Python code.
-* - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
-* - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
-* - `system.retrieval_vector_search`: Embeddings Vector Search
-* - `system.retrieval_web_search`: Web Search
-* - `system.schema`: JSON Schema support
-* - `system.tasks`: Generates tasks
-* - `system.technical`: Technical Writer
-* - `system.tools`: Tools support
-* - `system.typescript`: Export TypeScript Developer
-* - `system.zero_shot_cot`: Zero-shot Chain Of Though
-**/
+    /**
+     * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+     * - `system`: Base system prompt
+     * - `system.annotations`: Emits annotations compatible with GitHub Actions
+     * - `system.changelog`: Generate changelog formatter edits
+     * - `system.diagrams`: Generate diagrams
+     * - `system.diff`: Generates concise file diffs.
+     * - `system.explanations`: Explain your answers
+     * - `system.files`: File generation
+     * - `system.files_schema`: Apply JSON schemas to generated data.
+     * - `system.fs_find_files`: File find files
+     * - `system.fs_read_file`: File Read File
+     * - `system.math`: Math expression evaluator
+     * - `system.md_frontmatter`: Frontmatter reader
+     * - `system.python`: Expert at generating and understanding Python code.
+     * - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
+     * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
+     * - `system.retrieval_vector_search`: Embeddings Vector Search
+     * - `system.retrieval_web_search`: Web Search
+     * - `system.schema`: JSON Schema support
+     * - `system.tasks`: Generates tasks
+     * - `system.technical`: Technical Writer
+     * - `system.tools`: Tools support
+     * - `system.typescript`: Export TypeScript Developer
+     * - `system.zero_shot_cot`: Zero-shot Chain Of Though
+     **/
     system?: SystemPromptId[]
 
     /**
@@ -1114,8 +1147,8 @@ interface Parsers {
 
     /**
      * Renders a mustache template
-     * @param text 
-     * @param data 
+     * @param text template text
+     * @param data data to render
      */
     mustache(text: string | WorkspaceFile, data: Record<string, any>): string
 }
@@ -1483,7 +1516,9 @@ interface ImportTemplateOptions {}
 interface ChatTurnGenerationContext {
     importTemplate(
         files: string | string[],
-        arguments?: Record<string | number | boolean | (() => string | number | boolean)>,
+        arguments?: Record<
+            string | number | boolean | (() => string | number | boolean)
+        >,
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
@@ -2251,8 +2286,6 @@ interface PromptContext extends ChatGenerationContext {
     workspace: WorkspaceFileSystem
     host: PromptHost
 }
-
-
 
 // keep in sync with PromptContext!
 

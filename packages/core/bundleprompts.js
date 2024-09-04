@@ -69,7 +69,7 @@ async function main () {
                     ""
                 )
             )
-            .join("\n\n"),
+            .join(""),
     }
 
     // listing list of supported wasm languages

@@ -30,8 +30,7 @@ export async function envInfo(provider: string, options?: { token?: boolean }) {
         try {
             const conn = await parseTokenFromEnv(env, `${modelProvider.id}:*`)
             if (conn) {
-                if (!token && conn.token)
-                    conn.token = "***"
+                if (!token && conn.token) conn.token = "***"
                 res.providers.push(conn)
             }
         } catch (e) {

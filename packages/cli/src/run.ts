@@ -29,6 +29,7 @@ import {
     SUCCESS_ERROR_CODE,
     RUNS_DIR_NAME,
     CONSOLE_COLOR_DEBUG,
+    DOCS_CONFIGURATION_URL,
 } from "../../core/src/constants"
 import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
@@ -157,8 +158,8 @@ export async function runScript(
     const cancellationToken = options.cancellationToken
     const jsSource = options.jsSource
 
-    const fail = (msg: string, exitCode: number) => {
-        logError(msg)
+    const fail = (msg: string, exitCode: number, url?: string) => {
+        logError(url ? `${msg} (see ${url})` : msg)
         return { exitCode, result }
     }
 
@@ -238,8 +239,11 @@ export async function runScript(
         })
         if (info.error) {
             trace.error(undefined, info.error)
-            logError(info.error)
-            return fail("invalid model configuration", CONFIGURATION_ERROR_CODE)
+            return fail(
+                info.error ?? "invalid model configuration",
+                CONFIGURATION_ERROR_CODE,
+                DOCS_CONFIGURATION_URL
+            )
         }
         trace.options.encoder = await resolveTokenEncoder(info.model)
         await runtimeHost.models.pullModel(info.model)
@@ -485,7 +489,10 @@ export async function runScript(
     }
     // final fail
     if (result.status !== "success" && result.status !== "cancelled") {
-        const msg = errorMessage(result.error) ?? result.statusText ?? result.finishReason
+        const msg =
+            errorMessage(result.error) ??
+            result.statusText ??
+            result.finishReason
         return fail(msg, RUNTIME_ERROR_CODE)
     }
 

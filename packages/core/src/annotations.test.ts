@@ -13,7 +13,7 @@ describe("annotations", () => {
         `
 
         const diags = parseAnnotations(output)
-       // console.log(diags)
+        // console.log(diags)
         assert.strictEqual(diags.length, 3)
         assert.strictEqual(diags[0].severity, "error")
         assert.strictEqual(diags[0].filename, "packages/core/src/github.ts")
