@@ -110,8 +110,13 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
         description,
         tags,
         parameters,
-        responseType: outputs ? "json_object" : undefined,
+        responseType: outputs
+            ? "json_object"
+            : modelParameters?.response_format,
         responseSchema: outputs,
+        temperature: modelParameters?.temperature,
+        maxTokens: modelParameters?.max_tokens,
+        topP: modelParameters?.top_p,
     })
 
     let src = ``
