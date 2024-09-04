@@ -80,3 +80,10 @@ ${env.vars.hint}`
 -   model configuration uses GenAIScript `.env` file (see [configuration](/genaiscript/getting-started/configuration)).
 
 -   images are not yet supported
+
+## Extensions
+
+Extra fields that genaiscript use:
+
+-   `files` to specify one or many files to populate `env.files`
+-   `tests` to specify one or many tests

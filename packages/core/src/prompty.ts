@@ -37,6 +37,10 @@ export interface PromptyFrontmatter {
             top_p?: number
         }
     }
+
+    // unofficial
+    files?: string | string[]
+    tests?: PromptTest | PromptTest[]
 }
 
 export interface PromptyDocument {
@@ -47,8 +51,17 @@ export interface PromptyDocument {
 }
 
 function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
-    const { name, description, tags, sample, inputs, outputs, model } =
-        frontmatter
+    const {
+        name,
+        description,
+        tags,
+        sample,
+        inputs,
+        outputs,
+        model,
+        files,
+        tests,
+    } = frontmatter
     const {
         api = "chat",
         configuration,
@@ -72,6 +85,8 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         model: modelName,
         title: name,
         description,
+        files,
+        tests,
         tags,
         parameters,
         responseType: outputs
