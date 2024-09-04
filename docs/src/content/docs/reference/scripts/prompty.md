@@ -78,3 +78,5 @@ ${env.vars.hint}`
 -   `{{var}}` expanded into `${env.vars.var}`
 -   `{% for item of col %} ... {% endof %}` expanded into `col.map(item => ...)`
 -   model configuration uses GenAIScript `.env` file (see [configuration](/genaiscript/getting-started/configuration)).
+
+-   images are not yet supported
