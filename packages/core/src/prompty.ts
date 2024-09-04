@@ -1,7 +1,6 @@
 import { ChatCompletionMessageParam } from "./chattypes"
 import { splitMarkdown } from "./frontmatter"
 import { YAMLTryParse } from "./yaml"
-import { dedent } from "./indent"
 import { deleteUndefinedValues } from "./util"
 import { JSON5Stringify } from "./json5"
 
@@ -145,40 +144,45 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
         src += `script(${JSON5Stringify(meta, null, 2)})\n\n`
     }
     src += messages
-        .map((m) => {
-            const text = String(m.content)
-                .replace(
-                    /\{\{([^\}]+)\}\}/g,
-                    (m, name) => "${env.vars." + name + "}"
-                )
-                .replace(
-                    /\{%\s*for\s+(\w+)\s+in\s+([a-zA-Z0-9\.]+)\s*%\}((.|\n)+?){%\s+endfor\s+%\}/gi,
-                    (_, item, col, temp: string) => {
-                        const varname = "env.vars." + item
-                        return (
-                            "${env.vars." +
-                            col +
-                            ".map(" +
-                            item +
-                            " => \n`" +
-                            temp
-                                .replace(/^\r?\n/, "")
-                                .replace(
-                                    /\$\{([a-z0-9.]+)\}/gi,
-                                    (_, v: string) =>
-                                        v.startsWith(varname)
-                                            ? "${" +
-                                              v.slice("env.vars.".length) +
-                                              "}"
-                                            : _
-                                ) +
-                            "`).join('')}"
-                        )
-                    }
-                )
-            return `$\`${text}\``
+        .map((msg) => {
+            const { role, content } = msg
+            if (role === "assistant") {
+                return `writeText(${JSON.stringify(formatContent(content as string))}, { assistant: true })`
+            } else {
+                return `$\`${formatContent(content as string).replace(/`/g, "\\`")}\``
+            }
         })
         .join("\n")
 
     return src
+
+    function formatContent(content: string) {
+        const text = = content
+            .replace(
+                /\{\{([^\}]+)\}\}/g,
+                (__, name) => "${env.vars." + name + "}"
+            )
+            .replace(
+                /\{%\s*for\s+(\w+)\s+in\s+([a-zA-Z0-9\.]+)\s*%\}((.|\n)+?){%\s+endfor\s+%\}/gi,
+                (_, item, col, temp: string) => {
+                    const varname = "env.vars." + item
+                    return (
+                        "${env.vars." +
+                        col +
+                        ".map(" +
+                        item +
+                        " => \n`" +
+                        temp
+                            .replace(/^\r?\n/, "")
+                            .replace(/\$\{([a-z0-9.]+)\}/gi, (_, v: string) =>
+                                v.startsWith(varname)
+                                    ? "${" + v.slice("env.vars.".length) + "}"
+                                    : _
+                            ) +
+                        "`).join('')}"
+                    )
+                }
+            )
+        return text
+    }
 }
