@@ -67,7 +67,8 @@
         "genai:blogify": "node packages/cli/built/genaiscript.cjs run blogify-sample",
         "genai:tweetify": "node packages/cli/built/genaiscript.cjs run tweetify",
         "genai:docify": "node packages/cli/built/genaiscript.cjs run docify",
-        "gcm": "node packages/cli/built/genaiscript.cjs run gcm"
+        "gcm": "node packages/cli/built/genaiscript.cjs run gcm",
+        "prepare": "husky"
     },
     "release-it": {
         "github": {
@@ -80,7 +81,8 @@
     "devDependencies": {
         "@inquirer/prompts": "^5.4.0",
         "glob": "^11.0.0",
-        "zx": "^8.1.5",
-        "prettier": "^3.3.3"
+        "husky": "^9.1.5",
+        "prettier": "^3.3.3",
+        "zx": "^8.1.5"
     }
 }
