@@ -1147,8 +1147,8 @@ interface Parsers {
 
     /**
      * Renders a mustache template
-     * @param text 
-     * @param data 
+     * @param text template text
+     * @param data data to render
      */
     mustache(text: string | WorkspaceFile, data: Record<string, any>): string
 }

@@ -109,6 +109,6 @@ export async function createParsers(options: {
         mustache: (file, args) => {
             const f = filenameOrFileToContent(file)
             return mustacheRender(f, args)
-        }
+        },
     })
 }
