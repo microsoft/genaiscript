@@ -1,9 +1,9 @@
 const msg = env.files[0]
 const msgContent = msg.content
     ?.split(/\n/g)
-    .filter((l) => l && !/^# /.test(l))
+    .filter((l) => l && !/^#/.test(l))
     .join("\n")
-if (!msgContent) cancel("commit message already exists")
+if (msgContent) cancel("commit message already exists")
 
 // Check for staged changes and stage all changes if none are staged
 let diff = await host.exec("git", ["diff", "--cached"])
