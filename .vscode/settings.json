@@ -49,5 +49,6 @@
     "cSpell.enableFiletypes": [
         "!json"
     ],
-    "files.eol": "\n"
+    "files.eol": "\n",
+    "terminal.integrated.defaultProfile.windows": "Git Bash"
 }
