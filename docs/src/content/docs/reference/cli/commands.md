@@ -310,7 +310,7 @@ Commands:
                                query
   tokens [options] <files...>  Count tokens in a set of files
   jsonl2json                   Converts JSONL files to a JSON file
-  prompty <file...>            Converts .prompty files to genaiscript
+  prompty [options] <file...>  Converts .prompty files to genaiscript
 ```
 
 ### `parse fence`
@@ -399,10 +399,11 @@ Usage: genaiscript parse prompty [options] <file...>
 Converts .prompty files to genaiscript
 
 Arguments:
-  file        input JSONL files
+  file                input JSONL files
 
 Options:
-  -h, --help  display help for command
+  -o, --out <string>  output folder
+  -h, --help          display help for command
 ```
 
 ## `workspace`

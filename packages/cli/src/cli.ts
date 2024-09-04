@@ -304,6 +304,7 @@ export async function cli() {
         .command("prompty")
         .description("Converts .prompty files to genaiscript")
         .argument("<file...>", "input JSONL files")
+        .option("-o, --out <string>", "output folder")
         .action(prompty2genaiscript)
 
     const workspace = program
