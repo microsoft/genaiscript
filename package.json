@@ -77,12 +77,10 @@
             "releaseNotes": "node packages/cli/built/genaiscript.cjs run git-release-notes --cache releases"
         }
     },
-    "dependencies": {
+    "devDependencies": {
         "@inquirer/prompts": "^5.4.0",
         "glob": "^11.0.0",
-        "zx": "^8.1.5"
-    },
-    "devDependencies": {
+        "zx": "^8.1.5",
         "prettier": "^3.3.3"
     }
 }

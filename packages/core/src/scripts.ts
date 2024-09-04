@@ -50,17 +50,17 @@ export async function fixPromptDefinitions(project: Project) {
                 defContent = defContent
                     .replace(
                         "type SystemPromptId = OptionsOrString<string>",
-                        `type SystemPromptId = OptionsOrString<${systems
+                        `type SystemPromptId = OptionsOrString<\n    | ${systems
                             .sort((a, b) => a.id.localeCompare(b.id))
                             .map((s) => JSON.stringify(s.id))
-                            .join("\n    | ")}>`
+                            .join("\n    | ")}\n>`
                     )
                     .replace(
                         "    system?: SystemPromptId[]",
-                        `/**
-* System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
-${systems.map((s) => `* - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
-**/
+                        `    /**
+     * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+${systems.map((s) => `     * - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
+     **/
     system?: SystemPromptId[]`
                     )
 
@@ -68,10 +68,10 @@ ${systems.map((s) => `* - \`${s.id}\`: ${s.title || s.description}`).join("\n")}
                 defContent = defContent
                     .replace(
                         "type SystemToolId = OptionsOrString<string>",
-                        `type SystemToolId = OptionsOrString<${tools
+                        `type SystemToolId = OptionsOrString<\n    | ${tools
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map((s) => JSON.stringify(s.name))
-                            .join("\n    | ")}>`
+                            .join("\n    | ")}\n>`
                     )
                     .replace(
                         "    tools?: SystemToolId[]",
