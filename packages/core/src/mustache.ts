@@ -27,3 +27,5 @@ export async function interpolateVariables(
 
     return content
 }
+
+export const mustacheRender = Mustache.render
