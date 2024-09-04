@@ -1,6 +1,9 @@
 import { ChatCompletionMessageParam } from "./chattypes"
 import { splitMarkdown } from "./frontmatter"
 import { YAMLTryParse } from "./yaml"
+import { dedent } from "./indent"
+import { deleteUndefinedValues } from "./util"
+import { JSON5Stringify } from "./json5"
 
 export interface PromptyFrontmatter {
     name?: string
@@ -9,13 +12,20 @@ export interface PromptyFrontmatter {
     authors?: string[]
     tags?: string[]
     sample?: Record<string, any>
+    inputs?: Record<
+        string,
+        JSONSchemaNumber | JSONSchemaBoolean | JSONSchemaString
+    >
+    outputs?: JSONSchemaObject
 }
 
-export function promptyParse(text: string): {
+export interface PromptyDocument {
     frontmatter: PromptyFrontmatter
     content: string
     messages: ChatCompletionMessageParam[]
-} {
+}
+
+export function promptyParse(text: string): PromptyDocument {
     const { frontmatter = "", content = "" } = splitMarkdown(text)
     const fm = YAMLTryParse(frontmatter) ?? {}
     // todo: validate frontmatter?
@@ -31,7 +41,7 @@ export function promptyParse(text: string): {
         if (role && chunk.length && chunk.some((l) => !!l)) {
             messages.push({
                 role,
-                content: chunk.join("\n"),
+                content: chunk.join("\n").trim(),
             })
         }
     }
@@ -49,4 +59,39 @@ export function promptyParse(text: string): {
     }
     pushMessage()
     return { frontmatter: fm, content, messages }
+}
+
+export function promptyToGenAIScript(doc: PromptyDocument) {
+    const { frontmatter, messages } = doc
+    const { name, description, tags, sample, inputs, outputs } = frontmatter
+    const parameters = inputs ? structuredClone(inputs) : undefined
+    if (parameters && sample)
+        for (const p in sample) {
+            const s = sample[p]
+            if (s !== undefined) parameters[p].default = s
+        }
+    const meta = deleteUndefinedValues(<PromptArgs>{
+        title: name,
+        description,
+        tags,
+        parameters,
+        responseType: outputs ? "json_object" : undefined,
+        responseSchema: outputs,
+    })
+
+    let src = ``
+    if (Object.keys(meta).length) {
+        src += `script(${JSON5Stringify(meta, null, 2)})\n\n`
+    }
+    src += messages
+        .map((m) => {
+            const text = String(m.content).replace(
+                /\{\{([^\}]+)\}\}/g,
+                (m, name) => "${env.vars." + name + "}"
+            )
+            return `$\`${text}\``
+        })
+        .join("\n")
+
+    return src
 }

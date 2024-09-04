@@ -115,6 +115,14 @@ describe("retrieval", () => {
     })
 })
 
+describe("prompty", () => {
+    const cmd = "prompty"
+    test("src", async () => {
+        const res = await $`node ${cli} ${cmd} "src/*.prompty"`.nothrow()
+        assert(!res.exitCode)
+    })
+})
+
 describe("workspace", () => {
     const cmd = "workspace"
     describe("grep", () => {

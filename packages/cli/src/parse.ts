@@ -10,6 +10,7 @@ import { estimateTokens } from "../../core/src/tokens"
 import { YAMLStringify } from "../../core/src/yaml"
 import { resolveTokenEncoder } from "../../core/src/encoders"
 import { DEFAULT_MODEL } from "../../core/src/constants"
+import { promptyParse, promptyToGenAIScript } from "../../core/src/prompty"
 
 export async function parseFence(language: string, file: string) {
     const res = await parsePdf(file)
@@ -68,4 +69,16 @@ export async function parseTokens(
         }
     }
     console.log(text)
+}
+
+export async function prompty2genaiscript(files: string[]) {
+    const fs = await expandFiles(files)
+    for (const f of fs) {
+        console.log(f)
+        const gf = replaceExt(f, ".genai.mts")
+        const content = await readText(f)
+        const doc = promptyParse(content)
+        const script = promptyToGenAIScript(doc)
+        await writeText(gf, script)
+    }
 }
