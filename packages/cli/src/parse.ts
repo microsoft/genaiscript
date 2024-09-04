@@ -80,7 +80,7 @@ export async function prompty2genaiscript(
     const fs = await expandFiles(files)
     for (const f of fs) {
         const gf = out
-            ? join(out, replaceExt(basename(f), "genai.mts"))
+            ? join(out, replaceExt(basename(f), ".genai.mts"))
             : replaceExt(f, ".genai.mts")
         console.log(`${f} -> ${gf}`)
         const content = await readText(f)
