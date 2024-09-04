@@ -22,14 +22,14 @@ export interface PromptyFrontmatter {
     outputs?: JSONSchemaObject
     model?: {
         api?: "chat" | "completion"
-        configuration?:
-            | { type?: string; name?: string; organization?: string }
-            | {
-                  type?: string
-                  api_version?: string
-                  azure_deployment: string
-                  azure_endpoint: string
-              }
+        configuration?: {
+            type?: string
+            name?: string
+            organization?: string
+            api_version?: string
+            azure_deployment: string
+            azure_endpoint: string
+        }
         parameters?: {
             response_format: "json_object"
             max_tokens?: number
@@ -83,7 +83,13 @@ export function promptyParse(text: string): PromptyDocument {
 
 export function promptyToGenAIScript(doc: PromptyDocument) {
     const { frontmatter, messages } = doc
-    const { name, description, tags, sample, inputs, outputs } = frontmatter
+    const { name, description, tags, sample, inputs, outputs, model } =
+        frontmatter
+    const {
+        api = "chat",
+        configuration,
+        parameters: modelParameters,
+    } = model ?? {}
     const parameters = inputs ? structuredClone(inputs) : undefined
     if (parameters && sample && typeof sample === "object")
         for (const p in sample) {
@@ -91,7 +97,15 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
             if (s !== undefined && parameters[p].type !== "object")
                 parameters[p].default = s
         }
+
+    let modelName: string = undefined
+    if (api !== "chat") throw new Error("completion api not supported")
+    if (configuration?.azure_deployment)
+        modelName = `azure:${configuration.azure_deployment}`
+    else if (configuration?.type) modelName = `openai:${configuration.type}`
+
     const meta = deleteUndefinedValues(<PromptArgs>{
+        model: modelName,
         title: name,
         description,
         tags,

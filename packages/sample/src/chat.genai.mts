@@ -1,4 +1,5 @@
 script({
+    model: "azure:gpt-35-turbo",
     title: "Contoso Chat Prompt",
     description: "A retail assistent for Contoso Outdoors products retailer.",
     parameters: {

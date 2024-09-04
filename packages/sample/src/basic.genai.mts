@@ -1,4 +1,5 @@
 script({
+    model: "azure:gpt-4o",
     title: "Basic Prompt",
     description: "A basic prompt that uses the chat API to answer questions",
     parameters: {
