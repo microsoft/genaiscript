@@ -149,7 +149,7 @@ for (const file of env.files) {
 $`Summarize all the summaries.`
 ```
 
-### Prompty support
+### 🅿️ Prompty support
 
 Run your [Prompty](https://prompty.ai) files as well!
 
