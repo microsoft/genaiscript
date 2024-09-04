@@ -40,49 +40,13 @@ export interface PromptyFrontmatter {
 }
 
 export interface PromptyDocument {
+    meta: PromptArgs
     frontmatter: PromptyFrontmatter
     content: string
     messages: ChatCompletionMessageParam[]
 }
 
-export function promptyParse(text: string): PromptyDocument {
-    const { frontmatter = "", content = "" } = splitMarkdown(text)
-    const fm = YAMLTryParse(frontmatter) ?? {}
-    // todo: validate frontmatter?
-    const messages: ChatCompletionMessageParam[] = []
-
-    // split
-    const rx = /^\s*(system|user|assistant)\s*:\s*$/gim
-    const lines = content.split(/\r?\n/g)
-    let role: "system" | "user" | "assistant" | undefined = "system"
-    let chunk: string[] = []
-
-    const pushMessage = () => {
-        if (role && chunk.length && chunk.some((l) => !!l)) {
-            messages.push({
-                role,
-                content: chunk.join("\n").trim(),
-            })
-        }
-    }
-
-    for (const line of lines) {
-        const m = rx.exec(line)
-        if (m) {
-            // next role starts
-            pushMessage()
-            role = m[1] as "system" | "user" | "assistant"
-            chunk = []
-        } else {
-            chunk.push(line)
-        }
-    }
-    pushMessage()
-    return { frontmatter: fm, content, messages }
-}
-
-export function promptyToGenAIScript(doc: PromptyDocument) {
-    const { frontmatter, messages } = doc
+function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     const { name, description, tags, sample, inputs, outputs, model } =
         frontmatter
     const {
@@ -118,6 +82,48 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
         maxTokens: modelParameters?.max_tokens,
         topP: modelParameters?.top_p,
     })
+    return meta
+}
+
+export function promptyParse(text: string): PromptyDocument {
+    const { frontmatter = "", content = "" } = splitMarkdown(text)
+    const fm = YAMLTryParse(frontmatter) ?? {}
+    const meta = promptyFrontmatterToMeta(fm)
+    // todo: validate frontmatter?
+    const messages: ChatCompletionMessageParam[] = []
+
+    // split
+    const rx = /^\s*(system|user|assistant)\s*:\s*$/gim
+    const lines = content.split(/\r?\n/g)
+    let role: "system" | "user" | "assistant" | undefined = "system"
+    let chunk: string[] = []
+
+    const pushMessage = () => {
+        if (role && chunk.length && chunk.some((l) => !!l)) {
+            messages.push({
+                role,
+                content: chunk.join("\n").trim(),
+            })
+        }
+    }
+
+    for (const line of lines) {
+        const m = rx.exec(line)
+        if (m) {
+            // next role starts
+            pushMessage()
+            role = m[1] as "system" | "user" | "assistant"
+            chunk = []
+        } else {
+            chunk.push(line)
+        }
+    }
+    pushMessage()
+    return { meta, frontmatter: fm, content, messages }
+}
+
+export function promptyToGenAIScript(doc: PromptyDocument) {
+    const { messages, meta } = doc
 
     let src = ``
     if (Object.keys(meta).length) {

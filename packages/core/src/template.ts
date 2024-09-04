@@ -1,13 +1,14 @@
 import { Project, PromptScript } from "./ast"
-import { BUILTIN_PREFIX, GENAI_ANY_REGEX } from "./constants"
+import { BUILTIN_PREFIX, GENAI_ANY_REGEX, PROMPTY_REGEX } from "./constants"
 import { errorMessage } from "./error"
 import { host } from "./host"
 import { JSON5TryParse } from "./json5"
 import { humanize } from "inflection"
 import { validateSchema } from "./schema"
+import { promptyParse, promptyToGenAIScript } from "./prompty"
 function templateIdFromFileName(filename: string) {
     return filename
-        .replace(/\.(mjs|ts|js|mts)$/i, "")
+        .replace(/\.(mjs|ts|js|mts|prompty)$/i, "")
         .replace(/\.genai$/i, "")
         .replace(/.*[\/\\]/, "")
 }
@@ -242,6 +243,11 @@ export async function parsePromptScript(
     content: string,
     prj: Project
 ) {
+    if (PROMPTY_REGEX.test(filename)) {
+        const doc = await promptyParse(content)
+        content = await promptyToGenAIScript(doc)
+    }
+
     return await parsePromptTemplateCore(filename, content, prj, (c) => {
         const obj = c.validateKV(() => {
             c.checkString("title")

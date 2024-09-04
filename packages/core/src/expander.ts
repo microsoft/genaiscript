@@ -6,6 +6,7 @@ import {
     JS_REGEX,
     MAX_TOOL_CALLS,
     MODEL_PROVIDER_AICI,
+    PROMPTY_REGEX,
     SYSTEM_FENCE,
 } from "./constants"
 import { PromptImage, renderPromptNode } from "./promptdom"
@@ -57,7 +58,11 @@ export async function callExpander(
     }
 
     try {
-        if (r.filename && !JS_REGEX.test(r.filename))
+        if (
+            r.filename &&
+            !JS_REGEX.test(r.filename) &&
+            !PROMPTY_REGEX.test(r.filename)
+        )
             await importPrompt(ctx, r, { logCb, trace })
         else {
             await evalPrompt(ctx, r, {
