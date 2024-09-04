@@ -11,10 +11,13 @@ export interface PromptyFrontmatter {
     version?: string
     authors?: string[]
     tags?: string[]
-    sample?: Record<string, any>
+    sample?: Record<string, any> | string
     inputs?: Record<
         string,
-        JSONSchemaNumber | JSONSchemaBoolean | JSONSchemaString
+        | JSONSchemaNumber
+        | JSONSchemaBoolean
+        | JSONSchemaString
+        | JSONSchemaObject
     >
     outputs?: JSONSchemaObject
 }
@@ -65,10 +68,11 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
     const { frontmatter, messages } = doc
     const { name, description, tags, sample, inputs, outputs } = frontmatter
     const parameters = inputs ? structuredClone(inputs) : undefined
-    if (parameters && sample)
+    if (parameters && sample && typeof sample === "object")
         for (const p in sample) {
             const s = sample[p]
-            if (s !== undefined) parameters[p].default = s
+            if (s !== undefined && parameters[p].type !== "object")
+                parameters[p].default = s
         }
     const meta = deleteUndefinedValues(<PromptArgs>{
         title: name,
