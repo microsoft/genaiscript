@@ -20,6 +20,23 @@ export interface PromptyFrontmatter {
         | JSONSchemaObject
     >
     outputs?: JSONSchemaObject
+    model?: {
+        api?: "chat" | "completion"
+        configuration?:
+            | { type?: string; name?: string; organization?: string }
+            | {
+                  type?: string
+                  api_version?: string
+                  azure_deployment: string
+                  azure_endpoint: string
+              }
+        parameters?: {
+            response_format: "json_object"
+            max_tokens?: number
+            temperature?: number
+            top_p?: number
+        }
+    }
 }
 
 export interface PromptyDocument {
@@ -89,10 +106,36 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
     }
     src += messages
         .map((m) => {
-            const text = String(m.content).replace(
-                /\{\{([^\}]+)\}\}/g,
-                (m, name) => "${env.vars." + name + "}"
-            )
+            const text = String(m.content)
+                .replace(
+                    /\{\{([^\}]+)\}\}/g,
+                    (m, name) => "${env.vars." + name + "}"
+                )
+                .replace(
+                    /\{%\s*for\s+(\w+)\s+in\s+([a-zA-Z0-9\.]+)\s*%\}((.|\n)+?){%\s+endfor\s+%\}/gi,
+                    (_, item, col, temp: string) => {
+                        const varname = "env.vars." + item
+                        return (
+                            "${env.vars." +
+                            col +
+                            ".map(" +
+                            item +
+                            " => \n`" +
+                            temp
+                                .replace(/^\r?\n/, "")
+                                .replace(
+                                    /\$\{([a-z0-9.]+)\}/gi,
+                                    (_, v: string) =>
+                                        v.startsWith(varname)
+                                            ? "${" +
+                                              v.slice("env.vars.".length) +
+                                              "}"
+                                            : _
+                                ) +
+                            "`).join('')}"
+                        )
+                    }
+                )
             return `$\`${text}\``
         })
         .join("\n")

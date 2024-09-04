@@ -32,20 +32,28 @@ and in a personable manner using markdown, the customers name and even add some 
 # Documentation
 The following documentation should be used in the response. The response should specifically include the product id.
 
-{% for item in documentation %}
-catalog: ${env.vars.item.id}
-item: ${env.vars.item.title}
-content: ${env.vars.item.content}
-{% endfor %}
+${env.vars.documentation
+    .map(
+        (item) =>
+            `catalog: ${item.id}
+item: ${item.title}
+content: ${item.content}
+`
+    )
+    .join("")}
 
 Make sure to reference any documentation used in the response.
 
 # Previous Orders
 Use their orders as context to the question they are asking.
-{% for item in customer.orders %}
-name: ${env.vars.item.name}
-description: ${env.vars.item.description}
-{% endfor %} 
+${env.vars.customer.orders
+    .map(
+        (item) =>
+            `name: ${item.name}
+description: ${item.description}
+`
+    )
+    .join("")} 
 
 
 # Customer Context
@@ -60,7 +68,11 @@ Reference other items purchased specifically by name and description that
 would go well with the items found above. Be brief and concise and use appropriate emojis.
 
 
-{% for item in history %}
-${env.vars.item.role}:
-${env.vars.item.content}
-{% endfor %}`
+${env.vars.history
+    .map(
+        (item) =>
+            `${item.role}:
+${item.content}
+`
+    )
+    .join("")}`
