@@ -10,6 +10,7 @@
         "tldraw-org.tldraw-vscode",
         "bierner.emojisense",
         "github.vscode-pull-request-github",
-        "ms-toolsai.prompty"
+        "ms-toolsai.prompty",
+        "unifiedjs.vscode-mdx"
     ]
 }
