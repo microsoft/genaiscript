@@ -157,7 +157,7 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
     return src
 
     function formatContent(content: string) {
-        const text = = content
+        const text = content
             .replace(
                 /\{\{([^\}]+)\}\}/g,
                 (__, name) => "${env.vars." + name + "}"
