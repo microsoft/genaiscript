@@ -165,7 +165,7 @@
             "editor/title/run": [
                 {
                     "command": "genaiscript.fragment.prompt",
-                    "when": "!inDebugMode && resourceFilename =~ /.*\\.genai\\.(js|mjs|mts|prompty)$/",
+                    "when": "!inDebugMode && resourceFilename =~ /.*\\.((genai\\.(js|mjs|mts))|prompty)$/",
                     "group": "genaiscript@1"
                 },
                 {
