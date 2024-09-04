@@ -1085,6 +1085,13 @@ interface Parsers {
      * @param content object to validate
      */
     validateJSON(schema: JSONSchema, content: any): JSONSchemaValidation
+
+    /**
+     * Renders a mustache template
+     * @param text 
+     * @param data 
+     */
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): string
 }
 
 interface AICIGenOptions {
