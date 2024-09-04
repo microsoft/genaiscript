@@ -13,7 +13,12 @@ inputs:
   question:
     type: string
 sample:
-  "question": "Who is the most famous person in the world?"
+  "question": Who is the most famous person in the world?
+tests:
+  - vars:
+      question: what is the capital of france?
+      hint: "it starts with pa"
+    keywords: "paris"
 ---
 system:
 You are an AI assistant who helps people find information.

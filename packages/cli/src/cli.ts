@@ -13,6 +13,7 @@ import {
     parseHTMLToText,
     parsePDF,
     parseTokens,
+    prompty2genaiscript,
 } from "./parse"
 import { compileScript, createScript, fixScripts, listScripts } from "./scripts"
 import { codeQuery } from "./codequery"
@@ -299,6 +300,12 @@ export async function cli() {
         .command("jsonl2json", "Converts JSONL files to a JSON file")
         .argument("<file...>", "input JSONL files")
         .action(jsonl2json)
+    parser
+        .command("prompty")
+        .description("Converts .prompty files to genaiscript")
+        .argument("<file...>", "input JSONL files")
+        .option("-o, --out <string>", "output folder")
+        .action(prompty2genaiscript)
 
     const workspace = program
         .command("workspace")

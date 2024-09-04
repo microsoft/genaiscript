@@ -1,4 +1,5 @@
 script({
+    model: "openai:gpt-4",
     title: "unit test generator",
     system: ["system", "system.typescript", "system.files"],
     tools: ["fs"],
@@ -6,13 +7,13 @@ script({
 
 const code = def("CODE", env.files)
 
-
 $`## Step 1
 
 For each file in ${code}, 
 generate a plan to test the source code in each file
 
-- use input test files from packages/sample/src/rag/*
+- generate self-contained tests as much as possible by inlining all necessary values
+- if needed, use input test files from packages/sample/src/rag/*
 - only generate tests for files in ${code}
 - update the existing test files (<code filename>.test.ts). keep old tests if possible.
 
@@ -41,7 +42,7 @@ ${fence('import test, { beforeEach, describe } from "node:test"', { language: "j
 
 Validate and fix test sources.
 
-Use 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
+Call the 'run_test' tool to execute the generated test code and fix the test code to make tests pass.
 
 - this is important.
 `
@@ -55,8 +56,7 @@ defTool(
     },
     async (args) => {
         const { filename, source } = args
-        if (source)
-            await workspace.writeText(filename, source)
+        if (source) await workspace.writeText(filename, source)
         console.debug(`running test code ${filename}`)
         return host.exec(`node`, ["--import", "tsx", "--test", filename])
     }

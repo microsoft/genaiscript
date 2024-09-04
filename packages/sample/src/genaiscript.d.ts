@@ -1,12 +1,36 @@
+type OptionsOrString<TOptions extends string> = (string & {}) | TOptions
+
+interface PromptGenerationConsole {
+    log(...data: any[]): void
+    warn(...data: any[]): void
+    debug(...data: any[]): void
+    error(...data: any[]): void
+}
+
 type DiagnosticSeverity = "error" | "warning" | "info"
+
 interface Diagnostic {
     filename: string
     range: CharRange
     severity: DiagnosticSeverity
     message: string
+    /**
+     * error or warning code
+     */
+    code?: string
 }
 
 type Awaitable<T> = T | PromiseLike<T>
+
+interface SerializedError {
+    name?: string
+    message?: string
+    stack?: string
+    cause?: unknown
+    code?: string
+    line?: number
+    column?: number
+}
 
 interface PromptDefinition {
     /**
@@ -43,28 +67,42 @@ interface PromptLike extends PromptDefinition {
     text?: string
 }
 
-type SystemPromptId =
+type SystemPromptId = OptionsOrString<
+    | "system"
     | "system.annotations"
+    | "system.changelog"
+    | "system.diagrams"
+    | "system.diff"
     | "system.explanations"
-    | "system.typescript"
+    | "system.files"
+    | "system.files_schema"
     | "system.fs_find_files"
     | "system.fs_read_file"
-    | "system.fs_read_summary"
-    | "system.files"
-    | "system.changelog"
-    | "system.diff"
-    | "system.tasks"
-    | "system.schema"
-    | "system.json"
-    | "system"
     | "system.math"
-    | "system.technical"
-    | "system.web_search"
-    | "system.files_schema"
+    | "system.md_frontmatter"
     | "system.python"
-    | "system.summary"
+    | "system.python_code_interpreter"
+    | "system.retrieval_fuzz_search"
+    | "system.retrieval_vector_search"
+    | "system.retrieval_web_search"
+    | "system.schema"
+    | "system.tasks"
+    | "system.technical"
+    | "system.tools"
+    | "system.typescript"
     | "system.zero_shot_cot"
-    | "system.functions"
+>
+
+type SystemToolId = OptionsOrString<
+    | "fs_find_files"
+    | "fs_read_file"
+    | "math_eval"
+    | "md_read_frontmatter"
+    | "python_code_interpreter"
+    | "retrieval_fuzz_search"
+    | "retrieval_vector_search"
+    | "retrieval_web_search"
+>
 
 type FileMergeHandler = (
     filename: string,
@@ -90,45 +128,30 @@ interface PromptOutputProcessorResult {
 }
 
 type PromptOutputProcessorHandler = (
-    output: PromptGenerationOutput
+    output: GenerationOutput
 ) =>
     | PromptOutputProcessorResult
     | Promise<PromptOutputProcessorResult>
     | undefined
     | Promise<undefined>
+    | void
+    | Promise<void>
 
-interface UrlAdapter {
-    contentType?: "text/plain" | "application/json"
-
-    /**
-     * Given a friendly URL, return a URL that can be used to fetch the content.
-     * @param url
-     * @returns
-     */
-    matcher: (url: string) => string
-
-    /**
-     * Convers the body of the response to a string.
-     * @param body
-     * @returns
-     */
-    adapter?: (body: string | any) => string | undefined
-}
-
-type PromptTemplateResponseType = "json_object" | undefined
+type PromptTemplateResponseType = "json_object" | "json_schema" | undefined
 
 interface ModelConnectionOptions {
     /**
      * Which LLM model to use.
      *
      * @default gpt-4
-     * @example gpt-4 gpt-4-32k gpt-3.5-turbo
+     * @example gpt-4
      */
     model?:
-        | "gpt-4-turbo"
-        | "gpt-4"
-        | "gpt-4-32k"
-        | "gpt-3.5-turbo"
+        | "openai:gpt-4"
+        | "openai:gpt-4-turbo"
+        | "openai:gpt-4o"
+        | "openai:gpt-4o-mini"
+        | "openai:gpt-3.5-turbo"
         | "ollama:phi3"
         | "ollama:llama3"
         | "ollama:mixtral"
@@ -145,6 +168,19 @@ interface ModelOptions extends ModelConnectionOptions {
     temperature?: number
 
     /**
+     * Specifies the type of output. Default is plain text.
+     * - `json_object` enables JSON mode
+     * - `json_schema` enables structured outputs
+     * Use `responseSchema` to specify an output schema.
+     */
+    responseType?: PromptTemplateResponseType
+
+    /**
+     * JSON object schema for the output. Enables the `JSON` output mode by default.
+     */
+    responseSchema?: PromptParametersSchema | JSONSchemaObject
+
+    /**
      * “Top_p” or nucleus sampling is a setting that decides how many possible words to consider.
      * A high “top_p” value means the model looks at more possible words, even the less likely ones,
      * which makes the generated text more diverse.
@@ -158,37 +194,84 @@ interface ModelOptions extends ModelConnectionOptions {
     maxTokens?: number
 
     /**
+     * Maximum number of tool calls to make.
+     */
+    maxToolCalls?: number
+
+    /**
+     * Maximum number of data repairs to attempt.
+     */
+    maxDataRepairs?: number
+
+    /**
      * A deterministic integer seed to use for the model.
      */
     seed?: number
 
     /**
-     * If true, the prompt will be cached. If false, the LLM chat is never cached.
-     * Leave empty to use the default behavior.
+     * By default, LLM queries are not cached. If true, the LLM request will be cached. Use a string to override the default cache name
      */
-    cache?: boolean
+    cache?: boolean | string
 
     /**
      * Custom cache name. If not set, the default cache is used.
+     * @deprecated Use `cache` instead with a string
      */
     cacheName?: string
 }
 
+interface EmbeddingsModelConnectionOptions {
+    /**
+     * LLM model to use for embeddings.
+     */
+    embeddingsModel?: OptionsOrString<
+        "openai:text-embedding-3-small",
+        "openai:text-embedding-3-large",
+        "openai:text-embedding-ada-002",
+        "github:text-embedding-3-small",
+        "github:text-embedding-3-large",
+        "ollama:nomic-embed-text"
+    >
+}
+
+interface EmbeddingsModelOptions extends EmbeddingsModelConnectionOptions {}
+
 interface ScriptRuntimeOptions {
     /**
-     * Template identifiers for the system prompts (concatenated).
+     * List of system script ids used by the prompt.
      */
+    /**
+     * System prompt identifiers ([reference](https://microsoft.github.io/genaiscript/reference/scripts/system/))
+     * - `system`: Base system prompt
+     * - `system.annotations`: Emits annotations compatible with GitHub Actions
+     * - `system.changelog`: Generate changelog formatter edits
+     * - `system.diagrams`: Generate diagrams
+     * - `system.diff`: Generates concise file diffs.
+     * - `system.explanations`: Explain your answers
+     * - `system.files`: File generation
+     * - `system.files_schema`: Apply JSON schemas to generated data.
+     * - `system.fs_find_files`: File find files
+     * - `system.fs_read_file`: File Read File
+     * - `system.math`: Math expression evaluator
+     * - `system.md_frontmatter`: Frontmatter reader
+     * - `system.python`: Expert at generating and understanding Python code.
+     * - `system.python_code_interpreter`: Python Dockerized code execution for data analysis
+     * - `system.retrieval_fuzz_search`: Full Text Fuzzy Search
+     * - `system.retrieval_vector_search`: Embeddings Vector Search
+     * - `system.retrieval_web_search`: Web Search
+     * - `system.schema`: JSON Schema support
+     * - `system.tasks`: Generates tasks
+     * - `system.technical`: Technical Writer
+     * - `system.tools`: Tools support
+     * - `system.typescript`: Export TypeScript Developer
+     * - `system.zero_shot_cot`: Zero-shot Chain Of Though
+     **/
     system?: SystemPromptId[]
 
     /**
-     * Specifies the type of output. Default is `markdown`.
+     * List of tools used by the prompt.
      */
-    responseType?: PromptTemplateResponseType
-
-    /**
-     * Given a user friendly URL, return a URL that can be used to fetch the content. Returns undefined if unknown.
-     */
-    urlAdapters?: UrlAdapter[]
+    tools?: SystemToolId | SystemToolId[]
 
     /**
      * Secrets required by the prompt
@@ -205,11 +288,15 @@ type PromptParameterType =
     | string
     | number
     | boolean
+    | object
     | JSONSchemaNumber
     | JSONSchemaString
     | JSONSchemaBoolean
-type PromptParametersSchema = Record<string, PromptParameterType>
-type PromptParameters = Record<string, string | number | boolean>
+type PromptParametersSchema = Record<
+    string,
+    PromptParameterType | PromptParameterType[]
+>
+type PromptParameters = Record<string, string | number | boolean | object>
 
 type PromptAssertion = {
     // How heavily to weigh the assertion. Defaults to 1.0
@@ -246,7 +333,9 @@ type PromptAssertion = {
     | {
           // type of assertion
           type: "levenshtein" | "not-levenshtein"
-          // The threshold value, applicable only to certain types
+          // The expected value
+          value: string
+          // The threshold value
           threshold?: number
       }
     | {
@@ -255,11 +344,18 @@ type PromptAssertion = {
            * JavaScript expression to evaluate.
            */
           value: string
+          /**
+           * Optional threshold if the javascript expression returns a number
+           */
           threshold?: number
       }
 )
 
 interface PromptTest {
+    /**
+     * Short name of the test
+     */
+    name?: string
     /**
      * Description of the test.
      */
@@ -267,7 +363,11 @@ interface PromptTest {
     /**
      * List of files to apply the test to.
      */
-    files: string | string[]
+    files?: string | string[]
+    /**
+     * Extra set of variables for this scenario
+     */
+    vars?: Record<string, string | boolean | number>
     /**
      * LLM output matches a given rubric, using a Language Model to grade output.
      */
@@ -281,12 +381,20 @@ interface PromptTest {
      */
     keywords?: string | string[]
     /**
+     * List of keywords that should not be contained in the LLM output.
+     */
+    forbidden?: string | string[]
+    /**
      * Additional deterministic assertions.
      */
     asserts?: PromptAssertion | PromptAssertion[]
 }
 
-interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
+interface PromptScript
+    extends PromptLike,
+        ModelOptions,
+        EmbeddingsModelOptions,
+        ScriptRuntimeOptions {
     /**
      * Groups template in UI
      */
@@ -296,6 +404,17 @@ interface PromptScript extends PromptLike, ModelOptions, ScriptRuntimeOptions {
      * Additional template parameters that will populate `env.vars`
      */
     parameters?: PromptParametersSchema
+
+    /**
+     * A file path or list of file paths or globs.
+     * The content of these files will be by the files selected in the UI by the user or the cli arguments.
+     */
+    files?: string | string[]
+
+    /**
+     * Extra variable values that can be used to configure system prompts.
+     */
+    vars?: Record<string, string>
 
     /**
      * Tests to validate this script.
@@ -323,17 +442,19 @@ interface WorkspaceFile {
     filename: string
 
     /**
-     * @deprecated Unused
-     */
-    label?: string
-
-    /**
      * Content of the file.
      */
-    content: string
+    content?: string
 }
 
-interface ChatFunctionDefinition {
+interface WorkspaceFileWithScore extends WorkspaceFile {
+    /**
+     * Score allocated by search algorithm
+     */
+    score?: number
+}
+
+interface ToolDefinition {
     /**
      * The name of the function to be called. Must be a-z, A-Z, 0-9, or contain
      * underscores and dashes, with a maximum length of 64.
@@ -355,21 +476,10 @@ interface ChatFunctionDefinition {
      *
      * Omitting `parameters` defines a function with an empty parameter list.
      */
-    parameters?: ChatFunctionParameters
+    parameters?: JSONSchema
 }
 
-/**
- * The parameters the functions accepts, described as a JSON Schema object. See the
- * [guide](https://platform.openai.com/docs/guides/text-generation/function-calling)
- * for examples, and the
- * [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for
- * documentation about the format.
- *
- * Omitting `parameters` defines a function with an empty parameter list.
- */
-type ChatFunctionParameters = JSONSchema
-
-interface ChatFunctionCallTrace {
+interface ToolCallTrace {
     log(message: string): void
     item(message: string): void
     tip(message: string): void
@@ -395,6 +505,7 @@ interface FileEdit {
     type: string
     filename: string
     label?: string
+    validated?: boolean
 }
 
 interface ReplaceEdit extends FileEdit {
@@ -423,60 +534,143 @@ interface CreateFileEdit extends FileEdit {
 
 type Edits = InsertEdit | ReplaceEdit | DeleteEdit | CreateFileEdit
 
-interface ChatFunctionCallContent {
+interface ToolCallContent {
     type?: "content"
     content: string
     edits?: Edits[]
 }
 
-interface ChatFunctionCallShell {
-    type: "shell"
-    command: string
-    stdin?: string
-    files?: Record<string, string>
-    outputFile?: string
-    cwd?: string
-    args?: string[]
-    timeout?: number
-    ignoreExitCode?: boolean
-}
-
-type ChatFunctionCallOutput =
+type ToolCallOutput =
     | string
-    | ChatFunctionCallContent
-    | ChatFunctionCallShell
+    | number
+    | boolean
+    | ToolCallContent
+    | ShellOutput
+    | WorkspaceFile
+
+interface WorkspaceFileCache<K, V> {
+    /**
+     * Gets the value associated with the key, or undefined if there is none.
+     * @param key
+     */
+    get(key: K): Promise<V | undefined>
+    /**
+     * Sets the value associated with the key.
+     * @param key
+     * @param value
+     */
+    set(key: K, value: V): Promise<void>
+
+    /**
+     * List of keys
+     */
+    keys(): Promise<K[]>
+
+    /**
+     * List the values in the cache.
+     */
+    values(): Promise<V[]>
+}
 
 interface WorkspaceFileSystem {
     /**
      * Searches for files using the glob pattern and returns a list of files.
-     * If the file is text, also return the content.
+     * Ignore `.env` files and apply `.gitignore` if present.
      * @param glob
      */
     findFiles(
         glob: string,
         options?: {
             /**
-             * Set to false to read text content by default
+             * Set to false to skip read text content. True by default
              */
             readText?: boolean
         }
     ): Promise<WorkspaceFile[]>
+
+    /**
+     * Performs a grep search over the files in the workspace
+     * @param query
+     * @param globs
+     */
+    grep(
+        query: string | RegExp,
+        globs: string | string[],
+        options?: {
+            /**
+             * Set to false to skip read text content. True by default
+             */
+            readText?: boolean
+        }
+    ): Promise<{ files: WorkspaceFile[] }>
+
     /**
      * Reads the content of a file as text
      * @param path
      */
-    readText(path: string | WorkspaceFile): Promise<WorkspaceFile>
+    readText(path: string | Awaitable<WorkspaceFile>): Promise<WorkspaceFile>
+
+    /**
+     * Reads the content of a file and parses to JSON, using the JSON5 parser.
+     * @param path
+     */
+    readJSON(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Reads the content of a file and parses to XML, using the XML parser.
+     */
+    readXML(path: string | Awaitable<WorkspaceFile>): Promise<any>
+
+    /**
+     * Writes a file as text to the file system
+     * @param path
+     * @param content
+     */
+    writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Opens a key-value cache for the given cache name.
+     * The cache is persisted accross runs of the script. Entries are dropped when the cache grows too large.
+     * @param cacheName
+     */
+    cache<K = any, V = any>(
+        cacheName: string
+    ): Promise<WorkspaceFileCache<K, V>>
 }
 
-interface ChatFunctionCallContext {
-    trace: ChatFunctionCallTrace
+interface ToolCallContext {
+    trace: ToolCallTrace
 }
 
-interface ChatFunctionCallback {
-    definition: ChatFunctionDefinition
-    fn: (
-        args: { context: ChatFunctionCallContext } & Record<string, any>
-    ) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+interface ToolCallback {
+    spec: ToolDefinition
+    impl: (
+        args: { context: ToolCallContext } & Record<string, any>
+    ) => Awaitable<ToolCallOutput>
+}
+
+type AgenticToolCallback = Omit<ToolCallback, "spec"> & {
+    spec: Omit<ToolDefinition, "parameters"> & {
+        parameters: Record<string, any>
+    }
+}
+
+interface AgenticToolProviderCallback {
+    functions: Iterable<AgenticToolCallback>
+}
+
+type ChatParticipantHandler = (
+    context: ChatTurnGenerationContext,
+    messages: ChatCompletionMessageParam[]
+) => Awaitable<void>
+
+interface ChatParticipantOptions {
+    label?: string
+}
+
+interface ChatParticipant {
+    generator: ChatParticipantHandler
+    options: ChatParticipantOptions
 }
 
 /**
@@ -484,9 +678,9 @@ interface ChatFunctionCallback {
  */
 interface ExpansionVariables {
     /**
-     * Description of the context as markdown; typically the content of a .gpspec.md file.
+     * Directory where the prompt is executed
      */
-    spec: WorkspaceFile
+    dir: string
 
     /**
      * List of linked files parsed in context
@@ -501,21 +695,36 @@ interface ExpansionVariables {
     /**
      * User defined variables
      */
-    vars: PromptParameters
+    vars?: Record<string, string | boolean | number | object | any>
 
     /**
-     * List of secrets used by the prompt, must be registred in `genaiscript`.
+     * List of secrets used by the prompt, must be registered in `genaiscript`.
      */
     secrets?: Record<string, string>
+
+    /**
+     * Root prompt generation context
+     */
+    generator: ChatGenerationContext
 }
 
 type MakeOptional<T, P extends keyof T> = Partial<Pick<T, P>> & Omit<T, P>
 
-type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource">
+type PromptArgs = Omit<PromptScript, "text" | "id" | "jsSource" | "activation">
 
 type PromptSystemArgs = Omit<
     PromptArgs,
-    "model" | "temperature" | "topP" | "maxTokens" | "seed" | "tests"
+    | "model"
+    | "embeddingsModel"
+    | "temperature"
+    | "topP"
+    | "maxTokens"
+    | "seed"
+    | "tests"
+    | "responseLanguage"
+    | "responseType"
+    | "responseSchema"
+    | "files"
 >
 
 type StringLike = string | WorkspaceFile | WorkspaceFile[]
@@ -554,7 +763,7 @@ interface ContextExpansionOptions {
     maxTokens?: number
 }
 
-interface DefOptions extends FenceOptions, ContextExpansionOptions {
+interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
     /**
      * Filename filter based on file suffix. Case insensitive.
      */
@@ -609,6 +818,10 @@ interface JSONSchemaNumber {
     type: "number" | "integer"
     description?: string
     default?: number
+    minimum?: number
+    exclusiveMinimum?: number
+    maximum?: number
+    exclusiveMaximum?: number
 }
 
 interface JSONSchemaBoolean {
@@ -618,6 +831,7 @@ interface JSONSchemaBoolean {
 }
 
 interface JSONSchemaObject {
+    $schema?: string
     type: "object"
     description?: string
     properties?: {
@@ -628,6 +842,7 @@ interface JSONSchemaObject {
 }
 
 interface JSONSchemaArray {
+    $schema?: string
     type: "array"
     description?: string
     items?: JSONSchemaType
@@ -649,13 +864,20 @@ interface DataFrame {
 
 interface RunPromptResult {
     text: string
-    finishReason?:
+    annotations?: Diagnostic[]
+    fences?: Fenced[]
+    frames?: DataFrame[]
+    json?: any
+    error?: SerializedError
+    genVars?: Record<string, string>
+    schemas?: Record<string, JSONSchema>
+    finishReason:
         | "stop"
         | "length"
         | "tool_calls"
         | "content_filter"
         | "cancel"
-        | "error"
+        | "fail"
 }
 
 /**
@@ -700,6 +922,12 @@ interface Path {
      * @param pathSegments
      */
     resolve(...pathSegments: string[]): string
+
+    /**
+     * Determines whether the path is an absolute path.
+     * @param path
+     */
+    isAbsolute(path: string): boolean
 }
 
 interface Fenced {
@@ -734,6 +962,24 @@ interface HTMLToTextOptions {
     wordwrap?: number | false | null | undefined
 }
 
+interface ParseXLSXOptions {
+    // specific worksheet name
+    sheet?: string
+    // Use specified range (A1-style bounded range string)
+    range?: string
+}
+
+interface WorkbookSheet {
+    name: string
+    rows: object[]
+}
+
+interface ParseZipOptions {
+    glob?: string
+}
+
+type TokenEncoder = (text: string) => number[]
+
 interface Parsers {
     /**
      * Parses text as a JSON5 payload
@@ -742,6 +988,13 @@ interface Parsers {
         content: string | WorkspaceFile,
         options?: { defaultValue?: any }
     ): any | undefined
+
+    /**
+     * Parses text or file as a JSONL payload. Empty lines are ignore, and JSON5 is used for parsing.
+     * @param content
+     */
+    JSONL(content: string | WorkspaceFile): any[] | undefined
+
     /**
      * Parses text as a YAML paylaod
      */
@@ -796,6 +1049,15 @@ interface Parsers {
     ): object[] | undefined
 
     /**
+     * Parses a XLSX file and a given worksheet
+     * @param content
+     */
+    XLSX(
+        content: WorkspaceFile,
+        options?: ParseXLSXOptions
+    ): Promise<WorkbookSheet[] | undefined>
+
+    /**
      * Parses a .env file
      * @param content
      */
@@ -830,6 +1092,23 @@ interface Parsers {
     ): string
 
     /**
+     * Convert HTML to markdown
+     * @param content html string or file
+     * @param options
+     */
+    HTMLToMarkdown(content: string | WorkspaceFile): string
+
+    /**
+     * Extracts the contents of a zip archive file
+     * @param file
+     * @param options
+     */
+    unzip(
+        file: WorkspaceFile,
+        options?: ParseZipOptions
+    ): Promise<WorkspaceFile[]>
+
+    /**
      * Estimates the number of tokens in the content.
      * @param content content to tokenize
      */
@@ -857,7 +1136,21 @@ interface Parsers {
      * Parses and evaluates a math expression
      * @param expression math expression compatible with mathjs
      */
-    math(expression: string): string | number | undefined
+    math(expression: string): Promise<string | number | undefined>
+
+    /**
+     * Using the JSON schema, validates the content
+     * @param schema JSON schema instance
+     * @param content object to validate
+     */
+    validateJSON(schema: JSONSchema, content: any): JSONSchemaValidation
+
+    /**
+     * Renders a mustache template
+     * @param text template text
+     * @param data data to render
+     */
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): string
 }
 
 interface AICIGenOptions {
@@ -931,7 +1224,84 @@ interface XML {
      * Parses an XML payload to an object
      * @param text
      */
-    parse(text: string): any
+    parse(text: string, options?: XMLParseOptions): any
+}
+
+interface HTMLTableToJSONOptions {
+    useFirstRowForHeadings?: boolean
+    headers?: HeaderRows
+    stripHtmlFromHeadings?: boolean
+    stripHtmlFromCells?: boolean
+    stripHtml?: boolean | null
+    forceIndexAsNumber?: boolean
+    countDuplicateHeadings?: boolean
+    ignoreColumns?: number[] | null
+    onlyColumns?: number[] | null
+    ignoreHiddenRows?: boolean
+    id?: string[] | null
+    headings?: string[] | null
+    containsClasses?: string[] | null
+    limitrows?: number | null
+}
+
+interface HTML {
+    /**
+     * Converts all HTML tables to JSON.
+     * @param html
+     * @param options
+     */
+    convertTablesToJSON(
+        html: string,
+        options?: HTMLTableToJSONOptions
+    ): object[][]
+    /**
+     * Converts HTML markup to plain text
+     * @param html
+     */
+    convertToText(html: string): string
+    /**
+     * Converts HTML markup to markdown
+     * @param html
+     */
+    convertToMarkdown(html: string): string
+}
+
+interface MD {
+    /**
+     * Parses front matter from markdown
+     * @param text
+     */
+    frontmatter(text: string, format?: "yaml" | "json" | "toml" | "text"): any
+
+    /**
+     * Removes the front matter from the markdown text
+     */
+    content(text: string): string
+
+    /**
+     * Merges frontmatter with the existing text
+     * @param text
+     * @param frontmatter
+     * @param format
+     */
+    updateFrontmatter(
+        text: string,
+        frontmatter: any,
+        format?: "yaml" | "json"
+    ): string
+}
+
+interface JSONL {
+    /**
+     * Parses a JSONL string to an array of objects
+     * @param text
+     */
+    parse(text: string): any[]
+    /**
+     * Converts objects to JSONL format
+     * @param objs
+     */
+    stringify(objs: any[]): string
 }
 
 interface INI {
@@ -967,15 +1337,68 @@ interface CSV {
      * @param csv
      * @param options
      */
-    mardownify(csv: object[], options?: { headers?: string[] }): string
+    markdownify(csv: object[], options?: { headers?: string[] }): string
 }
 
 interface HighlightOptions {
     maxLength?: number
 }
 
-interface SearchResult {
+interface WebSearchResult {
     webPages: WorkspaceFile[]
+}
+
+interface VectorSearchOptions extends EmbeddingsModelOptions {
+    /**
+     * Maximum number of embeddings to use
+     */
+    topK?: number
+    /**
+     * Minimum similarity score
+     */
+    minScore?: number
+}
+
+interface FuzzSearchOptions {
+    /**
+     * Controls whether to perform prefix search. It can be a simple boolean, or a
+     * function.
+     *
+     * If a boolean is passed, prefix search is performed if true.
+     *
+     * If a function is passed, it is called upon search with a search term, the
+     * positional index of that search term in the tokenized search query, and the
+     * tokenized search query.
+     */
+    prefix?: boolean
+    /**
+     * Controls whether to perform fuzzy search. It can be a simple boolean, or a
+     * number, or a function.
+     *
+     * If a boolean is given, fuzzy search with a default fuzziness parameter is
+     * performed if true.
+     *
+     * If a number higher or equal to 1 is given, fuzzy search is performed, with
+     * a maximum edit distance (Levenshtein) equal to the number.
+     *
+     * If a number between 0 and 1 is given, fuzzy search is performed within a
+     * maximum edit distance corresponding to that fraction of the term length,
+     * approximated to the nearest integer. For example, 0.2 would mean an edit
+     * distance of 20% of the term length, so 1 character in a 5-characters term.
+     * The calculated fuzziness value is limited by the `maxFuzzy` option, to
+     * prevent slowdown for very long queries.
+     */
+    fuzzy?: boolean | number
+    /**
+     * Controls the maximum fuzziness when using a fractional fuzzy value. This is
+     * set to 6 by default. Very high edit distances usually don't produce
+     * meaningful results, but can excessively impact search performance.
+     */
+    maxFuzzy?: number
+    /**
+     * Maximum number of results to return
+     */
+    topK?: number
 }
 
 interface Retrieval {
@@ -983,44 +1406,76 @@ interface Retrieval {
      * Executers a Bing web search. Requires to configure the BING_SEARCH_API_KEY secret.
      * @param query
      */
-    webSearch(query: string): Promise<SearchResult>
+    webSearch(query: string): Promise<WorkspaceFile[]>
 
     /**
-     * Search for embeddings
+     * Search using similarity distance on embeddings
      */
-    search(
+    vectorSearch(
         query: string,
-        files: (string | WorkspaceFile)[],
-        options?: {
-            /**
-             * Maximum number of embeddings to use
-             */
-            topK?: number
-            /**
-             * Minimum similarity score
-             */
-            minScore?: number
-        }
-    ): Promise<{
-        files: WorkspaceFile[]
-        fragments: WorkspaceFile[]
-    }>
+        files: (string | WorkspaceFile) | (string | WorkspaceFile)[],
+        options?: VectorSearchOptions
+    ): Promise<WorkspaceFile[]>
+
+    /**
+     * Performs a fuzzy search over the files
+     * @param query keywords to search
+     * @param files list of files
+     * @param options fuzzing configuration
+     */
+    fuzzSearch(
+        query: string,
+        files: WorkspaceFile | WorkspaceFile[],
+        options?: FuzzSearchOptions
+    ): Promise<WorkspaceFile[]>
 }
 
 type FetchTextOptions = Omit<RequestInit, "body" | "signal" | "window">
 
-interface DefDataOptions extends ContextExpansionOptions {
-    format?: "json" | "yaml" | "csv"
+interface DataFilter {
+    /**
+     * The keys to select from the object.
+     * If a key is prefixed with -, it will be removed from the object.
+     */
     headers?: string[]
+    /**
+     * Selects the first N elements from the data
+     */
+    sliceHead?: number
+    /**
+     * Selects the last N elements from the data
+     */
+    sliceTail?: number
+    /**
+     * Selects the a random sample of N items in the collection.
+     */
+    sliceSample?: number
+
+    /**
+     * Removes items with duplicate values for the specified keys.
+     */
+    distinct?: string[]
+}
+
+interface DefDataOptions
+    extends Omit<ContextExpansionOptions, "maxTokens">,
+        DataFilter {
+    /**
+     * Output format in the prompt. Defaults to markdownified CSV
+     */
+    format?: "json" | "yaml" | "csv"
 }
 
 interface DefSchemaOptions {
+    /**
+     * Output format in the prompt.
+     */
     format?: "typescript" | "json" | "yaml"
 }
 
 type ChatFunctionHandler = (
-    args: { context: ChatFunctionCallContext } & Record<string, any>
-) => ChatFunctionCallOutput | Promise<ChatFunctionCallOutput>
+    args: { context: ToolCallContext } & Record<string, any>
+) => Awaitable<ToolCallOutput>
 
 interface WriteTextOptions extends ContextExpansionOptions {
     /**
@@ -1029,21 +1484,96 @@ interface WriteTextOptions extends ContextExpansionOptions {
     assistant?: boolean
 }
 
-type RunPromptGenerator = (ctx: RunPromptContext) => Awaitable<void>
+type PromptGenerator = (ctx: ChatGenerationContext) => Awaitable<unknown>
 
-// keep in sync with prompt_type.d.ts
-interface RunPromptContext {
+interface PromptGeneratorOptions extends ModelOptions {
+    /**
+     * Label for trace
+     */
+    label?: string
+
+    /**
+     * List of system prompts if any
+     */
+    system?: SystemPromptId[]
+}
+
+interface FileOutputOptions {
+    /**
+     * Schema identifier to validate the generated file
+     */
+    schema?: string
+}
+
+interface FileOutput {
+    pattern: string
+    description?: string
+    options?: FileOutputOptions
+}
+
+interface ImportTemplateOptions {}
+
+interface ChatTurnGenerationContext {
+    importTemplate(
+        files: string | string[],
+        arguments?: Record<
+            string | number | boolean | (() => string | number | boolean)
+        >,
+        options?: ImportTemplateOptions
+    ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
     $(strings: TemplateStringsArray, ...args: any[]): void
     fence(body: StringLike, options?: FenceOptions): void
-    def(name: string, body: StringLike, options?: DefOptions): string
-    runPrompt(
-        generator: string | RunPromptGenerator,
-        options?: ModelOptions
-    ): Promise<RunPromptResult>
+    def(
+        name: string,
+        body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced,
+        options?: DefOptions
+    ): string
+    defData(
+        name: string,
+        data: object[] | object,
+        options?: DefDataOptions
+    ): string
+    console: PromptGenerationConsole
 }
 
-interface PromptGenerationOutput {
+interface FileUpdate {
+    before: string
+    after: string
+    validation?: JSONSchemaValidation
+}
+
+interface ChatGenerationContext extends ChatTurnGenerationContext {
+    defSchema(
+        name: string,
+        schema: JSONSchema,
+        options?: DefSchemaOptions
+    ): string
+    defImages(
+        files: StringLike | Buffer | Blob,
+        options?: DefImagesOptions
+    ): void
+    defTool(
+        tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+    ): void
+    defTool(
+        name: string,
+        description: string,
+        parameters: PromptParametersSchema | JSONSchema,
+        fn: ChatFunctionHandler
+    ): void
+    defChatParticipant(
+        participant: ChatParticipantHandler,
+        options?: ChatParticipantOptions
+    ): void
+    defFileOutput(
+        pattern: string,
+        description?: string,
+        options?: FileOutputOptions
+    ): void
+}
+
+interface GenerationOutput {
     /**
      * LLM output.
      */
@@ -1062,7 +1592,7 @@ interface PromptGenerationOutput {
     /**
      * A map of file updates
      */
-    fileEdits: Record<string, { before: string; after: string }>
+    fileEdits: Record<string, FileUpdate>
 
     /**
      * Generated variables, typically from AICI.gen
@@ -1073,6 +1603,16 @@ interface PromptGenerationOutput {
      * Generated annotations
      */
     annotations: Diagnostic[]
+
+    /**
+     * Schema definition used in the generation
+     */
+    schemas: Record<string, JSONSchema>
+
+    /**
+     * Output as JSON if parsable
+     */
+    json?: any
 }
 
 type Point = {
@@ -1184,28 +1724,547 @@ interface QueryCapture {
     node: SyntaxNode
 }
 
-interface PromptContext extends RunPromptContext {
+interface ShellOptions {
+    cwd?: string
+    stdin?: string
+    /**
+     * Process timeout in  milliseconds, default is 60s
+     */
+    timeout?: number
+    /**
+     * trace label
+     */
+    label?: string
+}
+
+interface ShellOutput {
+    stdout?: string
+    stderr?: string
+    exitCode: number
+    failed: boolean
+}
+
+interface BrowserOptions {
+    /**
+     * Browser engine for this page. Defaults to chromium
+     *
+     */
+    browser?: "chromium" | "firefox" | "webkit"
+}
+
+interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
+    /**
+     * Creates a new context for the browser session
+     */
+    incognito?: boolean
+
+    /**
+     * Base url to use for relative urls
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-base-url
+     */
+    baseUrl?: string
+
+    /**
+     * Toggles bypassing page's Content-Security-Policy. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-bypass-csp
+     */
+    bypassCSP?: boolean
+
+    /**
+     * Whether to ignore HTTPS errors when sending network requests. Defaults to false.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-ignore-https-errors
+     */
+    ignoreHTTPSErrors?: boolean
+
+    /**
+     * Whether or not to enable JavaScript in the context. Defaults to true.
+     * @link https://playwright.dev/docs/api/class-browser#browser-new-context-option-java-script-enabled
+     */
+    javaScriptEnabled?: boolean
+}
+
+interface TimeoutOptions {
+    /**
+     * Maximum time in milliseconds. Default to no timeout
+     */
+    timeout?: number
+}
+
+interface ScreenshotOptions extends TimeoutOptions {
+    quality?: number
+    scale?: "css" | "device"
+    type?: "png" | "jpeg"
+    style?: string
+}
+
+interface PageScreenshotOptions extends ScreenshotOptions {
+    fullPage?: boolean
+    omitBackground?: boolean
+    clip?: {
+        x: number
+        y: number
+        width: number
+        height: number
+    }
+}
+
+interface BrowserLocatorSelector {
+    /**
+     * Allows locating elements by their ARIA role, ARIA attributes and accessible name.
+     * @param role
+     * @param options
+     */
+    getByRole(
+        role:
+            | "alert"
+            | "alertdialog"
+            | "application"
+            | "article"
+            | "banner"
+            | "blockquote"
+            | "button"
+            | "caption"
+            | "cell"
+            | "checkbox"
+            | "code"
+            | "columnheader"
+            | "combobox"
+            | "complementary"
+            | "contentinfo"
+            | "definition"
+            | "deletion"
+            | "dialog"
+            | "directory"
+            | "document"
+            | "emphasis"
+            | "feed"
+            | "figure"
+            | "form"
+            | "generic"
+            | "grid"
+            | "gridcell"
+            | "group"
+            | "heading"
+            | "img"
+            | "insertion"
+            | "link"
+            | "list"
+            | "listbox"
+            | "listitem"
+            | "log"
+            | "main"
+            | "marquee"
+            | "math"
+            | "meter"
+            | "menu"
+            | "menubar"
+            | "menuitem"
+            | "menuitemcheckbox"
+            | "menuitemradio"
+            | "navigation"
+            | "none"
+            | "note"
+            | "option"
+            | "paragraph"
+            | "presentation"
+            | "progressbar"
+            | "radio"
+            | "radiogroup"
+            | "region"
+            | "row"
+            | "rowgroup"
+            | "rowheader"
+            | "scrollbar"
+            | "search"
+            | "searchbox"
+            | "separator"
+            | "slider"
+            | "spinbutton"
+            | "status"
+            | "strong"
+            | "subscript"
+            | "superscript"
+            | "switch"
+            | "tab"
+            | "table"
+            | "tablist"
+            | "tabpanel"
+            | "term"
+            | "textbox"
+            | "time"
+            | "timer"
+            | "toolbar"
+            | "tooltip"
+            | "tree"
+            | "treegrid"
+            | "treeitem",
+        options?: {
+            checked?: boolean
+            disabled?: boolean
+            exact?: boolean
+            expanded?: boolean
+            name?: string
+            selected?: boolean
+        } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating input elements by the text of the associated <label> or aria-labelledby element, or by the aria-label attribute.
+     * @param name
+     * @param options
+     */
+    getByLabel(
+        name: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /**
+     * Allows locating elements that contain given text.
+     * @param text
+     * @param options
+     */
+    getByText(
+        text: string,
+        options?: { exact?: boolean } & TimeoutOptions
+    ): Locator
+
+    /** Locate element by the test id. */
+    getByTestId(testId: string, options?: TimeoutOptions): Locator
+}
+
+/**
+ * A Locator instance
+ * @link https://playwright.dev/docs/api/class-locator
+ */
+interface BrowserLocator extends BrowserLocatorSelector {
+    /**
+     * Click an element
+     * @link https://playwright.dev/docs/api/class-locator#locator-click
+     */
+    click(
+        options?: { button: "left" | "right" | "middle" } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Returns when element specified by locator satisfies the state option.
+     * @link https://playwright.dev/docs/api/class-locator#locator-wait-for
+     */
+    waitFor(
+        options?: {
+            state: "attached" | "detached" | "visible" | "hidden"
+        } & TimeoutOptions
+    ): Promise<void>
+
+    /**
+     * Set a value to the input field.
+     * @param value
+     * @link https://playwright.dev/docs/api/class-locator#locator-fill
+     */
+    fill(value: string, options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Returns the element.innerText.
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-text
+     */
+    innerText(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the element.innerHTML
+     * @link https://playwright.dev/docs/api/class-locator#locator-inner-html
+     */
+    innerHTML(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the element.textContent
+     * @link https://playwright.dev/docs/api/class-locator#locator-text-content
+     * @param options
+     */
+    textContent(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Returns the value for the matching <input> or <textarea> or <select> element.
+     * @link https://playwright.dev/docs/api/class-locator#locator-input-value
+     */
+    inputValue(options?: TimeoutOptions): Promise<string>
+
+    /**
+     * Get the attribute value
+     * @param name
+     * @param options
+     * @link https://playwright.dev/docs/api/class-locator#locator-get-attribute
+     */
+    getAttribute(name: string, options?: TimeoutOptions): Promise<null | string>
+
+    /**
+     * Clears the input field.
+     * @link https://playwright.dev/docs/api/class-locator#locator-clear
+     */
+    clear(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * Take a screenshot of the element matching the locator.
+     * @link https://playwright.dev/docs/api/class-locator#locator-screenshot
+     */
+    screenshot(options?: ScreenshotOptions): Promise<Buffer>
+
+    /**
+     * This method waits for actionability checks, then tries to scroll element into view, unless it is completely visible as defined by IntersectionObserver's ratio.
+     * @link https://playwright.dev/docs/api/class-locator#locator-scroll-into-view-if-needed
+     */
+    scrollIntoViewIfNeeded(options?: TimeoutOptions): Promise<void>
+
+    /**
+     * This method narrows existing locator according to the options, for example filters by text. It can be chained to filter multiple times.
+     * @param options
+     */
+    filter(
+        options: {
+            has?: BrowserLocator
+            hasNot?: BrowserLocator
+            hasNotText?: string | RegExp
+            hasText?: string | RegExp
+        } & TimeoutOptions
+    ): Locator
+}
+
+/**
+ * Playwright Response instance
+ * @link https://playwright.dev/docs/api/class-response
+ */
+interface BrowseResponse {
+    /**
+     * Contains a boolean stating whether the response was successful (status in the range 200-299) or not.
+     * @link https://playwright.dev/docs/api/class-response#response-ok
+     */
+    ok(): boolean
+    /**
+     * Contains the status code of the response (e.g., 200 for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status
+     */
+    status(): number
+    /**
+     * Contains the status text of the response (e.g. usually an "OK" for a success).
+     * @link https://playwright.dev/docs/api/class-response#response-status-text
+     */
+    statusText(): string
+
+    /**
+     * Contains the URL of the response.
+     * @link https://playwright.dev/docs/api/class-response#response-url
+     */
+    url(): string
+}
+
+/**
+ * A playwright Page instance
+ * @link https://playwright.dev/docs/api/class-page
+ */
+interface BrowserPage extends BrowserLocatorSelector {
+    /**
+     * Returns the page's title.
+     * @link https://playwright.dev/docs/api/class-page#page-title
+     */
+    title(): Promise<string>
+    /**
+     * Current page url
+     * @link https://playwright.dev/docs/api/class-page#page-url
+     */
+    url(): string
+
+    /**
+     * Returns the main resource response. In case of multiple redirects, the navigation will resolve with the first non-redirect response.
+     * @link https://playwright.dev/docs/api/class-page#page-goto
+     * @param url
+     * @param options
+     */
+    goto(
+        url: string,
+        options?: {
+            waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit"
+        } & TimeoutOptions
+    ): Promise<null | BrowseResponse>
+
+    /**
+     * Returns the buffer of the captured screenshot
+     * @link https://playwright.dev/docs/api/class-page#page-screenshot
+     */
+    screenshot(options?: PageScreenshotOptions): Promise<Buffer>
+
+    /**
+     * Gets the full HTML contents of the page, including the doctype.
+     * @link https://playwright.dev/docs/api/class-page#page-content
+     */
+    content(): Promise<string>
+
+    /**
+     * The method returns an element locator that can be used to perform actions on this page / frame.
+     * @param selector A selector to use when resolving DOM element.
+     * @link https://playwright.dev/docs/locators
+     */
+    locator(selector: string): BrowserLocator
+
+    /**
+     * Closes the browser page, context and other resources
+     */
+    close(): Promise<void>
+}
+
+interface ShellSelectOptions {}
+
+interface ShellSelectChoice {
+    name?: string
+    value: string
+    description?: string
+}
+
+interface ShellInputOptions {
+    required?: boolean
+}
+
+interface ShellConfirmOptions {
+    default?: boolean
+}
+
+interface ShellHost {
+    /**
+     * Executes a shell command
+     * @param command
+     * @param args
+     * @param options
+     */
+    exec(
+        command: string,
+        args: string[],
+        options?: ShellOptions
+    ): Promise<ShellOutput>
+
+    /**
+     * Starts a headless browser and navigates to the page.
+     * Requires to [install playwright and dependencies](https://microsoft.github.io/genaiscript/reference/scripts/browser).
+     * @link https://microsoft.github.io/genaiscript/reference/scripts/browser
+     * @param url
+     * @param options
+     */
+    browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage>
+
+    /**
+     * Asks the user to select between options
+     * @param message question to ask
+     * @param options options to select from
+     */
+    select(
+        message: string,
+        options: (string | ShellSelectChoice)[],
+        options?: ShellSelectOptions
+    ): Promise<string>
+
+    /**
+     * Asks the user to input a text
+     * @param message message to ask
+     */
+    input(message: string, options?: ShellInputOptions): Promise<string>
+
+    /**
+     * Asks the user to confirm a message
+     * @param message message to ask
+     */
+    confirm(message: string, options?: ShellConfirmOptions): Promise<boolean>
+}
+
+interface ContainerOptions {
+    /**
+     * Container image names.
+     * @example python:alpine python:slim python
+     * @see https://hub.docker.com/_/python/
+     */
+    image?: string
+
+    /**
+     * Enable networking in container (disabled by default)
+     */
+    networkEnabled?: boolean
+
+    /**
+     * Environment variables in container. A null/undefined variable is removed from the environment.
+     */
+    env?: Record<string, string>
+
+    /**
+     * Assign the specified name to the container. Must match [a-zA-Z0-9_-]+
+     */
+    name?: string
+
+    /**
+     * Disable automatic purge of container and volume directory
+     */
+    disablePurge?: boolean
+}
+
+interface PromptHost extends ShellHost {
+    container(options?: ContainerOptions): Promise<ContainerHost>
+}
+
+interface ContainerHost extends ShellHost {
+    /**
+     * Container unique identifier in provider
+     */
+    id: string
+
+    /**
+     * Disable automatic purge of container and volume directory
+     */
+    disablePurge: boolean
+
+    /**
+     * Path to the volume mounted in the host
+     */
+    hostPath: string
+
+    /**
+     * Path to the volume mounted in the container
+     */
+    containerPath: string
+
+    /**
+     * Writes a file as text to the container file system
+     * @param path
+     * @param content
+     */
+    writeText(path: string, content: string): Promise<void>
+
+    /**
+     * Reads a file as text from the container mounted volume
+     * @param path
+     */
+    readText(path: string): Promise<string>
+
+    /**
+     * Copies a set of files into the container
+     * @param fromHost glob matching files
+     * @param toContainer directory in the container
+     */
+    copyTo(fromHost: string | string[], toContainer: string): Promise<void>
+
+    /**
+     * Stops and cleans out the container
+     */
+    stop(): Promise<void>
+
+    /**
+     * Force disconnect network
+     */
+    disconnect(): Promise<void>
+}
+
+interface PromptContext extends ChatGenerationContext {
     script(options: PromptArgs): void
     system(options: PromptSystemArgs): void
-    defImages(files: StringLike, options?: DefImagesOptions): void
-    defFunction(
-        name: string,
-        description: string,
-        parameters: ChatFunctionParameters,
-        fn: ChatFunctionHandler
-    ): void
     defFileMerge(fn: FileMergeHandler): void
-    defOutput(fn: PromptOutputProcessorHandler): void
-    defSchema(
-        name: string,
-        schema: JSONSchema,
-        options?: DefSchemaOptions
-    ): string
-    defData(
-        name: string,
-        data: object[] | object,
-        options?: DefDataOptions
-    ): string
+    defOutputProcessor(fn: PromptOutputProcessorHandler): void
+    runPrompt(
+        generator: string | PromptGenerator,
+        options?: PromptGeneratorOptions
+    ): Promise<RunPromptResult>
     fetchText(
         urlOrFile: string | WorkspaceFile,
         options?: FetchTextOptions
@@ -1220,16 +2279,20 @@ interface PromptContext extends RunPromptContext {
     path: Path
     parsers: Parsers
     retrieval: Retrieval
+    /**
+     * @deprecated Use `workspace` instead
+     */
     fs: WorkspaceFileSystem
     workspace: WorkspaceFileSystem
-    YAML: YAML
-    XML: XML
-    CSV: CSV
-    INI: INI
-    AICI: AICI
+    host: PromptHost
 }
 
 // keep in sync with PromptContext!
+
+/**
+ * Console functions
+ */
+declare var console: PromptGenerationConsole
 
 /**
  * Setup prompt title and other parameters.
@@ -1241,6 +2304,19 @@ declare function script(options: PromptArgs): void
  * Equivalent of script() for system prompts.
  */
 declare function system(options: PromptSystemArgs): void
+
+/**
+ * Imports template prompt file and expands arguments in it.
+ * @param files
+ * @param arguments
+ */
+declare function importTemplate(
+    files: string | string[],
+    arguments?: Record<
+        string | number | boolean | (() => string | number | boolean)
+    >,
+    options?: ImportTemplateOptions
+): void
 
 /**
  * Append given string to the prompt. It automatically appends "\n".
@@ -1275,21 +2351,36 @@ declare function fence(body: StringLike, options?: FenceOptions): void
  */
 declare function def(
     name: string,
-    body: StringLike,
+    body: string | WorkspaceFile | WorkspaceFile[] | ShellOutput | Fenced,
     options?: DefOptions
 ): string
 
 /**
- * Declares a function that can be called from the prompt.
- * @param name The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+ * Declares a file that is expected to be generated by the LLM
+ * @param pattern file name or glob-like path
+ * @param options expectations about the generated file content
+ */
+declare function defFileOutput(
+    pattern: string,
+    description?: string,
+    options?: FileOutputOptions
+): void
+
+/**
+ * Declares a tool that can be called from the prompt.
+ * @param tool Agentic tool function.
+ * @param name The name of the tool to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
  * @param description A description of what the function does, used by the model to choose when and how to call the function.
- * @param parameters The parameters the functions accepts, described as a JSON Schema object.
+ * @param parameters The parameters the tool accepts, described as a JSON Schema object.
  * @param fn callback invoked when the LLM requests to run this function
  */
-declare function defFunction(
+declare function defTool(
+    tool: ToolCallback | AgenticToolCallback | AgenticToolProviderCallback
+): void
+declare function defTool(
     name: string,
     description: string,
-    parameters: ChatFunctionParameters,
+    parameters: PromptParametersSchema | JSONSchema,
     fn: ChatFunctionHandler
 ): void
 
@@ -1325,12 +2416,6 @@ declare var retrieval: Retrieval
 declare var workspace: WorkspaceFileSystem
 
 /**
- * Access to the workspace file system.
- * @deprecated Use `workspace` instead.
- */
-declare var fs: WorkspaceFileSystem
-
-/**
  * YAML parsing and stringifying functions.
  */
 declare var YAML: YAML
@@ -1341,9 +2426,39 @@ declare var YAML: YAML
 declare var INI: INI
 
 /**
+ * CSV parsing and stringifying.
+ */
+declare var CSV: CSV
+
+/**
+ * XML parsing and stringifying.
+ */
+declare var XML: XML
+
+/**
+ * HTML parsing
+ */
+declare var HTML: HTML
+
+/**
+ * Markdown and frontmatter parsing.
+ */
+declare var MD: MD
+
+/**
+ * JSONL parsing and stringifying.
+ */
+declare var JSONL: JSONL
+
+/**
  * AICI operations
  */
 declare var AICI: AICI
+
+/**
+ * Access to current LLM chat session information
+ */
+declare var host: PromptHost
 
 /**
  * Fetches a given URL and returns the response.
@@ -1364,14 +2479,17 @@ declare function defSchema(
     name: string,
     schema: JSONSchema,
     options?: DefSchemaOptions
-): void
+): string
 
 /**
  * Adds images to the prompt
  * @param files
  * @param options
  */
-declare function defImages(files: StringLike, options?: DefImagesOptions): void
+declare function defImages(
+    files: StringLike | Buffer | Blob,
+    options?: DefImagesOptions
+): void
 
 /**
  * Renders a table or object in the prompt
@@ -1397,12 +2515,26 @@ declare function cancel(reason?: string): void
  * @param generator
  */
 declare function runPrompt(
-    generator: string | RunPromptGenerator,
-    options?: ModelOptions
+    generator: string | PromptGenerator,
+    options?: PromptGeneratorOptions
 ): Promise<RunPromptResult>
 
 /**
  * Registers a callback to process the LLM output
  * @param fn
+ */
+declare function defOutputProcessor(fn: PromptOutputProcessorHandler): void
+
+/**
+ * Registers a chat participant
+ * @param participant
+ */
+declare function defChatParticipant(
+    participant: ChatParticipantHandler,
+    options?: ChatParticipantOptions
+): void
+
+/**
+ * @deprecated Use `defOutputProcessor` instead.
  */
 declare function defOutput(fn: PromptOutputProcessorHandler): void

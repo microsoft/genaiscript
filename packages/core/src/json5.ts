@@ -1,5 +1,5 @@
 /* eslint-disable curly */
-import { parse } from "json5"
+import { parse, stringify } from "json5"
 import { jsonrepair } from "jsonrepair"
 
 export function isJSONObjectOrArray(text: string) {
@@ -61,3 +61,5 @@ export function JSONLLMTryParse(s: string): any {
         s = s.replace(startRx, "").replace(endRx, "")
     return JSON5TryParse(s)
 }
+
+export const JSON5Stringify = stringify

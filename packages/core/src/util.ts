@@ -49,6 +49,11 @@ export function parseBoolean(s: string) {
           : undefined
 }
 
+export function deleteUndefinedValues<T extends Record<string, any>>(o: T): T {
+    for (const k in o) if (o[k] === undefined) delete o[k]
+    return o
+}
+
 export function assert(
     cond: boolean,
     msg = "Assertion failed",
