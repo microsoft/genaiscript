@@ -1,1 +1,3 @@
-node packages/cli/built/genaiscript.cjs run commit-msg $1
+if [ -s "$1" ]; then
+    node packages/cli/built/genaiscript.cjs run commit-msg "$1"
+fi
