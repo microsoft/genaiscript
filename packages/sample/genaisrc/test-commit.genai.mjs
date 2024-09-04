@@ -90,7 +90,7 @@ Select the most impacted 8 tests.
 
 Report the selected tests as a line-separated list of filenames 
 in file "packages/sample/temp/commit-tests.txt".
-Remove the .genai.js extension.
+Remove the .genai.js extension, do not include folder names.
 
     File packages/sample/temp/commit-tests.txt:
     \`\`\`text
