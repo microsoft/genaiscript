@@ -6,6 +6,7 @@ describe("promptyParse", () => {
     test("correctly parses an empty markdown string", () => {
         const result = promptyParse("")
         assert.deepStrictEqual(result, {
+            meta: {},
             frontmatter: {},
             content: "",
             messages: [],
@@ -16,6 +17,7 @@ describe("promptyParse", () => {
         const content = "This is a sample content without frontmatter."
         const result = promptyParse(content)
         assert.deepStrictEqual(result, {
+            meta: {},
             frontmatter: {},
             content: content,
             messages: [{ role: "system", content: content }],
