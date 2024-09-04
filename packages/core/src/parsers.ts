@@ -23,7 +23,7 @@ import { unzip } from "./zip"
 import { JSONLTryParse } from "./jsonl"
 import { resolveFileContent } from "./file"
 import { resolveTokenEncoder } from "./encoders"
-import { mustacheRender} from "./mustache"
+import { mustacheRender } from "./mustache"
 
 export async function createParsers(options: {
     trace: MarkdownTrace
