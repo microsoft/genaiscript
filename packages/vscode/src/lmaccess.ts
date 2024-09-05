@@ -144,9 +144,18 @@ export async function pickLanguageModel(
 
     if (res.model) return res.model
     else {
-        vscode.window.showWarningMessage(
-            `${TOOL_NAME} - model connection not configured.`
-        )
+        const configure = "Configure..."
+        vscode.window
+            .showWarningMessage(
+                `${TOOL_NAME} - model connection not configured.`,
+                configure
+            )
+            .then((res) => {
+                if (res === configure)
+                    vscode.commands.executeCommand(
+                        "genaiscript.connection.configure"
+                    )
+            })
         return undefined
     }
 }

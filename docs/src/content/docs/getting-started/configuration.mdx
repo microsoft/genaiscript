@@ -214,7 +214,7 @@ for GitHub Models, you can use the `GITHUB_MODELS_TOKEN` variable instead.
 ## Azure OpenAI <a id="azure" href=""></a>
 
 The [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions) provider, `azure` uses the `AZURE_OPENAI_...` environment variables.
-You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service. 
+You can use a managed identity (recommended) or a API key to authenticate with the Azure OpenAI service.
 You can also use a service principal as documented in [automation](/genaiscript/getting-started/automating-scripts).
 
 ### Managed Identity (Entra ID)
@@ -262,6 +262,16 @@ Navigate to **deployments** and make sure that you have your LLM deployed and co
 
 <li>
 
+Open a terminal and **login** with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli).
+
+```sh
+az login
+```
+
+</li>
+
+<li>
+
 Update the `model` field in the `script` function to match the model deployment name in your Azure resource.
 
 ```js 'model: "azure:deployment-id"'
@@ -273,29 +283,9 @@ script({
 
 </li>
 
-<li>
-
-Open a terminal and login to Azure. See Visual Studio or CLI instructions below.
-
-</li>
-
 </ol>
 
 </Steps>
-
-#### Visual Studio Code
-
-Visual Studio Code will ask you to allow using the **Microsoft** account
-and then will open a browser where you can choose the user or service principal.
-
-#### CLI
-
-Login with [Azure CLI](https://learn.microsoft.com/en-us/javascript/api/overview/azure/identity-readme?view=azure-node-latest#authenticate-via-the-azure-cli)
-then use the [cli](/genaiscript/reference/cli) as usual.
-
-```sh
-az login
-```
 
 ### API Key
 

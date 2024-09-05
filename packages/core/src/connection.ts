@@ -361,9 +361,4 @@ export async function updateConnectionConfiguration(
         if (!content.includes(DOT_ENV_FILENAME))
             await writeText(".gitignore", content + `\n${DOT_ENV_FILENAME}\n`)
     }
-
-    // update .env
-    //    const { config } = dotEnvTemplate(provider, apiType)
-    //  const current = await tryReadText(DOT_ENV_FILENAME)
-    //await writeText(DOT_ENV_FILENAME, config)
 }
