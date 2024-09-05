@@ -53,7 +53,7 @@
         "test:scripts": "cd packages/sample/ && yarn test:scripts",
         "test:scripts:view": "cd packages/sample/ && yarn test:scripts:view",
         "serve": "node packages/cli/built/genaiscript.cjs serve",
-        "docs": "cd docs && ./node_modules/.bin/astro dev --host",
+        "docs": "cd docs && ./node_modules/.bin/astro telemetry disable && ./node_modules/.bin/astro dev --host",
         "slides": "cd slides && yarn run dev",
         "build:slides": "yarn --cwd slides install --frozen-lockfile --prefer-offline && yarn --cwd slides build",
         "build:docs": "yarn --cwd docs install --frozen-lockfile --prefer-offline && yarn --cwd docs build && yarn --cwd docs build:asw",
