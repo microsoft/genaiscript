@@ -124,7 +124,7 @@
     stream-replace-string "^2.0.0"
     zod "^3.23.8"
 
-"@astrojs/starlight@^0.26.2":
+"@astrojs/starlight@^0.26.3":
   version "0.26.3"
   resolved "https://registry.yarnpkg.com/@astrojs/starlight/-/starlight-0.26.3.tgz#4604693e69395dab1ddfe4bbaf5e9f0ba6eea0dd"
   integrity sha512-U3rSNwr5cNvJVSPuSncduZ3ioKwNoMAZxYw/riuOfcJeT8DaJua3Uq+Z57vmhI1VxF19BZ1REQ0moUL6nhR8KQ==

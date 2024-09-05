@@ -3,7 +3,7 @@ import "zx/globals"
 
 const autos = [
     "astro",
-    "@astro/starlight",
+    "@astrojs/starlight",
     "@slidev/cli",
     "ini",
     "openai",
@@ -14,7 +14,7 @@ const autos = [
 ]
 const branch = `deps/${new Date().toISOString().replace(/[^0-9]/g, "-")}`
 
-await $`npx --yes ncu -u --deep ${autos.join(" ")}`
+await $`ncu -u --deep ${autos.join(" ")}`.verbose(true)
 await $`yarn install:force`
 
 const status = await $`git status --porcelain`
@@ -25,9 +25,9 @@ if (!status.stdout.trim()) {
 
 await $`yarn typecheck`
 await $`yarn compile`
-await $`git config --global user.email "action@github.com"`
-await $`git config --global user.name "genaiscript"`
 await $`git checkout -b ${branch}`
 await $`git add .`
 await $`git commit -m "upgrading dependencies" -n`
 await $`git push -u origin ${branch}`
+await $`gh pr create -f --base main --head ${branch} --title "Upgrading dependencies" --body "This PR upgrades the dependencies"`
+await $`git checkout main`
