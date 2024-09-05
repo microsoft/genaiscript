@@ -3,7 +3,7 @@ import "zx/globals"
 
 const autos = [
     "astro",
-    "@astro/starlight",
+    "@astrojs/starlight",
     "@slidev/cli",
     "ini",
     "openai",
