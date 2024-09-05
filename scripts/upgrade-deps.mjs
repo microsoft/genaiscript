@@ -29,3 +29,4 @@ await $`git checkout -b ${branch}`
 await $`git add .`
 await $`git commit -m "upgrading dependencies" -n`
 await $`git push -u origin ${branch}`
+await $`git checkout main`
