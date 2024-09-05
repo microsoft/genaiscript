@@ -10,6 +10,7 @@ import {
     MODEL_PROVIDER_OPENAI,
     MODEL_PROVIDER_CLIENT,
     MODEL_PROVIDER_GITHUB,
+    TOOL_NAME,
 } from "../../core/src/constants"
 import { APIType } from "../../core/src/host"
 import { parseModelIdentifier } from "../../core/src/models"
@@ -143,10 +144,8 @@ export async function pickLanguageModel(
 
     if (res.model) return res.model
     else {
-        await vscode.commands.executeCommand(
-            "genaiscript.connection.configure",
-            res.provider,
-            res.apiType
+        vscode.window.showWarningMessage(
+            `${TOOL_NAME} - model connection not configured.`
         )
         return undefined
     }
