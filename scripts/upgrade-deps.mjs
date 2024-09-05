@@ -29,5 +29,5 @@ await $`git checkout -b ${branch}`
 await $`git add .`
 await $`git commit -m "upgrading dependencies" -n`
 await $`git push -u origin ${branch}`
-await $`gh pr create --base main --head ${branch} --title "Upgrading dependencies" --body "This PR upgrades the dependencies"`
+await $`gh pr create -f --base main --head ${branch} --title "Upgrading dependencies" --body "This PR upgrades the dependencies"`
 await $`git checkout main`
