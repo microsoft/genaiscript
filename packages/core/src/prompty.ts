@@ -1,8 +1,12 @@
-import { ChatCompletionMessageParam } from "./chattypes"
+import {
+    ChatCompletionContentPart,
+    ChatCompletionMessageParam,
+} from "./chattypes"
 import { splitMarkdown } from "./frontmatter"
 import { YAMLTryParse } from "./yaml"
 import { deleteUndefinedValues } from "./util"
 import { JSON5Stringify } from "./json5"
+import { render } from "mustache"
 
 export interface PromptyFrontmatter {
     name?: string
@@ -139,6 +143,11 @@ export function promptyParse(text: string): PromptyDocument {
 export function promptyToGenAIScript(doc: PromptyDocument) {
     const { messages, meta } = doc
 
+    const renderJinja = (content: string) =>
+        `$\`${content.replace(/`/g, "\\`")}\`${/\{(%|\{)/.test(content) ? `.jinja(env.vars)` : ""}`
+    const renderPart = (c: ChatCompletionContentPart) =>
+        c.type === "text" ? renderJinja(c.text) : `defImages("${c.image_url}")`
+
     let src = ``
     if (Object.keys(meta).length) {
         src += `script(${JSON5Stringify(meta, null, 2)})\n\n`
@@ -147,42 +156,15 @@ export function promptyToGenAIScript(doc: PromptyDocument) {
         .map((msg) => {
             const { role, content } = msg
             if (role === "assistant") {
-                return `writeText(${JSON.stringify(formatContent(content as string))}, { assistant: true })`
+                return `writeText(parsers.jinja(${JSON.stringify(content as string)}, env.vars), { assistant: true })`
             } else {
-                return `$\`${formatContent(content as string).replace(/`/g, "\\`")}\``
+                if (typeof content === "string") return renderJinja(content)
+                else if (Array.isArray(content))
+                    return content.map(renderPart).join("\n")
+                else return renderPart(content)
             }
         })
         .join("\n")
 
     return src
-
-    function formatContent(content: string) {
-        const text = content
-            .replace(
-                /\{\{([^\}]+)\}\}/g,
-                (__, name) => "${env.vars." + name + "}"
-            )
-            .replace(
-                /\{%\s*for\s+(\w+)\s+in\s+([a-zA-Z0-9\.]+)\s*%\}((.|\n)+?){%\s+endfor\s+%\}/gi,
-                (_, item, col, temp: string) => {
-                    const varname = "env.vars." + item
-                    return (
-                        "${env.vars." +
-                        col +
-                        ".map(" +
-                        item +
-                        " => \n`" +
-                        temp
-                            .replace(/^\r?\n/, "")
-                            .replace(/\$\{([a-z0-9.]+)\}/gi, (_, v: string) =>
-                                v.startsWith(varname)
-                                    ? "${" + v.slice("env.vars.".length) + "}"
-                                    : _
-                            ) +
-                        "`).join('')}"
-                    )
-                }
-            )
-        return text
-    }
 }
