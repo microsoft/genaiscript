@@ -1150,7 +1150,11 @@ interface Parsers {
      * @param text template text
      * @param data data to render
      */
-    mustache(text: string | WorkspaceFile, data: Record<string, any>): string
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): str
+    /**
+     * Renders a jinja template
+     */
+    jinja(text: string | WorkspaceFile, data: Record<string, any>): string
 }
 
 interface AICIGenOptions {
@@ -1513,6 +1517,24 @@ interface FileOutput {
 
 interface ImportTemplateOptions {}
 
+interface PromptTemplateString {
+    /**
+     * Applies jinja template to the string lazily
+     * @param data jinja data
+     */
+    jinja(data: Record<string, any>): PromptTemplateString
+    /**
+     * Applies mustache template to the string lazily
+     * @param data mustache data
+     */
+    mustache(data: Record<string, any>): PromptTemplateString
+    /**
+     * Sets the max tokens for this string
+     * @param tokens
+     */
+    maxTokens(tokens: number): PromptTemplateString
+}
+
 interface ChatTurnGenerationContext {
     importTemplate(
         files: string | string[],
@@ -1522,7 +1544,7 @@ interface ChatTurnGenerationContext {
         options?: ImportTemplateOptions
     ): void
     writeText(body: Awaitable<string>, options?: WriteTextOptions): void
-    $(strings: TemplateStringsArray, ...args: any[]): void
+    $(strings: TemplateStringsArray, ...args: any[]): PromptTemplateString
     fence(body: StringLike, options?: FenceOptions): void
     def(
         name: string,
@@ -2331,7 +2353,10 @@ declare function writeText(
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
-declare function $(strings: TemplateStringsArray, ...args: any[]): string
+declare function $(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): PromptTemplateString
 
 /**
  * Appends given (often multi-line) string to the prompt, surrounded in fences.

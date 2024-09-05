@@ -44,7 +44,10 @@ declare function writeText(
  * Append given string to the prompt. It automatically appends "\n".
  * `` $`foo` `` is the same as `text("foo")`.
  */
-declare function $(strings: TemplateStringsArray, ...args: any[]): string
+declare function $(
+    strings: TemplateStringsArray,
+    ...args: any[]
+): PromptTemplateString
 
 /**
  * Appends given (often multi-line) string to the prompt, surrounded in fences.
