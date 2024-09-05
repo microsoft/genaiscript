@@ -12,13 +12,13 @@ const autos = [
     "yaml",
     "zx",
 ]
-const branch = `deps/${new Date().toISOString()}`
+const branch = `deps/${new Date().toISOString().replace(/[^0-9]/g, "-")}`
 
-$`git checkout -b ${branch}`
-$`npx --yes npm-check-udpates -u --deep ${autos.join(" ")}`
-$`yarn install:force`
-$`yarn typecheck`
-$`yarn compile`
-$`git add .`
-$`git commit -m "upgrading dependencies" -n`
-$`git push -u origin ${branch}`
+await $`npx --yes ncu -u --deep ${autos.join(" ")}`
+await $`yarn install:force`
+await $`yarn typecheck`
+await $`yarn compile`
+await $`git checkout -b ${branch}`
+await $`git add .`
+await $`git commit -m "upgrading dependencies" -n`
+await $`git push -u origin ${branch}`
