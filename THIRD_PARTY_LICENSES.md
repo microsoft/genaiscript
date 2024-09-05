@@ -5066,8 +5066,8 @@ IN THE SOFTWARE.
 
 The following npm packages may be included in this product:
 
- - playwright-core@1.46.1
- - playwright@1.46.1
+ - playwright-core@1.47.0
+ - playwright@1.47.0
 
 These packages each contain the following license and notice below:
 
