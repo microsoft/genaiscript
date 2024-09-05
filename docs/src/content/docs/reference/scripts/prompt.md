@@ -60,3 +60,13 @@ Today is Thu Jun 13 2024.
 
 
 
+## String templating
+
+The output of the `$` can be further processed by running popular [jinja](https://www.npmjs.com/package/@huggingface/jinja) or [mustache](https://mustache.github.io/) template engines.
+
+```js "jinja" "mustache"
+$`What is the capital of {{ country }}?`.jinja(env.vars)
+$`What is the capital of {{ country }}?`.mustache(env.vars)
+```
+
+

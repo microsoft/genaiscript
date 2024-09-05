@@ -64,9 +64,9 @@ script({
 
 $`You are an AI assistant who helps people find information.
 As the assistant, you answer questions briefly, succinctly.`
-$`${env.vars.question}
+$`{{question}}
 
-${env.vars.hint}`
+{{hint}}`.jinja(env.vars)
 ```
 
 ## Supported features
@@ -75,8 +75,7 @@ ${env.vars.hint}`
 -   `inputs` converted to `parameters`
 -   `sample` value populates the parameters `default` section
 -   `outputs` converted to `responseSchema`
--   `{{var}}` expanded into `${env.vars.var}`
--   `{% for item of col %} ... {% endof %}` expanded into `col.map(item => ...)`
+-   [Jinja](https://www.npmjs.com/package/@huggingface/jinja) template engine
 -   model configuration uses GenAIScript `.env` file (see [configuration](/genaiscript/getting-started/configuration)).
 
 -   images are not yet supported
