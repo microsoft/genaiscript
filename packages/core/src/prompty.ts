@@ -6,7 +6,6 @@ import { splitMarkdown } from "./frontmatter"
 import { YAMLTryParse } from "./yaml"
 import { deleteUndefinedValues } from "./util"
 import { JSON5Stringify } from "./json5"
-import { render } from "mustache"
 
 export interface PromptyFrontmatter {
     name?: string
