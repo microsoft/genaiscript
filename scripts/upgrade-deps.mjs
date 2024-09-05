@@ -25,6 +25,8 @@ if (!status.stdout.trim()) {
 
 await $`yarn typecheck`
 await $`yarn compile`
+await $`git config --global user.email "action@github.com"`
+await $`git config --global user.name "GitHub Action"`
 await $`git checkout -b ${branch}`
 await $`git add .`
 await $`git commit -m "upgrading dependencies" -n`
