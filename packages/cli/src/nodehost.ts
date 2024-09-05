@@ -37,15 +37,13 @@ import {
     RuntimeHost,
     setRuntimeHost,
     ResponseStatus,
+    LanguageModelAuthenticationToken,
+    isLanguageModelAuthenticationTokenExpired,
 } from "../../core/src/host"
 import { AbortSignalOptions, TraceOptions } from "../../core/src/trace"
 import { logVerbose, unique } from "../../core/src/util"
 import { parseModelIdentifier } from "../../core/src/models"
-import {
-    AuthenticationToken,
-    createAzureToken,
-    isAzureTokenExpired,
-} from "./azuretoken"
+import { createAzureToken } from "./azuretoken"
 import { LanguageModel } from "../../core/src/chat"
 import { errorMessage } from "../../core/src/error"
 import { BrowserManager } from "./playwright"
@@ -151,7 +149,14 @@ export class NodeHost implements RuntimeHost {
     }
     clientLanguageModel: LanguageModel
 
-    private _azureToken: AuthenticationToken
+    setLanguageModelConnectionToken(token: LanguageModelAuthenticationToken) {
+        this._languageModelAuthenticationTokens[token.provider] = token
+    }
+
+    private readonly _languageModelAuthenticationTokens: Record<
+        string,
+        LanguageModelAuthenticationToken
+    > = {}
     async getLanguageModelConfiguration(
         modelId: string,
         options?: { token?: boolean } & AbortSignalOptions & TraceOptions
@@ -160,20 +165,25 @@ export class NodeHost implements RuntimeHost {
         await this.parseDefaults()
         const tok = await parseTokenFromEnv(process.env, modelId)
         if (!askToken && tok?.token) tok.token = "***"
+        console.log({ askToken, tok })
         if (
             askToken &&
             tok &&
             !tok.token &&
             tok.provider === MODEL_PROVIDER_AZURE
         ) {
-            if (isAzureTokenExpired(this._azureToken)) {
+            let aztok =
+                this._languageModelAuthenticationTokens[MODEL_PROVIDER_AZURE]
+            if (isLanguageModelAuthenticationTokenExpired(aztok)) {
                 logVerbose(
-                    `fetching azure token (${this._azureToken?.expiresOnTimestamp >= Date.now() ? `expired ${new Date(this._azureToken.expiresOnTimestamp).toLocaleString()}` : "not available"})`
+                    `fetching azure token (${aztok?.expiresOnTimestamp >= Date.now() ? `expired ${new Date(aztok.expiresOnTimestamp).toLocaleString()}` : "not available"})`
                 )
-                this._azureToken = await createAzureToken(signal)
+                aztok = this._languageModelAuthenticationTokens[
+                    MODEL_PROVIDER_AZURE
+                ] = await createAzureToken(signal)
             }
-            if (!this._azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + this._azureToken.token
+            if (!aztok) throw new Error("Azure token not available")
+            tok.token = aztok.token
         }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{

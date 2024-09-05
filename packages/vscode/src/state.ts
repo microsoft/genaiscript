@@ -20,9 +20,13 @@ import {
     AI_REQUESTS_CACHE,
     TOOL_ID,
     GENAI_ANYJS_GLOB,
+    MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
 import { isCancelError } from "../../core/src/error"
-import { resolveModelConnectionInfo } from "../../core/src/models"
+import {
+    parseModelIdentifier,
+    resolveModelConnectionInfo,
+} from "../../core/src/models"
 import { parseProject } from "../../core/src/parser"
 import { MarkdownTrace } from "../../core/src/trace"
 import {
@@ -321,7 +325,16 @@ tests/
         }
         if (connectionToken?.type === "localai") await startLocalAI()
 
-        // todo: send js source
+        const modelToken =
+            connectionToken.provider === MODEL_PROVIDER_CLIENT &&
+            connectionToken.token
+                ? {
+                      provider: parseModelIdentifier(connectionToken.model)
+                          .provider,
+                      token: connectionToken.token,
+                      expiresOnTimestamp: connectionToken.expiresOnTimestamp,
+                  }
+                : undefined
         const { runId, request } = await this.host.server.client.startScript(
             template.id,
             files,
@@ -334,6 +347,7 @@ tests/
                 label,
                 cache: cache ? template.cache : undefined,
                 vars: parametersToVars(options.parameters),
+                modelToken,
             }
         )
         r.runId = runId

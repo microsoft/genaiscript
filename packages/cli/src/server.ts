@@ -226,7 +226,13 @@ export async function startServer(options: { port: string }) {
                     case "script.start": {
                         cancelAll()
 
-                        const { script, files = [], options = {}, runId } = data
+                        const {
+                            script,
+                            files = [],
+                            options = {},
+                            runId,
+                            modelToken,
+                        } = data
                         const canceller =
                             new AbortSignalCancellationController()
                         const trace = new MarkdownTrace()
@@ -252,6 +258,7 @@ export async function startServer(options: { port: string }) {
                         logVerbose(`run ${runId}: starting`)
                         const runner = runScript(script, files, {
                             ...options,
+                            modelToken,
                             trace,
                             cancellationToken: canceller.token,
                             infoCb: ({ text }) => {

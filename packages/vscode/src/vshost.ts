@@ -210,7 +210,7 @@ export class VSCodeHost extends EventTarget implements Host {
         ) {
             const azureToken = await this.azure.getOpenAIToken()
             if (!azureToken) throw new Error("Azure token not available")
-            tok.token = "Bearer " + azureToken
+            tok.token = azureToken
             tok.curlHeaders = {
                 Authorization: "Bearer ***",
             }

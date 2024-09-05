@@ -17,7 +17,7 @@ export class AzureManager {
     }
 
     async getOpenAIToken() {
-        if (this._session) return this._session.accessToken
+        if (this._session) return "Bearer " + this._session.accessToken
 
         // select account
         const accounts = await vscode.authentication.getAccounts("microsoft")
@@ -53,7 +53,7 @@ export class AzureManager {
                 }
             )
             this._session = session
-            return this._session.accessToken
+            return "Bearer " + this._session.accessToken
         } catch {}
 
         try {
@@ -68,7 +68,7 @@ export class AzureManager {
                 }
             )
             this._session = session
-            return this._session.accessToken
+            return "Bearer " + this._session.accessToken
         } catch (e) {
             const msg = errorMessage(e)
             vscode.window.showErrorMessage(msg)

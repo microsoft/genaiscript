@@ -8,6 +8,7 @@ import {
     UTF8Encoder,
     setRuntimeHost,
     RuntimeHost,
+    LanguageModelAuthenticationToken,
 } from "./host"
 import { TraceOptions } from "./trace"
 import {
@@ -80,6 +81,9 @@ export class TestHost implements RuntimeHost {
     browse(url: string, options?: BrowseSessionOptions): Promise<BrowserPage> {
         throw new Error("Method not implemented.")
     }
+    setLanguageModelConnectionToken(
+        token: LanguageModelAuthenticationToken
+    ): void {}
     getLanguageModelConfiguration(
         modelId: string
     ): Promise<LanguageModelConfiguration> {

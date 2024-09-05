@@ -1,6 +1,10 @@
 import { ChatCompletionAssistantMessageParam } from "../chattypes"
 import { GenerationResult } from "../generation"
-import { LanguageModelConfiguration, ResponseStatus } from "../host"
+import {
+    LanguageModelAuthenticationToken,
+    LanguageModelConfiguration,
+    ResponseStatus,
+} from "../host"
 
 export interface RequestMessage {
     type: string
@@ -85,6 +89,7 @@ export interface PromptScriptStart extends RequestMessage {
     script: string
     files?: string[]
     options: Partial<PromptScriptRunOptions>
+    modelToken?: LanguageModelAuthenticationToken
 }
 
 export interface PromptScriptStartResponse extends ResponseStatus {

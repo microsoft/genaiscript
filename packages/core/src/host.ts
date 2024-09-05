@@ -3,6 +3,7 @@ import { CancellationToken } from "./cancellation"
 import { LanguageModel } from "./chat"
 import { Progress } from "./progress"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
+import { LANGUAGE_MODEL_TOKEN_EXPIRATION_OFFSET } from "./constants"
 
 // this is typically an instance of TextDecoder
 export interface UTF8Decoder {
@@ -27,16 +28,31 @@ export enum LogLevel {
 
 export type APIType = "openai" | "azure" | "localai"
 
-export interface LanguageModelConfiguration {
+export interface LanguageModelAuthenticationToken {
     provider: string
+    token: string
+    expiresOnTimestamp?: number
+}
+
+export interface LanguageModelConfiguration
+    extends LanguageModelAuthenticationToken {
     model: string
     base: string
-    token: string
     curlHeaders?: Record<string, string>
     type?: APIType
     source?: string
     aici?: boolean
     version?: string
+}
+
+export function isLanguageModelAuthenticationTokenExpired(
+    token: LanguageModelAuthenticationToken
+) {
+    return (
+        token?.expiresOnTimestamp > 0 &&
+        token?.expiresOnTimestamp <
+            Date.now() - LANGUAGE_MODEL_TOKEN_EXPIRATION_OFFSET
+    ) // avoid data races
 }
 
 export interface RetrievalClientOptions {
@@ -128,6 +144,9 @@ export interface RuntimeHost extends Host {
     models: ModelService
     workspace: Omit<WorkspaceFileSystem, "grep">
 
+    setLanguageModelConnectionToken(
+        token: LanguageModelAuthenticationToken
+    ): void
     readSecret(name: string): Promise<string | undefined>
     // executes a process
     exec(

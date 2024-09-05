@@ -35,7 +35,11 @@ import { isCancelError, errorMessage } from "../../core/src/error"
 import { Fragment, GenerationResult } from "../../core/src/generation"
 import { parseKeyValuePair } from "../../core/src/fence"
 import { filePathOrUrlToWorkspaceFile, writeText } from "../../core/src/fs"
-import { host, runtimeHost } from "../../core/src/host"
+import {
+    host,
+    LanguageModelAuthenticationToken,
+    runtimeHost,
+} from "../../core/src/host"
 import { isJSONLFilename, appendJSONL } from "../../core/src/jsonl"
 import { resolveModelConnectionInfo } from "../../core/src/models"
 import {
@@ -121,11 +125,17 @@ export async function runScript(
     options: Partial<PromptScriptRunOptions> &
         TraceOptions &
         CancellationOptions & {
+            modelToken?: LanguageModelAuthenticationToken
             infoCb?: (partialResponse: { text: string }) => void
             partialCb?: (progress: ChatCompletionsProgressReport) => void
         }
 ): Promise<{ exitCode: number; result?: GenerationResult }> {
-    const { trace = new MarkdownTrace(), infoCb, partialCb } = options || {}
+    const {
+        trace = new MarkdownTrace(),
+        infoCb,
+        partialCb,
+        modelToken,
+    } = options || {}
     let result: GenerationResult
     const excludedFiles = options.excludedFiles
     const excludeGitIgnore = !!options.excludeGitIgnore
@@ -162,6 +172,8 @@ export async function runScript(
         logError(url ? `${msg} (see ${url})` : msg)
         return { exitCode, result }
     }
+
+    if (modelToken) runtimeHost.setLanguageModelConnectionToken(modelToken)
 
     if (out) {
         if (removeOut) await emptyDir(out)

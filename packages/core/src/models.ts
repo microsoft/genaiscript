@@ -4,7 +4,11 @@ import {
     MODEL_PROVIDER_OPENAI,
 } from "./constants"
 import { errorMessage } from "./error"
-import { LanguageModelConfiguration, host } from "./host"
+import {
+    LanguageModelAuthenticationToken,
+    LanguageModelConfiguration,
+    host,
+} from "./host"
 import { AbortSignalOptions, MarkdownTrace, TraceOptions } from "./trace"
 import { assert } from "./util"
 

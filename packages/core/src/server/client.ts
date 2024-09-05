@@ -4,6 +4,7 @@ import { randomHex } from "../crypto"
 import { errorMessage } from "../error"
 import { GenerationResult } from "../generation"
 import {
+    LanguageModelAuthenticationToken,
     LanguageModelConfiguration,
     ResponseStatus,
     ServerResponse,
@@ -267,12 +268,14 @@ export class WebSocketClient extends EventTarget {
             jsSource?: string
             signal: AbortSignal
             trace: MarkdownTrace
+            modelToken?: LanguageModelAuthenticationToken
             infoCb: (partialResponse: { text: string }) => void
             partialCb: (progress: ChatCompletionsProgressReport) => void
         }
     ) {
         const runId = randomHex(6)
-        const { signal, infoCb, partialCb, trace, ...optionsRest } = options
+        const { signal, infoCb, partialCb, trace, modelToken, ...optionsRest } =
+            options
         let resolve: (value: GenerationResult) => void
         let reject: (reason?: any) => void
         const promise = new Promise<GenerationResult>((res, rej) => {
@@ -299,6 +302,7 @@ export class WebSocketClient extends EventTarget {
             runId,
             script,
             files,
+            modelToken,
             options: optionsRest,
         })
         if (!res.response?.ok) {
