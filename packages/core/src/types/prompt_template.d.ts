@@ -1713,6 +1713,21 @@ interface BrowserOptions {
      *
      */
     browser?: "chromium" | "firefox" | "webkit"
+
+    /**
+     * If specified, accepted downloads are downloaded into this directory. Otherwise, temporary directory is created and is deleted when browser is closed. In either case, the downloads are deleted when the browser context they were created in is closed.
+     */
+    downloadsPath?: string
+
+    /**
+     * Whether to run browser in headless mode. More details for Chromium and Firefox. Defaults to true unless the devtools option is true.
+     */
+    headless?: boolean
+
+    /**
+     * Specify environment variables that will be visible to the browser. Defaults to process.env.
+     */
+    env?: Record<string, string>
 }
 
 interface BrowseSessionOptions extends BrowserOptions, TimeoutOptions {
