@@ -64,9 +64,11 @@ Today is Thu Jun 13 2024.
 
 The output of the `$` can be further processed by running popular [jinja](https://www.npmjs.com/package/@huggingface/jinja) or [mustache](https://mustache.github.io/) template engines.
 
-```js "jinja" "mustache"
+```js "jinja"
 $`What is the capital of {{ country }}?`.jinja(env.vars)
-$`What is the capital of {{ country }}?`.mustache(env.vars)
 ```
 
+```js "mustache"
+$`What is the capital of {{ country }}?`.mustache(env.vars)
+```
 
