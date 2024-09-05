@@ -3662,6 +3662,11 @@ normalize-url@^8.0.1:
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-8.0.1.tgz#9b7d96af9836577c58f5883e939365fa15623a4a"
   integrity sha512-IO9QvjUMWxPQQhs60oOu10CRkWCiZzSUkzbXGGV9pviYl1fXYcvkzQ5jV9z8Y6un8ARoVRl4EtC6v6jNqbaJ/w==
 
+npm-check-updates@^17.1.1:
+  version "17.1.1"
+  resolved "https://registry.yarnpkg.com/npm-check-updates/-/npm-check-updates-17.1.1.tgz#9e0739af7c5240eb6c94404a22269acb79a5e23e"
+  integrity sha512-2aqIzGAEWB7xPf0hKHTkNmUM5jHbn2S5r2/z/7dA5Ij2h/sVYAg9R/uVkaUC3VORPAfBm7pKkCWo6E9clEVQ9A==
+
 npm-run-path@^5.2.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/npm-run-path/-/npm-run-path-5.3.0.tgz#e23353d0ebb9317f174e93417e4a4d82d0249e9f"
@@ -5341,6 +5346,7 @@ xdg-basedir@^5.1.0:
 
 "xlsx@https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz":
   version "0.20.2"
+  uid "0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
   resolved "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz#0f64eeed3f1a46e64724620c3553f2dbd3cd2d7d"
 
 xml2js@^0.4.23:
