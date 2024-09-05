@@ -1460,12 +1460,12 @@ interface ImportTemplateOptions {}
 
 interface PromptTemplateString {
     /**
-     * Applies jinja template to the string
+     * Applies jinja template to the string lazily
      * @param data jinja data
      */
     jinja(data: Record<string, any>): PromptTemplateString
     /**
-     * Applies mustache template to the string
+     * Applies mustache template to the string lazily
      * @param data mustache data
      */
     mustache(data: Record<string, any>): PromptTemplateString
