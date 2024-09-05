@@ -19,6 +19,29 @@ export class AzureManager {
     async getOpenAIToken() {
         if (this._session) return this._session.accessToken
 
+        // select account
+        const accounts = await vscode.authentication.getAccounts("microsoft")
+        let account: vscode.AuthenticationSessionAccountInformation
+        if (accounts?.length === 1) account = accounts[0]
+        else if (accounts?.length > 1) {
+            let res = await vscode.window.showQuickPick(
+                accounts.map(
+                    (a) =>
+                        <
+                            vscode.QuickPickItem & {
+                                account: vscode.AuthenticationSessionAccountInformation
+                            }
+                        >{
+                            label: a.label,
+                            account,
+                        },
+                    "Select account"
+                )
+            )
+            if (res === undefined) return undefined
+            account = res.account
+        }
+
         try {
             const session = await vscode.authentication.getSession(
                 "microsoft",
@@ -26,6 +49,7 @@ export class AzureManager {
                 {
                     createIfNone: false,
                     silent: true,
+                    account,
                 }
             )
             this._session = session
@@ -40,6 +64,7 @@ export class AzureManager {
                 {
                     forceNewSession: true,
                     clearSessionPreference: true,
+                    account,
                 }
             )
             this._session = session
