@@ -14,9 +14,11 @@ const autos = [
 ]
 const branch = `deps/${new Date().toISOString()}`
 
+$`git checkout -b ${branch}`
 $`npx --yes npm-check-udpates -u --deep ${autos.join(" ")}`
 $`yarn install:force`
-$`git checkout -b ${branch}`
+$`yarn typecheck`
+$`yarn compile`
 $`git add .`
 $`git commit -m "upgrading dependencies" -n`
 $`git push -u origin ${branch}`
