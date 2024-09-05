@@ -68,7 +68,7 @@ export interface PromptStringTemplateNode extends PromptNode {
     type: "stringTemplate"
     strings: TemplateStringsArray
     args: any[]
-    transforms: ((s: string) => string)[]
+    transforms: ((s: string) => Awaitable<string>)[]
     resolved?: string
 }
 
@@ -493,7 +493,7 @@ async function resolvePromptNode(
                 // apply transforms
                 if (n.transforms?.length)
                     for (const transform of n.transforms)
-                        value = transform(value)
+                        value = await transform(value)
                 n.resolved = n.preview = value
                 n.tokens = estimateTokens(value, encoder)
             } catch (e) {
