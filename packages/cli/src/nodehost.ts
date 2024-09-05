@@ -175,6 +175,11 @@ export class NodeHost implements RuntimeHost {
             if (!this._azureToken) throw new Error("Azure token not available")
             tok.token = "Bearer " + this._azureToken.token
         }
+        if (!tok) {
+            const { provider } = parseModelIdentifier(modelId)
+            if (provider === MODEL_PROVIDER_AZURE)
+                throw new Error("Azure end point not configured")
+        }
         if (!tok && this.clientLanguageModel) {
             return <LanguageModelConfiguration>{
                 model: modelId,
