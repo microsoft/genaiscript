@@ -1091,7 +1091,11 @@ interface Parsers {
      * @param text template text
      * @param data data to render
      */
-    mustache(text: string | WorkspaceFile, data: Record<string, any>): string
+    mustache(text: string | WorkspaceFile, data: Record<string, any>): str
+    /**
+     * Renders a jinja template
+     */
+    jinja(text: string | WorkspaceFile, data: Record<string, any>): string
 }
 
 interface AICIGenOptions {
