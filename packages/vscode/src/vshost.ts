@@ -17,6 +17,7 @@ import {
     DEFAULT_TEMPERATURE,
     DOT_ENV_FILENAME,
     MODEL_PROVIDER_AZURE,
+    MODEL_PROVIDER_CLIENT,
 } from "../../core/src/constants"
 import { dotEnvTryParse } from "../../core/src/dotenv"
 import {
@@ -28,6 +29,7 @@ import {
 import { TraceOptions, AbortSignalOptions } from "../../core/src/trace"
 import { arrayify, logVerbose, unique } from "../../core/src/util"
 import { LanguageModel } from "../../core/src/chat"
+import { parseModelIdentifier } from "../../core/src/models"
 
 export class VSCodeHost extends EventTarget implements Host {
     dotEnvPath: string = DOT_ENV_FILENAME
@@ -203,7 +205,8 @@ export class VSCodeHost extends EventTarget implements Host {
             askToken &&
             tok &&
             !tok.token &&
-            tok.provider === MODEL_PROVIDER_AZURE
+            tok.provider === MODEL_PROVIDER_CLIENT &&
+            parseModelIdentifier(modelId).provider === MODEL_PROVIDER_AZURE
         ) {
             const azureToken = await this.azure.getOpenAIToken()
             if (!azureToken) throw new Error("Azure token not available")

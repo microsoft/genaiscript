@@ -189,7 +189,7 @@ function messagesToChatMessages(messages: ChatCompletionMessageParam[]) {
             case "tool":
                 throw new Error("tools not supported with copilot models")
             default:
-                throw new Error("uknown role")
+                throw new Error("unknown role")
         }
     })
     return res
