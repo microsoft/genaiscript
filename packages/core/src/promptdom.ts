@@ -68,6 +68,7 @@ export interface PromptStringTemplateNode extends PromptNode {
     type: "stringTemplate"
     strings: TemplateStringsArray
     args: any[]
+    transforms: ((s: string) => string)[]
     resolved?: string
 }
 
@@ -210,7 +211,13 @@ export function createStringTemplateNode(
     options?: ContextExpansionOptions
 ): PromptStringTemplateNode {
     assert(strings !== undefined)
-    return { type: "stringTemplate", strings, args, ...(options || {}) }
+    return {
+        type: "stringTemplate",
+        strings,
+        args,
+        transforms: [],
+        ...(options || {}),
+    }
 }
 
 export function createImageNode(
@@ -481,7 +488,12 @@ async function resolvePromptNode(
                         })
                     resolvedArgs.push(resolvedArg ?? "")
                 }
-                const value = dedent(strings, ...resolvedArgs)
+                let value = dedent(strings, ...resolvedArgs)
+
+                // apply transforms
+                if (n.transforms?.length)
+                    for (const transform of n.transforms)
+                        value = transform(value)
                 n.resolved = n.preview = value
                 n.tokens = estimateTokens(value, encoder)
             } catch (e) {

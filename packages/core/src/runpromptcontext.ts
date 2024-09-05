@@ -22,6 +22,8 @@ import { isGlobMatch } from "./glob"
 import { logVerbose } from "./util"
 import { renderShellOutput } from "./chatrender"
 import { fileTypeFromBuffer } from "file-type"
+import { jinjaRender } from "./jinja"
+import { mustacheRender } from "./mustache"
 
 export function createChatTurnGenerationContext(
     options: GenerationOptions,
@@ -57,7 +59,25 @@ export function createChatTurnGenerationContext(
             }
         },
         $(strings, ...args) {
-            appendChild(node, createStringTemplateNode(strings, args))
+            const current = createStringTemplateNode(strings, args)
+            appendChild(node, current)
+            const res: PromptTemplateString = Object.freeze(<
+                PromptTemplateString
+            >{
+                jinja: (data) => {
+                    current.transforms.push((t) => jinjaRender(t, data))
+                    return res
+                },
+                mustache: (data) => {
+                    current.transforms.push((t) => mustacheRender(t, data))
+                    return res
+                },
+                maxTokens: (tokens) => {
+                    current.maxTokens = tokens
+                    return res
+                },
+            })
+            return res
         },
         def(name, body, defOptions) {
             name = name ?? ""
