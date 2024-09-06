@@ -697,11 +697,32 @@ interface FenceOptions {
 }
 
 interface ContextExpansionOptions {
-    priority?: number
     /**
      * Specifies an maximum of estimated tokesn for this entry; after which it will be truncated.
      */
     maxTokens?: number
+    /*
+     * Value that is conceptually similar to a zIndex (higher number == higher priority).
+     * If a rendered prompt has more message tokens than can fit into the available context window, the prompt renderer prunes messages with the lowest priority from the ChatMessages result, preserving the order in which they were declared. This means your extension code can safely declare TSX components for potentially large pieces of context like conversation history and codebase context.
+     */
+    priority?: number
+    /**
+     * Allows an element to use the remainder of its parent's token budget when it's rendered.
+     */
+    flexGrow?: number
+    /**
+     * Controls the proportion of tokens allocated from the container's budget to this element.
+     * It defaults to 1 on all elements.
+     * For example, if you have the elements <><Foo /><Bar /></> and a 100 token budget, each element would be allocated 50 tokens in its PromptSizing.tokenBudget. If you instead render <><Foo /><Bar flexBasis={2} /></>, Bar would receive 66 tokens and Foo would receive 33.
+     */
+    flexBasis?: number
+    /**
+     * Controls the number of tokens reserved from the container's budget before this element gets rendered.
+     * For example, if you have a 100 token budget and the elements <><Foo /><Bar flexGrow={1} flexBasis={30}></>,
+     * then Foo would receive a PromptSizing.tokenBudget of 70, and Bar would receive however many tokens of the 100 that Foo didn't use.
+     * This is only useful in conjunction with flexGrow.
+     */
+    flexReserve?: number
 }
 
 interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
@@ -1459,6 +1480,21 @@ interface FileOutput {
 interface ImportTemplateOptions {}
 
 interface PromptTemplateString {
+    /**
+     * Set a priority similar to CSS z-index
+     * to control the trimming of the prompt when the context is full
+     * @param priority
+     */
+    priority(value: number): PromptTemplateString
+    /**
+     * Sets the context layout flex weight
+     * @param weight
+     */
+    flex(options: {
+        grow?: number
+        reserve?: number
+        basis?: number
+    }): PromptTemplateString
     /**
      * Applies jinja template to the string lazily
      * @param data jinja data
