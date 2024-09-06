@@ -86,9 +86,19 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
     if (modelParameters?.n > 1) throw new Error("multi-turn not supported")
     if (modelParameters?.tools?.length)
         throw new Error("streaming not supported")
-    if (configuration?.azure_deployment)
+
+    // resolve model
+    if (
+        configuration?.type === "azure_openai" ||
+        configuration?.type === "azure"
+    ) {
+        if (!configuration.azure_deployment)
+            throw new Error("azure_deployment required")
         modelName = `azure:${configuration.azure_deployment}`
-    else if (configuration?.type) modelName = `openai:${configuration.type}`
+    } else if (configuration?.type === "azure_serverless") {
+        throw new Error("azure_serverless not supported")
+    } else if (configuration?.type === "openai")
+        modelName = `openai:${configuration.type}`
 
     const meta = deleteUndefinedValues(<PromptArgs>{
         model: modelName,
