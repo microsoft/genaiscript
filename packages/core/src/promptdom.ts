@@ -6,7 +6,11 @@ import { estimateTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
-import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
+import {
+    MARKDOWN_PROMPT_FENCE,
+    MAX_TOKENS_ELLIPSE,
+    PROMPT_FENCE,
+} from "./constants"
 import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
 import { errorMessage } from "./error"
@@ -550,6 +554,7 @@ async function truncatePromptNode(
         resolved?: string
         tokens?: number
         maxTokens?: number
+        preview?: string
     }) => {
         if (
             !n.error &&
@@ -557,11 +562,9 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            const value = n.resolved.slice(
-                0,
-                Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
-            )
-            n.resolved = value
+            const end = Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
+            const value = n.resolved.slice(0, end) + MAX_TOKENS_ELLIPSE
+            n.resolved = n.preview = value
             n.tokens = estimateTokens(value, encoder)
             truncated = true
         }
@@ -574,11 +577,13 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved.content = n.resolved.content.slice(
-                0,
-                Math.floor((n.maxTokens * n.resolved.content.length) / n.tokens)
+            const end = Math.floor(
+                (n.maxTokens * n.resolved.content.length) / n.tokens
             )
+            n.resolved.content =
+                n.resolved.content.slice(0, end) + MAX_TOKENS_ELLIPSE
             n.tokens = estimateTokens(n.resolved.content, encoder)
+            n.preview = n.resolved.content
             truncated = true
         }
     }
