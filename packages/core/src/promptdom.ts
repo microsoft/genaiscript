@@ -422,7 +422,7 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
 }
 
 export interface PromptNodeRender {
-    prompt: string
+    userPrompt: string
     assistantPrompt: string
     images: PromptImage[]
     errors: unknown[]
@@ -567,6 +567,7 @@ async function truncatePromptNode(
             n.resolved = n.preview = value
             n.tokens = estimateTokens(value, encoder)
             truncated = true
+            trace.log(`truncated text to ${n.tokens} tokens`)
         }
     }
 
@@ -585,6 +586,7 @@ async function truncatePromptNode(
             n.tokens = estimateTokens(n.resolved.content, encoder)
             n.preview = n.resolved.content
             truncated = true
+            trace.log(`truncated def ${n.name} to ${n.tokens} tokens`)
         }
     }
 
@@ -596,6 +598,20 @@ async function truncatePromptNode(
     })
 
     return truncated
+}
+
+async function flexPromptNode(
+    model: string,
+    node: PromptNode,
+    options?: TraceOptions
+): Promise<boolean> {
+    const FLEX_BASIS_DEFAULT = 1
+    const FLEX_GROW_DEFAULT = Infinity
+    const { trace } = options || {}
+    const encoder = await resolveTokenEncoder(model)
+    let flexed = false
+
+    return flexed
 }
 
 async function tracePromptNode(
@@ -645,7 +661,11 @@ export async function renderPromptNode(
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
-    let prompt = ""
+    const flexed = await flexPromptNode(model, node, options)
+    if (flexed) await tracePromptNode(trace, node, { label: "flexed" })
+
+    let systemPrompt = ""
+    let userPrompt = ""
     let assistantPrompt = ""
     const images: PromptImage[] = []
     const errors: unknown[] = []
@@ -660,12 +680,12 @@ export async function renderPromptNode(
         text: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) prompt += value + "\n"
+            if (value != undefined) userPrompt += value + "\n"
         },
         def: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value !== undefined) prompt += renderDefNode(n) + "\n"
+            if (value !== undefined) userPrompt += renderDefNode(n) + "\n"
         },
         assistant: async (n) => {
             if (n.error) errors.push(n.error)
@@ -675,7 +695,7 @@ export async function renderPromptNode(
         stringTemplate: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) prompt += value + "\n"
+            if (value != undefined) userPrompt += value + "\n"
         },
         image: async (n) => {
             if (n.error) errors.push(n.error)
@@ -696,8 +716,8 @@ export async function renderPromptNode(
             const value = n.resolved
             if (value) {
                 for (const [filename, content] of Object.entries(value)) {
-                    prompt += content
-                    prompt += "\n"
+                    userPrompt += content
+                    userPrompt += "\n"
                     if (trace)
                         trace.detailsFenced(
                             `📦 import template ${filename}`,
@@ -732,7 +752,7 @@ export async function renderPromptNode(
 ${trimNewlines(schemaText)}
 \`\`\`
 `
-            prompt += text
+            userPrompt += text
             n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
                 trace.detailsFenced(
@@ -776,7 +796,7 @@ ${trimNewlines(schemaText)}
 
     const fods = fileOutputs?.filter((f) => !!f.description)
     if (fods?.length > 0) {
-        prompt += `
+        userPrompt += `
 ## File generation rules
 
 When generating files, use the following rules which are formatted as "file glob: description":
@@ -787,15 +807,15 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
     }
 
     const messages: ChatCompletionMessageParam[] = [
-        toChatCompletionUserMessage(prompt, images),
+        toChatCompletionUserMessage(userPrompt, images),
     ]
     if (assistantPrompt)
         messages.push(<ChatCompletionAssistantMessageParam>{
             role: "assistant",
             content: assistantPrompt,
         })
-    const res = {
-        prompt,
+    const res = <PromptNodeRender>{
+        userPrompt,
         assistantPrompt,
         images,
         schemas,

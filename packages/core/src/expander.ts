@@ -73,7 +73,7 @@ export async function callExpander(
         const node = ctx.node
         if (provider !== MODEL_PROVIDER_AICI) {
             const {
-                prompt,
+                userPrompt,
                 assistantPrompt,
                 images: imgs,
                 errors,
@@ -84,7 +84,7 @@ export async function callExpander(
                 chatParticipants: cps,
                 fileOutputs: fos,
             } = await renderPromptNode(model, node, { trace })
-            text = prompt
+            text = userPrompt
             assistantText = assistantPrompt
             images = imgs
             schemas = schs
