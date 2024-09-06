@@ -69,10 +69,8 @@ export function createChatTurnGenerationContext(
                     return res
                 },
                 flex: (options) => {
-                    const { grow, basis, reserve } = options
-                    if (grow !== undefined) current.flexGrow = grow
+                    const { basis } = options
                     if (basis !== undefined) current.flexBasis = basis
-                    if (reserve !== undefined) current.flexReserve = reserve
                     return res
                 },
                 jinja: (data) => {

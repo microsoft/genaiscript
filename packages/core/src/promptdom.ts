@@ -540,6 +540,16 @@ async function resolvePromptNode(
     return { errors: err }
 }
 
+function truncateText(
+    content: string,
+    maxTokens: number,
+    encoder: TokenEncoder
+): string {
+    const tokens = estimateTokens(content, encoder)
+    const end = Math.floor((maxTokens * content.length) / tokens)
+    return content.slice(0, end) + MAX_TOKENS_ELLIPSE
+}
+
 async function truncatePromptNode(
     model: string,
     node: PromptNode,
@@ -562,10 +572,12 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            const end = Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
-            const value = n.resolved.slice(0, end) + MAX_TOKENS_ELLIPSE
-            n.resolved = n.preview = value
-            n.tokens = estimateTokens(value, encoder)
+            n.resolved = n.preview = truncateText(
+                n.resolved,
+                n.maxTokens,
+                encoder
+            )
+            n.tokens = estimateTokens(n.resolved, encoder)
             truncated = true
             trace.log(`truncated text to ${n.tokens} tokens`)
         }
@@ -578,13 +590,12 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            const end = Math.floor(
-                (n.maxTokens * n.resolved.content.length) / n.tokens
+            n.resolved.content = n.preview = truncateText(
+                n.resolved.content,
+                n.maxTokens,
+                encoder
             )
-            n.resolved.content =
-                n.resolved.content.slice(0, end) + MAX_TOKENS_ELLIPSE
             n.tokens = estimateTokens(n.resolved.content, encoder)
-            n.preview = n.resolved.content
             truncated = true
             trace.log(`truncated def ${n.name} to ${n.tokens} tokens`)
         }
@@ -602,16 +613,49 @@ async function truncatePromptNode(
 
 async function flexPromptNode(
     model: string,
-    node: PromptNode,
-    options?: TraceOptions
-): Promise<boolean> {
+    root: PromptNode,
+    options?: { maxTokens: number } & TraceOptions
+): Promise<void> {
+    const PRIORITY_DEFAULT = 0
     const FLEX_BASIS_DEFAULT = 1
-    const FLEX_GROW_DEFAULT = Infinity
-    const { trace } = options || {}
-    const encoder = await resolveTokenEncoder(model)
-    let flexed = false
 
-    return flexed
+    const { trace, maxTokens } = options || {}
+
+    // collect all notes
+    const nodes: PromptNode[] = []
+    visitNode(root, {
+        node: (n) => {
+            nodes.push(n)
+        },
+    })
+    const totalTokens = nodes.reduce(
+        (total, node) => total + (node.tokens ?? 0),
+        0
+    )
+
+    if (totalTokens < maxTokens) {
+        // no need to flex
+        return
+    }
+
+    // inspired from priompt, prompt-tsx, gpt-4
+    // sort by priority
+    nodes.sort(
+        (a, b) =>
+            (a.priority ?? PRIORITY_DEFAULT) - (b.priority ?? PRIORITY_DEFAULT)
+    )
+    const totalBasis = nodes.reduce(
+        (total, node) => total + (node.flexBasis ?? FLEX_BASIS_DEFAULT),
+        0
+    )
+
+    const totalReserve = 0
+    const totalRemaining = Math.max(0, maxTokens - totalReserve)
+    for (const node of nodes) {
+        const proportion = (node.flexBasis ?? FLEX_BASIS_DEFAULT) / totalBasis
+        const tokenBudget = Math.floor(totalRemaining * proportion)
+        node.maxTokens = tokenBudget
+    }
 }
 
 async function tracePromptNode(
@@ -649,20 +693,23 @@ async function tracePromptNode(
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,
-    options?: TraceOptions
+    options?: { maxTokens?: number } & TraceOptions
 ): Promise<PromptNodeRender> {
-    const { trace } = options || {}
+    const { trace, maxTokens } = options || {}
     const { model } = parseModelIdentifier(modelId)
     const encoder = await resolveTokenEncoder(model)
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
 
+    if (maxTokens)
+        await flexPromptNode(model, node, {
+            ...options,
+            maxTokens,
+        })
+
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
-
-    const flexed = await flexPromptNode(model, node, options)
-    if (flexed) await tracePromptNode(trace, node, { label: "flexed" })
 
     let systemPrompt = ""
     let userPrompt = ""
