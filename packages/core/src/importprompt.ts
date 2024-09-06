@@ -25,6 +25,7 @@ export async function importPrompt(
         "retrieval",
         "fetchText",
         "cancel",
+        "runPrompt",
     ]
 
     const oldGlb: any = {}
