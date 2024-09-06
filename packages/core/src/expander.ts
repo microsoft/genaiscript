@@ -84,7 +84,7 @@ export async function callExpander(
                 chatParticipants: cps,
                 fileOutputs: fos,
             } = await renderPromptNode(model, node, {
-                maxTokens: options.maxTokens,
+                flexTokens: options.flexTokens,
                 trace,
             })
             text = userPrompt
@@ -200,6 +200,11 @@ export async function expandTemplate(
         normalizeInt(env.vars["max_tool_calls"]) ??
         template.maxToolCalls ??
         MAX_TOOL_CALLS
+    const flexTokens =
+        options.flexTokens ??
+        normalizeInt(env.vars["flexTokens"]) ??
+        normalizeInt(env.vars["flex_tokens"]) ??
+        template.flexTokens
     let seed = options.seed ?? normalizeInt(env.vars["seed"]) ?? template.seed
     if (seed !== undefined) seed = seed >> 0
 
@@ -214,6 +219,7 @@ export async function expandTemplate(
         ...options,
         maxTokens,
         maxToolCalls,
+        flexTokens,
         seed,
         topP,
         temperature,

@@ -546,7 +546,10 @@ function truncateText(
     encoder: TokenEncoder
 ): string {
     const tokens = estimateTokens(content, encoder)
-    const end = Math.floor((maxTokens * content.length) / tokens)
+    const end = Math.max(
+        3,
+        Math.floor((maxTokens * content.length) / tokens) - 1
+    )
     return content.slice(0, end) + MAX_TOKENS_ELLIPSE
 }
 
@@ -613,11 +616,11 @@ async function truncatePromptNode(
 
 async function flexPromptNode(
     root: PromptNode,
-    options?: { maxTokens: number } & TraceOptions
+    options?: { flexTokens: number } & TraceOptions
 ): Promise<void> {
     const PRIORITY_DEFAULT = 0
 
-    const { trace, maxTokens } = options || {}
+    const { trace, flexTokens } = options || {}
 
     // collect all notes
     const nodes: PromptNode[] = []
@@ -631,7 +634,7 @@ async function flexPromptNode(
         0
     )
 
-    if (totalTokens < maxTokens) {
+    if (totalTokens < flexTokens) {
         // no need to flex
         return
     }
@@ -646,7 +649,7 @@ async function flexPromptNode(
     const totalFlex = flexNodes.reduce((total, node) => total + node.flex, 0)
 
     const totalReserve = 0
-    const totalRemaining = Math.max(0, maxTokens - totalReserve)
+    const totalRemaining = Math.max(0, flexTokens - totalReserve)
     for (const node of flexNodes) {
         const proportion = node.flex / totalFlex
         const tokenBudget = Math.min(
@@ -654,8 +657,8 @@ async function flexPromptNode(
             Math.floor(totalRemaining * proportion)
         )
         node.maxTokens = tokenBudget
+        trace.log(`flexed ${node.type} to ${tokenBudget} tokens`)
     }
-    console.log(nodes.map((n) => ({ maxTokens: n.maxTokens })))
 }
 
 async function tracePromptNode(
@@ -693,19 +696,19 @@ async function tracePromptNode(
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,
-    options?: { maxTokens?: number } & TraceOptions
+    options?: { flexTokens?: number } & TraceOptions
 ): Promise<PromptNodeRender> {
-    const { trace, maxTokens } = options || {}
+    const { trace, flexTokens } = options || {}
     const { model } = parseModelIdentifier(modelId)
     const encoder = await resolveTokenEncoder(model)
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
 
-    if (maxTokens)
+    if (flexTokens)
         await flexPromptNode(node, {
             ...options,
-            maxTokens,
+            flexTokens,
         })
 
     const truncated = await truncatePromptNode(model, node, options)

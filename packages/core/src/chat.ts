@@ -474,7 +474,7 @@ async function processChatMessage(
                     options.model,
                     node,
                     {
-                        maxTokens: options.maxTokens,
+                        flexTokens: options.flexTokens,
                         trace,
                     }
                 )
