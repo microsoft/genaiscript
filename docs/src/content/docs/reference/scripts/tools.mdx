@@ -50,7 +50,7 @@ that takes a location as input and returns the weather.
 
 This example uses the `current_weather` tool to get the weather for Brussels.
 
-<Code code={weatherScriptSource} wrap={true} lang="js" title="weather.genai.js" />
+<Code code={weatherScriptSource} wrap={true} lang="js" title="weather.genai.mjs" />
 
 ### Math tool example
 
@@ -63,9 +63,9 @@ to evaluate a math expression.
 
 To pick and choose which tools to include in a script,
 you can group them in system scripts. For example,
-the `current_weather` tool can be included the `system.current_weather.genai.js` script.
+the `current_weather` tool can be included the `system.current_weather.genai.mjs` script.
 
-```javascript file="system.current_weather.genai.js" 'defTool("current_weather", ...)'
+```javascript file="system.current_weather.genai.mjs" 'defTool("current_weather", ...)'
 script({
     title: "Get the current weather",
 })
@@ -90,7 +90,7 @@ Let's illustrate how tools come together with a question answering script.
 In the script below, we add the `system.retrieval_web_search` which registers the `retrieval_web_search` tool. This tool
 will call into `retrieval.webSearch` as needed.
 
-```js file="answers.genai.js"
+```js file="answers.genai.mjs"
 script({
     title: "Answer questions",
     system: ["system", "system.retrieval_web_search"]

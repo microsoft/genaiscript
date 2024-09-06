@@ -34,14 +34,14 @@ images and generate a description alt text.
 To start, we assume that the script is run on a single image file
 and we use [defImage](/genaiscript/reference/scripts/images) to add it to the prompt context.
 
-```js title="image-alt-text.genai.js"
+```js title="image-alt-text.genai.mjs"
 const file = env.files[0]
 defImages(file)
 ```
 
 Then we give a task to the LLM to generate a good alt text.
 
-```js title="image-alt-text.genai.js" wrap
+```js title="image-alt-text.genai.mjs" wrap
 ...
 $`You are an expert in assistive technology. You will analyze each image
 and generate a description alt text for the image.`
@@ -50,7 +50,7 @@ and generate a description alt text for the image.`
 finally, we use [defFileOutput](/genaiscript/reference/scripts/file-ouput) to define
 a file output route.
 
-```js title="image-alt-text.genai.js" wrap
+```js title="image-alt-text.genai.mjs" wrap
 ...
 defFileOutput(file.filename + ".txt", `Alt text for image ${file.filename}`)
 ```
@@ -85,7 +85,7 @@ for file in assets/**.png; do
 
 To avoid regenerating the alt text, we also detect if a file exists in the script and cancel accordingly.
 
-```sh title="image-alt-text.genai.js" wrap
+```sh title="image-alt-text.genai.mjs" wrap
 for file in assets/**.png; do
   if [ ! -f "$file" ]; then
     npx --yes genaiscript run image-alt-text "$file"
@@ -97,4 +97,4 @@ done
 
 The full source looks like this:
 
-<Code code={scriptSrc} wrap={true} lang="js" title="image-alt-text.genai.js" />
+<Code code={scriptSrc} wrap={true} lang="js" title="image-alt-text.genai.mjs" />

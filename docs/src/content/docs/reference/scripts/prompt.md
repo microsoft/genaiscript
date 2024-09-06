@@ -13,7 +13,7 @@ genaiscript:
 
 The `$` is a JavaScript [tagged template](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) that expands the string into the final prompt.
 
-```js title="example.genai.js" assistant=false user=true
+```js title="example.genai.mjs" assistant=false user=true
 $`You are a helpful assistant.`
 ```
 
@@ -39,7 +39,7 @@ You are a helpful assistant.
 
 You can weave expressions in the template using `${...}`. Expression can be promises and will be awaited when rendering the final prompt.
 
-```js title="example.genai.js" assistant=false user=true
+```js title="example.genai.mjs" assistant=false user=true
 $`Today is ${new Date().toDateString()}.`
 ```
 

@@ -18,7 +18,7 @@ This feature is experimental and may change in the future.
 
 Let's take a look at an example.
 
-```js title="answer-to-everything.genai.js"
+```js title="answer-to-everything.genai.mjs"
 $`Ultimate answer is to the life, universe 
 and everything is ${AICI.gen({ regex: /\d\d/ })}`
 ```
@@ -55,7 +55,7 @@ And the text output is `42`.
 
 An AICI template should set the `aici` provider in the model identifier.
 
-```js title="answer-to-everything.genai.js"
+```js title="answer-to-everything.genai.mjs"
 script({ ...
     model: "aici:mixtral",
 })

@@ -68,7 +68,7 @@ Markdown is a lightweight markup language created by John Gruber in 2004, known 
 
 <!-- genaiscript output end -->
 
-GenAIScript will execute `summarize.genai.js` and generate the `👤 user` message that will be sent to the LLM chat. It also populates the `env.files` variable with the files selected in the context (from a user UI interaction or CLI arguments).
+GenAIScript will execute `summarize.genai.mjs` and generate the `👤 user` message that will be sent to the LLM chat. It also populates the `env.files` variable with the files selected in the context (from a user UI interaction or CLI arguments).
 
 The LLM responds with the `🤖 assistant` message and GenAIScript parses the output
 to extract structured data.

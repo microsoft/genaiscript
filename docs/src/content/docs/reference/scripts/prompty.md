@@ -41,7 +41,7 @@ user:
 
 ## Running .prompty with GenAIScript
 
-You can run a `.prompty` file from the [cli](/genaiscript/reference/cli) or Visual Studio Code as any other `.genai.js` script.
+You can run a `.prompty` file from the [cli](/genaiscript/reference/cli) or Visual Studio Code as any other `.genai.mjs` script.
 
 GenAIScript will convert the `.prompty` content as a script and execute it. It supports most of the front matter options but mostly ignores the model configuration section.
 

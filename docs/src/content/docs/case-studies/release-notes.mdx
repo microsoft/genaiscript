@@ -32,7 +32,7 @@ We start our script by calling `git` a few times to retreive the previous releas
 the list of commits, the diff since the tag. 
 (This magic was mostly found using a GitHub Copilot Chat session).
 
-```js title="git-release-notes.genai.js" wrap
+```js title="git-release-notes.genai.mjs" wrap
 const { stdout: tag } = await host.exec("git", ["describe", "--tags", "--abbrev=0", "HEAD^",])
 const { stdout: commits } = await host.exec("git", ["log", `HEAD...${tag}`,])
 const { stdout: diff } = await host.exec("git", ["diff", `${tag}..HEAD`,])
@@ -41,7 +41,7 @@ const { stdout: diff } = await host.exec("git", ["diff", `${tag}..HEAD`,])
 We use the `def` function with `maxTokens` to inline this information without exceeding the content window
 of the model (32k input).
 
-```js title="git-release-notes.genai.js" wrap
+```js title="git-release-notes.genai.mjs" wrap
 def("COMMITS", commits, { maxTokens: 4000 })
 def("DIFF", diff, { maxTokens: 20000 })
 ```
@@ -69,7 +69,7 @@ for the upcoming release.
 
 The full script as it is running in GenAIScript is as follows:
 
-<Code code={scriptSrc} wrap={true} lang="js" title="git-release-notes.genai.js" />
+<Code code={scriptSrc} wrap={true} lang="js" title="git-release-notes.genai.mjs" />
 
 ## Release-it integration
 
