@@ -83,7 +83,10 @@ export async function callExpander(
                 outputProcessors: ops,
                 chatParticipants: cps,
                 fileOutputs: fos,
-            } = await renderPromptNode(model, node, { trace })
+            } = await renderPromptNode(model, node, {
+                maxTokens: options.maxTokens,
+                trace,
+            })
             text = userPrompt
             assistantText = assistantPrompt
             images = imgs
@@ -175,7 +178,7 @@ export async function expandTemplate(
     const systems = resolveSystems(prj, template)
     const systemTemplates = systems.map((s) => prj.getTemplate(s))
     // update options
-    options.lineNumbers =
+    const lineNumbers =
         options.lineNumbers ??
         template.lineNumbers ??
         systemTemplates.some((s) => s?.lineNumbers)
@@ -186,7 +189,7 @@ export async function expandTemplate(
         host.defaultModelOptions.temperature
     const topP =
         options.topP ?? normalizeFloat(env.vars["top_p"]) ?? template.topP
-    const max_tokens =
+    const maxTokens =
         options.maxTokens ??
         normalizeInt(env.vars["maxTokens"]) ??
         normalizeInt(env.vars["max_tokens"]) ??
@@ -207,7 +210,15 @@ export async function expandTemplate(
     trace.startDetails("🧬 prompt")
     trace.detailsFenced("📓 script source", template.jsSource, "js")
 
-    const prompt = await callExpander(prj, template, env, trace, options)
+    const prompt = await callExpander(prj, template, env, trace, {
+        ...options,
+        maxTokens,
+        maxToolCalls,
+        seed,
+        topP,
+        temperature,
+        lineNumbers,
+    })
 
     const images = prompt.images
     const schemas = prompt.schemas
@@ -339,7 +350,7 @@ ${schemaTs}
         model,
         temperature,
         topP,
-        max_tokens,
+        maxTokens,
         maxToolCalls,
         seed,
         responseType,

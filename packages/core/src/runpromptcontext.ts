@@ -68,9 +68,8 @@ export function createChatTurnGenerationContext(
                     current.priority = priority
                     return res
                 },
-                flex: (options) => {
-                    const { basis } = options
-                    if (basis !== undefined) current.flexBasis = basis
+                flex: (value) => {
+                    current.flex = value
                     return res
                 },
                 jinja: (data) => {

@@ -710,7 +710,7 @@ interface ContextExpansionOptions {
      * Controls the proportion of tokens allocated from the container's budget to this element.
      * It defaults to 1 on all elements.
      */
-    flexBasis?: number
+    flex?: number
 }
 
 interface DefOptions extends FenceOptions, ContextExpansionOptions, DataFilter {
@@ -1476,13 +1476,8 @@ interface PromptTemplateString {
     priority(value: number): PromptTemplateString
     /**
      * Sets the context layout flex weight
-     * @param weight
      */
-    flex(options: {
-        grow?: number
-        reserve?: number
-        basis?: number
-    }): PromptTemplateString
+    flex(value: number): PromptTemplateString
     /**
      * Applies jinja template to the string lazily
      * @param data jinja data

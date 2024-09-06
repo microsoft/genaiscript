@@ -275,6 +275,7 @@ export async function createPromptContext(
                         messages: msgs,
                         chatParticipants: cps,
                     } = await renderPromptNode(genOptions.model, node, {
+                        maxTokens: genOptions.maxTokens,
                         trace,
                     })
 

@@ -107,7 +107,7 @@ export async function runTemplate(
             statusText,
             temperature,
             topP,
-            max_tokens,
+            maxTokens,
             seed,
             responseType,
             responseSchema,
@@ -164,10 +164,10 @@ export async function runTemplate(
             responseType,
             responseSchema,
             model,
-            temperature: temperature,
-            maxTokens: max_tokens,
-            topP: topP,
-            seed: seed,
+            temperature,
+            maxTokens,
+            topP,
+            seed,
         }
         const fileEdits: Record<string, FileUpdate> = {}
         const changelogs: string[] = []

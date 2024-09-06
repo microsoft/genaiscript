@@ -612,18 +612,16 @@ async function truncatePromptNode(
 }
 
 async function flexPromptNode(
-    model: string,
     root: PromptNode,
     options?: { maxTokens: number } & TraceOptions
 ): Promise<void> {
     const PRIORITY_DEFAULT = 0
-    const FLEX_BASIS_DEFAULT = 1
 
     const { trace, maxTokens } = options || {}
 
     // collect all notes
     const nodes: PromptNode[] = []
-    visitNode(root, {
+    await visitNode(root, {
         node: (n) => {
             nodes.push(n)
         },
@@ -644,18 +642,20 @@ async function flexPromptNode(
         (a, b) =>
             (a.priority ?? PRIORITY_DEFAULT) - (b.priority ?? PRIORITY_DEFAULT)
     )
-    const totalBasis = nodes.reduce(
-        (total, node) => total + (node.flexBasis ?? FLEX_BASIS_DEFAULT),
-        0
-    )
+    const flexNodes = nodes.filter((n) => n.flex !== undefined)
+    const totalFlex = flexNodes.reduce((total, node) => total + node.flex, 0)
 
     const totalReserve = 0
     const totalRemaining = Math.max(0, maxTokens - totalReserve)
-    for (const node of nodes) {
-        const proportion = (node.flexBasis ?? FLEX_BASIS_DEFAULT) / totalBasis
-        const tokenBudget = Math.floor(totalRemaining * proportion)
+    for (const node of flexNodes) {
+        const proportion = node.flex / totalFlex
+        const tokenBudget = Math.min(
+            node.maxTokens ?? Infinity,
+            Math.floor(totalRemaining * proportion)
+        )
         node.maxTokens = tokenBudget
     }
+    console.log(nodes.map((n) => ({ maxTokens: n.maxTokens })))
 }
 
 async function tracePromptNode(
@@ -703,7 +703,7 @@ export async function renderPromptNode(
     await tracePromptNode(trace, node)
 
     if (maxTokens)
-        await flexPromptNode(model, node, {
+        await flexPromptNode(node, {
             ...options,
             maxTokens,
         })
