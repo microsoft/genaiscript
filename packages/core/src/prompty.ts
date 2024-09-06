@@ -33,10 +33,14 @@ export interface PromptyFrontmatter {
             azure_endpoint: string
         }
         parameters?: {
-            response_format: "json_object"
+            response_format?: { type: "json_object" }
             max_tokens?: number
             temperature?: number
             top_p?: number
+            n?: number
+            seed?: number
+            stream?: boolean // ignored
+            tools?: unknown[] // ignored
         }
     }
 
@@ -79,6 +83,9 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
 
     let modelName: string = undefined
     if (api !== "chat") throw new Error("completion api not supported")
+    if (modelParameters?.n > 1) throw new Error("multi-turn not supported")
+    if (modelParameters?.tools?.length)
+        throw new Error("streaming not supported")
     if (configuration?.azure_deployment)
         modelName = `azure:${configuration.azure_deployment}`
     else if (configuration?.type) modelName = `openai:${configuration.type}`
@@ -93,11 +100,12 @@ function promptyFrontmatterToMeta(frontmatter: PromptyFrontmatter): PromptArgs {
         parameters,
         responseType: outputs
             ? "json_object"
-            : modelParameters?.response_format,
+            : modelParameters?.response_format?.type,
         responseSchema: outputs,
         temperature: modelParameters?.temperature,
         maxTokens: modelParameters?.max_tokens,
         topP: modelParameters?.top_p,
+        seed: modelParameters?.seed,
     })
     return meta
 }
