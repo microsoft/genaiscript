@@ -470,16 +470,17 @@ async function processChatMessage(
                 const node = ctx.node
                 checkCancelled(cancellationToken)
                 // expand template
-                const { errors, prompt } = await renderPromptNode(
+                const { errors, userPrompt } = await renderPromptNode(
                     options.model,
                     node,
                     {
+                        flexTokens: options.flexTokens,
                         trace,
                     }
                 )
-                if (prompt?.trim().length) {
-                    trace.detailsFenced(`💬 message`, prompt, "markdown")
-                    messages.push({ role: "user", content: prompt })
+                if (userPrompt?.trim().length) {
+                    trace.detailsFenced(`💬 message`, userPrompt, "markdown")
+                    messages.push({ role: "user", content: userPrompt })
                     needsNewTurn = true
                 } else trace.item("no message")
                 if (errors?.length) {

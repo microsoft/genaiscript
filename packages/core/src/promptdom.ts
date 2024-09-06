@@ -6,7 +6,11 @@ import { estimateTokens } from "./tokens"
 import { MarkdownTrace, TraceOptions } from "./trace"
 import { arrayify, assert, toStringList, trimNewlines } from "./util"
 import { YAMLStringify } from "./yaml"
-import { MARKDOWN_PROMPT_FENCE, PROMPT_FENCE } from "./constants"
+import {
+    MARKDOWN_PROMPT_FENCE,
+    MAX_TOKENS_ELLIPSE,
+    PROMPT_FENCE,
+} from "./constants"
 import { parseModelIdentifier } from "./models"
 import { toChatCompletionUserMessage } from "./chat"
 import { errorMessage } from "./error"
@@ -418,7 +422,7 @@ export async function visitNode(node: PromptNode, visitor: PromptNodeVisitor) {
 }
 
 export interface PromptNodeRender {
-    prompt: string
+    userPrompt: string
     assistantPrompt: string
     images: PromptImage[]
     errors: unknown[]
@@ -536,6 +540,19 @@ async function resolvePromptNode(
     return { errors: err }
 }
 
+function truncateText(
+    content: string,
+    maxTokens: number,
+    encoder: TokenEncoder
+): string {
+    const tokens = estimateTokens(content, encoder)
+    const end = Math.max(
+        3,
+        Math.floor((maxTokens * content.length) / tokens) - 1
+    )
+    return content.slice(0, end) + MAX_TOKENS_ELLIPSE
+}
+
 async function truncatePromptNode(
     model: string,
     node: PromptNode,
@@ -550,6 +567,7 @@ async function truncatePromptNode(
         resolved?: string
         tokens?: number
         maxTokens?: number
+        preview?: string
     }) => {
         if (
             !n.error &&
@@ -557,13 +575,14 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            const value = n.resolved.slice(
-                0,
-                Math.floor((n.maxTokens * n.resolved.length) / n.tokens)
+            n.resolved = n.preview = truncateText(
+                n.resolved,
+                n.maxTokens,
+                encoder
             )
-            n.resolved = value
-            n.tokens = estimateTokens(value, encoder)
+            n.tokens = estimateTokens(n.resolved, encoder)
             truncated = true
+            trace.log(`truncated text to ${n.tokens} tokens`)
         }
     }
 
@@ -574,12 +593,14 @@ async function truncatePromptNode(
             n.maxTokens !== undefined &&
             n.tokens > n.maxTokens
         ) {
-            n.resolved.content = n.resolved.content.slice(
-                0,
-                Math.floor((n.maxTokens * n.resolved.content.length) / n.tokens)
+            n.resolved.content = n.preview = truncateText(
+                n.resolved.content,
+                n.maxTokens,
+                encoder
             )
             n.tokens = estimateTokens(n.resolved.content, encoder)
             truncated = true
+            trace.log(`truncated def ${n.name} to ${n.tokens} tokens`)
         }
     }
 
@@ -591,6 +612,53 @@ async function truncatePromptNode(
     })
 
     return truncated
+}
+
+async function flexPromptNode(
+    root: PromptNode,
+    options?: { flexTokens: number } & TraceOptions
+): Promise<void> {
+    const PRIORITY_DEFAULT = 0
+
+    const { trace, flexTokens } = options || {}
+
+    // collect all notes
+    const nodes: PromptNode[] = []
+    await visitNode(root, {
+        node: (n) => {
+            nodes.push(n)
+        },
+    })
+    const totalTokens = nodes.reduce(
+        (total, node) => total + (node.tokens ?? 0),
+        0
+    )
+
+    if (totalTokens < flexTokens) {
+        // no need to flex
+        return
+    }
+
+    // inspired from priompt, prompt-tsx, gpt-4
+    // sort by priority
+    nodes.sort(
+        (a, b) =>
+            (a.priority ?? PRIORITY_DEFAULT) - (b.priority ?? PRIORITY_DEFAULT)
+    )
+    const flexNodes = nodes.filter((n) => n.flex !== undefined)
+    const totalFlex = flexNodes.reduce((total, node) => total + node.flex, 0)
+
+    const totalReserve = 0
+    const totalRemaining = Math.max(0, flexTokens - totalReserve)
+    for (const node of flexNodes) {
+        const proportion = node.flex / totalFlex
+        const tokenBudget = Math.min(
+            node.maxTokens ?? Infinity,
+            Math.floor(totalRemaining * proportion)
+        )
+        node.maxTokens = tokenBudget
+        trace.log(`flexed ${node.type} to ${tokenBudget} tokens`)
+    }
 }
 
 async function tracePromptNode(
@@ -628,19 +696,26 @@ async function tracePromptNode(
 export async function renderPromptNode(
     modelId: string,
     node: PromptNode,
-    options?: TraceOptions
+    options?: { flexTokens?: number } & TraceOptions
 ): Promise<PromptNodeRender> {
-    const { trace } = options || {}
+    const { trace, flexTokens } = options || {}
     const { model } = parseModelIdentifier(modelId)
     const encoder = await resolveTokenEncoder(model)
 
     await resolvePromptNode(model, node)
     await tracePromptNode(trace, node)
 
+    if (flexTokens)
+        await flexPromptNode(node, {
+            ...options,
+            flexTokens,
+        })
+
     const truncated = await truncatePromptNode(model, node, options)
     if (truncated) await tracePromptNode(trace, node, { label: "truncated" })
 
-    let prompt = ""
+    let systemPrompt = ""
+    let userPrompt = ""
     let assistantPrompt = ""
     const images: PromptImage[] = []
     const errors: unknown[] = []
@@ -655,12 +730,12 @@ export async function renderPromptNode(
         text: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) prompt += value + "\n"
+            if (value != undefined) userPrompt += value + "\n"
         },
         def: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value !== undefined) prompt += renderDefNode(n) + "\n"
+            if (value !== undefined) userPrompt += renderDefNode(n) + "\n"
         },
         assistant: async (n) => {
             if (n.error) errors.push(n.error)
@@ -670,7 +745,7 @@ export async function renderPromptNode(
         stringTemplate: async (n) => {
             if (n.error) errors.push(n.error)
             const value = n.resolved
-            if (value != undefined) prompt += value + "\n"
+            if (value != undefined) userPrompt += value + "\n"
         },
         image: async (n) => {
             if (n.error) errors.push(n.error)
@@ -691,8 +766,8 @@ export async function renderPromptNode(
             const value = n.resolved
             if (value) {
                 for (const [filename, content] of Object.entries(value)) {
-                    prompt += content
-                    prompt += "\n"
+                    userPrompt += content
+                    userPrompt += "\n"
                     if (trace)
                         trace.detailsFenced(
                             `📦 import template ${filename}`,
@@ -727,7 +802,7 @@ export async function renderPromptNode(
 ${trimNewlines(schemaText)}
 \`\`\`
 `
-            prompt += text
+            userPrompt += text
             n.tokens = estimateTokens(text, encoder)
             if (trace && format !== "json")
                 trace.detailsFenced(
@@ -771,7 +846,7 @@ ${trimNewlines(schemaText)}
 
     const fods = fileOutputs?.filter((f) => !!f.description)
     if (fods?.length > 0) {
-        prompt += `
+        userPrompt += `
 ## File generation rules
 
 When generating files, use the following rules which are formatted as "file glob: description":
@@ -782,15 +857,15 @@ ${fods.map((fo) => `   ${fo.pattern}: ${fo.description}`)}
     }
 
     const messages: ChatCompletionMessageParam[] = [
-        toChatCompletionUserMessage(prompt, images),
+        toChatCompletionUserMessage(userPrompt, images),
     ]
     if (assistantPrompt)
         messages.push(<ChatCompletionAssistantMessageParam>{
             role: "assistant",
             content: assistantPrompt,
         })
-    const res = {
-        prompt,
+    const res = <PromptNodeRender>{
+        userPrompt,
         assistantPrompt,
         images,
         schemas,

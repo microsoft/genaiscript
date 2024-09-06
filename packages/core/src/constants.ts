@@ -227,3 +227,5 @@ export const CONSOLE_COLOR_WARNING = 95
 export const CONSOLE_COLOR_ERROR = 91
 
 export const PLAYWRIGHT_DEFAULT_BROWSER = "chromium"
+export const MAX_TOKENS_ELLIPSE = "..."
+export const ESTIMATE_TOKEN_OVERHEAD = 2

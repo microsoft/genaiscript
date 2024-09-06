@@ -264,6 +264,7 @@ export async function parsePromptScript(
             c.checkNumber("temperature")
             c.checkNumber("topP")
             c.checkNumber("seed")
+            c.checkNat("flexTokens")
 
             c.checkStringArray("system")
             c.checkStringArray("files")

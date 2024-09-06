@@ -64,6 +64,14 @@ export function createChatTurnGenerationContext(
             const res: PromptTemplateString = Object.freeze(<
                 PromptTemplateString
             >{
+                priority: (priority) => {
+                    current.priority = priority
+                    return res
+                },
+                flex: (value) => {
+                    current.flex = value
+                    return res
+                },
                 jinja: (data) => {
                     current.transforms.push((t) => jinjaRender(t, data))
                     return res
